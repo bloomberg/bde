@@ -11,6 +11,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_bslexceptionutil.h>
 #include <bsls_platform.h>
+#include <bsls_bsltestutil.h>
 
 #include <cstdio>   // print messages
 #include <cstdlib>  // 'abort'
@@ -43,6 +44,10 @@ enum { PADDING_SIZE = sizeof(bsls::AlignmentUtil::MaxAlignedType) };
                                                     // size of the padding
                                                     // before and after the
                                                     // user segment
+
+#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU  // An alias for a string that can be
+                                       // treated as the "%zu" format
+                                       // specifier (MSVC issue).
 
                         // ===========
                         // struct Link
@@ -154,54 +159,31 @@ void formatInvalidMemoryBlock(Align                *address,
         }
     }
     else if (numBytes <= 0) {
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-        std::printf("*** Invalid (non-positive) byte count %lld at address"
-                    " %p. *** \n",
-                    static_cast<bsls::Types::Int64>(numBytes),
-                    static_cast<void *>(payload));
-#else
-        std::printf("*** Invalid (non-positive) byte count %d at address"
+        std::printf("*** Invalid (non-positive) byte count " ZU " at address"
                     " %p. *** \n",
                     numBytes,
                     static_cast<void *>(payload));
-#endif
     }
     else if (allocator != address->d_object.d_id_p) {
         std::printf("*** Freeing segment at %p from wrong allocator. ***\n",
                     static_cast<void *>(payload));
     }
     else if (underrunBy) {
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-        std::printf("*** Memory corrupted at %d bytes before %lld byte"
-                    " segment at %p. ***\n",
-                    underrunBy,
-                    static_cast<bsls::Types::Int64>(numBytes),
-                    static_cast<void *>(payload));
-#else
-        std::printf("*** Memory corrupted at %d bytes before %d byte"
+        std::printf("*** Memory corrupted at %d bytes before " ZU " byte"
                     " segment at %p. ***\n",
                     underrunBy,
                     numBytes,
                     static_cast<void *>(payload));
-#endif
 
         std::printf("Pad area before user segment:\n");
         formatBlock(payload - PADDING_SIZE, PADDING_SIZE);
     }
     else if (overrunBy) {
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-        std::printf("*** Memory corrupted at %d bytes after %lld byte"
-                    " segment at %p. ***\n",
-                    overrunBy,
-                    static_cast<bsls::Types::Int64>(numBytes),
-                    static_cast<void *>(payload));
-#else
-        std::printf("*** Memory corrupted at %d bytes after %d byte"
+        std::printf("*** Memory corrupted at %d bytes after " ZU " byte"
                     " segment at %p. ***\n",
                     overrunBy,
                     numBytes,
                     static_cast<void *>(payload));
-#endif
 
         std::printf("Pad area after user segment:\n");
         formatBlock(payload + numBytes, PADDING_SIZE);
@@ -566,19 +548,12 @@ void *TestAllocator::allocate(size_type size)
             std::printf(" %s", d_name_p);
         }
 
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-        std::printf(" [%lld]: Allocated %lld byte%sat %p.\n",
-                    allocationIndex,
-                    static_cast<bsls::Types::Int64>(size),
-                    1 == size ? " " : "s ",
-                    address);
-#else
-        std::printf(" [%lld]: Allocated %d byte%sat %p.\n",
+        std::printf(" [%lld]: Allocated " ZU " byte%sat %p.\n",
                     allocationIndex,
                     size,
                     1 == size ? " " : "s ",
                     address);
-#endif
+
         std::fflush(stdout);
     }
 
@@ -723,19 +698,12 @@ void TestAllocator::deallocate(void *address)
             std::printf(" %s", d_name_p);
         }
 
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-        std::printf(" [%lld]: Deallocated %lld byte%sat %p.\n",
-                    allocationIndex,
-                    static_cast<bsls::Types::Int64>(size),
-                    1 == size ? " " : "s ",
-                    address);
-#else
-        std::printf(" [%lld]: Deallocated %d byte%sat %p.\n",
+        std::printf(" [%lld]: Deallocated " ZU " byte%sat %p.\n",
                     allocationIndex,
                     size,
                     1 == size ? " " : "s ",
                     address);
-#endif
+
         std::fflush(stdout);
     }
 
@@ -805,23 +773,17 @@ int TestAllocator::status() const
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

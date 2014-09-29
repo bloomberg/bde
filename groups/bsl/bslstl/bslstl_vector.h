@@ -234,7 +234,7 @@ BSLS_IDENT("$Id: $")
 //      int        d_numColumns;  // number of columns
 //
 //      // FRIENDS
-//      template<class T>
+//      template <class T>
 //      friend bool operator==(const MyMatrix<T>&, const MyMatrix<T>&);
 //
 //    public:
@@ -532,8 +532,16 @@ BSL_OVERRIDES_STD mode"
 #include <bslma_default.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_CONDITIONAL
+#include <bslmf_conditional.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ENABLEIF
 #include <bslmf_enableif.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISFUNCTION
+#include <bslmf_isfunction.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
@@ -566,6 +574,10 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES
@@ -1083,7 +1095,7 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
 
     void push_back(const VALUE_TYPE& value);
         // Append a copy of the specified 'value' at the end of this vector.
-        // This method provides the strong exception safety guarentee, so the
+        // This method provides the strong exception safety guarantee, so the
         // state of this object will not be changed if an exception is thrown
         // (such as when allocating memory, or from operations of
         // 'VALUE_TYPE'). This method requires that the (template parameter)
@@ -1167,14 +1179,14 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
                 size_type         numElements,
                 const VALUE_TYPE& value);
         // Insert at the specified 'position' in this vector a number equal to
-        // the 'numElements' of copies of the specified 'value'.  The behavior
-        // is undefined unless 'position' is an iterator in the range '[
-        // begin(), end() ]' (both endpoints included).  Note that this method
-        // offers full guarantee of rollback in case an exception is throw is
-        // thrown other than by the 'VALUE_TYPE' copy constructor or assignment
-        // operator.  This method requires that the (template parameter) type
-        // 'VALUE_TYPE' be "copy-constructible" (see {Requirements on
-        // 'VALUE_TYPE'}).
+        // the specified 'numElements' of copies of the specified 'value'.  The
+        // behavior is undefined unless 'position' is an iterator in the range
+        // '[ begin(), end() ]' (both endpoints included).  Note that this
+        // method offers full guarantee of rollback in case an exception is
+        // throw is thrown other than by the 'VALUE_TYPE' copy constructor or
+        // assignment operator.  This method requires that the (template
+        // parameter) type 'VALUE_TYPE' be "copy-constructible" (see
+        // {Requirements on 'VALUE_TYPE'}).
 
     template <class INPUT_ITER>
     void insert(const_iterator position, INPUT_ITER first, INPUT_ITER last);
@@ -1877,20 +1889,20 @@ void swap(vector<const VALUE_TYPE *, ALLOCATOR>& a,
                           // class Vector_RangeCheck
                           // =======================
 
-template<class BSLSTL_ITERATOR, bool BSLSTL_NOTSPECIALIZED
+template <class BSLSTL_ITERATOR, bool BSLSTL_NOTSPECIALIZED
                    = BloombergLP::bslmf::IsFundamental<BSLSTL_ITERATOR>::value>
 struct Vector_DeduceIteratorCategory {
     typedef typename bsl::iterator_traits<BSLSTL_ITERATOR>::iterator_category
                                                                           type;
 };
 
-template<class BSLSTL_ITERATOR>
+template <class BSLSTL_ITERATOR>
 struct Vector_DeduceIteratorCategory<BSLSTL_ITERATOR, true> {
     typedef BloombergLP::bslmf::Nil type;
 };
 
 
-template<class BSLSTL_ITERATOR>
+template <class BSLSTL_ITERATOR>
 struct Vector_IsRandomAccessIterator :
     bsl::is_same<
         typename Vector_DeduceIteratorCategory<BSLSTL_ITERATOR>::type,
@@ -1908,7 +1920,7 @@ struct Vector_RangeCheck {
     // inline in the class definition due to a bug in the Microsoft C++
     // compiler (see 'bslmf_enableif').
 
-    template<class BSLSTL_ITERATOR>
+    template <class BSLSTL_ITERATOR>
     static
     typename bsl::enable_if<
            !Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::VALUE, bool>::type
@@ -1919,7 +1931,7 @@ struct Vector_RangeCheck {
         return false;
     }
 
-    template<class BSLSTL_ITERATOR>
+    template <class BSLSTL_ITERATOR>
     static
     typename bsl::enable_if<
            Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::VALUE, bool>::type
@@ -4087,8 +4099,19 @@ inline
 bool operator==(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
                 const vector<const VALUE_TYPE *,ALLOCATOR>& rhs)
 {
+#ifdef BSLS_PLATFORM_CMP_MSVC
+    // MSVC treats function pointers as pointer-to-const types for the purpose
+    // of dispatching this function overload, but not when determining the
+    // partial specialization of 'vector'.
+    typedef typename bsl::conditional<bsl::is_function<VALUE_TYPE>::value,
+                                      void,
+                                      const void>::type VoidType;
+    typedef typename ALLOCATOR::template rebind<VoidType *>::other BaseAlloc;
+    typedef Vector_Imp<VoidType *, BaseAlloc>                      Base;
+#else
     typedef typename ALLOCATOR::template rebind<const void *>::other BaseAlloc;
     typedef Vector_Imp<const void *, BaseAlloc>                      Base;
+#endif
     return operator==(static_cast<const Base&>(lhs),
                       static_cast<const Base&>(rhs));
 }
@@ -4098,8 +4121,19 @@ inline
 bool operator!=(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
                 const vector<const VALUE_TYPE *,ALLOCATOR>& rhs)
 {
+#ifdef BSLS_PLATFORM_CMP_MSVC
+    // MSVC treats function pointers as pointer-to-const types for the purpose
+    // of dispatching this function overload, but not when determining the
+    // partial specialization of 'vector'.
+    typedef typename bsl::conditional<bsl::is_function<VALUE_TYPE>::value,
+                                      void,
+                                      const void>::type VoidType;
+    typedef typename ALLOCATOR::template rebind<VoidType *>::other BaseAlloc;
+    typedef Vector_Imp<VoidType *, BaseAlloc>                      Base;
+#else
     typedef typename ALLOCATOR::template rebind<const void *>::other BaseAlloc;
     typedef Vector_Imp<const void *, BaseAlloc>                      Base;
+#endif
     return operator!=(static_cast<const Base&>(lhs),
                       static_cast<const Base&>(rhs));
 }
@@ -4109,8 +4143,19 @@ inline
 bool operator<(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
                const vector<const VALUE_TYPE *,ALLOCATOR>& rhs)
 {
+#ifdef BSLS_PLATFORM_CMP_MSVC
+    // MSVC treats function pointers as pointer-to-const types for the purpose
+    // of dispatching this function overload, but not when determining the
+    // partial specialization of 'vector'.
+    typedef typename bsl::conditional<bsl::is_function<VALUE_TYPE>::value,
+                                      void,
+                                      const void>::type VoidType;
+    typedef typename ALLOCATOR::template rebind<VoidType *>::other BaseAlloc;
+    typedef Vector_Imp<VoidType *, BaseAlloc>                      Base;
+#else
     typedef typename ALLOCATOR::template rebind<const void *>::other BaseAlloc;
     typedef Vector_Imp<const void *, BaseAlloc>                      Base;
+#endif
     return operator<(static_cast<const Base&>(lhs),
                      static_cast<const Base&>(rhs));
 }
@@ -4120,8 +4165,19 @@ inline
 bool operator>(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
                const vector<const VALUE_TYPE *,ALLOCATOR>& rhs)
 {
+#ifdef BSLS_PLATFORM_CMP_MSVC
+    // MSVC treats function pointers as pointer-to-const types for the purpose
+    // of dispatching this function overload, but not when determining the
+    // partial specialization of 'vector'.
+    typedef typename bsl::conditional<bsl::is_function<VALUE_TYPE>::value,
+                                      void,
+                                      const void>::type VoidType;
+    typedef typename ALLOCATOR::template rebind<VoidType *>::other BaseAlloc;
+    typedef Vector_Imp<VoidType *, BaseAlloc>                      Base;
+#else
     typedef typename ALLOCATOR::template rebind<const void *>::other BaseAlloc;
     typedef Vector_Imp<const void *, BaseAlloc>                      Base;
+#endif
     return operator>(static_cast<const Base&>(lhs),
                      static_cast<const Base&>(rhs));
 }
@@ -4131,8 +4187,19 @@ inline
 bool operator<=(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
                 const vector<const VALUE_TYPE *,ALLOCATOR>& rhs)
 {
+#ifdef BSLS_PLATFORM_CMP_MSVC
+    // MSVC treats function pointers as pointer-to-const types for the purpose
+    // of dispatching this function overload, but not when determining the
+    // partial specialization of 'vector'.
+    typedef typename bsl::conditional<bsl::is_function<VALUE_TYPE>::value,
+                                      void,
+                                      const void>::type VoidType;
+    typedef typename ALLOCATOR::template rebind<VoidType *>::other BaseAlloc;
+    typedef Vector_Imp<VoidType *, BaseAlloc>                      Base;
+#else
     typedef typename ALLOCATOR::template rebind<const void *>::other BaseAlloc;
     typedef Vector_Imp<const void *, BaseAlloc>                      Base;
+#endif
     return operator<=(static_cast<const Base&>(lhs),
                       static_cast<const Base&>(rhs));
 }
@@ -4142,8 +4209,19 @@ inline
 bool operator>=(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
                 const vector<const VALUE_TYPE *,ALLOCATOR>& rhs)
 {
+#ifdef BSLS_PLATFORM_CMP_MSVC
+    // MSVC treats function pointers as pointer-to-const types for the purpose
+    // of dispatching this function overload, but not when determining the
+    // partial specialization of 'vector'.
+    typedef typename bsl::conditional<bsl::is_function<VALUE_TYPE>::value,
+                                      void,
+                                      const void>::type VoidType;
+    typedef typename ALLOCATOR::template rebind<VoidType *>::other BaseAlloc;
+    typedef Vector_Imp<VoidType *, BaseAlloc>                      Base;
+#else
     typedef typename ALLOCATOR::template rebind<const void *>::other BaseAlloc;
     typedef Vector_Imp<const void *, BaseAlloc>                      Base;
+#endif
     return operator>=(static_cast<const Base&>(lhs),
                       static_cast<const Base&>(rhs));
 }
@@ -4166,8 +4244,8 @@ void swap(vector<const VALUE_TYPE *, ALLOCATOR>& a,
 
 // Type traits for STL *sequence* containers:
 //: o A sequence container defines STL iterators.
-//: o A sequence container is bitwise moveable if the allocator is bitwise
-//:     moveable.
+//: o A sequence container is bitwise movable if the allocator is bitwise
+//:     movable.
 //: o A sequence container uses 'bslma' allocators if the parameterized
 //:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
 
@@ -4257,23 +4335,17 @@ extern template class bsl::vector<void *>;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

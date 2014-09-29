@@ -14,6 +14,7 @@
 #include <bsls_alignmentutil.h>
 #include <bsls_objectbuffer.h>
 
+#include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
@@ -56,6 +57,7 @@ using namespace BloombergLP;
 // bslalg::ArrayPrimitives public interface:
 // [ 2] void uninitializedFillN(T *dstB, size_type ne, const T& v, *a);
 // [ 3] void copyConstruct(T *dstB, FWD srcB, FWD srcE, *a);
+// [ 3] void copyConstruct(T *dstB, S *srcB, S *srcE, *a);
 // [  ] void defaultConstruct(T *begin, size_type ne, allocator *a);
 // [ 4] void destructiveMove(T *dstB, T *srcB, T *srcE, *a);
 // [ 6] void destructiveMoveAndInsert(...);
@@ -68,7 +70,8 @@ using namespace BloombergLP;
 // [ 8] void rotate(T *first, T *middle, T *last);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 9] USAGE EXAMPLE
+// [ 9] Hymans's first test case
+// [10] USAGE EXAMPLE
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -325,7 +328,8 @@ class BitwiseMoveableTestType;
 class BitwiseCopyableTestType;
 typedef int (*FuncPtrType)();
 
-template <int ADDITIONAL_FOOTPRINT>  class LargeBitwiseMoveableTestType;
+template <int ADDITIONAL_FOOTPRINT>
+class LargeBitwiseMoveableTestType;
 
 typedef TestType                      T;    // uses 'bslma' allocators
 typedef TestTypeNoAlloc               TNA;  // does not use 'bslma' allocators
@@ -691,8 +695,7 @@ struct ConstructEnabler {
     char d_c;
 
     ConstructEnabler() : d_c(0) {}
-    explicit
-    ConstructEnabler(char ch) : d_c(ch) {}
+    explicit ConstructEnabler(char ch) : d_c(ch) {}
     ConstructEnabler& operator=(char ch)
     {
         d_c = ch;
@@ -728,6 +731,279 @@ struct ConstructEnabler {
         return mfpt;
     }
 };
+
+                           // ===================
+                           // class InputIterator
+                           // ===================
+
+template <class VALUE>
+class InputIterator {
+    // This class provide a STL-conforming input iterator over values used for
+    // testing (see section [24.2.3 input.iterators] of the C++11 standard).
+    // An 'InputIterator' provide access to elements of parameterized type
+    // 'VALUE'.  An iterator is considered dereferenceable if all of the
+    // following are satisfied:
+    //: 1 The iterator refers to a valid element (not 'end').
+    //:
+    //: 2 The iterator has not been dereferenced.
+    //:
+    //: 3 The iterator is not a copy of another iterator of which 'operator++'
+    //:   have been invoked.
+    // An iterator is comparable if the iterator is not a copy of another
+    // iterator of which 'operator++' have been invoked.
+    //
+    // This class is *not* thread-safe: different iterator objects manipulate
+    // shared state without synchronization.  This is rarely a concern for the
+    // test scenarios supported by this component.
+
+    // DATA
+    const VALUE *d_data_p;              // pointer to array of values (held,
+                                        // not owned)
+
+    const VALUE *d_end_p;               // end pointer (held, not owned)
+
+
+  private:
+    // FRIENDS
+    template <class OTHER_VALUE>
+    friend bool operator==(const InputIterator<OTHER_VALUE>&,
+                           const InputIterator<OTHER_VALUE>&);
+
+    template <class OTHER_VALUE>
+    friend bool operator!=(const InputIterator<OTHER_VALUE>&,
+                           const InputIterator<OTHER_VALUE>&);
+
+  public:
+    // TYPES
+    typedef VALUE         value_type;
+    typedef ptrdiff_t     difference_type;
+    typedef const VALUE  *pointer;
+    typedef const VALUE&  reference;
+        // Standard iterator defined types [24.4.2].
+
+  public:
+    // CREATORS
+    InputIterator(const VALUE *object, const VALUE *end);
+        // Create an iterator referring to the specified 'object' for a
+        // container with the specified 'end', with two arrays of boolean
+        // referred to by the specified 'dereferenceable' and 'isValid' to
+        // indicate whether this iterator and its subsequent values until
+        // 'end' is allowed to be dereferenced and is not yet invalidated
+        // respectively.
+
+    InputIterator(const InputIterator& original);
+
+    // MANIPULATORS
+    InputIterator& operator=(const InputIterator& rhs);
+
+    InputIterator& operator++();
+        // Move this iterator to the next element in the container.  Any copies
+        // of this iterator are no longer dereferenceable or comparable.  The
+        // behavior is undefined unless this iterator refers to a valid value
+        // in the container.
+
+    InputIterator operator++(int);
+        // Move this iterator to the next element in the container, and return
+        // an object that can be dereferenced to refer to the same object that
+        // this iterator initially points to.  Any copies of this iterator are
+        // no longer dereferenceable or comparable.  The behavior is undefined
+        // unless this iterator refers to a valid value in the container.
+
+    // ACCESSORS
+    const VALUE& operator *() const;
+        // Return the value referred to by this object.  This object is no
+        // longer dereferenceable after a call to this function.  The behavior
+        // is undefined unless this iterator is dereferenceable.
+
+    const VALUE *operator->() const;
+        // Return the address of the value (of the parameterized 'VALUE_TYPE')
+        // of the element at which this iterator is positioned.  The behavior
+        // is undefined unless this iterator dereferenceable.
+};
+
+template <class VALUE>
+bool operator==(const InputIterator<VALUE>& lhs,
+                const InputIterator<VALUE>& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' iterators refer to the
+    // same element, and 'false' otherwise.  The behavior is undefined unless
+    // 'lhs' and 'rhs' are comparable.
+
+template <class VALUE>
+bool operator!=(const InputIterator<VALUE>& lhs,
+                const InputIterator<VALUE>& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' iterators do *not* refer
+    // to the same element, and 'false' otherwise.  The behavior is undefined
+    // unless 'lhs' and 'rhs' are comparable.
+
+                       // -------------------
+                       // class InputIterator
+                       // -------------------
+
+// CREATORS
+template <class VALUE>
+inline
+InputIterator<VALUE>::InputIterator(const VALUE *object, const VALUE *end)
+: d_data_p(object)
+, d_end_p(end)
+{
+    BSLS_ASSERT_SAFE(object);
+    BSLS_ASSERT_SAFE(end);
+}
+
+template <class VALUE>
+inline
+InputIterator<VALUE>::InputIterator(const InputIterator& original)
+: d_data_p(original.d_data_p)
+, d_end_p(original.d_end_p)
+{
+}
+
+// MANIPULATORS
+template <class VALUE>
+InputIterator<VALUE>&
+InputIterator<VALUE>::operator=(const InputIterator& rhs)
+{
+    d_data_p = rhs.d_data_p;
+    d_end_p  = rhs.d_end_p;
+
+    return *this;
+}
+
+template <class VALUE>
+InputIterator<VALUE>&
+InputIterator<VALUE>::operator++()
+{
+    BSLS_ASSERT_OPT(d_data_p != d_end_p);
+
+    ++d_data_p;
+    return *this;
+}
+
+template <class VALUE>
+InputIterator<VALUE>
+InputIterator<VALUE>::operator++(int)
+{
+    BSLS_ASSERT_OPT(d_data_p != d_end_p);
+
+    InputIterator<VALUE> result(*this);
+    this->operator++();
+    return result;
+}
+
+// ACCESSORS
+template <class VALUE>
+inline
+const VALUE& InputIterator<VALUE>::operator *() const
+{
+    BSLS_ASSERT_OPT(d_data_p != d_end_p);
+
+    return *d_data_p;
+}
+
+template <class VALUE>
+inline
+const VALUE *InputIterator<VALUE>::operator->() const
+{
+    BSLS_ASSERT_OPT(d_data_p != d_end_p);
+
+    return d_data_p;
+}
+
+// FREE OPERATORS
+template <class VALUE>
+inline
+bool operator==(const InputIterator<VALUE>& lhs,
+                const InputIterator<VALUE>& rhs)
+{
+    return lhs.d_data_p == rhs.d_data_p;
+}
+
+template <class VALUE>
+inline
+bool operator!=(const InputIterator<VALUE>& lhs,
+                const InputIterator<VALUE>& rhs)
+{
+    return !(lhs == rhs);
+}
+
+                       // ==============================
+                       // class AmbiguousConvertibleType
+                       // ==============================
+
+struct AmbiguousConvertibleType {
+    // This type contains a 'FuncPtrType'. We wish to test how ArrayPrimitives
+    // will handle a user-defined type with defined conversions to both a
+    // function pointer type and to 'void *'.
+
+    // DATA
+    FuncPtrType d_f;
+
+    AmbiguousConvertibleType() : d_f(&funcTemplate<0>) {}
+    explicit
+    AmbiguousConvertibleType(FuncPtrType f) : d_f(f) {}
+    AmbiguousConvertibleType& operator=(FuncPtrType rhs)
+    {
+        d_f = rhs;
+        return *this;
+    }
+
+    operator FuncPtrType() const
+    {
+        return d_f;
+    }
+
+    operator void *() const
+    {
+        return reinterpret_cast<void *>(d_f);
+    }
+};
+
+void setValue(AmbiguousConvertibleType *f, char ch)
+{
+    f->d_f = funcPtrArray[ch];
+}
+
+char getValue(const AmbiguousConvertibleType& f)
+{
+    return f.d_f();
+}
+
+                         // ==========================
+                         // class FnPtrConvertibleType
+                         // ==========================
+
+struct FnPtrConvertibleType {
+    // This type contains a 'FuncPtrType'. We wish to test how ArrayPrimitives
+    // will handle user-defined type with a defined conversion to a function
+    // pointer type.
+
+    // DATA
+    FuncPtrType d_f;
+
+    FnPtrConvertibleType() : d_f(&funcTemplate<0>) {}
+    explicit
+    FnPtrConvertibleType(FuncPtrType f) : d_f(f) {}
+    FnPtrConvertibleType& operator=(FuncPtrType rhs)
+    {
+        d_f = rhs;
+        return *this;
+    }
+
+    operator FuncPtrType() const
+    {
+        return d_f;
+    }
+};
+
+void setValue(FnPtrConvertibleType *f, char ch)
+{
+    f->d_f = funcPtrArray[ch];
+}
+
+char getValue(const FnPtrConvertibleType& f)
+{
+    return f.d_f();
+}
 
                                // ==============
                                // class TestType
@@ -804,7 +1080,8 @@ class TestType {
     }
 
     // ACCESSORS
-    char datum() const {
+    char datum() const
+    {
         return *d_data_p;
     }
 
@@ -823,8 +1100,8 @@ class TestType {
 namespace BloombergLP {
 namespace bslma {
 template <> struct UsesBslmaAllocator<TestType> : bsl::true_type {};
-}
-}
+}  // close traits namespace
+}  // close enterprise namespace
 
 bool operator==(const TestType& lhs, const TestType& rhs)
 {
@@ -832,6 +1109,12 @@ bool operator==(const TestType& lhs, const TestType& rhs)
     ASSERT(isalpha(rhs.datum()));
 
     return lhs.datum() == rhs.datum();
+}
+
+bool operator==(const FnPtrConvertibleType& lhs,
+                const FnPtrConvertibleType& rhs)
+{
+    return lhs.d_f == rhs.d_f;
 }
 
                        // =====================
@@ -976,8 +1259,8 @@ template <> struct UsesBslmaAllocator<BitwiseMoveableTestType>
 namespace bslmf {
 template <> struct IsBitwiseMoveable<BitwiseMoveableTestType>
     : bsl::true_type {};
-}
-}
+}  // close traits namespace
+}  // close enterprise namespace
 
                        // =============================
                        // class BitwiseCopyableTestType
@@ -1025,7 +1308,7 @@ class BitwiseCopyableTestType : public TestTypeNoAlloc {
 namespace bsl {
 template <> struct is_trivially_copyable<BitwiseCopyableTestType>
     : true_type {};
-}
+}  // close namespace 'bsl'
 
                        // ==================================
                        // class LargeBitwiseMoveableTestType
@@ -1100,14 +1383,14 @@ namespace bslma {
 template <int FOOTPRINT>
 struct UsesBslmaAllocator<LargeBitwiseMoveableTestType<FOOTPRINT> >
     : bsl::true_type {};
-}
+}  // close traits namespace
 
 namespace bslmf {
 template <int FOOTPRINT>
 struct IsBitwiseMoveable<LargeBitwiseMoveableTestType<FOOTPRINT> >
     : bsl::true_type {};
-}
-}
+}  // close traits namespace
+}  // close enterprise namespace
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -1160,13 +1443,15 @@ class CleanupGuard {
     }
 
     // MANIPULATORS
-    void release(const char *newSpec) {
+    void release(const char *newSpec)
+    {
         d_spec_p = newSpec;
         d_length = strlen(newSpec);
         d_endPtr_p = 0;
     }
 
-    void setLength(int length) {
+    void setLength(int length)
+    {
         d_length = length;
     }
 };
@@ -2887,6 +3172,124 @@ void testCopyConstruct(bool, // bitwiseMoveableFlag
     }
 }
 
+template <class TYPE>
+void testCopyConstructWithIterators(bool, // bitwiseMoveableFlag
+                                    bool bitwiseCopyableFlag,
+                                    bool exceptionSafetyFlag = false)
+{
+    const int MAX_SIZE = 16;
+    static union {
+        char                                d_raw[MAX_SIZE * sizeof(TYPE)];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
+    } u;
+    TYPE *buf = (TYPE *) (void *) &u.d_raw[0];
+
+    if (verbose) printf("\t\tfrom same type.\n");
+
+    for (int ti = 0; ti < NUM_DATA_3; ++ti) {
+        const int         LINE = DATA_3[ti].d_lineNum;
+        const char *const SPEC = DATA_3[ti].d_spec;
+        const int         SRC  = DATA_3[ti].d_src;
+        const int         NE   = DATA_3[ti].d_ne;
+        const int         DST  = DATA_3[ti].d_dst;
+        const char *const EXP  = DATA_3[ti].d_expected;
+        ASSERT(MAX_SIZE >= (int)std::strlen(SPEC));
+
+        if (veryVerbose) {
+            printf("LINE = %d, SPEC = %s, SRC = %d, "
+                   "NE = %d, DST = %d, EXP = %s\n",
+                   LINE, SPEC, SRC, NE, DST, EXP);
+        }
+        gg(buf, SPEC);  verify(buf, SPEC);
+
+        const int NUM_COPIES = numCopyCtorCalls;
+        const int NUM_CTORS  = numCharCtorCalls;
+
+        if (exceptionSafetyFlag) {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
+                Obj::copyConstruct(&buf[DST], &buf[SRC], &buf[SRC + NE], Z);
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+            if (veryVerbose) printf("\n");
+        } else {
+            InputIterator<TYPE> begin(&buf[SRC], &buf[SRC + NE]);
+            InputIterator<TYPE> end(&buf[SRC + NE], &buf[SRC + NE]);
+
+            Obj::copyConstruct(&buf[DST], begin, end, Z);
+        }
+
+        if (veryVerbose) {
+            printf("LINE = %d, #copy ctors = %d, #char ctors = %d.\n",
+                   LINE,
+                   numCopyCtorCalls - NUM_COPIES,
+                   numCharCtorCalls - NUM_CTORS);
+        }
+        if (bitwiseCopyableFlag) {
+            ASSERT(NUM_COPIES == numCopyCtorCalls);
+            ASSERT(NUM_CTORS  == numCharCtorCalls);
+        }
+        else {
+            ASSERT(NUM_COPIES + NE <= numCopyCtorCalls);
+            ASSERT(NUM_CTORS       == numCharCtorCalls);
+        }
+        verify(buf, EXP);
+        cleanup(buf, EXP);
+    }
+
+    if (verbose) printf("\t\tfrom different type.\n");
+
+    for (int ti = 0; ti < NUM_DATA_3; ++ti) {
+        const int         LINE = DATA_3[ti].d_lineNum;
+        const char *const SPEC = DATA_3[ti].d_spec;
+        const int         SRC  = DATA_3[ti].d_src;
+        const int         NE   = DATA_3[ti].d_ne;
+        const int         DST  = DATA_3[ti].d_dst;
+        const char *const EXP  = DATA_3[ti].d_expected;
+        ASSERT(MAX_SIZE >= (int)std::strlen(SPEC));
+
+        enum { SPEC_CE_LEN = 20 };
+        ASSERT(SPEC_CE_LEN > std::strlen(SPEC));
+
+        ConstructEnabler specCe[SPEC_CE_LEN];
+        for (const char *pc = SPEC; *pc; ++pc) {
+            specCe[pc - SPEC] = *pc;
+        }
+
+        if (veryVerbose) {
+            printf("LINE = %d, SPEC = %s, SRC = %d, "
+                   "NE = %d, DST = %d, EXP = %s\n",
+                   LINE, SPEC, SRC, NE, DST, EXP);
+        }
+        gg(buf, SPEC);  verify(buf, SPEC);
+
+        const int NUM_COPIES = numCopyCtorCalls;
+        const int NUM_CTORS  = numCharCtorCalls;
+
+        if (exceptionSafetyFlag) {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
+                Obj::copyConstruct(&buf[DST],
+                                   &specCe[SRC],
+                                   &specCe[SRC + NE],
+                                   Z);
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+            if (veryVerbose) printf("\n");
+        } else {
+            Obj::copyConstruct(&buf[DST], &specCe[SRC], &specCe[SRC + NE], Z);
+        }
+
+        if (veryVerbose) {
+            printf("LINE = %d, #copy ctors = %d, #char ctors = %d.\n",
+                   LINE,
+                   numCopyCtorCalls - NUM_COPIES,
+                   numCharCtorCalls - NUM_CTORS);
+        }
+        ASSERT(NUM_COPIES     == numCopyCtorCalls);
+//      ASSERT(NUM_CTORS + NE <= numCharCtorCalls);
+
+        verify(buf, EXP);
+        cleanup(buf, EXP);
+    }
+}
+
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR CASE 2
 //-----------------------------------------------------------------------------
@@ -3051,6 +3454,126 @@ void testUninitializedFillNBCT(TYPE value)
 }
 
 //=============================================================================
+//                         HYMAN'S TEST TYPES
+//-----------------------------------------------------------------------------
+struct Base {
+    int x;
+   
+    Base()
+    : x('a') {
+    }
+};
+
+struct Derived : Base {
+    int y;
+   
+    Derived()
+    : Base()
+    , y('b') {
+    }
+};
+
+#if 0
+template <class T, size_t N>
+struct HI : public bsl::iterator<bsl::random_access_iterator_tag, T>
+{
+    static const size_t SIDE = size_t(1) << N;
+    static const size_t SIZE = SIDE * SIDE;
+
+    T *p;
+    size_t d;
+
+    explicit HI(T *p = 0, size_t d = SIZE) : p(p), d(d) { }
+    HI(const HI& o) : p(o.p), d(o.d) { }
+
+    size_t htoi() const
+    {
+        size_t x = 0, y = 0, t = d;
+        for (size_t s = 1; s < SIDE; s *= 2) {
+            size_t rx = 1 & (t / 2);
+            size_t ry = 1 & (t ^ rx);
+            if (ry == 0) {
+                if (rx == 1) {
+                    x = s - 1 - x;
+                    y = s - 1 - y;
+                }
+                size_t z = x;
+                x = y;
+                y = z;
+            }
+            x += s * rx;
+            y += s * ry;
+            t /= 4;
+        }
+        return y * SIDE + x;
+    }
+
+    T &operator*()  const { return p[htoi()];  }
+    T *operator->() const { return p + htoi(); }
+
+    HI& operator++() { ++d; return *this; }
+    HI& operator--() { --d; return *this; }
+
+    HI  operator++(int) { HI t(p, d); ++d; return t; }
+    HI  operator--(int) { HI t(p, d); --d; return t; }
+
+    HI& operator+=(ptrdiff_t n) { d += n; return *this; }
+    HI& operator-=(ptrdiff_t n) { d -= n; return *this; }
+
+    HI  operator+ (ptrdiff_t n) const { return HI(p, d + n); }
+    HI  operator- (ptrdiff_t n) const { return HI(p, d - n); }
+
+    ptrdiff_t operator-(const HI& o) const { return d - o.d; }
+
+    T &operator[](ptrdiff_t n) const { return *(*this + n); }
+
+    operator T*()   const { return p + htoi(); }
+        // Conversion operator to confuse badly written traits code.
+};
+
+template <class T, size_t N>
+inline
+bool operator< (const HI<T, N>& l, const HI<T, N>& r)
+{
+    return (l.p < r.p) || (l.p == r.p && l.d < r.d);
+}
+
+template <class T, size_t N>
+inline
+bool operator>=(const HI<T, N>& l, const HI<T, N>& r)
+{
+    return !(l <  r);
+}
+
+template <class T, size_t N>
+inline
+bool operator> (const HI<T, N>& l, const HI<T, N>& r)
+{
+    return !(l <= r);
+}
+
+template <class T, size_t N>
+inline
+bool operator<=(const HI<T, N>& l, const HI<T, N>& r)
+{
+    return !(l >  r);
+}
+
+template <class T, size_t N>
+inline
+bool operator==(const HI<T, N>& l, const HI<T, N>& r)
+{
+    return !(l < r) && !(r < l);
+}
+
+template <class T, size_t N>
+inline
+bool operator!=(const HI<T, N>& l, const HI<T, N>& r)
+{
+    return !(l == r);
+}
+#endif
+//=============================================================================
 //                          GAUNTLET MACRO
 // Passed 'func', which should be a template of a function whose single
 // template parameter is the type to be stored into the array, and which takes
@@ -3135,6 +3658,15 @@ void testUninitializedFillNBCT(TYPE value)
         if (verbose) printf("\t...with 'const int *'.\n");                    \
         func<const int *>(true, true);                                        \
                                                                               \
+        if (verbose) printf("\t...with 'FuncPtrType'.\n");                    \
+        func<FuncPtrType>(true, true);                                        \
+                                                                              \
+        if (verbose) printf("\t with 'FnPtrConvertibleType'.\n");             \
+        func<FnPtrConvertibleType>(true, true);                               \
+                                                                              \
+        if (verbose) printf("\t with 'AmbiguousConvertibleType'.\n");         \
+        func<AmbiguousConvertibleType>(true, true);                           \
+                                                                              \
         if (verbose) printf("\tException test.\n");                           \
         func<T>(false, false, true);                                          \
     } while (false)
@@ -3159,7 +3691,7 @@ int main(int argc, char *argv[])
     Z = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -3204,6 +3736,89 @@ int main(int argc, char *argv[])
             ASSERT(u[i] == DATA[i]);
         }
       } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING HYMAN'S TEST CASE 1
+        //
+        // Concerns
+        //: 1 A range of derived objects is correctly sliced when copied into
+        //:   an array of base objects.
+        //: 2 A range of derived objects is correctly sliced when inserted into
+        //:   an array of base objects.
+        //: 3 It does not matter whether the source-range is described by a
+        //:   pair of pointers, or a pair of user-defined iterators.
+        //
+        // Plan:
+        //
+        // Testing:
+        //   Hyman's first test case
+        // --------------------------------------------------------------------
+        BSLMF_ASSERT(!(bslalg::ArrayPrimitives_CanBitwiseCopy<Derived,
+                                                              Base>::value));
+                  
+        Derived derivedArray[10] = {};
+        Derived *begin = derivedArray;
+        Derived *end = begin + 10;
+
+        {
+            bsls::ObjectBuffer<Base[10]> baseArray;
+            bslalg::ArrayPrimitives::copyConstruct(
+                                                 &baseArray.object()[0],
+                                                  begin,
+                                                  end,
+                                                  bslma::Default::allocator());
+
+            for (unsigned i = 0; i < 10; ++i) {
+                ASSERTV(i, baseArray.object()[i].x,
+                        baseArray.object()[i].x == 'a');
+            }
+        }
+
+        {
+            bsls::ObjectBuffer<Base[10]> baseArray;
+            bslalg::ArrayPrimitives::insert(&baseArray.object()[0],
+                                            &baseArray.object()[0],
+                                             begin,
+                                             end,
+                                             10,
+                                             bslma::Default::allocator());
+
+            for (unsigned i = 0; i < 10; ++i) {
+                ASSERTV(i, baseArray.object()[i].x,
+                        baseArray.object()[i].x == 'a');
+            }
+        }
+
+        {
+            bsls::ObjectBuffer<Base[10]> baseArray;
+            bslalg::ArrayPrimitives::copyConstruct(
+                                           &baseArray.object()[0],
+                                            InputIterator<Derived>(begin, end),
+                                            InputIterator<Derived>(end, end),
+                                            bslma::Default::allocator());
+
+            for (unsigned i = 0; i < 10; ++i) {
+                ASSERTV(i, baseArray.object()[i].x,
+                        baseArray.object()[i].x == 'a');
+            }
+        }
+
+        {
+            bsls::ObjectBuffer<Base[10]> baseArray;
+            bslalg::ArrayPrimitives::insert(
+                                           &baseArray.object()[0],
+                                           &baseArray.object()[0],
+                                            InputIterator<Derived>(begin, end),
+                                            InputIterator<Derived>(end, end),
+                                            10,
+                                            bslma::Default::allocator());
+
+            for (unsigned i = 0; i < 10; ++i) {
+                ASSERTV(i, baseArray.object()[i].x,
+                        baseArray.object()[i].x == 'a');
+            }
+        }
+      } break;
       case 8: {
         // --------------------------------------------------------------------
         // TESTING 'rotate'
@@ -3212,7 +3827,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Select size of range to rotate and all possible positions.
-        //   Due to the use of gcd in the implementation, try all sizes <= 6,
+        //   Due to the use of 'gcd' in the implementation, try all sizes <= 6,
         //   and in addition, for a small set of larger prime and non-prime
         //   sizes, try different positions in the range (relatively prime and
         //   non prime).
@@ -3365,12 +3980,14 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   void copyConstruct(T *dstB, FWD srcB, FWD srcE, *a);
+        //   void copyConstruct(T *dstB, S *srcB, S *srcE, *a);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'copyConstruct'"
                             "\n=======================\n");
 
         GAUNTLET(testCopyConstruct);
+        GAUNTLET(testCopyConstructWithIterators);
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -3516,10 +4133,10 @@ int main(int argc, char *argv[])
         //   It is unclear which of the implementations is the best for the
         //   'uninitializedFillN' algorithms.
         //
-        // Plan:  Time all three implementations (exponential memcpy, memcpy
-        //   by blocks of 32 bytes, or single loop) for various fundamental
-        //   types and taking care to separate the care where 'memset' can be
-        //   used (also time this fourth implementation).
+        // Plan:  Time all three implementations (exponential 'memcpy',
+        //   'memcpy' by blocks of 32 bytes, or single loop) for various
+        //   fundamental types and taking care to separate the care where
+        //   'memset' can be used (also time this fourth implementation).
         //
         // Testing:
         //   uninitializedFillN(char *,...);
@@ -3795,23 +4412,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

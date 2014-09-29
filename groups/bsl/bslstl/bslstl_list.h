@@ -2015,14 +2015,16 @@ list<VALUE, ALLOCATOR>::size_ref() const
 // 23.3.5.2 construct/copy/destroy:
 template <class VALUE, class ALLOCATOR>
 list<VALUE, ALLOCATOR>::list(const ALLOCATOR& basicAllocator)
-: d_alloc_and_size(basicAllocator, 0)
+: d_sentinel()
+, d_alloc_and_size(basicAllocator, 0)
 {
     create_sentinel();
 }
 
 template <class VALUE, class ALLOCATOR>
 list<VALUE, ALLOCATOR>::list(size_type n)
-: d_alloc_and_size(ALLOCATOR(), size_type(-1))
+: d_sentinel()
+, d_alloc_and_size(ALLOCATOR(), size_type(-1))
 {
     // '*this' is in an invalid but destructible state (size == -1).
 
@@ -2043,7 +2045,8 @@ template <class VALUE, class ALLOCATOR>
 list<VALUE, ALLOCATOR>::list(size_type n,
                              const VALUE& value,
                              const ALLOCATOR& basicAllocator)
-: d_alloc_and_size(basicAllocator, size_type(-1))
+: d_sentinel()
+, d_alloc_and_size(basicAllocator, size_type(-1))
 {
     // '*this' is in an invalid but destructible state (size == -1).
 
@@ -2055,7 +2058,8 @@ list<VALUE, ALLOCATOR>::list(size_type n,
 
 template <class VALUE, class ALLOCATOR>
 list<VALUE, ALLOCATOR>::list(const list& original)
-: d_alloc_and_size(
+: d_sentinel()
+, d_alloc_and_size(
       AllocTraits::select_on_container_copy_construction(original.allocator()),
       size_type(-1))
 {
@@ -2073,7 +2077,8 @@ list<VALUE, ALLOCATOR>::list(const list& original)
 template <class VALUE, class ALLOCATOR>
 list<VALUE, ALLOCATOR>::list(const list&      original,
                              const ALLOCATOR& basicAllocator)
-: d_alloc_and_size(basicAllocator, size_type(-1))
+: d_sentinel()
+, d_alloc_and_size(basicAllocator, size_type(-1))
 {
     // '*this' is in an invalid but destructible state (size == -1).
 
@@ -2089,7 +2094,8 @@ list<VALUE, ALLOCATOR>::list(const list&      original,
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 template <class VALUE, class ALLOCATOR>
 list<VALUE, ALLOCATOR>::list(list&& original)
-: d_alloc_and_size(original.allocator(), 0)
+: d_sentinel()
+, d_alloc_and_size(original.allocator(), 0)
 {
     // Allocator should be copied, not moved, to ensure identical allocators
     // between this and 'original', otherwise 'swap' will be undefined.
@@ -2100,7 +2106,8 @@ list<VALUE, ALLOCATOR>::list(list&& original)
 
 template <class VALUE, class ALLOCATOR>
 list<VALUE, ALLOCATOR>::list(list&& original, const ALLOCATOR& basicAllocator)
-: d_alloc_and_size(basicAllocator, size_type(-1))
+: d_sentinel()
+, d_alloc_and_size(basicAllocator, size_type(-1))
 {
     // '*this' is in an invalid but destructible state (size == -1).
 
@@ -3229,23 +3236,17 @@ void bsl::swap(list<VALUE, ALLOCATOR>& lhs, list<VALUE, ALLOCATOR>& rhs)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

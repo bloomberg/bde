@@ -26,7 +26,7 @@ used to configure and build the BDE repository:
 1. From the root of this source repository, run:
 
    ```shell
-   python waf configure
+   waf configure
    ```
 
 2. To build the libraries, but not the test drivers, run:
@@ -56,7 +56,7 @@ repositories, please see
 
 License
 -------
-The BDE libraries are distributed under a simple MIT-style license; see the LICENSE file at the top of the source tree for more information.
+The BDE libraries are distributed under the Apache License (version 2.0); see the LICENSE file at the top of the source tree for more information.
 
 Question, Comments and Feedback
 ===============================
