@@ -594,7 +594,7 @@ struct TestWithoutVersion {
             // Return the maximum valid BDEX format version, as indicated by
             // the specified 'versionSelector', to be passed to the
             // 'bdexStreamOut' method.  Note that the 'versionSelector' is
-            // expected to be formatted as 'yyyymmdd', a date representation.
+            // expected to be formatted as "YYYYMMDD", a date representation.
             // See the 'bslx' package-level documentation for more information
             // on BDEX streaming of value-semantic types and containers.
 

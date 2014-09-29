@@ -14,10 +14,10 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslx_byteinstream
 //
-//@DESCRIPTION: This component, 'bslx::ByteOutStream', implements a
-// byte-array-based output stream class that provides platform-independent
-// output methods ("externalization") on values, and arrays of values, of
-// fundamental types, and on 'bsl::string'.
+//@DESCRIPTION: This component implements a byte-array-based output stream
+// class, 'bslx::ByteOutStream', that provides platform-independent output
+// methods ("externalization") on values, and arrays of values, of fundamental
+// types, and on 'bsl::string'.
 //
 // This component is intended to be used in conjunction with the
 // 'bslx_byteinstream' "unexternalization" component.  Each output method of
@@ -72,16 +72,16 @@ BSLS_IDENT("$Id: $")
 // BDEX provides two concepts that support versioning the BDEX serialization
 // format of a type: 'version' and 'versionSelector'.  A 'version' is a 0 based
 // enumeration of the supported formats (e.g., format 0, format 1, etc.).  A
-// 'serializationVersion' is a value which is mapped to the maximum supported
+// 'versionSelector' is a value which is mapped to the maximum supported
 // 'version' for a component by the component's implementation of
 // 'bdexMaxSupportedVersion'.  Whenever a new 'version' format is implemented
 // within the 'bdexStreamOut' method of a component, a new entry in
 // 'maxSupportedBdexVersion' should be created to expose this new 'version'
-// with a 'serializationVersion' no less than the greatest used
-// 'serializationVersion' throughout the code base.  A simple approach is to
-// use the value 'yyyymmdd', where 'yyyymmdd' corresponds to the implementation
-// date, for the 'versionSelector'.  Any value used as a 'versionSelector' must
-// be a *compile*-time selected value to avoid errors.  See the 'bslx'
+// with a 'versionSelector' no less than the greatest used 'versionSelector'
+// throughout the code base.  A simple approach is to use the value "YYYYMMDD",
+// where "YYYYMMDD" corresponds to the implementation date, for the
+// 'versionSelector'.  Any value used as a 'versionSelector' must be a
+// *compile*-time-selected value to avoid errors.  See the 'bslx'
 // package-level documentation for more detailed information about versioning.
 //
 ///Usage
@@ -154,6 +154,14 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLX_MARSHALLINGUTIL
+#include <bslx_marshallingutil.h>
+#endif
+
+#ifndef INCLUDED_BSLX_OUTSTREAMFUNCTIONS
+#include <bslx_outstreamfunctions.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -164,14 +172,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
-#endif
-
-#ifndef INCLUDED_BSLX_MARSHALLINGUTIL
-#include <bslx_marshallingutil.h>
-#endif
-
-#ifndef INCLUDED_BSLX_OUTSTREAMFUNCTIONS
-#include <bslx_outstreamfunctions.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES
@@ -239,23 +239,23 @@ class ByteOutStream {
     explicit ByteOutStream(int               versionSelector,
                            bslma::Allocator *basicAllocator = 0);
         // Create an empty output byte stream that will use the specified
-        // (*compile*-time defined) 'versionSelector' as needed (see
+        // (*compile*-time-defined) 'versionSelector' as needed (see
         // {Versioning}).  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.  Note that the 'versionSelector' is expected to
-        // be formatted as 'yyyymmdd', a date representation.
+        // be formatted as "YYYYMMDD", a date representation.
 
     ByteOutStream(int               versionSelector,
                   int               initialCapacity,
                   bslma::Allocator *basicAllocator = 0);
         // Create an empty output byte stream having an initial buffer capacity
         // of at least the specified 'initialCapacity' (in bytes) and that will
-        // use the specified (*compile*-time defined) 'versionSelector' as
+        // use the specified (*compile*-time-defined) 'versionSelector' as
         // needed (see {Versioning}).  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator is used.  The behavior is undefined
         // unless '0 <= initialCapacity'.  Note that the 'versionSelector' is
-        // expected to be formatted as 'yyyymmdd', a date representation.
+        // expected to be formatted as "YYYYMMDD", a date representation.
 
     ~ByteOutStream();
         // Destroy this object.

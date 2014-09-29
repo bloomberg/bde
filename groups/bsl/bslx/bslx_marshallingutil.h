@@ -14,8 +14,8 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslx_byteinstream, bslx_byteoutstream
 //
-//@DESCRIPTION: This component, 'bslx::MarshallingUtil', provides a
-// byte-array-based implementation for a suite of marshalling functions used to
+//@DESCRIPTION: This component provides a byte-array-based implementation,
+// 'bslx::MarshallingUtil', for a suite of marshalling functions used to
 // convert values (and arrays of values) of the following fundamental integer
 // and floating-point types:
 //..

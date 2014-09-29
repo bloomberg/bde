@@ -14,8 +14,8 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslx_byteoutstream
 //
-//@DESCRIPTION: This component, 'bslx::ByteInStream', implements a
-// byte-array-based input stream class that provides platform-independent input
+//@DESCRIPTION: This component implements a byte-array-based input stream
+// class, 'bslx::ByteInStream', that provides platform-independent input
 // methods ("unexternalization") on values, and arrays of values, of
 // fundamental types, and on 'bsl::string'.
 //
@@ -104,7 +104,7 @@ BSLS_IDENT("$Id: $")
 //          // Return the maximum valid BDEX format version, as indicated by
 //          // the specified 'versionSelector', to be passed to the
 //          // 'bdexStreamOut' method.  Note that the 'versionSelector' is
-//          // expected to be formatted as 'yyyymmdd', a date representation.
+//          // expected to be formatted as "YYYYMMDD", a date representation.
 //          // See the 'bslx' package-level documentation for more information
 //          // on BDEX streaming of value-semantic types and containers.
 //
