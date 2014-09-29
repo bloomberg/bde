@@ -440,31 +440,32 @@
  'versionSelector' is a value that is mapped to the maximum supported 'version'
  for a type by the type's implementation of 'maxSupportedBdexVersion'.
  Whenever a new 'version' format is implemented within the 'bdexStreamOut'
- method of a type, a new entry in 'maxSupportedBdexVersion' should be created
+ method of a type, a new mapping in 'maxSupportedBdexVersion' should be created
  to expose this new 'version' with a 'versionSelector' no less than the
  greatest used 'versionSelector' throughout the code base.  A simple approach
- is to use the value "YYYYMMDD", where "YYYYMMDD" corresponds to the
- implementation date, for the 'versionSelector'.
+ is to use a value having the pattern "YYYYMMDD", where "YYYYMMDD" corresponds
+ to the implementation date of the corresponding 'version' format.
 
  Clients streaming out a type with BDEX create a stream and supply a
  'versionSelector':
   ..
     MyObject foo( /* some value */ );
-    bslx::ByteOutStream stream(20140725);   // The date on which this code was
-                                            // written.
+    bslx::ByteOutStream stream(20140725);   // The minimum date that will
+                                            // result in all streamed types
+                                            // using the correct versions
+                                            // during externalization.
     stream << foo;
   ..
  Notice that the 'versionSelector' is a *compile*-time-selected value (in this
- case the date at which the code was written) that can be mapped to the
- serialization format version of the types being serialized.  Specifying
- future dates or allowing a run-time selection of 'versionSelector' is error
- prone: tasks exchanging serialized data are often compiled and deployed at
- different times, which would result in serialization errors if they were
- selecting a serialization version at run-time (there is no guarantee the
- receiver has been rebuilt to accept the updated format version).  Typically,
- during initial development the output stream will be constructed with the
- fixed value of "YYYYMMDD" corresponding to the current date and this value
- will not be changed in future releases.
+ case the minimum date that will result in all streamed types using the correct
+ versions during externalization) that can be mapped to the serialization
+ format version of the types being serialized.  The receiver of this
+ information must support all these versions as well.  Specifying future dates
+ or allowing a run-time selection of 'versionSelector' is error prone: tasks
+ exchanging serialized data are often compiled and deployed at different times,
+ which would result in serialization errors if they were selecting a
+ serialization version at run-time (there is no guarantee the receiver has been
+ rebuilt to accept the updated format version).
 
  For an example, assume the 'MyPoint' class is determined to need 64-bit
  storage for the coordinate values.  The new 'bdexStreamOut' code might be
