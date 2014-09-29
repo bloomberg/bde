@@ -18,9 +18,9 @@ using namespace BloombergLP;
 using namespace bsl;
 using namespace bslx;
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
 // We are testing a "test" implementation of the BDEX unexternalization
@@ -42,7 +42,7 @@ using namespace bslx;
 // goal by configuring test input stream objects with varying input limit
 // values and invoke each input method repeatedly to ensure that exceptions are
 // thrown when expected.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 3] TestInStream();
 // [ 3] TestInStream(const char *buffer, int numBytes);
 // [ 3] TestInStream(const bslstl::StringRef& srcData);
@@ -109,17 +109,17 @@ using namespace bslx;
 // [31] TestInStream& operator>>(TestInStream&, TYPE& value);
 // [32] BSLX_TESTINSTREAM_EXCEPTIONTEST_BEGIN(BSLX_TESTINSTREAM)
 // [32] BSLX_TESTINSTREAM_EXCEPTIONTEST_END
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [33] USAGE TEST
 // [ 1] BREATHING TEST
 // [ 2] int g(Out* o, const char* spec);
 // [27] Ensure every input method correctly modifies the input limit and throws
 //      an exception when the input limit is exceeded.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-//=============================================================================
+// ============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace {
 
@@ -136,9 +136,9 @@ void aSsErT(int c, const char *s, int i)
 
 }  // close unnamed namespace
 
-//=============================================================================
+// ============================================================================
 //                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
@@ -168,9 +168,9 @@ void aSsErT(int c, const char *s, int i)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
-//=============================================================================
+// ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 #define INT8_FL   "\xe0"
 #define INT8_BYTE "e0"
@@ -259,9 +259,9 @@ struct InputLimitTestTable {
 // static int globalVerbose;
 static int globalVeryVerbose;
 
-//=============================================================================
+// ============================================================================
 //                    GENERATOR FUNCTION 'g' FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // The following function interprets the given 'spec' in order from left to
 // right to configure a 'bslx::TestOutStream' object according to a custom
 // language.  The language consists of letters in the ranges [A-T] and [a-t],
@@ -346,7 +346,7 @@ static int globalVeryVerbose;
 //              first three elements of 'VG' with 'putArrayInt32(VG, 3)', and
 //              'VH[1]' with 'putUint32'
 //
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int g(Out *o, const char *spec) {
     // int verbose = globalVerbose;
@@ -443,9 +443,9 @@ int g(Out *o, const char *spec) {
     return 1;
 }
 
-//=============================================================================
+// ============================================================================
 //                    FUNCTION 'testGetArray' FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // The function 'testGetArray' is a generic, templatized function to test array
 // input methods of various data types.  The function accepts an array of
 // vectors having the structure defined by 'ArrayTestTable' (see above) as its
@@ -468,7 +468,7 @@ int g(Out *o, const char *spec) {
 // element values of the input array is verified to be unchanged, and that the
 // stream becomes invalid.  Note that error messages from the stream object is
 // displayed only in "veryVerbose" mode.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 template <class ElemType, class FuncPtr>
 void testGetArray(const ArrayTestTable *data,
@@ -581,9 +581,9 @@ void testGetArray(const ArrayTestTable *data,
 
 }
 
-//=============================================================================
+// ============================================================================
 //                    FUNCTION 'testGetScalar' FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // The function 'testGetScalar' is a generic, templatized function to test
 // scalar input methods of various data types.  The function accepts an array
 // of vectors having the structure defined by 'ScalarTestTable' (see above) as
@@ -601,7 +601,7 @@ void testGetArray(const ArrayTestTable *data,
 // the invalid data, the value of the input variable is verified to be
 // unchanged, and that the stream becomes invalid.  Note that error messages
 // from the stream object is displayed only in "veryVerbose" mode.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 template <class ElemType, class FuncPtr>
 void testGetScalar(const ScalarTestTable<ElemType> *data,
@@ -677,9 +677,9 @@ void testGetScalar(const ScalarTestTable<ElemType> *data,
     }
 }
 
-//=============================================================================
+// ============================================================================
 //                FUNCTION 'testGetArrayInputLimit' FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // The function 'testGetArrayInputLimit' is a generic, templatized function to
 // test the behavior of array input methods with varying stream input limit
 // values.  The function accepts as its test data an array of vectors having
@@ -697,7 +697,7 @@ void testGetScalar(const ScalarTestTable<ElemType> *data,
 // non-negative input limit has been exceeded and an exception has been thrown,
 // subsequent input method invocations do not throw unless the input limit is
 // updated with a non-negative value.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 template <class ElemType, class FuncPtr>
 void testGetArrayInputLimit(const InputLimitTestTable *data,
@@ -784,9 +784,9 @@ void testGetArrayInputLimit(const InputLimitTestTable *data,
 #endif
 }
 
-//=============================================================================
+// ============================================================================
 //               FUNCTION 'testGetScalarInputLimit' FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // The function 'testGetScalarInputLimit' is a generic, templatized function to
 // test the behavior of scalar input methods with varying stream input limit
 // values.  The function accepts as its test data an array of vectors having
@@ -804,7 +804,7 @@ void testGetArrayInputLimit(const InputLimitTestTable *data,
 // non-negative input limit has been exceeded and an exception has been thrown,
 // subsequent input method invocations do not throw unless the input limit is
 // updated with a non-negative value.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 template <class ElemType>
 void testGetScalarInputLimit(const InputLimitTestTable        *data,
@@ -887,9 +887,9 @@ void testGetScalarInputLimit(const InputLimitTestTable        *data,
 #endif
 }
 
-//=============================================================================
+// ============================================================================
 //               STRUCT 'ForEachIn<LIST, N>' FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template <typename LIST, int N = LIST::LENGTH>
 struct ForEachIn {
     // The struct 'ForEachIn' is a generic, templatized structure that
@@ -919,9 +919,9 @@ struct ForEachIn {
     }
 };
 
-//=============================================================================
+// ============================================================================
 //               STRUCT 'ForEachIn<LIST, 0>' FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template <typename LIST>
 struct ForEachIn<LIST, 0> {
     // Partial specialization of struct 'ForEachIn' for N = 0
@@ -933,9 +933,9 @@ struct ForEachIn<LIST, 0> {
     }
 };
 
-//=============================================================================
+// ============================================================================
 //               STRUCT 'GetScalar' FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template <typename ElemType,
           Obj& (Obj::*getFunc)(ElemType&),
           TypeCode::Enum tc>
@@ -955,9 +955,9 @@ struct GetScalar {
     }
 };
 
-//=============================================================================
+// ============================================================================
 //               STRUCT 'GetArray' FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template <typename ElemType,
           Obj& (Obj::*getFunc)(ElemType*, int),
           TypeCode::Enum tc,
@@ -984,9 +984,9 @@ struct GetArray {
     }
 };
 
-//=============================================================================
+// ============================================================================
 //                                 USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 ///Usage
 ///-----
@@ -1216,9 +1216,9 @@ struct GetArray {
        return !(lhs == rhs);
    }
 
-//=============================================================================
+// ============================================================================
 //                                MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
     int test = argc > 1 ? atoi(argv[1]) : 0;

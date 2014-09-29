@@ -17,9 +17,9 @@ using namespace BloombergLP;
 using namespace bsl;
 using namespace bslx;
 
-//=============================================================================
+// ============================================================================
 //                              TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
 // For all input methods in 'ByteInStream', the "unexternalization" from byte
@@ -35,7 +35,7 @@ using namespace bslx;
 // that the extracted values and marker bytes equal to their respective chosen
 // values.  After all values are extracted, we verify that the stream is valid,
 // empty, and the cursor is properly placed.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 2] ByteInStream();
 // [ 2] ByteInStream(const char *buffer, int numBytes);
 // [ 2] ByteInStream(const bslstl::StringRef& srcData);
@@ -96,11 +96,11 @@ using namespace bslx;
 //
 // [ 4] ostream& operator<<(ostream& stream, const ByteInStream& obj);
 // [28] ByteInStream& operator>>(ByteInStream&, TYPE& value);
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [29] THIRD-PARTY EXTERNALIZATION
 // [30] USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -149,9 +149,9 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
-//=============================================================================
+// ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 typedef ByteInStream Obj;
 typedef ByteOutStream Out;
@@ -164,9 +164,9 @@ const int SIZEOF_INT8    = 1;
 const int SIZEOF_FLOAT64 = 8;
 const int SIZEOF_FLOAT32 = 4;
 
-//=============================================================================
+// ============================================================================
 //                      GLOBAL TEST CLASSES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace ThirdParty {
 
@@ -259,9 +259,9 @@ int maxSupportedBdexVersion(const MyStruct::EnumValue *,
 }  // close ThirdParty namespace
 
 
-//=============================================================================
+// ============================================================================
 //                                 USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 ///Usage
 ///-----
@@ -488,9 +488,9 @@ int maxSupportedBdexVersion(const MyStruct::EnumValue *,
         return !(lhs == rhs);
     }
 
-//=============================================================================
+// ============================================================================
 //                                 MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

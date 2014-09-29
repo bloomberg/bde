@@ -19,9 +19,9 @@ using namespace BloombergLP;
 using namespace bsl;
 using namespace bslx;
 
-//=============================================================================
+// ============================================================================
 //                              TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
 // We are testing a "test" implementation of the BDEX 'OutStream' protocol.
@@ -39,7 +39,7 @@ using namespace bslx;
 // Note that byte alignment testing is automatically performed by the property
 // that each output method inserts an odd number of "informational" bytes into
 // the stream.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 2] TestOutStream(int sV, *ba = 0);
 // [ 2] TestOutStream(int sV, int initialCapacity, *ba = 0);
 // [ 2] ~TestOutStream();
@@ -96,10 +96,10 @@ using namespace bslx;
 //
 // [ 5] ostream& operator<<(ostream& stream, const TestOutStream&);
 // [27] TestOutStream& operator<<(TestOutStream&, const TYPE& value);
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [28] USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -148,9 +148,9 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
-//=============================================================================
+// ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // Type codes from 'bslx::TypeCode' as bytes in string representation
 #define INT8_TC    "\xe0"
@@ -197,9 +197,9 @@ const int SIZEOF_FLOAT32 = 4;
 const int SIZEOF_CODE    = SIZEOF_INT8;
 const int SIZEOF_ARRLEN  = SIZEOF_INT32;
 
-//=============================================================================
+// ============================================================================
 //                                MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -370,7 +370,6 @@ int main(int argc, char *argv[])
         {
             bsl::vector<int> value;
             for (int i = 0; i < 5; ++i) {
-                if (veryVerbose) {}
                 Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
 
                 Obj expected(VERSION_SELECTOR);
@@ -4097,7 +4096,6 @@ int main(int argc, char *argv[])
         for (int iLen = 0; iLen < NUM_TEST; iLen++) {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             for (int j = 0; j < iLen; j++) {
-                if (veryVerbose) {}
                 mX.putInt8(j);
             }
 
@@ -4112,7 +4110,6 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting bdexVersionSelector()." << endl;
 
         for (int i = 0; i < 5; ++i) {
-            if (veryVerbose) {}
             Obj x(VERSION_SELECTOR + i);
             LOOP_ASSERT(i, VERSION_SELECTOR + i == x.bdexVersionSelector());
         }
@@ -4405,7 +4402,6 @@ int main(int argc, char *argv[])
                 Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
 
                 for (int j = 0; j < iLen; j++) {
-                    if (veryVerbose) {}
                     mX.putInt8(j);
                 }
                 mX.reset();
@@ -4413,7 +4409,6 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(iLen, 0 == X.length());
 
                 for (int j = 0; j < iLen; j++) {
-                    if (veryVerbose) {}
                     mX.putInt8(j);
                 }
                 mX.invalidate();
