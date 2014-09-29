@@ -160,6 +160,22 @@ int main(int argc, char* argv[])
                     "BDLDFP_INTELIMPWRAPPER_FAKE_DEFINE_LINUX still declared");
         #endif
 
+        // The Intel library was defining some constants that we do not want
+        // polluting our global namespace.  We must test that those constants
+        // are no longer '#define'ed.
+
+        #ifdef P7
+        ASSERT(false && "P7 still declared");
+        #endif
+
+        #ifdef P16
+        ASSERT(false && "P16 still declared");
+        #endif
+
+        #ifdef P34
+        ASSERT(false && "P34 still declared");
+        #endif
+
         #ifndef BID_BIG_ENDIAN
         ASSERT(false && "BID_BIG_ENDIAN setting for Intel was not defined.");
         #else
