@@ -1,3 +1,9 @@
+bsl-internal (2.22.0.8) unstable; urgency=low
+
+  * b5b2e85 [APPROVAL] pending/master/resolve_ambiguous_assign_drqs57251422 to releases/2.22.x
+
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Mon, 29 Sep 2014 19:01:08 -0400
+
 bsl-internal (2.22.0.7) unstable; urgency=low
 
   * 168e9cf [APPROVAL] origin/review/undef-P7-in-bdldfp-drqs-57209949 to releases/2.22.x
