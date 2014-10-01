@@ -3,7 +3,7 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <inttypes.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
@@ -16,7 +16,6 @@
 #endif
 
 using namespace BloombergLP;
-using namespace std;
 using namespace bsls;
 
 //=============================================================================
@@ -105,7 +104,7 @@ const int TESTSIZE = 10;
 const int TESTSIZE = 100;
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CMP_GNU) && !defined(BSLS_PLATFORM_CMP_CLANG)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wlarger-than="
 #endif
@@ -152,17 +151,11 @@ int64_t getTimer()
     const int64_t M = 1000000;
     result = (static_cast<int64_t>(rawTime.tv_sec) * M + rawTime.tv_usec) * K;
 #else
-
-    const unsigned int k_TicksPerSecond       = 10000000;
-    const unsigned int k_NanosecondsPerTick   = 100;
-    const uint64_t     k_TicksToWindowsEpoch
-                                          = 11644473600LL * k_TicksPerSecond;
-                                        // Windows epoch starts from Jan 1 1601
-                                        // the offset is 11644473600 seconds
+    const unsigned int k_NANOSECONDS_PER_TICK = 100;
 
     ULARGE_INTEGER fileTime;
     GetSystemTimeAsFileTime(reinterpret_cast<FILETIME *>(&fileTime));
-    result = static_cast<int64_t>(fileTime.QuadPart * kNanoSecondsPerTick);ck);
+    result = static_cast<int64_t>(fileTime.QuadPart * k_NANOSECONDS_PER_TICK);
 #endif
 
     return result;
@@ -642,17 +635,31 @@ int main(int argc, char *argv[])
         // TESTING TEST-MACHINERY: 'Stopwatch'
         //
         // Concerns:
-        //: 1 That 'Stopwatch' is created in a STOPPED state.
+        //: 1 That 'Stopwatch' is created in a STOPPED state with an elapsed
+        //:   time of 0.
         //:
         //: 2 That 'start' puts the stopwatch in a RUNNING state
         //:
         //: 3 That 'stop' puts the soptwatch in a STOPPED state and recurds
         //:   the accumuted time.
         //:
-        //: 3 That 'elaspsedTiem' returns the correct elapsed time in
+        //: 4 That 'elaspsedTime' returns the correct elapsed time in
         //:   nanoseconds.
+        //:
+        //: 5 That 'reset' resets the 'Stopwatch' to its defualt constructed
+        //:   state.
         //
         // Plan:
+        //: 1 Construct a 'Stopwatch' and verify 'isRunning' is 'false' and
+        //:   'elapsedTime' is 0. (C-1)
+        //:
+        //: 2 Construct a 'Stopwatch', call 'start', sleep for ~1 second and
+        //:   verify 'isRunning' it 'true' and 'elapsedTime' is ~1 second.
+        //:
+        //: 2 Construct a 'Stopwatch', call 'start', sleep for ~1 second and
+        //:   then stop the 'Stopwatch'.  Sleep another second. Verify 
+        //:   'isRunning' it 'false', 'elapsedTime' is ~1, and that the elapsed
+        //:   time has not changed since the stopwatch was stopped.
         //
         // Testing:
         //   TESTING TEST-MACHINERY: 'Stopwatch'
@@ -711,6 +718,11 @@ int main(int argc, char *argv[])
                     EXPECTED + EXPECTED * .00001 > ACTUAL);
             ASSERTV(X.elapsedTime(), 1 - TOLERANCE <  X.elapsedTime());
             ASSERTV(X.elapsedTime(), 1 + TOLERANCE >  X.elapsedTime());
+            
+            mX.reset();
+            
+            ASSERT(false == X.isRunning());
+            ASSERT(0     == X.elapsedTime());
         }
       } break;
       case -1: {
