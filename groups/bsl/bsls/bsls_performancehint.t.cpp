@@ -115,7 +115,7 @@ volatile int array2[SIZE]; // for 'addWithPrefetch'
 volatile int array3[SIZE]; // for 'addWithoutPrefetch
 volatile int array4[SIZE]; // for 'addWithoutPrefetch
 
-#if defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CMP_GNU) && !defined(BSLS_PLATFORM_CMP_CLANG)
 #pragma GCC diagnostic pop
 #endif
 
