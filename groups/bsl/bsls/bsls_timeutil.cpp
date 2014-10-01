@@ -32,7 +32,9 @@ namespace BloombergLP {
 
 namespace {
 
+
 #ifdef BSLS_PLATFORM_OS_UNIX
+
 struct UnixTimerUtil {
     // Provides access to UNIX process user and system timers.
 
@@ -50,22 +52,25 @@ struct UnixTimerUtil {
   public:
     // CLASS METHODS
     static void initialize();
-        // Ensure all the fields are initialized (currently only the
-        // 's_ticksPerSecond' value above).
+        // Initialize the static data used by 'UnixTimerUtil' (currently only
+        // the 's_ticksPerSecond' value above).
 
     static bsls::Types::Int64 systemTimer();
         // Return converted to nanoseconds current value of system time as
-        // returned by times() if the call succeeds, and zero otherwise.
+        // returned by times() if the call succeeds, and zero otherwise.  The
+        // behavior is undefined unless 'initialize' has been called.
 
     static bsls::Types::Int64 userTimer();
         // Return converted to nanoseconds current value of user time as
-        // returned by times() if the call succeeds, and zero otherwise.
+        // returned by times() if the call succeeds, and zero otherwise.  The
+        // behavior is undefined unless 'initialize' has been called.
 
     static void processTimers(bsls::Types::Int64 *systemTimer,
                               bsls::Types::Int64 *userTimer);
         // Return converted to nanoseconds current values of system and user
         // times as returned by times() if the call succeeds, and zero values
-        // otherwise
+        // otherwise.  The behavior is undefined unless 'initialize' has been
+        // called.
 };
 
 bsls::AtomicOperations::AtomicTypes::Int64
@@ -188,28 +193,32 @@ struct WindowsTimerUtil {
   public:
     // CLASS METHODS
     static void initialize();
-        // Ensure all the fields are initialized (currently the 's_initialTime'
-        // and the 's_timerFrequency' values above).
+        // Initialize the static data used by 'WindowsTimeUtil' (currently the
+        // 's_initialTime' and the 's_timerFrequency' values).
 
     static bsls::Types::Int64 systemTimer();
         // Return converted to nanoseconds current value of kernel (system)
         // time as returned by GetProcessTimes() if the call succeeds, and zero
-        // otherwise.
+        // otherwise.  The behavior is undefined unless 'initialize' has been
+        // called.
 
     static bsls::Types::Int64 userTimer();
         // Return converted to nanoseconds current value of user time as
         // returned by GetProcessTimes() if the call succeeds, and zero
-        // otherwise.
+        // otherwise.  The behavior is undefined unless 'initialize' has been
+        // called.
 
     static void processTimers(bsls::Types::Int64 *systemTimer,
                               bsls::Types::Int64 *userTimer);
         // Return converted to nanoseconds current value of kernel (system) and
         // user times as returned by GetProcessTimes() if the call succeeds,
-        // and zero otherwise.
+        // and zero otherwise.  The behavior is undefined unless 'initialize'
+        // has been called.
 
     static bsls::Types::Int64 wallTimer();
         // Return converted to nanoseconds current value of wall time as per
-        // Windows hardware timer, if available, uses ::ftime otherwise.
+        // Windows hardware timer, if available, uses ::ftime otherwise.  The
+        // behavior is undefined unless 'initialize' has been called.
 
     static bsls::Types::Int64 getTimerRaw();
         // Return a machine-dependent value representing the current time.
@@ -217,17 +226,19 @@ struct WindowsTimerUtil {
         // conventional units (nanoseconds).  This method is intended to
         // facilitate accurate timing of small segments of code, and care must
         // be used in interpreting the results.  Note that this method is
-        // thread-safe only if 'initialize' has been called before.
+        // thread-safe only if 'initialize' has been called before.  The
+        // behavior is undefined unless 'initialize' has been called.
 
     static bsls::Types::Int64 convertRawTime(bsls::Types::Int64 rawTime);
         // Convert the specified 'rawTime' to a value in nanoseconds,
         // referenced to an arbitrary but fixed origin, and return the result
         // of the conversion.  Note that this method is thread-safe only if
-        // 'initialize' has been called before.
+        // 'initialize' has been called before.  The behavior is undefined
+        // unless 'initialize' has been called.
 };
 
 bsls::AtomicOperations::AtomicTypes::Int
-                                     WindowsTimerUtil::s_initRequired   = {1};
+                                     WindowsTimerUtil::s_initRequired   = { 1};
 bsls::AtomicOperations::AtomicTypes::Int64
                                      WindowsTimerUtil::s_initialTime    = {-1};
 bsls::AtomicOperations::AtomicTypes::Int64
@@ -476,41 +487,42 @@ struct MachTimerUtil {
 
   private:
     // CLASS DATA
-    static bsls::AtomicOperations::AtomicTypes::Int  s_initRequired;
+    static bsls::AtomicOperations::AtomicTypes::Int  
+                                         s_initRequired;
 
-    static bsls::Types::Int64                        s_initialTime;
-                                                // initial time for the
-                                                // Mach hardware
-                                                // timer
+    static bsls::Types::Int64            s_initialTime;
+                                              // initial time for the Mach
+                                              // hardware timer
 
-    static mach_timebase_info_data_t                 s_timeBase;
-                                                // time base used to
-                                                // scale the absolute
-                                                // raw timer values
+    static mach_timebase_info_data_t     s_timeBase;
+                                              // time base used to scale the
+                                              // absolute raw timer values
 
   public:
     // CLASS METHODS
     static void initialize();
-        // Ensure all the fields are initialized (currently the 's_initialTime'
-        // and the 's_timeBase' values above).
+        // Initialize the static data used by 'MachTimerUtil' (currently the
+        // 's_initialTime' and the 's_timeBase' values).
 
     static bsls::Types::Int64 getTimerRaw();
         // Return a machine-dependent value representing the current time.
         // 'timeValue' must be converted by the 'convertRawTime' method to
         // conventional units (nanoseconds).  This method is intended to
         // facilitate accurate timing of small segments of code, and care must
-        // be used in interpreting the results.  Note that this method is
+        // be used in interpreting the results.  The behavior is undefined
+        // unless 'initialize' has been called.  Note that this method is
         // thread-safe only if 'initialize' has been called before.
 
     static bsls::Types::Int64 convertRawTime(bsls::Types::Int64 rawTime);
         // Convert the specified 'rawTime' to a value in nanoseconds,
         // referenced to an arbitrary but fixed origin, and return the result
-        // of the conversion.  Note that this method is thread-safe only if
+        // of the conversion.  The behavior is undefined unless 'initialize'
+        // has been called.  Note that this method is thread-safe only if
         // 'initialize' has been called before.
 };
 
 bsls::AtomicOperations::AtomicTypes::Int
-                                     MachTimerUtil::s_initRequired   = {1};
+                                     MachTimerUtil::s_initRequired   = { 1};
 bsls::Types::Int64                   MachTimerUtil::s_initialTime    = {-1};
 mach_timebase_info_data_t            MachTimerUtil::s_timeBase;
 
@@ -540,6 +552,9 @@ void MachTimerUtil::initialize()
 
         (void) mach_timebase_info(&s_timeBase);
 
+        BSLS_TIMEUTIL_ASSERT(0 < s_timeBase.numer);
+        BSLS_TIMEUTIL_ASSERT(0 < s_timeBase.denom);
+
         bsls::AtomicOperations::setIntRelease(&s_initRequired, 0);
     }
 }
@@ -566,15 +581,14 @@ bsls::Types::Int64 MachTimerUtil::convertRawTime(bsls::Types::Int64 rawTime)
     // In practice, it is not expected that multiplying 'rawTime' by
     // 's_timeBase.numer' will overflow an Int64.  The 'numer' and
     // 'denom' values have been observed to both be 1 on a late model
-    // laptop.  Just to be safe, the overflow is checked in safe builds.
-    //
-    // The built-in compiler intrinsic '__builtin_clzll' is used to count
-    // the bits required to multiply the two operands without overflow.
+    // laptop and mac mini.  Just to be safe, the overflow is checked in safe
+    // builds.
 
-    BSLS_TIMEUTIL_ASSERT(
-        (64 - __builtin_clzll(rawTime)) +
-        (64 - __builtin_clzll((bsls::Types::Int64) s_timeBase.numer)) <= 64);
+    // Compare against 'LLONG_MIN', in case rawTime is 'LLONG_MIN'.
+    // Note that we previously assert (were it is initialized) that
+    // 's_timeBase.numer > 0'.
 
+    BSLS_TIMEUTIL_ASSERT(LLONG_MIN / s_timeBase.numer <= -abs(rawTime));
     #endif
 
     return rawTime * s_timeBase.numer / s_timeBase.denom;
