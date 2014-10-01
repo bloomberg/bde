@@ -26,6 +26,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #elif defined(BSLS_PLATFORM_OS_DARWIN)
     #include <stdlib.h>         // abort()
     #include <mach/mach_time.h> // mach_absolute_time(), mach_timebase_info()
+    #include <limits.h>         // LLONG_MIN
 #endif
 
 namespace BloombergLP {
@@ -571,7 +572,7 @@ bsls::Types::Int64 MachTimerUtil::convertRawTime(bsls::Types::Int64 rawTime)
     __int128 result = (__int128) rawTime *
                       (__int128) s_timeBase.numer /
                       (__int128) s_timeBase.denom;
-    return (bsls::Types::Int64) result;
+    return static_cast<bsls::Types::Int64>(result);
 
 #else // !__SIZEOF_INT128__
 
@@ -584,11 +585,8 @@ bsls::Types::Int64 MachTimerUtil::convertRawTime(bsls::Types::Int64 rawTime)
     // laptop and mac mini.  Just to be safe, the overflow is checked in safe
     // builds.
 
-    // Compare against 'LLONG_MIN', in case rawTime is 'LLONG_MIN'.
-    // Note that we previously assert (were it is initialized) that
-    // 's_timeBase.numer > 0'.
-
-    BSLS_TIMEUTIL_ASSERT(LLONG_MIN / s_timeBase.numer <= -abs(rawTime));
+    BSLS_TIMEUTIL_ASSERT(LLONG_MAX / s_timeBase.numer >= rawTime &&
+                         LLONG_MIN / s_timeBase.numer <= rawTime);
     #endif
 
     return rawTime * s_timeBase.numer / s_timeBase.denom;
