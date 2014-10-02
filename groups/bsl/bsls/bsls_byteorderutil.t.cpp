@@ -2,8 +2,11 @@
 
 #include <bsls_byteorderutil.h>
 
+#include <bsls_assert.h>         // for testing only
 #include <bsls_bsltestutil.h>    // for testing only
+#include <bsls_stopwatch.h>      // for testing only
 
+#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <limits>
@@ -184,6 +187,37 @@ void swapBytesInPlace(TYPE *value)
         *head = *tail;
         *tail = tmp;
     }
+}
+
+inline
+unsigned short
+myGenericSwap16(unsigned short x)
+{
+    return static_cast<unsigned short>((x >> 8) | (x << 8));
+}
+
+inline
+unsigned int
+myGenericSwap32(unsigned int x)
+{
+    return ( x               << 24)
+         | ((x & 0x0000ff00) <<  8)
+         | ((x & 0x00ff0000) >>  8)
+         | ( x               >> 24);
+}
+
+inline
+bsls::Types::Uint64
+myGenericSwap64(bsls::Types::Uint64 x)
+{
+    return ( x                         << 56)
+         | ((x & 0x000000000000ff00LL) << 40)
+         | ((x & 0x0000000000ff0000LL) << 24)
+         | ((x & 0x00000000ff000000LL) <<  8)
+         | ((x & 0x000000ff00000000LL) >>  8)
+         | ((x & 0x0000ff0000000000LL) >> 24)
+         | ((x & 0x00ff000000000000LL) >> 40)
+         | ( x                         >> 56);
 }
 
 }  // close unnamed namespace
@@ -986,7 +1020,160 @@ int main(int argc, char *argv[])
       default: {
         std::fprintf(stderr, "WARNING: CASE '$d' NOT FOUND.\n");
         testStatus = -1;
-      }
+      } break;
+      case -1: {
+        // --------------------------------------------------------------------
+        // PERFORMANCE SPEED TRIALS
+        //
+        // Concerns:
+        //   Evaluate the performance of the swap functions.
+        //
+        // Plan:
+        //   Repeatedly evaluate the 'swapBytes' function, and use 'StopWatch'
+        //   to evaluate how quickly they run.
+        // --------------------------------------------------------------------
+
+        if (verbose) std::printf("\nPERFORMANCE SPEED TRIALS\n"
+                                   "========================\n");
+
+        unsigned int intTotal = 0;
+        bsls::Stopwatch sw;
+
+        // Dummy loops
+
+        Uint64 startIteration = (1 << 24);
+
+        while (true) {
+            P(startIteration);
+
+            sw.reset();
+            sw.start(true);
+            unsigned short shortSrc = 0;
+            for (Uint64 ti = startIteration; ti > 0; --ti, --shortSrc) {
+                intTotal += shortSrc ^ 0x1234;
+            }
+            sw.stop();
+
+            if (sw.accumulatedUserTime() >= 2.0) {
+                break;
+            }
+
+            startIteration <<= 1;
+            BSLS_ASSERT_OPT(0 != startIteration);
+        }
+
+        double dummy16Time = sw.accumulatedUserTime();
+
+        ASSERT(dummy16Time > 0);
+
+        sw.reset();
+        sw.start(true);
+        unsigned short shortSrc = 0;
+        for (Uint64 ti = startIteration; ti > 0; --ti, --shortSrc) {
+            intTotal += Util::swapBytes(shortSrc) ^ 0x1234;
+        }
+        sw.stop();
+
+        double shortTime = sw.accumulatedUserTime() - dummy16Time;
+
+        LOOP_ASSERT(shortTime, shortTime > 0);
+
+        sw.reset();
+        sw.start(true);
+        shortSrc = -1;
+        for (Uint64 ti = startIteration; ti > 0; --ti, --shortSrc) {
+            intTotal += myGenericSwap16(shortSrc) ^ 0x1234;
+        }
+        sw.stop();
+
+        double genericShortTime = sw.accumulatedUserTime() - dummy16Time;
+
+        LOOP_ASSERT(genericShortTime, genericShortTime > 0);
+        genericShortTime = std::max(genericShortTime, 1e-20);
+        printf("16: custom/generic: %g\n", shortTime / genericShortTime);
+        P_(shortTime); P(genericShortTime);
+
+        sw.reset();
+        sw.start(true);
+        unsigned int intSrc = 0;
+        for (Uint64 ti = startIteration; ti > 0; --ti, --intSrc) {
+            intTotal += intSrc ^ 0x1234;
+        }
+        sw.stop();
+
+        double dummy32Time = sw.accumulatedUserTime();
+
+        ASSERT(dummy32Time > 0);
+
+        sw.reset();
+        sw.start(true);
+        intSrc = 0;
+        for (Uint64 ti = startIteration; ti > 0; --ti, --intSrc) {
+            intTotal += Util::swapBytes(intSrc) ^ 0x1234;
+        }
+        sw.stop();
+
+        double intTime = sw.accumulatedUserTime() - dummy32Time;
+        LOOP_ASSERT(intTime, intTime > 0);
+
+        sw.reset();
+        sw.start(true);
+        intSrc = 0;
+        for (Uint64 ti = startIteration; ti > 0; --ti, --intSrc) {
+            intTotal += myGenericSwap32(intSrc) ^ 0x1234;
+        }
+        sw.stop();
+
+        double genericIntTime = sw.accumulatedUserTime() - dummy32Time;
+
+        LOOP_ASSERT(genericIntTime, genericIntTime > 0);
+        genericIntTime = std::max(genericIntTime, 1e-20);
+        printf("32: custom/generic: %g\n", intTime / genericIntTime);
+        P_(intTime); P(genericIntTime);
+
+        Uint64 int64Total = intTotal;
+
+        sw.reset();
+        sw.start(true);
+        for (Uint64 ti = startIteration; ti > 0; --ti) {
+            int64Total += ti ^ 0x1234;
+        }
+        sw.stop();
+
+        double dummy64Time = sw.accumulatedUserTime();
+
+        LOOP_ASSERT(sw.accumulatedUserTime(), dummy64Time > 0);
+
+        sw.reset();
+        sw.start(true);
+        for (Uint64 ti = startIteration; ti > 0; --ti) {
+            int64Total += Util::swapBytes(ti) ^ 0x1234;
+        }
+        sw.stop();
+
+        double int64Time = sw.accumulatedUserTime() - dummy64Time;
+
+        LOOP_ASSERT(int64Time, int64Time > 0);
+
+        sw.reset();
+        sw.start(true);
+        for (Uint64 ti = startIteration; ti > 0; --ti) {
+            int64Total += myGenericSwap64(ti) ^ 0x1234;
+        }
+        sw.stop();
+
+        double genericInt64Time = sw.accumulatedUserTime() - dummy64Time;
+
+        LOOP_ASSERT(genericInt64Time, genericInt64Time > 0);
+        genericInt64Time = std::max(genericInt64Time, 1e-20);
+        printf("64: custom/generic: %g\n", int64Time / genericInt64Time);
+        P_(int64Time); P(genericInt64Time);
+
+        // Output 'int64Total' to make sure it's observed and prevent optimzers
+        // from optimizing loops out of existence.
+
+        P(int64Total);
+      } break;
     }
 
     if (testStatus > 0) {
