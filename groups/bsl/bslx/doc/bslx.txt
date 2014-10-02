@@ -173,7 +173,7 @@
  respectively.
 
 /Requirements for a BDEX-Compliant Class to be Streamable
-/----------------------------------------------------------
+/--------------------------------------------------------
  In this section we give a brief synopsis of the required member functions for
  a class in order to be BDEX-streamable.  See the "Using BDEX with Your Own
  Class" section below for implementation details.
@@ -222,7 +222,7 @@
  At present, there are two pairs of concrete BDEX-compliant streams in 'bslx':
 ..
    Out Stream               In Stream              Informal Designation
-   ---------------------    ------------------     --------------------
+   -------------------      ------------------     --------------------
    bslx::ByteOutStream      bslx::ByteInStream     "Production Streams"
    bslx::TestOutStream      bslx::TestInStream     "Test Streams"
 ..
@@ -243,7 +243,7 @@
 
 
 /Using BDEX with Your Own Class
-/--------------------------------
+/------------------------------
  We will show a very brief example of a fictitious 'MyPoint' class whose
  intended purpose is to hold a pair of 'int' values representing a point in a
  two-dimensional rectilinear coordinate space.  We will first define the class
@@ -285,10 +285,10 @@
  The function-level documentation should make the purpose of each method clear,
  and we will show the implementations for 'MyPoint' soon, but first let's just
  say a few words about "version".  In a nutshell, the version is set to 1 in
- the initial release of the component, and in the best of all worlds, the
- version stays 1 forever.  If, however, for some reason the developer wishes to
- alter the BDEX streaming contract (e.g., for some performance reasons), the
- explicit version maintains backward compatibility.
+ the initial release of the class, and in the best of all worlds, the version
+ stays 1 forever.  If, however, for some reason the developer wishes to alter
+ the BDEX streaming contract (e.g., for some performance reasons), the explicit
+ version maintains backward compatibility.
 
  Adding the three methods to 'MyPoint' that are required for BDEX-compliance is
  straightforward:
@@ -436,15 +436,16 @@
 /------------------------------------------
  BDEX provides two concepts that support versioning the BDEX serialization
  format of a type: 'version' and 'versionSelector'.  A 'version' is a 1-based
- integer of the supported formats (e.g., format 1, format 2, etc.).  A
- 'versionSelector' is a value that is mapped to a 'version' for a type by the
- type's implementation of 'maxSupportedBdexVersion'.  Whenever a new 'version'
- format is implemented within the 'bdexStreamOut' method of a type, a new
- mapping in 'maxSupportedBdexVersion' should be created to expose this new
- 'version' with a 'versionSelector' no less than the greatest used
- 'versionSelector' throughout the code base.  A simple approach is to use a
- value having the pattern "YYYYMMDD", where "YYYYMMDD" corresponds to the
- implementation date of the corresponding 'version' format.
+ integer indicating one of the supported formats (e.g., format 1, format 2,
+ etc.).  A 'versionSelector' is a value that is mapped to a 'version' for a
+ type by the type's implementation of 'maxSupportedBdexVersion'.  Whenever a
+ new 'version' format is implemented within the 'bdexStreanIn' and
+ 'bdexStreamOut' methods of a type, a new mapping in 'maxSupportedBdexVersion'
+ should be created to expose this new 'version' with a 'versionSelector' no
+ less than the greatest used 'versionSelector' throughout the code base.  A
+ simple approach is to use a value having the pattern "YYYYMMDD", where
+ "YYYYMMDD" corresponds to the implementation date of the corresponding
+ 'version' format.
 
  Clients streaming out a type with BDEX create a stream and supply a
  'versionSelector':
@@ -457,7 +458,7 @@
     stream << foo;
   ..
  Notice that the 'versionSelector' is a *compile*-time-selected value (in this
- case the minimum date that will result in all streamed types using the correct
+ case, the minimum date that will result in all streamed types using the correct
  versions during externalization) that can be mapped to the serialization
  format version of the types being serialized.  The receiver of this
  information must support all these versions as well.  Specifying future dates
