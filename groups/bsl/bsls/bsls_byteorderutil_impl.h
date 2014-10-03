@@ -135,7 +135,7 @@ namespace BloombergLP {
 
 #define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16(dstType, x)                     \
     return static_cast<dstType>(_byteswap_ushort(                             \
-                                               static_cast<unsgined short>(x)))
+                                               static_cast<unsigned short>(x)))
 
 #define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32(dstType, x)                     \
     return static_cast<dstType>(_byteswap_ulong(static_cast<unsigned int>(x)))
