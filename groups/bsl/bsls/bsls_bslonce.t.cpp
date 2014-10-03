@@ -784,7 +784,7 @@ int main(int argc, char *argv[])
 
             {
                 BslOnceGuard guard;
-                ASSERT_FAIL(guard.leave());
+                ASSERT_SAFE_FAIL(guard.leave());
             }
             {
                 Obj x = BSLS_BSLONCE_INITIALIZER;
