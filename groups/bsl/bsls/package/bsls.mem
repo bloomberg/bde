@@ -28,6 +28,7 @@ bsls_atomicoperations_x86_win_msvc
 bsls_blockgrowth
 bsls_bslexceptionutil
 bsls_bsllock
+bsls_bslonce
 bsls_bsltestutil
 bsls_buildtarget
 bsls_byteorder
