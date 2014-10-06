@@ -377,7 +377,7 @@
  STREAM& MyPoint::bdexStreamOut(STREAM& stream, int version) const
  {
      switch (version) {
-       case 1: {  // Implementation-specific code goes here.
+       case 1: { // Implementation-specific code goes here.
          stream.putInt32(d_x);
          stream.putInt32(d_y);
        } break;
@@ -400,7 +400,7 @@
      if (stream) {
          switch (version) {
              // switch on the schema version (starting with 1)
-           case 1: {  // Implementation-specific code goes here.
+           case 1: { // Implementation-specific code goes here.
              stream.getInt32(d_x);
              stream.getInt32(d_y);
            } break;
@@ -469,9 +469,34 @@
  rebuilt to accept the updated format version).
 
  For an example, assume the 'MyPoint' class is determined to need 64-bit
- storage for the coordinate values.  The new 'bdexStreamOut' code might be
- implemented as:
+ storage for the coordinate values.  The new 'bdexStreamIn' and 'bdexStreamOut'
+ code might be implemented as:
 ..
+ template <class STREAM>
+ STREAM& MyPoint::bdexStreamIn(STREAM& stream, int version)
+ {
+     if (stream) {
+         switch (version) {
+             // switch on the schema version (starting with 1)
+           case 2: { // Implementation-specific code goes here.
+             stream.getInt64(d_x);
+             stream.getInt64(d_y);
+           } break;
+           case 1: { // NOTE: 'd_x' and 'd_y' were switched to 64-bit
+             int tmp;
+             stream.getInt32(tmp);
+             d_x = static_cast<bsls::Types::Int64>(tmp);
+             stream.getInt32(tmp);
+             d_y = static_cast<bsls::Types::Int64>(tmp);
+           } break;
+           default: {
+             stream.invalidate();
+           } break;
+         }
+     }
+     return stream;
+ }
+
  template <class STREAM>
  STREAM& MyPoint::bdexStreamOut(STREAM& stream, int version) const
  {
@@ -503,9 +528,6 @@
      return 1;
  }
 ..
- Note that the value used for comparison appends a '0' to this date; this
- indicates it is the first revision for that date and - although unlikely -
- subsequent releases on the same day would use consecutively higher values.
 
 /Overloading BDEX Free Functions
 /-------------------------------
