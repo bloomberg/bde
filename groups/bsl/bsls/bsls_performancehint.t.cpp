@@ -3,16 +3,24 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdint.h>
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
-#include <windows.h>
+#include <windows.h>   // GetSystemTimeAsFileTime, Sleep
 #else
-#include <unistd.h>
-#include <sys/time.h>
+#include <unistd.h>    // sleep
+#include <sys/time.h>  // gettimeofday
+#include <stdint.h>    // uint64_t
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1600
+// stdint.h is only available starting is VS2010.
+typedef unsigned long long uint64_t;
+#else
+#include <stdint.h>
 #endif
 
 using namespace BloombergLP;
@@ -143,19 +151,20 @@ int64_t getTimer()
 {
     int64_t result;
 
-#if defined(BSLS_PLATFORM_OS_UNIX)
+
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+    const unsigned int k_NANOSECONDS_PER_TICK = 100;
+
+    ULARGE_INTEGER fileTime;
+    GetSystemTimeAsFileTime(reinterpret_cast<FILETIME *>(&fileTime));
+    result = static_cast<int64_t>(fileTime.QuadPart * k_NANOSECONDS_PER_TICK);
+#else
     timeval rawTime;
     gettimeofday(&rawTime, 0);
 
     const int64_t K = 1000;
     const int64_t M = 1000000;
     result = (static_cast<int64_t>(rawTime.tv_sec) * M + rawTime.tv_usec) * K;
-#else
-    const unsigned int k_NANOSECONDS_PER_TICK = 100;
-
-    ULARGE_INTEGER fileTime;
-    GetSystemTimeAsFileTime(reinterpret_cast<FILETIME *>(&fileTime));
-    result = static_cast<int64_t>(fileTime.QuadPart * k_NANOSECONDS_PER_TICK);
 #endif
 
     return result;
