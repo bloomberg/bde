@@ -2200,6 +2200,7 @@ Vector_ImpBase<VALUE_TYPE>::data() const
 
 // CREATORS
 template <class VALUE_TYPE, class ALLOCATOR>
+inline
 Vector_Imp<VALUE_TYPE, ALLOCATOR>::Guard::Guard(VALUE_TYPE          *data,
                                                 std::size_t          capacity,
                                                 VectorContainerBase *container)
@@ -2210,6 +2211,7 @@ Vector_Imp<VALUE_TYPE, ALLOCATOR>::Guard::Guard(VALUE_TYPE          *data,
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
+inline
 Vector_Imp<VALUE_TYPE, ALLOCATOR>::Guard::~Guard()
 {
     if (d_data_p) {
@@ -2219,6 +2221,7 @@ Vector_Imp<VALUE_TYPE, ALLOCATOR>::Guard::~Guard()
 
 // MANIPULATORS
 template <class VALUE_TYPE, class ALLOCATOR>
+inline
 void Vector_Imp<VALUE_TYPE, ALLOCATOR>::Guard::release()
 {
     d_data_p = 0;
@@ -2503,6 +2506,7 @@ Vector_Imp<VALUE_TYPE, ALLOCATOR>::Vector_Imp(size_type         initialSize,
 
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class INPUT_ITER>
+inline
 Vector_Imp<VALUE_TYPE, ALLOCATOR>::Vector_Imp(INPUT_ITER       first,
                                               INPUT_ITER       last,
                                               const ALLOCATOR& basicAllocator)
@@ -2560,6 +2564,7 @@ Vector_Imp(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& original,
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
+inline
 Vector_Imp<VALUE_TYPE, ALLOCATOR>::~Vector_Imp()
 {
     if (this->d_dataBegin) {
@@ -2959,7 +2964,6 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::pop_back()
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class... Args>
-inline
 VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                                                        Args&&...      args)
 {
@@ -3040,7 +3044,6 @@ VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
 // The following section is automatically generated.  **DO NOT EDIT**
 // Generator command line: sim_cpp11_features.pl --var-args=5 bslstl_vector.h
 template <class VALUE_TYPE, class ALLOCATOR>
-inline
 VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position)
 {
     BSLS_ASSERT_SAFE(this->begin() <= position);
@@ -3112,7 +3115,6 @@ VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position)
 
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_1>
-inline
 VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1)
 {
@@ -3190,7 +3192,6 @@ VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_1,
           class Args_2>
-inline
 VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2)
@@ -3274,7 +3275,6 @@ template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_1,
           class Args_2,
           class Args_3>
-inline
 VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
@@ -3364,7 +3364,6 @@ template <class Args_1,
           class Args_2,
           class Args_3,
           class Args_4>
-inline
 VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
@@ -3460,7 +3459,6 @@ template <class Args_1,
           class Args_3,
           class Args_4,
           class Args_5>
-inline
 VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
@@ -3558,7 +3556,6 @@ VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
 #else
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class... Args>
-inline
 VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                                BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
 {
