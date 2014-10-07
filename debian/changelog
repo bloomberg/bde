@@ -1,15 +1,30 @@
-bsl-internal (2.22.0.9) unstable; urgency=low
+bsl-internal (2.22.0.10) unstable; urgency=low
 
-  * 953853b Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.22.x
+  * 930d531 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.22.x
+  * 75a3188 [APPROVAL] INTERNAL add-inline-to-assign-stringref-drqs-57553745 to releases/2.22.x
+  * 612af51 [APPROVAL] add-inline-to-assign-stringref-drqs-57553745 to releases/2.22.x
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 7 Oct 2014 12:20:35 -0400
+
+bsl-internal (2.22.0.9) git; urgency=low
+
+  * 8325bb6 [APPROVAL] bump-changelog-2.22.0.9 to releases/2.22.x
+  * d8b4b65 bump changelog
   * 2409beb [APPROVAL] INTERNAL remove-binary-status-flag-drqs-57413426 to releases/2.22.x
+  * 953853b Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.22.x
   * d1aee65 [APPROVAL] remove-binary-status-flag-drqs-57413426 to releases/2.22.x
   * fb284f1 Sync with open-source releases/2.22.x
   * ab111b5 [APPROVAL] INTERNAL pending/master/resolve_ambiguous_assign_drqs57251422 to master
   * 5245736 [APPROVAL] INTERNAL undef-P7-in-bdldfp-drqs-57209949 to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 6 Oct 2014 13:50:43 -0400
+
+bsl-internal (2.22.0.8) git; urgency=low
+
   * 70f6e35 Update debian/changelog 2.22.0.7->2.22.0.8
   * b5b2e85 [APPROVAL] pending/master/resolve_ambiguous_assign_drqs57251422 to releases/2.22.x
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 6 Oct 2014 13:48:45 -0400
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Mon, 29 Sep 2014 19:12:07 -0400
 
 bsl-internal (2.22.0.7) git; urgency=low
 
