@@ -3749,6 +3749,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
                    const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef)
