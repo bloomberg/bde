@@ -216,7 +216,8 @@ namespace VersionFunctions_Impl {
         // is expected to be formatted as "YYYYMMDD", a date representation.
         // Also note that this function assumes the 'TYPE' is neither 'const'
         // nor 'volatile'.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and containers.
+        // information on BDEX streaming of value-semantic types and
+        // containers.
 
 }  // close VersionFunctions_Impl namespace
 

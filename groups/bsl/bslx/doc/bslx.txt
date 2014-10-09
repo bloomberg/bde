@@ -447,7 +447,7 @@
  "YYYYMMDD" corresponds to the implementation date of the corresponding
  'version' format.
 
- Clients streaming out a type with BDEX create a stream and supply a
+ Clients streaming one or more objects with BDEX create a stream and supply a
  'versionSelector':
   ..
     MyObject foo( /* some value */ );
@@ -458,13 +458,13 @@
     stream << foo;
   ..
  Notice that the 'versionSelector' is a *compile*-time-selected value (in this
- case, the minimum date that will result in all streamed types using the correct
- versions during externalization) that can be mapped to the serialization
- format version of the types being serialized.  The receiver of this
- information must support all these versions as well.  Specifying future dates
- or allowing a run-time selection of 'versionSelector' is error prone: tasks
- exchanging serialized data are often compiled and deployed at different times,
- which would result in serialization errors if they were selecting a
+ case, the minimum date that will result in all streamed types using the
+ correct versions during externalization) that can be mapped to the
+ serialization format version of the types being serialized.  The receiver of
+ this information must support all these versions as well.  Specifying future
+ dates or allowing a run-time selection of 'versionSelector' is error prone:
+ tasks exchanging serialized data are often compiled and deployed at different
+ times, which would result in serialization errors if they were selecting a
  serialization version at run-time (there is no guarantee the receiver has been
  rebuilt to accept the updated format version).
 
