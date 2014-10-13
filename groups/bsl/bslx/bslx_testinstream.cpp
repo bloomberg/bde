@@ -181,9 +181,6 @@ TestInStream& TestInStream::getVersion(int& variable)
     return *this;
 }
 
-// BDE_VERIFY pragma: push
-// BDE_VERIFY pragma: -FABC01
-
                       // *** scalar integer values ***
 
 TestInStream& TestInStream::getInt64(bsls::Types::Int64& variable)
@@ -850,8 +847,6 @@ TestInStream& TestInStream::getArrayFloat32(float *variables, int numVariables)
 
     return *this;
 }
-
-// BDE_VERIFY pragma: pop
 
 // FREE OPERATORS
 bsl::ostream& operator<<(bsl::ostream& stream, const TestInStream& object)

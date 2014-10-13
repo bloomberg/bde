@@ -522,9 +522,6 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "USAGE EXAMPLE" << endl
                                   << "=============" << endl;
 
-// BDE_VERIFY pragma: push
-// BDE_VERIFY pragma: -IND01
-
 // Then, we can exercise the new 'MyPerson' value-semantic class by
 // externalizing and reconstituting an object.  First, create a 'MyPerson'
 // 'janeSmith' and a 'bslx::ByteOutStream' 'outStream':
@@ -573,8 +570,6 @@ if (veryVerbose) {
     }
 } // if (veryVerbose)
 //..
-
-// BDE_VERIFY pragma: pop
 
       } break;
       case 29: {

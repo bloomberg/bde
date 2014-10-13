@@ -291,9 +291,6 @@ class ByteOutStream {
         // Remove all content in this stream and validate this stream if it is
         // currently invalid.
 
-// BDE_VERIFY pragma: push
-// BDE_VERIFY pragma: -FABC01
-
                       // *** scalar integer values ***
 
     ByteOutStream& putInt64(bsls::Types::Int64 value);
@@ -611,8 +608,6 @@ class ByteOutStream {
         // unless '0 <= numValues' and 'values' has sufficient contents.  Note
         // that for non-conforming platforms, this operation may be lossy.
 
-// BDE_VERIFY pragma: pop
-
     // ACCESSORS
     operator const void *() const;
         // Return a non-zero value if this stream is valid, and 0 otherwise.
@@ -735,9 +730,6 @@ void ByteOutStream::reset()
     d_buffer.clear();
     validate();
 }
-
-// BDE_VERIFY pragma: push
-// BDE_VERIFY pragma: -FABC01
 
                       // *** scalar integer values ***
 
@@ -1567,8 +1559,6 @@ ByteOutStream& ByteOutStream::putArrayFloat32(const float *values,
 
     return *this;
 }
-
-// BDE_VERIFY pragma: pop
 
 // ACCESSORS
 inline

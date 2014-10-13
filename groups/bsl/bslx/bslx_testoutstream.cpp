@@ -77,9 +77,6 @@ TestOutStream& TestOutStream::putVersion(int version)
     return *this;
 }
 
-// BDE_VERIFY pragma: push
-// BDE_VERIFY pragma: -FABC01
-
                       // *** scalar integer values ***
 
 TestOutStream& TestOutStream::putInt64(bsls::Types::Int64 value)
@@ -836,8 +833,6 @@ TestOutStream& TestOutStream::putArrayFloat32(const float *values,
 
     return *this;
 }
-
-// BDE_VERIFY pragma: pop
 
 // FREE OPERATORS
 bsl::ostream& operator<<(bsl::ostream& stream, const TestOutStream& object)

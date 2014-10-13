@@ -249,10 +249,6 @@ struct MarshallingUtil {
 
     // CLASS METHODS
 
-// BDE_VERIFY pragma: push
-// BDE_VERIFY pragma: -FABC01
-// BDE_VERIFY pragma: -RV01
-
                         // *** put scalar integral values ***
 
     static void putInt64(char *buffer, bsls::Types::Int64 value);
@@ -790,8 +786,6 @@ struct MarshallingUtil {
         // behavior is undefined unless 'variables' has sufficient capacity,
         // 'buffer' has sufficient contents, and '0 <= numVariables'.
 
-// BDE_VERIFY pragma: pop
-
 };
 
 // ============================================================================
@@ -803,10 +797,6 @@ struct MarshallingUtil {
                          // ----------------------
 
 // CLASS METHODS
-
-// BDE_VERIFY pragma: push
-// BDE_VERIFY pragma: -FABC01
-// BDE_VERIFY pragma: -RV01
 
                         // *** put scalar integral values ***
 
@@ -1632,8 +1622,6 @@ void MarshallingUtil::getArrayInt8(unsigned char *variables,
 
     getArrayInt8(reinterpret_cast<char *>(variables), buffer, numVariables);
 }
-
-// BDE_VERIFY pragma: pop
 
 }  // close package namespace
 }  // close enterprise namespace
