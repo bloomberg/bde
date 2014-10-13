@@ -73,15 +73,37 @@ BSLS_IDENT("$Id: $")
 // format of a type: 'version' and 'versionSelector'.  A 'version' is a 1-based
 // integer indicating one of the supported formats (e.g., format 1, format 2,
 // etc.).  A 'versionSelector' is a value that is mapped to a 'version' for a
-// type by the type's implementation of 'maxSupportedBdexVersion'.  Whenever a
-// new 'version' format is implemented within the 'bdexStreamIn' and
+// type by the type's implementation of 'maxSupportedBdexVersion'.
+//
+// Selecting a value for a 'versionSelector' is required at two different
+// points: when a new 'version' format is implemented within the 'bdexStreamIn'
+// and 'bdexStreamOut' methods of a type and when an 'OutStream' is
+// constructed.  In both cases, the value should be a *compile*-time-selected
+// value.
+//
+// When a new 'version' format is implemented within the 'bdexStreamIn' and
 // 'bdexStreamOut' methods of a type, a new mapping in
 // 'maxSupportedBdexVersion' should be created to expose this new 'version'
-// with a 'versionSelector' no less than the greatest used 'versionSelector'
-// throughout the code base.  A simple approach is to use a value having the
-// pattern "YYYYMMDD", where "YYYYMMDD" corresponds to the implementation date
-// of the corresponding 'version' format.  Any value used as a
-// 'versionSelector' must be a *compile*-time-selected value to avoid errors.
+// with a 'versionSelector'.  A simple - and the recommended - approach is to
+// use a value having the pattern "YYYYMMDD", where "YYYYMMDD" corresponds to
+// the "go-live" date of the corresponding 'version' format.
+//
+// When constructing an 'OutStream', the simplest approach is to use the
+// current date as a *compile*-time constant value.  In combination with the
+// recommended selection of 'versionSelector' values for
+// 'maxSupportedBdexVersion', this will result in consistent and predictable
+// behavior while externalizing types.  However, consider when a newer
+// externalization version of some dependant type is available and needed.
+// Switching to the current date for the 'versionSelector' in the 'OutStream'
+// is acceptable, but selecting the maximum of the previously used
+// 'versionSelector' and the value used in the type's 'maxSupportedBdexVersion'
+// *may* result in a larger set of potential unexternalizers of the data.  In
+// fact, a good choice for the 'versionSelector' used in the 'OutStream'
+// construction is the minimum value that will result in the desired version of
+// all types externalized with 'operator<<' being selected.  This will result
+// in the largest possible audience at the expense of investigating the
+// 'maxSupportedBdexVersion' implementations of the types.
+//
 // See the 'bslx' package-level documentation for more detailed information
 // about versioning.
 //
