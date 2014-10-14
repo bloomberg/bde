@@ -119,6 +119,8 @@ int main(int argc, char* argv[])
     int     veryVerbose = argc > 3;
     int veryveryVerbose = argc > 4;
 
+    _IDEC_flags flags;
+
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
@@ -208,7 +210,7 @@ int main(int argc, char* argv[])
         BID_UINT64  doubleDecimal = __bid64_from_int32( 42);
         BID_UINT128   quadDecimal = __bid128_from_int32(42);
 
-        BID_UINT32  singleDecimal2 = __bid32_from_int32( 10);
+        BID_UINT32  singleDecimal2 = __bid32_from_int32( 10, &flags);
         BID_UINT64  doubleDecimal2 = __bid64_from_int32( 10);
         BID_UINT128   quadDecimal2 = __bid128_from_int32(10);
 
@@ -218,13 +220,20 @@ int main(int argc, char* argv[])
         BID_UINT64  doubleDecimalComputed;
         BID_UINT128   quadDecimalComputed;
 
-        doubleDecimalComputed = __bid64_add( doubleDecimal, doubleDecimal2);
-          quadDecimalComputed = __bid128_add(  quadDecimal,   quadDecimal2);
+        doubleDecimalComputed = __bid64_add(  doubleDecimal,
+                                              doubleDecimal2,
+                                             &flags);
+          quadDecimalComputed = __bid128_add(
+                                                quadDecimal,
+                                                quadDecimal2,
+                                             &flags);
 
         ASSERT(__bid64_quiet_equal( doubleDecimalResult,
-                                    doubleDecimalComputed));
+                                    doubleDecimalComputed,
+                                   &flags));
         ASSERT(__bid128_quiet_equal(  quadDecimalResult,
-                                      quadDecimalComputed));
+                                      quadDecimalComputed,
+                                   &flags));
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -252,11 +261,13 @@ int main(int argc, char* argv[])
         // The intel library types work correctly if different values have
         // different bit patterns.
 
-        BID_UINT32  singlePrecisionDecimalStorage = __bid32_from_int32( 42);
+        BID_UINT32  singlePrecisionDecimalStorage = __bid32_from_int32( 42,
+                                                                       &flags);
         BID_UINT64  doublePrecisionDecimalStorage = __bid64_from_int32( 42);
         BID_UINT128   quadPrecisionDecimalStorage = __bid128_from_int32(42);
 
-        BID_UINT32  singlePrecisionDecimalStorage2 = __bid32_from_int32( 47);
+        BID_UINT32  singlePrecisionDecimalStorage2 = __bid32_from_int32( 47,
+                                                                       &flags);
         BID_UINT64  doublePrecisionDecimalStorage2 = __bid64_from_int32( 47);
         BID_UINT128   quadPrecisionDecimalStorage2 = __bid128_from_int32(47);
 
