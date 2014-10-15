@@ -1,22 +1,18 @@
 // bdldfp_decimalutil.cpp                                             -*-C++-*-
 #include <bdldfp_decimalutil.h>
 
-#include <bdldfp_decimalconvertutil.h>
-
-#include <bdldfp_uint128.h>
-
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
-BSLS_IDENT("$Id$")
+BSLS_IDENT_RCSID(bdldfp_decimalutil_cpp,"$Id$ $CSID$")
 
 #include <bdldfp_decimalplatform.h>
+#include <bdldfp_uint128.h>
 
-#include <bsl_cmath.h>
 #include <bsls_assert.h>
 #include <bslmf_assert.h>
 
+#include <bsl_cmath.h>
 #include <errno.h>
+#include <math.h>  // For the  FP_* macros
 
 #ifdef BDLDFP_DECIMALPLATFORM_DECNUMBER
 extern "C" {
@@ -203,7 +199,9 @@ Decimal64 DecimalUtil::fma(Decimal64 x, Decimal64 y, Decimal64 z)
                  z.data(),
                  DecimalImpUtil_DecNumber::getDecNumberContext());
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
-    rv.data()->d_raw = __bid64_fma(x.data()->d_raw, y.data()->d_raw, z.data()->d_raw);
+    rv.data()->d_raw = __bid64_fma(x.data()->d_raw,
+                                   y.data()->d_raw,
+                                   z.data()->d_raw);
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
@@ -222,7 +220,9 @@ Decimal128 DecimalUtil::fma(Decimal128 x, Decimal128 y, Decimal128 z)
                z.data(),
                DecimalImpUtil_DecNumber::getDecNumberContext());
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
-    rv.data()->d_raw = __bid128_fma(x.data()->d_raw, y.data()->d_raw, z.data()->d_raw);
+    rv.data()->d_raw = __bid128_fma(x.data()->d_raw,
+                                    y.data()->d_raw,
+                                    z.data()->d_raw);
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
@@ -373,32 +373,6 @@ BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
-bool DecimalUtil::isNan(Decimal32 x)
-{
-    return classify(x) == FP_NAN;
-}
-bool DecimalUtil::isNan(Decimal64 x)
-{
-    return classify(x) == FP_NAN;
-}
-bool DecimalUtil::isNan(Decimal128 x)
-{
-    return classify(x) == FP_NAN;
-}
-
-bool DecimalUtil::isInf(Decimal32 x)
-{
-    return classify(x) == FP_INFINITE;
-}
-bool DecimalUtil::isInf(Decimal64 x)
-{
-    return classify(x) == FP_INFINITE;
-}
-bool DecimalUtil::isInf(Decimal128 x)
-{
-    return classify(x) == FP_INFINITE;
-}
-
 bool DecimalUtil::isFinite(Decimal32 x)
 {
     int cl = classify(x);
@@ -413,6 +387,33 @@ bool DecimalUtil::isFinite(Decimal128 x)
 {
     int cl = classify(x);
     return cl != FP_INFINITE && cl != FP_NAN;
+}
+
+
+bool DecimalUtil::isInf(Decimal32 x)
+{
+    return classify(x) == FP_INFINITE;
+}
+bool DecimalUtil::isInf(Decimal64 x)
+{
+    return classify(x) == FP_INFINITE;
+}
+bool DecimalUtil::isInf(Decimal128 x)
+{
+    return classify(x) == FP_INFINITE;
+}
+
+bool DecimalUtil::isNan(Decimal32 x)
+{
+    return classify(x) == FP_NAN;
+}
+bool DecimalUtil::isNan(Decimal64 x)
+{
+    return classify(x) == FP_NAN;
+}
+bool DecimalUtil::isNan(Decimal128 x)
+{
+    return classify(x) == FP_NAN;
 }
 
 bool DecimalUtil::isNormal(Decimal32 x)
@@ -560,64 +561,6 @@ BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
-Decimal32 DecimalUtil::trunc(Decimal32 x)
-{
-#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
-    return truncd32(x.value());
-#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
-    Decimal64 xw(x);
-    Decimal64 rv;
-    decDoubleToIntegralValue(rv.data(),
-                             xw.data(),
-                             DecimalImpUtil_DecNumber::getDecNumberContext(),
-                             DEC_ROUND_DOWN);
-    return Decimal32(rv);
-#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
-    x.data()->d_raw = __bid32_round_integral_zero(x.data()->d_raw);
-    return x;
-#else
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
-#endif
-}
-
-Decimal64 DecimalUtil::trunc(Decimal64 x)
-{
-#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
-    return truncd64(x.value());
-#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
-    Decimal64 rv;
-    decDoubleToIntegralValue(rv.data(),
-                             x.data(),
-                             DecimalImpUtil_DecNumber::getDecNumberContext(),
-                             DEC_ROUND_DOWN);
-    return rv;
-#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
-    x.data()->d_raw = __bid64_round_integral_zero(x.data()->d_raw);
-    return x;
-#else
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
-#endif
-}
-
-Decimal128 DecimalUtil::trunc(Decimal128 x)
-{
-#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
-    return truncd128(x.value());
-#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
-    Decimal128 rv;
-    decQuadToIntegralValue(rv.data(),
-                           x.data(),
-                           DecimalImpUtil_DecNumber::getDecNumberContext(),
-                           DEC_ROUND_DOWN);
-    return rv;
-#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
-    x.data()->d_raw = __bid128_round_integral_zero(x.data()->d_raw);
-    return x;
-#else
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
-#endif
-}
-
 Decimal32 DecimalUtil::round(Decimal32 x)
 {
 #ifdef BDLDFP_DECIMALPLATFORM_C99_TR
@@ -676,6 +619,65 @@ BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
+Decimal32 DecimalUtil::trunc(Decimal32 x)
+{
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
+    return truncd32(x.value());
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
+    Decimal64 xw(x);
+    Decimal64 rv;
+    decDoubleToIntegralValue(rv.data(),
+                             xw.data(),
+                             DecimalImpUtil_DecNumber::getDecNumberContext(),
+                             DEC_ROUND_DOWN);
+    return Decimal32(rv);
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    x.data()->d_raw = __bid32_round_integral_zero(x.data()->d_raw);
+    return x;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
+#endif
+}
+
+Decimal64 DecimalUtil::trunc(Decimal64 x)
+{
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
+    return truncd64(x.value());
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
+    Decimal64 rv;
+    decDoubleToIntegralValue(rv.data(),
+                             x.data(),
+                             DecimalImpUtil_DecNumber::getDecNumberContext(),
+                             DEC_ROUND_DOWN);
+    return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    x.data()->d_raw = __bid64_round_integral_zero(x.data()->d_raw);
+    return x;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
+#endif
+}
+
+Decimal128 DecimalUtil::trunc(Decimal128 x)
+{
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
+    return truncd128(x.value());
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
+    Decimal128 rv;
+    decQuadToIntegralValue(rv.data(),
+                           x.data(),
+                           DecimalImpUtil_DecNumber::getDecNumberContext(),
+                           DEC_ROUND_DOWN);
+    return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    x.data()->d_raw = __bid128_round_integral_zero(x.data()->d_raw);
+    return x;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
+#endif
+}
+
+
                              // Quantum functions
 
 Decimal64 DecimalUtil::multiplyByPowerOf10(Decimal64 value, Decimal64 exponent)
@@ -695,7 +697,9 @@ Decimal64 DecimalUtil::multiplyByPowerOf10(Decimal64 value, Decimal64 exponent)
                     DecimalImpUtil_DecNumber::getDecNumberContext());
     return result;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
-    value.data()->d_raw = __bid64_scalbn(value.data()->d_raw, __bid64_to_int32_int(exponent.data()->d_raw));
+    value.data()->d_raw =
+        __bid64_scalbn(value.data()->d_raw,
+                       __bid64_to_int32_int(exponent.data()->d_raw));
     return value;
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
@@ -716,7 +720,9 @@ Decimal128 DecimalUtil::multiplyByPowerOf10(Decimal128 value,
                   DecimalImpUtil_DecNumber::getDecNumberContext());
     return result;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
-    value.data()->d_raw = __bid128_scalbn(value.data()->d_raw, __bid128_to_int32_int(exponent.data()->d_raw));
+    value.data()->d_raw =
+        __bid128_scalbn(value.data()->d_raw,
+                        __bid128_to_int32_int(exponent.data()->d_raw));
     return value;
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
@@ -735,67 +741,69 @@ Decimal64 DecimalUtil::quantize(Decimal64 value, Decimal64 exponent)
                       DecimalImpUtil_DecNumber::getDecNumberContext());
     return result;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
-    value.data()->d_raw = __bid64_quantize(value.data()->d_raw, exponent.data()->d_raw);
+    value.data()->d_raw = __bid64_quantize(value.data()->d_raw,
+                                           exponent.data()->d_raw);
     return value;
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
-Decimal128 DecimalUtil::quantize(Decimal128 x, Decimal128 y)
+Decimal128 DecimalUtil::quantize(Decimal128 value, Decimal128 exponent)
 {
 #ifdef BDLDFP_DECIMALPLATFORM_C99_TR
-    return quantized128(*x.data(), *y.data());
+    return quantized128(*value.data(), *exponent.data());
 #elif defined(BDLDFP_DECIMALPLATFORM_DPD)
-    Decimal128 rv = x;
+    Decimal128 rv = value;
     decQuadQuantize(rv.data(),
-                    x.data(),
-                    y.data(),
+                    value.data(),
+                    exponent.data(),
                     DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
-    x.data()->d_raw = __bid128_quantize(x.data()->d_raw, y.data()->d_raw);
-    return x;
+    value.data()->d_raw = __bid128_quantize(value.data()->d_raw,
+                                            exponent.data()->d_raw);
+    return value;
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
-int DecimalUtil::quantum(Decimal64 x)
+int DecimalUtil::quantum(Decimal64 value)
 {
-    BSLS_ASSERT(!isInf(x));
-    BSLS_ASSERT(!isNan(x));
+    BSLS_ASSERT(!isInf(value));
+    BSLS_ASSERT(!isNan(value));
 #ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     const int d64_bias = 398;
-    return __d64_biased_exponent(*x.data()) - d64_bias;
+    return __d64_biased_exponent(*value.data()) - d64_bias;
 #elif defined(BDLDFP_DECIMALPLATFORM_DPD)
-    return decDoubleGetExponent(x.data());
+    return decDoubleGetExponent(value.data());
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     BID_UINT64 sign;
     int exponent;
     BID_UINT64 coeff;
-    unpack_BID64(&sign, &exponent, &coeff, x.data()->d_raw);
+    unpack_BID64(&sign, &exponent, &coeff, value.data()->d_raw);
     return exponent - DECIMAL_EXPONENT_BIAS;
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
-int DecimalUtil::quantum(Decimal128 x)
+int DecimalUtil::quantum(Decimal128 value)
 {
-    BSLS_ASSERT(!isInf(x));
-    BSLS_ASSERT(!isNan(x));
+    BSLS_ASSERT(!isInf(value));
+    BSLS_ASSERT(!isNan(value));
 
 #ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     const int d128_bias = 6176;
-    return __d128_biased_exponent(*x.data()) - d128_bias;
+    return __d128_biased_exponent(*value.data()) - d128_bias;
 #elif defined(BDLDFP_DECIMALPLATFORM_DPD)
-    return decQuadGetExponent(x.data());
+    return decQuadGetExponent(value.data());
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     BID_UINT64 sign;
     int exponent;
     BID_UINT128 coeff;
-    BID_UINT128 raw = x.data()->d_raw;
+    BID_UINT128 raw = value.data()->d_raw;
     BID_SWAP128(raw);
     unpack_BID128_value(&sign, &exponent, &coeff, raw);
     return exponent - DECIMAL_EXPONENT_BIAS_128;
@@ -834,23 +842,17 @@ BDLDFP_DISABLE_COMPILE; // Unsupported platform
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2014 Bloomberg L.P.
+// Copyright 2014 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

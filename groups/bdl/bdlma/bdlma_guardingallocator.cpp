@@ -4,6 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlma_guardingallocator_cpp,"$Id$ $CSID$")
 
+#include <bslmf_assert.h>
+
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
@@ -21,23 +23,47 @@ BSLS_IDENT_RCSID(bdlma_guardingallocator_cpp,"$Id$ $CSID$")
                        // 'VirtualProtect'
 #else
 
-#include <stdlib.h>    // 'valloc'
-#include <sys/mman.h>  // 'mprotect'
+#include <errno.h>     // 'errno'
+#include <string.h>    // 'strerror'
+#include <sys/mman.h>  // 'mmap', 'mprotect', 'munmap'
 #include <unistd.h>    // 'sysconf'
 
 #endif
 
+
+
+
 namespace BloombergLP {
 
 namespace {
-
-// HELPER FUNCTIONS
 
 // Define the offset (in bytes) from the address returned to the user in which
 // to stash reference addresses ('e_AFTER_USER_BLOCK' only).
 
 const bslma::Allocator::size_type OFFSET =
                                        bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+
+struct AfterUserBlockDeallocationData
+    // Helper struct storing the addresses we need for deallocation when the
+    // guard page location is 'e_AFTER_USER_BLOCK'.
+{
+    void *d_firstPage; // address we need to deallocate
+    void *d_guardPage; // address of the page we need to unprotect
+};
+
+AfterUserBlockDeallocationData *getDataBlockAddress(void *address)
+    // Utility function to compute the 'AfterUserBlockDeallocationData*'
+    // corresponding to the specified 'address'.
+{
+    return static_cast<AfterUserBlockDeallocationData*>(
+            static_cast<void*>(
+                static_cast<char *>(address) - OFFSET * 2));
+}
+
+// Assert that we can fit our struct into the available space.
+BSLMF_ASSERT(sizeof(AfterUserBlockDeallocationData) <= OFFSET * 2);
+
+// HELPER FUNCTIONS
 
 int getSystemPageSize()
     // Return the size (in bytes) of a system memory page.
@@ -73,15 +99,27 @@ void *systemAlloc(bsl::size_t size)
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
     return VirtualAlloc(0, size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+                                                                      // RETURN
 
 #else
 
-    return valloc(size);
+    void *address =  mmap(0,
+                          size,
+                          PROT_READ | PROT_WRITE,
+                          MAP_ANON | MAP_PRIVATE,
+                          -1,
+                          0);
+
+    if (MAP_FAILED == address) {
+        return 0;                                                     // RETURN
+    }
+
+    return address;                                                   // RETURN
 
 #endif
 }
 
-void systemFree(void *address)
+void systemFree(void *address, size_t size)
     // Return the memory block at the specified 'address' back to its
     // allocator.  The behavior is undefined unless 'address' was returned by
     // 'systemAlloc' and has not already been freed.
@@ -91,10 +129,15 @@ void systemFree(void *address)
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
     VirtualFree(address, 0, MEM_RELEASE);
+    (void) size;
 
 #else
 
-    free(address);
+    // On some of our platforms, 'munmap' takes a 'char*' argument, while on
+    // others it takes a 'void*'.  Casting to 'char*', which will work in both
+    // cases.
+
+    munmap(static_cast<char*>(address), size);
 
 #endif
 }
@@ -112,10 +155,12 @@ int systemProtect(void *address, int pageSize)
     DWORD oldProtect;
 
     return !VirtualProtect(address, pageSize, PAGE_NOACCESS, &oldProtect);
+                                                                      // RETURN
 
 #else
 
     return mprotect(static_cast<char *>(address), pageSize, PROT_NONE);
+                                                                      // RETURN
 
 #endif
 }
@@ -133,12 +178,13 @@ int systemUnprotect(void *address, int pageSize)
     DWORD  oldProtect;
 
     return !VirtualProtect(address, pageSize, PAGE_READWRITE, &oldProtect);
+                                                                      // RETURN
 
 #else
 
     return mprotect(static_cast<char *>(address),
                     pageSize,
-                    PROT_READ | PROT_WRITE);
+                    PROT_READ | PROT_WRITE);                          // RETURN
 
 #endif
 }
@@ -209,14 +255,21 @@ void *GuardingAllocator::allocate(size_type size)
 
         // Stash the reference addresses required by 'deallocate'.
 
-        *(void **)(static_cast<char *>(userAddress) - OFFSET)     = firstPage;
-        *(void **)(static_cast<char *>(userAddress) - OFFSET * 2) = guardPage;
+        AfterUserBlockDeallocationData *deallocData =
+            getDataBlockAddress(userAddress);
+
+        deallocData->d_firstPage = firstPage;
+        deallocData->d_guardPage = guardPage;
     }
+
+    // Save 'totalSize' - we'll need it for 'systemFree' in 'deallocate'.
+
+    *(int *)(guardPage) = totalSize;
 
     // Protect the guard page from read/write access.
 
     if (0 != systemProtect(guardPage, pageSize)) {
-        systemFree(firstPage);
+        systemFree(firstPage, totalSize);
 #ifdef BDE_BUILD_TARGET_EXC
         BSLS_THROW(bsl::bad_alloc());
 #else
@@ -248,8 +301,11 @@ void GuardingAllocator::deallocate(void *address)
     else {
         // The memory page after the block returned to the user is protected.
 
-        firstPage = *(void **)(static_cast<char *>(address) - OFFSET);
-        guardPage = *(void **)(static_cast<char *>(address) - OFFSET * 2);
+        AfterUserBlockDeallocationData *deallocData =
+            getDataBlockAddress(address);
+
+        firstPage = deallocData->d_firstPage;
+        guardPage = deallocData->d_guardPage;
     }
 
     // Unprotect the guard page and free the memory.
@@ -259,30 +315,26 @@ void GuardingAllocator::deallocate(void *address)
 
     BSLS_ASSERT_OPT(0 == rc);
 
-    systemFree(firstPage);
+    size_t totalSize = *(int *)(guardPage);
+
+    systemFree(firstPage, totalSize);
 }
 
 }  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

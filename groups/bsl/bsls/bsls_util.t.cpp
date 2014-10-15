@@ -20,13 +20,18 @@ using namespace BloombergLP;
 // [2] TYPE *bsls::Util::addressOf(TYPE&);
 // [3] BSLS_UTIL_ADDRESSOF macro
 //-----------------------------------------------------------------------------
-// [1] TEST APPARATUS
 // [4] USAGE EXAMPLE
+//
+// Test apparatus
+// [1]  CvQualification cvqOfPtr(T *p);
+// [1]  EvilType *EvilType::operator&();
+// [1]  EvilType *EvilType::realAddress();
+
 //-----------------------------------------------------------------------------
 
-//==========================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 // NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
 // FUNCTIONS, INCLUDING IOSTREAMS.
 
@@ -34,9 +39,9 @@ namespace {
 
 int testStatus = 0;
 
-void aSsErT(int c, const char *s, int i)
+void aSsErT(bool b, const char *s, int i)
 {
-    if (c) {
+    if (b) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
@@ -44,23 +49,98 @@ void aSsErT(int c, const char *s, int i)
 
 }  // close unnamed namespace
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
 #define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
 #define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
 #define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
 #define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
 #define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
 #define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+
+//=============================================================================
+//                              USAGE EXAMPLE
+//-----------------------------------------------------------------------------
+///Usage
+///-----
+// This section illustrates intended usage of this component.
+//
+///Example 1: Obtain the address of a 'class' that defines 'operator&'.
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// There are times, especially within low-level library functions, where it is
+// necessary to obtain the address of an object even if that object's class
+// overloads 'operator&' to return something other than the object's address.
+//
+// First, we create a special reference-like type that can refer to a single
+// bit within a byte (inline implementations are provided in class scope for
+// ease of exposition):
+//..
+    class BitReference {
+
+        // DATA
+        char *d_byte_p;
+        int   d_bitpos;
+
+      public:
+        // CREATORS
+        BitReference(char *byteptr = 0, int bitpos = 0)             // IMPLICIT
+        : d_byte_p(byteptr)
+        , d_bitpos(bitpos)
+        {
+        }
+
+        // ACCESSORS
+        operator bool() const { return (*d_byte_p >> d_bitpos) & 1; }
+
+        int bitpos() const { return d_bitpos; }
+        char *byteptr() const { return d_byte_p; }
+    };
+//..
+// Then, we create a pointer-like type that can point to a single bit:
+//..
+    class BitPointer {
+
+        // DATA
+        char *d_byte_p;
+        int   d_bitpos;
+
+      public:
+        // CREATORS
+        BitPointer(char *byteptr = 0, int bitpos = 0)               // IMPLICIT
+        : d_byte_p(byteptr)
+        , d_bitpos(bitpos)
+        {
+        }
+
+        // ACCESSORS
+        BitReference operator*() const
+        {
+            return BitReference(d_byte_p, d_bitpos);
+        }
+
+        // etc.
+    };
+//..
+// Next, we overload 'operator&' for 'BitReference' to return a 'BitPointer'
+// instead of a raw pointer, completing the setup:
+//..
+    inline BitPointer operator&(const BitReference& ref)
+    {
+        return BitPointer(ref.byteptr(), ref.bitpos());
+    }
+//..
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -118,99 +198,28 @@ enum CvQualification {
     CVQ_CONST_VOLATILE
 };
 
-template <class T>
+template <class TYPE>
 inline
-CvQualification cvqOfPtr(T *) { return CVQ_UNQUALIFIED; }
+CvQualification cvqOfPtr(TYPE *) { return CVQ_UNQUALIFIED; }
 
-template <class T>
+template <class TYPE>
 inline
-CvQualification cvqOfPtr(const T *) { return CVQ_CONST; }
+CvQualification cvqOfPtr(const TYPE *) { return CVQ_CONST; }
 
-template <class T>
+template <class TYPE>
 inline
-CvQualification cvqOfPtr(volatile T *) { return CVQ_VOLATILE; }
+CvQualification cvqOfPtr(volatile TYPE *) { return CVQ_VOLATILE; }
 
-template <class T>
+template <class TYPE>
 inline
-CvQualification cvqOfPtr(const volatile T *) { return CVQ_CONST_VOLATILE; }
+CvQualification cvqOfPtr(const volatile TYPE *) { return CVQ_CONST_VOLATILE; }
 
 namespace TestFuncs
 {
 void a() {}
 int b(double&) { return 0; }
 double *c(const int &, volatile double) { return 0; }
-}  // close namespace TestFuncs
-//=============================================================================
-//                              USAGE EXAMPLE
-//-----------------------------------------------------------------------------
-///Usage
-///-----
-// This section illustrates intended usage of this component.
-//
-///Example 1: Obtain the address of a 'class' that defines 'operator&'.
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// There are times, especially within low-level library functions, where it is
-// necessary to obtain the address of an object even if that object's class
-// overloads 'operator&' to return something other than the object's address.
-//
-// First, we create a special reference-like type that can refer to a single
-// bit within a byte (inline implementations are provided in class scope for
-// ease of exposition):
-//..
-    class BitReference {
-
-        // DATA
-        char *d_byte_p;
-        int   d_bitpos;
-
-      public:
-        // CREATORS
-        BitReference(char *byteptr = 0, int bitpos = 0)             // IMPLICIT
-        : d_byte_p(byteptr)
-        , d_bitpos(bitpos)
-        {
-        }
-
-        // ACCESSORS
-        operator bool() const { return (*d_byte_p >> d_bitpos) & 1; }
-
-        char *byteptr() const { return d_byte_p; }
-        int bitpos() const { return d_bitpos; }
-    };
-//..
-// Then, we create a pointer-like type that can point to a single bit:
-//..
-    class BitPointer {
-
-        // DATA
-        char *d_byte_p;
-        int   d_bitpos;
-
-      public:
-        // CREATORS
-        BitPointer(char *byteptr = 0, int bitpos = 0)               // IMPLICIT
-        : d_byte_p(byteptr)
-        , d_bitpos(bitpos)
-        {
-        }
-
-        // ACCESSORS
-        BitReference operator*() const
-        {
-            return BitReference(d_byte_p, d_bitpos);
-        }
-
-        // etc.
-    };
-//..
-// Next, we overload 'operator&' for 'BitReference' to return a 'BitPointer'
-// instead of a raw pointer, completing the setup:
-//..
-    inline BitPointer operator&(const BitReference& ref)
-    {
-        return BitPointer(ref.byteptr(), ref.bitpos());
-    }
-//..
+}  // close 'TestFuncs' namespace
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -218,9 +227,9 @@ double *c(const int &, volatile double) { return 0; }
 
 int main(int argc, char *argv[])
 {
-    int  test = argc > 1 ? atoi(argv[1]) : 0;
-    bool verbose = argc > 2;
-    bool veryVerbose = argc > 3;
+    int             test = argc > 1 ? atoi(argv[1]) : 0;
+    bool         verbose = argc > 2;
+    bool     veryVerbose = argc > 3;
     bool veryVeryVerbose = argc > 4;
 
     (void) veryVeryVerbose;
@@ -245,8 +254,8 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting USAGE EXAMPLE"
-                            "\n=====================\n");
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
 
 // Then, we note that there are times when it might be desirable to get the
 // true address of a 'BitReference'.  Since the above overload prevents the
@@ -291,7 +300,7 @@ int main(int argc, char *argv[])
         //:    of the created object instead. (C-1)
         //
         // Testing:
-        //   BSLS_UTIL_ADDRESSOF
+        //   BSLS_UTIL_ADDRESSOF macro
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING MACRO BSLS_UTIL_ADDRESSOF"
@@ -312,7 +321,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING bsls::Util::addressOf
+        // TESTING 'addressOf'
         //
         // Concerns:
         //: 1 Calling 'bsls::Util::addressOf' on an object will return the
@@ -341,8 +350,8 @@ int main(int argc, char *argv[])
         //   TYPE *bsls::Util::addressOf(TYPE&);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING bsls::Util::addressOf"
-                            "\n=============================\n");
+        if (verbose) printf("\nTESTING 'addressOf'"
+                            "\n===================\n");
 
         if (verbose) printf("\nTESTING addressof objects\n");
 
@@ -509,23 +518,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

@@ -38,8 +38,8 @@ BSLS_IDENT("$Id: $")
 // member function which may be called as if it had the following signature:
 //..
 //  static const KeyType& extractKey(const ValueType& value);
-//      // Return a non-modifiable reference to the key for the specified
-//      // 'value'.
+//      // Return a reference offering non-modifiable access to the key for the
+//      // specified 'value'.
 //..
 // Optionally, the 'KEY_CONFIG' class might provide an 'extractKey' function
 // with the alternative signature:
@@ -332,7 +332,7 @@ BSLS_IDENT("$Id: $")
 //          // value is used.  Optionally specify a 'hash' used to generate the
 //          // hash values associated to the keys extracted from the values
 //          // contained in this object.  If 'hash' is not supplied, a
-//          // default-constructed object of type 'HASH()' is used.  Optionally
+//          // default-constructed object of type 'HASH' is used.  Optionally
 //          // specify a key-equality functor 'keyEqual' used to verify that
 //          // two key values are the same.  If 'keyEqual' is not supplied, a
 //          // default-constructed object of type 'EQUAL' is used.  Optionally
@@ -648,10 +648,11 @@ BSLS_IDENT("$Id: $")
 // provides the semantics we need: an element is inserted only if no such
 // element (no element with the same key) in the container, and a reference to
 // that element ('node') is returned.  Here, we use 'node' to obtain and return
-// a modifiable reference to the 'second' member of the (possibly newly added)
-// element.  Note that the 'static_cast' from 'HashTableLink *' to
-// 'HashTableNode *' is valid because the nodes derive from the link type (see
-// 'bslalg_bidirectionallink' and 'bslalg_hashtableimputil').
+// a reference offering modifiable access to the 'second' member of the
+// (possibly newly added) element.  Note that the 'static_cast' from
+// 'HashTableLink *' to 'HashTableNode *' is valid because the nodes derive
+// from the link type (see 'bslalg_bidirectionallink' and
+// 'bslalg_hashtableimputil').
 //..
 //  // MANIPULATORS
 //  template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
@@ -1557,9 +1558,6 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_LIMITS
 #endif
 
-#pragma bde_verify push  // Flag specific exceptions to the documentation rules
-#pragma bde_verify set ok_unquoted key node first last
-
 namespace BloombergLP {
 
 namespace bslstl {
@@ -2234,9 +2232,10 @@ class HashTable {
         // hash table.
 
     const bslalg::HashTableBucket& bucketAtIndex(SizeType index) const;
-        // Return a non-modifiable reference to the 'HashTableBucket' at the
-        // specified 'index' position in the array of buckets of this table.
-        // The behavior is undefined unless 'index < numBuckets()'.
+        // Return a reference offering non-modifiable access to the
+        // 'HashTableBucket' at the specified 'index' position in the array of
+        // buckets of this table.  The behavior is undefined unless 'index <
+        // numBuckets()'.
 
     SizeType bucketIndexForKey(const KeyType& key) const;
         // Return the index of the bucket that would contain all the elements
@@ -2681,8 +2680,8 @@ class HashTable_ImplParameters
 
     // MANIPULATORS
     NodeFactory& nodeFactory();
-        // Return a modifiable reference to the 'nodeFactory' owned by this
-        // object.
+        // Return a reference offering modifiable access to the 'nodeFactory'
+        // owned by this object.
 
     void quickSwapExchangeAllocators(HashTable_ImplParameters *other);
         // Efficiently exchange the value, functor, and allocator of this
@@ -2697,8 +2696,8 @@ class HashTable_ImplParameters
 
     // ACCESSORS
     const BaseComparator& comparator() const;
-        // Return a non-modifiable reference to the 'comparator' functor owned
-        // by this object.
+        // Return a reference offering non-modifiable access to the
+        // 'comparator' functor owned by this object.
 
     template <class DEDUCED_KEY>
     native_std::size_t hashCodeForKey(DEDUCED_KEY& key) const;
@@ -2709,23 +2708,21 @@ class HashTable_ImplParameters
         // not declared as 'const'.
 
     const BaseHasher& hasher() const;
-        // Return a non-modifiable reference to the 'hasher' functor owned by
-        // this object.
+        // Return a reference offering non-modifiable access to the 'hasher'
+        // functor owned by this object.
 
     const NodeFactory& nodeFactory() const;
-        // Return a non-modifiable reference to the 'nodeFactory' owned by this
-        // object.
+        // Return a reference offering non-modifiable access to the
+        // 'nodeFactory' owned by this object.
 
     const COMPARATOR& originalComparator() const;
-        // Return a non-modifiable reference to the 'comparator' functor owned
-        // by this object.
+        // Return a reference offering non-modifiable access to the
+        // 'comparator' functor owned by this object.
 
     const HASHER& originalHasher() const;
-        // Return a non-modifiable reference to the 'hasher' functor owned by
-        // this object.
+        // Return a reference offering non-modifiable access to the 'hasher'
+        // functor owned by this object.
 };
-
-#pragma bde_verify pop  // Flag specific exceptions to the documentation rules
 
 // ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
@@ -3937,7 +3934,6 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::reserveForNumElements(
         return;                                                       // RETURN
     }
 
-    d_parameters.nodeFactory().reserveNodes(numElements);
     if (numElements > d_capacity) {
         // Compute a "good" number of buckets, e.g., pick a prime number from a
         // sorted array of exponentially increasing primes.
@@ -4441,7 +4437,7 @@ struct UsesBslmaAllocator<bslstl::HashTable_ImplParameters<KEY_CONFIG,
     : bsl::is_convertible<Allocator*, ALLOCATOR>::type {
 };
 
-}  // close namespace bslma
+}  // close traits namespace
 
 namespace bslmf
 {
@@ -4456,30 +4452,23 @@ struct IsBitwiseMoveable<bslstl::HashTable<KEY_CONFIG,
                              && bslmf::IsBitwiseMoveable<ALLOCATOR>::value>
 {};
 
-}  // close namespace bslmf
-
+}  // close traits namespace
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

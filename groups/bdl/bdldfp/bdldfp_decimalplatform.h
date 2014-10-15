@@ -10,15 +10,15 @@ BSLS_IDENT("$Id$")
 //@PURPOSE: Provide decimal floating-point platform information macros.
 //
 //@MACROS:
-//  BDLDFP_DECIMALPLATFORM_C99_TR: We have an use C99 decimal fp support
+//  BDLDFP_DECIMALPLATFORM_C99_TR: using C99 (C-language) decimal fp support
 //  BDLDFP_DECIMALPLATFORM_DECNUMBER: using the 'decNumber' library
 //  BDLDFP_DECIMALPLATFORM_INTELDFP: using the 'IntelDFP' library
-//  BDLDFP_DECIMALPLATFORM_HARDWARE: hardware support for decimals
-//  BDLDFP_DECIMALPLATFORM_SOFTWARE: no hardware support for decimals is used
+//  BDLDFP_DECIMALPLATFORM_HARDWARE: using hardware support for decimals
+//  BDLDFP_DECIMALPLATFORM_SOFTWARE: using software only (no hardware support)
 //  BDLDFP_DECIMALPLATFORM_BIG_ENDIAN: decimals are big endian
 //  BDLDFP_DECIMALPLATFORM_LITTLE_ENDIAN: decimals are little endian
-//  BDLDFP_DECIMALPLATFORM_DPD: densely packed decimal significand
-//  BDLDFP_DECIMALPLATFORM_BININT: binary integer significand
+//  BDLDFP_DECIMALPLATFORM_DPD: using densely packed decimal representation
+//  BDLDFP_DECIMALPLATFORM_BININT: binary integer significand representation
 //  BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE: internal use only (remove)
 //  BDLDFP_DECIMALPLATFORM_C99_QNAN*: internal use only, will be removed
 //  BDLDFP_DECIMALPLATFORM_C99_SNAN*: internal use only, will be removed
@@ -27,11 +27,11 @@ BSLS_IDENT("$Id$")
 //
 //@DESCRIPTION: This component provides a suite of preprocessor macros that
 // identify and define platform-specific compile-time attributes that are
-// related to decimal floating-point support.  Most of these attributes are
-// represented by preprocessor macros that are always defined by this component
-// (header) and their replacement value (0 or 1) determines the attribute.
-// Some macros are implentation details, providing platform-specific
-// information that is not useful outside of the BDE implementation.
+// related to decimal floating-point support.  The macros provided by this
+// component are defined to the be non-zero (true) when enabled on a given
+// platform, and are undefined on platforms where they are not enabled.  Some
+// macros are implentation details, providing platform-specific information
+// that is not useful outside of the BDE implementation.
 //
 ///Macros Defining the Underlying Implementation
 ///---------------------------------------------
@@ -69,8 +69,9 @@ BSLS_IDENT("$Id$")
 // to support implementation of encoding conversions.
 //
 // 'BDLDFP_DECIMALPLATFORM_DPD' - Densely Packed Decimal significand
+//                                representation 
 //
-// 'BDLDFP_DECIMALPLATFORM_BININT' - Binary Integer significand
+// 'BDLDFP_DECIMALPLATFORM_BININT' - Binary Integer significand representation
 //
 ///Implementation Detail Macros
 ///----------------------------
@@ -227,23 +228,17 @@ BSLMF_ASSERT(false);
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2014 Bloomberg L.P.
+// Copyright 2014 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

@@ -11,17 +11,21 @@
 using namespace BloombergLP;
 
 //=============================================================================
-//                             TEST PLAN
-//                             ---------
+//                                  TEST PLAN
+//                                  ---------
+//
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-int testStatus = 0;
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
 
 namespace {
+
+int testStatus = 0;
 
 void aSsErT(bool b, const char *s, int i)
 {
@@ -29,12 +33,13 @@ void aSsErT(bool b, const char *s, int i)
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
-
 }
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+}  // close unnamed namespace
+
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
@@ -54,7 +59,7 @@ void aSsErT(bool b, const char *s, int i)
 #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                               TEST APPARATUS
+//                              TEST APPARATUS
 // ----------------------------------------------------------------------------
 
 //=============================================================================
@@ -62,15 +67,17 @@ void aSsErT(bool b, const char *s, int i)
 //-----------------------------------------------------------------------------
 
 //=============================================================================
-//                         HELPER CLASSES FOR TESTING
+//                      HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
+
+namespace {
 
 struct Dummy {};
 
 }  // close unnamed namespace
 
 //=============================================================================
-//                  TEST PROGRAM
+//                              TEST PROGRAM
 //-----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
@@ -80,18 +87,28 @@ int main(int argc, char *argv[])
     bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
 
+    (void)veryVerbose;
+    (void)veryVeryVerbose;
+
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
+    // Confirm no static intialization locekd the global allocator
+    ASSERT(&globalAllocator == bslma::Default::globalAllocator());
+
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
     bslma::Default::setDefaultAllocator(&da);
+
+    // Confirm no static intialization locked the default allocator
+    ASSERT(&da == bslma::Default::defaultAllocator());
 
     switch (test) { case 0:
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
+        //   This test exercises basic functionality but *tests* *nothing*.
         //
         // Concerns:
         //   1. That the functions exist with the documented signatures.
@@ -102,14 +119,15 @@ int main(int argc, char *argv[])
         //   sequence to ensure that the basic functionality is as documented.
         //
         // Testing:
-        //   This test exercises basic functionality but *tests* *nothing*.
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
-                            "\n--------------\n");
+                            "\n==============\n");
 
         // Construct an object using a simple instantiation of the template.
         bslma::ManagedPtr_PairProxy<Dummy, int> x = {0, 0};
+        (void)x;  // silence usused variable warnings
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
@@ -130,23 +148,17 @@ int main(int argc, char *argv[])
 
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

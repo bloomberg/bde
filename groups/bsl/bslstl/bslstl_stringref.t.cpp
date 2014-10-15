@@ -108,7 +108,9 @@ using namespace bsl;  // automatically added by script
 // [ 7] operator+(const StringRef& lhs, const native_std::string& rhs);
 // [ 7] operator+(const char *lhs, const StringRef& rhs);
 // [ 7] operator+(const StringRef& lhs, const char *rhs);
+// [ 7] basic_string basic_string::operator+=(const StringRefData& strRf);
 // [ 8] bsl::hash<BloombergLP::bslstl::StringRef>
+// [ 8] bslh::Hash<>
 //--------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [10] USAGE
@@ -741,29 +743,42 @@ int main(int argc, char *argv[])
         // TESTING HASH FUNCTION
         //
         // Concerns:
-        //   The hash function in versions of this component prior to
-        //   /main/bb/dev/10 returned '0' for all input strings.  This test
-        //   will verify that the hash function returns acceptably distinct
-        //   values for a set of input strings, allowing for at most one
-        //   collision.
+        //: 1 The hash function in versions of this component prior to
+        //:   /main/bb/dev/10 returned '0' for all input strings.  This test
+        //:   will verify that the hash function returns acceptably distinct
+        //:   values for a set of input strings, allowing for at most one
+        //:   collision.
+        //:
+        //: 2 The 'hashAppend' function should be picked up and used by
+        //;   bslh:Hash. The whole string should be used in this hash.
+        //:   'bsl::hash' specialization has been deleted, so calls to
+        //:   'bsl::hash' should automatically forward to 'bslh::Hash'.
         //
         // Plan:
-        //   Hash a reasonably large number of strings, capturing the hash
-        //   values.  Make sure re-hashing the same strings in a different
-        //   order returns the same values.  Then make sure that each resulting
-        //   hash was not encountered more than twice (so we're allowing SOME
-        //   collisions, but not too many).
-        //
-        //   The strings to be hashed will include some "typical" short strings
-        //   including the names of current and past members of the BDE team
-        //   and the tickers for the members of the S&P 500 index.
-        //
-        //   While there are no guarantees that these data sets are
-        //   representative, this at least allows us to make sure that our hash
-        //   performs in a reasonable manner.
+        //: 1 Hash a reasonably large number of strings, capturing the hash
+        //:   values.  Make sure re-hashing the same strings in a different
+        //:   order returns the same values.  Then make sure that each
+        //:   resulting hash was not encountered more than twice (so we're
+        //:   allowing SOME collisions, but not too many).
+        //:
+        //:   The strings to be hashed will include some "typical" short strings
+        //:   including the names of current and past members of the BDE team
+        //:   and the tickers for the members of the S&P 500 index.
+        //:
+        //:   While there are no guarantees that these data sets are
+        //:   representative, this at least allows us to make sure that our hash
+        //:   performs in a reasonable manner.
+        //:
+        //: 2 Test using both bslh::Hash<> and bsl::hash<StringRef> (both of
+        //:    which should now give the same result). Hash strings where only
+        //:    the final value differs to ensure that the full length of the
+        //:    string is being hashed. Also hash multiple copies of the same
+        //:    string and ensure they produce the same hash to make sure
+        //:    nothing beyond the end of the string is being hashed.
         //
         // Testing:
         //   bsl::hash<BloombergLP::bslstl::StringRef>
+        //   bslh::Hash<>
         // --------------------------------------------------------------------
 
         if (verbose) std::cout << "\nTesting Hash Function"
@@ -1936,7 +1951,16 @@ int main(int argc, char *argv[])
             { L_,  "YUM UN Equity"              },
             { L_,  "ZION UW Equity"             },
             { L_,  "ZMH UN Equity"              },
-
+            // Some data only differing by the final element to ensure the
+            // whole string is hashed
+            { L_,  "AAAAAAAAAAAAAAAAAAAAAAAA"   },
+            { L_,  "AAAAAAAAAAAAAAAAAAAAAAAB"   },
+            { L_,  "AAAAAAAAAAAAAAAAAAAAAAAC"   },
+            { L_,  "AAAAAAAAAAAAAAAAAAAAAAAD"   },
+            { L_,  "AAAAAAAAAAAAAAAAAAAAAAAE"   },
+            { L_,  "AAAAAAAAAAAAAAAAAAAAAAAF"   },
+            { L_,  "AAAAAAAAAAAAAAAAAAAAAAAG"   },
+            { L_,  "AAAAAAAAAAAAAAAAAAAAAAAH"   },
         };
 
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1944,7 +1968,8 @@ int main(int argc, char *argv[])
         std::map<Obj, std::size_t> hash_results;
         std::map<std::size_t, int> hash_value_counts;
 
-        bsl::hash<Obj>        hash_function;
+        bsl::hash<Obj>        bsl_hash_function;
+        bslh::Hash<>          bslh_hash_function;
 
         // Capture all the hash values.
         for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -1952,7 +1977,13 @@ int main(int argc, char *argv[])
             const char *STR          = DATA[ti].d_str;
             Obj o(STR);
 
-            std::size_t hash_value = hash_function(o);
+            std::size_t hash_value =
+                                    static_cast<size_t>(bslh_hash_function(o));
+            std::size_t bsl_hash_value =
+                                     static_cast<size_t>(bsl_hash_function(o));
+
+            // Ensure bslh::Hash and bsl::hash produce the same value
+            ASSERT(hash_value == bsl_hash_value);
 
             if (veryVerbose) {
                 printf("%4d: STR=%-20s, HASH=" ZU "\n",LINE, STR, hash_value);
@@ -1963,13 +1994,17 @@ int main(int argc, char *argv[])
         }
 
         // Repeat all hashes in reverse order, making sure we get the same
-        // values as last time.
+        // values as last time. Copy the data to ensure we are hashing the same
+        // data from different memory locations, ensuring that we get the same
+        // hash even when the data is stored elsewhere (will also spot if we
+        // are hashing beyond the end of the string).
         for (int ti = NUM_DATA - 1; ti >= 0; --ti) {
             const int   LINE         = DATA[ti].d_line;
             const char *STR          = DATA[ti].d_str;
-            Obj o(STR);
+            char        strCopy [40];
+            Obj o(strcpy(strCopy, STR));
 
-            std::size_t hash_value = hash_function(o);
+            std::size_t hash_value = bslh_hash_function(o);
             LOOP_ASSERT(LINE, hash_results[o] == hash_value);
         }
 
@@ -2001,7 +2036,9 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Specify a set of strings and the assert addition operators
-        //   return the correct results.
+        //   return the correct results. The the basic_string operator+= is
+        //   being tested here becuase the bslstl_string test driver can not
+        //   test using StringRef without introducing cyclic dependencies
         //
         // Testing:
         //   int operator+(const StringRef& lhs, const StringRef& rhs);
@@ -2012,10 +2049,11 @@ int main(int argc, char *argv[])
         //   int operator+(const char *lhs, const StringRef& rhs);
         //   int operator+(const StringRef& lhs, const char *rhs);
         //   int operator+(const StringRef& lhs, const StringRef& rhs);
+        //   basic_string basic_string::operator+=(const StringRefData& strRf); 
         // --------------------------------------------------------------------
 
-        if (verbose) std::cout << "\nTesting Comparison Operators"
-                               << "\n============================"
+        if (verbose) std::cout << "\nTESTING ADDITION OPERATORS"
+                               << "\n=========================="
                                << std::endl;
 
         static const struct {
@@ -2111,6 +2149,13 @@ int main(int argc, char *argv[])
             // 'native_std::string' versus 'bsl::string'
             // This test is to ensure no overloading ambiguity was introduced.
             LOOP_ASSERT(LINE, RESULT == (S3  + S4));
+
+            // bsl::string with StringRef concatenated on. See comments at top
+            // of section for explanation
+            // Ensure += returns correctly
+            LOOP_ASSERT(LINE, RESULT == (s1 += X2));
+            // Ensure += left operand has proper value afterwards
+            LOOP_ASSERT(LINE, RESULT == s1);
         }
       } break;
       case 6: {
@@ -3141,23 +3186,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

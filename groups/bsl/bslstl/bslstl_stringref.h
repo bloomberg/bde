@@ -698,6 +698,11 @@ std::basic_ostream<CHAR_TYPE>&
     // specified output 'stream' and return a reference to the modifiable
     // 'stream'.
 
+// FREE FUNCTIONS
+template <typename CHAR_TYPE, typename HASHALG>
+void hashAppend(HASHALG& hashAlg, const StringRefImp<CHAR_TYPE>&  input);
+    // Pass the specified 'input' to the specified 'hashAlg'
+
 // ===========================================================================
 //                                  TYPEDEFS
 // ===========================================================================
@@ -1380,82 +1385,32 @@ bslstl::operator<<(std::basic_ostream<CHAR_TYPE>& stream,
     return stream;
 }
 
-
-}  // close enterprise namespace
-
-                      // =================================
-                      // struct hash<bslstl::StringRefImp>
-                      // =================================
-
-namespace bsl {
-
-template <typename CHAR_TYPE>
-struct hash<BloombergLP::bslstl::StringRefImp<CHAR_TYPE> > {
-    // This template specialization enables use of 'bslstl::StringRefImp'
-    // within STL hash containers, for example,
-    // 'bsl::unordered_set<bslstl::StringRefImp>' and
-    // 'bsl::unordered_map<bslstl::StringRefImp, Type>' for some type 'Type'.
-
-    // ACCESSORS
-    std::size_t
-    operator()(const BloombergLP::bslstl::StringRefImp<CHAR_TYPE>&
-                                                              stringRef) const;
-        // Return a hash corresponding to the string bound to the specified
-        // 'stringRef'.
-};
-
-// ACCESSORS
-template <typename CHAR_TYPE>
-std::size_t hash<BloombergLP::bslstl::StringRefImp<CHAR_TYPE> >::
-operator()(const BloombergLP::bslstl::StringRefImp<CHAR_TYPE>& stringRef) const
+template <typename CHAR_TYPE, typename HASHALG>
+inline
+void bslstl::hashAppend(HASHALG& hashAlg, 
+                        const StringRefImp<CHAR_TYPE>&  input)
 {
-    const CHAR_TYPE *string = stringRef.begin();
-    const CHAR_TYPE *end    = stringRef.end();
-
-    const unsigned int ADDEND       = 1013904223U;
-    const unsigned int MULTIPLICAND =    1664525U;
-    const unsigned int MASK         = 4294967295U;
-
-    std::size_t r = 0;
-
-    if (4 == sizeof(int)) {
-        while (string != end) {
-            r ^= *string++;
-            r = r * MULTIPLICAND + ADDEND;
-        }
-    }
-    else {
-        while (string != end) {
-            r ^= *string++;
-            r = (r * MULTIPLICAND + ADDEND) & MASK;
-        }
-    }
-
-    return r;
+    using ::BloombergLP::bslh::hashAppend;
+    hashAlg(input.data(), sizeof(CHAR_TYPE)*input.length());
+    hashAppend(hashAlg, input.length());
 }
 
-}  // close namespace bsl
+}  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

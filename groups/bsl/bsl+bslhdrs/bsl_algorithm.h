@@ -30,11 +30,7 @@ BSLS_IDENT("$Id: $")
 namespace bsl {
 
     // Import selected symbols into bsl namespace
-    using native_std::new_handler;
     using native_std::adjacent_find;
-    using native_std::advance;
-    using native_std::bad_alloc;
-    using native_std::bidirectional_iterator_tag;
     using native_std::binary_search;
     using native_std::copy;
     using native_std::copy_backward;
@@ -54,15 +50,11 @@ namespace bsl {
     using native_std::find_first_of;
     using native_std::find_if;
     using native_std::for_each;
-    using native_std::forward_iterator_tag;
     using native_std::generate;
     using native_std::generate_n;
-    using native_std::get_temporary_buffer;
     using native_std::includes;
     using native_std::inplace_merge;
-    using native_std::input_iterator_tag;
     using native_std::iter_swap;
-    using native_std::iterator;
     using native_std::lexicographical_compare;
     using native_std::lower_bound;
     using native_std::make_heap;
@@ -73,17 +65,13 @@ namespace bsl {
     using native_std::min_element;
     using native_std::mismatch;
     using native_std::next_permutation;
-    using native_std::nothrow;
-    using native_std::nothrow_t;
     using native_std::nth_element;
-    using native_std::output_iterator_tag;
     using native_std::partial_sort;
     using native_std::partial_sort_copy;
     using native_std::partition;
     using native_std::pop_heap;
     using native_std::prev_permutation;
     using native_std::push_heap;
-    using native_std::random_access_iterator_tag;
     using native_std::random_shuffle;
     using native_std::remove;
     using native_std::remove_copy;
@@ -93,7 +81,6 @@ namespace bsl {
     using native_std::replace_copy;
     using native_std::replace_copy_if;
     using native_std::replace_if;
-    using native_std::return_temporary_buffer;
     using native_std::reverse;
     using native_std::reverse_copy;
     using native_std::rotate;
@@ -130,23 +117,17 @@ namespace bsl {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

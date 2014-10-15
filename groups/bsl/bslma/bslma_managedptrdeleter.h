@@ -120,16 +120,15 @@ class ManagedPtrDeleter {
         // that this trivial copy-assignment operator's definition is compiler
         // generated.
 
-    void set(void *object, void *factory, Deleter deleter);
-        // Set this 'ManagedPtrDeleter' to refer to the object and factory
-        // instance located at the specified 'object' and 'factory' memory
-        // locations, and to the specified 'deleter'.  The behavior is
-        // undefined unless 'deleter' is either 0, or points to a function
-        // whose behavior is also defined if called once with 'object' and
-        // 'factory' as arguments.
-
     void clear();
         // Reset this 'ManagedPtrDeleter' to its uninitialized state.
+
+    void set(void *object, void *factory, Deleter deleter);
+        // Set this 'ManagedPtrDeleter' to refer to the specified 'object', to
+        // the specified 'factory', and to the specified 'deleter'.  The
+        // behavior is undefined unless 'deleter' is either 0, or points to a
+        // function whose behavior is also defined if called once with 'object'
+        // and 'factory' as arguments.
 
     // ACCESSORS
     void deleteManagedObject() const;
@@ -161,7 +160,7 @@ bool operator!=(const ManagedPtrDeleter& lhs, const ManagedPtrDeleter& rhs);
     // 'object', 'factory' and 'deleter' attributes are not the same.
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
                        // -----------------------
@@ -189,6 +188,14 @@ ManagedPtrDeleter::ManagedPtrDeleter(void    *object,
 
 // MANIPULATORS
 inline
+void ManagedPtrDeleter::clear()
+{
+    d_object_p  = 0;
+    d_factory_p = 0;
+    d_deleter   = 0;
+}
+
+inline
 void ManagedPtrDeleter::set(void *object, void *factory, Deleter deleter)
 {
     d_object_p  = object;
@@ -196,6 +203,7 @@ void ManagedPtrDeleter::set(void *object, void *factory, Deleter deleter)
     d_deleter   = deleter;
 }
 
+// ACCESSORS
 inline
 void ManagedPtrDeleter::deleteManagedObject() const
 {
@@ -205,18 +213,10 @@ void ManagedPtrDeleter::deleteManagedObject() const
 }
 
 inline
-void ManagedPtrDeleter::clear()
+ManagedPtrDeleter::Deleter
+ManagedPtrDeleter::deleter() const
 {
-    d_object_p  = 0;
-    d_factory_p = 0;
-    d_deleter   = 0;
-}
-
-// ACCESSORS
-inline
-void *ManagedPtrDeleter::object() const
-{
-    return d_object_p;
+    return d_deleter;
 }
 
 inline
@@ -226,10 +226,9 @@ void *ManagedPtrDeleter::factory() const
 }
 
 inline
-ManagedPtrDeleter::Deleter
-ManagedPtrDeleter::deleter() const
+void *ManagedPtrDeleter::object() const
 {
-    return d_deleter;
+    return d_object_p;
 }
 
 }  // close package namespace
@@ -265,23 +264,17 @@ struct IsBitwiseMoveable<bslma::ManagedPtrDeleter>
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

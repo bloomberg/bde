@@ -938,13 +938,12 @@ class unordered_multiset
     void reserve(size_type numElements);
         // Increase the number of buckets of this set to a quantity such that
         // the ratio between the specified 'numElements' and this quantity does
-        // not exceed 'max_load_factor', and allocate footprint memory
-        // sufficient to grow the table to contain 'numElements' elements.
-        // Note that this guarantees that, after the reserve, elements can be
-        // inserted to grow the container to 'size() == numElements' without
-        // any further allocation, unless the 'KEY' type itself or the hash
-        // function allocate memory.  Also note that this operation has no
-        // effect if 'numElements <= size()'.
+        // not exceed 'max_load_factor'.  Note that this guarantees that, after
+        // the reserve, elements can be inserted to grow the container to
+        // 'size() == numElements' without rehashing. Also note that memory
+        // allocations may still occur when growing the container to 'size() ==
+        // numElements'.  Also note that this operation has no effect if
+        // 'numElements <= size()'.
 
     void swap(unordered_multiset& other);
         // Exchange the value of this object as well as its hasher and
@@ -1653,23 +1652,17 @@ struct UsesBslmaAllocator<bsl::unordered_multiset<KEY,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

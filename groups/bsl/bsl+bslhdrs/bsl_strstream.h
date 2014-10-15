@@ -30,68 +30,27 @@ BSLS_IDENT("$Id: $")
 namespace bsl
 {
     // Import selected symbols into bsl namespace
-    using native_std::bad_exception;
-    using native_std::basic_ios;
-    using native_std::basic_iostream;
-    using native_std::basic_istream;
-    using native_std::basic_ostream;
-    using native_std::basic_streambuf;
-    using native_std::bidirectional_iterator_tag;
-    using native_std::ctype;
-    using native_std::ctype_base;
-    using native_std::ctype_byname;
-    using native_std::endl;
-    using native_std::ends;
-    using native_std::exception;
-    using native_std::flush;
-    using native_std::forward_iterator_tag;
-    using native_std::input_iterator_tag;
-    using native_std::ios_base;
-    using native_std::istreambuf_iterator;
     using native_std::istrstream;
-    using native_std::iterator;
-    using native_std::locale;
-    using native_std::num_get;
-    using native_std::numpunct;
-    using native_std::numpunct_byname;
-    using native_std::ostreambuf_iterator;
     using native_std::ostrstream;
-    using native_std::output_iterator_tag;
-    using native_std::random_access_iterator_tag;
-    using native_std::set_terminate;
-    using native_std::set_unexpected;
     using native_std::strstream;
     using native_std::strstreambuf;
-    using native_std::swap;
-    using native_std::terminate;
-    using native_std::terminate_handler;
-    using native_std::uncaught_exception;
-    using native_std::unexpected;
-    using native_std::unexpected_handler;
-    using native_std::use_facet;
-    using native_std::ws;
+
 }
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

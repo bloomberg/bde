@@ -249,15 +249,15 @@ namespace BloombergLP {
 namespace bslma {
 
 template <class TYPE, class DELETER>
-struct SharedPtrOutofplaceRep_InitGuard;
+struct SharedPtrOutofplaceRep_InitProctor;
 struct SharedPtrOutofplaceRep_DeleterHelper;
 struct SharedPtrOutofplaceRep_DeleterType;
 template <class DELETER>
 class SharedPtrOutofplaceRep_DeleterDiscriminator;
 
-              // ========================================
+              // =========================================
               // struct SharedPtrOutofplaceRep_DeleterType
-              // ========================================
+              // =========================================
 
 struct SharedPtrOutofplaceRep_DeleterType {
     // This 'struct' enumerates four kinds of deleters, the first two are
@@ -365,6 +365,12 @@ class SharedPtrOutofplaceRep : public SharedPtrRep {
         // pointed to by 'ptr'.
 
     // MANIPULATORS
+    virtual void disposeObject();
+        // Destroy the object being referred to by this representation.  This
+        // method is automatically invoked by 'releaseRef' when the number of
+        // shared references reaches zero and should not be explicitly invoked
+        // otherwise.
+
     virtual void disposeRep();
         // Destroy this representation object and deallocate the associated
         // memory.  This method is automatically invoked by 'releaseRef' and
@@ -375,18 +381,10 @@ class SharedPtrOutofplaceRep : public SharedPtrRep {
         // 'disposeRep' method effectively serves as the representation
         // object's destructor.
 
-    virtual void disposeObject();
-        // Destroy the object being referred to by this representation.  This
-        // method is automatically invoked by 'releaseRef' when the number of
-        // shared references reaches zero and should not be explicitly invoked
-        // otherwise.
-
-#if defined(BSLMA_IMPLEMENT_FULL_SHARED_PTR_SEMANTICS_DRQS27411521)
     virtual void *getDeleter(const std::type_info& type);
         // Return a pointer to the deleter stored by the derived representation
         // (if any) if the deleter has the same type as that described by the
         // specified 'type', and a null pointer otherwise.
-#endif
 
     // ACCESSORS
     virtual void *originalPtr() const;
@@ -489,9 +487,9 @@ class SharedPtrOutofplaceRep_DeleterDiscriminator {
         // object.
 };
 
-             // ==========================================
+             // ===========================================
              // struct SharedPtrOutofplaceRep_DeleterHelper
-             // ==========================================
+             // ===========================================
 
 struct SharedPtrOutofplaceRep_DeleterHelper {
     // This 'struct' provides utility functions to apply a deleter to a shared
@@ -545,20 +543,20 @@ struct SharedPtrOutofplaceRep_DeleterHelper {
         // Delete the specified 'ptr' using the specified 'deleter'.
 };
 
-               // ======================================
-               // struct SharedPtrOutofplaceRep_InitGuard
-               // ======================================
+               // =========================================
+               // struct SharedPtrOutofplaceRep_InitProctor
+               // =========================================
 
 template <class TYPE, class DELETER>
-struct SharedPtrOutofplaceRep_InitGuard {
-    // This guard is used for out-of-place shared pointer instantiations.
-    // Generally, a guard is created prior to constructing a
+struct SharedPtrOutofplaceRep_InitProctor {
+    // This proctor is used for out-of-place shared pointer instantiations.
+    // Generally, a proctor is created prior to constructing a
     // 'SharedPtrOutofplaceRep' and released after successful construction.  In
     // the event that an exception is thrown during construction of the
-    // representation, the guard will delete the provided pointer using the
+    // representation, the proctor will delete the provided pointer using the
     // provided deleter.  Note that the provided deleter is held by reference
-    // and must remain valid for the lifetime of the guard.  If the guard is
-    // not released before it's destruction, a copy of the deleter is
+    // and must remain valid for the lifetime of the proctor.  If the proctor
+    // is not released before it's destruction, a copy of the deleter is
     // instantiated to delete the pointer (in case 'operator()' is
     // non-'const').  Also note that if the deleter throws during
     // copy-construction, the provided pointer will not be destroyed.
@@ -571,26 +569,53 @@ struct SharedPtrOutofplaceRep_InitGuard {
 
   public:
     // CREATORS
-    SharedPtrOutofplaceRep_InitGuard(TYPE *ptr, const DELETER& deleter);
-        // Create a guard referring to the specified 'ptr' and using the
-        // specified 'deleter' to destroy 'ptr' when the guard is destroyed.
+    SharedPtrOutofplaceRep_InitProctor(TYPE *ptr, const DELETER& deleter);
+        // Create a proctor referring to the specified 'ptr' and using the
+        // specified 'deleter' to destroy 'ptr' when the proctor is destroyed.
 
-    ~SharedPtrOutofplaceRep_InitGuard();
-        // Destroy this guard and the object (if any) referred to by this
-        // guard.
+    ~SharedPtrOutofplaceRep_InitProctor();
+        // Destroy this proctor and the object (if any) referred to by this
+        // proctor.
 
     // MANIPULATORS
     void release();
-        // Release from management the object referred to by this guard.
+        // Release from management the object referred to by this proctor.
 };
 
 // ============================================================================
-//                      INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
+//              INLINE FUNCTION AND FUNCTION TEMPLATE DEFINITIONS
 // ============================================================================
 
-                     // ---------------------------
+                     // ----------------------------
                      // class SharedPtrOutofplaceRep
-                     // ---------------------------
+                     // ----------------------------
+
+// CLASS FUNCTIONS
+template <class TYPE, class DELETER>
+SharedPtrOutofplaceRep<TYPE, DELETER> *
+               SharedPtrOutofplaceRep<TYPE, DELETER>::makeOutofplaceRep(
+                                                TYPE           *ptr,
+                                                const DELETER&  deleter,
+                                                Allocator      *basicAllocator)
+{
+    SharedPtrOutofplaceRep_InitProctor<TYPE, DELETER> proctor(ptr, deleter);
+
+    enum { BSLMA_DELETER_TYPE =
+                 SharedPtrOutofplaceRep_DeleterDiscriminator<DELETER>::VALUE };
+
+    SharedPtrOutofplaceRep<TYPE, DELETER> *rep = 0;
+
+    basicAllocator = Default::allocator(basicAllocator);
+    rep = new (*basicAllocator) SharedPtrOutofplaceRep(
+                                         ptr,
+                                         deleter,
+                                         basicAllocator,
+                                         bslmf::MetaInt<BSLMA_DELETER_TYPE>());
+
+    proctor.release();
+
+    return rep;
+}
 
 // CREATORS
 template <class TYPE, class DELETER>
@@ -648,35 +673,10 @@ SharedPtrOutofplaceRep<TYPE, DELETER>::~SharedPtrOutofplaceRep()
 
 // MANIPULATORS
 template <class TYPE, class DELETER>
-SharedPtrOutofplaceRep<TYPE, DELETER> *
-               SharedPtrOutofplaceRep<TYPE, DELETER>::makeOutofplaceRep(
-                                                TYPE           *ptr,
-                                                const DELETER&  deleter,
-                                                Allocator      *basicAllocator)
+void SharedPtrOutofplaceRep<TYPE, DELETER>::disposeObject()
 {
-    SharedPtrOutofplaceRep_InitGuard<TYPE, DELETER> guard(ptr, deleter);
-
-    enum { BSLMA_DELETER_TYPE =
-                 SharedPtrOutofplaceRep_DeleterDiscriminator<DELETER>::VALUE };
-
-    SharedPtrOutofplaceRep<TYPE, DELETER> *rep = 0;
-
-#if !defined(BSLMA_IMPLEMENT_FULL_SHARED_PTR_SEMANTICS_DRQS27411521)
-    if (ptr) {  // For C++11, we reference count null pointers
-#endif
-        basicAllocator = Default::allocator(basicAllocator);
-        rep = new (*basicAllocator) SharedPtrOutofplaceRep(
-                                         ptr,
-                                         deleter,
-                                         basicAllocator,
-                                         bslmf::MetaInt<BSLMA_DELETER_TYPE>());
-#if !defined(BSLMA_IMPLEMENT_FULL_SHARED_PTR_SEMANTICS_DRQS27411521)
-    }
-#endif
-
-    guard.release();
-
-    return rep;
+    SharedPtrOutofplaceRep_DeleterHelper::deleteObject(d_ptr_p, d_deleter);
+    d_ptr_p = 0;
 }
 
 template <class TYPE, class DELETER>
@@ -698,14 +698,6 @@ void SharedPtrOutofplaceRep<TYPE, DELETER>::disposeRep()
 }
 
 template <class TYPE, class DELETER>
-void SharedPtrOutofplaceRep<TYPE, DELETER>::disposeObject()
-{
-    SharedPtrOutofplaceRep_DeleterHelper::deleteObject(d_ptr_p, d_deleter);
-    d_ptr_p = 0;
-}
-
-#if defined(BSLMA_IMPLEMENT_FULL_SHARED_PTR_SEMANTICS_DRQS27411521)
-template <class TYPE, class DELETER>
 inline
 void *
 SharedPtrOutofplaceRep<TYPE, DELETER>::getDeleter(const std::type_info& type)
@@ -714,7 +706,6 @@ SharedPtrOutofplaceRep<TYPE, DELETER>::getDeleter(const std::type_info& type)
          ? bsls::Util::addressOf(d_deleter)
          : 0;
 }
-#endif
 
 // ACCESSORS
 template <class TYPE, class DELETER>
@@ -791,15 +782,14 @@ void SharedPtrOutofplaceRep_DeleterHelper::deleteObject(TYPE     *ptr,
 }
 
                // ---------------------------------------
-               // struct SharedPtrOutofplaceRep_InitGuard
+               // struct SharedPtrOutofplaceRep_InitProctor
                // ---------------------------------------
 
 // CREATORS
 template <class TYPE, class DELETER>
 inline
-SharedPtrOutofplaceRep_InitGuard<TYPE, DELETER>
-                    ::SharedPtrOutofplaceRep_InitGuard(TYPE           *ptr,
-                                                       const DELETER&  deleter)
+SharedPtrOutofplaceRep_InitProctor<TYPE, DELETER>::
+SharedPtrOutofplaceRep_InitProctor(TYPE *ptr, const DELETER&  deleter)
 : d_ptr_p(ptr)
 , d_deleter(deleter)
 {
@@ -807,8 +797,8 @@ SharedPtrOutofplaceRep_InitGuard<TYPE, DELETER>
 
 template <class TYPE, class DELETER>
 inline
-SharedPtrOutofplaceRep_InitGuard<TYPE, DELETER>
-                                          ::~SharedPtrOutofplaceRep_InitGuard()
+SharedPtrOutofplaceRep_InitProctor<TYPE, DELETER>::
+~SharedPtrOutofplaceRep_InitProctor()
 {
     // The definition of this function is intentionally *not* written as:
     //..
@@ -834,10 +824,20 @@ SharedPtrOutofplaceRep_InitGuard<TYPE, DELETER>
 // MANIPULATORS
 template <class TYPE, class DELETER>
 inline
-void SharedPtrOutofplaceRep_InitGuard<TYPE, DELETER>::release()
+void SharedPtrOutofplaceRep_InitProctor<TYPE, DELETER>::release()
 {
     d_ptr_p = 0;
 }
+
+// ============================================================================
+//                              TYPE TRAITS
+// ============================================================================
+
+template <class TYPE, class DELETER>
+struct UsesBslmaAllocator<SharedPtrOutofplaceRep_InitProctor<TYPE, DELETER> >
+    : bsl::false_type
+{
+};
 
 }  // close namespace bslma
 }  // close namespace BloombergLP
@@ -845,23 +845,17 @@ void SharedPtrOutofplaceRep_InitGuard<TYPE, DELETER>::release()
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
