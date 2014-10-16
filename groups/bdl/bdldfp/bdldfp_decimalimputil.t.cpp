@@ -7057,27 +7057,27 @@ void TestDriver::testCase2()
         AssertFailureHandlerGuard g(bsls::AssertTest::failTestDriver);
 
         // Check exponent lower bound
-        BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
+        BSLS_ASSERTTEST_ASSERT_FAIL(
                                   Util::makeDecimalRaw32(       42, -102));
-        BSLS_ASSERTTEST_ASSERT_OPT_PASS(
+        BSLS_ASSERTTEST_ASSERT_PASS(
                                   Util::makeDecimalRaw32(       42, -101));
 
         // Check exponent upper bound
-        BSLS_ASSERTTEST_ASSERT_OPT_PASS(
+        BSLS_ASSERTTEST_ASSERT_PASS(
                                   Util::makeDecimalRaw32(       42,   90));
-        BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
+        BSLS_ASSERTTEST_ASSERT_FAIL(
                                   Util::makeDecimalRaw32(       42,   91));
 
         // Check mantissa lower bound
-        BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
+        BSLS_ASSERTTEST_ASSERT_FAIL(
                                   Util::makeDecimalRaw32(-10000000,   42));
-        BSLS_ASSERTTEST_ASSERT_OPT_PASS(
+        BSLS_ASSERTTEST_ASSERT_PASS(
                                   Util::makeDecimalRaw32(- 9999999,   42));
 
         // Check mantissa upper bound
-        BSLS_ASSERTTEST_ASSERT_OPT_PASS(
+        BSLS_ASSERTTEST_ASSERT_PASS(
                                   Util::makeDecimalRaw32(  9999999,   42));
-        BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
+        BSLS_ASSERTTEST_ASSERT_FAIL(
                                   Util::makeDecimalRaw32( 10000000,   42));
     }
 
@@ -7089,12 +7089,12 @@ void TestDriver::testCase2()
         // Test 'makeDecimalRaw64(int, int)':
 
         // Check exponent lower bound
-        BSLS_ASSERTTEST_ASSERT_OPT_FAIL(Util::makeDecimalRaw64(42, -399));
-        BSLS_ASSERTTEST_ASSERT_OPT_PASS(Util::makeDecimalRaw64(42, -398));
+        BSLS_ASSERTTEST_ASSERT_FAIL(Util::makeDecimalRaw64(42, -399));
+        BSLS_ASSERTTEST_ASSERT_PASS(Util::makeDecimalRaw64(42, -398));
 
         // Check exponent upper bound
-        BSLS_ASSERTTEST_ASSERT_OPT_PASS(Util::makeDecimalRaw64(42,  369));
-        BSLS_ASSERTTEST_ASSERT_OPT_FAIL(Util::makeDecimalRaw64(42,  370));
+        BSLS_ASSERTTEST_ASSERT_PASS(Util::makeDecimalRaw64(42,  369));
+        BSLS_ASSERTTEST_ASSERT_FAIL(Util::makeDecimalRaw64(42,  370));
 
         // 'makeDecimalRaw64(int, int)' needs no test for mantissa bounds
         // because 9,999,999,999,999,999 is unrepresentable as an int.
@@ -7102,12 +7102,12 @@ void TestDriver::testCase2()
         // Test 'makeDecimalRaw64(unsigned int, int)':
 
         // Check exponent lower bound
-        BSLS_ASSERTTEST_ASSERT_OPT_FAIL(Util::makeDecimalRaw64(42u, -399));
-        BSLS_ASSERTTEST_ASSERT_OPT_PASS(Util::makeDecimalRaw64(42u, -398));
+        BSLS_ASSERTTEST_ASSERT_FAIL(Util::makeDecimalRaw64(42u, -399));
+        BSLS_ASSERTTEST_ASSERT_PASS(Util::makeDecimalRaw64(42u, -398));
 
         // Check exponent upper bound
-        BSLS_ASSERTTEST_ASSERT_OPT_PASS(Util::makeDecimalRaw64(42u,  369));
-        BSLS_ASSERTTEST_ASSERT_OPT_FAIL(Util::makeDecimalRaw64(42u,  370));
+        BSLS_ASSERTTEST_ASSERT_PASS(Util::makeDecimalRaw64(42u,  369));
+        BSLS_ASSERTTEST_ASSERT_FAIL(Util::makeDecimalRaw64(42u,  370));
 
         // 'makeDecimalRaw64(unsigned int, int)' needs no test for mantissa
         // bounds because 9,999,999,999,999,999 is unrepresentable as an
@@ -7116,50 +7116,50 @@ void TestDriver::testCase2()
         // Test 'makeDecimalRaw64(long long, int)':
 
         // Check exponent lower bound
-        BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
+        BSLS_ASSERTTEST_ASSERT_FAIL(
                        Util::makeDecimalRaw64(                42ll, -399));
-        BSLS_ASSERTTEST_ASSERT_OPT_PASS(
+        BSLS_ASSERTTEST_ASSERT_PASS(
                        Util::makeDecimalRaw64(                42ll, -398));
 
         // Check exponent upper bound
-        BSLS_ASSERTTEST_ASSERT_OPT_PASS(
+        BSLS_ASSERTTEST_ASSERT_PASS(
                        Util::makeDecimalRaw64(                42ll,  369));
-        BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
+        BSLS_ASSERTTEST_ASSERT_FAIL(
                        Util::makeDecimalRaw64(                42ll,  370));
 
         // Check mantissa lower bound
-        BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
+        BSLS_ASSERTTEST_ASSERT_FAIL(
                        Util::makeDecimalRaw64(-10000000000000000ll,   42));
-        BSLS_ASSERTTEST_ASSERT_OPT_PASS(
+        BSLS_ASSERTTEST_ASSERT_PASS(
                        Util::makeDecimalRaw64(- 9999999999999999ll,   42));
 
         // Check mantissa upper bound
-        BSLS_ASSERTTEST_ASSERT_OPT_PASS(
+        BSLS_ASSERTTEST_ASSERT_PASS(
                        Util::makeDecimalRaw64(  9999999999999999ll,   42));
-        BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
+        BSLS_ASSERTTEST_ASSERT_FAIL(
                        Util::makeDecimalRaw64( 10000000000000000ll,   42));
 
         // Test 'makeDecimalRaw64(unsigned long long, int)':
 
         // Check exponent lower bound
-        BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
+        BSLS_ASSERTTEST_ASSERT_FAIL(
                        Util::makeDecimalRaw64(               42ull, -399));
-        BSLS_ASSERTTEST_ASSERT_OPT_PASS(
+        BSLS_ASSERTTEST_ASSERT_PASS(
                        Util::makeDecimalRaw64(               42ull, -398));
 
         // Check exponent upper bound
-        BSLS_ASSERTTEST_ASSERT_OPT_PASS(
+        BSLS_ASSERTTEST_ASSERT_PASS(
                        Util::makeDecimalRaw64(               42ull,  369));
-        BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
+        BSLS_ASSERTTEST_ASSERT_FAIL(
                        Util::makeDecimalRaw64(               42ull,  370));
 
         // Unsigned numbers cannot be negative, so we do not have a lower
         // bound test.
 
         // Check mantissa upper bound
-        BSLS_ASSERTTEST_ASSERT_OPT_PASS(
+        BSLS_ASSERTTEST_ASSERT_PASS(
                        Util::makeDecimalRaw64( 9999999999999999ull,   42));
-        BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
+        BSLS_ASSERTTEST_ASSERT_FAIL(
                        Util::makeDecimalRaw64(10000000000000000ull,   42));
     }
 
@@ -7171,57 +7171,41 @@ void TestDriver::testCase2()
         // Test 'makeDecimalRaw128(int, int)':
 
         // Check exponent lower bound
-        BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
-                                       Util::makeDecimalRaw128(42, -6177));
-        BSLS_ASSERTTEST_ASSERT_OPT_PASS(
-                                       Util::makeDecimalRaw128(42, -6176));
+        BSLS_ASSERTTEST_ASSERT_FAIL(Util::makeDecimalRaw128(42, -6177));
+        BSLS_ASSERTTEST_ASSERT_PASS(Util::makeDecimalRaw128(42, -6176));
         // Check exponent upper bound
-        BSLS_ASSERTTEST_ASSERT_OPT_PASS(
-                                       Util::makeDecimalRaw128(42,  6111));
-        BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
-                                       Util::makeDecimalRaw128(42,  6112));
+        BSLS_ASSERTTEST_ASSERT_PASS(Util::makeDecimalRaw128(42,  6111));
+        BSLS_ASSERTTEST_ASSERT_FAIL(Util::makeDecimalRaw128(42,  6112));
 
         // Test 'makeDecimalRaw128(unsigned, int)':
 
         // Check exponent lower bound
-        BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
-                                      Util::makeDecimalRaw128(42u, -6177));
-        BSLS_ASSERTTEST_ASSERT_OPT_PASS(
-                                      Util::makeDecimalRaw128(42u, -6176));
+        BSLS_ASSERTTEST_ASSERT_FAIL(Util::makeDecimalRaw128(42u, -6177));
+        BSLS_ASSERTTEST_ASSERT_PASS(Util::makeDecimalRaw128(42u, -6176));
 
         // Check exponent upper bound
-        BSLS_ASSERTTEST_ASSERT_OPT_PASS(
-                                      Util::makeDecimalRaw128(42u,  6111));
-        BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
-                                      Util::makeDecimalRaw128(42u,  6112));
+        BSLS_ASSERTTEST_ASSERT_PASS(Util::makeDecimalRaw128(42u,  6111));
+        BSLS_ASSERTTEST_ASSERT_FAIL(Util::makeDecimalRaw128(42u,  6112));
 
         // Test 'makeDecimalRaw128(long long, int)':
 
         // Check exponent lower bound
-        BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
-                                     Util::makeDecimalRaw128(42ll, -6177));
-        BSLS_ASSERTTEST_ASSERT_OPT_PASS(
-                                     Util::makeDecimalRaw128(42ll, -6176));
+        BSLS_ASSERTTEST_ASSERT_FAIL(Util::makeDecimalRaw128(42ll, -6177));
+        BSLS_ASSERTTEST_ASSERT_PASS(Util::makeDecimalRaw128(42ll, -6176));
 
         // Check exponent upper bound
-        BSLS_ASSERTTEST_ASSERT_OPT_PASS(
-                                     Util::makeDecimalRaw128(42ll,  6111));
-        BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
-                                     Util::makeDecimalRaw128(42ll,  6112));
+        BSLS_ASSERTTEST_ASSERT_PASS(Util::makeDecimalRaw128(42ll,  6111));
+        BSLS_ASSERTTEST_ASSERT_FAIL(Util::makeDecimalRaw128(42ll,  6112));
 
         // Test 'makeDecimalRaw128(unsigned long long, int)':
 
         // Check exponent lower bound
-        BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
-                                    Util::makeDecimalRaw128(42ull, -6177));
-        BSLS_ASSERTTEST_ASSERT_OPT_PASS(
-                                    Util::makeDecimalRaw128(42ull, -6176));
+        BSLS_ASSERTTEST_ASSERT_FAIL(Util::makeDecimalRaw128(42ull, -6177));
+        BSLS_ASSERTTEST_ASSERT_PASS(Util::makeDecimalRaw128(42ull, -6176));
 
         // Check exponent upper bound
-        BSLS_ASSERTTEST_ASSERT_OPT_PASS(
-                                    Util::makeDecimalRaw128(42ull,  6111));
-        BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
-                                    Util::makeDecimalRaw128(42ull,  6112));
+        BSLS_ASSERTTEST_ASSERT_PASS(Util::makeDecimalRaw128(42ull,  6111));
+        BSLS_ASSERTTEST_ASSERT_FAIL(Util::makeDecimalRaw128(42ull,  6112));
     }
 }
 
