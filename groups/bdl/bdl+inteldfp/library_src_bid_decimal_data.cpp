@@ -1,15 +1,29 @@
 #include <bsls_platform.h>
 
-#ifndef BSLS_PLATFORM_OS_WINDOWS
+#if 1
 
 #  pragma GCC diagnostic push
 #  pragma GCC diagnostic ignored "-Wcast-qual"
 
 #ifdef __GNUC__
 #  define _WCHAR_T
-#else
+#elif !defined(BSLS_PLATFORM_OS_WINDOWS)
 #  define __thread
 #  define __QNX__
+#endif
+
+#ifndef BSLS_PLATFORM_OS_WINDOWS
+#  define LINUX
+#  define efi2
+#else
+#  define WINNT
+#  define WINDOWS
+#  define WNT
+#  ifdef BSLS_PLATFORM_CPU_32_BIT
+#    define ia32
+#  else
+#    define efi2
+#  endif
 #endif
 
 #ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
