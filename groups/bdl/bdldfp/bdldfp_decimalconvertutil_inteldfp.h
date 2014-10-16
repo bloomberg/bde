@@ -234,21 +234,24 @@ inline
 double
 DecimalConvertUtil_IntelDfp::decimalToDouble(Decimal32 decimal)
 {
-    return __bid32_to_binary64(decimal.data()->d_raw);
+    _IDEC_flags flags;
+    return __bid32_to_binary64(decimal.data()->d_raw, &flags);
 }
 
 inline
 double
 DecimalConvertUtil_IntelDfp::decimalToDouble(Decimal64 decimal)
 {
-    return __bid64_to_binary64(decimal.data()->d_raw);
+    _IDEC_flags flags;
+    return __bid64_to_binary64(decimal.data()->d_raw, &flags);
 }
 
 inline
 double
 DecimalConvertUtil_IntelDfp::decimalToDouble(Decimal128 decimal)
 {
-    return __bid128_to_binary64(decimal.data()->d_raw);
+    _IDEC_flags flags;
+    return __bid128_to_binary64(decimal.data()->d_raw, &flags);
 }
 
                         // decimalToFloat functions
@@ -276,21 +279,24 @@ inline
 float
 DecimalConvertUtil_IntelDfp::decimalToFloat(Decimal32 decimal)
 {
-    return __bid32_to_binary32(decimal.data()->d_raw);
+    _IDEC_flags flags;
+    return __bid32_to_binary32(decimal.data()->d_raw, &flags);
 }
 
 inline
 float
 DecimalConvertUtil_IntelDfp::decimalToFloat(Decimal64 decimal)
 {
-    return __bid64_to_binary32(decimal.data()->d_raw);
+    _IDEC_flags flags;
+    return __bid64_to_binary32(decimal.data()->d_raw, &flags);
 }
 
 inline
 float
 DecimalConvertUtil_IntelDfp::decimalToFloat(Decimal128 decimal)
 {
-    return __bid128_to_binary32(decimal.data()->d_raw);
+    _IDEC_flags flags;
+    return __bid128_to_binary32(decimal.data()->d_raw, &flags);
 }
 
                         // decimalToNetwork functions
