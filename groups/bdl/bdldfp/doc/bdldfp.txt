@@ -9,17 +9,28 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdldfp' package currently has 6 components having 4 levels of physical
+ The 'bdldfp' package currently has 14 components having 7 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  4. bdldfp_decimalconvertutil
+  7. bdldfp_decimalconvertutil
+
+  6. bdldfp_decimalconvertutil_decnumber
+     bdldfp_decimalconvertutil_ibmxlc
+     bdldfp_decimalconvertutil_inteldfp
      bdldfp_decimalutil
 
-  3. bdldfp_decimal
+  5. bdldfp_decimal
 
-  2. bdldfp_decimalimplutil
+  4. bdldfp_decimalimputil
+
+  3. bdldfp_decimalimputil_decnumber
+     bdldfp_decimalimputil_ibmxlc
+     bdldfp_decimalimputil_inteldfp
+
+  2. bdldfp_denselypackeddecimalimputil
+     bdldfp_intelimpwrapper
 
   1. bdldfp_decimalplatform
      bdldfp_uint128
@@ -33,14 +44,38 @@
 : 'bdldfp_decimalconvertutil':
 :      Provide decimal floating-point conversion functions.
 :
-: 'bdldfp_decimalimplutil':
-:      Provide utilities to help implement decimal floating-point types.
+: 'bdldfp_decimalconvertutil_decnumber':
+:      Provide decimal floating-point conversion functions for decNumber.
+:
+: 'bdldfp_decimalconvertutil_ibmxlc':
+:      Provide decimal floating-point conversion functions.
+:
+: 'bdldfp_decimalconvertutil_inteldfp':
+:      Provide decimal floating-point conversion functions for Intel DFP.
+:
+: 'bdldfp_decimalimputil':
+:      Provide a unified low-level interface for decimal floating point.
+:
+: 'bdldfp_decimalimputil_decnumber':
+:      Provide utility implementing decimal FP on the decNumber library.
+:
+: 'bdldfp_decimalimputil_ibmxlc':
+:      Provide utility to implement decimal 'float's on the IBM compiler.
+:
+: 'bdldfp_decimalimputil_inteldfp':
+:      Provide utility to implement decimal 'float's on the Intel library.
 :
 : 'bdldfp_decimalplatform':
 :      Provide decimal floating-point platform information macros.
 :
 : 'bdldfp_decimalutil':
 :      Provide utilities dealing with floating point decimal objects.
+:
+: 'bdldfp_denselypackeddecimalimputil':
+:      Utilities for working with Densely Packed Decimal representation.
+:
+: 'bdldfp_intelimpwrapper':
+:      Provide a central mechanism to configure the Intel DFP library.
 :
 : 'bdldfp_uint128':
 :      Provide a representation of a 128-bit 'int' for bitwise operations.
