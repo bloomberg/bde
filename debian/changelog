@@ -1,10 +1,19 @@
-bsl-internal (2.22.0.10) unstable; urgency=low
+bsl-internal (2.22.0.11) unstable; urgency=low
 
-  * 930d531 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.22.x
+  * 1c1cc73 [APPROVAL] OSS review/decimal-omnibus-merge to releases/2.22.x
+  * 796e15b [APPROVAL] review/decimal-omnibus-merge to releases/2.22.x
+
+ -- Alexander Beels <abeels@bloomberg.net>  Thu, 16 Oct 2014 19:10:16 -0400
+
+bsl-internal (2.22.0.10) git; urgency=low
+
+  * 0b597a1 [APPROVAL] bump-changelog-2.22.0.10 to releases/2.22.x
+  * 1f65873 bump changelog to 2.22.0.10
   * 75a3188 [APPROVAL] INTERNAL add-inline-to-assign-stringref-drqs-57553745 to releases/2.22.x
+  * 930d531 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.22.x
   * 612af51 [APPROVAL] add-inline-to-assign-stringref-drqs-57553745 to releases/2.22.x
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 7 Oct 2014 12:20:35 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 7 Oct 2014 12:23:31 -0400
 
 bsl-internal (2.22.0.9) git; urgency=low
 
@@ -30,6 +39,7 @@ bsl-internal (2.22.0.7) git; urgency=low
 
   * 41b91f2 bump changelog
   * 168e9cf [APPROVAL] origin/review/undef-P7-in-bdldfp-drqs-57209949 to releases/2.22.x
+  * e9cc3b8 [APPROVAL] INTERNAL undef-P7-in-bdldfp-drqs-57209949 to master
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 27 Sep 2014 14:35:41 -0400
 
