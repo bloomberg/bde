@@ -1,9 +1,18 @@
-bsl-internal (2.22.0.11) unstable; urgency=low
+bsl-internal (2.22.0.12) unstable; urgency=low
 
+  * 2361697 [APPROVAL] OSS remove-want-decfp-drqs-55534214 to releases/2.22.x
+  * c5a2a85 [APPROVAL] remove-want-decfp-drqs-55534214 to releases/2.22.x
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 17 Oct 2014 14:03:37 -0400
+
+bsl-internal (2.22.0.11) git; urgency=low
+
+  * a8b618b [APPROVAL] bump-changelog-to-2.22.0.11 to releases/2.22.x
+  * c463d5f bump changelog to 2.22.0.11
   * 1c1cc73 [APPROVAL] OSS review/decimal-omnibus-merge to releases/2.22.x
   * 796e15b [APPROVAL] review/decimal-omnibus-merge to releases/2.22.x
 
- -- Alexander Beels <abeels@bloomberg.net>  Thu, 16 Oct 2014 19:10:16 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 17 Oct 2014 12:22:37 -0400
 
 bsl-internal (2.22.0.10) git; urgency=low
 
