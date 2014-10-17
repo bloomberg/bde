@@ -21,56 +21,56 @@
 /Hierarchical Synopsis
 /---------------------
  The 'bslstp' package currently has 11 components having 3 levels of physical
- dependency.  The table below shows the hierarchical ordering of the
- components.  The order of components within each level is not architecturally
- significant, just alphabetical.
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
   3. bslstp_hashmap
      bslstp_hashset
 
   2. bslstp_hashtable
      bslstp_slist
-     bslstp_sstream
 
   1. bslstp_alloc
      bslstp_exalgorithm
      bslstp_exfunctional
-     bslstp_iosfwd
+     bslstp_hash
      bslstp_iterator
      bslstp_slistbase
+     bslstp_util
 ..
 
 /Component Synopsis
 /------------------
 : 'bslstp_alloc':
-:     allocator-related traits and container base adapter
+:      Provide facilities for STLPort implementation.
 :
 : 'bslstp_exalgorithm':
-:     Provide a namespace for algorithm extensions.
+:      Provide a namespace for algorithm extensions.
 :
 : 'bslstp_exfunctional':
-:     Provide a namespace for functional extensions.
+:      Provide a namespace for functional extensions.
+:
+: 'bslstp_hash':
+:      Provide a namespace for hash functions.
 :
 : 'bslstp_hashmap':
-:     SGI extension of a hash table and multi-hash table
+:      Provide containers indexed by a hashed key value.
 :
-: 'bslstp_hashset'
-:     SGI extension of a hash set and multi-hash set
+: 'bslstp_hashset':
+:      Provide containers hashed by value.
 :
 : 'bslstp_hashtable':
-:     generic hash table used to implement 'hashmap' and 'hashset'
+:      Provide facilities for STLPort implementation.
 :
-: 'bslstp_iosfwd':
-:     forward declaration of stream classes that use 'bsl::allocator'
+: 'bslstp_iterator':
+:      Provide facility for STLPort implementation.
 :
-: 'bslstp_iterator'
-:     iterator-related traits
+: 'bslstp_slist':
+:      Provide a singly linked list container.
 :
-: 'bslstp_slist'
-:     SGI extension of a singly-linked list
+: 'bslstp_slistbase':
+:      Provide facility for STLPort implementation.
 :
-: 'bslstp_slistbase'    
-:     helper class for implementation of 'slist'
-:
-: 'bslstp_sstream'
-:     conforming 'std::sstream' implementation
+: 'bslstp_util':
+:      Provide a namespace for utility functions for STL functionality.
