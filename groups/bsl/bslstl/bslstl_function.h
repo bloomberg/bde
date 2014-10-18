@@ -231,6 +231,54 @@ struct Function_ObjAlignment<void> {
     static const std::size_t VALUE = 1;
 };
 
+                // ==================================================
+                // class Function_IsNothrowUsesAllocatorConstructible
+                // ==================================================
+
+template <class TYPE, bool USES_BSLMA = bslma::UsesBslmaAllocator<TYPE>::value>
+struct Function_IsNothrowUsesAllocatorConstructible
+{
+    // Metafunction with a member 'VALUE' of 'true' if 'TYPE' either doesn't
+    // use a bslma allocator and has a nothrow move constructor or uses a
+    // bslma allocator and has a nothrow extended move constructor.
+    
+    // This specialization is for types that do use a bslma allocator.
+    static const std::size_t VALUE =
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+        // Check if nothrow move constructible and nothrow extended move
+        // constructor.  The use of '::new' lets us check the constructor
+        // without also checking the destructor.  This is especially important
+        // in gcc 4.7 and before because destructors are not implicitly
+        // noexcept in those compilers.
+        noexcept(::new((void*) 0) TYPE(std::declval<TYPE>())) &&
+        noexcept(::new((void*) 0) TYPE(std::declval<TYPE>(), 
+                                       std::declval<bslma::Allocator*>()));
+#else
+        false;
+#endif
+};
+
+template <class TYPE>
+struct Function_IsNothrowUsesAllocatorConstructible<TYPE, false>
+{
+    // Metafunction with a member 'VALUE' of 'true' if 'TYPE' either doesn't
+    // use a bslma allocator and has a nothrow move constructor or uses a
+    // bslma allocator and has a nothrow extended move constructor.
+    // This specialization is for types that don't use a bslma allocator.
+
+    static const std::size_t VALUE =
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+        // Check if nothrow move constructible.  The use of '::new' lets
+        // us check the constructor without also checking the destructor.
+        // This is especially important in gcc 4.7 and before because
+        // destructors are not implicitly noexcept in those compilers.
+        noexcept(::new((void*) 0) TYPE(std::declval<TYPE>()));
+#else
+        false;
+#endif
+
+};
+
                         // ==================
                         // class Function_Rep
                         // ==================
@@ -408,9 +456,10 @@ class Function_Rep {
         // the small object optimization (SOO).  The 'VALUE' member is encoded
         // as follows:
         //
-        //:  o If 'TP' is not larger than 'InplaceBuffer' but should
-        //:    not be allocated inplace for other reasons, then
-        //:    'VALUE == sizeof(TP) + k_NON_SOO_SMALL_SIZE'.
+        //:  o If 'TP' is not larger than 'InplaceBuffer' but has a throwing
+        //:    move constructor or extended move constructor (and therefore
+        //:    should not be allocated inplace), then 'VALUE == sizeof(TP) +
+        //:    k_NON_SOO_SMALL_SIZE'.
         //:  o Otherwise, if 'TP' is an empty class, 'VALUE == 0'.
         //:  o Otherwise, 'VALUE == sizeof(TP)'.
         //
@@ -428,16 +477,14 @@ class Function_Rep {
     public:
         static const std::size_t VALUE =
             (FOOTPRINT > sizeof(InplaceBuffer)                 ? FOOTPRINT :
-             bslmf::IsBitwiseMoveable<TP>::value               ? FOOTPRINT :
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
-             // Check if nothrow move constructible.  The use of '::new' lets
-             // us check the constructor without also checking the destructor.
-             // This is especially important in gcc 4.7 and before because
-             // destructors are not implicitly noexcept in those compilers.
-             noexcept(::new((void*) 0) TP(std::declval<TP>())) ? FOOTPRINT :
-#endif
+             bslmf::IsBitwiseMoveable<TP>::value &&
+                 ! bslma::UsesBslmaAllocator<TP>::value        ? FOOTPRINT :
+             Function_IsNothrowUsesAllocatorConstructible<TP>::VALUE
+                                                               ? FOOTPRINT :
              // If not nonthrow or bitwise moveable, then use the real size
-             // (as computed by sizeof), not the adjusted size in 'FOOTPRINT'
+             // (as computed by sizeof), not the adjusted size in 'FOOTPRINT',
+             // and add 'k_NON_SOO_SMALL_SIZE' to indicate that we should not
+             // use the small object optimization for this type.
              sizeof(TP) + k_NON_SOO_SMALL_SIZE);
     };
 
@@ -1098,27 +1145,23 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
       } break;
 
       case e_DESTRUCTIVE_MOVE: {
-        void *input_p = input.asPtr();
-        char savedSrcByte = static_cast<char*>(input_p)[0];
-        if (bslmf::IsBitwiseMoveable<FUNC>::value) {
-            *reinterpret_cast<bsls::ObjectBuffer<FUNC>*>(wrappedFunc_p) =
-                *static_cast<bsls::ObjectBuffer<FUNC>*>(input_p);
+        void *input_p      = input.asPtr();
+        char  savedSrcByte = static_cast<char*>(input_p)[0];
+        FUNC *srcFunc_p    = static_cast<FUNC*>(input_p);
+
+        if (bslma::UsesBslmaAllocator<FUNC>::value) {
+            // Cannot use 'ScalarPrimitives::destructiveMove' because the
+            // usual assumptions about allocator propagation don't hold.
+            // The to and from allocators might not be the same if the 
+            // allocator is inplace owned.
+            bslalg::ScalarPrimitives::moveConstruct(wrappedFunc_p,
+                                                    *srcFunc_p,
+                                                    rep->d_allocator_p);
+            srcFunc_p->~FUNC();
         }
         else {
-            FUNC &srcFunc = *static_cast<FUNC*>(input_p);
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-            ::new (wrappedFunc_p) FUNC(std::move(srcFunc));
-#else
-            // We could use 'ScalarPrimitives::destructiveMove', but since
-            // 'ScalarPrimitives' does not yet support rvalue references,
-            // we've already had to do all of the dispatching of
-            // 'destructiveMove' and are better off just doing a copy here.
-            bslalg::ScalarPrimitives::copyConstruct(wrappedFunc_p,
-                                                    srcFunc,
-                                                    rep->d_allocator_p);
-#endif
-            srcFunc.~FUNC();
+            bslalg::ScalarPrimitives::destructiveMove(wrappedFunc_p, srcFunc_p,
+                                                      rep->d_allocator_p);
         }
 
         if (0 == k_SOO_FUNC_SIZE) {

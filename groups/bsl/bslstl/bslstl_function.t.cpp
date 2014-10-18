@@ -647,6 +647,9 @@ public:
     // This move constructor is not called in nothrow settings.
     SmallFunctor(SmallFunctor&& other) : d_value(other.d_value)
         { --moveLimit; other.d_value = k_MOVED_FROM_VAL; }
+    SmallFunctor(SmallFunctor&& other, std::nothrow_t) BSLS_NOTHROW_SPEC
+        : d_value(other.d_value)
+        { other.d_value = k_MOVED_FROM_VAL; }
 #endif
 
     ~SmallFunctor() { std::memset(this, 0xbb, sizeof(*this)); }
@@ -918,11 +921,12 @@ public:
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     // Move constructor propagates allocator
-    SmallFunctorWithAlloc(SmallFunctorWithAlloc&& other)
-        : SmallFunctor(std::move(other)), d_alloc_p(other.d_alloc_p) { }
+    SmallFunctorWithAlloc(SmallFunctorWithAlloc&& other) BSLS_NOTHROW_SPEC
+        : SmallFunctor(std::move(other), std::nothrow)
+        , d_alloc_p(other.d_alloc_p) { }
     SmallFunctorWithAlloc(SmallFunctorWithAlloc&&  other,
-                          bslma::Allocator        *alloc)
-        : SmallFunctor(std::move(other)), d_alloc_p(alloc) { }
+                          bslma::Allocator        *alloc) BSLS_NOTHROW_SPEC
+        : SmallFunctor(std::move(other), std::nothrow), d_alloc_p(alloc) { }
 #endif
 
     ~SmallFunctorWithAlloc()
@@ -1600,11 +1604,14 @@ bool areEqualAlloc(const ALLOC1& a, class bsl::allocator<TP>& b)
 
 template <class FUNC>
 inline
-bool hasPropagatedAllocatorImp(const Obj& f, bsl::true_type /*usesBslmaAlloc*/)
-    // Return true if 'f.allocator()' for the specified 'f' functor returns an
-    // adaptor equivalent to the specified 'alloc'; otherwise return false.
-    // This overload is for when 'bslma::UsesBslmaAllocator<FUNC>' derives
-    // from 'true_type' and 'alloc' is a non-pointer.
+bool allocPropagationCheckImp(const Obj& f, bsl::true_type /*usesBslmaAlloc*/)
+    // Return true (good) if the allocator for the specified 'f' function
+    // object is stored as the allocator in the wrapped functor of type 'FUNC'
+    // within 'f'; otherwise return false (failed to propagate allocator
+    // correctly).  The behavior is undefined unless 'f' wraps an
+    // allocator-aware object of type 'FUNC' which supplies an 'allocator()'
+    // member that returns a stored allocator pointer.  This overload is used
+    // when 'bslma::UsesBslmaAllocator<FUNC>' derives from 'true_type'.
 {
     const FUNC *target = f.target<FUNC>();
     return f.allocator() == target->allocator();
@@ -1612,23 +1619,22 @@ bool hasPropagatedAllocatorImp(const Obj& f, bsl::true_type /*usesBslmaAlloc*/)
 
 template <class FUNC>
 inline
-bool hasPropagatedAllocatorImp(const Obj&, bsl::false_type /*usesBslmaAlloc*/)
-    // Return true.  This overload is for when
+bool allocPropagationCheckImp(const Obj&, bsl::false_type /*usesBslmaAlloc*/)
+    // Return true (good).  This overload is used when
     // 'bslma::UsesBslmaAllocator<FUNC>' derives from 'false_type', meaning
-    // that 'FUNC' does not use an allocator and, thus, allocator propagation
-    // can be assumed to be successfull.
+    // that 'FUNC' does not use an allocator.
 {
     return true;
 }
 
 template <class FUNC>
 inline
-bool hasPropagatedAllocator(const Obj& f)
+bool allocPropagationCheck(const Obj& f)
     // Return true if 'f.allocator()' for the specified 'f' functor returns
     // the equivalent of the specified 'alloc' or if 'f' does not use a
     // 'bslma::Allocator*' at all; otherwise return false.
 {
-    return hasPropagatedAllocatorImp<FUNC>(f,
+    return allocPropagationCheckImp<FUNC>(f,
                                            bslma::UsesBslmaAllocator<FUNC>());
 }
 
@@ -1693,7 +1699,7 @@ void testFuncWithAlloc(int line, FUNC func, WhatIsInplace inplace)
                 LOOP_ASSERT(line, target_p);
                 if (target_p) {
                     LOOP_ASSERT(line, func == *target_p);
-                    LOOP_ASSERT(line, hasPropagatedAllocator<FUNC>(f));
+                    LOOP_ASSERT(line, allocPropagationCheck<FUNC>(f));
                     LOOP_ASSERT(line, 0x4005 == f(IntWrapper(0x4000), 5));
                 }
             }
@@ -1773,7 +1779,7 @@ void testCopyCtorWithAlloc(FUNC        func,
             ASSERT(copy.target_type() == original.target_type());
             ASSERT(CheckAlloc<ALLOC>::areEqualAlloc(copyAlloc,
                                                     copy.allocator()));
-            ASSERT(hasPropagatedAllocator<FUNC>(copy));
+            ASSERT(allocPropagationCheck<FUNC>(copy));
             ASSERT(! copy == ! original);
 
             if (copy) {
@@ -1933,7 +1939,7 @@ void testMoveCtorWithSameAlloc(FUNC func, bool extended, const char *allocName)
         
         ASSERT(CheckAlloc<ALLOC>::areEqualAlloc(alloc, source.allocator()));
         ASSERT(CheckAlloc<ALLOC>::areEqualAlloc(alloc, dest.allocator()));
-        ASSERT(hasPropagatedAllocator<FUNC>(dest));
+        ASSERT(allocPropagationCheck<FUNC>(dest));
         if (usesSmallObjectOptimization) {
             // Wrapped functor is allocated within the small buffer.  The
             // source functor would be moved-from, but not empty.
@@ -2043,7 +2049,7 @@ void testMoveCtorWithDifferentAlloc(FUNC        func,
                 ASSERT(CheckAlloc<DEST_ALLOC>::areEqualAlloc(destAlloc,
                                                             dest.allocator()));
 
-                ASSERT(hasPropagatedAllocator<FUNC>(dest));
+                ASSERT(allocPropagationCheck<FUNC>(dest));
 
                 if (dest) {
 
@@ -2122,8 +2128,8 @@ bool AreEqualFunctions(const Obj& inA, const Obj& inB)
     // 'inB' have correct allocator propagation from the 'function' object to
     // the wrapped functor.
 {
-    ASSERT(hasPropagatedAllocator<FUNC>(inA));
-    ASSERT(hasPropagatedAllocator<FUNC>(inB));
+    if (inA) ASSERT(allocPropagationCheck<FUNC>(inA));
+    if (inB) ASSERT(allocPropagationCheck<FUNC>(inB));
 
     if (&inA == &inB) {
         return true;
@@ -2588,7 +2594,7 @@ void testAssignFromFunctor(const Obj&   lhsIn,
             }
 
             LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
-                         hasPropagatedAllocator<FUNC>(lhs));
+                         allocPropagationCheck<FUNC>(lhs));
         }
         EXCEPTION_TEST_CATCH {
             // verify that both lhs and rhs are unchanged
@@ -2634,7 +2640,7 @@ void testAssignFromFunctor(const Obj&   lhsIn,
             }
 
             LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
-                         hasPropagatedAllocator<FUNC>(lhs));
+                         allocPropagationCheck<FUNC>(lhs));
         }
         EXCEPTION_TEST_CATCH {
             // verify that both lhs and rhs are unchanged
@@ -2721,7 +2727,7 @@ void testAssignFromFunctor(const Obj&   lhsIn,
             }
 
             LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
-                         hasPropagatedAllocator<FUNC>(lhs));
+                         allocPropagationCheck<FUNC>(lhs));
         }
         EXCEPTION_TEST_CATCH {
             // verify that both lhs and rhs are unchanged
@@ -2772,9 +2778,6 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-
-            // TBD: A number of test cases need to be extended to test for
-            // correct exception behavior.
 
       case 16: {
         // --------------------------------------------------------------------
