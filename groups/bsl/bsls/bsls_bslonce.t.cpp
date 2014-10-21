@@ -554,10 +554,6 @@ static void* concurrencyTest(void* args)
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-///Usage
-///-----
-// This section illustrates intended use of this component.
-//
 ///Example 1: Using 'bsls::BslOnce' to Perform a Singleton Initialization
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following example demonstrates using 'bsls::BslOnce' to initialize a
@@ -566,22 +562,25 @@ static void* concurrencyTest(void* args)
 // First we declare a 'struct', 'MySingleton', whose definition is elided:
 //..
     struct MySingleton {
+//
+      // PUBLIC DATA
+      int d_exampleData;
+//
       // ...
     };
 //..
 // Notice that the data members are public because we want to avoid dynamic
-// runtime initialize (before the start of 'main') when an object of this type
-// is declared in a static context.
+// runtime initialize (i.e., initialization at run-time before the start of
+// 'main') when an object of this type is declared in a static context.
 //
 // Now we implement a function 'getSingleton' that returns a singleton object.
-// 'getSingleton' uses using 'BslOnce' to ensure the singleton is initialized
-// only once, and that the singleton is initialized before the function
-// returns:
+// 'getSingleton' uses 'BslOnce' to ensure the singleton is initialized only
+// once, and that the singleton is initialized before the function returns:
 //..
     MySingleton *getSingleton()
         // Return a reference to a modifiable singleton object.
     {
-       static MySingleton singleton = { /*  */ };
+       static MySingleton singleton = { 0 };
        static BslOnce     once      = BSLS_BSLONCE_INITIALIZER;
 //
        BslOnceGuard onceGuard;
@@ -594,8 +593,8 @@ static void* concurrencyTest(void* args)
     }
 //..
 // Notice that 'BslOnce' must be initialized to 'BSLS_BSLONCE_INITIALIZER', and
-// that make 'singleton' a function scoped static to avoid allocating it on
-// the 'heap' (and leaking heap memory).
+// that 'singleton' is a function scoped static variable to avoid allocating
+// it on the 'heap' (which might be reported as leaked memory).
 
 // ============================================================================
 //                          MAIN PROGRAM
