@@ -22,6 +22,7 @@
 
 windows             _       STL_DEFINES     = /DBDE_OMIT_INTERNAL_DEPRECATED
 
+
 !! unix-*-*-*-* 	_       STL_DBGDEFS     =
 !! unix-*-*-*-* 	dbg     STL_DBGDEFS     =
 unix-*-*-*-*    	_       STL_DEFINES     = $(STL_DBGDEFS)
