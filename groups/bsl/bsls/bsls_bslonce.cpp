@@ -22,8 +22,7 @@ namespace bsls {
 namespace {
 
 static void yield()
-    // Move the current thread to the end of the scheduler's queue and
-    // schedule another thread to run.
+    // Schedule another thread to run.
 {
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
     ::SleepEx(0, 0);
@@ -33,6 +32,7 @@ static void yield()
 }
 
 }  // close unnamed namespace
+
                         // -------------
                         // class BslOnce
                         // -------------
@@ -58,7 +58,8 @@ bool BslOnce::doEnter()
             yield();
             state = bsls::AtomicOperations::getIntAcquire(&d_onceState);
 
-            BSLS_ASSERT(state != e_NOT_ENTERED);
+            BSLS_ASSERT(e_IN_PROGRESS == state ||
+                        e_DONE        == state);
         }
         return false;                                                 // RETURN
     }

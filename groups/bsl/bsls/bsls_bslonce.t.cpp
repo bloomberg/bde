@@ -122,9 +122,9 @@ class my_Mutex {
 
   public:
     my_Mutex();
-        // Construct an 'my_Mutex' object.
+        // Construct a 'my_Mutex' object.
     ~my_Mutex();
-        // Destroy an 'my_Mutex' object.
+        // Destroy a 'my_Mutex' object.
 
     void lock();
         // Lock this mutex.
@@ -137,7 +137,7 @@ class my_Conditional {
     // This class implements a cross-platform waitable state indicator used for
     // testing.  It has two states, signaled and non-signaled.  Once
     // signaled('signal'), the state will persist until explicitly 'reset'.
-    // Calls to wait when the state is signaled, will succeed immediately.
+    // Calls to wait, when the state is signaled, will succeed immediately.
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     HANDLE d_cond;
 #else
@@ -157,7 +157,7 @@ class my_Conditional {
         // Reset the state of this indicator to non-signaled.
 
     void signal();
-        // Signal the state of the indicator and unblock any thread waiting
+        // Signal the state of the indicator and unblock any threads waiting
         // for the state to be signaled.
 
     void wait();
@@ -180,7 +180,7 @@ class my_Barrier {
     //
     // *NOTE*: The 'my_Conditional' operation 'wait' does *not* take a mutex,
     // so it cannot be atomically combined with another operation (e.g.,
-    // incrementing the 'd_waiting' counter), it also does not provide
+    // incrementing the 'd_waiting' counter), it also does not provide a
     // 'broadcast' method, so each thread must be signaled individually.
 
     // DATA
@@ -703,7 +703,7 @@ int main(int argc, char *argv[])
         //:
         //: 4 Destroying a 'BslOnceGuard' after 'leave' has no effect.
         //:
-        //: 5 'enter' returns 'false', and leaves the guard un-modified if
+        //: 5 'enter' returns 'false', and leaves the guard unmodified, if
         //:   the 'BslOnce' has already been 'enter'ed.
         //:
         //: 6 QoI: Asserted precondition violations are detected when enabled.
@@ -712,7 +712,7 @@ int main(int argc, char *argv[])
         //: 1 Call 'enter' on a newly constructed object and verify it returns
         //:   'true' (C-1)
         //:
-        //: 2 Call 'enter', then 'leave'on a newly constructed object and
+        //: 2 Call 'enter', then 'leave' on a newly constructed object and
         //:   verify subsequent calls to 'enter' return 'false' (C-2)
         //:
         //: 3 Call 'enter' on an object that has been incorrectly initialized
@@ -817,7 +817,7 @@ int main(int argc, char *argv[])
         //: 1 Call 'enter' on a newly constructed object and verify it returns
         //:   'true' (C-1)
         //:
-        //: 2 Call 'enter', then 'leave'on a newly constructed object and
+        //: 2 Call 'enter', then 'leave' on a newly constructed object and
         //:   verify subsequent calls to 'enter' return 'false' (C-2)
         //:
         //: 3 Call 'enter' on an object that has been incorectly initialized
@@ -847,7 +847,8 @@ int main(int argc, char *argv[])
             ASSERT(false == x.enter());
             ASSERT(false == x.enter());
         }
-         if (verbose) printf("\nNegative Testing.\n");
+
+        if (verbose) printf("\nNegative Testing.\n");
         {
             bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
@@ -868,6 +869,8 @@ int main(int argc, char *argv[])
         //:   testing in subsequent test cases.
         //
         // Plan:
+        //: 1 Use 'BslOnce' in some simple contexts and and verify it allows
+        //:   'enter' to be called once successfully.
         //
         // Testing:
         //   BREATHING TEST

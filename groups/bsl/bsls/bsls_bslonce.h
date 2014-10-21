@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a thread-safe way to execute code once per process in BSL.
+//@PURPOSE: Provide BSL a thread-safe way to execute code once per process.
 //
 //@CLASSES:
 //   bsls::BslOnce: statically initializable gate-keeper for a once-block
@@ -43,6 +43,10 @@ BSLS_IDENT("$Id: $")
 // First we declare a 'struct', 'MySingleton', whose definition is elided:
 //..
 //  struct MySingleton {
+//
+//    // PUBLIC DATA
+//    int d_exampleData;
+//
 //    // ...
 //  };
 //..
@@ -51,14 +55,13 @@ BSLS_IDENT("$Id: $")
 // 'main') when an object of this type is declared in a static context.
 //
 // Now we implement a function 'getSingleton' that returns a singleton object.
-// 'getSingleton' uses using 'BslOnce' to ensure the singleton is initialized
-// only once, and that the singleton is initialized before the function
-// returns:
+// 'getSingleton' uses 'BslOnce' to ensure the singleton is initialized only
+// once, and that the singleton is initialized before the function returns:
 //..
 //  MySingleton *getSingleton()
 //      // Return a reference to a modifiable singleton object.
 //  {
-//     static MySingleton singleton = { /*  */ };
+//     static MySingleton singleton = { 0 };
 //     static BslOnce     once      = BSLS_BSLONCE_INITIALIZER;
 //
 //     BslOnceGuard onceGuard;
@@ -107,11 +110,12 @@ struct BslOnce {
   public:
      // PUBLID DATA
      bsls::AtomicOperations::AtomicTypes::Int d_onceState;
-                           // The state of this once-region (must be one of the
-                           // 'State' values).  This value is public to allow
-                           // static initialization (with
-                           // 'BSLS_BSLONCE_INITIALIZER'), but should never be
-                           // directly accessed or modified.
+                           // The state of the one-time block of code managed
+                           // by this object (must be one of the 'State'
+                           // values).  This value is public to allow static
+                           // initialization (with 'BSLS_BSLONCE_INITIALIZER'),
+                           // but should never be directly accessed or
+                           // modified.
 
 
   private:
@@ -133,10 +137,12 @@ struct BslOnce {
         // code has already been executed.  If this function returns 'false'
         // then the thread of execution in which 'enter' returned 'true' has
         // already called 'leave' -- i.e., the one-time block of code is
-        // guaranteed to have *completed* execution.  Note that this private
-        // variant of 'enter' does not perform a test before attempting to
-        // acquire the spin-lock, and is meant to be implemented out of line
-        // (so that the expected path of 'enter' may be more easily inlined).
+        // guaranteed to have *completed* execution.  The behavior is undefined
+        // unless this object was originally initialized to
+        // 'BSLS_BSLONCE_INITIALIZER'.  Note that this private variant of
+        // 'enter' does not perform a test before attempting to acquire the
+        // spin-lock, and is meant to be implemented out of line (so that the
+        // expected path of 'enter' may be more easily inlined).
 
   public:
     // MANIPULATORS
@@ -149,11 +155,12 @@ struct BslOnce {
         // guaranteed to have *completed* execution.  The behavior is undefined
         // unless this object was originally initialized to
         // 'BSLS_BSLONCE_INITIALIZER'.  Note that a successful 'enter' locks a
-        // spin-lock, it is imperative that 'leave' be called quickly.
+        // spin-lock; it is imperative that 'leave' be called quickly.
 
     void leave();
-        // Exit the one time.  The behavior is undefined unless the caller had
-        // previously called 'enter', and 'enter' had returned 'true'.
+        // Exit the one-time block of code.  The behavior is undefined unless
+        // the caller had previously called 'enter', and 'enter' had returned
+        // 'true'.
 };
 
 
@@ -178,13 +185,12 @@ class BslOnceGuard {
   public:
     // CREATORS
     BslOnceGuard();
-        // Create a guard to manage a one-time execution block using the
-        // specified 'lock'.
+        // Create a guard to manage a block of code that is executed once.
 
     ~BslOnceGuard();
         // Destroy this guard, and if 'enter' had been called on this object
-        // without a subsequent call to 'leave', then 'leave' the one-time
-        // block of code.
+        // without a subsequent call to 'leave', then call 'leave' to signal
+        // the completion of the one-time block of code.
 
     // MANIPULATORS
     bool enter(BslOnce *once);
@@ -194,12 +200,15 @@ class BslOnceGuard {
         // executed.  If this function returns 'false' then the thread of
         // execution in which 'enter' returned 'true' has already called
         // 'leave' -- i.e., the one-time block of code is guaranteed to have
-        // *completed* execution.  Note that a successful 'enter' locks a
-        // spin-lock, it is imperative that 'leave' be called quickly.
+        // *completed* execution.  The behavior is undefined unless 'once' was
+        // originally initialized to 'BSLS_BSLONCE_INITIALIZER'.  Note that a
+        // successful 'enter' locks a spin-lock; it is imperative that 'leave'
+        // be called quickly.
 
     void leave();
-        // Exit the one time.  The behavior is undefined unless the caller had
-        // previously called 'enter', and 'enter' had returned 'true'.
+        // Exit the one-time block of code.  The behavior is undefined unless
+        // the caller had previously called 'enter', and 'enter' had returned
+        // 'true'.
 };
 
 
@@ -261,6 +270,10 @@ bool BslOnceGuard::enter(BslOnce *once)
     BSLS_ASSERT_SAFE(!d_once);
 
     bool success = once->enter();
+
+    // If the block guarded by 'once' has successfully been entered, set
+    // 'd_once' so that 'leave' will be called when this guard is destroyed.
+
     if (success) {
         d_once = once;
     }
