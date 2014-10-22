@@ -1,6 +1,11 @@
 // bdldfp_intelimpwrapper.t.cpp                                       -*-C++-*-
 #include <bdldfp_intelimpwrapper.h>
 
+// We include the 'fenv.h' header to ensure that there are no defninition
+// conflicts between the Intel DFP code and the system 'fenv' header.
+
+#include <fenv.h>
+
 #include <bsls_platform.h>
 
 #include <bsl_iostream.h>
