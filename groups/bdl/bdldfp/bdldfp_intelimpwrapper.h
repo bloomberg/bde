@@ -61,10 +61,13 @@ BSLS_IDENT("$Id$")
 
 // The IBM compiler has trouble with the embedded '__thread' token, under some
 // build modes.  We'll turn it off, for now.  We'll do so for Sun also, since
-// it is disabled in the wrapper-package for that compiler as well.
+// it is disabled in the wrapper-package for that compiler as well.  Also, to
+// prevent redefinition of the 'fexcept_t' type, we signal that we behave like
+// '__QNX__' so that the intel library includes '<fenv.h>'
 
 #    if defined(BSLS_PLATFORM_CMP_IBM) || defined(BSLS_PLATFORM_CMP_SUN)
 #      define __thread
+#      define __QNX__
 #    endif
 
 // In C++, there's always a 'wchar_t' type, so we need to tell Intel's library
