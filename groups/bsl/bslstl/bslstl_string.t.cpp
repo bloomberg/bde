@@ -248,7 +248,8 @@ using namespace std;
 //                                      const string& str);
 // [ 5] basic_istream<C,CT>& operator>>(basic_istream<C,CT>& stream,
 //                                      const string& str);
-// [29] hashAppend(HASHALG& hashAlg, const basic_string&  input);
+// [29] hashAppend(HASHALG& hashAlg, const basic_string& str);
+// [29] hashAppend(HASHALG& hashAlg, const native_std::basic_string& str);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [11] ALLOCATOR-RELATED CONCERNS
@@ -1222,18 +1223,21 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
     //:   produce equal hashes. (C-4)
     //
     // Testing:
-    //   hashAppend(HASHALG& hashAlg, const basic_string&  input);
+    //   hashAppend(HASHALG& hashAlg, const basic_string& str);
+    //   hashAppend(HASHALG& hashAlg, const native_std::basic_string& str);
     // --------------------------------------------------------------------
     typedef ::BloombergLP::bslh::Hash<> Hasher;
     typedef typename Hasher::result_type HashType;
+    typedef native_std::basic_string<TYPE,TRAITS,ALLOC> NativeObj;
 
     const int PRIME = 100003; // Arbitrary large prime to be used in hash-table
                               // like testing
 
-    int       collisions [PRIME] = {};
+    int       collisions[PRIME]       = {};
+    int       nativeCollisions[PRIME] = {};
     Hasher    hasher;
-    size_t    prevHash           = 0;
-    HashType  hash               = 0;
+    size_t    prevHash                = 0;
+    HashType  hash                    = 0;
 
     if (verbose) printf("Use 'bslh::Hash' to hash a few values of strings with"
                         " each char type. (C-1,2)\n");
@@ -1274,6 +1278,53 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
                                                    // number collisions
 
             Obj numCopy = num;
+
+            // Verify same hash is produced for the same value
+            ASSERT(num == numCopy);
+            ASSERT(hash == hasher(numCopy));
+        }
+    }
+
+    if (verbose) printf("Use 'bslh::Hash' to hash a few values of 'native_std'"
+                        " strings with each char type. (C-1,2)\n");
+    {
+        for (int i = 0; i != PRIME; ++i) {
+            NativeObj num;
+            if (i > 66000){
+                //Make sure we're testing long strings
+                for (int j = 0; j < 40; ++j) {
+                    num.push_back(TYPE('A'));
+                }
+            }
+            else if (i > 33000) {
+                //Make sure we're testing with null characters in the strings
+                for (int j = 0; j < 5; ++j) {
+                    num.push_back(TYPE('A'));
+                    num.push_back(TYPE('\0'));
+                }
+            }
+            num.push_back( TYPE('0' + (i/1000000)     ));
+            num.push_back( TYPE('0' + (i/100000)  %10 ));
+            num.push_back( TYPE('0' + (i/10000)   %10 ));
+            num.push_back( TYPE('0' + (i/1000)    %10 ));
+            num.push_back( TYPE('0' + (i/100)     %10 ));
+            num.push_back( TYPE('0' + (i/10)      %10 ));
+            num.push_back( TYPE('0' + (i)         %10 ));
+
+            if (veryVerbose) printf("Testing hash of %s\n", num.data());
+
+            prevHash = hash;
+            hash     = hasher(num);
+
+            // Check consecutive values arent hashing to the same hash
+            ASSERT(prevHash != hash);
+
+            // Check that minimal collisions are happening
+            ASSERT(++nativeCollisions[hash % PRIME] <= 11);
+                                                         // Choose 11 as a max
+                                                         // number collisions
+
+            NativeObj numCopy = num;
 
             // Verify same hash is produced for the same value
             ASSERT(num == numCopy);
@@ -14257,7 +14308,8 @@ int main(int argc, char *argv[])
         //:   type. (C-1,2)
         //
         // Testing:
-        //   hashAppend(HASHALG& hashAlg, const basic_string&  input);
+        //   hashAppend(HASHALG& hashAlg, const basic_string& str);
+        //   hashAppend(HASHALG& hashAlg, const native_std::basic_string& str);
         // --------------------------------------------------------------------
         if (verbose) printf("\nTESTING 'hashAppend'"
                             "\n====================\n");
