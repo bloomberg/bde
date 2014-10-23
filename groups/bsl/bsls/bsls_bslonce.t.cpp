@@ -4,7 +4,6 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
