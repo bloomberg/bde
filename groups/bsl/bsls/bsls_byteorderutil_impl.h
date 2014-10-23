@@ -113,6 +113,10 @@ namespace BloombergLP {
 //                          INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
+// We did benchmarks and found that many of the custom assembly implementations
+// below were slower than the generic implementation, so we set the slow ones
+// up to bee turned off if
+// 'BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS' is defined.
 
 #ifndef BSLS_BYTEORDERUTIL_IMPL_ENABLE_COUNTERPRODUCTIVE_MACROS
 #define BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS 1
