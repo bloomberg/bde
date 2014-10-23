@@ -37,6 +37,10 @@ BSLS_IDENT("$Id$")
 #include <bsls_platform.h>
 #endif
 
+#ifndef INCLUDED_BSL_CSTDDEF
+#include <bsl_cstddef.h>
+#endif
+
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
 
 #  if !defined(INCLUDED_BID_FUNCTIONS) \
@@ -63,9 +67,12 @@ BSLS_IDENT("$Id$")
 // build modes.  We'll turn it off, for now.  We'll do so for Sun also, since
 // it is disabled in the wrapper-package for that compiler as well.  Also, to
 // prevent redefinition of the 'fexcept_t' type, we signal that we behave like
-// '__QNX__' so that the intel library includes '<fenv.h>'
+// '__QNX__' so that the intel library includes '<fenv.h>'.  As a result, if
+// we're not using GCC on linux, we pretend to be "QNX", since the Intel
+// library has the right options chosen for that.
 
-#    if defined(BSLS_PLATFORM_CMP_IBM) || defined(BSLS_PLATFORM_CMP_SUN)
+#    if !(defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_GCC)) \
+     && !defined(BSLS_PLATFORM_OS_WINDOWS)
 #      define __thread
 #      define __QNX__
 #    endif
@@ -73,7 +80,10 @@ BSLS_IDENT("$Id$")
 // In C++, there's always a 'wchar_t' type, so we need to tell Intel's library
 // about this.
 
-#    define _WCHAR_T_DEFINED
+
+#    ifndef _WCHAR_T_DEFINED
+#      define _WCHAR_T_DEFINED
+#    endif
 
      extern "C" {
 #     include <bid_conf.h>
@@ -90,7 +100,6 @@ BSLS_IDENT("$Id$")
 #    undef DECIMAL_CALL_BY_REFERENCE
 #    undef DECIMAL_GLOBAL_ROUNDING
 #    undef DECIMAL_GLOBAL_EXCEPTION_FLAGS
-#    undef _WCHAR_T_DEFINED
 
 #    ifdef BDLDFP_INTELIMPWRAPPER_FAKE_DEFINE_LINUX
 #      undef LINUX

@@ -5,6 +5,7 @@
 // conflicts between the Intel DFP code and the system 'fenv' header.
 
 #include <fenv.h>
+#include <wchar.h>
 
 #include <bsls_platform.h>
 
@@ -31,6 +32,7 @@ using bsl::atoi;
 // Global Concerns:
 //: o Intel Headers are included correctly
 //: o No #define detritus is left behind
+//: o Intel Headers do not interact poorly with system headers
 //
 // TBD:
 // ----------------------------------------------------------------------------
