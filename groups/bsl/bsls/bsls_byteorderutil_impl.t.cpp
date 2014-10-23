@@ -91,8 +91,6 @@ void aSsErT(bool b, const char *s, int i)
 typedef BloombergLP::bsls::Types::Int64  Int64;
 typedef BloombergLP::bsls::Types::Uint64 Uint64;
 
-typedef BloombergLP::bsls::ByteOrderUtil_Impl Impl;
-
 //=============================================================================
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -101,13 +99,12 @@ template <class TYPE>
 void swapBytesInPlace(TYPE *value)
     // Swap the byte order of the specified integral object '*value'.
 {
-    char *tail = reinterpret_cast<char *>(value + 1) - 1;
-    char *head = reinterpret_cast<char *>(value);
+    char *pc = reinterpret_cast<char *>(value);
 
-    for (; head < tail; ++head, --tail) {
-        char tmp = *head;
-        *head = *tail;
-        *tail = tmp;
+    for (int h = 0, t = sizeof(*value) - 1; h < t; ++h, --t) {
+        char tmp = pc[h];
+        pc[h] = pc[t];
+        pc[t] = tmp;
     }
 }
 
@@ -116,12 +113,14 @@ unsigned short
 mySwapBytes16(unsigned short x)
     // Return the value of the specified 'x' with the byte order reversed.
 {
-#if defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_16)
-    return Impl::customSwap16(x);
+    // These macros all return a value of type 'unsigned short'
+
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_16)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16( unsigned short, x);
 #elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P16)
-    return Impl::customSwapP16(&x);
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16(unsigned short, &x);
 #else
-    return Impl::genericSwap16(x);
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(unsigned short, x);
 #endif
 }
 
@@ -130,12 +129,14 @@ unsigned int
 mySwapBytes32(unsigned int x)
     // Return the value of the specified 'x' with the byte order reversed.
 {
-#if defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32)
-    return Impl::customSwap32(x);
+    // These macros all return a value of type 'unsigned int'
+
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32( unsigned int, x);
 #elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32)
-    return Impl::customSwapP32(&x);
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32(unsigned int, &x);
 #else
-    return Impl::genericSwap32(x);
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32(unsigned int, x);
 #endif
 }
 
@@ -144,13 +145,45 @@ bsls::Types::Uint64
 mySwapBytes64(bsls::Types::Uint64 x)
     // Return the value of the specified 'x' with the byte order reversed.
 {
-#if defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64)
-    return Impl::customSwap64(x);
+    // These macros all return a value of type 'bsls::Types::Uint64'
+
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64( bsls::Types::Uint64, x);
 #elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64)
-    return Impl::customSwapP64(&x);
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(bsls::Types::Uint64, &x);
 #else
-    return Impl::genericSwap64(x);
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(bsls::Types::Uint64, x);
 #endif
+}
+
+inline
+unsigned short
+myGenericSwap16(unsigned short x)
+    // Return the value of the specified 'x' with the byte order reversed.
+{
+    // This macro will return a value of type 'unsigned short'
+
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(unsigned short, x);
+}
+
+inline
+unsigned int
+myGenericSwap32(unsigned int x)
+    // Return the value of the specified 'x' with the byte order reversed.
+{
+    // This macro will return a value of type 'unsigned int'
+
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32(unsigned int, x);
+}
+
+inline
+bsls::Types::Uint64
+myGenericSwap64(bsls::Types::Uint64 x)
+    // Return the value of the specified 'x' with the byte order reversed.
+{
+    // This macro will return a value of type 'bsls::Types::Uint64'
+
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(bsls::Types::Uint64, x);
 }
 
 //=============================================================================
@@ -407,7 +440,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { PHEX_(uValue); PHEX(uSwapped); }
 
                 LOOP_ASSERT(line, uSwapped == mySwapBytes16(uValue));
-                LOOP_ASSERT(line, uSwapped == Impl::genericSwap16(uValue));
+                LOOP_ASSERT(line, uSwapped == myGenericSwap16(uValue));
                 LOOP_ASSERT(line, static_cast<unsigned short>(iSwapped) ==
                                                         mySwapBytes16(iValue));
 #if 2 == BYTEORDERUTIL_SIZEOF_WCHAR_T
@@ -435,7 +468,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { PHEX_(uValue); PHEX(uSwapped); }
 
                 LOOP_ASSERT(line, uSwapped == mySwapBytes32(uValue));
-                LOOP_ASSERT(line, uSwapped == Impl::genericSwap32(uValue));
+                LOOP_ASSERT(line, uSwapped == myGenericSwap32(uValue));
                 LOOP_ASSERT(line, iSwapped == (int) mySwapBytes32(iValue));
 
 #if 4 == BYTEORDERUTIL_SIZEOF_WCHAR_T
@@ -486,9 +519,8 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { PHEX_(uValue); PHEX(uSwapped); }
 
                 LOOP_ASSERT(line, uSwapped == mySwapBytes64(uValue));
-                LOOP_ASSERT(line, uSwapped == Impl::genericSwap64(uValue));
-                LOOP_ASSERT(line, iSwapped ==
-                                            (Int64) mySwapBytes64(iValue));
+                LOOP_ASSERT(line, uSwapped == myGenericSwap64(uValue));
+                LOOP_ASSERT(line, iSwapped == (Int64) mySwapBytes64(iValue));
 
 #if 8 == BYTEORDERUTIL_SIZEOF_LONG
                 ASSERT(8 == sizeof(long));
@@ -563,9 +595,9 @@ int main(int argc, char *argv[])
                 swapBytesInPlace(&uVerify);
                 ASSERT(uSwapped == uVerify);
 
-                LOOP_ASSERT(line, uSwapped == Impl::genericSwap16(uValue));
+                LOOP_ASSERT(line, uSwapped == myGenericSwap16(uValue));
                 LOOP_ASSERT(line, static_cast<unsigned short>(iSwapped) ==
-                                              Impl::genericSwap16(iValue));
+                                                      myGenericSwap16(iValue));
             }
         }
 
@@ -586,9 +618,8 @@ int main(int argc, char *argv[])
                 swapBytesInPlace(&uVerify);
                 ASSERT(uSwapped == uVerify);
 
-                LOOP_ASSERT(line, uSwapped == Impl::genericSwap32(uValue));
-                LOOP_ASSERT(line, iSwapped ==
-                                          (int) Impl::genericSwap32(iValue));
+                LOOP_ASSERT(line, uSwapped == myGenericSwap32(uValue));
+                LOOP_ASSERT(line, iSwapped == (int) myGenericSwap32(iValue));
             }
         }
 
@@ -609,9 +640,8 @@ int main(int argc, char *argv[])
                 swapBytesInPlace(&uVerify);
                 ASSERT(uSwapped == uVerify);
 
-                LOOP_ASSERT(line, uSwapped == Impl::genericSwap64(uValue));
-                LOOP_ASSERT(line, iSwapped ==
-                                        (Int64) Impl::genericSwap64(iValue));
+                LOOP_ASSERT(line, uSwapped == myGenericSwap64(uValue));
+                LOOP_ASSERT(line, iSwapped == (Int64) myGenericSwap64(iValue));
             }
         }
       } break;

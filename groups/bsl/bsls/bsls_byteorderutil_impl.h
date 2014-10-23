@@ -113,11 +113,16 @@ namespace BloombergLP {
 //                          INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
+
+#ifndef BSLS_BYTEORDERUTIL_IMPL_ENABLE_COUNTERPRODUCTIVE_MACROS
+#define BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS 1
+#endif
+
                          // -------------------------
                          // struct ByteOrderUtil_Impl
                          // -------------------------
 
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40300
+#if  defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40300
 
 // ----------------------------------------------------------------------------
 // Advanced GNU
@@ -125,13 +130,17 @@ namespace BloombergLP {
 // Let the 16-bit gnu implementation default to 'genericSwap16' or other
 // platform-specific gnu implementations.
 
-#define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32 1
-#define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64 1
+#if !defined(BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS) ||     \
+    !defined(BSLS_PLATFORM_OS_SOLARIS)
 
-// LEVEL 0 METHODS
+#define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32 1
 
 #define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32(dstType, x)                     \
     return static_cast<dstType>(__builtin_bswap32(static_cast<int>(x)))
+
+#endif
+
+#define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64 1
 
 #define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64(dstType, x)                     \
     return static_cast<dstType>(__builtin_bswap64(                            \
@@ -142,23 +151,30 @@ namespace BloombergLP {
 // ----------------------------------------------------------------------------
 // MSVC
 
+#if !defined(BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS)
+
 #define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_16 1
-#define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32 1
-#define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64 1
 
 #define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16(dstType, x)                     \
     return static_cast<dstType>(_byteswap_ushort(                             \
                                                static_cast<unsigned short>(x)))
 
+#endif
+
+#define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32 1
+
 #define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32(dstType, x)                     \
     return static_cast<dstType>(_byteswap_ulong(static_cast<unsigned int>(x)))
+
+#define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64 1
 
 #define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64(dstType, x)                     \
     return static_cast<dstType>(_byteswap_uint64(                             \
                              static_cast<BloombergLP::bsls::Types::Uint64>(x)))
 
 #elif defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_CMP_IBM)    \
-    && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0800
+    && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0800 &&                               \
+     !defined(BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS)
 
 // ----------------------------------------------------------------------------
 // POWERPC-AIX
@@ -253,6 +269,9 @@ unsigned long long bsls_byteOrderUtil_Impl_powerpc_swap_p64(
 
 #if defined(BSLS_PLATFORM_CMP_GNU)
 
+#if !defined(BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS) ||     \
+     defined(BDE_BUILD_TARGET_DBG)
+
 #define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P16 1
 
 // LEVEL 1 METHODS
@@ -273,13 +292,13 @@ unsigned long long bsls_byteOrderUtil_Impl_powerpc_swap_p64(
         return static_cast<dstType>(y);                                       \
     }
 
-#if   !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32)                             \
-   && !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64)                             \
-   && !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32)                            \
-   && !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64)
+#endif // not disabled || dbg
+
+#if !defined(BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS) &&     \
+    !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32) &&                            \
+    !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32)
 
 #define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32 1
-#define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64 1
 
 // sparc gnu pre-4.03 impl
 
@@ -294,6 +313,13 @@ unsigned long long bsls_byteOrderUtil_Impl_powerpc_swap_p64(
                                                                               \
         return static_cast<dstType>(y);                                       \
     }
+
+#endif // not disabled, ...CUSTOM_32, CUSTOM_P32 not defined
+
+#if   !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64)                             \
+   && !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64)
+
+#define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64 1
 
 #if defined(BSLS_PLATFORM_CPU_64_BIT)
 
@@ -344,11 +370,14 @@ unsigned long long bsls_byteOrderUtil_Impl_powerpc_swap_p64(
 
 #endif  // BSLS_PLATFORM_CPU_64_BIT else
 
-#endif  // 32 & 64 bit not defined
+#endif  // 64 bit not defined
 
 #else  // BSLS_PLATFORM_CMP_GNU else
 
-// Commented out assembly implementation since 'genericSwap{16,32} is
+#if !defined(BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS) ||     \
+     defined(BDE_BUILD_TARGET_DBG)
+
+// Removed out assembly implementation since 'genericSwap{16,32} is
 // probably faster than the function call for 16 and 32 bits.
 
 #define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64 1
@@ -368,17 +397,19 @@ unsigned long long bsls_byteOrderUtil_Impl_sparc_CC_swap_p64(
                           reinterpret_cast<const unsigned long long *>(x)));  \
     }
 
+#endif  // !disabled || dbg
+
 #endif  // BSLS_PLATFORM_CMP_GNU else
 
-#elif (defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64))   \
-    && defined(BSLS_PLATFORM_CMP_GNU)
+#elif  (defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64))  \
+    &&  defined(BSLS_PLATFORM_CMP_GNU)
+
+#if    !defined(BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS)
 
 // Note that 32 and 64 bit may have already been defined by the advanced GNU
 // case.
 
 #define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_16 1
-
-// LEVEL 1 METHODS
 
 // x86 gnu impl
 
@@ -386,10 +417,12 @@ unsigned long long bsls_byteOrderUtil_Impl_sparc_CC_swap_p64(
     {                                                                         \
         register unsigned short y;                                            \
         __asm__ ("xchg %b0, %h0" : "=Q" (y) : "0" (                           \
-					static_cast<unsigned short>(x)));     \
+                                        static_cast<unsigned short>(x)));     \
                                                                               \
         return static_cast<dstType>(y);                                       \
     }
+
+#endif // !disabled
 
 #if   !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32)                             \
    && !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64)                             \
@@ -463,26 +496,26 @@ unsigned long long bsls_byteOrderUtil_Impl_sparc_CC_swap_p64(
         BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(4 == sizeof(dstType));    \
                                                                               \
         return static_cast<dstType>((x                           << 24)       \
-				 | ((x & 0x0000ff00)             <<  8)       \
-				 | ((x & 0x00ff0000)             >>  8)       \
-				 | (static_cast<unsigned int>(x) >> 24));     \
+                                 | ((x & 0x0000ff00U)            <<  8)       \
+                                 | ((x & 0x00ff0000U)            >>  8)       \
+                                 | (static_cast<unsigned int>(x) >> 24));     \
     }
 
 #define BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(dstType, x)                    \
     {                                                                         \
-        typedef BloombergLP::bsls::Types::Uint64 Uiint64;                     \
+        typedef BloombergLP::bsls::Types::Uint64 Uint64;                      \
                                                                               \
         BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(8 == sizeof(x));          \
         BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(8 == sizeof(dstType));    \
                                                                               \
-        return static_cast<dstType>(( x                         << 56)        \
-                                  | ((x & 0x000000000000ff00LL) << 40)        \
-                                  | ((x & 0x0000000000ff0000LL) << 24)        \
-                                  | ((x & 0x00000000ff000000LL) <<  8)        \
-                                  | ((x & 0x000000ff00000000LL) >>  8)        \
-                                  | ((x & 0x0000ff0000000000LL) >> 24)        \
-                                  | ((x & 0x00ff000000000000LL) >> 40)        \
-                                  | (static_cast<Uint64>(x)     >> 56));      \
+        return static_cast<dstType>(( x                          << 56)       \
+                                  | ((x & 0x000000000000ff00ULL) << 40)       \
+                                  | ((x & 0x0000000000ff0000ULL) << 24)       \
+                                  | ((x & 0x00000000ff000000ULL) <<  8)       \
+                                  | ((x & 0x000000ff00000000ULL) >>  8)       \
+                                  | ((x & 0x0000ff0000000000ULL) >> 24)       \
+                                  | ((x & 0x00ff000000000000ULL) >> 40)       \
+                                  | (static_cast<Uint64>(x)      >> 56));     \
     }
 
 }  // close enterprise namespace
