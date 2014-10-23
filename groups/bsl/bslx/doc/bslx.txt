@@ -575,7 +575,7 @@
      // operation has no effect.  If 'version' is not supported by 'TYPE',
      // 'variable' is unaltered and 'stream' is invalidated but otherwise
      // unmodified.  If 'version' is supported by 'TYPE' but 'stream' becomes
-     // invalid during this operation, this object has an undefined, but valid,
+     // invalid during this operation, 'variable' has an undefined, but valid,
      // state.  The behavior is undefined unless 'STREAM' and 'TYPE' are
      // BDEX-compliant.  Note that no version is read from 'stream'.  See the
      // 'bslx' package-level documentation for more information on BDEX
