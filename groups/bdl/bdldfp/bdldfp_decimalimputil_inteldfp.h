@@ -684,7 +684,7 @@ struct DecimalImpUtil_IntelDfp {
                                                            ValueType64  value);
     static DenselyPackedDecimalImpUtil::StorageType128 convertToDenselyPacked(
                                                            ValueType128 value);
-        // Return a 'DenselyPackeDecimalImpUtil::StorageTypeXX' representing
+        // Return a 'DenselyPackedDecimalImpUtil::StorageTypeXX' representing
         // the specified 'value' in Densely Packed Decimal (DPD) format.  This
         // format is compatible with the IBM compiler's native type, and the
         // decNumber library.
