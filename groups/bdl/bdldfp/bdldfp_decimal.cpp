@@ -5,6 +5,7 @@
 BSLS_IDENT_RCSID(bdldfp_decimal_cpp,"$Id$ $CSID$")
 
 #include <bsl_algorithm.h>
+#include <bsl_cstring.h>
 #include <bsl_functional.h>
 #include <bsl_istream.h>
 #include <bsl_limits.h>
@@ -155,7 +156,7 @@ doPutCommon(ITER_TYPE       out,
     // formatting flags of justification, width, uppercase, and showpos are
     // supported.
 {
-    const int size = strlen(buffer);
+    const int size = bsl::strlen(buffer);
     char *end = buffer + size;
 
     // Widen the buffer.
