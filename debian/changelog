@@ -1,3 +1,10 @@
+bsl-internal (2.22.0.14) unstable; urgency=low
+
+  * 963ae9f [APPROVAL] OSS missing-bdl-include-drqs58266540 to releases/2.22.x
+  * ba1f376 [APPROVAL] missing-bdl-include-drqs58266540 to releases/2.22.x
+
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Fri, 24 Oct 2014 10:55:03 -0400
+
 bsl-internal (2.22.0.13) unstable; urgency=low
 
   * 6a6edf7 [APPROVAL] OSS pending/master/decimal-omnibus-merge to releases/2.22.x
