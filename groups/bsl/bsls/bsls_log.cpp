@@ -132,10 +132,10 @@ int vsnprintf_alwaysCount(char       *buffer,
     //  AIX         # Expected Chars (not incl. '\0')         No
     //  =======================================================================
     //..
-    // The solution?  On Microsoft, we simply use a different function to
-    // generate the count.  To solve the BSD / other inconsistency, we simply
-    // specify in our contract that the output string is undefined unless there
-    // is enough room to hold the additional zero byte.
+    // On Microsoft, we simply use a different function to generate the count.
+    // To solve the BSD / other inconsistency, we simply specify in our
+    // contract that the output string is undefined unless there is enough room
+    // to hold the additional zero byte.
     BSLS_ASSERT_OPT(buffer);
     BSLS_ASSERT(format);
 
@@ -396,11 +396,13 @@ void Log::platformDefaultMessageHandler(const char *file,
             // 'status >= 0' is simply a convenience, and should not make a
             // difference in practice, unless one of the functions is somehow
             // exhibiting undefined behavior due to bad user input.
+
             OutputDebugStringA(buffer);
         } else {
             // There are legitimate reasons for 'status' to be negative, such
             // as a memory allocation failure.  Therefore, we will log a simple
             // error so that we don't fail quietly:
+
             OutputDebugStringA("Low-level log failure.\n");
         }
     } else {

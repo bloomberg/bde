@@ -7,10 +7,10 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide utilities for low-level logging.
+//@PURPOSE: Provide a namespace for low-level logging functions.
 //
 //@CLASSES:
-//  bsls::Log: utilities for low-level logging
+//  bsls::Log: namespace for low-level logging functions
 //
 //@DESCRIPTION: This component provides a set of macros, along with a
 // namespace, 'bsls::Log', which contains a suite of utility functions for
@@ -76,15 +76,17 @@ BSLS_IDENT("$Id: $")
 // that these two methods allow a file name and line number to be passed in as
 // parameters.  This is described in table form as follows:
 //..
-//  ===========================================================================
-//  |                           Ways to Write Log Messages                    |
+//  .=========================================================================.
+//  |      Mechanism                 |  Formatted   |  Automatic File & Line  |
 //  |=========================================================================|
-//  | File Name & Line #  |    Formatted Message    |       Simple String     |
-//  |=====================|=========================|=========================|
-//  |      Automatic      |       BSLS_LOG          |     BSLS_LOG_SIMPLE     |
-//  |---------------------|-------------------------|-------------------------|
-//  |       Manual        |   logFormattedMessage   |       logMessage        |
-//  ===========================================================================
+//  | BAEL_LOG                       |     YES      |          YES            |
+//  |--------------------------------|--------------|-------------------------|
+//  | BAEL_LOG_SIMPLE                |     NO       |          YES            |
+//  |--------------------------------|--------------|-------------------------|
+//  | bsls::Log::logFormattedMessage |     YES      |          NO             |
+//  |--------------------------------|--------------|-------------------------|
+//  | bsls::Log::logMessage          |     NO       |          NO             |
+//  `-------------------------------------------------------------------------'
 //..
 //
 ///Usage
@@ -133,109 +135,7 @@ BSLS_IDENT("$Id: $")
 // format string.  If the string happens to contain 'printf'-style format
 // specifiers but the expected substitutions are not present, it will lead to
 // undefined behavior.
-//
-///Example 2: Logging Formatless Messages
-/// - - - - - - - - - - - - - - - - - - -
-// Suppose we want to write a raw string, which is not meant to be a
-// 'printf'-style format string, to the log.  We can do this using the macro
-// 'BSLS_LOG_SIMPLE'.
-//
-// First, we define a global association of error codes with error strings:
-//..
-//  // myapp.cpp
-//
-//  static const char *errorStrings[4] = {
-//      "Invalid input value 'a'.",
-//      "Invalid input value 'b'.",
-//      "Percentages add up to more than 100%.",
-//      "Please use '%2f' for a slash character in a URI."
-//  };
-//..
-// Notice that the fourth string has a sequence that could be misinterpreted as
-// a 'printf'-style format specifier.
-//
-// Then, we define a function that handles error codes and logs an error based
-// on the error code:
-//..
-//  void handleError(int code)
-//      // Log the error message associated with the specified 'code'.  The
-//      // behavior is undefined unless 'code' is in the range [0 .. 3].
-//  {
-//      BSLS_ASSERT(static_cast<unsigned int>(code)
-//                  < sizeof(errorStrings)/sizeof(errorStrings[0]));
-//..
-//
-// In the case that we receive a valid error code, we would want to log the
-// string associated with this code.  We use the macro 'BSLS_LOG_SIMPLE' to
-// ensure that the true strings are logged and are not interpreted as format
-// strings:
-//..
-//      BSLS_LOG_SIMPLE(errorStrings[code]);
-//  }
-//..
-// A user may attempt to use error code '3':
-//..
-//  handleError(3);
-//..
-// Assuming the default log message handler is the currently installed handler,
-// the following line would be printed to 'stderr' or to the Windows debugger:
-//..
-//  myapp.cpp:14 Please use '%2f' for a slash character in a URI.
-//..
-//
-///Example 3: Using a Different File Name or Line Number
-///- - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to define an error handling function that will use the
-// logger to print an error message, except that we want to use the file name
-// and line number of the code that *called* the error handling function
-// instead of the file name and line number of the code *in* the error handling
-// function.
-//
-// First, we will mimic Example 2 by defining a global array of error strings:
-//..
-//  // mylib.cpp
-//
-//  static const char *errorStringsNew[4] = {
-//      "Bad input attempt.",
-//      "Invalid types.",
-//      "Invalid username.",
-//      "Invalid password."
-//  };
-//..
-// Then, we will define a function that takes in a file name and line number
-// along with the error code:
-//..
-//  void handleErrorFlexible(const char *file, int line, int code)
-//      // Log the error message associated with the specified 'code', using
-//      // the specified 'file' and the specified 'line' as the source location
-//      // for the error.  The behavior is undefined unless 'file' is a
-//      // null-terminated string, 'line' is not negative, and 'code' is in the
-//      // range [0 .. 3].
-//  {
-//      BSLS_ASSERT(file);
-//      BSLS_ASSERT(line >= 0);
-//      BSLS_ASSERT(code >= 0);
-//      BSLS_ASSERT(static_cast<unsigned int>(code)
-//                  < (sizeof(errorStringsNew)/sizeof(errorStringsNew[0])));
-//..
-// We can bypass the macros by calling the function 'bsls::Log::logMessage'
-// directly, allowing us to pass in the given file name and line number:
-//..
-//      bsls::Log::logMessage(file, line, errorStringsNew[code]);
-//  }
-//..
-// A user in a different file may now specify the original source of an error:
-//..
-//  handleErrorFlexible(__FILE__, __LINE__, 2);
-//..
-// If this line of code were placed on line 5 of the file 'otherapp.cpp', the
-// following line would be printed to 'stderr' or to the Windows debugger:
-//..
-//  otherapp.cpp:5 Invalid username.
-//..
-//
-// Users may wrap their error function in a macro to automatically fill in the
-// file name and line number parameters, as done by the 'BSLS_LOG*' macros.
+
 
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
@@ -289,7 +189,7 @@ class Log {
         // handles log messages in an unspecified way (e.g. by writing the log
         // message to an output stream or to a file).  Because they can be
         // called concurrently from multiple threads, log message handlers
-        // should be thread-safe.  While installed, handlers must exhibit only
+        // must be thread-safe.  While installed, handlers must exhibit only
         // defined behavior if the specified 'file' is a null-terminated
         // string, the specified 'line' is not negative, and the specified
         // 'message' is a null-terminated string.
@@ -309,25 +209,17 @@ class Log {
                                     const char *format,
                                     ...);
         // Invoke the currently installed log message handler with the
-        // specified 'file' as the first parameter and the specified 'line' as
-        // the second parameter.  The third parameter to the handler is defined
-        // as the formatted string written to the sufficiently large buffer
-        // 'buf' by the following C function call: 'sprintf(buf, fmt, ...)',
-        // where 'fmt' corresponds to the specified 'format', and '...'
-        // represents the specified '...'.  The behavior is undefined unless:
-        // (a) 'file' is a null-terminated C-style string, (b) 'line' is not
-        // negative, (c) 'format' is a null-terminated C-style string, and (d)
-        // the number and types of variadic arguments passed to this function
-        // are as expected by their 'printf'-style substitutions in the string
-        // 'format'.
+        // specified 'file', the specified 'line', and a message string
+        // created by calling 'sprintf' on the specified 'format' with the
+        // specified variadic arguments.  The behavior is undefined unless
+        // '0 <= line' and 'format' is a valid 'sprint' format specification
+        // for the supplied variadic arguments.
 
     static void logMessage(const char *file, int line, const char *message);
         // Invoke the currently installed log message handler with the
         // specified 'file' as the first parameter, the specified 'line' as the
         // second parameter, and the specified 'message' as the third
-        // parameter.  The behavior is undefined unless 'file' is a
-        // null-terminated C-style string, 'line' is not negative, and
-        // 'message' is a null-terminated C-style string.
+        // parameter.  The behavior is undefined unless '0 <= line'.
 
     static Log::LogMessageHandler logMessageHandler();
         // Return the address of the currently installed log message handler.
@@ -335,22 +227,15 @@ class Log {
     static void platformDefaultMessageHandler(const char *file,
                                               int         line,
                                               const char *message);
-        // Write, to a platform-specific destination, a string (henceforth
-        // labeled 'final_string') composed as the sequential concatenation of
-        // the following components: (a) the specified 'file' name, (b) a colon
-        // character, (c) the single canonical decimal representation of the
-        // specified 'line' containing the minimal number of zero digits, (d) a
-        // space character, (e) the specified 'message', and (f) a new line.
-        // On *non-Windows* systems, write the aforementioned string
-        // 'final_string' to the 'stderr' output stream.  On *Windows* systems:
-        // If the current process is running in *console* *mode*, write the
-        // string 'final_string' to the 'stderr' output stream.  If the current
-        // process is running in *non-console* *mode*, write the string
-        // 'final_string' to the Windows process debugger, followed by a new
-        // line. The behavior is undefined unless 'file' is a null-terminated
-        // string, 'line' is not negative, and 'message' is a null-terminated
-        // string.  Note that this function is used as the default log message
-        // handler.
+        // Write, to a platform-specific destination, a string composed of the
+        // specified 'file' name, the specified 'line' number, and the
+        // specified 'message'.  On *non*-Windows systems, write the log record
+        // to the 'stderr' output stream.  On *Windows* systems: If the current
+        // process is running in *console* *mode*, write the log record to the
+        // 'stderr' output stream.  If the current process is running in
+        // *non-console* *mode*, write the log record to the Windows process
+        // debugger.  The behavior is undefined unless '0 <= line'.  Note that
+        // this function is used as the default log message handler.
 
     static void setLogMessageHandler(Log::LogMessageHandler handler);
         // Install the specified 'handler' as the current log message handler.
@@ -358,27 +243,16 @@ class Log {
     static void stderrMessageHandler(const char *file,
                                      int         line,
                                      const char *message);
-        // Write, to the 'stderr' output stream, a string composed as the
-        // sequential concatenation of the following components: (a) the
-        // specified 'file' name, (b) a colon character, (c) the single
-        // canonical decimal representation of the specified 'line' containing
-        // the minimal number of zero digits, (d) a space character, (e) the
-        // specified 'message', and (f) a new line.  The behavior is undefined
-        // unless 'file' is a null-terminated C-style string, 'line' is not
-        // negative, and 'message' is a null-terminated C-style string.
+        // Write, to the 'stderr' output stream, a string composed of the
+        // specified 'file' name, the specified 'line' number, and the
+        // specified 'message'.  The behavior is undefined unless '0 <= line'.
 
     static void stdoutMessageHandler(const char *file,
                                      int         line,
                                      const char *message);
-        // Write, to the 'stdout' output stream, a string composed as the
-        // sequential concatenation of the following components: (a) the
-        // specified 'file' name, (b) a colon character, (c) the single
-        // canonical decimal representation of the specified 'line' containing
-        // the minimal number of zero digits, (d) a space character, (e) the
-        // specified 'message', and (f) a new line.  The behavior is undefined
-        // unless 'file' is a null-terminated C-style string, 'line' is not
-        // negative, and 'message' is a null-terminated C-style string.
-
+        // Write, to the 'stdout' output stream, a string composed of the
+        // specified 'file' name, the specified 'line' number, and the
+        // specified 'message'.  The behavior is undefined unless '0 <= line'.
 };
 
 // ============================================================================

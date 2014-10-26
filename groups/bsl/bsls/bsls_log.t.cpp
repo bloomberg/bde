@@ -250,6 +250,8 @@ const DefaultDataRow DEFAULT_DATA[] = {
 static const size_t NUM_DEFAULT_DATA = sizeof(DEFAULT_DATA)
                                        / sizeof(DEFAULT_DATA[0]);
 
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+
 // The Windows implementation of 'platformDefaultMessageHandler' has to format
 // data to a stack-local buffer, and if it does not fit, it has to allocate a
 // new buffer.  We need to test data that has a length around the size of the
@@ -278,7 +280,7 @@ const size_t WINDOWS_LARGE_DATA_LENGTHS[] = {
 const size_t NUM_WINDOWS_LARGE_DATA_LENGTHS =
       sizeof(WINDOWS_LARGE_DATA_LENGTHS)/sizeof(WINDOWS_LARGE_DATA_LENGTHS[0]);
 
-
+#endif // BSLS_PLATFORM_OS_WINDOWS
 
 // ============================================================================
 //                       GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -1541,7 +1543,7 @@ int main(int argc, char *argv[]) {
         using namespace UsageExamples;
         // START OF CODE
 
-        unsigned int x = add(3, -100);
+        add(3, -100);
         handleError(3);
         handleErrorFlexible(__FILE__, __LINE__, 2);
       } break;
@@ -2339,7 +2341,7 @@ int main(int argc, char *argv[]) {
             if(verbose) puts("\nDone with large lengths.\n");
 
             if(verbose) puts("\nWaiting on child process.\n");
-            ASSERT(WAIT_OBJECT_0 == 
+            ASSERT(WAIT_OBJECT_0 ==
                               WaitForSingleObject(processInfo.hProcess, 1000));
 
             unsigned long exitCode;
