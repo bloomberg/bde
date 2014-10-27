@@ -231,54 +231,6 @@ struct Function_ObjAlignment<void> {
     static const std::size_t VALUE = 1;
 };
 
-                // ==================================================
-                // class Function_IsNothrowUsesAllocatorConstructible
-                // ==================================================
-
-template <class TYPE, bool USES_BSLMA = bslma::UsesBslmaAllocator<TYPE>::value>
-struct Function_IsNothrowUsesAllocatorConstructible
-{
-    // Metafunction with a member 'VALUE' of 'true' if 'TYPE' either doesn't
-    // use a bslma allocator and has a nothrow move constructor or uses a
-    // bslma allocator and has a nothrow extended move constructor.
-    
-    // This specialization is for types that do use a bslma allocator.
-    static const std::size_t VALUE =
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
-        // Check if nothrow move constructible and nothrow extended move
-        // constructor.  The use of '::new' lets us check the constructor
-        // without also checking the destructor.  This is especially important
-        // in gcc 4.7 and before because destructors are not implicitly
-        // noexcept in those compilers.
-        noexcept(::new((void*) 0) TYPE(std::declval<TYPE>())) &&
-        noexcept(::new((void*) 0) TYPE(std::declval<TYPE>(), 
-                                       std::declval<bslma::Allocator*>()));
-#else
-        false;
-#endif
-};
-
-template <class TYPE>
-struct Function_IsNothrowUsesAllocatorConstructible<TYPE, false>
-{
-    // Metafunction with a member 'VALUE' of 'true' if 'TYPE' either doesn't
-    // use a bslma allocator and has a nothrow move constructor or uses a
-    // bslma allocator and has a nothrow extended move constructor.
-    // This specialization is for types that don't use a bslma allocator.
-
-    static const std::size_t VALUE =
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
-        // Check if nothrow move constructible.  The use of '::new' lets
-        // us check the constructor without also checking the destructor.
-        // This is especially important in gcc 4.7 and before because
-        // destructors are not implicitly noexcept in those compilers.
-        noexcept(::new((void*) 0) TYPE(std::declval<TYPE>()));
-#else
-        false;
-#endif
-
-};
-
                         // ==================
                         // class Function_Rep
                         // ==================
@@ -476,16 +428,20 @@ class Function_Rep {
 
     public:
         static const std::size_t VALUE =
-            (FOOTPRINT > sizeof(InplaceBuffer)                 ? FOOTPRINT :
-             bslmf::IsBitwiseMoveable<TP>::value &&
-                 ! bslma::UsesBslmaAllocator<TP>::value        ? FOOTPRINT :
-             Function_IsNothrowUsesAllocatorConstructible<TP>::VALUE
-                                                               ? FOOTPRINT :
-             // If not nonthrow or bitwise moveable, then use the real size
-             // (as computed by sizeof), not the adjusted size in 'FOOTPRINT',
-             // and add 'k_NON_SOO_SMALL_SIZE' to indicate that we should not
-             // use the small object optimization for this type.
-             sizeof(TP) + k_NON_SOO_SMALL_SIZE);
+            FOOTPRINT > sizeof(InplaceBuffer)                 ? FOOTPRINT :
+            bslmf::IsBitwiseMoveable<TP>::value               ? FOOTPRINT :
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+            // Check if nothrow move constructible.  The use of '::new' lets
+            // us check the constructor without also checking the destructor.
+            // This is especially important in gcc 4.7 and before because
+            // destructors are not implicitly noexcept in those compilers.
+            noexcept(::new((void*) 0) TP(std::declval<TP>())) ? FOOTPRINT :
+#endif
+            // If not nonthrow or bitwise moveable, then use the real size
+            // (as computed by sizeof), not the adjusted size in 'FOOTPRINT',
+            // and add 'k_NON_SOO_SMALL_SIZE' to indicate that we should not
+            // use the small object optimization for this type.
+            sizeof(TP) + k_NON_SOO_SMALL_SIZE;
     };
 
     template <class FN>
@@ -511,11 +467,9 @@ class Function_Rep {
         // Using the specified 'alloc', copy-initialize this rep from the
         // specified 'other' rep.
 
-    bool moveInit(Function_Rep& other);
-        // Move-initialize this rep from the specified 'other' rep.  Returns
-        // 'true' if the move was inplace (i.e., function was
-        // move-constructed from one 'd_objbuf' to another) and false
-        // otherwise.
+    void moveInit(Function_Rep& other);
+        // Move-initialize this rep from the specified 'other' rep, leaving
+        // the latter empty.
 
     void makeEmpty();
         // Change this object to be an empty object without changing its
@@ -1149,20 +1103,8 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
         char  savedSrcByte = static_cast<char*>(input_p)[0];
         FUNC *srcFunc_p    = static_cast<FUNC*>(input_p);
 
-        if (bslma::UsesBslmaAllocator<FUNC>::value) {
-            // Cannot use 'ScalarPrimitives::destructiveMove' because the
-            // usual assumptions about allocator propagation don't hold.
-            // The to and from allocators might not be the same if the 
-            // allocator is inplace owned.
-            bslalg::ScalarPrimitives::moveConstruct(wrappedFunc_p,
-                                                    *srcFunc_p,
-                                                    rep->d_allocator_p);
-            srcFunc_p->~FUNC();
-        }
-        else {
-            bslalg::ScalarPrimitives::destructiveMove(wrappedFunc_p, srcFunc_p,
-                                                      rep->d_allocator_p);
-        }
+        bslalg::ScalarPrimitives::destructiveMove(wrappedFunc_p, srcFunc_p,
+                                                  rep->d_allocator_p);
 
         if (0 == k_SOO_FUNC_SIZE) {
             // Restore the footprint of an empty functor in case the
@@ -1212,15 +1154,14 @@ bsl::Function_Rep::ownedAllocManager(ManagerOpCode  opCode,
         rep->d_allocator_p->~Allocator();  // destroy allocator
 
         if (sooFuncSize > sizeof(InplaceBuffer)) {
-            // Deallocate memory holding function and allocator
+            // Deallocate memory holding both functor and allocator
             allocCopy.deallocate(rep->d_objbuf.d_object_p);
         }
-        else if (sooFuncSize + sizeof(Adaptor) > sizeof(InplaceBuffer)) {
-            // Function is inplace but allocator is not.
+        else {
+            // Functor is inplace but allocator is not.
             // Deallocate space used by allocator.
             allocCopy.deallocate(rep->d_allocator_p);
         }
-        // else everything is inplace.  Nothing to deallocate.
 
         // Return size allocator adaptor.
         return sizeof(Adaptor);
@@ -1299,30 +1240,6 @@ bsl::Function_Rep::ownedAllocManager(ManagerOpCode  opCode,
     return PtrOrSize_t();
 }
 
-inline
-void *bsl::Function_Rep::initRep(std::size_t       sooFuncSize,
-                                 bslma::Allocator *alloc,
-                                 integral_constant<AllocCategory,
-                                                   e_BSLMA_ALLOC_PTR>)
-{
-    void *function_p;
-    if (sooFuncSize <= sizeof(InplaceBuffer)) {
-        function_p = &d_objbuf;
-    }
-    else {
-        std::size_t funcSize = (sooFuncSize >= k_NON_SOO_SMALL_SIZE ?
-                                sooFuncSize - k_NON_SOO_SMALL_SIZE :
-                                sooFuncSize);
-        function_p = alloc->allocate(funcSize);
-        d_objbuf.d_object_p = function_p;
-    }
-
-    d_allocator_p = alloc;
-    d_allocManager_p = &unownedAllocManager;
-
-    return function_p;
-}
-
 template <class TP>
 inline
 void *bsl::Function_Rep::initRep(std::size_t               sooFuncSize,
@@ -1335,7 +1252,6 @@ void *bsl::Function_Rep::initRep(std::size_t               sooFuncSize,
 }
 
 template <class ALLOC>
-inline
 void *bsl::Function_Rep::initRep(std::size_t  sooFuncSize,
                                  const ALLOC& alloc,
                                  integral_constant<AllocCategory,
@@ -1350,39 +1266,36 @@ void *bsl::Function_Rep::initRep(std::size_t  sooFuncSize,
                             sooFuncSize);
 
     bool isInplaceFunc = sooFuncSize <= sizeof(InplaceBuffer);
-    bool isInplacePair = (isInplaceFunc &&
-                          (funcSize + allocSize) <= sizeof(InplaceBuffer));
 
     void *function_p;
     void *allocator_p;
 
-    // Whether or not the function object is in-place is not dependent on
-    // whether the allocator also fits in the object buffer.  This design
-    // avoids the function manager having to handle the cross product of all
-    // possible allocators and all possible function types.  If the function
-    // object is in-place and the allocator happens to fit as well, then it
-    // will be squeezed in as well, otherwise the allocator will be allocated
-    // out-of-place.
+    // A type-erased allocator is never allocated inplace.  Allocating the
+    // allocator out of place allows the allocator to be moved from one
+    // function object to another without changing its address.  This pointer
+    // stability is critical to ensuring that move-constructing an inplace
+    // functor does not result in a functor holding an pointer to a different
+    // 'function' object's allocator. Not having the erased allocator inplace
+    // also simplifies the logic in a number of places.
+    //
+    // If the functor is allocated out of place, then the functor and the
+    // out-of-place allocator can be allocated in a single memory block, since
+    // they will always move together as a unit and the allocator's address
+    // will not change.
     //
     // Although this is a run-time 'if' statement, the compiler will usually
-    // optimize away the conditional when 'sooFuncSize' is known at compile time
-    // and this function is inlined. (Besides, it's cheap even if not
+    // optimize away the conditional when 'sooFuncSize' is known at compile
+    // time and this function is inlined. (Besides, it's cheap even if not
     // optimized away).
-    if (isInplacePair) {
-        // Both Function object and allocator fit in-place.
-        Function_PairBufDesc pairDesc(funcSize, allocSize);
-        function_p = pairDesc.first(&d_objbuf);
-        allocator_p = pairDesc.second(&d_objbuf);
-    }
-    else if (isInplaceFunc) {
+    if (isInplaceFunc) {
         // Function object fits in-place, but allocator is out-of-place
         function_p = &d_objbuf;
         // Allocate allocator adaptor from allocator itself
         allocator_p = Adaptor(alloc).allocate(allocSize);
     }
     else {
-        // Not in-place.
-        // Allocate function and allocator adaptor from the allocator.
+        // Not in-place.  Allocate (from the allocator) a single block to hold
+        // the function and allocator adaptor.
         Function_PairBufDesc pairDesc(funcSize, allocSize);
         void *pair_p = Adaptor(alloc).allocate(pairDesc.totalSize());
         d_objbuf.d_object_p = pair_p;
@@ -1733,10 +1646,8 @@ template <class RET, class... ARGS>
 bsl::function<RET(ARGS...)>::function(function&& other)
 {
     d_invoker_p = other.d_invoker_p;
-    if (! moveInit(other)) {
-        // Function was moved by pointer; 'other' is now empty.
-        other.d_invoker_p = NULL;
-    }
+    moveInit(other);
+    other.d_invoker_p = NULL;
 }
 
 template <class RET, class... ARGS>
@@ -1749,10 +1660,8 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t,
 
     d_invoker_p = other.d_invoker_p;
     if (other.equalAlloc(alloc, typename AllocTraits::Category())) {
-        if (! moveInit(other)) {
-            // Function was moved by pointer; 'other' is now empty.
-            other.d_invoker_p = NULL;
-        }
+        moveInit(other);
+        other.d_invoker_p = NULL; // 'other' is now empty.
     }
     else {
         copyInit(typename AllocTraits::Type(alloc), other);
