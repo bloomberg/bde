@@ -1,5 +1,5 @@
-// bdlb_sysrandom.t.cpp                                               -*-C++-*-
-#include <bdlb_sysrandom.h>
+// bdlb_randomdevice.t.cpp                                            -*-C++-*-
+#include <bdlb_randomdevice.h>
 
 // Note the headers are in non-standard order.  This was required to silence an
 // error from clang 3.4.
@@ -8,7 +8,7 @@
 //  using declaration already in scope
 //  extern int rename(const char *, const char *);
 //..
-// This is an acknowledged issue in LLVM:
+// This is an acknowledged issue:
 // <http://lists.cs.uiuc.edu/pipermail/llvmbugs/2012-May/023328.html>
 
 #include <bsls_platform.h>
@@ -45,26 +45,35 @@ using namespace bsl;
 // [-4] PERFORMANCE: 'getRandomBytes'
 // [-5] PERFORMANCE: 'getRandomBytes'
 // [ 3] USAGE EXAMPLE
+
 // ============================================================================
-//                    STANDARD BDE ASSERT TEST MACROS
+//                     STANDARD BSL ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 
-static int testStatus = 0;
+namespace {
 
-static void aSsErT(int c, const char *s, int i)
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+}  // close unnamed namespace
+
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
 #define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
@@ -73,13 +82,12 @@ static void aSsErT(int c, const char *s, int i)
 #define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P   BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BDLS_TESTUTIL_L_  // current Line number
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -95,6 +103,9 @@ static void aSsErT(int c, const char *s, int i)
 //=============================================================================
 //                     GLOBAL TYPEDEFS FOR TESTING
 //-----------------------------------------------------------------------------
+
+typedef bdlb::RandomDevice Util;
+
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
 #define sleep(x) Sleep((x))
 #else
@@ -145,7 +156,7 @@ template <class CHOICE_TYPE>
 const CHOICE_TYPE& RandomChoice<CHOICE_TYPE>::choice() const
 {
     int index;
-    bdlb::SysRandom::getRandomBytesNonBlocking(
+    bdlb::RandomDevice::getRandomBytesNonBlocking(
                                      reinterpret_cast<unsigned char *>(&index),
                                      sizeof index);
     return d_choices[index % d_size];
@@ -187,7 +198,7 @@ int main(int argc, char *argv[])
 ///Usage
 ///-----
   // The following snippets of code illustrate how to create and use a
-  // 'bdlb_SysRandom' object.
+  // 'bdlb_RandomDevice' object.
   //..
 //..
 // First, we initialize an array of colors to choose between.
@@ -202,8 +213,9 @@ int main(int argc, char *argv[])
 //..
 // Finally, we stream the value of this color to 'stdout':
 //..
-        if (verbose)
+        if (verbose) {
             cout << chooseColor.choice() << endl;
+        }
 //..
       } break;
       case 2: {
@@ -222,12 +234,12 @@ int main(int argc, char *argv[])
         // Testing:
         //   static int getRandomBytesNonBlocking(buf, numB);
         // --------------------------------------------------------------------
-        enum { NUM_ITERATIONS = 25};
-        enum { NUM_TRIALS = 10};
-        int cnt = 0;
-        unsigned char buffer [NUM_ITERATIONS * 4]      = {0};
-        unsigned char prev_buffer [NUM_ITERATIONS * 4] = {0};
-        const unsigned NUM_BYTES = sizeof buffer;
+        const int      NUM_ITERATIONS                   = 25;
+        const int      NUM_TRIALS                       = 10;
+        int            cnt                              = 0;
+        unsigned char  buffer[NUM_ITERATIONS * 4]       = { };
+        unsigned char  prev_buffer[NUM_ITERATIONS * 4]  = { };
+        const unsigned NUM_BYTES                        = sizeof buffer;
 
         if (verbose)
             cout << endl
@@ -242,8 +254,8 @@ int main(int argc, char *argv[])
             // Repeat the accession of random bytes 'NUM_TRIALS' times to
             // prevent false negatives
             for (int j = 0; j < NUM_TRIALS; ++j) {
-                ASSERT(0 == bdlb::SysRandom::getRandomBytesNonBlocking(buffer,
-                                                                       i));
+                if (veryVerbose) { P(j) }
+                ASSERT(0 == Util::getRandomBytesNonBlocking(buffer, i));
                 // sum the bytes
                 for (unsigned k = 0; k < NUM_BYTES; ++k) {
                     buffer[k] =  static_cast<unsigned char>(buffer[k] +
@@ -251,40 +263,37 @@ int main(int argc, char *argv[])
                 }
                 // copy the buffer
                 memcpy(prev_buffer, buffer, sizeof buffer);
-                if (veryVerbose) P(buffer[i])
             }
             int sum = 0;
             // check that the bytes set are non-zero
             unsigned j;
             for (j = 0; j < i; ++j)    {
-                if (veryVerbose) cout << "Random bytes: " << buffer[j] << endl;
                 sum += static_cast<int>(buffer[j]) ;
             }
-            if (i > 0) {
-              LOOP_ASSERT(i, 0 != sum)
-            }
+            LOOP2_ASSERT(i, sum, 0 == i || 0 != sum);
             // check that remaining bytes are still unset.
             for (; j < NUM_BYTES; ++j) {
-                if (veryVerbose) cout << "Random bytes: " << buffer[j] << endl;
-                LOOP2_ASSERT(i, j, 0 == buffer[j]);
+                LOOP3_ASSERT(i, j, int(buffer[j]), 0 == buffer[j]);
             }
         }
 
         if (veryVerbose) cout << "\nTesting the distribution of rand."
                               << endl;
         // 3) The random bytes are uniformly distributed (probabilistic)
-        int numbers[NUM_ITERATIONS] = {0};
+        int numbers[NUM_ITERATIONS] = { };
         for (int i = 0; i< NUM_ITERATIONS; ++i) {
             int rand;
-            ASSERT(0 == bdlb::SysRandom::getRandomBytesNonBlocking(
+            if (veryVerbose) { P(i) }
+            ASSERT(0 == Util::getRandomBytesNonBlocking(
                                       reinterpret_cast<unsigned char *>(&rand),
                                       sizeof rand));
             numbers[i] = rand;
             if (veryVerbose) cout << "rand[" << i << "]: " << rand << endl;
             for (int j = 0; j < i; ++j) {
                 ASSERT(numbers[j] != rand);
-                if (veryVerbose)
+                if (veryVerbose) {
                     cout << "rand[" << j << "]: " << numbers[j] << endl;
+                }
             }
 
             for (int b = 0; b < 15; ++b) {
@@ -314,7 +323,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   BREATHING TEST
         // --------------------------------------------------------------------
-        enum { NUM_ITERATIONS = 8};
+        const int NUM_ITERATIONS = 8;
 
         if (verbose) cout << endl
                           << "BREATHING TEST" << endl
@@ -325,7 +334,7 @@ int main(int argc, char *argv[])
         // fill buffer with random bytes
         for (int i = 0; i < NUM_ITERATIONS; ++i) {
             unsigned char *p = reinterpret_cast<unsigned char *>(&rand);
-            ASSERT(0 == bdlb::SysRandom::getRandomBytes(p, sizeof rand));
+            ASSERT(0 == Util::getRandomBytes(p, sizeof rand));
             numbers[i] = rand;
             if (veryVerbose) P(rand);
         }
@@ -352,10 +361,9 @@ int main(int argc, char *argv[])
         // Testing:
         //   static int getRandomBytes(unsigned char *buf, size_t numB);
         // --------------------------------------------------------------------
-        enum { NUM_ITERATIONS = 25};
-        int cnt = 0;
-        int numbers [NUM_ITERATIONS]      = {0};
-        // int prev_numbers [NUM_ITERATIONS] = {0};
+        const int      NUM_ITERATIONS = 25;
+        int            cnt = 0;
+        int            numbers[NUM_ITERATIONS] = { };
         const unsigned NUM_BYTES = sizeof numbers;
 
         if (verbose)
@@ -371,19 +379,17 @@ int main(int argc, char *argv[])
         }
         // 2) If a number is passed, that many bytes are set.
         for (unsigned i = 0; i < 5; ++i) {
-            unsigned j;
+            unsigned       j;
             unsigned char *p = reinterpret_cast<unsigned char *>(numbers);
             memset(numbers, 0, NUM_BYTES);
-            ASSERT(0 == bdlb::SysRandom::getRandomBytesNonBlocking(p,
-                                                                   i));
+            if (veryVerbose) { P(i) }
+            ASSERT(0 == Util::getRandomBytesNonBlocking(p, i));
 
             for (j = 0; j < i; ++j)    {
-                if (veryVerbose) cout << "Random bytes: " << p[j] << endl;
-                LOOP2_ASSERT(i, j, 0 != p[j]);
+                LOOP3_ASSERT(i, j, p[j], 0 != p[j]);
             }
             for (; j < NUM_BYTES; ++j) {
-                if (veryVerbose) cout << "Random bytes: " << p[j] << endl;
-                LOOP2_ASSERT(i, j, 0 == p[j]);
+                LOOP3_ASSERT(i, j, p[j], 0 == p[j]);
             }
         }
 
@@ -391,18 +397,15 @@ int main(int argc, char *argv[])
                               << endl;
 
         // 3) The random bytes are distributed uniform (probabilistic)
-        for (int i = 0; i<NUM_ITERATIONS; ++i) {
-            int rand_int = 0;
-            unsigned char *p1 = reinterpret_cast<unsigned char *>(rand_int);
-            ASSERT(0 == bdlb::SysRandom::getRandomBytesNonBlocking(
-                                                            p1,
-                                                            sizeof rand_int));
+        for (int i = 0; i < NUM_ITERATIONS; ++i) {
+            int            rand_int = 0;
+            unsigned char *p1 = reinterpret_cast<unsigned char *>(&rand_int);
+            if (veryVerbose) { P(i); }
+            ASSERT(0 == Util::getRandomBytesNonBlocking(p1, sizeof rand_int));
             numbers[i] = rand_int;
-            if (veryVerbose) cout << "rand[" << i << "]: " << rand_int << endl;
             for (int j = 0; j < i; ++j) {
-                ASSERT(numbers[j] != rand_int);
-                if (veryVerbose)
-                    cout << "rand_int[" << j << "]: " << numbers[j] << endl;
+                LOOP5_ASSERT(i, j, rand_int, numbers[i], numbers[j],
+                             numbers[j] != numbers[i]);
             }
 
             for (int b = 0; b < 15; ++b) {
@@ -435,23 +438,21 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "PERFORMANCE: 'getRandomBytes'" << endl
                           << "=============================" << endl;
-        enum { NUM_ITERATIONS = 4};
         bsls::Stopwatch s;
-        const int MAX_GRANUALARITY = 1 << NUM_ITERATIONS;
-        unsigned char buffer [MAX_GRANUALARITY] = {0};
-        unsigned char prev_buffer[MAX_GRANUALARITY] = {0};
-        int i, granularity;
-        for (granularity = 1;
+        const int       NUM_ITERATIONS                = 4;
+        const int       MAX_GRANUALARITY              = 1 << NUM_ITERATIONS;
+        unsigned char   buffer[MAX_GRANUALARITY]      = { };
+        unsigned char   prev_buffer[MAX_GRANUALARITY] = { };
+        for (int granularity = 1;
              granularity < MAX_GRANUALARITY;
-             granularity <<= 1)
-        {
+             granularity <<= 1) {
             memcpy(prev_buffer, buffer, MAX_GRANUALARITY);
             s.start(true);
-            for (i = 0; i <= MAX_GRANUALARITY; i +=  granularity)
-            {
-                ASSERT(0 ==
-                       bdlb::SysRandom::getRandomBytes(buffer + granularity,
-                                                       granularity));
+            int i;
+            for (i = 0; i <= MAX_GRANUALARITY; i += granularity) {
+                if (veryVerbose) { P(i) }
+                ASSERT(0 == Util::getRandomBytes(buffer + granularity,
+                                                 granularity));
             }
             s.stop();
             LOOP2_ASSERT(granularity,
@@ -489,30 +490,27 @@ int main(int argc, char *argv[])
         }
         int rand_int;
         for (int i = 0; i < 15; ++i) {
-            ASSERT(0 ==
-                   bdlb::SysRandom::getRandomBytesNonBlocking(
+            if (veryVerbose) { P(i) }
+            ASSERT(0 == Util::getRandomBytesNonBlocking(
                                   reinterpret_cast<unsigned char *>(&rand_int),
-                                                            sizeof rand_int));
+                                  sizeof rand_int));
         }
 
-        enum { NUM_ITERATIONS = 4};
         bsls::Stopwatch s;
+        const int       NUM_ITERATIONS                = 4;
+        const int       MAX_GRANUALARITY              = 1 << NUM_ITERATIONS;
+        unsigned char   buffer [MAX_GRANUALARITY]     = { };
+        unsigned char   prev_buffer[MAX_GRANUALARITY] = { };
 
-        const int MAX_GRANUALARITY = 1 << NUM_ITERATIONS;
-        unsigned char buffer [MAX_GRANUALARITY] = {0};
-        unsigned char prev_buffer[MAX_GRANUALARITY] = {0};
-        int i, granularity;
-
-        for (granularity = 1;
+        for (int granularity = 1;
              granularity < MAX_GRANUALARITY;
-             granularity <<= 1)
-        {
+             granularity <<= 1) {
             memcpy(prev_buffer, buffer, MAX_GRANUALARITY);
             s.start(true);
-            for (i = 0; i <= MAX_GRANUALARITY; i +=  granularity)
-            {
-                ASSERT(0 ==
-                      bdlb::SysRandom::getRandomBytesNonBlocking(
+            int i;
+            for (i = 0; i <= MAX_GRANUALARITY; i +=  granularity) {
+                if (veryVerbose) { P(i) }
+                ASSERT(0 == Util::getRandomBytesNonBlocking(
                                                           buffer + granularity,
                                                           granularity));
             }
@@ -547,30 +545,34 @@ int main(int argc, char *argv[])
         //---------------------------------------------------------------------
         if (verbose) cout << "PERFORMANCE: 'getRandomBytes'"
                           << "=============================" << endl;
-        bsls::Stopwatch s;
-        enum { MAX_SLEEP = 10};
-        int rand_int;
-        unsigned char *p1 = reinterpret_cast<unsigned char *>(&rand_int);
+        bsls::Stopwatch  s;
+        const int        MAX_SLEEP = 10;
+        int              rand_int;
+        unsigned char   *p1 = reinterpret_cast<unsigned char *>(&rand_int);
 
         for (int i = 0; i < 15; ++i) {
-            ASSERT(0 == bdlb::SysRandom::getRandomBytes(p1, sizeof rand_int));
+            if (veryVerbose) { P(i) }
+            ASSERT(0 == Util::getRandomBytes(p1, sizeof rand_int));
         }
 
         for (unsigned curr_sleep = 0; curr_sleep <= MAX_SLEEP; ++curr_sleep) {
-            ASSERT(0 == bdlb::SysRandom::getRandomBytes(p1, sizeof rand_int ));
+            if (veryVerbose) { P(curr_sleep) }
+            ASSERT(0 == Util::getRandomBytes(p1, sizeof rand_int));
             sleep(curr_sleep);
             s.start(true);
-            ASSERT(0 == bdlb::SysRandom::getRandomBytes(p1, sizeof rand_int));
+            if (veryVerbose) { P(curr_sleep) }
+            ASSERT(0 == Util::getRandomBytes(p1, sizeof rand_int));
             s.stop();
             double time = s.accumulatedUserTime() + s.accumulatedSystemTime() +
                           s.accumulatedWallTime();
             s.reset();
-            if (veryVerbose)
+            if (veryVerbose) {
                 cout << "Current Delay             : " << curr_sleep
                      << " ms" << endl
-                    <<  "Time to get next number: "  << time * 100
-                    << " ms" << endl
-                    << "-------------------------"   << endl  << endl;
+                     <<  "Time to get next number: "  << time * 100
+                     << " ms" << endl
+                     << "-------------------------"   << endl  << endl;
+            }
         }
       } break;
       case -5: {
@@ -582,7 +584,7 @@ int main(int argc, char *argv[])
         //   'int'(s).
         //
         // Plan:
-        //   Call 'SysRandom::getRandomBytes' 'NUM_ITERATIONS' times, each
+        //   Call 'RandomDevice::getRandomBytes' 'NUM_ITERATIONS' times, each
         //   time
         //   requesting a 'int'.
         //
@@ -594,22 +596,24 @@ int main(int argc, char *argv[])
                << "PERFORMANCE: 'getRandomBytes'" << endl
                << "=============================" << endl;
         }
-        bsls::Stopwatch s;
-        int rand_int;
-        unsigned char *p1 = reinterpret_cast<unsigned char *>(&rand_int);
-        enum {NUM_ITERATIONS = 15};
+        bsls::Stopwatch  s;
+        const int        NUM_ITERATIONS = 15;
+        int              rand_int;
+        unsigned char   *p1 = reinterpret_cast<unsigned char *>(&rand_int);
 
         s.start(true);
         for (int i = 0; i < NUM_ITERATIONS; ++i) {
-            ASSERT(0 == bdlb::SysRandom::getRandomBytes(p1, sizeof rand_int));
+            if (veryVerbose) { P(i) }
+            ASSERT(0 == Util::getRandomBytes(p1, sizeof rand_int));
         }
         s.stop();
         double time = s.accumulatedUserTime() + s.accumulatedSystemTime() +
                       s.accumulatedWallTime();
         s.reset();
-        if (verbose)
+        if (verbose) {
             cout << "Time to aquire " << NUM_ITERATIONS <<  " random ints: "
                  << time << endl;
+        }
       } break;
       default: {
           cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
@@ -623,10 +627,23 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2014
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------------------------------------------------------
+// Copyright (C) 2014 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------

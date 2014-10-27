@@ -1,5 +1,5 @@
-// bdlb_sysrandom.cpp                                                 -*-C++-*-
-#include <bdlb_sysrandom.h>
+// bdlb_randomdevice.cpp                                              -*-C++-*-
+#include <bdlb_randomdevice.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlb_sysrandom_cpp,"$Id$ $CSID$")
@@ -44,33 +44,33 @@ int readFile(unsigned char *buffer, size_t numBytes, const char *filename);
                         // class HCRYPTPROV_Adapter
                         // ========================
 
-    class HCRYPTPROV_Adapter {
-      // This 'class' provides a guarded wrapper around the standard
-      // 'HCRYPTPROV' type for the Windows platform.
+class HCRYPTPROV_Adapter {
+  // This 'class' provides a guarded wrapper around the standard
+  // 'HCRYPTPROV' type for the Windows platform.
 
-        // DATA
-        HCRYPTPROV d_hCryptProv;  // context for the Windows PRG
+    // DATA
+    HCRYPTPROV d_hCryptProv;  // context for the Windows PRG
 
-        // CREATORS
-      public:
-        explicit HCRYPTPROV_Adapter(LPCTSTR container     = NULL,
-                                    LPCTSTR provider      = NULL,
-                                    DWORD   provider_type = PROV_RSA_FULL,
-                                    DWORD   flag          = 0   );
-            // Create a 'HCRYPTPROV_Adapter'object passing each of its
-            // optionally specified parameters to the underlying 'HCRYPTPROV'
-            // object.  See the MSDN page for 'HCRYPTPROV' for more
-            // information.  If this class is unable to obtain a context,
-            // the installed assert handler is called.
+    // CREATORS
+  public:
+    explicit HCRYPTPROV_Adapter(LPCTSTR container     = NULL,
+                                LPCTSTR provider      = NULL,
+                                DWORD   provider_type = PROV_RSA_FULL,
+                                DWORD   flag          = 0   );
+        // Create a 'HCRYPTPROV_Adapter'object passing each of its
+        // optionally specified parameters to the underlying 'HCRYPTPROV'
+        // object.  See the MSDN page for 'HCRYPTPROV' for more
+        // information.  If this class is unable to obtain a context,
+        // the installed assert handler is called.
 
-        ~HCRYPTPROV_Adapter();
-            // Destroy this object.
+    ~HCRYPTPROV_Adapter();
+        // Destroy this object.
 
-        // ACCESSORS
-        const HCRYPTPROV& hCryptProv() const;
-            // Return a unmodifiable reference to the underlying 'HCRYPTPROV'
-            // object.
-    };
+    // ACCESSORS
+    const HCRYPTPROV& hCryptProv() const;
+        // Return a unmodifiable reference to the underlying 'HCRYPTPROV'
+        // object.
+};
 
 #endif // BDLB_USE_WIN_CRYPT
 #endif // BDLB_USE_DEV_RANDOM
@@ -118,7 +118,7 @@ HCRYPTPROV_Adapter::HCRYPTPROV_Adapter(LPCTSTR container,
     // if the context was unable to be initialized
     if (!d_hCryptProv) {
         // unconditionally call the installed 'ASSERT' handler
-        bsls::Assert::invokeHandler("NULL != d_hCryptProv", __FILE__, __LINE__);
+        bsls::Assert::invokeHandler("null d_hCryptProv", __FILE__, __LINE__);
         // invokeHandler is no return, so this line should never execute
         abort();
     }
@@ -184,12 +184,12 @@ int readFile(unsigned char *buffer, size_t numBytes, const char *filename)
 #endif // BDLB_USE_WIN_CRYPT
 }  // close unnamed namespace
 
-                        // --------------------
-                        // class bdlb_SysRandom
-                        // --------------------
+                        // ------------------------
+                        // class bdlb::RandomDevice
+                        // ------------------------
 
 // CLASS METHODS
-int SysRandom::getRandomBytes(unsigned char *buffer, size_t numBytes)
+int RandomDevice::getRandomBytes(unsigned char *buffer, size_t numBytes)
 {
 #ifdef BDLB_USE_WIN_CRYPT
 
@@ -206,8 +206,8 @@ int SysRandom::getRandomBytes(unsigned char *buffer, size_t numBytes)
 #endif
 }
 
-int SysRandom::getRandomBytesNonBlocking(unsigned char *buffer,
-                                         size_t         numBytes)
+int RandomDevice::getRandomBytesNonBlocking(unsigned char *buffer,
+                                            size_t         numBytes)
 {
 #ifdef BDLB_USE_WIN_CRYPT
     return getRandomBytes(buffer, numBytes);
@@ -218,11 +218,25 @@ int SysRandom::getRandomBytesNonBlocking(unsigned char *buffer,
 
 }  // close package namespace
 }  // close enterprise namespace
+
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2014
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright (C) 2014 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
 // ----------------------------- END-OF-FILE ----------------------------------

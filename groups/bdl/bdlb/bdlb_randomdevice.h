@@ -1,6 +1,6 @@
-// bdlb_sysrandom.h                                                   -*-C++-*-
-#ifndef INCLUDED_BDLB_SYSRANDOM
-#define INCLUDED_BDLB_SYSRANDOM
+// bdlb_randomdevice.h                                                -*-C++-*-
+#ifndef INCLUDED_BDLB_RANDOMDEVICE
+#define INCLUDED_BDLB_RANDOMDEVICE
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,14 +10,14 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a common interface to a system's random number generator.
 //
 //@CLASSES:
-//  bdlb::SysRandom: namespace for system specific random-number generators.
+//  bdlb::RandomDevice: namespace for system specific random-number generators.
 //
 //@SEE_ALSO:
 //
 //@AUTHOR: Mickey Sweatt (msweatt1)
 //
-//@DESCRIPTION: This component provides a namespace, 'bdlb::SysRandom', for a
-// suite of functions used to generate random numbers from platform dependent
+//@DESCRIPTION: This component provides a namespace, 'bdlb::RandomDevice', for
+// a suite of functions used to generate random seeds from platform-dependent
 // random number generators.  Two variants are provided: one which may block,
 // but which potentially samples from a stronger distribution, and another
 // which does not block, but which potentially should not be used for
@@ -26,6 +26,11 @@ BSLS_IDENT("$Id: $")
 // platforms 'genRandomBytes()' reads from '/dev/random' and
 // 'genRandonBytesNonBlocking()' reads from '/dev/urandom'.  On Windows both
 // methods use 'CrypGenRandom'.
+//
+// Note that it is not appropriate to use these functions to generate many
+// random numbers, because they are likely to exhaust available entropy and
+// then be slow.  Instead, these functions should be used to seed pseudo-random
+// random number generators.
 //
 ///Usage
 ///-----
@@ -73,7 +78,7 @@ BSLS_IDENT("$Id: $")
 //  const CHOICE_TYPE& RandomChoice<CHOICE_TYPE>::choice() const
 //  {
 //      size_t index;
-//      bdlb::SysRandom::getRandomBytesNonBlocking(
+//      bdlb::RandomDevice::getRandomBytesNonBlocking(
 //                                   reinterpret_cast<unsigned char *>(&index),
 //                                   sizeof index);
 //      return d_choices[index % d_size];
@@ -106,11 +111,11 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlb {
 
-                        // ================
-                        // struct SysRandom
-                        // ================
+                        // ===================
+                        // struct RandomDevice
+                        // ===================
 
-struct SysRandom {
+struct RandomDevice {
     // This 'struct' provides a namespace for a suite of functions used for
     // acquiring random numbers from the system.
 
@@ -137,10 +142,23 @@ struct SysRandom {
 
 #endif
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2014
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright (C) 2014 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
 // ----------------------------- END-OF-FILE ----------------------------------
