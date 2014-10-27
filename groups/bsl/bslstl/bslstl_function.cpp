@@ -50,77 +50,6 @@ void bsl::Function_Rep::moveInit(Function_Rep& other)
 
     destructiveMove(this, &other);
     destructiveMove(&other, &emptyRep);
-
-#if 0
-    bool inplace = true;
-
-    d_funcManager_p  = other.d_funcManager_p;
-    d_allocManager_p = other.d_allocManager_p;
-    d_allocator_p    = other.d_allocator_p;
-
-    if (d_funcManager_p) {
-        std::size_t sooFuncSize = d_funcManager_p(e_GET_SIZE, &other,
-                                                  PtrOrSize_t()).asSize_t();
-
-        if (sooFuncSize <= sizeof(InplaceBuffer)) {
-            // Function is inplace.
-
-            if (d_allocManager_p != &unownedAllocManager) {
-                // Make a copy of the type-erased allocator
-
-            // Initialize the rep using other's allocator.
-// TBD remove?            
-//            other.d_allocManager_p(e_INIT_REP, this, other.d_allocator_p);
-
-            // Move-construct function.  This is a nothrow operation because
-            // only nothrow-moveable functors are inplace.
-            // PtrOrSize_t source = 
-            //     TBD remove?
-            //     d_funcManager_p(e_GET_TARGET,
-            //                     const_cast<Function_Rep*>(&other),
-            //                     PtrOrSize_t());
-            // d_funcManager_p(e_MOVE_CONSTRUCT, this, source);
-            d_funcManager_p(e_DESTRUCTIVE_MOVE, this, &other.d_objbuf);
-            other.d_funcManager_p = NULL;
-        }
-        else {
-            // Function is not inplace.
-            // Just move the pointers from other.
-            inplace = false;
-
-            // Pointerwise move contents of 'other' into '*this'
-            d_objbuf.d_object_p = other.d_objbuf.d_object_p;
-
-            // Set 'other' to be empty, but with its original allocator.
-
-            // Before making any changes to 'other', allocate space (if
-            // needed) for a copy of the allocator.  That way, if the
-            // allocation fails with an exception, nothing will be altered.
-            // The allocator will be separately allocated if it is type-erased.
-            if (d_allocManager_p != &unownedAllocManager) {
-                // Allocator is type-erased (owned by this 'function').
-                std::size_t allocSize = d_allocManager_p(e_GET_SIZE, this,
-                                                     PtrOrSize_t()).asSize_t();
-                // Allocate space for the allocator
-                other.d_allocator_p = static_cast<bslma::Allocator*>(
-                    d_allocator_p->allocate(allocSize));
-                // Construction of allocator is a nothrow operation.
-                d_allocManager_p(e_COPY_CONSTRUCT, &other, d_allocator_p);
-            }
-            // Else (if unowned allocator) leave allocator pointer unchanged.
-
-            // If got here, allocator has been successfully constructed.
-            other.d_funcManager_p = NULL;
-        }
-    }
-    else {
-        // Moving an empty 'function' object.
-        // Initialize just the allocator portion of the result
-        other.d_allocManager_p(e_INIT_REP, this, other.d_allocator_p);
-    }
-
-    return inplace;
-#endif
 }
 
 void bsl::Function_Rep::makeEmpty()
@@ -135,26 +64,20 @@ void bsl::Function_Rep::makeEmpty()
                                               PtrOrSize_t()).asSize_t();
     d_funcManager_p = NULL;
 
-    std::size_t allocSize = d_allocManager_p(e_GET_SIZE, this,
-                                             PtrOrSize_t()).asSize_t();
-    bslma::Allocator *fromAlloc = d_allocator_p;
-
     if (sooFuncSize <= sizeof(InplaceBuffer)) {
         return;
     }
 
-    // assert(functor is out-of-place)
-
-    if (0 == allocSize) {
+    bslma::Allocator *fromAlloc = d_allocator_p;
+    if (d_allocManager_p == &unownedAllocManager) {
         // Was out-of-place functor with unowned allocator.
         // Deallocate functor. (Allocator is unaffected.)
         d_allocator_p->deallocate(d_objbuf.d_object_p);
         return;
     }
 
-    // assert(functor and allocator are both out-of-place)
-
-    // Memory block where (destructed) functor and (valid) allocator live.
+    // Allocator is type-erased and stored in the same allocated memory block
+    // as the (destructed) functor
     void *memoryBlock = d_objbuf.d_object_p;
 
     // Allocator is at some offset into 'd_object_p' memory block.  Move
@@ -286,7 +209,7 @@ void bsl::Function_Rep::destructiveMove(Function_Rep *to,
 
 bsl::Function_Rep::~Function_Rep()
 {
-    // Wrapped function must already have been destroyed.  It cannot be
+    // Wrapped functor must already have been destroyed.  It cannot be
     // destroyed in this destructor because a 'Function_Rep' may exist with a
     // wrapped function in either a constructed or uninitialized state.  Only
     // the 'function<F>' derived class knows whether the wrapped function
@@ -307,6 +230,7 @@ bsl::Function_Rep::~Function_Rep()
 void bsl::Function_Rep::swap(Function_Rep& other) BSLS_NOTHROW_SPEC
 {
     // Swap will fail if allocators are not compatible
+    // TBD: Should this be a 'BSLS_ASSERT_SAFE'?
     BSLS_ASSERT(d_allocManager_p(e_IS_EQUAL, this,
                                  other.d_allocator_p).asSize_t());
 
