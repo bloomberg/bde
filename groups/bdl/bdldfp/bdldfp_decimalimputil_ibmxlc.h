@@ -673,6 +673,36 @@ struct DecimalImpUtil_IbmXlc {
         // the specified 'value' in Densely Packed Decimal (DPD) format.  This
         // format is compatible with the IBM compiler's native type, and the
         // decNumber library.
+
+                        // Binary Integral Conversion Functions
+
+    // The IBM XLC compiler's Decimal implementation does not currently support
+    // conversion to or from 'BID', so these functions are not provided.  This
+    // will cause a compile-time failure for this implementation.  A portable
+    // implementation of this algorithm is forthcoming.
+
+  //static ValueType32  convertFromBinaryIntegral(
+  //                         BinaryIntegralDecimalImpUtil::StorageType32  bid);
+  //static ValueType64  convertFromBinaryIntegral(
+  //                         BinaryIntegralDecimalImpUtil::StorageType64  bid);
+  //static ValueType128 convertFromBinaryIntegral(
+  //                         BinaryIntegralDecimalImpUtil::StorageType128 bid);
+        // Return a 'ValueTypeXX' representing the specified 'bid', which is
+        // currently in Binary Integral Decimal (BID) format.  This format is
+        // compatible with the Intel DFP implementation type.
+
+  //static
+  //BinaryIntegralDecimalImpUtil::StorageType32  convertToBinaryIntegral(
+  //                                                       ValueType32  value);
+  //static
+  //BinaryIntegralDecimalImpUtil::StorageType64  convertToBinaryIntegral(
+  //                                                       ValueType64  value);
+  //static
+  //BinaryIntegralDecimalImpUtil::StorageType128 convertToBinaryIntegral(
+  //                                                       ValueType128 value);
+        // Return a 'BinaryIntegralDecimalImpUtil::StorageTypeXX' representing
+        // the specified 'value' in Binary Integral Decimal (BID) format.  This
+        // format is compatible with the Intel DFP implementation type.
 };
 
 // ============================================================================

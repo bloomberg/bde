@@ -38,6 +38,10 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_denselypackeddecimalimputil.h>
 #endif
 
+#ifndef INCLUDED_BDLDFP_BINARYINTEGRALDECIMALIMPUTIL
+#include <bdldfp_binaryintegraldecimalimputil.h>
+#endif
+
 #ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
 
 #ifndef INCLUDED_BDLDFP_INTELIMPWRAPPER
@@ -688,6 +692,31 @@ struct DecimalImpUtil_IntelDfp {
         // the specified 'value' in Densely Packed Decimal (DPD) format.  This
         // format is compatible with the IBM compiler's native type, and the
         // decNumber library.
+
+                        // Binary Integral Conversion Functions
+
+    static ValueType32  convertFromBinaryIntegral(
+                             BinaryIntegralDecimalImpUtil::StorageType32  bid);
+    static ValueType64  convertFromBinaryIntegral(
+                             BinaryIntegralDecimalImpUtil::StorageType64  bid);
+    static ValueType128 convertFromBinaryIntegral(
+                             BinaryIntegralDecimalImpUtil::StorageType128 bid);
+        // Return a 'ValueTypeXX' representing the specified 'bid', which is
+        // currently in Binary Integral Decimal (BID) format.  This format is
+        // compatible with the Intel DFP implementation type.
+
+    static
+    BinaryIntegralDecimalImpUtil::StorageType32  convertToBinaryIntegral(
+                                                           ValueType32  value);
+    static
+    BinaryIntegralDecimalImpUtil::StorageType64  convertToBinaryIntegral(
+                                                           ValueType64  value);
+    static
+    BinaryIntegralDecimalImpUtil::StorageType128 convertToBinaryIntegral(
+                                                           ValueType128 value);
+        // Return a 'BinaryIntegralDecimalImpUtil::StorageTypeXX' representing
+        // the specified 'value' in Binary Integral Decimal (BID) format.  This
+        // format is compatible with the Intel DFP implementation type.
 };
 
 // ============================================================================
@@ -1538,6 +1567,73 @@ DecimalImpUtil_IntelDfp::convertToDenselyPacked(
     bsl::memcpy(&dpd, &result, sizeof(dpd));
 
     return dpd;
+}
+                        // Binary Integral Conversion Functions
+
+inline
+DecimalImpUtil_IntelDfp::ValueType32
+DecimalImpUtil_IntelDfp::convertFromBinaryIntegral(
+                                BinaryIntegralDecimalImpUtil::StorageType32 bid)
+{
+    ValueType32 result;
+    memcpy(&result, &bid, sizeof(result));
+
+    return result;
+}
+
+inline
+DecimalImpUtil_IntelDfp::ValueType64
+DecimalImpUtil_IntelDfp::convertFromBinaryIntegral(
+                                BinaryIntegralDecimalImpUtil::StorageType64 bid)
+{
+    ValueType64 result;
+    memcpy(&result, &bid, sizeof(result));
+
+    return result;
+}
+
+inline
+DecimalImpUtil_IntelDfp::ValueType128
+DecimalImpUtil_IntelDfp::convertFromBinaryIntegral(
+                               BinaryIntegralDecimalImpUtil::StorageType128 bid)
+{
+    ValueType128 result;
+    memcpy(&result, &bid, sizeof(result));
+
+    return result;
+}
+
+inline
+BinaryIntegralDecimalImpUtil::StorageType32
+DecimalImpUtil_IntelDfp::convertToBinaryIntegral(
+                                    DecimalImpUtil_IntelDfp::ValueType32 value)
+{
+    BinaryIntegralDecimalImpUtil::StorageType32 bid;
+    bsl::memcpy(&bid, &value, sizeof(bid));
+
+    return bid;
+}
+
+inline
+BinaryIntegralDecimalImpUtil::StorageType64
+DecimalImpUtil_IntelDfp::convertToBinaryIntegral(
+                                    DecimalImpUtil_IntelDfp::ValueType64 value)
+{
+    BinaryIntegralDecimalImpUtil::StorageType64 bid;
+    bsl::memcpy(&bid, &value, sizeof(bid));
+
+    return bid;
+}
+
+inline
+BinaryIntegralDecimalImpUtil::StorageType128
+DecimalImpUtil_IntelDfp::convertToBinaryIntegral(
+                                   DecimalImpUtil_IntelDfp::ValueType128 value)
+{
+    BinaryIntegralDecimalImpUtil::StorageType128 bid;
+    bsl::memcpy(&bid, &value, sizeof(bid));
+
+    return bid;
 }
 
 }  // close package namespace
