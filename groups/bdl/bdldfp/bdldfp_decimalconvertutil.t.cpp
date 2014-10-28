@@ -420,6 +420,20 @@ void bufferToStream(bsl::ostream           &out,
     out << dec;
 }
 
+unsigned char * decimal64ToBinaryIntegralNetwork(unsigned char *buffer,
+                                                 Decimal64 decimal)
+{
+    bsls::Types::Uint64 encoded;
+    Util::decimal64ToBinaryIntegral(
+                                   reinterpret_cast<unsigned char *>(&encoded),
+                                   decimal);
+
+    encoded = BSLS_BYTEORDER_HTONLL(encoded);
+
+    bsl::memcpy(buffer, reinterpret_cast<unsigned char*>(&encoded), 8);
+    return buffer + 8;
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -640,7 +654,7 @@ int main(int argc, char* argv[])
             }
             else {
                 encodedBuffer[0] = 0xFF;
-                unsigned char *nextAdr = Util::decimal64ToNetwork(
+                unsigned char *nextAdr = decimal64ToBinaryIntegralNetwork(
                                              encodedBuffer + 1, DECODED_VALUE);
                 encodedSize = nextAdr - encodedBuffer;
             }
@@ -841,7 +855,7 @@ int main(int argc, char* argv[])
                 }
             }
             else {
-                unsigned char *nextAdr = Util::decimal64ToNetwork(
+                unsigned char *nextAdr = decimal64ToBinaryIntegralNetwork(
                                                  encodedBuffer, DECODED_VALUE);
                 encodedSize = nextAdr - encodedBuffer;
             }
@@ -1075,7 +1089,7 @@ int main(int argc, char* argv[])
                 }
             }
             else {
-                unsigned char *nextAdr = Util::decimal64ToNetwork(
+                unsigned char *nextAdr = decimal64ToBinaryIntegralNetwork(
                                                  encodedBuffer, DECODED_VALUE);
                 encodedSize = nextAdr - encodedBuffer;
             }

@@ -783,7 +783,15 @@ bsls::Types::size_type DecimalConvertUtil::decimal64ToMultiWidthEncoding(
     }
     else {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        decimalToNetwork(buffer, decimal);
+        bsls::Types::Uint64 encoded;
+        decimal64ToBinaryIntegral(reinterpret_cast<unsigned char *>(&encoded),
+                                  decimal);
+
+        encoded = BSLS_BYTEORDER_HTONLL(encoded);
+
+        bsl::memcpy(buffer,
+                    reinterpret_cast<unsigned char*>(&encoded),
+                    8);
         return 8;                                                     // RETURN
     }
 }
@@ -879,9 +887,13 @@ Decimal64 DecimalConvertUtil::decimal64FromMultiWidthEncoding(
     else {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-        Decimal64 value;
-        decimalFromNetwork(&value, buffer);
-        return value;                                                 // RETURN
+        bsls::Types::Uint64 encoded;
+        bsl::memcpy(&encoded, buffer, 8);
+        encoded = BSLS_BYTEORDER_NTOHLL(encoded);
+
+        return decimal64FromBinaryIntegral(
+                                reinterpret_cast<unsigned char *>(&encoded));
+                                                                      // RETURN
     }
 }
 
@@ -924,10 +936,11 @@ Decimal64 DecimalConvertUtil::decimal64FromMultiWidthEncodingRaw(
         return decimal64FromUnpackedSpecial(mantissa, exponent);      // RETURN
       } break;
 #ifdef BSLS_PLATFORM_CMP_IBM
-      case 5: {
+      case 5:
 #else
-      default: {
+      default:
 #endif
+      {
         // Xlc optimizes better when 'case 5:' is used instead of 'default:',
         // and vice versa for gcc.
 
@@ -1028,7 +1041,15 @@ unsigned char *DecimalConvertUtil::decimal64ToVariableWidthEncoding(
     }
 
     *buffer++ = 0xFF;
-    bdldfp::DecimalConvertUtil::decimalToNetwork(buffer, decimal);
+
+    bsls::Types::Uint64 encoded;
+    decimal64ToBinaryIntegral(reinterpret_cast<unsigned char *>(&encoded),
+                              decimal);
+
+    encoded = BSLS_BYTEORDER_HTONLL(encoded);
+
+    bsl::memcpy(buffer, reinterpret_cast<unsigned char*>(&encoded), 8);
+
     return buffer + 8;
 }
 
@@ -1064,9 +1085,17 @@ unsigned char *DecimalConvertUtil::decimal64FromVariableWidthEncoding(
     else if (*buffer == 0xFF) {
 
         // Full 9-byte encoding is used.
+        ++buffer;
 
-        bdldfp::DecimalConvertUtil::decimalFromNetwork(decimal, ++buffer);
-        return buffer + 9;                                            // RETURN
+        bsls::Types::Uint64 encoded;
+        bsl::memcpy(&encoded, buffer, 8);
+        encoded = BSLS_BYTEORDER_NTOHLL(encoded);
+
+        decimal64FromBinaryIntegral(
+                                  decimal,
+                                  reinterpret_cast<unsigned char *>(&encoded));
+
+        return buffer + 8;                                            // RETURN
     }
     else  {
         // Here, the condition ((*buffer & 0xC0) == 0xC0) is true, and so the
