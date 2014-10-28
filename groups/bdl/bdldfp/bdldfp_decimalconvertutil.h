@@ -299,6 +299,59 @@ struct DecimalConvertUtil {
         // *not* to create a decimal from the exact base-2 value.  Use the
         // conversion constructors when you are not restoring a decimal.
 
+                        // decimalToBinaryIntegral functions
+
+    static void decimal32ToBinaryIntegral( unsigned char *buffer,
+                                          Decimal32      decimal);
+    static void decimal64ToBinaryIntegral( unsigned char *buffer,
+                                          Decimal64      decimal);
+    static void decimal128ToBinaryIntegral(unsigned char *buffer,
+                                          Decimal128     decimal);
+    static void decimalToBinaryIntegral(   unsigned char *buffer,
+                                          Decimal32      decimal);
+    static void decimalToBinaryIntegral(   unsigned char *buffer,
+                                          Decimal64      decimal);
+    static void decimalToBinaryIntegral(   unsigned char *buffer,
+                                          Decimal128     decimal);
+        // Populate the specified 'buffer' with the Binary Integral Decimal
+        // (BID) representation of the specified 'decimal' value.  The BID
+        // representations of 'Decimal32', 'Decimal64', and 'Decimal128'
+        // require 4, 8, and 16 bytes respectively.  The behavior is undefined
+        // unless 'buffer' points to a contiguous sequence of at least
+        // 'sizeof(decimal)' bytes.  Note that the BID representation is
+        // defined in section 3.5 of IEEE 754-2008.
+
+                        // decimalFromBinaryIntegral functions
+
+    static Decimal32  decimal32FromBinaryIntegral( const unsigned char *buffer);
+    static Decimal64  decimal64FromBinaryIntegral( const unsigned char *buffer);
+    static Decimal128 decimal128FromBinaryIntegral(const unsigned char *buffer);
+        // Return the native implementation representation of the value of the
+        // same size base-10 floating-point value stored in Binary Integral
+        // Decimal format at the specified 'buffer' address.  The behavior is
+        // undefined unless 'buffer' points to a memory area at least
+        // 'sizeof(decimal)' in size containing a value in BID format.
+
+    static void decimalFromBinaryIntegral(   Decimal32           *decimal,
+                                            const unsigned char *buffer);
+    static void decimalFromBinaryIntegral(   Decimal64           *decimal,
+                                            const unsigned char *buffer);
+    static void decimalFromBinaryIntegral(   Decimal128          *decimal,
+                                            const unsigned char *buffer);
+    static void decimal32FromBinaryIntegral( Decimal32           *decimal,
+                                            const unsigned char *buffer);
+    static void decimal64FromBinaryIntegral( Decimal64           *decimal,
+                                            const unsigned char *buffer);
+    static void decimal128FromBinaryIntegral(Decimal128          *decimal,
+                                            const unsigned char *buffer);
+        // Store, into the specified 'decimal', the native implmentation
+        // representation of the value of the same size base-10 floating point
+        // value represented in Binary Integral Decimal format, at the specified
+        // 'buffer' address.  The behavior is undefined unless 'buffer' points
+        // to a memory area at least 'sizeof(decimal)' in size containing a
+        // value in BID format.
+
+
                         // decimalToDenselyPacked functions
 
     static void decimal32ToDenselyPacked( unsigned char *buffer,
@@ -483,6 +536,181 @@ float DecimalConvertUtil::decimalToFloat(Decimal128 decimal)
     return Imp::decimalToFloat(decimal);
 }
 
+                        // decimalToBinaryIntegral functions
+
+inline
+void DecimalConvertUtil::decimal32ToBinaryIntegral(unsigned char *buffer,
+                                                   Decimal32      decimal)
+{
+    BinaryIntegralDecimalImpUtil::StorageType32 result;
+
+    result = DecimalImpUtil::convertToBinaryIntegral(*decimal.data());
+
+    memcpy(buffer, &result, sizeof(result));
+}
+
+inline
+void DecimalConvertUtil::decimal64ToBinaryIntegral(unsigned char *buffer,
+                                                   Decimal64      decimal)
+{
+    BinaryIntegralDecimalImpUtil::StorageType64 result;
+
+    result = DecimalImpUtil::convertToBinaryIntegral(*decimal.data());
+
+    memcpy(buffer, &result, sizeof(result));
+}
+
+inline
+void DecimalConvertUtil::decimal128ToBinaryIntegral(unsigned char *buffer,
+                                                    Decimal128     decimal)
+{
+    BinaryIntegralDecimalImpUtil::StorageType128 result;
+
+    result = DecimalImpUtil::convertToBinaryIntegral(*decimal.data());
+
+    memcpy(buffer, &result, sizeof(result));
+}
+
+inline
+void DecimalConvertUtil::decimalToBinaryIntegral(unsigned char *buffer,
+                                                 Decimal32      decimal)
+{
+    BinaryIntegralDecimalImpUtil::StorageType32 result;
+
+    result = DecimalImpUtil::convertToBinaryIntegral(*decimal.data());
+
+    memcpy(buffer, &result, sizeof(result));
+}
+
+inline
+void DecimalConvertUtil::decimalToBinaryIntegral(unsigned char *buffer,
+                                                 Decimal64      decimal)
+{
+    BinaryIntegralDecimalImpUtil::StorageType64 result;
+
+    result = DecimalImpUtil::convertToBinaryIntegral(*decimal.data());
+
+    memcpy(buffer, &result, sizeof(result));
+}
+
+inline
+void DecimalConvertUtil::decimalToBinaryIntegral(unsigned char *buffer,
+                                                 Decimal128     decimal)
+{
+    BinaryIntegralDecimalImpUtil::StorageType128 result;
+
+    result = DecimalImpUtil::convertToBinaryIntegral(*decimal.data());
+
+    memcpy(buffer, &result, sizeof(result));
+}
+
+                        // decimalFromBinaryIntegral functions
+
+inline
+Decimal32
+DecimalConvertUtil::decimal32FromBinaryIntegral(const unsigned char *buffer)
+{
+    BinaryIntegralDecimalImpUtil::StorageType32 bid;
+
+    memcpy(&bid, buffer, sizeof(bid));
+
+    return Decimal32(DecimalImpUtil::convertFromBinaryIntegral(bid));
+}
+
+inline
+Decimal64
+DecimalConvertUtil::decimal64FromBinaryIntegral(const unsigned char *buffer)
+{
+    BinaryIntegralDecimalImpUtil::StorageType64 bid;
+
+    memcpy(&bid, buffer, sizeof(bid));
+
+    return Decimal64(DecimalImpUtil::convertFromBinaryIntegral(bid));
+}
+
+inline
+Decimal128
+DecimalConvertUtil::decimal128FromBinaryIntegral(const unsigned char *buffer)
+{
+    BinaryIntegralDecimalImpUtil::StorageType128 bid;
+
+    memcpy(&bid, buffer, sizeof(bid));
+
+    return Decimal128(DecimalImpUtil::convertFromBinaryIntegral(bid));
+}
+
+inline
+void
+DecimalConvertUtil::decimalFromBinaryIntegral(Decimal32           *decimal,
+                                              const unsigned char *buffer)
+{
+    BinaryIntegralDecimalImpUtil::StorageType32 bid;
+
+    memcpy(&bid, buffer, sizeof(bid));
+
+    *decimal = Decimal32(DecimalImpUtil::convertFromBinaryIntegral(bid));
+}
+
+inline
+void
+DecimalConvertUtil::decimalFromBinaryIntegral(Decimal64           *decimal,
+                                              const unsigned char *buffer)
+{
+    BinaryIntegralDecimalImpUtil::StorageType64 bid;
+
+    memcpy(&bid, buffer, sizeof(bid));
+
+    *decimal = Decimal64(DecimalImpUtil::convertFromBinaryIntegral(bid));
+}
+
+inline
+void
+DecimalConvertUtil::decimalFromBinaryIntegral(Decimal128          *decimal,
+                                              const unsigned char *buffer)
+{
+    BinaryIntegralDecimalImpUtil::StorageType128 bid;
+
+    memcpy(&bid, buffer, sizeof(bid));
+
+    *decimal = Decimal128(DecimalImpUtil::convertFromBinaryIntegral(bid));
+}
+
+inline
+void
+DecimalConvertUtil::decimal32FromBinaryIntegral(Decimal32           *decimal,
+                                                const unsigned char *buffer)
+{
+    BinaryIntegralDecimalImpUtil::StorageType32 bid;
+
+    memcpy(&bid, buffer, sizeof(bid));
+
+    *decimal = Decimal32(DecimalImpUtil::convertFromBinaryIntegral(bid));
+}
+
+inline
+void
+DecimalConvertUtil::decimal64FromBinaryIntegral(Decimal64           *decimal,
+                                                const unsigned char *buffer)
+{
+    BinaryIntegralDecimalImpUtil::StorageType64 bid;
+
+    memcpy(&bid, buffer, sizeof(bid));
+
+    *decimal = Decimal64(DecimalImpUtil::convertFromBinaryIntegral(bid));
+}
+
+inline
+void
+DecimalConvertUtil::decimal128FromBinaryIntegral(Decimal128          *decimal,
+                                                 const unsigned char *buffer)
+{
+    BinaryIntegralDecimalImpUtil::StorageType128 bid;
+
+    memcpy(&bid, buffer, sizeof(bid));
+
+    *decimal = Decimal128(DecimalImpUtil::convertFromBinaryIntegral(bid));
+}
+
                         // decimalToDenselyPacked functions
 
 inline
@@ -501,7 +729,7 @@ void DecimalConvertUtil::decimal64ToDenselyPacked(unsigned char *buffer,
 
 inline
 void DecimalConvertUtil::decimal128ToDenselyPacked(unsigned char *buffer,
-                                                  Decimal128     decimal)
+                                                   Decimal128     decimal)
 {
     Imp::decimalToDenselyPacked(buffer, decimal);
 }
@@ -526,7 +754,6 @@ void DecimalConvertUtil::decimalToDenselyPacked(unsigned char *buffer,
 {
     Imp::decimalToDenselyPacked(buffer, decimal);
 }
-
 
                         // decimalFromDenselyPacked functions
 
@@ -598,7 +825,6 @@ DecimalConvertUtil::decimal128FromDenselyPacked(Decimal128          *decimal,
 {
     *decimal = Imp::decimal128FromDenselyPacked(buffer);
 }
-
 
 }  // close package namespace
 }  // close enterprise namespace
