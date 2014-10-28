@@ -501,8 +501,7 @@ public:
   reference find_or_insert(const value_type& __obj);
 
 private:
-  template <class _KT>
-   _Node* _M_find(const _KT& __key) const
+  _Node* _M_find(const key_type& __key) const
   {
     size_type __n = _M_hash(__key)% _M_buckets.size();
     _Node* __first;
