@@ -606,7 +606,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // Through "aliasing", a managed pointer of any type can be explicitly
 // converted to a managed pointer of any other type using any legal cast
 // expression.  For example, to static-cast a managed pointer of type A to a
-// shared pointer of type B, one can simply do the following:
+// managed pointer of type B, one can simply do the following:
 //..
 //  void explicitCastingExample() {
 //
@@ -768,7 +768,7 @@ class ManagedPtr_Ref {
 
     // ACCESSORS
     ManagedPtr_Members *base() const;
-        // Return a pointer to the managed state of a 'SharedPtr' object.
+        // Return a pointer to the managed state of a 'ManagedPtr' object.
 
     TARGET_TYPE *target() const;
         // Return a pointer to the referenced object.
@@ -1230,7 +1230,7 @@ struct ManagedPtr_FactoryDeleterType
 
 template <class MANAGED_TYPE>
 struct ManagedPtr_DefaultDeleter {
-    // This 'struct' provides a function-like shared pointer deleter that
+    // This 'struct' provides a function-like managed pointer deleter that
     // invokes 'delete' with the passed pointer.
 
     // CLASS METHODS
