@@ -124,7 +124,10 @@ int main(int argc, char* argv[])
     int            test = argc > 1 ? atoi(argv[1]) : 0;
     int         verbose = argc > 2;
     int     veryVerbose = argc > 3;
-    int veryveryVerbose = argc > 4;
+    int veryVeryVerbose = argc > 4;
+
+    (void) veryVerbose;
+    (void) veryVeryVerbose;
 
     _IDEC_flags flags;
 
@@ -243,6 +246,8 @@ int main(int argc, char* argv[])
         BID_UINT64  doubleDecimalComputed;
         BID_UINT128   quadDecimalComputed;
 
+        (void) singleDecimal2;
+
         doubleDecimalComputed = __bid64_add(  doubleDecimal,
                                               doubleDecimal2,
                                              &flags);
@@ -332,6 +337,7 @@ int main(int argc, char* argv[])
 
         BID_UINT64 simpleDecimal;
         simpleDecimal = 42;
+        (void) simpleDecimal;
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
