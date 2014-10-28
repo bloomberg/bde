@@ -2438,7 +2438,7 @@ void hashAppend(
     // function violates the BDE coding standard, adding a function for a
     // namespace for a different package, and none of the function parameters
     // are from this package either.  This is necessary in order to provide an
-    // implementation of 'bslh::hashAppende' for the (native) standard library
+    // implementation of 'bslh::hashAppend' for the (native) standard library
     // 'string' type as we are not allowed to add overloads directly into
     // namespace 'std', and this component essentially provides the interface
     // between 'bsl' and 'std' string types.
@@ -5048,8 +5048,9 @@ bool bsl::operator==(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 inline
 bool
-bsl::operator==(const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
-                const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+bsl::operator==(
+             const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+             const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
 {
     return lhs.size() == rhs.size()
         && 0 == CHAR_TRAITS::compare(lhs.data(), rhs.data(), lhs.size());
@@ -5058,8 +5059,9 @@ bsl::operator==(const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lh
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 inline
 bool
-bsl::operator==(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
-                const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+bsl::operator==(
+             const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
+             const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
 {
     return lhs.size() == rhs.size()
         && 0 == CHAR_TRAITS::compare(lhs.data(), rhs.data(), lhs.size());
@@ -5100,8 +5102,9 @@ bool bsl::operator!=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 inline
 bool
-bsl::operator!=(const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
-                const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+bsl::operator!=(
+             const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+             const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
 {
     return !(lhs == rhs);
 }
@@ -5109,8 +5112,9 @@ bsl::operator!=(const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lh
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 inline
 bool
-bsl::operator!=(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
-                const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+bsl::operator!=(
+             const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
+             const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
 {
     return !(lhs == rhs);
 }
@@ -5150,8 +5154,9 @@ bool bsl::operator<(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bool
-bsl::operator<(const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
-               const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+bsl::operator<(
+             const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+             const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
 {
     const std::size_t minLen = lhs.length() < rhs.length()
                              ? lhs.length() : rhs.length();
@@ -5164,8 +5169,9 @@ bsl::operator<(const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bool
-bsl::operator<(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
-               const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+bsl::operator<(
+             const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
+             const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
 {
     const std::size_t minLen = lhs.length() < rhs.length()
                              ? lhs.length() : rhs.length();
@@ -5209,15 +5215,7 @@ bool bsl::operator<(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 inline
 bool bsl::operator>(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
-                    const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& rhs) {
-    return rhs < lhs;
-}
-
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
-inline
-bool
-bsl::operator>(const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
-               const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+                    const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& rhs)
 {
     return rhs < lhs;
 }
@@ -5225,8 +5223,19 @@ bsl::operator>(const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 inline
 bool
-bsl::operator>(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
-               const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+bsl::operator>(
+             const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+             const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+{
+    return rhs < lhs;
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
+inline
+bool
+bsl::operator>(
+             const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
+             const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
 {
     return rhs < lhs;
 }
@@ -5254,15 +5263,7 @@ bool bsl::operator>(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 inline
 bool bsl::operator<=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
-                     const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& rhs) {
-    return !(rhs < lhs);
-}
-
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
-inline
-bool
-bsl::operator<=(const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
-                const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+                     const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& rhs)
 {
     return !(rhs < lhs);
 }
@@ -5270,8 +5271,19 @@ bsl::operator<=(const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lh
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 inline
 bool
-bsl::operator<=(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
-                const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+bsl::operator<=(
+             const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+             const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+{
+    return !(rhs < lhs);
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
+inline
+bool
+bsl::operator<=(
+             const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
+             const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
 {
     return !(rhs < lhs);
 }
@@ -5299,15 +5311,7 @@ bool bsl::operator<=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 inline
 bool bsl::operator>=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
-                     const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& rhs) {
-    return !(lhs < rhs);
-}
-
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
-inline
-bool
-bsl::operator>=(const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
-                const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+                     const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& rhs)
 {
     return !(lhs < rhs);
 }
@@ -5315,8 +5319,19 @@ bsl::operator>=(const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lh
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 inline
 bool
-bsl::operator>=(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
-                const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+bsl::operator>=(
+             const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+             const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+{
+    return !(lhs < rhs);
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
+inline
+bool
+bsl::operator>=(
+             const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
+             const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
 {
     return !(lhs < rhs);
 }
@@ -5355,8 +5370,9 @@ bsl::operator+(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>& lhs,
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>
-bsl::operator+(const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
-               const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
+bsl::operator+(
+             const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
+             const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>&        rhs)
 {
     bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2> result;
     result.reserve(lhs.length() + rhs.length());
@@ -5367,8 +5383,9 @@ bsl::operator+(const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>
-bsl::operator+(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
-               const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
+bsl::operator+(
+             const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
+             const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs)
 {
     bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1> result;
     result.reserve(lhs.length() + rhs.length());
@@ -5601,8 +5618,9 @@ bsl::getline(std::basic_istream<CHAR_TYPE, CHAR_TRAITS>&    is,
 // HASH SPECIALIZATIONS
 template <class HASHALG, class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
-void bsl::hashAppend(HASHALG& hashAlg,
-                     const basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& input)
+void bsl::hashAppend(
+                HASHALG&                                               hashAlg,
+                const basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& input)
 {
     using ::BloombergLP::bslh::hashAppend;
     hashAlg(input.data(), sizeof(CHAR_TYPE)*input.size());
@@ -5611,8 +5629,8 @@ void bsl::hashAppend(HASHALG& hashAlg,
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
-std::size_t
-bsl::hashBasicString(const basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str)
+std::size_t bsl::hashBasicString(
+                    const basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str)
 {
     return ::BloombergLP::bslh::Hash<>()(str);
 }

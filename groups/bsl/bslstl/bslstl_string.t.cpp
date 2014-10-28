@@ -1270,7 +1270,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
             prevHash = hash;
             hash     = hasher(num);
 
-            // Check consecutive values arent hashing to the same hash
+            // Check consecutive values are not hashing to the same hash
             ASSERT(prevHash != hash);
 
             // Check that minimal collisions are happening
@@ -1316,7 +1316,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
             prevHash = hash;
             hash     = hasher(num);
 
-            // Check consecutive values arent hashing to the same hash
+            // Check consecutive values are not hashing to the same hash
             ASSERT(prevHash != hash);
 
             // Check that minimal collisions are happening
@@ -7578,8 +7578,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
 
                     CONTAINER mU(Y);  const CONTAINER& U = mU;
 
-                    bslstl::StringRefData<TYPE> mV(&*Y.begin(), 
-                                                   &*Y.end());   
+                    bslstl::StringRefData<TYPE> mV(&*Y.begin(),
+                                                   &*Y.end());
                     const bslstl::StringRefData<TYPE> V = mV;
 
                     Obj mX(INIT_LENGTH,
@@ -7829,8 +7829,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
 
                     CONTAINER mU(Y);  const CONTAINER& U = mU;
 
-                    bslstl::StringRefData<TYPE> mV(&*Y.begin(), 
-                                                   &*Y.end());    
+                    bslstl::StringRefData<TYPE> mV(&*Y.begin(),
+                                                   &*Y.end());
                     const bslstl::StringRefData<TYPE> V = mV;
 
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
@@ -7956,8 +7956,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
 
                 Obj mY(X); const Obj& Y = mY;  // control
 
-                bslstl::StringRefData<TYPE> mV(&*Y.begin(), 
-                                                   &*Y.end());     
+                bslstl::StringRefData<TYPE> mV(&*Y.begin(),
+                                                   &*Y.end());
                 const bslstl::StringRefData<TYPE> V = mV;
 
                 if (veryVerbose) {
