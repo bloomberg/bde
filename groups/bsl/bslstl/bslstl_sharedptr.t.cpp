@@ -1524,8 +1524,8 @@ class MostEvilTestType {
   public:
     // CREATORS
     explicit MostEvilTestType(int value) : d_data(value) {}
-        // Create an 'AwkwardMaplikeElement' object having the specified
-        // 'value' as its 'data'.
+        // Create a 'MostEvilTestType' object having the specified 'value' as
+        // its 'data'.
 
     // ~MostEvilTestType() = default;
         // Destroy this object.
@@ -1538,12 +1538,6 @@ class MostEvilTestType {
     int data() const { return d_data; }
         // Return the value of the 'data' attribute of this object.
 };
-
-void debugprint(const MostEvilTestType& value);
-    // Print to the console a textual representation of the specified 'value'.
-    // Note that this representation is intended only to support error reports
-    // and not as a portable format.
-
 
                             // ====================
                             // class MyPDTestObject
@@ -4221,7 +4215,6 @@ int main(int argc, char *argv[])
             ASSERT(13 == X.get()->data());
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
-
       } break;
     case 31: {
       // --------------------------------------------------------------------
