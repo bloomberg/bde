@@ -21,7 +21,7 @@ BSLS_IDENT("$Id: $")
 // of the (template parameter) 'TYPE' which have been identified as salient to
 // hashing.  The 'bslh::SeededHash' template parameter 'HASH_ALGORITHM' must be
 // a hashing algorithm that conforms the the requirements outlined below (see
-// {'Requirements for Seeded 'bslh' Hashing Algorithms'}).  Note that there are
+// {Requirements for Seeded 'bslh' Hashing Algorithms}).  Note that there are
 // several hashing algorithms defined in 'bslh', some of which do not accept
 // seeds, meaning they cannot be used with 'bslh::SeededHash'.
 //
@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 // generate the seed used to instantiate the 'HASH_ALGORITHM'.  The
 // 'bslh::SeededHash' template parameter 'SEED_GENERATOR' must be a seed
 // generator that conforms the the requirements outlined below (see
-// {'Requirements on (template parameter) Type 'SEED_GENERATOR''}).  The seed
+// {Requirements on (template parameter) Type 'SEED_GENERATOR'}).  The seed
 // will be generated once upon construction of 'bslh::SeededHash' and then held
 // until destruction.
 //

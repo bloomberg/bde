@@ -23,10 +23,10 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsls' package currently has 59 components having 2 levels of physical
- dependency.  The table below shows the hierarchical ordering of the
- components.  The order of components within each level is not architecturally
- significant, just alphabetical.
+ The 'bslfwd' package currently has 56 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
   2. bslfwd_bslalg_arraydestructionprimitives
      bslfwd_bslalg_arrayprimitives
@@ -40,7 +40,6 @@
      bslfwd_bslalg_typetraithaspointersemantics
      bslfwd_bslalg_typetraithasstliterators
      bslfwd_bslalg_typetraithastrivialdefaultconstructor
-     bslfwd_bslalg_typetraitsgrouppod
      bslfwd_bslalg_typetraitusesbslmaallocator
      bslfwd_bslma_allocator
      bslfwd_bslma_bufferallocator
@@ -70,7 +69,6 @@
      bslfwd_bsls_asserttest
      bslfwd_bsls_asserttestexception
      bslfwd_bsls_blockgrowth
-     bslfwd_bsls_no64bitbuildtarget
      bslfwd_bsls_noexcbuildtarget
      bslfwd_bsls_nomtbuildtarget
      bslfwd_bsls_performancehint
@@ -79,24 +77,185 @@
      bslfwd_bsls_timeutil
      bslfwd_bsls_types
      bslfwd_bsls_util
-     bslfwd_bsls_yes64bitbuildtarget
      bslfwd_bsls_yesexcbuildtarget
      bslfwd_bsls_yesmtbuildtarget
      bslfwd_bslscm_version
      bslfwd_bslstl_stdexceptutil
      bslfwd_bslstl_util
      bslfwd_bslstl_utiliterator
-  
+
   1. bslfwd_buildtarget
 ..
 
 /Component Synopsis
 /------------------
-: o The purpose of each component (except one) is identical:
-:   Provide a forward-declaration for the corresponding BDE type.
+: 'bslfwd_bslalg_arraydestructionprimitives':
+:      Provide a forward-declaration for the corresponding BDE type.
 :
-: o The single exception is 'bslfwd_buildtarget':
-:   Supply a compile-time indicator of whether BSL uses C++ namespaces.
+: 'bslfwd_bslalg_arrayprimitives':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslalg_rangecompare':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslalg_scalardestructionprimitives':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslalg_scalarprimitives':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslalg_swaputil':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslalg_typetraitbitwisecopyable':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslalg_typetraitbitwiseequalitycomparable':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslalg_typetraitbitwisemoveable':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslalg_typetraithaspointersemantics':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslalg_typetraithasstliterators':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslalg_typetraithastrivialdefaultconstructor':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslalg_typetraitusesbslmaallocator':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslma_allocator':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslma_bufferallocator':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslma_default':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslma_defaultallocatorguard':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslma_deleterhelper':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslma_infrequentdeleteblocklist':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslma_mallocfreeallocator':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslma_managedallocator':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslma_newdeleteallocator':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslma_sequentialallocator':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslma_sequentialpool':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslma_testallocator':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslma_testallocatorexception':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslma_testallocatormonitor':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslmf_anytype':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslmf_functionpointerclinkage':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslmf_functionpointercpluspluslinkage':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslmf_nil':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslmf_typelist0':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bsls_alignment':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bsls_alignmentimp8bytealignedtype':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bsls_alignmentimpmatch':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bsls_alignmentutil':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bsls_assert':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bsls_assertfailurehandlerguard':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bsls_asserttest':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bsls_asserttestexception':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bsls_blockgrowth':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bsls_noexcbuildtarget':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bsls_nomtbuildtarget':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bsls_performancehint':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bsls_platform':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bsls_stopwatch':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bsls_timeutil':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bsls_types':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bsls_util':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bsls_yesexcbuildtarget':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bsls_yesmtbuildtarget':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslscm_version':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslstl_stdexceptutil':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslstl_util':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_bslstl_utiliterator':
+:      Provide a forward-declaration for the corresponding BDE type.
+:
+: 'bslfwd_buildtarget':
+:      Supply a compile-time indicator of whether BSL uses C++ namespaces.
 
 /Usage
 /-----

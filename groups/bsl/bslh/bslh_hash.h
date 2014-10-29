@@ -20,8 +20,8 @@ BSLS_IDENT("$Id: $")
 // (template parameter) 'HASH_ALGORITHM' to the attributes of the (template
 // parameter) 'TYPE' which have been identified as salient to hashing.  The
 // 'bslh::Hash' template parameter 'HASH_ALGORITHM' must be a hashing algorithm
-// that conforms the the requirements outlined below (see {'Requirements for
-// Regular 'bslh' Hashing Algorithms'}).  Note that there are several hashing
+// that conforms the the requirements outlined below (see {Requirements for
+// Regular 'bslh' Hashing Algorithms}).  Note that there are several hashing
 // algorithms defined within the 'bslh' package and some, such as those that
 // require seeds, will not meet these requirements, meaning they cannot be used
 // with 'bslh::Hash'.  A call to 'bslh::Hash::operator()' for a (template
