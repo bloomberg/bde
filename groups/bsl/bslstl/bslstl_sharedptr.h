@@ -1457,6 +1457,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLSTL_ALLOCATOR
+#include <bslstl_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLSTL_ALLOCATORTRAITS
 #include <bslstl_allocatortraits.h>
 #endif
@@ -2512,20 +2516,21 @@ class shared_ptr {
         // an exception is thrown allocating memory to manage 'ptr', release
         // the reference to the shared object, calling the associated deleter
         // to destroy the shared object if this shared pointer is the last
-        // reference.  Use 'basicAllocator' to allocate the internal
-        // representation of this shared pointer and to destroy the shared
-        // object when all references have been released; if 'basicAllocator'
-        // is 0, the currently installed default allocator is used.  If an
-        // exception is thrown allocating the internal representation, then
-        // destroy '*ptr' with a call to 'alloc->deleteObject(ptr)' where
-        // 'alloc' is the chosen allocator, and this shared pointer retains
-        // ownership of its original object.  If 'COMPATIBLE_TYPE *' is not
-        // implicitly convertible to 'ELEMENT_TYPE *', then a compiler
-        // diagnostic will be emitted indicating the error.  Note that if 'ptr'
-        // is 0, then this shared pointer will still allocate an internal
-        // representation to share ownership of that empty state, which will be
-        // reclaimed when the last reference is destroyed.  Also note that this
-        // function is logically equivalent to:
+        // reference.  Use the specified 'basicAllocator' to allocate the
+        // internal representation of this shared pointer and to destroy the
+        // shared object when all references have been released; if
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.  If an exception is thrown allocating the internal
+        // representation, then destroy '*ptr' with a call to
+        // 'alloc->deleteObject(ptr)' where 'alloc' is the chosen allocator,
+        // and this shared pointer retains ownership of its original object.
+        // If 'COMPATIBLE_TYPE *' is not implicitly convertible to
+        // 'ELEMENT_TYPE *', then a compiler diagnostic will be emitted
+        // indicating the error.  Note that if 'ptr' is 0, then this shared
+        // pointer will still allocate an internal representation to share
+        // ownership of that empty state, which will be reclaimed when the last
+        // reference is destroyed.  Also note that this function is logically
+        // equivalent to:
         //..
         //  *this = shared_ptr<ELEMENT_TYPE>(ptr, basicAllocator);
         //..
@@ -6041,66 +6046,34 @@ template <class ELEMENT_TYPE, class ALLOC>
 bsl::shared_ptr<ELEMENT_TYPE>
 bsl::allocate_shared(ALLOC *a)
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                     BloombergLP::bslma::Default::allocator(a);
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator);
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    BloombergLP::bslalg::ScalarPrimitives::construct(rep_p->ptr(),
-                                                     basicAllocator);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+    return allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a));
 }
 
 template <class ELEMENT_TYPE, class ALLOC, class A1>
 bsl::shared_ptr<ELEMENT_TYPE>
 bsl::allocate_shared(ALLOC *a, const A1& a1)
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                     BloombergLP::bslma::Default::allocator(a);
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator);
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    BloombergLP::bslalg::ScalarPrimitives::construct(rep_p->ptr(),
-                                                     a1,
-                                                     basicAllocator);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+    return allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
+                                         a1);
 }
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2>
 bsl::shared_ptr<ELEMENT_TYPE>
 bsl::allocate_shared(ALLOC *a, const A1& a1, const A2& a2)
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                     BloombergLP::bslma::Default::allocator(a);
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator);
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    BloombergLP::bslalg::ScalarPrimitives::construct(rep_p->ptr(),
-                                                     a1,
-                                                     a2,
-                                                     basicAllocator);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+    return allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
+                                         a1,
+                                         a2);
 }
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3>
 bsl::shared_ptr<ELEMENT_TYPE>
 bsl::allocate_shared(ALLOC *a, const A1& a1, const A2& a2, const A3& a3)
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                     BloombergLP::bslma::Default::allocator(a);
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator);
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    BloombergLP::bslalg::ScalarPrimitives::construct(rep_p->ptr(),
-                                                     a1,
-                                                     a2,
-                                                     a3,
-                                                     basicAllocator);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+    return allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
+                                         a1,
+                                         a2,
+                                         a3);
 }
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
@@ -6109,19 +6082,11 @@ bsl::shared_ptr<ELEMENT_TYPE>
 bsl::allocate_shared(ALLOC *a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4)
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                     BloombergLP::bslma::Default::allocator(a);
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator);
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    BloombergLP::bslalg::ScalarPrimitives::construct(rep_p->ptr(),
-                                                     a1,
-                                                     a2,
-                                                     a3,
-                                                     a4,
-                                                     basicAllocator);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+    return allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
+                                         a1,
+                                         a2,
+                                         a3,
+                                         a4);
 }
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
@@ -6131,20 +6096,12 @@ bsl::allocate_shared(ALLOC *a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5)
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                     BloombergLP::bslma::Default::allocator(a);
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator);
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    BloombergLP::bslalg::ScalarPrimitives::construct(rep_p->ptr(),
-                                                     a1,
-                                                     a2,
-                                                     a3,
-                                                     a4,
-                                                     a5,
-                                                     basicAllocator);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+    return allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
+                                         a1,
+                                         a2,
+                                         a3,
+                                         a4,
+                                         a5);
 }
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
@@ -6154,21 +6111,13 @@ bsl::allocate_shared(ALLOC *a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6)
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                     BloombergLP::bslma::Default::allocator(a);
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator);
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    BloombergLP::bslalg::ScalarPrimitives::construct(rep_p->ptr(),
-                                                     a1,
-                                                     a2,
-                                                     a3,
-                                                     a4,
-                                                     a5,
-                                                     a6,
-                                                     basicAllocator);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+    return allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
+                                         a1,
+                                         a2,
+                                         a3,
+                                         a4,
+                                         a5,
+                                         a6);
 }
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
@@ -6178,22 +6127,14 @@ bsl::allocate_shared(ALLOC *a,
                         const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                         const A5& a5, const A6& a6, const A7& a7)
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                     BloombergLP::bslma::Default::allocator(a);
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator);
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    BloombergLP::bslalg::ScalarPrimitives::construct(rep_p->ptr(),
-                                                     a1,
-                                                     a2,
-                                                     a3,
-                                                     a4,
-                                                     a5,
-                                                     a6,
-                                                     a7,
-                                                     basicAllocator);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+    return allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
+                                         a1,
+                                         a2,
+                                         a3,
+                                         a4,
+                                         a5,
+                                         a6,
+                                         a7);
 }
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
@@ -6203,23 +6144,15 @@ bsl::allocate_shared(ALLOC *a,
                        const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                        const A5& a5, const A6& a6, const A7& a7, const A8& a8)
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                     BloombergLP::bslma::Default::allocator(a);
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator);
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    BloombergLP::bslalg::ScalarPrimitives::construct(rep_p->ptr(),
-                                                     a1,
-                                                     a2,
-                                                     a3,
-                                                     a4,
-                                                     a5,
-                                                     a6,
-                                                     a7,
-                                                     a8,
-                                                     basicAllocator);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+    return allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
+                                         a1,
+                                         a2,
+                                         a3,
+                                         a4,
+                                         a5,
+                                         a6,
+                                         a7,
+                                         a8);
 }
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
@@ -6230,24 +6163,16 @@ bsl::allocate_shared(ALLOC *a,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9)
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                     BloombergLP::bslma::Default::allocator(a);
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator);
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    BloombergLP::bslalg::ScalarPrimitives::construct(rep_p->ptr(),
-                                                     a1,
-                                                     a2,
-                                                     a3,
-                                                     a4,
-                                                     a5,
-                                                     a6,
-                                                     a7,
-                                                     a8,
-                                                     a9,
-                                                     basicAllocator);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+    return allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
+                                         a1,
+                                         a2,
+                                         a3,
+                                         a4,
+                                         a5,
+                                         a6,
+                                         a7,
+                                         a8,
+                                         a9);
 }
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
@@ -6259,25 +6184,17 @@ bsl::allocate_shared(ALLOC *a,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9, const A10& a10)
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                     BloombergLP::bslma::Default::allocator(a);
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator);
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    BloombergLP::bslalg::ScalarPrimitives::construct(rep_p->ptr(),
-                                                     a1,
-                                                     a2,
-                                                     a3,
-                                                     a4,
-                                                     a5,
-                                                     a6,
-                                                     a7,
-                                                     a8,
-                                                     a9,
-                                                     a10,
-                                                     basicAllocator);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+    return allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
+                                         a1,
+                                         a2,
+                                         a3,
+                                         a4,
+                                         a5,
+                                         a6,
+                                         a7,
+                                         a8,
+                                         a9,
+                                         a10);
 }
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
@@ -6289,26 +6206,18 @@ bsl::allocate_shared(ALLOC *a,
                         const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                         const A9& a9, const A10& a10, const A11& a11)
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                     BloombergLP::bslma::Default::allocator(a);
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator);
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    BloombergLP::bslalg::ScalarPrimitives::construct(rep_p->ptr(),
-                                                     a1,
-                                                     a2,
-                                                     a3,
-                                                     a4,
-                                                     a5,
-                                                     a6,
-                                                     a7,
-                                                     a8,
-                                                     a9,
-                                                     a10,
-                                                     a11,
-                                                     basicAllocator);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+    return allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
+                                         a1,
+                                         a2,
+                                         a3,
+                                         a4,
+                                         a5,
+                                         a6,
+                                         a7,
+                                         a8,
+                                         a9,
+                                         a10,
+                                         a11);
 }
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
@@ -6321,27 +6230,19 @@ bsl::allocate_shared(ALLOC *a,
                         const A9& a9, const A10& a10, const A11& a11,
                         const A12& a12)
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                     BloombergLP::bslma::Default::allocator(a);
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator);
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    BloombergLP::bslalg::ScalarPrimitives::construct(rep_p->ptr(),
-                                                     a1,
-                                                     a2,
-                                                     a3,
-                                                     a4,
-                                                     a5,
-                                                     a6,
-                                                     a7,
-                                                     a8,
-                                                     a9,
-                                                     a10,
-                                                     a11,
-                                                     a12,
-                                                     basicAllocator);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+    return allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
+                                         a1,
+                                         a2,
+                                         a3,
+                                         a4,
+                                         a5,
+                                         a6,
+                                         a7,
+                                         a8,
+                                         a9,
+                                         a10,
+                                         a11,
+                                         a12);
 }
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
@@ -6354,28 +6255,20 @@ bsl::allocate_shared(ALLOC *a,
                         const A9& a9, const A10& a10, const A11& a11,
                         const A12& a12, const A13& a13)
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                     BloombergLP::bslma::Default::allocator(a);
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator);
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    BloombergLP::bslalg::ScalarPrimitives::construct(rep_p->ptr(),
-                                                     a1,
-                                                     a2,
-                                                     a3,
-                                                     a4,
-                                                     a5,
-                                                     a6,
-                                                     a7,
-                                                     a8,
-                                                     a9,
-                                                     a10,
-                                                     a11,
-                                                     a12,
-                                                     a13,
-                                                     basicAllocator);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+    return allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
+                                         a1,
+                                         a2,
+                                         a3,
+                                         a4,
+                                         a5,
+                                         a6,
+                                         a7,
+                                         a8,
+                                         a9,
+                                         a10,
+                                         a11,
+                                         a12,
+                                         a13);
 }
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
@@ -6388,114 +6281,68 @@ bsl::allocate_shared(ALLOC *a,
                         const A9& a9, const A10& a10, const A11& a11,
                         const A12& a12, const A13& a13, const A14& a14)
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                     BloombergLP::bslma::Default::allocator(a);
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator);
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    BloombergLP::bslalg::ScalarPrimitives::construct(rep_p->ptr(),
-                                                     a1,
-                                                     a2,
-                                                     a3,
-                                                     a4,
-                                                     a5,
-                                                     a6,
-                                                     a7,
-                                                     a8,
-                                                     a9,
-                                                     a10,
-                                                     a11,
-                                                     a12,
-                                                     a13,
-                                                     a14,
-                                                     basicAllocator);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
-
+    return allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
+                                         a1,
+                                         a2,
+                                         a3,
+                                         a4,
+                                         a5,
+                                         a6,
+                                         a7,
+                                         a8,
+                                         a9,
+                                         a10,
+                                         a11,
+                                         a12,
+                                         a13,
+                                         a14);
 }
 
 template <class ELEMENT_TYPE>
 bsl::shared_ptr<ELEMENT_TYPE> bsl::make_shared()
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                      BloombergLP::bslma::Default::allocator();
-
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator);
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    BloombergLP::bslalg::ScalarPrimitives::construct(rep_p->ptr(),
-                                                     basicAllocator);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+    return
+       allocate_shared<ELEMENT_TYPE>(BloombergLP::bslma::Default::allocator());
 }
 
 template <class ELEMENT_TYPE, class A1>
 bsl::shared_ptr<ELEMENT_TYPE> bsl::make_shared(const A1& a1)
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                      BloombergLP::bslma::Default::allocator();
-
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator);
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    BloombergLP::bslalg::ScalarPrimitives::construct(rep_p->ptr(),
-                                                     a1,
-                                                     basicAllocator);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+    return
+        allocate_shared<ELEMENT_TYPE>(BloombergLP::bslma::Default::allocator(),
+                                      a1);
 }
 
 template <class ELEMENT_TYPE, class A1, class A2>
 bsl::shared_ptr<ELEMENT_TYPE> bsl::make_shared(const A1& a1, const A2& a2)
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                      BloombergLP::bslma::Default::allocator();
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator);
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    BloombergLP::bslalg::ScalarPrimitives::construct(rep_p->ptr(),
-                                                     a1,
-                                                     a2,
-                                                     basicAllocator);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+    return
+        allocate_shared<ELEMENT_TYPE>(BloombergLP::bslma::Default::allocator(),
+                                      a1,
+                                      a2);
 }
 
 template <class ELEMENT_TYPE, class A1, class A2, class A3>
 bsl::shared_ptr<ELEMENT_TYPE>
 bsl::make_shared(const A1& a1, const A2& a2, const A3& a3)
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                      BloombergLP::bslma::Default::allocator();
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator);
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    BloombergLP::bslalg::ScalarPrimitives::construct(rep_p->ptr(),
-                                                     a1,
-                                                     a2,
-                                                     a3,
-                                                     basicAllocator);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+    return
+        allocate_shared<ELEMENT_TYPE>(BloombergLP::bslma::Default::allocator(),
+                                      a1,
+                                      a2,
+                                      a3);
 }
 
 template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4>
 bsl::shared_ptr<ELEMENT_TYPE>
 bsl::make_shared(const A1& a1, const A2& a2, const A3& a3, const A4& a4)
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                      BloombergLP::bslma::Default::allocator();
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator);
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    BloombergLP::bslalg::ScalarPrimitives::construct(rep_p->ptr(),
-                                                     a1,
-                                                     a2,
-                                                     a3,
-                                                     a4,
-                                                     basicAllocator);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+    return
+        allocate_shared<ELEMENT_TYPE>(BloombergLP::bslma::Default::allocator(),
+                                      a1,
+                                      a2,
+                                      a3,
+                                      a4);
 }
 
 template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4, class A5>
@@ -6503,20 +6350,13 @@ bsl::shared_ptr<ELEMENT_TYPE>
 bsl::make_shared(const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                  const A5& a5)
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                      BloombergLP::bslma::Default::allocator();
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator);
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    BloombergLP::bslalg::ScalarPrimitives::construct(rep_p->ptr(),
-                                                     a1,
-                                                     a2,
-                                                     a3,
-                                                     a4,
-                                                     a5,
-                                                     basicAllocator);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+    return
+        allocate_shared<ELEMENT_TYPE>(BloombergLP::bslma::Default::allocator(),
+                                      a1,
+                                      a2,
+                                      a3,
+                                      a4,
+                                      a5);
 }
 
 template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4, class A5,
@@ -6525,21 +6365,14 @@ bsl::shared_ptr<ELEMENT_TYPE>
 bsl::make_shared(const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                  const A5& a5, const A6& a6)
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                      BloombergLP::bslma::Default::allocator();
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator);
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    BloombergLP::bslalg::ScalarPrimitives::construct(rep_p->ptr(),
-                                                     a1,
-                                                     a2,
-                                                     a3,
-                                                     a4,
-                                                     a5,
-                                                     a6,
-                                                     basicAllocator);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+    return
+        allocate_shared<ELEMENT_TYPE>(BloombergLP::bslma::Default::allocator(),
+                                      a1,
+                                      a2,
+                                      a3,
+                                      a4,
+                                      a5,
+                                      a6);
 }
 
 template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4, class A5,
@@ -6548,22 +6381,15 @@ bsl::shared_ptr<ELEMENT_TYPE>
 bsl::make_shared(const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                  const A5& a5, const A6& a6, const A7& a7)
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                      BloombergLP::bslma::Default::allocator();
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator);
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    BloombergLP::bslalg::ScalarPrimitives::construct(rep_p->ptr(),
-                                                     a1,
-                                                     a2,
-                                                     a3,
-                                                     a4,
-                                                     a5,
-                                                     a6,
-                                                     a7,
-                                                     basicAllocator);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+    return
+        allocate_shared<ELEMENT_TYPE>(BloombergLP::bslma::Default::allocator(),
+                                      a1,
+                                      a2,
+                                      a3,
+                                      a4,
+                                      a5,
+                                      a6,
+                                      a7);
 }
 
 template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4, class A5,
@@ -6572,23 +6398,16 @@ bsl::shared_ptr<ELEMENT_TYPE>
 bsl::make_shared(const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                  const A5& a5, const A6& a6, const A7& a7, const A8& a8)
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                      BloombergLP::bslma::Default::allocator();
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator);
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    BloombergLP::bslalg::ScalarPrimitives::construct(rep_p->ptr(),
-                                                     a1,
-                                                     a2,
-                                                     a3,
-                                                     a4,
-                                                     a5,
-                                                     a6,
-                                                     a7,
-                                                     a8,
-                                                     basicAllocator);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+    return
+        allocate_shared<ELEMENT_TYPE>(BloombergLP::bslma::Default::allocator(),
+                                      a1,
+                                      a2,
+                                      a3,
+                                      a4,
+                                      a5,
+                                      a6,
+                                      a7,
+                                      a8);
 }
 
 template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4, class A5,
@@ -6598,24 +6417,17 @@ bsl::make_shared(const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                  const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                  const A9& a9)
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                      BloombergLP::bslma::Default::allocator();
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator);
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    BloombergLP::bslalg::ScalarPrimitives::construct(rep_p->ptr(),
-                                                     a1,
-                                                     a2,
-                                                     a3,
-                                                     a4,
-                                                     a5,
-                                                     a6,
-                                                     a7,
-                                                     a8,
-                                                     a9,
-                                                     basicAllocator);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+    return
+        allocate_shared<ELEMENT_TYPE>(BloombergLP::bslma::Default::allocator(),
+                                      a1,
+                                      a2,
+                                      a3,
+                                      a4,
+                                      a5,
+                                      a6,
+                                      a7,
+                                      a8,
+                                      a9);
 }
 
 template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4, class A5,
@@ -6625,25 +6437,18 @@ bsl::make_shared(const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                  const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                  const A9& a9, const A10& a10)
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                      BloombergLP::bslma::Default::allocator();
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator);
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    BloombergLP::bslalg::ScalarPrimitives::construct(rep_p->ptr(),
-                                                     a1,
-                                                     a2,
-                                                     a3,
-                                                     a4,
-                                                     a5,
-                                                     a6,
-                                                     a7,
-                                                     a8,
-                                                     a9,
-                                                     a10,
-                                                     basicAllocator);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+    return
+        allocate_shared<ELEMENT_TYPE>(BloombergLP::bslma::Default::allocator(),
+                                      a1,
+                                      a2,
+                                      a3,
+                                      a4,
+                                      a5,
+                                      a6,
+                                      a7,
+                                      a8,
+                                      a9,
+                                      a10);
 }
 
 template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4, class A5,
@@ -6653,26 +6458,19 @@ bsl::make_shared(const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                  const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                  const A9& a9, const A10& a10, const A11& a11)
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                      BloombergLP::bslma::Default::allocator();
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator);
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    BloombergLP::bslalg::ScalarPrimitives::construct(rep_p->ptr(),
-                                                     a1,
-                                                     a2,
-                                                     a3,
-                                                     a4,
-                                                     a5,
-                                                     a6,
-                                                     a7,
-                                                     a8,
-                                                     a9,
-                                                     a10,
-                                                     a11,
-                                                     basicAllocator);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+    return
+        allocate_shared<ELEMENT_TYPE>(BloombergLP::bslma::Default::allocator(),
+                                      a1,
+                                      a2,
+                                      a3,
+                                      a4,
+                                      a5,
+                                      a6,
+                                      a7,
+                                      a8,
+                                      a9,
+                                      a10,
+                                      a11);
 }
 
 template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4, class A5,
@@ -6683,27 +6481,20 @@ bsl::make_shared(const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                  const A5& a5, const A6& a6, const A7& a7, const A8& a8,
                  const A9& a9, const A10& a10, const A11& a11, const A12& a12)
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                      BloombergLP::bslma::Default::allocator();
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator);
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    BloombergLP::bslalg::ScalarPrimitives::construct(rep_p->ptr(),
-                                                     a1,
-                                                     a2,
-                                                     a3,
-                                                     a4,
-                                                     a5,
-                                                     a6,
-                                                     a7,
-                                                     a8,
-                                                     a9,
-                                                     a10,
-                                                     a11,
-                                                     a12,
-                                                     basicAllocator);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+    return
+        allocate_shared<ELEMENT_TYPE>(BloombergLP::bslma::Default::allocator(),
+                                      a1,
+                                      a2,
+                                      a3,
+                                      a4,
+                                      a5,
+                                      a6,
+                                      a7,
+                                      a8,
+                                      a9,
+                                      a10,
+                                      a11,
+                                      a12);
 }
 
 template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4, class A5,
@@ -6715,28 +6506,21 @@ bsl::make_shared(const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                  const A9& a9, const A10& a10, const A11& a11, const A12& a12,
                  const A13& a13)
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                      BloombergLP::bslma::Default::allocator();
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator);
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    BloombergLP::bslalg::ScalarPrimitives::construct(rep_p->ptr(),
-                                                     a1,
-                                                     a2,
-                                                     a3,
-                                                     a4,
-                                                     a5,
-                                                     a6,
-                                                     a7,
-                                                     a8,
-                                                     a9,
-                                                     a10,
-                                                     a11,
-                                                     a12,
-                                                     a13,
-                                                     basicAllocator);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+    return
+        allocate_shared<ELEMENT_TYPE>(BloombergLP::bslma::Default::allocator(),
+                                      a1,
+                                      a2,
+                                      a3,
+                                      a4,
+                                      a5,
+                                      a6,
+                                      a7,
+                                      a8,
+                                      a9,
+                                      a10,
+                                      a11,
+                                      a12,
+                                      a13);
 }
 
 template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4, class A5,
@@ -6748,29 +6532,22 @@ bsl::make_shared(const A1& a1, const A2& a2, const A3& a3, const A4& a4,
                  const A9& a9, const A10& a10, const A11& a11, const A12& a12,
                  const A13& a13, const A14& a14)
 {
-    typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
-    BloombergLP::bslma::Allocator *basicAllocator =
-                                      BloombergLP::bslma::Default::allocator();
-    Rep *rep_p = new (*basicAllocator) Rep(basicAllocator);
-    BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
-    BloombergLP::bslalg::ScalarPrimitives::construct(rep_p->ptr(),
-                                                     a1,
-                                                     a2,
-                                                     a3,
-                                                     a4,
-                                                     a5,
-                                                     a6,
-                                                     a7,
-                                                     a8,
-                                                     a9,
-                                                     a10,
-                                                     a11,
-                                                     a12,
-                                                     a13,
-                                                     a14,
-                                                     basicAllocator);
-    proctor.release();
-    return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
+    return
+        allocate_shared<ELEMENT_TYPE>(BloombergLP::bslma::Default::allocator(),
+                                      a1,
+                                      a2,
+                                      a3,
+                                      a4,
+                                      a5,
+                                      a6,
+                                      a7,
+                                      a8,
+                                      a9,
+                                      a10,
+                                      a11,
+                                      a12,
+                                      a13,
+                                      a14);
 }
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
