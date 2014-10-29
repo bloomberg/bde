@@ -1493,6 +1493,58 @@ class MyTestDerivedObject : public MyTestObject2, public MyTestObject {
 
                          // *** OTHER TEST OBJECTS ***
 
+                       // ======================
+                       // class MostEvilTestType
+                       // ======================
+
+class MostEvilTestType {
+    // This class provides the most awkward type imagninable that should be
+    // supported as an element type for the standard 'shared_ptr' template.
+
+  private:
+    int d_data;
+
+  private:
+    // NOT IMPLEMENTED
+    explicit MostEvilTestType(const MostEvilTestType& original); // = delete;
+    void operator=(MostEvilTestType&); // = delete
+
+    void operator&();  // = delete;
+
+    template<class ANY_TYPE>
+    void operator,(const ANY_TYPE&); // = delete;
+
+    template<class ANY_TYPE>
+    void operator,(ANY_TYPE&); // = delete;
+
+    static void* operator new(std::size_t size); // = delete
+    static void* operator new(std::size_t size, void *ptr); // = delete
+    static void operator delete(void *ptr); // = delete
+
+  public:
+    // CREATORS
+    explicit MostEvilTestType(int value) : d_data(value) {}
+        // Create an 'AwkwardMaplikeElement' object having the specified
+        // 'value' as its 'data'.
+
+    // ~MostEvilTestType() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    void setData(int value) { d_data = value; }
+        // Set the 'data' attribute of this object to the specified 'value'.
+
+    // ACCESSORS
+    int data() const { return d_data; }
+        // Return the value of the 'data' attribute of this object.
+};
+
+void debugprint(const MostEvilTestType& value);
+    // Print to the console a textual representation of the specified 'value'.
+    // Note that this representation is intended only to support error reports
+    // and not as a portable format.
+
+
                             // ====================
                             // class MyPDTestObject
                             // ====================
@@ -3863,7 +3915,7 @@ int main(int argc, char *argv[])
         static const MyTestArg13 V13(712);
         static const MyTestArg14 V14(1414);
 
-        if (verbose) printf("\nTesting 'make_shared' with 1 argument"
+        if (verbose) printf("\nTesting 'make_shared' with no arguments"
                             "\n---------------------------------------\n");
 
         bslma::TestAllocator ta(veryVeryVerbose);
@@ -3883,6 +3935,9 @@ int main(int argc, char *argv[])
             ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
+
+        if (verbose) printf("\nTesting 'make_shared' with 1 argument"
+                            "\n---------------------------------------\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
@@ -4150,6 +4205,23 @@ int main(int argc, char *argv[])
             ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
+
+        if (verbose) printf("\nTesting 'make_shared' with evil type"
+                            "\n------------------------------------\n");
+
+        numAllocations = ta.numAllocations();
+        numDeallocations = ta.numDeallocations();
+        {
+            bsl::shared_ptr<MostEvilTestType> x =
+                                        bsl::make_shared<MostEvilTestType>(13);
+            const bsl::shared_ptr<MostEvilTestType>& X=x;
+
+            ASSERT(++numAllocations == ta.numAllocations());
+            ASSERT(X);
+            ASSERT(13 == X.get()->data());
+        }
+        ASSERT(++numDeallocations == ta.numDeallocations());
+
       } break;
     case 31: {
       // --------------------------------------------------------------------
