@@ -11,17 +11,20 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdl' package group currently has 5 packages having 4 levels of physical
+ The 'bdl' package group currently has 7 packages having 3 levels of physical
  dependency.  The list below shows the hierarchical ordering of the packages.
+ The order of packages within each level is not architecturally significant,
+ just alphabetical.
 ..
-  4. bdldfp
-
-  3. bdlma
-     bdl+decnumber
+  3. bdlb
+     bdldfp
+     bdlma
 
   2. bdls
 
-  1. bdlscm
+  1. bdl+decnumber
+     bdl+inteldfp
+     bdlscm
 ..
 
 /Package Synopsis
@@ -29,8 +32,14 @@
 : 'bdl+decnumber':
 :      Provide third-party decimal floating point library (IBM decNumber).
 :
+: 'bdl+inteldfp':
+:      Provide third-party decimal floating point library (Intel DFP).
+:
+: 'bdlb':
+:      Provide utilities classes and functions.
+:
 : 'bdldfp':
-:      Provide Decimal Floating point types and associated utilities.
+:      Provide IEEE-754 2008 decimal floating-point types and utilities.
 :
 : 'bdlma':
 :      Provide allocators, pools, and other memory-management tools.

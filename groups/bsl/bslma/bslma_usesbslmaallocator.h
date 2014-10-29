@@ -87,7 +87,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended usage of this component.
 //
-// Example 1: Associating the 'bslma' Allocator Trait with a Type
+///Example 1: Associating the 'bslma' Allocator Trait with a Type
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to declare two types that make use of a 'bslma' allocator,
 // and need to associate the 'UsesBslmaAllocator' trait with those types (so
