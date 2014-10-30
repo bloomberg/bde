@@ -412,8 +412,8 @@ namespace bsls {
                         // ======================
 
 struct PerformanceHint {
-    // This 'struct' provides a namespace for a suite of primitive pure
-    // procedures that give performance hints to the compiler or hardware.
+    // This 'struct' provides a namespace for a suite of functions that give
+    // performance hints to the compiler or hardware.
 
     // CLASS METHODS
     static void prefetchForReading(const void *address);
@@ -457,9 +457,9 @@ struct PerformanceHint {
         // generated and mark the block as unlikely.
 };
 
-// ===========================================================================
-//                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
+//                           INLINE DEFINITIONS
+// ============================================================================
 
                         // ----------------------
                         // struct PerformanceHint
