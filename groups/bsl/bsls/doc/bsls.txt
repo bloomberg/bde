@@ -18,77 +18,76 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsls' package currently has 53 components having 14 levels of physical
+ The 'bsls' package currently has 55 components having 10 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  14. bsls_alignedbuffer
-      bsls_alignment
-      bsls_platformutil
+10. bsls_alignedbuffer
+    bsls_systemtime
 
-  13. bsls_alignmentutil
-      bsls_bslexceptionutil
-      bsls_bsllock
-
-  12. bsls_asserttest
-      bsls_exceptionutil
-
-  11. bsls_assert
-
-  10. bsls_performancehint
-
-   9. bsls_stopwatch
-
-   8. bsls_atomic
-      bsls_timeutil
-
-   7. bsls_atomicoperations
-
-   6. bsls_atomicoperations_powerpc32_aix_xlc
-      bsls_atomicoperations_powerpc64_aix_xlc
-      bsls_atomicoperations_sparc32_sun_cc
-      bsls_atomicoperations_sparc64_sun_cc
-      bsls_byteorder
-      bsls_objectbuffer
-
-   5. bsls_alignmentfromtype
-      bsls_atomicoperations_all_all_gccintrinsics
-      bsls_atomicoperations_arm_all_gcc
-      bsls_atomicoperations_ia64_hp_acc
-      bsls_atomicoperations_powerpc_aix_gcc
-      bsls_atomicoperations_powerpc_aix_xlc_default
-      bsls_atomicoperations_sparc_sun_cc_default
-      bsls_atomicoperations_x64_all_gcc
-      bsls_atomicoperations_x64_win_msvc
-      bsls_atomicoperations_x86_all_gcc
-      bsls_atomicoperations_x86_win_msvc
-      bsls_byteorderutil
-
-   4. bsls_alignmenttotype
-      bsls_atomicoperations_default
-      bsls_buildtarget
-      bsls_byteorderutil_impl
-      bsls_int64
-      bsls_nullptr
-      bsls_unspecifiedbool
-      bsls_util
-
-   3. bsls_alignmentimp
-      bsls_annotation
-      bsls_bsltestutil
-      bsls_compilerfeatures
-      bsls_linkcoercion
-      bsls_nativestd
-      bsls_types
-
-   2. bsls_asserttestexception
-      bsls_blockgrowth
-      bsls_macroincrement
-      bsls_platform
-      bsls_protocoltest
-
-   1. bsls_ident
+ 9. bsls_alignmentutil
+    bsls_bslexceptionutil
+    bsls_bsllock
+    bsls_log
+    bsls_timeinterval
+ 
+ 8. bsls_asserttest
+    bsls_exceptionutil
+    bsls_stopwatch
+ 
+ 7. bsls_assert
+    bsls_atomic
+    bsls_timeutil
+ 
+ 6. bsls_atomicoperations
+ 
+ 5. bsls_atomicoperations_powerpc32_aix_xlc
+    bsls_atomicoperations_powerpc64_aix_xlc
+    bsls_atomicoperations_sparc32_sun_cc
+    bsls_atomicoperations_sparc64_sun_cc
+    bsls_byteorder
+    bsls_objectbuffer
+ 
+ 4. bsls_alignmentfromtype
+    bsls_atomicoperations_all_all_gccintrinsics
+    bsls_atomicoperations_arm_all_gcc
+    bsls_atomicoperations_ia64_hp_acc
+    bsls_atomicoperations_powerpc_aix_gcc
+    bsls_atomicoperations_powerpc_aix_xlc_default
+    bsls_atomicoperations_sparc_sun_cc_default
+    bsls_atomicoperations_x64_all_gcc
+    bsls_atomicoperations_x64_win_msvc
+    bsls_atomicoperations_x86_all_gcc
+    bsls_atomicoperations_x86_win_msvc
+    bsls_byteorderutil
+ 
+ 3. bsls_alignment
+    bsls_alignmenttotype
+    bsls_atomicoperations_default
+    bsls_buildtarget
+    bsls_byteorderutil_impl
+    bsls_nullptr
+    bsls_performancehint
+    bsls_systemclocktype
+    bsls_unspecifiedbool
+    bsls_util
+ 
+ 2. bsls_alignmentimp
+    bsls_annotation
+    bsls_bsltestutil
+    bsls_compilerfeatures
+    bsls_linkcoercion
+    bsls_nativestd
+    bsls_types
+ 
+ 1. bsls_asserttestexception
+    bsls_blockgrowth
+    bsls_macroincrement
+    bsls_platform
+    bsls_protocoltest
+ 
+ 0. bsls_ident
 ..
 
 /Component Synopsis
