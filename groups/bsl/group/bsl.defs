@@ -14,8 +14,6 @@
 
 #===
 
-# provide a way to selectively disable BSL_OVERRIDES_STD
-!! *                _       BSL_STD_FLAG    = $(SWITCHCHAR)DBSL_OVERRIDES_STD
 *                   _       STL_DEFINES     = $(BSL_STD_FLAG)
 
 !! windows          shr     STL_DEFINES     = $(BSL_STD_FLAG)
@@ -63,4 +61,3 @@ unix-SunOS-*-*-cc-5.2 	_ 	BDE_EXTRALIBS = -lsunmath
 -- *			_	BDE_ENDLDFLAGS = $(BSL_EXTRALIBS)
 
 #==============================================================================
-
