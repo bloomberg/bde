@@ -48,6 +48,9 @@ bsls_platform
 bsls_platformutil
 bsls_protocoltest
 bsls_stopwatch
+bsls_systemclocktype
+bsls_systemtime
+bsls_timeinterval
 bsls_timeutil
 bsls_types
 bsls_unspecifiedbool
