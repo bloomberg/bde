@@ -113,56 +113,6 @@ typedef bdlb::RandomDevice Util;
 #endif
 
 //=============================================================================
-//                              USAGE EXAMPLE
-//-----------------------------------------------------------------------------
-template <class CHOICE_TYPE>
-class RandomChoice {
-  // This class manages selecting pseudo-random elements out of an array
-  // sampling with replacement.
-
-  // DATA
-    CHOICE_TYPE *d_choices;  // the possibilities (used not owned)
-    int          d_size;     // the number of elements to choose among
-
-  public:
-    // CREATORS
-    RandomChoice(CHOICE_TYPE choices[], int numChoices);
-        // Create an object with the specified 'choices' array with
-        // 'numChoices' elements.
-
-    ~RandomChoice();
-        // Delete this object
-
-    // ACCESSOR
-    const CHOICE_TYPE& choice() const;
-        // Return a random member of the 'choices', sampling with replacement.
-};
-
-// CREATORS
-template <class CHOICE_TYPE>
-RandomChoice<CHOICE_TYPE>::RandomChoice(CHOICE_TYPE choices[],
-                                        int         numChoices)
-: d_choices(choices), d_size(numChoices)
-{
-}
-
-template <class CHOICE_TYPE>
-RandomChoice<CHOICE_TYPE>::~RandomChoice()
-{
-}
-
-// ACCESSORS
-template <class CHOICE_TYPE>
-const CHOICE_TYPE& RandomChoice<CHOICE_TYPE>::choice() const
-{
-    int index;
-    bdlb::RandomDevice::getRandomBytesNonBlocking(
-                                     reinterpret_cast<unsigned char *>(&index),
-                                     sizeof index);
-    return d_choices[index % d_size];
-}
-
-//=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
@@ -193,29 +143,38 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << endl << "USAGE EXAMPLE TEST" << endl
                                   << "==================" << endl;
-
-        if (verbose) cout << "\nTesting usage example." << endl;
 ///Usage
 ///-----
-  // The following snippets of code illustrate how to create and use a
-  // 'bdlb_RandomDevice' object.
-  //..
+// This section illustrates intended use of this component.
 //..
-// First, we initialize an array of colors to choose between.
+///Example 1: Seeding the Random-Number Generator
+/// - - - - - - - - - - - - - - - - - - - - - - -
+// System-provided random-number generators generally must be initialized with
+// a seed value from which they go on to produce their stream of pseudo-random
+// numbers.  We can use 'RandomDevice' to provide such a seed.
+//
+// First, we obtain the results of invoking the random-number generator without
+// having seeded it:
 //..
-        bsl::string colors[] = {"Red" , "Orange", "Yellow", "Green",
-                       "Blue", "Indigo", "Violet"};
-        unsigned numColors = sizeof colors/sizeof colors[0];
+    int unseededR1 = rand();
+    int unseededR2 = rand();
 //..
-// Next, Request a random color.
+// Then, we obtain a random number:
 //..
-        RandomChoice<string> chooseColor(colors, numColors);
+    int seed = 0;
+    int status = bdlb::RandomDevice::getRandomBytes(
+        reinterpret_cast<unsigned char *>(&seed), sizeof(seed));
+    ASSERT(0 == status);
+    ASSERT(0 != seed);    // This will fail every few billion attempts...
 //..
-// Finally, we stream the value of this color to 'stdout':
+// Next, we seed the random-number generator with our seed:
 //..
-        if (verbose) {
-            cout << chooseColor.choice() << endl;
-        }
+    srand(seed);
+//..
+// Finally, we observe that we obtain different numbers:
+//..
+    ASSERT(unseededR1 != rand());
+    ASSERT(unseededR2 != rand());
 //..
       } break;
       case 2: {
@@ -223,13 +182,13 @@ int main(int argc, char *argv[])
         // 'int getRandomBytesNonBlocking(buf, numB)' TEST
         //
         // Concerns:
-        //   1) If a number is passed, that many bytes are set.
-        //   2) The random bytes are distributed uniformly (probabilistic)
+        //: 1 If a number is passed, that many bytes are set.
+        //: 2 The random bytes are distributed uniformly (probabilistic).
         //
         // Plan:
-        //   Request a large pool and random bytes from non-blocking random
-        //   number generator.  Verify that each is unique. Verify that the
-        //   numbers approximate a uniform distribution.
+        //: 1 Request a large pool and random bytes from non-blocking random
+        //:   number generator.  Verify that each is unique. Verify that the
+        //:   numbers approximate a uniform distribution.
         //
         // Testing:
         //   static int getRandomBytesNonBlocking(buf, numB);
@@ -247,8 +206,9 @@ int main(int argc, char *argv[])
                  << "===============================================" << endl;
 
         // 1) If a number is passed, that many bytes are set.
-        if (veryVerbose) cout << "\nTesting the number of bytes set."
-                              << endl;
+        if (veryVerbose) {
+            cout << "\nTesting the number of bytes set." << endl;
+        }
         for (unsigned i = 0; i < 5; ++i) {
             memset(buffer, 0, NUM_BYTES);
             // Repeat the accession of random bytes 'NUM_TRIALS' times to
@@ -277,8 +237,9 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (veryVerbose) cout << "\nTesting the distribution of rand."
-                              << endl;
+        if (veryVerbose) {
+            cout << "\nTesting the distribution of rand." << endl;
+        }
         // 3) The random bytes are uniformly distributed (probabilistic)
         int numbers[NUM_ITERATIONS] = { };
         for (int i = 0; i< NUM_ITERATIONS; ++i) {
@@ -288,18 +249,16 @@ int main(int argc, char *argv[])
                                       reinterpret_cast<unsigned char *>(&rand),
                                       sizeof rand));
             numbers[i] = rand;
-            if (veryVerbose) cout << "rand[" << i << "]: " << rand << endl;
+            if (veryVerbose) { P_(i) P(rand) }
             for (int j = 0; j < i; ++j) {
                 ASSERT(numbers[j] != rand);
-                if (veryVerbose) {
-                    cout << "rand[" << j << "]: " << numbers[j] << endl;
-                }
+                if (veryVerbose) { P_(j) P(numbers[j]) }
             }
 
             for (int b = 0; b < 15; ++b) {
                 cnt += rand & 1;
                 rand >>= 1;
-                if (veryVerbose) cout << "Cnt:  " << cnt << endl;
+                if (veryVerbose) { P(cnt) }
             }
         }
         double expected = (NUM_ITERATIONS * 15) / 2;
@@ -328,7 +287,6 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
-        if (verbose) cout << "testing random" << endl;
         int rand;
         int numbers [NUM_ITERATIONS];
         // fill buffer with random bytes
@@ -336,7 +294,7 @@ int main(int argc, char *argv[])
             unsigned char *p = reinterpret_cast<unsigned char *>(&rand);
             ASSERT(0 == Util::getRandomBytes(p, sizeof rand));
             numbers[i] = rand;
-            if (veryVerbose) P(rand);
+            if (veryVerbose) { P_(i) P(rand) }
         }
         // verify uniqueness
         for (int i = 0; i < NUM_ITERATIONS; ++i) {
@@ -374,8 +332,7 @@ int main(int argc, char *argv[])
                  << endl;
 
         if (veryVerbose) {
-            cout << "\nTesting the number of bytes set."
-                 << endl;
+            cout << "\nTesting the number of bytes set." << endl;
         }
         // 2) If a number is passed, that many bytes are set.
         for (unsigned i = 0; i < 5; ++i) {
@@ -393,8 +350,9 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (veryVerbose) cout << "\nTesting the distribution of rand."
-                              << endl;
+        if (veryVerbose) {
+            cout << "\nTesting the distribution of rand." << endl;
+        }
 
         // 3) The random bytes are distributed uniform (probabilistic)
         for (int i = 0; i < NUM_ITERATIONS; ++i) {
@@ -411,7 +369,7 @@ int main(int argc, char *argv[])
             for (int b = 0; b < 15; ++b) {
                 cnt += rand_int & 1;
                 rand_int >>= 1;
-                if (veryVerbose) cout << "Cnt:  " << cnt << endl;
+                if (veryVerbose) { P(cnt) }
             }
         }
         double expected = (NUM_ITERATIONS * 15) / 2;
@@ -460,9 +418,7 @@ int main(int argc, char *argv[])
                          0 != memcmp(buffer, prev_buffer, MAX_GRANUALARITY));
             double time = s.accumulatedUserTime() + s.accumulatedSystemTime() +
                           s.accumulatedWallTime();
-            cout << "Granularity : " << granularity  << endl
-                 << "Time Elapsed: " << time << endl
-                 << "--------------" << endl << endl;
+            P_(granularity) P(time);
             s.reset();
         }
       } break;
@@ -483,11 +439,11 @@ int main(int argc, char *argv[])
         // Testing:
         //   PERFORMANCE: 'getRandomBytesNonBlocking'
         //---------------------------------------------------------------------
-        if (verbose) {
+        if (verbose)
             cout << endl
                  << "PERFORMANCE: 'getRandomBytesNonBlocking'" << endl
                  << "========================================" << endl;
-        }
+
         int rand_int;
         for (int i = 0; i < 15; ++i) {
             if (veryVerbose) { P(i) }
@@ -520,9 +476,7 @@ int main(int argc, char *argv[])
                          0 != memcmp(buffer, prev_buffer, MAX_GRANUALARITY));
             double time = s.accumulatedUserTime() + s.accumulatedSystemTime() +
                           s.accumulatedWallTime();
-            if (veryVerbose) cout << "Granularity : " << granularity  << endl
-                                  << "Time Elapsed: " << time << endl
-                                  << "-------------"  << endl << endl;
+            if (veryVerbose) { P_(granularity) P(time) }
             s.reset();
         }
       } break;
@@ -591,11 +545,10 @@ int main(int argc, char *argv[])
         // Testing:
         //   PERFORMANCE: 'getRandomBytes'
         // --------------------------------------------------------------------
-        if (verbose) {
-          cout << endl
-               << "PERFORMANCE: 'getRandomBytes'" << endl
-               << "=============================" << endl;
-        }
+        if (verbose) cout << endl
+                          << "PERFORMANCE: 'getRandomBytes'" << endl
+                          << "=============================" << endl;
+
         bsls::Stopwatch  s;
         const int        NUM_ITERATIONS = 15;
         int              rand_int;

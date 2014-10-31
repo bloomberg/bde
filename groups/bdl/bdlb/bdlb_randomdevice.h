@@ -36,68 +36,34 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //..
-//  template <class CHOICE_TYPE>
-//  class RandomChoice {
-//    // This class manages selecting pseudo-random elements out of an array
-//    // sampling with replacement.
+///Example 1: Seeding the Random-Number Generator
+/// - - - - - - - - - - - - - - - - - - - - - - -
+// System-provided random-number generators generally must be initialized with
+// a seed value from which they go on to produce their stream of pseudo-random
+// numbers.  We can use 'RandomDevice' to provide such a seed.
 //
-//    // DATA
-//      CHOICE_TYPE *d_choices;  // the possibilities (used not owned)
-//      int          d_size;     // the number of elements to choose among
-//
-//    public:
-//      // CREATORS
-//      RandomChoice(CHOICE_TYPE choices[], int numChoices);
-//          // Create an object with the specified 'choices' array with
-//          // 'numChoices' elements.
-//
-//      ~RandomChoice();
-//          // Delete this object
-//
-//      // ACCESSOR
-//      const CHOICE_TYPE& choice() const;
-//          // Return a random member of the 'choices', sampling with
-//          // replacement.
-//  };
-//
-//  // CREATORS
-//  template <class CHOICE_TYPE>
-//  RandomChoice<CHOICE_TYPE>::RandomChoice(CHOICE_TYPE choices[],
-//                                          int         numChoices)
-//  : d_choices(choices), d_size(numChoices)
-//  {
-//  }
-//
-//  template <class CHOICE_TYPE>
-//  RandomChoice<CHOICE_TYPE>::~RandomChoice()
-//  {
-//  }
-//
-//  // ACCESSORS
-//  template <class CHOICE_TYPE>
-//  const CHOICE_TYPE& RandomChoice<CHOICE_TYPE>::choice() const
-//  {
-//      size_t index;
-//      bdlb::RandomDevice::getRandomBytesNonBlocking(
-//                                   reinterpret_cast<unsigned char *>(&index),
-//                                   sizeof index);
-//      return d_choices[index % d_size];
-//  }
+// First, we obtain the results of invoking the random-number generator without
+// having seeded it:
 //..
-// Initialize an array of colors to choose between.
+//  int unseededR1 = rand();
+//  int unseededR2 = rand();
 //..
-//      string colors[] = {"Red" , "Orange", "Yellow", "Green",
-//                         "Blue", "Indigo", "Violet"};
-//      unsigned numColors = sizeof colors/sizeof colors[0];
+// Then, we obtain a random number:
 //..
-// Request a random color.
+//  int seed = 0;
+//  int status = bdlb::RandomDevice::getRandomBytes(
+//      reinterpret_cast<unsigned char *>(&seed), sizeof(seed));
+//  assert(0 == status);
+//  assert(0 != seed);    // This will fail every few billion attempts...
 //..
-//   RandomChoice<string> chooseColor(colors, numColors);
+// Next, we seed the random-number generator with our seed:
 //..
-// Finally we stream the value of this color to 'stdout':
+//  srand(seed);
 //..
-//  if (verbose)
-//      cout << chooseColor.choice() << endl;
+// Finally, we observe that we obtain different numbers:
+//..
+//  assert(unseededR1 != rand());
+//  assert(unseededR2 != rand());
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION
@@ -133,8 +99,9 @@ struct RandomDevice {
                                          size_t         numBytes);
         // Read the the specified 'numBytes' from the system non-blocking
         // random number generator into the specified 'buffer'.  Returns 0 on
-        // success, non-zero otherwise.  Note that on most platforms sampling
-        // from this pool does not produce cryptographically secure numbers.
+        // success, non-zero otherwise.  Note that the cryptographic strength
+        // of samples drawn from this pool may or may not be lower than that of
+        // those drawn from the blocking pool, and may vary by platform.
 };
 
 }  // close package namespace
