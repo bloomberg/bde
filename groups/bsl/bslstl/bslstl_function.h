@@ -210,27 +210,6 @@ public:
     typedef ARG2 second_argument_type;
 };
 
-                        // ===========================
-                        // class Function_ObjAlignment
-                        // ===========================
-
-template <class TYPE>
-struct Function_ObjAlignment {
-    // This is a component-private class template.  Do not use.
-    //
-    // Metafunction to return the alignment needed for TYPE.  If 'TYPE' is
-    // 'void', then the 'VALUE' member will be 1; otherwise the 'VALUE' member
-    // will be bsls::AlignmentFromType<TYPE>::VALUE.
-
-    static const std::size_t VALUE = bsls::AlignmentFromType<TYPE>::VALUE;
-                                     
-};
-
-template <>
-struct Function_ObjAlignment<void> {
-    static const std::size_t VALUE = 1;
-};
-
                         // ==================
                         // class Function_Rep
                         // ==================
@@ -409,10 +388,9 @@ class Function_Rep {
         // as follows:
         //
         //:  o If 'TP' is not larger than 'InplaceBuffer' but has a throwing
-        //:    move constructor or extended move constructor (and therefore
-        //:    should not be allocated inplace), then 'VALUE == sizeof(TP) +
+        //:    destructive move operation (and therefore should not be
+        //:    allocated inplace), then 'VALUE == sizeof(TP) +
         //:    k_NON_SOO_SMALL_SIZE'.
-        //:  o Otherwise, if 'TP' is an empty class, 'VALUE == 0'.
         //:  o Otherwise, 'VALUE == sizeof(TP)'.
         //
         // Note that the 'Soo' prefix is used to indicate that an identifier
@@ -421,10 +399,8 @@ class Function_Rep {
         // can generally be assumed not to be encoded that way.
 
     private:
-        // The actual memory footprint used of the object, which is zero for
-        // empty classes.
-        static const std::size_t FOOTPRINT = (bsl::is_empty<TP>::value ? 0 :
-                                              sizeof(TP));
+        // The actual memory footprint used of the object.
+        static const std::size_t FOOTPRINT = sizeof(TP);
 
     public:
         static const std::size_t VALUE =
@@ -930,6 +906,16 @@ public:
     typedef bsl::allocator<char>                              Type;
 };
 
+template <class ALLOC>
+const Function_Rep::AllocCategory Function_AllocTraits<ALLOC>::k_CATEGORY;
+
+template <class ALLOC>
+const Function_Rep::AllocCategory Function_AllocTraits<ALLOC *>::k_CATEGORY;
+
+template <class TYPE>
+const Function_Rep::AllocCategory
+    Function_AllocTraits<bsl::allocator<TYPE> >::k_CATEGORY;
+
 } // close namespace bsl
 
                         // --------------------------------
@@ -1016,8 +1002,8 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
     static const std::size_t k_IS_INPLACE =
         k_SOO_FUNC_SIZE <= sizeof(InplaceBuffer);
 
-    // If functor is empty, empty it should have a one-byte footprint.
-    BSLMF_ASSERT(0 != k_SOO_FUNC_SIZE || 1 == sizeof(FUNC));
+    // If a function manager exists, then functor must have non-zero size.
+    BSLMF_ASSERT(0 != k_SOO_FUNC_SIZE);
 
     // If wrapped function fits in 'd_objbuf', then it is inplace; otherwise,
     // its heap-allocated address is found in 'd_objbuf.d_object_p'.  There
@@ -1026,14 +1012,6 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
     char *wrappedFuncBuf_p = static_cast<char*>(
         k_IS_INPLACE ? &rep->d_objbuf : rep->d_objbuf.d_object_p);
     FUNC *wrappedFunc_p = reinterpret_cast<FUNC*>(wrappedFuncBuf_p);
-
-    char savedFuncByte;
-    if (0 == k_SOO_FUNC_SIZE) {
-        // We are allocating zero bytes for an empty functor.  Save the memory
-        // contents of the (one-byte) functor footprint in case an operation
-        // does something silly like zero the footprint or memcpy into it.
-        savedFuncByte = wrappedFuncBuf_p[0];
-    }
 
     switch (opCode) {
 
@@ -1054,12 +1032,6 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
                                                   srcFunc,
                                                   rep->d_allocator_p);
 #endif
-          if (0 == k_SOO_FUNC_SIZE) {
-              // Restore the footprint of an empty functor in case the
-              // constructor did something silly like zero it or memcpy into
-              // it.
-              wrappedFuncBuf_p[0] = savedFuncByte;
-          }
           return wrappedFunc_p;
       } break;
 
@@ -1073,12 +1045,6 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
           bslalg::ScalarPrimitives::copyConstruct(wrappedFunc_p,
                                                   srcFunc,
                                                   rep->d_allocator_p);
-          if (0 == k_SOO_FUNC_SIZE) {
-              // Restore the footprint of an empty functor in case the
-              // constructor did something silly like zero it or memcpy into
-              // it.
-              wrappedFuncBuf_p[0] = savedFuncByte;
-          }
           return wrappedFunc_p;
       } break;
 
@@ -1087,32 +1053,16 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
           // Call destructor for functor.
           wrappedFunc_p->~FUNC();
 
-          if (0 == k_SOO_FUNC_SIZE) {
-              // Restore the footprint of an empty functor in case the
-              // destructor did something silly like zero it or memcpy into
-              // it.
-              wrappedFuncBuf_p[0] = savedFuncByte;
-          }
-
           // Return size of destroyed function object
           return k_SOO_FUNC_SIZE;
       } break;
 
       case e_DESTRUCTIVE_MOVE: {
         void *input_p      = input.asPtr();
-        char  savedSrcByte = static_cast<char*>(input_p)[0];
         FUNC *srcFunc_p    = static_cast<FUNC*>(input_p);
 
         bslalg::ScalarPrimitives::destructiveMove(wrappedFunc_p, srcFunc_p,
                                                   rep->d_allocator_p);
-
-        if (0 == k_SOO_FUNC_SIZE) {
-            // Restore the footprint of an empty functor in case the
-            // constructor or destructor did something silly like zero it or
-            // memcpy into it.
-            wrappedFuncBuf_p[0]            = savedFuncByte;
-            static_cast<char*>(input_p)[0] = savedSrcByte;
-        }
       } break;
 
       case e_GET_SIZE:     return k_SOO_FUNC_SIZE;
