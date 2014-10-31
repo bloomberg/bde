@@ -1,0 +1,101 @@
+ bdlt.txt
+
+@PURPOSE: Provide and time-related vocabulary types, and related utilities.
+
+@MNEMONIC: Basic Development Library Time (bdlt)
+
+@AUTHOR: Steven Breitstein (sbreitstein)
+
+@DESCRIPTION: The 'bdlt' ("Basic Development Library Time") package provides
+ vocabulary types for representing date and type values, utilities providing
+ non-primitive functionality on those types, utilities that provide date- and
+ time values (e.g., 'bdlt_currenttime'), and supporting components.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bdlt' package currently has 18 components having 7 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  7. bdlt_currenttime
+
+  6. bdlt_datetimetz
+     bdlt_localtimeoffset
+
+  5. bdlt_datetimeutil
+     bdlt_datetz
+     bdlt_epochutil
+
+  4. bdlt_datetime
+     bdlt_timetz
+
+  3. bdlt_dateutil
+     bdlt_intervalconversionutil
+     bdlt_time
+
+  2. bdlt_date
+     bdlt_datetimeinterval
+     bdlt_dayofweekset
+
+  1. bdlt_dayofweek
+     bdlt_monthofyear
+     bdlt_serialdateimputil
+     bdlt_timeunitratio
+..
+
+/Component Synopsis
+/------------------
+: 'bdlt_currenttime':
+:      Provide utilities to retrieve the current time.
+:
+: 'bdlt_date':
+:      Provide a value-semantic type to represent dates.
+:
+: 'bdlt_datetime':
+:      Provide a value-semantic type representing both date and time.
+:
+: 'bdlt_datetimeinterval':
+:      Provide a representation of an interval of time.
+:
+: 'bdlt_datetimetz':
+:      Provide a representation of a date and time with time zone offset.
+:
+: 'bdlt_datetimeutil':
+:      Provide common non-primitive operations on 'bdlt::Datetime'.
+:
+: 'bdlt_datetz':
+:      Provide a representation of a date with time zone offset.
+:
+: 'bdlt_dateutil':
+:      Provide common non-primitive operations on date objects.
+:
+: 'bdlt_dayofweek':
+:      Provide an enumeration of the set of days of the week.
+:
+: 'bdlt_dayofweekset':
+:      Provide an ordered set of (unique) 'bdlt::DayOfWeek::Enum' values.
+:
+: 'bdlt_epochutil':
+:      Conversion between absolute/relative time with respect to epoch.
+:
+: 'bdlt_intervalconversionutil':
+:      Provide functions to convert between time-interval representations.
+:
+: 'bdlt_localtimeoffset':
+:      Provide utilities to retrieve the local time offset.
+:
+: 'bdlt_monthofyear':
+:      Enumerate the set of month-of-year values.
+:
+: 'bdlt_serialdateimputil':
+:      Provide low-level support functions for date-value manipulation.
+:
+: 'bdlt_time':
+:      Provide a value-semantic time-of-day type (millisecond resolution).
+:
+: 'bdlt_timetz':
+:      Provide a representation of a time with time zone offset.
+:
+: 'bdlt_timeunitratio':
+:      Provide constants characterizing ratios between common time units.
