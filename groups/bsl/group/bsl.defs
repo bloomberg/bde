@@ -55,6 +55,9 @@ unix-SunOS-*-*-*	_	STL_CXXFLAGS	= -library=no%rwtools7
 # all needed package dependencies (including BSL_INCLUDE (no S) above)
 unix-AIX-*-*-*  	_	BDE_LDFLAGS	= $(BSL_INCLUDES)
 
+# -lrt needed by bsls_systemtime.cpp
+unix-SunOS-*-*-*        _       BDE_ENDLDFLAGS  = -lrt
+
 # on Sun and Forte6 we need sunmath
 
 unix-SunOS-*-*-cc-5.2 	_ 	BDE_EXTRALIBS = -lsunmath
