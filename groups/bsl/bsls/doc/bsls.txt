@@ -242,6 +242,9 @@
 : 'bsls_stopwatch':
 :      Provide access to user, system, and wall times of current process.
 :
+: 'bsls_systemclocktype':
+:      Enumerate the set of system clock types.
+:
 : 'bsls_timeutil':
 :      Provide a platform-neutral functional interface to system clocks.
 :
@@ -434,6 +437,14 @@
  reset, so the elapsed time "interval" accumulated by a single object may be
  from multiple, discontinuous segments of time.  The non-negative total
  accumulated time (in seconds) is available as a 'double' value.
+
+/'bsls_systemclocktype'
+/ - - - - - - - - - - -
+ The {'bsls_systemclocktype'} component provides a namespace for the 'enum'
+ type 'bsls::SystemClockType::Enum', which enumerates the set of system clock
+ types.  A 'bsls::SystemClockType' is particularly important when providing
+ time-out values to synchronization methods where those time-outs must be
+ consistent in environments where the system clocks may be changed.
 
 /'bsls_timeutil'
 /- - - - - - - -
