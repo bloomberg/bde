@@ -34,14 +34,14 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimalplatform.h>
 #endif
 
+#ifndef INCLUDED_BDLDFP_DENSELYPACKEDDECIMALIMPUTIL
+#include <bdldfp_denselypackeddecimalimputil.h>
+#endif
+
 #ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
 
 #ifndef INCLUDED_BDLDFP_INTELIMPWRAPPER
 #include <bdldfp_intelimpwrapper.h>
-#endif
-
-#ifndef INCLUDED_BDLDFP_DENSELYPACKEDDECIMALIMPUTIL
-#include <bdldfp_denselypackeddecimalimputil.h>
 #endif
 
 #ifndef INCLUDED_BSL_LOCALE
