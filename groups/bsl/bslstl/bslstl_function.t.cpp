@@ -553,8 +553,12 @@ public:
 // Limits the number of copies before a copy operation throws.
 ExceptionLimit copyLimit("copy limit");
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 // Limits the number of moves before a move operation throws.
 ExceptionLimit moveLimit("move limit");
+#else
+ExceptionLimit& moveLimit = copyLimit;
+#endif
 
 // Simple functor with no state
 struct EmptyFunctor : FunctorBase
@@ -625,7 +629,7 @@ bool operator!=(const EmptyFunctor&, const EmptyFunctor&)
 
 class SmallFunctor : public FunctorBase
 {
-    // Small stateful functor.
+    // Small stateful functor.  (Bitwise Movable)
 
     int d_value;  // Arbitrary state to distinguish one instance from another
 
@@ -688,7 +692,7 @@ bool operator!=(const SmallFunctor& a, const SmallFunctor& b)
 
 class MediumFunctor : public SmallFunctor
 {
-    // Functor that barely fits into the small object buffer.
+    // Functor that barely fits into the small object buffer. (Bitwise movable)
 
     char d_padding[sizeof(SmallObjectBuffer) - sizeof(SmallFunctor)];
     
@@ -731,7 +735,7 @@ class LargeFunctor : public SmallFunctor
     
 public:
     // BITWISE MOVEABLE
-    BSLMF_NESTED_TRAIT_DECLARATION(LargeFunctor, bslmf::IsBitwiseMoveable);
+//    BSLMF_NESTED_TRAIT_DECLARATION(LargeFunctor, bslmf::IsBitwiseMoveable);
 
     explicit LargeFunctor(int v) : SmallFunctor(v)
         { std::memset(d_padding, 0xee, sizeof(d_padding)); }
@@ -740,7 +744,7 @@ public:
         { std::memset(d_padding, 0xee, sizeof(d_padding)); }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-    // This move constructor is not called in nothrow settings.
+//    // This move constructor is not called in nothrow settings.
     LargeFunctor(LargeFunctor&& other) : SmallFunctor(std::move(other))
         { std::memset(d_padding, 0xee, sizeof(d_padding)); }
 #endif
@@ -760,107 +764,70 @@ bool operator!=(const LargeFunctor& a, const LargeFunctor& b)
     return a.value() != b.value();
 }
 
-class NothrowSmallFunctor
+class NTSmallFunctor
 {
     // A small functor that is not bitwise movable, but does have a nothrow
     // move constructor
 
-    int d_encodedValue; // Value that is encoded with 'this' address
+    enum { k_MOVED_FROM_VAL = 0x100000 };
 
-    int encodeSelf() const {
+    // Value that is XOR'ed with 'this' address.  If an object of this type
+    // subjected to a bitwise move, the encoded value will be wrong and the
+    // test driver will detect the error.
+    int d_encodedValue;
+
+    int xorWithSelf(int v) const {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
         union aliaser { const void *d_ptr; int d_int; };
         aliaser a;
         a.d_ptr = this;
-        return a.d_int;
+        return v ^ a.d_int;
 #else
-        return 0;
+        // Don't encode if 'noexcept' is not supported because this class will
+        // be bitwise movable in that case.
+        return v;
 #endif
     }
 
 public:
-    explicit NothrowSmallFunctor(int v) : d_encodedValue(v ^ encodeSelf()) { }
+    explicit NTSmallFunctor(int v) : d_encodedValue(xorWithSelf(v)) { }
 
-    NothrowSmallFunctor(const NothrowSmallFunctor& other)
-        : d_encodedValue(other.value() ^ encodeSelf()) { --copyLimit; }
+    NTSmallFunctor(const NTSmallFunctor& other)
+        : d_encodedValue(xorWithSelf(other.value())) { --copyLimit; }
 
 #if defined BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT && \
     defined BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     // Nothrow move and copy constructible
-    NothrowSmallFunctor(NothrowSmallFunctor&& other) noexcept
-        : d_encodedValue(other.value() ^ encodeSelf()) { }
+    NTSmallFunctor(NTSmallFunctor&& other) noexcept
+      : d_encodedValue(xorWithSelf(other.value())) {
+        other.d_encodedValue = other.xorWithSelf(k_MOVED_FROM_VAL);
+    }
 #else
     // Bitwise moveable -- use if 'noexcept' is not supported.
-    BSLMF_NESTED_TRAIT_DECLARATION(NothrowSmallFunctor,
+    BSLMF_NESTED_TRAIT_DECLARATION(NTSmallFunctor,
                                    bslmf::IsBitwiseMoveable);
 #endif
 
-    ~NothrowSmallFunctor() {
+    ~NTSmallFunctor() {
         std::memset(this, 0xbb, sizeof(*this));
     }
 
     int operator()(const IntWrapper& iw, int v) {
-        d_encodedValue = (value() + iw.value() + v) ^ encodeSelf();
+        d_encodedValue = xorWithSelf(value() + iw.value() + v);
         return value();
     }
 
-    int value() const { return d_encodedValue ^ encodeSelf(); }
+    int value() const { return xorWithSelf(d_encodedValue); }
 };
 
 inline
-bool operator==(const NothrowSmallFunctor& a, const NothrowSmallFunctor& b)
+bool operator==(const NTSmallFunctor& a, const NTSmallFunctor& b)
 {
     return a.value() == b.value();
 }
 
 inline
-bool operator!=(const NothrowSmallFunctor& a, const NothrowSmallFunctor& b)
-{
-    return a.value() != b.value();
-}
-
-class ThrowingSmallFunctor : public FunctorBase
-{
-    // A small functor that is not bitwise movable, and whose move constructor
-    // may throw.
-
-    int d_encodedValue; // Value that is encoded with 'this' address
-
-    int encodeSelf() const {
-        union aliaser { const void *d_ptr; int d_int; };
-        aliaser a;
-        a.d_ptr = this;
-        return a.d_int;
-    }
-
-public:
-    explicit ThrowingSmallFunctor(int v) : d_encodedValue(v ^ encodeSelf()) { }
-
-    // Throwing move and copy constructor
-    ThrowingSmallFunctor(const ThrowingSmallFunctor& other)
-      : FunctorBase(), d_encodedValue(other.value() ^ encodeSelf())
-        { --copyLimit; --moveLimit; }
-
-    ~ThrowingSmallFunctor() {
-        std::memset(this, 0xbb, sizeof(*this));
-    }
-
-    int operator()(const IntWrapper& iw, int v) {
-        d_encodedValue = (value() + iw.value() + v) ^ encodeSelf();
-        return value();
-    }
-
-    int value() const { return d_encodedValue ^ encodeSelf(); }
-};
-
-inline
-bool operator==(const ThrowingSmallFunctor& a, const ThrowingSmallFunctor& b)
-{
-    return a.value() == b.value();
-}
-
-inline
-bool operator!=(const ThrowingSmallFunctor& a, const ThrowingSmallFunctor& b)
+bool operator!=(const NTSmallFunctor& a, const NTSmallFunctor& b)
 {
     return a.value() != b.value();
 }
@@ -872,11 +839,16 @@ class ThrowingEmptyFunctor : public EmptyFunctor
 public:
     explicit ThrowingEmptyFunctor(int v = 0) : EmptyFunctor(v) { }
 
-    // Throwing move and copy constructor.  Note that the copy constructor for
-    // the 'EmptyFunctor' base class increments 'copyLimit' but not
-    // 'moveLimit'.
+    // Throwing copy constructor.
     ThrowingEmptyFunctor(const ThrowingEmptyFunctor& other)
-        : EmptyFunctor(other) { --moveLimit; }
+        : EmptyFunctor(other) { }
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    // Throwing move constructor.  Note that the constructor for the
+    // 'EmptyFunctor' base does not increment 'moveLimit'.
+    ThrowingEmptyFunctor(ThrowingEmptyFunctor&& other)
+        : EmptyFunctor((--moveLimit, std::move(other))) { }
+#endif
 
     ~ThrowingEmptyFunctor() { std::memset(this, 0xbb, sizeof(*this)); }
 };
@@ -891,6 +863,64 @@ inline
 bool operator!=(const ThrowingEmptyFunctor&, const ThrowingEmptyFunctor&)
 {
     return false;
+}
+
+class ThrowingSmallFunctor : public FunctorBase
+{
+    // A small functor that is not bitwise movable, and whose move constructor
+    // may throw.
+
+    enum { k_MOVED_FROM_VAL = 0x100000 };
+
+    // Value that is XOR'ed with 'this' address.  If an object of this type
+    // subjected to a bitwise move, the encoded value will be wrong and the
+    // test driver will detect the error.
+    int d_encodedValue;
+
+    int xorWithSelf(int v) const {
+        union aliaser { const void *d_ptr; int d_int; };
+        aliaser a;
+        a.d_ptr = this;
+        return v ^ a.d_int;
+    }
+
+public:
+    explicit ThrowingSmallFunctor(int v) : d_encodedValue(xorWithSelf(v)) { }
+
+    // Throwing copy constructor
+    ThrowingSmallFunctor(const ThrowingSmallFunctor& other)
+      : FunctorBase(), d_encodedValue(xorWithSelf(other.value()))
+        { --copyLimit; }
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    // Throwing move constructor
+    ThrowingSmallFunctor(ThrowingSmallFunctor&& other)
+      : FunctorBase(), d_encodedValue(xorWithSelf(other.value()))
+        { --moveLimit; }
+#endif
+
+    ~ThrowingSmallFunctor() {
+        std::memset(this, 0xbb, sizeof(*this));
+    }
+
+    int operator()(const IntWrapper& iw, int v) {
+        d_encodedValue = xorWithSelf(value() + iw.value() + v);
+        return value();
+    }
+
+    int value() const { return xorWithSelf(d_encodedValue); }
+};
+
+inline
+bool operator==(const ThrowingSmallFunctor& a, const ThrowingSmallFunctor& b)
+{
+    return a.value() == b.value();
+}
+
+inline
+bool operator!=(const ThrowingSmallFunctor& a, const ThrowingSmallFunctor& b)
+{
+    return a.value() != b.value();
 }
 
 class SmallFunctorWithAlloc : public SmallFunctor
@@ -945,6 +975,60 @@ bool operator!=(const SmallFunctorWithAlloc& a, const SmallFunctorWithAlloc& b)
     return a.value() != b.value();
 }
 
+class NTSmallFunctorWithAlloc : public NTSmallFunctor
+{
+    // A small functor with allocator that is not bitwise movable, but does
+    // have a nothrow move constructor.  It is unusual to have an object like
+    // this, which uses an allocator but cannot throw on move, but we must
+    // test it, anyway.
+
+    bslma::Allocator *d_alloc_p;
+
+public:
+    BSLMF_NESTED_TRAIT_DECLARATION(SmallFunctorWithAlloc,
+                                   bslma::UsesBslmaAllocator);
+
+    explicit NTSmallFunctorWithAlloc(int v, bslma::Allocator *alloc = 0)
+        : NTSmallFunctor(v), d_alloc_p(alloc) { }
+
+    NTSmallFunctorWithAlloc(const NTSmallFunctorWithAlloc&  other,
+                            bslma::Allocator               *alloc = 0)
+        : NTSmallFunctor(other), d_alloc_p(alloc) { }
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT && \
+    defined BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    // Nothrow move and copy constructible
+    NTSmallFunctorWithAlloc(NTSmallFunctorWithAlloc&& other) noexcept
+      : NTSmallFunctor(std::move(other)), d_alloc_p(other.d_alloc_p) { }
+    NTSmallFunctorWithAlloc(NTSmallFunctorWithAlloc&&  other,
+                                 bslma::Allocator               *alloc)
+      : NTSmallFunctor(std::move(other))
+      , d_alloc_p(alloc) { --moveLimit; }
+#else
+    // Bitwise moveable -- use if 'noexcept' is not supported.
+    BSLMF_NESTED_TRAIT_DECLARATION(NTSmallFunctorWithAlloc,
+                                   bslmf::IsBitwiseMoveable);
+#endif
+
+    ~NTSmallFunctorWithAlloc() { }
+
+    bslma::Allocator *allocator() const { return d_alloc_p; }
+};
+
+inline
+bool operator==(const NTSmallFunctorWithAlloc& a,
+                const NTSmallFunctorWithAlloc& b)
+{
+    return a.value() == b.value();
+}
+
+inline
+bool operator!=(const NTSmallFunctorWithAlloc& a,
+                const NTSmallFunctorWithAlloc& b)
+{
+    return a.value() != b.value();
+}
+
 class LargeFunctorWithAlloc : public SmallFunctorWithAlloc
 {
     // Functor with allocator that is barely too large to fit into the small
@@ -957,8 +1041,8 @@ public:
                                    bslma::UsesBslmaAllocator);
 
     // BITWISE MOVEABLE
-    BSLMF_NESTED_TRAIT_DECLARATION(LargeFunctorWithAlloc,
-                                   bslmf::IsBitwiseMoveable);
+    // BSLMF_NESTED_TRAIT_DECLARATION(LargeFunctorWithAlloc,
+    //                                bslmf::IsBitwiseMoveable);
 
     LargeFunctorWithAlloc(int v, bslma::Allocator *alloc = 0)
         : SmallFunctorWithAlloc(v, alloc)
@@ -1005,10 +1089,7 @@ typedef bsl::function<int(const IntWrapper&, int)> Obj;
 template <class TYPE, template <class T> class ALLOC>
 class STLAllocatorBase
 {
-    // Define the boilerplate for the specified 'ALLOC' allocator.  The
-    // minimum requirement for 'ALLOC' is that it have a 'bslmaAllocator'
-    // method that returns a pointer to a 'bslma::Allocator' used to allocate
-    // the underlying memory.
+    // Define the boilerplate for the specified 'ALLOC' allocator.
 
 public:
     typedef TYPE        value_type;
@@ -1030,7 +1111,9 @@ public:
     void destroy(pointer p) { p->~TYPE(); }
 };
 
-// Test allocator used by all instances of 'EmptySTLAllocator'
+// Test allocator used by all instances of 'EmptySTLAllocator'.  This value is
+// changed globally whenever an 'EmptySTLAllocator' is constructed from a
+// 'bslma::TestAllocator*'.
 bslma::TestAllocator *emptySTLAllocSource = NULL;
 
 template <class TYPE>
@@ -1069,7 +1152,9 @@ bool operator!=(const EmptySTLAllocator<TYPE1>&,
     return false;
 }
 
-// Test allocator used by all instances of 'EmptySTLAllocator2'
+// Test allocator used by all instances of 'EmptySTLAllocator2'.  This value
+// is changed globally whenever an 'EmptySTLAllocator2' is constructed from a
+// 'bslma::TestAllocator*'.
 bslma::TestAllocator *emptySTLAlloc2Source = NULL;
 
 template <class TYPE>
@@ -1147,78 +1232,41 @@ bool operator!=(const StatefulAllocatorBase<TYPE1>& a,
 }
 
 template <class TYPE>
-class TinySTLAllocator :
+class StatefulAllocator :
     public StatefulAllocatorBase<TYPE>,
-    public STLAllocatorBase<TYPE, TinySTLAllocator>
+    public STLAllocatorBase<TYPE, StatefulAllocator>
 {
-    // Smallest stateful allocator.
+    // A small, stateful, STL allocator type.
 
 public:
-    explicit TinySTLAllocator(bslma::TestAllocator *mechanism)
+    explicit StatefulAllocator(bslma::TestAllocator *mechanism)
         : StatefulAllocatorBase<TYPE>(mechanism) { }
 
     template <class U>
-    TinySTLAllocator(const TinySTLAllocator<U>& other)
+    StatefulAllocator(const StatefulAllocator<U>& other)
         : StatefulAllocatorBase<TYPE>(other.mechanism()) { }
 };
 
 template <class TYPE>
-class SmallSTLAllocator :
+class StatefulAllocator2 :
     public StatefulAllocatorBase<TYPE>,
-    public STLAllocatorBase<TYPE, SmallSTLAllocator>
+    public STLAllocatorBase<TYPE, StatefulAllocator2>
 {
-    // Allocator that is small enough to fit in the SmallObjectBuffer
-    // alongside SmallFunctor.
+    // Another stateful STL allocator type. Just for completeness, this
+    // allocator is too large to fit in the small object buffer, although no
+    // type-erased allocator should ever be put into the small object buffer.
 
     typedef
-      typename bslma::AllocatorAdaptor<TinySTLAllocator<TYPE> >::Type Adaptor;
-    char d_padding[sizeof(SmallObjectBuffer) - sizeof(Adaptor) -
-                   sizeof(SmallFunctor)];
+      typename bslma::AllocatorAdaptor<StatefulAllocator<TYPE> >::Type Adaptor;
+
+    char d_padding[sizeof(SmallObjectBuffer)];
+
 public:
-    explicit SmallSTLAllocator(bslma::TestAllocator *mechanism)
+    explicit StatefulAllocator2(bslma::TestAllocator *mechanism)
         : StatefulAllocatorBase<TYPE>(mechanism) { }
 
     template <class U>
-    SmallSTLAllocator(const SmallSTLAllocator<U>& other)
-        : StatefulAllocatorBase<TYPE>(other.mechanism()) { }
-};
-
-template <class TYPE>
-class MediumSTLAllocator :
-    public StatefulAllocatorBase<TYPE>,
-    public STLAllocatorBase<TYPE, MediumSTLAllocator>
-{
-    // Allocator that is small enough to fit in the SmallObjectBuffer
-    // by itself or with a stateless functor.
-
-    typedef
-      typename bslma::AllocatorAdaptor<TinySTLAllocator<TYPE> >::Type Adaptor;
-    char d_padding[sizeof(SmallObjectBuffer) - sizeof(Adaptor)];
-public:
-    explicit MediumSTLAllocator(bslma::TestAllocator *mechanism)
-        : StatefulAllocatorBase<TYPE>(mechanism) { }
-
-    template <class U>
-    MediumSTLAllocator(const MediumSTLAllocator<U>& other)
-        : StatefulAllocatorBase<TYPE>(other.mechanism()) { }
-};
-
-template <class TYPE>
-class LargeSTLAllocator :
-    public StatefulAllocatorBase<TYPE>,
-    public STLAllocatorBase<TYPE, LargeSTLAllocator>
-{
-    // Allocator that is too large to fit in the SmallObjectBuffer.
-
-    typedef
-      typename bslma::AllocatorAdaptor<TinySTLAllocator<TYPE> >::Type Adaptor;
-    char d_padding[sizeof(SmallObjectBuffer) - sizeof(Adaptor) + 1];
-public:
-    explicit LargeSTLAllocator(bslma::TestAllocator *mechanism)
-        : StatefulAllocatorBase<TYPE>(mechanism) { }
-
-    template <class U>
-    LargeSTLAllocator(const LargeSTLAllocator<U>& other)
+    StatefulAllocator2(const StatefulAllocator2<U>& other)
         : StatefulAllocatorBase<TYPE>(other.mechanism()) { }
 };
 
@@ -1836,10 +1884,8 @@ void testCopyCtor(FUNC func, const char *originalAllocName)
     TEST(bslma::TestAllocator *  );
     TEST(bsl::allocator<char>    );
     TEST(EmptySTLAllocator2<char>);
-    TEST(TinySTLAllocator<char>  );
-    TEST(SmallSTLAllocator<char> );
-    TEST(MediumSTLAllocator<char>);
-    TEST(LargeSTLAllocator<char> );
+    TEST(StatefulAllocator<char> );
+    TEST(StatefulAllocator2<char>);
 
     ASSERT(originalAllocMonitor.isInUseSame());
 
@@ -2088,10 +2134,8 @@ void testMoveCtor(FUNC func, const char *sourceAllocName)
     TEST(bslma::TestAllocator *  );
     TEST(bsl::allocator<char>    );
     TEST(EmptySTLAllocator2<char>);
-    TEST(TinySTLAllocator<char>  );
-    TEST(SmallSTLAllocator<char> );
-    TEST(MediumSTLAllocator<char>);
-    TEST(LargeSTLAllocator<char> );
+    TEST(StatefulAllocator<char> );
+    TEST(StatefulAllocator2<char>);
 
 #undef TEST
 
@@ -2906,19 +2950,20 @@ int main(int argc, char *argv[])
         { L_, Obj(F(V)), #F "(" #V ")" }
 
         TestData data[] = {
-            TEST_ITEM(SimpleFuncPtr_t      , nullFuncPtr       ),
-            TEST_ITEM(SimpleMemFuncPtr_t   , nullMemFuncPtr    ),
-            TEST_ITEM(SimpleFuncPtr_t      , simpleFunc        ),
-            TEST_ITEM(SimpleMemFuncPtr_t   , &IntWrapper::add1 ),
-            TEST_ITEM(EmptyFunctor         , 0                 ),
-            TEST_ITEM(SmallFunctor         , 0x2000            ),
-            TEST_ITEM(MediumFunctor        , 0x4000            ),
-            TEST_ITEM(LargeFunctor         , 0x6000            ),
-            TEST_ITEM(NothrowSmallFunctor  , 0x3000            ),
-            TEST_ITEM(ThrowingSmallFunctor , 0x7000            ),
-            TEST_ITEM(ThrowingEmptyFunctor , 0                 ),
-            TEST_ITEM(SmallFunctorWithAlloc, 0x2000            ),
-            TEST_ITEM(LargeFunctorWithAlloc, 0x1000            ),
+            TEST_ITEM(SimpleFuncPtr_t             , nullFuncPtr       ),
+            TEST_ITEM(SimpleMemFuncPtr_t          , nullMemFuncPtr    ),
+            TEST_ITEM(SimpleFuncPtr_t             , simpleFunc        ),
+            TEST_ITEM(SimpleMemFuncPtr_t          , &IntWrapper::add1 ),
+            TEST_ITEM(EmptyFunctor                , 0                 ),
+            TEST_ITEM(SmallFunctor                , 0x2000            ),
+            TEST_ITEM(MediumFunctor               , 0x4000            ),
+            TEST_ITEM(LargeFunctor                , 0x6000            ),
+            TEST_ITEM(NTSmallFunctor              , 0x3000            ),
+            TEST_ITEM(ThrowingSmallFunctor        , 0x7000            ),
+            TEST_ITEM(ThrowingEmptyFunctor        , 0                 ),
+            TEST_ITEM(SmallFunctorWithAlloc       , 0x2000            ),
+            TEST_ITEM(NTSmallFunctorWithAlloc     , 0x2000            ),
+            TEST_ITEM(LargeFunctorWithAlloc       , 0x1000            ),
         };
 
         const int dataSize = sizeof(data) / sizeof(data[0]);
@@ -2933,127 +2978,112 @@ int main(int argc, char *argv[])
             const char* funcName       = data[i].d_funcName;
 
             if (veryVerbose) printf("Assign %s = nullFuncPtr\n", funcName);
-            TEST(bslma::TestAllocator *,   nullFuncPtr          );
-            TEST(bsl::allocator<char>,     nullFuncPtr          );
-            TEST(EmptySTLAllocator<char>,  nullFuncPtr          );
-            TEST(TinySTLAllocator<char>,   nullFuncPtr          );
-            TEST(SmallSTLAllocator<char>,  nullFuncPtr          );
-            TEST(MediumSTLAllocator<char>, nullFuncPtr          );
-            TEST(LargeSTLAllocator<char>,  nullFuncPtr          );
+            TEST(bslma::TestAllocator *  , nullFuncPtr          );
+            TEST(bsl::allocator<char>    , nullFuncPtr          );
+            TEST(EmptySTLAllocator<char> , nullFuncPtr          );
+            TEST(StatefulAllocator<char> , nullFuncPtr          );
+            TEST(StatefulAllocator2<char>, nullFuncPtr          );
 
             if (veryVerbose) printf("Assign %s = nullMemFuncPtr\n", funcName);
-            TEST(bslma::TestAllocator *,   nullMemFuncPtr       );
-            TEST(bsl::allocator<char>,     nullMemFuncPtr       );
-            TEST(EmptySTLAllocator<char>,  nullMemFuncPtr       );
-            TEST(TinySTLAllocator<char>,   nullMemFuncPtr       );
-            TEST(SmallSTLAllocator<char>,  nullMemFuncPtr       );
-            TEST(MediumSTLAllocator<char>, nullMemFuncPtr       );
-            TEST(LargeSTLAllocator<char>,  nullMemFuncPtr       );
+            TEST(bslma::TestAllocator *  , nullMemFuncPtr       );
+            TEST(bsl::allocator<char>    , nullMemFuncPtr       );
+            TEST(EmptySTLAllocator<char> , nullMemFuncPtr       );
+            TEST(StatefulAllocator<char> , nullMemFuncPtr       );
+            TEST(StatefulAllocator2<char>, nullMemFuncPtr       );
 
             if (veryVerbose) printf("Assign %s = simpleFunc\n", funcName);
-            TEST(bslma::TestAllocator *,   simpleFunc           );
-            TEST(bsl::allocator<char>,     simpleFunc           );
-            TEST(EmptySTLAllocator<char>,  simpleFunc           );
-            TEST(TinySTLAllocator<char>,   simpleFunc           );
-            TEST(SmallSTLAllocator<char>,  simpleFunc           );
-            TEST(MediumSTLAllocator<char>, simpleFunc           );
-            TEST(LargeSTLAllocator<char>,  simpleFunc           );
+            TEST(bslma::TestAllocator *  , simpleFunc           );
+            TEST(bsl::allocator<char>    , simpleFunc           );
+            TEST(EmptySTLAllocator<char> , simpleFunc           );
+            TEST(StatefulAllocator<char> , simpleFunc           );
+            TEST(StatefulAllocator2<char>, simpleFunc           );
 
             if (veryVerbose) printf("Assign %s = &IntWrapper::add1\n",
                                     funcName);
-            TEST(bslma::TestAllocator *,   &IntWrapper::add1    );
-            TEST(bsl::allocator<char>,     &IntWrapper::add1    );
-            TEST(EmptySTLAllocator<char>,  &IntWrapper::add1    );
-            TEST(TinySTLAllocator<char>,   &IntWrapper::add1    );
-            TEST(SmallSTLAllocator<char>,  &IntWrapper::add1    );
-            TEST(MediumSTLAllocator<char>, &IntWrapper::add1    );
-            TEST(LargeSTLAllocator<char>,  &IntWrapper::add1    );
+            TEST(bslma::TestAllocator *  , &IntWrapper::add1    );
+            TEST(bsl::allocator<char>    , &IntWrapper::add1    );
+            TEST(EmptySTLAllocator<char> , &IntWrapper::add1    );
+            TEST(StatefulAllocator<char> , &IntWrapper::add1    );
+            TEST(StatefulAllocator2<char>, &IntWrapper::add1    );
 
             if (veryVerbose) printf("Assign %s = EmptyFunctor()\n", funcName);
-            TEST(bslma::TestAllocator *,   EmptyFunctor()       );
-            TEST(bsl::allocator<char>,     EmptyFunctor()       );
-            TEST(EmptySTLAllocator<char>,  EmptyFunctor()       );
-            TEST(TinySTLAllocator<char>,   EmptyFunctor()       );
-            TEST(SmallSTLAllocator<char>,  EmptyFunctor()       );
-            TEST(MediumSTLAllocator<char>, EmptyFunctor()       );
-            TEST(LargeSTLAllocator<char>,  EmptyFunctor()       );
+            TEST(bslma::TestAllocator *  , EmptyFunctor()       );
+            TEST(bsl::allocator<char>    , EmptyFunctor()       );
+            TEST(EmptySTLAllocator<char> , EmptyFunctor()       );
+            TEST(StatefulAllocator<char> , EmptyFunctor()       );
+            TEST(StatefulAllocator2<char>, EmptyFunctor()       );
 
             if (veryVerbose) printf("Assign %s = SmallFunctor(0x2000)\n",
                                     funcName);
-            TEST(bslma::TestAllocator *,   SmallFunctor(0x2000) );
-            TEST(bsl::allocator<char>,     SmallFunctor(0x2000) );
-            TEST(EmptySTLAllocator<char>,  SmallFunctor(0x2000) );
-            TEST(TinySTLAllocator<char>,   SmallFunctor(0x2000) );
-            TEST(SmallSTLAllocator<char>,  SmallFunctor(0x2000) );
-            TEST(MediumSTLAllocator<char>, SmallFunctor(0x2000) );
-            TEST(LargeSTLAllocator<char>,  SmallFunctor(0x2000) );
+            TEST(bslma::TestAllocator *  , SmallFunctor(0x2000) );
+            TEST(bsl::allocator<char>    , SmallFunctor(0x2000) );
+            TEST(EmptySTLAllocator<char> , SmallFunctor(0x2000) );
+            TEST(StatefulAllocator<char> , SmallFunctor(0x2000) );
+            TEST(StatefulAllocator2<char>, SmallFunctor(0x2000) );
 
             if (veryVerbose) printf("Assign %s = MediumFunctor(0x4000)\n",
                                     funcName);
-            TEST(bslma::TestAllocator *,   MediumFunctor(0x4000));
-            TEST(bsl::allocator<char>,     MediumFunctor(0x4000));
-            TEST(EmptySTLAllocator<char>,  MediumFunctor(0x4000));
-            TEST(TinySTLAllocator<char>,   MediumFunctor(0x4000));
-            TEST(SmallSTLAllocator<char>,  MediumFunctor(0x4000));
-            TEST(MediumSTLAllocator<char>, MediumFunctor(0x4000));
-            TEST(LargeSTLAllocator<char>,  MediumFunctor(0x4000));
+            TEST(bslma::TestAllocator *  , MediumFunctor(0x4000));
+            TEST(bsl::allocator<char>    , MediumFunctor(0x4000));
+            TEST(EmptySTLAllocator<char> , MediumFunctor(0x4000));
+            TEST(StatefulAllocator<char> , MediumFunctor(0x4000));
+            TEST(StatefulAllocator2<char>, MediumFunctor(0x4000));
 
             if (veryVerbose) printf("Assign %s = LargeFunctor(0x6000)\n",
                                     funcName);
-            TEST(bslma::TestAllocator *,   LargeFunctor(0x6000) );
-            TEST(bsl::allocator<char>,     LargeFunctor(0x6000) );
-            TEST(EmptySTLAllocator<char>,  LargeFunctor(0x6000) );
-            TEST(TinySTLAllocator<char>,   LargeFunctor(0x6000) );
-            TEST(SmallSTLAllocator<char>,  LargeFunctor(0x6000) );
-            TEST(MediumSTLAllocator<char>, LargeFunctor(0x6000) );
-            TEST(LargeSTLAllocator<char>,  LargeFunctor(0x6000) );
+            TEST(bslma::TestAllocator *  , LargeFunctor(0x6000) );
+            TEST(bsl::allocator<char>    , LargeFunctor(0x6000) );
+            TEST(EmptySTLAllocator<char> , LargeFunctor(0x6000) );
+            TEST(StatefulAllocator<char> , LargeFunctor(0x6000) );
+            TEST(StatefulAllocator2<char>, LargeFunctor(0x6000) );
 
-            if (veryVerbose) printf("Assign %s = NothrowSmallFunctor(0x3000)\n",
+            if (veryVerbose) printf("Assign %s = NTSmallFunctor(0x3000)\n",
                                     funcName);
-            TEST(bslma::TestAllocator *  , NothrowSmallFunctor(0x3000));
-            TEST(bsl::allocator<char>    , NothrowSmallFunctor(0x3000));
-            TEST(EmptySTLAllocator<char> , NothrowSmallFunctor(0x3000));
-            TEST(TinySTLAllocator<char>  , NothrowSmallFunctor(0x3000));
-            TEST(SmallSTLAllocator<char> , NothrowSmallFunctor(0x3000));
-            TEST(MediumSTLAllocator<char>, NothrowSmallFunctor(0x3000));
-            TEST(LargeSTLAllocator<char> , NothrowSmallFunctor(0x3000));
+            TEST(bslma::TestAllocator *  , NTSmallFunctor(0x3000));
+            TEST(bsl::allocator<char>    , NTSmallFunctor(0x3000));
+            TEST(EmptySTLAllocator<char> , NTSmallFunctor(0x3000));
+            TEST(StatefulAllocator<char> , NTSmallFunctor(0x3000));
+            TEST(StatefulAllocator2<char>, NTSmallFunctor(0x3000));
 
             if (veryVerbose) printf("Assign %s = ThrowingSmallFunctor(0x7000)"
                                     "\n", funcName);
             TEST(bslma::TestAllocator *  , ThrowingSmallFunctor(0x7000));
             TEST(bsl::allocator<char>    , ThrowingSmallFunctor(0x7000));
             TEST(EmptySTLAllocator<char> , ThrowingSmallFunctor(0x7000));
-            TEST(TinySTLAllocator<char>  , ThrowingSmallFunctor(0x7000));
-            TEST(SmallSTLAllocator<char> , ThrowingSmallFunctor(0x7000));
-            TEST(MediumSTLAllocator<char>, ThrowingSmallFunctor(0x7000));
-            TEST(LargeSTLAllocator<char> , ThrowingSmallFunctor(0x7000));
+            TEST(StatefulAllocator<char> , ThrowingSmallFunctor(0x7000));
+            TEST(StatefulAllocator2<char>, ThrowingSmallFunctor(0x7000));
 
             if (veryVerbose) printf("Assign %s = ThrowingEmptyFunctor()\n",
                                     funcName);
             TEST(bslma::TestAllocator *  , ThrowingEmptyFunctor()     );
-            TEST(LargeSTLAllocator<char> , ThrowingEmptyFunctor()     );
+            TEST(StatefulAllocator2<char>, ThrowingEmptyFunctor()     );
 
             if (veryVerbose) printf("Assign %s = "
                                     "SmallFunctorWithAlloc(0x2000)\n",
                                     funcName);
-            TEST(bslma::TestAllocator *,   SmallFunctorWithAlloc(0x2000) );
-            TEST(bsl::allocator<char>,     SmallFunctorWithAlloc(0x2000) );
-            TEST(EmptySTLAllocator<char>,  SmallFunctorWithAlloc(0x2000) );
-            TEST(TinySTLAllocator<char>,   SmallFunctorWithAlloc(0x2000) );
-            TEST(SmallSTLAllocator<char>,  SmallFunctorWithAlloc(0x2000) );
-            TEST(MediumSTLAllocator<char>, SmallFunctorWithAlloc(0x2000) );
-            TEST(LargeSTLAllocator<char>,  SmallFunctorWithAlloc(0x2000) );
+            TEST(bslma::TestAllocator *  , SmallFunctorWithAlloc(0x2000) );
+            TEST(bsl::allocator<char>    , SmallFunctorWithAlloc(0x2000) );
+            TEST(EmptySTLAllocator<char> , SmallFunctorWithAlloc(0x2000) );
+            TEST(StatefulAllocator<char> , SmallFunctorWithAlloc(0x2000) );
+            TEST(StatefulAllocator2<char>, SmallFunctorWithAlloc(0x2000) );
+
+            if (veryVerbose) printf("Assign %s = "
+                                    "NTSmallFunctorWithAlloc(0x2000)\n",
+                                    funcName);
+            TEST(bslma::TestAllocator *  , NTSmallFunctorWithAlloc(0x2000) );
+            TEST(bsl::allocator<char>    , NTSmallFunctorWithAlloc(0x2000) );
+            TEST(EmptySTLAllocator<char> , NTSmallFunctorWithAlloc(0x2000) );
+            TEST(StatefulAllocator<char> , NTSmallFunctorWithAlloc(0x2000) );
+            TEST(StatefulAllocator2<char>, NTSmallFunctorWithAlloc(0x2000) );
 
             if (veryVerbose) printf("Assign %s = "
                                     "LargeFunctorWithAlloc(0x2000)\n",
                                     funcName);
-            TEST(bslma::TestAllocator *,   LargeFunctorWithAlloc(0x2000) );
-            TEST(bsl::allocator<char>,     LargeFunctorWithAlloc(0x2000) );
-            TEST(EmptySTLAllocator<char>,  LargeFunctorWithAlloc(0x2000) );
-            TEST(TinySTLAllocator<char>,   LargeFunctorWithAlloc(0x2000) );
-            TEST(SmallSTLAllocator<char>,  LargeFunctorWithAlloc(0x2000) );
-            TEST(MediumSTLAllocator<char>, LargeFunctorWithAlloc(0x2000) );
-            TEST(LargeSTLAllocator<char>,  LargeFunctorWithAlloc(0x2000) );
+            TEST(bslma::TestAllocator *  , LargeFunctorWithAlloc(0x2000) );
+            TEST(bsl::allocator<char>    , LargeFunctorWithAlloc(0x2000) );
+            TEST(EmptySTLAllocator<char> , LargeFunctorWithAlloc(0x2000) );
+            TEST(StatefulAllocator<char> , LargeFunctorWithAlloc(0x2000) );
+            TEST(StatefulAllocator2<char>, LargeFunctorWithAlloc(0x2000) );
 
         } // end for (each array item)
 
@@ -3128,19 +3158,20 @@ int main(int argc, char *argv[])
         { L_, Obj(F(V)), #F "(" #V ")" }
 
         TestData data[] = {
-            TEST_ITEM(SimpleFuncPtr_t      , nullFuncPtr       ),
-            TEST_ITEM(SimpleMemFuncPtr_t   , nullMemFuncPtr    ),
-            TEST_ITEM(SimpleFuncPtr_t      , simpleFunc        ),
-            TEST_ITEM(SimpleMemFuncPtr_t   , &IntWrapper::add1 ),
-            TEST_ITEM(EmptyFunctor         , 0                 ),
-            TEST_ITEM(SmallFunctor         , 0x2000            ),
-            TEST_ITEM(MediumFunctor        , 0x4000            ),
-            TEST_ITEM(LargeFunctor         , 0x6000            ),
-            TEST_ITEM(NothrowSmallFunctor  , 0x3000            ),
-            TEST_ITEM(ThrowingSmallFunctor , 0x7000            ),
-            TEST_ITEM(ThrowingEmptyFunctor , 0                 ),
-            TEST_ITEM(SmallFunctorWithAlloc, 0x2000            ),
-            TEST_ITEM(LargeFunctorWithAlloc, 0x1000            ),
+            TEST_ITEM(SimpleFuncPtr_t        , nullFuncPtr       ),
+            TEST_ITEM(SimpleMemFuncPtr_t     , nullMemFuncPtr    ),
+            TEST_ITEM(SimpleFuncPtr_t        , simpleFunc        ),
+            TEST_ITEM(SimpleMemFuncPtr_t     , &IntWrapper::add1 ),
+            TEST_ITEM(EmptyFunctor           , 0                 ),
+            TEST_ITEM(SmallFunctor           , 0x2000            ),
+            TEST_ITEM(MediumFunctor          , 0x4000            ),
+            TEST_ITEM(LargeFunctor           , 0x6000            ),
+            TEST_ITEM(NTSmallFunctor         , 0x3000            ),
+            TEST_ITEM(ThrowingSmallFunctor   , 0x7000            ),
+            TEST_ITEM(ThrowingEmptyFunctor   , 0                 ),
+            TEST_ITEM(SmallFunctorWithAlloc  , 0x2000            ),
+            TEST_ITEM(NTSmallFunctorWithAlloc, 0x2000            ),
+            TEST_ITEM(LargeFunctorWithAlloc  , 0x1000            ),
         };
         
 #undef TEST_ITEM
@@ -3162,10 +3193,8 @@ int main(int argc, char *argv[])
             TEST(bslma::TestAllocator *  );
             TEST(bsl::allocator<char>    );
             TEST(EmptySTLAllocator<char> );
-            TEST(TinySTLAllocator<char>  );
-            TEST(SmallSTLAllocator<char> );
-            TEST(MediumSTLAllocator<char>);
-            TEST(LargeSTLAllocator<char> );
+            TEST(StatefulAllocator<char> );
+            TEST(StatefulAllocator2<char>);
 
         } // end for (each function in data array)
 
@@ -3292,37 +3321,39 @@ int main(int argc, char *argv[])
         { L_, Obj(F(V)), #F "(" #V ")", &AreEqualFunctions<F> }
 
         TestData dataA[] = {
-            TEST_ITEM(SimpleFuncPtr_t      , nullFuncPtr       ),
-            TEST_ITEM(SimpleMemFuncPtr_t   , nullMemFuncPtr    ),
-            TEST_ITEM(SimpleFuncPtr_t      , simpleFunc        ),
-            TEST_ITEM(SimpleMemFuncPtr_t   , &IntWrapper::add1 ),
-            TEST_ITEM(EmptyFunctor         , 0                 ),
-            TEST_ITEM(SmallFunctor         , 0x2000            ),
-            TEST_ITEM(MediumFunctor        , 0x4000            ),
-            TEST_ITEM(LargeFunctor         , 0x6000            ),
-            TEST_ITEM(NothrowSmallFunctor  , 0x3000            ),
-            TEST_ITEM(ThrowingSmallFunctor , 0x7000            ),
-            TEST_ITEM(ThrowingEmptyFunctor , 0                 ),
-            TEST_ITEM(SmallFunctorWithAlloc, 0x2000            ),
-            TEST_ITEM(LargeFunctorWithAlloc, 0x1000            ),
+            TEST_ITEM(SimpleFuncPtr_t        , nullFuncPtr       ),
+            TEST_ITEM(SimpleMemFuncPtr_t     , nullMemFuncPtr    ),
+            TEST_ITEM(SimpleFuncPtr_t        , simpleFunc        ),
+            TEST_ITEM(SimpleMemFuncPtr_t     , &IntWrapper::add1 ),
+            TEST_ITEM(EmptyFunctor           , 0                 ),
+            TEST_ITEM(SmallFunctor           , 0x2000            ),
+            TEST_ITEM(MediumFunctor          , 0x4000            ),
+            TEST_ITEM(LargeFunctor           , 0x6000            ),
+            TEST_ITEM(NTSmallFunctor         , 0x3000            ),
+            TEST_ITEM(ThrowingSmallFunctor   , 0x7000            ),
+            TEST_ITEM(ThrowingEmptyFunctor   , 0                 ),
+            TEST_ITEM(SmallFunctorWithAlloc  , 0x2000            ),
+            TEST_ITEM(NTSmallFunctorWithAlloc, 0x2000            ),
+            TEST_ITEM(LargeFunctorWithAlloc  , 0x1000            ),
         };
 
         int dataASize = sizeof(dataA) / sizeof(TestData);
 
         TestData dataB[] = {
-            TEST_ITEM(SimpleFuncPtr_t      , nullFuncPtr       ),
-            TEST_ITEM(SimpleMemFuncPtr_t   , nullMemFuncPtr    ),
-            TEST_ITEM(SimpleFuncPtr_t      , simpleFunc2       ),
-            TEST_ITEM(SimpleMemFuncPtr_t   , &IntWrapper::sub1 ),
-            TEST_ITEM(EmptyFunctor         , 0                 ),
-            TEST_ITEM(SmallFunctor         , 0x3000            ),
-            TEST_ITEM(MediumFunctor        , 0x5000            ),
-            TEST_ITEM(LargeFunctor         , 0x7000            ),
-            TEST_ITEM(NothrowSmallFunctor  , 0x4000            ),
-            TEST_ITEM(ThrowingSmallFunctor , 0x6000            ),
-            TEST_ITEM(ThrowingEmptyFunctor , 0                 ),
-            TEST_ITEM(SmallFunctorWithAlloc, 0x1000            ),
-            TEST_ITEM(LargeFunctorWithAlloc, 0x2000            ),
+            TEST_ITEM(SimpleFuncPtr_t        , nullFuncPtr       ),
+            TEST_ITEM(SimpleMemFuncPtr_t     , nullMemFuncPtr    ),
+            TEST_ITEM(SimpleFuncPtr_t        , simpleFunc2       ),
+            TEST_ITEM(SimpleMemFuncPtr_t     , &IntWrapper::sub1 ),
+            TEST_ITEM(EmptyFunctor           , 0                 ),
+            TEST_ITEM(SmallFunctor           , 0x3000            ),
+            TEST_ITEM(MediumFunctor          , 0x5000            ),
+            TEST_ITEM(LargeFunctor           , 0x7000            ),
+            TEST_ITEM(NTSmallFunctor         , 0x4000            ),
+            TEST_ITEM(ThrowingSmallFunctor   , 0x6000            ),
+            TEST_ITEM(ThrowingEmptyFunctor   , 0                 ),
+            TEST_ITEM(SmallFunctorWithAlloc  , 0x1000            ),
+            TEST_ITEM(NTSmallFunctorWithAlloc, 0x1000            ),
+            TEST_ITEM(LargeFunctorWithAlloc  , 0x2000            ),
         };
 
 #undef TEST_ITEM
@@ -3352,12 +3383,10 @@ int main(int argc, char *argv[])
 
                 TEST(bslma::TestAllocator *  , bslma::TestAllocator *  );
                 TEST(bsl::allocator<char>    , EmptySTLAllocator<char> );
-                TEST(bslma::TestAllocator *  , SmallSTLAllocator<char> );
-                TEST(bsl::allocator<char>    , LargeSTLAllocator<char> );
+                TEST(bsl::allocator<char>    , StatefulAllocator2<char> );
                 TEST(EmptySTLAllocator<char> , EmptySTLAllocator2<char>);
-                TEST(MediumSTLAllocator<char>, MediumSTLAllocator<char>);
-                TEST(MediumSTLAllocator<char>, LargeSTLAllocator<char> );
-                TEST(LargeSTLAllocator<char> , LargeSTLAllocator<char> );
+                TEST(StatefulAllocator<char> , StatefulAllocator2<char> );
+                TEST(StatefulAllocator2<char>, StatefulAllocator2<char> );
 
             } // End for (each item in dataB)
         } // End for (each item in dataA)
@@ -3424,7 +3453,7 @@ int main(int argc, char *argv[])
         //: 4 For concern 5, reverse the call to member 'swap' in step 1 by
         //:   using free function 'bsl::swap'.
         //
-        // TESTING
+        // Testing
         //      void swap(function& other);
         //      void bsl::swap(function<RET(ARGS...)>& a,
         //                     function<RET(ARGS...)>& b);
@@ -3454,37 +3483,39 @@ int main(int argc, char *argv[])
         { L_, Obj(F(V)), #F "(" #V ")", &AreEqualFunctions<F> }
 
         TestData dataA[] = {
-            TEST_ITEM(SimpleFuncPtr_t      , nullFuncPtr       ),
-            TEST_ITEM(SimpleMemFuncPtr_t   , nullMemFuncPtr    ),
-            TEST_ITEM(SimpleFuncPtr_t      , simpleFunc        ),
-            TEST_ITEM(SimpleMemFuncPtr_t   , &IntWrapper::add1 ),
-            TEST_ITEM(EmptyFunctor         , 0                 ),
-            TEST_ITEM(SmallFunctor         , 0x2000            ),
-            TEST_ITEM(MediumFunctor        , 0x4000            ),
-            TEST_ITEM(LargeFunctor         , 0x6000            ),
-            TEST_ITEM(NothrowSmallFunctor  , 0x3000            ),
-            TEST_ITEM(ThrowingSmallFunctor , 0x7000            ),
-            TEST_ITEM(ThrowingEmptyFunctor , 0                 ),
-            TEST_ITEM(SmallFunctorWithAlloc, 0x1000            ),
-            TEST_ITEM(LargeFunctorWithAlloc, 0x2000            ),
+            TEST_ITEM(SimpleFuncPtr_t        , nullFuncPtr       ),
+            TEST_ITEM(SimpleMemFuncPtr_t     , nullMemFuncPtr    ),
+            TEST_ITEM(SimpleFuncPtr_t        , simpleFunc        ),
+            TEST_ITEM(SimpleMemFuncPtr_t     , &IntWrapper::add1 ),
+            TEST_ITEM(EmptyFunctor           , 0                 ),
+            TEST_ITEM(SmallFunctor           , 0x2000            ),
+            TEST_ITEM(MediumFunctor          , 0x4000            ),
+            TEST_ITEM(LargeFunctor           , 0x6000            ),
+            TEST_ITEM(NTSmallFunctor         , 0x3000            ),
+            TEST_ITEM(ThrowingSmallFunctor   , 0x7000            ),
+            TEST_ITEM(ThrowingEmptyFunctor   , 0                 ),
+            TEST_ITEM(SmallFunctorWithAlloc  , 0x1000            ),
+            TEST_ITEM(NTSmallFunctorWithAlloc, 0x1000            ),
+            TEST_ITEM(LargeFunctorWithAlloc  , 0x2000            ),
         };
 
         int dataASize = sizeof(dataA) / sizeof(TestData);
 
         TestData dataB[] = {
-            TEST_ITEM(SimpleFuncPtr_t      , nullFuncPtr       ),
-            TEST_ITEM(SimpleMemFuncPtr_t   , nullMemFuncPtr    ),
-            TEST_ITEM(SimpleFuncPtr_t      , simpleFunc2       ),
-            TEST_ITEM(SimpleMemFuncPtr_t   , &IntWrapper::sub1 ),
-            TEST_ITEM(EmptyFunctor         , 0                 ),
-            TEST_ITEM(SmallFunctor         , 0x3000            ),
-            TEST_ITEM(MediumFunctor        , 0x5000            ),
-            TEST_ITEM(LargeFunctor         , 0x7000            ),
-            TEST_ITEM(NothrowSmallFunctor  , 0x4000            ),
-            TEST_ITEM(ThrowingSmallFunctor , 0x6000            ),
-            TEST_ITEM(ThrowingEmptyFunctor , 0                 ),
-            TEST_ITEM(SmallFunctorWithAlloc, 0x2000            ),
-            TEST_ITEM(LargeFunctorWithAlloc, 0x1000            ),
+            TEST_ITEM(SimpleFuncPtr_t        , nullFuncPtr       ),
+            TEST_ITEM(SimpleMemFuncPtr_t     , nullMemFuncPtr    ),
+            TEST_ITEM(SimpleFuncPtr_t        , simpleFunc2       ),
+            TEST_ITEM(SimpleMemFuncPtr_t     , &IntWrapper::sub1 ),
+            TEST_ITEM(EmptyFunctor           , 0                 ),
+            TEST_ITEM(SmallFunctor           , 0x3000            ),
+            TEST_ITEM(MediumFunctor          , 0x5000            ),
+            TEST_ITEM(LargeFunctor           , 0x7000            ),
+            TEST_ITEM(NTSmallFunctor         , 0x4000            ),
+            TEST_ITEM(ThrowingSmallFunctor   , 0x6000            ),
+            TEST_ITEM(ThrowingEmptyFunctor   , 0                 ),
+            TEST_ITEM(SmallFunctorWithAlloc  , 0x2000            ),
+            TEST_ITEM(NTSmallFunctorWithAlloc, 0x2000            ),
+            TEST_ITEM(LargeFunctorWithAlloc  , 0x1000            ),
         };
 
 #undef TEST_ITEM
@@ -3512,10 +3543,8 @@ int main(int argc, char *argv[])
                 TEST(bslma::TestAllocator *  );
                 TEST(bsl::allocator<char>    );
                 TEST(EmptySTLAllocator<char> );
-                TEST(TinySTLAllocator<char>  );
-                TEST(SmallSTLAllocator<char> );
-                TEST(MediumSTLAllocator<char>);
-                TEST(LargeSTLAllocator<char> );
+                TEST(StatefulAllocator<char> );
+                TEST(StatefulAllocator2<char>);
 
             } // end for (each item in dataB)
         } // end for (each item in dataA)
@@ -3632,95 +3661,75 @@ int main(int argc, char *argv[])
         TEST(bslma::TestAllocator *,   nullFuncPtr          );
         TEST(bsl::allocator<char>,     nullFuncPtr          );
         TEST(EmptySTLAllocator<char>,  nullFuncPtr          );
-        TEST(TinySTLAllocator<char>,   nullFuncPtr          );
-        TEST(SmallSTLAllocator<char>,  nullFuncPtr          );
-        TEST(MediumSTLAllocator<char>, nullFuncPtr          );
-        TEST(LargeSTLAllocator<char>,  nullFuncPtr          );
+        TEST(StatefulAllocator<char>,  nullFuncPtr          );
+        TEST(StatefulAllocator2<char>, nullFuncPtr          );
 
         if (veryVerbose) std::printf("FUNC is nullMemFuncPtr\n");
         TEST(bslma::TestAllocator *,   nullMemFuncPtr       );
         TEST(bsl::allocator<char>,     nullMemFuncPtr       );
         TEST(EmptySTLAllocator<char>,  nullMemFuncPtr       );
-        TEST(TinySTLAllocator<char>,   nullMemFuncPtr       );
-        TEST(SmallSTLAllocator<char>,  nullMemFuncPtr       );
-        TEST(MediumSTLAllocator<char>, nullMemFuncPtr       );
-        TEST(LargeSTLAllocator<char>,  nullMemFuncPtr       );
+        TEST(StatefulAllocator<char>,  nullMemFuncPtr       );
+        TEST(StatefulAllocator2<char>, nullMemFuncPtr       );
 
         if (veryVerbose) std::printf("FUNC is simpleFunc\n");
         TEST(bslma::TestAllocator *,   simpleFunc           );
         TEST(bsl::allocator<char>,     simpleFunc           );
         TEST(EmptySTLAllocator<char>,  simpleFunc           );
-        TEST(TinySTLAllocator<char>,   simpleFunc           );
-        TEST(SmallSTLAllocator<char>,  simpleFunc           );
-        TEST(MediumSTLAllocator<char>, simpleFunc           );
-        TEST(LargeSTLAllocator<char>,  simpleFunc           );
+        TEST(StatefulAllocator<char>,  simpleFunc           );
+        TEST(StatefulAllocator2<char>, simpleFunc           );
 
         if (veryVerbose) std::printf("FUNC is &IntWrapper::add1\n");
         TEST(bslma::TestAllocator *,   &IntWrapper::add1    );
         TEST(bsl::allocator<char>,     &IntWrapper::add1    );
         TEST(EmptySTLAllocator<char>,  &IntWrapper::add1    );
-        TEST(TinySTLAllocator<char>,   &IntWrapper::add1    );
-        TEST(SmallSTLAllocator<char>,  &IntWrapper::add1    );
-        TEST(MediumSTLAllocator<char>, &IntWrapper::add1    );
-        TEST(LargeSTLAllocator<char>,  &IntWrapper::add1    );
+        TEST(StatefulAllocator<char>,  &IntWrapper::add1    );
+        TEST(StatefulAllocator2<char>, &IntWrapper::add1    );
 
         if (veryVerbose) std::printf("FUNC is EmptyFunctor()\n");
         TEST(bslma::TestAllocator *,   EmptyFunctor()       );
         TEST(bsl::allocator<char>,     EmptyFunctor()       );
         TEST(EmptySTLAllocator<char>,  EmptyFunctor()       );
-        TEST(TinySTLAllocator<char>,   EmptyFunctor()       );
-        TEST(SmallSTLAllocator<char>,  EmptyFunctor()       );
-        TEST(MediumSTLAllocator<char>, EmptyFunctor()       );
-        TEST(LargeSTLAllocator<char>,  EmptyFunctor()       );
+        TEST(StatefulAllocator<char>,  EmptyFunctor()       );
+        TEST(StatefulAllocator2<char>, EmptyFunctor()       );
 
         if (veryVerbose) std::printf("FUNC is SmallFunctor(0x2000)\n");
         TEST(bslma::TestAllocator *,   SmallFunctor(0x2000) );
         TEST(bsl::allocator<char>,     SmallFunctor(0x2000) );
         TEST(EmptySTLAllocator<char>,  SmallFunctor(0x2000) );
-        TEST(TinySTLAllocator<char>,   SmallFunctor(0x2000) );
-        TEST(SmallSTLAllocator<char>,  SmallFunctor(0x2000) );
-        TEST(MediumSTLAllocator<char>, SmallFunctor(0x2000) );
-        TEST(LargeSTLAllocator<char>,  SmallFunctor(0x2000) );
+        TEST(StatefulAllocator<char>,  SmallFunctor(0x2000) );
+        TEST(StatefulAllocator2<char>, SmallFunctor(0x2000) );
 
         if (veryVerbose) std::printf("FUNC is MediumFunctor(0x4000)\n");
         TEST(bslma::TestAllocator *,   MediumFunctor(0x4000));
         TEST(bsl::allocator<char>,     MediumFunctor(0x4000));
         TEST(EmptySTLAllocator<char>,  MediumFunctor(0x4000));
-        TEST(TinySTLAllocator<char>,   MediumFunctor(0x4000));
-        TEST(SmallSTLAllocator<char>,  MediumFunctor(0x4000));
-        TEST(MediumSTLAllocator<char>, MediumFunctor(0x4000));
-        TEST(LargeSTLAllocator<char>,  MediumFunctor(0x4000));
+        TEST(StatefulAllocator<char>,  MediumFunctor(0x4000));
+        TEST(StatefulAllocator2<char>, MediumFunctor(0x4000));
 
         if (veryVerbose) std::printf("FUNC is LargeFunctor(0x6000)\n");
         TEST(bslma::TestAllocator *,   LargeFunctor(0x6000) );
         TEST(bsl::allocator<char>,     LargeFunctor(0x6000) );
         TEST(EmptySTLAllocator<char>,  LargeFunctor(0x6000) );
-        TEST(TinySTLAllocator<char>,   LargeFunctor(0x6000) );
-        TEST(SmallSTLAllocator<char>,  LargeFunctor(0x6000) );
-        TEST(MediumSTLAllocator<char>, LargeFunctor(0x6000) );
-        TEST(LargeSTLAllocator<char>,  LargeFunctor(0x6000) );
+        TEST(StatefulAllocator<char>,  LargeFunctor(0x6000) );
+        TEST(StatefulAllocator2<char>, LargeFunctor(0x6000) );
 
-        if (veryVerbose) std::printf("FUNC is NothrowSmallFunctor(0x3000)\n");
-        TEST(bslma::TestAllocator *  , NothrowSmallFunctor(0x3000));
-        TEST(bsl::allocator<char>    , NothrowSmallFunctor(0x3000));
-        TEST(EmptySTLAllocator<char> , NothrowSmallFunctor(0x3000));
-        TEST(TinySTLAllocator<char>  , NothrowSmallFunctor(0x3000));
-        TEST(SmallSTLAllocator<char> , NothrowSmallFunctor(0x3000));
-        TEST(MediumSTLAllocator<char>, NothrowSmallFunctor(0x3000));
-        TEST(LargeSTLAllocator<char> , NothrowSmallFunctor(0x3000));
+        if (veryVerbose) std::printf("FUNC is NTSmallFunctor(0x3000)\n");
+        TEST(bslma::TestAllocator *  , NTSmallFunctor(0x3000));
+        TEST(bsl::allocator<char>    , NTSmallFunctor(0x3000));
+        TEST(EmptySTLAllocator<char> , NTSmallFunctor(0x3000));
+        TEST(StatefulAllocator<char> , NTSmallFunctor(0x3000));
+        TEST(StatefulAllocator2<char>, NTSmallFunctor(0x3000));
 
         if (veryVerbose) std::printf("FUNC is ThrowingSmallFunctor(0x7000)\n");
         TEST(bslma::TestAllocator *  , ThrowingSmallFunctor(0x7000));
         TEST(bsl::allocator<char>    , ThrowingSmallFunctor(0x7000));
         TEST(EmptySTLAllocator<char> , ThrowingSmallFunctor(0x7000));
-        TEST(TinySTLAllocator<char>  , ThrowingSmallFunctor(0x7000));
-        TEST(SmallSTLAllocator<char> , ThrowingSmallFunctor(0x7000));
-        TEST(MediumSTLAllocator<char>, ThrowingSmallFunctor(0x7000));
-        TEST(LargeSTLAllocator<char> , ThrowingSmallFunctor(0x7000));
+        TEST(StatefulAllocator<char> , ThrowingSmallFunctor(0x7000));
+        TEST(StatefulAllocator2<char>, ThrowingSmallFunctor(0x7000));
 
         if (veryVerbose) std::printf("FUNC is ThrowingEmptyFunctor()\n");
         TEST(bslma::TestAllocator *  , ThrowingEmptyFunctor()     );
-        TEST(LargeSTLAllocator<char> , ThrowingEmptyFunctor()     );
+        TEST(StatefulAllocator2<char> , ThrowingEmptyFunctor()     );
 
         bslma::TestAllocator xa;
 
@@ -3728,19 +3737,22 @@ int main(int argc, char *argv[])
         TEST(bslma::TestAllocator *  , SmallFunctorWithAlloc(0, &xa));
         TEST(bsl::allocator<char>    , SmallFunctorWithAlloc(0, &xa));
         TEST(EmptySTLAllocator<char> , SmallFunctorWithAlloc(0, &xa));
-        TEST(TinySTLAllocator<char>  , SmallFunctorWithAlloc(0, &xa));
-        TEST(SmallSTLAllocator<char> , SmallFunctorWithAlloc(0, &xa));
-        TEST(MediumSTLAllocator<char>, SmallFunctorWithAlloc(0, &xa));
-        TEST(LargeSTLAllocator<char> , SmallFunctorWithAlloc(0, &xa));
+        TEST(StatefulAllocator<char> , SmallFunctorWithAlloc(0, &xa));
+        TEST(StatefulAllocator2<char>, SmallFunctorWithAlloc(0, &xa));
+
+        if (veryVerbose) std::printf("FUNC is NTSmallFunctorWithAlloc(0)\n");
+        TEST(bslma::TestAllocator *  , NTSmallFunctorWithAlloc(0, &xa));
+        TEST(bsl::allocator<char>    , NTSmallFunctorWithAlloc(0, &xa));
+        TEST(EmptySTLAllocator<char> , NTSmallFunctorWithAlloc(0, &xa));
+        TEST(StatefulAllocator<char> , NTSmallFunctorWithAlloc(0, &xa));
+        TEST(StatefulAllocator2<char>, NTSmallFunctorWithAlloc(0, &xa));
 
         if (veryVerbose) std::printf("FUNC is LargeFunctorWithAlloc(0)\n");
         TEST(bslma::TestAllocator *  , LargeFunctorWithAlloc(0, &xa));
         TEST(bsl::allocator<char>    , LargeFunctorWithAlloc(0, &xa));
         TEST(EmptySTLAllocator<char> , LargeFunctorWithAlloc(0, &xa));
-        TEST(TinySTLAllocator<char>  , LargeFunctorWithAlloc(0, &xa));
-        TEST(SmallSTLAllocator<char> , LargeFunctorWithAlloc(0, &xa));
-        TEST(MediumSTLAllocator<char>, LargeFunctorWithAlloc(0, &xa));
-        TEST(LargeSTLAllocator<char> , LargeFunctorWithAlloc(0, &xa));
+        TEST(StatefulAllocator<char> , LargeFunctorWithAlloc(0, &xa));
+        TEST(StatefulAllocator2<char>, LargeFunctorWithAlloc(0, &xa));
 
 #undef TEST
 
@@ -3849,95 +3861,75 @@ int main(int argc, char *argv[])
         TEST(bslma::TestAllocator *,   nullFuncPtr          );
         TEST(bsl::allocator<char>,     nullFuncPtr          );
         TEST(EmptySTLAllocator<char>,  nullFuncPtr          );
-        TEST(TinySTLAllocator<char>,   nullFuncPtr          );
-        TEST(SmallSTLAllocator<char>,  nullFuncPtr          );
-        TEST(MediumSTLAllocator<char>, nullFuncPtr          );
-        TEST(LargeSTLAllocator<char>,  nullFuncPtr          );
+        TEST(StatefulAllocator<char>,  nullFuncPtr          );
+        TEST(StatefulAllocator2<char>, nullFuncPtr          );
 
         if (veryVerbose) std::printf("FUNC is nullMemFuncPtr\n");
         TEST(bslma::TestAllocator *,   nullMemFuncPtr       );
         TEST(bsl::allocator<char>,     nullMemFuncPtr       );
         TEST(EmptySTLAllocator<char>,  nullMemFuncPtr       );
-        TEST(TinySTLAllocator<char>,   nullMemFuncPtr       );
-        TEST(SmallSTLAllocator<char>,  nullMemFuncPtr       );
-        TEST(MediumSTLAllocator<char>, nullMemFuncPtr       );
-        TEST(LargeSTLAllocator<char>,  nullMemFuncPtr       );
+        TEST(StatefulAllocator<char>,  nullMemFuncPtr       );
+        TEST(StatefulAllocator2<char>, nullMemFuncPtr       );
 
         if (veryVerbose) std::printf("FUNC is simpleFunc\n");
         TEST(bslma::TestAllocator *,   simpleFunc           );
         TEST(bsl::allocator<char>,     simpleFunc           );
         TEST(EmptySTLAllocator<char>,  simpleFunc           );
-        TEST(TinySTLAllocator<char>,   simpleFunc           );
-        TEST(SmallSTLAllocator<char>,  simpleFunc           );
-        TEST(MediumSTLAllocator<char>, simpleFunc           );
-        TEST(LargeSTLAllocator<char>,  simpleFunc           );
+        TEST(StatefulAllocator<char>,  simpleFunc           );
+        TEST(StatefulAllocator2<char>, simpleFunc           );
 
         if (veryVerbose) std::printf("FUNC is &IntWrapper::add1\n");
         TEST(bslma::TestAllocator *,   &IntWrapper::add1    );
         TEST(bsl::allocator<char>,     &IntWrapper::add1    );
         TEST(EmptySTLAllocator<char>,  &IntWrapper::add1    );
-        TEST(TinySTLAllocator<char>,   &IntWrapper::add1    );
-        TEST(SmallSTLAllocator<char>,  &IntWrapper::add1    );
-        TEST(MediumSTLAllocator<char>, &IntWrapper::add1    );
-        TEST(LargeSTLAllocator<char>,  &IntWrapper::add1    );
+        TEST(StatefulAllocator<char>,  &IntWrapper::add1    );
+        TEST(StatefulAllocator2<char>, &IntWrapper::add1    );
 
         if (veryVerbose) std::printf("FUNC is EmptyFunctor()\n");
         TEST(bslma::TestAllocator *,   EmptyFunctor()       );
         TEST(bsl::allocator<char>,     EmptyFunctor()       );
         TEST(EmptySTLAllocator<char>,  EmptyFunctor()       );
-        TEST(TinySTLAllocator<char>,   EmptyFunctor()       );
-        TEST(SmallSTLAllocator<char>,  EmptyFunctor()       );
-        TEST(MediumSTLAllocator<char>, EmptyFunctor()       );
-        TEST(LargeSTLAllocator<char>,  EmptyFunctor()       );
+        TEST(StatefulAllocator<char>,  EmptyFunctor()       );
+        TEST(StatefulAllocator2<char>, EmptyFunctor()       );
 
         if (veryVerbose) std::printf("FUNC is SmallFunctor(0x2000)\n");
         TEST(bslma::TestAllocator *,   SmallFunctor(0x2000) );
         TEST(bsl::allocator<char>,     SmallFunctor(0x2000) );
         TEST(EmptySTLAllocator<char>,  SmallFunctor(0x2000) );
-        TEST(TinySTLAllocator<char>,   SmallFunctor(0x2000) );
-        TEST(SmallSTLAllocator<char>,  SmallFunctor(0x2000) );
-        TEST(MediumSTLAllocator<char>, SmallFunctor(0x2000) );
-        TEST(LargeSTLAllocator<char>,  SmallFunctor(0x2000) );
+        TEST(StatefulAllocator<char>,  SmallFunctor(0x2000) );
+        TEST(StatefulAllocator2<char>, SmallFunctor(0x2000) );
 
         if (veryVerbose) std::printf("FUNC is MediumFunctor(0x4000)\n");
         TEST(bslma::TestAllocator *,   MediumFunctor(0x4000));
         TEST(bsl::allocator<char>,     MediumFunctor(0x4000));
         TEST(EmptySTLAllocator<char>,  MediumFunctor(0x4000));
-        TEST(TinySTLAllocator<char>,   MediumFunctor(0x4000));
-        TEST(SmallSTLAllocator<char>,  MediumFunctor(0x4000));
-        TEST(MediumSTLAllocator<char>, MediumFunctor(0x4000));
-        TEST(LargeSTLAllocator<char>,  MediumFunctor(0x4000));
+        TEST(StatefulAllocator<char>,  MediumFunctor(0x4000));
+        TEST(StatefulAllocator2<char>, MediumFunctor(0x4000));
 
         if (veryVerbose) std::printf("FUNC is LargeFunctor(0x6000)\n");
         TEST(bslma::TestAllocator *,   LargeFunctor(0x6000) );
         TEST(bsl::allocator<char>,     LargeFunctor(0x6000) );
         TEST(EmptySTLAllocator<char>,  LargeFunctor(0x6000) );
-        TEST(TinySTLAllocator<char>,   LargeFunctor(0x6000) );
-        TEST(SmallSTLAllocator<char>,  LargeFunctor(0x6000) );
-        TEST(MediumSTLAllocator<char>, LargeFunctor(0x6000) );
-        TEST(LargeSTLAllocator<char>,  LargeFunctor(0x6000) );
+        TEST(StatefulAllocator<char>,  LargeFunctor(0x6000) );
+        TEST(StatefulAllocator2<char>, LargeFunctor(0x6000) );
 
-        if (veryVerbose) std::printf("FUNC is NothrowSmallFunctor(0x3000)\n");
-        TEST(bslma::TestAllocator *  , NothrowSmallFunctor(0x3000));
-        TEST(bsl::allocator<char>    , NothrowSmallFunctor(0x3000));
-        TEST(EmptySTLAllocator<char> , NothrowSmallFunctor(0x3000));
-        TEST(TinySTLAllocator<char>  , NothrowSmallFunctor(0x3000));
-        TEST(SmallSTLAllocator<char> , NothrowSmallFunctor(0x3000));
-        TEST(MediumSTLAllocator<char>, NothrowSmallFunctor(0x3000));
-        TEST(LargeSTLAllocator<char> , NothrowSmallFunctor(0x3000));
+        if (veryVerbose) std::printf("FUNC is NTSmallFunctor(0x3000)\n");
+        TEST(bslma::TestAllocator *  , NTSmallFunctor(0x3000));
+        TEST(bsl::allocator<char>    , NTSmallFunctor(0x3000));
+        TEST(EmptySTLAllocator<char> , NTSmallFunctor(0x3000));
+        TEST(StatefulAllocator<char> , NTSmallFunctor(0x3000));
+        TEST(StatefulAllocator2<char>, NTSmallFunctor(0x3000));
 
         if (veryVerbose) std::printf("FUNC is ThrowingSmallFunctor(0x7000)\n");
         TEST(bslma::TestAllocator *  , ThrowingSmallFunctor(0x7000));
         TEST(bsl::allocator<char>    , ThrowingSmallFunctor(0x7000));
         TEST(EmptySTLAllocator<char> , ThrowingSmallFunctor(0x7000));
-        TEST(TinySTLAllocator<char>  , ThrowingSmallFunctor(0x7000));
-        TEST(SmallSTLAllocator<char> , ThrowingSmallFunctor(0x7000));
-        TEST(MediumSTLAllocator<char>, ThrowingSmallFunctor(0x7000));
-        TEST(LargeSTLAllocator<char> , ThrowingSmallFunctor(0x7000));
+        TEST(StatefulAllocator<char> , ThrowingSmallFunctor(0x7000));
+        TEST(StatefulAllocator2<char>, ThrowingSmallFunctor(0x7000));
 
         if (veryVerbose) std::printf("FUNC is ThrowingEmptyFunctor()\n");
         TEST(bslma::TestAllocator *  , ThrowingEmptyFunctor()     );
-        TEST(LargeSTLAllocator<char> , ThrowingEmptyFunctor()     );
+        TEST(StatefulAllocator2<char>, ThrowingEmptyFunctor()     );
 
         bslma::TestAllocator xa;
 
@@ -3945,19 +3937,22 @@ int main(int argc, char *argv[])
         TEST(bslma::TestAllocator *  , SmallFunctorWithAlloc(0, &xa));
         TEST(bsl::allocator<char>    , SmallFunctorWithAlloc(0, &xa));
         TEST(EmptySTLAllocator<char> , SmallFunctorWithAlloc(0, &xa));
-        TEST(TinySTLAllocator<char>  , SmallFunctorWithAlloc(0, &xa));
-        TEST(SmallSTLAllocator<char> , SmallFunctorWithAlloc(0, &xa));
-        TEST(MediumSTLAllocator<char>, SmallFunctorWithAlloc(0, &xa));
-        TEST(LargeSTLAllocator<char> , SmallFunctorWithAlloc(0, &xa));
+        TEST(StatefulAllocator<char> , SmallFunctorWithAlloc(0, &xa));
+        TEST(StatefulAllocator2<char>, SmallFunctorWithAlloc(0, &xa));
+
+        if (veryVerbose) std::printf("FUNC is NTSmallFunctorWithAlloc(0)\n");
+        TEST(bslma::TestAllocator *  , NTSmallFunctorWithAlloc(0, &xa));
+        TEST(bsl::allocator<char>    , NTSmallFunctorWithAlloc(0, &xa));
+        TEST(EmptySTLAllocator<char> , NTSmallFunctorWithAlloc(0, &xa));
+        TEST(StatefulAllocator<char> , NTSmallFunctorWithAlloc(0, &xa));
+        TEST(StatefulAllocator2<char>, NTSmallFunctorWithAlloc(0, &xa));
 
         if (veryVerbose) std::printf("FUNC is LargeFunctorWithAlloc(0)\n");
         TEST(bslma::TestAllocator *  , LargeFunctorWithAlloc(0, &xa));
         TEST(bsl::allocator<char>    , LargeFunctorWithAlloc(0, &xa));
         TEST(EmptySTLAllocator<char> , LargeFunctorWithAlloc(0, &xa));
-        TEST(TinySTLAllocator<char>  , LargeFunctorWithAlloc(0, &xa));
-        TEST(SmallSTLAllocator<char> , LargeFunctorWithAlloc(0, &xa));
-        TEST(MediumSTLAllocator<char>, LargeFunctorWithAlloc(0, &xa));
-        TEST(LargeSTLAllocator<char> , LargeFunctorWithAlloc(0, &xa));
+        TEST(StatefulAllocator<char> , LargeFunctorWithAlloc(0, &xa));
+        TEST(StatefulAllocator2<char>, LargeFunctorWithAlloc(0, &xa));
 
 #undef TEST
 
@@ -4114,86 +4109,64 @@ int main(int argc, char *argv[])
         TEST(bslma::TestAllocator *  , nullFuncPtr      , e_INPLACE_BOTH);
         TEST(bsl::allocator<char>    , nullFuncPtr      , e_INPLACE_BOTH);
         TEST(EmptySTLAllocator<char> , nullFuncPtr      , e_INPLACE_BOTH);
-        TEST(TinySTLAllocator<char>  , nullFuncPtr      , e_INPLACE_FUNC_ONLY);
-        TEST(SmallSTLAllocator<char> , nullFuncPtr      , e_INPLACE_FUNC_ONLY);
-        TEST(MediumSTLAllocator<char>, nullFuncPtr      , e_INPLACE_FUNC_ONLY);
-        TEST(LargeSTLAllocator<char> , nullFuncPtr      , e_INPLACE_FUNC_ONLY);
+        TEST(StatefulAllocator<char> , nullFuncPtr      , e_INPLACE_FUNC_ONLY);
+        TEST(StatefulAllocator2<char>, nullFuncPtr      , e_INPLACE_FUNC_ONLY);
 
         if (veryVerbose) std::printf("FUNC is nullMemFuncPtr\n");
         TEST(bslma::TestAllocator *  , nullMemFuncPtr   , e_INPLACE_BOTH);
         TEST(bsl::allocator<char>    , nullMemFuncPtr   , e_INPLACE_BOTH);
         TEST(EmptySTLAllocator<char> , nullMemFuncPtr   , e_INPLACE_BOTH);
-        TEST(TinySTLAllocator<char>  , nullMemFuncPtr   , e_INPLACE_FUNC_ONLY);
-        TEST(SmallSTLAllocator<char> , nullMemFuncPtr   , e_INPLACE_FUNC_ONLY);
-        TEST(MediumSTLAllocator<char>, nullMemFuncPtr   , e_INPLACE_FUNC_ONLY);
-        TEST(LargeSTLAllocator<char> , nullMemFuncPtr   , e_INPLACE_FUNC_ONLY);
+        TEST(StatefulAllocator<char> , nullMemFuncPtr   , e_INPLACE_FUNC_ONLY);
+        TEST(StatefulAllocator2<char>, nullMemFuncPtr   , e_INPLACE_FUNC_ONLY);
 
         if (veryVerbose) std::printf("FUNC is simpleFunc\n");
         TEST(bslma::TestAllocator *  , simpleFunc       , e_INPLACE_BOTH);
         TEST(bsl::allocator<char>    , simpleFunc       , e_INPLACE_BOTH);
         TEST(EmptySTLAllocator<char> , simpleFunc       , e_INPLACE_BOTH);
-        TEST(TinySTLAllocator<char>  , simpleFunc       , e_INPLACE_FUNC_ONLY);
-        TEST(SmallSTLAllocator<char> , simpleFunc       , e_INPLACE_FUNC_ONLY);
-        TEST(MediumSTLAllocator<char>, simpleFunc       , e_INPLACE_FUNC_ONLY);
-        TEST(LargeSTLAllocator<char> , simpleFunc       , e_INPLACE_FUNC_ONLY);
+        TEST(StatefulAllocator<char> , simpleFunc       , e_INPLACE_FUNC_ONLY);
+        TEST(StatefulAllocator2<char>, simpleFunc       , e_INPLACE_FUNC_ONLY);
 
         if (veryVerbose) std::printf("FUNC is &IntWrapper::add1\n");
         TEST(bslma::TestAllocator *  , &IntWrapper::add1, e_INPLACE_BOTH);
         TEST(bsl::allocator<char>    , &IntWrapper::add1, e_INPLACE_BOTH);
         TEST(EmptySTLAllocator<char> , &IntWrapper::add1, e_INPLACE_BOTH);
-        TEST(TinySTLAllocator<char>  , &IntWrapper::add1, e_INPLACE_FUNC_ONLY);
-        TEST(SmallSTLAllocator<char> , &IntWrapper::add1, e_INPLACE_FUNC_ONLY);
-        TEST(MediumSTLAllocator<char>, &IntWrapper::add1, e_INPLACE_FUNC_ONLY);
-        TEST(LargeSTLAllocator<char> , &IntWrapper::add1, e_INPLACE_FUNC_ONLY);
+        TEST(StatefulAllocator<char> , &IntWrapper::add1, e_INPLACE_FUNC_ONLY);
+        TEST(StatefulAllocator2<char>, &IntWrapper::add1, e_INPLACE_FUNC_ONLY);
 
         if (veryVerbose) std::printf("FUNC is EmptyFunctor()\n");
         TEST(bslma::TestAllocator *  , EmptyFunctor()   , e_INPLACE_BOTH);
         TEST(bsl::allocator<char>    , EmptyFunctor()   , e_INPLACE_BOTH);
         TEST(EmptySTLAllocator<char> , EmptyFunctor()   , e_INPLACE_BOTH);
-        TEST(TinySTLAllocator<char>  , EmptyFunctor()   , e_INPLACE_FUNC_ONLY);
-        TEST(SmallSTLAllocator<char> , EmptyFunctor()   , e_INPLACE_FUNC_ONLY);
-        TEST(MediumSTLAllocator<char>, EmptyFunctor()   , e_INPLACE_FUNC_ONLY);
-        TEST(LargeSTLAllocator<char> , EmptyFunctor()   , e_INPLACE_FUNC_ONLY);
+        TEST(StatefulAllocator<char> , EmptyFunctor()   , e_INPLACE_FUNC_ONLY);
+        TEST(StatefulAllocator2<char>, EmptyFunctor()   , e_INPLACE_FUNC_ONLY);
 
         if (veryVerbose) std::printf("FUNC is SmallFunctor(0)\n");
         TEST(bslma::TestAllocator *  , SmallFunctor(0)  , e_INPLACE_BOTH);
         TEST(bsl::allocator<char>    , SmallFunctor(0)  , e_INPLACE_BOTH);
         TEST(EmptySTLAllocator<char> , SmallFunctor(0)  , e_INPLACE_BOTH);
-        TEST(TinySTLAllocator<char>  , SmallFunctor(0)  , e_INPLACE_FUNC_ONLY);
-        TEST(SmallSTLAllocator<char> , SmallFunctor(0)  , e_INPLACE_FUNC_ONLY);
-        TEST(MediumSTLAllocator<char>, SmallFunctor(0)  , e_INPLACE_FUNC_ONLY);
-        TEST(LargeSTLAllocator<char> , SmallFunctor(0)  , e_INPLACE_FUNC_ONLY);
+        TEST(StatefulAllocator<char> , SmallFunctor(0)  , e_INPLACE_FUNC_ONLY);
+        TEST(StatefulAllocator2<char>, SmallFunctor(0)  , e_INPLACE_FUNC_ONLY);
 
         if (veryVerbose) std::printf("FUNC is MediumFunctor(0)\n");
         TEST(bslma::TestAllocator *  , MediumFunctor(0) , e_INPLACE_BOTH);
         TEST(bsl::allocator<char>    , MediumFunctor(0) , e_INPLACE_BOTH);
         TEST(EmptySTLAllocator<char> , MediumFunctor(0) , e_INPLACE_BOTH);
-        TEST(TinySTLAllocator<char>  , MediumFunctor(0) , e_INPLACE_FUNC_ONLY);
-        TEST(SmallSTLAllocator<char> , MediumFunctor(0) , e_INPLACE_FUNC_ONLY);
-        TEST(MediumSTLAllocator<char>, MediumFunctor(0) , e_INPLACE_FUNC_ONLY);
-        TEST(LargeSTLAllocator<char> , MediumFunctor(0) , e_INPLACE_FUNC_ONLY);
+        TEST(StatefulAllocator<char> , MediumFunctor(0) , e_INPLACE_FUNC_ONLY);
+        TEST(StatefulAllocator2<char>, MediumFunctor(0) , e_INPLACE_FUNC_ONLY);
 
         if (veryVerbose) std::printf("FUNC is LargeFunctor(0)\n");
         TEST(bslma::TestAllocator *  , LargeFunctor(0)  , e_OUTOFPLACE_BOTH);
         TEST(bsl::allocator<char>    , LargeFunctor(0)  , e_OUTOFPLACE_BOTH);
         TEST(EmptySTLAllocator<char> , LargeFunctor(0)  , e_OUTOFPLACE_BOTH);
-        TEST(TinySTLAllocator<char>  , LargeFunctor(0)  , e_OUTOFPLACE_BOTH);
-        TEST(SmallSTLAllocator<char> , LargeFunctor(0)  , e_OUTOFPLACE_BOTH);
-        TEST(MediumSTLAllocator<char>, LargeFunctor(0)  , e_OUTOFPLACE_BOTH);
-        TEST(LargeSTLAllocator<char> , LargeFunctor(0)  , e_OUTOFPLACE_BOTH);
+        TEST(StatefulAllocator<char> , LargeFunctor(0)  , e_OUTOFPLACE_BOTH);
+        TEST(StatefulAllocator2<char>, LargeFunctor(0)  , e_OUTOFPLACE_BOTH);
 
-        if (veryVerbose) std::printf("FUNC is NothrowSmallFunctor(0)\n");
-        TEST(bslma::TestAllocator *  , NothrowSmallFunctor(0), e_INPLACE_BOTH);
-        TEST(bsl::allocator<char>    , NothrowSmallFunctor(0), e_INPLACE_BOTH);
-        TEST(EmptySTLAllocator<char> , NothrowSmallFunctor(0), e_INPLACE_BOTH);
-        TEST(TinySTLAllocator<char>  , NothrowSmallFunctor(0),
-                                                          e_INPLACE_FUNC_ONLY);
-        TEST(SmallSTLAllocator<char> , NothrowSmallFunctor(0),
-                                                          e_INPLACE_FUNC_ONLY);
-        TEST(MediumSTLAllocator<char>, NothrowSmallFunctor(0),
-                                                          e_INPLACE_FUNC_ONLY);
-        TEST(LargeSTLAllocator<char> , NothrowSmallFunctor(0),
-                                                          e_INPLACE_FUNC_ONLY);
+        if (veryVerbose) std::printf("FUNC is NTSmallFunctor(0)\n");
+        TEST(bslma::TestAllocator *  , NTSmallFunctor(0), e_INPLACE_BOTH);
+        TEST(bsl::allocator<char>    , NTSmallFunctor(0), e_INPLACE_BOTH);
+        TEST(EmptySTLAllocator<char> , NTSmallFunctor(0), e_INPLACE_BOTH);
+        TEST(StatefulAllocator<char> , NTSmallFunctor(0), e_INPLACE_FUNC_ONLY);
+        TEST(StatefulAllocator2<char>, NTSmallFunctor(0), e_INPLACE_FUNC_ONLY);
 
         if (veryVerbose) std::printf("FUNC is ThrowingSmallFunctor(0)\n");
         TEST(bslma::TestAllocator *  , ThrowingSmallFunctor(0),
@@ -4202,19 +4175,15 @@ int main(int argc, char *argv[])
                                                             e_OUTOFPLACE_BOTH);
         TEST(EmptySTLAllocator<char> , ThrowingSmallFunctor(0),
                                                             e_OUTOFPLACE_BOTH);
-        TEST(TinySTLAllocator<char>  , ThrowingSmallFunctor(0),
+        TEST(StatefulAllocator<char> , ThrowingSmallFunctor(0),
                                                             e_OUTOFPLACE_BOTH);
-        TEST(SmallSTLAllocator<char> , ThrowingSmallFunctor(0),
-                                                            e_OUTOFPLACE_BOTH);
-        TEST(MediumSTLAllocator<char>, ThrowingSmallFunctor(0),
-                                                            e_OUTOFPLACE_BOTH);
-        TEST(LargeSTLAllocator<char> , ThrowingSmallFunctor(0),
+        TEST(StatefulAllocator2<char>, ThrowingSmallFunctor(0),
                                                             e_OUTOFPLACE_BOTH);
 
         if (veryVerbose) std::printf("FUNC is ThrowingEmptyFunctor(0)\n");
         TEST(bslma::TestAllocator *  , ThrowingEmptyFunctor(0),
                                                             e_OUTOFPLACE_BOTH);
-        TEST(LargeSTLAllocator<char> , ThrowingEmptyFunctor(0),
+        TEST(StatefulAllocator2<char>, ThrowingEmptyFunctor(0),
                                                             e_OUTOFPLACE_BOTH);
 
         bslma::TestAllocator xa;
@@ -4224,10 +4193,17 @@ int main(int argc, char *argv[])
         TEST(bslma::TestAllocator *  , SmFnAlloc(0, &xa), e_INPLACE_BOTH);
         TEST(bsl::allocator<char>    , SmFnAlloc(0, &xa), e_INPLACE_BOTH);
         TEST(EmptySTLAllocator<char> , SmFnAlloc(0, &xa), e_INPLACE_BOTH);
-        TEST(TinySTLAllocator<char>  , SmFnAlloc(0, &xa), e_INPLACE_FUNC_ONLY);
-        TEST(SmallSTLAllocator<char> , SmFnAlloc(0, &xa), e_INPLACE_FUNC_ONLY);
-        TEST(MediumSTLAllocator<char>, SmFnAlloc(0, &xa), e_INPLACE_FUNC_ONLY);
-        TEST(LargeSTLAllocator<char> , SmFnAlloc(0, &xa), e_INPLACE_FUNC_ONLY);
+        TEST(StatefulAllocator<char> , SmFnAlloc(0, &xa), e_INPLACE_FUNC_ONLY);
+        TEST(StatefulAllocator2<char>, SmFnAlloc(0, &xa), e_INPLACE_FUNC_ONLY);
+#undef SmFnAlloc
+
+        if (veryVerbose) std::printf("FUNC is NTSmallFunctorWithAlloc(0)\n");
+#define NTSmFnAlc NTSmallFunctorWithAlloc
+        TEST(bslma::TestAllocator *  , NTSmFnAlc(0, &xa), e_INPLACE_BOTH);
+        TEST(bsl::allocator<char>    , NTSmFnAlc(0, &xa), e_INPLACE_BOTH);
+        TEST(EmptySTLAllocator<char> , NTSmFnAlc(0, &xa), e_INPLACE_BOTH);
+        TEST(StatefulAllocator<char> , NTSmFnAlc(0, &xa), e_INPLACE_FUNC_ONLY);
+        TEST(StatefulAllocator2<char>, NTSmFnAlc(0, &xa), e_INPLACE_FUNC_ONLY);
 #undef SmFnAlloc
 
         if (veryVerbose) std::printf("FUNC is LargeFunctorWithAlloc(0)\n");
@@ -4235,10 +4211,8 @@ int main(int argc, char *argv[])
         TEST(bslma::TestAllocator *  , LgFnAlloc(0, &xa)  , e_OUTOFPLACE_BOTH);
         TEST(bsl::allocator<char>    , LgFnAlloc(0, &xa)  , e_OUTOFPLACE_BOTH);
         TEST(EmptySTLAllocator<char> , LgFnAlloc(0, &xa)  , e_OUTOFPLACE_BOTH);
-        TEST(TinySTLAllocator<char>  , LgFnAlloc(0, &xa)  , e_OUTOFPLACE_BOTH);
-        TEST(SmallSTLAllocator<char> , LgFnAlloc(0, &xa)  , e_OUTOFPLACE_BOTH);
-        TEST(MediumSTLAllocator<char>, LgFnAlloc(0, &xa)  , e_OUTOFPLACE_BOTH);
-        TEST(LargeSTLAllocator<char> , LgFnAlloc(0, &xa)  , e_OUTOFPLACE_BOTH);
+        TEST(StatefulAllocator<char> , LgFnAlloc(0, &xa)  , e_OUTOFPLACE_BOTH);
+        TEST(StatefulAllocator2<char>, LgFnAlloc(0, &xa)  , e_OUTOFPLACE_BOTH);
 #undef LgFnAlloc
 
 
@@ -4324,7 +4298,7 @@ int main(int argc, char *argv[])
         //:   loop, verifying that memory use doesn't change if the
         //:   constructor call fails due to an exception.
         //
-        // TESTING
+        // Testing
         //      function(allocator_arg_t, const ALLOC& alloc);
         //      function(allocator_arg_t, const ALLOC& alloc, nullptr_t);
         //      ~function();
@@ -4409,9 +4383,9 @@ int main(int argc, char *argv[])
             } EXCEPTION_TEST_ENDTRY;
         } EXCEPTION_TEST_END;
 
-        if (veryVerbose) printf("with tiny allocator\n");
+        if (veryVerbose) printf("with stateful allocator\n");
         EXCEPTION_TEST_BEGIN(&ta, NULL) {
-            typedef TinySTLAllocator<double> Alloc;
+            typedef StatefulAllocator<double> Alloc;
             EXCEPTION_TEST_TRY {
 
                 globalAllocMonitor.reset();
@@ -4433,57 +4407,9 @@ int main(int argc, char *argv[])
             } EXCEPTION_TEST_ENDTRY;
         } EXCEPTION_TEST_END;
         
-        if (veryVerbose) printf("with small allocator\n");
+        if (veryVerbose) printf("with large stateful allocator\n");
         EXCEPTION_TEST_BEGIN(&ta, NULL) {
-            typedef SmallSTLAllocator<double> Alloc;
-            EXCEPTION_TEST_TRY {
-
-                globalAllocMonitor.reset();
-                Alloc alloc(&ta);
-                ASSERT(! bsl::is_empty<Alloc>::value);
-            
-                bsl::function<int(float)> f(bsl::allocator_arg, alloc);
-                ASSERT(! f);
-                ASSERT(areEqualAlloc(alloc, f.allocator()));
-                ASSERT(1 == ta.numBlocksInUse());
-                ASSERT(globalAllocMonitor.isInUseSame());
-
-                bsl::function<int(float)> f2(bsl::allocator_arg, alloc,
-                                             bsl::nullptr_t());
-                ASSERT(! f2);
-                ASSERT(areEqualAlloc(alloc, f2.allocator()));
-                ASSERT(2 == ta.numBlocksInUse());
-                ASSERT(globalAllocMonitor.isInUseSame());
-            } EXCEPTION_TEST_ENDTRY;
-        } EXCEPTION_TEST_END;
-        
-        if (veryVerbose) printf("with medium allocator\n");
-        EXCEPTION_TEST_BEGIN(&ta, NULL) {
-            typedef MediumSTLAllocator<double> Alloc;
-            EXCEPTION_TEST_TRY {
-
-                globalAllocMonitor.reset();
-                Alloc alloc(&ta);
-                ASSERT(! bsl::is_empty<Alloc>::value);
-            
-                bsl::function<int(float)> f(bsl::allocator_arg, alloc);
-                ASSERT(! f);
-                ASSERT(areEqualAlloc(alloc, f.allocator()));
-                ASSERT(1 == ta.numBlocksInUse());
-                ASSERT(globalAllocMonitor.isInUseSame());
-
-                bsl::function<int(float)> f2(bsl::allocator_arg, alloc,
-                                             bsl::nullptr_t());
-                ASSERT(! f2);
-                ASSERT(areEqualAlloc(alloc, f2.allocator()));
-                ASSERT(2 == ta.numBlocksInUse());
-                ASSERT(globalAllocMonitor.isInUseSame());
-            } EXCEPTION_TEST_ENDTRY;
-        } EXCEPTION_TEST_END;
-        
-        if (veryVerbose) printf("with large allocator\n");
-        EXCEPTION_TEST_BEGIN(&ta, NULL) {
-            typedef LargeSTLAllocator<double> Alloc;
+            typedef StatefulAllocator2<double> Alloc;
             EXCEPTION_TEST_TRY {
 
                 globalAllocMonitor.reset();
@@ -5320,15 +5246,15 @@ int main(int argc, char *argv[])
         globalAllocMonitor.reset();
         {
             // This functor is eligible for the small-object optimization.
-            NothrowSmallFunctor ftor(42);
+            NTSmallFunctor ftor(42);
             Obj f(ftor); const Obj& F = f;
             ASSERT(F);
             ASSERT(globalAllocMonitor.isTotalSame());
-            ASSERT(typeid(NothrowSmallFunctor) == F.target_type());
-            ASSERT(F.target<NothrowSmallFunctor>() &&
-                   ftor == *F.target<NothrowSmallFunctor>());
-            ASSERT(f.target<NothrowSmallFunctor>() &&
-                   ftor == *f.target<NothrowSmallFunctor>());
+            ASSERT(typeid(NTSmallFunctor) == F.target_type());
+            ASSERT(F.target<NTSmallFunctor>() &&
+                   ftor == *F.target<NTSmallFunctor>());
+            ASSERT(f.target<NTSmallFunctor>() &&
+                   ftor == *f.target<NTSmallFunctor>());
             ASSERT(&globalTestAllocator == f.allocator());
         }
         ASSERT(globalAllocMonitor.isInUseSame());
