@@ -94,8 +94,8 @@ using namespace std;
 // [16] Int64 totalMicroseconds() const;
 // [16] Int64 totalNanoseconds() const;
 // [16] double totalSecondsAsDouble() const;
-// [ 5] STREAM& print(STREAM&, int, int) const;
 // [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
+// [ 5] STREAM& print(STREAM&, int, int) const;
 //
 // FREE OPERATORS
 // [19] TimeInterval operator+(const Obj& lhs, const Obj& rhs);
@@ -430,14 +430,8 @@ TestInStream_getProxy(BSLX_STREAM_TYPE *stream)
                          // ==================
 
 class ByteInStream {
-    // This class provides input methods to unexternalize values, and C-style
-    // arrays of values, of fundamental types from their byte representations.
-    // Each input method also verifies the input value type.  By default, if
-    // invalid data is detected, error messages are displayed on 'stdout'; this
-    // error reporting may be disabled via the 'setQuiet' method.  Note that
-    // attempting to read beyond the end of a stream will automatically
-    // invalidate the stream.  See the 'bslx' package-level documentation for
-    // the definition of the BDEX 'InStream' protocol.
+    // This class provides input methods to unexternalize 'bsls::Types::Int64'
+    // and 'int' values from their byte representations.
 
     // DATA
     const char *d_buffer;      // bytes to be unexternalized
@@ -479,29 +473,21 @@ class ByteInStream {
     // MANIPULATORS
     ByteInStream& getInt64(bsls::Types::Int64& variable);
         // If required, throw a 'TestInStreamException' (see
-        // 'throwExceptionIfInputLimitExhausted'); otherwise, consume the 8-bit
-        // unsigned integer type code, verify the type of the next value in
-        // this stream, consume that 64-bit signed integer value into the
-        // specified 'variable' if its type is appropriate, update the cursor
-        // location, and return a reference to this stream.  If the type is
-        // incorrect, then this stream is marked invalid and the value of
-        // 'variable' is unchanged.  If this stream is initially invalid, this
-        // operation has no effect.  If this function otherwise fails to
-        // extract a valid value, this stream is marked invalid and the value
-        // of 'variable' is undefined.
+        // 'throwExceptionIfInputLimitExhausted'); otherwise, consume the
+        // 64-bit signed integer value into the specified 'variable', update
+        // the cursor location, and return a reference to this stream.  If this
+        // stream is initially invalid, this operation has no effect.  If this
+        // function otherwise fails to extract a valid value, this stream is
+        // marked invalid and the value of 'variable' is undefined.
 
     ByteInStream& getInt32(int& variable);
         // If required, throw a 'TestInStreamException' (see
-        // 'throwExceptionIfInputLimitExhausted'); otherwise, consume the 8-bit
-        // unsigned integer type code, verify the type of the next value in
-        // this stream, consume that 32-bit signed integer value into the
-        // specified 'variable' if its type is appropriate, update the cursor
-        // location, and return a reference to this stream.  If the type is
-        // incorrect, then this stream is marked invalid and the value of
-        // 'variable' is unchanged.  If this stream is initially invalid, this
-        // operation has no effect.  If this function otherwise fails to
-        // extract a valid value, this stream is marked invalid and the value
-        // of 'variable' is undefined.
+        // 'throwExceptionIfInputLimitExhausted'); otherwise, consume the
+        // 32-bit signed integer value into the specified 'variable', update
+        // the cursor location, and return a reference to this stream.  If this
+        // stream is initially invalid, this operation has no effect.  If this
+        // function otherwise fails to extract a valid value, this stream is
+        // marked invalid and the value of 'variable' is undefined.
 
     void invalidate();
         // Put this input stream in an invalid state.  This function has no
@@ -739,23 +725,15 @@ typedef ByteInStream  In;
                          // ===================
 
 class ByteOutStream {
-    // This class provides output methods to externalize values, and C-style
-    // arrays of values, of the fundamental integral and floating-point types,
-    // as well as 'bsl::string' values.  In particular, each 'put' method of
-    // this class is guaranteed to write stream data that can be read by the
-    // corresponding 'get' method of 'bslx::ByteInStream'.  See the 'bslx'
-    // package-level documentation for the definition of the BDEX 'OutStream'
-    // protocol.
+    // This class provides output methods to externalize 'bsls::Types::Int64'
+    // and 'int' values from their byte representations.  In particular, each
+    // 'put' method of this class is guaranteed to write stream data that can
+    // be read by the corresponding 'get' method of 'ByteInStream'.
 
     // DATA
     char            d_buffer[BUFFER_SIZE];  // byte buffer to write to
 
     int             d_size;         // size of data written to buffer
-
-    int             d_serializationVersion;
-                                    // 'serializationVersion' to use with
-                                    // 'operator<<' as per the 'bslx'
-                                    // package-level documentation
 
     int             d_validFlag;    // stream validity flag; 'true' if stream
                                     // is in valid state, 'false' otherwise
@@ -773,9 +751,8 @@ class ByteOutStream {
   public:
     // CREATORS
     explicit ByteOutStream(int serializationVersion);
-        // Create an empty output byte stream that will use the specified
-        // 'serializationVersion' as needed (see the 'bslx' package-level
-        // documentation for a description of 'serializationVersion').
+        // Create an empty output byte stream.  The specified
+        // 'serializationVersion' is ignored.
 
     ~ByteOutStream();
         // Destroy this object.
@@ -830,9 +807,8 @@ void ByteOutStream::validate()
 
 // CREATORS
 inline
-ByteOutStream::ByteOutStream(int serializationVersion)
+ByteOutStream::ByteOutStream(int /* serializationVersion */)
 : d_size(0)
-, d_serializationVersion(serializationVersion)
 , d_validFlag(true)
 {
 }
@@ -4518,14 +4494,10 @@ int main(int argc, char *argv[])
         //: 1 Test 'maxSupportedBdexVersion' explicitly.  (C-1)
         //:
         //: 2 All calls to the 'bdexStreamOut' accessor will be done from a
-        //:   'const' object or reference and all calls to the 'bdexStreamOut'
-        //:   free function (provided by 'bslx') will be supplied a 'const'
-        //:   object or reference.  (C-2)
+        //:   'const' object or reference.  (C-2)
         //:
         //: 3 Perform a direct test of the 'bdexStreamOut' and 'bdexStreamIn'
-        //:   methods (the rest of the testing will use the free functions
-        //:   'bslx::OutStreamFunctions::bdexStreamOut' and
-        //:   'bslx::InStreamFunctions::bdexStreamIn').
+        //:   methods.
         //:
         //: 4 Define a set 'S' of test values to be used throughout the test
         //:   case.
