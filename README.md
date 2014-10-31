@@ -8,6 +8,23 @@ This repository contains the BDE libraries, currently BSL (BDE Standard Library)
 * [Online Library Documentation](http://bloomberg.github.com/bde)
 * [BDE Mission Statement](http://github.com/bloomberg/bde/wiki/Mission-Statement)
 
+What's New
+==========
+
+October 2014:
+Important new features include:
+  * [bslh](https://github.com/bloomberg/bde/blob/master/groups/bsl/bslh/doc/bslh.txt) - An implementation of [C++ ISO Proposal N3980](http://isocpp.org/files/papers/n3980.html), which significantly improves how hash functions are defined
+  * `bdlt` - A collection of date and time types, and utilities for manipulating them.  Of particular note:
+      * `bdlt::Date`
+      * `bdlt::Datetime`
+      * `bdlt::CurrentTime`
+  * [bdldfp::Decimal](http://bloomberg.github.io/bde/group__bdldfp__decimal.html) types are now 10X faster, making use of the [Intel Decimal Floating Point Math Library](https://software.intel.com/en-us/articles/intel-decimal-floating-point-math-library)
+  * Support for Visual Studio 2013
+
+  See BDE 2.22 Relase Notes.
+
+  Note that `bdlt` is available on `master` but is not on `releases/2.22.x`.
+
 Basic Build Instructions
 ========================
 
