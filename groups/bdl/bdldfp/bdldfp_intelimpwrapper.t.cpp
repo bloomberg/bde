@@ -1,17 +1,19 @@
 // bdldfp_intelimpwrapper.t.cpp                                       -*-C++-*-
 #include <bdldfp_intelimpwrapper.h>
 
-// We include the 'fenv.h' header to ensure that there are no defninition
-// conflicts between the Intel DFP code and the system 'fenv' header.
-
-#include <fenv.h>
-#include <wchar.h>
-
 #include <bsls_platform.h>
 
 #include <bsl_iostream.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+
+// We include the 'fenv.h' header to ensure that there are no definition
+// conflicts between the Intel DFP code and the system 'fenv' header.
+
+#ifndef BSLS_PLATFORM_CMP_MSVC
+#include <fenv.h>
+#endif
+#include <wchar.h>
 
 using namespace BloombergLP;
 using bsl::cout;
