@@ -734,9 +734,6 @@ class LargeFunctor : public SmallFunctor
     char d_padding[sizeof(SmallObjectBuffer) - sizeof(SmallFunctor) + 1];
     
 public:
-    // BITWISE MOVEABLE
-//    BSLMF_NESTED_TRAIT_DECLARATION(LargeFunctor, bslmf::IsBitwiseMoveable);
-
     explicit LargeFunctor(int v) : SmallFunctor(v)
         { std::memset(d_padding, 0xee, sizeof(d_padding)); }
 
@@ -1039,10 +1036,6 @@ class LargeFunctorWithAlloc : public SmallFunctorWithAlloc
 public:
     BSLMF_NESTED_TRAIT_DECLARATION(LargeFunctorWithAlloc,
                                    bslma::UsesBslmaAllocator);
-
-    // BITWISE MOVEABLE
-    // BSLMF_NESTED_TRAIT_DECLARATION(LargeFunctorWithAlloc,
-    //                                bslmf::IsBitwiseMoveable);
 
     LargeFunctorWithAlloc(int v, bslma::Allocator *alloc = 0)
         : SmallFunctorWithAlloc(v, alloc)
@@ -2881,8 +2874,7 @@ int main(int argc, char *argv[])
         //:   moved-from state.
         //: 4 After the assignment, the allocator of the lhs is unchanged.
         //: 5 If assignment is from a functor that takes an allocator, the
-        //:   copy of that functor in the lhs will get its allocator from the
-        //:   lhs function object.
+        //:   copy of that functor in the lhs use the same allocator.
         //: 6 The change in memory allocation is the same as if the lhs were
         //:   destroyed then re-constructed with its original allocator and
         //:   with the specified functor.
@@ -3128,8 +3120,8 @@ int main(int argc, char *argv[])
         //:   objects, each of which is constructed with a functor from a
         //:   different category (small, large, throwing, non-throwing, etc.).
         //:   Invoke 'testAssignNullptr' with each category of allocator
-        //:   ('bslma::Allocator*', 'bsl::allocator', small STL-allocator,
-        //:   large STL-allocator, etc.) for each element of the array of
+        //:   ('bslma::Allocator*', 'bsl::allocator', empty STL-allocator,
+        //:   stateful STL-allocator, etc.) for each element of the array of
         //:   'function'.
         //
         // Testing:
@@ -3230,12 +3222,11 @@ int main(int argc, char *argv[])
         //:   wrapped functors.
         //: 9 The above concerns apply to functions constructed with allocator
         //:   constructor arguments that are pointers to type derived from
-        //:   'bslma::Allocator' and stateful STL-style allocators of
-        //:   various sizes. (It is not necessary to separately test
-        //:   allocators that 'bsl::allocator' instantiations or stateless
-        //:   STL-style allocators, as these are represented internally as
-        //:   pointers to 'bslma::Allocator')  Note that the allocators in the
-        //:   lhs and rhs might be differnt.
+        //:   'bslma::Allocator' and stateful STL-style allocators. (It is not
+        //:   necessary to separately test 'bsl::allocator' instantiations or
+        //:   stateless STL-style allocators, as these are represented
+        //:   internally as pointers to 'bslma::Allocator') Note that the
+        //:   allocators in the lhs and rhs might be different.
         //: 10 If an exception is thrown during an assignment, both operands
         //:   of the assignment are unchanged.
         //
@@ -3383,10 +3374,11 @@ int main(int argc, char *argv[])
 
                 TEST(bslma::TestAllocator *  , bslma::TestAllocator *  );
                 TEST(bsl::allocator<char>    , EmptySTLAllocator<char> );
-                TEST(bsl::allocator<char>    , StatefulAllocator2<char> );
+                TEST(bsl::allocator<char>    , StatefulAllocator2<char>);
                 TEST(EmptySTLAllocator<char> , EmptySTLAllocator2<char>);
-                TEST(StatefulAllocator<char> , StatefulAllocator2<char> );
-                TEST(StatefulAllocator2<char>, StatefulAllocator2<char> );
+                TEST(StatefulAllocator<char> , StatefulAllocator2<char>);
+                TEST(StatefulAllocator2<char>, StatefulAllocator2<char>);
+                TEST(StatefulAllocator<char> , bslma::TestAllocator *  );
 
             } // End for (each item in dataB)
         } // End for (each item in dataA)
@@ -3410,8 +3402,8 @@ int main(int argc, char *argv[])
         //: 4 The above concerns apply to functions constructed with allocator
         //:   constructor arguments that are pointers to type derived from
         //:   'bslma::Allocator', 'bsl::allocator' instantiations, stateless
-        //:   STL-style allocators, and stateful STL-style allocators of
-        //:   various sizes.  Note that the allocators to both objects must
+        //:   STL-style allocators, and stateful STL-style allocators.
+        //:   Note that the allocators to both objects must
         //:   compare equal in order for them to be swapped.
         //: 5 The namespace-scope function, 'bsl::swap' invokes
         //:   'bsl::function<F>::swap' when invoked with two 'function'
@@ -3569,8 +3561,8 @@ int main(int argc, char *argv[])
         //: 4 If the source 'function' could be invoked before the move, then
         //:   the destination can be invoked and will yield the same results.
         //: 5 If the move constructor is invoked (without an allocator), then
-        //:   the destination will use a copy of the source allocator.  The
-        //:   source allocator after the move is unchanged.
+        //:   the source and destination after the move will use the original
+        //:   source allocator or a copy of it.
         //: 6 If the allocator-extended move constructor is invoked
         //:   then the destination will use the specified allocator.
         //: 7 If 'FUNC' takes a 'bslma::Allocator*', then the wrapped functor
@@ -3578,16 +3570,17 @@ int main(int argc, char *argv[])
         //:   allocator is propagated).
         //: 8 The net memory consumption of the source and destination after
         //:   the move is equal to the memory consumption of the source before
-        //:   the move plus up to one block (if the source allocator does not
-        //:   fit in the small-object buffer).
+        //:   the move plus up to one block (if the source allocator is
+        //:   type-erased on the heap).
         //: 9 The above concerns apply to 'func' arguments of type pointer to
         //:   function, pointer to member function, or functor types of
         //:   various sizes with or without throwing move constructors.
-        //: 10 The above concerns apply to allocators arguments that are
+        //: 10 The above concerns apply to allocator arguments that are
         //:   pointers to type derived from 'bslma::Allocator',
         //:   'bsl::allocator' instantiations, stateless STL-style allocators,
-        //:   and stateful STL-style allocators of various sizes.  The
-        //:   original and copy can use different allocators.
+        //:   and stateful STL-style allocators.  The original and copy can
+        //:   use different allocators, in the case of the extended move
+        //:   constructor.
         //: 11 If the functor move-constructor or the allocator throws an
         //:   exception, then no resources are leaked.
         //
@@ -3609,15 +3602,15 @@ int main(int argc, char *argv[])
         //:   the move.
         //: 5 For concern 5, move-construct a 'function' and verify that
         //:   'allocator()' invoked on both the source and the destination
-        //:   after the move returns the value as invoking 'allocator()' on
-        //:   the source before the move.
+        //:   after the move returns same the value as invoking 'allocator()'
+        //:   on the source before the move or a clone of that value.
         //: 6 For concern 6, use the extended move constructor and verify that
         //:   the allocator for the destination matches the allocator passed
         //:   into the constructor and that the source allocator is unchanged
         //:   before and after the move operation.
         //: 7 For concern 7, perform the above steps using a small and a large
         //:   'FUNC' type that take a 'bslma::Allocator*' as well as with
-        //:   functors that don't take a 'bslma::Allocator*.  In the former
+        //:   functors that don't take a 'bslma::Allocator*'.  In the former
         //:   case, verify that the functor wrapped within the
         //:   newly-constructed 'function' object uses the same allocator as
         //:   the newly-created object itself.
@@ -3790,7 +3783,7 @@ int main(int argc, char *argv[])
         //: 10 The above concerns apply to allocators arguments that are
         //:   pointers to type derived from 'bslma::Allocator',
         //:   'bsl::allocator' instantiations, stateless STL-style allocators,
-        //:   and stateful STL-style allocators of various sizes.  The
+        //:   and stateful STL-style allocators.  The
         //:   original and copy can use different allocators.
         //: 11 If the functor copy-constructor or the allocator throws an
         //:   exception, then no resources are leaked.
@@ -3992,27 +3985,22 @@ int main(int argc, char *argv[])
         //:   'FUNC' is not eligible for the small object optimization, one
         //:   block of memory of sufficient size to hold 'FUNC' is allocated
         //:   from the allocator by this constructor.
-        //: 10 If 'alloc' is an STL-style allocator such that the allocator
-        //:   adaptor and 'FUNC' both fit within the small object buffer, then
-        //:   no memory is allocated by this constructor.
-        //: 11 If 'alloc' is an STL-style allocator such that the allocator
-        //:   adaptor and 'FUNC' do not both fit within the small object
-        //:   buffer, then one block of memory is allocated from 'alloc'
-        //:   itself.
-        //: 12 In step 11, if 'FUNC' by itself is eligible for the small object
+        //: 10 If 'alloc' is an STL-style allocator with state, then one block
+        //:   of memory is allocated from 'alloc' itself.
+        //: 11 In step 10, if 'FUNC' is eligible for the small object
         //:   optimization, then the allocated memory is only large enough to
         //:   hold the allocator adaptor.
-        //: 13 In step 11, if 'FUNC' by itself is not eligible for the small
+        //: 12 In step 10, if 'FUNC' is not eligible for the small
         //:   object optimization, then the allocated memory is large enough
         //:   to hold both 'func' and the allocator adaptor.
-        //: 14 If memory is allocated, the destructor frees it.
-        //: 15 If 'FUNC' takes a 'bslma::Allocator*', then the 'function'
+        //: 13 If memory is allocated, the destructor frees it.
+        //: 14 If 'FUNC' takes a 'bslma::Allocator*', then the 'function'
         //:   allocator is propagated to the wrapped functor.
-        //: 16 The above concerns apply to 'func' arguments of type pointer to
+        //: 15 The above concerns apply to 'func' arguments of type pointer to
         //:   function, pointer to member function, or functor types of
         //:   various sizes, with or without throwing move constructors.
-        //: 17 If memory allocation fails with an exception, then no resources
-        //:   are leaked.
+        //: 16 If memory allocation or functor construction fails with an
+        //:   exception, then no resources are leaked.
         //
         // Plan:
         //: 1 For concern 1, construct 'function' objects using a null pointer
@@ -4051,40 +4039,34 @@ int main(int argc, char *argv[])
         //:   'func' is not eligible the small object optimization, one block
         //:   of memory of sufficient size to hold 'FUNC' is allocated from
         //:   the allocator.
-        //: 10 For concern 10, perform step 7 using alloctors of various sizes
-        //:   from very small to one where, combined with 'FUNC', barely fits
-        //:   within the small object buffer and verify, in each case, that no
-        //:   memory is allocated either from the global allocator or from the
-        //:   allocator used to construct the 'function' object.
-        //: 11 For concern 11, perform step 7 using allocators of various
-        //:   sizes which, combined with 'FUNC', do not fit in the small
-        //:   object buffer and verify that exactly one block was allocated
+        //: 10 For concern 10, perform step 7 using stateful STL allocators
+        //:   and verify that exactly one block was allocated
         //:   from the allocator used to construct the 'function' and that no
         //:   memory was allocated from the global allocator.
-        //: 12 For concern 12, look at the memory allocation from step 11 and
+        //: 11 For concern 11, look at the memory allocation from step 10 and
         //:   verify that, when 'FUNC' is eligible for the small object
         //:   optimization, that the allocated memory is only large enough to
         //:   hold the allocator adaptor.
-        //: 13 For concern 13, look at the memory allocation from step 11 and
+        //: 12 For concern 12, look at the memory allocation from step 10 and
         //:   verify that, when 'FUNC' is not eligible for the small object
         //:   optimization, that the allocated memory is large enough to hold
         //:   both 'FUNC' and the allocator adaptor.
-        //: 14 For concern 14, check at the end of each step, when the
+        //: 13 For concern 13, check at the end of each step, when the
         //:   'function' object is destroyed, that all memory is returned to
         //:   the allocator.
-        //: 15 For concern 15, perform the above steps using a small and a
+        //: 14 For concern 14, perform the above steps using a small and a
         //:   large 'FUNC' type that take a 'bslma::Allocator*' as well as
         //:   with functors that don't take a 'bslma::Allocator*.  After
         //:   construction, verify that the wrapped functor uses the same
         //:   allocator as the 'function' object in the former case.
-        //: 16 For concern 16, wrap the common parts of the above steps into a
+        //: 15 For concern 15, wrap the common parts of the above steps into a
         //:   function template, 'testFuncWithAlloc', which takes 'ALLOC' and
         //:   'FUNC' template parameters.  Instantiate this template with each
         //:   of the allocator types described in the previous step in
         //:   combination with each of the following invokable types: pointer
         //:   to function, pointer to member function, and functor types of
         //:   of all varieties.
-        //: 17 For concern 17, construct the 'function' within the exception
+        //: 16 For concern 16, construct the 'function' within the exception
         //:   test framework.  On exception, verify that any allocated memory
         //:   has been released and that no 'FUNC' objects have been leaked.
         //
@@ -4240,15 +4222,12 @@ int main(int argc, char *argv[])
         //:   'bslma::AllocatorAdaptor<ALLOC>' which wraps a copy of 'alloc'.
         //: 6 If 'alloc' is other than an STL-style allocator with state, then
         //:   no memory is allocated by this constructor.
-        //: 7 If 'alloc' is an STL-style allocator that fits within the small
-        //:   object buffer, then no memory is allocated by this constructor.
-        //: 8 If 'alloc' is an STL-style allocator that does not fit within
-        //:   the small object buffer, then one block of memory is allocated
-        //:   from 'alloc' itself.
-        //: 9 If memory is allocated, the destructor frees it.
-        //: 11 All of the above concerns also apply to the
+        //: 7 If 'alloc' is an STL-style allocator with state, then one block
+        //:   of memory is allocated from 'alloc' itself.
+        //: 8 If memory is allocated, the destructor frees it.
+        //: 9 All of the above concerns also apply to the
         //:   'function(allocator_arg_t, const ALLOC&, nullptr_t)' constructor.
-        //: 12 If the allocator throws an exception, no resources are leaked
+        //: 10 If the allocator throws an exception, no resources are leaked
         //:   (i.e., it is exception neutral).
         //
         // Plan:
@@ -4279,22 +4258,16 @@ int main(int argc, char *argv[])
         //: 6 For concern 6, test the results of steps 2-4 to verify that no
         //:   memory is allocated either from the global allocator or from the
         //:   allocator used to construct the 'function' object.
-        //: 7 For concern 7, perform step 5 using alloctors of various sizes
-        //:   from very small to one that barely fits within the small object
-        //:   buffer and verify, in each case, that no memory is allocated
-        //:   either from the global allocator or from the allocator used to
-        //:   construct the 'function' object.
-        //: 8 For concern 8, perform step 5 using an allocator that does not
-        //:   fit in the small object buffer and verify that exactly one block
-        //:   was allocated from the allocator used to construct the
+        //: 7 For concern 7, test the result of step 5 to verify that exactly
+        //:   one block was allocated from the allocator used to construct the
         //:   'function' and that no memory was allocated from the global
         //:   allocator.
-        //: 9 For concern 9, check at the end of step 8, when the 'function'
+        //: 8 For concern 8, check at the end of step 7, when the 'function'
         //:   object is destroyed, that all memory was returned to the
         //:   allocator.
-        //: 10 For concern 10, preform all of the previous steps using the 
+        //: 9 For concern 9, preform all of the previous steps using the 
         //:   'function(allocator_arg_t, const ALLOC&, nullptr_t)' constructor.
-        //: 11 For concern 11 perform the operations within exception-test
+        //: 10 For concern 10 perform the operations within exception-test
         //:   loop, verifying that memory use doesn't change if the
         //:   constructor call fails due to an exception.
         //
