@@ -4903,8 +4903,7 @@ int main(int argc, char *argv[])
         bsl::function<int*(int&)> ga(getAddress);
         ASSERT(&v == ga(v));
         bsl::function<const int*(const int&)> gca(getConstAddress);
-// TBD: Turn on when bslmf::ForwardingType is fixed
-//         ASSERT(&v == gca(v));
+        ASSERT(&v == gca(v));
         gca(v);
 
         // Test pass-by-value
@@ -4912,16 +4911,15 @@ int main(int argc, char *argv[])
         bsl::function<int(CountCopies)> nc(numCopies);
         CountCopies cc;
         ASSERT(1 == numCopies(cc));
-// #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-// TBD: Turn on when bslmf::ForwardingType is fixed
-//         ASSERT(1 == nc(cc));
-//         ASSERT(0 == numCopies(CountCopies()));
-//         ASSERT(0 == nc(CountCopies()));
-// #else
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        ASSERT(1 == nc(cc));
+        ASSERT(0 == numCopies(CountCopies()));
+        ASSERT(0 == nc(CountCopies()));
+#else
         ASSERT(2 == nc(cc));
         ASSERT(0 == numCopies(CountCopies()));
         ASSERT(1 == nc(CountCopies()));
-// #endif
+#endif
         ASSERT(0 == cc.numCopies());
 
       } break;

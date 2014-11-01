@@ -1395,10 +1395,8 @@ RET bsl::function<RET(ARGS...)>::functionPtrInvoker(const Function_Rep *rep,
 
     // Cast to 'RET' is needed to avoid compilation error if 'RET' is void and
     // 'f' returns non-void.
-// TBD: Correct forwarding
-//     typedef bslmf::ForwardingTypeUtil<ARGS> FTUtil;
-//     return static_cast<RET>(f(FTUtil::forwardToTarget(args)...));
-    return static_cast<RET>(f(args...));
+    return static_cast<RET>(f(bslmf::ForwardingTypeUtil<ARGS>::
+                              forwardToTarget(args)...));
 }
 
 template <class RET, class... ARGS>
