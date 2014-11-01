@@ -564,6 +564,9 @@ ExceptionLimit& moveLimit = copyLimit;
 struct EmptyFunctor : FunctorBase
 {
     // Stateless functor
+    // - No allocator
+    // - Not bitwise movable (except in C++-03 mode)
+    // - Nothrow move constructible
 
     EmptyFunctor(const EmptyFunctor&) : FunctorBase()
         { --copyLimit; std::memset(this, 0xdd, sizeof(*this)); }
@@ -629,7 +632,10 @@ bool operator!=(const EmptyFunctor&, const EmptyFunctor&)
 
 class SmallFunctor : public FunctorBase
 {
-    // Small stateful functor.  (Bitwise Movable)
+    // Small stateful functor.
+    // - No allocator
+    // - Bitwise movable
+    // - Throwing move construtor
 
     int d_value;  // Arbitrary state to distinguish one instance from another
 
@@ -692,7 +698,10 @@ bool operator!=(const SmallFunctor& a, const SmallFunctor& b)
 
 class MediumFunctor : public SmallFunctor
 {
-    // Functor that barely fits into the small object buffer. (Bitwise movable)
+    // Functor that barely fits into the small object buffer.
+    // - No allocator
+    // - Bitwise movable
+    // - Throwing move construtor
 
     char d_padding[sizeof(SmallObjectBuffer) - sizeof(SmallFunctor)];
     
@@ -730,10 +739,16 @@ bool operator!=(const MediumFunctor& a, const MediumFunctor& b)
 class LargeFunctor : public SmallFunctor
 {
     // Functor that is barely too large to fit into the small object buffer.
+    // - No allocator
+    // - Bitwise movable
+    // - Throwing move construtor
 
     char d_padding[sizeof(SmallObjectBuffer) - sizeof(SmallFunctor) + 1];
     
 public:
+    // BITWISE MOVEABLE
+    BSLMF_NESTED_TRAIT_DECLARATION(LargeFunctor, bslmf::IsBitwiseMoveable);
+
     explicit LargeFunctor(int v) : SmallFunctor(v)
         { std::memset(d_padding, 0xee, sizeof(d_padding)); }
 
@@ -765,6 +780,9 @@ class NTSmallFunctor
 {
     // A small functor that is not bitwise movable, but does have a nothrow
     // move constructor
+    // - No allocator
+    // - Not bitwise movable (except in C++-03 mode)
+    // - Nothrow move constructible
 
     enum { k_MOVED_FROM_VAL = 0x100000 };
 
@@ -832,6 +850,9 @@ bool operator!=(const NTSmallFunctor& a, const NTSmallFunctor& b)
 class ThrowingEmptyFunctor : public EmptyFunctor
 {
     // An empty functor whose move constructor might throw.
+    // - No allocator
+    // - Not bitwise movable
+    // - Throwing move constructor
     
 public:
     explicit ThrowingEmptyFunctor(int v = 0) : EmptyFunctor(v) { }
@@ -866,6 +887,9 @@ class ThrowingSmallFunctor : public FunctorBase
 {
     // A small functor that is not bitwise movable, and whose move constructor
     // may throw.
+    // - No allocator
+    // - Not bitwise movable
+    // - Throwing move constructor
 
     enum { k_MOVED_FROM_VAL = 0x100000 };
 
@@ -923,6 +947,9 @@ bool operator!=(const ThrowingSmallFunctor& a, const ThrowingSmallFunctor& b)
 class SmallFunctorWithAlloc : public SmallFunctor
 {
     // Small functor with allocator.
+    // - Uses allocator
+    // - Bitwise moveable
+    // - Throwing move constructor
 
     bslma::Allocator *d_alloc_p;
 
@@ -978,6 +1005,9 @@ class NTSmallFunctorWithAlloc : public NTSmallFunctor
     // have a nothrow move constructor.  It is unusual to have an object like
     // this, which uses an allocator but cannot throw on move, but we must
     // test it, anyway.
+    // - Uses allocator
+    // - Not bitwise moveable
+    // - Nothrow move constructible
 
     bslma::Allocator *d_alloc_p;
 
@@ -1030,10 +1060,17 @@ class LargeFunctorWithAlloc : public SmallFunctorWithAlloc
 {
     // Functor with allocator that is barely too large to fit into the small
     // object buffer.
+    // - Uses allocator
+    // - Bitwise movable
+    // - Throwing move constructor
 
     char d_padding[sizeof(SmallObjectBuffer)-sizeof(SmallFunctorWithAlloc)+1];
     
 public:
+    // BITWISE MOVEABLE
+    BSLMF_NESTED_TRAIT_DECLARATION(LargeFunctorWithAlloc,
+                                   bslmf::IsBitwiseMoveable);
+
     BSLMF_NESTED_TRAIT_DECLARATION(LargeFunctorWithAlloc,
                                    bslma::UsesBslmaAllocator);
 
