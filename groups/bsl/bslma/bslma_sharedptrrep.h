@@ -289,8 +289,6 @@ BSLS_IDENT("$Id$ $CSID$")
 #define INCLUDED_TYPEINFO
 #endif
 
-//#define BSLMA_IMPLEMENT_FULL_SHARED_PTR_SEMANTICS_DRQS27411521
-
 namespace BloombergLP {
 namespace bslma {
 
@@ -327,14 +325,16 @@ class SharedPtrRep {
 
   protected:
     // PROTECTED CREATORS
-    virtual ~SharedPtrRep();
+    ~SharedPtrRep();
         // Destroy this representation object.
 
   public:
     // CLASS METHODS
     static void managedPtrDeleter(void *, void *rep);
-        // Delete the shared object referred to by this representation if all
-        // the shared references to the shared object are released.  Note that
+        // Release the shared reference to an object held by the 'SharedPtrRep'
+        // object which is pointed to be by specified 'rep'.  The behavior is
+        // undefined unless 'rep' points to an object whose complete type
+        // publicly and unambiguously derives from 'SharedPtrRep'.  Note that
         // the first argument is ignored.  Also note that this function serves
         // as the managed ptr deleter when converting a 'bsl::shared_ptr' to a
         // 'bslma::ManagedPtr'.
@@ -344,24 +344,60 @@ class SharedPtrRep {
         // Create a 'SharedPtrRep' object having one shared reference and no
         // weak references.
 
+    // PURE VIRTUAL FUNCTIONS
+    virtual void disposeObject() = 0;
+        // Dispose of the shared object referred to by this representation.
+        // This method is automatically invoked by 'releaseRef' when the number
+        // of shared references reaches zero and should not be explicitly
+        // invoked otherwise.  Note that this virtual 'disposeObject' method
+        // effectively serves as the shared object's destructor.  Also note
+        // that derived classes must override this method to perform the
+        // appropriate action such as deleting the shared object.
+
+    virtual void disposeRep() = 0;
+        // Dispose of this representation object.  This method is automatically
+        // invoked by 'releaseRef' and 'releaseWeakRef' when the number of weak
+        // references and the number of shared references both reach zero and
+        // should not be explicitly invoked otherwise.  The behavior is
+        // undefined unless 'disposeObject' has already been called for this
+        // representation.  Note that this virtual 'disposeRep' method
+        // effectively serves as the representation object's destructor.  Also
+        // note that derived classes must override this method to perform
+        // appropriate action such as deleting this representation, or
+        // returning it to an object pool.
+
+    virtual void *getDeleter(const std::type_info& type) = 0;
+        // Return a pointer to the deleter stored by the derived representation
+        // (if any) if the deleter has the same type as that described by the
+        // specified 'type', and a null pointer otherwise.  Note that while
+        // this methods appears to be a simple accessor, it is declared as non-
+        // 'const' qualified to support representations storing the deleter
+        // directly as a data member.
+
+    virtual void *originalPtr() const = 0;
+        // Return the (untyped) address of the modifiable shared object
+        // referred to by this representation.
+
     // MANIPULATORS
     void acquireRef();
         // Atomically acquire a shared reference to the shared object referred
         // to by this representation.  The behavior is undefined unless
         // '0 < numReferences()'.
 
-    void incrementRefs(int incrementAmount = 1);
-        // Atomically increment the number of shared references to the shared
-        // object referred to by this representation by the specified
-        // 'incrementAmount'.  The behavior is undefined unless
-        // '0 < incrementAmount' and '0 < numReferences()'.
-        //
-        // DEPRECATED: Use 'acquireRef' instead.
-
     void acquireWeakRef();
         // Atomically acquire a weak reference to the shared object referred to
         // by this representation.  The behavior is undefined unless
         // '0 < numWeakReferences() || 0 < numReferences()'.
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    void incrementRefs(int incrementAmount = 1);
+        // Atomically increment the number of shared references to the shared
+        // object referred to by this representation by the optionally
+        // specified 'incrementAmount'.  The behavior is undefined unless
+        // '0 < incrementAmount' and '0 < numReferences()'.
+        //
+        // DEPRECATED: Use 'acquireRef' instead.
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     void releaseRef();
         // Atomically release a shared reference to the shared object referred
@@ -377,13 +413,6 @@ class SharedPtrRep {
         // (shared and weak) references to the shared object are released.  The
         // behavior is undefined unless '0 < numWeakReferences()'.
 
-    bool tryAcquireRef();
-        // Atomically acquire a shared reference to the shared object referred
-        // to by this representation, if the number of shared references is
-        // greater than 0, and do nothing otherwise.  Return 'true' if the
-        // acquire succeeds, and 'false' otherwise.  The behavior is undefined
-        // unless '0 < numWeakReferences() || 0 < numReferences()'.
-
     void resetCountsRaw(int numSharedReferences, int numWeakReferences);
         // Reset the number of shared references and the number of weak
         // references stored by this representation to the specified
@@ -394,41 +423,18 @@ class SharedPtrRep {
         // dispose of the representation or the object irrespective of the
         // values of 'numSharedReferences' and 'numWeakReferences'.
 
-    virtual void disposeRep() = 0;
-        // Dispose of this representation object.  This method is automatically
-        // invoked by 'releaseRef' and 'releaseWeakRef' when the number of weak
-        // references and the number of shared references both reach zero and
-        // should not be explicitly invoked otherwise.  The behavior is
-        // undefined unless 'disposeObject' has already been called for this
-        // representation.  Note that this virtual 'disposeRep' method
-        // effectively serves as the representation object's destructor.  Also
-        // note that derived classes must override this method to perform
-        // appropriate action such as deleting this representation, or
-        // returning it to an object pool.
-
-    virtual void disposeObject() = 0;
-        // Dispose of the shared object referred to by this representation.
-        // This method is automatically invoked by 'releaseRef' when the number
-        // of shared references reaches zero and should not be explicitly
-        // invoked otherwise.  Note that this virtual 'disposeObject' method
-        // effectively serves as the shared object's destructor.  Also note
-        // that derived classes must override this method to perform the
-        // appropriate action such as deleting the shared object.
-
-#if defined(BSLMA_IMPLEMENT_FULL_SHARED_PTR_SEMANTICS_DRQS27411521)
-    virtual void *getDeleter(const std::type_info& type) = 0;
-        // Return a pointer to the deleter stored by the derived representation
-        // (if any) if the deleter has the same type as that described by the
-        // specified 'type', and a null pointer otherwise.  Note that while
-        // this methods appears to be a simple accessor, it is declared as non-
-        // 'const' qualified to support representations storing the deleter
-        // directly as a data member.
-#endif
+    bool tryAcquireRef();
+        // Atomically acquire a shared reference to the shared object referred
+        // to by this representation, if the number of shared references is
+        // greater than 0, and do nothing otherwise.  Return 'true' if the
+        // acquire succeeds, and 'false' otherwise.  The behavior is undefined
+        // unless '0 < numWeakReferences() || 0 < numReferences()'.
 
     // ACCESSORS
-    virtual void *originalPtr() const = 0;
-        // Return the (untyped) address of the modifiable shared object
-        // referred to by this representation.
+    bool hasUniqueOwner() const;
+        // Return 'true' if there is only one shared reference and no weak
+        // references to the object referred to by this representation, and
+        // 'false' otherwise.
 
     int numReferences() const;
         // Return a "snapshot" of the current number of shared references to
@@ -438,15 +444,10 @@ class SharedPtrRep {
         // Return a "snapshot" of the current number of weak references to the
         // shared object referred to by this representation object.
 
-    bool hasUniqueOwner() const;
-        // Return 'true' if there is only one shared reference and no weak
-        // references to the object referred to by this representation, and
-        // 'false' otherwise.
-
 };
 
 // ============================================================================
-//                      INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
+//              INLINE FUNCTION AND FUNCTION TEMPLATE DEFINITIONS
 // ============================================================================
 
                         // ------------------
@@ -485,6 +486,7 @@ void SharedPtrRep::acquireRef()
     d_adjustedSharedCount.addRelaxed(2);        // minimum consistency: relaxed
 }
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 inline
 void SharedPtrRep::incrementRefs(int incrementAmount)
 {
@@ -494,6 +496,7 @@ void SharedPtrRep::incrementRefs(int incrementAmount)
     d_adjustedSharedCount.addRelaxed(incrementAmount * 2);
                                                 // minimum consistency: relaxed
 }
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 inline
 void SharedPtrRep::releaseWeakRef()
@@ -508,6 +511,16 @@ void SharedPtrRep::releaseWeakRef()
 }
 
 // ACCESSORS
+inline
+bool SharedPtrRep::hasUniqueOwner() const
+{
+    const int sharedCount = d_adjustedSharedCount;
+                                                // release consistency: acquire
+    return 2 == sharedCount
+        || (3 == sharedCount
+         && 1 == d_adjustedWeakCount);          // release consistency: acquire
+}
+
 inline
 int SharedPtrRep::numReferences() const
 {
@@ -524,39 +537,23 @@ int SharedPtrRep::numWeakReferences() const
     return weakCount / 2;
 }
 
-inline
-bool SharedPtrRep::hasUniqueOwner() const
-{
-    const int sharedCount = d_adjustedSharedCount;
-                                                // release consistency: acquire
-    return 2 == sharedCount
-        || (3 == sharedCount
-         && 1 == d_adjustedWeakCount);          // release consistency: acquire
-}
-
 }  // close namespace bslma
 }  // close namespace BloombergLP
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

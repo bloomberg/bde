@@ -2,8 +2,7 @@
 
 @PURPOSE: Provide a framework for hashing types using swapable algorithms.
 
-@MNEMONIC:
-Basic Standard Library Hashing (bslh)
+@MNEMONIC: Basic Standard Library Hashing (bslh)
 
 @DESCRIPTION: The 'bslh' package provides components for a more modular hashing
 implemenation than is found in the standard.  This implementation is based on
@@ -787,21 +786,24 @@ the 'bslh::SeededHash' section above to see the difference).
 
 /Hierarchical Synopsis
 /---------------------
-The 'bslh' package currently has 8 components having 5 levels of physical
-dependency.  The list below shows the hierarchical ordering of the components.
-The order of components within each level is not architecturally significant,
-just alphabetical.
+ The 'bslh' package currently has 8 components having 5 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  5. bslh_seededhash
 
-: 5 bslh_seededhash
-:
-: 4 bslh_hash
-:
-: 3 bslh_defaulthashalgorithm, bslh_defaultseededhashalgorithm
-:
-: 2 bslh_spookyhashalgorithm
-:
-: 1 bslh_seedgenerator, bslh_spookyhashalgorithmimp, bslh_siphashalgorithm
+  4. bslh_hash
 
+  3. bslh_defaulthashalgorithm
+     bslh_defaultseededhashalgorithm
+
+  2. bslh_spookyhashalgorithm
+
+  1. bslh_seedgenerator
+     bslh_siphashalgorithm
+     bslh_spookyhashalgorithmimp
+..
 
 /Component Synopsis
 /------------------
@@ -812,10 +814,10 @@ just alphabetical.
 :      Provide a reasonable seeded hashing algorithm for default use.
 :
 : 'bslh_hash':
-:      Provide a struct that can run any hashing algorithm on any type.
+:      Provide a struct to run 'bslh' hash algorithms on supported types.
 :
 : 'bslh_seededhash':
-:      Provide a struct to run seeded hashing algorithms on any type.
+:      Provide a struct to run seeded 'bslh' hash algorithms on types.
 :
 : 'bslh_seedgenerator':
 :      Provide a class to generate arbitrary length seeds for algorithms.
@@ -828,7 +830,6 @@ just alphabetical.
 :
 : 'bslh_spookyhashalgorithmimp':
 :      Provide BDE style encapsulation of 3rd party SpookyHash code.
-
 
 /Component Overview
 /------------------

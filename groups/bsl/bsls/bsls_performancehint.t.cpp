@@ -1,19 +1,30 @@
 // bsls_performancehint.t.cpp                                         -*-C++-*-
 #include <bsls_performancehint.h>
-#include <bsls_stopwatch.h>
+
+#include <bsls_bsltestutil.h>
+
 
 #include <stdlib.h>
-#include <iostream>
+#include <stdio.h>
+#include <time.h>
 
-// Warning: the following 'using' declarations interfere with the testing of
-// the macros defined in this component.  Please do not uncomment them.
-// using namespace BloombergLP;
-// using namespace std;
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+#include <windows.h>   // GetSystemTimeAsFileTime, Sleep
+#else
+#include <unistd.h>    // sleep
+#include <sys/time.h>  // gettimeofday
+#include <stdint.h>    // uint64_t
+#endif
 
-using std::cout;
-using std::cerr;
-using std::endl;
-using std::flush;
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1600
+// stdint.h is only available starting is VS2010.
+typedef unsigned long long uint64_t;
+#else
+#include <stdint.h>
+#endif
+
+using namespace BloombergLP;
+using namespace bsls;
 
 //=============================================================================
 //                                 TEST  PLAN
@@ -39,57 +50,43 @@ using std::flush;
 // [-1] Performance Test: Verifies the performance of test 1, 2, 3
 //-----------------------------------------------------------------------------
 
-//==========================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
-static int testStatus = 0;
+//=============================================================================
+//                    STANDARD BDE ASSERT TEST MACRO
+//-----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool b, const char *s, int i) {
+    if (b) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); } }
+}  // close unnamed namespace
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-        << J << "\n"; aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print a tab (w/o newline)
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -115,16 +112,137 @@ const int TESTSIZE = 10;
 const int TESTSIZE = 100;
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_GNU) && !defined(BSLS_PLATFORM_CMP_CLANG)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wlarger-than="
+#endif
+
 volatile int array1[SIZE]; // for 'addWithPrefetch'
 volatile int array2[SIZE]; // for 'addWithPrefetch'
 
 volatile int array3[SIZE]; // for 'addWithoutPrefetch
 volatile int array4[SIZE]; // for 'addWithoutPrefetch
 
+#if defined(BSLS_PLATFORM_CMP_GNU) && !defined(BSLS_PLATFORM_CMP_CLANG)
+#pragma GCC diagnostic pop
+#endif
+
 }  // close namespace TestCase3
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
+//-----------------------------------------------------------------------------
+
+
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+void sleep(unsigned int seconds)
+{
+    Sleep(seconds * 1000);
+}
+#endif
+
+int64_t getTimer()
+   // Return a 64-bit signed integer values indicating current time as an
+   // offset in nanoseconds from some fixed (but unspecified) point in time.
+   // Note that this value can be used to determine the number of nanoseconds
+   // between two calls to 'getTimer'.  Note also that this deliberately
+   // simple implementation is provided to avoid a dependency on
+   // 'bsls_timeutil'.
+{
+    int64_t result;
+
+
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+    const unsigned int k_NANOSECONDS_PER_TICK = 100;
+
+    ULARGE_INTEGER fileTime;
+    GetSystemTimeAsFileTime(reinterpret_cast<FILETIME *>(&fileTime));
+    result = static_cast<int64_t>(fileTime.QuadPart * k_NANOSECONDS_PER_TICK);
+#else
+    timeval rawTime;
+    gettimeofday(&rawTime, 0);
+
+    const int64_t K = 1000;
+    const int64_t M = 1000000;
+    result = (static_cast<int64_t>(rawTime.tv_sec) * M + rawTime.tv_usec) * K;
+#endif
+
+    return result;
+}
+
+class Stopwatch {
+    // The 'class' provides an accumulator for the system time of the current
+    // process.  A stopwatch can be in either the STOPPED (initial) state or
+    // the RUNNING state.  The accumulated times can be accessed at any time
+    // and in either state (RUNNING or STOPPED).
+
+    // DATA
+    int64_t d_startTime;
+    int64_t d_accumulatedTime;
+    bool    d_isRunning;
+
+  public:
+    Stopwatch() : d_startTime(0), d_accumulatedTime(0), d_isRunning(false) {}
+        // Create a stopwatch in the STOPPED state having total accumulated
+        // system, user, and wall times all equal to 0.0.
+
+     //! ~Stopwatch();
+        // Destroy this stopwatch.  Note that this method's definition is
+        // compiler generated.
+
+    // MANIPULATORS
+    void reset()
+        // Place this stopwatch in the STOPPED state, unconditionally stopping
+        // the accumulation of elapsed times, and set the quiescent elapsed
+        // times to 0.0.
+    {
+        d_isRunning       = false;
+        d_accumulatedTime = 0;
+        d_startTime       = 0;
+    }
+
+    void start()
+        // Place this stopwatch in the RUNNING state and begin accumulating
+        // elapsed times if this object was in the STOPPED state.
+    {
+        d_isRunning = true;
+        d_startTime = getTimer();
+    }
+
+    void stop()
+        // Place this stopwatch in the STOPPED state, unconditionally stopping
+        // the accumulation of elapsed times.  Note that the quiescent
+        // accumulated elapsed times are available while in the STOPPED state.
+    {
+        d_isRunning = false;
+        d_accumulatedTime = getTimer() - d_startTime;
+    }
+
+
+    // ACCESSORS
+    double elapsedTime() const
+        // Return the total (instantaneous and quiescent) elapsed wall time (in
+        // seconds) accumulated by this stopwatch.  Note that this method is
+        // equivalent to 'accumulatedWallTime'.
+    {
+
+        const double k_NanosecondsPerSecond = 1.0E9;
+
+        int64_t elapsedTime = (d_isRunning)
+                            ? getTimer() - d_startTime
+                            : d_accumulatedTime;
+        return (double)elapsedTime / k_NanosecondsPerSecond;
+    }
+
+    bool isRunning() const { return d_isRunning; }
+        // Return 'true' if this stopwatch is accumulating time, and 'false'
+        // otherwise.
+
+};
+
+
+//=============================================================================
+//                  GLOBAL TEST CASES
 //-----------------------------------------------------------------------------
 
 namespace TestCase1 {
@@ -164,7 +282,7 @@ void bar()
     count2++;
 }
 
-void testCase1(int argc, bool assert)
+void testUsageExample1(int argc, bool assert)
 {
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
@@ -175,12 +293,12 @@ void testCase1(int argc, bool assert)
     (void) veryVerbose;
     (void) veryVeryVerbose;
 
-    BloombergLP::bsls::Stopwatch timer;
+    Stopwatch timer;
 
     timer.reset();
 
     if (veryVerbose) {
-        cout << "BSLS_PERFORMANCEHINT_PREDICT_LIKELY" << endl;
+        printf("BSLS_PERFORMANCEHINT_PREDICT_LIKELY\n");
     }
 
     timer.start();
@@ -204,12 +322,12 @@ void testCase1(int argc, bool assert)
     double likelyTime = timer.elapsedTime();
 
     if (veryVerbose) {
-        cout << "\ttime = " << likelyTime << endl;
+        P(likelyTime);
     }
 
 
     if (veryVerbose) {
-        cout << "BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY" << endl;
+        printf("BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY\n");
     }
 
     timer.reset();
@@ -233,7 +351,7 @@ void testCase1(int argc, bool assert)
     double unlikelyTime = timer.elapsedTime();
 
     if (veryVerbose) {
-        cout << "\ttime = " << unlikelyTime << endl;
+        P(unlikelyTime);
     }
 
 #if defined(BDE_BUILD_TARGET_OPT)
@@ -311,7 +429,7 @@ void addWithPrefetch(volatile int *arrayA, volatile int *arrayB)
         // cast away the volatile qualifiers when calling 'prefetch*':
 
         BloombergLP::bsls::PerformanceHint::prefetchForWriting(
-                                               const_cast<int *>(arrayA + 16));  
+                                               const_cast<int *>(arrayA + 16));
         BloombergLP::bsls::PerformanceHint::prefetchForReading(
                                                const_cast<int *>(arrayB + 16));
 
@@ -335,7 +453,7 @@ void addWithPrefetch(volatile int *arrayA, volatile int *arrayB)
     }
 }
 
-void testCase3(int argc, bool assert)
+void testUsageExample3(int argc, bool assert)
 {
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
@@ -347,27 +465,27 @@ void testCase3(int argc, bool assert)
     (void) veryVeryVerbose;
 
     if (veryVerbose) {
-        cout << "Adding with prefetch" << endl;
+        printf("Adding without prefetch\n");
     }
 
     TestCase3::init(TestCase3::array1, TestCase3::array2);
 
-    BloombergLP::bsls::Stopwatch timer;
+    Stopwatch timer;
     timer.start();
 
     for(int i = 0; i < TESTSIZE; ++i) {
-        TestCase3::addWithPrefetch(TestCase3::array1, TestCase3::array2);
+        TestCase3::addWithoutPrefetch(TestCase3::array1, TestCase3::array2);
     }
 
     timer.stop();
-    double withPrefetch = timer.elapsedTime();
+    double withoutPrefetch = timer.elapsedTime();
 
     if (veryVerbose) {
-        cout << "\ttime = " << withPrefetch << endl;
+        P(withoutPrefetch);
     }
 
     if (veryVerbose) {
-        cout << "Adding without prefetch" << endl;
+        printf("Adding with prefetch\n");
     }
 
     TestCase3::init(TestCase3::array3, TestCase3::array4);
@@ -376,14 +494,14 @@ void testCase3(int argc, bool assert)
     timer.start();
 
     for(int i = 0; i < TestCase3::TESTSIZE; ++i) {
-        addWithoutPrefetch(array3, array4);
+        addWithPrefetch(array3, array4);
     }
 
     timer.stop();
-    double withoutPrefetch = timer.elapsedTime();
+    double withPrefetch = timer.elapsedTime();
 
     if (veryVerbose) {
-        cout << "\ttime = " << withoutPrefetch << endl;
+        P(withPrefetch);
     }
 
 #if defined(BDE_BUILD_TARGET_OPT)
@@ -401,6 +519,7 @@ void testCase3(int argc, bool assert)
     // by 'IS_OPTIMIZED=1 pcomp' is set to '-xO2'.  Therefore, the improvement
     // in efficiency is much less than what's described in the usage example
     // when compiled using bde_build.
+
     if (assert) {
         // Only assert in performance test case.
         LOOP2_ASSERT(withoutPrefetch, withPrefetch,
@@ -428,11 +547,12 @@ int main(int argc, char *argv[])
 
     (void) veryVeryVerbose;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    printf("TEST " __FILE__ " CASE %d\n", test);
+
     switch (test) { case 0:  // Zero is always the leading case.
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
+        // TESTING USAGE EXAMPLE 3
         //   This will test the usage example 3 provided in the component
         //   header file for 'prefetchForReading' and 'prefetchForWriting'.
         //
@@ -449,15 +569,15 @@ int main(int argc, char *argv[])
         //   prefetchForWriting
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Usage Example 3"
-                          << "\n=======================" << endl;
+        if (verbose) printf("\nTESTING USAGE EXAMPLE 3"
+                            "\n=======================\n");
 
-        TestCase3::testCase3(argc, false);
+        TestCase3::testUsageExample3(argc, false);
 
       } break;
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
+        // TESTING USAGE EXAMPLE 2
         //   This will test the usage example 2 provided in the component
         //   header file for 'BSLS_PERFORMANCEHINT_PREDICT_EXPECT'.
         //
@@ -472,8 +592,8 @@ int main(int argc, char *argv[])
         //   BSLS_PERFORMANCEHINT_PREDICT_EXPECT
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Usage Example 2"
-                          << "\n=======================" << endl;
+        if (verbose) printf("\nTESTING USAGE EXAMPLE 2"
+                            "\n=======================\n");
 
         int x = rand() % 4;
 
@@ -492,9 +612,9 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 1: {
+      case 2: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
+        // TESTING USAGE EXAMPLE 1
         //   This will test the usage example 1 provided in the component
         //   header file for 'BSLS_PERFORMANCEHINT_PREDICT_LIKELY' and
         //   'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY'.
@@ -512,12 +632,107 @@ int main(int argc, char *argv[])
         //   BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Usage Example 1"
-                          << "\n=======================" << endl;
+        if (verbose) printf("\nTESTING USAGE EXAMPLE 1"
+                            "\n=======================\n");
 
         ASSERT(true);
-        TestCase1::testCase1(argc, false);
+        TestCase1::testUsageExample1(argc, false);
 
+      } break;
+      case 1: {
+        // --------------------------------------------------------------------
+        // TESTING TEST-MACHINERY: 'Stopwatch'
+        //
+        // Concerns:
+        //: 1 That 'Stopwatch' is created in a STOPPED state with an elapsed
+        //:   time of 0.
+        //:
+        //: 2 That 'start' puts the stopwatch in a RUNNING state
+        //:
+        //: 3 That 'stop' puts the soptwatch in a STOPPED state and recurds
+        //:   the accumuted time.
+        //:
+        //: 4 That 'elaspsedTime' returns the correct elapsed time in
+        //:   nanoseconds.
+        //:
+        //: 5 That 'reset' resets the 'Stopwatch' to its defualt constructed
+        //:   state.
+        //
+        // Plan:
+        //: 1 Construct a 'Stopwatch' and verify 'isRunning' is 'false' and
+        //:   'elapsedTime' is 0. (C-1)
+        //:
+        //: 2 Construct a 'Stopwatch', call 'start', sleep for ~1 second and
+        //:   verify 'isRunning' it 'true' and 'elapsedTime' is ~1 second.
+        //:
+        //: 2 Construct a 'Stopwatch', call 'start', sleep for ~1 second and
+        //:   then stop the 'Stopwatch'.  Sleep another second. Verify 
+        //:   'isRunning' it 'false', 'elapsedTime' is ~1, and that the elapsed
+        //:   time has not changed since the stopwatch was stopped.
+        //
+        // Testing:
+        //   TESTING TEST-MACHINERY: 'Stopwatch'
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING TEST-MACHINERY: 'Stopwatch'"
+                            "\n===================================\n");
+
+        const double TOLERANCE = .5;
+
+        if (veryVerbose) printf("\tCompare constructed 'Stopwatch'\n");
+        {
+            Stopwatch mX; const Stopwatch& X = mX;
+
+            ASSERT(false == X.isRunning());
+            ASSERT(0     == X.elapsedTime());
+        }
+
+        if (veryVerbose) printf("Test starting a stopwatch\n");
+        {
+            Stopwatch mX; const Stopwatch& X = mX;
+
+            ASSERT(false == X.isRunning());
+            ASSERT(0     == X.elapsedTime());
+
+            mX.start();
+            sleep(1);
+
+            ASSERT(true  == X.isRunning());
+            ASSERT(1 - TOLERANCE <  X.elapsedTime());
+            ASSERT(1 + TOLERANCE >  X.elapsedTime());
+        }
+
+        if (veryVerbose) printf("Test stop and elapsedTime\n");
+        {
+            Stopwatch mX; const Stopwatch& X = mX;
+
+            ASSERT(false == X.isRunning());
+            ASSERT(0     == X.elapsedTime());
+
+            mX.start();
+            sleep(1);
+
+            ASSERT(true  == X.isRunning());
+            ASSERT(0     <  X.elapsedTime());
+
+            mX.stop();
+
+            double EXPECTED = X.elapsedTime();
+
+            sleep(1);
+
+            double ACTUAL   = X.elapsedTime();
+            ASSERTV(EXPECTED, ACTUAL,
+                    EXPECTED - EXPECTED * .00001 < ACTUAL &&
+                    EXPECTED + EXPECTED * .00001 > ACTUAL);
+            ASSERTV(X.elapsedTime(), 1 - TOLERANCE <  X.elapsedTime());
+            ASSERTV(X.elapsedTime(), 1 + TOLERANCE >  X.elapsedTime());
+            
+            mX.reset();
+            
+            ASSERT(false == X.isRunning());
+            ASSERT(0     == X.elapsedTime());
+        }
       } break;
       case -1: {
         // --------------------------------------------------------------------
@@ -530,7 +745,7 @@ int main(int argc, char *argv[])
         //   usage examples must be faster than not using them.
         //
         // Plan:
-        //   Using 'bsls::Stopwatch', compare the time it takes to run the test
+        //   Using 'Stopwatch', compare the time it takes to run the test
         //   using the performance hints and not using the hints.  Then compare
         //   and assert the time difference.  The test driver must observe an
         //   improvement in performance.  To minimize the effect of caching
@@ -538,56 +753,91 @@ int main(int argc, char *argv[])
         //   first.
         //
         // Testing:
-        //   Performance
+        //   PERFORMANCE TEST
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nPerformance Test"
-                          << "\n================" << endl;
+        if (verbose) printf("\nPERFORMANCE TEST"
+                            "\n================\n");
 
         if (veryVerbose) {
-            cout << "Usage Example 1:" << endl;
+            printf("Usage Example 1:\n");
         }
 
-        TestCase1::testCase1(argc, true);
+        TestCase1::testUsageExample1(argc, true);
 
         if (veryVerbose) {
-            cout << "Usage Example 3:" << endl;
+            printf("Usage Example 3:\n");
         }
 
-        TestCase3::testCase3(argc, true);
+        TestCase3::testUsageExample3(argc, true);
 
       } break;
-      default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+      case -2: {
+        // --------------------------------------------------------------------
+        // CONCERN: STOPWATCH ACCURACY
+        //   This test is concerned with the accuracy of 'Stopwatch'. It is a
+        //   negative test case because it takes ~1 minute to run.
+
+        // Concerns:
+        //: 1 That the 'elapsedTime' reported by 'Stopwatch' is accurate.
+        //
+        // Plan:
+        //: 1 Perform a loop-based tested, sleeping over a series of different
+        //:   delay periods and comparing the results of
+        //:   'Stopwatch::elapsedTime' to 'time'
+        //
+        // Testing:
+        //   CONCERN: STOPWATCH ACCURACY
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nCONCERN: STOPWATCH ACCURACY"
+                            "\n===========================\n");
+
+        if (veryVerbose) printf("\tCompare results w/ 'time'\n");
+
+        for (int i = 1; i < 7; ++i){
+            const int DELAY = i;
+
+            time_t    startTime = time(0);
+            Stopwatch mX;
+            mX.start();
+
+            sleep(DELAY);
+
+            mX.stop();
+            time_t expectedElaspedTime = time(0) - startTime;
+
+            if (veryVerbose) {
+                P_(DELAY); P_(mX.elapsedTime()); P(expectedElaspedTime);
+            }
+            ASSERT(mX.elapsedTime() < expectedElaspedTime + 1 &&
+                   mX.elapsedTime() > expectedElaspedTime - 1);
+        }
+      } break;
+       default: {
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
-
     return testStatus;
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

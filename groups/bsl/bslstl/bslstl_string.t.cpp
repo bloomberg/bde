@@ -248,7 +248,8 @@ using namespace std;
 //                                      const string& str);
 // [ 5] basic_istream<C,CT>& operator>>(basic_istream<C,CT>& stream,
 //                                      const string& str);
-// [29] hashAppend(HASHALG& hashAlg, const basic_string&  input);
+// [29] hashAppend(HASHALG& hashAlg, const basic_string& str);
+// [29] hashAppend(HASHALG& hashAlg, const native_std::basic_string& str);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [11] ALLOCATOR-RELATED CONCERNS
@@ -1222,18 +1223,21 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
     //:   produce equal hashes. (C-4)
     //
     // Testing:
-    //   hashAppend(HASHALG& hashAlg, const basic_string&  input);
+    //   hashAppend(HASHALG& hashAlg, const basic_string& str);
+    //   hashAppend(HASHALG& hashAlg, const native_std::basic_string& str);
     // --------------------------------------------------------------------
     typedef ::BloombergLP::bslh::Hash<> Hasher;
     typedef typename Hasher::result_type HashType;
+    typedef native_std::basic_string<TYPE,TRAITS,ALLOC> NativeObj;
 
     const int PRIME = 100003; // Arbitrary large prime to be used in hash-table
                               // like testing
 
-    int       collisions [PRIME] = {};
+    int       collisions[PRIME]       = {};
+    int       nativeCollisions[PRIME] = {};
     Hasher    hasher;
-    size_t    prevHash           = 0;
-    HashType  hash               = 0;
+    size_t    prevHash                = 0;
+    HashType  hash                    = 0;
 
     if (verbose) printf("Use 'bslh::Hash' to hash a few values of strings with"
                         " each char type. (C-1,2)\n");
@@ -1266,7 +1270,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
             prevHash = hash;
             hash     = hasher(num);
 
-            // Check consecutive values arent hashing to the same hash
+            // Check consecutive values are not hashing to the same hash
             ASSERT(prevHash != hash);
 
             // Check that minimal collisions are happening
@@ -1274,6 +1278,53 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
                                                    // number collisions
 
             Obj numCopy = num;
+
+            // Verify same hash is produced for the same value
+            ASSERT(num == numCopy);
+            ASSERT(hash == hasher(numCopy));
+        }
+    }
+
+    if (verbose) printf("Use 'bslh::Hash' to hash a few values of 'native_std'"
+                        " strings with each char type. (C-1,2)\n");
+    {
+        for (int i = 0; i != PRIME; ++i) {
+            NativeObj num;
+            if (i > 66000){
+                //Make sure we're testing long strings
+                for (int j = 0; j < 40; ++j) {
+                    num.push_back(TYPE('A'));
+                }
+            }
+            else if (i > 33000) {
+                //Make sure we're testing with null characters in the strings
+                for (int j = 0; j < 5; ++j) {
+                    num.push_back(TYPE('A'));
+                    num.push_back(TYPE('\0'));
+                }
+            }
+            num.push_back( TYPE('0' + (i/1000000)     ));
+            num.push_back( TYPE('0' + (i/100000)  %10 ));
+            num.push_back( TYPE('0' + (i/10000)   %10 ));
+            num.push_back( TYPE('0' + (i/1000)    %10 ));
+            num.push_back( TYPE('0' + (i/100)     %10 ));
+            num.push_back( TYPE('0' + (i/10)      %10 ));
+            num.push_back( TYPE('0' + (i)         %10 ));
+
+            if (veryVerbose) printf("Testing hash of %s\n", num.data());
+
+            prevHash = hash;
+            hash     = hasher(num);
+
+            // Check consecutive values are not hashing to the same hash
+            ASSERT(prevHash != hash);
+
+            // Check that minimal collisions are happening
+            ASSERT(++nativeCollisions[hash % PRIME] <= 11);
+                                                         // Choose 11 as a max
+                                                         // number collisions
+
+            NativeObj numCopy = num;
 
             // Verify same hash is produced for the same value
             ASSERT(num == numCopy);
@@ -7527,8 +7578,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
 
                     CONTAINER mU(Y);  const CONTAINER& U = mU;
 
-                    bslstl::StringRefData<TYPE> mV(&*Y.begin(), 
-                                                   &*Y.end());   
+                    bslstl::StringRefData<TYPE> mV(&*Y.begin(),
+                                                   &*Y.end());
                     const bslstl::StringRefData<TYPE> V = mV;
 
                     Obj mX(INIT_LENGTH,
@@ -7778,8 +7829,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
 
                     CONTAINER mU(Y);  const CONTAINER& U = mU;
 
-                    bslstl::StringRefData<TYPE> mV(&*Y.begin(), 
-                                                   &*Y.end());    
+                    bslstl::StringRefData<TYPE> mV(&*Y.begin(),
+                                                   &*Y.end());
                     const bslstl::StringRefData<TYPE> V = mV;
 
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
@@ -7905,8 +7956,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
 
                 Obj mY(X); const Obj& Y = mY;  // control
 
-                bslstl::StringRefData<TYPE> mV(&*Y.begin(), 
-                                                   &*Y.end());     
+                bslstl::StringRefData<TYPE> mV(&*Y.begin(),
+                                                   &*Y.end());
                 const bslstl::StringRefData<TYPE> V = mV;
 
                 if (veryVerbose) {
@@ -14257,7 +14308,8 @@ int main(int argc, char *argv[])
         //:   type. (C-1,2)
         //
         // Testing:
-        //   hashAppend(HASHALG& hashAlg, const basic_string&  input);
+        //   hashAppend(HASHALG& hashAlg, const basic_string& str);
+        //   hashAppend(HASHALG& hashAlg, const native_std::basic_string& str);
         // --------------------------------------------------------------------
         if (verbose) printf("\nTESTING 'hashAppend'"
                             "\n====================\n");
@@ -15308,23 +15360,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

@@ -147,7 +147,7 @@ class Uint128 {
     #ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
     bsls::Types::Uint64 d_high;
     bsls::Types::Uint64 d_low;
-    #elif BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    #elif defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
     bsls::Types::Uint64 d_low;
     bsls::Types::Uint64 d_high;
     #else
@@ -214,10 +214,6 @@ class Uint128 {
 
     bsls::Types::Uint64 low() const;
         // Return the low order bits of this integer.
-
-    Uint128 operator ~() const;
-        // Compute the bitwise ones compliment of this 128 bit integer and
-        // return a copy of the result.
 };
 
 // FREE OPERATORS
@@ -254,6 +250,10 @@ Uint128 operator>>(Uint128 lhs, int rhs);
     // Return an 'Uint128' value equal to the value of a bitwise right shift of
     // the specified 'lhs' 128-bit integer shifted by the specified 'rhs'
     // value.  The behavior is undefined unless '0 <= rhs < 128'.
+
+Uint128 operator ~(Uint128 value);
+    // Return an 'Uint128' value equal to the bitwise ones compliment of the
+    // specified 'value'.
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -368,17 +368,6 @@ void Uint128::setLow(bsls::Types::Uint64 value)
 
 // ACCESSORS
 inline
-Uint128 Uint128::operator~() const
-{
-    Uint128 rv;
-
-    rv.d_high = ~d_high;
-    rv.d_low  = ~d_low;
-
-    return rv;
-}
-
-inline
 bsls::Types::Uint64 Uint128::high() const
 {
     return d_high;
@@ -441,27 +430,30 @@ bdldfp::Uint128 bdldfp::operator>>(bdldfp::Uint128 lhs, int rhs)
     return lhs >>= rhs;
 }
 
+inline
+bdldfp::Uint128 bdldfp::operator~(bdldfp::Uint128 value)
+{
+    value.setHigh(~value.high());
+    value.setLow( ~value.low());
+
+    return value;
+}
+
 }  // close enterprise namespace
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2014 Bloomberg L.P.
+// Copyright 2014 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

@@ -13,59 +13,58 @@
 
 /Hierarchical Synopsis
 /---------------------
- 'bslx' has 10 components having five levels of dependency.  The table below
- shows the hierarchical ordering of the components.  The package prefix and
- underscore ('bslx_') are omitted from the full component names for layout
- efficiency:
+ The 'bslx' package currently has 10 components having 5 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
-  Level
-    5:  testinstream
+  5. bslx_testinstream
 
-    4:  byteinstream         testoutstream
+  4. bslx_byteinstream
+     bslx_testoutstream
 
-    3:  byteoutstream
+  3. bslx_byteoutstream
 
-    2:  outstreamfunctions   testinstreamexception
+  2. bslx_instreamfunctions
+     bslx_outstreamfunctions
+     bslx_testinstreamexception
 
-    1:  marshallingutil      instreamfunctions     typecode   versionfunctions
+  1. bslx_marshallingutil
+     bslx_typecode
+     bslx_versionfunctions
 ..
 
 /Component Synopsis
 /------------------
- The following is a brief synopsis of the components in 'bslx':
-..
-  bslx_byteinstream            - primary production input stream
-
-  bslx_byteoutstream           - primary production output stream
-
-  bslx_instreamfunctions       - templated validator/wrapper for the
-                                 'bdexStreamIn' method required of
-                                 BDEX-compliant types
-
-  bslx_marshallingutil         - utilities to put/get fundamental and array
-                                 values to/from a character buffer
-
-  bslx_outstreamfunctions      - templated validator/wrapper for the
-                                 'bdexStreamOut' method required of
-                                 BDEX-compliant types
-
-  bslx_testinstream            - instrumented input stream, primarily for
-                                 testing
-
-  bslx_testinstreamexception   - exception object, primarily for testing
-
-  bslx_testoutstream           - instrumented output stream, primarily for
-                                 testing
-
-  bslx_typecode                - enumeration of fundamental streamable types
-
-  bslx_versionfunctions        - templated utility to compute serialization
-                                 version during use of 'operator<<'
-..
- Components providing concrete streams define classes whose names are the
- appropriate mixed-case spellings of the component names.  For example,
- 'bslx_byteinstream' provides the 'bslx::ByteInStream' object, a concrete input
- stream.
+: 'bslx_byteinstream':
+:      Provide a stream class for unexternalization of fundamental types.
+:
+: 'bslx_byteoutstream':
+:      Provide a stream class for externalization of fundamental types.
+:
+: 'bslx_instreamfunctions':
+:      Facilitate uniform unexternalization of user and fundamental types.
+:
+: 'bslx_marshallingutil':
+:      Support platform-independent marshalling of fundamental types.
+:
+: 'bslx_outstreamfunctions':
+:      Facilitate uniform externalization of user and fundamental types.
+:
+: 'bslx_testinstream':
+:      Enable unexternalization of fundamental types with identification.
+:
+: 'bslx_testinstreamexception':
+:      Provide an exception class for unexternalization operations.
+:
+: 'bslx_testoutstream':
+:      Enable externalization of fundamental types with identification.
+:
+: 'bslx_typecode':
+:      Enumerate the fundamental types supported by BDEX.
+:
+: 'bslx_versionfunctions':
+:      Provide functions to return BDEX version information for types.
 
 /Externalization
 /---------------

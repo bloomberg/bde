@@ -215,6 +215,23 @@ bool causesMemoryFault(void *address, int offset, char value)
 const bslma::Allocator::size_type OFFSET =
                                        bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
+struct AfterUserBlockDeallocationData
+    // Helper struct storing the addresses we need for deallocation when the
+    // guard page location is 'e_AFTER_USER_BLOCK'.
+{
+    void *d_firstPage; // address we need to deallocate
+    void *d_guardPage; // address of the page we need to unprotect
+};
+
+AfterUserBlockDeallocationData *getDataBlockAddress(void *address)
+    // Utility function to compute the 'AfterUserBlockDeallocationData*'
+    // corresponding to the specified 'address'.
+{
+    return static_cast<AfterUserBlockDeallocationData*>(
+            static_cast<void*>(
+                static_cast<char *>(address) - OFFSET * 2));
+}
+
 static
 void *guardPageAddress(void *address, Enum location, int pageSize)
     // Return the address of the guard page, having the specified 'pageSize'
@@ -223,7 +240,10 @@ void *guardPageAddress(void *address, Enum location, int pageSize)
     // 'location' (with respect to 'address').
 {
     if (Obj::e_AFTER_USER_BLOCK == location) {
-        return *(void **)(static_cast<char *>(address) - OFFSET * 2); // RETURN
+        AfterUserBlockDeallocationData *deallocData =
+            getDataBlockAddress(address);
+
+        return deallocData->d_guardPage;
     }
     else {
         ASSERT(Obj::e_BEFORE_USER_BLOCK == location);
@@ -281,7 +301,10 @@ void overwritePadding(void *address, int size, Enum location, int pageSize)
     void *p = 0;
 
     if (location == Obj::e_AFTER_USER_BLOCK) {
-        p = *(void **)(static_cast<char *>(address) - OFFSET);
+        AfterUserBlockDeallocationData *deallocData =
+            getDataBlockAddress(address);
+
+        p = deallocData->d_firstPage;
     }
     else {
         p = static_cast<char *>(address) + roundedUpSize;
@@ -1380,23 +1403,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

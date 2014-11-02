@@ -16,14 +16,15 @@
 using namespace BloombergLP;
 
 //=============================================================================
-//                             TEST PLAN
-//                             ---------
+//                                  TEST PLAN
+//                                  ---------
+//-----------------------------------------------------------------------------
 // [ 3] ManagedPtr_Members();
 // [ 4] ManagedPtr_Members(ManagedPtr_Members& other);
-// [ 4] ManagedPtr_Members(void *object, void *factory, DeleterFunc deleter);
-// [ 4] ManagedPtr_Members(void *obj, void *fct, DeleterFunc del, void *alias);
-// [ 3] ~ManagedPtr_Members() = default;
-// [ 4] void clear();
+// [ 4] ManagedPtr_Members(void *obj, void *factory, DeleterFunc del);
+// [  ] ManagedPtr_Members(void *o, void *f, DeleterFunc d, void *alias);
+// [ 3] ~ManagedPtr_Members();
+// [  ] void clear();
 // [ 4] void move(ManagedPtr_Members *other);
 // [  ] void moveAssign(ManagedPtr_Members *other);
 // [ 4] void set(void *object, void *factory, DeleterFunc deleter);
@@ -34,14 +35,19 @@ using namespace BloombergLP;
 // [ 4] const ManagedPtrDeleter& deleter() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] Test machinery
+// [ 2] class MyTestObject
+// [ 2] class MyDerivedObject
+// [ 2] class MySecondDerivedObject
 
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-int testStatus = 0;
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
 
 namespace {
+
+int testStatus = 0;
 
 void aSsErT(bool b, const char *s, int i)
 {
@@ -49,12 +55,13 @@ void aSsErT(bool b, const char *s, int i)
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
-
 }
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+}  // close unnamed namespace
+
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
@@ -85,8 +92,10 @@ void aSsErT(bool b, const char *s, int i)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 // ============================================================================
-//                               TEST APPARATUS
+//                              TEST APPARATUS
 // ----------------------------------------------------------------------------
+
+namespace {
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -96,7 +105,7 @@ class MyTestObject;
 class MyDerivedObject;
 
 //=============================================================================
-//                         HELPER CLASSES FOR TESTING
+//                      HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
 class MyTestObject {
@@ -114,20 +123,28 @@ class MyTestObject {
   public:
     // CREATORS
     explicit MyTestObject(int *counter);
+        // Create a 'MyTestObject' using the specified 'counter' to record when
+        // this object's destructor is run.
 
     // Use compiler-generated copy constructor and assignment operator
-    // MyTestObject(MyTestObject const& orig);
-    // MyTestObject operator=(MyTestObject const& orig);
+    //  MyTestObject(const MyTestObject& other) = default;
+    //  MyTestObject operator=(const MyTestObject& other) = default;
 
     virtual ~MyTestObject();
         // Destroy this object.
 
     // ACCESSORS
-    int *valuePtr(int index = 0) const;
-
     volatile int *deleteCounter() const;
+        // Return the address of the counter used to track when this object's
+        // destructor is run.
+
+    int *valuePtr(int index = 0) const;
+        // Return the address of the value associated with the optionally
+        // specified 'index', and the address of the first such object if no
+        // 'index' is specified.
 };
 
+// CREATORS
 MyTestObject::MyTestObject(int *counter)
 : d_deleteCounter_p(counter)
 , d_value()
@@ -136,7 +153,13 @@ MyTestObject::MyTestObject(int *counter)
 
 MyTestObject::~MyTestObject()
 {
-    ++(*d_deleteCounter_p);
+    ++*d_deleteCounter_p;
+}
+
+// ACCESSORS
+volatile int* MyTestObject::deleteCounter() const
+{
+    return d_deleteCounter_p;
 }
 
 inline
@@ -145,11 +168,6 @@ int *MyTestObject::valuePtr(int index) const
     BSLS_ASSERT_SAFE(2 > index);
 
     return d_value + index;
-}
-
-volatile int* MyTestObject::deleteCounter() const
-{
-    return d_deleteCounter_p;
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -163,7 +181,12 @@ class MyDerivedObject : public MyTestObject
   public:
     // CREATORS
     explicit MyDerivedObject(int *counter);
-    // Use compiler-generated copy
+        // Create a 'MyDerivedObject' using the specified 'counter' to record
+        // when this object's destructor is run.
+
+    // Use compiler-generated copy constructor and assignment operator
+    //  MyDerivedObject(const MyDerivedObject& other) = default;
+    //  MyDerivedObject operator=(const MyDerivedObject& other) = default;
 
     ~MyDerivedObject();
         // Increment the stored reference to a counter by 100, then destroy
@@ -193,7 +216,12 @@ class MySecondDerivedObject : public MyTestObject
   public:
     // CREATORS
     explicit MySecondDerivedObject(int *counter);
-    // Use compiler-generated copy
+        // Create a 'MySecondDerivedObject' using the specified 'counter' to
+        // record when this object's destructor is run.
+
+    // Use compiler-generated copy constructor and assignment operator
+    // MySecondDerivedObject(const MySecondDerivedObject& orig);
+    // MySecondDerivedObject operator=(const MySecondDerivedObject& orig);
 
     ~MySecondDerivedObject();
         // Increment the stored reference to a counter by 10000, then destroy
@@ -227,14 +255,20 @@ class CountedStackDeleter
   public:
     // CREATORS
     explicit CountedStackDeleter(int *counter) : d_deleteCounter_p(counter) {}
+        // Create a 'CountedStackDeleter' using the specified 'counter' to
+        // record when this object is invoked as a deleter.
 
     //! ~CountedStackDeleter();
         // Destroy this object.
 
     // ACCESSORS
     volatile int *deleteCounter() const { return d_deleteCounter_p; }
+        // Return the address of the counter used to track when this object is
+        // invoked as a deleter.
 
     void deleteObject(void *) const
+        // Increment the stored reference to a counter to indicate that this
+        // method has been called.
     {
         ++*d_deleteCounter_p;
     }
@@ -247,8 +281,9 @@ class CountedStackDeleter
 int g_deleteCount = 0;
 
 static void countedNilDelete(void *, void*)
+    // Increment the global delete counterer 'g_deleteCount'.
 {
-    static int& deleteCount = g_deleteCount;
+//    static int& deleteCount = g_deleteCount;
     ++g_deleteCount;
 }
 
@@ -257,6 +292,8 @@ static void countedNilDelete(void *, void*)
 //-----------------------------------------------------------------------------
 
 static void doNothingDeleter(void *object, void *)
+    // The behavior is undefined unless the specified 'object' pointer is not
+    // null.  Otherwise, this function has no effect.
 {
     ASSERT(object);
 }
@@ -264,7 +301,7 @@ static void doNothingDeleter(void *object, void *)
 }  // close unnamed namespace
 
 //=============================================================================
-//                  TEST PROGRAM
+//                              TEST PROGRAM
 //-----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
@@ -274,18 +311,27 @@ int main(int argc, char *argv[])
     bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
 
+    (void)veryVerbose;
+    (void)veryVeryVerbose;
+
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
+    // Confirm no static intialization locekd the global allocator
+    ASSERT(&globalAllocator == bslma::Default::globalAllocator());
+
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
     bslma::Default::setDefaultAllocator(&da);
+
+    // Confirm no static intialization locked the default allocator
+    ASSERT(&da == bslma::Default::defaultAllocator());
 
     switch (test) { case 0:
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING ManagedPtr_Members
+        // TESTING 'ManagedPtr_Members'
         //  This class looks far too big to test in a single test case.
         //  Really ought to break out into the following test cases:
         //    basic ctor/dtor
@@ -307,10 +353,8 @@ int main(int argc, char *argv[])
         //: 1 TBD Describe the test plan
         //
         // Testing:
-        //    ManagedPtr_Members();
-        //    ManagedPtr_Members(void *, void *, DeleterFunc);
-        //    ManagedPtr_Members(ManagedPtr_Members&);
-        //    ~ManagedPtr_Members();
+        //    ManagedPtr_Members(void *obj, void *factory, DeleterFunc del);
+        //    ManagedPtr_Members(ManagedPtr_Members& other);
         //    void move(ManagedPtr_Members *other);
         //    void set(void *object, void *factory, DeleterFunc deleter);
         //    void setAliasPtr(void *ptr);
@@ -320,8 +364,8 @@ int main(int argc, char *argv[])
         //    const ManagedPtrDeleter& deleter() const;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING ManagedPtr_Members"
-                            "\n--------------------------\n");
+        if (verbose) printf("\nTESTING 'ManagedPtr_Members'"
+                            "\n============================\n");
 
 
         typedef bslma::ManagedPtr_FactoryDeleter<MyTestObject,
@@ -401,15 +445,15 @@ int main(int argc, char *argv[])
             ASSERT(0 == members.pointer());
 
 #ifdef BDE_BUILD_TARGET_EXC
-                if (verbose) printf("\t\tNegative testing\n");
+            if (verbose) printf("\t\tNegative testing\n");
 
-                {
-                    bsls::AssertTestHandlerGuard guard;
-                    ASSERT_SAFE_FAIL(members.deleter());
-                }
+            {
+                bsls::AssertTestHandlerGuard guard;
+                ASSERT_SAFE_FAIL(members.deleter());
+            }
 #else
-                if (verbose) printf("\tNegative testing disabled due to lack"
-                                     " of exception support\n");
+            if (verbose) printf("\tNegative testing disabled due to lack of"
+                                 " exception support\n");
 #endif
 
             {
@@ -595,6 +639,14 @@ int main(int argc, char *argv[])
             struct Local {
                 int d_x;
                 static void deleter(void *a, void *b)
+                    // 'ASSERT' that the 'd_x' data member of the 'Local'
+                    // object pointed to by the specified 'a' has the specieid
+                    // 'b' address, and currently has the value '13', then
+                    // assign to that 'd_x' the value 42,  Note that this
+                    // function provides a verifiable test condition that the
+                    // 'deleter' function is executed when expected, without
+                    // actually destroying any objects nor reclaiming any
+                    // memory.
                 {
                     Local * pThis = static_cast<Local *>(a);
                     ASSERT(&pThis->d_x == b);
@@ -693,20 +745,20 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // Testing default constructor and primary manipulators
+        // TESTING DEFAULT CONSTRUCTOR AND PRIMARY MANIPULATORS
         //
         // Concerns:
         //
         // Plan:
         //
         // Testing:
-        //   bslma::ManagedPtr_Members()
-        //   ~bslma::ManagedPtr_Members()
+        //   ManagedPtr_Members();
+        //   ~ManagedPtr_Members();
         // --------------------------------------------------------------------
 
         if (verbose) {
-            printf("\nTesting default constructor and primary manipulators"
-                   "\n----------------------------------------------------\n");
+            printf("\nTESTING DEFAULT CONSTRUCTOR AND PRIMARY MANIPULATORS"
+                   "\n====================================================\n");
         }
 
         if (verbose) printf("\tTest class MyTestObject\n");
@@ -808,7 +860,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING TEST MACHINERY"
-                            "\n----------------------\n");
+                            "\n======================\n");
 
         if (verbose) printf("\tTest class MyTestObject\n");
 
@@ -879,12 +931,12 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(destructorCount, 0 == destructorCount);
             }
             LOOP_ASSERT(destructorCount, 10000 == destructorCount);
-       }
-       ASSERT(20000 == destructorCount);
+        }
+        ASSERT(20000 == destructorCount);
 
-       if (verbose) printf("\tTest pointer conversions\n");
+        if (verbose) printf("\tTest pointer conversions\n");
 
-       struct Local {
+        struct Local {
             static bool matchBase(MyTestObject *) { return true; }
             static bool matchBase(...) { return false; }
 
@@ -930,6 +982,7 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
+        //   This test exercises basic functionality but *tests* *nothing*.
         //
         // Concerns:
         //   1. That the functions exist with the documented signatures.
@@ -940,11 +993,11 @@ int main(int argc, char *argv[])
         //   sequence to ensure that the basic functionality is as documented.
         //
         // Testing:
-        //   This test exercises basic functionality but *tests* *nothing*.
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
-                            "\n--------------\n");
+                            "\n==============\n");
 
         if (verbose) printf("Nothing tested yet.\n");
       } break;
@@ -967,23 +1020,17 @@ int main(int argc, char *argv[])
 
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

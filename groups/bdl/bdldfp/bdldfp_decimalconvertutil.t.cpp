@@ -9,9 +9,12 @@
 #include <bsl_limits.h>
 #include <bsl_cmath.h>
 #include <bsl_cfloat.h>
+#include <bsl_algorithm.h>
 
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
+
+#include <bslmf_assert.h>
 
 #include <typeinfo>
 
@@ -114,7 +117,7 @@ namespace BDEC = BloombergLP::bdldfp;
 static bslma::Allocator *ia = bslma::Default::globalAllocator();
 
 #define PARSEDECIMAL(p, nn)                                                   \
-        BDEC::Decimal##nn(BDEC::DecimalImplUtil::parse##nn(p))
+        BDEC::Decimal##nn(BDEC::DecimalImpUtil::parse##nn(p))
 #define PARSEDEC32(p) PARSEDECIMAL((p), 32)
 #define PARSEDEC64(p) PARSEDECIMAL((p), 64)
 #define PARSEDEC128(p) PARSEDECIMAL((p), 128)
@@ -171,8 +174,8 @@ struct DecBinTestCase {
         // and '0' otherwise.
     {
         // workaround for IBM compiler bug
-        typedef BDEC::DecimalImplUtil::ValueType128 Vt128;
-        Vt128 x(BDEC::DecimalImplUtil::parse128(d_decimalLiteral));
+        typedef BDEC::DecimalImpUtil::ValueType128 Vt128;
+        Vt128 x(BDEC::DecimalImpUtil::parse128(d_decimalLiteral));
         return doD128()?BDEC::Decimal128(x):BDEC::Decimal128(0);      // RETURN
         // END - workaround for IBM compiler bug
 
@@ -241,13 +244,37 @@ static const DecBinTestCase DEC2BIN_DATA[] = {
 static const int DEC2BIN_DATA_COUNT =
                                 sizeof(DEC2BIN_DATA) / sizeof(DEC2BIN_DATA[0]);
 
+                        // Reverse Memory
+
+static void memrev(void *buffer, size_t count)
+    // Reverse the order of the first specified 'count' bytes, at the beginning
+    // of the specified 'buffer'.  'count % 2' must be zero.
+{
+    unsigned char *b = static_cast<unsigned char *>(buffer);
+    bsl::reverse(b, b + count);
+}
+
+                        // Mem copy with reversal functions
+
+unsigned char *memReverseIfNeeded(void *buffer, size_t count)
+    // Reverse the first specified 'count' bytes from the specified 'buffer`,
+    // if the host endian is different from network endian, and return the
+    // address computed from 'static_cast<unsigned char *>(buffer) + count'.
+{
+#ifdef BDLDFP_DECIMALPLATFORM_LITTLE_ENDIAN
+    // little endian, needs to do some byte juggling
+    memrev(buffer, count);
+#endif
+    return static_cast<unsigned char*>(buffer) + count;
+}
+
 //=============================================================================
 //                               USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 namespace UsageExample {
   // TBD
-}  // close namespace UsageExample
+}  // close UsageExample namespace
 
 //=============================================================================
 //              GLOBAL HELPER FUNCTIONS AND CLASSES FOR TESTING
@@ -371,31 +398,6 @@ struct Mantissa128 {
     long long hi;
 #endif
 };
-
-BSLMF_ASSERT(sizeof(long double) <= sizeof(long long) * 2);
-Mantissa128 mantissaBits(long double ld)
-    // Return, as a binary integer, the significand of the specifies floating
-    // point value.  Note that sign is ignored.  The return value of this
-    // function is unspecifed when it is called with a floating point value of
-    // +/- infinity, or a subnormal value.  The behavior is undefined if the
-    // specified 'ld' is NaN.
-{
-    union {
-        long double as_ldouble;
-        Mantissa128 as_int;
-    } x;
-
-    if (sizeof(long double) == sizeof(double)) {
-        x.as_int.hi = 0;
-        x.as_int.lo = mantissaBits(double(ld));
-    }
-    else {
-        x.as_ldouble = ld;
-        x.as_int.hi &= 0xffffffffffffull;
-    }
-
-    return x.as_int;
-}
 
                             // Strict comparators
 
@@ -559,22 +561,19 @@ int main(int argc, char* argv[])
     LOOP3_ASSERT(tc.d_line, d##nn, Util::decimalTo##fn(d##nn),                \
                             Util::decimalTo##fn(d##nn) == tc.d_##mn)
             if (tc.doD32()) {
-                D2B_ASSERT(32, LongDouble, ld);
                 D2B_ASSERT(32, Double, d);
                 D2B_ASSERT(32, Float, f);
 
-                D2B_ASSERT(64, LongDouble, ld);
                 D2B_ASSERT(64, Double, d);
                 D2B_ASSERT(64, Float, f);
 
-                D2B_ASSERT(128, LongDouble, ld);
                 D2B_ASSERT(128, Double, d);
                 D2B_ASSERT(128, Float, f);
             }
 #undef D2B_ASSERT
         }
 
-        if (veryVerbose) bsl::cout << "Network format conversions"
+        if (veryVerbose) bsl::cout << "DPD, and Network format conversions"
                                    << bsl::endl;
 
         { // 32
@@ -587,6 +586,22 @@ int main(int argc, char* argv[])
             ASSERT(0 == memcmp(n_d32, buffer, sizeof(n_d32)));
 
             Util::decimalFromNetwork(&d32, buffer);
+            LOOP2_ASSERT(d32, h_d32, d32 == h_d32);
+
+            unsigned int rawData = 0x2654D2E7;
+
+            Util::decimalToDenselyPacked(buffer, h_d32);
+            ASSERT(0 == memcmp(buffer, &rawData, sizeof(rawData)));
+
+            Util::decimal32ToDenselyPacked(buffer, h_d32);
+            ASSERT(0 == memcmp(buffer, &rawData, sizeof(rawData)));
+
+            ASSERT(Util::decimal32FromDenselyPacked(buffer) == h_d32);
+
+            Util::decimal32FromDenselyPacked(&d32, buffer);
+            ASSERT(d32 == h_d32);
+
+            Util::decimalFromDenselyPacked(&d32, buffer);
             ASSERT(d32 == h_d32);
         }
 
@@ -601,6 +616,22 @@ int main(int argc, char* argv[])
             ASSERT(0 == memcmp(n_d64, buffer, sizeof(n_d64)));
 
             Util::decimalFromNetwork(&d64, buffer);
+            LOOP2_ASSERT(d64, h_d64, d64 == h_d64);
+
+            unsigned long long rawData = 0x263934B9C1E28E56ULL;
+
+            Util::decimalToDenselyPacked(buffer, h_d64);
+            ASSERT(0 == memcmp(&rawData, buffer, sizeof(rawData)));
+
+            Util::decimal64ToDenselyPacked(buffer, h_d64);
+            ASSERT(0 == memcmp(&rawData, buffer, sizeof(rawData)));
+
+            ASSERT(Util::decimal64FromDenselyPacked(buffer) == h_d64);
+
+            Util::decimal64FromDenselyPacked(&d64, buffer);
+            ASSERT(d64 == h_d64);
+
+            Util::decimalFromDenselyPacked(&d64, buffer);
             ASSERT(d64 == h_d64);
         }
 
@@ -618,6 +649,23 @@ int main(int argc, char* argv[])
             ASSERT(0 == memcmp(n_d128, buffer, sizeof(n_d128)));
 
             Util::decimalFromNetwork(&d128, buffer);
+            LOOP2_ASSERT(d128, h_d128, d128 == h_d128);
+
+            bdldfp::Uint128 rawData(0x2608134B9C1E28E5ULL,
+                                    0x6F3C127177823534ULL);
+
+            Util::decimalToDenselyPacked(buffer, h_d128);
+            ASSERT(0 == memcmp(&rawData, buffer, sizeof(rawData)));
+
+            Util::decimal128ToDenselyPacked(buffer, h_d128);
+            ASSERT(0 == memcmp(&rawData, buffer, sizeof(rawData)));
+
+            ASSERT(Util::decimal128FromDenselyPacked(buffer) == h_d128);
+
+            Util::decimal128FromDenselyPacked(&d128, buffer);
+            ASSERT(d128 == h_d128);
+
+            Util::decimalFromDenselyPacked(&d128, buffer);
             ASSERT(d128 == h_d128);
         }
 
@@ -626,15 +674,13 @@ int main(int argc, char* argv[])
 
         // No guarantees if these aren't binary:
 
-        if (std::numeric_limits<long double>::radix == 2 &&
-            std::numeric_limits<     double>::radix == 2 &&
-            std::numeric_limits<      float>::radix == 2)
+        if (std::numeric_limits<double>::radix == 2 &&
+            std::numeric_limits< float>::radix == 2)
         {
             if (veryVeryVerbose) bsl::cout << "Decimal32" << bsl::endl;
             {
-                BDEC::Decimal32 original;
+                BDEC::Decimal32 original(0.0);
 
-                long double bin_ld;  // Carrier binaries
                 double      bin_d;
                 float       bin_f;
 
@@ -642,230 +688,196 @@ int main(int argc, char* argv[])
 
                 // Testing 0.0
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
                 bin_f   = Util::decimalToFloat(original);
 
-                restored = Util::decimal32FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
-
                 restored = Util::decimal32FromDouble(bin_d);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_d,
+                             strictEqual(original, restored));
 
                 restored = Util::decimal32FromFloat(bin_f);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_f,
+                             strictEqual(original, restored));
 
                 // Testing -0.0
 
                 original = -original;
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
                 bin_f   = Util::decimalToFloat(original);
 
-                restored = Util::decimal32FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
-
                 restored = Util::decimal32FromDouble(bin_d);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_d,
+                             strictEqual(original, restored));
 
                 restored = Util::decimal32FromFloat(bin_f);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_f,
+                             strictEqual(original, restored));
 
                 // Testing 1.0
 
                 original = BDLDFP_DECIMAL_DF(1.);
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
                 bin_f   = Util::decimalToFloat(original);
 
-                restored = Util::decimal32FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
-
                 restored = Util::decimal32FromDouble(bin_d);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_d,
+                             strictEqual(original, restored));
 
                 restored = Util::decimal32FromFloat(bin_f);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_f,
+                             strictEqual(original, restored));
 
                 // Testing 0.1
 
                 original = BDLDFP_DECIMAL_DF(0.1);
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
                 bin_f   = Util::decimalToFloat(original);
 
-                restored = Util::decimal32FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
-
                 restored = Util::decimal32FromDouble(bin_d);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_d,
+                             strictEqual(original, restored));
 
                 restored = Util::decimal32FromFloat(bin_f);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_f,
+                             strictEqual(original, restored));
 
                 // Testing 0.2
 
                 original = BDLDFP_DECIMAL_DF(0.2);
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
                 bin_f   = Util::decimalToFloat(original);
 
-                restored = Util::decimal32FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
-
                 restored = Util::decimal32FromDouble(bin_d);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_d,
+                             strictEqual(original, restored));
 
                 restored = Util::decimal32FromFloat(bin_f);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_f,
+                             strictEqual(original, restored));
 
                 // Testing 0.3
 
                 original = BDLDFP_DECIMAL_DF(0.3);
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
                 bin_f   = Util::decimalToFloat(original);
 
-                restored = Util::decimal32FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
-
                 restored = Util::decimal32FromDouble(bin_d);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_d,
+                             strictEqual(original, restored));
 
                 restored = Util::decimal32FromFloat(bin_f);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_f,
+                             strictEqual(original, restored));
 
                 // Testing 0.123456
 
                 original = BDLDFP_DECIMAL_DF(0.123456);
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
                 bin_f   = Util::decimalToFloat(original);
 
-                restored = Util::decimal32FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
-
                 restored = Util::decimal32FromDouble(bin_d);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_d,
+                             strictEqual(original, restored));
 
                 restored = Util::decimal32FromFloat(bin_f);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_f,
+                             strictEqual(original, restored));
 
                 // Testing 0.1234567 -- float cannot do that
 
                 original = BDLDFP_DECIMAL_DF(0.1234567);
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
 
-                restored = Util::decimal32FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
-
                 restored = Util::decimal32FromDouble(bin_d);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_d,
+                             strictEqual(original, restored));
 
                 // Testing Dec32-max
 
                 original = std::numeric_limits<BDEC::Decimal32>::max();
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
 
-                restored = Util::decimal32FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
-
                 restored = Util::decimal32FromDouble(bin_d);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_d,
+                             strictEqual(original, restored));
 
                 // Testing Dec32-min -- float cannot do that
 
                 original = std::numeric_limits<BDEC::Decimal32>::min();
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
 
-                restored = Util::decimal32FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
-
                 restored = Util::decimal32FromDouble(bin_d);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_d,
+                             strictEqual(original, restored));
 
                 // Testing Dec32-denorm_min -- float cannot do that
 
                 original = std::numeric_limits<BDEC::Decimal32>::denorm_min();
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
 
-                restored = Util::decimal32FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
-
                 restored = Util::decimal32FromDouble(bin_d);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_d,
+                             strictEqual(original, restored));
 
                 // Testing NaN
 
                 original = std::numeric_limits<BDEC::Decimal32>::quiet_NaN();
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
                 bin_f   = Util::decimalToFloat(original);
 
-                restored = Util::decimal32FromLongDouble(bin_ld);
-                ASSERT(restored != restored);
 
                 restored = Util::decimal32FromDouble(bin_d);
-                ASSERT(restored != restored);
+                LOOP2_ASSERT(restored, bin_d, restored != restored);
 
                 restored = Util::decimal32FromFloat(bin_f);
-                ASSERT(restored != restored);
+                LOOP2_ASSERT(restored, bin_f, restored != restored);
 
                 // Testing +INF
 
                 original = std::numeric_limits<BDEC::Decimal32>::infinity();
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
                 bin_f   = Util::decimalToFloat(original);
 
-                restored = Util::decimal32FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
-
                 restored = Util::decimal32FromDouble(bin_d);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_d,
+                             strictEqual(original, restored));
 
                 restored = Util::decimal32FromFloat(bin_f);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_f,
+                             strictEqual(original, restored));
 
                 // Testing -INF
 
                 original = -original;
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
                 bin_f   = Util::decimalToFloat(original);
 
-                restored = Util::decimal32FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
-
                 restored = Util::decimal32FromDouble(bin_d);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_d,
+                             strictEqual(original, restored));
 
                 restored = Util::decimal32FromFloat(bin_f);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_f,
+                             strictEqual(original, restored));
             }
 
             if (veryVeryVerbose) bsl::cout << "Decimal64" << bsl::endl;
             {
-                BDEC::Decimal64 original;
+                BDEC::Decimal64 original(0.0);
 
-                long double bin_ld;  // Carrier binaries
                 double      bin_d;
                 float       bin_f;
 
@@ -873,230 +885,175 @@ int main(int argc, char* argv[])
 
                 // Testing 0.0
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
                 bin_f   = Util::decimalToFloat(original);
 
-                restored = Util::decimal64FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
-
                 restored = Util::decimal64FromDouble(bin_d);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_d,
+                             strictEqual(original, restored));
 
                 restored = Util::decimal64FromFloat(bin_f);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_f,
+                             strictEqual(original, restored));
 
                 // Testing -0.0
 
                 original = -original;
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
                 bin_f   = Util::decimalToFloat(original);
 
-                restored = Util::decimal64FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
-
                 restored = Util::decimal64FromDouble(bin_d);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_d,
+                             strictEqual(original, restored));
 
                 restored = Util::decimal64FromFloat(bin_f);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_f,
+                             strictEqual(original, restored));
 
                 // Testing 1.0
 
                 original = BDLDFP_DECIMAL_DD(1.);
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
                 bin_f   = Util::decimalToFloat(original);
 
-                restored = Util::decimal64FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
-
                 restored = Util::decimal64FromDouble(bin_d);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_d,
+                             strictEqual(original, restored));
 
                 restored = Util::decimal64FromFloat(bin_f);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_f,
+                             strictEqual(original, restored));
 
                 // Testing 0.1
 
                 original = BDLDFP_DECIMAL_DD(0.1);
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
                 bin_f   = Util::decimalToFloat(original);
 
-                restored = Util::decimal64FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
-
                 restored = Util::decimal64FromDouble(bin_d);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_d,
+                             strictEqual(original, restored));
 
                 restored = Util::decimal64FromFloat(bin_f);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_f,
+                             strictEqual(original, restored));
 
                 // Testing 0.2
 
                 original = BDLDFP_DECIMAL_DD(0.2);
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
                 bin_f   = Util::decimalToFloat(original);
 
-                restored = Util::decimal64FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
-
                 restored = Util::decimal64FromDouble(bin_d);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_d,
+                             strictEqual(original, restored));
 
                 restored = Util::decimal64FromFloat(bin_f);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_f,
+                             strictEqual(original, restored));
 
                 // Testing 0.3
 
                 original = BDLDFP_DECIMAL_DD(0.3);
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
                 bin_f   = Util::decimalToFloat(original);
 
-                restored = Util::decimal64FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
-
                 restored = Util::decimal64FromDouble(bin_d);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_d,
+                             strictEqual(original, restored));
 
                 restored = Util::decimal64FromFloat(bin_f);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_f,
+                             strictEqual(original, restored));
 
                 // Testing 0.123456 - the last that shall fit a float
 
                 original = BDLDFP_DECIMAL_DD(0.123456);
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
                 bin_f   = Util::decimalToFloat(original);
 
-                restored = Util::decimal64FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
-
                 restored = Util::decimal64FromDouble(bin_d);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_d,
+                             strictEqual(original, restored));
 
                 restored = Util::decimal64FromFloat(bin_f);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_f,
+                             strictEqual(original, restored));
 
                 // Testing 0.123456789012345 - the last that shall fit a double
 
                 original = BDLDFP_DECIMAL_DD(0.123456789012345);
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
 
-                restored = Util::decimal64FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
-
                 restored = Util::decimal64FromDouble(bin_d);
-                ASSERT(strictEqual(original, restored));
-
-                if (sizeof(double) < sizeof(long double)) {
-                    // Testing 0.1234567890123456 -- Need 128 bits in binary
-
-                    original = BDLDFP_DECIMAL_DD(0.1234567890123456);
-
-                    bin_ld  = Util::decimalToLongDouble(original);
-
-                    restored = Util::decimal64FromLongDouble(bin_ld);
-                    ASSERT(strictEqual(original, restored));
-
-                    // Testing Dec64-max  -- won't fit in a double or float
-
-                    original = std::numeric_limits<BDEC::Decimal64>::max();
-
-                    bin_ld  = Util::decimalToLongDouble(original);
-
-                    restored = Util::decimal64FromLongDouble(bin_ld);
-                    ASSERT(strictEqual(original, restored));
-
-                    // Testing Dec64-min -- double, float cannot do that
-
-                    original = std::numeric_limits<BDEC::Decimal64>::min();
-
-                    bin_ld  = Util::decimalToLongDouble(original);
-
-                    restored = Util::decimal64FromLongDouble(bin_ld);
-                    ASSERT(strictEqual(original, restored));
-
-                    // Testing Dec64-denorm_min -- float/double cannot do that
-
-                    original =
-                            std::numeric_limits<BDEC::Decimal64>::denorm_min();
-
-                    bin_ld  = Util::decimalToLongDouble(original);
-
-                    restored = Util::decimal64FromLongDouble(bin_ld);
-                    ASSERT(strictEqual(original, restored));
-                }
+                LOOP3_ASSERT(original, restored, bin_d,
+                             strictEqual(original, restored));
 
                 // Testing NaN
 
                 original = std::numeric_limits<BDEC::Decimal64>::quiet_NaN();
+                original = std::numeric_limits<BDEC::Decimal64>::quiet_NaN();
+                LOOP2_ASSERT(original,
+                    std::numeric_limits<BDEC::Decimal64>::quiet_NaN(),
+                    strictEqual(original, std::numeric_limits<BDEC::Decimal64>::quiet_NaN()));
+                BDEC::Decimal64 qnan(std::numeric_limits<BDEC::Decimal64>::quiet_NaN());
+                BDEC::Decimal64 zero(0.0);
+                LOOP2_ASSERT(original, qnan, strictEqual(original, qnan));
+                LOOP2_ASSERT(zero, qnan, !strictEqual(zero, qnan));
+                LOOP2_ASSERT(zero, qnan, qnan != zero);
+                LOOP2_ASSERT(zero, qnan, !(qnan == zero));
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
                 bin_f   = Util::decimalToFloat(original);
 
-                restored = Util::decimal64FromLongDouble(bin_ld);
-                ASSERT(restored != restored);
-
                 restored = Util::decimal64FromDouble(bin_d);
-                ASSERT(restored != restored);
+                LOOP2_ASSERT(restored, bin_d, restored != restored);
 
                 restored = Util::decimal64FromFloat(bin_f);
-                ASSERT(restored != restored);
+                LOOP2_ASSERT(restored, bin_f, restored != restored);
 
                 // Testing +INF
 
                 original = std::numeric_limits<BDEC::Decimal64>::infinity();
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
                 bin_f   = Util::decimalToFloat(original);
 
-                restored = Util::decimal64FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
-
                 restored = Util::decimal64FromDouble(bin_d);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_d,
+                             strictEqual(original, restored));
 
                 restored = Util::decimal64FromFloat(bin_f);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_f,
+                             strictEqual(original, restored));
 
                 // Testing -INF
 
                 original = -original;
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
                 bin_f   = Util::decimalToFloat(original);
 
-                restored = Util::decimal64FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
-
                 restored = Util::decimal64FromDouble(bin_d);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_d,
+                             strictEqual(original, restored));
 
                 restored = Util::decimal64FromFloat(bin_f);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_f,
+                             strictEqual(original, restored));
             }
 
             if (veryVeryVerbose) bsl::cout << "Decimal128" << bsl::endl;
             {
-                BDEC::Decimal128 original;
+                BDEC::Decimal128 original(0.0);
 
-                long double bin_ld;  // Carrier binaries
                 double      bin_d;
                 float       bin_f;
 
@@ -1104,114 +1061,99 @@ int main(int argc, char* argv[])
 
                 // Testing 0.0
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
                 bin_f   = Util::decimalToFloat(original);
 
-                restored = Util::decimal128FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
-
                 restored = Util::decimal128FromDouble(bin_d);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_d,
+                             strictEqual(original, restored));
 
                 restored = Util::decimal128FromFloat(bin_f);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_f,
+                             strictEqual(original, restored));
 
                 // Testing -0.0
 
                 original = -original;
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
                 bin_f   = Util::decimalToFloat(original);
 
-                restored = Util::decimal128FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
 
                 restored = Util::decimal128FromDouble(bin_d);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_d,
+                             strictEqual(original, restored));
 
                 restored = Util::decimal128FromFloat(bin_f);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_f,
+                             strictEqual(original, restored));
 
                 // Testing 1.0
 
                 original = BDLDFP_DECIMAL_DL(1.);
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
                 bin_f   = Util::decimalToFloat(original);
 
-                restored = Util::decimal128FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
-
                 restored = Util::decimal128FromDouble(bin_d);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_d,
+                             strictEqual(original, restored));
 
                 restored = Util::decimal128FromFloat(bin_f);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_f,
+                             strictEqual(original, restored));
 
                 // Testing 0.1
 
                 original = BDLDFP_DECIMAL_DL(0.1);
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
                 bin_f   = Util::decimalToFloat(original);
 
-                restored = Util::decimal128FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
-
                 restored = Util::decimal128FromDouble(bin_d);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_d,
+                             strictEqual(original, restored));
 
                 restored = Util::decimal128FromFloat(bin_f);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_f,
+                             strictEqual(original, restored));
 
                 // Testing 0.2
 
                 original = BDLDFP_DECIMAL_DL(0.2);
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
                 bin_f   = Util::decimalToFloat(original);
 
-                restored = Util::decimal128FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
-
                 restored = Util::decimal128FromDouble(bin_d);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_d,
+                             strictEqual(original, restored));
 
                 restored = Util::decimal128FromFloat(bin_f);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_f,
+                             strictEqual(original, restored));
 
                 // Testing 0.3
 
                 original = BDLDFP_DECIMAL_DL(0.3);
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
                 bin_f   = Util::decimalToFloat(original);
 
-                restored = Util::decimal128FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
-
                 restored = Util::decimal128FromDouble(bin_d);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_d,
+                             strictEqual(original, restored));
 
                 restored = Util::decimal128FromFloat(bin_f);
-                ASSERT(strictEqual(original, restored));
+                LOOP3_ASSERT(original, restored, bin_f,
+                             strictEqual(original, restored));
 
                 // Testing 0.123456 - the last that shall fit a float
 
                 original = BDLDFP_DECIMAL_DL(0.123456);
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
                 bin_f   = Util::decimalToFloat(original);
-
-                restored = Util::decimal128FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
 
                 restored = Util::decimal128FromDouble(bin_d);
                 ASSERT(strictEqual(original, restored));
@@ -1223,42 +1165,17 @@ int main(int argc, char* argv[])
 
                 original = BDLDFP_DECIMAL_DL(0.123456789012345);
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
-
-                restored = Util::decimal128FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
 
                 restored = Util::decimal128FromDouble(bin_d);
                 ASSERT(strictEqual(original, restored));
-
-                if (sizeof(double) < sizeof(long double)) {
-                    // Testing 0.1234567890123456 -- Need 128 bits in binary
-
-                    original = BDLDFP_DECIMAL_DL(0.1234567890123456);
-
-                    bin_ld  = Util::decimalToLongDouble(original);
-
-                    restored = Util::decimal128FromLongDouble(bin_ld);
-                    ASSERT(strictEqual(original, restored));
-
-                    // Testing Dec128-max  -- won't fit into anything
-
-                    // Testing Dec128-min  -- won't fit into anything
-
-                    // Testing Dec128-denorm_min -- won't fit into anything
-                }
 
                 // Testing NaN
 
                 original = std::numeric_limits<BDEC::Decimal128>::quiet_NaN();
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
                 bin_f   = Util::decimalToFloat(original);
-
-                restored = Util::decimal128FromLongDouble(bin_ld);
-                ASSERT(restored != restored);
 
                 restored = Util::decimal128FromDouble(bin_d);
                 ASSERT(restored != restored);
@@ -1270,12 +1187,9 @@ int main(int argc, char* argv[])
 
                 original = std::numeric_limits<BDEC::Decimal128>::infinity();
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
                 bin_f   = Util::decimalToFloat(original);
 
-                restored = Util::decimal128FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
 
                 restored = Util::decimal128FromDouble(bin_d);
                 ASSERT(strictEqual(original, restored));
@@ -1287,12 +1201,8 @@ int main(int argc, char* argv[])
 
                 original = -original;
 
-                bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
                 bin_f   = Util::decimalToFloat(original);
-
-                restored = Util::decimal128FromLongDouble(bin_ld);
-                ASSERT(strictEqual(original, restored));
 
                 restored = Util::decimal128FromDouble(bin_d);
                 ASSERT(strictEqual(original, restored));
@@ -1329,23 +1239,17 @@ int main(int argc, char* argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2014 Bloomberg L.P.
+// Copyright 2014 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

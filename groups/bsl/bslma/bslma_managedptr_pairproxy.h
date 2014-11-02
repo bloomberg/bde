@@ -19,9 +19,9 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a class that can be used to create a
 // 'bsl::pair' with the same arguments.  It is provided in order to support a
 // (deprecated) legacy API in 'ManagedPtr' as part of the transition from the
-// 'bdema' package to 'bslma'.  After the transition, the component is lower
-// in the package group levelization than 'bsl::pair', so we instead return a
-// type that will be implicitly convertible to 'pair'.  Note that this implies
+// 'bdema' package to 'bslma'.  After the transition, the component is lower in
+// the package group levelization than 'bsl::pair', so we instead return a type
+// that will be implicitly convertible to 'pair'.  Note that this implies
 // adding an implicit constructor to 'bsl::pair'.
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -46,11 +46,11 @@ namespace bslma {
 template <class POINTER_TYPE, class ASSOCIATED_TYPE>
 struct ManagedPtr_PairProxy {
     // This class is a simple aggregate that may be used to construct a
-    // 'bsl::pair' object.  It will be a POD is the (template parameter)
-    // 'ASSOCIATED_TYPE' is a POD.
-    // Note that the names of the data members must exactly match those of
-    // 'bsl::pair' to support users simply acting on the results of the
-    // function call and not assigning that result to a 'bsl::pair' first.
+    // 'bsl::pair' object.  It will be a POD if the (template parameter)
+    // 'ASSOCIATED_TYPE' is a POD.  Note that the names of the data members
+    // must exactly match those of 'bsl::pair' to support users simply acting
+    // on the results of the function call and not assigning that result to a
+    // 'bsl::pair' first.
 
     POINTER_TYPE    *first;
     ASSOCIATED_TYPE  second;
@@ -82,23 +82,17 @@ struct IsBitwiseMoveable<bslma::ManagedPtr_PairProxy<POINTER_TYPE,
 
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

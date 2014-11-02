@@ -2,17 +2,21 @@
 
 #include <bdldfp_decimalplatform.h>
 
-#include <bsl_iostream.h>
-#include <bsl_cstdlib.h>
-
 #include <bslmf_issame.h>
 
+#include <bsl_iostream.h>
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
+
+#include <string.h>
+
 using namespace BloombergLP;
-using bsl::cout;
-using bsl::cerr;
-using bsl::flush;
-using bsl::endl;
 using bsl::atoi;
+using bsl::cerr;
+using bsl::cout;
+using bsl::endl;
+using bsl::flush;
+using bsl::memcmp;
 
 // ============================================================================
 //                                 TEST PLAN
@@ -178,28 +182,20 @@ int main(int argc, char* argv[])
         //:   5 [Untestable at this time] Any NaN expressions evaluates to a
         //:     value with the intended semantics (i.e.: signalling vs.
         //:     quiet).
+        //:
+        //:   6 All implementation modes have correct and expected
+        //:     implementation detailed macros.
         //
         // Plan:
-        //: 1 Assert on unexpected combinations C1-2
+        //: 1 Assert on unexpected combinations. (C1-2, C6)
         //:
         //: 2 (Optionally compiled) Enumerate all pairings of optional NaN
         //:   expression variants for correct type and no identical bit
-        //:   patterns between different expressions. C3, C4.1-4.4
+        //:   patterns between different expressions. (C3, C4)
         // --------------------------------------------------------------------
         if (verbose) bsl::cout << "\nTesting for Valid Configuration"
-                                << "\n==============================="
-                                << bsl::endl;
-        ASSERT(BDLDFP_DECIMALPLATFORM_C99_TR +
-               BDLDFP_DECIMALPLATFORM_DECNUMBER == 1);
-
-        ASSERT(BDLDFP_DECIMALPLATFORM_HARDWARE +
-               BDLDFP_DECIMALPLATFORM_SOFTWARE == 1);
-
-        ASSERT(BDLDFP_DECIMALPLATFORM_BIG_ENDIAN +
-               BDLDFP_DECIMALPLATFORM_LITTLE_ENDIAN == 1);
-
-        ASSERT(BDLDFP_DECIMALPLATFORM_DPD +
-               BDLDFP_DECIMALPLATFORM_BININT == 1);
+                               << "\n==============================="
+                               << bsl::endl;
 
         #ifndef BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE
             ASSERT(!"BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE"
@@ -209,7 +205,7 @@ int main(int argc, char* argv[])
         // NaN macros must exist, and be valid NaN objects, by not comparing
         // equal:
 
-        #if BDLDFP_DECIMALPLATFORM_C99_TR
+        #ifdef BDLDFP_DECIMALPLATFORM_C99_TR
             #ifndef BDLDFP_DECIMALPLATFORM_C99_QNAN32
                 ASSERT(!"BDLDFP_DECIMALPLATFORM_C99_QNAN32 is not defined!");
             #else
@@ -621,18 +617,12 @@ int main(int argc, char* argv[])
         if (verbose) bsl::cout << bsl::endl
                                << "SANE CONFIGURATION" << bsl::endl
                                << "==================" << bsl::endl;
-        ASSERT(BDLDFP_DECIMALPLATFORM_C99_TR +
-               BDLDFP_DECIMALPLATFORM_DECNUMBER == 1);
-
-        ASSERT(BDLDFP_DECIMALPLATFORM_HARDWARE +
-               BDLDFP_DECIMALPLATFORM_SOFTWARE == 1);
-
         #ifndef BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE
             ASSERT(!"BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE"
                     " is not defined!");
         #endif
 
-        #if BDLDFP_DECIMALPLATFORM_C99_TR
+        #ifdef BDLDFP_DECIMALPLATFORM_C99_TR
             #ifndef BDLDFP_DECIMALPLATFORM_C99_QNAN32
                 ASSERT(!"BDLDFP_DECIMALPLATFORM_C99_QNAN32 is not defined!");
             #endif
@@ -668,23 +658,17 @@ int main(int argc, char* argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2014 Bloomberg L.P.
+// Copyright 2014 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

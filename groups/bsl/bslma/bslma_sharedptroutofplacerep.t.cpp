@@ -17,10 +17,15 @@
 #endif
 #endif
 
+#pragma bdeverify -FD01  // Test-machinery lacks a contract
+#pragma bdeverify -TP06  // Test-case indexing thing
+#pragma bdeverify -TP09  // Test-case indexing thing
+#pragma bdeverify -TP18  // Test-case banners are ALL-CAPS
+
 using namespace BloombergLP;
 
 //=============================================================================
-//                             TEST PLAN
+//                                  TEST PLAN
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
@@ -28,14 +33,15 @@ using namespace BloombergLP;
 // the shared pointer representation object.
 //-----------------------------------------------------------------------------
 // bslma::SharedPtrRep
-//------------------------
+//--------------------
 // [ 2] bslma::SharedPtrOutofplaceRep(TYPE *ptr, const...BCEMA_ALLOCATOR_PTR>);
 // [ 3] bslma::SharedPtrOutofplaceRep(TYPE *ptr, const...BCEMA_FACTORY_PTR>);
 // [ 3] bslma::SharedPtrOutofplaceRep(TYPE *ptr, ...BCEMA_FUNCTOR_WITH_ALLOC>);
 // [ 3] bslma::SharedPtrOutofplaceRep(TYPE *pt...BCEMA_FUNCTOR_WITHOUT_ALLOC>);
 // [ 2] bslma::SharedPtrOutofplaceRep<TYPE, DELETER> * makeOutofplaceRep(...);
 // [ 2] void disposeRep();
-// [ 3] void disposeObject();
+// [ 2] void disposeObject();
+// [  ] void *getDeleter(const std::type_info& type);
 // [ 2] void *originalPtr() const;
 // [ 2] TYPE *ptr() const;
 //
@@ -44,12 +50,15 @@ using namespace BloombergLP;
 // [ 5] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-int testStatus = 0;
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
 
 namespace {
+
+int testStatus = 0;
 
 void aSsErT(bool b, const char *s, int i)
 {
@@ -61,10 +70,8 @@ void aSsErT(bool b, const char *s, int i)
 
 }  // close unnamed namespace
 
-//# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-
 //=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
+//                      STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
@@ -106,10 +113,6 @@ void aSsErT(bool b, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-enum { TEST_ALLOCATOR_DELETER =
-  bslma::SharedPtrOutofplaceRep_DeleterDiscriminator<bslma::Allocator *>::VALUE
-};
-
 // TEST IMPLEMENTATION (defined below)
 class MyTestObject;
 class MyAllocTestDeleter;
@@ -120,13 +123,13 @@ typedef MyTestObject TObj;
 typedef void (*DeleteFunction)(MyTestObject *);
 
 //=============================================================================
-//               GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
+//              GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
                          // ==================
                          // class MyTestObject
                          // ==================
-class MyTestObject{
+class MyTestObject {
     // This class provides an implementation for 'bslma::SharedPtrRep' so that
     // it can be initialized and tested.
 
@@ -204,7 +207,7 @@ class MyAllocTestDeleter {
   public:
     // CREATORS
     explicit MyAllocTestDeleter(bslma::Allocator *deleter,
-                       bslma::Allocator *basicAllocator = 0);
+                                bslma::Allocator *basicAllocator = 0);
 
     MyAllocTestDeleter(const MyAllocTestDeleter&  original,
                        bslma::Allocator          *basicAllocator = 0);
@@ -225,6 +228,7 @@ template <>
 struct UsesBslmaAllocator<MyAllocTestDeleter> : bsl::true_type {};
 }  // close namespace bslma
 }  // close namespace BloombergLP
+
                           // ------------------------
                           // class MyAllocTestDeleter
                           // ------------------------
@@ -372,20 +376,36 @@ bdet_Datetime *MySharedDatetime::ptr() const {
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
 
-    bslma::TestAllocator ta(veryVeryVerbose);
-    int numDeallocations;
-    int numAllocations;
+    (void)veryVerbose;
+    (void)veryVeryVerbose;
+
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
+
+    // Confirm no static intialization locekd the global allocator
+    ASSERT(&globalAllocator == bslma::Default::globalAllocator());
+
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    bslma::Default::setDefaultAllocator(&defaultAllocator);
+
+    // Confirm no static intialization locked the default allocator
+    ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
+
+    bslma::TestAllocator ta(veryVeryVeryVerbose);
+    bsls::Types::Int64 numDeallocations;
+    bsls::Types::Int64 numAllocations;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
 #if 0  // TBD Need an appropriately levelized usage example
-    case 5: {
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -418,9 +438,9 @@ int main(int argc, char *argv[])
         ASSERT(2 == ta.numDeallocations());
       } break;
 #endif
-    case 4: {
+      case 4: {
         // --------------------------------------------------------------------
-        // TESTING CONSTRUCTORS ACCESSOR
+        // TESTING CREATORS
         //
         // Concerns:
         //   Object is properly initialized, and can be properly destructed
@@ -457,8 +477,8 @@ int main(int argc, char *argv[])
         //                                const DELETER&    deleter,
         //                                bslma::Allocator *basicAllocator=0);
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting Constructors and Destructor"
-                            "\n===================================\n");
+        if (verbose) printf("\nTESTING CREATORS"
+                            "\n================\n");
 
         if (verbose) printf("\nTesting bslma::AllocatorDeleter"
                             "\n-------------------------------\n");
@@ -605,7 +625,7 @@ int main(int argc, char *argv[])
         //   void releaseRef();
         //   void releaseWeakRef();
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting 'releaseRef' and 'releaseWeakRef'"
+        if (verbose) printf("\nTESTING 'releaseRef' and 'releaseWeakRef'"
                             "\n=========================================\n");
 
         numAllocations = ta.numAllocations();
@@ -701,6 +721,10 @@ int main(int argc, char *argv[])
         //   void *originalPtr() const;
         //   TYPE *ptr() const;
         // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING BASIC CONSTRUCTOR"
+                            "\n=========================\n");
+
         if (verbose) printf("\nTesting 'disposeObject' and 'disposeRep'"
                             "\n========================================\n");
 
@@ -715,7 +739,7 @@ int main(int argc, char *argv[])
             ASSERT(1 == X.numReferences());
             ASSERT(0 == X.numWeakReferences());
             ASSERT(x.ptr() ==  t);
-            ASSERT(x.originalPtr() == (void*) t);
+            ASSERT(x.originalPtr() == static_cast<void *>(t));
 
             x.disposeObject();
             ASSERT(++numDeallocations == ta.numDeallocations());
@@ -727,11 +751,16 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // BREATHING TEST
         //
-        // Testing:
+        // Concerns:
         //   This test exercises basic functionality but tests nothing.
+        //
+        // Testing:
+        //   BREATHING TEST
         // --------------------------------------------------------------------
+
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
+
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
@@ -743,7 +772,7 @@ int main(int argc, char *argv[])
             ASSERT(1 == X.numReferences());
             ASSERT(0 == X.numWeakReferences());
             ASSERT(x.ptr() ==  t);
-            ASSERT(x.originalPtr() == (void*) t);
+            ASSERT(x.originalPtr() == static_cast<void *>(t));
 
             x.acquireRef();
             ASSERT(2 == X.numReferences());
@@ -775,6 +804,11 @@ int main(int argc, char *argv[])
       }
     }
 
+    // CONCERN: In no case does memory come from the global allocator.
+
+    LOOP_ASSERT(globalAllocator.numBlocksTotal(),
+                0 == globalAllocator.numBlocksTotal());
+
     if (testStatus > 0) {
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
@@ -782,23 +816,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

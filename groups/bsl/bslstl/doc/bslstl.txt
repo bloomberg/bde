@@ -19,12 +19,13 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 47 components having 7 levels of physical
+ The 'bslstl' package currently has 52 components having 7 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
   7. bslstl_queue
+     bslstl_sharedptr
      bslstl_stack
 
   6. bslstl_deque
@@ -42,6 +43,7 @@
      bslstl_istringstream
      bslstl_mapcomparator
      bslstl_ostringstream
+     bslstl_priorityqueue
      bslstl_randomaccessiterator
      bslstl_setcomparator
      bslstl_stringstream
@@ -51,24 +53,27 @@
      bslstl_bitset
      bslstl_hashtablebucketiterator
      bslstl_hashtableiterator
-     bslstl_priorityqueue
      bslstl_stringbuf
      bslstl_stringref
      bslstl_treenode
+     bslstl_vector
 
-  3. bslstl_bidirectionalnodepool
+  3. bslstl_algorithmworkaround
+     bslstl_bidirectionalnodepool
      bslstl_forwarditerator
      bslstl_iteratorutil
      bslstl_list
      bslstl_string
      bslstl_treeiterator
-     bslstl_vector
 
   2. bslstl_iterator
+     bslstl_sharedptrallocateinplacerep
+     bslstl_sharedptrallocateoutofplacerep
      bslstl_simplepool
 
   1. bslstl_allocator
      bslstl_allocatortraits
+     bslstl_badweakptr
      bslstl_equalto
      bslstl_hash
      bslstl_iosfwd
@@ -81,11 +86,17 @@
 
 /Component Synopsis
 /------------------
+: 'bslstl_algorithmworkaround':
+:      Provide a namespace for work arounds for the standard algorithms
+:
 : 'bslstl_allocator':
 :      Provide an STL-compatible proxy for 'bslma::Allocator' objects.
 :
 : 'bslstl_allocatortraits':
 :      Provide a uniform interface to standard allocator types.
+:
+: 'bslstl_badweakptr':
+:      Provide an exception class to indicate a weak_ptr has expired.
 :
 : 'bslstl_bidirectionaliterator':
 :      Provide a template to create STL-compliant bidirectional iterators.
@@ -164,6 +175,15 @@
 :
 : 'bslstl_setcomparator':
 :      Provide a comparator for 'TreeNode' objects and a lookup key.
+:
+: 'bslstl_sharedptr':
+:      Provide a generic reference-counted shared pointer wrapper.
+:
+: 'bslstl_sharedptrallocateinplacerep':
+:      Provide an in-place implementation of 'bslma::SharedPtrRep'.
+:
+: 'bslstl_sharedptrallocateoutofplacerep':
+:      Provide an out-of-place implementation of 'bslma::SharedPtrRep'.
 :
 : 'bslstl_simplepool':
 :      Provide efficient allocation of memory blocks for a specific type.
