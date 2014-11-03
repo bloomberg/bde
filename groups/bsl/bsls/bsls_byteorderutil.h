@@ -156,11 +156,11 @@ wchar_t ByteOrderUtil::swapBytes(wchar_t x)
     (defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_CPU_32_BIT))
     BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(2 == sizeof x);
 
-    // These macros all return a value of type 'wchar_t'
+    // These macros all return a value of type 'wchar_t'.
 
-# if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_16)
+# if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16(wchar_t, x);
-# elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P16)
+# elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16(wchar_t, &x);
 # else
     BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(wchar_t, x);
@@ -168,11 +168,11 @@ wchar_t ByteOrderUtil::swapBytes(wchar_t x)
 #else
     BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(4 == sizeof x);
 
-    // These macros all return a value of type 'wchar_t'
+    // These macros all return a value of type 'wchar_t'.
 
-# if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32)
+# if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32(wchar_t, x);
-# elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32)
+# elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32(wchar_t, &x);
 # else
     BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32(wchar_t, x);
@@ -183,11 +183,11 @@ wchar_t ByteOrderUtil::swapBytes(wchar_t x)
 inline
 short ByteOrderUtil::swapBytes(short x)
 {
-    // These macros all return a value of type 'short'
+    // These macros all return a value of type 'short'.
 
-#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_16)
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16(short, x);
-#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P16)
+#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16(short, &x);
 #else
     BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(short, x);
@@ -197,11 +197,11 @@ short ByteOrderUtil::swapBytes(short x)
 inline
 unsigned short ByteOrderUtil::swapBytes(unsigned short x)
 {
-    // These macros all return a value of type 'unsigned short'
+    // These macros all return a value of type 'unsigned short'.
 
-#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_16)
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16(unsigned short, x);
-#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P16)
+#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16(unsigned short, &x);
 #else
     BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(unsigned short, x);
@@ -211,11 +211,11 @@ unsigned short ByteOrderUtil::swapBytes(unsigned short x)
 inline
 int ByteOrderUtil::swapBytes(int x)
 {
-    // These macros all return a value of type 'int'
+    // These macros all return a value of type 'int'.
 
-#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32)
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32(int, x);
-#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32)
+#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32(int, &x);
 #else
     BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32(int, x);
@@ -225,11 +225,11 @@ int ByteOrderUtil::swapBytes(int x)
 inline
 unsigned int ByteOrderUtil::swapBytes(unsigned int x)
 {
-    // These macros all return a value of type 'unsigned int'
+    // These macros all return a value of type 'unsigned int'.
 
-#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32)
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32(unsigned int, x);
-#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32)
+#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32(unsigned int, &x);
 #else
     BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32(unsigned int, x);
@@ -242,11 +242,11 @@ long ByteOrderUtil::swapBytes(long x)
 #if defined(BSLS_PLATFORM_CPU_64_BIT) && defined(BSLS_PLATFORM_OS_UNIX)
     BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(8 == sizeof x);
 
-    // These macros all return a value of type 'long'
+    // These macros all return a value of type 'long'.
 
-# if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64)
+# if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64(long, x);
-# elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64)
+# elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(long, &x);
 # else
     BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(long, x);
@@ -254,11 +254,11 @@ long ByteOrderUtil::swapBytes(long x)
 #else
     BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(4 == sizeof x);
 
-    // These macros all return a value of type 'long'
+    // These macros all return a value of type 'long'.
 
-# if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32)
+# if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32(long, x);
-# elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32)
+# elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32(long, &x);
 # else
     BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32(long, x);
@@ -272,11 +272,11 @@ unsigned long ByteOrderUtil::swapBytes(unsigned long x)
 #if defined(BSLS_PLATFORM_CPU_64_BIT) && defined(BSLS_PLATFORM_OS_UNIX)
     BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(8 == sizeof x);
 
-    // These macros all return a value of type 'unsigned long'
+    // These macros all return a value of type 'unsigned long'.
 
-# if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64)
+# if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64(unsigned long, x);
-# elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64)
+# elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(unsigned long, &x);
 # else
     BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(unsigned long, x);
@@ -284,11 +284,11 @@ unsigned long ByteOrderUtil::swapBytes(unsigned long x)
 #else
     BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(4 == sizeof x);
 
-    // These macros all return a value of type 'unsigned long'
+    // These macros all return a value of type 'unsigned long'.
 
-# if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32)
+# if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32(unsigned long, x);
-# elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32)
+# elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32(unsigned long, &x);
 # else
     BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32(unsigned long, x);
@@ -299,11 +299,11 @@ unsigned long ByteOrderUtil::swapBytes(unsigned long x)
 inline
 bsls::Types::Uint64 ByteOrderUtil::swapBytes(bsls::Types::Uint64 x)
 {
-    // These macros all return a value of type 'bsls::Types::Uint64'
+    // These macros all return a value of type 'bsls::Types::Uint64'.
 
-#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64)
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64(bsls::Types::Uint64, x);
-#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64)
+#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(bsls::Types::Uint64, &x);
 #else
     BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(bsls::Types::Uint64, x);
@@ -313,11 +313,11 @@ bsls::Types::Uint64 ByteOrderUtil::swapBytes(bsls::Types::Uint64 x)
 inline
 bsls::Types::Int64 ByteOrderUtil::swapBytes(bsls::Types::Int64 x)
 {
-    // These macros all return a value of type 'bsls::Types::Uint64'
+    // These macros all return a value of type 'bsls::Types::Int64'.
 
-#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64)
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64(bsls::Types::Int64, x);
-#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64)
+#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(bsls::Types::Int64, &x);
 #else
     BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(bsls::Types::Int64, x);
@@ -328,11 +328,11 @@ inline
 unsigned short
 ByteOrderUtil::swapBytes16(unsigned short x)
 {
-    // These macros all return a value of type 'unsigned short'
+    // These macros all return a value of type 'unsigned short'.
 
-#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_16)
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16(unsigned short, x);
-#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P16)
+#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16(unsigned short, &x);
 #else
     BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(unsigned short, x);
@@ -343,11 +343,11 @@ inline
 unsigned int
 ByteOrderUtil::swapBytes32(unsigned int x)
 {
-    // These macros all return a value of type 'unsigned int'
+    // These macros all return a value of type 'unsigned int'.
 
-#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32)
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32(unsigned int, x);
-#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32)
+#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32(unsigned int, &x);
 #else
     BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32(unsigned int, x);
@@ -358,11 +358,11 @@ inline
 bsls::Types::Uint64
 ByteOrderUtil::swapBytes64(bsls::Types::Uint64 x)
 {
-    // These macros all return a value of type 'bsls::Types::Uint64'
+    // These macros all return a value of type 'bsls::Types::Uint64'.
 
-#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64)
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64(bsls::Types::Uint64, x);
-#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64)
+#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(bsls::Types::Uint64, &x);
 #else
     BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(bsls::Types::Uint64, x);

@@ -16,7 +16,7 @@
 // [2] TESTING 'mySwapBytes*'
 // [1] TESTING 'genericSwap*' & SOUNDNESS OF TABLE
 //-----------------------------------------------------------------------------
-// [3] 'BSLS_BYTEORDERUTIL_IMPL_CUSTOM_*'
+// [3] 'BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_*'
 // [2] 'mySwapBytes[16,32,64}'
 // [1] 'genericSwap{16,32,64}'
 //-----------------------------------------------------------------------------
@@ -113,11 +113,11 @@ unsigned short
 mySwapBytes16(unsigned short x)
     // Return the value of the specified 'x' with the byte order reversed.
 {
-    // These macros all return a value of type 'unsigned short'
+    // These macros all return a value of type 'unsigned short'.
 
-#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_16)
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16( unsigned short, x);
-#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P16)
+#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16(unsigned short, &x);
 #else
     BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(unsigned short, x);
@@ -129,11 +129,11 @@ unsigned int
 mySwapBytes32(unsigned int x)
     // Return the value of the specified 'x' with the byte order reversed.
 {
-    // These macros all return a value of type 'unsigned int'
+    // These macros all return a value of type 'unsigned int'.
 
-#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32)
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32( unsigned int, x);
-#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32)
+#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32(unsigned int, &x);
 #else
     BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32(unsigned int, x);
@@ -145,11 +145,11 @@ bsls::Types::Uint64
 mySwapBytes64(bsls::Types::Uint64 x)
     // Return the value of the specified 'x' with the byte order reversed.
 {
-    // These macros all return a value of type 'bsls::Types::Uint64'
+    // These macros all return a value of type 'bsls::Types::Uint64'.
 
-#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64)
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64( bsls::Types::Uint64, x);
-#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64)
+#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(bsls::Types::Uint64, &x);
 #else
     BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(bsls::Types::Uint64, x);
@@ -161,7 +161,7 @@ unsigned short
 myGenericSwap16(unsigned short x)
     // Return the value of the specified 'x' with the byte order reversed.
 {
-    // This macro will return a value of type 'unsigned short'
+    // This macro will return a value of type 'unsigned short'.
 
     BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(unsigned short, x);
 }
@@ -171,7 +171,7 @@ unsigned int
 myGenericSwap32(unsigned int x)
     // Return the value of the specified 'x' with the byte order reversed.
 {
-    // This macro will return a value of type 'unsigned int'
+    // This macro will return a value of type 'unsigned int'.
 
     BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32(unsigned int, x);
 }
@@ -181,7 +181,7 @@ bsls::Types::Uint64
 myGenericSwap64(bsls::Types::Uint64 x)
     // Return the value of the specified 'x' with the byte order reversed.
 {
-    // This macro will return a value of type 'bsls::Types::Uint64'
+    // This macro will return a value of type 'bsls::Types::Uint64'.
 
     BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(bsls::Types::Uint64, x);
 }
@@ -340,59 +340,59 @@ int main(int argc, char *argv[])
         //:   macros being set.
         //
         // Testing:
-        //   'BSLS_BYTEORDERUTIL_IMPL_CUSTOM_*'
+        //   'BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_*'
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING CONSISTENCY OF COMPILE-TIME FLAGS\n"
                               "=========================================\n");
 
         if (veryVerbose) {
-#ifdef BSLS_BYTEORDERUTIL_IMPL_CUSTOM_16
-            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_16 defined);
+#ifdef BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16
+            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16 defined);
 #else
-            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_16 not defined);
+            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16 not defined);
 #endif
 
-#ifdef BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P16
-            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P16 defined);
+#ifdef BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16
+            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16 defined);
 #else
-            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P16 not defined);
+            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16 not defined);
 #endif
 
-#ifdef BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32
-            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32 defined);
+#ifdef BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32
+            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32 defined);
 #else
-            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32 not defined);
+            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32 not defined);
 #endif
 
-#ifdef BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32
-            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32 defined);
+#ifdef BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32
+            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32 defined);
 #else
-            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32 not defined);
+            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32 not defined);
 #endif
 
-#ifdef BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64
-            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64 defined);
+#ifdef BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64
+            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64 defined);
 #else
-            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64 not defined);
+            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64 not defined);
 #endif
 
-#ifdef BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64
-            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64 defined);
+#ifdef BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64
+            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64 defined);
 #else
-            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64 not defined);
+            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64 not defined);
 #endif
         }
 
         // Check that no two custom flags are simultaneously set for how to
         // implement swapping for the same word width.
 
-#if    (defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_16) &&                         \
-        defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P16))                          \
-    || (defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32) &&                         \
-        defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32))                          \
-    || (defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64) &&                         \
-        defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64))
+#if    (defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16) &&                     \
+        defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16))                      \
+    || (defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32) &&                     \
+        defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32))                      \
+    || (defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64) &&                     \
+        defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64))
 #error inconsistent compiler flags
 #endif
       } break;
