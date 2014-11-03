@@ -2,29 +2,32 @@
 
 #include <bdldfp_decimalconvertutil.h>
 
-#include <bsl_iostream.h>
-#include <bsl_sstream.h>
-#include <bsl_cstdlib.h>
-#include <bsl_climits.h>
-#include <bsl_limits.h>
-#include <bsl_cmath.h>
-#include <bsl_cfloat.h>
-#include <bsl_algorithm.h>
+#include <bdls_testutil.h>
 
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
 
 #include <bslmf_assert.h>
 
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>
+
+#include <bsl_iostream.h>
+#include <bsl_iomanip.h>
+#include <bsl_sstream.h>
+#include <bsl_cstdlib.h>
+#include <bsl_climits.h>
+#include <bsl_limits.h>
+#include <bsl_cmath.h>
+#include <bsl_cfloat.h>
+#include <bsl_cstring.h>
+#include <bsl_algorithm.h>
+
 #include <typeinfo>
 
 using namespace BloombergLP;
-using bsl::cout;
-using bsl::cerr;
-using bsl::flush;
-using bsl::endl;
-using bsl::hex;
-using bsl::atoi;
+using namespace BloombergLP::bdldfp;
+using namespace bsl;
 
 // ============================================================================
 //                                 TEST PLAN
@@ -33,86 +36,77 @@ using bsl::atoi;
 //                                  --------
 // TBD:
 // ----------------------------------------------------------------------------
-// CREATORS
-//
-// MANIPULATORS
-//
-// ACCESSORS
-//
-// FREE OPERATORS
-//
-// TRAITS
+// CLASS METHODS
+// [ 3] Decimal64 decimal64FromMultiWidthEncoding(*buffer, size);
+// [ 3] Decimal64 decimal64FromMultiWidthEncodingRaw(*buffer, size);
+// [ 2] size_type decimal64ToMultiWidthEncoding(*buffer, decimal);
+// [ 2] size_type decimal64ToMultiWidthEncodingRaw(*buffer, decimal);
+// [ 4] unsigned char *decimal64FromVariableWidthEncoding(*decimal, *buffer);
+// [ 4] unsigned char *decimal64ToVariableWidthEncoding(*buffer, value);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] USAGE EXAMPLE
+// [ 3] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 
-// ============================================================================
-//                      STANDARD BDE ASSERT TEST MACROS
-// ----------------------------------------------------------------------------
+//=============================================================================
+//                    STANDARD BDE ASSERT TEST MACRO
+//-----------------------------------------------------------------------------
 
-static int testStatus = 0;
+namespace {
 
-static void aSsErT(int c, const char *s, int i)
+int testStatus = 0;
+
+void aSsErT(bool b, const char *s, int i)
 {
-    if (c) {
+    if (b) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+        if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+}  // close unnamed namespace
+
+//=============================================================================
+//                       STANDARD BDE TEST DRIVER MACROS
+//-----------------------------------------------------------------------------
+
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+
+#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P   BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
-
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
-#define T_ cout << "\t" << flush;             // Print tab w/o newline.
-#define L_ __LINE__                           // current Line number
-
-#define PX(X) cout << #X " = " << hex << (X) << endl; // Print id and hex value
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
 namespace BDEC = BloombergLP::bdldfp;
+
+typedef bdldfp::DecimalConvertUtil Util;
 
 static bslma::Allocator *ia = bslma::Default::globalAllocator();
 
@@ -411,6 +405,35 @@ bool strictEqual(DECIMAL_TYPE lhs, DECIMAL_TYPE rhs)
     return memcmp(blhs, brhs, sizeof(DECIMAL_TYPE)) == 0;
 }
 
+void bufferToStream(bsl::ostream           &out,
+                    unsigned char          *buffer,
+                    bsls::Types::size_type  size)
+{
+    out << hex;
+    for (bsls::Types::size_type b = 0; b < size; ++b) {
+        out << setfill('0') << setw(2)
+            << static_cast<int>(buffer[b]);
+        if (b != size - 1) {
+            out<< " ";
+        }
+    }
+    out << dec;
+}
+
+unsigned char * decimal64ToBinaryIntegralNetwork(unsigned char *buffer,
+                                                 Decimal64 decimal)
+{
+    bsls::Types::Uint64 encoded;
+    Util::decimal64ToBinaryIntegral(
+                                   reinterpret_cast<unsigned char *>(&encoded),
+                                   decimal);
+
+    encoded = BSLS_BYTEORDER_HTONLL(encoded);
+
+    bsl::memcpy(buffer, reinterpret_cast<unsigned char*>(&encoded), 8);
+    return buffer + 8;
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -434,7 +457,7 @@ int main(int argc, char* argv[])
     cout.precision(35);
 
     switch (test) { case 0:
-    case 2: {
+      case 5: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -453,11 +476,11 @@ int main(int argc, char* argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                           << "USAGE EXAMPLE" << endl
-                           << "=============" << endl;
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
 
         if (veryVerbose) bsl::cout << "\nSending decimals as octets "
-                                   "using network format" << bsl::endl;
+                             "using network format" << bsl::endl;
         // Suppose you have two communicating entities (programs) that talk to
         // each other using a binary (as opposed to text) protocol.  In such
         // protocol it is important to establish a so-called network format,
@@ -471,7 +494,7 @@ int main(int argc, char* argv[])
             unsigned char   msgbuffer[256];
             BDEC::Decimal64 number(BDLDFP_DECIMAL_DD(1.234567890123456e-42));
             unsigned char   expected[] = {
-                              0x25, 0x55, 0x34, 0xb9, 0xc1, 0xe2, 0x8e, 0x56 };
+                0x25, 0x55, 0x34, 0xb9, 0xc1, 0xe2, 0x8e, 0x56 };
 
             unsigned char *next = msgbuffer;
             next = bdldfp::DecimalConvertUtil::decimalToNetwork(next, number);
@@ -484,7 +507,7 @@ int main(int argc, char* argv[])
         //..
         { // "client"
             unsigned char   msgbuffer[] ={
-                              0x25, 0x55, 0x34, 0xb9, 0xc1, 0xe2, 0x8e, 0x56 };
+                0x25, 0x55, 0x34, 0xb9, 0xc1, 0xe2, 0x8e, 0x56 };
             BDEC::Decimal64 number;
             BDEC::Decimal64 expected(BDLDFP_DECIMAL_DD(1.234567890123456e-42));
 
@@ -497,7 +520,7 @@ int main(int argc, char* argv[])
         //..
 
         if (veryVerbose) bsl::cout << "\nStoring/sending decimals in binary"
-                                    " floating-point" << bsl::endl;
+                             " floating-point" << bsl::endl;
         // Suppose you have two communicating entities (programs) that talk to
         // each other using a legacy protocol that employs binary
         // floating-point formats to send/receive numbers.  So your application
@@ -508,7 +531,7 @@ int main(int argc, char* argv[])
         //..
         {
             const BDEC::Decimal64 number(
-                                      BDLDFP_DECIMAL_DD(1.23456789012345e-42));
+                BDLDFP_DECIMAL_DD(1.23456789012345e-42));
 
             double dbl = Util::decimalToDouble(number);
 
@@ -524,9 +547,697 @@ int main(int argc, char* argv[])
             ASSERT(number == restored);
         }
         //..
-    } break;
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // VARIABLE-WIDTH ENCODE AND DECODE
+        //
+        // Concerns:
+        //: 1 'decimal64ToVariableWidthEncoding' correctly encodes values in
+        //:   the supported formats.
+        //:
+        //: 2 Values are always encoded in the smallest supported
+        //:   format. E.g. a values that fits in both 2 byte and 3 byte
+        //:   encodings will be encoded using the 2 byte encoding.
+        //:
+        //: 3 'decimal64ToVariableWidthEncoding' does not overwrite any memory
+        //:   outside of the range that it is supposed to.
+        //:
+        //: 4 'decimal64FromMultiWidthEncoding' can decode any value encoded
+        //:    using 'decimal64ToVariableWidthEncoding'.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, specify a set of decimal
+        //:   values, and their expected encoded values when using the
+        //:   variable-width encoding format.  Ensure that the set of values
+        //:   include bondary values in all supported widths of the
+        //:   encoder. Use 'decimal64ToVariableWidthEncoding' to encode each
+        //:   decimal value in the set. Verify that the encoded values matches
+        //:   the expected values.  Additional, verify the encoded values can
+        //:   be decoded back to the original decimal values using
+        //:   'decimal64FromVaribleWidthEncoding'.  (C-1..3)
+        //
+        // Testing:
+        //   unsigned char *decimal64FromVariableWidthEncoding(*decimal, *buffer);
+        //   unsigned char *decimal64ToVariableWidthEncoding(*buffer, value);
+        // --------------------------------------------------------------------
 
-    case 1: {
+        if (verbose) cout << endl
+                          << "VARIABLE-WIDTH ENCODE AND DECODE" << endl
+                          << "================================" << endl;
+
+        Decimal64 (*MDF)(long long, int) = &DecimalUtil::makeDecimal64;
+
+        static const struct {
+            int        d_line;
+            Decimal64  d_decodedValue;
+            const char d_encodedValue[128];
+        } DATA[] = {
+            { L_,  MDF(                  0,     0 ),  "40 00" },
+            { L_,  MDF(                  1,    -2 ),  "00 01" },
+            { L_,  MDF(                  1,    -1 ),  "20 01" },
+            { L_,  MDF(                  1,     0 ),  "40 01" },
+            { L_,  MDF(                  1,     1 ),  "60 01" },
+            { L_,  MDF(      (1 << 13) - 1,     1 ),  "7f ff" },
+
+            { L_,  MDF(                  0,     2 ),  "b0 00 00" },
+            { L_,  MDF(                  0,    -3 ),  "88 00 00" },
+            { L_,  MDF(                 -1,     3 ),  "f3 00 00 01" },
+            { L_,  MDF(          (1 << 13),     3 ),  "b8 20 00" },
+
+            { L_,  MDF(          (1 << 13),     0 ),  "a0 20 00" },
+            { L_,  MDF(          (1 << 13),    -4 ),  "80 20 00" },
+            { L_,  MDF(      (1 << 13) + 1,     3 ),  "b8 20 01" },
+            { L_,  MDF(      (1 << 19) - 1,     3 ),  "bf ff ff" },
+
+            { L_,  MDF(          (1 << 13),     4 ),  "d4 00 20 00" },
+            { L_,  MDF(          (1 << 13),    -5 ),  "cb 00 20 00" },
+            { L_,  MDF(          (1 << 19),     3 ),  "d3 08 00 00" },
+            { L_,  MDF(         -(1 << 19),     3 ),  "f3 08 00 00" },
+            { L_,  MDF(      (1 << 24) - 1,    15 ),  "df ff ff ff" },
+            { L_,  MDF(      (1 << 24) - 1,   -16 ),  "c0 ff ff ff" },
+            { L_,  MDF(   -((1 << 24) - 1),    14 ),  "fe ff ff ff" },
+            { L_,  MDF(   -((1 << 24) - 1),   -16 ),  "e0 ff ff ff" },
+
+            // Encoded value == "" indicates that the full 9-bytes encoding
+            // format should be used.
+
+            { L_,  MDF(   -((1 << 24) - 1),    15 ),  "" },
+            { L_,  MDF(      (1 << 24) - 1,    16 ),  "" },
+            { L_,  MDF(            1 << 24,     0 ),  "" },
+            { L_,  MDF(         -(1 << 24),     0 ),  "" },
+
+            { L_,        bsl::numeric_limits<Decimal64>::min(), "" },
+            { L_,        bsl::numeric_limits<Decimal64>::max(), "" },
+            { L_,   bsl::numeric_limits<Decimal64>::infinity(), "" },
+            { L_,  bsl::numeric_limits<Decimal64>::quiet_NaN(), "" },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int i = 0; i != NUM_DATA; ++i) {
+            const int        LINE          = DATA[i].d_line;
+            const Decimal64  DECODED_VALUE = DATA[i].d_decodedValue;
+            const char      *ENCODED_VALUE = DATA[i].d_encodedValue;
+
+            unsigned char encodedBuffer[12];
+
+            bsls::Types::size_type encodedSize = 0;
+
+            if (ENCODED_VALUE[0]) {
+                istringstream encodedBufferString(ENCODED_VALUE);
+                int temp;
+                while (encodedBufferString >> hex >> temp) {
+                    encodedBuffer[encodedSize] =
+                                              static_cast<unsigned char>(temp);
+                    ++encodedSize;
+                }
+            }
+            else {
+                encodedBuffer[0] = 0xFF;
+                unsigned char *nextAdr = decimal64ToBinaryIntegralNetwork(
+                                             encodedBuffer + 1, DECODED_VALUE);
+                encodedSize = nextAdr - encodedBuffer;
+            }
+
+            if (veryVerbose) {
+                P_(LINE) P_(DECODED_VALUE) P_(encodedSize);
+                cout << "ENCODED_VALUE: ";
+                bufferToStream(cout, encodedBuffer, encodedSize);
+                cout << endl;
+            }
+
+
+            unsigned char actualEncodedBufferOrig[16] = {
+                                                      0xDE, 0xAD, 0xBE, 0xEF,
+                                                      0xDE, 0xAD, 0xBE, 0xEF,
+                                                      0xDE, 0xAD, 0xBE, 0xEF,
+                                                      0xDE, 0xAD, 0xBE, 0xEF };
+            unsigned char actualEncodedBuffer[16] = {
+                                                      0xDE, 0xAD, 0xBE, 0xEF,
+                                                      0xDE, 0xAD, 0xBE, 0xEF,
+                                                      0xDE, 0xAD, 0xBE, 0xEF,
+                                                      0xDE, 0xAD, 0xBE, 0xEF };
+            const bsls::Types::size_type actualEncodedBufferOffset = 4;
+            bsls::Types::size_type actualEncodedSize;
+
+            actualEncodedSize = Util::decimal64ToVariableWidthEncoding(
+                actualEncodedBuffer + actualEncodedBufferOffset,
+                DECODED_VALUE)
+                - (actualEncodedBuffer + actualEncodedBufferOffset);
+
+            if (veryVerbose) {
+                P_(actualEncodedSize);
+                cout << "actualEncodeValue: ";
+                bufferToStream(cout,
+                               actualEncodedBuffer + actualEncodedBufferOffset,
+                               actualEncodedSize);
+                cout << endl;
+            }
+
+            ASSERTV(LINE, encodedSize, actualEncodedSize,
+                    encodedSize == actualEncodedSize);
+            ASSERTV(LINE, 0 == memcmp(
+                               encodedBuffer,
+                               actualEncodedBuffer + actualEncodedBufferOffset,
+                               encodedSize));
+            ASSERTV(LINE, 0 == memcmp(actualEncodedBuffer,
+                                      actualEncodedBufferOrig,
+                                      actualEncodedBufferOffset));
+            ASSERTV(LINE, 0 == memcmp(
+             actualEncodedBuffer + actualEncodedBufferOffset + encodedSize,
+             actualEncodedBufferOrig + actualEncodedBufferOffset + encodedSize,
+             sizeof(actualEncodedBuffer) - encodedSize
+                                         - actualEncodedBufferOffset));
+
+            Decimal64 actualDecodedValue = MDF(123,123);  // initialize to
+                                                          // unused value
+
+            unsigned char *actualRet =
+                Util::decimal64FromVariableWidthEncoding(&actualDecodedValue,
+                                                         encodedBuffer);
+
+            bsls::Types::size_type actualSize = actualRet - encodedBuffer;
+
+            if (veryVerbose) {
+                P_(actualDecodedValue); P(actualSize);
+            }
+
+            if (DecimalUtil::isNan(DECODED_VALUE)) {
+                ASSERTV(LINE, DECODED_VALUE, actualDecodedValue,
+                        DecimalUtil::isNan(actualDecodedValue));
+            }
+            else {
+                ASSERTV(LINE, DECODED_VALUE, actualDecodedValue,
+                        DECODED_VALUE == actualDecodedValue);
+            }
+        }
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // MULTI-WIDTH DECODE
+        //
+        // Concerns:
+        //: 1 'decimal64FromMultiWidthEncoding' and
+        //:   'decimal64FromMultiWidthEncodingRaw' correctly decode values in
+        //:   the supported formats.
+        //:
+        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, specify a set of decimal
+        //:   values, and their encoded values. Ensure that the set contains
+        //:   boundary values in all supported widths of the decoder. Use
+        //:   'decimal64FromMultiWidthEncoding' and
+        //:   'decimal64FromMultiWidthEncodingRaw' to decode the encoded
+        //:   values. Verify that the decoded decimal values matches the
+        //:   original values. (C-1)
+        //:
+        //: 2 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid attribute values, but not triggered for
+        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
+        //:   (C-2)
+        //
+        // Testing:
+        //   Decimal64 decimal64FromMultiWidthEncoding(*buffer, size);
+        //   Decimal64 decimal64FromMultiWidthEncodingRaw(*buffer, size);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "MULTI-WIDTH DECODE" << endl
+                          << "==================" << endl;
+
+        Decimal64 (*MDF)(long long, int) = &DecimalUtil::makeDecimal64;
+
+        static const struct {
+            int        d_line;
+            Decimal64  d_decodedValue;
+            const char d_encodedValue[128];
+        } DATA[] = {
+            { L_,  MDF(                  0,    -2 ),  "00" },
+            { L_,  MDF(                  0,    -1 ),  "80" },
+            { L_,  MDF(                 50,    -2 ),  "32" },
+            { L_,  MDF(                 50,    -1 ),  "b2" },
+            { L_,  MDF(       (1 << 7) - 1,    -2 ),  "7f" },
+            { L_,  MDF(       (1 << 7) - 1,    -1 ),  "ff" },
+
+            { L_,  MDF(                  0,    -1 ),  "80 00" },
+            { L_,  MDF(                  1,    -3 ),  "00 01" },
+            { L_,  MDF(                  1,    -2 ),  "40 01" },
+            { L_,  MDF(                  1,    -1 ),  "80 01" },
+            { L_,  MDF(                  1,     0 ),  "c0 01" },
+            { L_,  MDF(      (1 << 14) - 1,     0 ),  "ff ff" },
+
+            { L_,  MDF(                  0,     1 ),  "e0 00 00" },
+            { L_,  MDF(                  0,    -4 ),  "40 00 00" },
+            { L_,  MDF(                 -1,     1 ),  "c4 00 00 01" },
+            { L_,  MDF(          (1 << 14),     1 ),  "e0 40 00" },
+
+            { L_,  MDF(          (1 << 14),    -2 ),  "80 40 00" },
+            { L_,  MDF(          (1 << 14),    -6 ),  "00 40 00" },
+            { L_,  MDF(          (1 << 14),     1 ),  "e0 40 00" },
+            { L_,  MDF(      (1 << 21) - 1,     1 ),  "ff ff ff" },
+
+            { L_,  MDF(          (1 << 14),     2 ),  "48 00 40 00" },
+            { L_,  MDF(          (1 << 14),    -7 ),  "24 00 40 00" },
+            { L_,  MDF(          (1 << 21),     2 ),  "48 20 00 00" },
+
+            { L_,  MDF(          (1 << 21),     0 ),  "40 20 00 00" },
+            { L_,  MDF(          (1 << 21),   -16 ),  "00 20 00 00" },
+            { L_,  MDF(          (1 << 21),    15 ),  "7c 20 00 00" },
+            { L_,  MDF(         -(1 << 21),     0 ),  "c0 20 00 00" },
+            { L_,  MDF(         -(1 << 21),   -16 ),  "80 20 00 00" },
+            { L_,  MDF(         -(1 << 21),    15 ),  "fc 20 00 00" },
+            { L_,  MDF(  ((1ll << 26) - 1),    15 ),  "7f ff ff ff" },
+            { L_,  MDF( -((1ll << 26) - 1),    15 ),  "ff ff ff ff" },
+
+            { L_,  MDF(        (1ll << 26),     0 ),  "40 04 00 00 00" },
+            { L_,  MDF(        (1ll << 26),   -16 ),  "00 04 00 00 00" },
+            { L_,  MDF(        (1ll << 26),    15 ),  "7c 04 00 00 00" },
+            { L_,  MDF(       -(1ll << 26),     0 ),  "c0 04 00 00 00" },
+            { L_,  MDF(       -(1ll << 26),   -16 ),  "80 04 00 00 00" },
+            { L_,  MDF(       -(1ll << 26),    15 ),  "fc 04 00 00 00" },
+            { L_,  MDF(  ((1ll << 34) - 1),    15 ),  "7f ff ff ff ff" },
+            { L_,  MDF( -((1ll << 34) - 1),    15 ),  "ff ff ff ff ff" },
+
+            // Encoded value == "" indicates that the full 8-bytes DPD encoding
+            // format should be used.
+
+            { L_,  MDF(        (1ll << 34),    15 ),  "" },
+            { L_,  MDF(       -(1ll << 34),    15 ),  "" },
+            { L_,  MDF(                  1,    16 ),  "" },
+            { L_,  MDF(                  1,   -17 ),  "" },
+            { L_,  MDF(                  1,  -398 ),  "" },
+
+            { L_,        bsl::numeric_limits<Decimal64>::min(), "" },
+            { L_,        bsl::numeric_limits<Decimal64>::max(), "" },
+            { L_,   bsl::numeric_limits<Decimal64>::infinity(), "" },
+            { L_,  bsl::numeric_limits<Decimal64>::quiet_NaN(), "" },
+
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int i = 0; i != NUM_DATA; ++i) {
+            const int        LINE          = DATA[i].d_line;
+            const Decimal64  DECODED_VALUE = DATA[i].d_decodedValue;
+            const char      *ENCODED_VALUE = DATA[i].d_encodedValue;
+
+            unsigned char encodedBuffer[12];
+            bsls::Types::size_type encodedSize = 0;
+
+            const bool useFullEncodingFlag = !(ENCODED_VALUE[0]);
+            if (!useFullEncodingFlag) {
+                istringstream encodedBufferString(ENCODED_VALUE);
+                int temp;
+                while (encodedBufferString >> hex >> temp) {
+                    encodedBuffer[encodedSize] =
+                                              static_cast<unsigned char>(temp);
+                    ++encodedSize;
+                }
+            }
+            else {
+                unsigned char *nextAdr = decimal64ToBinaryIntegralNetwork(
+                                                 encodedBuffer, DECODED_VALUE);
+                encodedSize = nextAdr - encodedBuffer;
+            }
+
+            if (veryVerbose) {
+                P_(LINE) P_(DECODED_VALUE)
+                cout << "ENCODED_VALUE: ";
+                bufferToStream(cout, encodedBuffer, encodedSize);
+                cout << endl;
+            }
+
+            // Test 'decimal64FromMultiWidthEncoding'.
+            {
+                Decimal64 actualDecodedValue =
+                    Util::decimal64FromMultiWidthEncoding(encodedBuffer,
+                                                          encodedSize);
+                if (veryVerbose) {
+                    P(actualDecodedValue);
+                }
+
+                if (DecimalUtil::isNan(DECODED_VALUE)) {
+                    ASSERTV(LINE, DECODED_VALUE, actualDecodedValue,
+                            DecimalUtil::isNan(actualDecodedValue));
+                }
+                else {
+                    ASSERTV(LINE, DECODED_VALUE, actualDecodedValue,
+                            DECODED_VALUE == actualDecodedValue);
+                }
+            }
+
+            // Test 'decimal64FromMultiWidthEncodingRaw'.
+            if (!useFullEncodingFlag) {
+                Decimal64 actualDecodedValue =
+                    Util::decimal64FromMultiWidthEncoding(encodedBuffer,
+                                                          encodedSize);
+                if (veryVerbose) {
+                    P(actualDecodedValue);
+                }
+
+                if (DecimalUtil::isNan(DECODED_VALUE)) {
+                    ASSERTV(LINE, DECODED_VALUE, actualDecodedValue,
+                            DecimalUtil::isNan(actualDecodedValue));
+                }
+                else {
+                    ASSERTV(LINE, DECODED_VALUE, actualDecodedValue,
+                            DECODED_VALUE == actualDecodedValue);
+                }
+            }
+        }
+
+        // Negative Testing
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            unsigned char encodedBuffer[9] = { 0x77, 0xfc, 0xff, 0x3f,
+                                               0xcf, 0xf3, 0xfc, 0xff,
+                                               0xff };
+
+            ASSERT_SAFE_FAIL(
+                      Util::decimal64FromMultiWidthEncoding(encodedBuffer, 0));
+            ASSERT_SAFE_PASS(
+                      Util::decimal64FromMultiWidthEncoding(encodedBuffer, 1));
+            ASSERT_SAFE_PASS(
+                      Util::decimal64FromMultiWidthEncoding(encodedBuffer, 2));
+            ASSERT_SAFE_PASS(
+                      Util::decimal64FromMultiWidthEncoding(encodedBuffer, 3));
+            ASSERT_SAFE_PASS(
+                      Util::decimal64FromMultiWidthEncoding(encodedBuffer, 4));
+            ASSERT_SAFE_PASS(
+                      Util::decimal64FromMultiWidthEncoding(encodedBuffer, 5));
+            ASSERT_SAFE_FAIL(
+                      Util::decimal64FromMultiWidthEncoding(encodedBuffer, 6));
+            ASSERT_SAFE_FAIL(
+                      Util::decimal64FromMultiWidthEncoding(encodedBuffer, 7));
+            ASSERT_SAFE_PASS(
+                      Util::decimal64FromMultiWidthEncoding(encodedBuffer, 8));
+            ASSERT_SAFE_FAIL(
+                      Util::decimal64FromMultiWidthEncoding(encodedBuffer, 9));
+
+            ASSERT_SAFE_FAIL(
+                   Util::decimal64FromMultiWidthEncodingRaw(encodedBuffer, 0));
+            ASSERT_SAFE_PASS(
+                   Util::decimal64FromMultiWidthEncodingRaw(encodedBuffer, 1));
+            ASSERT_SAFE_PASS(
+                   Util::decimal64FromMultiWidthEncodingRaw(encodedBuffer, 2));
+            ASSERT_SAFE_PASS(
+                   Util::decimal64FromMultiWidthEncodingRaw(encodedBuffer, 3));
+            ASSERT_SAFE_PASS(
+                   Util::decimal64FromMultiWidthEncodingRaw(encodedBuffer, 4));
+            ASSERT_SAFE_PASS(
+                   Util::decimal64FromMultiWidthEncodingRaw(encodedBuffer, 5));
+            ASSERT_SAFE_FAIL(
+                   Util::decimal64FromMultiWidthEncodingRaw(encodedBuffer, 6));
+            ASSERT_SAFE_FAIL(
+                   Util::decimal64FromMultiWidthEncodingRaw(encodedBuffer, 7));
+            ASSERT_SAFE_FAIL(
+                   Util::decimal64FromMultiWidthEncodingRaw(encodedBuffer, 8));
+            ASSERT_SAFE_FAIL(
+                   Util::decimal64FromMultiWidthEncodingRaw(encodedBuffer, 9));
+        }
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // MULTI-WIDTH ENCODE
+        //
+        // Concerns:
+        //: 1 'decimal64ToMultiWidthEncoding' and
+        //:   'decimal64ToMultiWidthEncodingRaw' correctly encode values in the
+        //:   supported formats.
+        //:
+        //: 2 Values are always encoded in the smallest supported
+        //:   format. E.g. a values that fits in both 2 byte and 3 byte
+        //:   encodings will be encoded using the 2 byte encoding.
+        //:
+        //: 3 'decimal64ToMultiWidthEncoding' and
+        //:   'decimal64ToMultiWidthEncodingRaw' do not overwrite any memory
+        //:   outside of the range that it is supposed to.
+        //:
+        //: 4 Any value encoded using 'decimal64ToMultiWidthEncoding' can be
+        //:   decoded using the function 'decimal64FromMultiWidthEncoding'.
+        //:
+        //: 5 Any value encoded using 'decimal64ToMultiWidthEncodingRaw' can be
+        //:   decoded using the function 'decimal64FromMultiWidthEncodingRaw'.
+        //:
+        //: 6 'decimal64ToMultiWidthEncodingRaw' returns 0 if the value to
+        //:   encode requires the full IEEE format.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, specify a set of decimal
+        //:   values, and their expected encoded values when using the
+        //:   multi-width encoding format.  Ensure that the set of values
+        //:   include bondary values in all supported widths of the
+        //:   encoder. Use 'decimal64ToMultiWidthEncoding' and
+        //:   'decimal64ToMultiWidthEncodingRaw' to encode each decimal value
+        //:   in the set. Verify that the encoded values matches the expected
+        //:   values.  Additional, verify the encoded values can be decoded
+        //:   back to the original decimal values using
+        //:   'decimal64FromMultiWidthEncoding' and
+        //:   'decimal64FromMultiWidthEncodingRaw'.  (C-1..6)
+        //
+        // Testing:
+        //   size_type decimal64ToMultiWidthEncoding(*buffer, decimal);
+        //   size_type decimal64ToMultiWidthEncodingRaw(*buffer, decimal);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "MULTI-WIDTH ENCODE" << endl
+                          << "==================" << endl;
+
+        Decimal64 (*MDF)(long long, int) = &DecimalUtil::makeDecimal64;
+
+        static const struct {
+            int        d_line;
+            Decimal64  d_decodedValue;
+            const char d_encodedValue[128];
+        } DATA[] = {
+            { L_,  MDF(                  0,    -1 ),  "80 00" },
+            { L_,  MDF(                  1,    -3 ),  "00 01" },
+            { L_,  MDF(                  1,    -2 ),  "40 01" },
+            { L_,  MDF(                  1,    -1 ),  "80 01" },
+            { L_,  MDF(                  1,     0 ),  "c0 01" },
+            { L_,  MDF(      (1 << 14) - 1,     0 ),  "ff ff" },
+
+            { L_,  MDF(                  0,     1 ),  "e0 00 00" },
+            { L_,  MDF(                  0,    -4 ),  "40 00 00" },
+            { L_,  MDF(                 -1,     1 ),  "c4 00 00 01" },
+            { L_,  MDF(          (1 << 14),     1 ),  "e0 40 00" },
+
+            { L_,  MDF(          (1 << 14),    -2 ),  "80 40 00" },
+            { L_,  MDF(          (1 << 14),    -6 ),  "00 40 00" },
+            { L_,  MDF(          (1 << 14),     1 ),  "e0 40 00" },
+            { L_,  MDF(      (1 << 21) - 1,     1 ),  "ff ff ff" },
+
+            { L_,  MDF(          (1 << 14),     2 ),  "48 00 40 00" },
+            { L_,  MDF(          (1 << 14),    -7 ),  "24 00 40 00" },
+            { L_,  MDF(          (1 << 21),     2 ),  "48 20 00 00" },
+
+            { L_,  MDF(          (1 << 21),     0 ),  "40 20 00 00" },
+            { L_,  MDF(          (1 << 21),   -16 ),  "00 20 00 00" },
+            { L_,  MDF(          (1 << 21),    15 ),  "7c 20 00 00" },
+            { L_,  MDF(         -(1 << 21),     0 ),  "c0 20 00 00" },
+            { L_,  MDF(         -(1 << 21),   -16 ),  "80 20 00 00" },
+            { L_,  MDF(         -(1 << 21),    15 ),  "fc 20 00 00" },
+            { L_,  MDF(  ((1ll << 26) - 1),    15 ),  "7f ff ff ff" },
+            { L_,  MDF( -((1ll << 26) - 1),    15 ),  "ff ff ff ff" },
+
+            { L_,  MDF(        (1ll << 26),     0 ),  "40 04 00 00 00" },
+            { L_,  MDF(        (1ll << 26),   -16 ),  "00 04 00 00 00" },
+            { L_,  MDF(        (1ll << 26),    15 ),  "7c 04 00 00 00" },
+            { L_,  MDF(       -(1ll << 26),     0 ),  "c0 04 00 00 00" },
+            { L_,  MDF(       -(1ll << 26),   -16 ),  "80 04 00 00 00" },
+            { L_,  MDF(       -(1ll << 26),    15 ),  "fc 04 00 00 00" },
+            { L_,  MDF(  ((1ll << 34) - 1),    15 ),  "7f ff ff ff ff" },
+            { L_,  MDF( -((1ll << 34) - 1),    15 ),  "ff ff ff ff ff" },
+
+            // Encoded value == "" indicates that the full 8-bytes DPD encoding
+            // format should be used.
+
+            { L_,  MDF(        (1ll << 34),    15 ),  "" },
+            { L_,  MDF(       -(1ll << 34),    15 ),  "" },
+            { L_,  MDF(                  1,    16 ),  "" },
+            { L_,  MDF(                  1,   -17 ),  "" },
+            { L_,  MDF(                  1,  -398 ),  "" },
+
+            { L_,        bsl::numeric_limits<Decimal64>::min(), "" },
+            { L_,        bsl::numeric_limits<Decimal64>::max(), "" },
+            { L_,   bsl::numeric_limits<Decimal64>::infinity(), "" },
+            { L_,  bsl::numeric_limits<Decimal64>::quiet_NaN(), "" },
+
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int i = 0; i != NUM_DATA; ++i) {
+            const int        LINE          = DATA[i].d_line;
+            const Decimal64  DECODED_VALUE = DATA[i].d_decodedValue;
+            const char      *ENCODED_VALUE = DATA[i].d_encodedValue;
+
+            unsigned char encodedBuffer[12];
+            bsls::Types::size_type encodedSize = 0;
+
+            const bool useFullEncodingFlag = !(ENCODED_VALUE[0]);
+
+            if (!useFullEncodingFlag) {
+                istringstream encodedBufferString(ENCODED_VALUE);
+                int temp;
+                while (encodedBufferString >> hex >> temp) {
+                    encodedBuffer[encodedSize] =
+                                              static_cast<unsigned char>(temp);
+                    ++encodedSize;
+                }
+            }
+            else {
+                unsigned char *nextAdr = decimal64ToBinaryIntegralNetwork(
+                                                 encodedBuffer, DECODED_VALUE);
+                encodedSize = nextAdr - encodedBuffer;
+            }
+
+            if (veryVerbose) {
+                P_(LINE) P_(DECODED_VALUE)
+                cout << "ENCODED_VALUE: ";
+                bufferToStream(cout, encodedBuffer, encodedSize);
+                cout << endl;
+            }
+
+            // Test 'decimal64ToMultiWidthEncoding'.
+
+            {
+                unsigned char actualEncodedBufferOrig[16] = {
+                    0xDE, 0xAD, 0xBE, 0xEF,
+                    0xDE, 0xAD, 0xBE, 0xEF,
+                    0xDE, 0xAD, 0xBE, 0xEF,
+                    0xDE, 0xAD, 0xBE, 0xEF };
+                unsigned char actualEncodedBuffer[16] = {
+                    0xDE, 0xAD, 0xBE, 0xEF,
+                    0xDE, 0xAD, 0xBE, 0xEF,
+                    0xDE, 0xAD, 0xBE, 0xEF,
+                    0xDE, 0xAD, 0xBE, 0xEF };
+                const bsls::Types::size_type actualEncodedBufferOffset = 4;
+                bsls::Types::size_type actualEncodedSize;
+
+                actualEncodedSize = Util::decimal64ToMultiWidthEncoding(
+                    actualEncodedBuffer + actualEncodedBufferOffset,
+                    DECODED_VALUE);
+
+                if (veryVerbose) {
+                    P_(actualEncodedSize);
+                    cout << "actualEncodeValue: ";
+                    bufferToStream(
+                               cout,
+                               actualEncodedBuffer + actualEncodedBufferOffset,
+                               actualEncodedSize);
+                    cout << endl;
+                }
+
+                ASSERTV(LINE, encodedSize, actualEncodedSize,
+                        encodedSize == actualEncodedSize);
+                ASSERTV(LINE, 0 == memcmp(
+                            encodedBuffer,
+                            actualEncodedBuffer + actualEncodedBufferOffset,
+                            encodedSize));
+                ASSERTV(LINE, 0 == memcmp(actualEncodedBuffer,
+                                          actualEncodedBufferOrig,
+                                          actualEncodedBufferOffset));
+                ASSERTV(LINE, 0 == memcmp(
+                                      actualEncodedBuffer +
+                                      actualEncodedBufferOffset + encodedSize,
+                                      actualEncodedBufferOrig +
+                                      actualEncodedBufferOffset + encodedSize,
+                                      sizeof(actualEncodedBuffer) - encodedSize
+                                      - actualEncodedBufferOffset));
+
+                Decimal64 actualDecodedValue =
+                    Util::decimal64FromMultiWidthEncoding(encodedBuffer,
+                                                          encodedSize);
+                if (veryVerbose) {
+                    P(actualDecodedValue);
+                }
+
+                if (DecimalUtil::isNan(DECODED_VALUE)) {
+                    ASSERTV(LINE, DECODED_VALUE, actualDecodedValue,
+                            DecimalUtil::isNan(actualDecodedValue));
+                }
+                else {
+                    ASSERTV(LINE, DECODED_VALUE, actualDecodedValue,
+                            DECODED_VALUE == actualDecodedValue);
+                }
+            }
+
+            // Test 'decimal64ToMultiWidthEncodingRaw'.
+
+            if (useFullEncodingFlag) {
+                unsigned char buffer[16];
+                bsls::Types::size_type ret =
+                    Util::decimal64ToMultiWidthEncodingRaw(buffer,
+                                                           DECODED_VALUE);
+                ASSERTV(LINE, ret, ret == 0);
+            }
+            else {
+                unsigned char actualEncodedBufferOrig[16] = {
+                    0xDE, 0xAD, 0xBE, 0xEF,
+                    0xDE, 0xAD, 0xBE, 0xEF,
+                    0xDE, 0xAD, 0xBE, 0xEF,
+                    0xDE, 0xAD, 0xBE, 0xEF };
+                unsigned char actualEncodedBuffer[16] = {
+                    0xDE, 0xAD, 0xBE, 0xEF,
+                    0xDE, 0xAD, 0xBE, 0xEF,
+                    0xDE, 0xAD, 0xBE, 0xEF,
+                    0xDE, 0xAD, 0xBE, 0xEF };
+                const bsls::Types::size_type actualEncodedBufferOffset = 4;
+                bsls::Types::size_type actualEncodedSize;
+
+                actualEncodedSize = Util::decimal64ToMultiWidthEncodingRaw(
+                               actualEncodedBuffer + actualEncodedBufferOffset,
+                               DECODED_VALUE);
+
+                if (veryVerbose) {
+                    P_(actualEncodedSize);
+                    cout << "actualEncodeValue: ";
+                    bufferToStream(
+                               cout,
+                               actualEncodedBuffer + actualEncodedBufferOffset,
+                               actualEncodedSize);
+                    cout << endl;
+                }
+
+                ASSERTV(LINE, encodedSize, actualEncodedSize,
+                        encodedSize == actualEncodedSize);
+                ASSERTV(LINE, 0 == memcmp(
+                            encodedBuffer,
+                            actualEncodedBuffer + actualEncodedBufferOffset,
+                            encodedSize));
+                ASSERTV(LINE, 0 == memcmp(actualEncodedBuffer,
+                                          actualEncodedBufferOrig,
+                                          actualEncodedBufferOffset));
+                ASSERTV(LINE, 0 == memcmp(
+                                      actualEncodedBuffer +
+                                      actualEncodedBufferOffset + encodedSize,
+                                      actualEncodedBufferOrig +
+                                      actualEncodedBufferOffset + encodedSize,
+                                      sizeof(actualEncodedBuffer) - encodedSize
+                                      - actualEncodedBufferOffset));
+
+                Decimal64 actualDecodedValue =
+                        Util::decimal64FromMultiWidthEncodingRaw(encodedBuffer,
+                                                                 encodedSize);
+                if (veryVerbose) {
+                    P(actualDecodedValue);
+                }
+
+                if (DecimalUtil::isNan(DECODED_VALUE)) {
+                    ASSERTV(LINE, DECODED_VALUE, actualDecodedValue,
+                            DecimalUtil::isNan(actualDecodedValue));
+                }
+                else {
+                    ASSERTV(LINE, DECODED_VALUE, actualDecodedValue,
+                            DECODED_VALUE == actualDecodedValue);
+                }
+            }
+        }
+      } break;
+      case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
         //
@@ -1214,11 +1925,8 @@ int main(int argc, char* argv[])
         else {
             if (veryVerbose) bsl::cout << "Skipped, no binary FP" << bsl::endl;
         }
-
-    } break;
-
-
-    default: {
+      } break;
+      default: {
         cerr << "WARNING: CASE '" << test << "' NOT FOUND." << endl;
         testStatus = -1;
       }

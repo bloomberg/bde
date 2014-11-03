@@ -1,6 +1,9 @@
 // bdldfp_decimalimputil.t.cpp                                        -*-C++-*-
 #include <bdldfp_decimalimputil.h>
 
+#include <bsls_ident.h>
+BSLS_IDENT("$Id$")
+
 #include <bdls_testutil.h>
 
 #include <bslma_testallocator.h>
