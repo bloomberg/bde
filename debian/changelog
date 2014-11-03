@@ -1,8 +1,21 @@
-bsl-internal (2.22.1.1) unstable; urgency=low
+bsl-internal (2.22.1.2) unstable; urgency=low
 
-  * No commits found
+  * a1cb96f [APPROVAL] OSS review/decimal-encode-drqs-42817882 to releases/2.22.x
+  * 9c3d502 [APPROVAL] review/decimal-encode-drqs-42817882 to releases/2.22.x
+  * 50ddec4 [APPROVAL] OSS update-LICENSE-with-Apache-2.0-text-drqs-54684594 to releases/2.22.x
+  * 55e4da3 [APPROVAL] update-LICENSE-with-Apache-2.0-text-drqs-54684594 to releases/2.22.x
+  * e8964e7 [APPROVAL] update-LICENSE-with-Apache-2.0-text-drqs-54684594 to releases/2.22.x
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 3 Nov 2014 08:00:42 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 3 Nov 2014 14:06:39 -0500
+
+bsl-internal (2.22.1.1) git; urgency=low
+
+  * f8120f3 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.22.x
+  * a74694b [APPROVAL] INTERNAL bump-version-patch-to-2.22.1 to releases/2.22.x
+  * bf2a082 [APPROVAL] bump-version-patch-to-2.22.1 to releases/2.22.x
+  * c71484b bump version to 2.22.1.1
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 3 Nov 2014 08:24:16 -0500
 
 bsl-internal (2.22.1.0) git; urgency=low
 
@@ -28,9 +41,12 @@ bsl-internal (2.22.0.15) git; urgency=low
   * 22706cc Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.22.x
   * a2c4be4 [APPROVAL] INTERNAL review/synopses-and-doxygen-2.22-drqs-57987951 to releases/2.22.x
   * b3de9af [APPROVAL] review/synopses-and-doxygen-2.22-drqs-57987951 to releases/2.22.x
+  * f05cdf7 Merge branch 'decimal-conversion-work' into decimal-omnibus-merge
+  * 690ada5 Added BID conversion functions to ConvertUtil.
   * 4371184 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.22.x
   * 275a667 [APPROVAL] INTERNAL review/doc_bug_in_managed_ptr_drqs55675623 to releases/2.22.x
   * beaca90 [APPROVAL] review/doc_bug_in_managed_ptr_drqs55675623 to releases/2.22.x
+  * e589186 Add BID conversion functions to DecimalImplUtil.
   * 2eeb5da [APPROVAL] rebased-hashtable_find-drqs-58301418 to releases/2.22.x
   * 2defdf4 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.22.x
   * 911a68f [APPROVAL] INTERNAL rebased-string_patches_for_windows_2_22_kit_drqs58247801 to releases/2.22.x
@@ -122,6 +138,7 @@ bsl-internal (2.22.0.4) git; urgency=low
 
   * a85a138 bump changelog
   * eb4da49 [APPROVAL] origin/review/limit-header-copies-for-inteldfp-drqs-57002187 to releases/2.22.x
+  * 4cb746e [APPROVAL] origin/review/limit-header-copies-for-inteldfp-drqs-57002187 to master
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 22 Sep 2014 13:49:01 -0400
 
