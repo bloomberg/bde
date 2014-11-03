@@ -16,6 +16,8 @@
  The order of packages within each level is not architecturally significant,
  just alphabetical.
 ..
+  4. bdlt
+
   3. bdlb
      bdldfp
      bdlma
@@ -49,3 +51,6 @@
 :
 : 'bdlscm':
 :      Provide versioning information for BDL library components.
+:
+: 'bdlt':
+:      Provide and time-related vocabulary types, and related utilities.

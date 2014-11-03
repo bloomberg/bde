@@ -5,7 +5,7 @@
 @MNEMONIC: Basic Standard Library Hashing (bslh)
 
 @DESCRIPTION: The 'bslh' package provides components for a more modular hashing
-implemenation than is found in the standard.  This implementation is based on
+implementation than is found in the standard.  This implementation is based on
 ISO C++ Proposal N3980.  An internal proposal for this is available at {TEAM
 BDE:MODULAR HASHING<GO>}.  This package provides hashing algorithms as well as
 'Hash' and 'SeededHash' structs which allow different algorithms to be applied
@@ -155,7 +155,7 @@ writing a hashing algorithm for their type.  This required figuring out what
 constituted a good hash value and how to generate one with a given set of data
 members.  Thinking about what makes a good hash is no longer the job of the
 type implementer.  They simply have to declare what data members they want to
-contribute the the hash and then they are done.
+contribute the hash and then they are done.
 
 /Hash Combining
 / - - - - - - -
@@ -170,8 +170,8 @@ unlimited number of data members into one, good, hash.
 /- - - - - - - - - -
 In the standard C++03 hashing system, anyone who wanted to hash a type had to
 use the algorithm written by the type implementer, or they had to write their
-own algorithm in a fuctor (without access to private data members of course).
-Unfortuantely, hashing algorithms are not one size fits all.  In some cases, a
+own algorithm in a functor (without access to private data members of course).
+Unfortunately, hashing algorithms are not one size fits all.  In some cases, a
 fast identity hash is fine.  In other cases a slower hash that is secure
 against denial of service attacks is required.  The new, modular hashing system
 offers a suite of hashing algorithms that have been vetted and are know to have
@@ -214,7 +214,7 @@ algorithm.  An example implementation can be seen below:
 namespace BloombergLP {
 namespace NamespaceForBoxes {
 class Box {
-    // A value semantic type that represents a box drawn on to a cartesian
+    // A value semantic type that represents a box drawn on to a Cartesian
     // plane.
   private:
     Point d_position;
@@ -281,7 +281,7 @@ A few key features of the hashAppend fuction:
 :   algorithm functor with each invocation.
 
 This is the extent of the work for a type implementer.  Once a type implementer
-know what members need to contribure to a hash value, the type implementer
+knows what members need to contribute to a hash value, the type implementer
 simply calls 'hashAppend' on members as shown above.  Those members will then
 be passed into and used by whatever algorithm a consumer of the type wants to
 apply.
@@ -542,7 +542,7 @@ requirements of the algorithms in 'bslh':
 +-----------------------------------+-----------------------------------------+
 [*] "Crypto" is revering to the requirement on the seed, not the quality of the
 algorithm.  I.e., 'bslh::SipHashAlgorithm' is not a cryptographically secure
-algorithm, but it *is* a cryptographically strong pseudorandom function, *if*
+algorithm, but it *is* a cryptographically strong pseudo-random function, *if*
 it's provided a cryptographically secure seed (see 'bslh_siphashalgorithm' for
 more information).
 ..
@@ -870,7 +870,7 @@ are required to make the hashing algorithms in 'bslh' work.
 This component provides a templated struct, 'bslh::SeededHash', which provides
 hashing functionality.  This struct is a drop in replacement for 'bsl::hash'.
 It is similar to 'bslh::Hash', however, it is meant for hashes that require a
-seed.  It takes a seed generator and uses that to create seeds to give the the
+seed.  It takes a seed generator and uses that to create seeds to give the
 hashing algorithm.  'bslh::SeededHash' is a wrapper which adapts hashing
 algorithms from 'bslh' to match the interface of 'bsl::hash'.
 'bslh::SeededHash' is a universal hashing functor that will hash any type that
@@ -910,7 +910,7 @@ defined in bslh_seededhash.h.
 / - - - - - - - - - - - - -
 'bslh::SpookyHashAlgorithm' implements the SpookyHash algorithm by Bob Jenkins.
 This algorithm is a general purpose algorithm that is known to quickly reach
-good avalanche performance and execute in time that is comprable to or faster
+good avalanche performance and execute in time that is comparable to or faster
 than other industry standard algorithms such as CityHash.  It is a good default
 choice for hashing values in unordered associative containers.  For more
 information, see: http://burtleburtle.net/bob/hash/spooky.html
@@ -922,6 +922,6 @@ respectively.
 /'bslh_spookyhashalgorithmimp'
 /- - - - - - - - - - - - - - -
 'bslh::SpookyHashAlgorithmImp' provides BDE style encapsulation around Bob
-Jenkins cannonical SpookyHash implementation.  SpookyHash provides a way to
-hash contiguous data all at once, or discontiguous data in pieces.  More
+Jenkins canonical SpookyHash implementation.  SpookyHash provides a way to
+hash contiguous data all at once, or non-contiguous data in pieces.  More
 information is available at: http://burtleburtle.net/bob/hash/spooky.html
