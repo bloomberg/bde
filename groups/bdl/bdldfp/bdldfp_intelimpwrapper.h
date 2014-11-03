@@ -86,11 +86,20 @@ BSLS_IDENT("$Id$")
 #      define _WCHAR_T_DEFINED
 #    endif
 
+#    ifdef BSLS_PLATFORM_CMP_GNU
+#      pragma GCC diagnostic push
+#      pragma GCC diagnostic ignored "-Wconversion"
+#    endif
+
      extern "C" {
 #     include <bid_conf.h>
 #     include <bid_functions.h>
 #     include <bid_internal.h>
      }
+
+#    ifdef BSLS_PLATFORM_CMP_GNU
+#      pragma GCC diagnostic pop
+#    endif
 
 // Intel #define's several symbols we don't want to leak out.
 
