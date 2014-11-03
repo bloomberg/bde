@@ -21,8 +21,6 @@ Important new features include:
   * [`bdldfp::Decimal`](http://bloomberg.github.io/bde/group__bdldfp__decimal.html) types are now 10X faster, making use of the [Intel Decimal Floating Point Math Library](https://software.intel.com/en-us/articles/intel-decimal-floating-point-math-library)
   * Support for Visual Studio 2013
 
-  See BDE 2.22 Relase Notes.
-
   Note that `bdlt` is available on `master` but is not on `releases/2.22.x`.
 
 Basic Build Instructions
