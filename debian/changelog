@@ -1,31 +1,52 @@
-bsl-internal (2.22.0.15) unstable; urgency=low
+bsl-internal (2.22.1.0) unstable; urgency=low
 
+  * 77f7078 [APPROVAL] OSS fix-windows-build-2.22 to releases/2.22.x
+  * 832000f [APPROVAL] fix-windows-build-2.22 to releases/2.22.x
+  * b663fd2 [APPROVAL] OSS review/fix-inteldfp-qnx-define-drqs-58577854 to releases/2.22.x
+  * d3465fe [APPROVAL] review/fix-inteldfp-qnx-define-drqs-58577854 to releases/2.22.x
+
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Fri, 31 Oct 2014 23:13:45 -0400
+
+bsl-internal (2.22.0.15) git; urgency=low
+
+  * 0861199 [APPROVAL] bump-changelog-to-2.22.0.15 to releases/2.22.x
+  * baded14 bump changelog to 2.22.0.15
+  * 7e19ea4 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.22.x
   * 6c17a97 [APPROVAL] INTERNAL review/merge-base-rebase-bdldfp-missing-include-drqs57022994 to releases/2.22.x
   * badae87 [APPROVAL] review/merge-base-rebase-bdldfp-missing-include-drqs57022994 to releases/2.22.x
+  * c1b9f56 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.22.x
   * 4dcb9fa [APPROVAL] INTERNAL review/make_shared_should_not_default_construct_drqs58210637 to releases/2.22.x
   * c92c68a [APPROVAL] review/make_shared_should_not_default_construct_drqs58210637 to releases/2.22.x
+  * 22706cc Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.22.x
   * a2c4be4 [APPROVAL] INTERNAL review/synopses-and-doxygen-2.22-drqs-57987951 to releases/2.22.x
   * b3de9af [APPROVAL] review/synopses-and-doxygen-2.22-drqs-57987951 to releases/2.22.x
+  * 4371184 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.22.x
   * 275a667 [APPROVAL] INTERNAL review/doc_bug_in_managed_ptr_drqs55675623 to releases/2.22.x
   * beaca90 [APPROVAL] review/doc_bug_in_managed_ptr_drqs55675623 to releases/2.22.x
   * 2eeb5da [APPROVAL] rebased-hashtable_find-drqs-58301418 to releases/2.22.x
+  * 2defdf4 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.22.x
   * 911a68f [APPROVAL] INTERNAL rebased-string_patches_for_windows_2_22_kit_drqs58247801 to releases/2.22.x
   * 688d65a [APPROVAL] rebased-string_patches_for_windows_2_22_kit_drqs58247801 to releases/2.22.x
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 29 Oct 2014 18:44:15 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 31 Oct 2014 07:42:20 -0400
 
 bsl-internal (2.22.0.14) git; urgency=low
 
   * 2b6a205 Bump version to 2.22.0.14
   * 963ae9f [APPROVAL] OSS missing-bdl-include-drqs58266540 to releases/2.22.x
   * ba1f376 [APPROVAL] missing-bdl-include-drqs58266540 to releases/2.22.x
+
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Fri, 24 Oct 2014 11:07:14 -0400
+
+bsl-internal (2.22.0.13) git; urgency=low
+
   * 0ce9459 Bump version to 2.22.0.13
   * 6a6edf7 [APPROVAL] OSS pending/master/decimal-omnibus-merge to releases/2.22.x
   * adad8c2 [APPROVAL] pending/master/decimal-omnibus-merge to releases/2.22.x
   * 2f4fd30 [APPROVAL] OSS pending/master/fix-osx-build-bdeut_stringref-drqs58086499 to releases/2.22.x
   * 8b5de1a [APPROVAL] pending/master/fix-osx-build-bdeut_stringref-drqs58086499 to releases/2.22.x
 
- -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Fri, 24 Oct 2014 11:07:14 -0400
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Wed, 22 Oct 2014 21:19:12 -0400
 
 bsl-internal (2.22.0.12) git; urgency=low
 
@@ -50,6 +71,7 @@ bsl-internal (2.22.0.10) git; urgency=low
   * 0b597a1 [APPROVAL] bump-changelog-2.22.0.10 to releases/2.22.x
   * 1f65873 bump changelog to 2.22.0.10
   * 75a3188 [APPROVAL] INTERNAL add-inline-to-assign-stringref-drqs-57553745 to releases/2.22.x
+  * 930d531 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.22.x
   * 612af51 [APPROVAL] add-inline-to-assign-stringref-drqs-57553745 to releases/2.22.x
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 7 Oct 2014 12:23:31 -0400
@@ -59,6 +81,7 @@ bsl-internal (2.22.0.9) git; urgency=low
   * 8325bb6 [APPROVAL] bump-changelog-2.22.0.9 to releases/2.22.x
   * d8b4b65 bump changelog
   * 2409beb [APPROVAL] INTERNAL remove-binary-status-flag-drqs-57413426 to releases/2.22.x
+  * 953853b Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.22.x
   * d1aee65 [APPROVAL] remove-binary-status-flag-drqs-57413426 to releases/2.22.x
   * fb284f1 Sync with open-source releases/2.22.x
   * ab111b5 [APPROVAL] INTERNAL pending/master/resolve_ambiguous_assign_drqs57251422 to master
