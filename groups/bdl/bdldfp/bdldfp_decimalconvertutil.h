@@ -814,7 +814,7 @@ bsls::Types::size_type DecimalConvertUtil::decimal64ToMultiWidthEncodingRaw(
                                         decimal))) {
         if (!isNegative) {
             if (395 <= exponent && exponent < 399) {
-                if (mantissa < (1 << 14)) {
+                if (mantissa < (1u << 14)) {
                     unsigned short squished = static_cast<unsigned short>(
                         mantissa | (exponent - 395) << 14);
 
@@ -824,7 +824,7 @@ bsls::Types::size_type DecimalConvertUtil::decimal64ToMultiWidthEncodingRaw(
                 }
             }
             if (392 <= exponent && exponent < 400) {
-                if (mantissa < (1 << 21)) {
+                if (mantissa < (1u << 21)) {
                     // On IBM (and Linux to a lesser extent), copying from a
                     // word-aligned source is faster, so we shift an extra the
                     // source by an extra 8 bits.
@@ -842,11 +842,11 @@ bsls::Types::size_type DecimalConvertUtil::decimal64ToMultiWidthEncodingRaw(
         }
 
         if (382 <= exponent && exponent < 414) {
-            if (mantissa < (1 << 26)) {
+            if (mantissa < (1u << 26)) {
                 unsigned int squished = static_cast<unsigned int>(
                                             mantissa | (exponent - 382) << 26);
                 if (isNegative) {
-                    squished |= 1 << 31;
+                    squished |= 1u << 31;
                 }
                 unsigned int squishedN = BSLS_BYTEORDER_HTONL(squished);
                 bsl::memcpy(buffer, &squishedN, 4);
@@ -982,7 +982,7 @@ unsigned char *DecimalConvertUtil::decimal64ToVariableWidthEncoding(
                                         decimal))) {
         if (!isNegative) {
             if (396 <= exponent && exponent < 400) {
-                if (mantissa < (1 << 13)) {
+                if (mantissa < (1u << 13)) {
 
                     // The predicate disambiguation bit is implicitly 0.
 
@@ -996,17 +996,17 @@ unsigned char *DecimalConvertUtil::decimal64ToVariableWidthEncoding(
             }
 
             if (394 <= exponent && exponent < 402) {
-                if (mantissa < (1 << 19)) {
+                if (mantissa < (1u << 19)) {
                     // On IBM (and Linux to a lesser extent), copying from a
-                    // word-aligned source is faster, so we shift an extra the
-                    // source by an extra 8 bits.
+                    // word-aligned source is faster, so we shift the source of
+                    // memcpy by an extra 8 bits.
 
                     unsigned int squished = static_cast<unsigned int>(
                                      (mantissa << 8) | (exponent - 394) << 27);
 
                     // The predicate bits should be 0b10.
 
-                    squished |= 1 << 31;
+                    squished |= 1u << 31;
 
                     unsigned int squishedN = BSLS_BYTEORDER_HTONL(squished);
 
@@ -1024,15 +1024,15 @@ unsigned char *DecimalConvertUtil::decimal64ToVariableWidthEncoding(
 
         if (382 <= exponent &&
                         (exponent < 413 || (!isNegative && exponent == 413))) {
-            if (mantissa < (1 << 24)) {
+            if (mantissa < (1u << 24)) {
                 unsigned int squished = static_cast<unsigned int>(
                                             mantissa | (exponent - 382) << 24);
                 if (isNegative) {
-                    squished |= 1 << 29;
+                    squished |= 1u << 29;
                 }
                 // The predicate bits should be 11.
 
-                squished |= 3 << 30;
+                squished |= 3u << 30;
                 unsigned int squishedN = BSLS_BYTEORDER_HTONL(squished);
                 bsl::memcpy(buffer, &squishedN, 4);
                 return buffer + 4;                                    // RETURN
