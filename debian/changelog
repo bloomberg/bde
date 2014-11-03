@@ -1,11 +1,19 @@
-bsl-internal (2.22.1.0) unstable; urgency=low
+bsl-internal (2.22.1.1) unstable; urgency=low
 
+  * No commits found
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 3 Nov 2014 08:00:42 -0500
+
+bsl-internal (2.22.1.0) git; urgency=low
+
+  * 4b5090c [APPROVAL] bump-changelog-to-2.22.1.0 to releases/2.22.x
+  * 20554c4 bump changelog to 2.22.1.0
   * 77f7078 [APPROVAL] OSS fix-windows-build-2.22 to releases/2.22.x
   * 832000f [APPROVAL] fix-windows-build-2.22 to releases/2.22.x
   * b663fd2 [APPROVAL] OSS review/fix-inteldfp-qnx-define-drqs-58577854 to releases/2.22.x
   * d3465fe [APPROVAL] review/fix-inteldfp-qnx-define-drqs-58577854 to releases/2.22.x
 
- -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Fri, 31 Oct 2014 23:13:45 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 3 Nov 2014 08:00:42 -0500
 
 bsl-internal (2.22.0.15) git; urgency=low
 
