@@ -43,7 +43,7 @@
 
 #if !DEFINE_SYMBOLIC_CONSTANTS
 
-    const unsigned int TABLE_NAME[] = { 
+    BID_EXTERN_C const unsigned int TABLE_NAME[] = { 
 
 	/* 
 	 * Tj = 2^(j/2^POW2_K) and Rj = [2^(j/2^POW2_K) - Tj]/Tj.

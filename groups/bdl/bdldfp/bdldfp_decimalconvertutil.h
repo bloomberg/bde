@@ -17,8 +17,122 @@ BSLS_IDENT("$Id$")
 //@DESCRIPTION: This component provides namespace,
 // 'bdldfp::DecimalConvertUtil', containing functions that are able to convert
 // between the native decimal types of the platform and various other possible
-// representations, such as binary floating-point, network format (big endian,
-// DPD encoded decimals).
+// representations, such as binary floating-point, network encoding formats.
+//
+///Encoding Formats
+///----------------
+// This utility contains functions to encode decimal values to and from three
+// different encoding formats:
+//
+//: o the IEEE decimal interchange format using decimal encoding for the
+//:   significant (also known as the Densely Packed Decimal format, see IEEE
+//:   754 - 2008, section 3.5.2, for more details)
+//:
+//: o the multi-width encoding format, which is a custom format that can encode
+//:   subsets of decimal values using a smaller number of bytes
+//:
+//: o the variable-width encoding format, which is a custom format that is
+//:   similar to the multi-width encoding format with the main difference being
+//:   that it self describes its own width
+//
+// 64-bit decimal values encoded by the IEEE decimal interchange format always
+// uses 8 bytes, which can be inefficient. The two custom encoding formats
+// provided by this to enable more space efficient encoding of values commonly
+// encountered by financial applications.
+//
+// In the full IEEE encoding, 50 bits are used for the trailing bits of the
+// mantissa, 13 bit is used for the combination field (exponent + special
+// states to indicate NaN and Inf values + leading bits of the mantissa), and 1
+// bit is used for the significant.  The basic idea for the custom encoding
+// formats is that the mantissa and exponent of many values (in typical
+// financial applications) can fit into fewer bits than those provided by the
+// full encoding.  We can define a set of narrow formats to encode these
+// smaller values without loss of precision.  For example, a ticker values less
+// than 100 dollars with a 2 decimal places of precision can be encoded using a
+// 2 bytes encoding, using no sign bit, 3 bits for the exponent, and 13 bits
+// for the mantissa.
+//
+///IEEE Decimal Interchange Format
+///- - - - - - - - - - - - - - - -
+// The IEEE decimal interchange format is defined by the IEEE standard.  64 bit
+// decimal values encoded by this format always uses 8 bytes.  The
+// 'decimalFromNetwork' and 'decimalToNetwork' functions can be used encode to
+// and decode from this format.
+//
+///Multi-Width Encoding Format
+///- - - - - - - - - - - - - -
+// The multi-width encoding format uses a set of narrow encoding formats having
+// sizes smaller than that used by the for IEEE format.  Each of the narrower
+// encoding format is used to encode a subset of values that can be represented
+// by the full format.  The following configuration is used to encode 64-bit
+// decimal values:
+//
+//..
+// |------|----------|----------|-----|----------|----------------|
+// | size | S (bits) | E (bits) |   B | T (bits) | max signficant |
+// |------|----------|----------|-----|----------|----------------|
+// |   1* |        0 |        1 |  -2 |        7 |            127 |
+// |   2  |        0 |        2 |  -3 |       14 |          16383 |
+// |   3  |        0 |        3 |  -6 |       21 |        2097151 |
+// |   4  |        1 |        5 | -16 |       26 |       67108863 |
+// |   5  |        1 |        5 | -16 |       34 |    17179869183 |
+// |------|-------------------------------------------------------|
+// |    8 |            FULL IEEE INTERCHANGE FORMAT**             |
+// |------|-------------------------------------------------------|
+//
+// S = sign, E = exponent, B = bias, T = significant
+//
+// * 1 byte encoding will be supported by the decoder but not the encoder. This
+//   is done due to the relatively large performance impact of adding the 1
+//   byte encoding to the encoder (10%). Perserving the encoding size in the
+//   decoder allows us to easily enable this encoding size at a later time.
+//
+// ** If the value to be encoded can not fit in the 5-byte encoding or is -Inf,
+//    +Inf, or Nan, then the full 8-byte IEEE format will be used.
+//..
+//
+// Since the multi-width encoding format consists of subformats having varying
+// widths, the size of the subformat used must be supplied long with the
+// encoding to the decode function.  This is not required for either the IEEE
+// format or the variable-width encoding format.
+//
+// The 'decimal64ToMultiWidthEncoding' and 'decimal64FromMultiWidthEncoding'
+// can be used to encode to and decode from this format.  Currently, only
+// 64-bit decimal values are supported by this encoding format.
+//
+///Variable-Width Encoding Formats
+///- - - - - - - - - - - - - - - -
+// The variable-width encoding format can encode decimal values using a
+// variable number of bytes, similar to the multi-width encoding format.  The
+// difference is that the variable-width encoding format can self-describe its
+// own size using special state (typically, predicate bits), so the decode
+// function does not require the size of the encoding to work.  The following
+// configuration is used to encode 64-bit decimal values:
+//
+//..
+// |------|------------|---|---|-----|----|-----------------|
+// | size |          P | S | E |   B |  T | max significant |
+// |------|------------|---|---|-----|----|-----------------|
+// |    2 |        0b0 | 0 | 2 |  -2 | 13 |            8191 |
+// |    3 |       0b10 | 0 | 3 |  -4 | 19 |          524287 |
+// |    4 |       0b11 | 1 | 5 | -16 | 24 |        16777215 |
+// |------|------------|------------------------------------|
+// |    9 | 0b11111111 |        FULL IEEE FORMAT*           |
+// |------|------------|------------------------------------|
+//
+// P = predicate (bit values)
+// S = sign (bits), E = exponent (bits), B = bias
+// T = significant (bits)
+//
+// * If the value to be encoded can not fit in the 4-byte encoding or is -Inf,
+//   +Inf, or Nan, then the full 8-byte IEEE format will be used prefixed by a
+//   1 byte predicate having the value of 0xFF.
+//..
+//
+// The 'decimal64ToVariableWidthEncoding' and
+// 'decimal64FromVariableWidthEncoding' can be used to encode to and decode
+// from this format.  Currently, only 64-bit decimal values are supported by
+// this encoding format.
 //
 ///Usage
 ///-----
@@ -95,6 +209,10 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimal.h>
 #endif
 
+#ifndef INCLUDED_BDLDFP_DECIMALUTIL
+#include <bdldfp_decimalutil.h>
+#endif
+
 #ifndef INCLUDED_BDLDFP_DECIMALCONVERTUTIL_DECNUMBER
 #include <bdldfp_decimalconvertutil_decnumber.h>
 #endif
@@ -115,8 +233,23 @@ BSLS_IDENT("$Id$")
 #include <bslmf_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PERFORMANCEHINT
+#include <bsls_performancehint.h>
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
 namespace BloombergLP {
 namespace bdldfp {
+
+#define BDLDFP_DU_INTELDFP_EXPONENT_SHIFT_SMALL64 53
+#define BDLDFP_DU_INTELDFP_SPECIAL_ENCODING_MASK64 0x6000000000000000ull
+
+#define BDLDFP_DU_INTELDFP_EXPONENT_MASK64 0x3ff
+#define BDLDFP_DU_INTELDFP_SMALL_COEFF_MASK64 0x001fffffffffffffull
+
                         // ========================
                         // class DecimalConvertUtil
                         // ========================
@@ -136,6 +269,44 @@ struct DecimalConvertUtil {
 #else
     BSLMF_ASSERT(false);
 #endif
+
+    // PRIVATE CLASS METHODS
+    static int decimal64ToUnpackedSpecial(
+                                         bool                *isNegative,
+                                         int                 *biasedExponent,
+                                         bsls::Types::Uint64 *mantissa,
+                                         bdldfp::Decimal64    value);
+        // If the specified 'value' is NaN, +infinity, -infinity, or its
+        // unbiased exponent is 384, return a non-zero value and leave all
+        // output parameters unmodified.  Otherwise, partition the specified
+        // 'value' into sign, biased exponent, and mantissa compartments, and
+        // load the corresponding values into the specified 'isNegative',
+        // biasedExponent', and 'mantissa'. Return 0.  Note that a non-zero
+        // value does not indicate that 'value' can not be partitioned, just
+        // that it can not be partitioned by this function.  Also note that the
+        // bias for 'Decimal64' is 398.
+
+    static bdldfp::Decimal64 decimal64FromUnpackedSpecial(
+                                                bool                isNegative,
+                                                bsls::Types::Uint64 mantissa,
+                                                int                 exponent);
+        // Return a 'Decimal64' object that has the specified 'mantissa',
+        // 'exponent', and a sign based on the specified 'isNegative'.  The
+        // behavior is undefined unless 'isNegative', 'mantissa', and the
+        // biased exponent were originally obtained from
+        // 'decimal64ToUnpackedSpecial'.  Note that 'exponent' should be
+        // unbiased, so 398 should be subtracted from the biased exponent
+        // gotten from 'decimal64ToUnpackedSpecial'.
+
+
+    static bdldfp::Decimal64 decimal64FromUnpackedSpecial(int mantissa,
+                                                          int exponent);
+        // Return a 'Decimal64' object that has the specified 'mantissa',
+        // 'exponent'.  The behavior is undefined unless 'isNegative',
+        // 'mantissa', and the biased exponent were originally obtained from
+        // 'decimal64ToUnpackedSpecial'.  Note that 'exponent' should be
+        // unbiased, so 398 should be subtracted from the biased exponent
+        // gotten from 'decimal64ToUnpackedSpecial'.
 
   public:
     // CLASS METHODS
@@ -299,6 +470,59 @@ struct DecimalConvertUtil {
         // *not* to create a decimal from the exact base-2 value.  Use the
         // conversion constructors when you are not restoring a decimal.
 
+                        // decimalToBinaryIntegral functions
+
+    static void decimal32ToBinaryIntegral( unsigned char *buffer,
+                                          Decimal32      decimal);
+    static void decimal64ToBinaryIntegral( unsigned char *buffer,
+                                          Decimal64      decimal);
+    static void decimal128ToBinaryIntegral(unsigned char *buffer,
+                                          Decimal128     decimal);
+    static void decimalToBinaryIntegral(   unsigned char *buffer,
+                                          Decimal32      decimal);
+    static void decimalToBinaryIntegral(   unsigned char *buffer,
+                                          Decimal64      decimal);
+    static void decimalToBinaryIntegral(   unsigned char *buffer,
+                                          Decimal128     decimal);
+        // Populate the specified 'buffer' with the Binary Integral Decimal
+        // (BID) representation of the specified 'decimal' value.  The BID
+        // representations of 'Decimal32', 'Decimal64', and 'Decimal128'
+        // require 4, 8, and 16 bytes respectively.  The behavior is undefined
+        // unless 'buffer' points to a contiguous sequence of at least
+        // 'sizeof(decimal)' bytes.  Note that the BID representation is
+        // defined in section 3.5 of IEEE 754-2008.
+
+                        // decimalFromBinaryIntegral functions
+
+    static Decimal32  decimal32FromBinaryIntegral( const unsigned char *buffer);
+    static Decimal64  decimal64FromBinaryIntegral( const unsigned char *buffer);
+    static Decimal128 decimal128FromBinaryIntegral(const unsigned char *buffer);
+        // Return the native implementation representation of the value of the
+        // same size base-10 floating-point value stored in Binary Integral
+        // Decimal format at the specified 'buffer' address.  The behavior is
+        // undefined unless 'buffer' points to a memory area at least
+        // 'sizeof(decimal)' in size containing a value in BID format.
+
+    static void decimalFromBinaryIntegral(   Decimal32           *decimal,
+                                            const unsigned char *buffer);
+    static void decimalFromBinaryIntegral(   Decimal64           *decimal,
+                                            const unsigned char *buffer);
+    static void decimalFromBinaryIntegral(   Decimal128          *decimal,
+                                            const unsigned char *buffer);
+    static void decimal32FromBinaryIntegral( Decimal32           *decimal,
+                                            const unsigned char *buffer);
+    static void decimal64FromBinaryIntegral( Decimal64           *decimal,
+                                            const unsigned char *buffer);
+    static void decimal128FromBinaryIntegral(Decimal128          *decimal,
+                                            const unsigned char *buffer);
+        // Store, into the specified 'decimal', the native implmentation
+        // representation of the value of the same size base-10 floating point
+        // value represented in Binary Integral Decimal format, at the specified
+        // 'buffer' address.  The behavior is undefined unless 'buffer' points
+        // to a memory area at least 'sizeof(decimal)' in size containing a
+        // value in BID format.
+
+
                         // decimalToDenselyPacked functions
 
     static void decimal32ToDenselyPacked( unsigned char *buffer,
@@ -400,12 +624,496 @@ struct DecimalConvertUtil {
         // functions always return 'buffer + sizeof(decimal)' on the supported
         // 8-bits-byte architectures.
 
+    static bsls::Types::size_type decimal64ToMultiWidthEncoding(
+                                                   unsigned char     *buffer,
+                                                   bdldfp::Decimal64  decimal);
+        // Store the specified 'decimal', in the *multi-width encoding* format,
+        // into the specified 'buffer' and return the number of bytes used by
+        // the encoding.  The behavior is undefined unless 'buffer' points to a
+        // memory area with enough room to hold the encode value (which has a
+        // maximum size of 8 bytes).
+
+    static bsls::Types::size_type decimal64ToMultiWidthEncodingRaw(
+                                                   unsigned char     *buffer,
+                                                   bdldfp::Decimal64  decimal);
+        // If the specified 'decimal' can be encoded in 5 or fewer bytes of the
+        // *multi-width encoding* format, then store 'decimal' into the
+        // specified 'buffer' in that format, and return the number of bytes
+        // written to 'buffer'.  Otherwise, return 0.  The behavior is
+        // undefined unless 'buffer' points to a memory area having at least 5
+        // bytes.  Note that this function does not supporting encoding values
+        // requiring a full IEEE network encoding, which is supported by the
+        // 'decimal64ToMultiWidthEncoding' function.
+
+    static Decimal64 decimal64FromMultiWidthEncodingRaw(
+                                                unsigned char          *buffer,
+                                                bsls::Types::size_type  size);
+        // Decode a decimal value in the *multi-width encoding* format from the
+        // specified 'buffer' having the specified 'size'. Return the decoded
+        // value.  The behavior is undefined unless 'buffer' has at least
+        // 'size' bytes, 'size' is a valid encoding size in the
+        // 'multi-width encoding' format, and 'size <= 5'.  Note that this
+        // function does not support decoding values requiring a full IEEE
+        // network encoding, which is supported by the
+        // 'decimal64FromMultiWidthEncoding' function.
+
+    static Decimal64 decimal64FromMultiWidthEncoding(
+                                                unsigned char          *buffer,
+                                                bsls::Types::size_type  size);
+        // Decode a decimal value in the *multi-width Encoding' format from the
+        // specified 'buffer' having the specified 'size'. Return the decoded
+        // value.  The behavior is undefined unless 'buffer' has at least
+        // 'size' bytes, and 'size' is a valid encoding size in the
+        // 'multi-width encoding' format.
+
+    static unsigned char *decimal64ToVariableWidthEncoding(
+                                                   unsigned char     *buffer,
+                                                   bdldfp::Decimal64  decimal);
+        // Store the specified 'decimal', in the *variable-width encoding*
+        // format, into the specified 'buffer' and return the address one past
+        // the last byte written into the 'buffer'. The behavior is undefined
+        // unless 'buffer' points to a memory area with enough room to hold the
+        // encoded value (which has a maximum size of 9 bytes).
+
+    static unsigned char *decimal64FromVariableWidthEncoding(
+                                                    bdldfp::Decimal64 *decimal,
+                                                    unsigned char     *buffer);
+        // Store into the specified 'decimal', the value of 'Decimal64' value
+        // stored in the *variable-width encoding* format at the specified
+        // 'buffer' address. Return the address one past the last byte read
+        // from 'buffer'.  The behavior is undefined unless 'buffer' points to
+        // a memory area holding a 'Decimal64' value encoded in the
+        // *variable-width encoding* format.
 };
 
 // ============================================================================
 //                              INLINE DEFINITIONS
 // ============================================================================
 
+
+// PRIVATE CLASS METHODS
+
+inline
+int DecimalConvertUtil::decimal64ToUnpackedSpecial(
+                                          bool                *isNegative,
+                                          int                 *biasedExponent,
+                                          bsls::Types::Uint64 *mantissa,
+                                          bdldfp::Decimal64    value)
+{
+#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
+    bsls::Types::Uint64 bidValue = value.data()->d_raw;
+#else
+    bsls::Types::Uint64 bidValue = bid_dpd_to_bid64(
+                            static_cast<bsls::Types::Uint64>(*(value.data())));
+#endif
+    // This class method is based on inteldfp 'unpack_BID64' (bid_internal.h),
+    // with a non-zero return if 'SPECIAL_ENCODING_MASK64' indicates a special
+    // encoding; these are practically non-existent and no need to optimize.
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                (bidValue & BDLDFP_DU_INTELDFP_SPECIAL_ENCODING_MASK64) ==
+                              BDLDFP_DU_INTELDFP_SPECIAL_ENCODING_MASK64)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        // punt on special encodings
+        return -1;
+    }
+
+    *isNegative = (bidValue & 0x8000000000000000ull) ? 1 : 0;
+
+    *biasedExponent = static_cast<int>(
+                   (bidValue >> BDLDFP_DU_INTELDFP_EXPONENT_SHIFT_SMALL64) &
+                   BDLDFP_DU_INTELDFP_EXPONENT_MASK64);
+
+    *mantissa = bidValue & BDLDFP_DU_INTELDFP_SMALL_COEFF_MASK64;
+
+    return 0;
+}
+
+inline
+Decimal64 DecimalConvertUtil::decimal64FromUnpackedSpecial(
+                                                bool                isNegative,
+                                                bsls::Types::Uint64 mantissa,
+                                                int                 exponent)
+{
+#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
+    bdldfp::Decimal64 result;
+    result.data()->d_raw = (isNegative ? 0x8000000000000000ull : 0) |
+                           (static_cast<BID_UINT64>(exponent + 398)
+                            << BDLDFP_DU_INTELDFP_EXPONENT_SHIFT_SMALL64) |
+                           mantissa;
+    return result;
+#else
+    if (isNegative) {
+        return DecimalImpUtil::makeDecimalRaw64(
+                                             -static_cast<long long>(mantissa),
+                                             exponent);
+    } else {
+        return DecimalImpUtil::makeDecimalRaw64(mantissa, exponent);
+    }
+#endif
+}
+
+inline
+Decimal64 DecimalConvertUtil::decimal64FromUnpackedSpecial(int mantissa,
+                                                           int exponent)
+{
+#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
+    bdldfp::Decimal64 result;
+    result.data()->d_raw = (static_cast<BID_UINT64>(exponent + 398)
+                            << BDLDFP_DU_INTELDFP_EXPONENT_SHIFT_SMALL64) |
+                            mantissa;
+    return result;
+#else
+    return DecimalUtil::makeDecimalRaw64(mantissa, exponent);
+#endif
+}
+
+// CLASS METHODS
+inline
+bsls::Types::size_type DecimalConvertUtil::decimal64ToMultiWidthEncoding(
+                                                    unsigned char     *buffer,
+                                                    bdldfp::Decimal64  decimal)
+{
+
+    bsls::Types::size_type size = decimal64ToMultiWidthEncodingRaw(buffer,
+                                                                   decimal);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(size != 0)) {
+        return size;                                                  // RETURN
+    }
+    else {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        bsls::Types::Uint64 encoded;
+        decimal64ToBinaryIntegral(reinterpret_cast<unsigned char *>(&encoded),
+                                  decimal);
+
+        encoded = BSLS_BYTEORDER_HTONLL(encoded);
+
+        bsl::memcpy(buffer,
+                    reinterpret_cast<unsigned char*>(&encoded),
+                    8);
+        return 8;                                                     // RETURN
+    }
+}
+
+inline
+bsls::Types::size_type DecimalConvertUtil::decimal64ToMultiWidthEncodingRaw(
+                                                    unsigned char     *buffer,
+                                                    bdldfp::Decimal64  decimal)
+{
+    bool                isNegative;
+    int                 exponent;
+    bsls::Types::Uint64 mantissa;
+
+    // 'exponent' is biased --> biased exponent = exponent + 398
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(0 ==
+             decimal64ToUnpackedSpecial(&isNegative,
+                                        &exponent,
+                                        &mantissa,
+                                        decimal))) {
+        if (!isNegative) {
+            if (395 <= exponent && exponent < 399) {
+                if (mantissa < (1u << 14)) {
+                    unsigned short squished = static_cast<unsigned short>(
+                        mantissa | (exponent - 395) << 14);
+
+                    unsigned short squishedN = BSLS_BYTEORDER_HTONS(squished);
+                    bsl::memcpy(buffer, &squishedN, 2);
+                    return 2;                                         // RETURN
+                }
+            }
+            if (392 <= exponent && exponent < 400) {
+                if (mantissa < (1u << 21)) {
+                    // On IBM (and Linux to a lesser extent), copying from a
+                    // word-aligned source is faster, so we shift an extra the
+                    // source by an extra 8 bits.
+
+                    unsigned int squished = static_cast<unsigned int>(
+                        (mantissa << 8) | (exponent - 392) << 29);
+                    unsigned int squishedN = BSLS_BYTEORDER_HTONL(squished);
+
+                    bsl::memcpy(buffer,
+                                reinterpret_cast<unsigned char*>(&squishedN),
+                                3);
+                    return 3;                                         // RETURN
+                }
+            }
+        }
+
+        if (382 <= exponent && exponent < 414) {
+            if (mantissa < (1u << 26)) {
+                unsigned int squished = static_cast<unsigned int>(
+                                            mantissa | (exponent - 382) << 26);
+                if (isNegative) {
+                    squished |= 1u << 31;
+                }
+                unsigned int squishedN = BSLS_BYTEORDER_HTONL(squished);
+                bsl::memcpy(buffer, &squishedN, 4);
+                return 4;                                             // RETURN
+            }
+            if (mantissa < (1ull << 34)) {
+                bsls::Types::Uint64 squished =
+                    static_cast<bsls::Types::Uint64>(
+                     (mantissa << 24) |
+                     (static_cast<bsls::Types::Uint64>(exponent - 382) << 58));
+                if (isNegative) {
+                    squished |= 1ull << 63;
+                }
+                bsls::Types::Uint64 squishedN =
+                                               BSLS_BYTEORDER_HTONLL(squished);
+                bsl::memcpy(buffer,
+                            reinterpret_cast<unsigned char*>(&squishedN),
+                            5);
+                return 5;                                             // RETURN
+            }
+        }
+    }
+
+    return 0;
+}
+
+inline
+Decimal64 DecimalConvertUtil::decimal64FromMultiWidthEncoding(
+                                                unsigned char          *buffer,
+                                                bsls::Types::size_type  size)
+{
+    BSLS_ASSERT(1 <= size);
+    BSLS_ASSERT(size <= 5 || size == 8);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(size < 6)) {
+        return decimal64FromMultiWidthEncodingRaw(buffer, size);      // RETURN
+    }
+    else {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+        bsls::Types::Uint64 encoded;
+        bsl::memcpy(&encoded, buffer, 8);
+        encoded = BSLS_BYTEORDER_NTOHLL(encoded);
+
+        return decimal64FromBinaryIntegral(
+                                reinterpret_cast<unsigned char *>(&encoded));
+                                                                      // RETURN
+    }
+}
+
+inline
+Decimal64 DecimalConvertUtil::decimal64FromMultiWidthEncodingRaw(
+                                                unsigned char          *buffer,
+                                                bsls::Types::size_type  size)
+{
+    BSLS_ASSERT(1 <= size);
+    BSLS_ASSERT(size <= 5);
+
+    switch(size) {
+      case 2: {
+        int exponent = (buffer[0] >> 6) - 3;
+        int mantissa = static_cast<int>(((buffer[0] & 0x3F) << 8) |
+                                        static_cast<int>(buffer[1]));
+
+        return decimal64FromUnpackedSpecial(mantissa, exponent);      // RETURN
+      } break;
+      case 3: {
+        int exponent = (buffer[0] >> 5) - 6;
+        int mantissa = static_cast<int>(((buffer[0] & 0x1F) << 16) |
+                                        static_cast<int>(buffer[1]) << 8 |
+                                        static_cast<int>(buffer[2]));
+        return decimal64FromUnpackedSpecial(mantissa, exponent);      // RETURN
+      } break;
+      case 4: {
+        bool isNegative = buffer[0] >> 7;
+        int exponent = ((buffer[0] & 0x7F) >> 2) - 16;
+        int mantissa = static_cast<int>(((buffer[0] & 0x03) << 24) |
+                                        static_cast<int>(buffer[1]) << 16 |
+                                        static_cast<int>(buffer[2]) << 8 |
+                                        static_cast<int>(buffer[3]));
+        return decimal64FromUnpackedSpecial(isNegative, mantissa, exponent);
+                                                                      // RETURN
+      } break;
+      case 1: {
+        int exponent = (buffer[0] >> 7) - 2;
+        int mantissa = static_cast<int>(buffer[0] & 0x7F);
+        return decimal64FromUnpackedSpecial(mantissa, exponent);      // RETURN
+      } break;
+#ifdef BSLS_PLATFORM_CMP_IBM
+      case 5:
+#else
+      default:
+#endif
+      {
+        // Xlc optimizes better when 'case 5:' is used instead of 'default:',
+        // and vice versa for gcc.
+
+        bool isNegative = buffer[0] >> 7;
+        int exponent = ((buffer[0] & 0x7F) >> 2) - 16;
+        bsls::Types::Uint64 mantissa = static_cast<bsls::Types::Uint64>(
+                     static_cast<bsls::Types::Uint64>(buffer[0] & 0x03) << 32 |
+                     static_cast<bsls::Types::Uint64>(buffer[1]) << 24 |
+                     static_cast<bsls::Types::Uint64>(buffer[2]) << 16 |
+                     static_cast<bsls::Types::Uint64>(buffer[3]) << 8 |
+                     static_cast<bsls::Types::Uint64>(buffer[4]));
+        return decimal64FromUnpackedSpecial(isNegative, mantissa, exponent);
+                                                                      // RETURN
+      } break;
+    }
+
+#ifdef BSLS_PLATFORM_CMP_IBM
+    // From here on, the function has undefined behavior.  We will return a
+    // default constructed value to suppress compiler warnings.
+    return bdldfp::Decimal64();
+#endif
+}
+
+inline
+unsigned char *DecimalConvertUtil::decimal64ToVariableWidthEncoding(
+                                                    unsigned char     *buffer,
+                                                    bdldfp::Decimal64  decimal)
+{
+    bool                isNegative;
+    int                 exponent;
+    bsls::Types::Uint64 mantissa;
+
+    // 'exponent' is biased --> biased exponent = exponent + 398
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(0 ==
+             decimal64ToUnpackedSpecial(&isNegative,
+                                        &exponent,
+                                        &mantissa,
+                                        decimal))) {
+        if (!isNegative) {
+            if (396 <= exponent && exponent < 400) {
+                if (mantissa < (1u << 13)) {
+
+                    // The predicate disambiguation bit is implicitly 0.
+
+                    unsigned short squished = static_cast<unsigned short>(
+                        mantissa | (exponent - 396) << 13);
+
+                    unsigned short squishedN = BSLS_BYTEORDER_HTONS(squished);
+                    bsl::memcpy(buffer, &squishedN, 2);
+                    return buffer + 2;                                // RETURN
+                }
+            }
+
+            if (394 <= exponent && exponent < 402) {
+                if (mantissa < (1u << 19)) {
+                    // On IBM (and Linux to a lesser extent), copying from a
+                    // word-aligned source is faster, so we shift the source of
+                    // memcpy by an extra 8 bits.
+
+                    unsigned int squished = static_cast<unsigned int>(
+                                     (mantissa << 8) | (exponent - 394) << 27);
+
+                    // The predicate bits should be 0b10.
+
+                    squished |= 1u << 31;
+
+                    unsigned int squishedN = BSLS_BYTEORDER_HTONL(squished);
+
+                    bsl::memcpy(buffer,
+                                reinterpret_cast<unsigned char*>(&squishedN),
+                                3);
+                    return buffer + 3;                                // RETURN
+                }
+            }
+        }
+
+        // If the value is negative, with exponent of 15 (biased exponent 413),
+        // then the first byte will have a value of FF, which is the state used
+        // to indicate that a full 9 byte representation should be used.
+
+        if (382 <= exponent &&
+                        (exponent < 413 || (!isNegative && exponent == 413))) {
+            if (mantissa < (1u << 24)) {
+                unsigned int squished = static_cast<unsigned int>(
+                                            mantissa | (exponent - 382) << 24);
+                if (isNegative) {
+                    squished |= 1u << 29;
+                }
+                // The predicate bits should be 11.
+
+                squished |= 3u << 30;
+                unsigned int squishedN = BSLS_BYTEORDER_HTONL(squished);
+                bsl::memcpy(buffer, &squishedN, 4);
+                return buffer + 4;                                    // RETURN
+            }
+        }
+    }
+
+    *buffer++ = 0xFF;
+
+    bsls::Types::Uint64 encoded;
+    decimal64ToBinaryIntegral(reinterpret_cast<unsigned char *>(&encoded),
+                              decimal);
+
+    encoded = BSLS_BYTEORDER_HTONLL(encoded);
+
+    bsl::memcpy(buffer, reinterpret_cast<unsigned char*>(&encoded), 8);
+
+    return buffer + 8;
+}
+
+inline
+unsigned char *DecimalConvertUtil::decimal64FromVariableWidthEncoding(
+                                                    bdldfp::Decimal64 *decimal,
+                                                    unsigned char     *buffer)
+{
+    if (!(*buffer & 0x80)) {
+
+        // 2-byte encoding is used.
+
+        int exponent = (buffer[0] >> 5) - 2;
+        int mantissa = static_cast<int>(((buffer[0] & 0x1F) << 8) |
+                                        static_cast<int>(buffer[1]));
+
+        *decimal = decimal64FromUnpackedSpecial(mantissa, exponent);
+        return buffer + 2;                                            // RETURN
+    }
+    else if ((*buffer & 0xC0) == 0x80) {
+
+        // 3-byte encoding is used.
+
+        unsigned char eByte1 = buffer[0] & 0x3F;
+
+        int exponent = (eByte1 >> 3) - 4;
+        int mantissa = static_cast<int>(((eByte1 & 0x07) << 16) |
+                                        static_cast<int>(buffer[1] << 8) |
+                                        static_cast<int>(buffer[2]));
+        *decimal = decimal64FromUnpackedSpecial(mantissa, exponent);
+        return buffer + 3;                                            // RETURN
+    }
+    else if (*buffer == 0xFF) {
+
+        // Full 9-byte encoding is used.
+        ++buffer;
+
+        bsls::Types::Uint64 encoded;
+        bsl::memcpy(&encoded, buffer, 8);
+        encoded = BSLS_BYTEORDER_NTOHLL(encoded);
+
+        decimal64FromBinaryIntegral(
+                                  decimal,
+                                  reinterpret_cast<unsigned char *>(&encoded));
+
+        return buffer + 8;                                            // RETURN
+    }
+    else  {
+        // Here, the condition ((*buffer & 0xC0) == 0xC0) is true, and so the
+        // 4-byte encoding is used.
+
+        unsigned char eByte1 = buffer[0] & 0x3F;
+        bool isNegative = eByte1 >> 5;
+        int exponent = (eByte1 & 0x1F) - 16;
+        int mantissa = static_cast<int>(static_cast<int>(buffer[1] << 16) |
+                                        static_cast<int>(buffer[2] << 8) |
+                                        static_cast<int>(buffer[3]));
+
+        *decimal = decimal64FromUnpackedSpecial(isNegative,
+                                                mantissa,
+                                                exponent);
+        return buffer + 4;                                            // RETURN
+    }
+}
 
                         // decimalToDouble functions
 
@@ -483,6 +1191,181 @@ float DecimalConvertUtil::decimalToFloat(Decimal128 decimal)
     return Imp::decimalToFloat(decimal);
 }
 
+                        // decimalToBinaryIntegral functions
+
+inline
+void DecimalConvertUtil::decimal32ToBinaryIntegral(unsigned char *buffer,
+                                                   Decimal32      decimal)
+{
+    BinaryIntegralDecimalImpUtil::StorageType32 result;
+
+    result = DecimalImpUtil::convertToBinaryIntegral(*decimal.data());
+
+    memcpy(buffer, &result, sizeof(result));
+}
+
+inline
+void DecimalConvertUtil::decimal64ToBinaryIntegral(unsigned char *buffer,
+                                                   Decimal64      decimal)
+{
+    BinaryIntegralDecimalImpUtil::StorageType64 result;
+
+    result = DecimalImpUtil::convertToBinaryIntegral(*decimal.data());
+
+    memcpy(buffer, &result, sizeof(result));
+}
+
+inline
+void DecimalConvertUtil::decimal128ToBinaryIntegral(unsigned char *buffer,
+                                                    Decimal128     decimal)
+{
+    BinaryIntegralDecimalImpUtil::StorageType128 result;
+
+    result = DecimalImpUtil::convertToBinaryIntegral(*decimal.data());
+
+    memcpy(buffer, &result, sizeof(result));
+}
+
+inline
+void DecimalConvertUtil::decimalToBinaryIntegral(unsigned char *buffer,
+                                                 Decimal32      decimal)
+{
+    BinaryIntegralDecimalImpUtil::StorageType32 result;
+
+    result = DecimalImpUtil::convertToBinaryIntegral(*decimal.data());
+
+    memcpy(buffer, &result, sizeof(result));
+}
+
+inline
+void DecimalConvertUtil::decimalToBinaryIntegral(unsigned char *buffer,
+                                                 Decimal64      decimal)
+{
+    BinaryIntegralDecimalImpUtil::StorageType64 result;
+
+    result = DecimalImpUtil::convertToBinaryIntegral(*decimal.data());
+
+    memcpy(buffer, &result, sizeof(result));
+}
+
+inline
+void DecimalConvertUtil::decimalToBinaryIntegral(unsigned char *buffer,
+                                                 Decimal128     decimal)
+{
+    BinaryIntegralDecimalImpUtil::StorageType128 result;
+
+    result = DecimalImpUtil::convertToBinaryIntegral(*decimal.data());
+
+    memcpy(buffer, &result, sizeof(result));
+}
+
+                        // decimalFromBinaryIntegral functions
+
+inline
+Decimal32
+DecimalConvertUtil::decimal32FromBinaryIntegral(const unsigned char *buffer)
+{
+    BinaryIntegralDecimalImpUtil::StorageType32 bid;
+
+    memcpy(&bid, buffer, sizeof(bid));
+
+    return Decimal32(DecimalImpUtil::convertFromBinaryIntegral(bid));
+}
+
+inline
+Decimal64
+DecimalConvertUtil::decimal64FromBinaryIntegral(const unsigned char *buffer)
+{
+    BinaryIntegralDecimalImpUtil::StorageType64 bid;
+
+    memcpy(&bid, buffer, sizeof(bid));
+
+    return Decimal64(DecimalImpUtil::convertFromBinaryIntegral(bid));
+}
+
+inline
+Decimal128
+DecimalConvertUtil::decimal128FromBinaryIntegral(const unsigned char *buffer)
+{
+    BinaryIntegralDecimalImpUtil::StorageType128 bid;
+
+    memcpy(&bid, buffer, sizeof(bid));
+
+    return Decimal128(DecimalImpUtil::convertFromBinaryIntegral(bid));
+}
+
+inline
+void
+DecimalConvertUtil::decimalFromBinaryIntegral(Decimal32           *decimal,
+                                              const unsigned char *buffer)
+{
+    BinaryIntegralDecimalImpUtil::StorageType32 bid;
+
+    memcpy(&bid, buffer, sizeof(bid));
+
+    *decimal = Decimal32(DecimalImpUtil::convertFromBinaryIntegral(bid));
+}
+
+inline
+void
+DecimalConvertUtil::decimalFromBinaryIntegral(Decimal64           *decimal,
+                                              const unsigned char *buffer)
+{
+    BinaryIntegralDecimalImpUtil::StorageType64 bid;
+
+    memcpy(&bid, buffer, sizeof(bid));
+
+    *decimal = Decimal64(DecimalImpUtil::convertFromBinaryIntegral(bid));
+}
+
+inline
+void
+DecimalConvertUtil::decimalFromBinaryIntegral(Decimal128          *decimal,
+                                              const unsigned char *buffer)
+{
+    BinaryIntegralDecimalImpUtil::StorageType128 bid;
+
+    memcpy(&bid, buffer, sizeof(bid));
+
+    *decimal = Decimal128(DecimalImpUtil::convertFromBinaryIntegral(bid));
+}
+
+inline
+void
+DecimalConvertUtil::decimal32FromBinaryIntegral(Decimal32           *decimal,
+                                                const unsigned char *buffer)
+{
+    BinaryIntegralDecimalImpUtil::StorageType32 bid;
+
+    memcpy(&bid, buffer, sizeof(bid));
+
+    *decimal = Decimal32(DecimalImpUtil::convertFromBinaryIntegral(bid));
+}
+
+inline
+void
+DecimalConvertUtil::decimal64FromBinaryIntegral(Decimal64           *decimal,
+                                                const unsigned char *buffer)
+{
+    BinaryIntegralDecimalImpUtil::StorageType64 bid;
+
+    memcpy(&bid, buffer, sizeof(bid));
+
+    *decimal = Decimal64(DecimalImpUtil::convertFromBinaryIntegral(bid));
+}
+
+inline
+void
+DecimalConvertUtil::decimal128FromBinaryIntegral(Decimal128          *decimal,
+                                                 const unsigned char *buffer)
+{
+    BinaryIntegralDecimalImpUtil::StorageType128 bid;
+
+    memcpy(&bid, buffer, sizeof(bid));
+
+    *decimal = Decimal128(DecimalImpUtil::convertFromBinaryIntegral(bid));
+}
+
                         // decimalToDenselyPacked functions
 
 inline
@@ -501,7 +1384,7 @@ void DecimalConvertUtil::decimal64ToDenselyPacked(unsigned char *buffer,
 
 inline
 void DecimalConvertUtil::decimal128ToDenselyPacked(unsigned char *buffer,
-                                                  Decimal128     decimal)
+                                                   Decimal128     decimal)
 {
     Imp::decimalToDenselyPacked(buffer, decimal);
 }
@@ -526,7 +1409,6 @@ void DecimalConvertUtil::decimalToDenselyPacked(unsigned char *buffer,
 {
     Imp::decimalToDenselyPacked(buffer, decimal);
 }
-
 
                         // decimalFromDenselyPacked functions
 
@@ -598,7 +1480,6 @@ DecimalConvertUtil::decimal128FromDenselyPacked(Decimal128          *decimal,
 {
     *decimal = Imp::decimal128FromDenselyPacked(buffer);
 }
-
 
 }  // close package namespace
 }  // close enterprise namespace
