@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: Class bslma::ManagedPtrDeleter</title>
+<title>BDE 2.22.1.2 OSS: Class bslma::ManagedPtrDeleter</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -87,8 +87,8 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtrDeleter.html#aa64c86ec85566f5e62d6ed9e8d1d20e0">ManagedPtrDeleter</a> (void *object, void *factory, <a class="el" href="classbslma_1_1ManagedPtrDeleter.html#ac9c21bcd64e4ea48c8b1c62d3059eddc">Deleter</a> deleter)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtrDeleter.html#ae6c9dd91cd357afe6c6115782f55e181">~ManagedPtrDeleter</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbslma_1_1ManagedPtrDeleter.html">ManagedPtrDeleter</a> &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtrDeleter.html#a956652cf9681721b1132ec9a7f4926a5">operator=</a> (const <a class="el" href="classbslma_1_1ManagedPtrDeleter.html">ManagedPtrDeleter</a> &amp;rhs)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtrDeleter.html#a28e296796584789c97c806ebbea41819">set</a> (void *object, void *factory, <a class="el" href="classbslma_1_1ManagedPtrDeleter.html#ac9c21bcd64e4ea48c8b1c62d3059eddc">Deleter</a> deleter)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtrDeleter.html#a37013b6802b00ba9d966e825681f1491">clear</a> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtrDeleter.html#a28e296796584789c97c806ebbea41819">set</a> (void *object, void *factory, <a class="el" href="classbslma_1_1ManagedPtrDeleter.html#ac9c21bcd64e4ea48c8b1c62d3059eddc">Deleter</a> deleter)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtrDeleter.html#a119d04e7e7f0684d3fabc42466433988">deleteManagedObject</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbslma_1_1ManagedPtrDeleter.html#ac9c21bcd64e4ea48c8b1c62d3059eddc">Deleter</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtrDeleter.html#a45b18490843eca19d8dab2e43ce9ac74">deleter</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtrDeleter.html#af9d4edc62f33ca0e73be327d84880520">factory</a> () const </td></tr>
@@ -221,6 +221,24 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a37013b6802b00ba9d966e825681f1491"></a><!-- doxytag: member="bslma::ManagedPtrDeleter::clear" ref="a37013b6802b00ba9d966e825681f1491" args="()" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void bslma::ManagedPtrDeleter::clear </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Reset this <code><a class="el" href="classbslma_1_1ManagedPtrDeleter.html">ManagedPtrDeleter</a></code> to its uninitialized state. </p>
+
+</div>
+</div>
 <a class="anchor" id="a28e296796584789c97c806ebbea41819"></a><!-- doxytag: member="bslma::ManagedPtrDeleter::set" ref="a28e296796584789c97c806ebbea41819" args="(void *object, void *factory, Deleter deleter)" -->
 <div class="memitem">
 <div class="memproto">
@@ -251,25 +269,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Set this <code><a class="el" href="classbslma_1_1ManagedPtrDeleter.html">ManagedPtrDeleter</a></code> to refer to the object and factory instance located at the specified <code>object</code> and <code>factory</code> memory locations, and to the specified <code>deleter</code>. The behavior is undefined unless <code>deleter</code> is either 0, or points to a function whose behavior is also defined if called once with <code>object</code> and <code>factory</code> as arguments. </p>
-
-</div>
-</div>
-<a class="anchor" id="a37013b6802b00ba9d966e825681f1491"></a><!-- doxytag: member="bslma::ManagedPtrDeleter::clear" ref="a37013b6802b00ba9d966e825681f1491" args="()" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void bslma::ManagedPtrDeleter::clear </td>
-          <td>(</td>
-          <td class="paramname"></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Reset this <code><a class="el" href="classbslma_1_1ManagedPtrDeleter.html">ManagedPtrDeleter</a></code> to its uninitialized state. </p>
+<p>Set this <code><a class="el" href="classbslma_1_1ManagedPtrDeleter.html">ManagedPtrDeleter</a></code> to refer to the specified <code>object</code>, to the specified <code>factory</code>, and to the specified <code>deleter</code>. The behavior is undefined unless <code>deleter</code> is either 0, or points to a function whose behavior is also defined if called once with <code>object</code> and <code>factory</code> as arguments. </p>
 
 </div>
 </div>
@@ -349,7 +349,7 @@ Public Member Functions</h2></td></tr>
 <li><a class="el" href="bslma__managedptrdeleter_8h_source.html">bslma_managedptrdeleter.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:43 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:37 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

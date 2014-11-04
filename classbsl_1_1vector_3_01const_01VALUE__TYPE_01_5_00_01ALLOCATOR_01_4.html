@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: Class bsl::vector_3_01const_01VALUE_TYPE_01_5_00_01ALLOCATOR_01_4</title>
+<title>BDE 2.22.1.2 OSS: Class bsl::vector_3_01const_01VALUE_TYPE_01_5_00_01ALLOCATOR_01_4</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -463,6 +463,7 @@ Protected Attributes</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
+<p>Append a new element to the end of this vector, constructed directly in place from the specified <code>args</code>. The <code>args</code> are passed to the constructor using "perfect forwarding", meaning move semantics will be utilized for rvalued elements that implement them. The combination of constructing in place and "perfect forwarding" means that when move semantics are availible, elements in <code>args</code> will not be copied at all. When move semantics are not availible, elements in <code>args</code> will be copied only once. This method provides the strong exception safety guarentee, so the state of this object will not be changed if an exception is thrown (such as when allocating memory, or from operations of <code>VALUE_TYPE</code>). </p>
 
 </div>
 </div>
@@ -481,7 +482,7 @@ Protected Attributes</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Append a copy of the specified <code>value</code> at the end of this vector. If <code>value</code> has move semantics, then its value is valid but unspecified upon returning from this function. Note that this method offers full guarantee of rollback in case an exception is thrown other than by the <code>VALUE_TYPE</code> copy constructor or assignment operator. This method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
+<p>Append a copy of the specified <code>value</code> at the end of this vector. This method provides the strong exception safety guarantee, so the state of this object will not be changed if an exception is thrown (such as when allocating memory, or from operations of <code>VALUE_TYPE</code>). This method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
 
 </div>
 </div>
@@ -588,7 +589,7 @@ Protected Attributes</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Insert at the specified <code>position</code> in this vector a number equal to the <code>numElements</code> of copies of the specified <code>value</code>. The behavior is undefined unless <code>position</code> is an iterator in the range '[ begin(), end() ]' (both endpoints included). Note that this method offers full guarantee of rollback in case an exception is throw is thrown other than by the <code>VALUE_TYPE</code> copy constructor or assignment operator. This method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
+<p>Insert at the specified <code>position</code> in this vector a number equal to the specified <code>numElements</code> of copies of the specified <code>value</code>. The behavior is undefined unless <code>position</code> is an iterator in the range <code>[ begin(), end() ]</code> (both endpoints included). Note that this method offers full guarantee of rollback in case an exception is throw is thrown other than by the <code>VALUE_TYPE</code> copy constructor or assignment operator. This method requires that the (template parameter) type <code>VALUE_TYPE</code> be <a href="group__bslstl__vector.html#requirements_on_value_type.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__vector.html#requirements_on_value_type" class="el">Requirements on <code>VALUE_TYPE</code></a>). </p>
 
 </div>
 </div>
@@ -1229,7 +1230,7 @@ Protected Attributes</h2></td></tr>
 <li><a class="el" href="bslstl__vector_8h_source.html">bslstl_vector.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:41 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:36 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

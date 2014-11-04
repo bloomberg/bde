@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.20 OSS</title>
+<title>BDE 2.22.1.2 OSS</title>
 <html>
 <pre>
 // bslstl_unorderedmap.h                                              -*-C++-*-
@@ -12,7 +12,7 @@
 #endif
 BSLS_IDENT(&quot;$Id: $&quot;)
 
-//@PURPOSE:Provide an STL-compliant &#39;unordered_map&#39; container.
+//@PURPOSE: Provide an STL-compliant &#39;unordered_map&#39; container.
 //
 //@CLASSES:
 //   bsl::unordered_map : STL-compliant &#39;unordered_map&#39; container
@@ -321,7 +321,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // excess of a million words (albeit many appear infrequently), and, if the
 // documents contain serial numbers, or Social Security numbers, or chemical
 // formulas, etc. then the O[log(n)] insertion time of ordered maps may well be
-// inadequate.  The unordered map, having an O[1] typical insersion cost, is a
+// inadequate.  The unordered map, having an O[1] typical insertion cost, is a
 // viable alternative.  In many problem domains, sorting, if needed, can be
 // done after the data is gathered.
 //
@@ -383,7 +383,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  &quot;\n&quot;
 //  &quot; Nothing in this Charter shall be interpreted as implying any right to\n&quot;
 //  &quot; engage in any activity or to perform any act aimed at the destruction\n&quot;
-//  &quot; of any of the rights and freedoms recognised in this Charter or at\n&quot;
+//  &quot; of any of the rights and freedoms recognized in this Charter or at\n&quot;
 //  &quot; their limitation to a greater extent than is provided for herein.\n&quot;;
 //
 //  static char * const documents[] = { document0,
@@ -414,7 +414,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // the document arrays (which were not made &#39;const&#39;).
 //
 // For each iteration of the inner loop, that method looks for a map entry
-// matchingv the given key value.  On the first occurence of a word, the map
+// matching the given key value.  On the first occurrence of a word, the map
 // has no such entry, so one is created with a default value of the mapped
 // value (0, just what we want in this case) and inserted into the map where is
 // is found on any subsequent occurrences of the word.  The &#39;operator[]&#39; method
@@ -494,11 +494,11 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  is           43
 //..
 // Notice that &quot;-&quot; (used as an header underscore in our markup) appears in the
-// word count.  That could be elimiated by adding &#39;-&#39; to the set of delimiters;
-// however, that would partition hyphenated words into separate words.  In
-// practice, one defines a &quot;stop list&quot; of common words (e.g., &quot;the&quot;, &quot;of&quot;,
-// &quot;and&quot;, &quot;is&quot;) that one does not wish to tally.  We could easily and &quot;-&quot; to
-// the stop list.
+// word count.  That could be eliminated by adding &#39;-&#39; to the set of
+// delimiters; however, that would partition hyphenated words into separate
+// words.  In practice, one defines a &quot;stop list&quot; of common words (e.g., &quot;the&quot;,
+// &quot;of&quot;, &quot;and&quot;, &quot;is&quot;) that one does not wish to tally.  We could easily and &quot;-&quot;
+// to the stop list.
 //
 ///Example 2: Examining and Setting Unordered Map Configuration
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -651,7 +651,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //..
 // Notice that the loading factor has been (roughly) cut in half; we have
 // achieved our goal.  Also notice that the bucket count is unchanged since
-// construction; thus, there were no rehashs during the loading this unordered
+// construction; thus, there were no rehashes during the loading this unordered
 // map.  Finally, notice that the number of empty (unused) buckets is
 // significantly higher, and there&#39;s been a modest decrease in the largest
 // bucket size, but more instances of them.
@@ -781,8 +781,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //..
 // We use the &#39;find&#39; method of &#39;inverseConcordance&#39; to determine the words
 // within offset &#39;delta&#39; of &quot;unalienable&quot;.  Note that we must check the
-// validity of the returned interator, in case we probe beyond the boundaries
-// of the document.
+// validity of the returned iterator, in case we probe beyond the boundaries of
+// the document.
 //..
 //  const int docCode =   0;
 //  const int origin  = 109;
@@ -1030,65 +1030,65 @@ class unordered_map {
     // CREATORS
     explicit unordered_map(
                    size_type             initialNumBuckets = 0,
-                   const hasher&amp;         hash              = hasher(),
+                   const hasher&amp;         hashFunction      = hasher(),
                    const key_equal&amp;      keyEqual          = key_equal(),
-                   const allocator_type&amp; allocator         = allocator_type());
+                   const allocator_type&amp; basicAllocator    = allocator_type());
         // Create an empty unordered map having a &#39;max_load_factor&#39; of 1.0.
         // Optionally specify an &#39;initialNumBuckets&#39; indicating the minimum
         // initial size of the array of buckets of this unordered map.  If
         // &#39;initialNumBuckets&#39; is not supplied, one empty bucket shall be used
-        // and no memory allocated.  Optionally specify a &#39;hasher&#39; used to
-        // generate the hash values associated with the key-value pairs
-        // contained in this unordered map.  If &#39;hash&#39; is not supplied, a
-        // default-constructed object of type &#39;hasher&#39; is used.  Optionally
+        // and no memory allocated.  Optionally specify a &#39;hashFunction&#39; used
+        // to generate the hash values associated with the key-value pairs
+        // contained in this unordered map.  If &#39;hashFunction&#39; is not supplied,
+        // a default-constructed object of type &#39;hasher&#39; is used.  Optionally
         // specify a key-equality functor &#39;keyEqual&#39; used to determine whether
         // two keys have the same value.  If &#39;keyEqual&#39; is not supplied, a
         // default-constructed object of type &#39;key_equal&#39; is used.  Optionally
-        // specify an &#39;allocator&#39; used to supply memory.  If &#39;allocator&#39; is not
-        // supplied, a default-constructed object of the (template parameter)
-        // type &#39;allocator_type&#39; is used.  If the &#39;allocator_type&#39; is
-        // &#39;bsl::allocator&#39; (the default), then &#39;allocator&#39; shall be
-        // convertible to &#39;bslma::Allocator *&#39;.  If the &#39;allocator_type&#39; is
-        // &#39;bsl::allocator&#39; and &#39;allocator&#39; is not supplied, the currently
-        // installed default allocator will be used to supply memory.  Note
-        // that more than &#39;initialNumBuckets&#39; buckets may be created in order
-        // to preserve the bucket allocation strategy of the hash-table (but
-        // never fewer).
+        // specify the &#39;basicAllocator&#39; used to supply memory.  If
+        // &#39;basicAllocator&#39; is not supplied, a default-constructed object of
+        // the (template parameter) type &#39;allocator_type&#39; is used.  If the
+        // &#39;allocator_type&#39; is &#39;bsl::allocator&#39; (the default), then
+        // &#39;basicAllocator&#39; shall be convertible to &#39;bslma::Allocator *&#39;.  If
+        // the &#39;allocator_type&#39; is &#39;bsl::allocator&#39; and &#39;basicAllocator&#39; is not
+        // supplied, the currently installed default allocator will be used to
+        // supply memory.  Note that more than &#39;initialNumBuckets&#39; buckets may
+        // be created in order to preserve the bucket allocation strategy of
+        // the hash-table (but never fewer).
 
-    explicit unordered_map(const allocator_type&amp; allocator);
+    explicit unordered_map(const allocator_type&amp; basicAllocator);
         // Create an empty unordered map, having a &#39;max_load_factor&#39; of 1.0,
-        // that uses the specified &#39;allocator&#39; to supply memory.  Use a
+        // that uses the specified &#39;basicAllocator&#39; to supply memory.  Use a
         // default-constructed object of type &#39;hasher&#39; to generate hash values
         // for the key-value pairs contained in this unordered map, and use a
         // default-constructed object of type &#39;key_equal&#39; to determine whether
         // two keys have the same value.  If the &#39;allocator_type&#39; is
-        // &#39;bsl::allocator&#39; (the default), then &#39;allocator&#39; shall be
+        // &#39;bsl::allocator&#39; (the default), then &#39;basicAllocator&#39; shall be
         // convertible to &#39;bslma::Allocator *&#39;.
 
     unordered_map(const unordered_map&amp; original);
         // Create an unordered map having the same value, hasher, key-equality
         // comparator, and &#39;max_load_factor&#39; as the specified &#39;original&#39;.  Use
         // the allocator returned by &#39;bsl::allocator_traits&lt;allocator_type&gt;::
-        // select_on_container_copy_construction(original.get_allocator())&#39;
-        // to supply memory.  If the &#39;allocator_type&#39; is &#39;bsl::allocator&#39;
-        // (the default), the currently installed default allocator will be
-        // used to supply memory.
+        // select_on_container_copy_construction(original.get_allocator())&#39; to
+        // supply memory.  If the &#39;allocator_type&#39; is &#39;bsl::allocator&#39; (the
+        // default), the currently installed default allocator will be used to
+        // supply memory.
 
     unordered_map(const unordered_map&amp;  original,
-                  const allocator_type&amp; allocator);
+                  const allocator_type&amp; basicAllocator);
         // Create an unordered map having the same value, hasher, key-equality
         // comparator, and &#39;max_load_factor&#39; as the specified &#39;original&#39;, and
-        // using the specified &#39;allocator&#39; to supply memory.  If the
-        // &#39;allocator_type&#39; is &#39;bsl::allocator&#39; (the default), then &#39;allocator&#39;
-        // shall be convertible to &#39;bslma::Allocator *&#39;.
+        // using the specified &#39;basicAllocator&#39; to supply memory.  If the
+        // &#39;allocator_type&#39; is &#39;bsl::allocator&#39; (the default), then
+        // &#39;basicAllocator&#39; shall be convertible to &#39;bslma::Allocator *&#39;.
 
     template &lt;class INPUT_ITERATOR&gt;
     unordered_map(INPUT_ITERATOR        first,
                   INPUT_ITERATOR        last,
                   size_type             initialNumBuckets = 0,
-                  const hasher&amp;         hash              = hasher(),
+                  const hasher&amp;         hashFunction      = hasher(),
                   const key_equal&amp;      keyEqual          = key_equal(),
-                  const allocator_type&amp; allocator         = allocator_type());
+                  const allocator_type&amp; basicAllocator    = allocator_type());
         // Create an empty unordered map, having a &#39;max_load_factor&#39; of 1.0,
         // and then create a &#39;value_type&#39; object for each iterator in the range
         // starting at the specified &#39;first&#39; iterator and ending immediately
@@ -1099,16 +1099,16 @@ class unordered_map {
         // indicating the minimum initial size of the array of buckets of this
         // unordered map.  If &#39;initialNumBuckets&#39; is not supplied, and &#39;first&#39;
         // and &#39;last&#39; denote an empty range, a single empty bucket shall be
-        // supplied.  Optionally specify a &#39;hasher&#39; used to generate hash
+        // supplied.  Optionally specify a &#39;hashFunction&#39; used to generate hash
         // values associated with the key-value pairs contained in this
-        // unordered map.  If &#39;hash&#39; is not supplied, a default-constructed
-        // object of type &#39;hasher&#39; is used.  Optionally specify a key-equality
-        // functor &#39;keyEqual&#39; used to verify that two key values are the same.
-        // If &#39;keyEqual&#39; is not supplied, a default-constructed object of type
-        // &#39;key_equal&#39; is used.  Optionally specify an &#39;allocator&#39; used to
-        // supply memory.  If &#39;allocator&#39; is not supplied, a
-        // default-constructed object of the (template parameter) type
-        // &#39;allocator_type&#39; is used.  If the &#39;allocator_type&#39; is
+        // unordered map.  If &#39;hashFunction&#39; is not supplied, a
+        // default-constructed object of type &#39;hasher&#39; is used.  Optionally
+        // specify a key-equality functor &#39;keyEqual&#39; used to verify that two
+        // key values are the same.  If &#39;keyEqual&#39; is not supplied, a
+        // default-constructed object of type &#39;key_equal&#39; is used.  Optionally
+        // specify an &#39;allocator&#39; used to supply memory.  If &#39;allocator&#39; is not
+        // supplied, a default-constructed object of the (template parameter)
+        // type &#39;allocator_type&#39; is used.  If the &#39;allocator_type&#39; is
         // &#39;bsl::allocator&#39; (the default), then &#39;allocator&#39; shall be
         // convertible to &#39;bslma::Allocator *&#39;.  If the &#39;allocator_type&#39; is
         // &#39;bsl::allocator&#39; and &#39;allocator&#39; is not supplied, the currently
@@ -1167,8 +1167,8 @@ class unordered_map {
         // &#39;value_type&#39; object in the sequence of &#39;value_type&#39; objects of the
         // bucket having the specified &#39;index&#39; in the array of buckets
         // maintained by this unordered map, or the &#39;end(index)&#39; iterator if
-        // the bucket is empty.  The behavior is undefined unless
-        // &#39;index &lt; bucket_count()&#39;.
+        // the bucket is empty.  The behavior is undefined unless &#39;index &lt;
+        // bucket_count()&#39;.
 
     local_iterator end(size_type index);
         // Return a local iterator providing modifiable access to the
@@ -1285,13 +1285,12 @@ class unordered_map {
     void reserve(size_type numElements);
         // Increase the number of buckets of this set to a quantity such that
         // the ratio between the specified &#39;numElements&#39; and this quantity does
-        // not exceed &#39;max_load_factor&#39;, and allocate footprint memory
-        // sufficient to grow the table to contain &#39;numElements&#39; elements.
-        // Note that this guarantees that, after the reserve, elements can be
-        // inserted to grow the container to &#39;size() == numElements&#39; without
-        // any further allocation, unless the &#39;KEY&#39; or &#39;VALUE&#39; types themselves
-        // or the hash function allocate memory.  Also note that this operation
-        // has no effect if &#39;numElements &lt;= size()&#39;.
+        // not exceed &#39;max_load_factor&#39;.  Note that this guarantees that, after
+        // the reserve, elements can be inserted to grow the container to
+        // &#39;size() == numElements&#39; without rehashing. Also note that memory
+        // allocations may still occur when growing the container to &#39;size() ==
+        // numElements&#39;.  Also note that this operation has no effect if
+        // &#39;numElements &lt;= size()&#39;.
 
     void swap(unordered_map&amp; other);
         // Exchange the value of this object as well as its hasher,
@@ -1338,8 +1337,8 @@ class unordered_map {
     const_local_iterator end(size_type index) const;
     const_local_iterator cend(size_type index) const;
         // Return a local iterator providing non-modifiable access to the
-        // past-the-end element in the sequence of &#39;value_type&#39; objects of
-        // the bucket having the specified &#39;index&#39; in the array of buckets
+        // past-the-end element in the sequence of &#39;value_type&#39; objects of the
+        // bucket having the specified &#39;index&#39; in the array of buckets
         // maintained by this unordered map.  The behavior is undefined unless
         // &#39;index &lt; bucket_count()&#39;.
 
@@ -1471,9 +1470,9 @@ void swap(unordered_map&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;&amp; a,
 
 }  // close namespace bsl
 
-// ===========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 namespace bsl
 {
@@ -1486,10 +1485,10 @@ template &lt;class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR&gt
 inline
 unordered_map&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;::
 unordered_map(size_type             initialNumBuckets,
-              const hasher&amp;         hash,
+              const hasher&amp;         hashFunction,
               const key_equal&amp;      keyEqual,
-              const allocator_type&amp; allocator)
-: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, allocator)
+              const allocator_type&amp; basicAllocator)
+: d_impl(hashFunction, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
 {
 }
 
@@ -1499,10 +1498,10 @@ unordered_map&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;::unordered_map(
                                        INPUT_ITERATOR        first,
                                        INPUT_ITERATOR        last,
                                        size_type             initialNumBuckets,
-                                       const hasher&amp;         hash,
+                                       const hasher&amp;         hashFunction,
                                        const key_equal&amp;      keyEqual,
-                                       const allocator_type&amp; allocator)
-: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, allocator)
+                                       const allocator_type&amp; basicAllocator)
+: d_impl(hashFunction, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
 {
     this-&gt;insert(first, last);
 }
@@ -1520,17 +1519,17 @@ unordered_map&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;::unordered_map(
 template &lt;class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR&gt;
 inline
 unordered_map&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;::unordered_map(
-                                               const allocator_type&amp; allocator)
-: d_impl(allocator)
+                                          const allocator_type&amp; basicAllocator)
+: d_impl(basicAllocator)
 {
 }
 
 template &lt;class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR&gt;
 inline
 unordered_map&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;::unordered_map(
-                                               const unordered_map&amp;  original,
-                                               const allocator_type&amp; allocator)
-: d_impl(original.d_impl, allocator)
+                                          const unordered_map&amp;  original,
+                                          const allocator_type&amp; basicAllocator)
+: d_impl(original.d_impl, basicAllocator)
 {
 }
 
@@ -2096,25 +2095,19 @@ struct UsesBslmaAllocator&lt;bsl::unordered_map&lt;KEY,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the &quot;Software&quot;), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
 </pre>
 </body>

@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.20 OSS</title>
+<title>BDE 2.22.1.2 OSS</title>
 <html>
 <pre>
 // bslalg_typetraits.h                                                -*-C++-*-
@@ -12,9 +12,9 @@
 #endif
 BSLS_IDENT(&quot;$Id: $&quot;)
 
-//@PURPOSE: Provide facilities for associating types with compile-time traits.
+//@PURPOSE: Provide compile-time traits that can be associated with types.
 //
-//@DEPRECATED: See bslmf_nestedtraitdeclaration.
+//@DEPRECATED: See &#39;bslmf_nestedtraitdeclaration&#39;.
 //
 //@CLASSES:
 //  bslalg::TypeTraitNil: nil type trait (no traits)
@@ -25,10 +25,6 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  bslalg::TypeTraitHasTrivialDefaultConstructor: has trivial default ctor
 //  bslalg::TypeTraitPair: for &#39;std::pair&#39;-like classes
 //  bslalg::TypeTraitUsesBslmaAllocator: uses &#39;bslma&#39; allocators
-//  bslalg::TypeTraitsGroupStlSequence: for STL sequence containers
-//  bslalg::TypeTraitsGroupStlOrdered: for STL ordered containers
-//  bslalg::TypeTraitsGroupStlUnordered: for STL unordered containers
-//  bslalg_TypeTraits: default trait computation
 //
 //@MACROS:
 //  BSLALG_DECLARE_NESTED_TRAITS: declares a trait in a nested fashion
@@ -36,10 +32,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  BSLALG_DECLARE_NESTED_TRAITS3: declares three traits in a nested fashion
 //  BSLALG_DECLARE_NESTED_TRAITS4: declares four traits in a nested fashion
 //  BSLALG_DECLARE_NESTED_TRAITS5: declares five traits in a nested fashion
-//  BSLALG_IMPLIES_TRAIT: computes a trait by introspection
-//  BSLALG_CHECK_IMPLIED_TRAIT: detects a trait by introspection
 //
-//@SEE_ALSO: bslmf_typetraits, bslalg_constructorproxy, bslalg_scalarprimitives
+//@SEE_ALSO: bslalg_constructorproxy, bslalg_scalarprimitives
 //
 //@DESCRIPTION: This component provides a set of type traits, and a set of
 // macros used to assign traits to user-defined class.  Traits are used to
@@ -214,7 +208,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //          // &#39;bslalg::TypeTraitUsesBslmaAllocator&#39;.
 //      {
 //          copyConstruct(location, value, allocator,
-//                        bslalg_TypeTraits&lt;TYPE&gt;());
+//              typename bslmf::If&lt;HasTrait&lt;TYPE,
+//                            bslalg::TypeTraitUsesBslmaAllocator&gt;::VALUE,
+//                        bslalg::TypeTraitUsesBslmaAllocator,
+//                        bslalg::TypeTraitNil&gt;::Type());
 //      }
 //
 //  };
@@ -489,25 +486,19 @@ namespace BloombergLP {
 #endif // INCLUDED_BSLALG_TYPETRAITS
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the &quot;Software&quot;), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
 </pre>
 </body>

@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.20 OSS</title>
+<title>BDE 2.22.1.2 OSS</title>
 <html>
 <pre>
  bdldfp.txt
@@ -14,18 +14,28 @@
 
 /Hierarchical Synopsis
 /---------------------
- The &#39;bdldfp&#39; package currently has 6 components having 5 levels of physical
+ The &#39;bdldfp&#39; package currently has 14 components having 7 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  5. bdldfp_decimalutil
+  7. bdldfp_decimalconvertutil
 
-  4. bdldfp_decimalconvertutil
+  6. bdldfp_decimalconvertutil_decnumber
+     bdldfp_decimalconvertutil_ibmxlc
+     bdldfp_decimalconvertutil_inteldfp
+     bdldfp_decimalutil
 
-  3. bdldfp_decimal
+  5. bdldfp_decimal
 
-  2. bdldfp_decimalimplutil
+  4. bdldfp_decimalimputil
+
+  3. bdldfp_decimalimputil_decnumber
+     bdldfp_decimalimputil_ibmxlc
+     bdldfp_decimalimputil_inteldfp
+
+  2. bdldfp_denselypackeddecimalimputil
+     bdldfp_intelimpwrapper
 
   1. bdldfp_decimalplatform
      bdldfp_uint128
@@ -39,14 +49,38 @@
 : &#39;bdldfp_decimalconvertutil&#39;:
 :      Provide decimal floating-point conversion functions.
 :
-: &#39;bdldfp_decimalimplutil&#39;:
-:      Provide utilities to help implement decimal floating-point types.
+: &#39;bdldfp_decimalconvertutil_decnumber&#39;:
+:      Provide decimal floating-point conversion functions for decNumber.
+:
+: &#39;bdldfp_decimalconvertutil_ibmxlc&#39;:
+:      Provide decimal floating-point conversion functions.
+:
+: &#39;bdldfp_decimalconvertutil_inteldfp&#39;:
+:      Provide decimal floating-point conversion functions for Intel DFP.
+:
+: &#39;bdldfp_decimalimputil&#39;:
+:      Provide a unified low-level interface for decimal floating point.
+:
+: &#39;bdldfp_decimalimputil_decnumber&#39;:
+:      Provide utility implementing decimal FP on the decNumber library.
+:
+: &#39;bdldfp_decimalimputil_ibmxlc&#39;:
+:      Provide utility to implement decimal &#39;float&#39;s on the IBM compiler.
+:
+: &#39;bdldfp_decimalimputil_inteldfp&#39;:
+:      Provide utility to implement decimal &#39;float&#39;s on the Intel library.
 :
 : &#39;bdldfp_decimalplatform&#39;:
 :      Provide decimal floating-point platform information macros.
 :
 : &#39;bdldfp_decimalutil&#39;:
 :      Provide utilities dealing with floating point decimal objects.
+:
+: &#39;bdldfp_denselypackeddecimalimputil&#39;:
+:      Utilities for working with Densely Packed Decimal representation.
+:
+: &#39;bdldfp_intelimpwrapper&#39;:
+:      Provide a central mechanism to configure the Intel DFP library.
 :
 : &#39;bdldfp_uint128&#39;:
 :      Provide a representation of a 128-bit &#39;int&#39; for bitwise operations.

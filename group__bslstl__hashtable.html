@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: bslstl_hashtable Component</title>
+<title>BDE 2.22.1.2 OSS: bslstl_hashtable Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -128,8 +128,8 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd>The elements stored in a <code>HashTable</code> and the key by which they are indexed are defined by a <code>KEY_CONFIG</code> template type parameter. The user-supplied <code>KEY_CONFIG</code> type must provide two type aliases named <code>ValueType</code> and <code>KeyType</code> that name the type of element stored and its associated key type respectively. In addition, a <code>KEY_CONFIG</code> class shall provide a static member function which may be called as if it had the following signature: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">static</span> <span class="keyword">const</span> KeyType&amp; extractKey(<span class="keyword">const</span> ValueType&amp; value);
-      <span class="comment">// Return a non-modifiable reference to the key for the specified</span>
-      <span class="comment">// &#39;value&#39;.</span>
+      <span class="comment">// Return a reference offering non-modifiable access to the key for the</span>
+      <span class="comment">// specified &#39;value&#39;.</span>
 </pre></div><br/>
 <br/>
  Optionally, the <code>KEY_CONFIG</code> class might provide an <code>extractKey</code> function with the alternative signature: <br/>
@@ -139,7 +139,7 @@ Namespaces</h2></td></tr>
 </pre></div><br/>
 <br/>
  This alternative signature is necessary to support the rare case that a hash function or comparator used to configure the <code>HashTable</code> template below take their arguments by non-const reference. This is subject to additional constraints that these functions may not modify the passed arguments, and is inherently a fragile interface and not recommended. It is supported only for C++ Standard conformance. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>A <code>HashTable</code> is a fully <a href="group__bsldoc__glossary.html#value-semantic_type" class="glossary">Value-Semantic Type</a> (see <a href="group__bsldoc__glossary.html" class="el"><code>bsldoc_glossary</code></a>) only if the configured <code>ValueType</code> is fully value-semantic. It is possible to instantiate a <code>HashTable</code> configured with a <code>ValueType</code> that does not provide a full <code>HashTable</code> of value-semantic operations, but then some methods of the container may not be instantiable. The following terminology, adopted from the C++11 standard, is used in the function documentation of <code>HashTable</code> to describe a function's requirements for the <code>KEY</code> template parameter. These terms are also defined in [utility.arg.requirements] (section 17.6.3.1 of the C++11 standard). Note that, in the context of a <code>HashTable</code> instantiation, the requirements apply specifically to the <code>HashTable</code>s element type, <code>ValueType</code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>A <code>HashTable</code> is a <a href="group__bsldoc__glossary.html#value-semantic_type" class="glossary">Value-Semantic Type</a> (see <a href="group__bsldoc__glossary.html" class="el"><code>bsldoc_glossary</code></a>) only if the configured <code>ValueType</code> is value-semantic. It is possible to instantiate a <code>HashTable</code> configured with a <code>ValueType</code> that does not provide a full <code>HashTable</code> of value-semantic operations, but then some methods of the container may not be instantiable. The following terminology, adopted from the C++11 standard, is used in the function documentation of <code>HashTable</code> to describe a function's requirements for the <code>KEY</code> template parameter. These terms are also defined in [utility.arg.requirements] (section 17.6.3.1 of the C++11 standard). Note that, in the context of a <code>HashTable</code> instantiation, the requirements apply specifically to the <code>HashTable</code>s element type, <code>ValueType</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <a class="anchor" id="default-constructible"></a> <a class="anchor" id="requirements_on_key_config.default-constructible"></a> <a class="anchor" id="description.requirements_on_key_config.default-constructible"></a> <em>default-constructible</em>: The type provides a default constructor.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <a class="anchor" id="copy-constructible"></a> <a class="anchor" id="requirements_on_key_config.copy-constructible"></a> <a class="anchor" id="description.requirements_on_key_config.copy-constructible"></a> <em>copy-constructible</em>: The type provides a copy constructor.</div></dd></dl>
@@ -289,7 +289,7 @@ This and the subsequent examples in this component use the <code><a class="el" h
   <span class="comment">// FREE OPERATORS</span>
   <span class="keyword">template</span> &lt;<span class="keyword">class</span> FIRST_TYPE, <span class="keyword">class</span> SECOND_TYPE&gt;
   <span class="keyword">inline</span>
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebsltf.html#ae361aa40f9f34fccfcbea9bcd670d50f">operator==</a>(<span class="keyword">const</span> MyPair&lt;FIRST_TYPE, SECOND_TYPE&gt;&amp; lhs,
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#ae38909e0885ad40b01e80afb221e6737">operator==</a>(<span class="keyword">const</span> MyPair&lt;FIRST_TYPE, SECOND_TYPE&gt;&amp; lhs,
                   <span class="keyword">const</span> MyPair&lt;FIRST_TYPE, SECOND_TYPE&gt;&amp; rhs)
   {
       <span class="keywordflow">return</span> lhs.first == rhs.first &amp;&amp; lhs.second == rhs.second;
@@ -297,7 +297,7 @@ This and the subsequent examples in this component use the <code><a class="el" h
 
   <span class="keyword">template</span> &lt;<span class="keyword">class</span> FIRST_TYPE, <span class="keyword">class</span> SECOND_TYPE&gt;
   <span class="keyword">inline</span>
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebsltf.html#a015cecd70e1d7748279a93f06742841b">operator!=</a>(<span class="keyword">const</span> MyPair&lt;FIRST_TYPE, SECOND_TYPE&gt;&amp; lhs,
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#a3be038ba34aba97e5c03f884da729377">operator!=</a>(<span class="keyword">const</span> MyPair&lt;FIRST_TYPE, SECOND_TYPE&gt;&amp; lhs,
                   <span class="keyword">const</span> MyPair&lt;FIRST_TYPE, SECOND_TYPE&gt;&amp; rhs)
   {
       <span class="keywordflow">return</span> lhs.first != rhs.first || lhs.second != rhs.second;
@@ -312,7 +312,7 @@ This and the subsequent examples in this component use the <code><a class="el" h
                           <span class="comment">// =================</span>
 
   <span class="keyword">template</span> &lt;<span class="keyword">class </span>KEY,
-            <span class="keyword">class </span>HASH      = bsl::hash&lt;KEY&gt;,
+            <span class="keyword">class </span>HASH      = <a class="code" href="structbsl_1_1hash.html">bsl::hash&lt;KEY&gt;</a>,
             <span class="keyword">class </span>EQUAL     = <a class="code" href="structbsl_1_1equal__to.html" title="C++11-compliant binary functor applying operator==">bsl::equal_to&lt;KEY&gt;</a>,
             <span class="keyword">class </span>ALLOCATOR = <a class="code" href="classbsl_1_1allocator.html">bsl::allocator&lt;KEY&gt;</a> &gt;
   <span class="keyword">class </span>MyHashedSet
@@ -347,7 +347,7 @@ This and the subsequent examples in this component use the <code><a class="el" h
           <span class="comment">// value is used.  Optionally specify a &#39;hash&#39; used to generate the</span>
           <span class="comment">// hash values associated to the keys extracted from the values</span>
           <span class="comment">// contained in this object.  If &#39;hash&#39; is not supplied, a</span>
-          <span class="comment">// default-constructed object of type &#39;HASH()&#39; is used.  Optionally</span>
+          <span class="comment">// default-constructed object of type &#39;HASH&#39; is used.  Optionally</span>
           <span class="comment">// specify a key-equality functor &#39;keyEqual&#39; used to verify that</span>
           <span class="comment">// two key values are the same.  If &#39;keyEqual&#39; is not supplied, a</span>
           <span class="comment">// default-constructed object of type &#39;EQUAL&#39; is used.  Optionally</span>
@@ -363,13 +363,13 @@ This and the subsequent examples in this component use the <code><a class="el" h
 
       <span class="comment">// MANIPULATORS</span>
       MyPair&lt;const_iterator, bool&gt; insert(<span class="keyword">const</span> KEY&amp; value);
-          <span class="comment">// Insert the specified &#39;value&#39; into this set if the specified</span>
-          <span class="comment">// &#39;value&#39; does not already exist in this set; otherwise, this</span>
-          <span class="comment">// method has no effect.  Return a pair whose &#39;first&#39; member is an</span>
-          <span class="comment">// iterator providing non-modifiable access to the (possibly newly</span>
-          <span class="comment">// inserted) &#39;KEY&#39; object having &#39;value&#39; (according to &#39;EQUAL&#39;) and</span>
-          <span class="comment">// whose &#39;second&#39; member is &#39;true&#39; if a new value was inserted, and</span>
-          <span class="comment">// &#39;false&#39; if the value was already present.</span>
+          <span class="comment">// Insert the specified &#39;value&#39; into this set if the &#39;value&#39; does</span>
+          <span class="comment">// not already exist in this set; otherwise, this method has no</span>
+          <span class="comment">// effect.  Return a pair whose &#39;first&#39; member is an iterator</span>
+          <span class="comment">// providing non-modifiable access to the (possibly newly inserted)</span>
+          <span class="comment">// &#39;KEY&#39; object having &#39;value&#39; (according to &#39;EQUAL&#39;) and whose</span>
+          <span class="comment">// &#39;second&#39; member is &#39;true&#39; if a new element was inserted, and</span>
+          <span class="comment">// &#39;false&#39; if &#39;value&#39; was already present.</span>
 
       <span class="comment">// ACCESSORS</span>
       size_type bucket_count() <span class="keyword">const</span>;
@@ -568,7 +568,7 @@ This and the subsequent examples in this component use the <code><a class="el" h
 
   <span class="keyword">template</span> &lt;<span class="keyword">class </span>KEY,
             <span class="keyword">class </span>VALUE,
-            <span class="keyword">class </span>HASH      = bsl::hash&lt;KEY&gt;,
+            <span class="keyword">class </span>HASH      = <a class="code" href="structbsl_1_1hash.html">bsl::hash&lt;KEY&gt;</a>,
             <span class="keyword">class </span>EQUAL     = <a class="code" href="structbsl_1_1equal__to.html" title="C++11-compliant binary functor applying operator==">bsl::equal_to&lt;KEY&gt;</a>,
             <span class="keyword">class </span>ALLOCATOR = <a class="code" href="classbsl_1_1allocator.html">bsl::allocator&lt;KEY&gt;</a> &gt;
   <span class="keyword">class </span>MyHashedMap
@@ -650,7 +650,7 @@ This and the subsequent examples in this component use the <code><a class="el" h
   }
 </pre></div><br/>
 <br/>
- As with <code>MyHashedSet</code>, the <code>insertIfMissing</code> method of <code><a class="el" href="classbslstl_1_1HashTable.html">bslstl::HashTable</a></code> provides the semantics we need: an element is inserted only if no such element (no element with the same key) in the container, and a reference to that element (<code>node</code>) is returned. Here, we use <code>node</code> to obtain and return a modifiable reference to the <code>second</code> member of the (possibly newly added) element. Note that the <code>static_cast</code> from <code>HashTableLink *</code> to <code>HashTableNode *</code> is valid because the nodes derive from the link type (see <code>bslalg_bidirectionallink</code> and <code>bslalg_hashtableimputil</code>). <br/>
+ As with <code>MyHashedSet</code>, the <code>insertIfMissing</code> method of <code><a class="el" href="classbslstl_1_1HashTable.html">bslstl::HashTable</a></code> provides the semantics we need: an element is inserted only if no such element (no element with the same key) in the container, and a reference to that element (<code>node</code>) is returned. Here, we use <code>node</code> to obtain and return a reference offering modifiable access to the <code>second</code> member of the (possibly newly added) element. Note that the <code>static_cast</code> from <code>HashTableLink *</code> to <code>HashTableNode *</code> is valid because the nodes derive from the link type (see <code>bslalg_bidirectionallink</code> and <code>bslalg_hashtableimputil</code>). <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="comment">// MANIPULATORS</span>
   <span class="keyword">template</span> &lt;<span class="keyword">class</span> KEY, <span class="keyword">class</span> VALUE, <span class="keyword">class</span> HASH, <span class="keyword">class</span> EQUAL, <span class="keyword">class</span> ALLOCATOR&gt;
@@ -706,7 +706,7 @@ This and the subsequent examples in this component use the <code><a class="el" h
 
   <span class="keyword">template</span> &lt;<span class="keyword">class </span>KEY,
             <span class="keyword">class </span>VALUE,
-            <span class="keyword">class </span>HASH      = bsl::hash&lt;KEY&gt;,
+            <span class="keyword">class </span>HASH      = <a class="code" href="structbsl_1_1hash.html">bsl::hash&lt;KEY&gt;</a>,
             <span class="keyword">class </span>EQUAL     = <a class="code" href="structbsl_1_1equal__to.html" title="C++11-compliant binary functor applying operator==">bsl::equal_to&lt;KEY&gt;</a>,
             <span class="keyword">class </span>ALLOCATOR = <a class="code" href="classbsl_1_1allocator.html">bsl::allocator&lt;KEY&gt;</a> &gt;
   <span class="keyword">class </span>MyHashedMultiMap
@@ -1046,7 +1046,7 @@ This and the subsequent examples in this component use the <code><a class="el" h
       <span class="comment">// PRIVATE TYPES</span>
       <span class="keyword">typedef</span> BloombergLP::bslstl::HashTable&lt;
                     UseOrderNumberAsKey,
-                    bsl::hash&lt;    UseOrderNumberAsKey::KeyType&gt;,
+                    <a class="code" href="structbsl_1_1hash.html">bsl::hash&lt;    UseOrderNumberAsKey::KeyType&gt;</a>,
                     <a class="code" href="structbsl_1_1equal__to.html" title="C++11-compliant binary functor applying operator==">bsl::equal_to&lt;UseOrderNumberAsKey::KeyType&gt;</a> &gt;
                                                         RecordsByOrderNumber;
       <span class="keyword">typedef</span> <a class="code" href="structbsl_1_1allocator__traits.html">bsl::allocator_traits</a>&lt;
@@ -1093,12 +1093,12 @@ This and the subsequent examples in this component use the <code><a class="el" h
 
       <span class="keyword">typedef</span> BloombergLP::bslstl::HashTable&lt;
                     UseCustomerIdAsKey,
-                    bsl::hash&lt;    UseCustomerIdAsKey::KeyType&gt;,
+                    <a class="code" href="structbsl_1_1hash.html">bsl::hash&lt;    UseCustomerIdAsKey::KeyType&gt;</a>,
                     <a class="code" href="structbsl_1_1equal__to.html" title="C++11-compliant binary functor applying operator==">bsl::equal_to&lt;UseCustomerIdAsKey::KeyType&gt;</a> &gt;
                                                      RecordsPtrsByCustomerId;
       <span class="keyword">typedef</span> BloombergLP::bslstl::HashTable&lt;
                     UseVendorIdAsKey,
-                    bsl::hash&lt;    UseVendorIdAsKey::KeyType&gt;,
+                    <a class="code" href="structbsl_1_1hash.html">bsl::hash&lt;    UseVendorIdAsKey::KeyType&gt;</a>,
                     <a class="code" href="structbsl_1_1equal__to.html" title="C++11-compliant binary functor applying operator==">bsl::equal_to&lt;UseVendorIdAsKey::KeyType&gt;</a> &gt;
                                                        RecordsPtrsByVendorId;
       <span class="comment">// DATA</span>
@@ -1121,13 +1121,13 @@ This and the subsequent examples in this component use the <code><a class="el" h
 
       <span class="comment">// MANIPULATORS</span>
       MyPair&lt;ConstItrByOrderNumber, bool&gt; insert(<span class="keyword">const</span> MySalesRecord&amp; value);
-          <span class="comment">// Insert the specified &#39;value&#39; into this set if the specified</span>
-          <span class="comment">// &#39;value&#39; does not already exist in this set; otherwise, this</span>
-          <span class="comment">// method has no effect.  Return a pair whose &#39;first&#39; member is an</span>
-          <span class="comment">// iterator providing non-modifiable access to the (possibly newly</span>
-          <span class="comment">// inserted) &#39;MySalesRecord&#39; object having &#39;value&#39; and whose</span>
-          <span class="comment">// &#39;second&#39; member is &#39;true&#39; if a new value was inserted, and</span>
-          <span class="comment">// &#39;false&#39; if the value was already present.</span>
+          <span class="comment">// Insert the specified &#39;value&#39; into this set if the &#39;value&#39; does</span>
+          <span class="comment">// not already exist in this set; otherwise, this method has no</span>
+          <span class="comment">// effect.  Return a pair whose &#39;first&#39; member is an iterator</span>
+          <span class="comment">// providing non-modifiable access to the (possibly newly inserted)</span>
+          <span class="comment">// &#39;MySalesRecord&#39; object having &#39;value&#39; and whose &#39;second&#39; member</span>
+          <span class="comment">// is &#39;true&#39; if a new element was inserted, and &#39;false&#39; if &#39;value&#39;</span>
+          <span class="comment">// was already present.</span>
 
       <span class="comment">// ACCESSORS</span>
       ConstItrByOrderNumber cend() <span class="keyword">const</span>;
@@ -1407,7 +1407,7 @@ This and the subsequent examples in this component use the <code><a class="el" h
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:35 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:29 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

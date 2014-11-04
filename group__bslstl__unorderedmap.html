@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: bslstl_unorderedmap Component</title>
+<title>BDE 2.22.1.2 OSS: bslstl_unorderedmap Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -106,12 +106,12 @@ difference_type &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class
 <tr><td colspan="2"><h2><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmap.html#gadcbddf5695e5cf931abdd7643578e813">bsl::unordered_map::BSLMF_NESTED_TRAIT_DECLARATION_IF</a> (unordered_map,::BloombergLP::bslmf::IsBitwiseMoveable,::BloombergLP::bslmf::IsBitwiseMoveable&lt; HashTable &gt;::value)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmap.html#gafd823b3cd8e9f0caf88773bf42d5fdfe">bsl::unordered_map::unordered_map</a> (size_type initialNumBuckets=0, const hasher &amp;hash=hasher(), const key_equal &amp;keyEqual=key_equal(), const allocator_type &amp;allocator=allocator_type())</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmap.html#ga91318ae4116925459371db403f1b580d">bsl::unordered_map::unordered_map</a> (const allocator_type &amp;allocator)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmap.html#gaf27f657a125c484b93854cf690cbbb14">bsl::unordered_map::unordered_map</a> (size_type initialNumBuckets=0, const hasher &amp;hashFunction=hasher(), const key_equal &amp;keyEqual=key_equal(), const allocator_type &amp;basicAllocator=allocator_type())</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmap.html#ga36efb673a10ad2675a528c20f5752889">bsl::unordered_map::unordered_map</a> (const allocator_type &amp;basicAllocator)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmap.html#gab168e1533fc4fe84467005fce9cfbfae">bsl::unordered_map::unordered_map</a> (const unordered_map &amp;original)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmap.html#gaa14bb71cb524fc5504e82c9e0b347f84">bsl::unordered_map::unordered_map</a> (const unordered_map &amp;original, const allocator_type &amp;allocator)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmap.html#ga4729034576bdd8365aed6aadc3b19155">bsl::unordered_map::unordered_map</a> (const unordered_map &amp;original, const allocator_type &amp;basicAllocator)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class INPUT_ITERATOR &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmap.html#gaf66e7f5f28964a09d9c4ec663400b89e">bsl::unordered_map::unordered_map</a> (INPUT_ITERATOR first, INPUT_ITERATOR last, size_type initialNumBuckets=0, const hasher &amp;hash=hasher(), const key_equal &amp;keyEqual=key_equal(), const allocator_type &amp;allocator=allocator_type())</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmap.html#ga4009ed91ded563b220e32d5d09084a11">bsl::unordered_map::unordered_map</a> (INPUT_ITERATOR first, INPUT_ITERATOR last, size_type initialNumBuckets=0, const hasher &amp;hashFunction=hasher(), const key_equal &amp;keyEqual=key_equal(), const allocator_type &amp;basicAllocator=allocator_type())</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmap.html#ga120f9570ad70b4b0a5582de1a329814b">bsl::unordered_map::~unordered_map</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">unordered_map &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmap.html#ga010b0fbb7737d2e3a902daacda105193">bsl::unordered_map::operator=</a> (const unordered_map &amp;rhs)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">mapped_type &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmap.html#gaccd7c401c9b8e8a23ae73b1702641181">bsl::unordered_map::operator[]</a> (const key_type &amp;key)</td></tr>
@@ -425,7 +425,7 @@ Friends</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_gathering_document_statistics"></a> <a class="anchor" id="usage.example_1~3A_gathering_document_statistics"></a> <a class="anchor" id="description.usage.example_1~3A_gathering_document_statistics"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.7.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Gathering Document Statistics: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Unordered maps are useful in situations when there is no meaningful way to order the key values, when the order of the keys is irrelevant to the problem domain (see <a href="group__bslstl__unorderedmap.html#example_3" class="el">Example 3</a>), and (even if there is a meaningful ordering) the value of ordering the results is outweighed by the higher performance provided by unordered maps (compared to ordered maps). </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Suppose one wished to gather statistics on the words appearing in a large set of documents on disk or in a data base. Gathering those statistics is intrusive (as one is competing for access to the documents with the regular users) and must be done as quickly as possible. Moreover, the set of unique words appearing in those documents may be high. The English language has in excess of a million words (albeit many appear infrequently), and, if the documents contain serial numbers, or Social Security numbers, or chemical formulas, etc. then the O[log(n)] insertion time of ordered maps may well be inadequate. The unordered map, having an O[1] typical insersion cost, is a viable alternative. In many problem domains, sorting, if needed, can be done after the data is gathered. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Suppose one wished to gather statistics on the words appearing in a large set of documents on disk or in a data base. Gathering those statistics is intrusive (as one is competing for access to the documents with the regular users) and must be done as quickly as possible. Moreover, the set of unique words appearing in those documents may be high. The English language has in excess of a million words (albeit many appear infrequently), and, if the documents contain serial numbers, or Social Security numbers, or chemical formulas, etc. then the O[log(n)] insertion time of ordered maps may well be inadequate. The unordered map, having an O[1] typical insertion cost, is a viable alternative. In many problem domains, sorting, if needed, can be done after the data is gathered. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This example illustrates the use of <code><a class="el" href="classbsl_1_1unordered__map.html">bsl::unordered_map</a></code> to gather one simple statistic (counts of unique words) on a single document. To avoid irrelevant details of acquiring the data, several modestly sized documents are stored in static arrays: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">static</span> <span class="keywordtype">char</span> document0[] =
@@ -481,7 +481,7 @@ Friends</h2></td></tr>
   <span class="stringliteral">&quot;\n&quot;</span>
   <span class="stringliteral">&quot; Nothing in this Charter shall be interpreted as implying any right to\n&quot;</span>
   <span class="stringliteral">&quot; engage in any activity or to perform any act aimed at the destruction\n&quot;</span>
-  <span class="stringliteral">&quot; of any of the rights and freedoms recognised in this Charter or at\n&quot;</span>
+  <span class="stringliteral">&quot; of any of the rights and freedoms recognized in this Charter or at\n&quot;</span>
   <span class="stringliteral">&quot; their limitation to a greater extent than is provided for herein.\n&quot;</span>;
 
   <span class="keyword">static</span> <span class="keywordtype">char</span> * <span class="keyword">const</span> documents[] = { document0,
@@ -512,7 +512,7 @@ Friends</h2></td></tr>
 </pre></div><br/>
 <br/>
  Next, we extract the words from our documents. Note that <code>strtok</code> modifies the document arrays (which were not made <code>const</code>). </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>For each iteration of the inner loop, that method looks for a map entry matchingv the given key value. On the first occurence of a word, the map has no such entry, so one is created with a default value of the mapped value (0, just what we want in this case) and inserted into the map where is is found on any subsequent occurrences of the word. The <code>operator[]</code> method returns a reference providing modifiable access to the mapped value. Here, we the <code>++</code> operator to that reference to maintain a tally for the word. <br/>
+<dl class="user"><dt><b></b></dt><dd>For each iteration of the inner loop, that method looks for a map entry matching the given key value. On the first occurrence of a word, the map has no such entry, so one is created with a default value of the mapped value (0, just what we want in this case) and inserted into the map where is is found on any subsequent occurrences of the word. The <code>operator[]</code> method returns a reference providing modifiable access to the mapped value. Here, we the <code>++</code> operator to that reference to maintain a tally for the word. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> idx = 0; idx &lt; numDocuments; ++idx) {
       <span class="keywordflow">for</span> (<span class="keywordtype">char</span> *cur = strtok(documents[idx], delimiters);
@@ -584,7 +584,7 @@ Friends</h2></td></tr>
   is           43
 </pre></div><br/>
 <br/>
- Notice that "-" (used as an header underscore in our markup) appears in the word count. That could be elimiated by adding <code>-</code> to the set of delimiters; however, that would partition hyphenated words into separate words. In practice, one defines a "stop list" of common words (e.g., "the", "of", "and", "is") that one does not wish to tally. We could easily and "-" to the stop list. </dd></dl>
+ Notice that "-" (used as an header underscore in our markup) appears in the word count. That could be eliminated by adding <code>-</code> to the set of delimiters; however, that would partition hyphenated words into separate words. In practice, one defines a "stop list" of common words (e.g., "the", "of", "and", "is") that one does not wish to tally. We could easily and "-" to the stop list. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_examining_and_setting_unordered_map_configuration"></a> <a class="anchor" id="usage.example_2~3A_examining_and_setting_unordered_map_configuration"></a> <a class="anchor" id="description.usage.example_2~3A_examining_and_setting_unordered_map_configuration"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.7.2"></a> </dd></dl>
 <dl class="user"><dt><b>Example 2: Examining and Setting Unordered Map Configuration: </b></dt><dd></dd></dl>
@@ -727,7 +727,7 @@ Friends</h2></td></tr>
   numMaxBuckets2      5
 </pre></div><br/>
 <br/>
- Notice that the loading factor has been (roughly) cut in half; we have achieved our goal. Also notice that the bucket count is unchanged since construction; thus, there were no rehashs during the loading this unordered map. Finally, notice that the number of empty (unused) buckets is significantly higher, and there's been a modest decrease in the largest bucket size, but more instances of them. </dd></dl>
+ Notice that the loading factor has been (roughly) cut in half; we have achieved our goal. Also notice that the bucket count is unchanged since construction; thus, there were no rehashes during the loading this unordered map. Finally, notice that the number of empty (unused) buckets is significantly higher, and there's been a modest decrease in the largest bucket size, but more instances of them. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Thus, the unordered map provides facilities by which we can make trade-offs in performance characteristics of the containers we create. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_3~3A_inverse_concordance"></a> <a class="anchor" id="usage.example_3~3A_inverse_concordance"></a> <a class="anchor" id="description.usage.example_3~3A_inverse_concordance"></a> <a class="anchor" id="example_3"></a> <a class="anchor" id="usage.example_3"></a> <a class="anchor" id="description.usage.example_3"></a> <a class="anchor" id="3.7.3"></a> </dd></dl>
@@ -816,7 +816,7 @@ Friends</h2></td></tr>
 <div class="fragment"><pre class="fragment">  <span class="stringliteral">&quot;unalienable&quot;</span>,  0,  109
 </pre></div><br/>
 <br/>
- We use the <code>find</code> method of <code>inverseConcordance</code> to determine the words within offset <code>delta</code> of "unalienable". Note that we must check the validity of the returned interator, in case we probe beyond the boundaries of the document. <br/>
+ We use the <code>find</code> method of <code>inverseConcordance</code> to determine the words within offset <code>delta</code> of "unalienable". Note that we must check the validity of the returned iterator, in case we probe beyond the boundaries of the document. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">const</span> <span class="keywordtype">int</span> docCode =   0;
   <span class="keyword">const</span> <span class="keywordtype">int</span> origin  = 109;
@@ -1152,7 +1152,7 @@ template&lt;class KEY, class VALUE, class HASH = bsl::hash&lt;KEY&gt;, class EQU
 
 </div>
 </div>
-<a class="anchor" id="gafd823b3cd8e9f0caf88773bf42d5fdfe"></a><!-- doxytag: member="bsl::unordered_map::unordered_map" ref="gafd823b3cd8e9f0caf88773bf42d5fdfe" args="(size_type initialNumBuckets=0, const hasher &amp;hash=hasher(), const key_equal &amp;keyEqual=key_equal(), const allocator_type &amp;allocator=allocator_type())" -->
+<a class="anchor" id="gaf27f657a125c484b93854cf690cbbb14"></a><!-- doxytag: member="bsl::unordered_map::unordered_map" ref="gaf27f657a125c484b93854cf690cbbb14" args="(size_type initialNumBuckets=0, const hasher &amp;hashFunction=hasher(), const key_equal &amp;keyEqual=key_equal(), const allocator_type &amp;basicAllocator=allocator_type())" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -1168,7 +1168,7 @@ template&lt;class KEY, class VALUE, class HASH = bsl::hash&lt;KEY&gt;, class EQU
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const <a class="el" href="group__bslstl__unorderedmap.html#ga7eb1a11e3435ec8e83348a469e7586ef">hasher</a> &amp;&nbsp;</td>
-          <td class="paramname"> <em>hash</em> = <code><a class="el" href="group__bslstl__unorderedmap.html#ga7eb1a11e3435ec8e83348a469e7586ef">hasher</a>()</code>, </td>
+          <td class="paramname"> <em>hashFunction</em> = <code><a class="el" href="group__bslstl__unorderedmap.html#ga7eb1a11e3435ec8e83348a469e7586ef">hasher</a>()</code>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1180,7 +1180,7 @@ template&lt;class KEY, class VALUE, class HASH = bsl::hash&lt;KEY&gt;, class EQU
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const <a class="el" href="group__bslstl__unorderedmap.html#ga5f65158aa509fdfb71e2b0706837c8c0">allocator_type</a> &amp;&nbsp;</td>
-          <td class="paramname"> <em>allocator</em> = <code><a class="el" href="group__bslstl__unorderedmap.html#ga5f65158aa509fdfb71e2b0706837c8c0">allocator_type</a>()</code></td><td>&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em> = <code><a class="el" href="group__bslstl__unorderedmap.html#ga5f65158aa509fdfb71e2b0706837c8c0">allocator_type</a>()</code></td><td>&nbsp;</td>
         </tr>
         <tr>
           <td></td>
@@ -1190,11 +1190,11 @@ template&lt;class KEY, class VALUE, class HASH = bsl::hash&lt;KEY&gt;, class EQU
       </table>
 </div>
 <div class="memdoc">
-<p>Create an empty unordered map having a <code>max_load_factor</code> of 1.0. Optionally specify an <code>initialNumBuckets</code> indicating the minimum initial size of the array of buckets of this unordered map. If <code>initialNumBuckets</code> is not supplied, one empty bucket shall be used and no memory allocated. Optionally specify a <code>hasher</code> used to generate the hash values associated with the key-value pairs contained in this unordered map. If <code>hash</code> is not supplied, a default-constructed object of type <code>hasher</code> is used. Optionally specify a key-equality functor <code>keyEqual</code> used to determine whether two keys have the same value. If <code>keyEqual</code> is not supplied, a default-constructed object of type <code>key_equal</code> is used. Optionally specify an <code>allocator</code> used to supply memory. If <code>allocator</code> is not supplied, a default-constructed object of the (template parameter) type <code>allocator_type</code> is used. If the <code>allocator_type</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), then <code>allocator</code> shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. If the <code>allocator_type</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> and <code>allocator</code> is not supplied, the currently installed default allocator will be used to supply memory. Note that more than <code>initialNumBuckets</code> buckets may be created in order to preserve the bucket allocation strategy of the hash-table (but never fewer). </p>
+<p>Create an empty unordered map having a <code>max_load_factor</code> of 1.0. Optionally specify an <code>initialNumBuckets</code> indicating the minimum initial size of the array of buckets of this unordered map. If <code>initialNumBuckets</code> is not supplied, one empty bucket shall be used and no memory allocated. Optionally specify a <code>hashFunction</code> used to generate the hash values associated with the key-value pairs contained in this unordered map. If <code>hashFunction</code> is not supplied, a default-constructed object of type <code>hasher</code> is used. Optionally specify a key-equality functor <code>keyEqual</code> used to determine whether two keys have the same value. If <code>keyEqual</code> is not supplied, a default-constructed object of type <code>key_equal</code> is used. Optionally specify the <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is not supplied, a default-constructed object of the (template parameter) type <code>allocator_type</code> is used. If the <code>allocator_type</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), then <code>basicAllocator</code> shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. If the <code>allocator_type</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> and <code>basicAllocator</code> is not supplied, the currently installed default allocator will be used to supply memory. Note that more than <code>initialNumBuckets</code> buckets may be created in order to preserve the bucket allocation strategy of the hash-table (but never fewer). </p>
 
 </div>
 </div>
-<a class="anchor" id="ga91318ae4116925459371db403f1b580d"></a><!-- doxytag: member="bsl::unordered_map::unordered_map" ref="ga91318ae4116925459371db403f1b580d" args="(const allocator_type &amp;allocator)" -->
+<a class="anchor" id="ga36efb673a10ad2675a528c20f5752889"></a><!-- doxytag: member="bsl::unordered_map::unordered_map" ref="ga36efb673a10ad2675a528c20f5752889" args="(const allocator_type &amp;basicAllocator)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -1204,14 +1204,14 @@ template&lt;class KEY, class VALUE, class HASH = bsl::hash&lt;KEY&gt;, class EQU
           <td class="memname"><a class="el" href="classbsl_1_1unordered__map.html">bsl::unordered_map</a>&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;::unordered_map </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="group__bslstl__unorderedmap.html#ga5f65158aa509fdfb71e2b0706837c8c0">allocator_type</a> &amp;&nbsp;</td>
-          <td class="paramname"> <em>allocator</em></td>
+          <td class="paramname"> <em>basicAllocator</em></td>
           <td>&nbsp;)&nbsp;</td>
           <td><code> [explicit, inherited]</code></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Create an empty unordered map, having a <code>max_load_factor</code> of 1.0, that uses the specified <code>allocator</code> to supply memory. Use a default-constructed object of type <code>hasher</code> to generate hash values for the key-value pairs contained in this unordered map, and use a default-constructed object of type <code>key_equal</code> to determine whether two keys have the same value. If the <code>allocator_type</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), then <code>allocator</code> shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. </p>
+<p>Create an empty unordered map, having a <code>max_load_factor</code> of 1.0, that uses the specified <code>basicAllocator</code> to supply memory. Use a default-constructed object of type <code>hasher</code> to generate hash values for the key-value pairs contained in this unordered map, and use a default-constructed object of type <code>key_equal</code> to determine whether two keys have the same value. If the <code>allocator_type</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), then <code>basicAllocator</code> shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. </p>
 
 </div>
 </div>
@@ -1236,7 +1236,7 @@ template&lt;class KEY, class VALUE, class HASH = bsl::hash&lt;KEY&gt;, class EQU
 
 </div>
 </div>
-<a class="anchor" id="gaa14bb71cb524fc5504e82c9e0b347f84"></a><!-- doxytag: member="bsl::unordered_map::unordered_map" ref="gaa14bb71cb524fc5504e82c9e0b347f84" args="(const unordered_map &amp;original, const allocator_type &amp;allocator)" -->
+<a class="anchor" id="ga4729034576bdd8365aed6aadc3b19155"></a><!-- doxytag: member="bsl::unordered_map::unordered_map" ref="ga4729034576bdd8365aed6aadc3b19155" args="(const unordered_map &amp;original, const allocator_type &amp;basicAllocator)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -1252,7 +1252,7 @@ template&lt;class KEY, class VALUE, class HASH = bsl::hash&lt;KEY&gt;, class EQU
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const <a class="el" href="group__bslstl__unorderedmap.html#ga5f65158aa509fdfb71e2b0706837c8c0">allocator_type</a> &amp;&nbsp;</td>
-          <td class="paramname"> <em>allocator</em></td><td>&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em></td><td>&nbsp;</td>
         </tr>
         <tr>
           <td></td>
@@ -1262,11 +1262,11 @@ template&lt;class KEY, class VALUE, class HASH = bsl::hash&lt;KEY&gt;, class EQU
       </table>
 </div>
 <div class="memdoc">
-<p>Create an unordered map having the same value, hasher, key-equality comparator, and <code>max_load_factor</code> as the specified <code>original</code>, and using the specified <code>allocator</code> to supply memory. If the <code>allocator_type</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), then <code>allocator</code> shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. </p>
+<p>Create an unordered map having the same value, hasher, key-equality comparator, and <code>max_load_factor</code> as the specified <code>original</code>, and using the specified <code>basicAllocator</code> to supply memory. If the <code>allocator_type</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), then <code>basicAllocator</code> shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. </p>
 
 </div>
 </div>
-<a class="anchor" id="gaf66e7f5f28964a09d9c4ec663400b89e"></a><!-- doxytag: member="bsl::unordered_map::unordered_map" ref="gaf66e7f5f28964a09d9c4ec663400b89e" args="(INPUT_ITERATOR first, INPUT_ITERATOR last, size_type initialNumBuckets=0, const hasher &amp;hash=hasher(), const key_equal &amp;keyEqual=key_equal(), const allocator_type &amp;allocator=allocator_type())" -->
+<a class="anchor" id="ga4009ed91ded563b220e32d5d09084a11"></a><!-- doxytag: member="bsl::unordered_map::unordered_map" ref="ga4009ed91ded563b220e32d5d09084a11" args="(INPUT_ITERATOR first, INPUT_ITERATOR last, size_type initialNumBuckets=0, const hasher &amp;hashFunction=hasher(), const key_equal &amp;keyEqual=key_equal(), const allocator_type &amp;basicAllocator=allocator_type())" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -1296,7 +1296,7 @@ template&lt;class INPUT_ITERATOR &gt; </div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const <a class="el" href="group__bslstl__unorderedmap.html#ga7eb1a11e3435ec8e83348a469e7586ef">hasher</a> &amp;&nbsp;</td>
-          <td class="paramname"> <em>hash</em> = <code><a class="el" href="group__bslstl__unorderedmap.html#ga7eb1a11e3435ec8e83348a469e7586ef">hasher</a>()</code>, </td>
+          <td class="paramname"> <em>hashFunction</em> = <code><a class="el" href="group__bslstl__unorderedmap.html#ga7eb1a11e3435ec8e83348a469e7586ef">hasher</a>()</code>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1308,7 +1308,7 @@ template&lt;class INPUT_ITERATOR &gt; </div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const <a class="el" href="group__bslstl__unorderedmap.html#ga5f65158aa509fdfb71e2b0706837c8c0">allocator_type</a> &amp;&nbsp;</td>
-          <td class="paramname"> <em>allocator</em> = <code><a class="el" href="group__bslstl__unorderedmap.html#ga5f65158aa509fdfb71e2b0706837c8c0">allocator_type</a>()</code></td><td>&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em> = <code><a class="el" href="group__bslstl__unorderedmap.html#ga5f65158aa509fdfb71e2b0706837c8c0">allocator_type</a>()</code></td><td>&nbsp;</td>
         </tr>
         <tr>
           <td></td>
@@ -1318,7 +1318,7 @@ template&lt;class INPUT_ITERATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Create an empty unordered map, having a <code>max_load_factor</code> of 1.0, and then create a <code>value_type</code> object for each iterator in the range starting at the specified <code>first</code> iterator and ending immediately before the specified <code>last</code> iterator, by converting from the object referred to by each iterator. Insert into this unordered map each such object, ignoring those having a key that appears earlier in the sequence. Optionally specify a minimum <code>initialNumBuckets</code> indicating the minimum initial size of the array of buckets of this unordered map. If <code>initialNumBuckets</code> is not supplied, and <code>first</code> and <code>last</code> denote an empty range, a single empty bucket shall be supplied. Optionally specify a <code>hasher</code> used to generate hash values associated with the key-value pairs contained in this unordered map. If <code>hash</code> is not supplied, a default-constructed object of type <code>hasher</code> is used. Optionally specify a key-equality functor <code>keyEqual</code> used to verify that two key values are the same. If <code>keyEqual</code> is not supplied, a default-constructed object of type <code>key_equal</code> is used. Optionally specify an <code>allocator</code> used to supply memory. If <code>allocator</code> is not supplied, a default-constructed object of the (template parameter) type <code>allocator_type</code> is used. If the <code>allocator_type</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), then <code>allocator</code> shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. If the <code>allocator_type</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> and <code>allocator</code> is not supplied, the currently installed default allocator will be used to supply memory. The (template parameter) type <code>INPUT_ITERATOR</code> shall meet the requirements of an input iterator defined in the C++11 standard [24.2.3] providing access to values of a type convertible to <code>value_type</code>. The behavior is undefined unless <code>first</code> and <code>last</code> refer to a sequence of valid values where <code>first</code> is at a position at or before <code>last</code>. Note that more than <code>initialNumBuckets</code> buckets may be created in order to preserve the bucket allocation strategy of the hash-table (but never fewer). </p>
+<p>Create an empty unordered map, having a <code>max_load_factor</code> of 1.0, and then create a <code>value_type</code> object for each iterator in the range starting at the specified <code>first</code> iterator and ending immediately before the specified <code>last</code> iterator, by converting from the object referred to by each iterator. Insert into this unordered map each such object, ignoring those having a key that appears earlier in the sequence. Optionally specify a minimum <code>initialNumBuckets</code> indicating the minimum initial size of the array of buckets of this unordered map. If <code>initialNumBuckets</code> is not supplied, and <code>first</code> and <code>last</code> denote an empty range, a single empty bucket shall be supplied. Optionally specify a <code>hashFunction</code> used to generate hash values associated with the key-value pairs contained in this unordered map. If <code>hashFunction</code> is not supplied, a default-constructed object of type <code>hasher</code> is used. Optionally specify a key-equality functor <code>keyEqual</code> used to verify that two key values are the same. If <code>keyEqual</code> is not supplied, a default-constructed object of type <code>key_equal</code> is used. Optionally specify an <code>allocator</code> used to supply memory. If <code>allocator</code> is not supplied, a default-constructed object of the (template parameter) type <code>allocator_type</code> is used. If the <code>allocator_type</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), then <code>allocator</code> shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. If the <code>allocator_type</code> is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> and <code>allocator</code> is not supplied, the currently installed default allocator will be used to supply memory. The (template parameter) type <code>INPUT_ITERATOR</code> shall meet the requirements of an input iterator defined in the C++11 standard [24.2.3] providing access to values of a type convertible to <code>value_type</code>. The behavior is undefined unless <code>first</code> and <code>last</code> refer to a sequence of valid values where <code>first</code> is at a position at or before <code>last</code>. Note that more than <code>initialNumBuckets</code> buckets may be created in order to preserve the bucket allocation strategy of the hash-table (but never fewer). </p>
 
 </div>
 </div>
@@ -1462,7 +1462,7 @@ template&lt;class KEY, class VALUE, class HASH = bsl::hash&lt;KEY&gt;, class EQU
       </table>
 </div>
 <div class="memdoc">
-<p>Return a local iterator providing modifiable access to the first <code>value_type</code> object in the sequence of <code>value_type</code> objects of the bucket having the specified <code>index</code> in the array of buckets maintained by this unordered map, or the <code>end(index)</code> iterator if the bucket is empty. The behavior is undefined unless <code>index &lt; bucket_count()</code>. </p>
+<p>Return a local iterator providing modifiable access to the first <code>value_type</code> object in the sequence of <code>value_type</code> objects of the bucket having the specified <code>index</code> in the array of buckets maintained by this unordered map, or the <code>end(index)</code> iterator if the bucket is empty. The behavior is undefined unless 'index &lt; bucket_count()'. </p>
 
 </div>
 </div>
@@ -1767,7 +1767,7 @@ template&lt;class KEY, class VALUE, class HASH = bsl::hash&lt;KEY&gt;, class EQU
       </table>
 </div>
 <div class="memdoc">
-<p>Increase the number of buckets of this set to a quantity such that the ratio between the specified <code>numElements</code> and this quantity does not exceed <code>max_load_factor</code>, and allocate footprint memory sufficient to grow the table to contain <code>numElements</code> elements. Note that this guarantees that, after the reserve, elements can be inserted to grow the container to <code>size() == numElements</code> without any further allocation, unless the <code>KEY</code> or <code>VALUE</code> types themselves or the hash function allocate memory. Also note that this operation has no effect if <code>numElements &lt;= size()</code>. </p>
+<p>Increase the number of buckets of this set to a quantity such that the ratio between the specified <code>numElements</code> and this quantity does not exceed <code>max_load_factor</code>. Note that this guarantees that, after the reserve, elements can be inserted to grow the container to <code>size() == numElements</code> without rehashing. Also note that memory allocations may still occur when growing the container to 'size() == numElements'. Also note that this operation has no effect if <code>numElements &lt;= size()</code>. </p>
 
 </div>
 </div>
@@ -2401,7 +2401,7 @@ template&lt;class KEY2 , class VALUE2 , class HASH2 , class EQUAL2 , class ALLOC
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:35 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:30 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

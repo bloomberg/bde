@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: bslstl_multiset Component</title>
+<title>BDE 2.22.1.2 OSS: bslstl_multiset Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -100,13 +100,13 @@ difference_type &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class
 &lt; const_iterator &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__multiset.html#ga2632d712ac5d1f005d7b6bb8944df409">bsl::multiset::const_reverse_iterator</a></td></tr>
 <tr><td colspan="2"><h2><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__multiset.html#ga942544f6595b8b99cd25e7af790d77e5">bsl::multiset::DataWrapper::DataWrapper</a> (const COMPARATOR &amp;comparator, const ALLOCATOR &amp;allocator)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__multiset.html#gae4a5defde8cbf0257e5d831dbe8f65c5">bsl::multiset::multiset</a> (const COMPARATOR &amp;comparator=COMPARATOR(), const ALLOCATOR &amp;allocator=ALLOCATOR())</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__multiset.html#gae3ac8acc22921d935cfd6b46559b418b">bsl::multiset::multiset</a> (const ALLOCATOR &amp;allocator)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__multiset.html#ga667bb70cc434e99476ef49009f266c62">bsl::multiset::DataWrapper::DataWrapper</a> (const COMPARATOR &amp;comparator, const ALLOCATOR &amp;basicAllocator)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__multiset.html#gaae4b8deaf428c9d321959a60afc8844e">bsl::multiset::multiset</a> (const COMPARATOR &amp;comparator=COMPARATOR(), const ALLOCATOR &amp;basicAllocator=ALLOCATOR())</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__multiset.html#ga4e56e5dc184c924fe0bedebaf4fbc792">bsl::multiset::multiset</a> (const ALLOCATOR &amp;basicAllocator)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__multiset.html#ga6890de854a0d629ef6e656d7d664397b">bsl::multiset::multiset</a> (const multiset &amp;original)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__multiset.html#ga6f08744df0b1f7b940b6826fb02e8313">bsl::multiset::multiset</a> (const multiset &amp;original, const ALLOCATOR &amp;allocator)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__multiset.html#ga124343f3b0b5e737cbf5db4f54e221d1">bsl::multiset::multiset</a> (const multiset &amp;original, const ALLOCATOR &amp;basicAllocator)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class INPUT_ITERATOR &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__multiset.html#ga43d82a8b80b002edf3c7c5ab5df9f0fb">bsl::multiset::multiset</a> (INPUT_ITERATOR first, INPUT_ITERATOR last, const COMPARATOR &amp;comparator=COMPARATOR(), const ALLOCATOR &amp;allocator=ALLOCATOR())</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__multiset.html#ga9c602ef4d5974ee6b259b74b1d556698">bsl::multiset::multiset</a> (INPUT_ITERATOR first, INPUT_ITERATOR last, const COMPARATOR &amp;comparator=COMPARATOR(), const ALLOCATOR &amp;basicAllocator=ALLOCATOR())</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__multiset.html#ga8fb9e08247f0e827f3968188011671bc">bsl::multiset::~multiset</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">multiset&lt; KEY, COMPARATOR, <br class="typebreak"/>
 ALLOCATOR &gt; &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__multiset.html#gaa37cc872a2ce09d37f6fdd32b3d3e84c">bsl::multiset::operator=</a> (const multiset&lt; KEY, COMPARATOR, ALLOCATOR &gt; &amp;rhs)</td></tr>
@@ -768,7 +768,7 @@ template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR 
 </div>
 </div>
 <hr/><h2>Function Documentation</h2>
-<a class="anchor" id="ga942544f6595b8b99cd25e7af790d77e5"></a><!-- doxytag: member="bsl::multiset::DataWrapper::DataWrapper" ref="ga942544f6595b8b99cd25e7af790d77e5" args="(const COMPARATOR &amp;comparator, const ALLOCATOR &amp;allocator)" -->
+<a class="anchor" id="ga667bb70cc434e99476ef49009f266c62"></a><!-- doxytag: member="bsl::multiset::DataWrapper::DataWrapper" ref="ga667bb70cc434e99476ef49009f266c62" args="(const COMPARATOR &amp;comparator, const ALLOCATOR &amp;basicAllocator)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -784,7 +784,7 @@ template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR 
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const ALLOCATOR &amp;&nbsp;</td>
-          <td class="paramname"> <em>allocator</em></td><td>&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em></td><td>&nbsp;</td>
         </tr>
         <tr>
           <td></td>
@@ -794,11 +794,11 @@ template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR 
       </table>
 </div>
 <div class="memdoc">
-<p>Create a <code>DataWrapper</code> object with the specified <code>comparator</code> and <code>allocator</code>. </p>
+<p>Create a <code>DataWrapper</code> object with the specified <code>comparator</code> and <code>basicAllocator</code>. </p>
 
 </div>
 </div>
-<a class="anchor" id="gae4a5defde8cbf0257e5d831dbe8f65c5"></a><!-- doxytag: member="bsl::multiset::multiset" ref="gae4a5defde8cbf0257e5d831dbe8f65c5" args="(const COMPARATOR &amp;comparator=COMPARATOR(), const ALLOCATOR &amp;allocator=ALLOCATOR())" -->
+<a class="anchor" id="gaae4b8deaf428c9d321959a60afc8844e"></a><!-- doxytag: member="bsl::multiset::multiset" ref="gaae4b8deaf428c9d321959a60afc8844e" args="(const COMPARATOR &amp;comparator=COMPARATOR(), const ALLOCATOR &amp;basicAllocator=ALLOCATOR())" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -814,7 +814,7 @@ template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR 
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const ALLOCATOR &amp;&nbsp;</td>
-          <td class="paramname"> <em>allocator</em> = <code>ALLOCATOR()</code></td><td>&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em> = <code>ALLOCATOR()</code></td><td>&nbsp;</td>
         </tr>
         <tr>
           <td></td>
@@ -826,14 +826,14 @@ template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR 
 <div class="memdoc">
 <dl><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>allocator</em>&nbsp;</td><td>Construct an empty multiset. Optionally specify a <code>comparator</code> used to order keys contained in this object. If <code>comparator</code> is not supplied, a default-constructed object of the (template parameter) type <code>COMPARATOR</code> is used. Optionally specify an <code>allocator</code> used to supply memory. If <code>allocator</code> is not supplied, a default-constructed object of the (template parameter) type <code>ALLOCATOR</code> is used. If the <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), then <code>allocator</code>, if supplied, shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. If the <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> and <code>allocator</code> is not supplied, the currently installed default allocator will be used to supply memory. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>basicAllocator</em>&nbsp;</td><td>Construct an empty multiset. Optionally specify a <code>comparator</code> used to order keys contained in this object. If <code>comparator</code> is not supplied, a default-constructed object of the (template parameter) type <code>COMPARATOR</code> is used. Optionally specify the <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is not supplied, a default-constructed object of the (template parameter) type <code>ALLOCATOR</code> is used. If the <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), then <code>basicAllocator</code>, if supplied, shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. If the <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> and <code>basicAllocator</code> is not supplied, the currently installed default allocator will be used to supply memory. </td></tr>
   </table>
   </dd>
 </dl>
 
 </div>
 </div>
-<a class="anchor" id="gae3ac8acc22921d935cfd6b46559b418b"></a><!-- doxytag: member="bsl::multiset::multiset" ref="gae3ac8acc22921d935cfd6b46559b418b" args="(const ALLOCATOR &amp;allocator)" -->
+<a class="anchor" id="ga4e56e5dc184c924fe0bedebaf4fbc792"></a><!-- doxytag: member="bsl::multiset::multiset" ref="ga4e56e5dc184c924fe0bedebaf4fbc792" args="(const ALLOCATOR &amp;basicAllocator)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -843,14 +843,14 @@ template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR 
           <td class="memname"><a class="el" href="classbsl_1_1multiset.html">bsl::multiset</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::multiset </td>
           <td>(</td>
           <td class="paramtype">const ALLOCATOR &amp;&nbsp;</td>
-          <td class="paramname"> <em>allocator</em></td>
+          <td class="paramname"> <em>basicAllocator</em></td>
           <td>&nbsp;)&nbsp;</td>
           <td><code> [explicit, inherited]</code></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Construct an empty multiset that will use the specified <code>allocator</code> to supply memory. Use a default-constructed object of the (template parameter) type <code>COMPARATOR</code> to order the keys contained in this multiset. If the template parameter <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default) then <code>allocator</code> shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. </p>
+<p>Construct an empty multiset that will use the specified <code>basicAllocator</code> to supply memory. Use a default-constructed object of the (template parameter) type <code>COMPARATOR</code> to order the keys contained in this multiset. If the template parameter <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default) then <code>basicAllocator</code> shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. </p>
 
 </div>
 </div>
@@ -875,7 +875,7 @@ template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR 
 
 </div>
 </div>
-<a class="anchor" id="ga6f08744df0b1f7b940b6826fb02e8313"></a><!-- doxytag: member="bsl::multiset::multiset" ref="ga6f08744df0b1f7b940b6826fb02e8313" args="(const multiset &amp;original, const ALLOCATOR &amp;allocator)" -->
+<a class="anchor" id="ga124343f3b0b5e737cbf5db4f54e221d1"></a><!-- doxytag: member="bsl::multiset::multiset" ref="ga124343f3b0b5e737cbf5db4f54e221d1" args="(const multiset &amp;original, const ALLOCATOR &amp;basicAllocator)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -891,7 +891,7 @@ template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR 
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const ALLOCATOR &amp;&nbsp;</td>
-          <td class="paramname"> <em>allocator</em></td><td>&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em></td><td>&nbsp;</td>
         </tr>
         <tr>
           <td></td>
@@ -901,11 +901,11 @@ template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR 
       </table>
 </div>
 <div class="memdoc">
-<p>Construct a multiset having the same value as that of the specified <code>original</code> that will use the specified <code>allocator</code> to supply memory. Use a copy of <code>original.key_comp()</code> to order the keys contained in this multiset. If the template parameter <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default) then <code>allocator</code> shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. This method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__multiset.html#requirements_on_key.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__multiset.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
+<p>Construct a multiset having the same value as that of the specified <code>original</code> that will use the specified <code>basicAllocator</code> to supply memory. Use a copy of <code>original.key_comp()</code> to order the keys contained in this multiset. If the template parameter <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default) then <code>basicAllocator</code> shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. This method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__multiset.html#requirements_on_key.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__multiset.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
 
 </div>
 </div>
-<a class="anchor" id="ga43d82a8b80b002edf3c7c5ab5df9f0fb"></a><!-- doxytag: member="bsl::multiset::multiset" ref="ga43d82a8b80b002edf3c7c5ab5df9f0fb" args="(INPUT_ITERATOR first, INPUT_ITERATOR last, const COMPARATOR &amp;comparator=COMPARATOR(), const ALLOCATOR &amp;allocator=ALLOCATOR())" -->
+<a class="anchor" id="ga9c602ef4d5974ee6b259b74b1d556698"></a><!-- doxytag: member="bsl::multiset::multiset" ref="ga9c602ef4d5974ee6b259b74b1d556698" args="(INPUT_ITERATOR first, INPUT_ITERATOR last, const COMPARATOR &amp;comparator=COMPARATOR(), const ALLOCATOR &amp;basicAllocator=ALLOCATOR())" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -935,7 +935,7 @@ template&lt;class INPUT_ITERATOR &gt; </div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const ALLOCATOR &amp;&nbsp;</td>
-          <td class="paramname"> <em>allocator</em> = <code>ALLOCATOR()</code></td><td>&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em> = <code>ALLOCATOR()</code></td><td>&nbsp;</td>
         </tr>
         <tr>
           <td></td>
@@ -945,7 +945,7 @@ template&lt;class INPUT_ITERATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Construct a set, and insert each <code>value_type</code> object in the sequence starting at the specified <code>first</code> element, and ending immediately before the specified <code>last</code> element, ignoring those keys that appears earlier in the sequence. Optionally specify a <code>comparator</code> used to order keys contained in this object. If <code>comparator</code> is not supplied, a default-constructed object of the (template parameter) type <code>COMPARATOR</code> is used. Optionally specify a <code>allocator</code> used to supply memory. If <code>allocator</code> is not supplied, a default-constructed object of the (template parameter) type <code>ALLOCATOR</code> is used. If the template parameter <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default) then <code>allocator</code>, if supplied, shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. If the template parameter <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> and <code>allocator</code> is not supplied, the currently installed default allocator will be used to supply memory. If the sequence <code>first</code> and <code>last</code> is ordered according to the identified <code>comparator</code> then this operation will have O[N] complexity, where N is the number of elements between <code>first</code> and <code>last</code>, otherwise this operation will have O[N * log(N)] complexity. The (template parameter) type <code>INPUT_ITERATOR</code> shall meet the requirements of an input iterator defined in the C++11 standard [24.2.3] providing access to values of a type convertible to <code>value_type</code>. The behavior is undefined unless <code>first</code> and <code>last</code> refer to a sequence of valid values where <code>first</code> is at a position at or before <code>last</code>. This method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__multiset.html#requirements_on_key.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__multiset.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
+<p>Construct a set, and insert each <code>value_type</code> object in the sequence starting at the specified <code>first</code> element, and ending immediately before the specified <code>last</code> element, ignoring those keys that appears earlier in the sequence. Optionally specify a <code>comparator</code> used to order keys contained in this object. If <code>comparator</code> is not supplied, a default-constructed object of the (template parameter) type <code>COMPARATOR</code> is used. Optionally specify the <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is not supplied, a default-constructed object of the (template parameter) type <code>ALLOCATOR</code> is used. If the template parameter <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default) then <code>basicAllocator</code>, if supplied, shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. If the template parameter <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> and <code>basicAllocator</code> is not supplied, the currently installed default allocator will be used to supply memory. If the sequence <code>first</code> and <code>last</code> is ordered according to the identified <code>comparator</code> then this operation will have O[N] complexity, where N is the number of elements between <code>first</code> and <code>last</code>, otherwise this operation will have O[N * log(N)] complexity. The (template parameter) type <code>INPUT_ITERATOR</code> shall meet the requirements of an input iterator defined in the C++11 standard [24.2.3] providing access to values of a type convertible to <code>value_type</code>. The behavior is undefined unless <code>first</code> and <code>last</code> refer to a sequence of valid values where <code>first</code> is at a position at or before <code>last</code>. This method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__multiset.html#requirements_on_key.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__multiset.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
 
 </div>
 </div>
@@ -1946,7 +1946,7 @@ template&lt;class KEY , class COMPARATOR , class ALLOCATOR &gt; </div>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:35 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:29 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

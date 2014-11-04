@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: bdlma_multipoolallocator Component</title>
+<title>BDE 2.22.1.2 OSS: bdlma_multipoolallocator Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -219,8 +219,7 @@ an array of maximum-blocks-per-chunk values corresponding to each individual poo
 
     <span class="keyword">public</span>:
       <span class="comment">// TRAITS</span>
-      <a class="code" href="group__bslalg__typetraits.html#gab7a247c93e0d83c005ceb01cc291937b">BSLALG_DECLARE_NESTED_TRAITS</a>(my_Node,
-                                   <a class="code" href="structbslalg_1_1TypeTraitUsesBslmaAllocator.html">bslalg::TypeTraitUsesBslmaAllocator</a>);
+      <a class="code" href="bslmf__nestedtraitdeclaration_8h.html#a6d33ff2982d65052e0c33136bf4d74e7">BSLMF_NESTED_TRAIT_DECLARATION</a>(my_Node, <a class="code" href="structbslma_1_1UsesBslmaAllocator.html">bslma::UsesBslmaAllocator</a>);
 
       <span class="comment">// CREATORS</span>
       <span class="keyword">explicit</span> my_Node(<a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator = 0);
@@ -252,8 +251,7 @@ an array of maximum-blocks-per-chunk values corresponding to each individual poo
 
     <span class="keyword">public</span>:
       <span class="comment">// TRAITS</span>
-      <a class="code" href="group__bslalg__typetraits.html#gab7a247c93e0d83c005ceb01cc291937b">BSLALG_DECLARE_NESTED_TRAITS</a>(my_Graph,
-                                   <a class="code" href="structbslalg_1_1TypeTraitUsesBslmaAllocator.html">bslalg::TypeTraitUsesBslmaAllocator</a>);
+      <a class="code" href="bslmf__nestedtraitdeclaration_8h.html#a6d33ff2982d65052e0c33136bf4d74e7">BSLMF_NESTED_TRAIT_DECLARATION</a>(my_Graph, <a class="code" href="structbslma_1_1UsesBslmaAllocator.html">bslma::UsesBslmaAllocator</a>);
 
       <span class="comment">// CREATORS</span>
       <span class="keyword">explicit</span> my_Graph(<a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator = 0);
@@ -282,8 +280,8 @@ an array of maximum-blocks-per-chunk values corresponding to each individual poo
 
     <span class="keyword">public</span>:
       <span class="comment">// TRAITS</span>
-      <a class="code" href="group__bslalg__typetraits.html#gab7a247c93e0d83c005ceb01cc291937b">BSLALG_DECLARE_NESTED_TRAITS</a>(my_NamedGraphContainer,
-                                   <a class="code" href="structbslalg_1_1TypeTraitUsesBslmaAllocator.html">bslalg::TypeTraitUsesBslmaAllocator</a>);
+      <a class="code" href="bslmf__nestedtraitdeclaration_8h.html#a6d33ff2982d65052e0c33136bf4d74e7">BSLMF_NESTED_TRAIT_DECLARATION</a>(my_NamedGraphContainer,
+                                     <a class="code" href="structbslma_1_1UsesBslmaAllocator.html">bslma::UsesBslmaAllocator</a>);
 
       <span class="comment">// CREATORS</span>
       <span class="keyword">explicit</span> my_NamedGraphContainer(<a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator = 0);
@@ -628,7 +626,7 @@ Pop front from <code>d_list1</code>, then <code>d_list2</code>, then <code>d_lis
 <br/>
  It is clear that using a <code><a class="el" href="classbdlma_1_1MultipoolAllocator.html">bdlma::MultipoolAllocator</a></code> results in an improvement in memory allocation by a factor of about 4. Furthermore, if the managed aspect of the multipool allocator is exploited, the cost of destruction rapidly decreases in relative terms as the list grows larger (increasing <code>n</code>). </dd></dl>
 </div></div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:33 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:27 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

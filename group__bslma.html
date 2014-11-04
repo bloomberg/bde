@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: bslma Package</title>
+<title>BDE 2.22.1.2 OSS: bslma Package</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -310,42 +310,49 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="hierarchical_synopsis"></a> <a class="anchor" id="description.hierarchical_synopsis"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Hierarchical Synopsis: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>bslma</code> package currently has 28 components having 7 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
+<dl class="user"><dt><b></b></dt><dd>The <code>bslma</code> package currently has 33 components having 9 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  7. bslma_autorawdeleter
+<div class="fragment"><pre class="fragment">  9. bslma_managedptr
+
+  8. bslma_managedptr_members
+
+  7. bslma_managedptr_factorydeleter
+     bslma_sequentialallocator
+
+  6. bslma_autorawdeleter
      bslma_destructorproctor
+     bslma_sequentialpool
      bslma_sharedptrinplacerep
      bslma_sharedptroutofplacerep
      bslma_testallocatormonitor
 
-  6. bslma_autodeallocator
+  5. bslma_autodeallocator
      bslma_autodestructor
      bslma_deallocatorguard
      bslma_deallocatorproctor
      bslma_defaultallocatorguard
      bslma_destructorguard
      bslma_exceptionguard
-     bslma_managedptr
+     bslma_infrequentdeleteblocklist
+     bslma_managedptr_pairproxy
+     bslma_managedptrdeleter
      bslma_rawdeleterguard
      bslma_rawdeleterproctor
      bslma_sharedptrrep
 
-  5. bslma_default
+  4. bslma_default
      bslma_testallocator
 
-  4. bslma_mallocfreeallocator
+  3. bslma_bufferallocator
+     bslma_mallocfreeallocator
+     bslma_managedallocator
      bslma_newdeleteallocator
      bslma_testallocatorexception
      bslma_usesbslmaallocator
 
-  3. bslma_allocator
+  2. bslma_allocator
 
-  2. bslma_deleterhelper
-     bslma_managedptrdeleter
-
-  1. bslma_managedptr_factorydeleter
-     bslma_managedptr_members
-     bslma_managedptr_pairproxy
+  1. bslma_deleterhelper
 </pre></div><br/>
 <br/>
  </dd></dl>
@@ -361,6 +368,8 @@ Components</h2></td></tr>
  Provide a range proctor to manage an array of objects.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_autorawdeleter</code>: <br/>
  Provide a range proctor to manage a sequence objects.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_bufferallocator</code>: <br/>
+ Support efficient memory allocations from a user-supplied buffer.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_deallocatorguard</code>: <br/>
  Provide a guard to unconditionally manage a block of memory.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_deallocatorproctor</code>: <br/>
@@ -377,10 +386,20 @@ Components</h2></td></tr>
  Provide a proctor to conditionally manage an object.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_exceptionguard</code>: <br/>
  Provide a check that objects throwing exceptions do not change.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_infrequentdeleteblocklist</code>: <br/>
+ Provide allocation and management of a sequence of memory blocks.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_mallocfreeallocator</code>: <br/>
  Provide malloc/free adaptor to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> protocol.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_managedallocator</code>: <br/>
+ Provide a protocol for memory allocators that support <code>release</code>.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_managedptr</code>: <br/>
  Provide a managed pointer class.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_managedptr_factorydeleter</code>: <br/>
+ Provide a basic deleter for the managed pointer class.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_managedptr_members</code>: <br/>
+ Provide the internal state of a managed pointer class.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_managedptr_pairproxy</code>: <br/>
+ Provide the internal state of a managed pointer class.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_managedptrdeleter</code>: <br/>
  Provide an in-core value semantic class to call a delete function.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_newdeleteallocator</code>: <br/>
@@ -389,6 +408,10 @@ Components</h2></td></tr>
  Provide a guard to unconditionally manage an object.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_rawdeleterproctor</code>: <br/>
  Provide a proctor to conditionally manage an object.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_sequentialallocator</code>: <br/>
+ Support fast memory allocation for objects of varying sizes.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_sequentialpool</code>: <br/>
+ Provide fast variable-size memory pool with allocation methods.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_sharedptrinplacerep</code>: <br/>
  Provide an in-place implementation of <code><a class="el" href="classbslma_1_1SharedPtrRep.html">bslma::SharedPtrRep</a></code>.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_sharedptroutofplacerep</code>: <br/>
@@ -402,7 +425,7 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_testallocatormonitor</code>: <br/>
  Provide a mechanism to summarize <code><a class="el" href="classbslma_1_1TestAllocator.html">bslma::TestAllocator</a></code> object use.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_usesbslmaallocator</code>: <br/>
- Provide a metafunction that indicates the use of bslma allocators</div></dd></dl>
+ Provide a metafunction that indicates the use of bslma allocators.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div> </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="component_overview"></a> <a class="anchor" id="description.component_overview"></a> <a class="anchor" id="3.3"></a> </dd></dl>
@@ -1015,7 +1038,7 @@ BufferAllocator::~BufferAllocator()
 
     <span class="keyword">const</span> <span class="keywordtype">int</span> offset = bsls_AlignmentUtil::calculateAlignmentOffset(
                                   d_buffer_p + d_cursor,
-                                      <a class="code" href="structbsls_1_1AlignmentUtil.html#a707cbcfa1655b67ba99ffa133cabc529a74bef72781f251014a813e406edabedb">bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT</a>);
+                                      <a class="code" href="structbsls_1_1AlignmentUtil.html#aba8b1954889a4c36ed6ac7854efaea47a74bef72781f251014a813e406edabedb">bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT</a>);
 
     <span class="keywordflow">if</span> (d_cursor + offset + size &gt; d_bufferSize) {
         <span class="keywordflow">return</span> d_allocator_p-&gt;allocate(size);                         <span class="comment">// RETURN</span>
@@ -1037,7 +1060,7 @@ BufferAllocator::~BufferAllocator()
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:33 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:28 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

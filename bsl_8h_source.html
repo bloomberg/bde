@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.20 OSS</title>
+<title>BDE 2.22.1.2 OSS</title>
 <html>
 <pre>
  bsl.txt
@@ -27,18 +27,25 @@
  also known as the &#39;BDE-STL&#39; mode.  For more information, please see the
  package level documentation in &#39;bsl+stdhdrs&#39;.
 
+ The &#39;bsl&#39; package group is the foundation of the firm-wide BDE library and has
+ no dependencies beyond the allowed OS and runtime environment dependencies.
+
 /Hierarchical Synopsis
 /---------------------
- The &#39;bsl&#39; package group currently has 11 packages having 10 levels of physical
+ The &#39;bsl&#39; package group currently has 15 packages having 12 levels of physical
  dependency.  The list below shows the hierarchical ordering of the packages.
  The order of packages within each level is not architecturally significant,
  just alphabetical.
 ..
-  10. bslim
+  12. bslx
 
-   9. bsl+stdhdrs
+  11. bslim
 
-   8. bsl+bslhdrs
+  10. bsl+stdhdrs
+
+   9. bsl+bslhdrs
+
+   8. bslstp
 
    7. bslstl
 
@@ -46,16 +53,18 @@
 
    5. bslalg
 
-   4. bslma
+   4. bslh
+      bslma
 
    3. bsldoc
       bslmf
 
    2. bslscm
 
-   1. bsls
+   1. bslfwd
+      bsls
 ..
- (*) - Note that the &#39;bsl+stdhdrs&#39; package is only a compatibility layer for
+ Note that the &#39;bsl+stdhdrs&#39; package is only a compatibility layer for
  Bloomberg managed code.  It is not an essential package for the rest of the
  BDE libraries (i.e., all other package groups above &#39;bsl&#39; will compile and
  function without &#39;bsl+stdhdrs&#39;).  This package implements the logic required
@@ -80,6 +89,12 @@
 : &#39;bsldoc&#39;:
 :      Provide documentation of terms and concepts used throughout BDE.
 :
+: &#39;bslfwd&#39;:
+:      Provide compatibility for clients using single-level namespace
+:
+: &#39;bslh&#39;:
+:      Provide a framework for hashing types using swapable algorithms.
+:
 : &#39;bslim&#39;:
 :      Provide implementation mechanisms.
 :
@@ -98,8 +113,14 @@
 : &#39;bslstl&#39;:
 :      Provide replacement classes for STL constructs.
 :
+: &#39;bslstp&#39;:
+:      Provide replacement classes (adopted from STLport) for STL.
+:
 : &#39;bsltf&#39;:
 :      Provide a set of utilities and types to help with testing.
+:
+: &#39;bslx&#39;:
+:      Define externalization protocols and provide implementations.
 
 /Package Overview
 /----------------
@@ -135,6 +156,11 @@
  {&#39;bsldoc&#39;} documents key terminology and concepts used throughout BDE
  documentation.  Note that the components in this package consist entirely of
  comments, no code.
+
+/&#39;bslh&#39;
+/ - - -
+ {&#39;bslh&#39;} provides standard hashing algorithms and components allowing the
+ application of those hashing algorithms to types in a modular way.
 
 /&#39;bslim&#39;
 /- - - -
@@ -183,6 +209,14 @@
  {&#39;bsltf&#39;} provides a set test types and utilities that operates on those
  types, which can help simplify, particularly for template, the implementation
  of test drivers.
+
+/&#39;bslx&#39;
+/ - - -
+ {&#39;bslx&#39;} defines (via documentation) the BDEX protocol for externalization
+ (i.e., for an &quot;out stream&quot;) and &quot;unexternalization&quot; (i.e., for an
+ &quot;in stream&quot;), and provides concrete byte-array-based stream implementations of
+ each kind of stream, including streams for testing.
+
 </pre>
 </body>
 </html>

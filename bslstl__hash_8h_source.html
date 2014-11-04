@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.20 OSS</title>
+<title>BDE 2.22.1.2 OSS</title>
 <html>
 <pre>
 // bslstl_hash.h                                                      -*-C++-*-
@@ -76,10 +76,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // An important quality of the hash function is that if two values are
 // equivalent, they must yield the same hash value.
 //
-// First, we define our &#39;HashCrossReference&#39; template class, with the two
-// type parameters &#39;TYPE&quot; (the type being referenced&#39; and &#39;HASHER&#39;, which
-// defaults to &#39;bsl::hash&lt;TYPE&gt;&#39;.  For common types of &#39;TYPE&#39; such as &#39;int&#39;,
-// a specialization of &#39;bsl::hash&#39; is already defined:
+// First, we define our &#39;HashCrossReference&#39; template class, with the two type
+// parameters &#39;TYPE&quot; (the type being referenced&#39; and &#39;HASHER&#39;, which defaults
+// to &#39;bsl::hash&lt;TYPE&gt;&#39;.  For common types of &#39;TYPE&#39; such as &#39;int&#39;, a
+// specialization of &#39;bsl::hash&#39; is already defined:
 //..
 //  template &lt;class TYPE, class HASHER = bsl::hash&lt;TYPE&gt; &gt;
 //  class HashCrossReference {
@@ -228,153 +228,186 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  assert(0 == hcri.count(58));
 //..
 //
-///Example 2: Using Our Hash Cross Reference For a Custom Class
+///Example 2: Using &#39;hashAppend&#39; from &#39;bslh&#39; with &#39;HashCrossReference&#39;
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In Example 1, we demonstrated a hash cross reference for integers, a trivial
-// example.  In Example 2, we want to demonstrate specializing &#39;hash&#39; for a
-// custom class.  We will re-use the &#39;HashCrossReference&#39; template class
-// defined in Example 1.
+// We want to specialize &#39;bsl::hash&#39; for a custom class. We can use the the
+// modular hashing system implemented in &#39;bslh&#39; rather than explicitly
+// specializing &#39;bsl::hash&#39;. We will re-use the &#39;HashCrossReference&#39; template
+// class defined in Example 1.
 //
-// First, we define a &#39;StringThing&#39; class, which is basically a &#39;const char *&#39;
-// except that &#39;operator==&#39; will do the right thing on the strings and properly
-// compare them:
+// First, we declare &#39;Point&#39;, a class that allows us to identify a loction on a
+// two dimensional cartesian plane.
 //..
-//  class StringThing {
-//      // This class holds a pointer to zero-terminated string.  It is
-//      // implicitly convertible to and from a &#39;const char *&#39;.  The difference
-//      // between this type and a &#39;const char *&#39; is that &#39;operator==&#39; will
-//      // properly compare two objects of this type for equality of strings
-//      // rather than equality of pointers.
 //
-//      // DATA
-//      const char *d_string;    // held, not owned
+//  class Point {
+//      // This class is a value semantic type that represents as two
+//      // dimensional location on a cartesian plane.
+//
+//    private:
+//      int    d_x;
+//      int    d_y;
+//      double d_distToOrigin; // This value will be accessed a lot, so we
+//                             // cache it rather than recalculating every
+//                             // time.
 //
 //    public:
-//      // CREATOR
-//      StringThing(const char *string)                             // IMPLICIT
-//      : d_string(string)
-//          // Create a &#39;StringThing&#39; object out of the specified &#39;string&#39;.
-//      {}
+//      Point (int x, int y);
+//          // Create a &#39;Point&#39; with the specified &#39;x&#39; and &#39;y&#39; coordinates
 //
-//      // ACCESSOR
-//      operator const char *() const
-//          // Implicitly cast this &#39;StringThing&#39; object to a &#39;const char *&#39;
-//          // that refers to the same buffer.
-//      {
-//          return d_string;
-//      }
+//      double distanceToOrigin();
+//          // Return the distance from the origin (0, 0) to this point.
+//
+//..
+// Then, we declare &#39;operator==&#39; as a friend so that we will be able to compare
+// two points.
+//..
+//      friend bool operator==(const Point &amp;left, const Point &amp;right);
+//
+//..
+// Next, we declare &#39;hashAppend&#39; as a friend so that we will be able hash a
+// &#39;Point&#39;.
+//..
+//      template &lt;class HASH_ALGORITHM&gt;
+//      friend
+//      void hashAppend(HASH_ALGORITHM &amp;hashAlg, const Point &amp;point);
+//          // Apply the specified &#39;hashAlg&#39; to the specified &#39;point&#39;
 //  };
 //
-//  inline
-//  bool operator==(const StringThing&amp; lhs, const StringThing&amp; rhs)
-//  {
-//      return !strcmp(lhs, rhs);
+//  Point::Point(int x, int y) : d_x(x), d_y(y) {
+//      d_distToOrigin = sqrt(static_cast&lt;long double&gt;(d_x * d_x) +
+//                            static_cast&lt;long double&gt;(d_y * d_y));
 //  }
 //
-//  inline
-//  bool operator!=(const StringThing&amp; lhs, const StringThing&amp; rhs)
-//  {
-//      return !(lhs == rhs);
+//  double Point::distanceToOrigin() {
+//      return d_distToOrigin;
 //  }
+//
 //..
-// Then, we need a hash function for &#39;StringThing&#39;.  We can specialize
-// &#39;bsl::hash&#39; for our &#39;StringThing&#39; type:
+// Then, we define &#39;operator==&#39;. Notice how it only checks salient attributes -
+// attributes that contribute to the value of the class. We ignore
+// &#39;d_distToOrigin&#39; which is not required to determine equality.
 //..
-//  namespace bsl {
+//  bool operator==(const Point &amp;left, const Point &amp;right)
+//  {
+//      return (left.d_x == right.d_x) &amp;&amp; (left.d_y == right.d_y);
+//  }
 //
-//  template &lt;&gt;
-//  struct hash&lt;StringThing&gt; {
-//      // We need to specialize &#39;hash&#39; for our &#39;StringThing&#39; type.  If we just
-//      // called &#39;hash&lt;const char *&gt;&#39;, it would just hash the pointer, so that
-//      // pointers to two different buffers containing the same sequence of
-//      // chars would hash to different values, which would not be the desired
-//      // behavior.
+//..
+// Next, we define &#39;hashAppend&#39;. This method will allow any hashing algorithm
+// to be applied to &#39;Point&#39;. This is the extent of the work that needs to be
+// done by type creators. They do not need to implement any algorithms, they
+// just need to call out the salient attributes (which have already been
+// determined by &#39;operator==&#39;) by calling &#39;hashAppend&#39; on them.
+//..
+//  template &lt;class HASH_ALGORITHM&gt;
+//  void hashAppend(HASH_ALGORITHM &amp;hashAlg, const Point &amp;point)
+//  {
+//      using ::BloombergLP::bslh::hashAppend;
+//      hashAppend(hashAlg, point.d_x);
+//      hashAppend(hashAlg, point.d_y);
+//  }
 //
-//      size_t operator()(const StringThing&amp; st) const
-//          // Return the hash of the zero-terminated sequence of bytes
-//          // referred to by the specified &#39;st&#39;.  Note that this is an ad-hoc
-//          // hash function thrown together in a few minutes, it has not been
-//          // exhaustively tested or mathematically analyzed.  Also note that
-//          // even though most of the default specializations of &#39;hash&#39; have
-//          // functions that take their arguments by value, there is nothing
-//          // preventing us from chosing to pass it by reference in this case.
-//      {
-//          enum { SHIFT_DOWN = sizeof(size_t) * 8 - 8 };
+//..
+// Then, we declare another value semantic type, &#39;Box&#39; that will have point as
+// one of its salient attributes.
+//..
+//  class Box {
+//      // This class is a value semantic type that represents a box drawn on
+//      // to a cartesian plane.
 //
-//  #ifdef BSLS_PLATFORM_CPU_64_BIT
-//          const size_t MULTIPLIER = 0x5555555555555555ULL; // 16 &#39;5&#39;s
-//  #else
-//          const size_t MULTIPLIER = 0x55555555;            //  8 &#39;5&#39;s
-//  #endif
+//    private:
+//      Point d_position;
+//      int d_length;
+//      int d_width;
 //
-//          size_t ret = 0;
-//          unsigned char c;
-//          for (const char *pc = st; (c = *pc); ++pc) {
-//              ret =  MULTIPLIER * (ret + c);
-//              ret += ret &gt;&gt; SHIFT_DOWN;
-//          }
+//    public:
+//      Box(Point position, int length, int width);
+//          // Create a box with the specified &#39;length&#39; and &#39;width&#39;, with its
+//          // upper left corner at the specified &#39;position&#39;
 //
-//          return ret;
-//      }
+//..
+// Next, we declare &#39;operator==&#39; and &#39;hashAppend&#39; as we did before.
+//..
+//      friend bool operator==(const Box &amp;left, const Box &amp;right);
+//
+//      template &lt;class HASH_ALGORITHM&gt;
+//      friend
+//      void hashAppend(HASH_ALGORITHM &amp;hashAlg, const Box &amp;box);
+//          // Apply the specified &#39;hashAlg&#39; to the specified &#39;box&#39;
 //  };
 //
-//  }  // close namespace bsl
+//  Box::Box(Point position, int length, int width) : d_position(position),
+//                                                    d_length(length),
+//                                                    d_width(width) { }
+//
 //..
-// Next, in &#39;main&#39;, we want to use our cross reference on a more complex type,
-// so we&#39;ll use the &#39;StringThing&#39; type we created.  We create an array of
-// unique &#39;StringThing&#39;s and take its length:
+// Then, we define &#39;operator==&#39;. This time all of the data members contribute
+// to equality.
 //..
-//  StringThing stringThings[] = { &quot;woof&quot;,
-//                                 &quot;meow&quot;,
-//                                 &quot;bark&quot;,
-//                                 &quot;arf&quot;,
-//                                 &quot;bite&quot;,
-//                                 &quot;chomp&quot;,
-//                                 &quot;gnaw&quot; };
-//  enum { NUM_STRINGTHINGS = sizeof stringThings / sizeof *stringThings };
+//  bool operator==(const Box &amp;left, const Box &amp;right)
+//  {
+//      return (left.d_position == right.d_position) &amp;&amp;
+//             (left.d_length   == right.d_length) &amp;&amp;
+//             (left.d_width    == right.d_width);
+//  }
+//
 //..
-// Then, we create our cross-reference &#39;hcrsts&#39; and verify that it constructed
+// Next, we define &#39;hashAppend&#39; for &#39;Box&#39;. Notice how as well as calling
+// &#39;hashAppend&#39; on fundamental types, we can also call it on our user defined
+// type &#39;Point&#39;. Calling &#39;hashAppend&#39; on &#39;Point&#39; will propogate the hashing
+// algorithm functor &#39;hashAlg&#39; down to the fundamental types that make up
+// &#39;Point&#39;, and those types will then be passed into the algorithm functor.
+//..
+//  template &lt;class HASH_ALGORITHM&gt;
+//  void hashAppend(HASH_ALGORITHM &amp;hashAlg, const Box &amp;box)
+//  {
+//      hashAppend(hashAlg, box.d_position);
+//      hashAppend(hashAlg, box.d_length);
+//      hashAppend(hashAlg, box.d_width);
+//  }
+//..
+// Then, we want to use our cross reference on a &#39;Box&#39;.  We create an array of
+// unique &#39;Box&#39;s and take its length:
+//..
+//
+//      Box boxes[] = { Box(Point(0, 0), 2, 3),
+//                      Box(Point(1, 0), 1, 1),
+//                      Box(Point(0, 1), 1, 5),
+//                      Box(Point(1, 1), 5, 6),
+//                      Box(Point(2, 1), 1, 13),
+//                      Box(Point(0, 4), 3, 3),
+//                      Box(Point(3, 2), 2, 17) };
+//      enum { NUM_BOXES = sizeof boxes / sizeof *boxes };
+//
+//..
+// Next, we create our cross-reference &#39;hcrsts&#39; and verify that it constructed
 // properly.  Note we don&#39;t pass a second parameter template argument and let
-// &#39;HASHER&#39; will define to &#39;bsl::hash&lt;StringThing&gt;&#39;, which we have defined
-// above:
+// &#39;HASHER&#39; default to &#39;bsl::hash&lt;TYPE&gt;&#39;. Since we have not specialized
+// &#39;bsl::hash&#39; for &#39;Box&#39;, &#39;bsl::hash&lt;TYPE&gt;&#39; will attempt to use &#39;bslh::hash&lt;&gt;&#39;
+// to hash &#39;Box&#39;.
 //..
-//  HashCrossReference&lt;StringThing&gt; hcrsts(stringThings,
-//                                         NUM_STRINGTHINGS);
-//  assert(hcrsts.isValid());
+//
+//      HashCrossReference&lt;Box&gt; hcrsts(boxes, NUM_BOXES);
+//      ASSERT(hcrsts.isValid());
+//
 //..
-// Next, we verify that each element in our array registers with count:
+// Now, we verify that each element in our array registers with count:
 //..
-//  assert(1 == hcrsts.count(&quot;woof&quot;));
-//  assert(1 == hcrsts.count(&quot;meow&quot;));
-//  assert(1 == hcrsts.count(&quot;bark&quot;));
-//  assert(1 == hcrsts.count(&quot;arf&quot;));
-//  assert(1 == hcrsts.count(&quot;bite&quot;));
-//  assert(1 == hcrsts.count(&quot;chomp&quot;));
-//  assert(1 == hcrsts.count(&quot;gnaw&quot;));
+//      for(int i = 0; i &lt; NUM_BOXES; ++i) {
+//          ASSERT(1 == hcrsts.count(boxes[i]));
+//      }
+//
 //..
-// Now, we verify that strings not in our original array are correctly
+// Finally, we verify that elements not in our original array are correctly
 // identified as not being in the set:
 //..
-//  assert(0 == hcrsts.count(&quot;buy&quot;));
-//  assert(0 == hcrsts.count(&quot;beg&quot;));
-//  assert(0 == hcrsts.count(&quot;borrow&quot;));
-//  assert(0 == hcrsts.count(&quot;or&quot;));
-//  assert(0 == hcrsts.count(&quot;steal&quot;));
+//      ASSERT(0 == hcrsts.count(Box(Point(3, 3), 3, 3)));
+//      ASSERT(0 == hcrsts.count(Box(Point(3, 2), 1, 0)));
+//      ASSERT(0 == hcrsts.count(Box(Point(1, 2), 3, 4)));
+//      ASSERT(0 == hcrsts.count(Box(Point(33, 23), 13, 3)));
+//      ASSERT(0 == hcrsts.count(Box(Point(30, 37), 34, 13)));
 //..
-// Finally, to make sure that our lookup is independent of string location, we
-// copy some strings into a buffer and make sure that our results are as
-// expected.
-//..
-//  char buffer[10];
-//  strcpy(buffer, &quot;woof&quot;);
-//  assert(1 == hcrsts.count(buffer));
-//  strcpy(buffer, &quot;chomp&quot;);
-//  assert(1 == hcrsts.count(buffer));
-//  strcpy(buffer, &quot;buy&quot;);
-//  assert(0 == hcrsts.count(buffer));
-//  strcpy(buffer, &quot;steal&quot;);
-//  assert(0 == hcrsts.count(buffer));
-//..
+
 
 // Prevent &#39;bslstl&#39; headers from being included directly in &#39;BSL_OVERRIDES_STD&#39;
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
@@ -389,6 +422,10 @@ BSL_OVERRIDES_STD mode&quot;
 
 #ifndef INCLUDED_BSLALG_HASHUTIL
 #include &lt;bslalg_hashutil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLH_HASH
+#include &lt;bslh_hash.h&gt;
 #endif
 
 #ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
@@ -420,12 +457,17 @@ namespace bsl {
                           // ==================
 
 template &lt;class TYPE&gt;
-struct hash;
-    // Empty base class for hashing.  No general hash struct defined, each type
-    // requires a specialization.  Leaving this struct declared but undefined
-    // will generate error messages that are more clear when someone tries to
-    // use a key that does not have a corresponding hash function.
-
+struct hash : ::BloombergLP::bslh::Hash&lt;&gt; {
+    // Empty base class for hashing. This class, and all explicit and partial
+    // specializations of this class, shall conform to the C++11 Hash
+    // Requirements (C++11 17.6.3.4, [hash.requirements]). Unless this template
+    // is explicitly specialized, it will use the defualt hash algorithm
+    // provided by &#39;bslh::Hash&lt;&gt;&#39; to supply hash values. In order to hash a
+    // user defined type using &#39;bsl::hash&#39;, &#39;bsl::hash&#39; must be explicitly
+    // specialized for the type, or, perferably, &#39;hashAppend&#39; must be
+    // implemented for the type. For more details on &#39;hashAppend&#39; and
+    // &#39;bslh::Hash&#39; see the component &#39;bslh_hash&#39;.
+};
 
 // ============================================================================
 //                  SPECIALIZATIONS FOR FUNDAMENTAL TYPES
@@ -435,36 +477,6 @@ template &lt;class BSLSTL_KEY&gt;
 struct hash&lt;const BSLSTL_KEY&gt; : hash&lt;BSLSTL_KEY&gt; {
     // This class provides hashing functionality for constant key types, by
     // delegating to the same function for non-constant key types.
-};
-
-template &lt;class TYPE&gt;
-struct hash&lt;TYPE *&gt; {
-    // Specialization of &#39;hash&#39; for pointers.
-
-    // STANDARD TYPEDEFS
-    typedef TYPE *argument_type;
-    typedef std::size_t result_type;
-
-    //! hash() = default;
-        // Create a &#39;hash&#39; object.
-
-    //! hash(const hash&amp; original) = default;
-        // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
-        // type, this operation will have no observable effect.
-
-    //! ~hash() = default;
-        // Destroy this object.
-
-    // MANIPULATORS
-    //! hash&amp; operator=(const hash&amp; rhs) = default;
-        // Assign to this object the value of the specified &#39;rhs&#39; object, and
-        // return a reference providing modifiable access to this object.  Note
-        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
-        // have no observable effect.
-
-    // ACCESSORS
-    std::size_t operator()(TYPE *x) const;
-        // Return a hash value computed using the specified &#39;x&#39;.
 };
 
 template &lt;&gt;
@@ -616,68 +628,6 @@ struct hash&lt;wchar_t&gt; {
     std::size_t operator()(wchar_t x) const;
         // Return a hash value computed using the specified &#39;x&#39;.
 };
-
-#if defined BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
-template &lt;&gt;
-struct hash&lt;char16_t&gt; {
-    // Specialization of &#39;hash&#39; for &#39;char16_t&#39; values.
-
-    // STANDARD TYPEDEFS
-    typedef char16_t argument_type;
-    typedef std::size_t result_type;
-
-    //! hash() = default;
-        // Create a &#39;hash&#39; object.
-
-    //! hash(const hash&amp; original) = default;
-        // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
-        // type, this operation will have no observable effect.
-
-    //! ~hash() = default;
-        // Destroy this object.
-
-    // MANIPULATORS
-    //! hash&amp; operator=(const hash&amp; rhs) = default;
-        // Assign to this object the value of the specified &#39;rhs&#39; object, and
-        // return a reference providing modifiable access to this object.  Note
-        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
-        // have no observable effect.
-
-    // ACCESSORS
-    std::size_t operator()(char16_t x) const;
-        // Return a hash value computed using the specified &#39;x&#39;.
-};
-
-template &lt;&gt;
-struct hash&lt;char32_t&gt; {
-    // Specialization of &#39;hash&#39; for &#39;char32_t&#39; values.
-
-    // STANDARD TYPEDEFS
-    typedef char32_t argument_type;
-    typedef std::size_t result_type;
-
-    //! hash() = default;
-        // Create a &#39;hash&#39; object.
-
-    //! hash(const hash&amp; original) = default;
-        // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
-        // type, this operation will have no observable effect.
-
-    //! ~hash() = default;
-        // Destroy this object.
-
-    // MANIPULATORS
-    //! hash&amp; operator=(const hash&amp; rhs) = default;
-        // Assign to this object the value of the specified &#39;rhs&#39; object, and
-        // return a reference providing modifiable access to this object.  Note
-        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
-        // have no observable effect.
-
-    // ACCESSORS
-    std::size_t operator()(char32_t x) const;
-        // Return a hash value computed using the specified &#39;x&#39;.
-};
-#endif
 
 template &lt;&gt;
 struct hash&lt;short&gt; {
@@ -919,112 +869,14 @@ struct hash&lt;unsigned long long&gt; {
         // Return a hash value computed using the specified &#39;x&#39;.
 };
 
-template &lt;&gt;
-struct hash&lt;float&gt; {
-    // Specialization of &#39;hash&#39; for &#39;float&#39; values.
-
-    // STANDARD TYPEDEFS
-    typedef float argument_type;
-    typedef std::size_t result_type;
-
-    //! hash() = default;
-        // Create a &#39;hash&#39; object.
-
-    //! hash(const hash&amp; original) = default;
-        // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
-        // type, this operation will have no observable effect.
-
-    //! ~hash() = default;
-        // Destroy this object.
-
-    // MANIPULATORS
-    //! hash&amp; operator=(const hash&amp; rhs) = default;
-        // Assign to this object the value of the specified &#39;rhs&#39; object, and
-        // return a reference providing modifiable access to this object.  Note
-        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
-        // have no observable effect.
-
-    // ACCESSORS
-    std::size_t operator()(float x) const;
-        // Return a hash value computed using the specified &#39;x&#39;.
-};
-
-template &lt;&gt;
-struct hash&lt;double&gt; {
-    // Specialization of &#39;hash&#39; for &#39;double&#39; values.
-
-    // STANDARD TYPEDEFS
-    typedef double argument_type;
-    typedef std::size_t result_type;
-
-    //! hash() = default;
-        // Create a &#39;hash&#39; object.
-
-    //! hash(const hash&amp; original) = default;
-        // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
-        // type, this operation will have no observable effect.
-
-    //! ~hash() = default;
-        // Destroy this object.
-
-    // MANIPULATORS
-    //! hash&amp; operator=(const hash&amp; rhs) = default;
-        // Assign to this object the value of the specified &#39;rhs&#39; object, and
-        // return a reference providing modifiable access to this object.  Note
-        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
-        // have no observable effect.
-
-    // ACCESSORS
-    std::size_t operator()(double x) const;
-        // Return a hash value computed using the specified &#39;x&#39;.
-};
-
-template &lt;&gt;
-struct hash&lt;long double&gt; {
-    // Specialization of &#39;hash&#39; for &#39;long double&#39; values.
-
-    // STANDARD TYPEDEFS
-    typedef long double argument_type;
-    typedef std::size_t result_type;
-
-    //! hash() = default;
-        // Create a &#39;hash&#39; object.
-
-    //! hash(const hash&amp; original) = default;
-        // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
-        // type, this operation will have no observable effect.
-
-    //! ~hash() = default;
-        // Destroy this object.
-
-    // MANIPULATORS
-    //! hash&amp; operator=(const hash&amp; rhs) = default;
-        // Assign to this object the value of the specified &#39;rhs&#39; object, and
-        // return a reference providing modifiable access to this object.  Note
-        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
-        // have no observable effect.
-
-    // ACCESSORS
-    std::size_t operator()(long double x) const;
-        // Return a hash value computed using the specified &#39;x&#39;.
-};
-
-
-// ===========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
-
-template&lt;typename TYPE&gt;
-inline
-std::size_t hash&lt;TYPE *&gt;::operator()(TYPE *x) const
-{
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
-}
+// ============================================================================
 
 inline
 std::size_t hash&lt;bool&gt;::operator()(bool x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return x;
 }
 
 inline
@@ -1050,20 +902,6 @@ std::size_t hash&lt;wchar_t&gt;::operator()(wchar_t x) const
 {
     return x;
 }
-
-#if defined BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
-inline
-std::size_t hash&lt;char16_t&gt;::operator()(char16_t x) const
-{
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
-}
-
-inline
-std::size_t hash&lt;char32_t&gt;::operator()(char32_t x) const
-{
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
-}
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
 
 inline
 std::size_t hash&lt;short&gt;::operator()(short x) const
@@ -1152,24 +990,6 @@ std::size_t hash&lt;unsigned long long&gt;::operator()(unsigned long long x) con
 }
 #endif
 
-inline
-std::size_t hash&lt;float&gt;::operator()(float x) const
-{
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
-}
-
-inline
-std::size_t hash&lt;double&gt;::operator()(double x) const
-{
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
-}
-
-inline
-std::size_t hash&lt;long double&gt;::operator()(long double x) const
-{
-    return ::BloombergLP::bslalg::HashUtil::computeHash((double)x);
-}
-
 // ============================================================================
 //                                TYPE TRAITS
 // ============================================================================
@@ -1194,25 +1014,19 @@ struct is_trivially_copyable&lt;hash&lt;TYPE&gt; &gt;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the &quot;Software&quot;), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
 </pre>
 </body>

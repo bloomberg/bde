@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: bslstl_stringref Component</title>
+<title>BDE 2.22.1.2 OSS: bslstl_stringref Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -117,7 +117,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd>The string value that is represented by a <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code> object need not be null-terminated. Moreover, the string may contain embedded null characters. As such, the string referenced by <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code>, in general, is not a C-style string. Moreover, the notion of a null-string value is not supported. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The address and extent of the string referenced by <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code> are indicated by the <code>data</code> and <code>length</code> accessors, respectively. The referenced string is also indicated by the <code>begin</code> and <code>end</code> accessors that return STL-compatible iterators to the beginning of the string and one character past the end of the string, respectively. An overloaded <code>operator[]</code> is also provided for direct by-index access to individual characters in the string. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Several overloaded free operators are provided for <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code> objects (as well as variants for all combinations involving <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code> and <code>std::string</code>, and <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code> and <code>char *</code>) for (1) lexicographic comparison of values, and (2) concatenation of values (producing an <code>std::string</code>); also provided is an overloaded free <code>operator&lt;&lt;</code> for writing the value of a <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code> object to a specified output stream. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>bsl::hash</code> template class is specialized for <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code> to enable the use of <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code> with STL hash containers (e.g., <code><a class="el" href="classbsl_1_1unordered__set.html">bsl::unordered_set</a></code> and <code><a class="el" href="classbsl_1_1unordered__map.html">bsl::unordered_map</a></code>). </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <code><a class="el" href="structbsl_1_1hash.html">bsl::hash</a></code> template class is specialized for <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code> to enable the use of <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code> with STL hash containers (e.g., <code><a class="el" href="classbsl_1_1unordered__set.html">bsl::unordered_set</a></code> and <code><a class="el" href="classbsl_1_1unordered__map.html">bsl::unordered_map</a></code>). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="efficiency_and_usage_considerations"></a> <a class="anchor" id="description.efficiency_and_usage_considerations"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Efficiency and Usage Considerations: </b></dt><dd></dd></dl>
@@ -232,7 +232,7 @@ Namespaces</h2></td></tr>
 <br/>
  Next, we use the <code>assign</code> method to make <code>line</code> refer to the second line of the <code>poem</code>: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  line.<a class="code" href="group__bslstl__string.html#ga3b257d66c0c5074edfa0973939bb6179">assign</a>(poem + 29, poem + 57);
+<div class="fragment"><pre class="fragment">  line.<a class="code" href="group__bslstl__string.html#gaabfac30236d61f0eb9cd693d29acc2c6">assign</a>(poem + 29, poem + 57);
   numBlanks = getNumBlanks(line);
   assert(4 == numBlanks);
   assert((57 - 29) == line.<a class="code" href="group__bslstl__string.html#ga78edaba5c76c2e2f09067f478be101d2">length</a>());
@@ -272,7 +272,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:35 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:30 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

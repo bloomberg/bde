@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: bsls_util Component</title>
+<title>BDE 2.22.1.2 OSS: bsls_util Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -183,16 +183,16 @@ Defines</h2></td></tr>
   }
 </pre></div><br/>
 <br/>
- Then, we note that there are times when it might be desirable to get the true address of a <code>BitReference</code>. Since the above overload prevents the obvious syntax from working, we use <code><a class="el" href="structbsls_1_1Util.html#ab9cb16fd8dce5ef2a83110ac91e3fef3">bsls::Util::addressOf</a></code> to accomplish this task. </dd></dl>
+ Then, we note that there are times when it might be desirable to get the true address of a <code>BitReference</code>. Since the above overload prevents the obvious syntax from working, we use <code><a class="el" href="structbsls_1_1Util.html#a94e6b61bf794b92beeb2ce1ec556d8e5">bsls::Util::addressOf</a></code> to accomplish this task. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Next, we create a <code>BitReference</code> object: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keywordtype">char</span> c[4];
   BitReference br(c, 3);
 </pre></div><br/>
 <br/>
- Now, we invoke <code><a class="el" href="structbsls_1_1Util.html#ab9cb16fd8dce5ef2a83110ac91e3fef3">bsls::Util::addressOf</a></code> to obtain and save the address of <code>br</code>: <br/>
+ Now, we invoke <code><a class="el" href="structbsls_1_1Util.html#a94e6b61bf794b92beeb2ce1ec556d8e5">bsls::Util::addressOf</a></code> to obtain and save the address of <code>br</code>: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  BitReference *p = <a class="code" href="structbsls_1_1Util.html#ab9cb16fd8dce5ef2a83110ac91e3fef3">bsls::Util::addressOf</a>(br);  <span class="comment">// OK</span>
+<div class="fragment"><pre class="fragment">  BitReference *p = <a class="code" href="structbsls_1_1Util.html#a94e6b61bf794b92beeb2ce1ec556d8e5">bsls::Util::addressOf</a>(br);  <span class="comment">// OK</span>
   <span class="comment">// BitReference *p = &amp;br;                     // Won&#39;t compile</span>
 </pre></div><br/>
 <br/>
@@ -227,7 +227,7 @@ Defines</h2></td></tr>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:34 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:29 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

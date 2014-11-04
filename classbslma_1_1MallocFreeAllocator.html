@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: Class bslma::MallocFreeAllocator</title>
+<title>BDE 2.22.1.2 OSS: Class bslma::MallocFreeAllocator</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -103,7 +103,6 @@ Public Member Functions</h2></td></tr>
 <tr><td colspan="2"><h2><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classbslma_1_1MallocFreeAllocator.html">MallocFreeAllocator</a> &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1MallocFreeAllocator.html#a600be130e4c726f5835c54baf4e66a29">singleton</a> ()</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1Allocator.html#a404c0ae3c51f8122a6ca3a62aba8dbf1">throwBadAlloc</a> ()</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>This class provides direct access to the system-supplied (native) global <code>std::malloc</code> and <code>std::free</code>. A <code>static</code> method is provided for obtaining a unique, process wide object of this class, which is valid from the time the method is called until after the program (not just <code>main</code>) exits. </p>
@@ -220,25 +219,6 @@ Static Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a404c0ae3c51f8122a6ca3a62aba8dbf1"></a><!-- doxytag: member="bslma::MallocFreeAllocator::throwBadAlloc" ref="a404c0ae3c51f8122a6ca3a62aba8dbf1" args="()" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">static void bslma::Allocator::throwBadAlloc </td>
-          <td>(</td>
-          <td class="paramname"></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td><code> [static, inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p><b>DEPRECATED</b>: Use <code><a class="el" href="structbsls_1_1BslExceptionUtil.html#a465dfe918544c50b66067aee9c520a8c">bsls::BslExceptionUtil::throwBadAlloc</a></code> instead.</p>
-<p>Throw <code>std::bad_alloc</code> if exceptions are enabled or abort the program otherwise. Derived classes and helper functions will typically call this function when they are unable to satisfy an allocation request. This function never returns. </p>
-
-</div>
-</div>
 <a class="anchor" id="a0e51fc2d107684523cc66bf65293dc37"></a><!-- doxytag: member="bslma::MallocFreeAllocator::deleteObject" ref="a0e51fc2d107684523cc66bf65293dc37" args="(const TYPE *object)" -->
 <div class="memitem">
 <div class="memproto">
@@ -285,7 +265,7 @@ template&lt;class TYPE &gt; </div>
 <li><a class="el" href="bslma__mallocfreeallocator_8h_source.html">bslma_mallocfreeallocator.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:42 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:37 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

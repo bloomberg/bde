@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: Class bslma::SharedPtrOutofplaceRep</title>
+<title>BDE 2.22.1.2 OSS: Class bslma::SharedPtrOutofplaceRep</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -88,20 +88,20 @@ Inheritance diagram for bslma::SharedPtrOutofplaceRep&lt; TYPE, DELETER &gt;:</d
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">virtual void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1SharedPtrOutofplaceRep.html#a5c683c98e6fdae4d535817a485f32557">disposeRep</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1SharedPtrOutofplaceRep.html#ac03bfbb61095d48b0f2b7941cf40d773">disposeObject</a> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1SharedPtrOutofplaceRep.html#a5c683c98e6fdae4d535817a485f32557">disposeRep</a> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1SharedPtrOutofplaceRep.html#a4121bb477fd23c4a1abf5ac501cfd911">getDeleter</a> (const std::type_info &amp;<a class="el" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1_1type.html">type</a>)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1SharedPtrOutofplaceRep.html#a86a222a4b8d5bed5599f5443bca4198e">originalPtr</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">TYPE *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1SharedPtrOutofplaceRep.html#a068ed64318ce1aad177b34cf704708b5">ptr</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1SharedPtrRep.html#afae38768206afcee65656679fe8b8fea">acquireRef</a> ()</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1SharedPtrRep.html#ad589f61660eeac5bfcd12ca7cef0717d">incrementRefs</a> (int incrementAmount=1)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1SharedPtrRep.html#aa94fa844a2bf8be733631a2791edb325">acquireWeakRef</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1SharedPtrRep.html#a90e082cbd9cd1bf48958ed3e7c2be3b3">releaseRef</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1SharedPtrRep.html#a51f0354415b31690a01ea69a838680f1">releaseWeakRef</a> ()</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1SharedPtrRep.html#a2316b2cd2fa8879d0e44b01a4ab91960">tryAcquireRef</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1SharedPtrRep.html#a3aee0a92abc9accab03c14100150a1c1">resetCountsRaw</a> (int numSharedReferences, int numWeakReferences)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1SharedPtrRep.html#a2316b2cd2fa8879d0e44b01a4ab91960">tryAcquireRef</a> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1SharedPtrRep.html#a98240123b6422c2ef197a52c68f1083c">hasUniqueOwner</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1SharedPtrRep.html#a80f93135b7154364119d3f725d957b70">numReferences</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1SharedPtrRep.html#ab8da02bf77e7c766ee7b8fd45b79f320">numWeakReferences</a> () const </td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1SharedPtrRep.html#a98240123b6422c2ef197a52c68f1083c">hasUniqueOwner</a> () const </td></tr>
 <tr><td colspan="2"><h2><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classbslma_1_1SharedPtrOutofplaceRep.html">SharedPtrOutofplaceRep</a><br class="typebreak"/>
@@ -150,6 +150,28 @@ template&lt;class TYPE, class DELETER&gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="ac03bfbb61095d48b0f2b7941cf40d773"></a><!-- doxytag: member="bslma::SharedPtrOutofplaceRep::disposeObject" ref="ac03bfbb61095d48b0f2b7941cf40d773" args="()" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TYPE, class DELETER&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void <a class="el" href="classbslma_1_1SharedPtrOutofplaceRep.html">bslma::SharedPtrOutofplaceRep</a>&lt; TYPE, DELETER &gt;::disposeObject </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Destroy the object being referred to by this representation. This method is automatically invoked by <code>releaseRef</code> when the number of shared references reaches zero and should not be explicitly invoked otherwise. </p>
+
+<p>Implements <a class="el" href="classbslma_1_1SharedPtrRep.html#ac41472460d942cf114a59f24b3d5655f">bslma::SharedPtrRep</a>.</p>
+
+</div>
+</div>
 <a class="anchor" id="a5c683c98e6fdae4d535817a485f32557"></a><!-- doxytag: member="bslma::SharedPtrOutofplaceRep::disposeRep" ref="a5c683c98e6fdae4d535817a485f32557" args="()" -->
 <div class="memitem">
 <div class="memproto">
@@ -172,25 +194,26 @@ template&lt;class TYPE, class DELETER&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="ac03bfbb61095d48b0f2b7941cf40d773"></a><!-- doxytag: member="bslma::SharedPtrOutofplaceRep::disposeObject" ref="ac03bfbb61095d48b0f2b7941cf40d773" args="()" -->
+<a class="anchor" id="a4121bb477fd23c4a1abf5ac501cfd911"></a><!-- doxytag: member="bslma::SharedPtrOutofplaceRep::getDeleter" ref="a4121bb477fd23c4a1abf5ac501cfd911" args="(const std::type_info &amp;type)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;class TYPE, class DELETER&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">virtual void <a class="el" href="classbslma_1_1SharedPtrOutofplaceRep.html">bslma::SharedPtrOutofplaceRep</a>&lt; TYPE, DELETER &gt;::disposeObject </td>
+          <td class="memname">virtual void* <a class="el" href="classbslma_1_1SharedPtrOutofplaceRep.html">bslma::SharedPtrOutofplaceRep</a>&lt; TYPE, DELETER &gt;::getDeleter </td>
           <td>(</td>
-          <td class="paramname"></td>
+          <td class="paramtype">const std::type_info &amp;&nbsp;</td>
+          <td class="paramname"> <em>type</em></td>
           <td>&nbsp;)&nbsp;</td>
           <td><code> [virtual]</code></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Destroy the object being referred to by this representation. This method is automatically invoked by <code>releaseRef</code> when the number of shared references reaches zero and should not be explicitly invoked otherwise. </p>
+<p>Return a pointer to the deleter stored by the derived representation (if any) if the deleter has the same type as that described by the specified <code>type</code>, and a null pointer otherwise. </p>
 
-<p>Implements <a class="el" href="classbslma_1_1SharedPtrRep.html#ac41472460d942cf114a59f24b3d5655f">bslma::SharedPtrRep</a>.</p>
+<p>Implements <a class="el" href="classbslma_1_1SharedPtrRep.html#a050197382203058fbecd774e633c0831">bslma::SharedPtrRep</a>.</p>
 
 </div>
 </div>
@@ -260,7 +283,7 @@ template&lt;class TYPE, class DELETER&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Delete the shared object referred to by this representation if all the shared references to the shared object are released. Note that the first argument is ignored. Also note that this function serves as the managed ptr deleter when converting a <code><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a></code> to a <code><a class="el" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr</a></code>. </p>
+<p>Release the shared reference to an object held by the <code><a class="el" href="classbslma_1_1SharedPtrRep.html">SharedPtrRep</a></code> object which is pointed to be by specified <code>rep</code>. The behavior is undefined unless <code>rep</code> points to an object whose complete type publicly and unambiguously derives from <code><a class="el" href="classbslma_1_1SharedPtrRep.html">SharedPtrRep</a></code>. Note that the first argument is ignored. Also note that this function serves as the managed ptr deleter when converting a <code><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a></code> to a <code><a class="el" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr</a></code>. </p>
 
 </div>
 </div>
@@ -279,26 +302,6 @@ template&lt;class TYPE, class DELETER&gt; </div>
 </div>
 <div class="memdoc">
 <p>Atomically acquire a shared reference to the shared object referred to by this representation. The behavior is undefined unless <code>0 &lt; <a class="el" href="classbslma_1_1SharedPtrRep.html#a80f93135b7154364119d3f725d957b70">numReferences()</a></code>. </p>
-
-</div>
-</div>
-<a class="anchor" id="ad589f61660eeac5bfcd12ca7cef0717d"></a><!-- doxytag: member="bslma::SharedPtrOutofplaceRep::incrementRefs" ref="ad589f61660eeac5bfcd12ca7cef0717d" args="(int incrementAmount=1)" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void bslma::SharedPtrRep::incrementRefs </td>
-          <td>(</td>
-          <td class="paramtype">int&nbsp;</td>
-          <td class="paramname"> <em>incrementAmount</em> = <code>1</code></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td><code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Atomically increment the number of shared references to the shared object referred to by this representation by the specified <code>incrementAmount</code>. The behavior is undefined unless <code>0 &lt; incrementAmount</code> and <code>0 &lt; <a class="el" href="classbslma_1_1SharedPtrRep.html#a80f93135b7154364119d3f725d957b70">numReferences()</a></code>.</p>
-<p>DEPRECATED: Use <code>acquireRef</code> instead. </p>
 
 </div>
 </div>
@@ -356,24 +359,6 @@ template&lt;class TYPE, class DELETER&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a2316b2cd2fa8879d0e44b01a4ab91960"></a><!-- doxytag: member="bslma::SharedPtrOutofplaceRep::tryAcquireRef" ref="a2316b2cd2fa8879d0e44b01a4ab91960" args="()" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool bslma::SharedPtrRep::tryAcquireRef </td>
-          <td>(</td>
-          <td class="paramname"></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td><code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Atomically acquire a shared reference to the shared object referred to by this representation, if the number of shared references is greater than 0, and do nothing otherwise. Return <code>true</code> if the acquire succeeds, and <code>false</code> otherwise. The behavior is undefined unless <code>0 &lt; <a class="el" href="classbslma_1_1SharedPtrRep.html#ab8da02bf77e7c766ee7b8fd45b79f320">numWeakReferences()</a> || 0 &lt; <a class="el" href="classbslma_1_1SharedPtrRep.html#a80f93135b7154364119d3f725d957b70">numReferences()</a></code>. </p>
-
-</div>
-</div>
 <a class="anchor" id="a3aee0a92abc9accab03c14100150a1c1"></a><!-- doxytag: member="bslma::SharedPtrOutofplaceRep::resetCountsRaw" ref="a3aee0a92abc9accab03c14100150a1c1" args="(int numSharedReferences, int numWeakReferences)" -->
 <div class="memitem">
 <div class="memproto">
@@ -399,6 +384,42 @@ template&lt;class TYPE, class DELETER&gt; </div>
 </div>
 <div class="memdoc">
 <p>Reset the number of shared references and the number of weak references stored by this representation to the specified <code>numSharedReferences</code> and <code>numWeakReferences</code> respectively. This function is <em>not</em> thread-safe and users must ensure that they serialize access to the <code><a class="el" href="classbslma_1_1SharedPtrRep.html">SharedPtrRep</a></code> object when calling this function. Note that this function updates the counts, but does not dispose of the representation or the object irrespective of the values of <code>numSharedReferences</code> and <code>numWeakReferences</code>. </p>
+
+</div>
+</div>
+<a class="anchor" id="a2316b2cd2fa8879d0e44b01a4ab91960"></a><!-- doxytag: member="bslma::SharedPtrOutofplaceRep::tryAcquireRef" ref="a2316b2cd2fa8879d0e44b01a4ab91960" args="()" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool bslma::SharedPtrRep::tryAcquireRef </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Atomically acquire a shared reference to the shared object referred to by this representation, if the number of shared references is greater than 0, and do nothing otherwise. Return <code>true</code> if the acquire succeeds, and <code>false</code> otherwise. The behavior is undefined unless <code>0 &lt; <a class="el" href="classbslma_1_1SharedPtrRep.html#ab8da02bf77e7c766ee7b8fd45b79f320">numWeakReferences()</a> || 0 &lt; <a class="el" href="classbslma_1_1SharedPtrRep.html#a80f93135b7154364119d3f725d957b70">numReferences()</a></code>. </p>
+
+</div>
+</div>
+<a class="anchor" id="a98240123b6422c2ef197a52c68f1083c"></a><!-- doxytag: member="bslma::SharedPtrOutofplaceRep::hasUniqueOwner" ref="a98240123b6422c2ef197a52c68f1083c" args="() const " -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool bslma::SharedPtrRep::hasUniqueOwner </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const<code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return <code>true</code> if there is only one shared reference and no weak references to the object referred to by this representation, and <code>false</code> otherwise. </p>
 
 </div>
 </div>
@@ -438,29 +459,11 @@ template&lt;class TYPE, class DELETER&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a98240123b6422c2ef197a52c68f1083c"></a><!-- doxytag: member="bslma::SharedPtrOutofplaceRep::hasUniqueOwner" ref="a98240123b6422c2ef197a52c68f1083c" args="() const " -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool bslma::SharedPtrRep::hasUniqueOwner </td>
-          <td>(</td>
-          <td class="paramname"></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td> const<code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Return <code>true</code> if there is only one shared reference and no weak references to the object referred to by this representation, and <code>false</code> otherwise. </p>
-
-</div>
-</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="bslma__sharedptroutofplacerep_8h_source.html">bslma_sharedptroutofplacerep.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:43 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:37 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

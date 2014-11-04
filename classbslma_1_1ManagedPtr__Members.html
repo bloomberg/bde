@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: Class bslma::ManagedPtr_Members</title>
+<title>BDE 2.22.1.2 OSS: Class bslma::ManagedPtr_Members</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -89,12 +89,12 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtr__Members.html#ace9a08f194228b394802d4c5b696c357">set</a> (void *object, void *factory, DeleterFunc deleter)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtr__Members.html#a08db81cbb82946f1db985842a7b1c324">setAliasPtr</a> (void *ptr)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtr__Members.html#a9c581f4f5ffd79eb1b2c0a77eaaf2984">swap</a> (<a class="el" href="classbslma_1_1ManagedPtr__Members.html">ManagedPtr_Members</a> &amp;other)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtr__Members.html#ae0adbdcdf48bad6534f43f05162040f4">runDeleter</a> () const </td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtr__Members.html#aae9e1a93e0b34f9353c1fa704f7ad7e3">pointer</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classbslma_1_1ManagedPtrDeleter.html">ManagedPtrDeleter</a> &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtr__Members.html#aa7402e25d10c817f30a0d5b1f5957b99">deleter</a> () const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtr__Members.html#aae9e1a93e0b34f9353c1fa704f7ad7e3">pointer</a> () const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtr__Members.html#ae0adbdcdf48bad6534f43f05162040f4">runDeleter</a> () const </td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
-<p>Non-type-specific managed pointer member variables. This type exists so that a <code><a class="el" href="classbslma_1_1ManagedPtr__Ref.html">ManagedPtr_Ref</a></code> can point to the representation of a <code><a class="el" href="classbslma_1_1ManagedPtr.html">ManagedPtr</a></code> even if the <code>_Ref</code> object is instantiated on a different type than the managed pointer type (e.g., in the case of conversions or aliasing). <code>ManagerPtr_Members</code> also "erases" the types of each member, so that the same object code can be shared between multiple instantiations of the <code><a class="el" href="classbslma_1_1ManagedPtr.html">ManagedPtr</a></code> class template, reducing template bloat. Note that objects of this type may have an "unset" state, where the <code>d_obj_p</code> pointer has a null value, and the <code>d_deleter</code> member does not have a specified value. If <code>d_obj_p</code> has a null pointer value, then this object must be in an unset state. </p>
+<p>This class provides a type-agnostic container for managed pointer data members. This type exists so that a <code><a class="el" href="classbslma_1_1ManagedPtr__Ref.html">ManagedPtr_Ref</a></code> can point to the representation of a <code><a class="el" href="classbslma_1_1ManagedPtr.html">ManagedPtr</a></code> even if the <code>_Ref</code> object is instantiated on a different type than the managed pointer type (e.g., in the case of conversions or aliasing). <code>ManagerPtr_Members</code> also "erases" the types of each member, so that the same object code can be shared between multiple instantiations of the <code><a class="el" href="classbslma_1_1ManagedPtr.html">ManagedPtr</a></code> class template, reducing template bloat. Note that objects of this type may have an "unset" state, where the <code>d_obj_p</code> pointer has a null value, and the <code>d_deleter</code> member does not have a specified value. If <code>d_obj_p</code> has a null pointer value, then this object must be in an unset state. </p>
 <hr/><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a2ee2687a24c10fe537579be43ee625f0"></a><!-- doxytag: member="bslma::ManagedPtr_Members::ManagedPtr_Members" ref="a2ee2687a24c10fe537579be43ee625f0" args="()" -->
 <div class="memitem">
@@ -163,7 +163,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>If <code>object</code> is 0, create a <code><a class="el" href="classbslma_1_1ManagedPtr__Members.html">ManagedPtr_Members</a></code> object that does not manage a pointer; otherwise create a <code><a class="el" href="classbslma_1_1ManagedPtr__Members.html">ManagedPtr_Members</a></code> object having the specified <code>object</code>, <code>factory</code> and <code>deleter</code>. </p>
+<p>Create a <code><a class="el" href="classbslma_1_1ManagedPtr__Members.html">ManagedPtr_Members</a></code> object having the specified <code>object</code>, <code>factory</code>, and <code>deleter</code> unless <code>0 == object</code>, in which case create a <code><a class="el" href="classbslma_1_1ManagedPtr__Members.html">ManagedPtr_Members</a></code> object that does not manage a pointer. </p>
 
 </div>
 </div>
@@ -203,7 +203,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>If <code>object</code> is 0, create a <code><a class="el" href="classbslma_1_1ManagedPtr__Members.html">ManagedPtr_Members</a></code> object that does not manage a pointer; otherwise create a <code><a class="el" href="classbslma_1_1ManagedPtr__Members.html">ManagedPtr_Members</a></code> object having the specified <code>object</code>, <code>factory</code> and <code>deleter</code>, but aliasing <code>alias</code>. Note that this constructor is important for managed pointers pointing to one of multiple base classes of a class using multiple inheritance. </p>
+<p>Create a <code><a class="el" href="classbslma_1_1ManagedPtr__Members.html">ManagedPtr_Members</a></code> object having the specified <code>object</code>, <code>factory</code>, and <code>deleter</code>, but aliasing the specified <code>alias</code>, unless <code>0 == object</code>; if <code>0 == object</code> create a <code><a class="el" href="classbslma_1_1ManagedPtr__Members.html">ManagedPtr_Members</a></code> object that does not manage any pointer. Note that this constructor is important for managed pointers pointing to one of multiple base classes of a class using multiple inheritance. </p>
 
 </div>
 </div>
@@ -278,7 +278,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Destroy the currently managed object (if any) unless the specified <code>other</code> refers to this object, then re-initialize this object, having the same <code>pointer</code> as the specified <code>other</code> object, and, if <code>pointer</code> is not 0, the same deleter as <code>other</code>, and then put <code>other</code> into an unset set. </p>
+<p>Destroy the currently managed object (if any) unless the specified <code>other</code> refers to this object, then re-initialize this object, having the same <code>pointer</code> as the <code>other</code> object, and, if <code>pointer</code> is not 0, the same deleter as <code>other</code>, and then put <code>other</code> into an unset state. </p>
 
 </div>
 </div>
@@ -331,7 +331,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Set <code>pointer</code> to have the specified <code>ptr</code> value. If <code>ptr</code> is 0 then this object will have an unset state. </p>
+<p>Set <code>pointer</code> to have the specified <code>ptr</code> value. If <code>0 == ptr</code> then this object will have an unset state. </p>
 
 </div>
 </div>
@@ -350,43 +350,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Efficiently exchange the state of this object with the state of the specified <code>other</code> object. This method provides the no-throw exception-safety guarantee. Note that if either object is in an unset state, there are no guarantees about the unset state that may be exchanged, other than <code>pointer</code> shall be null. </p>
-
-</div>
-</div>
-<a class="anchor" id="ae0adbdcdf48bad6534f43f05162040f4"></a><!-- doxytag: member="bslma::ManagedPtr_Members::runDeleter" ref="ae0adbdcdf48bad6534f43f05162040f4" args="() const " -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void bslma::ManagedPtr_Members::runDeleter </td>
-          <td>(</td>
-          <td class="paramname"></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Destroy the currently managed object(if any). Note that calling this method twice without assigning a new pointer to manage will produce undefined behavior, unless this object's current deleter specifically supports such usage. </p>
-
-</div>
-</div>
-<a class="anchor" id="aae9e1a93e0b34f9353c1fa704f7ad7e3"></a><!-- doxytag: member="bslma::ManagedPtr_Members::pointer" ref="aae9e1a93e0b34f9353c1fa704f7ad7e3" args="() const " -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void* bslma::ManagedPtr_Members::pointer </td>
-          <td>(</td>
-          <td class="paramname"></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Return a pointer to the currently managed object. </p>
+<p>Efficiently exchange the state of this object with the state of the specified <code>other</code> object. This method provides the no-throw exception-safety guarantee. Note that if either object is in an unset state, then the only guarantee about the unset state that may be exchanged is that the <code>pointer</code> value shall be null. </p>
 
 </div>
 </div>
@@ -408,11 +372,47 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="aae9e1a93e0b34f9353c1fa704f7ad7e3"></a><!-- doxytag: member="bslma::ManagedPtr_Members::pointer" ref="aae9e1a93e0b34f9353c1fa704f7ad7e3" args="() const " -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void* bslma::ManagedPtr_Members::pointer </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return the address of the currently managed object. </p>
+
+</div>
+</div>
+<a class="anchor" id="ae0adbdcdf48bad6534f43f05162040f4"></a><!-- doxytag: member="bslma::ManagedPtr_Members::runDeleter" ref="ae0adbdcdf48bad6534f43f05162040f4" args="() const " -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void bslma::ManagedPtr_Members::runDeleter </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Destroy the currently managed object (if any). Note that calling this method twice without assigning a new pointer to manage will produce undefined behavior, unless this object's current deleter specifically supports such usage. </p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="bslma__managedptr__members_8h_source.html">bslma_managedptr_members.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:43 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:37 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

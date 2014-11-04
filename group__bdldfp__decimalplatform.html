@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: bdldfp_decimalplatform Component</title>
+<title>BDE 2.22.1.2 OSS: bdldfp_decimalplatform Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -96,21 +96,23 @@
 <dl class="user"><dt><b>Macros: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><table class="doxtable">
 <tr>
-<td>BDLDFP_DECIMALPLATFORM_C99_TR </td><td>We have an use C99 decimal fp support  </td></tr>
+<td>BDLDFP_DECIMALPLATFORM_C99_TR </td><td>using C99 (C-language) decimal fp support  </td></tr>
 <tr>
 <td>BDLDFP_DECIMALPLATFORM_DECNUMBER </td><td>using the <code>decNumber</code> library  </td></tr>
 <tr>
-<td>BDLDFP_DECIMALPLATFORM_HARDWARE </td><td>hardware support for decimals  </td></tr>
+<td>BDLDFP_DECIMALPLATFORM_INTELDFP </td><td>using the <code>IntelDFP</code> library  </td></tr>
 <tr>
-<td>BDLDFP_DECIMALPLATFORM_SOFTWARE </td><td>no hardware support for decimals is used  </td></tr>
+<td>BDLDFP_DECIMALPLATFORM_HARDWARE </td><td>using hardware support for decimals  </td></tr>
+<tr>
+<td>BDLDFP_DECIMALPLATFORM_SOFTWARE </td><td>using software only (no hardware support)  </td></tr>
 <tr>
 <td>BDLDFP_DECIMALPLATFORM_BIG_ENDIAN </td><td>decimals are big endian  </td></tr>
 <tr>
 <td>BDLDFP_DECIMALPLATFORM_LITTLE_ENDIAN </td><td>decimals are little endian  </td></tr>
 <tr>
-<td>BDLDFP_DECIMALPLATFORM_DPD </td><td>densely packed decimal significand  </td></tr>
+<td>BDLDFP_DECIMALPLATFORM_DPD </td><td>using densely packed decimal representation  </td></tr>
 <tr>
-<td>BDLDFP_DECIMALPLATFORM_BININT </td><td>binary integer significand  </td></tr>
+<td>BDLDFP_DECIMALPLATFORM_BININT </td><td>binary integer significand representation  </td></tr>
 <tr>
 <td>BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE </td><td>internal use only (remove)  </td></tr>
 <tr>
@@ -124,17 +126,18 @@
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a suite of preprocessor macros that identify and define platform-specific compile-time attributes that are related to decimal floating-point support. Most of these attributes are represented by preprocessor macros that are always defined by this component (header) and their replacement value (0 or 1) determines the attribute. Some macros are implentation details, providing platform-specific information that is not useful outside of the BDE implementation. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component provides a suite of preprocessor macros that identify and define platform-specific compile-time attributes that are related to decimal floating-point support. The macros provided by this component are defined to the be non-zero (true) when enabled on a given platform, and are undefined on platforms where they are not enabled. Some macros are implentation details, providing platform-specific information that is not useful outside of the BDE implementation. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="macros_defining_the_underlying_implementation"></a> <a class="anchor" id="description.macros_defining_the_underlying_implementation"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Macros Defining the Underlying Implementation: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Only one of these macros will evaluate to <code>1</code> on any supported platform: </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Only one of these macros will be defined any supported platform: </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><code>BDLDFP_DECIMALPLATFORM_C99_TR</code> - Full ISO/IEC TR 24732 support with library. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><code>BDLDFP_DECIMALPLATFORM_DECNUMBER</code> - Using bdl+decnumber as emulation </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><code>BDLDFP_DECIMALPLATFORM_INTELDFP</code> - Using bdl+inteldfp as emulation </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="macros_defining_hardware_support_vs._software_emulation"></a> <a class="anchor" id="description.macros_defining_hardware_support_vs._software_emulation"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Macros Defining Hardware Support vs. Software Emulation: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Only one of these macros will evaluate to <code>1</code> on any supported platform: </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Only one of these macros will be defined on any supported platform: </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><code>BDLDFP_DECIMALPLATFORM_HARDWARE</code> - Hardware support for at least one type. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><code>BDLDFP_DECIMALPLATFORM_SOFTWARE</code> - Software emulation for all types </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
@@ -147,8 +150,8 @@
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="encoding"></a> <a class="anchor" id="description.encoding"></a> <a class="anchor" id="3.4"></a> </dd></dl>
 <dl class="user"><dt><b>Encoding: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>There are two IEEE-754 sanctioned encodings for the significand: densely packed decimal and binary integer significand. We provide two macros here to support implementation of encoding conversions. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code>BDLDFP_DECIMALPLATFORM_DPD</code> - Densely Packed Decimal significand </dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code>BDLDFP_DECIMALPLATFORM_BININT</code> - Binary Integer significand </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><code>BDLDFP_DECIMALPLATFORM_DPD</code> - Densely Packed Decimal significand representation </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><code>BDLDFP_DECIMALPLATFORM_BININT</code> - Binary Integer significand representation </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="implementation_detail_macros"></a> <a class="anchor" id="description.implementation_detail_macros"></a> <a class="anchor" id="3.5"></a> </dd></dl>
 <dl class="user"><dt><b>Implementation Detail Macros: </b></dt><dd></dd></dl>
@@ -165,7 +168,7 @@
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:32 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:27 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

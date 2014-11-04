@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: bslstl_set Component</title>
+<title>BDE 2.22.1.2 OSS: bslstl_set Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -100,13 +100,13 @@ difference_type &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class
 &lt; const_iterator &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__set.html#gaa37e96e3dfe0572164845e1615ad5da4">bsl::set::const_reverse_iterator</a></td></tr>
 <tr><td colspan="2"><h2><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__set.html#ga968368c5a6a5145223f668be6e0e7a43">bsl::set::DataWrapper::DataWrapper</a> (const COMPARATOR &amp;comparator, const ALLOCATOR &amp;allocator)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__set.html#ga9167d8342a13068cbf1fe2791f3bfc7b">bsl::set::set</a> (const COMPARATOR &amp;comparator=COMPARATOR(), const ALLOCATOR &amp;allocator=ALLOCATOR())</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__set.html#gab65540ad4c9ffddb9343516f153d0087">bsl::set::set</a> (const ALLOCATOR &amp;allocator)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__set.html#gaaa77eea9410c3d90a661eb8e6a3c3fd5">bsl::set::DataWrapper::DataWrapper</a> (const COMPARATOR &amp;comparator, const ALLOCATOR &amp;basicAllocator)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__set.html#ga222a5262340ab4029598c6e660884abf">bsl::set::set</a> (const COMPARATOR &amp;comparator=COMPARATOR(), const ALLOCATOR &amp;basicAllocator=ALLOCATOR())</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__set.html#ga5362e7618b52b8b3943a0a2546dc43e5">bsl::set::set</a> (const ALLOCATOR &amp;basicAllocator)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__set.html#ga75231a89f6f2d0fe493036b6755229b5">bsl::set::set</a> (const set &amp;original)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__set.html#gac50b939ee57c46b2e2a4039086c747bd">bsl::set::set</a> (const set &amp;original, const ALLOCATOR &amp;allocator)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__set.html#ga16461b53e95e1f61caf8b3fe80efe98b">bsl::set::set</a> (const set &amp;original, const ALLOCATOR &amp;basicAllocator)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class INPUT_ITERATOR &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__set.html#ga0f6b17157e97d98728ba03e534135cb3">bsl::set::set</a> (INPUT_ITERATOR first, INPUT_ITERATOR last, const COMPARATOR &amp;comparator=COMPARATOR(), const ALLOCATOR &amp;allocator=ALLOCATOR())</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__set.html#ga78a00e559137ef8ca63272ae127393d7">bsl::set::set</a> (INPUT_ITERATOR first, INPUT_ITERATOR last, const COMPARATOR &amp;comparator=COMPARATOR(), const ALLOCATOR &amp;basicAllocator=ALLOCATOR())</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__set.html#ga63683a3b20e23e9663006048d8949af7">bsl::set::~set</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">set &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__set.html#gaf419d52ab15f8c1cbeb9cbbc25f31241">bsl::set::operator=</a> (const set &amp;rhs)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">iterator&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__set.html#ga59d32154f54376aa7cdb4c086e211a85">bsl::set::begin</a> ()</td></tr>
@@ -823,7 +823,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 </div>
 </div>
 <hr/><h2>Function Documentation</h2>
-<a class="anchor" id="ga968368c5a6a5145223f668be6e0e7a43"></a><!-- doxytag: member="bsl::set::DataWrapper::DataWrapper" ref="ga968368c5a6a5145223f668be6e0e7a43" args="(const COMPARATOR &amp;comparator, const ALLOCATOR &amp;allocator)" -->
+<a class="anchor" id="gaaa77eea9410c3d90a661eb8e6a3c3fd5"></a><!-- doxytag: member="bsl::set::DataWrapper::DataWrapper" ref="gaaa77eea9410c3d90a661eb8e6a3c3fd5" args="(const COMPARATOR &amp;comparator, const ALLOCATOR &amp;basicAllocator)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -839,7 +839,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const ALLOCATOR &amp;&nbsp;</td>
-          <td class="paramname"> <em>allocator</em></td><td>&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em></td><td>&nbsp;</td>
         </tr>
         <tr>
           <td></td>
@@ -849,11 +849,11 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
       </table>
 </div>
 <div class="memdoc">
-<p>Create a <code>DataWrapper</code> object with the specified <code>comparator</code> and <code>allocator</code>. </p>
+<p>Create a <code>DataWrapper</code> object with the specified <code>comparator</code> and <code>basicAllocator</code>. </p>
 
 </div>
 </div>
-<a class="anchor" id="ga9167d8342a13068cbf1fe2791f3bfc7b"></a><!-- doxytag: member="bsl::set::set" ref="ga9167d8342a13068cbf1fe2791f3bfc7b" args="(const COMPARATOR &amp;comparator=COMPARATOR(), const ALLOCATOR &amp;allocator=ALLOCATOR())" -->
+<a class="anchor" id="ga222a5262340ab4029598c6e660884abf"></a><!-- doxytag: member="bsl::set::set" ref="ga222a5262340ab4029598c6e660884abf" args="(const COMPARATOR &amp;comparator=COMPARATOR(), const ALLOCATOR &amp;basicAllocator=ALLOCATOR())" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -869,7 +869,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const ALLOCATOR &amp;&nbsp;</td>
-          <td class="paramname"> <em>allocator</em> = <code>ALLOCATOR()</code></td><td>&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em> = <code>ALLOCATOR()</code></td><td>&nbsp;</td>
         </tr>
         <tr>
           <td></td>
@@ -881,14 +881,14 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memdoc">
 <dl><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>allocator</em>&nbsp;</td><td>Construct an empty set. Optionally specify a <code>comparator</code> used to order keys contained in this object. If <code>comparator</code> is not supplied, a default-constructed object of the (template parameter) type <code>COMPARATOR</code> is used. Optionally specify an <code>allocator</code> used to supply memory. If <code>allocator</code> is not supplied, a default-constructed object of the (template parameter) type <code>ALLOCATOR</code> is used. If the <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), then <code>allocator</code>, if supplied, shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. If the <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> and <code>allocator</code> is not supplied, the currently installed default allocator will be used to supply memory. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>basicAllocator</em>&nbsp;</td><td>Construct an empty set. Optionally specify a <code>comparator</code> used to order keys contained in this object. If <code>comparator</code> is not supplied, a default-constructed object of the (template parameter) type <code>COMPARATOR</code> is used. Optionally specify the <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is not supplied, a default-constructed object of the (template parameter) type <code>ALLOCATOR</code> is used. If the <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), then <code>basicAllocator</code>, if supplied, shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. If the <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> and <code>basicAllocator</code> is not supplied, the currently installed default allocator will be used to supply memory. </td></tr>
   </table>
   </dd>
 </dl>
 
 </div>
 </div>
-<a class="anchor" id="gab65540ad4c9ffddb9343516f153d0087"></a><!-- doxytag: member="bsl::set::set" ref="gab65540ad4c9ffddb9343516f153d0087" args="(const ALLOCATOR &amp;allocator)" -->
+<a class="anchor" id="ga5362e7618b52b8b3943a0a2546dc43e5"></a><!-- doxytag: member="bsl::set::set" ref="ga5362e7618b52b8b3943a0a2546dc43e5" args="(const ALLOCATOR &amp;basicAllocator)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -898,14 +898,14 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
           <td class="memname"><a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::set </td>
           <td>(</td>
           <td class="paramtype">const ALLOCATOR &amp;&nbsp;</td>
-          <td class="paramname"> <em>allocator</em></td>
+          <td class="paramname"> <em>basicAllocator</em></td>
           <td>&nbsp;)&nbsp;</td>
           <td><code> [explicit, inherited]</code></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Construct an empty set that will use the specified <code>allocator</code> to supply memory. Use a default-constructed object of the (template parameter) type <code>COMPARATOR</code> to order the keys contained in this set. If the template parameter <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default) then <code>allocator</code> shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. </p>
+<p>Construct an empty set that will use the specified <code>basicAllocator</code> to supply memory. Use a default-constructed object of the (template parameter) type <code>COMPARATOR</code> to order the keys contained in this set. If the template parameter <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default) then <code>basicAllocator</code> shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. </p>
 
 </div>
 </div>
@@ -930,7 +930,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 
 </div>
 </div>
-<a class="anchor" id="gac50b939ee57c46b2e2a4039086c747bd"></a><!-- doxytag: member="bsl::set::set" ref="gac50b939ee57c46b2e2a4039086c747bd" args="(const set &amp;original, const ALLOCATOR &amp;allocator)" -->
+<a class="anchor" id="ga16461b53e95e1f61caf8b3fe80efe98b"></a><!-- doxytag: member="bsl::set::set" ref="ga16461b53e95e1f61caf8b3fe80efe98b" args="(const set &amp;original, const ALLOCATOR &amp;basicAllocator)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -946,7 +946,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const ALLOCATOR &amp;&nbsp;</td>
-          <td class="paramname"> <em>allocator</em></td><td>&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em></td><td>&nbsp;</td>
         </tr>
         <tr>
           <td></td>
@@ -956,11 +956,11 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
       </table>
 </div>
 <div class="memdoc">
-<p>Construct a set having the same value as that of the specified <code>original</code> that will use the specified <code>allocator</code> to supply memory. Use a copy of <code>original.key_comp()</code> to order the keys contained in this set. If the template parameter <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default) then <code>allocator</code> shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. This method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__set.html#requirements_on_key.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__set.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
+<p>Construct a set having the same value as that of the specified <code>original</code> that will use the specified <code>basicAllocator</code> to supply memory. Use a copy of <code>original.key_comp()</code> to order the keys contained in this set. If the template parameter <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default) then <code>basicAllocator</code> shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. This method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__set.html#requirements_on_key.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__set.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
 
 </div>
 </div>
-<a class="anchor" id="ga0f6b17157e97d98728ba03e534135cb3"></a><!-- doxytag: member="bsl::set::set" ref="ga0f6b17157e97d98728ba03e534135cb3" args="(INPUT_ITERATOR first, INPUT_ITERATOR last, const COMPARATOR &amp;comparator=COMPARATOR(), const ALLOCATOR &amp;allocator=ALLOCATOR())" -->
+<a class="anchor" id="ga78a00e559137ef8ca63272ae127393d7"></a><!-- doxytag: member="bsl::set::set" ref="ga78a00e559137ef8ca63272ae127393d7" args="(INPUT_ITERATOR first, INPUT_ITERATOR last, const COMPARATOR &amp;comparator=COMPARATOR(), const ALLOCATOR &amp;basicAllocator=ALLOCATOR())" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -990,7 +990,7 @@ template&lt;class INPUT_ITERATOR &gt; </div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const ALLOCATOR &amp;&nbsp;</td>
-          <td class="paramname"> <em>allocator</em> = <code>ALLOCATOR()</code></td><td>&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em> = <code>ALLOCATOR()</code></td><td>&nbsp;</td>
         </tr>
         <tr>
           <td></td>
@@ -1000,7 +1000,7 @@ template&lt;class INPUT_ITERATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Construct a set, and insert each <code>value_type</code> object in the sequence starting at the specified <code>first</code> element, and ending immediately before the specified <code>last</code> element, ignoring those keys that appears earlier in the sequence. Optionally specify a <code>comparator</code> used to order keys contained in this object. If <code>comparator</code> is not supplied, a default-constructed object of the (template parameter) type <code>COMPARATOR</code> is used. Optionally specify a <code>allocator</code> used to supply memory. If <code>allocator</code> is not supplied, a default-constructed object of the (template parameter) type <code>ALLOCATOR</code> is used. If the template parameter <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default) then <code>allocator</code>, if supplied, shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. If the template parameter <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> and <code>allocator</code> is not supplied, the currently installed default allocator will be used to supply memory. If the sequence <code>first</code> and <code>last</code> is ordered according to the identified <code>comparator</code> then this operation will have O[N] complexity, where N is the number of elements between <code>first</code> and <code>last</code>, otherwise this operation will have O[N * log(N)] complexity. The (template parameter) type <code>INPUT_ITERATOR</code> shall meet the requirements of an input iterator defined in the C++11 standard [24.2.3] providing access to values of a type convertible to <code>value_type</code>. The behavior is undefined unless <code>first</code> and <code>last</code> refer to a sequence of valid values where <code>first</code> is at a position at or before <code>last</code>. This method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__set.html#requirements_on_key.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__set.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
+<p>Construct a set, and insert each <code>value_type</code> object in the sequence starting at the specified <code>first</code> element, and ending immediately before the specified <code>last</code> element, ignoring those keys that appears earlier in the sequence. Optionally specify a <code>comparator</code> used to order keys contained in this object. If <code>comparator</code> is not supplied, a default-constructed object of the (template parameter) type <code>COMPARATOR</code> is used. Optionally specify the <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is not supplied, a default-constructed object of the (template parameter) type <code>ALLOCATOR</code> is used. If the template parameter <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default) then <code>basicAllocator</code>, if supplied, shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. If the template parameter <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> and <code>basicAllocator</code> is not supplied, the currently installed default allocator will be used to supply memory. If the sequence <code>first</code> and <code>last</code> is ordered according to the identified <code>comparator</code> then this operation will have O[N] complexity, where N is the number of elements between <code>first</code> and <code>last</code>, otherwise this operation will have O[N * log(N)] complexity. The (template parameter) type <code>INPUT_ITERATOR</code> shall meet the requirements of an input iterator defined in the C++11 standard [24.2.3] providing access to values of a type convertible to <code>value_type</code>. The behavior is undefined unless <code>first</code> and <code>last</code> refer to a sequence of valid values where <code>first</code> is at a position at or before <code>last</code>. This method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__set.html#requirements_on_key.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__set.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
 
 </div>
 </div>
@@ -2001,7 +2001,7 @@ template&lt;class KEY , class COMPARATOR , class ALLOCATOR &gt; </div>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:35 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:29 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: bslstl_priorityqueue Component</title>
+<title>BDE 2.22.1.2 OSS: bslstl_priorityqueue Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -119,7 +119,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="operations"></a> <a class="anchor" id="description.operations"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Operations: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The C++11 standard [23.6.4] declares any container type supporting operations <code>front</code>, <code>push_back</code>, and <code>pop_back</code> can be used to instantiate the parameterized type <code>CONTAINER</code>. Below is a list of public methods of <code>priority_queue</code> class that are effectively implementationed based on corresponding operations in the held container (referenced as <code>c</code>). +--------------------------------------+---------------------------+ | Public methods in <code>priority_queue</code> | Operation in <code>CONTAINER</code> | +======================================+===========================+ | void push(const value_type&amp; value); | c.push_back(value); | | void pop(); | c.pop_back(); | +--------------------------------------+---------------------------+ | bool empty() const; | c.empty(); | | size_type size() const; | c.size(); | | const_reference top() const; | c.front(); | +--------------------------------------+---------------------------+ </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The C++11 standard [23.6.4] declares any container type supporting operations <code>front</code>, <code>push_back</code>, and <code>pop_back</code> can be used to instantiate the parameterized type <code>CONTAINER</code>. Below is a list of public methods of <code>priority_queue</code> class that are effectively implementated as calling the corresponding operations in the held container (referenced as <code>c</code>). +--------------------------------------+---------------------------+ | Public methods in <code>priority_queue</code> | Operation in <code>CONTAINER</code> | +======================================+===========================+ | void push(const value_type&amp; value); | c.push_back(value); | | void pop(); | c.pop_back(); | +--------------------------------------+---------------------------+ | bool empty() const; | c.empty(); | | size_type size() const; | c.size(); | | const_reference top() const; | c.front(); | +--------------------------------------+---------------------------+ </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.3"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
@@ -346,7 +346,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:35 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:29 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

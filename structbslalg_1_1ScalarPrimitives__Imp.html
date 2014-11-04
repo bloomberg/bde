@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: Struct bslalg::ScalarPrimitives_Imp</title>
+<title>BDE 2.22.1.2 OSS: Struct bslalg::ScalarPrimitives_Imp</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -80,13 +80,13 @@
 <tr><td colspan="2"><h2><a name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom">{ <br/>
-&nbsp;&nbsp;<a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a2d65d2bbe7feaea748d33b8be55667a3">USES_BSLMA_ALLOCATOR_TRAITS</a> =  5, 
-<a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a491fa12bab696d8855b41958641455bd">PAIR_TRAITS</a> =  4, 
-<a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8ae9e60253ac5a6e0dc8baeca23a9d1b3f">HAS_TRIVIAL_DEFAULT_CTOR_TRAITS</a> =  3, 
-<a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a6a1791c2bed40e1cbac92f4a2abe50e6">BITWISE_COPYABLE_TRAITS</a> =  2, 
+&nbsp;&nbsp;<a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9b433e298a6bc0613f3305f805081699a2d65d2bbe7feaea748d33b8be55667a3">USES_BSLMA_ALLOCATOR_TRAITS</a> =  5, 
+<a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9b433e298a6bc0613f3305f805081699a491fa12bab696d8855b41958641455bd">PAIR_TRAITS</a> =  4, 
+<a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9b433e298a6bc0613f3305f805081699ae9e60253ac5a6e0dc8baeca23a9d1b3f">HAS_TRIVIAL_DEFAULT_CTOR_TRAITS</a> =  3, 
+<a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9b433e298a6bc0613f3305f805081699a6a1791c2bed40e1cbac92f4a2abe50e6">BITWISE_COPYABLE_TRAITS</a> =  2, 
 <br/>
-&nbsp;&nbsp;<a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a760a4c01aec19785742e178c4afd8512">BITWISE_MOVEABLE_TRAITS</a> =  1, 
-<a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a327e0b877ad36e80a8e836a76bf473d8a5c6db9254591675f8bff556f75f1701a">NIL_TRAITS</a> =  0
+&nbsp;&nbsp;<a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9b433e298a6bc0613f3305f805081699a760a4c01aec19785742e178c4afd8512">BITWISE_MOVEABLE_TRAITS</a> =  1, 
+<a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a9b433e298a6bc0613f3305f805081699a5c6db9254591675f8bff556f75f1701a">NIL_TRAITS</a> =  0
 <br/>
  }</td></tr>
 <tr><td colspan="2"><h2><a name="pub-static-methods"></a>
@@ -195,7 +195,7 @@ Static Public Member Functions</h2></td></tr>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>This <code>struct</code> provides a namespace for a suite of utility functions that operate on arrays of elements of a parameterized type <code>TARGET_TYPE</code>. These utility functions are only for the purpose of implementing those in the <code><a class="el" href="structbslalg_1_1ScalarPrimitives.html">ScalarPrimitives</a></code> utility, and should not be used outside this component. </p>
 <hr/><h2>Member Enumeration Documentation</h2>
-<a class="anchor" id="a327e0b877ad36e80a8e836a76bf473d8"></a><!-- doxytag: member="bslalg::ScalarPrimitives_Imp::@8" ref="a327e0b877ad36e80a8e836a76bf473d8" args="" -->
+<a class="anchor" id="a9b433e298a6bc0613f3305f805081699"></a><!-- doxytag: member="bslalg::ScalarPrimitives_Imp::@9" ref="a9b433e298a6bc0613f3305f805081699" args="" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -207,17 +207,17 @@ Static Public Member Functions</h2></td></tr>
 <div class="memdoc">
 <p>These constants are used in the overloads below, when the last argument is of type <code><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt;N&gt; *</code>, indicating that <code>TARGET_TYPE</code> has the traits for which the enumerator equal to <code>N</code> is named. </p>
 <dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
-<tr><td valign="top"><em><a class="anchor" id="a327e0b877ad36e80a8e836a76bf473d8a2d65d2bbe7feaea748d33b8be55667a3"></a><!-- doxytag: member="USES_BSLMA_ALLOCATOR_TRAITS" ref="a327e0b877ad36e80a8e836a76bf473d8a2d65d2bbe7feaea748d33b8be55667a3" args="" -->USES_BSLMA_ALLOCATOR_TRAITS</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="a9b433e298a6bc0613f3305f805081699a2d65d2bbe7feaea748d33b8be55667a3"></a><!-- doxytag: member="USES_BSLMA_ALLOCATOR_TRAITS" ref="a9b433e298a6bc0613f3305f805081699a2d65d2bbe7feaea748d33b8be55667a3" args="" -->USES_BSLMA_ALLOCATOR_TRAITS</em>&nbsp;</td><td>
 </td></tr>
-<tr><td valign="top"><em><a class="anchor" id="a327e0b877ad36e80a8e836a76bf473d8a491fa12bab696d8855b41958641455bd"></a><!-- doxytag: member="PAIR_TRAITS" ref="a327e0b877ad36e80a8e836a76bf473d8a491fa12bab696d8855b41958641455bd" args="" -->PAIR_TRAITS</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="a9b433e298a6bc0613f3305f805081699a491fa12bab696d8855b41958641455bd"></a><!-- doxytag: member="PAIR_TRAITS" ref="a9b433e298a6bc0613f3305f805081699a491fa12bab696d8855b41958641455bd" args="" -->PAIR_TRAITS</em>&nbsp;</td><td>
 </td></tr>
-<tr><td valign="top"><em><a class="anchor" id="a327e0b877ad36e80a8e836a76bf473d8ae9e60253ac5a6e0dc8baeca23a9d1b3f"></a><!-- doxytag: member="HAS_TRIVIAL_DEFAULT_CTOR_TRAITS" ref="a327e0b877ad36e80a8e836a76bf473d8ae9e60253ac5a6e0dc8baeca23a9d1b3f" args="" -->HAS_TRIVIAL_DEFAULT_CTOR_TRAITS</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="a9b433e298a6bc0613f3305f805081699ae9e60253ac5a6e0dc8baeca23a9d1b3f"></a><!-- doxytag: member="HAS_TRIVIAL_DEFAULT_CTOR_TRAITS" ref="a9b433e298a6bc0613f3305f805081699ae9e60253ac5a6e0dc8baeca23a9d1b3f" args="" -->HAS_TRIVIAL_DEFAULT_CTOR_TRAITS</em>&nbsp;</td><td>
 </td></tr>
-<tr><td valign="top"><em><a class="anchor" id="a327e0b877ad36e80a8e836a76bf473d8a6a1791c2bed40e1cbac92f4a2abe50e6"></a><!-- doxytag: member="BITWISE_COPYABLE_TRAITS" ref="a327e0b877ad36e80a8e836a76bf473d8a6a1791c2bed40e1cbac92f4a2abe50e6" args="" -->BITWISE_COPYABLE_TRAITS</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="a9b433e298a6bc0613f3305f805081699a6a1791c2bed40e1cbac92f4a2abe50e6"></a><!-- doxytag: member="BITWISE_COPYABLE_TRAITS" ref="a9b433e298a6bc0613f3305f805081699a6a1791c2bed40e1cbac92f4a2abe50e6" args="" -->BITWISE_COPYABLE_TRAITS</em>&nbsp;</td><td>
 </td></tr>
-<tr><td valign="top"><em><a class="anchor" id="a327e0b877ad36e80a8e836a76bf473d8a760a4c01aec19785742e178c4afd8512"></a><!-- doxytag: member="BITWISE_MOVEABLE_TRAITS" ref="a327e0b877ad36e80a8e836a76bf473d8a760a4c01aec19785742e178c4afd8512" args="" -->BITWISE_MOVEABLE_TRAITS</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="a9b433e298a6bc0613f3305f805081699a760a4c01aec19785742e178c4afd8512"></a><!-- doxytag: member="BITWISE_MOVEABLE_TRAITS" ref="a9b433e298a6bc0613f3305f805081699a760a4c01aec19785742e178c4afd8512" args="" -->BITWISE_MOVEABLE_TRAITS</em>&nbsp;</td><td>
 </td></tr>
-<tr><td valign="top"><em><a class="anchor" id="a327e0b877ad36e80a8e836a76bf473d8a5c6db9254591675f8bff556f75f1701a"></a><!-- doxytag: member="NIL_TRAITS" ref="a327e0b877ad36e80a8e836a76bf473d8a5c6db9254591675f8bff556f75f1701a" args="" -->NIL_TRAITS</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="a9b433e298a6bc0613f3305f805081699a5c6db9254591675f8bff556f75f1701a"></a><!-- doxytag: member="NIL_TRAITS" ref="a9b433e298a6bc0613f3305f805081699a5c6db9254591675f8bff556f75f1701a" args="" -->NIL_TRAITS</em>&nbsp;</td><td>
 </td></tr>
 </table>
 </dd>
@@ -826,7 +826,7 @@ template&lt;typename TARGET_TYPE , typename ARG1 &gt; </div>
 <div class="memdoc">
 <p>Build an object from the specified <code>a1</code> in the uninitialized memory at the specified <code>address</code>. The specified <code>allocator</code> is ignored. Use the parameterized <code>TARGET_TYPE</code> constructor with the signature <code>TARGET_TYPE(ARG1 const&amp;)</code> or bitwise copy for non-fundamental types. The traits argument is for overloading resolution only and is ignored. </p>
 
-<p>References <a class="el" href="group__bsls__util.html#ga6356a99aa67902dccf84ed1312ab834a">BSLS_UTIL_ADDRESSOF</a>.</p>
+<p>References <a class="el" href="bdldfp__decimalplatform_8h.html#aad4341bfba32e91bc625aa81d538ec44">BSLMF_ASSERT()</a>, and <a class="el" href="group__bsls__util.html#ga6356a99aa67902dccf84ed1312ab834a">BSLS_UTIL_ADDRESSOF</a>.</p>
 
 <p>Referenced by <a class="el" href="structbslalg_1_1ScalarPrimitives__Imp.html#a19f641cb43f332cacf35cc9e4748c38c">construct()</a>, and <a class="el" href="structbslalg_1_1ScalarPrimitives.html#a2a589c408ae61aaf57853373a742c181">bslalg::ScalarPrimitives::construct()</a>.</p>
 
@@ -3316,7 +3316,7 @@ template&lt;typename LHS_TYPE , typename RHS_TYPE &gt; </div>
 <li><a class="el" href="bslalg__scalarprimitives_8h_source.html">bslalg_scalarprimitives.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:42 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:37 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

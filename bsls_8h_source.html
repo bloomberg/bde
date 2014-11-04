@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.20 OSS</title>
+<title>BDE 2.22.1.2 OSS</title>
 <html>
 <pre>
  bsls.txt
@@ -23,40 +23,41 @@
 
 /Hierarchical Synopsis
 /---------------------
- The &#39;bsls&#39; package currently has 49 components having 13 levels of physical
+ The &#39;bsls&#39; package currently has 53 components having 14 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  13. bsls_alignedbuffer
+  14. bsls_alignedbuffer
+      bsls_alignment
+      bsls_platformutil
 
-  12. bsls_alignmentutil
+  13. bsls_alignmentutil
       bsls_bslexceptionutil
       bsls_bsllock
 
-  11. bsls_asserttest
+  12. bsls_asserttest
       bsls_exceptionutil
 
-  10. bsls_assert
+  11. bsls_assert
 
-   9. bsls_performancehint
+  10. bsls_performancehint
 
-   8. bsls_stopwatch
+   9. bsls_stopwatch
 
-   7. bsls_atomic
+   8. bsls_atomic
       bsls_timeutil
 
-   6. bsls_atomicoperations
-      bsls_objectbuffer
+   7. bsls_atomicoperations
 
-   5. bsls_alignmentfromtype
-      bsls_atomicoperations_powerpc32_aix_xlc
+   6. bsls_atomicoperations_powerpc32_aix_xlc
       bsls_atomicoperations_powerpc64_aix_xlc
       bsls_atomicoperations_sparc32_sun_cc
       bsls_atomicoperations_sparc64_sun_cc
+      bsls_byteorder
+      bsls_objectbuffer
 
-   4. bsls_alignment
-      bsls_alignmenttotype
+   5. bsls_alignmentfromtype
       bsls_atomicoperations_all_all_gccintrinsics
       bsls_atomicoperations_arm_all_gcc
       bsls_atomicoperations_ia64_hp_acc
@@ -67,8 +68,13 @@
       bsls_atomicoperations_x64_win_msvc
       bsls_atomicoperations_x86_all_gcc
       bsls_atomicoperations_x86_win_msvc
+      bsls_byteorderutil
+
+   4. bsls_alignmenttotype
+      bsls_atomicoperations_default
       bsls_buildtarget
-      bsls_byteorder
+      bsls_byteorderutil_impl
+      bsls_int64
       bsls_nullptr
       bsls_unspecifiedbool
       bsls_util
@@ -87,8 +93,7 @@
       bsls_platform
       bsls_protocoltest
 
-   1. bsls_atomicoperations_default
-      bsls_ident
+   1. bsls_ident
 ..
 
 /Component Synopsis
@@ -134,6 +139,9 @@
 :
 : &#39;bsls_atomicoperations_arm_all_gcc&#39;:
 :      Provide implementations of atomic operations for ARM/GCC.
+:
+: &#39;bsls_atomicoperations_default&#39;:
+:      Provide default implementation for atomic operations.
 :
 : &#39;bsls_atomicoperations_ia64_hp_acc&#39;:
 :      Provide implementations of atomic operations for HPUX/IA64.
@@ -184,10 +192,16 @@
 :      Provide test utilities for &#39;bsl&#39; that do not use &lt;iostream&gt;.
 :
 : &#39;bsls_buildtarget&#39;:
-:      Provide build-target information in the object file.
+:      Provide build-target information in object files.
 :
 : &#39;bsls_byteorder&#39;:
 :      Provide byte-order manipulation macros.
+:
+: &#39;bsls_byteorderutil&#39;:
+:      Provide byte-order swapping functions.
+:
+: &#39;bsls_byteorderutil_impl&#39;:
+:      Provide implementation of byte-order manipulation functions.
 :
 : &#39;bsls_compilerfeatures&#39;:
 :      Provide macros to identify compiler support for C++11 features.
@@ -197,6 +211,9 @@
 :
 : &#39;bsls_ident&#39;:
 :      Provide macros for inserting SCM Ids into source files.
+:
+: &#39;bsls_int64&#39;:
+:      Provide namespace for platform-dependent 64-bit integer types.
 :
 : &#39;bsls_linkcoercion&#39;:
 :      Provide a way to force a link-time dependency into an object.
@@ -218,6 +235,9 @@
 :
 : &#39;bsls_platform&#39;:
 :      Provide compile-time support for platform/attribute identification.
+:
+: &#39;bsls_platformutil&#39;:
+:      Provide consistent interface for platform-dependent functionality.
 :
 : &#39;bsls_protocoltest&#39;:
 :      Provide classes and macros for testing abstract protocols.

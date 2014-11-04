@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: bslmf Package</title>
+<title>BDE 2.22.1.2 OSS: bslmf Package</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -434,79 +434,78 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="hierarchical_synopsis"></a> <a class="anchor" id="description.hierarchical_synopsis"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Hierarchical Synopsis: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>bslmf</code> package currently has 61 components having 11 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
+<dl class="user"><dt><b></b></dt><dd>The <code>bslmf</code> package currently has 61 components having 10 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  11. bslmf_isbitwisemoveable
+<div class="fragment"><pre class="fragment">  10. bslmf_isbitwisemoveable
 
-  10. bslmf_forwardingtype
+   9. bslmf_addcv
+      bslmf_forwardingtype
       bslmf_haspointersemantics
       bslmf_isbitwiseequalitycomparable
       bslmf_istriviallycopyable
       bslmf_istriviallydefaultconstructible
 
-   9. bslmf_detectnestedtrait
+   8. bslmf_addconst
+      bslmf_addvolatile
+      bslmf_detectnestedtrait
       bslmf_isenum
 
-   8. bslmf_addcv
-      bslmf_enableif
+   7. bslmf_enableif
       bslmf_isconvertibletoany
+      bslmf_isfunction
       bslmf_ispointertomember
       bslmf_matcharithmetictype
-
-   7. bslmf_addconst
-      bslmf_addvolatile
-      bslmf_isconvertible
-      bslmf_ismemberpointer
-
-   6. bslmf_isfunction
-      bslmf_isfundamental
-      bslmf_ismemberobjectpointer
       bslmf_memberfunctionpointertraits
       bslmf_removepointer
 
-   5. bslmf_addpointer
+   6. bslmf_addpointer
       bslmf_addreference
       bslmf_functionpointertraits
       bslmf_if
-      bslmf_isarithmetic
-      bslmf_ismemberfunctionpointer
-      bslmf_ispolymorphic
-      bslmf_selecttrait
+      bslmf_isconvertible
+      bslmf_ismemberpointer
 
-   4. bslmf_addlvaluereference
+   5. bslmf_addlvaluereference
       bslmf_addrvaluereference
       bslmf_arraytopointer
       bslmf_conditional
-      bslmf_isclass
+      bslmf_isfundamental
+      bslmf_ismemberobjectpointer
+      bslmf_removereference
+      bslmf_typelist
+
+   4. bslmf_isarithmetic
+      bslmf_ismemberfunctionpointer
+      bslmf_ispolymorphic
+      bslmf_issame
+      bslmf_isvoid
+      bslmf_selecttrait
+
+   3. bslmf_isclass
       bslmf_isfloatingpoint
       bslmf_isintegral
       bslmf_ispointer
       bslmf_isreference
-      bslmf_isvoid
+      bslmf_metaint
       bslmf_removecvq
-      bslmf_removereference
       bslmf_switch
-      bslmf_typelist
 
-   3. bslmf_isarray
+   2. bslmf_isarray
       bslmf_isconst
       bslmf_islvaluereference
       bslmf_ispair
       bslmf_isrvaluereference
-      bslmf_issame
       bslmf_isvolatile
       bslmf_nil
       bslmf_removecv
       bslmf_tag
 
-   2. bslmf_assert
+   1. bslmf_assert
       bslmf_integralconstant
       bslmf_matchanytype
       bslmf_nestedtraitdeclaration
       bslmf_removeconst
       bslmf_removevolatile
-
-   1. bslmf_metaint
 </pre></div><br/>
 <br/>
  </dd></dl>
@@ -610,6 +609,8 @@ Components</h2></td></tr>
  Provide a class supporting "do-the-right-thing clause" dispatch.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslmf_memberfunctionpointertraits</code>: <br/>
  Provide meta-functions to detect member function pointer traits.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslmf_metaint</code>: <br/>
+ Provide a meta-function to map integral constants to unique types.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslmf_nestedtraitdeclaration</code>: <br/>
  Provide a way within a class to associate the class with traits</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslmf_nil</code>: <br/>
@@ -637,7 +638,7 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div> </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:33 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:28 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

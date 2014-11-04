@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.20 OSS</title>
+<title>BDE 2.22.1.2 OSS</title>
 <html>
 <pre>
 // bslstl_queue.h                                                     -*-C++-*-
@@ -42,13 +42,13 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 ///-----------------
 // The type supplied as &#39;ALLOCATOR&#39; template parameter in some of &#39;queue&#39;
 // constructors determines how the held container (of parameterized
-// &#39;CONTAINER&#39;) will allocate memory.  A &#39;queue&#39; supports
-// allocators meeting the requirements of the C++11 standard [17.6.3.5] as long
-// as the held container does.  In addition it supports scoped-allocators
-// derived from the &#39;bslma_Allocator&#39; memory allocation protocol.  Clients
-// intending to use &#39;bslma&#39; style allocators should use &#39;bsl::allocator&#39; as the
-// &#39;ALLOCATOR&#39; template parameter, providing a C++11 standard-compatible
-// adapter for a &#39;bslma_Allocator&#39; object.
+// &#39;CONTAINER&#39;) will allocate memory.  A &#39;queue&#39; supports allocators meeting
+// the requirements of the C++11 standard [17.6.3.5] as long as the held
+// container does.  In addition it supports scoped-allocators derived from the
+// &#39;bslma_Allocator&#39; memory allocation protocol.  Clients intending to use
+// &#39;bslma&#39; style allocators should use &#39;bsl::allocator&#39; as the &#39;ALLOCATOR&#39;
+// template parameter, providing a C++11 standard-compatible adapter for a
+// &#39;bslma_Allocator&#39; object.
 //
 ///Operations
 ///----------
@@ -174,6 +174,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // the same order in which they were pushed, due to the first-in-first-out
 // property of the queue.
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
 #ifndef INCLUDED_BSLSTL_ALLOCATOR
 #include &lt;bslstl_allocator.h&gt;
 #endif
@@ -287,42 +291,43 @@ class queue
 
     template &lt;class ALLOCATOR&gt;
     explicit
-    queue(const ALLOCATOR&amp; allocator,
+    queue(const ALLOCATOR&amp; basicAllocator,
           typename enable_if&lt;
               BloombergLP::bslstl::Queue_HasAllocatorType&lt;
                            CONTAINER,
                            ALLOCATOR&gt;::VALUE&gt;::type * = 0);
         // Construct an empty queue that holds a default-constructed container
         // of the parameterized &#39;CONTAINER&#39; type, and will use the specified
-        // &#39;allocator&#39; to supply memory.  Note that the &#39;ALLOCATOR&#39; parameter
-        // type has to be convertible to the allocator of the &#39;CONTAINER&#39;
-        // parameter type, &#39;CONTAINER::allocator_type&#39;.  Otherwise this
-        // constructor is disabled.
+        // &#39;basicAllocator&#39; to supply memory.  Note that the &#39;ALLOCATOR&#39;
+        // parameter type has to be convertible to the allocator of the
+        // &#39;CONTAINER&#39; parameter type, &#39;CONTAINER::allocator_type&#39;.  Otherwise
+        // this constructor is disabled.
 
     template &lt;class ALLOCATOR&gt;
     queue(const CONTAINER&amp; container,
-          const ALLOCATOR&amp; allocator,
+          const ALLOCATOR&amp; basicAllocator,
           typename enable_if&lt;
               BloombergLP::bslstl::Queue_HasAllocatorType&lt;
                            CONTAINER,
                            ALLOCATOR&gt;::VALUE&gt;::type * = 0);
         // Construct an empty queue that holds the specified &#39;container&#39;, and
-        // will use the specified &#39;allocator&#39; to supply memory.  Note that the
-        // &#39;ALLOCATOR&#39; parameter type has to be convertible to the allocator of
-        // the &#39;CONTAINER&#39; parameter type, &#39;CONTAINER::allocator_type&#39;.
-        // Otherwise this constructor is disabled.
+        // will use the specified &#39;basicAllocator&#39; to supply memory.  Note that
+        // the &#39;ALLOCATOR&#39; parameter type has to be convertible to the
+        // allocator of the &#39;CONTAINER&#39; parameter type,
+        // &#39;CONTAINER::allocator_type&#39;.  Otherwise this constructor is
+        // disabled.
 
     template &lt;class ALLOCATOR&gt;
     queue(const queue&amp; original,
-          const ALLOCATOR&amp; allocator,
+          const ALLOCATOR&amp; basicAllocator,
           typename enable_if&lt;
               BloombergLP::bslstl::Queue_HasAllocatorType&lt;
                            CONTAINER,
                            ALLOCATOR&gt;::VALUE&gt;::type * = 0);
         // Construct a queue having the same value as that of the specified
-        // &#39;original&#39; that will use the specified &#39;allocator&#39; to supply memory.
-        // Note that the &#39;ALLOCATOR&#39; parameter type has to be convertible to
-        // the allocator of the &#39;CONTAINER&#39; parameter type,
+        // &#39;original&#39; that will use the specified &#39;basicAllocator&#39; to supply
+        // memory.  Note that the &#39;ALLOCATOR&#39; parameter type has to be
+        // convertible to the allocator of the &#39;CONTAINER&#39; parameter type,
         // &#39;CONTAINER::allocator_type&#39;.  Otherwise this constructor is
         // disabled.
 
@@ -431,9 +436,9 @@ void swap(queue&lt;VALUE, CONTAINER&gt;&amp; lhs,
     // Swap the value of the specified &#39;lhs&#39; queue with the value of the
     // specified &#39;rhs&#39; queue.
 
-// ==========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                               // -----------
                               // class queue
@@ -463,12 +468,12 @@ queue&lt;VALUE, CONTAINER&gt;::queue(const queue&amp; original)
 template &lt;class VALUE, class CONTAINER&gt;
 template &lt;class ALLOCATOR&gt;
 inline
-queue&lt;VALUE, CONTAINER&gt;::queue(const ALLOCATOR&amp; allocator,
+queue&lt;VALUE, CONTAINER&gt;::queue(const ALLOCATOR&amp; basicAllocator,
                                typename enable_if&lt;
                                    BloombergLP::bslstl::Queue_HasAllocatorType&lt;
                                                     CONTAINER,
                                                     ALLOCATOR&gt;::VALUE&gt;::type *)
-: c(allocator)
+: c(basicAllocator)
 {
 }
 
@@ -476,12 +481,12 @@ template &lt;class VALUE, class CONTAINER&gt;
 template &lt;class ALLOCATOR&gt;
 inline
 queue&lt;VALUE, CONTAINER&gt;::queue(const CONTAINER&amp; container,
-                               const ALLOCATOR&amp; allocator,
+                               const ALLOCATOR&amp; basicAllocator,
                                typename enable_if&lt;
                                    BloombergLP::bslstl::Queue_HasAllocatorType&lt;
                                                     CONTAINER,
                                                     ALLOCATOR&gt;::VALUE&gt;::type *)
-: c(container, allocator)
+: c(container, basicAllocator)
 {
 }
 
@@ -489,12 +494,12 @@ template &lt;class VALUE, class CONTAINER&gt;
 template &lt;class ALLOCATOR&gt;
 inline
 queue&lt;VALUE, CONTAINER&gt;::queue(const queue&amp;     queue,
-                               const ALLOCATOR&amp; allocator,
+                               const ALLOCATOR&amp; basicAllocator,
                                typename enable_if&lt;
                                    BloombergLP::bslstl::Queue_HasAllocatorType&lt;
                                                     CONTAINER,
                                                     ALLOCATOR&gt;::VALUE&gt;::type *)
-: c(queue.c, allocator)
+: c(queue.c, basicAllocator)
 {
 }
 
@@ -630,25 +635,19 @@ void swap(queue&lt;VALUE, CONTAINER&gt;&amp; lhs,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the &quot;Software&quot;), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
 </pre>
 </body>

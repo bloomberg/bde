@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.20 OSS</title>
+<title>BDE 2.22.1.2 OSS</title>
 <html>
 <pre>
 // bslma_managedptr_members.h                                         -*-C++-*-
@@ -22,7 +22,11 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //@DESCRIPTION: This component provides a class to store and manage the
 // internal state of a &#39;bslma::ManagedPtr&#39; object.  It enforces the rules for
 // correct transfer of ownership from one &#39;bslma::ManagedPtr_Members&#39; object to
-// another.
+// another.  A &#39;bslma::ManagedPtr&#39; object has two attributes:
+//..
+//  pointer   The address of the object being managed
+//  deleter   The address of a function used to destroy the object at &#39;pointer&#39;
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include &lt;bslscm_version.h&gt;
@@ -43,22 +47,22 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 namespace BloombergLP {
 namespace bslma {
 
-                     // ==============================
+                     // ========================
                      // class ManagedPtr_Members
-                     // ==============================
+                     // ========================
 
 class ManagedPtr_Members {
-    // Non-type-specific managed pointer member variables.  This type exists so
-    // that a &#39;ManagedPtr_Ref&#39; can point to the representation of a
-    // &#39;ManagedPtr&#39; even if the &#39;_Ref&#39; object is instantiated on a different
-    // type than the managed pointer type (e.g., in the case of conversions or
-    // aliasing).  &#39;ManagerPtr_Members&#39; also &quot;erases&quot; the types of each member,
-    // so that the same object code can be shared between multiple
-    // instantiations of the &#39;ManagedPtr&#39; class template, reducing template
-    // bloat.  Note that objects of this type may have an &quot;unset&quot; state, where
-    // the &#39;d_obj_p&#39; pointer has a null value, and the &#39;d_deleter&#39; member does
-    // not have a specified value.  If &#39;d_obj_p&#39; has a null pointer value, then
-    // this object must be in an unset state.
+    // This class provides a type-agnostic container for managed pointer data
+    // members.  This type exists so that a &#39;ManagedPtr_Ref&#39; can point to the
+    // representation of a &#39;ManagedPtr&#39; even if the &#39;_Ref&#39; object is
+    // instantiated on a different type than the managed pointer type (e.g., in
+    // the case of conversions or aliasing).  &#39;ManagerPtr_Members&#39; also
+    // &quot;erases&quot; the types of each member, so that the same object code can be
+    // shared between multiple instantiations of the &#39;ManagedPtr&#39; class
+    // template, reducing template bloat.  Note that objects of this type may
+    // have an &quot;unset&quot; state, where the &#39;d_obj_p&#39; pointer has a null value, and
+    // the &#39;d_deleter&#39; member does not have a specified value.  If &#39;d_obj_p&#39;
+    // has a null pointer value, then this object must be in an unset state.
 
   private:
     // PRIVATE TYPES
@@ -88,20 +92,20 @@ class ManagedPtr_Members {
         // deleter as &#39;other&#39;, and then put &#39;other&#39; into an unset state.
 
     ManagedPtr_Members(void *object, void *factory, DeleterFunc deleter);
-        // If &#39;object&#39; is 0, create a &#39;ManagedPtr_Members&#39; object that does not
-        // manage a pointer; otherwise create a &#39;ManagedPtr_Members&#39; object
-        // having the specified &#39;object&#39;, &#39;factory&#39; and &#39;deleter&#39;.
+        // Create a &#39;ManagedPtr_Members&#39; object having the specified &#39;object&#39;,
+        // &#39;factory&#39;, and &#39;deleter&#39; unless &#39;0 == object&#39;, in which case create
+        // a &#39;ManagedPtr_Members&#39; object that does not manage a pointer.
 
     ManagedPtr_Members(void        *object,
                        void        *factory,
                        DeleterFunc  deleter,
                        void        *alias);
-        // If &#39;object&#39; is 0, create a &#39;ManagedPtr_Members&#39; object that does not
-        // manage a pointer; otherwise create a &#39;ManagedPtr_Members&#39; object
-        // having the specified &#39;object&#39;, &#39;factory&#39; and &#39;deleter&#39;, but aliasing
-        // &#39;alias&#39;.  Note that this constructor is important for managed
-        // pointers pointing to one of multiple base classes of a class using
-        // multiple inheritance.
+        // Create a &#39;ManagedPtr_Members&#39; object having the specified &#39;object&#39;,
+        // &#39;factory&#39;, and &#39;deleter&#39;, but aliasing the specified &#39;alias&#39;, unless
+        // &#39;0 == object&#39;; if &#39;0 == object&#39; create a &#39;ManagedPtr_Members&#39; object
+        // that does not manage any pointer.  Note that this constructor is
+        // important for managed pointers pointing to one of multiple base
+        // classes of a class using multiple inheritance.
 
     //! ~ManagedPtr_Members() = default;
         // Destroy this &#39;ManagedPtr_Members&#39; object.  Note that this trivial
@@ -113,7 +117,7 @@ class ManagedPtr_Members {
         // managed object will not be destroyed.
 
     void move(ManagedPtr_Members *other);
-        // Re-initialize this object,  having the same &#39;pointer&#39; as the
+        // Re-initialize this object, having the same &#39;pointer&#39; as the
         // specified &#39;other&#39; object, and, if &#39;pointer&#39; is not 0, the same
         // deleter as &#39;other&#39;, and then put &#39;other&#39; into an unset set.  Note
         // that any previously managed object will not be destroyed.
@@ -121,9 +125,9 @@ class ManagedPtr_Members {
     void moveAssign(ManagedPtr_Members *other);
         // Destroy the currently managed object (if any) unless the specified
         // &#39;other&#39; refers to this object, then re-initialize this object,
-        // having the same &#39;pointer&#39; as the specified &#39;other&#39; object, and, if
-        // &#39;pointer&#39; is not 0, the same deleter as &#39;other&#39;, and then put
-        // &#39;other&#39; into an unset set.
+        // having the same &#39;pointer&#39; as the &#39;other&#39; object, and, if &#39;pointer&#39;
+        // is not 0, the same deleter as &#39;other&#39;, and then put &#39;other&#39; into an
+        // unset state.
 
     void set(void *object, void *factory, DeleterFunc deleter);
         // Re-initialize this object with the specified &#39;object&#39; pointer value,
@@ -131,39 +135,39 @@ class ManagedPtr_Members {
         // Note that any previously managed object will not be destroyed.
 
     void setAliasPtr(void *ptr);
-        // Set &#39;pointer&#39; to have the specified &#39;ptr&#39; value.  If &#39;ptr&#39; is 0 then
+        // Set &#39;pointer&#39; to have the specified &#39;ptr&#39; value.  If &#39;0 == ptr&#39; then
         // this object will have an unset state.
 
     void swap(ManagedPtr_Members&amp; other);
         // Efficiently exchange the state of this object with the state of the
         // specified &#39;other&#39; object.  This method provides the no-throw
         // exception-safety guarantee.  Note that if either object is in an
-        // unset state, there are no guarantees about the unset state that may
-        // be exchanged, other than &#39;pointer&#39; shall be null.
+        // unset state, then the only guarantee about the unset state that may
+        // be exchanged is that the &#39;pointer&#39; value shall be null.
 
     // ACCESSORS
-    void runDeleter() const;
-        // Destroy the currently managed object(if any).  Note that calling
-        // this method twice without assigning a new pointer to manage will
-        // produce undefined behavior, unless this object&#39;s current deleter
-        // specifically supports such usage.
-
-    void *pointer() const;
-        // Return a pointer to the currently managed object.
-
     const ManagedPtrDeleter&amp; deleter() const;
         // Return the &#39;ManagedPtrDeleter&#39; object that should be used to destroy
         // the currently managed object, if any.  Behavior is undefined unless
         // &#39;pointer&#39; is not null.
+
+    void *pointer() const;
+        // Return the address of the currently managed object.
+
+    void runDeleter() const;
+        // Destroy the currently managed object (if any).  Note that calling
+        // this method twice without assigning a new pointer to manage will
+        // produce undefined behavior, unless this object&#39;s current deleter
+        // specifically supports such usage.
 };
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                    // ------------------------------
+                    // ------------------------
                     // class ManagedPtr_Members
-                    // ------------------------------
+                    // ------------------------
 
 // CREATORS
 inline
@@ -203,12 +207,13 @@ void ManagedPtr_Members::setAliasPtr(void *ptr)
     d_obj_p = ptr;
 }
 
+// ACCESSORS
 inline
-void ManagedPtr_Members::runDeleter() const
+const ManagedPtrDeleter&amp; ManagedPtr_Members::deleter() const
 {
-    if (d_obj_p) {
-        d_deleter.deleteManagedObject();
-    }
+    BSLS_ASSERT_SAFE(d_obj_p);
+
+    return d_deleter;
 }
 
 inline
@@ -218,11 +223,11 @@ void *ManagedPtr_Members::pointer() const
 }
 
 inline
-const ManagedPtrDeleter&amp; ManagedPtr_Members::deleter() const
+void ManagedPtr_Members::runDeleter() const
 {
-    BSLS_ASSERT_SAFE(d_obj_p);
-
-    return d_deleter;
+    if (d_obj_p) {
+        d_deleter.deleteManagedObject();
+    }
 }
 
 }  // close package namespace
@@ -240,25 +245,19 @@ struct IsBitwiseMoveable&lt;bslma::ManagedPtr_Members&gt; : bsl::true_type {};
 
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the &quot;Software&quot;), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
 </pre>
 </body>

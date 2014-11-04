@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.20 OSS</title>
+<title>BDE 2.22.1.2 OSS</title>
 <html>
 <pre>
 // bslstl_istringstream.h                                             -*-C++-*-
@@ -115,12 +115,8 @@ BSL_OVERRIDES_STD mode&quot;
 #include &lt;bslstl_stringbuf.h&gt;
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include &lt;bslalg_typetraits.h&gt;
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITUSESBSLMAALLOCATOR
-#include &lt;bslalg_typetraitusesbslmaallocator.h&gt;
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include &lt;bslma_usesbslmaallocator.h&gt;
 #endif
 
 #ifndef INCLUDED_IOS
@@ -132,6 +128,7 @@ BSL_OVERRIDES_STD mode&quot;
 #include &lt;istream&gt;
 #define INCLUDED_ISTREAM
 #endif
+
 
 namespace bsl {
 
@@ -172,32 +169,37 @@ class basic_istringstream
 
     // CREATORS
     explicit
-    basic_istringstream(const allocator_type&amp; allocator = allocator_type());
+    basic_istringstream(
+                      const allocator_type&amp; basicAllocator = allocator_type());
     explicit
-    basic_istringstream(ios_base::openmode    modeBitMask,
-                        const allocator_type&amp; allocator = allocator_type());
+    basic_istringstream(
+                      ios_base::openmode    modeBitMask,
+                      const allocator_type&amp; basicAllocator = allocator_type());
     explicit
-    basic_istringstream(const StringType&amp;     initialString,
-                        const allocator_type&amp; allocator = allocator_type());
-    basic_istringstream(const StringType&amp;     initialString,
-                        ios_base::openmode    modeBitMask,
-                        const allocator_type&amp; allocator = allocator_type());
+    basic_istringstream(
+                      const StringType&amp;     initialString,
+                      const allocator_type&amp; basicAllocator = allocator_type());
+    basic_istringstream(
+                      const StringType&amp;     initialString,
+                      ios_base::openmode    modeBitMask,
+                      const allocator_type&amp; basicAllocator = allocator_type());
         // Create a &#39;basic_istringstream&#39; object.  Optionally specify a
         // &#39;modeBitMask&#39; indicating whether the underlying stream-buffer may
         // also be written to (&#39;rdbuf&#39; is created using
         // &#39;modeBitMask | ios_base::in&#39;).  If &#39;modeBitMask&#39; is not supplied,
-        // &#39;rdbuf&#39; will be created using &#39;ios_base::in&#39;.  Optionally specify
-        // an &#39;initialString&#39; indicating the sequence of characters from which
+        // &#39;rdbuf&#39; will be created using &#39;ios_base::in&#39;.  Optionally specify an
+        // &#39;initialString&#39; indicating the sequence of characters from which
         // input will be streamed.  If &#39;initialString&#39; is not supplied, there
         // will not be data to stream (until a subsequent call to the &#39;str&#39;
-        // manipulator).  Optionally specify an &#39;allocator&#39; used to supply
-        // memory.  If &#39;allocator&#39; is not supplied, a default-constructed
-        // object of the (template parameter) &#39;ALLOCATOR&#39; type is used.  If the
-        // &#39;ALLOCATOR&#39; argument is of type &#39;bsl::allocator&#39; (the default), then
-        // &#39;allocator&#39;, if supplied, shall be convertible to
-        // &#39;bslma::Allocator *&#39;.  If the &#39;ALLOCATOR&#39; argument is of type
-        // &#39;bsl::allocator&#39; and &#39;allocator&#39; is not supplied, the currently
-        // installed default allocator will be used to supply memory.
+        // manipulator).  Optionally specify the &#39;basicAllocator&#39; used to
+        // supply memory.  If &#39;basicAllocator&#39; is not supplied, a
+        // default-constructed object of the (template parameter) &#39;ALLOCATOR&#39;
+        // type is used.  If the &#39;ALLOCATOR&#39; argument is of type
+        // &#39;bsl::allocator&#39; (the default), then &#39;basicAllocator&#39;, if supplied,
+        // shall be convertible to &#39;bslma::Allocator *&#39;.  If the &#39;ALLOCATOR&#39;
+        // argument is of type &#39;bsl::allocator&#39; and &#39;basicAllocator&#39; is not
+        // supplied, the currently installed default allocator will be used to
+        // supply memory.
 
     //! ~basic_istringstream() = default;
         // Destroy this object.
@@ -235,8 +237,8 @@ typedef basic_istringstream&lt;wchar_t, char_traits&lt;wchar_t&gt;, allocator&lt
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
 inline
 basic_istringstream&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::
-basic_istringstream(const allocator_type&amp; allocator)
-: BaseType(ios_base::in, allocator)
+basic_istringstream(const allocator_type&amp; basicAllocator)
+: BaseType(ios_base::in, basicAllocator)
 , BaseStream(BaseType::rdbuf())
 {
 }
@@ -245,8 +247,8 @@ template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
 inline
 basic_istringstream&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::
 basic_istringstream(ios_base::openmode    modeBitMask,
-                    const allocator_type&amp; allocator)
-: BaseType(modeBitMask | ios_base::in, allocator)
+                    const allocator_type&amp; basicAllocator)
+: BaseType(modeBitMask | ios_base::in, basicAllocator)
 , BaseStream(BaseType::rdbuf())
 {
 }
@@ -255,8 +257,8 @@ template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
 inline
 basic_istringstream&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::
 basic_istringstream(const StringType&amp;     initialString,
-                    const allocator_type&amp; allocator)
-: BaseType(initialString, ios_base::in, allocator)
+                    const allocator_type&amp; basicAllocator)
+: BaseType(initialString, ios_base::in, basicAllocator)
 , BaseStream(BaseType::rdbuf())
 {
 }
@@ -266,8 +268,8 @@ inline
 basic_istringstream&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::
 basic_istringstream(const StringType&amp;     initialString,
                     ios_base::openmode    modeBitMask,
-                    const allocator_type&amp; allocator)
-: BaseType(initialString, modeBitMask | ios_base::in, allocator)
+                    const allocator_type&amp; basicAllocator)
+: BaseType(initialString, modeBitMask | ios_base::in, basicAllocator)
 , BaseStream(BaseType::rdbuf())
 {
 }
@@ -320,25 +322,19 @@ struct UsesBslmaAllocator&lt;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the &quot;Software&quot;), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
 </pre>
 </body>

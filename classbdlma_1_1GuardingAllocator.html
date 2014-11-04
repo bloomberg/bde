@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: Class bdlma::GuardingAllocator</title>
+<title>BDE 2.22.1.2 OSS: Class bdlma::GuardingAllocator</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -67,8 +67,7 @@
 <div class="header">
   <div class="summary">
 <a href="#pub-types">Public Types</a> &#124;
-<a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pub-static-methods">Static Public Member Functions</a>  </div>
+<a href="#pub-methods">Public Member Functions</a>  </div>
   <div class="headertitle">
 <h1>bdlma::GuardingAllocator Class Reference</h1>  </div>
 </div>
@@ -103,9 +102,6 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbslma_1_1Allocator.html#a0e51fc2d107684523cc66bf65293dc37">deleteObject</a> (const TYPE *object)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TYPE &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbslma_1_1Allocator.html#abeccfe6cfd8205faf528a8e12f97aebe">deleteObjectRaw</a> (const TYPE *object)</td></tr>
-<tr><td colspan="2"><h2><a name="pub-static-methods"></a>
-Static Public Member Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1Allocator.html#a404c0ae3c51f8122a6ca3a62aba8dbf1">throwBadAlloc</a> ()</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>This class defines a concrete thread-safe "guarding" allocator mechanism that implements the <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> protocol, and adjoins a read/write protected guard page to each block of memory returned by the <code>allocate</code> method. The guard page is placed immediately before or immediately following the block returned from <code>allocate</code> according to the <code>GuardPageLocation</code> enumerator value (optionally) supplied at construction. Note that, unlike many other allocators, an allocator cannot be (optionally) supplied at construction; instead, a system facility is used that allocates blocks of memory in multiples of the system page size. Also note that this allocator is intended for debugging purposes <em>only</em>. </p>
@@ -229,25 +225,6 @@ Static Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a404c0ae3c51f8122a6ca3a62aba8dbf1"></a><!-- doxytag: member="bdlma::GuardingAllocator::throwBadAlloc" ref="a404c0ae3c51f8122a6ca3a62aba8dbf1" args="()" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">static void bslma::Allocator::throwBadAlloc </td>
-          <td>(</td>
-          <td class="paramname"></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td><code> [static, inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p><b>DEPRECATED</b>: Use <code><a class="el" href="structbsls_1_1BslExceptionUtil.html#a465dfe918544c50b66067aee9c520a8c">bsls::BslExceptionUtil::throwBadAlloc</a></code> instead.</p>
-<p>Throw <code>std::bad_alloc</code> if exceptions are enabled or abort the program otherwise. Derived classes and helper functions will typically call this function when they are unable to satisfy an allocation request. This function never returns. </p>
-
-</div>
-</div>
 <a class="anchor" id="a0e51fc2d107684523cc66bf65293dc37"></a><!-- doxytag: member="bdlma::GuardingAllocator::deleteObject" ref="a0e51fc2d107684523cc66bf65293dc37" args="(const TYPE *object)" -->
 <div class="memitem">
 <div class="memproto">
@@ -294,7 +271,7 @@ template&lt;class TYPE &gt; </div>
 <li><a class="el" href="bdlma__guardingallocator_8h_source.html">bdlma_guardingallocator.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:37 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:32 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

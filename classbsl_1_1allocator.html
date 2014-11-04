@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: Class bsl::allocator</title>
+<title>BDE 2.22.1.2 OSS: Class bsl::allocator</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -60,7 +60,7 @@
   <div class="navpath">
     <ul>
       <li><a class="el" href="namespacebsl.html">bsl</a>      </li>
-      <li><a class="el" href="classbsl_1_1allocator.html">bsl::allocator&lt; T &gt;</a>      </li>
+      <li><a class="el" href="classbsl_1_1allocator.html">bsl::allocator&lt; TYPE &gt;</a>      </li>
     </ul>
   </div>
 </div>
@@ -70,7 +70,7 @@
 <a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a>  </div>
   <div class="headertitle">
-<h1>bsl::allocator&lt; T &gt; Class Template Reference<br/>
+<h1>bsl::allocator&lt; TYPE &gt; Class Template Reference<br/>
 <small>
 [<a class="el" href="group__bslstl__allocator.html">Component bslstl_allocator</a>]</small>
 </h1>  </div>
@@ -86,44 +86,44 @@ Classes</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1allocator_1_1rebind.html">rebind</a></td></tr>
 <tr><td colspan="2"><h2><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef std::size_t&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga805a9265040329e62bb03c5e599f7a65">size_type</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef std::ptrdiff_t&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga11592900f659edf1527778145f94382d">difference_type</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef T *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#gab040ead7cb9559795d86ad6fd780fca9">pointer</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef const T *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga265cdbf7be2cde5407223541f8089e2c">const_pointer</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef T &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga0cc70630a7705e6d1f2f9cc2b3ea0294">reference</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef const T &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga3d75f8882aa4270f8c09513276146a6b">const_reference</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef T&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga2f5a301855ebda2806d7644dc635ac56">value_type</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef std::size_t&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#gab1d4e0edadb304794befe1011acc6d8e">size_type</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef std::ptrdiff_t&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#gacdfd572234d1bb20a43d5485b5e7536d">difference_type</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef TYPE *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#gac202f73d73676b90a38c67c0cd9d67c5">pointer</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef const TYPE *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga4e138e6835dd7a68d507aacd129eb112">const_pointer</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef TYPE &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga1ed23ab2c67f7439afc1ccb171e1e9e0">reference</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef const TYPE &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga1c5e93092b3200d3a5e91c6b48c962a4">const_reference</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef TYPE&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga432755d6f9ab7d42c498a3d5ed8a548a">value_type</a></td></tr>
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga23c7d73de0e0fc022177c8ba481b5a34">BSLMF_NESTED_TRAIT_DECLARATION</a> (<a class="el" href="classbsl_1_1allocator.html">allocator</a>, <a class="el" href="structbsl_1_1is__trivially__copyable.html">bsl::is_trivially_copyable</a>)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga94c03ff5d40ef571743b585c36caa772">BSLMF_NESTED_TRAIT_DECLARATION</a> (<a class="el" href="classbsl_1_1allocator.html">allocator</a>, BloombergLP::bslmf::IsBitwiseMoveable)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#gad4f94f94652cc64597cbf9e5b5c0353e">BSLMF_NESTED_TRAIT_DECLARATION</a> (<a class="el" href="classbsl_1_1allocator.html">allocator</a>, BloombergLP::bslmf::IsBitwiseEqualityComparable)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga406e9e1772e150de7e36aebfa3682612">allocator</a> ()</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga11b43657c23f967d54fda0a14342f6bb">allocator</a> (BloombergLP::bslma::Allocator *mechanism)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga7aa6fe014335c0ae9fa41f6cb5639bd6">allocator</a> (const <a class="el" href="classbsl_1_1allocator.html">allocator</a> &amp;original)</td></tr>
-<tr><td class="memTemplParams" colspan="2">template&lt;class U &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga109d73e81427f7e1605c1934f110c325">allocator</a> (const <a class="el" href="classbsl_1_1allocator.html">allocator</a>&lt; U &gt; &amp;rhs)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#gafd5ba6c32251e07c35d2443a62db70a3">~allocator</a> ()</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1allocator.html">allocator</a> &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#gac7499740c1db9d233bd07f41ef5acf34">operator=</a> (const <a class="el" href="classbsl_1_1allocator.html">allocator</a> &amp;rhs)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__bslstl__allocator.html#gab040ead7cb9559795d86ad6fd780fca9">pointer</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga45e9feb5003f4c9622c56b1f3f31bf87">allocate</a> (<a class="el" href="group__bslstl__allocator.html#ga805a9265040329e62bb03c5e599f7a65">size_type</a> n, const void *hint=0)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#gaece540c244e6beee6a5b8ccbaac82c05">deallocate</a> (<a class="el" href="group__bslstl__allocator.html#gab040ead7cb9559795d86ad6fd780fca9">pointer</a> p, <a class="el" href="group__bslstl__allocator.html#ga805a9265040329e62bb03c5e599f7a65">size_type</a> n=1)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga70c058a8054ad704de18a7aca93aa683">construct</a> (<a class="el" href="group__bslstl__allocator.html#gab040ead7cb9559795d86ad6fd780fca9">pointer</a> p, const T &amp;val)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#gab95d1740230a070b3e40a3b2712985f1">destroy</a> (<a class="el" href="group__bslstl__allocator.html#gab040ead7cb9559795d86ad6fd780fca9">pointer</a> p)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">BloombergLP::bslma::Allocator *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga0325472ed841f5189359b2a0d7920f23">mechanism</a> () const </td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__bslstl__allocator.html#gab040ead7cb9559795d86ad6fd780fca9">pointer</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#gad5267207812c4278aef372adcca370ac">address</a> (<a class="el" href="group__bslstl__allocator.html#ga0cc70630a7705e6d1f2f9cc2b3ea0294">reference</a> x) const </td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__bslstl__allocator.html#ga265cdbf7be2cde5407223541f8089e2c">const_pointer</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga9fb743d06ff51b08e62d3223dc59446b">address</a> (<a class="el" href="group__bslstl__allocator.html#ga3d75f8882aa4270f8c09513276146a6b">const_reference</a> x) const </td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__bslstl__allocator.html#ga805a9265040329e62bb03c5e599f7a65">size_type</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga4531b068b672b1c2f09bc316d884d031">max_size</a> () const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga083e24ed01a8eb9a458206eb5a15bd7a">BSLMF_NESTED_TRAIT_DECLARATION</a> (<a class="el" href="classbsl_1_1allocator.html">allocator</a>, <a class="el" href="structbsl_1_1is__trivially__copyable.html">bsl::is_trivially_copyable</a>)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga7fb620c6ef5c309dc5f3f7803f4dbf5c">BSLMF_NESTED_TRAIT_DECLARATION</a> (<a class="el" href="classbsl_1_1allocator.html">allocator</a>, BloombergLP::bslmf::IsBitwiseMoveable)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#gad02eeff63272316aead67730db9d0590">BSLMF_NESTED_TRAIT_DECLARATION</a> (<a class="el" href="classbsl_1_1allocator.html">allocator</a>, BloombergLP::bslmf::IsBitwiseEqualityComparable)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#gae3cc294a3d08a8aa306aef8a2bca6bf5">allocator</a> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga78c0d1380f3a5414cb9b554428515ff1">allocator</a> (BloombergLP::bslma::Allocator *mechanism)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga88a6b8b382ce191f0d89b744b3c0ff01">allocator</a> (const <a class="el" href="classbsl_1_1allocator.html">allocator</a> &amp;original)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ANY_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga97b2fc1c02e4744da8092dac7d19b814">allocator</a> (const <a class="el" href="classbsl_1_1allocator.html">allocator</a>&lt; ANY_TYPE &gt; &amp;rhs)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga3c67c79938bb07ebef2bf474e4e2b04a">~allocator</a> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1allocator.html">allocator</a> &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga0e0f9eb1d542b0d0c705904ad8b173e0">operator=</a> (const <a class="el" href="classbsl_1_1allocator.html">allocator</a> &amp;rhs)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__bslstl__allocator.html#gac202f73d73676b90a38c67c0cd9d67c5">pointer</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#gad74987942171ba6238bc22565a661bea">allocate</a> (<a class="el" href="group__bslstl__allocator.html#gab1d4e0edadb304794befe1011acc6d8e">size_type</a> n, const void *hint=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga72677e5be66dcd2f32b625c35fb93e4c">deallocate</a> (<a class="el" href="group__bslstl__allocator.html#gac202f73d73676b90a38c67c0cd9d67c5">pointer</a> p, <a class="el" href="group__bslstl__allocator.html#gab1d4e0edadb304794befe1011acc6d8e">size_type</a> n=1)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga5e518d9b03c50eee5403a90963826910">construct</a> (<a class="el" href="group__bslstl__allocator.html#gac202f73d73676b90a38c67c0cd9d67c5">pointer</a> p, const TYPE &amp;val)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga13b3ef76fe58b537c640857123ae23a3">destroy</a> (<a class="el" href="group__bslstl__allocator.html#gac202f73d73676b90a38c67c0cd9d67c5">pointer</a> p)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__bslstl__allocator.html#gac202f73d73676b90a38c67c0cd9d67c5">pointer</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga0be9603f5d95b0895633ac8987f55639">address</a> (<a class="el" href="group__bslstl__allocator.html#ga1ed23ab2c67f7439afc1ccb171e1e9e0">reference</a> x) const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__bslstl__allocator.html#ga4e138e6835dd7a68d507aacd129eb112">const_pointer</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#gaf00c50d64d59c1d30be7ef2906727cd8">address</a> (<a class="el" href="group__bslstl__allocator.html#ga1c5e93092b3200d3a5e91c6b48c962a4">const_reference</a> x) const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__bslstl__allocator.html#gab1d4e0edadb304794befe1011acc6d8e">size_type</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#gac1fcc7e1788d56c6b9aca24147e03e3b">max_size</a> () const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">BloombergLP::bslma::Allocator *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocator.html#ga671ad4babcdcd4a896e1b09e0d03f8de">mechanism</a> () const </td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
-<h3>template&lt;class T&gt;<br/>
- class bsl::allocator&lt; T &gt;</h3>
+<h3>template&lt;class TYPE&gt;<br/>
+ class bsl::allocator&lt; TYPE &gt;</h3>
 
 <p>An STL-compatible allocator that forwards allocation calls to an underlying mechanism object of a type derived from <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code>. This class template adheres to the allocator requirements defined in section 20.1.5 [lib.allocator.requirements] of the C++ standard and may be used to instantiate any [container] class template that follows the STL allocator protocol. The allocation mechanism is chosen at run-time, giving the programmer run-time control over how a container allocates and frees memory. </p>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="bslstl__allocator_8h_source.html">bslstl_allocator.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:40 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:35 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

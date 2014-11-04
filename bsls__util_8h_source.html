@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.20 OSS</title>
+<title>BDE 2.22.1.2 OSS</title>
 <html>
 <pre>
 // bsls_util.h                                                        -*-C++-*-
@@ -120,6 +120,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  assert(3 == p-&gt;bitpos());
 //..
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include &lt;bsls_compilerfeatures.h&gt;
+#endif
+
 namespace BloombergLP {
 
 namespace bsls {
@@ -137,6 +141,24 @@ struct Util_Identity {
     typedef TYPE type;  // alias of the template parameter &#39;TYPE&#39;.
 };
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+template &lt;class TYPE&gt;
+struct Util_RemoveReference {
+    typedef TYPE type;
+};
+
+template &lt;class TYPE&gt;
+struct Util_RemoveReference&lt;TYPE&amp;&gt; {
+    typedef TYPE type;
+};
+
+template &lt;class TYPE&gt;
+struct Util_RemoveReference&lt;TYPE&amp;&amp;&gt; {
+    typedef TYPE type;
+};
+
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
                                  // ===========
                                  // struct Util
                                  // ===========
@@ -147,8 +169,8 @@ struct Util {
     // library.
 
     // CLASS METHODS
-    template &lt;class BSLS_TYPE&gt;
-    static BSLS_TYPE *addressOf(BSLS_TYPE&amp; obj);
+    template &lt;class TYPE&gt;
+    static TYPE *addressOf(TYPE&amp; obj);
         // Return the address of the specified &#39;obj&#39;, even if &#39;operator&amp;&#39; is
         // overloaded for objects of type &#39;BSLS_TYPE&#39;.  Behavior is undefined
         // unless &#39;BSLS_TYPE&#39; is an object type.  Note that this function
@@ -167,7 +189,18 @@ struct Util {
     static
     typename Util_Identity&lt;RESULT(ARG1, ARG2)&gt;::type *addressOf(
                                                      RESULT (&amp;fn)(ARG1, ARG2));
-        // Return the address of the specified function &#39;fn&#39;.
+        // Return the address of the specified function &#39;fn&#39;.  Note that this
+        // implementation supports functions of only a limited number of
+        // parameters, determined by the current needs of the BDE software.  A
+        // more general form that will support an arbitrary number of function
+        // parameters will be available with C++11.
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    template &lt;class TYPE&gt;
+    static TYPE&amp;&amp; forward(typename Util_RemoveReference&lt;TYPE&gt;::type&amp;  t);
+    template &lt;class TYPE&gt;
+    static TYPE&amp;&amp; forward(typename Util_RemoveReference&lt;TYPE&gt;::type&amp;&amp; t);
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 };
 
 }  // close package namespace
@@ -200,16 +233,16 @@ namespace bsls {
 // Windows, and simply taking the address with the &#39;&amp;&#39; operator on all other
 // platforms.
 
-// ===========================================================================
+// ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // CLASS METHODS
-template &lt;class BSLS_TYPE&gt;
+template &lt;class TYPE&gt;
 inline
-BSLS_TYPE *Util::addressOf(BSLS_TYPE&amp; obj)
+TYPE *Util::addressOf(TYPE&amp; obj)
 {
-    return static_cast&lt;BSLS_TYPE *&gt;(
+    return static_cast&lt;TYPE *&gt;(
         static_cast&lt;void *&gt;(
             const_cast&lt;char *&gt;(&amp;reinterpret_cast&lt;const volatile char&amp;&gt;(obj))));
 }
@@ -238,33 +271,39 @@ Util::addressOf(RESULT (&amp;fn)(ARG1, ARG2))
     return fn;
 }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+template &lt;class TYPE&gt;
+TYPE&amp;&amp; Util::forward(typename Util_RemoveReference&lt;TYPE&gt;::type&amp; t)
+{
+    return static_cast&lt;TYPE&amp;&amp;&gt;(t);
+}
+
+template &lt;class TYPE&gt;
+TYPE&amp;&amp; Util::forward(typename Util_RemoveReference&lt;TYPE&gt;::type&amp;&amp; t)
+{
+    return static_cast&lt;TYPE&amp;&amp;&gt;(t);
+}
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
 }  // close package namespace
-
-
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the &quot;Software&quot;), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
 </pre>
 </body>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: bslma_managedptr Component</title>
+<title>BDE 2.22.1.2 OSS: bslma_managedptr Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -134,7 +134,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a proctor, similar to <code>bsl::auto_ptr</code>, that supports user-specified deleters. The proctor is responsible for the automatic destruction of the object referenced by the managed pointer. As a "smart pointer", this object offers an interface similar to a native pointer, supporting dereference operators (*, -&gt;), (in)equality comparison and testing as if it were a boolean value. However, like <code>bsl::auto_ptr</code> it has unusual "copy-semantics" that transfer ownership of the managed object, rather than making a copy. It should be noted that this signature does not satisfy the requirements for an element-type stored in any of the standard library containers. Note that this component will fail to compile when instantiated for a class that gives a false-positive for the type trait <code><a class="el" href="structbslmf_1_1IsPolymorphic.html">bslmf::IsPolymorphic</a></code>. See the <code>bslmf_ispolymporphic</code> component for more details. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component provides a proctor, <code><a class="el" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr</a></code>, similar to <code>bsl::auto_ptr</code>, that supports user-specified deleters. The proctor is responsible for the automatic destruction of the object referenced by the managed pointer. As a "smart pointer", this object offers an interface similar to a native pointer, supporting dereference operators (*, -&gt;), (in)equality comparison and testing as if it were a boolean value. However, like <code>bsl::auto_ptr</code> it has unusual "copy-semantics" that transfer ownership of the managed object, rather than making a copy. It should be noted that this signature does not satisfy the requirements for an element-type stored in any of the standard library containers. Note that this component will fail to compile when instantiated for a class that gives a false-positive for the type trait <code><a class="el" href="structbslmf_1_1IsPolymorphic.html">bslmf::IsPolymorphic</a></code>. See the <code>bslmf_ispolymporphic</code> component for more details. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="deleters"></a> <a class="anchor" id="description.deleters"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Deleters: </b></dt><dd></dd></dl>
@@ -188,8 +188,8 @@ Namespaces</h2></td></tr>
 
     <span class="keyword">public</span>:
       <span class="comment">// CREATORS</span>
-      <span class="keyword">explicit</span> Circle(<span class="keywordtype">double</span> r);
-          <span class="comment">// Create a &#39;Circle&#39; object having radius &#39;r&#39;.</span>
+      <span class="keyword">explicit</span> Circle(<span class="keywordtype">double</span> radius);
+          <span class="comment">// Create a &#39;Circle&#39; object having the specified &#39;radius&#39;.</span>
 
       <span class="comment">// ACCESSORS</span>
       <span class="keyword">virtual</span> <span class="keywordtype">double</span> area() <span class="keyword">const</span>;
@@ -214,8 +214,8 @@ Namespaces</h2></td></tr>
 <br/>
  Next we implement the methods for <code>Circle</code> and <code>Square</code>. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  Circle::Circle(<span class="keywordtype">double</span> r)
-  : d_radius(r)
+<div class="fragment"><pre class="fragment">  Circle::Circle(<span class="keywordtype">double</span> radius)
+  : d_radius(radius)
   {
   }
 
@@ -462,7 +462,7 @@ Namespaces</h2></td></tr>
 
       <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE&gt;
       <span class="keywordtype">void</span> deleteObject(<span class="keyword">const</span> TYPE *target);
-          <span class="comment">// Destroy the object pointed to be &#39;target&#39; and reclaim the</span>
+          <span class="comment">// Destroy the object pointed to by &#39;target&#39; and reclaim the</span>
           <span class="comment">// memory.  Decrement the count of currently valid objects.</span>
 </pre></div><br/>
 <br/>
@@ -645,7 +645,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="explicit_conversion"></a> <a class="anchor" id="example_4.explicit_conversion"></a> <a class="anchor" id="usage.example_4.explicit_conversion"></a> <a class="anchor" id="description.usage.example_4.explicit_conversion"></a> <a class="anchor" id="3.6.4.2"></a> </dd></dl>
 <dl class="user"><dt><b>Explicit Conversion: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Through "aliasing", a managed pointer of any type can be explicitly converted to a managed pointer of any other type using any legal cast expression. For example, to static-cast a managed pointer of type A to a shared pointer of type B, one can simply do the following: <br/>
+<dl class="user"><dt><b></b></dt><dd>Through "aliasing", a managed pointer of any type can be explicitly converted to a managed pointer of any other type using any legal cast expression. For example, to static-cast a managed pointer of type A to a managed pointer of type B, one can simply do the following: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keywordtype">void</span> explicitCastingExample() {
 
@@ -680,7 +680,7 @@ Namespaces</h2></td></tr>
 <br/>
  If the value of <code>aPtr</code> can be dynamically cast to <code>B*</code> then ownership is transferred to <code>bPtr</code>, otherwise <code>aPtr</code> is to be modified. As previously stated, the managed object will be destroyed correctly regardless of how it is cast. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:33 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:28 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

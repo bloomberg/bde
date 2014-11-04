@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.20 OSS</title>
+<title>BDE 2.22.1.2 OSS</title>
 <html>
 <pre>
 // bdlma_pool.h                                                       -*-C++-*-
@@ -73,8 +73,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //..
 // A default-constructed pool has an initial chunk size of 1 (i.e., the number
 // of memory blocks of a given size allocated at once to replenish a pool&#39;s
-// memory), and the pool&#39;s chunk size grows geometrically until it reaches
-// an implementation-defined maximum, at which it is capped.  Finally, unless
+// memory), and the pool&#39;s chunk size grows geometrically until it reaches an
+// implementation-defined maximum, at which it is capped.  Finally, unless
 // otherwise specified, all memory comes from the allocator that was the
 // currently installed default allocator at the time the &#39;bdlma::Pool&#39; was
 // created.
@@ -454,11 +454,11 @@ class Pool {
 // The problem is that this expression returns an array that cannot be safely
 // deallocated.  On the one hand, there is no syntax in C++ to invoke an
 // overloaded &#39;operator delete&#39;; on the other hand, the pointer returned by
-// &#39;operator new&#39; cannot be passed to the &#39;deallocate&#39; method directly
-// because the pointer is different from the one returned by the &#39;allocate&#39;
-// method.  The compiler offsets the value of this pointer by a header, which
-// is used to maintain the number of objects in the array (so that
-// &#39;operator delete&#39; can destroy the right number of objects).
+// &#39;operator new&#39; cannot be passed to the &#39;deallocate&#39; method directly because
+// the pointer is different from the one returned by the &#39;allocate&#39; method.
+// The compiler offsets the value of this pointer by a header, which is used to
+// maintain the number of objects in the array (so that &#39;operator delete&#39; can
+// destroy the right number of objects).
 
 // FREE OPERATORS
 void *operator new(bsl::size_t size, BloombergLP::bdlma::Pool&amp; pool);
@@ -586,25 +586,19 @@ void operator delete(void *address, BloombergLP::bdlma::Pool&amp; pool)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg Finance L.P.
+// Copyright 2012 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the &quot;Software&quot;), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
 </pre>
 </body>

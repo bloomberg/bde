@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: bslalg_rbtreeutil Component</title>
+<title>BDE 2.22.1.2 OSS: bslalg_rbtreeutil Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -629,7 +629,7 @@ A factory for creating and destroying nodes.  </li>
   IntSet&amp; IntSet::operator=(<span class="keyword">const</span> IntSet&amp; rhs)
   {
       IntSet temp(rhs, d_nodeFactory.allocator());
-      <a class="code" href="namespacebsltf.html#a6bca36500855960d035e7fbdf701ade5">swap</a>(temp);
+      <a class="code" href="namespacebslalg.html#aaa5e9eab8ebf1a94de3cf3db2c4d10c1">swap</a>(temp);
       <span class="keywordflow">return</span> *<span class="keyword">this</span>;
   }
 </pre></div><br/>
@@ -688,10 +688,10 @@ A factory for creating and destroying nodes.  </li>
       }
   }
 
-  <span class="keywordtype">void</span> <a class="code" href="namespacebsltf.html#a6bca36500855960d035e7fbdf701ade5">IntSet::swap</a>(IntSet&amp; other) {
+  <span class="keywordtype">void</span> <a class="code" href="namespacebslalg.html#aaa5e9eab8ebf1a94de3cf3db2c4d10c1">IntSet::swap</a>(IntSet&amp; other) {
       <a class="code" href="bsls__assert_8h.html#a1d80716f3bc5018941bcaf0856d93a1b">BSLS_ASSERT</a>(d_nodeFactory.allocator() ==
                   other.d_nodeFactory.allocator());
-      <a class="code" href="namespacebsltf.html#a6bca36500855960d035e7fbdf701ade5">RbTreeUtil::swap</a>(&amp;d_tree, &amp;other.d_tree);
+      <a class="code" href="namespacebslalg.html#aaa5e9eab8ebf1a94de3cf3db2c4d10c1">RbTreeUtil::swap</a>(&amp;d_tree, &amp;other.d_tree);
   }
 
   <span class="comment">// ACCESSORS</span>
@@ -737,7 +737,7 @@ A factory for creating and destroying nodes.  </li>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:33 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:27 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

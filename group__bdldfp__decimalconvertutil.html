@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: bdldfp_decimalconvertutil Component</title>
+<title>BDE 2.22.1.2 OSS: bdldfp_decimalconvertutil Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -78,11 +78,21 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#3">Description</a> <ul>
 <li>
-<a href="#3.1">Usage</a> <ul>
+<a href="#3.1">Encoding Formats</a> <ul>
 <li>
-<a href="#3.1.1">Example 1: Sending Decimals As Octets Using Network Format</a> </li>
+<a href="#3.1.1">IEEE Decimal Interchange Format</a> </li>
 <li>
-<a href="#3.1.2">Example 2: Storing/Sending Decimals In Binary Floating-Point</a> </li>
+<a href="#3.1.2">Multi-Width Encoding Format</a> </li>
+<li>
+<a href="#3.1.3">Variable-Width Encoding Formats</a> </li>
+</ul>
+</li>
+<li>
+<a href="#3.2">Usage</a> <ul>
+<li>
+<a href="#3.2.1">Example 1: Sending Decimals As Octets Using Network Format</a> </li>
+<li>
+<a href="#3.2.2">Example 2: Storing/Sending Decimals In Binary Floating-Point</a> </li>
 </ul>
 </li>
 </ul>
@@ -106,14 +116,91 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component provides namespace, <code><a class="el" href="structbdldfp_1_1DecimalConvertUtil.html">bdldfp::DecimalConvertUtil</a></code>, containing functions that are able to convert between the native decimal types of the platform and various other possible representations, such as binary floating-point, network encoding formats. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<p>This component provides functions that are able to convert between the native decimal types of the platform and various other possible representations, such as binary floating-point, network format (big endian, DPD encoded decimals). </p>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="encoding_formats"></a> <a class="anchor" id="description.encoding_formats"></a> <a class="anchor" id="3.1"></a> </dd></dl>
+<dl class="user"><dt><b>Encoding Formats: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This utility contains functions to encode decimal values to and from three different encoding formats: </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><ul>
+<li>
+the IEEE decimal interchange format using decimal encoding for the significant (also known as the Densely Packed Decimal format, see IEEE 754 - 2008, section 3.5.2, for more details)  </li>
+<li>
+the multi-width encoding format, which is a custom format that can encode subsets of decimal values using a smaller number of bytes  </li>
+<li>
+the variable-width encoding format, which is a custom format that is similar to the multi-width encoding format with the main difference being that it self describes its own width  </li>
+</ul>
+</dd></dl>
+<dl class="user"><dt><b></b></dt><dd>64-bit decimal values encoded by the IEEE decimal interchange format always uses 8 bytes, which can be inefficient. The two custom encoding formats provided by this to enable more space efficient encoding of values commonly encountered by financial applications. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>In the full IEEE encoding, 50 bits are used for the trailing bits of the mantissa, 13 bit is used for the combination field (exponent + special states to indicate NaN and Inf values + leading bits of the mantissa), and 1 bit is used for the significant. The basic idea for the custom encoding formats is that the mantissa and exponent of many values (in typical financial applications) can fit into fewer bits than those provided by the full encoding. We can define a set of narrow formats to encode these smaller values without loss of precision. For example, a ticker values less than 100 dollars with a 2 decimal places of precision can be encoded using a 2 bytes encoding, using no sign bit, 3 bits for the exponent, and 13 bits for the mantissa. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="ieee_decimal_interchange_format"></a> <a class="anchor" id="encoding_formats.ieee_decimal_interchange_format"></a> <a class="anchor" id="description.encoding_formats.ieee_decimal_interchange_format"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
+<dl class="user"><dt><b>IEEE Decimal Interchange Format: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The IEEE decimal interchange format is defined by the IEEE standard. 64 bit decimal values encoded by this format always uses 8 bytes. The <code>decimalFromNetwork</code> and <code>decimalToNetwork</code> functions can be used encode to and decode from this format. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="multi-width_encoding_format"></a> <a class="anchor" id="encoding_formats.multi-width_encoding_format"></a> <a class="anchor" id="description.encoding_formats.multi-width_encoding_format"></a> <a class="anchor" id="3.1.2"></a> </dd></dl>
+<dl class="user"><dt><b>Multi-Width Encoding Format: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The multi-width encoding format uses a set of narrow encoding formats having sizes smaller than that used by the for IEEE format. Each of the narrower encoding format is used to encode a subset of values that can be represented by the full format. The following configuration is used to encode 64-bit decimal values: </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><br/>
+<br/>
+<div class="fragment"><pre class="fragment"> |------|----------|----------|-----|----------|----------------|
+ | size | S (bits) | E (bits) |   B | T (bits) | max signficant |
+ |------|----------|----------|-----|----------|----------------|
+ |   1* |        0 |        1 |  -2 |        7 |            127 |
+ |   2  |        0 |        2 |  -3 |       14 |          16383 |
+ |   3  |        0 |        3 |  -6 |       21 |        2097151 |
+ |   4  |        1 |        5 | -16 |       26 |       67108863 |
+ |   5  |        1 |        5 | -16 |       34 |    17179869183 |
+ |------|-------------------------------------------------------|
+ |    8 |            FULL IEEE INTERCHANGE FORMAT**             |
+ |------|-------------------------------------------------------|
+
+ S = sign, E = exponent, B = bias, T = significant
+
+ 1 byte encoding will be supported by the decoder but not the encoder. This
+   is done due to the relatively large performance impact of adding the 1
+   byte encoding to the encoder (10%). Perserving the encoding size in the
+   decoder allows us to easily enable <span class="keyword">this</span> encoding size at a later time.
+
+ If the value to be encoded can not fit in the 5-byte encoding or is -Inf,
+    +Inf, or Nan, then the full 8-byte IEEE format will be used.
+</pre></div><br/>
+<br/>
+ </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Since the multi-width encoding format consists of subformats having varying widths, the size of the subformat used must be supplied long with the encoding to the decode function. This is not required for either the IEEE format or the variable-width encoding format. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <code>decimal64ToMultiWidthEncoding</code> and <code>decimal64FromMultiWidthEncoding</code> can be used to encode to and decode from this format. Currently, only 64-bit decimal values are supported by this encoding format. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="variable-width_encoding_formats"></a> <a class="anchor" id="encoding_formats.variable-width_encoding_formats"></a> <a class="anchor" id="description.encoding_formats.variable-width_encoding_formats"></a> <a class="anchor" id="3.1.3"></a> </dd></dl>
+<dl class="user"><dt><b>Variable-Width Encoding Formats: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The variable-width encoding format can encode decimal values using a variable number of bytes, similar to the multi-width encoding format. The difference is that the variable-width encoding format can self-describe its own size using special state (typically, predicate bits), so the decode function does not require the size of the encoding to work. The following configuration is used to encode 64-bit decimal values: </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><br/>
+<br/>
+<div class="fragment"><pre class="fragment"> |------|------------|---|---|-----|----|-----------------|
+ | size |          P | S | E |   B |  T | max significant |
+ |------|------------|---|---|-----|----|-----------------|
+ |    2 |        0b0 | 0 | 2 |  -2 | 13 |            8191 |
+ |    3 |       0b10 | 0 | 3 |  -4 | 19 |          524287 |
+ |    4 |       0b11 | 1 | 5 | -16 | 24 |        16777215 |
+ |------|------------|------------------------------------|
+ |    9 | 0b11111111 |        FULL IEEE FORMAT*           |
+ |------|------------|------------------------------------|
+
+ P = predicate (bit values)
+ S = sign (bits), E = exponent (bits), B = bias
+ T = significant (bits)
+
+ If the value to be encoded can not fit in the 4-byte encoding or is -Inf,
+   +Inf, or Nan, then the full 8-byte IEEE format will be used prefixed by a
+   1 byte predicate having the value of 0xFF.
+</pre></div><br/>
+<br/>
+ </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <code>decimal64ToVariableWidthEncoding</code> and <code>decimal64FromVariableWidthEncoding</code> can be used to encode to and decode from this format. Currently, only 64-bit decimal values are supported by this encoding format. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This section shows the intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_sending_decimals_as_octets_using_network_format"></a> <a class="anchor" id="usage.example_1~3A_sending_decimals_as_octets_using_network_format"></a> <a class="anchor" id="description.usage.example_1~3A_sending_decimals_as_octets_using_network_format"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_sending_decimals_as_octets_using_network_format"></a> <a class="anchor" id="usage.example_1~3A_sending_decimals_as_octets_using_network_format"></a> <a class="anchor" id="description.usage.example_1~3A_sending_decimals_as_octets_using_network_format"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.2.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Sending Decimals As Octets Using Network Format: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Suppose you have two communicating entities (programs) that talk to each other using a binary (as opposed to text) protocol. In such protocol it is important to establish a so-called network format, and convert to and from that format in the protocol layer. The sender (suppose that it is an IBM server that has just finished an expensive calculation involving millions of numbers and needs to send the result to its client) will need to convert the data to network format before sending: <br/>
 <br/>
@@ -143,7 +230,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_storing~2Fsending_decimals_in_binary_floating-point"></a> <a class="anchor" id="usage.example_2~3A_storing~2Fsending_decimals_in_binary_floating-point"></a> <a class="anchor" id="description.usage.example_2~3A_storing~2Fsending_decimals_in_binary_floating-point"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.1.2"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_storing~2Fsending_decimals_in_binary_floating-point"></a> <a class="anchor" id="usage.example_2~3A_storing~2Fsending_decimals_in_binary_floating-point"></a> <a class="anchor" id="description.usage.example_2~3A_storing~2Fsending_decimals_in_binary_floating-point"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.2.2"></a> </dd></dl>
 <dl class="user"><dt><b>Example 2: Storing/Sending Decimals In Binary Floating-Point: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Suppose you have two communicating entities (programs) that talk to each other using a legacy protocol that employs binary floating-point formats to send/receive numbers. So your application layer will have to store the decimal into a binary FP variable, ensure that it can be restored (in other words that it has "fit" into the binary type) when sending, and restore the decimal number (from the binary type) when receiving: <br/>
 <br/>
@@ -167,7 +254,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:32 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:27 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

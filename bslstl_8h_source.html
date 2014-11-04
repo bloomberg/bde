@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.20 OSS</title>
+<title>BDE 2.22.1.2 OSS</title>
 <html>
 <pre>
  bslstl.txt
@@ -22,7 +22,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The &#39;bslstl&#39; package currently has 50 components having 7 levels of physical
+ The &#39;bslstl&#39; package currently has 52 components having 7 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -46,6 +46,7 @@
      bslstl_istringstream
      bslstl_mapcomparator
      bslstl_ostringstream
+     bslstl_priorityqueue
      bslstl_randomaccessiterator
      bslstl_setcomparator
      bslstl_stringstream
@@ -55,10 +56,10 @@
      bslstl_bitset
      bslstl_hashtablebucketiterator
      bslstl_hashtableiterator
-     bslstl_priorityqueue
      bslstl_stringbuf
      bslstl_stringref
      bslstl_treenode
+     bslstl_vector
 
   3. bslstl_algorithmworkaround
      bslstl_bidirectionalnodepool
@@ -67,9 +68,10 @@
      bslstl_list
      bslstl_string
      bslstl_treeiterator
-     bslstl_vector
 
   2. bslstl_iterator
+     bslstl_sharedptrallocateinplacerep
+     bslstl_sharedptrallocateoutofplacerep
      bslstl_simplepool
 
   1. bslstl_allocator
@@ -179,6 +181,12 @@
 :
 : &#39;bslstl_sharedptr&#39;:
 :      Provide a generic reference-counted shared pointer wrapper.
+:
+: &#39;bslstl_sharedptrallocateinplacerep&#39;:
+:      Provide an in-place implementation of &#39;bslma::SharedPtrRep&#39;.
+:
+: &#39;bslstl_sharedptrallocateoutofplacerep&#39;:
+:      Provide an out-of-place implementation of &#39;bslma::SharedPtrRep&#39;.
 :
 : &#39;bslstl_simplepool&#39;:
 :      Provide efficient allocation of memory blocks for a specific type.

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: Class bsl::String_Imp</title>
+<title>BDE 2.22.1.2 OSS: Class bsl::String_Imp</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -126,7 +126,7 @@ BloombergLP::bsls::AlignmentFromType<br class="typebreak"/>
 <tr><td class="memItemLeft" align="right" valign="top">SIZE_TYPE&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gaaae930e07f058fc30aa7bc8af3cf9f81">d_capacity</a></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
-<h3>template&lt;typename CHAR_TYPE, typename SIZE_TYPE&gt;<br/>
+<h3>template&lt;class CHAR_TYPE, class SIZE_TYPE&gt;<br/>
  class bsl::String_Imp&lt; CHAR_TYPE, SIZE_TYPE &gt;</h3>
 
 <p>This component private <code>class</code> describes the basic data layout for a string class and provides methods to help encapsulate internal string implementation details. It is parameterized by <code>CHAR_TYPE</code> and <code>SIZE_TYPE</code> only, and implements the portion of <code><a class="el" href="classbsl_1_1basic__string.html">basic_string</a></code> that does not need to know about its parameterized <code>CHAR_TRAITS</code> or <code>ALLOCATOR</code>. It contains the following data fields: pointer to string, short string buffer, length, and capacity. The purpose of the short string buffer is to implement a "short string optimization" such that strings with lengths shorter than a certain number of characters are stored directly inside the string object (inside the short string buffer), and thereby avoid memory allocations/deallocations. </p>
@@ -135,7 +135,7 @@ BloombergLP::bsls::AlignmentFromType<br class="typebreak"/>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE, typename SIZE_TYPE&gt; </div>
+template&lt;class CHAR_TYPE, class SIZE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">enum <a class="el" href="classbsl_1_1String__Imp.html#a7e4ce1d261f79994237b4f477d8a7b9b">bsl::String_Imp::ShortBufferConstraints</a></td>
@@ -169,7 +169,7 @@ template&lt;typename CHAR_TYPE, typename SIZE_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename CHAR_TYPE, typename SIZE_TYPE&gt; </div>
+template&lt;class CHAR_TYPE, class SIZE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">BloombergLP::bsls::AlignedBuffer&lt; SHORT_BUFFER_BYTES, BloombergLP::bsls::AlignmentFromType&lt;CHAR_TYPE&gt;::VALUE&gt; <a class="el" href="classbsl_1_1String__Imp.html">bsl::String_Imp</a>&lt; CHAR_TYPE, SIZE_TYPE &gt;::<a class="el" href="classbsl_1_1String__Imp.html#ac60aef3548b24f52f27e21ef7d6d0d52">d_short</a></td>
@@ -187,7 +187,7 @@ template&lt;typename CHAR_TYPE, typename SIZE_TYPE&gt; </div>
 <li><a class="el" href="bslstl__string_8h_source.html">bslstl_string.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:41 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:36 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

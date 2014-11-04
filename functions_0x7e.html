@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS</title>
+<title>BDE 2.22.1.2 OSS</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -106,7 +106,7 @@ Here is a list of all class members with links to the classes they belong to:
 : <a class="el" href="classbslma_1_1Allocator.html#a9d59bbf24d35476520d29cc82b224221">bslma::Allocator</a>
 </li>
 <li>~allocator()
-: <a class="el" href="group__bslstl__allocator.html#gafd5ba6c32251e07c35d2443a62db70a3">bsl::allocator&lt; T &gt;</a>
+: <a class="el" href="group__bslstl__allocator.html#ga3c67c79938bb07ebef2bf474e4e2b04a">bsl::allocator&lt; TYPE &gt;</a>
 , <a class="el" href="group__bslstl__allocator.html#gaf98317ed19012db5bd9f1702f59bdaa1">bsl::allocator&lt; void &gt;</a>
 </li>
 <li>~AllocBitwiseMoveableTestType()
@@ -190,6 +190,12 @@ Here is a list of all class members with links to the classes they belong to:
 <li>~BufferedSequentialPool()
 : <a class="el" href="classbdlma_1_1BufferedSequentialPool.html#a09dc89905dd6e3c7396410cedda86b8f">bdlma::BufferedSequentialPool</a>
 </li>
+<li>~ByteInStream()
+: <a class="el" href="classbslx_1_1ByteInStream.html#aa79c28681188adc1e9983595953b271b">bslx::ByteInStream</a>
+</li>
+<li>~ByteOutStream()
+: <a class="el" href="classbslx_1_1ByteOutStream.html#a5099120c406bb1912bbbfde40f5594bf">bslx::ByteOutStream</a>
+</li>
 <li>~ConstructorProxy()
 : <a class="el" href="classbslalg_1_1ConstructorProxy.html#a080b956b336f43e6f5d90417e6287c6a">bslalg::ConstructorProxy&lt; OBJECT_TYPE &gt;</a>
 </li>
@@ -228,6 +234,12 @@ Here is a list of all class members with links to the classes they belong to:
 </li>
 <li>~DefaultAllocatorGuard()
 : <a class="el" href="classbslma_1_1DefaultAllocatorGuard.html#a821a2ed83e1033a300cafed3fe928bf1">bslma::DefaultAllocatorGuard</a>
+</li>
+<li>~DefaultHashAlgorithm()
+: <a class="el" href="classbslh_1_1DefaultHashAlgorithm.html#addb017205fe3451b8be27fecbc12b518">bslh::DefaultHashAlgorithm</a>
+</li>
+<li>~DefaultSeededHashAlgorithm()
+: <a class="el" href="classbslh_1_1DefaultSeededHashAlgorithm.html#ab7d4875c55f38c5be3b5246194317946">bslh::DefaultSeededHashAlgorithm</a>
 </li>
 <li>~deque()
 : <a class="el" href="group__bslstl__deque.html#gab22a189b19cecc1625b7783192af8d76">bsl::deque&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
@@ -269,24 +281,25 @@ Here is a list of all class members with links to the classes they belong to:
 : <a class="el" href="classbdlma_1_1GuardingAllocator.html#af6653a2672a0403aa5f997a8f9386fd0">bdlma::GuardingAllocator</a>
 </li>
 <li>~hash()
-: <a class="el" href="group__bslstl__hash.html#ga12e60ad33728baae2f2c0fc28fa51a7f">bsl::hash&lt; unsigned short &gt;</a>
+: <a class="el" href="group__bslstl__hash.html#gac750f1094615f7db84f2924bf87f1709">bsl::hash&lt; unsigned char &gt;</a>
+, <a class="el" href="group__bslstl__hash.html#ga25fc32f277b2b11d703385c4f6228ff6">bsl::hash&lt; wchar_t &gt;</a>
+, <a class="el" href="group__bslstl__hash.html#ga732cbd2c611c475cc8aa181928bbc180">bsl::hash&lt; short &gt;</a>
+, <a class="el" href="group__bslstl__hash.html#ga12e60ad33728baae2f2c0fc28fa51a7f">bsl::hash&lt; unsigned short &gt;</a>
 , <a class="el" href="group__bslstl__hash.html#ga824c0e4eea084027718116bae06ad2f9">bsl::hash&lt; int &gt;</a>
 , <a class="el" href="group__bslstl__hash.html#ga126597bb08531c9fb3ab06a625802ae6">bsl::hash&lt; unsigned int &gt;</a>
 , <a class="el" href="group__bslstl__hash.html#ga8947395f9754a436e4f8443b62febbbd">bsl::hash&lt; long &gt;</a>
 , <a class="el" href="group__bslstl__hash.html#ga558101438b4131661d025aaa1610e143">bsl::hash&lt; unsigned long &gt;</a>
 , <a class="el" href="group__bslstl__hash.html#ga4c3e488a7f20553b479cb22e12ac55ea">bsl::hash&lt; long long &gt;</a>
 , <a class="el" href="group__bslstl__hash.html#ga8b2a08bbb2c71972d7ba636c98ddc0da">bsl::hash&lt; unsigned long long &gt;</a>
-, <a class="el" href="group__bslstl__hash.html#gac5699e4bc3fa26a114d0595ece7b4efb">bsl::hash&lt; float &gt;</a>
-, <a class="el" href="group__bslstl__hash.html#ga64557baef6794080e2c2e7fb2689b05f">bsl::hash&lt; double &gt;</a>
-, <a class="el" href="group__bslstl__hash.html#ga48d8d0c0919f03bebd89da169a9a8e72">bsl::hash&lt; long double &gt;</a>
 , <a class="el" href="group__bslstl__sharedptr.html#ga5d280e2986743f6ed16022c658fd911b">bsl::hash&lt; shared_ptr&lt; ELEMENT_TYPE &gt; &gt;</a>
-, <a class="el" href="group__bslstl__hash.html#ga7b3bac1e4f7aee2a442e47029890cb5a">bsl::hash&lt; TYPE * &gt;</a>
-, <a class="el" href="group__bslstl__hash.html#gae5eb5721ac592790ff99fc1453b3ff52">bsl::hash&lt; bool &gt;</a>
+</li>
+<li>~Hash()
+: <a class="el" href="structbslh_1_1Hash.html#a192097298b7c54c2081ace8cc8fbae1f">bslh::Hash&lt; HASH_ALGORITHM &gt;</a>
+</li>
+<li>~hash()
+: <a class="el" href="group__bslstl__hash.html#gae5eb5721ac592790ff99fc1453b3ff52">bsl::hash&lt; bool &gt;</a>
 , <a class="el" href="group__bslstl__hash.html#ga4971fce47c3c12fe29d1cc467cceeaf4">bsl::hash&lt; char &gt;</a>
 , <a class="el" href="group__bslstl__hash.html#ga2c96a55b52a290340fcf50f04fe0a4d6">bsl::hash&lt; signed char &gt;</a>
-, <a class="el" href="group__bslstl__hash.html#gac750f1094615f7db84f2924bf87f1709">bsl::hash&lt; unsigned char &gt;</a>
-, <a class="el" href="group__bslstl__hash.html#ga25fc32f277b2b11d703385c4f6228ff6">bsl::hash&lt; wchar_t &gt;</a>
-, <a class="el" href="group__bslstl__hash.html#ga732cbd2c611c475cc8aa181928bbc180">bsl::hash&lt; short &gt;</a>
 </li>
 <li>~HashTable()
 : <a class="el" href="classbslstl_1_1HashTable.html#adaad010e62109e9b9ad58ef3d9d1c147">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a>
@@ -341,8 +354,8 @@ Here is a list of all class members with links to the classes they belong to:
 : <a class="el" href="structbslmf_1_1IsPolymorphic__Imp_3_01TYPE_00_01true_01_4_1_1MaybePoly.html#a9656417af218261c3b6f1ff701a84ffb">bslmf::IsPolymorphic_Imp&lt; TYPE, true &gt;::MaybePoly</a>
 </li>
 <li>~MetaInt()
-: <a class="el" href="structbslmf_1_1MetaInt.html#a17be38de60911fecc10b3ffed8182e58">bslmf::MetaInt&lt; INT_VALUE &gt;</a>
-, <a class="el" href="structbslmf_1_1MetaInt_3_010_01_4.html#af116a2c5176c9481a0e5d31690c9a252">bslmf::MetaInt&lt; 0 &gt;</a>
+: <a class="el" href="structbslmf_1_1MetaInt_3_010_01_4.html#af116a2c5176c9481a0e5d31690c9a252">bslmf::MetaInt&lt; 0 &gt;</a>
+, <a class="el" href="structbslmf_1_1MetaInt.html#a17be38de60911fecc10b3ffed8182e58">bslmf::MetaInt&lt; INT_VALUE &gt;</a>
 , <a class="el" href="structbslmf_1_1MetaInt_3_011_01_4.html#a16dbf93d4048bb97f22f366e5b77590d">bslmf::MetaInt&lt; 1 &gt;</a>
 </li>
 <li>~multimap()
@@ -363,18 +376,14 @@ Here is a list of all class members with links to the classes they belong to:
 <li>~NewDeleteAllocator()
 : <a class="el" href="classbslma_1_1NewDeleteAllocator.html#a0b7fb53114fd9b7f9ec2a412ff11b93f">bslma::NewDeleteAllocator</a>
 </li>
-<li>~owner_less()
-: <a class="el" href="group__bslstl__sharedptr.html#ga2d82db2872d23d64adc96bae2cdc1334">bsl::owner_less&lt; shared_ptr&lt; ELEMENT_TYPE &gt; &gt;</a>
-, <a class="el" href="group__bslstl__sharedptr.html#ga6de2a85fec1f3effa0113f9d855a0bd9">bsl::owner_less&lt; weak_ptr&lt; ELEMENT_TYPE &gt; &gt;</a>
-</li>
 <li>~pair()
 : <a class="el" href="group__bslstl__pair.html#ga6c0c09e954cdb153267cf6a35a3b2607">bsl::pair&lt; T1, T2 &gt;</a>
 </li>
 <li>~Pair_Imp()
-: <a class="el" href="group__bslstl__pair.html#ga512d1a53027696febfe18c99d283612f">bsl::Pair_Imp&lt; T1, T2, 1, 0 &gt;</a>
-, <a class="el" href="group__bslstl__pair.html#ga2271791af374d77c9573e32b21e8a283">bsl::Pair_Imp&lt; T1, T2, 0, 1 &gt;</a>
-, <a class="el" href="group__bslstl__pair.html#gad3fad5a7f26ea3f045978cc397688e71">bsl::Pair_Imp&lt; T1, T2, T1_USES_BSLMA, T2_USES_BSLMA &gt;</a>
+: <a class="el" href="group__bslstl__pair.html#ga2271791af374d77c9573e32b21e8a283">bsl::Pair_Imp&lt; T1, T2, 0, 1 &gt;</a>
 , <a class="el" href="group__bslstl__pair.html#gaab0a48e9070629aaf42c754368739dc6">bsl::Pair_Imp&lt; T1, T2, 1, 1 &gt;</a>
+, <a class="el" href="group__bslstl__pair.html#gad3fad5a7f26ea3f045978cc397688e71">bsl::Pair_Imp&lt; T1, T2, T1_USES_BSLMA, T2_USES_BSLMA &gt;</a>
+, <a class="el" href="group__bslstl__pair.html#ga512d1a53027696febfe18c99d283612f">bsl::Pair_Imp&lt; T1, T2, 1, 0 &gt;</a>
 </li>
 <li>~Pool()
 : <a class="el" href="classbdlma_1_1Pool.html#ab35b06bad04caa7fe5c3a2eb7917e77c">bdlma::Pool</a>
@@ -406,6 +415,12 @@ Here is a list of all class members with links to the classes they belong to:
 <li>~RbTreeUtilTreeProctor()
 : <a class="el" href="classbslalg_1_1RbTreeUtilTreeProctor.html#a6d301b1cd37ab6e14fedaf2e6666004c">bslalg::RbTreeUtilTreeProctor&lt; DELETER &gt;</a>
 </li>
+<li>~SeededHash()
+: <a class="el" href="structbslh_1_1SeededHash.html#a757e75900cde6e86b00521a41bcb8405">bslh::SeededHash&lt; SEED_GENERATOR, HASH_ALGORITHM &gt;</a>
+</li>
+<li>~SeedGenerator()
+: <a class="el" href="classbslh_1_1SeedGenerator.html#a9f271148816f39a0bcf4d6f164ef74ab">bslh::SeedGenerator&lt; RANDOM_NUM_GEN &gt;</a>
+</li>
 <li>~SequentialAllocator()
 : <a class="el" href="classbdlma_1_1SequentialAllocator.html#a7a079fe0847768ff6d052f57da6ab9e5">bdlma::SequentialAllocator</a>
 </li>
@@ -418,14 +433,29 @@ Here is a list of all class members with links to the classes they belong to:
 <li>~shared_ptr()
 : <a class="el" href="group__bslstl__sharedptr.html#gaec035331c8d985691fd7c5929173259a">bsl::shared_ptr&lt; ELEMENT_TYPE &gt;</a>
 </li>
-<li>~SharedPtrOutofplaceRep_InitGuard()
-: <a class="el" href="structbslma_1_1SharedPtrOutofplaceRep__InitGuard.html#ab1389a282d5745ed921bac400dbf6cfd">bslma::SharedPtrOutofplaceRep_InitGuard&lt; TYPE, DELETER &gt;</a>
+<li>~SharedPtr_RepProctor()
+: <a class="el" href="group__bslstl__sharedptr.html#gabd1cddccae2f2fb5da0afd605c732110">bslstl::SharedPtr_RepProctor</a>
+</li>
+<li>~SharedPtrAllocateOutofplaceRep_InitProctor()
+: <a class="el" href="classbslstl_1_1SharedPtrAllocateOutofplaceRep__InitProctor.html#a20c3057a48b59288241b4492ec34b7f9">bslstl::SharedPtrAllocateOutofplaceRep_InitProctor&lt; TYPE, DELETER &gt;</a>
+</li>
+<li>~SharedPtrOutofplaceRep_InitProctor()
+: <a class="el" href="structbslma_1_1SharedPtrOutofplaceRep__InitProctor.html#af894ffdd3108369040eb94c10761b71f">bslma::SharedPtrOutofplaceRep_InitProctor&lt; TYPE, DELETER &gt;</a>
 </li>
 <li>~SharedPtrRep()
-: <a class="el" href="classbslma_1_1SharedPtrRep.html#abb39d67b23b66532694a2be46de9609e">bslma::SharedPtrRep</a>
+: <a class="el" href="classbslma_1_1SharedPtrRep.html#aaedf5cddaaa2b42bc9ac808becc9d1c9">bslma::SharedPtrRep</a>
 </li>
 <li>~SimplePool()
 : <a class="el" href="classbslstl_1_1SimplePool.html#aa1bc049a88a0746ec02a309ba68e5279">bslstl::SimplePool&lt; VALUE, ALLOCATOR &gt;</a>
+</li>
+<li>~SipHashAlgorithm()
+: <a class="el" href="classbslh_1_1SipHashAlgorithm.html#ac519a7add515cf6a8e2bb3a275eda409">bslh::SipHashAlgorithm</a>
+</li>
+<li>~SpookyHashAlgorithm()
+: <a class="el" href="classbslh_1_1SpookyHashAlgorithm.html#aba0a6b4251360ed0b4a5dd4b5816d936">bslh::SpookyHashAlgorithm</a>
+</li>
+<li>~SpookyHashAlgorithmImp()
+: <a class="el" href="classbslh_1_1SpookyHashAlgorithmImp.html#a3630a9428168cab1a00add1dc79bcd85">bslh::SpookyHashAlgorithmImp</a>
 </li>
 <li>~StdTestAllocatorConfigurationGuard()
 : <a class="el" href="classbsltf_1_1StdTestAllocatorConfigurationGuard.html#af450963af5ca1f5fbc088f04302a8db9">bsltf::StdTestAllocatorConfigurationGuard</a>
@@ -451,6 +481,15 @@ Here is a list of all class members with links to the classes they belong to:
 <li>~TestAllocatorMonitor()
 : <a class="el" href="classbslma_1_1TestAllocatorMonitor.html#ad68eea30102a4c28402cf3d64c09fa7e">bslma::TestAllocatorMonitor</a>
 </li>
+<li>~TestInStream()
+: <a class="el" href="classbslx_1_1TestInStream.html#a911835733568a5b51fe7ba4cf4ef81de">bslx::TestInStream</a>
+</li>
+<li>~TestInStreamException()
+: <a class="el" href="classbslx_1_1TestInStreamException.html#aa221680f19d5bf5c8a82b45b893cad68">bslx::TestInStreamException</a>
+</li>
+<li>~TestOutStream()
+: <a class="el" href="classbslx_1_1TestOutStream.html#a9efa46b6bdf387c01963ae74d1a265a5">bslx::TestOutStream</a>
+</li>
 <li>~TestValuesArray()
 : <a class="el" href="group__bsltf__testvaluesarray.html#gaeb84197bc3b0dcab476beefb7b7f5ff8">BloombergLP::bsltf::TestValuesArray&lt; VALUE, CONVERTER &gt;</a>
 </li>
@@ -473,8 +512,8 @@ Here is a list of all class members with links to the classes they belong to:
 : <a class="el" href="group__bslstl__unorderedset.html#ga77895505ce2c52118bbd81926887752a">bsl::unordered_set&lt; KEY, HASH, EQUAL, ALLOCATOR &gt;</a>
 </li>
 <li>~vector()
-: <a class="el" href="group__bslstl__vector.html#ga6dcf3a85a5d8b27bda092b4a504cc6fa">bsl::vector&lt; VALUE_TYPE *, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__vector.html#ga14c35993dffc40a4366db40b6461003e">bsl::vector&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
+: <a class="el" href="group__bslstl__vector.html#ga14c35993dffc40a4366db40b6461003e">bsl::vector&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__vector.html#ga6dcf3a85a5d8b27bda092b4a504cc6fa">bsl::vector&lt; VALUE_TYPE *, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__vector.html#gadd98de3e2f67da150e94b98fc065a179">bsl::vector&lt; const VALUE_TYPE *, ALLOCATOR &gt;</a>
 </li>
 <li>~Vector_Imp()
@@ -485,7 +524,7 @@ Here is a list of all class members with links to the classes they belong to:
 </li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:36 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:31 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

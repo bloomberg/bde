@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: Class bdldfp::DecimalNumGet</title>
+<title>BDE 2.22.1.2 OSS: Class bdldfp::DecimalNumGet</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -166,7 +166,7 @@ template&lt;class CHARTYPE, class INPUTITERATOR = bsl::istreambuf_iterator&lt;CH
             : bsl::locale::facet(refs), baseloc(bsl::locale()) ...
 </pre></div><p><br/>
 <br/>
- </p>
+ and optionally specify a <code>refs</code>, which will default to 0. </p>
 
 </div>
 </div>
@@ -196,14 +196,14 @@ template&lt;class CHARTYPE, class INPUTITERATOR = bsl::istreambuf_iterator&lt;CH
       </table>
 </div>
 <div class="memdoc">
-<p>Constructs a <code><a class="el" href="classbdldfp_1_1DecimalNumPut.html">DecimalNumPut</a></code> object as if <br/>
+<p>Constructs a <code><a class="el" href="classbdldfp_1_1DecimalNumPut.html">DecimalNumPut</a></code> object, from the specified <code>b</code>, as if <br/>
 <br/>
 </p>
 <div class="fragment"><pre class="fragment">         <span class="keyword">explicit</span> <a class="code" href="classbdldfp_1_1DecimalNumGet.html#af593348dada43fcbf3493680271252a6">DecimalNumGet</a>(bsl::size_t refs)
             : bsl::locale::facet(refs), baseloc(b) ...
 </pre></div><p><br/>
 <br/>
- </p>
+ and optionally specify a <code>refs</code>, which will default to 0. </p>
 
 </div>
 </div>
@@ -385,7 +385,7 @@ template&lt;class CHARTYPE, class INPUTITERATOR = bsl::istreambuf_iterator&lt;CH
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>this-&gt;do_get(begin, end, str, err, value)</code> </p>
+<p>Forward to, and return using the specified <code>begin</code>, <code>end</code>, <code>str</code>, <code>err</code>, and <code>value</code>, the results of <code>this-&gt;do_get(begin, end, str, err, value)</code>. </p>
 
 </div>
 </div>
@@ -527,7 +527,7 @@ template&lt;class CHARTYPE, class INPUTITERATOR = bsl::istreambuf_iterator&lt;CH
       </table>
 </div>
 <div class="memdoc">
-<p>Interpret characters from the half-open iterator range denoted by the specified <code>begin</code> and <code>end</code>, generate a decimal floating-point number and store it into the specified <code>value</code>. During conversion the formatting flags of the specified <code>str</code> (<code>str.flags()</code>) are obeyed; character classifications are determined by the <code>bsl::ctype</code> while punctuation characters are determined by the <code>bsl::numpunct</code> facet imbued to the specified <code>str</code> stream-base. Use the specified <code>err</code> to report back failure or EOF streams states. For further, more detailed information please consult the section [lib.facet.num.get.virtuals] of the C++ Standard. Note that for the conversions to the <code>Decimal32</code>, 64 and 128 types the conversion specifiers are Hg, Dg and DDg, respectively. Also note that these (possibly overridden) <code>do_get</code> virtual function are used by every formatted C++ stream input operator call (<code>in &gt;&gt; aDecNumber</code>). </p>
+<p>Interpret characters from the half-open iterator range denoted by the specified <code>begin</code> and <code>end</code>, generate a decimal floating-point number and store it into the specified <code>value</code>. During conversion the formatting flags of the specified <code>str</code> (<code>str.flags()</code>) are obeyed; character classifications are determined by the <code>bsl::ctype</code> while punctuation characters are determined by the <code>bsl::numpunct</code> facet imbued to the <code>str</code> stream-base. Use the specified <code>err</code> to report back failure or EOF streams states. For further, more detailed information please consult the section [lib.facet.num.get.virtuals] of the C++ Standard. Note that for the conversions to the <code>Decimal32</code>, 64 and 128 types the conversion specifiers are Hg, Dg and DDg, respectively. Also note that these (possibly overridden) <code>do_get</code> virtual function are used by every formatted C++ stream input operator call (<code>in &gt;&gt; aDecNumber</code>). </p>
 
 </div>
 </div>
@@ -552,7 +552,7 @@ template&lt;class CHARTYPE, class INPUTITERATOR = bsl::istreambuf_iterator&lt;CH
 <li><a class="el" href="bdldfp__decimal_8h_source.html">bdldfp_decimal.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:37 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:31 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

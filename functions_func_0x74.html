@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS</title>
+<title>BDE 2.22.1.2 OSS</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -121,7 +121,7 @@
 : <a class="el" href="classbsls_1_1ProtocolTest.html#a4fbcb509b3df2427ca1b9acd0b6af428">bsls::ProtocolTest&lt; BSLS_TESTIMP &gt;</a>
 </li>
 <li>TestAllocator()
-: <a class="el" href="classbslma_1_1TestAllocator.html#a00d188c75c26265b6cf504df568198c3">bslma::TestAllocator</a>
+: <a class="el" href="classbslma_1_1TestAllocator.html#ab317948acea00e734975db3f737a6a78">bslma::TestAllocator</a>
 </li>
 <li>testAllocator()
 : <a class="el" href="classbsltf_1_1StdStatefulAllocator.html#a7d79b17f0beb88c3874b69327ca62b3c">bsltf::StdStatefulAllocator&lt; TYPE, PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION, PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT, PROPAGATE_ON_CONTAINER_SWAP, PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT &gt;</a>
@@ -169,8 +169,17 @@
 , <a class="el" href="structbsls_1_1AtomicOperations__DefaultPointer32.html#a3a5b3c5b87aa2f14755965fc6e35000e">bsls::AtomicOperations_DefaultPointer32&lt; IMP &gt;</a>
 , <a class="el" href="structbsls_1_1AtomicOperations__DefaultPointer64.html#a4f16a39c98150e6b75e24cb2d5b2aa3e">bsls::AtomicOperations_DefaultPointer64&lt; IMP &gt;</a>
 </li>
+<li>TestInStream()
+: <a class="el" href="classbslx_1_1TestInStream.html#acce77d0485b63f9f7dab0619414081ab">bslx::TestInStream</a>
+</li>
+<li>TestInStreamException()
+: <a class="el" href="classbslx_1_1TestInStreamException.html#a35a56abad6cecfdd8bd4d8a6be391352">bslx::TestInStreamException</a>
+</li>
 <li>testNoDataMembers()
 : <a class="el" href="classbsls_1_1ProtocolTest.html#ab781756d4f7509362331999a31779154">bsls::ProtocolTest&lt; BSLS_TESTIMP &gt;</a>
+</li>
+<li>TestOutStream()
+: <a class="el" href="classbslx_1_1TestOutStream.html#a2ac2c301e7dd9e3cc69d00cdce8f15e5">bslx::TestOutStream</a>
 </li>
 <li>TestValuesArray()
 : <a class="el" href="group__bsltf__testvaluesarray.html#ga8c79368372719df150e9634fdf7012a0">BloombergLP::bsltf::TestValuesArray&lt; VALUE, CONVERTER &gt;</a>
@@ -186,7 +195,6 @@
 </li>
 <li>throwBadAlloc()
 : <a class="el" href="structbsls_1_1BslExceptionUtil.html#a465dfe918544c50b66067aee9c520a8c">bsls::BslExceptionUtil</a>
-, <a class="el" href="classbslma_1_1Allocator.html#a404c0ae3c51f8122a6ca3a62aba8dbf1">bslma::Allocator</a>
 </li>
 <li>throwBadCast()
 : <a class="el" href="structbsls_1_1BslExceptionUtil.html#a395eb98dd33195fcf5cf1adf2b0397af">bsls::BslExceptionUtil</a>
@@ -196,6 +204,9 @@
 </li>
 <li>throwBadTypeid()
 : <a class="el" href="structbsls_1_1BslExceptionUtil.html#a0c71a657390f574fcebf6f93ba11c781">bsls::BslExceptionUtil</a>
+</li>
+<li>throwBadWeakPtr()
+: <a class="el" href="group__bslstl__sharedptr.html#ga6c2a72c4594b6193d545ae660731e0d4">bslstl::SharedPtrUtil</a>
 </li>
 <li>throwDomainError()
 : <a class="el" href="structbslstl_1_1StdExceptUtil.html#af12008167af71c8c88a93c9ce88ec6f9">bslstl::StdExceptUtil</a>
@@ -234,8 +245,9 @@
 : <a class="el" href="group__bslstl__bitset.html#ga0c5baa02e3100eb328ad1e0440dce78b">bsl::bitset&lt; N &gt;</a>
 </li>
 <li>toAscii()
-: <a class="el" href="structbsls_1_1BlockGrowth.html#a99f87eabd4ba4566fa426e3cf5f7906c">bsls::BlockGrowth</a>
+: <a class="el" href="structbslx_1_1TypeCode.html#abbfca985ea2573beb751796d440c9597">bslx::TypeCode</a>
 , <a class="el" href="structbsls_1_1Alignment.html#a0d7028fee6087afc8bf54836802b6330">bsls::Alignment</a>
+, <a class="el" href="structbsls_1_1BlockGrowth.html#a99f87eabd4ba4566fa426e3cf5f7906c">bsls::BlockGrowth</a>
 </li>
 <li>toggleColor()
 : <a class="el" href="classbslalg_1_1RbTreeNode.html#a6b1ab2b782bb903013e313f4b0a8b029">bslalg::RbTreeNode</a>
@@ -243,12 +255,10 @@
 <li>top()
 : <a class="el" href="group__bslstl__stack.html#gaa5a73a760fff15dad4bc5ca5401efdac">bsl::stack&lt; VALUE, CONTAINER &gt;</a>
 , <a class="el" href="classbsl_1_1priority__queue.html#a76f82d1fb4b8b463d7b7133e131c3c3d">bsl::priority_queue&lt; VALUE, CONTAINER, COMPARATOR &gt;</a>
-, <a class="el" href="group__bslstl__stack.html#gaac25745575dc8bb06410028f36871728">bsl::stack&lt; VALUE, CONTAINER &gt;</a>
 </li>
 <li>TreeIterator()
-: <a class="el" href="classbslstl_1_1TreeIterator.html#ad33ac6fc880278c8eeff6d3ca9284f52">bslstl::TreeIterator&lt; VALUE, NODE, DIFFERENCE_TYPE &gt;</a>
+: <a class="el" href="classbslstl_1_1TreeIterator.html#a659ebeeff399d4407cabefc5f4f0501e">bslstl::TreeIterator&lt; VALUE, NODE, DIFFERENCE_TYPE &gt;</a>
 , <a class="el" href="classBloombergLP_1_1bslstl_1_1HashTableIterator.html#a29ad392f3dbc2f890b6580dc393bd787">BloombergLP::bslstl::HashTableIterator&lt; VALUE_TYPE, DIFFERENCE_TYPE &gt;</a>
-, <a class="el" href="classbslstl_1_1TreeIterator.html#a0b817522244fb78c044cb78020099e90">bslstl::TreeIterator&lt; VALUE, NODE, DIFFERENCE_TYPE &gt;</a>
 </li>
 <li>TreeNodePool()
 : <a class="el" href="classbslstl_1_1TreeNodePool.html#a862e22a200e0534cd34d930405f4d618">bslstl::TreeNodePool&lt; VALUE, ALLOCATOR &gt;</a>
@@ -260,9 +270,9 @@
 : <a class="el" href="structbdldfp_1_1DecimalUtil.html#a69476e05e1b236d7e1ba28990c8e339f">bdldfp::DecimalUtil</a>
 </li>
 <li>truncate()
-: <a class="el" href="classbdlma_1_1BufferManager.html#a9f6aa6fecd7c6c5b290180bdafffc9a3">bdlma::BufferManager</a>
+: <a class="el" href="classbdlma_1_1SequentialAllocator.html#a7406226eadc9b9313502b699d462afae">bdlma::SequentialAllocator</a>
+, <a class="el" href="classbdlma_1_1BufferManager.html#a9f6aa6fecd7c6c5b290180bdafffc9a3">bdlma::BufferManager</a>
 , <a class="el" href="classbdlma_1_1SequentialPool.html#a6811148a5e1889268526a0e50b446ee7">bdlma::SequentialPool</a>
-, <a class="el" href="classbdlma_1_1SequentialAllocator.html#a7406226eadc9b9313502b699d462afae">bdlma::SequentialAllocator</a>
 </li>
 <li>tryAcquireRef()
 : <a class="el" href="classbslma_1_1SharedPtrRep.html#a2316b2cd2fa8879d0e44b01a4ab91960">bslma::SharedPtrRep</a>
@@ -275,7 +285,7 @@
 </li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:36 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:31 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

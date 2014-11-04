@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.20 OSS</title>
+<title>BDE 2.22.1.2 OSS</title>
 <html>
 <pre>
 // bslstl_unorderedmultimap.h                                         -*-C++-*-
@@ -107,9 +107,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 ///Memory Allocation
 ///-----------------
-// The type supplied as the &#39;ALLOCATOR&#39; template parameter determines how
-// this container will allocate memory.  The &#39;unordered_multimap&#39; template
-// supports allocators meeting the requirements of the C++11 standard
+// The type supplied as the &#39;ALLOCATOR&#39; template parameter determines how this
+// container will allocate memory.  The &#39;unordered_multimap&#39; template supports
+// allocators meeting the requirements of the C++11 standard
 // [allocator.requirements], and in addition it supports scoped-allocators
 // derived from the &#39;bslma::Allocator&#39; memory allocation protocol.  Clients
 // intending to use &#39;bslma&#39; style allocators should use the template&#39;s default
@@ -279,8 +279,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 ///Example 1: Creating a Concordance
 ///- - - - - - - - - - - - - - - - -
-// Unordered multimap are useful in situations when there is no meaningful
-// way to compare key values, when the order of the keys is irrelevant to the
+// Unordered multimap are useful in situations when there is no meaningful way
+// to compare key values, when the order of the keys is irrelevant to the
 // problem domain, or (even if there is a meaningful ordering) the benefit of
 // ordering the results is outweighed by the higher performance provided by
 // unordered maps (compared to ordered maps).
@@ -290,7 +290,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // &#39;bslstl_unorderedmultimap&#39; to create a concordance (an index of where each
 // unique word appears in the set of documents).
 //
-// Our source of documents is a set of statically initialized arrrays:
+// Our source of documents is a set of statically initialized arrays:
 //..
 //  static char document0[] =
 //  &quot; IN CONGRESS, July 4, 1776.\n&quot;
@@ -345,7 +345,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  &quot;\n&quot;
 //  &quot; Nothing in this Charter shall be interpreted as implying any right to\n&quot;
 //  &quot; engage in any activity or to perform any act aimed at the destruction\n&quot;
-//  &quot; of any of the rights and freedoms recognised in this Charter or at\n&quot;
+//  &quot; of any of the rights and freedoms recognized in this Charter or at\n&quot;
 //  &quot; their limitation to a greater extent than is provided for herein.\n&quot;;
 //
 //  static char * const documents[]  = { document0,
@@ -472,7 +472,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //..
 // {&#39;bslstl_unorderedmap&#39;|Example 3} shows how to use the concordance to create
 // an inverse concordance, and how to use the inverse concordance to find the
-// context (surrouding words) of a word of interest.
+// context (surrounding words) of a word of interest.
 
 #if defined(BSL_OVERRIDES_STD) &amp;&amp; !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
 // Prevent &#39;bslstl&#39; headers from being included directly in &#39;BSL_OVERRIDES_STD&#39;
@@ -653,75 +653,78 @@ class unordered_multimap
   public:
     // CREATORS
     explicit unordered_multimap(
-                           size_type             initialNumBuckets = 0,
-                           const hasher&amp;         hash = hasher(),
-                           const key_equal&amp;      keyEqual = key_equal(),
-                           const allocator_type&amp; allocator = allocator_type());
+                      size_type             initialNumBuckets = 0,
+                      const hasher&amp;         hashFunction = hasher(),
+                      const key_equal&amp;      keyEqual = key_equal(),
+                      const allocator_type&amp; basicAllocator = allocator_type());
         // Construct an empty unordered multi map.  Optionally specify an
         // &#39;initialNumBuckets&#39; indicating the initial size of the array of
         // buckets of this container.  If &#39;initialNumBuckets&#39; is not supplied,
         // an implementation defined value is used.  Optionally specify a
-        // &#39;hasher&#39; used to generate the hash values associated to the
-        // key-value pairs contained in this object.  If &#39;hash&#39; is not
+        // &#39;hashFunction&#39; used to generate the hash values associated to the
+        // key-value pairs contained in this object.  If &#39;hashFunction&#39; is not
         // supplied, a default-constructed object of type &#39;hasher&#39; is used.
         // Optionally specify a key-equality functor &#39;keyEqual&#39; used to verify
         // that two key values are the same.  If &#39;keyEqual&#39; is not supplied, a
         // default-constructed object of type &#39;key_equal&#39; is used.  Optionally
-        // specify an &#39;allocator&#39; used to supply memory.  If &#39;allocator&#39; is not
-        // supplied, a default-constructed object of the (template parameter)
-        // type &#39;allocator_type&#39; is used.  If the &#39;allocator_type&#39; is
-        // &#39;bsl::allocator&#39; (the default), then &#39;allocator&#39; shall be
-        // convertible to &#39;bslma::Allocator *&#39;.  If the &#39;ALLOCATOR&#39; is
-        // &#39;bsl::allocator&#39; and &#39;allocator&#39; is not supplied, the currently
-        // installed default allocator will be used to supply memory.
+        // specify the &#39;basicAllocator&#39; used to supply memory.  If
+        // &#39;basicAllocator&#39; is not supplied, a default-constructed object of
+        // the (template parameter) type &#39;allocator_type&#39; is used.  If the
+        // &#39;allocator_type&#39; is &#39;bsl::allocator&#39; (the default), then
+        // &#39;basicAllocator&#39; shall be convertible to &#39;bslma::Allocator *&#39;.  If
+        // the &#39;ALLOCATOR&#39; is &#39;bsl::allocator&#39; and &#39;basicAllocator&#39; is not
+        // supplied, the currently installed default allocator will be used to
+        // supply memory.
 
-    explicit unordered_multimap(const allocator_type&amp; allocator);
+    explicit unordered_multimap(const allocator_type&amp; basicAllocator);
         // Construct an empty unordered multi map that uses the specified
-        // &#39;allocator&#39; to supply memory.  Use a default-constructed object of
-        // type &#39;hasher&#39; to generate hash values for the key-value pairs
+        // &#39;basicAllocator&#39; to supply memory.  Use a default-constructed object
+        // of type &#39;hasher&#39; to generate hash values for the key-value pairs
         // contained in this object.  Also, use a default-constructed object of
         // type &#39;key_equal&#39; to verify that two key values are the same.  If the
-        // &#39;allocator_type&#39; is &#39;bsl::allocator&#39; (the default), then &#39;allocator&#39;
-        // shall be convertible to &#39;bslma::Allocator *&#39;.
+        // &#39;allocator_type&#39; is &#39;bsl::allocator&#39; (the default), then
+        // &#39;basicAllocator&#39; shall be convertible to &#39;bslma::Allocator *&#39;.
 
     unordered_multimap(const unordered_multimap&amp; original);
     unordered_multimap(const unordered_multimap&amp; original,
-                       const allocator_type&amp;     allocator);
+                       const allocator_type&amp;     basicAllocator);
         // Construct an unordered multi map having the same value as that of
         // the specified &#39;original&#39;.  Use a default-constructed object of type
         // &#39;hasher&#39; to generate hash values for the key-value pairs contained
         // in this object.  Also, use a default-constructed object of type
         // &#39;key_equal&#39; to verify that two key values are the same.  Optionally
-        // specify an &#39;allocator&#39; used to supply memory.  If &#39;allocator&#39; is not
-        // supplied, a default-constructed object of type &#39;allocator_type&#39; is
-        // used.  If the &#39;allocator_type&#39; is &#39;bsl::allocator&#39; (the default),
-        // then &#39;allocator&#39; shall be convertible to &#39;bslma::Allocator *&#39;.
+        // specify the &#39;basicAllocator&#39; used to supply memory.  If
+        // &#39;basicAllocator&#39; is not supplied, a default-constructed object of
+        // type &#39;allocator_type&#39; is used.  If the &#39;allocator_type&#39; is
+        // &#39;bsl::allocator&#39; (the default), then &#39;basicAllocator&#39; shall be
+        // convertible to &#39;bslma::Allocator *&#39;.
 
     template &lt;class INPUT_ITERATOR&gt;
     unordered_multimap(INPUT_ITERATOR        first,
                        INPUT_ITERATOR        last,
                        size_type             initialNumBuckets = 0,
-                       const hasher&amp;         hash = hasher(),
+                       const hasher&amp;         hashFunction = hasher(),
                        const key_equal&amp;      keyEqual = key_equal(),
-                       const allocator_type&amp; allocator = allocator_type());
+                       const allocator_type&amp; basicAllocator =allocator_type());
         // Construct an empty unordered multi map and insert each &#39;value_type&#39;
         // object in the sequence starting at the specified &#39;first&#39; element,
         // and ending immediately before the specified &#39;last&#39; element.
         // Optionally specify an &#39;initialNumBuckets&#39; indicating the initial
         // size of the array of buckets of this container.  If
         // &#39;initialNumBuckets&#39; is not supplied, an implementation defined value
-        // is used.  Optionally specify a &#39;hasher&#39; used to generate hash values
-        // for the key-value pairs contained in this object.  If &#39;hash&#39; is not
-        // supplied, a default-constructed object of type &#39;hasher&#39; is used.
-        // Optionally specify a key-equality functor &#39;keyEqual&#39; used to verify
-        // that two key values are the same.  If &#39;keyEqual&#39; is not supplied, a
-        // default-constructed object of type &#39;key_equal&#39; is used.  Optionally
-        // specify an &#39;allocator&#39; used to supply memory.  If &#39;allocator&#39; is not
-        // supplied, a default-constructed object of the (template parameter)
-        // type &#39;allocator_type&#39; is used.  If the &#39;allocator_type&#39; is
-        // &#39;bsl::allocator&#39; (the default), then &#39;allocator&#39; shall be
+        // is used.  Optionally specify a &#39;hashFunction&#39; used to generate hash
+        // values for the key-value pairs contained in this object.  If
+        // &#39;hashFunction&#39; is not supplied, a default-constructed object of type
+        // &#39;hasher&#39; is used.  Optionally specify a key-equality functor
+        // &#39;keyEqual&#39; used to verify that two key values are the same.  If
+        // &#39;keyEqual&#39; is not supplied, a default-constructed object of type
+        // &#39;key_equal&#39; is used.  Optionally specify the &#39;basicAllocator&#39; used
+        // to supply memory.  If &#39;basicAllocator&#39; is not supplied, a
+        // default-constructed object of the (template parameter) type
+        // &#39;allocator_type&#39; is used.  If the &#39;allocator_type&#39; is
+        // &#39;bsl::allocator&#39; (the default), then &#39;basicAllocator&#39; shall be
         // convertible to &#39;bslma::Allocator *&#39;.  If the &#39;allocator_type&#39; is
-        // &#39;bsl::allocator&#39; and &#39;allocator&#39; is not supplied, the currently
+        // &#39;bsl::allocator&#39; and &#39;basicAllocator&#39; is not supplied, the currently
         // installed default allocator will be used to supply memory.  The
         // (template parameter) type &#39;INPUT_ITERATOR&#39; shall meet the
         // requirements of an input iterator defined in the C++11 standard
@@ -748,8 +751,8 @@ class unordered_multimap
     iterator begin();
         // Return an iterator providing modifiable access to the first
         // &#39;value_type&#39; object (in the sequence of &#39;value_type&#39; objects)
-        // maintained by this multi-map, or the &#39;end&#39; iterator if
-        // this multi-map is empty.
+        // maintained by this multi-map, or the &#39;end&#39; iterator if this
+        // multi-map is empty.
 
     iterator end();
         // Return an iterator providing modifiable access to the past-the-end
@@ -758,15 +761,14 @@ class unordered_multimap
 
     local_iterator begin(size_type index);
         // Return a local iterator providing modifiable access to the first
-        // &#39;value_type&#39; object in the sequence of &#39;value_type&#39; objects
-        // of the bucket having the specified &#39;index&#39;, in the array of buckets
-        // maintained by this multi-map, or the &#39;end(index)&#39;
-        // otherwise.
+        // &#39;value_type&#39; object in the sequence of &#39;value_type&#39; objects of the
+        // bucket having the specified &#39;index&#39;, in the array of buckets
+        // maintained by this multi-map, or the &#39;end(index)&#39; otherwise.
 
     local_iterator end(size_type index);
         // Return a local iterator providing modifiable access to the
         // past-the-end element in the sequence of &#39;value_type&#39; objects of the
-        // bucket having the specified &#39;index&#39;s , in the array of buckets
+        // bucket having the specified &#39;index&#39;s, in the array of buckets
         // maintained by this multi-map.
 
     template &lt;class SOURCE_TYPE&gt;
@@ -780,40 +782,38 @@ class unordered_multimap
 
     template &lt;class SOURCE_TYPE&gt;
     iterator insert(const_iterator hint, const SOURCE_TYPE&amp; value);
-        // Insert the specified &#39;value&#39; into this multi-map (in
-        // constant time if the specified &#39;hint&#39; is a valid element in the
-        // bucket to which &#39;value&#39; belongs).  Return an iterator referring to
-        // the newly inserted &#39;value_type&#39; object in this multi-map whose key
-        // is the same as that of &#39;value&#39;.  If &#39;hint&#39; is not a position in the
-        // bucket of the key of &#39;value&#39;, this operation will have worst case
-        // O[N] and average case constant time complexity, where &#39;N&#39; is the
-        // size of this multi-map.  The behavior is
-        // undefined unless &#39;hint&#39; is a valid iterator into this unordered
-        // multi map.  This method requires that the (template parameter) types
-        // &#39;KEY&#39; and &#39;VALUE&#39; both be &quot;copy-constructible&quot; (see {Requirements on
-        // &#39;KEY&#39; and &#39;VALUE&#39;}).  Note that this one template stands in for two
-        // &#39;insert&#39; functions in the C++11 standard.
+        // Insert the specified &#39;value&#39; into this multi-map (in constant time
+        // if the specified &#39;hint&#39; is a valid element in the bucket to which
+        // &#39;value&#39; belongs).  Return an iterator referring to the newly
+        // inserted &#39;value_type&#39; object in this multi-map whose key is the same
+        // as that of &#39;value&#39;.  If &#39;hint&#39; is not a position in the bucket of
+        // the key of &#39;value&#39;, this operation will have worst case O[N] and
+        // average case constant time complexity, where &#39;N&#39; is the size of this
+        // multi-map.  The behavior is undefined unless &#39;hint&#39; is a valid
+        // iterator into this unordered multi map.  This method requires that
+        // the (template parameter) types &#39;KEY&#39; and &#39;VALUE&#39; both be
+        // &quot;copy-constructible&quot; (see {Requirements on &#39;KEY&#39; and &#39;VALUE&#39;}).
+        // Note that this one template stands in for two &#39;insert&#39; functions in
+        // the C++11 standard.
 
     template &lt;class INPUT_ITERATOR&gt;
     void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
-        // Insert into this multi-map the value of each &#39;value_type&#39;
-        // object in the range starting at the specified &#39;first&#39; iterator and
-        // ending immediately before the specified &#39;last&#39; iterator.  The
-        // (template parameter) type &#39;INPUT_ITERATOR&#39; shall meet the
-        // requirements of an input iterator defined in the C++11 standard
-        // [24.2.3] providing access to values of a type convertible to
-        // &#39;value_type&#39;.  This method requires that the (template parameter)
-        // types &#39;KEY&#39; and &#39;VALUE&#39; both be &quot;copy-constructible&quot; (see
-        // {Requirements on &#39;KEY&#39; and &#39;VALUE&#39;}).
+        // Insert into this multi-map the value of each &#39;value_type&#39; object in
+        // the range starting at the specified &#39;first&#39; iterator and ending
+        // immediately before the specified &#39;last&#39; iterator.  The (template
+        // parameter) type &#39;INPUT_ITERATOR&#39; shall meet the requirements of an
+        // input iterator defined in the C++11 standard [24.2.3] providing
+        // access to values of a type convertible to &#39;value_type&#39;.  This method
+        // requires that the (template parameter) types &#39;KEY&#39; and &#39;VALUE&#39; both
+        // be &quot;copy-constructible&quot; (see {Requirements on &#39;KEY&#39; and &#39;VALUE&#39;}).
 
     iterator erase(const_iterator position);
-        // Remove from this multi-map the &#39;value_type&#39; object at the
-        // specified &#39;position&#39;, and return an iterator referring to the
-        // element immediately following the removed element, or to the
-        // past-the-end position if the removed element was the last element in
-        // the sequence of elements maintained by this container.  The behavior
-        // is undefined unless &#39;position&#39; refers to a &#39;value_type&#39; object in
-        // this multi-map.
+        // Remove from this multi-map the &#39;value_type&#39; object at the specified
+        // &#39;position&#39;, and return an iterator referring to the element
+        // immediately following the removed element, or to the past-the-end
+        // position if the removed element was the last element in the sequence
+        // of elements maintained by this container.  The behavior is undefined
+        // unless &#39;position&#39; refers to a &#39;value_type&#39; object in this multi-map.
 
     size_type erase(const key_type&amp; key);
         // Remove from this container all objects whose keys match the
@@ -841,12 +841,12 @@ class unordered_multimap
 
     pair&lt;iterator, iterator&gt; equal_range(const key_type&amp; key);
         // Return a pair of iterators providing modifiable access to the
-        // sequence of &#39;value_type&#39; objects in this multi-map
-        // matching the specified &#39;key&#39;, where the the first iterator is
-        // positioned at the start of the sequence, and the second is
-        // positioned one past the end of the sequence.  If this unordered
-        // multi map contains no &#39;value_type&#39; objects matching &#39;key&#39;, then the
-        // two returned iterators will have the same value.
+        // sequence of &#39;value_type&#39; objects in this multi-map matching the
+        // specified &#39;key&#39;, where the the first iterator is positioned at the
+        // start of the sequence, and the second is positioned one past the end
+        // of the sequence.  If this unordered multi map contains no
+        // &#39;value_type&#39; objects matching &#39;key&#39;, then the two returned iterators
+        // will have the same value.
 
     void max_load_factor(float newLoadFactor);
         // Set the maximum load factor of this container to the specified
@@ -859,19 +859,18 @@ class unordered_multimap
         // to the specified &#39;numBuckets&#39;, and redistribute all the contained
         // elements into the new sequence of buckets, according to their hash
         // values.  Note that this operation has no effect if rehashing the
-        // elements into &#39;numBuckets&#39; would cause this multi-map to
-        // exceed its &#39;max_load_factor&#39;.
+        // elements into &#39;numBuckets&#39; would cause this multi-map to exceed its
+        // &#39;max_load_factor&#39;.
 
     void reserve(size_type numElements);
         // Increase the number of buckets of this set to a quantity such that
         // the ratio between the specified &#39;numElements&#39; and this quantity does
-        // not exceed &#39;max_load_factor&#39;, and allocate footprint memory
-        // sufficient to grow the table to contain &#39;numElements&#39; elements.
-        // Note that this guarantees that, after the reserve, elements can be
-        // inserted to grow the container to &#39;size() == numElements&#39; without
-        // any further allocation, unless the &#39;KEY&#39; or &#39;VALUE&#39; types themselves
-        // or the hash function allocate memory.  Also note that this operation
-        // has no effect if &#39;numElements &lt;= size()&#39;.
+        // not exceed &#39;max_load_factor&#39;.  Note that this guarantees that, after
+        // the reserve, elements can be inserted to grow the container to
+        // &#39;size() == numElements&#39; without rehashing. Also note that memory
+        // allocations may still occur when growing the container to &#39;size() ==
+        // numElements&#39;.  Also note that this operation has no effect if
+        // &#39;numElements &lt;= size()&#39;.
 
     void swap(unordered_multimap&amp; other);
         // Exchange the value of this object as well as its hasher and
@@ -894,8 +893,8 @@ class unordered_multimap
     const_iterator cbegin() const;
         // Return an iterator providing non-modifiable access to the first
         // &#39;value_type&#39; object (in the sequence of &#39;value_type&#39; objects)
-        // maintained by this multi-map, or the &#39;end&#39; iterator if
-        // this multi-map is empty.
+        // maintained by this multi-map, or the &#39;end&#39; iterator if this
+        // multi-map is empty.
 
     const_iterator end() const;
     const_iterator cend() const;
@@ -956,13 +955,12 @@ class unordered_multimap
         // same value.
 
     const_iterator find(const key_type&amp; key) const;
-        // Return an iterator providing non-modifiable access to the
-        // first &#39;value_type&#39; object in the sequence of all the &#39;value_type&#39;
-        // objects of this container matching the specified &#39;key&#39;, if they
-        // exist, and the past-the-end (&#39;end&#39;) iterator otherwise.  If multiple
-        // elements match &#39;key&#39;, they are guaranteed to be adjacent to each
-        // other, and this function will return the first
-        // in the sequence.
+        // Return an iterator providing non-modifiable access to the first
+        // &#39;value_type&#39; object in the sequence of all the &#39;value_type&#39; objects
+        // of this container matching the specified &#39;key&#39;, if they exist, and
+        // the past-the-end (&#39;end&#39;) iterator otherwise.  If multiple elements
+        // match &#39;key&#39;, they are guaranteed to be adjacent to each other, and
+        // this function will return the first in the sequence.
 
     hasher hash_function() const;
         // Return (a copy of) the hash unary functor used by this container to
@@ -980,9 +978,9 @@ class unordered_multimap
         // number of collisions, thus resulting in a loss performance.
 
     float max_load_factor() const;
-        // Return the maximum load factor allowed for this container.  If
-        // an insert operation would cause &#39;load_factor&#39; to exceed
-        // the &#39;max_load_factor&#39;, that same insert operation will increase the
+        // Return the maximum load factor allowed for this container.  If an
+        // insert operation would cause &#39;load_factor&#39; to exceed the
+        // &#39;max_load_factor&#39;, that same insert operation will increase the
         // number of buckets and rehash the elements of the container into
         // those buckets the (see rehash).  Note that it is possible for the
         // load factor of this container to exceed &#39;max_load_factor&#39;,
@@ -1008,8 +1006,7 @@ bool operator==(
     // key-value pair that is contained in &#39;lhs&#39; there is a pair value-key
     // contained in &#39;rhs&#39; having the same value, and vice-versa.  This method
     // requires that the (template parameter) types &#39;KEY&#39; and &#39;VALUE&#39; both be
-    // &quot;equality-comparable&quot; (see {Requirements
-    // on &#39;KEY&#39; and &#39;VALUE&#39;}).
+    // &quot;equality-comparable&quot; (see {Requirements on &#39;KEY&#39; and &#39;VALUE&#39;}).
 
 template &lt;class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR&gt;
 bool operator!=(
@@ -1032,13 +1029,13 @@ void swap(unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;&amp; x,
     // &#39;bslstl::AllocatorTraits&lt;ALLOCATOR&gt;::propagate_on_container_swap&#39; is
     // &#39;true&#39; then exchange the allocator of &#39;a&#39; with that of &#39;b&#39;, and do not
     // modify either allocator otherwise.  This method provides the no-throw
-    // exception-safety guarantee and guarantees O[1] complexity.  The
-    // behavior is undefined is unless either this object was created with the
-    // same allocator as &#39;other&#39; or &#39;propagate_on_container_swap&#39; is &#39;true&#39;.
+    // exception-safety guarantee and guarantees O[1] complexity.  The behavior
+    // is undefined is unless either this object was created with the same
+    // allocator as &#39;other&#39; or &#39;propagate_on_container_swap&#39; is &#39;true&#39;.
 
-// ===========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         //-------------------------
                         // class unordered_multimap
@@ -1048,10 +1045,10 @@ void swap(unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;&amp; x,
 template &lt;class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR&gt;
 unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;::unordered_multimap(
                                        size_type             initialNumBuckets,
-                                       const hasher&amp;         hash,
+                                       const hasher&amp;         hashFunction,
                                        const key_equal&amp;      keyEqual,
-                                       const allocator_type&amp; allocator)
-: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, allocator)
+                                       const allocator_type&amp; basicAllocator)
+: d_impl(hashFunction, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
 {
 }
 
@@ -1061,10 +1058,10 @@ unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;::
 unordered_multimap(INPUT_ITERATOR        first,
                    INPUT_ITERATOR        last,
                    size_type             initialNumBuckets,
-                   const hasher&amp;         hash,
+                   const hasher&amp;         hashFunction,
                    const key_equal&amp;      keyEqual,
-                   const allocator_type&amp; allocator)
-: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, allocator)
+                   const allocator_type&amp; basicAllocator)
+: d_impl(hashFunction, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
 {
     this-&gt;insert(first, last);
 }
@@ -1081,17 +1078,17 @@ unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;::unordered_multimap
 
 template &lt;class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR&gt;
 unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;::unordered_multimap(
-                                               const allocator_type&amp; allocator)
-: d_impl(allocator)
+                                          const allocator_type&amp; basicAllocator)
+: d_impl(basicAllocator)
 {
 }
 
 template &lt;class KEY, class VALUE, class HASH, class EQUAL,
           class ALLOCATOR&gt;
 unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;::unordered_multimap(
-                                           const unordered_multimap&amp; original,
-                                           const allocator_type&amp;     allocator)
-: d_impl(original.d_impl, allocator)
+                                      const unordered_multimap&amp; original,
+                                      const allocator_type&amp;     basicAllocator)
+: d_impl(original.d_impl, basicAllocator)
 {
 }
 
@@ -1604,25 +1601,19 @@ struct UsesBslmaAllocator&lt;bsl::unordered_multimap&lt;KEY,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the &quot;Software&quot;), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
 </pre>
 </body>

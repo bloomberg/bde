@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: bsls_annotation Component</title>
+<title>BDE 2.22.1.2 OSS: bsls_annotation Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -121,13 +121,17 @@
 <td>BSLS_ANNOTATION_WARN_UNUSED_RESULT </td><td>warn if annotated function result used  </td></tr>
 <tr>
 <td>BSLS_ANNOTATION_DEPRECATED </td><td>warn if annotated entity is used  </td></tr>
+<tr>
+<td>BSLS_ANNOTATION_USED </td><td>emit annotated entity even if not referenced  </td></tr>
+<tr>
+<td>BSLS_ANNOTATION_UNUSED </td><td>do not warn if annotated entity is unused  </td></tr>
 </table>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="4"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This component provides a suite of preprocessor macros that define compiler-specific compile-time annotations. These macros, which correspond to various compiler features, can be used to annotate code for specific compile-time safety checks. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>For the most part, these compile-time annotations are supported only when the <code>BSLS_PLATFORM_CMP_GNU</code> preprocessor macro is defined. Other compilers may implement a few annotations, but the macros should be expected to work only with compilers for which <code>BSLS_PLATFORM_CMP_GNU</code> is defined. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>For the most part, these compile-time annotations are supported only when the <code>BSLS_PLATFORM_CMP_GNU</code> or <code>BSLS_PLATFORM_CMP_CLANG</code> preprocessor macro is defined. Other compilers may implement a few annotations, but the macros should be expected to work only with compilers for which <code>BSLS_PLATFORM_CMP_GNU</code> or <code>BSLS_PLATFORM_CMP_CLANG</code> is defined. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="function_annotations"></a> <a class="anchor" id="description.function_annotations"></a> <a class="anchor" id="4.1"></a> </dd></dl>
 <dl class="user"><dt><b>Function Annotations: </b></dt><dd></dd></dl>
@@ -138,7 +142,7 @@
   <a class="code" href="bsls__annotation_8h.html#ada568c2d16743408b563006a1575db76">BSLS_ANNOTATION_ALLOC_SIZE_MUL</a>(x, y)
 </pre></div><br/>
 <br/>
- This annotation is used to inform the compiler that the return value of the so-annotated function is the address of an allocated block of memory whose size (in bytes) is given by one or two of the function parameters. Certain compilers use this information to improve the correctness of built-in object-size functions (e.g., <code>__builtin_object_size</code> with <code>BSLS_PLATFORM_CMP_GNU</code>). </dd></dl>
+ This annotation is used to inform the compiler that the return value of the so-annotated function is the address of an allocated block of memory whose size (in bytes) is given by one or two of the function parameters. Certain compilers use this information to improve the correctness of built-in object-size functions (e.g., <code>__builtin_object_size</code> with <code>BSLS_PLATFORM_CMP_GNU</code> or <code>BSLS_PLATFORM_CMP_CLANG</code>). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The function parameter(s) denoting the size of the block are specified by one or two integer arguments supplied to the macro. The allocated size (in bytes) is either the value of the single function argument or the product of the two arguments. Argument numbering starts at one. For example: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keywordtype">void</span> *my_calloc(<span class="keywordtype">size_t</span>, <span class="keywordtype">size_t</span>) <a class="code" href="bsls__annotation_8h.html#ada568c2d16743408b563006a1575db76">BSLS_ANNOTATION_ALLOC_SIZE_MUL</a>(1, 2);
@@ -222,6 +226,12 @@
  In the above code, the third line results in a compiler warning. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><br/>
 <br/>
+<div class="fragment"><pre class="fragment">  <a class="code" href="bsls__annotation_8h.html#a2c4d1102ee4df8db8f51b775de2c9293">BSLS_ANNOTATION_USED</a>
+</pre></div><br/>
+<br/>
+ This annotation indicates that the so-annotated function, variable, or type must be emitted even if it appears that the variable is not referenced. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><br/>
+<br/>
 <div class="fragment"><pre class="fragment">  <a class="code" href="bsls__annotation_8h.html#a810e5f2c5a9d09d9b4c904f00abb7a0a">BSLS_ANNOTATION_UNUSED</a>
 </pre></div><br/>
 <br/>
@@ -242,7 +252,7 @@
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:34 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:28 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

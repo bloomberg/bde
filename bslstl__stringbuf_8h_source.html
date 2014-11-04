@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.20 OSS</title>
+<title>BDE 2.22.1.2 OSS</title>
 <html>
 <pre>
 // bslstl_stringbuf.h                                                 -*-C++-*-
@@ -164,12 +164,8 @@ BSL_OVERRIDES_STD mode&quot;
 #include &lt;bslstl_string.h&gt;
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include &lt;bslalg_typetraits.h&gt;
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITUSESBSLMAALLOCATOR
-#include &lt;bslalg_typetraitusesbslmaallocator.h&gt;
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include &lt;bslma_usesbslmaallocator.h&gt;
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -205,6 +201,7 @@ BSL_OVERRIDES_STD mode&quot;
 #include &lt;streambuf&gt;
 #define INCLUDED_STREAMBUF
 #endif
+
 
 namespace bsl {
 
@@ -431,16 +428,16 @@ class basic_stringbuf
   public:
     // CREATORS
     explicit
-    basic_stringbuf(const allocator_type&amp; allocator = allocator_type());
+    basic_stringbuf(const allocator_type&amp; basicAllocator = allocator_type());
     explicit
     basic_stringbuf(ios_base::openmode    modeBitMask,
-                    const allocator_type&amp; allocator = allocator_type());
+                    const allocator_type&amp; basicAllocator = allocator_type());
     explicit
     basic_stringbuf(const StringType&amp;     initialString,
-                    const allocator_type&amp; allocator = allocator_type());
+                    const allocator_type&amp; basicAllocator = allocator_type());
     basic_stringbuf(const StringType&amp;     initialString,
                     ios_base::openmode    modeBitMask,
-                    const allocator_type&amp; allocator = allocator_type());
+                    const allocator_type&amp; basicAllocator = allocator_type());
         // Create a &#39;basic_stringbuf&#39; object.  Optionally specify a
         // &#39;modeBitMask&#39; indicating whether this buffer may be read from,
         // written to, or both.  If &#39;modeBitMask&#39; is not supplied, this buffer
@@ -448,13 +445,13 @@ class basic_stringbuf
         // an &#39;initialString&#39; indicating the initial sequence of characters
         // that this buffer will access or manipulate.  If &#39;initialString&#39; is
         // not supplied, the initial sequence of characters will be empty.
-        // Optionally specify an &#39;allocator&#39; used to supply memory.  If
-        // &#39;allocator&#39; is not supplied, a default-constructed object of the
-        // (template parameter) &#39;ALLOCATOR&#39; type is used.  If the &#39;ALLOCATOR&#39;
-        // argument is of type &#39;bsl::allocator&#39; (the default), then
-        // &#39;allocator&#39;, if supplied, shall be convertible to
+        // Optionally specify the &#39;basicAllocator&#39; used to supply memory.  If
+        // &#39;basicAllocator&#39; is not supplied, a default-constructed object of
+        // the (template parameter) &#39;ALLOCATOR&#39; type is used.  If the
+        // &#39;ALLOCATOR&#39; argument is of type &#39;bsl::allocator&#39; (the default), then
+        // &#39;basicAllocator&#39;, if supplied, shall be convertible to
         // &#39;bslma::Allocator *&#39;.  If the &#39;ALLOCATOR&#39; argument is of type
-        // &#39;bsl::allocator&#39; and &#39;allocator&#39; is not supplied, the currently
+        // &#39;bsl::allocator&#39; and &#39;basicAllocator&#39; is not supplied, the currently
         // installed default allocator will be used to supply memory.
 
     ~basic_stringbuf();
@@ -465,9 +462,9 @@ class basic_stringbuf
         // Reset the internally buffered sequence of characters to the
         // specified &#39;value&#39;.  Update the beginning and end of both the input
         // and output sequences to be the beginning and end of the updated
-        // buffer, update the current input position to be the beginning of
-        // the updated buffer, and update the current output position to be the
-        // end of the updated buffer.
+        // buffer, update the current input position to be the beginning of the
+        // updated buffer, and update the current output position to be the end
+        // of the updated buffer.
 
     // ACCESSORS
     StringType str() const;
@@ -517,27 +514,27 @@ class StringBufContainer {
   public:
     // CREATORS
     explicit
-    StringBufContainer(const ALLOCATOR&amp; allocator)
-    : d_bufObj(allocator)
+    StringBufContainer(const ALLOCATOR&amp; basicAllocator)
+    : d_bufObj(basicAllocator)
     {
     }
 
     StringBufContainer(ios_base::openmode modeBitMask,
-                       const ALLOCATOR&amp;   allocator)
-    : d_bufObj(modeBitMask, allocator)
+                       const ALLOCATOR&amp;   basicAllocator)
+    : d_bufObj(modeBitMask, basicAllocator)
     {
     }
 
     StringBufContainer(const StringType&amp; initialString,
-                       const ALLOCATOR&amp;  allocator)
-    : d_bufObj(initialString, allocator)
+                       const ALLOCATOR&amp;  basicAllocator)
+    : d_bufObj(initialString, basicAllocator)
     {
     }
 
     StringBufContainer(const StringType&amp;  initialString,
                        ios_base::openmode modeBitMask,
-                       const ALLOCATOR&amp;   allocator)
-    : d_bufObj(initialString, modeBitMask, allocator)
+                       const ALLOCATOR&amp;   basicAllocator)
+    : d_bufObj(initialString, modeBitMask, basicAllocator)
     {
     }
 
@@ -566,11 +563,14 @@ basic_stringbuf&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::
 {
     BSLS_ASSERT(d_mode &amp; ios_base::in);
     BSLS_ASSERT(&amp;d_str[0] &lt;= currentInputPosition);
-    BSLS_ASSERT(currentInputPosition &lt;= &amp;d_str[0] + streamSize());
+    BSLS_ASSERT(currentInputPosition &lt;=
+                        &amp;d_str[0] + static_cast&lt;std::ptrdiff_t&gt;(streamSize()));
 
     char_type *dataPtr = &amp;d_str[0];
 
-    this-&gt;setg(dataPtr, currentInputPosition, dataPtr + streamSize());
+    this-&gt;setg(dataPtr,
+               currentInputPosition,
+               dataPtr + static_cast&lt;std::ptrdiff_t&gt;(streamSize()));
     return pos_type(currentInputPosition - dataPtr);
 }
 
@@ -607,7 +607,7 @@ void basic_stringbuf&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::
 
         this-&gt;setg(dataPtr,
                    dataPtr + inputOffset,
-                   dataPtr + streamSize());
+                   dataPtr + static_cast&lt;std::ptrdiff_t&gt;(streamSize()));
     }
 
     if (d_mode &amp; ios_base::out) {
@@ -680,7 +680,9 @@ typename basic_stringbuf&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::pos_type
             inputPtr = this-&gt;gptr() + offset;
           } break;
           case ios_base::end: {
-            inputPtr = this-&gt;eback() + streamSize() + offset;
+            inputPtr = this-&gt;eback()
+                       + static_cast&lt;std::ptrdiff_t&gt;(streamSize())
+                       + offset;
           } break;
           default: {
             BSLS_ASSERT_OPT(false &amp;&amp; &quot;invalid seekdir argument&quot;);
@@ -688,7 +690,8 @@ typename basic_stringbuf&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::pos_type
         }
 
         if (inputPtr &lt; this-&gt;eback()
-         || inputPtr &gt; this-&gt;eback() + streamSize()) {
+         || inputPtr &gt;
+                   this-&gt;eback() + static_cast&lt;std::ptrdiff_t&gt;(streamSize())) {
             // &#39;inputPtr&#39; is outside the valid range of the string buffer.
 
             return pos_type(off_type(-1));                            // RETURN
@@ -710,14 +713,17 @@ typename basic_stringbuf&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::pos_type
             outputPtr = this-&gt;pptr() + offset;
           } break;
           case ios_base::end: {
-            outputPtr = this-&gt;pbase() + streamSize() + offset;
+            outputPtr = this-&gt;pbase()
+                      + static_cast&lt;std::ptrdiff_t&gt;(streamSize())
+                      + offset;
           } break;
           default:
             BSLS_ASSERT_OPT(false &amp;&amp; &quot;invalid seekdir argument&quot;);
         }
 
         if (outputPtr &lt; this-&gt;pbase()
-         || outputPtr &gt; this-&gt;pbase() + streamSize()) {
+         || outputPtr &gt;
+                   this-&gt;pbase() + static_cast&lt;std::ptrdiff_t&gt;(streamSize())) {
             // &#39;outputPtr&#39; is outside the valid range of the string buffer.
 
             return pos_type(off_type(-1));                            // RETURN
@@ -751,9 +757,9 @@ native_std::streamsize
         return 0;                                                     // RETURN
     }
 
-    // Additional characters may become available for reading when the
-    // input area is extended to account for any characters newly written
-    // to the output sequence.
+    // Additional characters may become available for reading when the input
+    // area is extended to account for any characters newly written to the
+    // output sequence.
     extendInputArea();
 
     if (this-&gt;gptr() != this-&gt;egptr()) {
@@ -955,9 +961,9 @@ typename basic_stringbuf&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::int_type
 // CREATORS
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
 basic_stringbuf&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::
-    basic_stringbuf(const allocator_type&amp; allocator)
+    basic_stringbuf(const allocator_type&amp; basicAllocator)
 : BaseType()
-, d_str(allocator)
+, d_str(basicAllocator)
 , d_lastWrittenChar(0)
 , d_mode(ios_base::in | ios_base::out)
 {
@@ -967,9 +973,9 @@ basic_stringbuf&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
 basic_stringbuf&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::
     basic_stringbuf(ios_base::openmode    modeBitMask,
-                    const allocator_type&amp; allocator)
+                    const allocator_type&amp; basicAllocator)
 : BaseType()
-, d_str(allocator)
+, d_str(basicAllocator)
 , d_lastWrittenChar(0)
 , d_mode(modeBitMask)
 {
@@ -979,9 +985,9 @@ basic_stringbuf&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
 basic_stringbuf&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::
     basic_stringbuf(const StringType&amp;     initialString,
-                    const allocator_type&amp; allocator)
+                    const allocator_type&amp; basicAllocator)
 : BaseType()
-, d_str(initialString, allocator)
+, d_str(initialString, basicAllocator)
 , d_lastWrittenChar(initialString.size())
 , d_mode(ios_base::in | ios_base::out)
 {
@@ -993,9 +999,9 @@ inline
 basic_stringbuf&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::
     basic_stringbuf(const StringType&amp;     initialString,
                     ios_base::openmode    modeBitMask,
-                    const allocator_type&amp; allocator)
+                    const allocator_type&amp; basicAllocator)
 : BaseType()
-, d_str(initialString, allocator)
+, d_str(initialString, basicAllocator)
 , d_lastWrittenChar(initialString.size())
 , d_mode(modeBitMask)
 {
@@ -1037,7 +1043,8 @@ inline
 typename basic_stringbuf&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::StringType
     basic_stringbuf&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::str() const
 {
-    return StringType(d_str.begin(), d_str.begin() + streamSize());
+    return StringType(d_str.begin(), d_str.begin()
+                                  + static_cast&lt;std::ptrdiff_t&gt;(streamSize()));
 }
 
 }  // close namespace bsl
@@ -1061,25 +1068,19 @@ struct UsesBslmaAllocator&lt;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the &quot;Software&quot;), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
 </pre>
 </body>

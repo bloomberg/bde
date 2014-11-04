@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: bdldfp_decimal Component</title>
+<title>BDE 2.22.1.2 OSS: bdldfp_decimal Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -53,8 +53,7 @@
 </div>
 <div class="header">
   <div class="summary">
-<a href="#namespaces">Namespaces</a> &#124;
-<a href="#define-members">Defines</a>  </div>
+<a href="#namespaces">Namespaces</a>  </div>
   <div class="headertitle">
 <h1>Component bdldfp_decimal<br/>
 <small>
@@ -70,9 +69,6 @@
 Namespaces</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">namespace &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebdldfp.html">bdldfp</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">namespace &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestd.html">std</a></td></tr>
-<tr><td colspan="2"><h2><a name="define-members"></a>
-Defines</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdldfp__decimal.html#gaab794b51da43f0682f263a6c6d166347">BDLDFP_DECIMAL_SUN_WORKAROUND</a></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <dl class="user"><dt><b>Outline</b></dt><dd><ul>
@@ -129,13 +125,15 @@ Defines</h2></td></tr>
 <li>
 <a href="#4.6"><code>Decimal128</code> Type</a> </li>
 <li>
-<a href="#4.7">Preliminary Release - Known Bugs</a> </li>
+<a href="#4.7">Decimal Number Formatting</a> </li>
 <li>
-<a href="#4.8">Usage</a> <ul>
+<a href="#4.8">Preliminary Release - Known Bugs</a> </li>
 <li>
-<a href="#4.8.1">Example 1: Portable Initialization of Non-Integer, Constant Values</a> </li>
+<a href="#4.9">Usage</a> <ul>
 <li>
-<a href="#4.8.2">Example 2: Precise Calculations with Decimal Values</a> </li>
+<a href="#4.9.1">Example 1: Portable Initialization of Non-Integer, Constant Values</a> </li>
+<li>
+<a href="#4.9.2">Example 2: Precise Calculations with Decimal Values</a> </li>
 </ul>
 </li>
 </ul>
@@ -179,9 +177,10 @@ Defines</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="4"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides classes that implement decimal floating-point types that conform in layout, encoding and operations to the IEEE-754 2008 standard. This component also provides two facets to support standard C++ streaming operators as specified by ISO/IEC TR-24733:2009. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component provides classes that implement decimal floating-point types that conform in layout, encoding and operations to the IEEE-754 2008 standard. This component also provides two facets to support standard C++ streaming operators as specified by ISO/IEC TR-24733:2009. These classes are <code><a class="el" href="namespacebdldfp.html#a43ae56bdb8dbe611c06497965d404ccf">bdldfp::Decimal32</a></code> for 32-bit Decimal floating point numbers, <code><a class="el" href="namespacebdldfp.html#a5f13b247a3f13e3bffda9cfe51ee5845">bdldfp::Decimal64</a></code> for 64-bit Decimal floating point numbers, and <code><a class="el" href="namespacebdldfp.html#a09749072ea49a21ac8b190a712f99dd5">bdldfp::Decimal128</a></code> for 128-bit decimal floating point numbers. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Decimal encoded floating-point numbers are important where exact representation of decimal fractions is required, such as in financial transactions. Binary encoded floating-point numbers are generally optimal for complex computation but cannot exactly represent commonly encountered numbers such as 0.1, 0.2, and 0.99. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The BDE decimal floating-point system has been designed from the ground up to be portable and support writing portable decimal floating-point user code, even for systems that do not have compiler or native library support for it; while taking advantage of native support (such as ISO/IEC TR 24732 - C99 decimal TR) when available. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><code><a class="el" href="classbdldfp_1_1DecimalNumGet.html">bdldfp::DecimalNumGet</a></code> and <code><a class="el" href="classbdldfp_1_1DecimalNumPut.html">bdldfp::DecimalNumPut</a></code> are IO stream facets. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="floating-point_primer"></a> <a class="anchor" id="description.floating-point_primer"></a> <a class="anchor" id="4.1"></a> </dd></dl>
 <dl class="user"><dt><b>Floating-Point Primer: </b></dt><dd></dd></dl>
@@ -345,15 +344,19 @@ Note that the C++ Decimal TR uses a different, not-specified, and not very usefu
 <dl class="user"><dt><b></b></dt><dd>An basic format type that supports input, output, relational operators construction from the TR mandates data types and arithmetic or operations. The type has the size of exactly 128 bits. It supports 34 significant decimal digits and an exponent range of -6143 to 6144. The smallest non-zero value that can be represented is 1e-6176. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Portable <code>Decimal128</code> literals are created using the <code>BDLDFP_DECIMAL_DL</code> macro. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="preliminary_release_-_known_bugs"></a> <a class="anchor" id="description.preliminary_release_-_known_bugs"></a> <a class="anchor" id="4.7"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="decimal_number_formatting"></a> <a class="anchor" id="description.decimal_number_formatting"></a> <a class="anchor" id="4.7"></a> </dd></dl>
+<dl class="user"><dt><b>Decimal Number Formatting: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Streaming decimal floating point nubmers to an output stream currently supports formatting flags for width, capitalization, and justification. Because of potential for future improvements in format handling, the operations should not be used for serialization. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="preliminary_release_-_known_bugs"></a> <a class="anchor" id="description.preliminary_release_-_known_bugs"></a> <a class="anchor" id="4.8"></a> </dd></dl>
 <dl class="user"><dt><b>Preliminary Release - Known Bugs: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Stream output operators do not obey formatting flags or the precision algorithm as required by the TR; they instead print all significant digits all the time. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="4.8"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="4.9"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In this section, we show the intended usage of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_portable_initialization_of_non-integer,_constant_values"></a> <a class="anchor" id="usage.example_1~3A_portable_initialization_of_non-integer,_constant_values"></a> <a class="anchor" id="description.usage.example_1~3A_portable_initialization_of_non-integer,_constant_values"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="4.8.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_portable_initialization_of_non-integer,_constant_values"></a> <a class="anchor" id="usage.example_1~3A_portable_initialization_of_non-integer,_constant_values"></a> <a class="anchor" id="description.usage.example_1~3A_portable_initialization_of_non-integer,_constant_values"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="4.9.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Portable Initialization of Non-Integer, Constant Values: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>If your compiler does not support the C Decimal TR, it does not support decimal floating-point literals, only binary floating-point literals. The problem with binary floating-point literals is the same as with binary floating-point numbers in general: they cannot represent the decimal numbers we care about. To solve this problem there are 3 macros provided by this component that can be used to initialize decimal floating-point types with non-integer values, precisely. These macros will evaluate to real, C language literals where those are supported and to a runtime-parsed solution otherwise. The following code demonstrates the use of these macros as well as mixed-type arithmetics and comparisons: <br/>
 <br/>
@@ -369,7 +372,7 @@ Note that the C++ Decimal TR uses a different, not-specified, and not very usefu
 <br/>
  </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_precise_calculations_with_decimal_values"></a> <a class="anchor" id="usage.example_2~3A_precise_calculations_with_decimal_values"></a> <a class="anchor" id="description.usage.example_2~3A_precise_calculations_with_decimal_values"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="4.8.2"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_precise_calculations_with_decimal_values"></a> <a class="anchor" id="usage.example_2~3A_precise_calculations_with_decimal_values"></a> <a class="anchor" id="description.usage.example_2~3A_precise_calculations_with_decimal_values"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="4.9.2"></a> </dd></dl>
 <dl class="user"><dt><b>Example 2: Precise Calculations with Decimal Values: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Suppose we need to add two (decimal) numbers and then tell if the result is a particular decimal number or not. That can get difficult with binary floating-point, but easy with decimal: <br/>
 <br/>
@@ -381,22 +384,8 @@ Note that the C++ Decimal TR uses a different, not-specified, and not very usefu
 </pre></div><br/>
 <br/>
  </dd></dl>
-<hr/><h2>Define Documentation</h2>
-<a class="anchor" id="gaab794b51da43f0682f263a6c6d166347"></a><!-- doxytag: member="bdldfp_decimal.h::BDLDFP_DECIMAL_SUN_WORKAROUND" ref="gaab794b51da43f0682f263a6c6d166347" args="" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define BDLDFP_DECIMAL_SUN_WORKAROUND</td>
-        </tr>
-      </table>
 </div>
-<div class="memdoc">
-
-</div>
-</div>
-</div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:32 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:27 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

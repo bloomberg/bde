@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.20 OSS</title>
+<title>BDE 2.22.1.2 OSS</title>
 <html>
 <pre>
 // bslstl_unorderedmultiset.h                                         -*-C++-*-
@@ -34,7 +34,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // tested for equality.  It is even possible to instantiate
 // &#39;unordered_multiset&#39; with a key type that does not have an accessible
 // copy-constructor, in which case the &#39;unordered_multiset&#39; will not be
-// copyable.  Note that the equality comparsion operator &#39;operator==&#39; for each
+// copyable.  Note that the equality comparison operator &#39;operator==&#39; for each
 // element is used to determine when two &#39;unordered_multiset&#39; objects have the
 // same value, and not the equality comparator supplied at construction.
 //
@@ -449,7 +449,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //          &amp;&amp; lhs.d_project  == rhs.d_project;
 //  }
 //..
-// Notice that many of the required methods of the hash and comparitor types
+// Notice that many of the required methods of the hash and comparator types
 // are compiler generated.  (The declaration of those methods are commented out
 // and suffixed by an &#39;= default&#39; comment.)
 //
@@ -730,58 +730,60 @@ class unordered_multiset
   public:
     // CREATORS
     explicit unordered_multiset(
-                           size_type             initialNumBuckets = 0,
-                           const hasher&amp;         hash = hasher(),
-                           const key_equal&amp;      keyEqual = key_equal(),
-                           const allocator_type&amp; allocator = allocator_type());
+                      size_type             initialNumBuckets = 0,
+                      const hasher&amp;         hashFunction = hasher(),
+                      const key_equal&amp;      keyEqual = key_equal(),
+                      const allocator_type&amp; basicAllocator = allocator_type());
         // Construct an empty unordered multi-set.  Optionally specify an
         // &#39;initialNumBuckets&#39; indicating the initial size of the array of
         // buckets of this container.  If &#39;initialNumBuckets&#39; is not supplied,
         // an implementation defined value is used.  Optionally specify a
-        // &#39;hasher&#39; used to generate the hash values associated to the
-        // keys extracted from the values contained in this object.  If &#39;hash&#39;
-        // is not supplied, a default-constructed object of type &#39;hasher&#39; is
-        // used.  Optionally specify a key-equality functor &#39;keyEqual&#39; used to
-        // verify that two key values are the same.  If &#39;keyEqual&#39; is not
-        // supplied, a default-constructed object of type &#39;key_equal&#39; is used.
-        // Optionally specify an &#39;allocator&#39; used to supply memory.  If
-        // &#39;allocator&#39; is not supplied, a default-constructed object of the
-        // (template parameter) type &#39;allocator_type&#39; is used.  If the
-        // &#39;allocator_type&#39; is &#39;bsl::allocator&#39; (the default), then &#39;allocator&#39;
-        // shall be convertible to &#39;bslma::Allocator *&#39;.  If the &#39;ALLOCATOR&#39; is
-        // &#39;bsl::allocator&#39; and &#39;allocator&#39; is not supplied, the currently
+        // &#39;hashFunction&#39; used to generate the hash values associated to the
+        // keys extracted from the values contained in this object.  If
+        // &#39;hashFunction&#39; is not supplied, a default-constructed object of type
+        // &#39;hasher&#39; is used.  Optionally specify a key-equality functor
+        // &#39;keyEqual&#39; used to verify that two key values are the same.  If
+        // &#39;keyEqual&#39; is not supplied, a default-constructed object of type
+        // &#39;key_equal&#39; is used.  Optionally specify the &#39;basicAllocator&#39; used
+        // to supply memory.  If &#39;basicAllocator&#39; is not supplied, a
+        // default-constructed object of the (template parameter) type
+        // &#39;allocator_type&#39; is used.  If the &#39;allocator_type&#39; is
+        // &#39;bsl::allocator&#39; (the default), then &#39;basicAllocator&#39; shall be
+        // convertible to &#39;bslma::Allocator *&#39;.  If the &#39;ALLOCATOR&#39; is
+        // &#39;bsl::allocator&#39; and &#39;basicAllocator&#39; is not supplied, the currently
         // installed default allocator will be used to supply memory.
 
-    explicit unordered_multiset(const allocator_type&amp; allocator);
+    explicit unordered_multiset(const allocator_type&amp; basicAllocator);
         // Construct an empty unordered multi-set that uses the specified
-        // &#39;allocator&#39; to supply memory.  Use a default-constructed object of
-        // type &#39;hasher&#39; to generate hash values for the key extracted from the
-        // values contained in this object.  Also, use a default-constructed
-        // object of type &#39;key_equal&#39; to verify that two key values are the
-        // same.  If the &#39;allocator_type&#39; is &#39;bsl::allocator&#39; (the default),
-        // then &#39;allocator&#39; shall be convertible to &#39;bslma::Allocator *&#39;.
+        // &#39;basicAllocator&#39; to supply memory.  Use a default-constructed object
+        // of type &#39;hasher&#39; to generate hash values for the key extracted from
+        // the values contained in this object.  Also, use a
+        // default-constructed object of type &#39;key_equal&#39; to verify that two
+        // key values are the same.  If the &#39;allocator_type&#39; is
+        // &#39;bsl::allocator&#39; (the default), then &#39;basicAllocator&#39; shall be
+        // convertible to &#39;bslma::Allocator *&#39;.
 
     unordered_multiset(const unordered_multiset&amp; original);
     unordered_multiset(const unordered_multiset&amp; original,
-                       const allocator_type&amp;     allocator);
+                       const allocator_type&amp;     basicAllocator);
         // Construct an unordered set having the same value as that of the
         // specified &#39;original&#39;.  Use a default-constructed object of type
         // &#39;hasher&#39; to generate hash values for the key extracted from the
         // values contained in this object.  Also, use a default-constructed
         // object of type &#39;key_equal&#39; to verify that two key values are the
-        // same.  Optionally specify an &#39;allocator&#39; used to supply memory.  If
-        // &#39;allocator&#39; is not supplied, a default-constructed object of type
-        // &#39;allocator_type&#39; is used.  If the &#39;allocator_type&#39; is
-        // &#39;bsl::allocator&#39; (the default), then &#39;allocator&#39; shall be
+        // same.  Optionally specify the &#39;basicAllocator&#39; used to supply
+        // memory.  If &#39;basicAllocator&#39; is not supplied, a default-constructed
+        // object of type &#39;allocator_type&#39; is used.  If the &#39;allocator_type&#39; is
+        // &#39;bsl::allocator&#39; (the default), then &#39;basicAllocator&#39; shall be
         // convertible to &#39;bslma::Allocator *&#39;.
 
     template &lt;class INPUT_ITERATOR&gt;
     unordered_multiset(INPUT_ITERATOR        first,
                        INPUT_ITERATOR        last,
                        size_type             initialNumBuckets = 0,
-                       const hasher&amp;         hash = hasher(),
+                       const hasher&amp;         hashFunction = hasher(),
                        const key_equal&amp;      keyEqual = key_equal(),
-                       const allocator_type&amp; allocator = allocator_type());
+                       const allocator_type&amp; basicAllocator =allocator_type());
         // Construct an empty unordered multi-set and insert each &#39;value_type&#39;
         // object in the sequence starting at the specified &#39;first&#39; element,
         // and ending immediately before the specified &#39;last&#39; element, ignoring
@@ -789,19 +791,19 @@ class unordered_multiset
         // Optionally specify an &#39;initialNumBuckets&#39; indicating the initial
         // size of the array of buckets of this container.  If
         // &#39;initialNumBuckets&#39; is not supplied, an implementation defined value
-        // is used.  Optionally specify a &#39;hasher&#39; used to generate hash values
-        // for the keys extracted from the values contained in this object.  If
-        // &#39;hash&#39; is not supplied, a default-constructed object of type
-        // &#39;hasher&#39; is used.  Optionally specify a key-equality functor
-        // &#39;keyEqual&#39; used to verify that two key values are the same.  If
-        // &#39;keyEqual&#39; is not supplied, a default-constructed object of type
-        // &#39;key_equal&#39; is used.  Optionally specify an &#39;allocator&#39; used to
-        // supply memory.  If &#39;allocator&#39; is not supplied, a
+        // is used.  Optionally specify a &#39;hashFunction&#39; used to generate hash
+        // values for the keys extracted from the values contained in this
+        // object.  If &#39;hashFunction&#39; is not supplied, a default-constructed
+        // object of type &#39;hasher&#39; is used.  Optionally specify a key-equality
+        // functor &#39;keyEqual&#39; used to verify that two key values are the same.
+        // If &#39;keyEqual&#39; is not supplied, a default-constructed object of type
+        // &#39;key_equal&#39; is used.  Optionally specify the &#39;basicAllocator&#39; used
+        // to supply memory.  If &#39;basicAllocator&#39; is not supplied, a
         // default-constructed object of the (template parameter) type
         // &#39;allocator_type&#39; is used.  If the &#39;allocator_type&#39; is
-        // &#39;bsl::allocator&#39; (the default), then &#39;allocator&#39; shall be
+        // &#39;bsl::allocator&#39; (the default), then &#39;basicAllocator&#39; shall be
         // convertible to &#39;bslma::Allocator *&#39;.  If the &#39;allocator_type&#39; is
-        // &#39;bsl::allocator&#39; and &#39;allocator&#39; is not supplied, the currently
+        // &#39;bsl::allocator&#39; and &#39;basicAllocator&#39; is not supplied, the currently
         // installed default allocator will be used to supply memory.  The
         // (template parameter) type &#39;INPUT_ITERATOR&#39; shall meet the
         // requirements of an input iterator defined in the C++11 standard
@@ -857,25 +859,24 @@ class unordered_multiset
         // Return a pair of iterators providing modifiable access to the
         // sequence of &#39;value_type&#39; objects in this multi-set having the
         // specified &#39;key&#39;, where the the first iterator is positioned at the
-        // start of the sequence, and the second is positioned one past the
-        // end of the sequence.  If this multi-set contains no &#39;value_type&#39;
-        // objects having &#39;key&#39;, then the two returned iterators will have the
-        // same value.
+        // start of the sequence, and the second is positioned one past the end
+        // of the sequence.  If this multi-set contains no &#39;value_type&#39; objects
+        // having &#39;key&#39;, then the two returned iterators will have the same
+        // value.
 
     size_type erase(const key_type&amp; key);
         // Remove from this multi-set all &#39;value_type&#39; objects having the
-        // specified &#39;key&#39;, if they exist, and return the number of
-        // object erased; otherwise, if there is no &#39;value_type&#39; object having
-        // &#39;key&#39;, return 0 with no other effect.
+        // specified &#39;key&#39;, if they exist, and return the number of object
+        // erased; otherwise, if there is no &#39;value_type&#39; object having &#39;key&#39;,
+        // return 0 with no other effect.
 
     iterator erase(const_iterator position);
-        // Remove from this multi-set the &#39;value_type&#39; object at the
-        // specified &#39;position&#39;, and return an iterator referring to the
-        // element immediately following the removed element, or to the
-        // past-the-end position if the removed element was the last element in
-        // the sequence of elements maintained by this multi-set.  The behavior
-        // is undefined unless &#39;position&#39; refers to a &#39;value_type&#39; object in
-        // this multi-set.
+        // Remove from this multi-set the &#39;value_type&#39; object at the specified
+        // &#39;position&#39;, and return an iterator referring to the element
+        // immediately following the removed element, or to the past-the-end
+        // position if the removed element was the last element in the sequence
+        // of elements maintained by this multi-set.  The behavior is undefined
+        // unless &#39;position&#39; refers to a &#39;value_type&#39; object in this multi-set.
 
     iterator erase(const_iterator first, const_iterator last);
         // Remove from multi-set the &#39;value_type&#39; objects starting at the
@@ -901,20 +902,20 @@ class unordered_multiset
         // &#39;KEY&#39; be &quot;copy-constructible&quot; (see {Requirements on &#39;KEY&#39;}).
 
     iterator insert(const_iterator hint, const value_type&amp; value);
-        // Insert the specified &#39;value&#39; into multi-set (in constant
-        // time if the specified &#39;hint&#39; is a valid element in the bucket to
-        // which &#39;value&#39; belongs);  if a &#39;value_type&#39; object having the same
-        // key (according to &#39;key_equal&#39;) as &#39;value&#39; already exists in this
-        // set, this method is guaranteed to insert &#39;value&#39; in a position
-        // contiguous to another value in the set having the same key.  Return
-        // an iterator referring to the newly inserted &#39;value_type&#39; object.  If
-        // &#39;hint&#39; is not a position in the bucket of the key of &#39;value&#39;, this
-        // operation will have worst case O[N] and average case constant time
-        // complexity, where &#39;N&#39; is the size of multi-set.  The behavior is
-        // undefined unless &#39;hint&#39; is a valid iterator into this unordered
-        // multi set.  This method requires that the (template parameter) type
-        // &#39;KEY&#39; be &quot;copy-constructible&quot; (see {Requirements on &#39;KEY&#39;}), and
-        // that &#39;*hint&#39; is an element contained in this container.
+        // Insert the specified &#39;value&#39; into multi-set (in constant time if the
+        // specified &#39;hint&#39; is a valid element in the bucket to which &#39;value&#39;
+        // belongs);  if a &#39;value_type&#39; object having the same key (according
+        // to &#39;key_equal&#39;) as &#39;value&#39; already exists in this set, this method
+        // is guaranteed to insert &#39;value&#39; in a position contiguous to another
+        // value in the set having the same key.  Return an iterator referring
+        // to the newly inserted &#39;value_type&#39; object.  If &#39;hint&#39; is not a
+        // position in the bucket of the key of &#39;value&#39;, this operation will
+        // have worst case O[N] and average case constant time complexity,
+        // where &#39;N&#39; is the size of multi-set.  The behavior is undefined
+        // unless &#39;hint&#39; is a valid iterator into this unordered multi set.
+        // This method requires that the (template parameter) type &#39;KEY&#39; be
+        // &quot;copy-constructible&quot; (see {Requirements on &#39;KEY&#39;}), and that &#39;*hint&#39;
+        // is an element contained in this container.
 
     template &lt;class INPUT_ITERATOR&gt;
     void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
@@ -942,13 +943,12 @@ class unordered_multiset
     void reserve(size_type numElements);
         // Increase the number of buckets of this set to a quantity such that
         // the ratio between the specified &#39;numElements&#39; and this quantity does
-        // not exceed &#39;max_load_factor&#39;, and allocate footprint memory
-        // sufficient to grow the table to contain &#39;numElements&#39; elements.
-        // Note that this guarantees that, after the reserve, elements can be
-        // inserted to grow the container to &#39;size() == numElements&#39; without
-        // any further allocation, unless the &#39;KEY&#39; type itself or the hash
-        // function allocate memory.  Also note that this operation has no
-        // effect if &#39;numElements &lt;= size()&#39;.
+        // not exceed &#39;max_load_factor&#39;.  Note that this guarantees that, after
+        // the reserve, elements can be inserted to grow the container to
+        // &#39;size() == numElements&#39; without rehashing. Also note that memory
+        // allocations may still occur when growing the container to &#39;size() ==
+        // numElements&#39;.  Also note that this operation has no effect if
+        // &#39;numElements &lt;= size()&#39;.
 
     void swap(unordered_multiset&amp; other);
         // Exchange the value of this object as well as its hasher and
@@ -1056,9 +1056,9 @@ class unordered_multiset
         // or even close to that size without running out of resources.
 
     float max_load_factor() const;
-        // Return the maximum load factor allowed for this container.  If
-        // an insert operation would cause &#39;load_factor&#39; to exceed
-        // the &#39;max_load_factor&#39;, that same insert operation will increase the
+        // Return the maximum load factor allowed for this container.  If an
+        // insert operation would cause &#39;load_factor&#39; to exceed the
+        // &#39;max_load_factor&#39;, that same insert operation will increase the
         // number of buckets and rehash the elements of the container into
         // those buckets the (see rehash).
 
@@ -1118,9 +1118,9 @@ void swap(unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;&amp; x,
     // is undefined is unless either this object was created with the same
     // allocator as &#39;other&#39; or &#39;propagate_on_container_swap&#39; is &#39;true&#39;.
 
-// ===========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         //-------------------------
                         // class unordered_multiset
@@ -1130,10 +1130,10 @@ void swap(unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;&amp; x,
 template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
 unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::
 unordered_multiset(size_type             initialNumBuckets,
-                   const hasher&amp;         hash,
+                   const hasher&amp;         hashFunction,
                    const key_equal&amp;      keyEqual,
-                   const allocator_type&amp; allocator)
-: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, allocator)
+                   const allocator_type&amp; basicAllocator)
+: d_impl(hashFunction, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
 {
 }
 
@@ -1143,26 +1143,26 @@ unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::unordered_multiset(
                                        INPUT_ITERATOR        first,
                                        INPUT_ITERATOR        last,
                                        size_type             initialNumBuckets,
-                                       const hasher&amp;         hash,
+                                       const hasher&amp;         hashFunction,
                                        const key_equal&amp;      keyEqual,
-                                       const allocator_type&amp; allocator)
-: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, allocator)
+                                       const allocator_type&amp; basicAllocator)
+: d_impl(hashFunction, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
 {
     this-&gt;insert(first, last);
 }
 
 template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
 unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::unordered_multiset(
-                                               const allocator_type&amp; allocator)
-: d_impl(allocator)
+                                          const allocator_type&amp; basicAllocator)
+: d_impl(basicAllocator)
 {
 }
 
 template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
 unordered_multiset&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::unordered_multiset(
-                                           const unordered_multiset&amp; original,
-                                           const allocator_type&amp;     allocator)
-: d_impl(original.d_impl, allocator)
+                                      const unordered_multiset&amp; original,
+                                      const allocator_type&amp;     basicAllocator)
+: d_impl(original.d_impl, basicAllocator)
 {
 }
 
@@ -1657,25 +1657,19 @@ struct UsesBslmaAllocator&lt;bsl::unordered_multiset&lt;KEY,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the &quot;Software&quot;), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
 </pre>
 </body>

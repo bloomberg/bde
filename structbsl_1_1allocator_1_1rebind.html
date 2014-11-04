@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: Struct bsl::allocator::rebind</title>
+<title>BDE 2.22.1.2 OSS: Struct bsl::allocator::rebind</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -60,8 +60,8 @@
   <div class="navpath">
     <ul>
       <li><a class="el" href="namespacebsl.html">bsl</a>      </li>
-      <li><a class="el" href="classbsl_1_1allocator.html">bsl::allocator&lt; T &gt;</a>      </li>
-      <li><a class="el" href="structbsl_1_1allocator_1_1rebind.html">bsl::allocator&lt; T &gt;::rebind&lt; U &gt;</a>      </li>
+      <li><a class="el" href="classbsl_1_1allocator.html">bsl::allocator&lt; TYPE &gt;</a>      </li>
+      <li><a class="el" href="structbsl_1_1allocator_1_1rebind.html">bsl::allocator&lt; TYPE &gt;::rebind&lt; ANY_TYPE &gt;</a>      </li>
     </ul>
   </div>
 </div>
@@ -69,7 +69,7 @@
   <div class="summary">
 <a href="#pub-types">Public Types</a>  </div>
   <div class="headertitle">
-<h1>bsl::allocator&lt; T &gt;::rebind&lt; U &gt; Struct Template Reference<br/>
+<h1>bsl::allocator&lt; TYPE &gt;::rebind&lt; ANY_TYPE &gt; Struct Template Reference<br/>
 <small>
 [<a class="el" href="group__bslstl__allocator.html">Component bslstl_allocator</a>]</small>
 </h1>  </div>
@@ -82,25 +82,25 @@
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="classbsl_1_1allocator.html">allocator</a>&lt; U &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1allocator_1_1rebind.html#a8489fcdb1b1a4b84b33097a1ed65a0c5">other</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="classbsl_1_1allocator.html">allocator</a>&lt; ANY_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1allocator_1_1rebind.html#a511d8cb7ce192789abee82397536fda3">other</a></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
-<h3>template&lt;class T&gt;<br/>
-template&lt;class U&gt;<br/>
- struct bsl::allocator&lt; T &gt;::rebind&lt; U &gt;</h3>
+<h3>template&lt;class TYPE&gt;<br/>
+template&lt;class ANY_TYPE&gt;<br/>
+ struct bsl::allocator&lt; TYPE &gt;::rebind&lt; ANY_TYPE &gt;</h3>
 
-<p>This nested <code>struct</code> template, parameterized by some type <code>U</code>, provides a namespace for an <code>other</code> type alias, which is an allocator type following the same template as this one but that allocates elements of type <code>U</code>. Note that this allocator type is convertible to and from <code>other</code> for any type <code>U</code> including <code>void</code>. </p>
+<p>This nested <code>struct</code> template, parameterized by <code>ANY_TYPE</code>, provides a namespace for an <code>other</code> type alias, which is an allocator type following the same template as this one but that allocates elements of <code>ANY_TYPE</code>. Note that this allocator type is convertible to and from <code>other</code> for any type, including <code>void</code>. </p>
 <hr/><h2>Member Typedef Documentation</h2>
-<a class="anchor" id="a8489fcdb1b1a4b84b33097a1ed65a0c5"></a><!-- doxytag: member="bsl::allocator::rebind::other" ref="a8489fcdb1b1a4b84b33097a1ed65a0c5" args="" -->
+<a class="anchor" id="a511d8cb7ce192789abee82397536fda3"></a><!-- doxytag: member="bsl::allocator::rebind::other" ref="a511d8cb7ce192789abee82397536fda3" args="" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class T&gt; </div>
+template&lt;class TYPE&gt; </div>
 <div class="memtemplate">
-template&lt;class U &gt; </div>
+template&lt;class ANY_TYPE &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">typedef <a class="el" href="classbsl_1_1allocator.html">allocator</a>&lt;U&gt; <a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a>&lt; T &gt;::<a class="el" href="structbsl_1_1allocator_1_1rebind.html">rebind</a>&lt; U &gt;::<a class="el" href="classbsl_1_1allocator.html">other</a></td>
+          <td class="memname">typedef <a class="el" href="classbsl_1_1allocator.html">allocator</a>&lt;ANY_TYPE&gt; <a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a>&lt; TYPE &gt;::<a class="el" href="structbsl_1_1allocator_1_1rebind.html">rebind</a>&lt; ANY_TYPE &gt;::<a class="el" href="classbsl_1_1allocator.html">other</a></td>
         </tr>
       </table>
 </div>
@@ -112,7 +112,7 @@ template&lt;class U &gt; </div>
 <li><a class="el" href="bslstl__allocator_8h_source.html">bslstl_allocator.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:40 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:35 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

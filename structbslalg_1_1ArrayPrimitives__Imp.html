@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: Struct bslalg::ArrayPrimitives_Imp</title>
+<title>BDE 2.22.1.2 OSS: Struct bslalg::ArrayPrimitives_Imp</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -80,101 +80,108 @@
 <tr><td colspan="2"><h2><a name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom">{ <br/>
-&nbsp;&nbsp;<a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#ad6a8b23aa1160942848b5cf0ebf70d2ea5a3ec95df84d12c0d8d99a4402c0da85">IS_POINTER_TO_POINTER</a> =  5, 
-<a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#ad6a8b23aa1160942848b5cf0ebf70d2ea2a83d9acd99bcbabf51bfabce222c22a">IS_FUNDAMENTAL_OR_POINTER</a> =  4, 
-<a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#ad6a8b23aa1160942848b5cf0ebf70d2ea46388bb95dfc1ba4afe90ac4baf227c4">HAS_TRIVIAL_DEFAULT_CTOR_TRAITS</a> =  3, 
-<a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#ad6a8b23aa1160942848b5cf0ebf70d2ea28d075b1e04edecacf6b0b2dd78fc107">BITWISE_COPYABLE_TRAITS</a> =  2, 
+&nbsp;&nbsp;<a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa4add708e4efe226ea9525e7bb580e83add0a27513b952faa72a5580477a6f27f">e_IS_ITERATOR_TO_FUNCTION_POINTER</a> =  6, 
+<a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa4add708e4efe226ea9525e7bb580e83aee52d7e7bb114f7f79f19f3ddf79ffcc">e_IS_POINTER_TO_POINTER</a> =  5, 
+<a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa4add708e4efe226ea9525e7bb580e83ada7a9ad5e5d26d868f6a70afcc14ef0d">e_IS_FUNDAMENTAL_OR_POINTER</a> =  4, 
+<a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa4add708e4efe226ea9525e7bb580e83a2a920d436e5b441d7663da75863450d3">e_HAS_TRIVIAL_DEFAULT_CTOR_TRAITS</a> =  3, 
 <br/>
-&nbsp;&nbsp;<a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#ad6a8b23aa1160942848b5cf0ebf70d2eac0dc9a924707cc1ec0aa74222eae06b8">BITWISE_MOVEABLE_TRAITS</a> =  1, 
-<a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#ad6a8b23aa1160942848b5cf0ebf70d2eab216844c4801e1a904ffb223e3008a78">NIL_TRAITS</a> =  0
+&nbsp;&nbsp;<a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa4add708e4efe226ea9525e7bb580e83a94386f645130ef4be6ef153db6a43212">e_BITWISE_COPYABLE_TRAITS</a> =  2, 
+<a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa4add708e4efe226ea9525e7bb580e83a1e032ef439e56681a4c4588bef6f95bb">e_BITWISE_MOVEABLE_TRAITS</a> =  1, 
+<a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa4add708e4efe226ea9525e7bb580e83a47be6c16c995abea4b42ca4b7f12ea06">e_NIL_TRAITS</a> =  0
 <br/>
  }</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa4add708e4efe226ea9525e7bb580e83a63f1fa5c5f8cd3dc46b8f75a86e0ab4c">INPLACE_BUFFER_SIZE</a> =  16 * bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT
+<tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#afe54cc809dcdd52841038cbf52bbab28ac857bb68ed1443f754eeca31d5649ff4">k_INPLACE_BUFFER_SIZE</a> =  16 * bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT
  }</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="structbslalg_1_1ArrayPrimitives.html#aee073b37feb7e3e840fa4c1a8bfa94be">ArrayPrimitives::size_type</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef <br class="typebreak"/>
 <a class="el" href="structbslalg_1_1ArrayPrimitives.html#ac756e623500f4007bf4aac5ab654f487">ArrayPrimitives::difference_type</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a8b51214119c3bc6ee5b5a7b89faf33e6">difference_type</a></td></tr>
 <tr><td colspan="2"><h2><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a3fbcaf3c3516a6e4286b80b9f930006a">defaultConstruct</a> (TARGET_TYPE *begin, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; HAS_TRIVIAL_DEFAULT_CTOR_TRAITS &gt; *)</td></tr>
-<tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a511dacb018af778a940968da0eed8487">defaultConstruct</a> (TARGET_TYPE *begin, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; BITWISE_COPYABLE_TRAITS &gt; *)</td></tr>
-<tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a8e22213a46abf7dae068a5a1d744ba4d">defaultConstruct</a> (TARGET_TYPE *begin, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; NIL_TRAITS &gt; *)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a4d63e544f8af2100c4b932b55a848eaf">bitwiseFillN</a> (char *begin, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numBytesInitialized, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numBytes)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a094d638b130a4fb8bd7ddb32f441e532">uninitializedFillN</a> (bool *begin, bool value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#af0c59deeb657017de6291f783d52fe9d">uninitializedFillN</a> (char *begin, char value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#ac22a8ec0aa9c932cf3ea274fe42af024">uninitializedFillN</a> (unsigned char *begin, unsigned char value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a8f058035087988836c28e98970362edc">uninitializedFillN</a> (signed char *begin, signed char value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a52942f099a4908d0d424f9ec36b97aa3">uninitializedFillN</a> (wchar_t *begin, wchar_t value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a8aefdd03c42773c0c2c822c16f89819b">uninitializedFillN</a> (short *begin, short value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a13fbf27d7b06e5814c7a0960fad2588a">uninitializedFillN</a> (unsigned short *begin, unsigned short value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a936629394f729d74e281345cd65dae88">uninitializedFillN</a> (int *begin, int value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#ab6f0e81b9b532ab48eba19eef280301b">uninitializedFillN</a> (unsigned int *begin, unsigned int value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a1d98cba87dad2a38afecc2014a03b4f7">uninitializedFillN</a> (long *begin, long value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a590cf2e4b6363b70c85b02e5a31d5fbc">uninitializedFillN</a> (unsigned long *begin, unsigned long value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#af4c472fd68922d4b05e5724c86ce8eda">uninitializedFillN</a> (<a class="el" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a> *begin, <a class="el" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a> value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#ae39b8ec66cb2c7d1bbeb0a627039dfde">uninitializedFillN</a> (<a class="el" href="structbsls_1_1Types.html#a62cdf73ffc20667bc9de36b07c9c25f0">bsls::Types::Uint64</a> *begin, <a class="el" href="structbsls_1_1Types.html#a62cdf73ffc20667bc9de36b07c9c25f0">bsls::Types::Uint64</a> value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a82ccb9b955c2cb5b05454f1436ef7299">uninitializedFillN</a> (float *begin, float value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a7978a1b3d28198db93731afc4e70210c">uninitializedFillN</a> (double *begin, double value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a1844623af10e09109860b2eb7aab10ae">uninitializedFillN</a> (long double *begin, long double value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a27409558ef61f28cb360d8ec498000b9">uninitializedFillN</a> (void **begin, void *value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a23246e46954d1e279467b0f1bbbe77bb">uninitializedFillN</a> (const void **begin, const void *value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a03c62f25ac3b8f3b368712819f50bbcf">uninitializedFillN</a> (bool *begin, bool value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#adec60d318920092609c76d601ae79dc6">uninitializedFillN</a> (char *begin, char value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#af266e67774ff1d1c89df01dbb8118c98">uninitializedFillN</a> (unsigned char *begin, unsigned char value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#ab7b3f14442a5877657377f0fe9e974d4">uninitializedFillN</a> (signed char *begin, signed char value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#af23d05910dd850f82414be04ed86bc4f">uninitializedFillN</a> (wchar_t *begin, wchar_t value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#ac4b0f0da4762e222b14b41bbf70b700b">uninitializedFillN</a> (short *begin, short value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a23469786042e0d20fb167426b9ed8add">uninitializedFillN</a> (unsigned short *begin, unsigned short value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a27d042c85bdb0076c4e3d6d216042af9">uninitializedFillN</a> (int *begin, int value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a9f4d768a7e2545a8fc7b32cdca5f2f35">uninitializedFillN</a> (unsigned int *begin, unsigned int value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aed4ff126de58808989dd6544387efd1c">uninitializedFillN</a> (long *begin, long value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa88b3d4517425578706653e9c91ef72e">uninitializedFillN</a> (unsigned long *begin, unsigned long value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aff2c2d4673a77d7447987e4f5540a7d3">uninitializedFillN</a> (<a class="el" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a> *begin, <a class="el" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a> value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#ab4d93e0647185f557c08ad536cff79a7">uninitializedFillN</a> (<a class="el" href="structbsls_1_1Types.html#a62cdf73ffc20667bc9de36b07c9c25f0">bsls::Types::Uint64</a> *begin, <a class="el" href="structbsls_1_1Types.html#a62cdf73ffc20667bc9de36b07c9c25f0">bsls::Types::Uint64</a> value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a5077084438e6835f4ebbe91f048083b4">uninitializedFillN</a> (float *begin, float value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#adad605c4d7a605ff3922f77caadef2b8">uninitializedFillN</a> (double *begin, double value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a8404457f4258ac2632bf443b2467b110">uninitializedFillN</a> (long double *begin, long double value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a1b52a7e1d5dcc115d76980dc1cea8c68">uninitializedFillN</a> (void **begin, void *value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a675ac70c91b5532bde5917de52c3f68d">uninitializedFillN</a> (const void **begin, const void *value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#af4c38238a3a75a09a85111ad39ef8f7c">uninitializedFillN</a> (TARGET_TYPE **begin, TARGET_TYPE *value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a032c0a27bce38daf5896b51f26716c0e">uninitializedFillN</a> (TARGET_TYPE **begin, TARGET_TYPE *value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a2b34c5acdfc239bf843486c5fe6fa595">uninitializedFillN</a> (const TARGET_TYPE **begin, const TARGET_TYPE *value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#ab77dc976caeca6a1b59b4ec35aa4de4d">uninitializedFillN</a> (const TARGET_TYPE **begin, const TARGET_TYPE *value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, void *=0, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a19004272286093f842844fb7e4af79ee">uninitializedFillN</a> (TARGET_TYPE *begin, const TARGET_TYPE &amp;value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; BITWISE_COPYABLE_TRAITS &gt; *)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a6b62a72a0c0b01a8ce2b9a13337f19b1">uninitializedFillN</a> (TARGET_TYPE *begin, const TARGET_TYPE &amp;value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_BITWISE_COPYABLE_TRAITS &gt; *)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#ae0688ac7ff9bc75952a9b0cc6e4c7f42">uninitializedFillN</a> (TARGET_TYPE *begin, const TARGET_TYPE &amp;value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; NIL_TRAITS &gt; *)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa8f6c304b69d42a3624659a2edf35ec0">uninitializedFillN</a> (TARGET_TYPE *begin, const TARGET_TYPE &amp;value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_NIL_TRAITS &gt; *)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class FWD_ITER , class ALLOCATOR &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a0a3fb2f7aa2caa4d4d1c50857971e9de">copyConstruct</a> (TARGET_TYPE *toBegin, FWD_ITER fromBegin, FWD_ITER fromEnd, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_POINTER_TO_POINTER &gt; *)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#acfd7ceb935a75a2ad254c76edabf4b11">copyConstruct</a> (TARGET_TYPE *toBegin, FWD_ITER fromBegin, FWD_ITER fromEnd, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_POINTER_TO_POINTER &gt; *)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a677e824ad6ff8d74eb7da9d7f8a27f2b">copyConstruct</a> (TARGET_TYPE *toBegin, const TARGET_TYPE *fromBegin, const TARGET_TYPE *fromEnd, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; BITWISE_COPYABLE_TRAITS &gt; *)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a5931ba677b3fce413e776c018552c6cf">copyConstruct</a> (TARGET_TYPE *toBegin, const TARGET_TYPE *fromBegin, const TARGET_TYPE *fromEnd, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_BITWISE_COPYABLE_TRAITS &gt; *)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class FWD_ITER , class ALLOCATOR &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#af0f42b45c0dac86f99110d369f4f7f84">copyConstruct</a> (TARGET_TYPE *toBegin, FWD_ITER fromBegin, FWD_ITER fromEnd, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; NIL_TRAITS &gt; *)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a91b5d0afe84637f8237d003f8c29555e">copyConstruct</a> (TARGET_TYPE *toBegin, FWD_ITER fromBegin, FWD_ITER fromEnd, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_ITERATOR_TO_FUNCTION_POINTER &gt; *)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class FWD_ITER , class ALLOCATOR &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a101cc9445b5095d921624b17600f6ba0">copyConstruct</a> (void **toBegin, FWD_ITER fromBegin, FWD_ITER fromEnd, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_ITERATOR_TO_FUNCTION_POINTER &gt; *)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class FWD_ITER , class ALLOCATOR &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a16932c23bcdddfaed64f5346cc0ec7b7">copyConstruct</a> (TARGET_TYPE *toBegin, FWD_ITER fromBegin, FWD_ITER fromEnd, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_NIL_TRAITS &gt; *)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a3a88f9a4684191e407558e15282f79a3">destructiveMove</a> (TARGET_TYPE *toBegin, TARGET_TYPE *fromBegin, TARGET_TYPE *fromEnd, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; BITWISE_MOVEABLE_TRAITS &gt; *)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a764f6bec1b4a863c9fcc8877350704ae">defaultConstruct</a> (TARGET_TYPE *begin, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_HAS_TRIVIAL_DEFAULT_CTOR_TRAITS &gt; *)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#ad1d4b0425a84bf9bd9834699c50f8d7f">destructiveMove</a> (TARGET_TYPE *toBegin, TARGET_TYPE *fromBegin, TARGET_TYPE *fromEnd, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; NIL_TRAITS &gt; *)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#ac90c27f8506758b3a013b65bb190caad">defaultConstruct</a> (TARGET_TYPE *begin, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_BITWISE_COPYABLE_TRAITS &gt; *)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aba78ae5fa22c92e5dd90363ba64d938b">insert</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, const TARGET_TYPE &amp;value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; BITWISE_COPYABLE_TRAITS &gt; *)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#ad19451853e18c853f751f178bb3b0bef">defaultConstruct</a> (TARGET_TYPE *begin, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_NIL_TRAITS &gt; *)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a09d45245ee9085a305545053717e51cd">insert</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, const TARGET_TYPE &amp;value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; BITWISE_MOVEABLE_TRAITS &gt; *)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#ada0daab2e1c004f75dabda61ad27f298">destructiveMove</a> (TARGET_TYPE *toBegin, TARGET_TYPE *fromBegin, TARGET_TYPE *fromEnd, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_BITWISE_MOVEABLE_TRAITS &gt; *)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a7670c8a76fd1a1f814dfbb4739e78b80">insert</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, const TARGET_TYPE &amp;value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; NIL_TRAITS &gt; *)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aea1752b7424996096d32af939a0ff26f">destructiveMove</a> (TARGET_TYPE *toBegin, TARGET_TYPE *fromBegin, TARGET_TYPE *fromEnd, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_NIL_TRAITS &gt; *)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class ALLOCATOR , class... Args&gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a8ac012f1211d8a9ae677c21af998fc32">emplace</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; BITWISE_COPYABLE_TRAITS &gt; *, Args &amp;&amp;...args)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#ad40f5bc962d0c179849e5e18f1be7283">emplace</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_BITWISE_COPYABLE_TRAITS &gt; *, Args &amp;&amp;...args)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class ALLOCATOR , class... Args&gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa4629a45962ace06f81d79c718cdf9a4">emplace</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; BITWISE_MOVEABLE_TRAITS &gt; *, Args &amp;&amp;...args)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a81c4a6f751c58fd0f1d940732cf19ace">emplace</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_BITWISE_MOVEABLE_TRAITS &gt; *, Args &amp;&amp;...args)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class ALLOCATOR , class... Args&gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#ac6c1f5d786cf8496523f9bf85d24d0a2">emplace</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; NIL_TRAITS &gt; *, Args &amp;&amp;...args)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a3028b52d484e85d81d5e19e852ee5586">emplace</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_NIL_TRAITS &gt; *, Args &amp;&amp;...args)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#ad6338bad7a0f04bbf5ce6d362e5614a9">erase</a> (TARGET_TYPE *first, TARGET_TYPE *middle, TARGET_TYPE *last, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_BITWISE_MOVEABLE_TRAITS &gt; *)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a65c3514ebd8660efefdd05e2ff3b102d">erase</a> (TARGET_TYPE *first, TARGET_TYPE *middle, TARGET_TYPE *last, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_NIL_TRAITS &gt; *)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a5960c3173123aa7713cf333e581d0394">insert</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, const TARGET_TYPE &amp;value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_BITWISE_COPYABLE_TRAITS &gt; *)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a6a0f137cb13d976b3db86578dbc5ba82">insert</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, const TARGET_TYPE &amp;value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_BITWISE_MOVEABLE_TRAITS &gt; *)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a4aa0445ab8ed7287b0ab1b7170232dd8">insert</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, const TARGET_TYPE &amp;value, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_NIL_TRAITS &gt; *)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class FWD_ITER , class ALLOCATOR &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aec645088cb3c4789bdb18fd5ab00f646">insert</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, FWD_ITER fromBegin, FWD_ITER fromEnd, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_POINTER_TO_POINTER &gt; *)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aefbcccb52433f92ff67157d52445c51c">insert</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, FWD_ITER fromBegin, FWD_ITER fromEnd, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_POINTER_TO_POINTER &gt; *)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#ad54e27ffe34266ca2d2e2864f7a05c06">insert</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, const TARGET_TYPE *fromBegin, const TARGET_TYPE *fromEnd, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; BITWISE_COPYABLE_TRAITS &gt; *)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a23ffddc6b549acc810f5b7ad1bf31b2b">insert</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, const TARGET_TYPE *fromBegin, const TARGET_TYPE *fromEnd, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_BITWISE_COPYABLE_TRAITS &gt; *)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class FWD_ITER , class ALLOCATOR &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a6f318b960ace282041a2ee2db239c29f">insert</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, FWD_ITER fromBegin, FWD_ITER fromEnd, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; BITWISE_MOVEABLE_TRAITS &gt; *)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#ad7a722a92500754d68e409258068ee8b">insert</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, FWD_ITER fromBegin, FWD_ITER fromEnd, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_BITWISE_MOVEABLE_TRAITS &gt; *)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class FWD_ITER , class ALLOCATOR &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a8f264026763bfa78c9741e34d97a58e1">insert</a> (void **toBegin, void **toEnd, FWD_ITER fromBegin, FWD_ITER fromEnd, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_ITERATOR_TO_FUNCTION_POINTER &gt; *)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class FWD_ITER , class ALLOCATOR &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a5ae4e7b10be5eff5f9fda33f93d849f7">insert</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, FWD_ITER fromBegin, FWD_ITER fromEnd, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; NIL_TRAITS &gt; *)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a69d589810a375fa3ba246c0042713897">insert</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, FWD_ITER fromBegin, FWD_ITER fromEnd, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_NIL_TRAITS &gt; *)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#ac38e559b4eec8d47afaaf473847d700a">moveInsert</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, TARGET_TYPE **lastPtr, TARGET_TYPE *first, TARGET_TYPE *last, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; BITWISE_MOVEABLE_TRAITS &gt; *)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a46b66f47d3373fdf7c12287a19228fd9">moveInsert</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, TARGET_TYPE **lastPtr, TARGET_TYPE *first, TARGET_TYPE *last, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_BITWISE_MOVEABLE_TRAITS &gt; *)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a47082482658bed68a5c0a6bdd790d024">moveInsert</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, TARGET_TYPE **lastPtr, TARGET_TYPE *first, TARGET_TYPE *last, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; NIL_TRAITS &gt; *)</td></tr>
-<tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a5d671fda49f738bb8880f1ad33c81fe2">erase</a> (TARGET_TYPE *first, TARGET_TYPE *middle, TARGET_TYPE *last, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; BITWISE_MOVEABLE_TRAITS &gt; *)</td></tr>
-<tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a3358c2563965685edacbc9b52b6516c4">erase</a> (TARGET_TYPE *first, TARGET_TYPE *middle, TARGET_TYPE *last, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; NIL_TRAITS &gt; *)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a56a7c164ad1a06dc1393727680df2062">bitwiseSwapRanges</a> (char *begin, char *middle, char *end)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a8f0e74c670977196948a80b45b99c613">moveInsert</a> (TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, TARGET_TYPE **lastPtr, TARGET_TYPE *first, TARGET_TYPE *last, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a> numElements, ALLOCATOR *allocator, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_NIL_TRAITS &gt; *)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a5a72aa6b88982a74a3deabf28d4bb86f">rotate</a> (TARGET_TYPE *begin, TARGET_TYPE *middle, TARGET_TYPE *end, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_BITWISE_MOVEABLE_TRAITS &gt; *)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a8d4b954c886bcf26a4558a0b8425b536">rotate</a> (TARGET_TYPE *begin, TARGET_TYPE *middle, TARGET_TYPE *end, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_NIL_TRAITS &gt; *)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a2b40fb18c00545727b37647ffb26530a">bitwiseRotate</a> (char *begin, char *middle, char *end)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a2688725ce6ac6998762609895e76785a">bitwiseRotateBackward</a> (char *begin, char *middle, char *end)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a8fb32a2c58d13ee43448d1296d98b35d">bitwiseRotateForward</a> (char *begin, char *middle, char *end)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a2b40fb18c00545727b37647ffb26530a">bitwiseRotate</a> (char *begin, char *middle, char *end)</td></tr>
-<tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#ad05148699546c5d0fd1622375b94903c">rotate</a> (TARGET_TYPE *begin, TARGET_TYPE *middle, TARGET_TYPE *end, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; BITWISE_MOVEABLE_TRAITS &gt; *)</td></tr>
-<tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a6c914838353dc78529f80a7af79c009b">rotate</a> (TARGET_TYPE *begin, TARGET_TYPE *middle, TARGET_TYPE *end, <a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; NIL_TRAITS &gt; *)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a56a7c164ad1a06dc1393727680df2062">bitwiseSwapRanges</a> (char *begin, char *middle, char *end)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class FORWARD_ITERATOR &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">static bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aee46e724062e785d68b04c901e37b420">isInvalidRange</a> (FORWARD_ITERATOR begin, FORWARD_ITERATOR end)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET_TYPE &gt; </td></tr>
@@ -210,7 +217,7 @@ Static Public Member Functions</h2></td></tr>
 </div>
 </div>
 <hr/><h2>Member Enumeration Documentation</h2>
-<a class="anchor" id="ad6a8b23aa1160942848b5cf0ebf70d2e"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::@1" ref="ad6a8b23aa1160942848b5cf0ebf70d2e" args="" -->
+<a class="anchor" id="aa4add708e4efe226ea9525e7bb580e83"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::@2" ref="aa4add708e4efe226ea9525e7bb580e83" args="" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -222,17 +229,19 @@ Static Public Member Functions</h2></td></tr>
 <div class="memdoc">
 <p>These constants are used in the overloads below, when the last argument is of type <code><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt;N&gt; *</code>, indicating that <code>TARGET_TYPE</code> has the traits for which the enumerator equal to <code>N</code> is named. </p>
 <dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
-<tr><td valign="top"><em><a class="anchor" id="ad6a8b23aa1160942848b5cf0ebf70d2ea5a3ec95df84d12c0d8d99a4402c0da85"></a><!-- doxytag: member="IS_POINTER_TO_POINTER" ref="ad6a8b23aa1160942848b5cf0ebf70d2ea5a3ec95df84d12c0d8d99a4402c0da85" args="" -->IS_POINTER_TO_POINTER</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="aa4add708e4efe226ea9525e7bb580e83add0a27513b952faa72a5580477a6f27f"></a><!-- doxytag: member="e_IS_ITERATOR_TO_FUNCTION_POINTER" ref="aa4add708e4efe226ea9525e7bb580e83add0a27513b952faa72a5580477a6f27f" args="" -->e_IS_ITERATOR_TO_FUNCTION_POINTER</em>&nbsp;</td><td>
 </td></tr>
-<tr><td valign="top"><em><a class="anchor" id="ad6a8b23aa1160942848b5cf0ebf70d2ea2a83d9acd99bcbabf51bfabce222c22a"></a><!-- doxytag: member="IS_FUNDAMENTAL_OR_POINTER" ref="ad6a8b23aa1160942848b5cf0ebf70d2ea2a83d9acd99bcbabf51bfabce222c22a" args="" -->IS_FUNDAMENTAL_OR_POINTER</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="aa4add708e4efe226ea9525e7bb580e83aee52d7e7bb114f7f79f19f3ddf79ffcc"></a><!-- doxytag: member="e_IS_POINTER_TO_POINTER" ref="aa4add708e4efe226ea9525e7bb580e83aee52d7e7bb114f7f79f19f3ddf79ffcc" args="" -->e_IS_POINTER_TO_POINTER</em>&nbsp;</td><td>
 </td></tr>
-<tr><td valign="top"><em><a class="anchor" id="ad6a8b23aa1160942848b5cf0ebf70d2ea46388bb95dfc1ba4afe90ac4baf227c4"></a><!-- doxytag: member="HAS_TRIVIAL_DEFAULT_CTOR_TRAITS" ref="ad6a8b23aa1160942848b5cf0ebf70d2ea46388bb95dfc1ba4afe90ac4baf227c4" args="" -->HAS_TRIVIAL_DEFAULT_CTOR_TRAITS</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="aa4add708e4efe226ea9525e7bb580e83ada7a9ad5e5d26d868f6a70afcc14ef0d"></a><!-- doxytag: member="e_IS_FUNDAMENTAL_OR_POINTER" ref="aa4add708e4efe226ea9525e7bb580e83ada7a9ad5e5d26d868f6a70afcc14ef0d" args="" -->e_IS_FUNDAMENTAL_OR_POINTER</em>&nbsp;</td><td>
 </td></tr>
-<tr><td valign="top"><em><a class="anchor" id="ad6a8b23aa1160942848b5cf0ebf70d2ea28d075b1e04edecacf6b0b2dd78fc107"></a><!-- doxytag: member="BITWISE_COPYABLE_TRAITS" ref="ad6a8b23aa1160942848b5cf0ebf70d2ea28d075b1e04edecacf6b0b2dd78fc107" args="" -->BITWISE_COPYABLE_TRAITS</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="aa4add708e4efe226ea9525e7bb580e83a2a920d436e5b441d7663da75863450d3"></a><!-- doxytag: member="e_HAS_TRIVIAL_DEFAULT_CTOR_TRAITS" ref="aa4add708e4efe226ea9525e7bb580e83a2a920d436e5b441d7663da75863450d3" args="" -->e_HAS_TRIVIAL_DEFAULT_CTOR_TRAITS</em>&nbsp;</td><td>
 </td></tr>
-<tr><td valign="top"><em><a class="anchor" id="ad6a8b23aa1160942848b5cf0ebf70d2eac0dc9a924707cc1ec0aa74222eae06b8"></a><!-- doxytag: member="BITWISE_MOVEABLE_TRAITS" ref="ad6a8b23aa1160942848b5cf0ebf70d2eac0dc9a924707cc1ec0aa74222eae06b8" args="" -->BITWISE_MOVEABLE_TRAITS</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="aa4add708e4efe226ea9525e7bb580e83a94386f645130ef4be6ef153db6a43212"></a><!-- doxytag: member="e_BITWISE_COPYABLE_TRAITS" ref="aa4add708e4efe226ea9525e7bb580e83a94386f645130ef4be6ef153db6a43212" args="" -->e_BITWISE_COPYABLE_TRAITS</em>&nbsp;</td><td>
 </td></tr>
-<tr><td valign="top"><em><a class="anchor" id="ad6a8b23aa1160942848b5cf0ebf70d2eab216844c4801e1a904ffb223e3008a78"></a><!-- doxytag: member="NIL_TRAITS" ref="ad6a8b23aa1160942848b5cf0ebf70d2eab216844c4801e1a904ffb223e3008a78" args="" -->NIL_TRAITS</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="aa4add708e4efe226ea9525e7bb580e83a1e032ef439e56681a4c4588bef6f95bb"></a><!-- doxytag: member="e_BITWISE_MOVEABLE_TRAITS" ref="aa4add708e4efe226ea9525e7bb580e83a1e032ef439e56681a4c4588bef6f95bb" args="" -->e_BITWISE_MOVEABLE_TRAITS</em>&nbsp;</td><td>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="aa4add708e4efe226ea9525e7bb580e83a47be6c16c995abea4b42ca4b7f12ea06"></a><!-- doxytag: member="e_NIL_TRAITS" ref="aa4add708e4efe226ea9525e7bb580e83a47be6c16c995abea4b42ca4b7f12ea06" args="" -->e_NIL_TRAITS</em>&nbsp;</td><td>
 </td></tr>
 </table>
 </dd>
@@ -240,7 +249,7 @@ Static Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="aa4add708e4efe226ea9525e7bb580e83"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::@2" ref="aa4add708e4efe226ea9525e7bb580e83" args="" -->
+<a class="anchor" id="afe54cc809dcdd52841038cbf52bbab28"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::@3" ref="afe54cc809dcdd52841038cbf52bbab28" args="" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -252,7 +261,7 @@ Static Public Member Functions</h2></td></tr>
 <div class="memdoc">
 <p>Number of bytes for which a stack-allocated buffer can be comfortably obtained to optimize bitwise moves. </p>
 <dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
-<tr><td valign="top"><em><a class="anchor" id="aa4add708e4efe226ea9525e7bb580e83a63f1fa5c5f8cd3dc46b8f75a86e0ab4c"></a><!-- doxytag: member="INPLACE_BUFFER_SIZE" ref="aa4add708e4efe226ea9525e7bb580e83a63f1fa5c5f8cd3dc46b8f75a86e0ab4c" args="" -->INPLACE_BUFFER_SIZE</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="afe54cc809dcdd52841038cbf52bbab28ac857bb68ed1443f754eeca31d5649ff4"></a><!-- doxytag: member="k_INPLACE_BUFFER_SIZE" ref="afe54cc809dcdd52841038cbf52bbab28ac857bb68ed1443f754eeca31d5649ff4" args="" -->k_INPLACE_BUFFER_SIZE</em>&nbsp;</td><td>
 </td></tr>
 </table>
 </dd>
@@ -261,130 +270,6 @@ Static Public Member Functions</h2></td></tr>
 </div>
 </div>
 <hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="a3fbcaf3c3516a6e4286b80b9f930006a"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::defaultConstruct" ref="a3fbcaf3c3516a6e4286b80b9f930006a" args="(TARGET_TYPE *begin, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; HAS_TRIVIAL_DEFAULT_CTOR_TRAITS &gt; *)" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">static void bslalg::ArrayPrimitives_Imp::defaultConstruct </td>
-          <td>(</td>
-          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
-          <td class="paramname"> <em>begin</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a>&nbsp;</td>
-          <td class="paramname"> <em>numElements</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">ALLOCATOR *&nbsp;</td>
-          <td class="paramname"> <em>allocator</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; HAS_TRIVIAL_DEFAULT_CTOR_TRAITS &gt; *&nbsp;</td>
-          <td class="paramname"></td><td>&nbsp;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td><td><code> [static]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a511dacb018af778a940968da0eed8487"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::defaultConstruct" ref="a511dacb018af778a940968da0eed8487" args="(TARGET_TYPE *begin, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; BITWISE_COPYABLE_TRAITS &gt; *)" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">static void bslalg::ArrayPrimitives_Imp::defaultConstruct </td>
-          <td>(</td>
-          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
-          <td class="paramname"> <em>begin</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a>&nbsp;</td>
-          <td class="paramname"> <em>numElements</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">ALLOCATOR *&nbsp;</td>
-          <td class="paramname"> <em>allocator</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; BITWISE_COPYABLE_TRAITS &gt; *&nbsp;</td>
-          <td class="paramname"></td><td>&nbsp;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td><td><code> [static]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a8e22213a46abf7dae068a5a1d744ba4d"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::defaultConstruct" ref="a8e22213a46abf7dae068a5a1d744ba4d" args="(TARGET_TYPE *begin, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; NIL_TRAITS &gt; *)" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">static void bslalg::ArrayPrimitives_Imp::defaultConstruct </td>
-          <td>(</td>
-          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
-          <td class="paramname"> <em>begin</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a>&nbsp;</td>
-          <td class="paramname"> <em>numElements</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">ALLOCATOR *&nbsp;</td>
-          <td class="paramname"> <em>allocator</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; NIL_TRAITS &gt; *&nbsp;</td>
-          <td class="paramname"></td><td>&nbsp;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td><td><code> [static]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Use the default constructor of the parameterized <code>TARGET_TYPE</code> (or <code>memset</code> to 0 if <code>TARGET_TYPE</code> has a trivial default constructor) on each element of the array starting at the <code>begin</code> address and ending immediately before the <code>end</code> address. Pass the specified <code>allocator</code> to the default constructor if appropriate. The last argument is for traits overloading resolution only and its value is ignored. </p>
-
-</div>
-</div>
 <a class="anchor" id="a4d63e544f8af2100c4b932b55a848eaf"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::bitwiseFillN" ref="a4d63e544f8af2100c4b932b55a848eaf" args="(char *begin, size_type numBytesInitialized, size_type numBytes)" -->
 <div class="memitem">
 <div class="memproto">
@@ -419,7 +304,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a094d638b130a4fb8bd7ddb32f441e532"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="a094d638b130a4fb8bd7ddb32f441e532" args="(bool *begin, bool value, size_type numElements, void *=0, bslmf::MetaInt&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
+<a class="anchor" id="a03c62f25ac3b8f3b368712819f50bbcf"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="a03c62f25ac3b8f3b368712819f50bbcf" args="(bool *begin, bool value, size_type numElements, void *=0, bslmf::MetaInt&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -450,7 +335,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
           <td class="paramname"> = <code>0</code></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -464,7 +349,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="af0c59deeb657017de6291f783d52fe9d"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="af0c59deeb657017de6291f783d52fe9d" args="(char *begin, char value, size_type numElements, void *=0, bslmf::MetaInt&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
+<a class="anchor" id="adec60d318920092609c76d601ae79dc6"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="adec60d318920092609c76d601ae79dc6" args="(char *begin, char value, size_type numElements, void *=0, bslmf::MetaInt&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -495,7 +380,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
           <td class="paramname"> = <code>0</code></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -509,7 +394,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="ac22a8ec0aa9c932cf3ea274fe42af024"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="ac22a8ec0aa9c932cf3ea274fe42af024" args="(unsigned char *begin, unsigned char value, size_type numElements, void *=0, bslmf::MetaInt&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
+<a class="anchor" id="af266e67774ff1d1c89df01dbb8118c98"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="af266e67774ff1d1c89df01dbb8118c98" args="(unsigned char *begin, unsigned char value, size_type numElements, void *=0, bslmf::MetaInt&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -540,7 +425,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
           <td class="paramname"> = <code>0</code></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -554,7 +439,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a8f058035087988836c28e98970362edc"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="a8f058035087988836c28e98970362edc" args="(signed char *begin, signed char value, size_type numElements, void *=0, bslmf::MetaInt&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
+<a class="anchor" id="ab7b3f14442a5877657377f0fe9e974d4"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="ab7b3f14442a5877657377f0fe9e974d4" args="(signed char *begin, signed char value, size_type numElements, void *=0, bslmf::MetaInt&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -585,7 +470,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
           <td class="paramname"> = <code>0</code></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -599,7 +484,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a52942f099a4908d0d424f9ec36b97aa3"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="a52942f099a4908d0d424f9ec36b97aa3" args="(wchar_t *begin, wchar_t value, size_type numElements, void *=0, bslmf::MetaInt&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
+<a class="anchor" id="af23d05910dd850f82414be04ed86bc4f"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="af23d05910dd850f82414be04ed86bc4f" args="(wchar_t *begin, wchar_t value, size_type numElements, void *=0, bslmf::MetaInt&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -630,7 +515,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
           <td class="paramname"> = <code>0</code></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -644,7 +529,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a8aefdd03c42773c0c2c822c16f89819b"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="a8aefdd03c42773c0c2c822c16f89819b" args="(short *begin, short value, size_type numElements, void *=0, bslmf::MetaInt&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
+<a class="anchor" id="ac4b0f0da4762e222b14b41bbf70b700b"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="ac4b0f0da4762e222b14b41bbf70b700b" args="(short *begin, short value, size_type numElements, void *=0, bslmf::MetaInt&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -675,7 +560,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
           <td class="paramname"> = <code>0</code></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -689,7 +574,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a13fbf27d7b06e5814c7a0960fad2588a"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="a13fbf27d7b06e5814c7a0960fad2588a" args="(unsigned short *begin, unsigned short value, size_type numElements, void *=0, bslmf::MetaInt&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
+<a class="anchor" id="a23469786042e0d20fb167426b9ed8add"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="a23469786042e0d20fb167426b9ed8add" args="(unsigned short *begin, unsigned short value, size_type numElements, void *=0, bslmf::MetaInt&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -720,7 +605,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
           <td class="paramname"> = <code>0</code></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -734,7 +619,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a936629394f729d74e281345cd65dae88"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="a936629394f729d74e281345cd65dae88" args="(int *begin, int value, size_type numElements, void *=0, bslmf::MetaInt&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
+<a class="anchor" id="a27d042c85bdb0076c4e3d6d216042af9"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="a27d042c85bdb0076c4e3d6d216042af9" args="(int *begin, int value, size_type numElements, void *=0, bslmf::MetaInt&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -765,7 +650,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
           <td class="paramname"> = <code>0</code></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -779,7 +664,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="ab6f0e81b9b532ab48eba19eef280301b"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="ab6f0e81b9b532ab48eba19eef280301b" args="(unsigned int *begin, unsigned int value, size_type numElements, void *=0, bslmf::MetaInt&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
+<a class="anchor" id="a9f4d768a7e2545a8fc7b32cdca5f2f35"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="a9f4d768a7e2545a8fc7b32cdca5f2f35" args="(unsigned int *begin, unsigned int value, size_type numElements, void *=0, bslmf::MetaInt&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -810,7 +695,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
           <td class="paramname"> = <code>0</code></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -824,7 +709,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a1d98cba87dad2a38afecc2014a03b4f7"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="a1d98cba87dad2a38afecc2014a03b4f7" args="(long *begin, long value, size_type numElements, void *=0, bslmf::MetaInt&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
+<a class="anchor" id="aed4ff126de58808989dd6544387efd1c"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="aed4ff126de58808989dd6544387efd1c" args="(long *begin, long value, size_type numElements, void *=0, bslmf::MetaInt&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -855,7 +740,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
           <td class="paramname"> = <code>0</code></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -869,7 +754,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a590cf2e4b6363b70c85b02e5a31d5fbc"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="a590cf2e4b6363b70c85b02e5a31d5fbc" args="(unsigned long *begin, unsigned long value, size_type numElements, void *=0, bslmf::MetaInt&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
+<a class="anchor" id="aa88b3d4517425578706653e9c91ef72e"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="aa88b3d4517425578706653e9c91ef72e" args="(unsigned long *begin, unsigned long value, size_type numElements, void *=0, bslmf::MetaInt&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -900,7 +785,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
           <td class="paramname"> = <code>0</code></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -914,7 +799,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="af4c472fd68922d4b05e5724c86ce8eda"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="af4c472fd68922d4b05e5724c86ce8eda" args="(bsls::Types::Int64 *begin, bsls::Types::Int64 value, size_type numElements, void *=0, bslmf::MetaInt&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
+<a class="anchor" id="aff2c2d4673a77d7447987e4f5540a7d3"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="aff2c2d4673a77d7447987e4f5540a7d3" args="(bsls::Types::Int64 *begin, bsls::Types::Int64 value, size_type numElements, void *=0, bslmf::MetaInt&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -945,7 +830,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
           <td class="paramname"> = <code>0</code></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -959,7 +844,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="ae39b8ec66cb2c7d1bbeb0a627039dfde"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="ae39b8ec66cb2c7d1bbeb0a627039dfde" args="(bsls::Types::Uint64 *begin, bsls::Types::Uint64 value, size_type numElements, void *=0, bslmf::MetaInt&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
+<a class="anchor" id="ab4d93e0647185f557c08ad536cff79a7"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="ab4d93e0647185f557c08ad536cff79a7" args="(bsls::Types::Uint64 *begin, bsls::Types::Uint64 value, size_type numElements, void *=0, bslmf::MetaInt&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -990,7 +875,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
           <td class="paramname"> = <code>0</code></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -1004,7 +889,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a82ccb9b955c2cb5b05454f1436ef7299"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="a82ccb9b955c2cb5b05454f1436ef7299" args="(float *begin, float value, size_type numElements, void *=0, bslmf::MetaInt&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
+<a class="anchor" id="a5077084438e6835f4ebbe91f048083b4"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="a5077084438e6835f4ebbe91f048083b4" args="(float *begin, float value, size_type numElements, void *=0, bslmf::MetaInt&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -1035,7 +920,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
           <td class="paramname"> = <code>0</code></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -1049,7 +934,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a7978a1b3d28198db93731afc4e70210c"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="a7978a1b3d28198db93731afc4e70210c" args="(double *begin, double value, size_type numElements, void *=0, bslmf::MetaInt&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
+<a class="anchor" id="adad605c4d7a605ff3922f77caadef2b8"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="adad605c4d7a605ff3922f77caadef2b8" args="(double *begin, double value, size_type numElements, void *=0, bslmf::MetaInt&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -1080,7 +965,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
           <td class="paramname"> = <code>0</code></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -1094,7 +979,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a1844623af10e09109860b2eb7aab10ae"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="a1844623af10e09109860b2eb7aab10ae" args="(long double *begin, long double value, size_type numElements, void *=0, bslmf::MetaInt&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
+<a class="anchor" id="a8404457f4258ac2632bf443b2467b110"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="a8404457f4258ac2632bf443b2467b110" args="(long double *begin, long double value, size_type numElements, void *=0, bslmf::MetaInt&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -1125,7 +1010,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
           <td class="paramname"> = <code>0</code></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -1139,7 +1024,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a27409558ef61f28cb360d8ec498000b9"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="a27409558ef61f28cb360d8ec498000b9" args="(void **begin, void *value, size_type numElements, void *=0, bslmf::MetaInt&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
+<a class="anchor" id="a1b52a7e1d5dcc115d76980dc1cea8c68"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="a1b52a7e1d5dcc115d76980dc1cea8c68" args="(void **begin, void *value, size_type numElements, void *=0, bslmf::MetaInt&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -1170,7 +1055,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
           <td class="paramname"> = <code>0</code></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -1184,7 +1069,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a23246e46954d1e279467b0f1bbbe77bb"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="a23246e46954d1e279467b0f1bbbe77bb" args="(const void **begin, const void *value, size_type numElements, void *=0, bslmf::MetaInt&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
+<a class="anchor" id="a675ac70c91b5532bde5917de52c3f68d"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="a675ac70c91b5532bde5917de52c3f68d" args="(const void **begin, const void *value, size_type numElements, void *=0, bslmf::MetaInt&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -1215,7 +1100,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
           <td class="paramname"> = <code>0</code></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -1229,7 +1114,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="af4c38238a3a75a09a85111ad39ef8f7c"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="af4c38238a3a75a09a85111ad39ef8f7c" args="(TARGET_TYPE **begin, TARGET_TYPE *value, size_type numElements, void *=0, bslmf::MetaInt&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
+<a class="anchor" id="a032c0a27bce38daf5896b51f26716c0e"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="a032c0a27bce38daf5896b51f26716c0e" args="(TARGET_TYPE **begin, TARGET_TYPE *value, size_type numElements, void *=0, bslmf::MetaInt&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -1262,7 +1147,7 @@ template&lt;class TARGET_TYPE &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
           <td class="paramname"> = <code>0</code></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -1276,7 +1161,7 @@ template&lt;class TARGET_TYPE &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a2b34c5acdfc239bf843486c5fe6fa595"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="a2b34c5acdfc239bf843486c5fe6fa595" args="(const TARGET_TYPE **begin, const TARGET_TYPE *value, size_type numElements, void *=0, bslmf::MetaInt&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
+<a class="anchor" id="ab77dc976caeca6a1b59b4ec35aa4de4d"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="ab77dc976caeca6a1b59b4ec35aa4de4d" args="(const TARGET_TYPE **begin, const TARGET_TYPE *value, size_type numElements, void *=0, bslmf::MetaInt&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *=0)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -1309,7 +1194,7 @@ template&lt;class TARGET_TYPE &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_FUNDAMENTAL_OR_POINTER &gt; *&nbsp;</td>
           <td class="paramname"> = <code>0</code></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -1323,7 +1208,7 @@ template&lt;class TARGET_TYPE &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a19004272286093f842844fb7e4af79ee"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="a19004272286093f842844fb7e4af79ee" args="(TARGET_TYPE *begin, const TARGET_TYPE &amp;value, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; BITWISE_COPYABLE_TRAITS &gt; *)" -->
+<a class="anchor" id="a6b62a72a0c0b01a8ce2b9a13337f19b1"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="a6b62a72a0c0b01a8ce2b9a13337f19b1" args="(TARGET_TYPE *begin, const TARGET_TYPE &amp;value, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; e_BITWISE_COPYABLE_TRAITS &gt; *)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -1356,7 +1241,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; BITWISE_COPYABLE_TRAITS &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_BITWISE_COPYABLE_TRAITS &gt; *&nbsp;</td>
           <td class="paramname"></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -1370,7 +1255,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="ae0688ac7ff9bc75952a9b0cc6e4c7f42"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="ae0688ac7ff9bc75952a9b0cc6e4c7f42" args="(TARGET_TYPE *begin, const TARGET_TYPE &amp;value, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; NIL_TRAITS &gt; *)" -->
+<a class="anchor" id="aa8f6c304b69d42a3624659a2edf35ec0"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::uninitializedFillN" ref="aa8f6c304b69d42a3624659a2edf35ec0" args="(TARGET_TYPE *begin, const TARGET_TYPE &amp;value, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; e_NIL_TRAITS &gt; *)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -1403,7 +1288,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; NIL_TRAITS &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_NIL_TRAITS &gt; *&nbsp;</td>
           <td class="paramname"></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -1418,7 +1303,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a0a3fb2f7aa2caa4d4d1c50857971e9de"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::copyConstruct" ref="a0a3fb2f7aa2caa4d4d1c50857971e9de" args="(TARGET_TYPE *toBegin, FWD_ITER fromBegin, FWD_ITER fromEnd, ALLOCATOR *allocator, bslmf::MetaInt&lt; IS_POINTER_TO_POINTER &gt; *)" -->
+<a class="anchor" id="acfd7ceb935a75a2ad254c76edabf4b11"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::copyConstruct" ref="acfd7ceb935a75a2ad254c76edabf4b11" args="(TARGET_TYPE *toBegin, FWD_ITER fromBegin, FWD_ITER fromEnd, ALLOCATOR *allocator, bslmf::MetaInt&lt; e_IS_POINTER_TO_POINTER &gt; *)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -1451,7 +1336,7 @@ template&lt;class TARGET_TYPE , class FWD_ITER , class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_POINTER_TO_POINTER &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_POINTER_TO_POINTER &gt; *&nbsp;</td>
           <td class="paramname"></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -1465,7 +1350,7 @@ template&lt;class TARGET_TYPE , class FWD_ITER , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a677e824ad6ff8d74eb7da9d7f8a27f2b"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::copyConstruct" ref="a677e824ad6ff8d74eb7da9d7f8a27f2b" args="(TARGET_TYPE *toBegin, const TARGET_TYPE *fromBegin, const TARGET_TYPE *fromEnd, ALLOCATOR *allocator, bslmf::MetaInt&lt; BITWISE_COPYABLE_TRAITS &gt; *)" -->
+<a class="anchor" id="a5931ba677b3fce413e776c018552c6cf"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::copyConstruct" ref="a5931ba677b3fce413e776c018552c6cf" args="(TARGET_TYPE *toBegin, const TARGET_TYPE *fromBegin, const TARGET_TYPE *fromEnd, ALLOCATOR *allocator, bslmf::MetaInt&lt; e_BITWISE_COPYABLE_TRAITS &gt; *)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -1498,7 +1383,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; BITWISE_COPYABLE_TRAITS &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_BITWISE_COPYABLE_TRAITS &gt; *&nbsp;</td>
           <td class="paramname"></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -1512,7 +1397,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="af0f42b45c0dac86f99110d369f4f7f84"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::copyConstruct" ref="af0f42b45c0dac86f99110d369f4f7f84" args="(TARGET_TYPE *toBegin, FWD_ITER fromBegin, FWD_ITER fromEnd, ALLOCATOR *allocator, bslmf::MetaInt&lt; NIL_TRAITS &gt; *)" -->
+<a class="anchor" id="a91b5d0afe84637f8237d003f8c29555e"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::copyConstruct" ref="a91b5d0afe84637f8237d003f8c29555e" args="(TARGET_TYPE *toBegin, FWD_ITER fromBegin, FWD_ITER fromEnd, ALLOCATOR *allocator, bslmf::MetaInt&lt; e_IS_ITERATOR_TO_FUNCTION_POINTER &gt; *)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -1545,7 +1430,7 @@ template&lt;class TARGET_TYPE , class FWD_ITER , class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; NIL_TRAITS &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_ITERATOR_TO_FUNCTION_POINTER &gt; *&nbsp;</td>
           <td class="paramname"></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -1556,11 +1441,229 @@ template&lt;class TARGET_TYPE , class FWD_ITER , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>These functions follow the <code>copyConstruct</code> contract. If the parameterized <code>ALLOCATOR</code> is based on <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> and the <code>TARGET_TYPE</code> constructors take an allocator argument, then pass the specified <code>allocator</code> to the copy constructor. The behavior is undefined unless the output array has length at least the distance from <code>fromBegin</code> to <code>fromEnd</code>. Note that if <code>FWD_ITER</code> is the <code>TARGET_TYPE *</code> pointer type and <code>TARGET_TYPE</code> is bit-wise copyable, then this operation is simply <code>memcpy</code>. The last argument is for removing overload ambiguities and is not used. </p>
 
 </div>
 </div>
-<a class="anchor" id="a3a88f9a4684191e407558e15282f79a3"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::destructiveMove" ref="a3a88f9a4684191e407558e15282f79a3" args="(TARGET_TYPE *toBegin, TARGET_TYPE *fromBegin, TARGET_TYPE *fromEnd, ALLOCATOR *allocator, bslmf::MetaInt&lt; BITWISE_MOVEABLE_TRAITS &gt; *)" -->
+<a class="anchor" id="a101cc9445b5095d921624b17600f6ba0"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::copyConstruct" ref="a101cc9445b5095d921624b17600f6ba0" args="(void **toBegin, FWD_ITER fromBegin, FWD_ITER fromEnd, ALLOCATOR *allocator, bslmf::MetaInt&lt; e_IS_ITERATOR_TO_FUNCTION_POINTER &gt; *)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class FWD_ITER , class ALLOCATOR &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">static void bslalg::ArrayPrimitives_Imp::copyConstruct </td>
+          <td>(</td>
+          <td class="paramtype">void **&nbsp;</td>
+          <td class="paramname"> <em>toBegin</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FWD_ITER&nbsp;</td>
+          <td class="paramname"> <em>fromBegin</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FWD_ITER&nbsp;</td>
+          <td class="paramname"> <em>fromEnd</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ALLOCATOR *&nbsp;</td>
+          <td class="paramname"> <em>allocator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_ITERATOR_TO_FUNCTION_POINTER &gt; *&nbsp;</td>
+          <td class="paramname"></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a16932c23bcdddfaed64f5346cc0ec7b7"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::copyConstruct" ref="a16932c23bcdddfaed64f5346cc0ec7b7" args="(TARGET_TYPE *toBegin, FWD_ITER fromBegin, FWD_ITER fromEnd, ALLOCATOR *allocator, bslmf::MetaInt&lt; e_NIL_TRAITS &gt; *)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TARGET_TYPE , class FWD_ITER , class ALLOCATOR &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">static void bslalg::ArrayPrimitives_Imp::copyConstruct </td>
+          <td>(</td>
+          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>toBegin</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FWD_ITER&nbsp;</td>
+          <td class="paramname"> <em>fromBegin</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FWD_ITER&nbsp;</td>
+          <td class="paramname"> <em>fromEnd</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ALLOCATOR *&nbsp;</td>
+          <td class="paramname"> <em>allocator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_NIL_TRAITS &gt; *&nbsp;</td>
+          <td class="paramname"></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>These functions follow the <code>copyConstruct</code> contract. If the (template parameter) <code>ALLOCATOR</code> type is based on <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> and the <code>TARGET_TYPE</code> constructors take an allocator argument, then pass the specified <code>allocator</code> to the copy constructor. The behavior is undefined unless the output array has length at least the distance from the specified <code>fromBegin</code> to the specified <code>fromEnd</code>. Note that if <code>FWD_ITER</code> is the <code>TARGET_TYPE *</code> pointer type and <code>TARGET_TYPE</code> is bit-wise copyable, then this operation is simply <code>memcpy</code>. The last argument is for removing overload ambiguities and is not used. </p>
+
+</div>
+</div>
+<a class="anchor" id="a764f6bec1b4a863c9fcc8877350704ae"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::defaultConstruct" ref="a764f6bec1b4a863c9fcc8877350704ae" args="(TARGET_TYPE *begin, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; e_HAS_TRIVIAL_DEFAULT_CTOR_TRAITS &gt; *)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">static void bslalg::ArrayPrimitives_Imp::defaultConstruct </td>
+          <td>(</td>
+          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>begin</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a>&nbsp;</td>
+          <td class="paramname"> <em>numElements</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ALLOCATOR *&nbsp;</td>
+          <td class="paramname"> <em>allocator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_HAS_TRIVIAL_DEFAULT_CTOR_TRAITS &gt; *&nbsp;</td>
+          <td class="paramname"></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ac90c27f8506758b3a013b65bb190caad"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::defaultConstruct" ref="ac90c27f8506758b3a013b65bb190caad" args="(TARGET_TYPE *begin, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; e_BITWISE_COPYABLE_TRAITS &gt; *)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">static void bslalg::ArrayPrimitives_Imp::defaultConstruct </td>
+          <td>(</td>
+          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>begin</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a>&nbsp;</td>
+          <td class="paramname"> <em>numElements</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ALLOCATOR *&nbsp;</td>
+          <td class="paramname"> <em>allocator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_BITWISE_COPYABLE_TRAITS &gt; *&nbsp;</td>
+          <td class="paramname"></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ad19451853e18c853f751f178bb3b0bef"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::defaultConstruct" ref="ad19451853e18c853f751f178bb3b0bef" args="(TARGET_TYPE *begin, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; e_NIL_TRAITS &gt; *)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">static void bslalg::ArrayPrimitives_Imp::defaultConstruct </td>
+          <td>(</td>
+          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>begin</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a>&nbsp;</td>
+          <td class="paramname"> <em>numElements</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ALLOCATOR *&nbsp;</td>
+          <td class="paramname"> <em>allocator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_NIL_TRAITS &gt; *&nbsp;</td>
+          <td class="paramname"></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Use the default constructor of the (template parameter) <code>TARGET_TYPE</code> (or <code>memset</code> to 0 if <code>TARGET_TYPE</code> has a trivial default constructor) on each element of the array starting at the specified <code>begin</code> address and ending immediately before the <code>end</code> address. Pass the specified <code>allocator</code> to the default constructor if appropriate. The last argument is for traits overloading resolution only and its value is ignored. </p>
+
+</div>
+</div>
+<a class="anchor" id="ada0daab2e1c004f75dabda61ad27f298"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::destructiveMove" ref="ada0daab2e1c004f75dabda61ad27f298" args="(TARGET_TYPE *toBegin, TARGET_TYPE *fromBegin, TARGET_TYPE *fromEnd, ALLOCATOR *allocator, bslmf::MetaInt&lt; e_BITWISE_MOVEABLE_TRAITS &gt; *)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -1593,7 +1696,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; BITWISE_MOVEABLE_TRAITS &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_BITWISE_MOVEABLE_TRAITS &gt; *&nbsp;</td>
           <td class="paramname"></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -1607,7 +1710,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="ad1d4b0425a84bf9bd9834699c50f8d7f"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::destructiveMove" ref="ad1d4b0425a84bf9bd9834699c50f8d7f" args="(TARGET_TYPE *toBegin, TARGET_TYPE *fromBegin, TARGET_TYPE *fromEnd, ALLOCATOR *allocator, bslmf::MetaInt&lt; NIL_TRAITS &gt; *)" -->
+<a class="anchor" id="aea1752b7424996096d32af939a0ff26f"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::destructiveMove" ref="aea1752b7424996096d32af939a0ff26f" args="(TARGET_TYPE *toBegin, TARGET_TYPE *fromBegin, TARGET_TYPE *fromEnd, ALLOCATOR *allocator, bslmf::MetaInt&lt; e_NIL_TRAITS &gt; *)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -1640,7 +1743,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; NIL_TRAITS &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_NIL_TRAITS &gt; *&nbsp;</td>
           <td class="paramname"></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -1655,167 +1758,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="aba78ae5fa22c92e5dd90363ba64d938b"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::insert" ref="aba78ae5fa22c92e5dd90363ba64d938b" args="(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, const TARGET_TYPE &amp;value, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; BITWISE_COPYABLE_TRAITS &gt; *)" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">static void bslalg::ArrayPrimitives_Imp::insert </td>
-          <td>(</td>
-          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
-          <td class="paramname"> <em>toBegin</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
-          <td class="paramname"> <em>toEnd</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const TARGET_TYPE &amp;&nbsp;</td>
-          <td class="paramname"> <em>value</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a>&nbsp;</td>
-          <td class="paramname"> <em>numElements</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">ALLOCATOR *&nbsp;</td>
-          <td class="paramname"> <em>allocator</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; BITWISE_COPYABLE_TRAITS &gt; *&nbsp;</td>
-          <td class="paramname"></td><td>&nbsp;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td><td><code> [static]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a09d45245ee9085a305545053717e51cd"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::insert" ref="a09d45245ee9085a305545053717e51cd" args="(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, const TARGET_TYPE &amp;value, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; BITWISE_MOVEABLE_TRAITS &gt; *)" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">static void bslalg::ArrayPrimitives_Imp::insert </td>
-          <td>(</td>
-          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
-          <td class="paramname"> <em>toBegin</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
-          <td class="paramname"> <em>toEnd</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const TARGET_TYPE &amp;&nbsp;</td>
-          <td class="paramname"> <em>value</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a>&nbsp;</td>
-          <td class="paramname"> <em>numElements</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">ALLOCATOR *&nbsp;</td>
-          <td class="paramname"> <em>allocator</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; BITWISE_MOVEABLE_TRAITS &gt; *&nbsp;</td>
-          <td class="paramname"></td><td>&nbsp;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td><td><code> [static]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a7670c8a76fd1a1f814dfbb4739e78b80"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::insert" ref="a7670c8a76fd1a1f814dfbb4739e78b80" args="(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, const TARGET_TYPE &amp;value, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; NIL_TRAITS &gt; *)" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">static void bslalg::ArrayPrimitives_Imp::insert </td>
-          <td>(</td>
-          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
-          <td class="paramname"> <em>toBegin</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
-          <td class="paramname"> <em>toEnd</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const TARGET_TYPE &amp;&nbsp;</td>
-          <td class="paramname"> <em>value</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a>&nbsp;</td>
-          <td class="paramname"> <em>numElements</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">ALLOCATOR *&nbsp;</td>
-          <td class="paramname"> <em>allocator</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; NIL_TRAITS &gt; *&nbsp;</td>
-          <td class="paramname"></td><td>&nbsp;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td><td><code> [static]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>These functions follow the <code>insert</code> contract. Note that if <code>TARGET_TYPE</code> is bit-wise copyable, then this operation is simply <code>memmove</code> followed by <code>bitwiseFillN</code>. If <code>TARGET_TYPE</code> is bit-wise moveable, then this operation can still be optimized using <code>memmove</code> followed by repeated assignments, but a guard needs to be set up. The last argument is for removing overload ambiguities and is not used. </p>
-
-</div>
-</div>
-<a class="anchor" id="a8ac012f1211d8a9ae677c21af998fc32"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::emplace" ref="a8ac012f1211d8a9ae677c21af998fc32" args="(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; BITWISE_COPYABLE_TRAITS &gt; *, Args &amp;&amp;...args)" -->
+<a class="anchor" id="ad40f5bc962d0c179849e5e18f1be7283"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::emplace" ref="ad40f5bc962d0c179849e5e18f1be7283" args="(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; e_BITWISE_COPYABLE_TRAITS &gt; *, Args &amp;&amp;...args)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -1848,7 +1791,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR , class... Args&gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; BITWISE_COPYABLE_TRAITS &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_BITWISE_COPYABLE_TRAITS &gt; *&nbsp;</td>
           <td class="paramname">, </td>
         </tr>
         <tr>
@@ -1868,7 +1811,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR , class... Args&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="aa4629a45962ace06f81d79c718cdf9a4"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::emplace" ref="aa4629a45962ace06f81d79c718cdf9a4" args="(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; BITWISE_MOVEABLE_TRAITS &gt; *, Args &amp;&amp;...args)" -->
+<a class="anchor" id="a81c4a6f751c58fd0f1d940732cf19ace"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::emplace" ref="a81c4a6f751c58fd0f1d940732cf19ace" args="(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; e_BITWISE_MOVEABLE_TRAITS &gt; *, Args &amp;&amp;...args)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -1901,7 +1844,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR , class... Args&gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; BITWISE_MOVEABLE_TRAITS &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_BITWISE_MOVEABLE_TRAITS &gt; *&nbsp;</td>
           <td class="paramname">, </td>
         </tr>
         <tr>
@@ -1921,7 +1864,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR , class... Args&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="ac6c1f5d786cf8496523f9bf85d24d0a2"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::emplace" ref="ac6c1f5d786cf8496523f9bf85d24d0a2" args="(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; NIL_TRAITS &gt; *, Args &amp;&amp;...args)" -->
+<a class="anchor" id="a3028b52d484e85d81d5e19e852ee5586"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::emplace" ref="a3028b52d484e85d81d5e19e852ee5586" args="(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; e_NIL_TRAITS &gt; *, Args &amp;&amp;...args)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -1954,7 +1897,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR , class... Args&gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; NIL_TRAITS &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_NIL_TRAITS &gt; *&nbsp;</td>
           <td class="paramname">, </td>
         </tr>
         <tr>
@@ -1975,7 +1918,262 @@ template&lt;class TARGET_TYPE , class ALLOCATOR , class... Args&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="aec645088cb3c4789bdb18fd5ab00f646"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::insert" ref="aec645088cb3c4789bdb18fd5ab00f646" args="(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, FWD_ITER fromBegin, FWD_ITER fromEnd, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; IS_POINTER_TO_POINTER &gt; *)" -->
+<a class="anchor" id="ad6338bad7a0f04bbf5ce6d362e5614a9"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::erase" ref="ad6338bad7a0f04bbf5ce6d362e5614a9" args="(TARGET_TYPE *first, TARGET_TYPE *middle, TARGET_TYPE *last, ALLOCATOR *allocator, bslmf::MetaInt&lt; e_BITWISE_MOVEABLE_TRAITS &gt; *)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">static void bslalg::ArrayPrimitives_Imp::erase </td>
+          <td>(</td>
+          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>first</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>middle</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>last</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ALLOCATOR *&nbsp;</td>
+          <td class="paramname"> <em>allocator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_BITWISE_MOVEABLE_TRAITS &gt; *&nbsp;</td>
+          <td class="paramname"></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a65c3514ebd8660efefdd05e2ff3b102d"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::erase" ref="a65c3514ebd8660efefdd05e2ff3b102d" args="(TARGET_TYPE *first, TARGET_TYPE *middle, TARGET_TYPE *last, ALLOCATOR *allocator, bslmf::MetaInt&lt; e_NIL_TRAITS &gt; *)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">static void bslalg::ArrayPrimitives_Imp::erase </td>
+          <td>(</td>
+          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>first</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>middle</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>last</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ALLOCATOR *&nbsp;</td>
+          <td class="paramname"> <em>allocator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_NIL_TRAITS &gt; *&nbsp;</td>
+          <td class="paramname"></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>These functions follow the <code>erase</code> contract. Note that if (template parameter) <code>TARGET_TYPE</code> is bit-wise moveable, then this operation can be implemented by first bit-wise moving the elements in <code>[middle, last)</code> towards first, and destroying <code>[ last - (middle - first), last)</code>; note that this cannot throw exceptions. </p>
+
+</div>
+</div>
+<a class="anchor" id="a5960c3173123aa7713cf333e581d0394"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::insert" ref="a5960c3173123aa7713cf333e581d0394" args="(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, const TARGET_TYPE &amp;value, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; e_BITWISE_COPYABLE_TRAITS &gt; *)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">static void bslalg::ArrayPrimitives_Imp::insert </td>
+          <td>(</td>
+          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>toBegin</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>toEnd</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const TARGET_TYPE &amp;&nbsp;</td>
+          <td class="paramname"> <em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a>&nbsp;</td>
+          <td class="paramname"> <em>numElements</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ALLOCATOR *&nbsp;</td>
+          <td class="paramname"> <em>allocator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_BITWISE_COPYABLE_TRAITS &gt; *&nbsp;</td>
+          <td class="paramname"></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a6a0f137cb13d976b3db86578dbc5ba82"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::insert" ref="a6a0f137cb13d976b3db86578dbc5ba82" args="(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, const TARGET_TYPE &amp;value, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; e_BITWISE_MOVEABLE_TRAITS &gt; *)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">static void bslalg::ArrayPrimitives_Imp::insert </td>
+          <td>(</td>
+          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>toBegin</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>toEnd</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const TARGET_TYPE &amp;&nbsp;</td>
+          <td class="paramname"> <em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a>&nbsp;</td>
+          <td class="paramname"> <em>numElements</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ALLOCATOR *&nbsp;</td>
+          <td class="paramname"> <em>allocator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_BITWISE_MOVEABLE_TRAITS &gt; *&nbsp;</td>
+          <td class="paramname"></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a4aa0445ab8ed7287b0ab1b7170232dd8"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::insert" ref="a4aa0445ab8ed7287b0ab1b7170232dd8" args="(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, const TARGET_TYPE &amp;value, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; e_NIL_TRAITS &gt; *)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">static void bslalg::ArrayPrimitives_Imp::insert </td>
+          <td>(</td>
+          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>toBegin</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>toEnd</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const TARGET_TYPE &amp;&nbsp;</td>
+          <td class="paramname"> <em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a>&nbsp;</td>
+          <td class="paramname"> <em>numElements</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ALLOCATOR *&nbsp;</td>
+          <td class="paramname"> <em>allocator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_NIL_TRAITS &gt; *&nbsp;</td>
+          <td class="paramname"></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>These functions follow the <code>insert</code> contract. Note that if <code>TARGET_TYPE</code> is bit-wise copyable, then this operation is simply <code>memmove</code> followed by <code>bitwiseFillN</code>. If <code>TARGET_TYPE</code> is bit-wise moveable, then this operation can still be optimized using <code>memmove</code> followed by repeated assignments, but a guard needs to be set up. The last argument is for removing overload ambiguities and is not used. </p>
+
+</div>
+</div>
+<a class="anchor" id="aefbcccb52433f92ff67157d52445c51c"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::insert" ref="aefbcccb52433f92ff67157d52445c51c" args="(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, FWD_ITER fromBegin, FWD_ITER fromEnd, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; e_IS_POINTER_TO_POINTER &gt; *)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -2020,7 +2218,7 @@ template&lt;class TARGET_TYPE , class FWD_ITER , class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; IS_POINTER_TO_POINTER &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_POINTER_TO_POINTER &gt; *&nbsp;</td>
           <td class="paramname"></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -2034,7 +2232,7 @@ template&lt;class TARGET_TYPE , class FWD_ITER , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="ad54e27ffe34266ca2d2e2864f7a05c06"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::insert" ref="ad54e27ffe34266ca2d2e2864f7a05c06" args="(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, const TARGET_TYPE *fromBegin, const TARGET_TYPE *fromEnd, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; BITWISE_COPYABLE_TRAITS &gt; *)" -->
+<a class="anchor" id="a23ffddc6b549acc810f5b7ad1bf31b2b"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::insert" ref="a23ffddc6b549acc810f5b7ad1bf31b2b" args="(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, const TARGET_TYPE *fromBegin, const TARGET_TYPE *fromEnd, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; e_BITWISE_COPYABLE_TRAITS &gt; *)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -2079,7 +2277,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; BITWISE_COPYABLE_TRAITS &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_BITWISE_COPYABLE_TRAITS &gt; *&nbsp;</td>
           <td class="paramname"></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -2093,7 +2291,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a6f318b960ace282041a2ee2db239c29f"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::insert" ref="a6f318b960ace282041a2ee2db239c29f" args="(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, FWD_ITER fromBegin, FWD_ITER fromEnd, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; BITWISE_MOVEABLE_TRAITS &gt; *)" -->
+<a class="anchor" id="ad7a722a92500754d68e409258068ee8b"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::insert" ref="ad7a722a92500754d68e409258068ee8b" args="(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, FWD_ITER fromBegin, FWD_ITER fromEnd, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; e_BITWISE_MOVEABLE_TRAITS &gt; *)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -2138,7 +2336,7 @@ template&lt;class TARGET_TYPE , class FWD_ITER , class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; BITWISE_MOVEABLE_TRAITS &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_BITWISE_MOVEABLE_TRAITS &gt; *&nbsp;</td>
           <td class="paramname"></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -2152,7 +2350,66 @@ template&lt;class TARGET_TYPE , class FWD_ITER , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a5ae4e7b10be5eff5f9fda33f93d849f7"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::insert" ref="a5ae4e7b10be5eff5f9fda33f93d849f7" args="(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, FWD_ITER fromBegin, FWD_ITER fromEnd, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; NIL_TRAITS &gt; *)" -->
+<a class="anchor" id="a8f264026763bfa78c9741e34d97a58e1"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::insert" ref="a8f264026763bfa78c9741e34d97a58e1" args="(void **toBegin, void **toEnd, FWD_ITER fromBegin, FWD_ITER fromEnd, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; e_IS_ITERATOR_TO_FUNCTION_POINTER &gt; *)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class FWD_ITER , class ALLOCATOR &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">static void bslalg::ArrayPrimitives_Imp::insert </td>
+          <td>(</td>
+          <td class="paramtype">void **&nbsp;</td>
+          <td class="paramname"> <em>toBegin</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void **&nbsp;</td>
+          <td class="paramname"> <em>toEnd</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FWD_ITER&nbsp;</td>
+          <td class="paramname"> <em>fromBegin</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">FWD_ITER&nbsp;</td>
+          <td class="paramname"> <em>fromEnd</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#aa3d2e68766698f07a79e998b29f2d1e7">size_type</a>&nbsp;</td>
+          <td class="paramname"> <em>numElements</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ALLOCATOR *&nbsp;</td>
+          <td class="paramname"> <em>allocator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_IS_ITERATOR_TO_FUNCTION_POINTER &gt; *&nbsp;</td>
+          <td class="paramname"></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a69d589810a375fa3ba246c0042713897"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::insert" ref="a69d589810a375fa3ba246c0042713897" args="(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, FWD_ITER fromBegin, FWD_ITER fromEnd, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; e_NIL_TRAITS &gt; *)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -2197,7 +2454,7 @@ template&lt;class TARGET_TYPE , class FWD_ITER , class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; NIL_TRAITS &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_NIL_TRAITS &gt; *&nbsp;</td>
           <td class="paramname"></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -2212,7 +2469,7 @@ template&lt;class TARGET_TYPE , class FWD_ITER , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="ac38e559b4eec8d47afaaf473847d700a"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::moveInsert" ref="ac38e559b4eec8d47afaaf473847d700a" args="(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, TARGET_TYPE **lastPtr, TARGET_TYPE *first, TARGET_TYPE *last, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; BITWISE_MOVEABLE_TRAITS &gt; *)" -->
+<a class="anchor" id="a46b66f47d3373fdf7c12287a19228fd9"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::moveInsert" ref="a46b66f47d3373fdf7c12287a19228fd9" args="(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, TARGET_TYPE **lastPtr, TARGET_TYPE *first, TARGET_TYPE *last, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; e_BITWISE_MOVEABLE_TRAITS &gt; *)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -2263,7 +2520,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; BITWISE_MOVEABLE_TRAITS &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_BITWISE_MOVEABLE_TRAITS &gt; *&nbsp;</td>
           <td class="paramname"></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -2277,7 +2534,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a47082482658bed68a5c0a6bdd790d024"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::moveInsert" ref="a47082482658bed68a5c0a6bdd790d024" args="(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, TARGET_TYPE **lastPtr, TARGET_TYPE *first, TARGET_TYPE *last, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; NIL_TRAITS &gt; *)" -->
+<a class="anchor" id="a8f0e74c670977196948a80b45b99c613"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::moveInsert" ref="a8f0e74c670977196948a80b45b99c613" args="(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, TARGET_TYPE **lastPtr, TARGET_TYPE *first, TARGET_TYPE *last, size_type numElements, ALLOCATOR *allocator, bslmf::MetaInt&lt; e_NIL_TRAITS &gt; *)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -2328,7 +2585,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; NIL_TRAITS &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_NIL_TRAITS &gt; *&nbsp;</td>
           <td class="paramname"></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -2343,17 +2600,17 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a5d671fda49f738bb8880f1ad33c81fe2"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::erase" ref="a5d671fda49f738bb8880f1ad33c81fe2" args="(TARGET_TYPE *first, TARGET_TYPE *middle, TARGET_TYPE *last, ALLOCATOR *allocator, bslmf::MetaInt&lt; BITWISE_MOVEABLE_TRAITS &gt; *)" -->
+<a class="anchor" id="a5a72aa6b88982a74a3deabf28d4bb86f"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::rotate" ref="a5a72aa6b88982a74a3deabf28d4bb86f" args="(TARGET_TYPE *begin, TARGET_TYPE *middle, TARGET_TYPE *end, bslmf::MetaInt&lt; e_BITWISE_MOVEABLE_TRAITS &gt; *)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
+template&lt;class TARGET_TYPE &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">static void bslalg::ArrayPrimitives_Imp::erase </td>
+          <td class="memname">static void bslalg::ArrayPrimitives_Imp::rotate </td>
           <td>(</td>
           <td class="paramtype">TARGET_TYPE *&nbsp;</td>
-          <td class="paramname"> <em>first</em>, </td>
+          <td class="paramname"> <em>begin</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -2365,18 +2622,12 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">TARGET_TYPE *&nbsp;</td>
-          <td class="paramname"> <em>last</em>, </td>
+          <td class="paramname"> <em>end</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">ALLOCATOR *&nbsp;</td>
-          <td class="paramname"> <em>allocator</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; BITWISE_MOVEABLE_TRAITS &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_BITWISE_MOVEABLE_TRAITS &gt; *&nbsp;</td>
           <td class="paramname"></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -2390,17 +2641,17 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a3358c2563965685edacbc9b52b6516c4"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::erase" ref="a3358c2563965685edacbc9b52b6516c4" args="(TARGET_TYPE *first, TARGET_TYPE *middle, TARGET_TYPE *last, ALLOCATOR *allocator, bslmf::MetaInt&lt; NIL_TRAITS &gt; *)" -->
+<a class="anchor" id="a8d4b954c886bcf26a4558a0b8425b536"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::rotate" ref="a8d4b954c886bcf26a4558a0b8425b536" args="(TARGET_TYPE *begin, TARGET_TYPE *middle, TARGET_TYPE *end, bslmf::MetaInt&lt; e_NIL_TRAITS &gt; *)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
+template&lt;class TARGET_TYPE &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">static void bslalg::ArrayPrimitives_Imp::erase </td>
+          <td class="memname">static void bslalg::ArrayPrimitives_Imp::rotate </td>
           <td>(</td>
           <td class="paramtype">TARGET_TYPE *&nbsp;</td>
-          <td class="paramname"> <em>first</em>, </td>
+          <td class="paramname"> <em>begin</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -2412,18 +2663,12 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">TARGET_TYPE *&nbsp;</td>
-          <td class="paramname"> <em>last</em>, </td>
+          <td class="paramname"> <em>end</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">ALLOCATOR *&nbsp;</td>
-          <td class="paramname"> <em>allocator</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; NIL_TRAITS &gt; *&nbsp;</td>
+          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; e_NIL_TRAITS &gt; *&nbsp;</td>
           <td class="paramname"></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -2434,109 +2679,7 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>These functions follow the <code>erase</code> contract. Note that if <code>TARGET_TYPE</code> is bit-wise moveable, then this operation can be implemented by first bit-wise moving the elements in <code>[ middle, last)</code> towards first, and destroying <code>[ last - (middle - first), last)</code>; note that this cannot throw exceptions. </p>
-
-</div>
-</div>
-<a class="anchor" id="a56a7c164ad1a06dc1393727680df2062"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::bitwiseSwapRanges" ref="a56a7c164ad1a06dc1393727680df2062" args="(char *begin, char *middle, char *end)" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">static void bslalg::ArrayPrimitives_Imp::bitwiseSwapRanges </td>
-          <td>(</td>
-          <td class="paramtype">char *&nbsp;</td>
-          <td class="paramname"> <em>begin</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">char *&nbsp;</td>
-          <td class="paramname"> <em>middle</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">char *&nbsp;</td>
-          <td class="paramname"> <em>end</em></td><td>&nbsp;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td><td><code> [static]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Swap the characters in the array starting at the specified <code>first</code> address and ending immediately before the specified <code>middle</code> address with the array of the same length starting at the <code>middle</code> address and ending at the specified <code>last</code> address. The behavior is undefined unless <code>middle - begin == end - middle</code>. </p>
-
-</div>
-</div>
-<a class="anchor" id="a2688725ce6ac6998762609895e76785a"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::bitwiseRotateBackward" ref="a2688725ce6ac6998762609895e76785a" args="(char *begin, char *middle, char *end)" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">static void bslalg::ArrayPrimitives_Imp::bitwiseRotateBackward </td>
-          <td>(</td>
-          <td class="paramtype">char *&nbsp;</td>
-          <td class="paramname"> <em>begin</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">char *&nbsp;</td>
-          <td class="paramname"> <em>middle</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">char *&nbsp;</td>
-          <td class="paramname"> <em>end</em></td><td>&nbsp;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td><td><code> [static]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Move the characters in the array starting at the specified <code>first</code> address and ending immediately before the specified <code>middle</code> address to the array of the same length ending at the specified <code>last</code> address (and thus starting at the <code>last - (middle - first)</code> address), and move the elements previously in the array starting at <code>middle</code> and ending at <code>last</code> down to the <code>first</code> address. The behavior is undefined unless <code>middle - begin &lt;= INPLACE_BUFFER_SIZE</code>. </p>
-
-</div>
-</div>
-<a class="anchor" id="a8fb32a2c58d13ee43448d1296d98b35d"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::bitwiseRotateForward" ref="a8fb32a2c58d13ee43448d1296d98b35d" args="(char *begin, char *middle, char *end)" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">static void bslalg::ArrayPrimitives_Imp::bitwiseRotateForward </td>
-          <td>(</td>
-          <td class="paramtype">char *&nbsp;</td>
-          <td class="paramname"> <em>begin</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">char *&nbsp;</td>
-          <td class="paramname"> <em>middle</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">char *&nbsp;</td>
-          <td class="paramname"> <em>end</em></td><td>&nbsp;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td><td><code> [static]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Move the characters in the array starting at the specified <code>first</code> address and ending immediately before the specified <code>middle</code> address to the array of the same length ending at the specified <code>last</code> address (and thus starting at the <code>last - (middle - first)</code> address), and move the elements previously in the array starting at <code>middle</code> and ending at <code>last</code> down to the <code>first</code> address. The behavior is undefined unless <code>end - middle &lt;= INPLACE_BUFFER_SIZE</code>. </p>
+<p>These functions follow the <code>rotate</code> contract, but the first overload is optimized when the parameterized <code>TARGET_TYPE</code> is bit-wise moveable. The last argument is for removing overload ambiguities and is not used. Note that if <code>TARGET_TYPE</code> is bit-wise moveable, the <code>rotate(char*, char*, char*)</code> can be used, enabling to take the whole implementation out-of-line. </p>
 
 </div>
 </div>
@@ -2574,35 +2717,27 @@ template&lt;class TARGET_TYPE , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="ad05148699546c5d0fd1622375b94903c"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::rotate" ref="ad05148699546c5d0fd1622375b94903c" args="(TARGET_TYPE *begin, TARGET_TYPE *middle, TARGET_TYPE *end, bslmf::MetaInt&lt; BITWISE_MOVEABLE_TRAITS &gt; *)" -->
+<a class="anchor" id="a2688725ce6ac6998762609895e76785a"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::bitwiseRotateBackward" ref="a2688725ce6ac6998762609895e76785a" args="(char *begin, char *middle, char *end)" -->
 <div class="memitem">
 <div class="memproto">
-<div class="memtemplate">
-template&lt;class TARGET_TYPE &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">static void bslalg::ArrayPrimitives_Imp::rotate </td>
+          <td class="memname">static void bslalg::ArrayPrimitives_Imp::bitwiseRotateBackward </td>
           <td>(</td>
-          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
+          <td class="paramtype">char *&nbsp;</td>
           <td class="paramname"> <em>begin</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
+          <td class="paramtype">char *&nbsp;</td>
           <td class="paramname"> <em>middle</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
-          <td class="paramname"> <em>end</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; BITWISE_MOVEABLE_TRAITS &gt; *&nbsp;</td>
-          <td class="paramname"></td><td>&nbsp;</td>
+          <td class="paramtype">char *&nbsp;</td>
+          <td class="paramname"> <em>end</em></td><td>&nbsp;</td>
         </tr>
         <tr>
           <td></td>
@@ -2612,38 +2747,31 @@ template&lt;class TARGET_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>Move the characters in the array starting at the specified <code>first</code> address and ending immediately before the specified <code>middle</code> address to the array of the same length ending at the specified <code>last</code> address (and thus starting at the <code>last - (middle - first)</code> address), and move the elements previously in the array starting at <code>middle</code> and ending at <code>last</code> down to the <code>first</code> address. The behavior is undefined unless <code>middle - begin &lt;= k_INPLACE_BUFFER_SIZE</code>. </p>
 
 </div>
 </div>
-<a class="anchor" id="a6c914838353dc78529f80a7af79c009b"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::rotate" ref="a6c914838353dc78529f80a7af79c009b" args="(TARGET_TYPE *begin, TARGET_TYPE *middle, TARGET_TYPE *end, bslmf::MetaInt&lt; NIL_TRAITS &gt; *)" -->
+<a class="anchor" id="a8fb32a2c58d13ee43448d1296d98b35d"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::bitwiseRotateForward" ref="a8fb32a2c58d13ee43448d1296d98b35d" args="(char *begin, char *middle, char *end)" -->
 <div class="memitem">
 <div class="memproto">
-<div class="memtemplate">
-template&lt;class TARGET_TYPE &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">static void bslalg::ArrayPrimitives_Imp::rotate </td>
+          <td class="memname">static void bslalg::ArrayPrimitives_Imp::bitwiseRotateForward </td>
           <td>(</td>
-          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
+          <td class="paramtype">char *&nbsp;</td>
           <td class="paramname"> <em>begin</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
+          <td class="paramtype">char *&nbsp;</td>
           <td class="paramname"> <em>middle</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">TARGET_TYPE *&nbsp;</td>
-          <td class="paramname"> <em>end</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structbslmf_1_1MetaInt.html">bslmf::MetaInt</a>&lt; NIL_TRAITS &gt; *&nbsp;</td>
-          <td class="paramname"></td><td>&nbsp;</td>
+          <td class="paramtype">char *&nbsp;</td>
+          <td class="paramname"> <em>end</em></td><td>&nbsp;</td>
         </tr>
         <tr>
           <td></td>
@@ -2653,7 +2781,41 @@ template&lt;class TARGET_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>These functions follow the <code>rotate</code> contract, but the first overload is optimized when the parameterized <code>TARGET_TYPE</code> is bit-wise moveable. The last argument is for removing overload ambiguities and is not used. Note that if <code>TARGET_TYPE</code> is bit-wise moveable, the <code>rotate(char*, char*, char*)</code> can be used, enabling to take the whole implementation out-of-line. </p>
+<p>Move the characters in the array starting at the specified <code>first</code> address and ending immediately before the specified <code>middle</code> address to the array of the same length ending at the specified <code>last</code> address (and thus starting at the <code>last - (middle - first)</code> address), and move the elements previously in the array starting at <code>middle</code> and ending at <code>last</code> down to the <code>first</code> address. The behavior is undefined unless <code>end - middle &lt;= k_INPLACE_BUFFER_SIZE</code>. </p>
+
+</div>
+</div>
+<a class="anchor" id="a56a7c164ad1a06dc1393727680df2062"></a><!-- doxytag: member="bslalg::ArrayPrimitives_Imp::bitwiseSwapRanges" ref="a56a7c164ad1a06dc1393727680df2062" args="(char *begin, char *middle, char *end)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void bslalg::ArrayPrimitives_Imp::bitwiseSwapRanges </td>
+          <td>(</td>
+          <td class="paramtype">char *&nbsp;</td>
+          <td class="paramname"> <em>begin</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *&nbsp;</td>
+          <td class="paramname"> <em>middle</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *&nbsp;</td>
+          <td class="paramname"> <em>end</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Swap the characters in the array starting at the specified <code>first</code> address and ending immediately before the specified <code>middle</code> address with the array of the same length starting at the <code>middle</code> address and ending at the specified <code>last</code> address. The behavior is undefined unless <code>middle - begin == end - middle</code>. </p>
 
 </div>
 </div>
@@ -2712,7 +2874,7 @@ template&lt;class TARGET_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if <code>[begin, end)</code> provably do not form a valid range, and <code>false</code> otherwise. Note that <code>begin == null == end</code> produces a valid range, and any other use of the null pointer value will return <code>true</code>. Also not that this function is intended to support testing, primarily through assertions, so will return <code>true</code> unless it can <em>prove</em> that the passed range is invalid. </p>
+<p>Return <code>true</code> if the specified <code>begin</code> and the specified <code>end</code> provably do not form a valid semi-open range, <code>[begin, end)</code>, and <code>false</code> otherwise. Note that <code>begin == null == end</code> produces a valid range, and any other use of the null pointer value will return <code>true</code>. Also note that this function is intended to support testing, primarily through assertions, so will return <code>true</code> unless it can <em>prove</em> that the passed range is invalid. Currently, this function can prove invalid ranges only for pointers, although should also encompass generic random access iterators in a future update, where iterator tag types are levelized below <code>bslalg</code>. </p>
 
 </div>
 </div>
@@ -2720,7 +2882,7 @@ template&lt;class TARGET_TYPE &gt; </div>
 <li><a class="el" href="bslalg__arrayprimitives_8h_source.html">bslalg_arrayprimitives.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:41 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:36 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

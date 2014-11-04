@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: Struct bsls::TimeUtil</title>
+<title>BDE 2.22.1.2 OSS: Struct bsls::TimeUtil</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -78,18 +78,36 @@
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1TimeUtil.html#a51e710cdb96136119f81881778f06d8c">initialize</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">Types::Int64</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1TimeUtil.html#a50106670de771665300872a63259ef51">convertRawTime</a> (OpaqueNativeTime rawTime)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">Types::Int64</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1TimeUtil.html#af3453076511fc824c920e9fa802d33ff">getProcessSystemTimer</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1TimeUtil.html#ad4bd1f21031c34e3a9654ab85ea5acc8">getProcessTimers</a> (<a class="el" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">Types::Int64</a> *systemTimer, <a class="el" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">Types::Int64</a> *userTimer)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">Types::Int64</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1TimeUtil.html#a68e84421ebb3c39360d5fba883dfbf13">getProcessUserTimer</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">Types::Int64</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1TimeUtil.html#a5a3f353e27dfd55ec23efbb8dfa21e80">getTimer</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1TimeUtil.html#aa28d91bdee0b418506661624ac83b7f5">getTimerRaw</a> (OpaqueNativeTime *timeValue)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1TimeUtil.html#a51e710cdb96136119f81881778f06d8c">initialize</a> ()</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>This <code>struct</code> provides a namespace for a set of platform-neutral pure procedures to access real-time system clock functionality. High-resolution time functions intended for interval-timing return an interval in nanoseconds (1 nsec = 1E-9 sec) as a platform-independent 64-bit integer.</p>
 <p>For maximum performance on some platforms where fetching the native clock is significantly faster than converting the fetched value to nanoseconds, this class also provides a "raw" method returning an opaque native time value and a conversion method returning a value in nanoseconds. </p>
 <hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="a51e710cdb96136119f81881778f06d8c"></a><!-- doxytag: member="bsls::TimeUtil::initialize" ref="a51e710cdb96136119f81881778f06d8c" args="()" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void bsls::TimeUtil::initialize </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Do a platform-dependent initialization for the utilities. Note that the other methods in this component are guaranteed to be thread safe only after calling this method. </p>
+
+</div>
+</div>
 <a class="anchor" id="a50106670de771665300872a63259ef51"></a><!-- doxytag: member="bsls::TimeUtil::convertRawTime" ref="a50106670de771665300872a63259ef51" args="(OpaqueNativeTime rawTime)" -->
 <div class="memitem">
 <div class="memproto">
@@ -210,29 +228,11 @@ Static Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a51e710cdb96136119f81881778f06d8c"></a><!-- doxytag: member="bsls::TimeUtil::initialize" ref="a51e710cdb96136119f81881778f06d8c" args="()" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">static void bsls::TimeUtil::initialize </td>
-          <td>(</td>
-          <td class="paramname"></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td><code> [static]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Do a platform-dependent initialization for the utilities. Note that only after a call to this method all the following methods are guaranteed to be thread-safe. </p>
-
-</div>
-</div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
 <li><a class="el" href="bsls__timeutil_8h_source.html">bsls_timeutil.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:50 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:44 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

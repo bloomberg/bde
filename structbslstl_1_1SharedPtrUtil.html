@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: Struct bslstl::SharedPtrUtil</title>
+<title>BDE 2.22.1.2 OSS: Struct bslstl::SharedPtrUtil</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -78,41 +78,49 @@
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; char &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslstl_1_1SharedPtrUtil.html#a4e3706052c8814e27373ccee9f64fc91">createInplaceUninitializedBuffer</a> (size_t bufferSize, <a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga6c2a72c4594b6193d545ae660731e0d4">throwBadWeakPtr</a> ()</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET , class SOURCE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; TARGET &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbslstl_1_1SharedPtrUtil.html#a7a422696c4adaaaaf54b519943563277">dynamicCast</a> (const <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; SOURCE &gt; &amp;source)</td></tr>
-<tr><td class="memTemplParams" colspan="2">template&lt;class TARGET , class SOURCE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; TARGET &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaa1e0c5e3e5a6041d830b7909dfe00bbd">staticCast</a> (const <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; SOURCE &gt; &amp;source)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaa7c3c7f1ae148cf6352b0fa6708a4aff">constCast</a> (<a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; TARGET &gt; *target, const <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; SOURCE &gt; &amp;source)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET , class SOURCE &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">static <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; TARGET &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gafcce9eb23f8b3a7c494351c7cf9246f7">constCast</a> (const <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; SOURCE &gt; &amp;source)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET , class SOURCE &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga69f6feecf72eebbdb5154d80b313cea6">dynamicCast</a> (<a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; TARGET &gt; *target, const <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; SOURCE &gt; &amp;source)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET , class SOURCE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; TARGET &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga7a422696c4adaaaaf54b519943563277">dynamicCast</a> (const <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; SOURCE &gt; &amp;source)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class TARGET , class SOURCE &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaf025d8bc5b749fb04ae5d983e9fb605f">staticCast</a> (<a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; TARGET &gt; *target, const <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; SOURCE &gt; &amp;source)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET , class SOURCE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaa7c3c7f1ae148cf6352b0fa6708a4aff">constCast</a> (<a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; TARGET &gt; *target, const <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; SOURCE &gt; &amp;source)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; char &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga08e81fb21b279dfe9d5d1c18e7e8eb13">createInplaceUninitializedBuffer</a> (bsl::size_t bufferSize, <a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator=0)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; TARGET &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaa1e0c5e3e5a6041d830b7909dfe00bbd">staticCast</a> (const <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; SOURCE &gt; &amp;source)</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>This <code>struct</code> provides a namespace for operations on shared pointers. </p>
 <hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="a7a422696c4adaaaaf54b519943563277"></a><!-- doxytag: member="bslstl::SharedPtrUtil::dynamicCast" ref="a7a422696c4adaaaaf54b519943563277" args="(const bsl::shared_ptr&lt; SOURCE &gt; &amp;source)" -->
+<a class="anchor" id="a4e3706052c8814e27373ccee9f64fc91"></a><!-- doxytag: member="bslstl::SharedPtrUtil::createInplaceUninitializedBuffer" ref="a4e3706052c8814e27373ccee9f64fc91" args="(size_t bufferSize, bslma::Allocator *basicAllocator=0)" -->
 <div class="memitem">
 <div class="memproto">
-<div class="memtemplate">
-template&lt;class TARGET , class SOURCE &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">static <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt;TARGET&gt; bslstl::SharedPtrUtil::dynamicCast </td>
+          <td class="memname">static <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt;char&gt; bslstl::SharedPtrUtil::createInplaceUninitializedBuffer </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; SOURCE &gt; &amp;&nbsp;</td>
-          <td class="paramname"> <em>source</em></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td><code> [static]</code></td>
+          <td class="paramtype">size_t&nbsp;</td>
+          <td class="paramname"> <em>bufferSize</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em> = <code>0</code></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Return a <code><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt;TARGET&gt;</code> object sharing ownership of the same object as the specified <code>source</code> shared pointer to the parameterized <code>SOURCE</code> type, and referring to <code>dynamic_cast&lt;TARGET *&gt;(source.ptr())</code>. If <code>source</code> cannot be dynamically cast to <code>TARGET *</code>, then an empty <code><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt;TARGET&gt;</code> object is returned. </p>
+<p>Return a shared pointer with an in-place representation holding a newly-created uninitialized buffer of the specified <code>bufferSize</code> (in bytes). Optionally specify a <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is 0, the currently installed default allocator is used. </p>
 
 </div>
 </div>
@@ -120,7 +128,7 @@ template&lt;class TARGET , class SOURCE &gt; </div>
 <li><a class="el" href="bslstl__sharedptr_8h_source.html">bslstl_sharedptr.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:50 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:44 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: bslstl_treenode Component</title>
+<title>BDE 2.22.1.2 OSS: bslstl_treenode Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -198,7 +198,7 @@ Namespaces</h2></td></tr>
   {
       TreeNode&lt;VALUE&gt; *result = AllocatorTraits::allocate(d_allocator, 1);
       AllocatorTraits::construct(d_allocator,
-                                 <a class="code" href="structbsls_1_1Util.html#ab9cb16fd8dce5ef2a83110ac91e3fef3">bsls::Util::addressOf</a>(result-&gt;value()),
+                                 <a class="code" href="structbsls_1_1Util.html#a94e6b61bf794b92beeb2ce1ec556d8e5">bsls::Util::addressOf</a>(result-&gt;value()),
                                  value);
       <span class="keywordflow">return</span> result;
   }
@@ -212,7 +212,7 @@ Namespaces</h2></td></tr>
   {
       TreeNode&lt;VALUE&gt; *treeNode = <span class="keyword">static_cast&lt;</span>TreeNode&lt;VALUE&gt; *<span class="keyword">&gt;</span>(node);
       AllocatorTraits::destroy(d_allocator,
-                               <a class="code" href="structbsls_1_1Util.html#ab9cb16fd8dce5ef2a83110ac91e3fef3">bsls::Util::addressOf</a>(treeNode-&gt;value()));
+                               <a class="code" href="structbsls_1_1Util.html#a94e6b61bf794b92beeb2ce1ec556d8e5">bsls::Util::addressOf</a>(treeNode-&gt;value()));
       AllocatorTraits::deallocate(d_allocator, treeNode, 1);
   }
 </pre></div><br/>
@@ -396,7 +396,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:35 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:30 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

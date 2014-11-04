@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: bslstl_ostringstream Component</title>
+<title>BDE 2.22.1.2 OSS: bslstl_ostringstream Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -80,10 +80,10 @@ Typedefs</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef traits_type::pos_type&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__ostringstream.html#ga1c7acfdcd7eedae2d5d2fae7a46d6e0e">bsl::basic_ostringstream::pos_type</a></td></tr>
 <tr><td colspan="2"><h2><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__ostringstream.html#gabb29215b03cdc521cfa56c3a2238cd9e">bsl::basic_ostringstream::basic_ostringstream</a> (const allocator_type &amp;allocator=allocator_type())</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__ostringstream.html#gaca42e705aaf77a03b9ed1cf04f1f07d0">bsl::basic_ostringstream::basic_ostringstream</a> (ios_base::openmode modeBitMask, const allocator_type &amp;allocator=allocator_type())</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__ostringstream.html#ga50c36aec4f2ccb1fe7be66e23a95584a">bsl::basic_ostringstream::basic_ostringstream</a> (const StringType &amp;initialString, const allocator_type &amp;allocator=allocator_type())</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__ostringstream.html#ga15f8cf405129ef456f7d04f4dc173bf4">bsl::basic_ostringstream::basic_ostringstream</a> (const StringType &amp;initialString, ios_base::openmode modeBitMask, const allocator_type &amp;allocator=allocator_type())</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__ostringstream.html#ga2d1a32ccad4513fdc6041e5778219fb0">bsl::basic_ostringstream::basic_ostringstream</a> (const allocator_type &amp;basicAllocator=allocator_type())</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__ostringstream.html#gab87868f0d08fa6afaabcdb899e3a91bc">bsl::basic_ostringstream::basic_ostringstream</a> (ios_base::openmode modeBitMask, const allocator_type &amp;basicAllocator=allocator_type())</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__ostringstream.html#ga7c49e1c156864daca565d0b3267dcd39">bsl::basic_ostringstream::basic_ostringstream</a> (const StringType &amp;initialString, const allocator_type &amp;basicAllocator=allocator_type())</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__ostringstream.html#ga7f3197005ea0ac21820003eda9769fc5">bsl::basic_ostringstream::basic_ostringstream</a> (const StringType &amp;initialString, ios_base::openmode modeBitMask, const allocator_type &amp;basicAllocator=allocator_type())</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__ostringstream.html#gaef188cfe0239336b6edf87dca4783071">bsl::basic_ostringstream::~basic_ostringstream</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__ostringstream.html#ga23ddb310164dea8c696231517b0e1f5e">bsl::basic_ostringstream::str</a> (const StringType &amp;value)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">StringType&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__ostringstream.html#ga278455941191c6fda70890f99e6b5617">bsl::basic_ostringstream::str</a> () const </td></tr>
@@ -261,7 +261,7 @@ template&lt;class CHAR_TYPE , class CHAR_TRAITS , class ALLOCATOR &gt; </div>
 </div>
 </div>
 <hr/><h2>Function Documentation</h2>
-<a class="anchor" id="gabb29215b03cdc521cfa56c3a2238cd9e"></a><!-- doxytag: member="bsl::basic_ostringstream::basic_ostringstream" ref="gabb29215b03cdc521cfa56c3a2238cd9e" args="(const allocator_type &amp;allocator=allocator_type())" -->
+<a class="anchor" id="ga2d1a32ccad4513fdc6041e5778219fb0"></a><!-- doxytag: member="bsl::basic_ostringstream::basic_ostringstream" ref="ga2d1a32ccad4513fdc6041e5778219fb0" args="(const allocator_type &amp;basicAllocator=allocator_type())" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -271,7 +271,7 @@ template&lt;class CHAR_TYPE , class CHAR_TRAITS , class ALLOCATOR &gt; </div>
           <td class="memname"><a class="el" href="classbsl_1_1basic__ostringstream.html">bsl::basic_ostringstream</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::basic_ostringstream </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="group__bslstl__ostringstream.html#ga1946cbeb7b1d65500f7abc993615a6a9">allocator_type</a> &amp;&nbsp;</td>
-          <td class="paramname"> <em>allocator</em> = <code><a class="el" href="group__bslstl__ostringstream.html#ga1946cbeb7b1d65500f7abc993615a6a9">allocator_type</a>()</code></td>
+          <td class="paramname"> <em>basicAllocator</em> = <code><a class="el" href="group__bslstl__ostringstream.html#ga1946cbeb7b1d65500f7abc993615a6a9">allocator_type</a>()</code></td>
           <td>&nbsp;)&nbsp;</td>
           <td><code> [inline, explicit, inherited]</code></td>
         </tr>
@@ -281,7 +281,7 @@ template&lt;class CHAR_TYPE , class CHAR_TRAITS , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="gaca42e705aaf77a03b9ed1cf04f1f07d0"></a><!-- doxytag: member="bsl::basic_ostringstream::basic_ostringstream" ref="gaca42e705aaf77a03b9ed1cf04f1f07d0" args="(ios_base::openmode modeBitMask, const allocator_type &amp;allocator=allocator_type())" -->
+<a class="anchor" id="gab87868f0d08fa6afaabcdb899e3a91bc"></a><!-- doxytag: member="bsl::basic_ostringstream::basic_ostringstream" ref="gab87868f0d08fa6afaabcdb899e3a91bc" args="(ios_base::openmode modeBitMask, const allocator_type &amp;basicAllocator=allocator_type())" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -297,7 +297,7 @@ template&lt;class CHAR_TYPE , class CHAR_TRAITS , class ALLOCATOR &gt; </div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const <a class="el" href="group__bslstl__ostringstream.html#ga1946cbeb7b1d65500f7abc993615a6a9">allocator_type</a> &amp;&nbsp;</td>
-          <td class="paramname"> <em>allocator</em> = <code><a class="el" href="group__bslstl__ostringstream.html#ga1946cbeb7b1d65500f7abc993615a6a9">allocator_type</a>()</code></td><td>&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em> = <code><a class="el" href="group__bslstl__ostringstream.html#ga1946cbeb7b1d65500f7abc993615a6a9">allocator_type</a>()</code></td><td>&nbsp;</td>
         </tr>
         <tr>
           <td></td>
@@ -310,7 +310,7 @@ template&lt;class CHAR_TYPE , class CHAR_TRAITS , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="ga50c36aec4f2ccb1fe7be66e23a95584a"></a><!-- doxytag: member="bsl::basic_ostringstream::basic_ostringstream" ref="ga50c36aec4f2ccb1fe7be66e23a95584a" args="(const StringType &amp;initialString, const allocator_type &amp;allocator=allocator_type())" -->
+<a class="anchor" id="ga7c49e1c156864daca565d0b3267dcd39"></a><!-- doxytag: member="bsl::basic_ostringstream::basic_ostringstream" ref="ga7c49e1c156864daca565d0b3267dcd39" args="(const StringType &amp;initialString, const allocator_type &amp;basicAllocator=allocator_type())" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -326,7 +326,7 @@ template&lt;class CHAR_TYPE , class CHAR_TRAITS , class ALLOCATOR &gt; </div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const <a class="el" href="group__bslstl__ostringstream.html#ga1946cbeb7b1d65500f7abc993615a6a9">allocator_type</a> &amp;&nbsp;</td>
-          <td class="paramname"> <em>allocator</em> = <code><a class="el" href="group__bslstl__ostringstream.html#ga1946cbeb7b1d65500f7abc993615a6a9">allocator_type</a>()</code></td><td>&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em> = <code><a class="el" href="group__bslstl__ostringstream.html#ga1946cbeb7b1d65500f7abc993615a6a9">allocator_type</a>()</code></td><td>&nbsp;</td>
         </tr>
         <tr>
           <td></td>
@@ -339,7 +339,7 @@ template&lt;class CHAR_TYPE , class CHAR_TRAITS , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="ga15f8cf405129ef456f7d04f4dc173bf4"></a><!-- doxytag: member="bsl::basic_ostringstream::basic_ostringstream" ref="ga15f8cf405129ef456f7d04f4dc173bf4" args="(const StringType &amp;initialString, ios_base::openmode modeBitMask, const allocator_type &amp;allocator=allocator_type())" -->
+<a class="anchor" id="ga7f3197005ea0ac21820003eda9769fc5"></a><!-- doxytag: member="bsl::basic_ostringstream::basic_ostringstream" ref="ga7f3197005ea0ac21820003eda9769fc5" args="(const StringType &amp;initialString, ios_base::openmode modeBitMask, const allocator_type &amp;basicAllocator=allocator_type())" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -361,7 +361,7 @@ template&lt;class CHAR_TYPE , class CHAR_TRAITS , class ALLOCATOR &gt; </div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const <a class="el" href="group__bslstl__ostringstream.html#ga1946cbeb7b1d65500f7abc993615a6a9">allocator_type</a> &amp;&nbsp;</td>
-          <td class="paramname"> <em>allocator</em> = <code><a class="el" href="group__bslstl__ostringstream.html#ga1946cbeb7b1d65500f7abc993615a6a9">allocator_type</a>()</code></td><td>&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em> = <code><a class="el" href="group__bslstl__ostringstream.html#ga1946cbeb7b1d65500f7abc993615a6a9">allocator_type</a>()</code></td><td>&nbsp;</td>
         </tr>
         <tr>
           <td></td>
@@ -371,7 +371,7 @@ template&lt;class CHAR_TYPE , class CHAR_TRAITS , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a <code><a class="el" href="classbsl_1_1basic__ostringstream.html">basic_ostringstream</a></code> object. Optionally specify a <code>modeBitMask</code> indicating whether the underlying stream-buffer may also be read from (<code>rdbuf</code> is created using <code>modeBitMask | ios_base::out</code>). If <code>modeBitMask</code> is not supplied, <code>rdbuf</code> will be created using <code>ios_base::out</code>. Optionally specify an <code>initialString</code> indicating the value that will be returned by a call to <code>str</code> prior to any streaming operations performed on this object. If <code>initialString</code> is not supplied, <code>str</code> will initially return an empty string. Optionally specify an <code>allocator</code> used to supply memory. If <code>allocator</code> is not supplied, a default-constructed object of the (template parameter) <code>ALLOCATOR</code> type is used. If the <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), then <code>allocator</code>, if supplied, shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. If the <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> and <code>allocator</code> is not supplied, the currently installed default allocator will be used to supply memory. </p>
+<p>Create a <code><a class="el" href="classbsl_1_1basic__ostringstream.html">basic_ostringstream</a></code> object. Optionally specify a <code>modeBitMask</code> indicating whether the underlying stream-buffer may also be read from (<code>rdbuf</code> is created using <code>modeBitMask | ios_base::out</code>). If <code>modeBitMask</code> is not supplied, <code>rdbuf</code> will be created using <code>ios_base::out</code>. Optionally specify an <code>initialString</code> indicating the value that will be returned by a call to <code>str</code> prior to any streaming operations performed on this object. If <code>initialString</code> is not supplied, <code>str</code> will initially return an empty string. Optionally specify the <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is not supplied, a default-constructed object of the (template parameter) <code>ALLOCATOR</code> type is used. If the <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), then <code>basicAllocator</code>, if supplied, shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. If the <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> and <code>basicAllocator</code> is not supplied, the currently installed default allocator will be used to supply memory. </p>
 
 </div>
 </div>
@@ -467,7 +467,7 @@ template&lt;class CHAR_TYPE , class CHAR_TRAITS , class ALLOCATOR &gt; </div>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:35 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:29 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

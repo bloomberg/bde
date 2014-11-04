@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: Struct bslalg::ArrayPrimitives Members</title>
+<title>BDE 2.22.1.2 OSS: Struct bslalg::ArrayPrimitives Members</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -65,6 +65,7 @@
 <div class="contents">
 This is the complete list of members for <a class="el" href="structbslalg_1_1ArrayPrimitives.html">bslalg::ArrayPrimitives</a>, including all inherited members.<table>
   <tr class="memlist"><td><a class="el" href="structbslalg_1_1ArrayPrimitives.html#ab3b2faada6341d555ceb351bba426933">copyConstruct</a>(TARGET_TYPE *toBegin, FWD_ITER fromBegin, FWD_ITER fromEnd, ALLOCATOR *allocator)</td><td><a class="el" href="structbslalg_1_1ArrayPrimitives.html">bslalg::ArrayPrimitives</a></td><td><code> [static]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="structbslalg_1_1ArrayPrimitives.html#a760bb693f1393fb2638ce6d6c5703d69">copyConstruct</a>(TARGET_TYPE *toBegin, SOURCE_TYPE *fromBegin, SOURCE_TYPE *fromEnd, ALLOCATOR *allocator)</td><td><a class="el" href="structbslalg_1_1ArrayPrimitives.html">bslalg::ArrayPrimitives</a></td><td><code> [static]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="structbslalg_1_1ArrayPrimitives.html#ae5142ee3ecc1fcd5bae0f044e50fb94e">defaultConstruct</a>(TARGET_TYPE *begin, size_type numElements, ALLOCATOR *allocator)</td><td><a class="el" href="structbslalg_1_1ArrayPrimitives.html">bslalg::ArrayPrimitives</a></td><td><code> [static]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="structbslalg_1_1ArrayPrimitives.html#a5c38c0261136270c2cad4021180e41b1">destructiveMove</a>(TARGET_TYPE *toBegin, TARGET_TYPE *fromBegin, TARGET_TYPE *fromEnd, ALLOCATOR *allocator)</td><td><a class="el" href="structbslalg_1_1ArrayPrimitives.html">bslalg::ArrayPrimitives</a></td><td><code> [static]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="structbslalg_1_1ArrayPrimitives.html#a4fdfe68bbdd8bbadb815832996630fe0">destructiveMoveAndInsert</a>(TARGET_TYPE *toBegin, TARGET_TYPE **fromEndPtr, TARGET_TYPE *fromBegin, TARGET_TYPE *position, TARGET_TYPE *fromEnd, const TARGET_TYPE &amp;value, size_type numElements, ALLOCATOR *allocator)</td><td><a class="el" href="structbslalg_1_1ArrayPrimitives.html">bslalg::ArrayPrimitives</a></td><td><code> [static]</code></td></tr>
@@ -76,12 +77,13 @@ This is the complete list of members for <a class="el" href="structbslalg_1_1Arr
   <tr class="memlist"><td><a class="el" href="structbslalg_1_1ArrayPrimitives.html#a3fe03746f63d167b9f4edb03db11c5c6">Imp</a> typedef</td><td><a class="el" href="structbslalg_1_1ArrayPrimitives.html">bslalg::ArrayPrimitives</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="structbslalg_1_1ArrayPrimitives.html#a55381d543e412d18de7802b60ffe2b62">insert</a>(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, const TARGET_TYPE &amp;value, size_type numElements, ALLOCATOR *allocator)</td><td><a class="el" href="structbslalg_1_1ArrayPrimitives.html">bslalg::ArrayPrimitives</a></td><td><code> [static]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="structbslalg_1_1ArrayPrimitives.html#a0c3cde4db18167cf31b55428c0f6688f">insert</a>(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, FWD_ITER fromBegin, FWD_ITER fromEnd, size_type numElements, ALLOCATOR *allocator)</td><td><a class="el" href="structbslalg_1_1ArrayPrimitives.html">bslalg::ArrayPrimitives</a></td><td><code> [static]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="structbslalg_1_1ArrayPrimitives.html#ac231fdfc8248a6a7bc71fc5e119cf2e0">insert</a>(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, SOURCE_TYPE *fromBegin, SOURCE_TYPE *fromEnd, size_type numElements, ALLOCATOR *allocator)</td><td><a class="el" href="structbslalg_1_1ArrayPrimitives.html">bslalg::ArrayPrimitives</a></td><td><code> [static]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="structbslalg_1_1ArrayPrimitives.html#ac02f87e95a3fa98dd0087567c9b9ae4b">moveInsert</a>(TARGET_TYPE *toBegin, TARGET_TYPE *toEnd, TARGET_TYPE **fromEndPtr, TARGET_TYPE *fromBegin, TARGET_TYPE *fromEnd, size_type numElements, ALLOCATOR *allocator)</td><td><a class="el" href="structbslalg_1_1ArrayPrimitives.html">bslalg::ArrayPrimitives</a></td><td><code> [static]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="structbslalg_1_1ArrayPrimitives.html#a8ae744e097db0b9b93b6d1b45c373f4e">rotate</a>(TARGET_TYPE *first, TARGET_TYPE *middle, TARGET_TYPE *last)</td><td><a class="el" href="structbslalg_1_1ArrayPrimitives.html">bslalg::ArrayPrimitives</a></td><td><code> [static]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="structbslalg_1_1ArrayPrimitives.html#aee073b37feb7e3e840fa4c1a8bfa94be">size_type</a> typedef</td><td><a class="el" href="structbslalg_1_1ArrayPrimitives.html">bslalg::ArrayPrimitives</a></td><td></td></tr>
   <tr class="memlist"><td><a class="el" href="structbslalg_1_1ArrayPrimitives.html#aa9b0dd78c3bafc31fe4f8cdf8a5c3fca">uninitializedFillN</a>(TARGET_TYPE *begin, size_type numElements, const TARGET_TYPE &amp;value, ALLOCATOR *allocator)</td><td><a class="el" href="structbslalg_1_1ArrayPrimitives.html">bslalg::ArrayPrimitives</a></td><td><code> [static]</code></td></tr>
 </table></div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:41 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:36 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

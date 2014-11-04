@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.20 OSS</title>
+<title>BDE 2.22.1.2 OSS</title>
 <html>
 <pre>
 // bslim_printer.h                                                    -*-C++-*-
@@ -242,7 +242,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      char user_id[20];       // userid
 //  };
 //..
-// We create a function &#39;myThirdPartyStructPrintFunction&#39;:
+// We create a struct &#39;MyThirdPartyStructPrintUtil&#39;:
 //..
 //  struct MyThirdPartyStructPrintUtil {
 //      static
@@ -669,8 +669,8 @@ class Printer {
         //:
         //: o If &#39;TYPE&#39; has STL iterators (this includes all STL sequence and
         //:   associative containers: vector, deque, list, set, map, multiset,
-        //:   multimap, hash_set, hash_map, hash_multiset, and hash_multimap),
-        //:   print all the objects in the container.
+        //:   multimap, unordered_set, unordered_map, unordered_multiset, and
+        //:   unordered_multimap), print all the objects in the container.
         //:
         //: o If &#39;TYPE&#39; is any other type, call the standard &#39;print&#39; method on
         //:   &#39;data&#39;, specifying one additional level of indentation than the
@@ -760,8 +760,8 @@ class Printer {
         //:
         //: o If &#39;TYPE&#39; has STL iterators (this includes all STL sequence and
         //:   associative containers: vector, deque, list, set, map, multiset,
-        //:   multimap, hash_set, hash_map, hash_multiset, and hash_multimap),
-        //:   print all the objects in the container.
+        //:   multimap, unordered_set, unordered_map, unordered_multiset, and
+        //:   unordered_multimap), print all the objects in the container.
         //:
         //: o If &#39;TYPE&#39; is any other type, call the standard &#39;print&#39; method on
         //:   &#39;data&#39;, specifying one additional level of indentation than the
@@ -1280,25 +1280,19 @@ void Printer_Helper::print(bsl::ostream&amp; stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2014 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the &quot;Software&quot;), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
 </pre>
 </body>

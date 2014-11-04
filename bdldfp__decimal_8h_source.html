@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.20 OSS</title>
+<title>BDE 2.22.1.2 OSS</title>
 <html>
 <pre>
 // bdldfp_decimal.h                                                   -*-C++-*-
@@ -18,8 +18,8 @@ BSLS_IDENT(&quot;$Id$&quot;)
 //  bdldfp::Decimal32:   32bit IEEE-754 decimal floating-point type
 //  bdldfp::Decimal64:   64bit IEEE-754 decimal floating-point type
 //  bdldfp::Decimal128: 128bit IEEE-754 decimal floating-point type
-//  bdldfp::DecimalNumGet:  Stream Input Facet
-//  bdldfp::DecimalNumPut:  Stream Output Facet
+//  bdldfp::DecimalNumGet: Stream Input Facet
+//  bdldfp::DecimalNumPut: Stream Output Facet
 //
 //@MACROS:
 //  BDLDFP_DECIMAL_DF: Portable Decimal32 literal macro
@@ -33,6 +33,9 @@ BSLS_IDENT(&quot;$Id$&quot;)
 // floating-point types that conform in layout, encoding and operations to the
 // IEEE-754 2008 standard.  This component also provides two facets to support
 // standard C++ streaming operators as specified by ISO/IEC TR-24733:2009.
+// These classes are &#39;bdldfp::Decimal32&#39; for 32-bit Decimal floating point
+// numbers, &#39;bdldfp::Decimal64&#39; for 64-bit Decimal floating point numbers, and
+// &#39;bdldfp::Decimal128&#39; for 128-bit decimal floating point numbers.
 //
 // Decimal encoded floating-point numbers are important where exact
 // representation of decimal fractions is required, such as in financial
@@ -43,22 +46,24 @@ BSLS_IDENT(&quot;$Id$&quot;)
 // The BDE decimal floating-point system has been designed from the ground up
 // to be portable and support writing portable decimal floating-point user
 // code, even for systems that do not have compiler or native library support
-// for it; while taking advantage of native support (such as ISO/IEC TR 24732 -
-// C99 decimal TR) when available.
+// for it; while taking advantage of native support (such as ISO/IEC TR
+// 24732 - C99 decimal TR) when available.
+//
+// &#39;bdldfp::DecimalNumGet&#39; and &#39;bdldfp::DecimalNumPut&#39; are IO stream facets.
 //
 ///Floating-Point Primer
 ///---------------------
 // There are several ways of represent numbers when using digital computers.
 // The simplest would be an integer format, however such a format severely
-// limits the range of numbers that can be represented; and it cannot
-// represent real (non-integer) numbers directly at all.  Integers might be
-// used to represent real numbers of limited precision by treating them as a
-// multiple of the real value being represented; these are often known as
-// fixed-point numbers.  However general computations require higher precision
-// and a larger range than integer and fixed point types are able to
-// efficiently provide.  Floating-point numbers provide what integers cannot.
-// They are able to represent a large range of real values (although not
-// precisely) while using a fixed (and reasonable) amount of storage.
+// limits the range of numbers that can be represented; and it cannot represent
+// real (non-integer) numbers directly at all.  Integers might be used to
+// represent real numbers of limited precision by treating them as a multiple
+// of the real value being represented; these are often known as fixed-point
+// numbers.  However general computations require higher precision and a larger
+// range than integer and fixed point types are able to efficiently provide.
+// Floating-point numbers provide what integers cannot.  They are able to
+// represent a large range of real values (although not precisely) while using
+// a fixed (and reasonable) amount of storage.
 //
 // Floating-pont numbers are constructed from a set of significant digits of a
 // radix on a sliding scale, where their position is determined by an exponent
@@ -84,12 +89,12 @@ BSLS_IDENT(&quot;$Id$&quot;)
 /// - - - - - - - - - - - - - -
 // Floating-point approximation of real numbers creates a deliberate illusion.
 // While it looks like we are working with real numbers, floating-point
-// encodings are not able to represent real numbers precisely since they
-// have a restricted number of digits in the significand.  In fact, a 64 bit
+// encodings are not able to represent real numbers precisely since they have a
+// restricted number of digits in the significand.  In fact, a 64 bit
 // floating-point type can represent fewer distinct values than a 64 bit binary
-// integer.  Yet, because floating-point encodings can represent numbers over
-// a much larger range, including extremely small (fractional) numbers, they
-// are useful in practice.
+// integer.  Yet, because floating-point encodings can represent numbers over a
+// much larger range, including extremely small (fractional) numbers, they are
+// useful in practice.
 //
 // Floating-point peculiarities may be split into three categories: those that
 // are due to the (binary) radix/base, those that are inherent properties of
@@ -156,8 +161,8 @@ BSLS_IDENT(&quot;$Id$&quot;)
 //:   hardware.)
 //
 // Notes:
-//    (*) IEEE Floating-point user is any person, hardware or software that
-//        uses the IEEE floating-point implementation.
+//   (*) IEEE Floating-point user is any person, hardware or software that
+//       uses the IEEE floating-point implementation.
 //
 ///Floating-Point Environment
 /// - - - - - - - - - - - - -
@@ -365,8 +370,8 @@ BSLS_IDENT(&quot;$Id$&quot;)
 // functionality because due to our architectural design guidelines some of
 // these must go into a separate so-called utility component.)
 //
-// The component uses the ISO/IEC TR 24732 - the C Decimal Floating-Point TR -
-// in its implementation where it is available.
+// The component uses the ISO/IEC TR 24732 - the C Decimal Floating-Point
+// TR - in its implementation where it is available.
 //
 // The component closely resembles ISO/IEC TR 24733 - the C++ Decimal
 // Floating-Point TR - but does not fully conform to it for several reasons.
@@ -413,14 +418,14 @@ BSLS_IDENT(&quot;$Id$&quot;)
 // small embedded systems may need to do their calculations using the small
 // type (so they have made it mandatory for everyone).  Industry experience
 // with the &#39;float&#39; C type (32bit floating-point type, usually binary) has
-// shown that enabling computing using small floating-point types are a
-// mistake that causes novice programmers to write calculations that are very
-// slow and inaccurate.  There we have decided that unless a compelling use
-// case presents itself we are not going to make it easy to write slow and
+// shown that enabling computing using small floating-point types are a mistake
+// that causes novice programmers to write calculations that are very slow and
+// inaccurate.  There we have decided that unless a compelling use case
+// presents itself we are not going to make it easy to write slow and
 // inaccurate programs using our implementation.
 //
-// We recommend what IEEE recommends: convert your 32 bit types on receipt to
-// a type with higher precision (usually 64 bit will suffice), so you
+// We recommend what IEEE recommends: convert your 32 bit types on receipt to a
+// type with higher precision (usually 64 bit will suffice), so you
 // calculations using that larger type, and convert it back to 32 bit type only
 // if your output interchange format requires it.
 //
@@ -466,6 +471,13 @@ BSLS_IDENT(&quot;$Id$&quot;)
 //
 // Portable &#39;Decimal128&#39; literals are created using the &#39;BDLDFP_DECIMAL_DL&#39;
 // macro.
+//
+///Decimal Number Formatting
+///-------------------------
+// Streaming decimal floating point nubmers to an output stream currently
+// supports formatting flags for width, capitalization, and justification.
+// Because of potential for future improvements in format handling, the
+// operations should not be used for serialization.
 //
 ///Preliminary Release - Known Bugs
 ///--------------------------------
@@ -517,8 +529,8 @@ BSLS_IDENT(&quot;$Id$&quot;)
 #include &lt;bdlscm_version.h&gt;
 #endif
 
-#ifndef INCLUDED_BDLDFP_DECIMALIMPLUTIL
-#include &lt;bdldfp_decimalimplutil.h&gt;
+#ifndef INCLUDED_BDLDFP_DECIMALIMPUTIL
+#include &lt;bdldfp_decimalimputil.h&gt;
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
@@ -527,6 +539,10 @@ BSLS_IDENT(&quot;$Id$&quot;)
 
 #ifndef INCLUDED_BSLS_EXCEPTIONUTIL
 #include &lt;bsls_exceptionutil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOS
+#include &lt;bsl_ios.h&gt;
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -553,13 +569,13 @@ BSLS_IDENT(&quot;$Id$&quot;)
                // Portable decimal floating-point literal support
 
 #define BDLDFP_DECIMAL_DF(lit)                                                \
-    BloombergLP::bdldfp::Decimal32(BDLDFP_DECIMALIMPLUTIL_DF(lit))
+    BloombergLP::bdldfp::Decimal32(BDLDFP_DECIMALIMPUTIL_DF(lit))
 
 #define BDLDFP_DECIMAL_DD(lit)                                                \
-    BloombergLP::bdldfp::Decimal64(BDLDFP_DECIMALIMPLUTIL_DD(lit))
+    BloombergLP::bdldfp::Decimal64(BDLDFP_DECIMALIMPUTIL_DD(lit))
 
 #define BDLDFP_DECIMAL_DL(lit)                                                \
-    BloombergLP::bdldfp::Decimal128(BDLDFP_DECIMALIMPLUTIL_DL(lit))
+    BloombergLP::bdldfp::Decimal128(BDLDFP_DECIMALIMPUTIL_DL(lit))
 
 namespace BloombergLP {
 namespace bdldfp {
@@ -593,7 +609,7 @@ class Decimal_Type32 {
 
   private:
     // DATA
-    DecimalImplUtil::ValueType32 d_value; // The underlying IEEE representation
+    DecimalImpUtil::ValueType32 d_value; // The underlying IEEE representation
 
   public:
     // TRAITS
@@ -605,7 +621,7 @@ class Decimal_Type32 {
         // Create a &#39;Decimal32&#39; object having the value positive zero, and 0
         // exponent (quantum 1e-6).
 
-    Decimal_Type32(DecimalImplUtil::ValueType32 value);              // IMPLICIT
+    Decimal_Type32(DecimalImpUtil::ValueType32 value);              // IMPLICIT
         // Create a &#39;Decimal32&#39; object having the specified &#39;value&#39;.
 
     explicit Decimal_Type32(Decimal_Type64 other);
@@ -638,12 +654,11 @@ class Decimal_Type32 {
         //:
         //: o Otherwise initialize this object to the value of the &#39;other&#39;.
         //
-        // TODO: We may wish for a constructor from Decimal128. The rounding
+        // TODO: We may wish for a constructor from Decimal128.  The rounding
         // is not supported by IBM software.
 
     explicit Decimal_Type32(float       other);
     explicit Decimal_Type32(double      other);
-    explicit Decimal_Type32(long double other);
         // Create a &#39;Decimal32&#39; object having the value closest to the value of
         // the specified &#39;other&#39; following the conversion rules as defined by
         // IEEE-754:
@@ -734,16 +749,16 @@ class Decimal_Type32 {
         // that, after an assignment, a decimal will not compare equal to the
         // original; however it will behave as the original.
 
-    DecimalImplUtil::ValueType32 *data();
+    DecimalImpUtil::ValueType32 *data();
         // Return a pointer providing modifiable access to the underlying
         // implementation.
 
     // ACCESSORS
-    const DecimalImplUtil::ValueType32 *data() const;
+    const DecimalImpUtil::ValueType32 *data() const;
         // Return a pointer providing non-modifiable access to the underlying
         // implementation.
 
-    DecimalImplUtil::ValueType32 value() const;
+    DecimalImpUtil::ValueType32 value() const;
         // Return the value of the underlying implementation.
 };
 
@@ -824,7 +839,7 @@ bool operator&lt;(Decimal32 lhs, Decimal32 rhs);
 
 bool operator&lt;=(Decimal32 lhs, Decimal32 rhs);
     // Return &#39;true&#39; if the specified &#39;lhs&#39; has a value less than or equal the
-    // value of the specified &#39;rhs&#39;  and &#39;false&#39; otherwise.  The value of a
+    // value of the specified &#39;rhs&#39; and &#39;false&#39; otherwise.  The value of a
     // &#39;Decimal32&#39; object &#39;lhs&#39; is less than or equal to the value of an object
     // &#39;rhs&#39; if the &#39;compareQuietLessEqual&#39; operation (IEEE-754 defined,
     // non-total ordering comparison) considers the underlying IEEE
@@ -848,7 +863,7 @@ bool operator&gt;(Decimal32 lhs, Decimal32 rhs);
     // &#39;compareQuietGreater&#39; operation (IEEE-754 defined, non-total ordering
     // comparison) considers the underlying IEEE representation of &#39;lhs&#39; to be
     // greater than of that of &#39;rhs&#39;.  In other words, &#39;lhs&#39; is greater than
-    //  &#39;rhs&#39;if:
+    // &#39;rhs&#39;if:
     //
     //: o neither &#39;lhs&#39; nor &#39;rhs&#39; are NaN, or
     //: o &#39;lhs&#39; and &#39;rhs&#39; are not both zero (positive or negative), or
@@ -882,49 +897,50 @@ bool operator&gt;=(Decimal32 lhs, Decimal32 rhs);
 template &lt;class CHARTYPE, class TRAITS&gt;
 bsl::basic_istream&lt;CHARTYPE, TRAITS&gt;&amp;
 operator&gt;&gt;(bsl::basic_istream&lt;CHARTYPE, TRAITS&gt;&amp; stream, Decimal32&amp; object);
-    // Read, into the specified &#39;object&#39;, from the specified input &#39;stream&#39;
-    // an IEEE 32 bit decimal floating-point value as described in the IEEE-754
+    // Read, into the specified &#39;object&#39;, from the specified input &#39;stream&#39; an
+    // IEEE 32 bit decimal floating-point value as described in the IEEE-754
     // 2008 standard (5.12 Details of conversions between floating point
     // numbers and external character sequences) and return a reference
-    // providing modifiable access to &#39;stream&#39;.  If &#39;stream&#39; is not valid on
-    // entry &#39;stream.good() == false&#39;, this operation has no effect other than
-    // setting &#39;stream.fail()&#39; to &#39;true&#39;.  If eof (end-of-file) is found before
-    // any non-whitespace characters &#39;stream.fail()&#39; is set to &#39;true&#39; and
-    // &#39;object&#39; remains unchanged.  If eof is detected after some characters
-    // have been read (and successfully interpreted as part of the textual
-    // representation of a floating-point value as specified by IEEE-754) then
-    // &#39;stream.eof()&#39; is set to true.  If the first non-whitespace character
-    // sequence is not a valid textual representation of a floating-point
-    // value (e.g., 12e or e12 or 1*2) the &#39;stream.fail()&#39; is set to true and
-    // &#39;object&#39; will remain unchanged.  If a real number value is represented
-    // by the character sequence but it is a large positive or negative value
-    // that cannot be stored into &#39;object&#39; the &quot;overflow&quot; floating-point
-    // exception is raised and positive or negative infinity is stored into
-    // &#39;object&#39;, respectively.  If a real number value is represented
-    // by the character sequence but it is a small positive or negative value
-    // that cannot be stored into &#39;object&#39; the &quot;underflow&quot; floating-point
-    // exception is raised and positive or negative zero is stored into
-    // &#39;object&#39;, respectively.  If a real number value is represented by the
-    // character sequence but it cannot be stored exactly into &#39;object&#39;
-    // the &quot;inexact&quot; floating-point exception is raised, the value is rounded
-    // according to the current rounding direction (of the environment) and
-    // then stored into &#39;object.&#39;
-    // TODO TBD describe the effects of stream flags/setting when we support
-    // them.  And note that the current preliminary implementation does not do
-    // most of what we promise here, exactly as it is promised here.
+    // providing modifiable access to &#39;stream&#39;.  If &#39;stream&#39; contains a NaN
+    // value, it is unspecified if &#39;object&#39; will receive a quiet or signaling
+    // &#39;Nan&#39;.  If &#39;stream&#39; is not valid on entry &#39;stream.good() == false&#39;, this
+    // operation has no effect other than setting &#39;stream.fail()&#39; to &#39;true&#39;.
+    // If eof (end-of-file) is found before any non-whitespace characters
+    // &#39;stream.fail()&#39; is set to &#39;true&#39; and &#39;object&#39; remains unchanged.  If eof
+    // is detected after some characters have been read (and successfully
+    // interpreted as part of the textual representation of a floating-point
+    // value as specified by IEEE-754) then &#39;stream.eof()&#39; is set to true.  If
+    // the first non-whitespace character sequence is not a valid textual
+    // representation of a floating-point value (e.g., 12e or e12 or 1*2) the
+    // &#39;stream.fail()&#39; is set to true and &#39;object&#39; will remain unchanged.  If a
+    // real number value is represented by the character sequence but it is a
+    // large positive or negative value that cannot be stored into &#39;object&#39; the
+    // &quot;overflow&quot; floating-point exception is raised and positive or negative
+    // infinity is stored into &#39;object&#39;, respectively.  If a real number value
+    // is represented by the character sequence but it is a small positive or
+    // negative value that cannot be stored into &#39;object&#39; the &quot;underflow&quot;
+    // floating-point exception is raised and positive or negative zero is
+    // stored into &#39;object&#39;, respectively.  If a real number value is
+    // represented by the character sequence but it cannot be stored exactly
+    // into &#39;object&#39; the &quot;inexact&quot; floating-point exception is raised, the
+    // value is rounded according to the current rounding direction (of the
+    // environment) and then stored into &#39;object.&#39;
+    //
+    // NOTE: This method does not yet fully support iostream flags or the
+    // decimal floating point exception context.
 
 template &lt;class CHARTYPE, class TRAITS&gt;
 bsl::basic_ostream&lt;CHARTYPE, TRAITS&gt;&amp;
-operator&lt;&lt; (bsl::basic_ostream&lt;CHARTYPE, TRAITS&gt;&amp; stream, Decimal32 object);
+operator&lt;&lt;(bsl::basic_ostream&lt;CHARTYPE, TRAITS&gt;&amp; stream, Decimal32 object);
     // Write the value of the specified &#39;object&#39; to the specified output
     // &#39;stream&#39; in a single line format as described in the IEEE-754 2008
     // standard (5.12 Details of conversions between floating point numbers and
     // external character sequences), and return a reference providing
     // modifiable access to &#39;stream&#39;.  If &#39;stream&#39; is not valid on entry, this
     // operation has no effect.
-    // TODO TBD describe the effects of stream flags/setting when we support
-    // them.  And note that the current preliminary implementation does not do
-    // most of what we promise here, exactly as it is promised here.
+    //
+    // NOTE: This method does not yet fully support iostream flags or the
+    // decimal floating point exception context.
 
                            // ====================
                            // class Decimal_Type64
@@ -937,7 +953,7 @@ class Decimal_Type64 {
 
   private:
     // DATA
-    DecimalImplUtil::ValueType64 d_value; // The underlying IEEE representation
+    DecimalImpUtil::ValueType64 d_value; // The underlying IEEE representation
 
   public:
     // TRAITS
@@ -949,10 +965,10 @@ class Decimal_Type64 {
         // Create a &#39;Decimal64&#39; object having the value positive zero, and 0
         // exponent (quantum 1e-15).
 
-    Decimal_Type64(DecimalImplUtil::ValueType64 value);              // IMPLICIT
+    Decimal_Type64(DecimalImpUtil::ValueType64 value);              // IMPLICIT
         // Create a &#39;Decimal64&#39; object having the specified &#39;value&#39;.
 
-    Decimal_Type64(Decimal32 other);                                 // IMPLICIT
+    Decimal_Type64(Decimal32 other);                                // IMPLICIT
         // Create a &#39;Decimal64&#39; object having the value of the specified
         // &#39;other&#39; following the conversion rules defined by IEEE-754:
         //
@@ -967,39 +983,38 @@ class Decimal_Type64 {
         //: o Otherwise initialize this object to the value of the &#39;other&#39;.
 
         explicit Decimal_Type64(Decimal128 other);
-        // Create a &#39;Decimal64&#39; object having the value closest to the value of
-        // the specified &#39;other&#39; following the conversion rules defined by
-        // IEEE-754:
-        //
-        //: o If &#39;other&#39; is NaN, initialize this object to a NaN.
-        //:
-        //: o Otherwise if &#39;other&#39; is infinity (positive or negative), then
-        //:   initialize this object to infinity with the same sign.
-        //:
-        //: o Otherwise if &#39;other&#39; is zero, then initialize this object to zero
-        //:   with the same sign.
-        //:
-        //: o Otherwise if &#39;other&#39; has an absolute value that is larger than
-        //:   &#39;std::numeric_limits&lt;Decimal64&gt;::max()&#39; then raise the &quot;overflow&quot;
-        //:   floating-point exception and initialize this object to infinity
-        //:   with the same sign as &#39;other&#39;.
-        //:
-        //: o Otherwise if &#39;other&#39; has an absolute value that is smaller than
-        //:   &#39;std::numeric_limits&lt;Decimal64&gt;::min()&#39; then raise the
-        //:   &quot;underflow&quot; floating-point exception and initialize this object
-        //:   to zero with the same sign as &#39;other&#39;.
-        //:
-        //: o Otherwise if &#39;other&#39; has a value that has more significant
-        //:   digits than &#39;std::numeric_limits&lt;Decimal64&gt;::max_digit&#39; then
-        //:   raise the &quot;inexact&quot; floating-point exception and initialize this
-        //:   object to the value of &#39;other&#39; rounded according to the rounding
-        //:   direction.
-        //:
-        //: o Otherwise initialize this object to the value as the &#39;other&#39;.
+            // Create a &#39;Decimal64&#39; object having the value closest to the
+            // value of the specified &#39;other&#39; following the conversion rules
+            // defined by IEEE-754:
+            //
+            //: o If &#39;other&#39; is NaN, initialize this object to a NaN.
+            //:
+            //: o Otherwise if &#39;other&#39; is infinity (positive or negative), then
+            //:   initialize this object to infinity with the same sign.
+            //:
+            //: o Otherwise if &#39;other&#39; is zero, then initialize this object to
+            //:   zero with the same sign.
+            //:
+            //: o Otherwise if &#39;other&#39; has an absolute value that is larger
+            //:   than &#39;std::numeric_limits&lt;Decimal64&gt;::max()&#39; then raise the
+            //:   &quot;overflow&quot; floating-point exception and initialize this
+            //:   object to infinity with the same sign as &#39;other&#39;.
+            //:
+            //: o Otherwise if &#39;other&#39; has an absolute value that is smaller
+            //:   than &#39;std::numeric_limits&lt;Decimal64&gt;::min()&#39; then raise the
+            //:   &quot;underflow&quot; floating-point exception and initialize this
+            //:   object to zero with the same sign as &#39;other&#39;.
+            //:
+            //: o Otherwise if &#39;other&#39; has a value that has more significant
+            //:   digits than &#39;std::numeric_limits&lt;Decimal64&gt;::max_digit&#39; then
+            //:   raise the &quot;inexact&quot; floating-point exception and initialize
+            //:   this object to the value of &#39;other&#39; rounded according to the
+            //:   rounding direction.
+            //:
+            //: o Otherwise initialize this object to the value as the &#39;other&#39;.
 
     explicit Decimal_Type64(float       other);
     explicit Decimal_Type64(double      other);
-    explicit Decimal_Type64(long double other);
         // Create a &#39;Decimal64&#39; object having the value closest to the value of
         // the specified &#39;other&#39; following the conversion rules as defined by
         // IEEE-754:
@@ -1093,14 +1108,14 @@ class Decimal_Type64 {
     Decimal_Type64&amp; operator++();
         // Add 1.0 to the value of this object and return a reference to it.
         // Note that this is a floating-point value so this operations may not
-        // change the value of this object at all (if the value is large) or
-        // it may seem to just set it to 1.0 (if the original value is small).
+        // change the value of this object at all (if the value is large) or it
+        // may seem to just set it to 1.0 (if the original value is small).
 
     Decimal_Type64&amp; operator--();
         // Add -1.0 to the value of this object and return a reference to it.
         // Note that this is a floating-point value so this operations may not
-        // change the value of this object at all (if the value is large) or
-        // it may seem to just set it to -1.0 (if the original value is small).
+        // change the value of this object at all (if the value is large) or it
+        // may seem to just set it to -1.0 (if the original value is small).
 
     Decimal_Type64&amp; operator+=(Decimal32  rhs);
     Decimal_Type64&amp; operator+=(Decimal64  rhs);
@@ -1249,9 +1264,9 @@ class Decimal_Type64 {
         //:   floating-point exception and set this object to NaN.
         //:
         //: o Otherwise, if one of this object and &#39;rhs&#39; is zero (positive or
-        //:   negative) and the other is infinity (positive or negative),
-        //:   raise the &quot;invalid&quot; floating-point exception and set this
-        //:   object to a NaN.
+        //:   negative) and the other is infinity (positive or negative), raise
+        //:   the &quot;invalid&quot; floating-point exception and set this object to a
+        //:   NaN.
         //:
         //: o Otherwise, if either this object or &#39;rhs&#39; is positive or negative
         //:   infinity, set this object to infinity.  The sign of this object
@@ -1401,26 +1416,25 @@ class Decimal_Type64 {
         //: o Otherwise set this object to the result of dividing the number
         //:   represented by this object by &#39;rhs&#39;.
 
-    DecimalImplUtil::ValueType64 *data();
+    DecimalImpUtil::ValueType64 *data();
         // Return a modifiable pointer to the underlying implementation.
 
     // ACCESSORS
-    const DecimalImplUtil::ValueType64 *data() const;
+    const DecimalImpUtil::ValueType64 *data() const;
         // Return a non-modifiable pointer to the underlying implementation.
 
-    DecimalImplUtil::ValueType64 value() const;
+    DecimalImpUtil::ValueType64 value() const;
         // Return the value of the underlying implementation.
 };
 
 // FREE OPERATORS
 Decimal64 operator+(Decimal64 value);
-    // Return a copy of the specified &#39;value&#39; if the value is not negative
-    // zero, and return positive zero otherwise.
+    // Return a copy of the specified &#39;value&#39;.
 
 Decimal64 operator-(Decimal64 value);
     // Return the result of applying the unary - operator to the specified
-    // &#39;value&#39; as described by IEEE-754.  Note that floating-point numbers
-    // have signed zero, therefore this operation is not the same as &#39;0-value&#39;.
+    // &#39;value&#39; as described by IEEE-754.  Note that floating-point numbers have
+    // signed zero, therefore this operation is not the same as &#39;0-value&#39;.
 
 Decimal64 operator++(Decimal64&amp; value, int);
     // Apply the prefix ++ operator to the specified &#39;value&#39; and return its
@@ -1515,8 +1529,8 @@ Decimal64 operator-(Decimal64 lhs, Decimal32 rhs);
     //:   floating-point exception and return a NaN.
     //:
     //: o Otherwise if &#39;lhs&#39; and the &#39;rhs&#39; have infinity values of the same
-    //:   sign, then raise the &quot;invalid&quot; floating-point exception and return
-    //:   a NaN.
+    //:   sign, then raise the &quot;invalid&quot; floating-point exception and return a
+    //:   NaN.
     //:
     //: o Otherwise if &#39;lhs&#39; and the &#39;rhs&#39; have infinity values of differing
     //:   signs, then return &#39;lhs&#39;.
@@ -1527,8 +1541,8 @@ Decimal64 operator-(Decimal64 lhs, Decimal32 rhs);
     //: o Otherwise if subtracting the value of the &#39;rhs&#39; object from the value
     //:   of &#39;lhs&#39; results in an absolute value that is larger than
     //:   &#39;std::numeric_limits&lt;Decimal64&gt;::max()&#39; then raise the &quot;overflow&quot;
-    //:   floating-point exception and return infinity with the same sign
-    //:   as that result.
+    //:   floating-point exception and return infinity with the same sign as
+    //:   that result.
     //:
     //: o Otherwise return the result of subtracting the value of &#39;rhs&#39; from
     //:   the value of &#39;lhs&#39;.
@@ -1579,13 +1593,13 @@ Decimal64 operator-(unsigned long long lhs, Decimal64 rhs);
     //:   that result.
     //:
     //: o Otherwise return the result of subtracting the value of &#39;rhs&#39;
-    //    from the number &#39;lhs&#39;.
+    // from the number &#39;lhs&#39;.
 
 Decimal64 operator*(Decimal64 lhs, Decimal64 rhs);
 Decimal64 operator*(Decimal32 lhs, Decimal64 rhs);
 Decimal64 operator*(Decimal64 lhs, Decimal32 rhs);
     // Multiply the value of the specified &#39;lhs&#39; object by the value of the
-    // specified &#39;lhs&#39; as described by IEEE-754 and return the result.
+    // specified &#39;rhs&#39; as described by IEEE-754 and return the result.
     //
     //: o If either of &#39;lhs&#39; or &#39;rhs&#39; is NaN, return a NaN.
     //:
@@ -1602,15 +1616,15 @@ Decimal64 operator*(Decimal64 lhs, Decimal32 rhs);
     //:   of the returned value will be positive if &#39;lhs&#39; and &#39;rhs&#39; have the
     //:   same sign, and negative otherwise.
     //:
-    //: o Otherwise if the product of this object and &#39;rhs&#39; has an absolute
-    //:   value that is larger than &#39;std::numeric_limits&lt;Decimal64&gt;::max()&#39;
-    //:   then raise the &quot;overflow&quot; floating-point exception and return
-    //:   infinity with the same sign as that result.
-    //:
-    //: o Otherwise if the product of this object and &#39;rhs&#39; has an absolute
-    //:   value that is smaller than &#39;std::numeric_limits&lt;Decimal64&gt;::min()&#39;
-    //:   then raise the &quot;underflow&quot; floating-point exception and return zero
+    //: o Otherwise if the product of &#39;lhs&#39; and &#39;rhs&#39; has an absolute value
+    //:   that is larger than &#39;std::numeric_limits&lt;Decimal64&gt;::max()&#39; then
+    //:   raise the &quot;overflow&quot; floating-point exception and return infinity
     //:   with the same sign as that result.
+    //:
+    //: o Otherwise if the product of &#39;lhs&#39; and &#39;rhs&#39; has an absolute value
+    //:   that is smaller than &#39;std::numeric_limits&lt;Decimal64&gt;::min()&#39; then
+    //:   raise the &quot;underflow&quot; floating-point exception and return zero with
+    //:   the same sign as that result.
     //:
     //: o Otherwise return the product of the value of &#39;rhs&#39; and the number
     //:   represented by &#39;rhs&#39;.
@@ -1628,8 +1642,8 @@ Decimal64 operator*(Decimal64 lhs, unsigned long long rhs);
     //:   return a NaN.
     //:
     //: o Otherwise if &#39;lhs&#39; is infinity (positive or negative), and &#39;rhs&#39; is
-    //:   zero, then raise the &quot;invalid&quot; floating-point exception and return
-    //:   a NaN.
+    //:   zero, then raise the &quot;invalid&quot; floating-point exception and return a
+    //:   NaN.
     //:
     //: o Otherwise if &#39;lhs&#39; is infinity (positive or negative), then return
     //:   &#39;lhs&#39;.
@@ -1708,7 +1722,7 @@ Decimal64 operator/(Decimal64 lhs, Decimal32 rhs);
     //: o Otherwise if dividing the value of &#39;lhs&#39; with the value of &#39;rhs&#39;
     //:   results in an absolute value that is larger than
     //:   &#39;std::numeric_limits&lt;Decimal64&gt;::max()&#39; then raise the &quot;overflow&quot;
-    //:   floating-point exception and return infinity  with the same sign as
+    //:   floating-point exception and return infinity with the same sign as
     //:   that result.
     //:
     //: o Otherwise if dividing the value of &#39;lhs&#39; with the value of &#39;rhs&#39;
@@ -1739,7 +1753,7 @@ Decimal64 operator/(Decimal64 lhs, unsigned long long rhs);
     //:   &#39;lhs&#39;.
     //:
     //: o Otherwise if &#39;rhs&#39; is zero, raise the &quot;overflow&quot; floating-point
-    //:    exception return zero with the sign of &#39;lhs&#39;.
+    //:   exception return zero with the sign of &#39;lhs&#39;.
     //:
     //: o Otherwise if the quotient of the value of &#39;lhs&#39; and &#39;rhs&#39; results in
     //:   an absolute value that is larger than
@@ -1855,10 +1869,10 @@ bool operator!=(Decimal32 lhs, Decimal64 rhs);
 bool operator!=(Decimal64 lhs, Decimal32 rhs);
     // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; do not have the same
     // value, and &#39;false&#39; otherwise.  Two decimal objects do not have the same
-    // value if the &#39;compareQuietEqual&#39; operation (IEEE-754 defined,
-    // non-total ordering comparison) considers the underlying IEEE
-    // representations not equal.  In other words, two decimal objects do not
-    // have the same value if:
+    // value if the &#39;compareQuietEqual&#39; operation (IEEE-754 defined, non-total
+    // ordering comparison) considers the underlying IEEE representations not
+    // equal.  In other words, two decimal objects do not have the same value
+    // if:
     //
     //: o both are NaN, or
     //: o one has zero value (positive or negative) and the other does not, or
@@ -1884,7 +1898,7 @@ bool operator&lt;(Decimal64 lhs, Decimal64 rhs);
     //: o &#39;lhs&#39; is not positive infinity, or
     //: o &#39;lhs&#39; is negative infinity and &#39;rhs&#39; is not, or
     //: o &#39;lhs&#39; and &#39;rhs&#39; both represent a real number and the real number of
-    //:    &#39;lhs&#39;is less than that of &#39;rhs&#39;
+    //:   &#39;lhs&#39; is less than that of &#39;rhs&#39;
     //
     // This operation raises the &quot;invalid&quot; floating-point exception if either
     // or both operands are NaN.
@@ -2031,36 +2045,37 @@ bool operator&gt;=(Decimal64 lhs, Decimal32 rhs);
 template &lt;class CHARTYPE, class TRAITS&gt;
 bsl::basic_istream&lt;CHARTYPE, TRAITS&gt;&amp;
 operator&gt;&gt; (bsl::basic_istream&lt;CHARTYPE, TRAITS&gt;&amp; stream, Decimal64&amp; object);
-    // Read, into the specified &#39;object&#39;, from the specified input &#39;stream&#39;
-    // an IEEE 64 bit decimal floating-point value as described in the IEEE-754
+    // Read, into the specified &#39;object&#39;, from the specified input &#39;stream&#39; an
+    // IEEE 64 bit decimal floating-point value as described in the IEEE-754
     // 2008 standard (5.12 Details of conversions between floating point
     // numbers and external character sequences) and return a reference
-    // providing modifiable access to &#39;stream&#39;.  If &#39;stream&#39; is not valid on
-    // entry &#39;stream.good() == false&#39;, this operation has no effect other than
-    // setting &#39;stream.fail()&#39; to &#39;true&#39;.  If eof (end-of-file) is found before
-    // any non-whitespace characters &#39;stream.fail()&#39; is set to &#39;true&#39; and
-    // &#39;object&#39; remains unchanged.  If eof is detected after some characters
-    // have been read (and successfully interpreted as part of the textual
-    // representation of a floating-point value as specified by IEEE-754) then
-    // &#39;stream.eof()&#39; is set to true.  If the first non-whitespace character
-    // sequence is not a valid textual representation of a floating-point
-    // value (e.g., 12e or e12 or 1*2) the &#39;stream.fail()&#39; is set to true and
-    // &#39;object&#39; will remain unchanged.  If a real number value is represented
-    // by the character sequence but it is a large positive or negative value
-    // that cannot be stored into &#39;object&#39; the &quot;overflow&quot; floating-point
-    // exception is raised and positive or negative infinity is stored into
-    // &#39;object&#39;, respectively.  If a real number value is represented
-    // by the character sequence but it is a small positive or negative value
-    // that cannot be stored into &#39;object&#39; the &quot;underflow&quot; floating-point
-    // exception is raised and positive or negative zero is stored into
-    // &#39;object&#39;, respectively.  If a real number value is represented by the
-    // character sequence but it cannot be stored exactly into &#39;object&#39;
-    // the &quot;inexact&quot; floating-point exception is raised, the value is rounded
-    // according to the current rounding direction (of the environment) and
-    // then stored into &#39;object.&#39;
-    // TODO TBD describe the effects of stream flags/setting when we support
-    // them.  And note that the current preliminary implementation does not do
-    // most of what we promise here, exactly as it is promised here.
+    // providing modifiable access to &#39;stream&#39;.  If &#39;stream&#39; contains a Nan
+    // value, it is unspecified if &#39;object&#39; will receive a quiet or signaling
+    // &#39;Nan&#39;.  If &#39;stream&#39; is not valid on entry &#39;stream.good() == false&#39;, this
+    // operation has no effect other than setting &#39;stream.fail()&#39; to &#39;true&#39;.
+    // If eof (end-of-file) is found before any non-whitespace characters
+    // &#39;stream.fail()&#39; is set to &#39;true&#39; and &#39;object&#39; remains unchanged.  If eof
+    // is detected after some characters have been read (and successfully
+    // interpreted as part of the textual representation of a floating-point
+    // value as specified by IEEE-754) then &#39;stream.eof()&#39; is set to true.  If
+    // the first non-whitespace character sequence is not a valid textual
+    // representation of a floating-point value (e.g., 12e or e12 or 1*2) the
+    // &#39;stream.fail()&#39; is set to true and &#39;object&#39; will remain unchanged.  If a
+    // real number value is represented by the character sequence but it is a
+    // large positive or negative value that cannot be stored into &#39;object&#39; the
+    // &quot;overflow&quot; floating-point exception is raised and positive or negative
+    // infinity is stored into &#39;object&#39;, respectively.  If a real number value
+    // is represented by the character sequence but it is a small positive or
+    // negative value that cannot be stored into &#39;object&#39; the &quot;underflow&quot;
+    // floating-point exception is raised and positive or negative zero is
+    // stored into &#39;object&#39;, respectively.  If a real number value is
+    // represented by the character sequence but it cannot be stored exactly
+    // into &#39;object&#39; the &quot;inexact&quot; floating-point exception is raised, the
+    // value is rounded according to the current rounding direction (of the
+    // environment) and then stored into &#39;object.&#39;
+    //
+    // NOTE: This method does not yet fully support iostream flags or the
+    // decimal floating point exception context.
 
 template &lt;class CHARTYPE, class TRAITS&gt;
 bsl::basic_ostream&lt;CHARTYPE, TRAITS&gt;&amp;
@@ -2071,9 +2086,9 @@ operator&lt;&lt; (bsl::basic_ostream&lt;CHARTYPE, TRAITS&gt;&amp; stream, Decima
     // external character sequences), and return a reference providing
     // modifiable access to &#39;stream&#39;.  If &#39;stream&#39; is not valid on entry, this
     // operation has no effect.
-    // TODO TBD describe the effects of stream flags/setting when we support
-    // them.  And note that the current preliminary implementation does not do
-    // most of what we promise here, exactly as it is promised here.
+    //
+    // NOTE: This method does not yet fully support iostream flags or the
+    // decimal floating point exception context.
 
                           // =====================
                           // class Decimal_Type128
@@ -2086,7 +2101,7 @@ class Decimal_Type128 {
 
   private:
     // DATA
-    DecimalImplUtil::ValueType128 d_value;
+    DecimalImpUtil::ValueType128 d_value;
                                           // The underlying IEEE representation
 
   public:
@@ -2099,82 +2114,81 @@ class Decimal_Type128 {
         // Create a &#39;Decimal128&#39; object having the value positive zero, and 0
         // exponent (quantum 1e-33).
 
-    Decimal_Type128(DecimalImplUtil::ValueType128 other);            // IMPLICIT
+    Decimal_Type128(DecimalImpUtil::ValueType128 value);            // IMPLICIT
         // Create a &#39;Decimal128&#39; object having the specified &#39;value&#39;.
 
-    Decimal_Type128(Decimal32 other);                                // IMPLICIT
-    Decimal_Type128(Decimal64 other);                                // IMPLICIT
-        // Create a &#39;Decimal128&#39; object having the value of the specified
-        // &#39;other&#39; following the conversion rules defined by IEEE-754:
+    Decimal_Type128(Decimal32 value);                               // IMPLICIT
+    Decimal_Type128(Decimal64 value);                               // IMPLICIT
+        // Create a &#39;Decimal128&#39; object having the specified &#39;value&#39;, subject
+        // to the conversion rules defined by IEEE-754:
         //
-        //: o If &#39;other&#39; is NaN, initialize this object to a NaN.
+        //: o If &#39;value&#39; is NaN, initialize this object to a NaN.
         //:
-        //: o Otherwise if &#39;other&#39; is infinity, then initialize this object to
+        //: o Otherwise if &#39;value&#39; is infinity, then initialize this object to
         //:   infinity with the same sign.
         //:
-        //: o Otherwise if &#39;other&#39; is zero, then initialize this object to zero
+        //: o Otherwise if &#39;value&#39; is zero, then initialize this object to zero
         //:   with the same sign.
         //:
-        //: o Otherwise initialize this object to the value of the &#39;other&#39;.
+        //: o Otherwise initialize this object to &#39;value&#39;.
 
-    explicit Decimal_Type128(float       other);
-    explicit Decimal_Type128(double      other);
-    explicit Decimal_Type128(long double other);
-        // Create a &#39;Decimal128&#39; object having the value closest to the value
-        // of the specified &#39;other&#39; following the conversion rules as defined
-        // by IEEE-754:
+    explicit Decimal_Type128(float       value);
+    explicit Decimal_Type128(double      value);
+        // Create a &#39;Decimal128&#39; object having the value closest to the
+        // specified &#39;value&#39; subject to the conversion rules as defined by
+        // IEEE-754:
         //
-        //: o If &#39;other&#39; is NaN, initialize this object to a NaN.
+        //: o If &#39;value&#39; is NaN, initialize this object to a NaN.
         //:
-        //: o Otherwise if &#39;other&#39; is infinity, then initialize this object to
+        //: o Otherwise if &#39;value&#39; is infinity, then initialize this object to
         //:   infinity value with the same sign.
         //:
-        //: o Otherwise if &#39;other&#39; has a zero value, then initialize this
+        //: o Otherwise if &#39;value&#39; has a zero value, then initialize this
         //:   object to zero with the same sign.
         //:
-        //: o Otherwise if &#39;other&#39; has an absolute value that is larger than
+        //: o Otherwise if &#39;value&#39; has an absolute value that is larger than
         //:   &#39;std::numeric_limits&lt;Decimal128&gt;::max()&#39; then raise the
         //:   &quot;overflow&quot; floating-point exception and initialize this object to
-        //:   infinity with the same sign as &#39;other&#39;.
+        //:   infinity with the same sign as &#39;value&#39;.
         //:
-        //: o Otherwise if &#39;other&#39; has an absolute value that is smaller than
+        //: o Otherwise if &#39;value&#39; has an absolute value that is smaller than
         //:   &#39;std::numeric_limits&lt;Decimal128&gt;::min()&#39; then raise the
         //:   &quot;underflow&quot; floating-point exception and initialize this object
-        //:   to zero with the same sign as &#39;other&#39;.
+        //:   to zero with the same sign as &#39;value&#39;.
         //:
-        //: o Otherwise if &#39;other&#39; has a value that needs more than
+        //: o Otherwise if &#39;value&#39; has a value that needs more than
         //:   &#39;std::numeric_limits&lt;Decimal128&gt;::max_digit&#39; significant decimal
         //:   digits to represent then raise the &quot;inexact&quot; floating-point
-        //:   exception and initialize this object to the value of &#39;other&#39;
+        //:   exception and initialize this object to the value of &#39;value&#39;
         //:   rounded according to the rounding direction.
         //:
-        //: o Otherwise initialize this object to the value of the &#39;other&#39;.
+        //: o Otherwise initialize this object to &#39;value&#39;.
 
-    explicit Decimal_Type128(int                other);
-    explicit Decimal_Type128(unsigned int       other);
-    explicit Decimal_Type128(long               other);
-    explicit Decimal_Type128(unsigned long      other);
-    explicit Decimal_Type128(long long          other);
-    explicit Decimal_Type128(unsigned long long other);
-        // Create a &#39;Decimal128&#39; object having the value closest to the value
-        // of the specified &#39;other&#39; following the conversion rules as defined
-        // by IEEE-754:
+    explicit Decimal_Type128(int                value);
+    explicit Decimal_Type128(unsigned int       value);
+    explicit Decimal_Type128(long               value);
+    explicit Decimal_Type128(unsigned long      value);
+    explicit Decimal_Type128(long long          value);
+    explicit Decimal_Type128(unsigned long long value);
+        // Create a &#39;Decimal128&#39; object having the value closest to the
+        // specified &#39;value&#39; subject to the conversion rules as defined by
+        // IEEE-754:
         //
-        //: o If &#39;other&#39; is zero then initialize this object to positive zero
+        //: o If &#39;value&#39; is zero then initialize this object to positive zero
         //:   with a 0 exponent (quantum 1e-33).
         //:
-        //: o Otherwise if &#39;other&#39; has an absolute value that is larger than
+        //: o Otherwise if &#39;value&#39; has an absolute value that is larger than
         //:   &#39;std::numeric_limits&lt;Decimal128&gt;::max()&#39; then raise the
         //:   &quot;overflow&quot; floating-point exception and initialize this object to
         //:   infinity with the same sign as &#39;other&#39;.
         //:
-        //: o Otherwise if &#39;other&#39; has a value that is not exactly
+        //: o Otherwise if &#39;value&#39; has a value that is not exactly
         //:   representable using &#39;std::numeric_limits&lt;Decimal128&gt;::max_digit&#39;
         //:   decimal digits then raise the &quot;inexact&quot; floating-point exception
-        //:   and initialize this object to the value of &#39;other&#39; rounded
+        //:   and initialize this object to the value of &#39;value&#39; rounded
         //:   according to the rounding direction.
         //:
-        //: o Otherwise initialize this object to the value of the &#39;other&#39;.
+        //: o Otherwise initialize this object to &#39;value&#39;.
         //
         // The exponent 0 (quantum 1e-33) is preferred during conversion unless
         // it would cause unnecessary loss of precision.
@@ -2183,9 +2197,9 @@ class Decimal_Type128 {
         // Create a &#39;Decimal128&#39; object that is a copy of the specified
         // &#39;original&#39; as defined by the &#39;copy&#39; operation of IEEE-754 2008:
         //
-        //: o If &#39;other&#39; is NaN, initialize this object to a NaN.
+        //: o If &#39;original&#39; is NaN, initialize this object to a NaN.
         //:
-        //: o Otherwise initialize this object to the value of the &#39;other&#39;.
+        //: o Otherwise initialize this object to the value of the &#39;original&#39;.
         //
         // Note that since floating-point types may be NaN, and NaNs are
         // unordered (do not compare equal even to themselves) it is possible
@@ -2201,7 +2215,7 @@ class Decimal_Type128 {
         // &#39;copy&#39; operation of IEEE-754 2008 and return a reference providing
         // modifiable access to this object.
         //
-        //: o If &#39;other&#39; is NaN, set this object to a NaN.
+        //: o If &#39;rhs&#39; is NaN, set this object to a NaN.
         //:
         //: o Otherwise set this object to the value of the &#39;other&#39;.
         //
@@ -2213,14 +2227,14 @@ class Decimal_Type128 {
     Decimal_Type128&amp; operator++();
         // Add 1.0 to the value of this object and return a reference to it.
         // Note that this is a floating-point value so this operations may not
-        // change the value of this object at all (if the value is large) or
-        // it may seem to just set it to 1.0 (if the original value is small).
+        // change the value of this object at all (if the value is large) or it
+        // may seem to just set it to 1.0 (if the original value is small).
 
     Decimal_Type128&amp; operator--();
         // Add -1.0 to the value of this object and return a reference to it.
         // Note that this is a floating-point value so this operations may not
-        // change the value of this object at all (if the value is large) or
-        // it may seem to just set it to -1.0 (if the original value is small).
+        // change the value of this object at all (if the value is large) or it
+        // may seem to just set it to -1.0 (if the original value is small).
 
     Decimal_Type128&amp; operator+=(Decimal32  rhs);
     Decimal_Type128&amp; operator+=(Decimal64  rhs);
@@ -2501,14 +2515,14 @@ class Decimal_Type128 {
         //: o Otherwise set this object to the result of dividing the number
         //:   represented by this object by &#39;rhs&#39;.
 
-    DecimalImplUtil::ValueType128 *data();
+    DecimalImpUtil::ValueType128 *data();
         // Return a modifiable pointer to the underlying implementation.
 
     // ACCESSORS
-    const DecimalImplUtil::ValueType128 *data() const;
+    const DecimalImpUtil::ValueType128 *data() const;
         // Return a non-modifiable pointer to the underlying implementation.
 
-    DecimalImplUtil::ValueType128 value() const;
+    DecimalImpUtil::ValueType128 value() const;
         // Return the value of the underlying implementation.
 };
 
@@ -2519,8 +2533,8 @@ Decimal128 operator+(Decimal128 value);
 
 Decimal128 operator-(Decimal128 value);
     // Return the result of applying the unary - operator to the specified
-    // &#39;value&#39; as described by IEEE-754.  Note that floating-point numbers
-    // have signed zero, therefore this operation is not the same as &#39;0-value&#39;.
+    // &#39;value&#39; as described by IEEE-754.  Note that floating-point numbers have
+    // signed zero, therefore this operation is not the same as &#39;0-value&#39;.
 
 Decimal128 operator++(Decimal128&amp; value, int);
     // Apply the prefix ++ operator to the specified &#39;value&#39; and return its
@@ -2619,8 +2633,8 @@ Decimal128 operator-(Decimal128 lhs, Decimal64  rhs);
     //:   floating-point exception and return a NaN.
     //:
     //: o Otherwise if &#39;lhs&#39; and the &#39;rhs&#39; have infinity values of the same
-    //:   sign, then raise the &quot;invalid&quot; floating-point exception and return
-    //:   a NaN.
+    //:   sign, then raise the &quot;invalid&quot; floating-point exception and return a
+    //:   NaN.
     //:
     //: o Otherwise if &#39;lhs&#39; and the &#39;rhs&#39; have infinity values of differing
     //:   signs, then return &#39;lhs&#39;.
@@ -2631,8 +2645,8 @@ Decimal128 operator-(Decimal128 lhs, Decimal64  rhs);
     //: o Otherwise if subtracting the value of the &#39;rhs&#39; object from the value
     //:   of &#39;lhs&#39; results in an absolute value that is larger than
     //:   &#39;std::numeric_limits&lt;Decimal128&gt;::max()&#39; then raise the &quot;overflow&quot;
-    //:   floating-point exception and return infinity with the same sign
-    //:   as that result.
+    //:   floating-point exception and return infinity with the same sign as
+    //:   that result.
     //:
     //: o Otherwise return the result of subtracting the value of &#39;rhs&#39; from
     //:   the value of &#39;lhs&#39;.
@@ -2683,7 +2697,7 @@ Decimal128 operator-(unsigned long long lhs, Decimal128 rhs);
     //:   that result.
     //:
     //: o Otherwise return the result of subtracting the value of &#39;rhs&#39;
-    //    from the number &#39;lhs&#39;.
+    // from the number &#39;lhs&#39;.
 
 Decimal128 operator*(Decimal128 lhs, Decimal128 rhs);
 Decimal128 operator*(Decimal32  lhs, Decimal128 rhs);
@@ -2691,7 +2705,7 @@ Decimal128 operator*(Decimal128 lhs, Decimal32  rhs);
 Decimal128 operator*(Decimal64  lhs, Decimal128 rhs);
 Decimal128 operator*(Decimal128 lhs, Decimal64  rhs);
     // Multiply the value of the specified &#39;lhs&#39; object by the value of the
-    // specified &#39;lhs&#39; as described by IEEE-754 and return the result.
+    // specified &#39;rhs&#39; as described by IEEE-754 and return the result.
     //
     //: o If either of &#39;lhs&#39; or &#39;rhs&#39; is NaN, return a NaN.
     //:
@@ -2708,15 +2722,15 @@ Decimal128 operator*(Decimal128 lhs, Decimal64  rhs);
     //:   of the returned value will be positive if &#39;lhs&#39; and &#39;rhs&#39; have the
     //:   same sign, and negative otherwise.
     //:
-    //: o Otherwise if the product of this object and &#39;rhs&#39; has an absolute
-    //:   value that is larger than &#39;std::numeric_limits&lt;Decimal128&gt;::max()&#39;
-    //:   then raise the &quot;overflow&quot; floating-point exception and return
-    //:   infinity with the same sign as that result.
-    //:
-    //: o Otherwise if the product of this object and &#39;rhs&#39; has an absolute
-    //:   value that is smaller than &#39;std::numeric_limits&lt;Decimal128&gt;::min()&#39;
-    //:   then raise the &quot;underflow&quot; floating-point exception and return zero
+    //: o Otherwise if the product of &#39;lhs&#39; and &#39;rhs&#39; has an absolute value
+    //:   that is larger than &#39;std::numeric_limits&lt;Decimal128&gt;::max()&#39; then
+    //:   raise the &quot;overflow&quot; floating-point exception and return infinity
     //:   with the same sign as that result.
+    //:
+    //: o Otherwise if the product of &#39;lhs&#39; and &#39;rhs&#39; has an absolute value
+    //:   that is smaller than &#39;std::numeric_limits&lt;Decimal128&gt;::min()&#39; then
+    //:   raise the &quot;underflow&quot; floating-point exception and return zero with
+    //:   the same sign as that result.
     //:
     //: o Otherwise return the product of the value of &#39;rhs&#39; and the number
     //:   represented by &#39;rhs&#39;.
@@ -2816,7 +2830,7 @@ Decimal128 operator/(Decimal128 lhs, Decimal64  rhs);
     //: o Otherwise if dividing the value of &#39;lhs&#39; with the value of &#39;rhs&#39;
     //:   results in an absolute value that is larger than
     //:   &#39;std::numeric_limits&lt;Decimal128&gt;::max()&#39; then raise the &quot;overflow&quot;
-    //:   floating-point exception and return infinity  with the same sign as
+    //:   floating-point exception and return infinity with the same sign as
     //:   that result.
     //:
     //: o Otherwise if dividing the value of &#39;lhs&#39; with the value of &#39;rhs&#39;
@@ -2847,7 +2861,7 @@ Decimal128 operator/(Decimal128 lhs, unsigned long long rhs);
     //:   &#39;lhs&#39;.
     //:
     //: o Otherwise if &#39;rhs&#39; is zero, raise the &quot;overflow&quot; floating-point
-    //:    exception return zero with the sign of &#39;lhs&#39;.
+    //:   exception return zero with the sign of &#39;lhs&#39;.
     //:
     //: o Otherwise if the quotient of the value of &#39;lhs&#39; and &#39;rhs&#39; results in
     //:   an absolute value that is larger than
@@ -2967,10 +2981,10 @@ bool operator!=(Decimal64  lhs, Decimal128 rhs);
 bool operator!=(Decimal128 lhs, Decimal64  rhs);
     // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; do not have the same
     // value, and &#39;false&#39; otherwise.  Two decimal objects do not have the same
-    // value if the &#39;compareQuietEqual&#39; operation (IEEE-754 defined,
-    // non-total ordering comparison) considers the underlying IEEE
-    // representations not equal.  In other words, two decimal objects do not
-    // have the same value if:
+    // value if the &#39;compareQuietEqual&#39; operation (IEEE-754 defined, non-total
+    // ordering comparison) considers the underlying IEEE representations not
+    // equal.  In other words, two decimal objects do not have the same value
+    // if:
     //
     //: o both are NaN, or
     //: o one has zero value (positive or negative) and the other does not, or
@@ -3018,7 +3032,7 @@ bool operator&lt;(Decimal128 lhs, Decimal64  rhs);
     //: o &#39;lhs&#39; is not positive infinity, or
     //: o &#39;lhs&#39; is negative infinity and &#39;rhs&#39; is not, or
     //: o &#39;lhs&#39; and &#39;rhs&#39; both represent a real number and the real number of
-    //:    &#39;lhs&#39;is less than that of &#39;rhs&#39;
+    //:   &#39;lhs&#39;is less than that of &#39;rhs&#39;
     //
     // This operation raises the &quot;invalid&quot; floating-point exception if either
     // or both operands are NaN.
@@ -3051,8 +3065,8 @@ bool operator&lt;=(Decimal128 lhs, Decimal64  rhs);
     // decimal object &#39;lhs&#39; is less than or equal to the value of an object
     // &#39;rhs&#39; if the &#39;compareQuietLessEqual&#39; operation (IEEE-754 defined,
     // non-total ordering comparison) considers the underlying IEEE
-    // representation of &#39;lhs&#39; to be less or equal to that of &#39;rhs&#39;.  In
-    // other words, &#39;lhs&#39; is less or equal than &#39;rhs&#39; if:
+    // representation of &#39;lhs&#39; to be less or equal to that of &#39;rhs&#39;.  In other
+    // words, &#39;lhs&#39; is less or equal than &#39;rhs&#39; if:
     //
     //: o neither &#39;lhs&#39; nor &#39;rhs&#39; are NaN, or
     //: o &#39;lhs&#39; and &#39;rhs&#39; are both zero (positive or negative), or
@@ -3114,7 +3128,7 @@ bool operator&gt;=(Decimal128 lhs, Decimal128 rhs);
     // &#39;rhs&#39; if the &#39;compareQuietGreaterEqual&#39; operation (IEEE-754 defined,
     // non-total ordering comparison ) considers the underlying IEEE
     // representation of &#39;lhs&#39; to be greater or equal to that of &#39;rhs&#39;.  In
-    //  otherwords, &#39;lhs&#39; is greater than or equal to &#39;rhs&#39; if:
+    // otherwords, &#39;lhs&#39; is greater than or equal to &#39;rhs&#39; if:
     //
     //: o neither &#39;lhs&#39; nor &#39;rhs&#39; are NaN, or
     //: o &#39;lhs&#39; and &#39;rhs&#39; are both zero (positive or negative), or
@@ -3151,36 +3165,37 @@ bool operator&gt;=(Decimal128 lhs, Decimal64  rhs);
 template &lt;class CHARTYPE, class TRAITS&gt;
 bsl::basic_istream&lt;CHARTYPE, TRAITS&gt;&amp;
 operator&gt;&gt; (bsl::basic_istream&lt;CHARTYPE, TRAITS&gt;&amp; stream, Decimal128&amp; object);
-    // Read, into the specified &#39;object&#39;, from the specified input &#39;stream&#39;
-    // an IEEE 128 bit decimal floating-point value as described in the
-    // IEEE-754 2008 standard (5.12 Details of conversions between floating
-    // point numbers and external character sequences) and return a reference
-    // providing modifiable access to &#39;stream&#39;.  If &#39;stream&#39; is not valid on
-    // entry &#39;stream.good() == false&#39;, this operation has no effect other than
-    // setting &#39;stream.fail()&#39; to &#39;true&#39;.  If eof (end-of-file) is found before
-    // any non-whitespace characters &#39;stream.fail()&#39; is set to &#39;true&#39; and
-    // &#39;object&#39; remains unchanged.  If eof is detected after some characters
-    // have been read (and successfully interpreted as part of the textual
-    // representation of a floating-point value as specified by IEEE-754) then
-    // &#39;stream.eof()&#39; is set to true.  If the first non-whitespace character
-    // sequence is not a valid textual representation of a floating-point
-    // value (e.g., 12e or e12 or 1*2) the &#39;stream.fail()&#39; is set to true and
-    // &#39;object&#39; will remain unchanged.  If a real number value is represented
-    // by the character sequence but it is a large positive or negative value
-    // that cannot be stored into &#39;object&#39; the &quot;overflow&quot; floating-point
-    // exception is raised and positive or negative infinity is stored into
-    // &#39;object&#39;, respectively.  If a real number value is represented
-    // by the character sequence but it is a small positive or negative value
-    // that cannot be stored into &#39;object&#39; the &quot;underflow&quot; floating-point
-    // exception is raised and positive or negative zero is stored into
-    // &#39;object&#39;, respectively.  If a real number value is represented by the
-    // character sequence but it cannot be stored exactly into &#39;object&#39;
-    // the &quot;inexact&quot; floating-point exception is raised, the value is rounded
-    // according to the current rounding direction (of the environment) and
-    // then stored into &#39;object.&#39;
-    // TODO TBD describe the effects of stream flags/setting when we support
-    // them.  And note that the current preliminary implementation does not do
-    // most of what we promise here, exactly as it is promised here.
+    // Read, into the specified &#39;object&#39;, from the specified input &#39;stream&#39; an
+    // IEEE 128 bit decimal floating-point value as described in the IEEE-754
+    // 2008 standard (5.12 Details of conversions between floating point
+    // numbers and external character sequences) and return a reference
+    // providing modifiable access to &#39;stream&#39;.  If &#39;stream&#39; contains a Nan
+    // value, it is unspecified if &#39;object&#39; will receive a quiet or signaling
+    // &#39;Nan&#39;.  If &#39;stream&#39; is not valid on entry &#39;stream.good() == false&#39;, this
+    // operation has no effect other than setting &#39;stream.fail()&#39; to &#39;true&#39;.
+    // If eof (end-of-file) is found before any non-whitespace characters
+    // &#39;stream.fail()&#39; is set to &#39;true&#39; and &#39;object&#39; remains unchanged.  If eof
+    // is detected after some characters have been read (and successfully
+    // interpreted as part of the textual representation of a floating-point
+    // value as specified by IEEE-754) then &#39;stream.eof()&#39; is set to true.  If
+    // the first non-whitespace character sequence is not a valid textual
+    // representation of a floating-point value (e.g., 12e or e12 or 1*2) the
+    // &#39;stream.fail()&#39; is set to true and &#39;object&#39; will remain unchanged.  If a
+    // real number value is represented by the character sequence but it is a
+    // large positive or negative value that cannot be stored into &#39;object&#39; the
+    // &quot;overflow&quot; floating-point exception is raised and positive or negative
+    // infinity is stored into &#39;object&#39;, respectively.  If a real number value
+    // is represented by the character sequence but it is a small positive or
+    // negative value that cannot be stored into &#39;object&#39; the &quot;underflow&quot;
+    // floating-point exception is raised and positive or negative zero is
+    // stored into &#39;object&#39;, respectively.  If a real number value is
+    // represented by the character sequence but it cannot be stored exactly
+    // into &#39;object&#39; the &quot;inexact&quot; floating-point exception is raised, the
+    // value is rounded according to the current rounding direction (of the
+    // environment) and then stored into &#39;object.&#39;
+    //
+    // NOTE: This method does not yet fully support iostream flags or the
+    // decimal floating point exception context.
 
 template &lt;class CHARTYPE, class TRAITS&gt;
 bsl::basic_ostream&lt;CHARTYPE, TRAITS&gt;&amp;
@@ -3191,9 +3206,9 @@ operator&lt;&lt; (bsl::basic_ostream&lt;CHARTYPE, TRAITS&gt;&amp; stream, Decima
     // external character sequences), and return a reference providing
     // modifiable access to &#39;stream&#39;.  If &#39;stream&#39; is not valid on entry, this
     // operation has no effect.
-    // TODO TBD describe the effects of stream flags/setting when we support
-    // them.  And note that the current preliminary implementation does not do
-    // most of what we promise here, exactly as it is promised here.
+    //
+    // NOTE: This method does not yet fully support iostream flags or the
+    // decimal floating point exception context.
 
 
                      // MISCELLANEOUS RELATED TYPES
@@ -3220,7 +3235,7 @@ class DecimalNumGet : public bsl::locale::facet {
 #endif
 
   public:
-    //-dk:TODO make private while making the output operator a friend
+    // -dk:TODO make private while making the output operator a friend
 
     // CLASS METHODS
     static const DecimalNumGet&lt;CHARTYPE, INPUTITERATOR&gt;&amp; object();
@@ -3240,13 +3255,15 @@ class DecimalNumGet : public bsl::locale::facet {
         // explicit DecimalNumGet(bsl::size_t refs)
         //    : bsl::locale::facet(refs), baseloc(bsl::locale()) ...
         //..
+        // and optionally specify a &#39;refs&#39;, which will default to 0.
 
     explicit DecimalNumGet(const bsl::locale&amp; b, bsl::size_t refs = 0);
-        // Constructs a &#39;DecimalNumPut&#39; object as if
+        // Constructs a &#39;DecimalNumPut&#39; object, from the specified &#39;b&#39;, as if
         //..
         // explicit DecimalNumGet(bsl::size_t refs)
         //    : bsl::locale::facet(refs), baseloc(b) ...
         //..
+        // and optionally specify a &#39;refs&#39;, which will default to 0.
 
     // ACCESSORS
     iter_type get(iter_type               begin,
@@ -3264,7 +3281,9 @@ class DecimalNumGet : public bsl::locale::facet {
                   bsl::ios_base&amp;          str,
                   bsl::ios_base::iostate&amp; err,
                   Decimal128&amp;             value) const;
-        // Return &#39;this-&gt;do_get(begin, end, str, err, value)&#39;
+        // Forward to, and return using the specified &#39;begin&#39;, &#39;end&#39;, &#39;str&#39;,
+        // &#39;err&#39;, and &#39;value&#39;, the results of
+        // &#39;this-&gt;do_get(begin, end, str, err, value)&#39;.
 
   protected:
     // CREATORS
@@ -3293,9 +3312,9 @@ class DecimalNumGet : public bsl::locale::facet {
         // the formatting flags of the specified &#39;str&#39; (&#39;str.flags()&#39;) are
         // obeyed; character classifications are determined by the &#39;bsl::ctype&#39;
         // while punctuation characters are determined by the &#39;bsl::numpunct&#39;
-        // facet imbued to the specified &#39;str&#39; stream-base.  Use the specified
-        // &#39;err&#39; to report back failure or EOF streams states.  For further,
-        // more detailed information please consult the section
+        // facet imbued to the &#39;str&#39; stream-base.  Use the specified &#39;err&#39; to
+        // report back failure or EOF streams states.  For further, more
+        // detailed information please consult the section
         // [lib.facet.num.get.virtuals] of the C++ Standard.  Note that for the
         // conversions to the &#39;Decimal32&#39;, 64 and 128 types the conversion
         // specifiers are %Hg, %Dg and %DDg, respectively.  Also note that
@@ -3325,7 +3344,7 @@ class DecimalNumPut : public bsl::locale::facet {
 #endif
 
   public:
-    //-dk:TODO make private while making the output operator a friend
+    // -dk:TODO make private while making the output operator a friend
 
     // CLASS METHODS
     static const DecimalNumPut&lt;CHARTYPE, OUTPUTITERATOR&gt;&amp; object();
@@ -3345,13 +3364,15 @@ class DecimalNumPut : public bsl::locale::facet {
         // explicit DecimalNumPut(bsl::size_t refs)
         //    : bsl::locale::facet(refs), baseloc(bsl::locale()) ...
         //..
+        // and optionally specify &#39;refs&#39;, which will default to 0.
 
     explicit DecimalNumPut(const bsl::locale &amp; b, bsl::size_t refs = 0);
-        // Constructs a &#39;DecimalNumPut&#39; object as if
+        // Constructs a &#39;DecimalNumPut&#39; object, using the specified &#39;b&#39;, as if
         //..
         // explicit DecimalNumPut(bsl::size_t refs)
         //    : bsl::locale::facet(refs), baseloc(b) ...
         //..
+        // and optionally specify &#39;refs&#39;, which will default to 0.
 
     // ACCESSORS
     iter_type put(iter_type      out,
@@ -3366,7 +3387,8 @@ class DecimalNumPut : public bsl::locale::facet {
                   bsl::ios_base&amp; str,
                   char_type      fill,
                   Decimal128     value) const;
-        // Return &#39;this-&gt;do_get(out, str, fill, value)&#39;
+        // Forward to, and return using the specified &#39;out&#39;, &#39;str&#39;, &#39;fill&#39;, and
+        // &#39;value&#39;, the results of &#39;this-&gt;do_put(out, str, fill, value)&#39;.
 
   protected:
     // CREATORS
@@ -3375,29 +3397,36 @@ class DecimalNumPut : public bsl::locale::facet {
 
     // ACCESSORS
     virtual iter_type do_put(iter_type      out,
-                             bsl::ios_base&amp; str,
+                             bsl::ios_base&amp; ios_format,
                              char_type      fill,
                              Decimal32      value) const;
     virtual iter_type do_put(iter_type      out,
-                             bsl::ios_base&amp; str,
+                             bsl::ios_base&amp; ios_format,
                              char_type      fill,
                              Decimal64      value) const;
     virtual iter_type do_put(iter_type      out,
-                             bsl::ios_base&amp; str,
+                             bsl::ios_base&amp; ios_format,
                              char_type      fill,
                              Decimal128     value) const;
         // Write characters (of &#39;char_type&#39;) that represent the specified
         // &#39;value&#39; to the output stream determined by the specified &#39;out&#39;
         // output iterator.  Use the &#39;bsl::ctype&#39; and the &#39;bsl::numpunct&#39;
-        // facets imbued to the stream-base &#39;str&#39; as well as the formatting
-        // flags of the specified &#39;str&#39; (&#39;bsl.flags()&#39;) to generate the
-        // properly localized output.  For further, more detailed information
-        // please consult the section [lib.facet.num.put.virtuals] of the C++
-        // Standard noting that the length modifiers &quot;H&quot;, &quot;D&quot; and &quot;DD&quot; are
-        // added to the conversion specifiers of for the types Decimal32, 64
-        // and 128, respectively.  Also note that these (possibly overridden)
-        // &#39;do_put&#39; virtual function are used by every formatted C++ stream
-        // output operator call (&#39;out &lt;&lt; aDecNumber&#39;).
+        // facets imbued to the specified stream-base &#39;ios_format&#39; as well as
+        // the formatting flags of the &#39;ios_format&#39; (&#39;bsl.flags()&#39;) to generate
+        // the properly localized output.  The specified &#39;fill&#39; character will
+        // be used as a placeholder character in padded output.  For further,
+        // more detailed information please consult the section
+        // [lib.facet.num.put.virtuals] of the C++ Standard noting that the
+        // length modifiers &quot;H&quot;, &quot;D&quot; and &quot;DD&quot; are added to the conversion
+        // specifiers of for the types Decimal32, 64 and 128, respectively.
+        // Also note that these (possibly overridden) &#39;do_put&#39; virtual function
+        // are used by every formatted C++ stream output operator call
+        // (&#39;out &lt;&lt; aDecNumber&#39;).  Note that currently, only the width,
+        // capitalization, and justification formatting flags are supported,
+        // and the operators only support code pages that include the ASCII
+        // sub-range.  Because of potential future improvements to support
+        // additional formatting flags, the operations should not be used for
+        // serialization.
 };
 
                     // =====================================
@@ -3409,21 +3438,22 @@ class Decimal_StandardNamespaceCanary {
     // name of the standard namespace.  Do not use it.
 };
 
-}  // close package namespace
-}  // close enterprise namespace
+             // =======================================================
+             // template&lt;...&gt; class faux_numeric_limits&lt;NUMERIC, DUMMY&gt;
+             // =======================================================
 
-#if defined(BSL_OVERRIDES_STD) &amp;&amp; defined(std)
-#   undef std
-#   define BDLDFP_DECIMAL_RESTORE_STD
-#endif
-namespace std {
+template&lt;class NUMERIC, class DUMMY = void&gt;
+class faux_numeric_limits;
+    // This class is used as a base-class for manifest constants in the
+    // &#39;std::numeric_limits&#39; specializations to overcome a Sun compiler issue.
 
-   // ========================================================================
-   // template&lt;&gt; class numeric_limits&lt;bdldfp::Decimal_StandardNamespaceCanary&gt;
-   // ========================================================================
+             // ===============================================================
+             // class faux_numeric_limits&lt;Decimal_StandardNamespaceCanary, ...&gt;
+             // ===============================================================
 
-template&lt;&gt;
-class numeric_limits&lt;BloombergLP::bdldfp::Decimal_StandardNamespaceCanary&gt; {
+template&lt;class DUMMY&gt;
+class faux_numeric_limits&lt;Decimal_StandardNamespaceCanary, DUMMY&gt;
+{
     // Explicit full specialization of the standard &quot;traits&quot; template
     // &#39;std::numeric_limits&#39; for the type
     // &#39;BloombergLP::bdldfp::Decimal_StandardNamespaceCanary&#39;.  Note that this
@@ -3437,12 +3467,12 @@ class numeric_limits&lt;BloombergLP::bdldfp::Decimal_StandardNamespaceCanary&gt;
         // numeric type.
 };
 
-             // ==================================================
-             // template&lt;&gt; class numeric_limits&lt;bdldfp::Decimal32&gt;
-             // ==================================================
+             // =========================================================
+             // template&lt;...&gt; class faux_numeric_limits&lt;Decimal32, DUMMY&gt;
+             // =========================================================
 
-template&lt;&gt;
-class numeric_limits&lt;BloombergLP::bdldfp::Decimal32&gt; {
+template&lt;class DUMMY&gt;
+class faux_numeric_limits&lt;BloombergLP::bdldfp::Decimal32, DUMMY&gt; {
         // Explicit full specialization of the standard &quot;traits&quot; template
         // &#39;std::numeric_limits&#39; for the type &#39;BloombergLP::bdldfp::Decimal32&#39;.
 
@@ -3454,15 +3484,6 @@ class numeric_limits&lt;BloombergLP::bdldfp::Decimal32&gt; {
         // meaningfully specialized.  Also means that
         // &#39;BloombergLP::bdldfp::Decimal32&#39; is a numeric type.
 
-    // CLASS METHODS
-    static BloombergLP::bdldfp::Decimal32 min() BSLS_NOTHROW_SPEC;
-        // Return the smallest positive (also non-zero) number
-        // &#39;BloombergLP::bdldfp::Decimal32&#39; can represent (IEEE-754: +1e-95).
-
-    static BloombergLP::bdldfp::Decimal32 max() BSLS_NOTHROW_SPEC;
-        // Return the largest number &#39;BloombergLP::bdldfp::Decimal32&#39; can
-        // represent (IEEE-754: +9.999999e+96).
-
     static const int digits = 7;
         // The maximum number of significant digits, in the native (10) radix
         // of the &#39;BloombergLP::bdldfp::Decimal32&#39; type that the type is able
@@ -3470,8 +3491,8 @@ class numeric_limits&lt;BloombergLP::bdldfp::Decimal32&gt; {
 
     static const int digits10 = digits;
         // The maximum number of significant decimal digits that the
-        // &#39;BloombergLP::bdldfp::Decimal32&#39; type is able to represent.
-        // Defined to be 7 by IEEE-754.
+        // &#39;BloombergLP::bdldfp::Decimal32&#39; type is able to represent.  Defined
+        // to be 7 by IEEE-754.
 
     static const int max_digits10 = digits;
         // The number of significant decimal digits necessary to uniquely
@@ -3487,21 +3508,12 @@ class numeric_limits&lt;BloombergLP::bdldfp::Decimal32&gt; {
 
     static const bool is_exact = false;
         // &#39;BloombergLP::bdldfp::Decimal32&#39; is not an exact type, i.e.:
-        // calculations done on the type are not free of rounding errors.
-        // Note that integer and possibly rational types may be exact,
+        // calculations done on the type are not free of rounding errors.  Note
+        // that integer and possibly rational types may be exact,
         // floating-point types are never exact.
 
     static const int radix = 10;
         // The base for &#39;BloombergLP::bdldfp::Decimal32&#39; is decimal or 10.
-
-    static BloombergLP::bdldfp::Decimal32 epsilon() BSLS_NOTHROW_SPEC;
-        // Return the difference between 1 and the smallest value representable
-        // by the &#39;BloombergLP::bdldfp::Decimal32&#39; type.  (IEEE-754: +1e-6)
-
-    static BloombergLP::bdldfp::Decimal32 round_error() BSLS_NOTHROW_SPEC;
-        // Return the maximum rounding error for the
-        // &#39;BloombergLP::bdldfp::Decimal32&#39; type.  The actual value returned
-        // depends on the current decimal floating point rounding setting.
 
     static const int min_exponent = -95;
         // The lowest possible negative exponent for the native base of the
@@ -3522,8 +3534,8 @@ class numeric_limits&lt;BloombergLP::bdldfp::Decimal32&gt; {
     static const int max_exponent10 = max_exponent;
         // The highest possible positive decimal exponent of the
         // &#39;BloombergLP::bdldfp::Decimal32&#39; type that represents a finite
-        // value.  Defined to be 97 by IEEE-754.  Note that
-        // &#39;max_exponent10&#39; os the same as &#39;max_exponent&#39; for decimal types.
+        // value.  Defined to be 97 by IEEE-754.  Note that &#39;max_exponent10&#39; os
+        // the same as &#39;max_exponent&#39; for decimal types.
 
     static const bool has_infinity = true;
         // &#39;BloombergLP::bdldfp::Decimal32&#39; can represent infinity.
@@ -3535,7 +3547,7 @@ class numeric_limits&lt;BloombergLP::bdldfp::Decimal32&gt; {
     static const bool has_signaling_NaN = true;
         // &#39;BloombergLP::bdldfp::Decimal32&#39; can be a signaling Not a Number.
 
-    static const float_denorm_style has_denorm = denorm_present;
+    static const std::float_denorm_style has_denorm = std::denorm_present;
         // &#39;BloombergLP::bdldfp::Decimal32&#39; may contain denormal values.
 
     static const bool has_denorm_loss = true;
@@ -3543,50 +3555,36 @@ class numeric_limits&lt;BloombergLP::bdldfp::Decimal32&gt; {
         // precision (floating-point underflow) due to denormalization from
         // other causes.
 
-    static BloombergLP::bdldfp::Decimal32 infinity() BSLS_NOTHROW_SPEC;
-        // Return the the value that represents positive infinity for the
-        // &#39;BloombergLP::bdldfp::Decimal32&#39; type.
-
-    static BloombergLP::bdldfp::Decimal32 quiet_NaN() BSLS_NOTHROW_SPEC;
-        // Return a value that represents non-signaling NaN for the
-        // &#39;BloombergLP::bdldfp::Decimal32&#39; type.
-
-    static BloombergLP::bdldfp::Decimal32 signaling_NaN() BSLS_NOTHROW_SPEC;
-        // Return a value that represents signaling NaN for the
-        // &#39;BloombergLP::bdldfp::Decimal32&#39; type.
-
-    static BloombergLP::bdldfp::Decimal32 denorm_min() BSLS_NOTHROW_SPEC;
-        // Return the smallest non-zero denormalized value for the
-        // &#39;BloombergLP::bdldfp::Decimal32&#39; type.  (IEEE-754: +0.000001E-95)
+    static const bool is_bounded = true;
+        // Decimal floating-point types represent a finite set of values.
 
     static const bool is_iec559 = false;
         // Decimal floating-point is not covered by the IEC 559 standard.
 
-    static const bool is_bounded = true;
-        // Decimal floating-point types represent a finite set of values.
-
     static const bool is_modulo = false;
         // Decimal floating-point types do not have modulo representation.
-
-    static const bool traps = true;
-        // Decimal floating-point types implement traps to report arithmetic
-        // exceptions (required by IEEE-754).
 
     static const bool tinyness_before = true;
         // Decimal floating-point types are able to detect if a value is too
         // small to represent as a normalized value before rounding it.
 
-    static const float_round_style round_style = round_indeterminate;
+    static const bool traps = true;
+        // Decimal floating-point types implement traps to report arithmetic
+        // exceptions (required by IEEE-754).
+
+                        // Rounding style
+
+    static const std::float_round_style round_style = std::round_indeterminate;
         // Decimal floating-point rounding style is defined to be indeterminate
         // by the C and C++ Decimal TRs.
 };
 
-             // ==================================================
-             // template&lt;&gt; class numeric_limits&lt;bdldfp::Decimal64&gt;
-             // ==================================================
+             // =========================================================
+             // template&lt;...&gt; class faux_numeric_limits&lt;Decimal64, DUMMY&gt;
+             // =========================================================
 
-template&lt;&gt;
-class numeric_limits&lt;BloombergLP::bdldfp::Decimal64&gt; {
+template&lt;class DUMMY&gt;
+class faux_numeric_limits&lt;BloombergLP::bdldfp::Decimal64, DUMMY&gt; {
         // Explicit full specialization of the standard &quot;traits&quot; template
         // &#39;std::numeric_limits&#39; for the type &#39;BloombergLP::bdldfp::Decimal64&#39;.
 
@@ -3598,15 +3596,6 @@ class numeric_limits&lt;BloombergLP::bdldfp::Decimal64&gt; {
         // meaningfully specialized.  Also means that
         // &#39;BloombergLP::bdldfp::Decimal64&#39; is a numeric type.
 
-    // CLASS METHODS
-    static BloombergLP::bdldfp::Decimal64 min() BSLS_NOTHROW_SPEC;
-        // Return the smallest positive (also non-zero) number
-        // &#39;BloombergLP::bdldfp::Decimal64&#39; can represent (IEEE-754: +1e-383).
-
-    static BloombergLP::bdldfp::Decimal64 max() BSLS_NOTHROW_SPEC;
-        // Return the largest number &#39;BloombergLP::bdldfp::Decimal64&#39; can
-        // represent (IEEE-754: +9.999999999999999e+384).
-
     static const int digits = 16;
         // The maximum number of significant digits, in the native (10) radix
         // of the &#39;BloombergLP::bdldfp::Decimal64&#39; type that the type is able
@@ -3614,8 +3603,8 @@ class numeric_limits&lt;BloombergLP::bdldfp::Decimal64&gt; {
 
     static const int digits10 = digits;
         // The maximum number of significant decimal digits that the
-        // &#39;BloombergLP::bdldfp::Decimal64&#39; type is able to represent.
-        // Defined to be 16 by IEEE-754.
+        // &#39;BloombergLP::bdldfp::Decimal64&#39; type is able to represent.  Defined
+        // to be 16 by IEEE-754.
 
     static const int max_digits10 = digits;
         // The number of significant decimal digits necessary to uniquely
@@ -3631,21 +3620,12 @@ class numeric_limits&lt;BloombergLP::bdldfp::Decimal64&gt; {
 
     static const bool is_exact = false;
         // &#39;BloombergLP::bdldfp::Decimal64&#39; is not an exact type, i.e.:
-        // calculations done on the type are not free of rounding errors.
-        // Note that integer and possibly rational types may be exact,
+        // calculations done on the type are not free of rounding errors.  Note
+        // that integer and possibly rational types may be exact,
         // floating-point types are never exact.
 
     static const int radix = 10;
         // The base for &#39;BloombergLP::bdldfp::Decimal64&#39; is decimal or 10.
-
-    static BloombergLP::bdldfp::Decimal64 epsilon() BSLS_NOTHROW_SPEC;
-        // Return the difference between 1 and the smallest value representable
-        // by the &#39;BloombergLP::bdldfp::Decimal64&#39; type.  (IEEE-754: +1e-15)
-
-    static BloombergLP::bdldfp::Decimal64 round_error() BSLS_NOTHROW_SPEC;
-        // Return the maximum rounding error for the
-        // &#39;BloombergLP::bdldfp::Decimal64&#39; type.  The actual value returned
-        // depends on the current decimal floating point rounding setting.
 
     static const int min_exponent = -382;
         // The lowest possible negative exponent for the native base of the
@@ -3666,8 +3646,8 @@ class numeric_limits&lt;BloombergLP::bdldfp::Decimal64&gt; {
     static const int max_exponent10 = max_exponent;
         // The highest possible positive decimal exponent of the
         // &#39;BloombergLP::bdldfp::Decimal64&#39; type that represents a finite
-        // value.  Defined to be 385 by IEEE-754.  Note that
-        // &#39;max_exponent10&#39; os the same as &#39;max_exponent&#39; for decimal types.
+        // value.  Defined to be 385 by IEEE-754.  Note that &#39;max_exponent10&#39;
+        // os the same as &#39;max_exponent&#39; for decimal types.
 
     static const bool has_infinity = true;
         // &#39;BloombergLP::bdldfp::Decimal64&#39; can represent infinity.
@@ -3679,30 +3659,13 @@ class numeric_limits&lt;BloombergLP::bdldfp::Decimal64&gt; {
     static const bool has_signaling_NaN = true;
         // &#39;BloombergLP::bdldfp::Decimal64&#39; can be a signaling Not a Number.
 
-    static const float_denorm_style has_denorm = denorm_present;
+    static const std::float_denorm_style has_denorm = std::denorm_present;
         // &#39;BloombergLP::bdldfp::Decimal64&#39; may contain denormal values.
 
     static const bool has_denorm_loss = true;
         // &#39;BloombergLP::bdldfp::Decimal64&#39; is able to distinguish loss of
         // precision (floating-point underflow) due to denormalization from
         // other causes.
-
-    static BloombergLP::bdldfp::Decimal64 infinity() BSLS_NOTHROW_SPEC;
-        // Return the the value that represents positive infinity for the
-        // &#39;BloombergLP::bdldfp::Decimal64&#39; type.
-
-    static BloombergLP::bdldfp::Decimal64 quiet_NaN() BSLS_NOTHROW_SPEC;
-        // Return a value that represents non-signaling NaN for the
-        // &#39;BloombergLP::bdldfp::Decimal64&#39; type.
-
-    static BloombergLP::bdldfp::Decimal64 signaling_NaN() BSLS_NOTHROW_SPEC;
-        // Return a value that represents signaling NaN for the
-        // &#39;BloombergLP::bdldfp::Decimal64&#39; type.
-
-    static BloombergLP::bdldfp::Decimal64 denorm_min() BSLS_NOTHROW_SPEC;
-        // Return the smallest non-zero denormalized value for the
-        // &#39;BloombergLP::bdldfp::Decimal64&#39; type.
-        // (IEEE-754: +0.000000000000001e-383)
 
     static const bool is_iec559 = false;
         // Decimal floating-point is not covered by the IEC 559 standard.
@@ -3721,17 +3684,17 @@ class numeric_limits&lt;BloombergLP::bdldfp::Decimal64&gt; {
         // Decimal floating-point types are able to detect if a value is too
         // small to represent as a normalized value before rounding it.
 
-    static const float_round_style round_style = round_indeterminate;
+    static const std::float_round_style round_style = std::round_indeterminate;
         // Decimal floating-point rounding style is defined to be indeterminate
         // by the C and C++ Decimal TRs.
 };
 
-             // ===================================================
-             // template&lt;&gt; class numeric_limits&lt;bdldfp::Decimal128&gt;
-             // ===================================================
+             // ==========================================================
+             // template&lt;...&gt; class faux_numeric_limits&lt;Decimal128, DUMMY&gt;
+             // ==========================================================
 
-template&lt;&gt;
-class numeric_limits&lt;BloombergLP::bdldfp::Decimal128&gt; {
+template&lt;class DUMMY&gt;
+class faux_numeric_limits&lt;BloombergLP::bdldfp::Decimal128, DUMMY&gt; {
         // Explicit full specialization of the standard &quot;traits&quot; template
         // &#39;std::numeric_limits&#39; for the type
         // &#39;BloombergLP::bdldfp::Decimal128&#39;.
@@ -3743,16 +3706,6 @@ class numeric_limits&lt;BloombergLP::bdldfp::Decimal128&gt; {
         // &#39;std::numeric_limits&lt;BloombergLP::bdldfp::Decimal128&gt;&#39; is
         // meaningfully specialized.  Also means that
         // &#39;BloombergLP::bdldfp::Decimal128&#39; is a numeric type.
-
-    // CLASS METHODS
-    static BloombergLP::bdldfp::Decimal128 min() BSLS_NOTHROW_SPEC;
-        // Return the smallest positive (also non-zero) number
-        // &#39;BloombergLP::bdldfp::Decimal128&#39; can represent
-        // (IEEE-754: +1e-6143).
-
-    static BloombergLP::bdldfp::Decimal128 max() BSLS_NOTHROW_SPEC;
-        // Return the largest number &#39;BloombergLP::bdldfp::Decimal128&#39; can
-        // represent (IEEE-754: +9.999999999999999999999999999999999e+6144).
 
     static const int digits = 34;
         // The maximum number of significant digits, in the native (10) radix
@@ -3778,21 +3731,12 @@ class numeric_limits&lt;BloombergLP::bdldfp::Decimal128&gt; {
 
     static const bool is_exact = false;
         // &#39;BloombergLP::bdldfp::Decimal128&#39; is not an exact type, i.e.:
-        // calculations done on the type are not free of rounding errors.
-        // Note that integer and possibly rational types may be exact,
+        // calculations done on the type are not free of rounding errors.  Note
+        // that integer and possibly rational types may be exact,
         // floating-point types are never exact.
 
     static const int radix = 10;
         // The base for &#39;BloombergLP::bdldfp::Decimal128&#39; is decimal or 10.
-
-    static BloombergLP::bdldfp::Decimal128 epsilon() BSLS_NOTHROW_SPEC;
-        // Return the difference between 1 and the smallest value representable
-        // by the &#39;BloombergLP::bdldfp::Decimal128&#39; type.  (IEEE-754: +1e-33)
-
-    static BloombergLP::bdldfp::Decimal128 round_error() BSLS_NOTHROW_SPEC;
-        // Return the maximum rounding error for the
-        // &#39;BloombergLP::bdldfp::Decimal128&#39; type.  The actual value returned
-        // depends on the current decimal floating point rounding setting.
 
     static const int min_exponent = -6142;
         // The lowest possible negative exponent for the native base of the
@@ -3813,8 +3757,8 @@ class numeric_limits&lt;BloombergLP::bdldfp::Decimal128&gt; {
     static const int max_exponent10 = max_exponent;
         // The highest possible positive decimal exponent of the
         // &#39;BloombergLP::bdldfp::Decimal128&#39; type that represents a finite
-        // value.  Defined to be 6145 by IEEE-754.  Note that
-        // &#39;max_exponent10&#39; os the same as &#39;max_exponent&#39; for decimal types.
+        // value.  Defined to be 6145 by IEEE-754.  Note that &#39;max_exponent10&#39;
+        // os the same as &#39;max_exponent&#39; for decimal types.
 
     static const bool has_infinity = true;
         // &#39;BloombergLP::bdldfp::Decimal128&#39; can represent infinity.
@@ -3826,30 +3770,13 @@ class numeric_limits&lt;BloombergLP::bdldfp::Decimal128&gt; {
     static const bool has_signaling_NaN = true;
         // &#39;BloombergLP::bdldfp::Decimal128&#39; can be a signaling Not a Number.
 
-    static const float_denorm_style has_denorm = denorm_present;
+    static const std::float_denorm_style has_denorm = std::denorm_present;
         // &#39;BloombergLP::bdldfp::Decimal128&#39; may contain denormal values.
 
     static const bool has_denorm_loss = true;
         // &#39;BloombergLP::bdldfp::Decimal128&#39; is able to distinguish loss of
         // precision (floating-point underflow) due to denormalization from
         // other causes.
-
-    static BloombergLP::bdldfp::Decimal128 infinity() BSLS_NOTHROW_SPEC;
-        // Return the the value that represents positive infinity for the
-        // &#39;BloombergLP::bdldfp::Decimal128&#39; type.
-
-    static BloombergLP::bdldfp::Decimal128 quiet_NaN() BSLS_NOTHROW_SPEC;
-        // Return a value that represents non-signaling NaN for the
-        // &#39;BloombergLP::bdldfp::Decimal128&#39; type.
-
-    static BloombergLP::bdldfp::Decimal128 signaling_NaN() BSLS_NOTHROW_SPEC;
-        // Return a value that represents signaling NaN for the
-        // &#39;BloombergLP::bdldfp::Decimal128&#39; type.
-
-    static BloombergLP::bdldfp::Decimal128 denorm_min() BSLS_NOTHROW_SPEC;
-        // Return the smallest non-zero denormalized value for the
-        // &#39;BloombergLP::bdldfp::Decimal128&#39; type.
-        // (IEEE-754: +0.000000000000000000000000000000001e-6143)
 
     static const bool is_iec559 = false;
         // Decimal floating-point is not covered by the IEC 559 standard.
@@ -3868,41 +3795,2456 @@ class numeric_limits&lt;BloombergLP::bdldfp::Decimal128&gt; {
         // Decimal floating-point types are able to detect if a value is too
         // small to represent as a normalized value before rounding it.
 
-    static const float_round_style round_style = round_indeterminate;
+    static const std::float_round_style round_style = std::round_indeterminate;
         // Decimal floating-point rounding style is defined to be indeterminate
         // by the C and C++ Decimal TRs.
+
 };
 
-}  // close namespace std
+                        // --------------------------------------------------
+                        // faux_numeric_limits&lt;Decimal32, ...&gt; member storage
+                        // --------------------------------------------------
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal32, DUMMY&gt;::is_specialized;
+
+template&lt;class DUMMY&gt;
+const int faux_numeric_limits&lt;Decimal32, DUMMY&gt;::digits;
+
+template&lt;class DUMMY&gt;
+const int faux_numeric_limits&lt;Decimal32, DUMMY&gt;::digits10;
+
+template&lt;class DUMMY&gt;
+const int faux_numeric_limits&lt;Decimal32, DUMMY&gt;::max_digits10;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal32, DUMMY&gt;::is_signed;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal32, DUMMY&gt;::is_integer;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal32, DUMMY&gt;::is_exact;
+
+template&lt;class DUMMY&gt;
+const int faux_numeric_limits&lt;Decimal32, DUMMY&gt;::radix;
+
+template&lt;class DUMMY&gt;
+const int faux_numeric_limits&lt;Decimal32, DUMMY&gt;::min_exponent;
+
+template&lt;class DUMMY&gt;
+const int faux_numeric_limits&lt;Decimal32, DUMMY&gt;::min_exponent10;
+
+template&lt;class DUMMY&gt;
+const int faux_numeric_limits&lt;Decimal32, DUMMY&gt;::max_exponent;
+
+template&lt;class DUMMY&gt;
+const int faux_numeric_limits&lt;Decimal32, DUMMY&gt;::max_exponent10;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal32, DUMMY&gt;::has_infinity;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal32, DUMMY&gt;::has_quiet_NaN;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal32, DUMMY&gt;::has_signaling_NaN;
+
+template&lt;class DUMMY&gt;
+const std::float_denorm_style
+faux_numeric_limits&lt;Decimal32, DUMMY&gt;::has_denorm;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal32, DUMMY&gt;::has_denorm_loss;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal32, DUMMY&gt;::is_iec559;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal32, DUMMY&gt;::is_bounded;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal32, DUMMY&gt;::is_modulo;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal32, DUMMY&gt;::traps;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal32, DUMMY&gt;::tinyness_before;
+
+template&lt;class DUMMY&gt;
+const std::float_round_style
+faux_numeric_limits&lt;Decimal32, DUMMY&gt;::round_style;
+
+                        // --------------------------------------------------
+                        // faux_numeric_limits&lt;Decimal64, ...&gt; member storage
+                        // --------------------------------------------------
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal64, DUMMY&gt;::is_specialized;
+
+template&lt;class DUMMY&gt;
+const int faux_numeric_limits&lt;Decimal64, DUMMY&gt;::digits;
+
+template&lt;class DUMMY&gt;
+const int faux_numeric_limits&lt;Decimal64, DUMMY&gt;::digits10;
+
+template&lt;class DUMMY&gt;
+const int faux_numeric_limits&lt;Decimal64, DUMMY&gt;::max_digits10;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal64, DUMMY&gt;::is_signed;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal64, DUMMY&gt;::is_integer;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal64, DUMMY&gt;::is_exact;
+
+template&lt;class DUMMY&gt;
+const int faux_numeric_limits&lt;Decimal64, DUMMY&gt;::radix;
+
+template&lt;class DUMMY&gt;
+const int faux_numeric_limits&lt;Decimal64, DUMMY&gt;::min_exponent;
+
+template&lt;class DUMMY&gt;
+const int faux_numeric_limits&lt;Decimal64, DUMMY&gt;::min_exponent10;
+
+template&lt;class DUMMY&gt;
+const int faux_numeric_limits&lt;Decimal64, DUMMY&gt;::max_exponent;
+
+template&lt;class DUMMY&gt;
+const int faux_numeric_limits&lt;Decimal64, DUMMY&gt;::max_exponent10;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal64, DUMMY&gt;::has_infinity;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal64, DUMMY&gt;::has_quiet_NaN;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal64, DUMMY&gt;::has_signaling_NaN;
+
+template&lt;class DUMMY&gt;
+const std::float_denorm_style
+faux_numeric_limits&lt;Decimal64, DUMMY&gt;::has_denorm;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal64, DUMMY&gt;::has_denorm_loss;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal64, DUMMY&gt;::is_iec559;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal64, DUMMY&gt;::is_bounded;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal64, DUMMY&gt;::is_modulo;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal64, DUMMY&gt;::traps;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal64, DUMMY&gt;::tinyness_before;
+
+template&lt;class DUMMY&gt;
+const std::float_round_style
+faux_numeric_limits&lt;Decimal64, DUMMY&gt;::round_style;
+
+                        // ---------------------------------------------------
+                        // faux_numeric_limits&lt;Decimal128, ...&gt; member storage
+                        // ---------------------------------------------------
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal128, DUMMY&gt;::is_specialized;
+
+template&lt;class DUMMY&gt;
+const int faux_numeric_limits&lt;Decimal128, DUMMY&gt;::digits;
+
+template&lt;class DUMMY&gt;
+const int faux_numeric_limits&lt;Decimal128, DUMMY&gt;::digits10;
+
+template&lt;class DUMMY&gt;
+const int faux_numeric_limits&lt;Decimal128, DUMMY&gt;::max_digits10;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal128, DUMMY&gt;::is_signed;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal128, DUMMY&gt;::is_integer;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal128, DUMMY&gt;::is_exact;
+
+template&lt;class DUMMY&gt;
+const int faux_numeric_limits&lt;Decimal128, DUMMY&gt;::radix;
+
+template&lt;class DUMMY&gt;
+const int faux_numeric_limits&lt;Decimal128, DUMMY&gt;::min_exponent;
+
+template&lt;class DUMMY&gt;
+const int faux_numeric_limits&lt;Decimal128, DUMMY&gt;::min_exponent10;
+
+template&lt;class DUMMY&gt;
+const int faux_numeric_limits&lt;Decimal128, DUMMY&gt;::max_exponent;
+
+template&lt;class DUMMY&gt;
+const int faux_numeric_limits&lt;Decimal128, DUMMY&gt;::max_exponent10;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal128, DUMMY&gt;::has_infinity;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal128, DUMMY&gt;::has_quiet_NaN;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal128, DUMMY&gt;::has_signaling_NaN;
+
+template&lt;class DUMMY&gt;
+const std::float_denorm_style
+faux_numeric_limits&lt;Decimal128, DUMMY&gt;::has_denorm;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal128, DUMMY&gt;::has_denorm_loss;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal128, DUMMY&gt;::is_iec559;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal128, DUMMY&gt;::is_bounded;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal128, DUMMY&gt;::is_modulo;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal128, DUMMY&gt;::traps;
+
+template&lt;class DUMMY&gt;
+const bool faux_numeric_limits&lt;Decimal128, DUMMY&gt;::tinyness_before;
+
+template&lt;class DUMMY&gt;
+const std::float_round_style
+faux_numeric_limits&lt;Decimal128, DUMMY&gt;::round_style;
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#if defined(BSL_OVERRIDES_STD) &amp;&amp; defined(std)
+#   undef std
+#   define BDLDFP_DECIMAL_RESTORE_STD
+#endif
+namespace std {
+
+   // ========================================================================
+   // template&lt;&gt; class numeric_limits&lt;bdldfp::Decimal_StandardNamespaceCanary&gt;
+   // ========================================================================
+
+template&lt;&gt;
+class numeric_limits&lt;BloombergLP::bdldfp::Decimal_StandardNamespaceCanary&gt;
+    : public BloombergLP::bdldfp::faux_numeric_limits&lt;
+        BloombergLP::bdldfp::Decimal_StandardNamespaceCanary&gt; {
+    // Explicit full specialization of the standard &quot;traits&quot; template
+    // &#39;std::numeric_limits&#39; for the type
+    // &#39;BloombergLP::bdldfp::Decimal_StandardNamespaceCanary&#39;.  Note that this
+    // specialization is required for technical reasons and it is identical to
+    // the non-specialized default traits.
+};
+
+             // ==================================================
+             // template&lt;&gt; class numeric_limits&lt;bdldfp::Decimal32&gt;
+             // ==================================================
+
+template&lt;&gt;
+class numeric_limits&lt;BloombergLP::bdldfp::Decimal32&gt;
+    : public BloombergLP::bdldfp::faux_numeric_limits&lt;
+        BloombergLP::bdldfp::Decimal32&gt; {
+        // Explicit full specialization of the standard &quot;traits&quot; template
+        // &#39;std::numeric_limits&#39; for the type &#39;BloombergLP::bdldfp::Decimal32&#39;.
+
+  public:
+    // CLASS METHODS
+    static BloombergLP::bdldfp::Decimal32 min() BSLS_NOTHROW_SPEC;
+        // Return the smallest positive (also non-zero) number
+        // &#39;BloombergLP::bdldfp::Decimal32&#39; can represent (IEEE-754: +1e-95).
+
+    static BloombergLP::bdldfp::Decimal32 max() BSLS_NOTHROW_SPEC;
+        // Return the largest number &#39;BloombergLP::bdldfp::Decimal32&#39; can
+        // represent (IEEE-754: +9.999999e+96).
+
+    static BloombergLP::bdldfp::Decimal32 epsilon() BSLS_NOTHROW_SPEC;
+        // Return the difference between 1 and the smallest value representable
+        // by the &#39;BloombergLP::bdldfp::Decimal32&#39; type.  (IEEE-754: +1e-6)
+
+    static BloombergLP::bdldfp::Decimal32 round_error() BSLS_NOTHROW_SPEC;
+        // Return the maximum rounding error for the
+        // &#39;BloombergLP::bdldfp::Decimal32&#39; type.  The actual value returned
+        // depends on the current decimal floating point rounding setting.
+
+    static BloombergLP::bdldfp::Decimal32 denorm_min() BSLS_NOTHROW_SPEC;
+        // Return the smallest non-zero denormalized value for the
+        // &#39;BloombergLP::bdldfp::Decimal32&#39; type.  (IEEE-754: +0.000001E-95)
+
+    static BloombergLP::bdldfp::Decimal32 infinity() BSLS_NOTHROW_SPEC;
+        // Return the the value that represents positive infinity for the
+        // &#39;BloombergLP::bdldfp::Decimal32&#39; type.
+
+    static BloombergLP::bdldfp::Decimal32 quiet_NaN() BSLS_NOTHROW_SPEC;
+        // Return a value that represents non-signaling NaN for the
+        // &#39;BloombergLP::bdldfp::Decimal32&#39; type.
+
+    static BloombergLP::bdldfp::Decimal32 signaling_NaN() BSLS_NOTHROW_SPEC;
+        // Return a value that represents signaling NaN for the
+        // &#39;BloombergLP::bdldfp::Decimal32&#39; type.
+};
+
+             // ==================================================
+             // template&lt;&gt; class numeric_limits&lt;bdldfp::Decimal64&gt;
+             // ==================================================
+
+template&lt;&gt;
+class numeric_limits&lt;BloombergLP::bdldfp::Decimal64&gt;
+    : public BloombergLP::bdldfp::faux_numeric_limits&lt;
+        BloombergLP::bdldfp::Decimal64&gt; {
+        // Explicit full specialization of the standard &quot;traits&quot; template
+        // &#39;std::numeric_limits&#39; for the type &#39;BloombergLP::bdldfp::Decimal64&#39;.
+
+  public:
+    // CLASS METHODS
+    static BloombergLP::bdldfp::Decimal64 min() BSLS_NOTHROW_SPEC;
+        // Return the smallest positive (also non-zero) number
+        // &#39;BloombergLP::bdldfp::Decimal64&#39; can represent (IEEE-754: +1e-383).
+
+    static BloombergLP::bdldfp::Decimal64 max() BSLS_NOTHROW_SPEC;
+        // Return the largest number &#39;BloombergLP::bdldfp::Decimal64&#39; can
+        // represent (IEEE-754: +9.999999999999999e+384).
+
+    static BloombergLP::bdldfp::Decimal64 epsilon() BSLS_NOTHROW_SPEC;
+        // Return the difference between 1 and the smallest value representable
+        // by the &#39;BloombergLP::bdldfp::Decimal64&#39; type.  (IEEE-754: +1e-15)
+
+    static BloombergLP::bdldfp::Decimal64 round_error() BSLS_NOTHROW_SPEC;
+        // Return the maximum rounding error for the
+        // &#39;BloombergLP::bdldfp::Decimal64&#39; type.  The actual value returned
+        // depends on the current decimal floating point rounding setting.
+
+    static BloombergLP::bdldfp::Decimal64 denorm_min() BSLS_NOTHROW_SPEC;
+        // Return the smallest non-zero denormalized value for the
+        // &#39;BloombergLP::bdldfp::Decimal64&#39; type.
+        // (IEEE-754: +0.000000000000001e-383)
+
+    static BloombergLP::bdldfp::Decimal64 infinity() BSLS_NOTHROW_SPEC;
+        // Return the the value that represents positive infinity for the
+        // &#39;BloombergLP::bdldfp::Decimal64&#39; type.
+
+    static BloombergLP::bdldfp::Decimal64 quiet_NaN() BSLS_NOTHROW_SPEC;
+        // Return a value that represents non-signaling NaN for the
+        // &#39;BloombergLP::bdldfp::Decimal64&#39; type.
+
+    static BloombergLP::bdldfp::Decimal64 signaling_NaN() BSLS_NOTHROW_SPEC;
+        // Return a value that represents signaling NaN for the
+        // &#39;BloombergLP::bdldfp::Decimal64&#39; type.
+
+};
+
+             // ===================================================
+             // template&lt;&gt; class numeric_limits&lt;bdldfp::Decimal128&gt;
+             // ===================================================
+
+template&lt;&gt;
+class numeric_limits&lt;BloombergLP::bdldfp::Decimal128&gt;
+    : public BloombergLP::bdldfp::faux_numeric_limits&lt;
+        BloombergLP::bdldfp::Decimal128&gt; {
+        // Explicit full specialization of the standard &quot;traits&quot; template
+        // &#39;std::numeric_limits&#39; for the type
+        // &#39;BloombergLP::bdldfp::Decimal128&#39;.
+
+  public:
+    // CLASS METHODS
+    static BloombergLP::bdldfp::Decimal128 min() BSLS_NOTHROW_SPEC;
+        // Return the smallest positive (also non-zero) number
+        // &#39;BloombergLP::bdldfp::Decimal128&#39; can represent (IEEE-754:
+        // +1e-6143).
+
+    static BloombergLP::bdldfp::Decimal128 max() BSLS_NOTHROW_SPEC;
+        // Return the largest number &#39;BloombergLP::bdldfp::Decimal128&#39; can
+        // represent (IEEE-754: +9.999999999999999999999999999999999e+6144).
+
+    static BloombergLP::bdldfp::Decimal128 epsilon() BSLS_NOTHROW_SPEC;
+        // Return the difference between 1 and the smallest value representable
+        // by the &#39;BloombergLP::bdldfp::Decimal128&#39; type.  (IEEE-754: +1e-33)
+
+    static BloombergLP::bdldfp::Decimal128 round_error() BSLS_NOTHROW_SPEC;
+        // Return the maximum rounding error for the
+        // &#39;BloombergLP::bdldfp::Decimal128&#39; type.  The actual value returned
+        // depends on the current decimal floating point rounding setting.
+
+    static BloombergLP::bdldfp::Decimal128 denorm_min() BSLS_NOTHROW_SPEC;
+        // Return the smallest non-zero denormalized value for the
+        // &#39;BloombergLP::bdldfp::Decimal128&#39; type.
+        // (IEEE-754: +0.000000000000000000000000000000001e-6143)
+
+    static BloombergLP::bdldfp::Decimal128 infinity() BSLS_NOTHROW_SPEC;
+        // Return the the value that represents positive infinity for the
+        // &#39;BloombergLP::bdldfp::Decimal128&#39; type.
+
+    static BloombergLP::bdldfp::Decimal128 quiet_NaN() BSLS_NOTHROW_SPEC;
+        // Return a value that represents non-signaling NaN for the
+        // &#39;BloombergLP::bdldfp::Decimal128&#39; type.
+
+    static BloombergLP::bdldfp::Decimal128 signaling_NaN() BSLS_NOTHROW_SPEC;
+        // Return a value that represents signaling NaN for the
+        // &#39;BloombergLP::bdldfp::Decimal128&#39; type.
+
+};
+
+}  // close std namespace
+
 #if defined(BDLDFP_DECIMAL_RESTORE_STD)
 #   define std bsl
 #   undef BDLDFP_DECIMAL_RESTORE_STD
 #endif
 
-#define BDLDFP_DECIMAL_SUN_WORKAROUND
+// ============================================================================
+//                              INLINE DEFINITIONS
+// ============================================================================
+
+                    // THE DECIMAL FLOATING-POINT TYPES
+
+                        // ---------------
+                        // class Decimal32
+                        // ---------------
+namespace BloombergLP {
+namespace bdldfp {
+
+inline
+Decimal_Type32::Decimal_Type32()
+{
+    bsl::memset(&amp;d_value, 0, sizeof(d_value));
+}
+
+inline
+Decimal_Type32::Decimal_Type32(DecimalImpUtil::ValueType32 value)
+: d_value(value)
+{
+}
+
+inline
+Decimal_Type32::Decimal_Type32(Decimal_Type64 other)
+: d_value(DecimalImpUtil::convertToDecimal32(*other.data()))
+{
+}
+
+inline
+Decimal_Type32::Decimal_Type32(float other)
+: d_value(DecimalImpUtil::binaryToDecimal32(other))
+{
+}
+
+inline
+Decimal_Type32::Decimal_Type32(double other)
+: d_value(DecimalImpUtil::binaryToDecimal32(other))
+{
+}
+
+inline
+Decimal_Type32::Decimal_Type32(int other)
+: d_value(DecimalImpUtil::int32ToDecimal32(other))
+{
+}
+
+inline
+Decimal_Type32::Decimal_Type32(unsigned int other)
+: d_value(DecimalImpUtil::uint32ToDecimal32(other))
+{
+}
+
+inline
+Decimal_Type32::Decimal_Type32(long int other)
+: d_value(DecimalImpUtil::int64ToDecimal32(other))
+{
+}
+
+inline
+Decimal_Type32::Decimal_Type32(unsigned long int other)
+: d_value(DecimalImpUtil::uint64ToDecimal32(other))
+{
+}
+
+inline
+Decimal_Type32::Decimal_Type32(long long other)
+: d_value(DecimalImpUtil::int64ToDecimal32(other))
+{
+}
+
+inline
+Decimal_Type32::Decimal_Type32(unsigned long long other)
+: d_value(DecimalImpUtil::uint64ToDecimal32(other))
+{
+}
+
+
+
+inline
+DecimalImpUtil::ValueType32 *Decimal_Type32::data()
+{
+    return &amp;d_value;
+}
+
+inline
+const DecimalImpUtil::ValueType32 *Decimal_Type32::data() const
+{
+    return &amp;d_value;
+}
+
+inline
+DecimalImpUtil::ValueType32 Decimal_Type32::value() const
+{
+    return d_value;
+}
+
+                           // --------------------
+                           // class Decimal_Type64
+                           // --------------------
+
+// CREATORS
+inline
+Decimal_Type64::Decimal_Type64()
+{
+    bsl::memset(&amp;d_value, 0, sizeof(d_value));
+}
+
+inline
+Decimal_Type64::Decimal_Type64(DecimalImpUtil::ValueType64 value)
+: d_value(value)
+{
+}
+
+inline
+Decimal_Type64::Decimal_Type64(Decimal32 other)
+: d_value(DecimalImpUtil::convertToDecimal64(*other.data()))
+{
+}
+
+inline
+Decimal_Type64::Decimal_Type64(Decimal128 other)
+: d_value(DecimalImpUtil::convertToDecimal64(*other.data()))
+{
+}
+
+                        // Numerical Conversion Constructors
+
+inline
+Decimal_Type64::Decimal_Type64(float other)
+: d_value(DecimalImpUtil::binaryToDecimal64(other))
+{
+}
+
+inline
+Decimal_Type64::Decimal_Type64(double other)
+: d_value(DecimalImpUtil::binaryToDecimal64(other))
+{
+}
+
+                        // Integral Conversion Constructors
+
+inline
+Decimal_Type64::Decimal_Type64(int other)
+: d_value(DecimalImpUtil::int32ToDecimal64(other))
+{
+}
+
+inline
+Decimal_Type64::Decimal_Type64(unsigned int other)
+: d_value(DecimalImpUtil::uint32ToDecimal64(other))
+{
+}
+
+inline
+Decimal_Type64::Decimal_Type64(long other)
+: d_value(DecimalImpUtil::int64ToDecimal64(other))
+{
+}
+
+inline
+Decimal_Type64::Decimal_Type64(unsigned long other)
+: d_value(DecimalImpUtil::uint64ToDecimal64(other))
+{
+}
+
+inline
+Decimal_Type64::Decimal_Type64(long long other)
+: d_value(DecimalImpUtil::int64ToDecimal64(other))
+{
+}
+
+inline
+Decimal_Type64::Decimal_Type64(unsigned long long other)
+: d_value(DecimalImpUtil::uint64ToDecimal64(other))
+{
+}
+
+                        // Incrementation and Decrementation
+
+inline Decimal_Type64&amp; Decimal_Type64::operator++()
+{
+    return *this += Decimal64(1);
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator--()
+{
+    return *this -= Decimal64(1);
+}
+
+                        // Addition
+
+inline Decimal_Type64&amp; Decimal_Type64::operator+=(Decimal32 rhs)
+{
+    return *this += Decimal64(rhs);
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator+=(Decimal64 rhs)
+{
+    this-&gt;d_value = DecimalImpUtil::add(this-&gt;d_value, rhs.d_value);
+    return *this;
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator+=(Decimal128 rhs)
+{
+    return *this += Decimal64(rhs);
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator+=(int rhs)
+{
+    return *this += Decimal64(rhs);
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator+=(unsigned int rhs)
+{
+    return *this += Decimal64(rhs);
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator+=(long rhs)
+{
+    return *this += Decimal64(rhs);
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator+=(unsigned long rhs)
+{
+    return *this += Decimal64(rhs);
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator+=(long long rhs)
+{
+    return *this += Decimal64(rhs);
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator+=(unsigned long long rhs)
+{
+    return *this += Decimal64(rhs);
+}
+
+                        // Subtraction
+
+inline Decimal_Type64&amp; Decimal_Type64::operator-=(Decimal32 rhs)
+{
+    return *this -= Decimal64(rhs);
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator-=(Decimal64 rhs)
+{
+    this-&gt;d_value = DecimalImpUtil::subtract(this-&gt;d_value, rhs.d_value);
+    return *this;
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator-=(Decimal128 rhs)
+{
+    return *this -= Decimal64(rhs);
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator-=(int rhs)
+{
+    return *this -= Decimal64(rhs);
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator-=(unsigned int rhs)
+{
+    return *this -= Decimal64(rhs);
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator-=(long rhs)
+{
+    return *this -= Decimal64(rhs);
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator-=(unsigned long rhs)
+{
+    return *this -= Decimal64(rhs);
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator-=(long long rhs)
+{
+    return *this -= Decimal64(rhs);
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator-=(unsigned long long rhs)
+{
+    return *this -= Decimal64(rhs);
+}
+
+                        // Multiplication
+
+inline Decimal_Type64&amp; Decimal_Type64::operator*=(Decimal32 rhs)
+{
+    return *this *= Decimal64(rhs);
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator*=(Decimal64 rhs)
+{
+    this-&gt;d_value = DecimalImpUtil::multiply(this-&gt;d_value, rhs.d_value);
+    return *this;
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator*=(Decimal128 rhs)
+{
+    return *this *= Decimal64(rhs);
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator*=(int rhs)
+{
+    return *this *= Decimal64(rhs);
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator*=(unsigned int rhs)
+{
+    return *this *= Decimal64(rhs);
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator*=(long rhs)
+{
+    return *this *= Decimal64(rhs);
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator*=(unsigned long rhs)
+{
+    return *this *= Decimal64(rhs);
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator*=(long long rhs)
+{
+    return *this *= Decimal64(rhs);
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator*=(unsigned long long rhs)
+{
+    return *this *= Decimal64(rhs);
+}
+
+                        // Division
+
+inline Decimal_Type64&amp; Decimal_Type64::operator/=(Decimal32 rhs)
+{
+    return *this /= Decimal64(rhs);
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator/=(Decimal64 rhs)
+{
+    this-&gt;d_value = DecimalImpUtil::divide(this-&gt;d_value, rhs.d_value);
+    return *this;
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator/=(Decimal128 rhs)
+{
+    return *this /= Decimal64(rhs);
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator/=(int rhs)
+{
+    return *this /= Decimal64(rhs);
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator/=(unsigned int rhs)
+{
+    return *this /= Decimal64(rhs);
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator/=(long rhs)
+{
+    return *this /= Decimal64(rhs);
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator/=(unsigned long rhs)
+{
+    return *this /= Decimal64(rhs);
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator/=(long long rhs)
+{
+    return *this /= Decimal64(rhs);
+}
+
+inline Decimal_Type64&amp; Decimal_Type64::operator/=(unsigned long long rhs)
+{
+    return *this /= Decimal64(rhs);
+}
+
+                        // Internals Accessors
+
+inline DecimalImpUtil::ValueType64 *Decimal_Type64::data()
+{
+    return &amp;d_value;
+}
+
+inline const DecimalImpUtil::ValueType64 *Decimal_Type64::data() const
+{
+    return &amp;d_value;
+}
+
+inline DecimalImpUtil::ValueType64 Decimal_Type64::value() const
+{
+    return d_value;
+}
+
+                          // ---------------------
+                          // class Decimal_Type128
+                          // ---------------------
+
+inline
+Decimal_Type128::Decimal_Type128()
+{
+    bsl::memset(&amp;d_value, 0, sizeof(d_value));
+}
+
+inline
+Decimal_Type128::Decimal_Type128(DecimalImpUtil::ValueType128 value)
+: d_value(value)
+{
+}
+
+inline
+Decimal_Type128::Decimal_Type128(Decimal32 value)
+: d_value(DecimalImpUtil::convertToDecimal128(*value.data()))
+{
+}
+
+inline
+Decimal_Type128::Decimal_Type128(Decimal64 value)
+: d_value(DecimalImpUtil::convertToDecimal128(*value.data()))
+{
+}
+
+inline
+Decimal_Type128::Decimal_Type128(float value)
+: d_value(DecimalImpUtil::binaryToDecimal128(value))
+{
+}
+
+inline
+Decimal_Type128::Decimal_Type128(double value)
+: d_value(DecimalImpUtil::binaryToDecimal128(value))
+{
+}
+
+inline
+Decimal_Type128::Decimal_Type128(int value)
+: d_value(DecimalImpUtil::int32ToDecimal128(value))
+{
+}
+
+inline Decimal_Type128::Decimal_Type128(unsigned int value)
+: d_value(DecimalImpUtil::uint32ToDecimal128(value))
+{
+}
+
+inline Decimal_Type128::Decimal_Type128(long value)
+: d_value(DecimalImpUtil::int64ToDecimal128(value))
+{
+}
+
+inline Decimal_Type128::Decimal_Type128(unsigned long value)
+: d_value(DecimalImpUtil::uint64ToDecimal128(value))
+{
+}
+
+inline Decimal_Type128::Decimal_Type128(long long value)
+: d_value(DecimalImpUtil::int64ToDecimal128(value))
+{
+}
+
+inline Decimal_Type128::Decimal_Type128(unsigned long long value)
+: d_value(DecimalImpUtil::uint64ToDecimal128(value))
+{
+}
+
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator++()
+{
+    return *this += Decimal128(1);
+}
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator--()
+{
+    return *this -= Decimal128(1);
+}
+
+                        // Addition
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator+=(Decimal32 rhs)
+{
+    return *this += Decimal128(rhs);
+}
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator+=(Decimal64 rhs)
+{
+    return *this += Decimal128(rhs);
+}
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator+=(Decimal128 rhs)
+{
+    this-&gt;d_value = DecimalImpUtil::add(this-&gt;d_value, rhs.d_value);
+    return *this;
+}
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator+=(int rhs)
+{
+    return *this += Decimal128(rhs);
+}
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator+=(unsigned int rhs)
+{
+    return *this += Decimal128(rhs);
+}
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator+=(long rhs)
+{
+    return *this += Decimal128(rhs);
+}
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator+=(unsigned long rhs)
+{
+    return *this += Decimal128(rhs);
+}
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator+=(long long rhs)
+{
+    return *this += Decimal128(rhs);
+}
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator+=(unsigned long long rhs)
+{
+    return *this += Decimal128(rhs);
+}
+
+                        // Subtraction
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator-=(Decimal32 rhs)
+{
+    return *this -= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator-=(Decimal64 rhs)
+{
+    return *this -= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator-=(Decimal128 rhs)
+{
+    this-&gt;d_value = DecimalImpUtil::subtract(this-&gt;d_value, rhs.d_value);
+    return *this;
+}
+
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator-=(int rhs)
+{
+    return *this -= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator-=(unsigned int rhs)
+{
+    return *this -= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator-=(long rhs)
+{
+    return *this -= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator-=(unsigned long rhs)
+{
+    return *this -= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator-=(long long rhs)
+{
+    return *this -= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator-=(unsigned long long rhs)
+{
+    return *this -= Decimal128(rhs);
+}
+
+                        // Multiplication
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator*=(Decimal32 rhs)
+{
+    return *this *= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator*=(Decimal64 rhs)
+{
+    return *this *= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator*=(Decimal128 rhs)
+{
+    this-&gt;d_value = DecimalImpUtil::multiply(this-&gt;d_value, rhs.d_value);
+    return *this;
+}
+
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator*=(int rhs)
+{
+    return *this *= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator*=(unsigned int rhs)
+{
+    return *this *= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator*=(long rhs)
+{
+    return *this *= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator*=(unsigned long rhs)
+{
+    return *this *= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator*=(long long rhs)
+{
+    return *this *= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator*=(unsigned long long rhs)
+{
+    return *this *= Decimal128(rhs);
+}
+
+                        // Division
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator/=(Decimal32 rhs)
+{
+    return *this /= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator/=(Decimal64 rhs)
+{
+    return *this /= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator/=(Decimal128 rhs)
+{
+    this-&gt;d_value = DecimalImpUtil::divide(this-&gt;d_value, rhs.d_value);
+    return *this;
+}
+
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator/=(int rhs)
+{
+    return *this /= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator/=(unsigned int rhs)
+{
+    return *this /= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator/=(long rhs)
+{
+    return *this /= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator/=(unsigned long rhs)
+{
+    return *this /= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator/=(long long rhs)
+{
+    return *this /= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128&amp; Decimal_Type128::operator/=(unsigned long long rhs)
+{
+    return *this /= Decimal128(rhs);
+}
+
+                        // Internals Accessors
+
+inline
+DecimalImpUtil::ValueType128 *Decimal_Type128::data()
+{
+    return &amp;d_value;
+}
+
+inline
+const DecimalImpUtil::ValueType128 *Decimal_Type128::data() const
+{
+    return &amp;d_value;
+}
+
+inline
+DecimalImpUtil::ValueType128 Decimal_Type128::value() const
+{
+    return d_value;
+}
+
+}  // close package namespace
+
+// FREE OPERATORS
+
+inline
+bdldfp::Decimal32 bdldfp::operator+(bdldfp::Decimal32 value)
+{
+    return value;
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator-(bdldfp::Decimal32 value)
+{
+    return Decimal32(DecimalImpUtil::negate(value.value()));
+}
+
+inline
+bool bdldfp::operator==(bdldfp::Decimal32 lhs, bdldfp::Decimal32 rhs)
+{
+    return DecimalImpUtil::equal(*lhs.data(), *rhs.data());
+}
+
+inline
+bool bdldfp::operator!=(bdldfp::Decimal32 lhs, bdldfp::Decimal32 rhs)
+{
+    return DecimalImpUtil::notEqual(*lhs.data(), *rhs.data());
+}
+
+inline
+bool bdldfp::operator&lt;(bdldfp::Decimal32 lhs, bdldfp::Decimal32 rhs)
+{
+    return DecimalImpUtil::less(*lhs.data(), *rhs.data());
+}
+
+inline
+bool bdldfp::operator&lt;=(bdldfp::Decimal32 lhs, bdldfp::Decimal32 rhs)
+{
+    return DecimalImpUtil::lessEqual(*lhs.data(), *rhs.data());
+}
+
+inline
+bool bdldfp::operator&gt;(bdldfp::Decimal32 lhs, bdldfp::Decimal32 rhs)
+{
+    return DecimalImpUtil::greater(*lhs.data(), *rhs.data());
+}
+
+inline
+bool bdldfp::operator&gt;=(bdldfp::Decimal32 lhs, bdldfp::Decimal32 rhs)
+{
+    return DecimalImpUtil::greaterEqual(*lhs.data(), *rhs.data());
+}
+
+// FREE OPERATORS
+
+inline
+bdldfp::Decimal64 bdldfp::operator+(bdldfp::Decimal64 value)
+{
+    return value;
+}
+
+inline
+bdldfp::Decimal64 bdldfp::operator-(bdldfp::Decimal64 value)
+{
+    return DecimalImpUtil::negate(*value.data());
+}
+
+inline
+bdldfp::Decimal64 bdldfp::operator++(bdldfp::Decimal64&amp; value, int)
+{
+    bdldfp::Decimal64 result(value);
+    ++value;
+    return result;
+}
+
+inline
+bdldfp::Decimal64 bdldfp::operator--(bdldfp::Decimal64&amp; value, int)
+{
+    bdldfp::Decimal64 result(value);
+    --value;
+    return result;
+}
+
+                        // Addition
+
+inline
+bdldfp::Decimal64 bdldfp::operator+(bdldfp::Decimal64 lhs,
+                                    bdldfp::Decimal64 rhs)
+{
+    return Decimal64(DecimalImpUtil::add(*lhs.data(), *rhs.data()));
+}
+
+inline
+bdldfp::Decimal64 bdldfp::operator+(bdldfp::Decimal32 lhs,
+                                    bdldfp::Decimal64 rhs)
+{
+    return Decimal64(lhs) + rhs;
+}
+
+inline
+bdldfp::Decimal64 bdldfp::operator+(bdldfp::Decimal64 lhs,
+                                    bdldfp::Decimal32 rhs)
+{
+    return lhs + Decimal64(rhs);
+}
+
+inline
+bdldfp::Decimal64 bdldfp::operator+(bdldfp::Decimal64 lhs,
+                                    int               rhs)
+{
+    return lhs + Decimal64(rhs);
+}
+
+inline
+bdldfp::Decimal64 bdldfp::operator+(bdldfp::Decimal64 lhs,
+                                    unsigned int      rhs)
+{
+    return lhs + Decimal64(rhs);
+}
+
+inline
+bdldfp::Decimal64 bdldfp::operator+(bdldfp::Decimal64 lhs,
+                                    long              rhs)
+{
+    return lhs + Decimal64(rhs);
+}
+
+inline
+bdldfp::Decimal64 bdldfp::operator+(bdldfp::Decimal64 lhs,
+                                    unsigned long     rhs)
+{
+    return lhs + Decimal64(rhs);
+}
+
+inline
+bdldfp::Decimal64 bdldfp::operator+(bdldfp::Decimal64 lhs,
+                                    long long         rhs)
+{
+    return lhs + Decimal64(rhs);
+}
+
+inline
+bdldfp::Decimal64 bdldfp::operator+(bdldfp::Decimal64  lhs,
+                                    unsigned long long rhs)
+{
+    return lhs + Decimal64(rhs);
+}
+
+inline
+bdldfp::Decimal64 bdldfp::operator+(int               lhs,
+                                    bdldfp::Decimal64 rhs)
+{
+    return Decimal64(lhs) + rhs;
+}
+
+inline
+bdldfp::Decimal64 bdldfp::operator+(unsigned int      lhs,
+                                    bdldfp::Decimal64 rhs)
+{
+    return Decimal64(lhs) + rhs;
+}
+
+inline
+bdldfp::Decimal64 bdldfp::operator+(long              lhs,
+                                    bdldfp::Decimal64 rhs)
+{
+    return Decimal64(lhs) + rhs;
+}
+
+inline
+bdldfp::Decimal64 bdldfp::operator+(unsigned long     lhs,
+                                    bdldfp::Decimal64 rhs)
+{
+    return Decimal64(lhs) + rhs;
+}
+
+inline
+bdldfp::Decimal64 bdldfp::operator+(long long         lhs,
+                                    bdldfp::Decimal64 rhs)
+{
+    return Decimal64(lhs) + rhs;
+}
+
+inline
+bdldfp::Decimal64 bdldfp::operator+(unsigned long long lhs,
+                                    bdldfp::Decimal64  rhs)
+{
+    return Decimal64(lhs) + rhs;
+}
+
+                        // Subtraction
+
+inline
+bdldfp::Decimal64 bdldfp::operator-(bdldfp::Decimal64 lhs,
+                                    bdldfp::Decimal64 rhs)
+{
+    return Decimal64(DecimalImpUtil::subtract(*lhs.data(), *rhs.data()));
+}
+
+inline
+bdldfp::Decimal64 bdldfp::operator-(bdldfp::Decimal32 lhs,
+                                    bdldfp::Decimal64 rhs)
+{
+    return Decimal64(lhs) - rhs;
+}
+
+inline
+bdldfp::Decimal64 bdldfp::operator-(bdldfp::Decimal64 lhs,
+                                    bdldfp::Decimal32 rhs)
+{
+    return lhs - Decimal64(rhs);
+}
+
+inline
+bdldfp::Decimal64 bdldfp::operator-(bdldfp::Decimal64 lhs,
+                                    int               rhs)
+{
+    return lhs - Decimal64(rhs);
+}
+
+inline
+bdldfp::Decimal64 bdldfp::operator-(bdldfp::Decimal64 lhs,
+                                    unsigned int      rhs)
+{
+    return lhs - Decimal64(rhs);
+}
+
+inline
+bdldfp::Decimal64 bdldfp::operator-(bdldfp::Decimal64 lhs,
+                                    long              rhs)
+{
+    return lhs - Decimal64(rhs);
+}
+
+inline
+bdldfp::Decimal64 bdldfp::operator-(bdldfp::Decimal64 lhs,
+                                    unsigned long     rhs)
+{
+    return lhs - Decimal64(rhs);
+}
+
+inline
+bdldfp::Decimal64 bdldfp::operator-(bdldfp::Decimal64 lhs,
+                                    long long         rhs)
+{
+    return lhs - Decimal64(rhs);
+}
+
+inline
+bdldfp::Decimal64 bdldfp::operator-(bdldfp::Decimal64  lhs,
+                                    unsigned long long rhs)
+{
+    return lhs - Decimal64(rhs);
+}
+
+inline
+bdldfp::Decimal64 bdldfp::operator-(int               lhs,
+                                    bdldfp::Decimal64 rhs)
+{
+    return Decimal64(lhs) - rhs;
+}
+
+inline
+bdldfp::Decimal64 bdldfp::operator-(unsigned int      lhs,
+                                    bdldfp::Decimal64 rhs)
+{
+    return Decimal64(lhs) - rhs;
+}
+
+inline
+bdldfp::Decimal64 bdldfp::operator-(long              lhs,
+                                    bdldfp::Decimal64 rhs)
+{
+    return Decimal64(lhs) - rhs;
+}
+
+inline
+bdldfp::Decimal64 bdldfp::operator-(unsigned long     lhs,
+                                    bdldfp::Decimal64 rhs)
+{
+    return Decimal64(lhs) - rhs;
+}
+
+inline
+bdldfp::Decimal64 bdldfp::operator-(long long         lhs,
+                                    bdldfp::Decimal64 rhs)
+{
+    return Decimal64(lhs) - rhs;
+}
+
+inline
+bdldfp::Decimal64 bdldfp::operator-(unsigned long long lhs,
+                                    bdldfp::Decimal64  rhs)
+{
+    return Decimal64(lhs) - rhs;
+}
+
+                        // Multiplication
+
+inline bdldfp::Decimal64 bdldfp::operator*(bdldfp::Decimal64 lhs,
+                                           bdldfp::Decimal64 rhs)
+{
+    return Decimal64(DecimalImpUtil::multiply(*lhs.data(), *rhs.data()));
+}
+
+inline bdldfp::Decimal64 bdldfp::operator*(bdldfp::Decimal32 lhs,
+                                           bdldfp::Decimal64 rhs)
+{
+    return Decimal64(lhs) * rhs;
+}
+
+inline bdldfp::Decimal64 bdldfp::operator*(bdldfp::Decimal64 lhs,
+                                           bdldfp::Decimal32 rhs)
+{
+    return lhs * Decimal64(rhs);
+}
+
+inline bdldfp::Decimal64 bdldfp::operator*(bdldfp::Decimal64 lhs,
+                                           int               rhs)
+{
+    return lhs * Decimal64(rhs);
+}
+
+inline bdldfp::Decimal64 bdldfp::operator*(bdldfp::Decimal64 lhs,
+                                           unsigned int      rhs)
+{
+    return lhs * Decimal64(rhs);
+}
+
+inline bdldfp::Decimal64 bdldfp::operator*(bdldfp::Decimal64 lhs,
+                                           long              rhs)
+{
+    return lhs * Decimal64(rhs);
+}
+
+inline bdldfp::Decimal64 bdldfp::operator*(bdldfp::Decimal64 lhs,
+                                           unsigned long     rhs)
+{
+    return lhs * Decimal64(rhs);
+}
+
+inline bdldfp::Decimal64 bdldfp::operator*(bdldfp::Decimal64 lhs,
+                                           long long         rhs)
+{
+    return lhs * Decimal64(rhs);
+}
+
+inline bdldfp::Decimal64 bdldfp::operator*(bdldfp::Decimal64  lhs,
+                                           unsigned long long rhs)
+{
+    return lhs * Decimal64(rhs);
+}
+
+inline bdldfp::Decimal64 bdldfp::operator*(int               lhs,
+                                           bdldfp::Decimal64 rhs)
+{
+    return Decimal64(lhs) * rhs;
+}
+
+inline bdldfp::Decimal64 bdldfp::operator*(unsigned int      lhs,
+                                           bdldfp::Decimal64 rhs)
+{
+    return Decimal64(lhs) * rhs;
+}
+
+inline bdldfp::Decimal64 bdldfp::operator*(long              lhs,
+                                           bdldfp::Decimal64 rhs)
+{
+    return Decimal64(lhs) * rhs;
+}
+
+inline bdldfp::Decimal64 bdldfp::operator*(unsigned long     lhs,
+                                           bdldfp::Decimal64 rhs)
+{
+    return Decimal64(lhs) * rhs;
+}
+
+inline bdldfp::Decimal64 bdldfp::operator*(long long         lhs,
+                                           bdldfp::Decimal64 rhs)
+{
+    return Decimal64(lhs) * rhs;
+}
+
+inline bdldfp::Decimal64 bdldfp::operator*(unsigned long long lhs,
+                                           bdldfp::Decimal64  rhs)
+{
+    return Decimal64(lhs) * rhs;
+}
+
+                        // Division
+
+inline bdldfp::Decimal64 bdldfp::operator/(bdldfp::Decimal64 lhs,
+                                           bdldfp::Decimal64 rhs)
+{
+    return Decimal64(DecimalImpUtil::divide(*lhs.data(), *rhs.data()));
+}
+
+inline bdldfp::Decimal64 bdldfp::operator/(bdldfp::Decimal32 lhs,
+                                           bdldfp::Decimal64 rhs)
+{
+    return Decimal64(lhs) / rhs;
+}
+
+inline bdldfp::Decimal64 bdldfp::operator/(bdldfp::Decimal64 lhs,
+                                           bdldfp::Decimal32 rhs)
+{
+    return lhs / Decimal64(rhs);
+}
+
+inline bdldfp::Decimal64 bdldfp::operator/(bdldfp::Decimal64 lhs,
+                                           int               rhs)
+{
+    return lhs / Decimal64(rhs);
+}
+
+inline bdldfp::Decimal64 bdldfp::operator/(bdldfp::Decimal64 lhs,
+                                           unsigned int      rhs)
+{
+    return lhs / Decimal64(rhs);
+}
+
+inline bdldfp::Decimal64 bdldfp::operator/(bdldfp::Decimal64 lhs,
+                                           long              rhs)
+{
+    return lhs / Decimal64(rhs);
+}
+
+inline bdldfp::Decimal64 bdldfp::operator/(bdldfp::Decimal64 lhs,
+                                           unsigned long     rhs)
+{
+    return lhs / Decimal64(rhs);
+}
+
+inline bdldfp::Decimal64 bdldfp::operator/(bdldfp::Decimal64 lhs,
+                                           long long         rhs)
+{
+    return lhs / Decimal64(rhs);
+}
+
+inline bdldfp::Decimal64 bdldfp::operator/(bdldfp::Decimal64  lhs,
+                                           unsigned long long rhs)
+{
+    return lhs / Decimal64(rhs);
+}
+
+inline bdldfp::Decimal64 bdldfp::operator/(int               lhs,
+                                           bdldfp::Decimal64 rhs)
+{
+    return Decimal64(lhs) / rhs;
+}
+
+inline bdldfp::Decimal64 bdldfp::operator/(unsigned int      lhs,
+                                           bdldfp::Decimal64 rhs)
+{
+    return Decimal64(lhs) / rhs;
+}
+
+inline bdldfp::Decimal64 bdldfp::operator/(long              lhs,
+                                           bdldfp::Decimal64 rhs)
+{
+    return Decimal64(lhs) / rhs;
+}
+
+inline bdldfp::Decimal64 bdldfp::operator/(unsigned long     lhs,
+                                           bdldfp::Decimal64 rhs)
+{
+    return Decimal64(lhs) / rhs;
+}
+
+inline bdldfp::Decimal64 bdldfp::operator/(long long         lhs,
+                                           bdldfp::Decimal64 rhs)
+{
+    return Decimal64(lhs) / rhs;
+}
+
+inline bdldfp::Decimal64 bdldfp::operator/(unsigned long long lhs,
+                                           bdldfp::Decimal64  rhs)
+{
+    return Decimal64(lhs) / rhs;
+}
+
+                        // Equality
+
+inline bool bdldfp::operator==(bdldfp::Decimal64 lhs, bdldfp::Decimal64 rhs)
+{
+    return DecimalImpUtil::equal(*lhs.data(), *rhs.data());
+}
+
+inline bool bdldfp::operator==(bdldfp::Decimal32 lhs, bdldfp::Decimal64 rhs)
+{
+    return Decimal64(lhs) == rhs;
+}
+
+inline bool bdldfp::operator==(bdldfp::Decimal64 lhs, bdldfp::Decimal32 rhs)
+{
+    return lhs == Decimal64(rhs);
+}
+
+                        // Inequality
+
+inline bool bdldfp::operator!=(bdldfp::Decimal64 lhs, bdldfp::Decimal64 rhs)
+{
+    return DecimalImpUtil::notEqual(*lhs.data(), *rhs.data());
+}
+
+inline bool bdldfp::operator!=(bdldfp::Decimal32 lhs, bdldfp::Decimal64 rhs)
+{
+    return Decimal64(lhs) != rhs;
+}
+
+inline bool bdldfp::operator!=(bdldfp::Decimal64 lhs, bdldfp::Decimal32 rhs)
+{
+    return lhs != Decimal64(rhs);
+}
+
+                        // Less Than
+
+inline bool bdldfp::operator&lt;(bdldfp::Decimal64 lhs, bdldfp::Decimal64 rhs)
+{
+    return DecimalImpUtil::less(*lhs.data(), *rhs.data());
+}
+
+inline bool bdldfp::operator&lt;(bdldfp::Decimal32 lhs, bdldfp::Decimal64 rhs)
+{
+    return Decimal64(lhs) &lt; rhs;
+}
+
+inline bool bdldfp::operator&lt;(bdldfp::Decimal64 lhs, bdldfp::Decimal32 rhs)
+{
+    return lhs &lt; Decimal64(rhs);
+}
+
+                        // Less Equal
+
+inline bool bdldfp::operator&lt;=(bdldfp::Decimal64 lhs, bdldfp::Decimal64 rhs)
+{
+    return DecimalImpUtil::lessEqual(*lhs.data(), *rhs.data());
+}
+
+inline bool bdldfp::operator&lt;=(bdldfp::Decimal32 lhs, bdldfp::Decimal64 rhs)
+{
+    return Decimal64(lhs) &lt;= rhs;
+}
+
+inline bool bdldfp::operator&lt;=(bdldfp::Decimal64 lhs, bdldfp::Decimal32 rhs)
+{
+    return lhs &lt;= Decimal64(rhs);
+}
+
+                        // Greater Than
+
+inline bool bdldfp::operator&gt;(bdldfp::Decimal64 lhs, bdldfp::Decimal64 rhs)
+{
+    return DecimalImpUtil::greater(*lhs.data(), *rhs.data());
+}
+
+inline bool bdldfp::operator&gt;(bdldfp::Decimal32 lhs, bdldfp::Decimal64 rhs)
+{
+    return Decimal64(lhs) &gt; rhs;
+}
+
+inline bool bdldfp::operator&gt;(bdldfp::Decimal64 lhs, bdldfp::Decimal32 rhs)
+{
+    return lhs &gt; Decimal64(rhs);
+}
+
+                        // Greater Equal
+
+inline bool bdldfp::operator&gt;=(bdldfp::Decimal64 lhs, bdldfp::Decimal64 rhs)
+{
+    return DecimalImpUtil::greaterEqual(*lhs.data(), *rhs.data());
+}
+
+inline bool bdldfp::operator&gt;=(bdldfp::Decimal32 lhs, bdldfp::Decimal64 rhs)
+{
+    return Decimal64(lhs) &gt;= rhs;
+}
+
+inline bool bdldfp::operator&gt;=(bdldfp::Decimal64 lhs, bdldfp::Decimal32 rhs)
+{
+    return lhs &gt;= Decimal64(rhs);
+}
+
+// FREE OPERATORS
+
+inline
+bdldfp::Decimal128 bdldfp::operator+(bdldfp::Decimal128 value)
+{
+    return value;
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator-(bdldfp::Decimal128 value)
+{
+    return Decimal128(DecimalImpUtil::negate(*value.data()));
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator++(bdldfp::Decimal128&amp; value, int)
+{
+    Decimal128 result = value;
+    ++value;
+    return result;
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator--(bdldfp::Decimal128&amp; value, int)
+{
+    Decimal128 result = value;
+    --value;
+    return result;
+}
+
+                        // Addition
+
+inline
+bdldfp::Decimal128 bdldfp::operator+(bdldfp::Decimal128 lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(DecimalImpUtil::add(*lhs.data(), *rhs.data()));
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator+(bdldfp::Decimal32  lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) + rhs;
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator+(bdldfp::Decimal128 lhs,
+                                     bdldfp::Decimal32  rhs)
+{
+    return lhs + Decimal128(rhs);
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator+(bdldfp::Decimal64  lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) + rhs;
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator+(bdldfp::Decimal128 lhs,
+                                     bdldfp::Decimal64  rhs)
+{
+    return lhs + Decimal128(rhs);
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator+(bdldfp::Decimal128 lhs,
+                                     int                rhs)
+{
+    return lhs + Decimal128(rhs);
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator+(bdldfp::Decimal128 lhs,
+                                     unsigned int       rhs)
+{
+    return lhs + Decimal128(rhs);
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator+(bdldfp::Decimal128 lhs,
+                                     long               rhs)
+{
+    return lhs + Decimal128(rhs);
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator+(bdldfp::Decimal128 lhs,
+                                     unsigned long      rhs)
+{
+    return lhs + Decimal128(rhs);
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator+(bdldfp::Decimal128 lhs,
+                                     long long          rhs)
+{
+    return lhs + Decimal128(rhs);
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator+(bdldfp::Decimal128 lhs,
+                                     unsigned long long rhs)
+{
+    return lhs + Decimal128(rhs);
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator+(int                lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) + rhs;
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator+(unsigned int       lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) + rhs;
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator+(long               lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) + rhs;
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator+(unsigned long      lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) + rhs;
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator+(long long          lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) + rhs;
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator+(unsigned long long lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) + rhs;
+}
+
+                        // Subtraction
+
+inline
+bdldfp::Decimal128 bdldfp::operator-(bdldfp::Decimal128 lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(DecimalImpUtil::subtract(*lhs.data(), *rhs.data()));
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator-(bdldfp::Decimal32  lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) - rhs;
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator-(bdldfp::Decimal128 lhs,
+                                     bdldfp::Decimal32  rhs)
+{
+    return lhs - Decimal128(rhs);
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator-(bdldfp::Decimal64  lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) - rhs;
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator-(bdldfp::Decimal128 lhs,
+                                     bdldfp::Decimal64  rhs)
+{
+    return lhs - Decimal128(rhs);
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator-(bdldfp::Decimal128 lhs,
+                                     int                rhs)
+{
+    return lhs - Decimal128(rhs);
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator-(bdldfp::Decimal128 lhs,
+                                     unsigned int       rhs)
+{
+    return lhs - Decimal128(rhs);
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator-(bdldfp::Decimal128 lhs,
+                                     long               rhs)
+{
+    return lhs - Decimal128(rhs);
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator-(bdldfp::Decimal128 lhs,
+                                     unsigned long      rhs)
+{
+    return lhs - Decimal128(rhs);
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator-(bdldfp::Decimal128 lhs,
+                                     long long          rhs)
+{
+    return lhs - Decimal128(rhs);
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator-(bdldfp::Decimal128 lhs,
+                                     unsigned long long rhs)
+{
+    return lhs - Decimal128(rhs);
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator-(int                lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) - rhs;
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator-(unsigned int       lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) - rhs;
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator-(long               lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) - rhs;
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator-(unsigned long      lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) - rhs;
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator-(long long          lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) - rhs;
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator-(unsigned long long lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) - rhs;
+}
+
+                        // Multiplication
+
+inline
+bdldfp::Decimal128 bdldfp::operator*(bdldfp::Decimal128 lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(DecimalImpUtil::multiply(*lhs.data(), *rhs.data()));
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator*(bdldfp::Decimal32  lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) * rhs;
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator*(bdldfp::Decimal128 lhs,
+                                     bdldfp::Decimal32  rhs)
+{
+    return lhs * Decimal128(rhs);
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator*(bdldfp::Decimal64  lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) * rhs;
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator*(bdldfp::Decimal128 lhs,
+                                     bdldfp::Decimal64  rhs)
+{
+    return lhs * Decimal128(rhs);
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator*(bdldfp::Decimal128 lhs,
+                                     int                rhs)
+{
+    return lhs * Decimal128(rhs);
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator*(bdldfp::Decimal128 lhs,
+                                     unsigned int       rhs)
+{
+    return lhs * Decimal128(rhs);
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator*(bdldfp::Decimal128 lhs,
+                                     long               rhs)
+{
+    return lhs * Decimal128(rhs);
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator*(bdldfp::Decimal128 lhs,
+                                     unsigned long      rhs)
+{
+    return lhs * Decimal128(rhs);
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator*(bdldfp::Decimal128 lhs,
+                                     long long          rhs)
+{
+    return lhs * Decimal128(rhs);
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator*(bdldfp::Decimal128 lhs,
+                                     unsigned long long rhs)
+{
+    return lhs * Decimal128(rhs);
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator*(int                lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) * rhs;
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator*(unsigned int       lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) * rhs;
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator*(long               lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) * rhs;
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator*(unsigned long      lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) * rhs;
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator*(long long          lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) * rhs;
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator*(unsigned long long lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) * rhs;
+}
+
+                        // Division
+
+inline
+bdldfp::Decimal128 bdldfp::operator/(bdldfp::Decimal128 lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(DecimalImpUtil::divide(*lhs.data(), *rhs.data()));
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator/(bdldfp::Decimal32  lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) / rhs;
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator/(bdldfp::Decimal128 lhs,
+                                     bdldfp::Decimal32  rhs)
+{
+    return lhs / Decimal128(rhs);
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator/(bdldfp::Decimal64  lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) / rhs;
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator/(bdldfp::Decimal128 lhs,
+                                     bdldfp::Decimal64  rhs)
+{
+    return lhs / Decimal128(rhs);
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator/(bdldfp::Decimal128 lhs,
+                                     int                rhs)
+{
+    return lhs / Decimal128(rhs);
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator/(bdldfp::Decimal128 lhs,
+                                     unsigned int       rhs)
+{
+    return lhs / Decimal128(rhs);
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator/(bdldfp::Decimal128 lhs,
+                                     long               rhs)
+{
+    return lhs / Decimal128(rhs);
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator/(bdldfp::Decimal128 lhs,
+                                     unsigned long      rhs)
+{
+    return lhs / Decimal128(rhs);
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator/(bdldfp::Decimal128 lhs,
+                                     long long          rhs)
+{
+    return lhs / Decimal128(rhs);
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator/(bdldfp::Decimal128 lhs,
+                                     unsigned long long rhs)
+{
+    return lhs / Decimal128(rhs);
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator/(int                lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) / rhs;
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator/(unsigned int       lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) / rhs;
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator/(long               lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) / rhs;
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator/(unsigned long      lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) / rhs;
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator/(long long          lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) / rhs;
+}
+
+inline
+bdldfp::Decimal128 bdldfp::operator/(unsigned long long lhs,
+                                     bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) / rhs;
+}
+
+                        // Equality
+
+inline
+bool bdldfp::operator==(bdldfp::Decimal128 lhs, bdldfp::Decimal128 rhs)
+{
+    return DecimalImpUtil::equal(*lhs.data(), *rhs.data());
+}
+
+inline
+bool bdldfp::operator==(bdldfp::Decimal32 lhs, bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) == rhs;
+}
+
+inline
+bool bdldfp::operator==(bdldfp::Decimal128 lhs, bdldfp::Decimal32 rhs)
+{
+    return lhs == Decimal128(rhs);
+}
+
+inline
+bool bdldfp::operator==(bdldfp::Decimal64 lhs, bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) == rhs;
+}
+
+inline
+bool bdldfp::operator==(bdldfp::Decimal128 lhs, bdldfp::Decimal64 rhs)
+{
+    return lhs == Decimal128(rhs);
+}
+
+                        // Inequality
+
+inline
+bool bdldfp::operator!=(bdldfp::Decimal128 lhs, bdldfp::Decimal128 rhs)
+{
+    return DecimalImpUtil::notEqual(*lhs.data(), *rhs.data());
+}
+
+inline
+bool bdldfp::operator!=(bdldfp::Decimal32 lhs, bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) != rhs;
+}
+
+inline
+bool bdldfp::operator!=(bdldfp::Decimal128 lhs, bdldfp::Decimal32 rhs)
+{
+    return lhs != Decimal128(rhs);
+}
+
+inline
+bool bdldfp::operator!=(bdldfp::Decimal64 lhs, bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) != rhs;
+}
+
+inline
+bool bdldfp::operator!=(bdldfp::Decimal128 lhs, bdldfp::Decimal64 rhs)
+{
+    return lhs != Decimal128(rhs);
+}
+
+                        // Less Than
+
+inline
+bool bdldfp::operator&lt;(bdldfp::Decimal128 lhs, bdldfp::Decimal128 rhs)
+{
+    return DecimalImpUtil::less(*lhs.data(), *rhs.data());
+}
+
+inline
+bool bdldfp::operator&lt;(bdldfp::Decimal32 lhs, bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) &lt; rhs;
+}
+
+inline
+bool bdldfp::operator&lt;(bdldfp::Decimal128 lhs, bdldfp::Decimal32 rhs)
+{
+    return lhs &lt; Decimal128(rhs);
+}
+
+inline
+bool bdldfp::operator&lt;(bdldfp::Decimal64 lhs, bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) &lt; rhs;
+}
+
+inline
+bool bdldfp::operator&lt;(bdldfp::Decimal128 lhs, bdldfp::Decimal64 rhs)
+{
+    return lhs &lt; Decimal128(rhs);
+}
+
+                        // Less Equal
+
+inline
+bool bdldfp::operator&lt;=(bdldfp::Decimal128 lhs, bdldfp::Decimal128 rhs)
+{
+    return DecimalImpUtil::lessEqual(*lhs.data(), *rhs.data());
+}
+
+inline
+bool bdldfp::operator&lt;=(bdldfp::Decimal32 lhs, bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) &lt;= rhs;
+}
+
+inline
+bool bdldfp::operator&lt;=(bdldfp::Decimal128 lhs, bdldfp::Decimal32 rhs)
+{
+    return lhs &lt;= Decimal128(rhs);
+}
+
+inline
+bool bdldfp::operator&lt;=(bdldfp::Decimal64 lhs, bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) &lt;= rhs;
+}
+
+inline
+bool bdldfp::operator&lt;=(bdldfp::Decimal128 lhs, bdldfp::Decimal64 rhs)
+{
+    return lhs &lt;= Decimal128(rhs);
+}
+
+                        // Greater
+
+inline
+bool bdldfp::operator&gt;(bdldfp::Decimal128 lhs, bdldfp::Decimal128 rhs)
+{
+    return DecimalImpUtil::greater(*lhs.data(), *rhs.data());
+}
+
+inline
+bool bdldfp::operator&gt;(bdldfp::Decimal32 lhs, bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) &gt; rhs;
+}
+
+inline
+bool bdldfp::operator&gt;(bdldfp::Decimal128 lhs, bdldfp::Decimal32 rhs)
+{
+    return lhs &gt; Decimal128(rhs);
+}
+
+inline
+bool bdldfp::operator&gt;(bdldfp::Decimal64 lhs, bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) &gt; rhs;
+}
+
+inline
+bool bdldfp::operator&gt;(bdldfp::Decimal128 lhs, bdldfp::Decimal64 rhs)
+{
+    return lhs &gt; Decimal128(rhs);
+}
+
+                        // Greater Equal
+
+inline
+bool bdldfp::operator&gt;=(bdldfp::Decimal128 lhs, bdldfp::Decimal128 rhs)
+{
+    return DecimalImpUtil::greaterEqual(*lhs.data(), *rhs.data());
+}
+
+inline
+bool bdldfp::operator&gt;=(bdldfp::Decimal32 lhs, bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) &gt;= rhs;
+}
+
+inline
+bool bdldfp::operator&gt;=(bdldfp::Decimal128 lhs, bdldfp::Decimal32 rhs)
+{
+    return lhs &gt;= Decimal128(rhs);
+}
+
+inline
+bool bdldfp::operator&gt;=(bdldfp::Decimal64 lhs, bdldfp::Decimal128 rhs)
+{
+    return Decimal128(lhs) &gt;= rhs;
+}
+
+inline
+bool bdldfp::operator&gt;=(bdldfp::Decimal128 lhs, bdldfp::Decimal64 rhs)
+{
+    return lhs &gt;= Decimal128(rhs);
+}
+
+}  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2014 Bloomberg L.P.
+// Copyright 2014 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the &quot;Software&quot;), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
 </pre>
 </body>

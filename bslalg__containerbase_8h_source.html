@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.20 OSS</title>
+<title>BDE 2.22.1.2 OSS</title>
 <html>
 <pre>
 // bslalg_containerbase.h                                             -*-C++-*-
@@ -142,8 +142,8 @@ class ContainerBase_BslmaBase {
 
     // CREATORS
     explicit
-    ContainerBase_BslmaBase(const ALLOCATOR&amp; allocator);
-        // Construct this object using the specified &#39;allocator&#39; of the
+    ContainerBase_BslmaBase(const ALLOCATOR&amp; basicAllocator);
+        // Construct this object using the specified &#39;basicAllocator&#39; of the
         // &#39;ALLOCATOR&#39; parameterized type.
 
     ContainerBase_BslmaBase(const ContainerBase_BslmaBase&amp; original);
@@ -207,8 +207,8 @@ class ContainerBase_NonBslmaBase : public ALLOCATOR {
         // components.)
 
     // CREATORS
-    ContainerBase_NonBslmaBase(const ALLOCATOR&amp; allocator);
-        // Construct this object using the specified &#39;allocator&#39; or the
+    ContainerBase_NonBslmaBase(const ALLOCATOR&amp; basicAllocator);
+        // Construct this object using the specified &#39;basicAllocator&#39; or the
         // parameterized &#39;ALLOCATOR&#39; type.
 
     ContainerBase_NonBslmaBase(const ContainerBase_NonBslmaBase&amp; rhs);
@@ -291,8 +291,8 @@ class ContainerBase : public
         // interface.)
 
     // CREATORS
-    ContainerBase(const ALLOCATOR&amp; allocator);
-        // Construct this object using the specified &#39;allocator&#39; of the
+    ContainerBase(const ALLOCATOR&amp; basicAllocator);
+        // Construct this object using the specified &#39;basicAllocator&#39; of the
         // parameterized &#39;ALLOCATOR&#39; type.
 
     ContainerBase(const ContainerBase&amp; rhs);
@@ -364,8 +364,8 @@ class ContainerBase : public
 template &lt;class ALLOCATOR&gt;
 inline
 ContainerBase_BslmaBase&lt;ALLOCATOR&gt;::
-ContainerBase_BslmaBase(const ALLOCATOR&amp; allocator)
-: d_allocator(allocator)
+ContainerBase_BslmaBase(const ALLOCATOR&amp; basicAllocator)
+: d_allocator(basicAllocator)
 {
 }
 
@@ -415,8 +415,8 @@ ContainerBase_BslmaBase&lt;ALLOCATOR&gt;::bslmaAllocator() const
 template &lt;class ALLOCATOR&gt;
 inline
 ContainerBase_NonBslmaBase&lt;ALLOCATOR&gt;::
-ContainerBase_NonBslmaBase(const ALLOCATOR&amp; allocator)
-: ALLOCATOR(allocator)
+ContainerBase_NonBslmaBase(const ALLOCATOR&amp; basicAllocator)
+: ALLOCATOR(basicAllocator)
 {
 }
 
@@ -467,8 +467,8 @@ ContainerBase_NonBslmaBase&lt;ALLOCATOR&gt;::bslmaAllocator() const
 template &lt;class ALLOCATOR&gt;
 inline
 ContainerBase&lt;ALLOCATOR&gt;::
-ContainerBase(const ALLOCATOR&amp; allocator)
-: Base(allocator)
+ContainerBase(const ALLOCATOR&amp; basicAllocator)
+: Base(basicAllocator)
 {
 }
 
@@ -533,25 +533,19 @@ bool ContainerBase&lt;ALLOCATOR&gt;::equalAllocator(const ContainerBase&amp; rhs
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the &quot;Software&quot;), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
 </pre>
 </body>

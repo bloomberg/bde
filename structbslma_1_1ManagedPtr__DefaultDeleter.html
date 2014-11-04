@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: Struct bslma::ManagedPtr_DefaultDeleter</title>
+<title>BDE 2.22.1.2 OSS: Struct bslma::ManagedPtr_DefaultDeleter</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -84,7 +84,7 @@ Static Public Member Functions</h2></td></tr>
 <h3>template&lt;class MANAGED_TYPE&gt;<br/>
  struct bslma::ManagedPtr_DefaultDeleter&lt; MANAGED_TYPE &gt;</h3>
 
-<p>This <code>struct</code> provides a function-like shared pointer deleter that invokes <code>delete</code> with the passed pointer. </p>
+<p>This <code>struct</code> provides a function-like managed pointer deleter that invokes <code>delete</code> with the passed pointer. </p>
 <hr/><h2>Member Function Documentation</h2>
 <a class="anchor" id="aa4e9a93487e7c346a828884156c0362e"></a><!-- doxytag: member="bslma::ManagedPtr_DefaultDeleter::deleter" ref="aa4e9a93487e7c346a828884156c0362e" args="(void *ptr, void *)" -->
 <div class="memitem">
@@ -112,7 +112,7 @@ template&lt;class MANAGED_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Calls <code>delete(ptr)</code> after casting <code>ptr</code> to a <code>MANAGED_TYPE *</code>. </p>
+<p>Cast the specified <code>ptr</code> to (template parameter) type <code>MANAGED_TYPE *</code>, and then call <code>delete</code> with the cast pointer. </p>
 
 </div>
 </div>
@@ -120,7 +120,7 @@ template&lt;class MANAGED_TYPE &gt; </div>
 <li><a class="el" href="bslma__managedptr_8h_source.html">bslma_managedptr.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:43 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:37 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

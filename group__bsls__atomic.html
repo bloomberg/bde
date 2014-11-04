@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: bsls_atomic Component</title>
+<title>BDE 2.22.1.2 OSS: bsls_atomic Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -153,7 +153,7 @@ sequential consistency - the operation has both acquire and release guarantees, 
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="acquire_and_release_memory_consistency_guarantees"></a> <a class="anchor" id="memory_order_and_consistency_guarantees_of_atomic_operations.acquire_and_release_memory_consistency_guarantees"></a> <a class="anchor" id="description.memory_order_and_consistency_guarantees_of_atomic_operations.acquire_and_release_memory_consistency_guarantees"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
 <dl class="user"><dt><b>Acquire and Release Memory Consistency Guarantees: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Operations providing acquire and release guarantees are essential to synchronizing the memory state between multiple threads. For example, consider two threads, A and B, that perform store and load operations to shared memory locations. Without any synchronization, store operations in thread A can be freely reordered with load operations in thread B, i.e, thread A can perform two store operations to two memory locations in a certain order and thread B can see those operations done in a different order due to such effects as: compiler or processor optimizations of store and load operations, and cache synchronization between processors and cores. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>However, stores in thread A can be ordered with loads in thread B using a combination of store-release and load-acquire operations. A store-release operations in thread A followed by a load-acquire operation in thread B to <em>the</em> <em>same</em> <em>memory</em> <em>location</em> guarantees that thread B sees all other stores done in thread A prior to the store-release operation. The store-release in thread A effectively synchronizes the memory state with the load-acquire in thread A. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>However, stores in thread A can be ordered with loads in thread B using a combination of store-release and load-acquire operations. A store-release operation in thread A followed by a load-acquire operation in thread B to the <em>same</em> <em>memory</em> <em>location</em> guarantees that thread B sees all other stores done in thread A prior to the store-release operation. The store-release in thread A effectively synchronizes the memory state with the load-acquire in thread B. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>An acquire-release operation is a load-modify-store operation that, if performed in both threads A and B on the same memory location, synchronizes stores and loads between threads A and B in both directions. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="sequential_consistency_memory_consistency_guarantee"></a> <a class="anchor" id="memory_order_and_consistency_guarantees_of_atomic_operations.sequential_consistency_memory_consistency_guarantee"></a> <a class="anchor" id="description.memory_order_and_consistency_guarantees_of_atomic_operations.sequential_consistency_memory_consistency_guarantee"></a> <a class="anchor" id="3.1.2"></a> </dd></dl>
@@ -620,7 +620,7 @@ sequential consistency - the operation has both acquire and release guarantees, 
 <br/>
  Notice that if the stack was empty, a NULL pointer is returned. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:34 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:28 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

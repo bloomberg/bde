@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: Struct bsls::Util</title>
+<title>BDE 2.22.1.2 OSS: Struct bsls::Util</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -78,8 +78,8 @@
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr><td class="memTemplParams" colspan="2">template&lt;class BSLS_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static BSLS_TYPE *&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbsls_1_1Util.html#ab9cb16fd8dce5ef2a83110ac91e3fef3">addressOf</a> (BSLS_TYPE &amp;obj)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static TYPE *&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbsls_1_1Util.html#a94e6b61bf794b92beeb2ce1ec556d8e5">addressOf</a> (TYPE &amp;obj)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class RESULT &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">static <a class="el" href="structbsls_1_1Util__Identity.html">Util_Identity</a>&lt; RESULT()&gt;<br class="typebreak"/>
 ::<a class="el" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1_1type.html">type</a> *&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structbsls_1_1Util.html#a9e5e7530ca7edfaa65562a75fdb1fc39">addressOf</a> (RESULT(&amp;fn)())</td></tr>
@@ -93,16 +93,16 @@ ARG2)&gt;::<a class="el" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>This <code>struct</code> provides a namespace for essential low-level functions for implementing portable generic facilities such as the C++ standard library. </p>
 <hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="ab9cb16fd8dce5ef2a83110ac91e3fef3"></a><!-- doxytag: member="bsls::Util::addressOf" ref="ab9cb16fd8dce5ef2a83110ac91e3fef3" args="(BSLS_TYPE &amp;obj)" -->
+<a class="anchor" id="a94e6b61bf794b92beeb2ce1ec556d8e5"></a><!-- doxytag: member="bsls::Util::addressOf" ref="a94e6b61bf794b92beeb2ce1ec556d8e5" args="(TYPE &amp;obj)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class BSLS_TYPE &gt; </div>
+template&lt;class TYPE &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">static BSLS_TYPE* bsls::Util::addressOf </td>
+          <td class="memname">static TYPE* bsls::Util::addressOf </td>
           <td>(</td>
-          <td class="paramtype">BSLS_TYPE &amp;&nbsp;</td>
+          <td class="paramtype">TYPE &amp;&nbsp;</td>
           <td class="paramname"> <em>obj</em></td>
           <td>&nbsp;)&nbsp;</td>
           <td><code> [static]</code></td>
@@ -171,7 +171,7 @@ template&lt;class RESULT , class ARG1 , class ARG2 &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return the address of the specified function <code>fn</code>. </p>
+<p>Return the address of the specified function <code>fn</code>. Note that this implementation supports functions of only a limited number of parameters, determined by the current needs of the BDE software. A more general form that will support an arbitrary number of function parameters will be available with C++11. </p>
 
 </div>
 </div>
@@ -179,7 +179,7 @@ template&lt;class RESULT , class ARG1 , class ARG2 &gt; </div>
 <li><a class="el" href="bsls__util_8h_source.html">bsls_util.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:50 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:44 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.20 OSS</title>
+<title>BDE 2.22.1.2 OSS</title>
 <html>
 <pre>
 // bslma_managedptr.h                                                 -*-C++-*-
@@ -20,19 +20,19 @@ BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
 //
 //@SEE_ALSO: bslmf_ispolymporphic
 //
-//@DESCRIPTION: This component provides a proctor, similar to &#39;bsl::auto_ptr&#39;,
-// that supports user-specified deleters.  The proctor is responsible for the
-// automatic destruction of the object referenced by the managed pointer.  As
-// a &quot;smart pointer&quot;, this object offers an interface similar to a native
-// pointer, supporting dereference operators (*, -&gt;), (in)equality comparison
-// and testing as if it were a boolean value.  However, like &#39;bsl::auto_ptr&#39; it
-// has unusual &quot;copy-semantics&quot; that transfer ownership of the managed object,
-// rather than making a copy.  It should be noted that this signature does not
-// satisfy the requirements for an element-type stored in any of the standard
-// library containers.  Note that this component will fail to compile when
-// instantiated for a class that gives a false-positive for the type trait
-// &#39;bslmf::IsPolymorphic&#39;.  See the &#39;bslmf_ispolymporphic&#39; component for more
-// details.
+//@DESCRIPTION: This component provides a proctor, &#39;bslma::ManagedPtr&#39;, similar
+// to &#39;bsl::auto_ptr&#39;, that supports user-specified deleters.  The proctor is
+// responsible for the automatic destruction of the object referenced by the
+// managed pointer.  As a &quot;smart pointer&quot;, this object offers an interface
+// similar to a native pointer, supporting dereference operators (*, -&gt;),
+// (in)equality comparison and testing as if it were a boolean value.  However,
+// like &#39;bsl::auto_ptr&#39; it has unusual &quot;copy-semantics&quot; that transfer ownership
+// of the managed object, rather than making a copy.  It should be noted that
+// this signature does not satisfy the requirements for an element-type stored
+// in any of the standard library containers.  Note that this component will
+// fail to compile when instantiated for a class that gives a false-positive
+// for the type trait &#39;bslmf::IsPolymorphic&#39;.  See the &#39;bslmf_ispolymporphic&#39;
+// component for more details.
 //
 ///Deleters
 ///--------
@@ -84,8 +84,8 @@ BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
 //
 ///Type Casting
 ///------------
-// &#39;ManagedPtr&#39; objects can be implicitly and explicitly cast to
-// different types in the same way that native pointers can.
+// &#39;ManagedPtr&#39; objects can be implicitly and explicitly cast to different
+// types in the same way that native pointers can.
 //
 ///Implicit Casting
 /// - - - - - - - -
@@ -96,8 +96,8 @@ BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
 //
 ///Explicit Casting
 /// - - - - - - - -
-// Through &quot;aliasing&quot;, a managed pointer of any type can be explicitly cast
-// to a managed pointer of any other type using any legal cast expression.  See
+// Through &quot;aliasing&quot;, a managed pointer of any type can be explicitly cast to
+// a managed pointer of any other type using any legal cast expression.  See
 // the &#39;casting&#39; example below for more details.
 //
 ///Usage
@@ -106,12 +106,12 @@ BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
 //
 ///Example 1: Implementing a protocol
 /// - - - - - - - - - - - - - - - - -
-// We demonstrate using &#39;ManagedPtr&#39; to configure and return a managed
-// object implementing an abstract protocol.
+// We demonstrate using &#39;ManagedPtr&#39; to configure and return a managed object
+// implementing an abstract protocol.
 //
 // First we define our protocol, &#39;Shape&#39;, a type of object that knows how to
-// compute its &#39;area&#39;.  Note that for expository reasons only, we do *nor*
-// give &#39;Shape&#39; a virtual destructor.
+// compute its &#39;area&#39;.  Note that for expository reasons only, we do *nor* give
+// &#39;Shape&#39; a virtual destructor.
 //..
 //  struct Shape {
 //      virtual double area() const = 0;
@@ -128,8 +128,8 @@ BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
 //
 //    public:
 //      // CREATORS
-//      explicit Circle(double r);
-//          // Create a &#39;Circle&#39; object having radius &#39;r&#39;.
+//      explicit Circle(double radius);
+//          // Create a &#39;Circle&#39; object having the specified &#39;radius&#39;.
 //
 //      // ACCESSORS
 //      virtual double area() const;
@@ -153,8 +153,8 @@ BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
 //..
 // Next we implement the methods for &#39;Circle&#39; and &#39;Square&#39;.
 //..
-//  Circle::Circle(double r)
-//  : d_radius(r)
+//  Circle::Circle(double radius)
+//  : d_radius(radius)
 //  {
 //  }
 //
@@ -207,8 +207,8 @@ BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
 // accurate &#39;operator==&#39; with floating-point quantities.  Also note that,
 // despite the destructor for &#39;Shape&#39; being non-virtual, the correct destructor
 // for the appropriate concrete &#39;Shape&#39; type is called.  This is because the
-// destructor is captured when the &#39;ManagedPtr&#39; constructor is called,
-// and has access to the complete type of each shape object.
+// destructor is captured when the &#39;ManagedPtr&#39; constructor is called, and has
+// access to the complete type of each shape object.
 //..
 //  void testShapes()
 //  {
@@ -266,15 +266,15 @@ BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
 //
 ///Example 2: Aliasing
 ///- - - - - - - - - -
-// Suppose that we wish to give access to an item in a temporary
-// array via a pointer which we&#39;ll call the &quot;finger&quot;.  The finger is the only
-// pointer to the array or any part of the array, but the entire array must be
-// valid until the finger is destroyed, at which time the entire array must be
-// deleted.  We handle this situation by first creating a managed pointer to
-// the entire array, then creating an alias of that pointer for the finger.
-// The finger takes ownership of the array instance, and when the finger is
-// destroyed, it is the array&#39;s address, rather than the finger, that is passed
-// to the deleter.
+// Suppose that we wish to give access to an item in a temporary array via a
+// pointer which we&#39;ll call the &quot;finger&quot;.  The finger is the only pointer to
+// the array or any part of the array, but the entire array must be valid until
+// the finger is destroyed, at which time the entire array must be deleted.  We
+// handle this situation by first creating a managed pointer to the entire
+// array, then creating an alias of that pointer for the finger.  The finger
+// takes ownership of the array instance, and when the finger is destroyed, it
+// is the array&#39;s address, rather than the finger, that is passed to the
+// deleter.
 //
 // First, let&#39;s say our array stores data acquired from a ticker plant
 // accessible by a global &#39;getQuote&#39; function:
@@ -298,8 +298,8 @@ BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
 // Then, we want to find the first quote larger than a specified threshold, but
 // would also like to keep the earlier and later quotes for possible
 // examination.  Our &#39;getFirstQuoteLargerThan&#39; function must allocate memory
-// for an array of quotes (the threshold and its neighbors).  It thus returns
-// a managed pointer to the desired value:
+// for an array of quotes (the threshold and its neighbors).  It thus returns a
+// managed pointer to the desired value:
 //..
 //  const double END_QUOTE = -1;
 //
@@ -333,8 +333,8 @@ BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
 //          }
 //      }
 //..
-// Now, we use the alias constructor to create a managed pointer that points
-// to the desired value (the finger) but manages the entire array:
+// Now, we use the alias constructor to create a managed pointer that points to
+// the desired value (the finger) but manages the entire array:
 //..
 //      return bslma::ManagedPtr&lt;double&gt;(managedQuotes, finger);
 //  }
@@ -424,7 +424,7 @@ BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
 //
 //      template &lt;class TYPE&gt;
 //      void deleteObject(const TYPE *target);
-//          // Destroy the object pointed to be &#39;target&#39; and reclaim the
+//          // Destroy the object pointed to by &#39;target&#39; and reclaim the
 //          // memory.  Decrement the count of currently valid objects.
 //..
 // Then, we round out the class with the ability to query the &#39;count&#39; of
@@ -524,8 +524,8 @@ BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
 //
 ///Example 4: Type Casting
 ///- - - - - - - - - - - -
-// &#39;ManagedPtr&#39; objects can be implicitly and explicitly cast to
-// different types in the same way that native pointers can.
+// &#39;ManagedPtr&#39; objects can be implicitly and explicitly cast to different
+// types in the same way that native pointers can.
 //
 ///Implicit Conversion
 /// -  -  -  -  -  - -
@@ -611,7 +611,7 @@ BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
 // Through &quot;aliasing&quot;, a managed pointer of any type can be explicitly
 // converted to a managed pointer of any other type using any legal cast
 // expression.  For example, to static-cast a managed pointer of type A to a
-// shared pointer of type B, one can simply do the following:
+// managed pointer of type B, one can simply do the following:
 //..
 //  void explicitCastingExample() {
 //
@@ -645,8 +645,8 @@ BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
 //..
 // If the value of &#39;aPtr&#39; can be dynamically cast to &#39;B*&#39; then ownership is
 // transferred to &#39;bPtr&#39;, otherwise &#39;aPtr&#39; is to be modified.  As previously
-// stated, the managed object will be destroyed correctly regardless of how
-// it is cast.
+// stated, the managed object will be destroyed correctly regardless of how it
+// is cast.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include &lt;bslscm_version.h&gt;
@@ -716,10 +716,6 @@ BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
 #include &lt;bsls_unspecifiedbool.h&gt;
 #endif
 
-
-#define BSLMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS_BEFORE_DRQS27411521
-
-
 namespace BloombergLP {
 
 namespace bslma {
@@ -751,10 +747,12 @@ class ManagedPtr_Ref {
     // CREATORS
     ManagedPtr_Ref(ManagedPtr_Members *base, TARGET_TYPE *target);
         // Create a &#39;ManagedPtr_Ref&#39; object having the specified &#39;base&#39; value
-        // for its &#39;base&#39; attribute.  Behavior is undefined unless &#39;0 != base&#39;.
+        // for its &#39;base&#39; attribute, and the specified &#39;target&#39; for its
+        // &#39;target&#39; attribute.  Note that &#39;target&#39; (but not &#39;base&#39;) may be
+        // null.
 
 
-    //! ManagedPtr_Ref(const ManagedPtr_Ref&amp; original);
+    //! ManagedPtr_Ref(const ManagedPtr_Ref&amp; original) = default;
         // Create a &#39;ManagedPtr_Ref&#39; object having the same &#39;d_base_p&#39; value as
         // the specified &#39;original&#39;.  Note that this trivial constructor&#39;s
         // definition is compiler generated.
@@ -768,14 +766,14 @@ class ManagedPtr_Ref {
         // *not* destroyed.
 #endif
 
-    //! ManagedPtr_Ref&amp; operator=(const ManagedPtr_Ref&amp; original);
+    //! ManagedPtr_Ref&amp; operator=(const ManagedPtr_Ref&amp; original) = default;
         // Create a &#39;ManagedPtr_Ref&#39; object having the same &#39;d_base_p&#39; as the
         // specified &#39;original&#39;.  Note that this trivial copy-assignment
         // operator&#39;s definition is compiler generated.
 
     // ACCESSORS
     ManagedPtr_Members *base() const;
-        // Return a pointer to the managed state of a &#39;SharedPtr&#39; object.
+        // Return a pointer to the managed state of a &#39;ManagedPtr&#39; object.
 
     TARGET_TYPE *target() const;
         // Return a pointer to the referenced object.
@@ -925,11 +923,11 @@ class ManagedPtr {
         // to call the correct destructor for the managed object, even if the
         // destructor for &#39;TARGET_TYPE&#39; is not declared as &#39;virtual&#39;.
 
-    ManagedPtr(ManagedPtr&amp; other);
+    ManagedPtr(ManagedPtr&amp; original);
         // Create a managed pointer having the same target object as the
-        // specified &#39;other&#39;, and transfer the ownership of the object managed
-        // by &#39;other&#39; (if any) to this managed pointer, then reset &#39;other&#39; as
-        // empty.
+        // specified &#39;original&#39;, and transfer the ownership of the object
+        // managed by the &#39;original&#39; (if any) to this managed pointer, then
+        // reset &#39;original&#39; as empty.
 
     ManagedPtr(ManagedPtr_Ref&lt;TARGET_TYPE&gt; ref);                    // IMPLICIT
         // Create a managed pointer having the same target object as the
@@ -1007,63 +1005,6 @@ class ManagedPtr {
         // is already managed by another object, or if
         // &#39;0 == deleter &amp;&amp; 0 != ptr&#39;.
 
-    template &lt;class MANAGED_TYPE, class MANAGED_BASE&gt;
-    ManagedPtr(MANAGED_TYPE *ptr,
-               void         *cookie,
-               void        (*deleter)(MANAGED_BASE*, void*));
-        // [!DEPRECATED!] Instead, use:
-        //..
-        //  template &lt;class MANAGED_TYPE&gt;
-        //  ManagedPtr(MANAGED_TYPE *ptr,
-        //             void         *cookie,
-        //             DeleterFunc   deleter);
-        //..
-        // Create a managed pointer having a target object referenced by the
-        // specified &#39;ptr&#39;, owning the managed object &#39;*ptr&#39;, and having a
-        // deleter that will invoke the specified &#39;deleter&#39; with the address of
-        // the currently managed object, and with the specified &#39;cookie&#39; (that
-        // the deleter can use for its own purposes), unless &#39;0 == ptr&#39;, in
-        // which case create an empty managed pointer.  This constructor will
-        // not compile unless &#39;MANAGED_TYPE*&#39; is convertible to &#39;TARGET_TYPE*&#39;,
-        // and &#39;MANAGED_TYPE *&#39; is convertible to &#39;MANAGED_BASE *&#39;.  The
-        // deleter will invoke the destructor of &#39;MANAGED_TYPE&#39; rather than the
-        // destructor of &#39;TARGET_TYPE&#39;.  The behavior is undefined if &#39;ptr&#39; is
-        // already managed by another object, or if &#39;0 == deleter &amp;&amp; 0 != ptr&#39;.
-        // Note that this constructor is needed only to avoid ambiguous type
-        // deductions when passing a null pointer literal as the &#39;cookie&#39; when
-        // the user passes a deleter taking a type other than &#39;void *&#39; for its
-        // object type.  Note that this function is *deprecated* as it relies
-        // on undefined compiler behavior for its implementation (that luckily
-        // performs as required on every platform supported by BDE).
-
-    template &lt;class MANAGED_TYPE,
-              class MANAGED_BASE,
-              class COOKIE_TYPE,
-              class COOKIE_BASE&gt;
-    ManagedPtr(MANAGED_TYPE *ptr,
-               COOKIE_TYPE  *cookie,
-               void        (*deleter)(MANAGED_BASE*, COOKIE_BASE *));
-        // [!DEPRECATED!] Instead, use:
-        //..
-        //  template &lt;class MANAGED_TYPE&gt;
-        //  ManagedPtr(MANAGED_TYPE *ptr,
-        //             void         *cookie,
-        //             DeleterFunc   deleter);
-        //..
-        // Create a managed pointer having a target object referenced by the
-        // specified &#39;ptr&#39;, owning the managed object &#39;*ptr&#39;, and having a
-        // deleter that will invoke the specified &#39;deleter&#39; with the address of
-        // the currently managed object, and with the specified &#39;cookie&#39; (that
-        // the deleter can use for its own purposes), unless &#39;0 == ptr&#39;, in
-        // which case create an empty managed pointer.  This constructor will
-        // not compile unless &#39;MANAGED_TYPE*&#39; is convertible to &#39;TARGET_TYPE*&#39;,
-        // and &#39;MANAGED_TYPE *&#39; is convertible to &#39;MANAGED_BASE *&#39;.  The
-        // deleter will invoke the destructor of &#39;MANAGED_TYPE&#39; rather than the
-        // destructor of &#39;TARGET_TYPE&#39;.  The behavior is undefined if &#39;ptr&#39; is
-        // already managed by another object, or if &#39;0 == deleter &amp;&amp; 0 != ptr&#39;.
-        // Note that this function is *deprecated* as it relies on undefined
-        // compiler behavior for its implementation (that luckily performs as
-        // required on every platform supported by BDE).
 
     ~ManagedPtr();
         // Destroy this managed pointer object.  Destroy the object managed by
@@ -1076,10 +1017,10 @@ class ManagedPtr {
         // If this object and the specified &#39;rhs&#39; manage the same object,
         // return a reference to this managed pointer; otherwise destroy the
         // manged object owned by this managed pointer, then transfer ownership
-        // of the managed object owned by the specified &#39;rhs&#39;, and set this
-        // managed pointer to point to the target object currently referenced
-        // by &#39;rhs&#39;, then reset &#39;rhs&#39; as empty, and return a reference to this
-        // managed pointer.
+        // of the managed object owned by &#39;rhs&#39;, and set this managed pointer
+        // to point to the target object currently referenced by &#39;rhs&#39;, then
+        // reset &#39;rhs&#39; as empty, and return a reference to this managed
+        // pointer.
 
     ManagedPtr&amp; operator=(ManagedPtr_Ref&lt;TARGET_TYPE&gt; ref);
         // If this object and the managed pointer reference by the specified
@@ -1105,13 +1046,9 @@ class ManagedPtr {
         // Return a managed pointer reference, referring to this object.  Note
         // that this conversion operator is used implicitly to allow the
         // construction of managed pointers from rvalues because temporaries
-        // cannot be passed by modifiable reference.
+        // cannot be passed by references offering modifiable access.
 
     void clear();
-        // Destroy the current managed object (if any) and reset this managed
-        // pointer as empty.
-
-    void load(bsl::nullptr_t = 0, bsl::nullptr_t = 0);
         // Destroy the current managed object (if any) and reset this managed
         // pointer as empty.
 
@@ -1150,12 +1087,6 @@ class ManagedPtr {
         // unambiguously derived from &#39;bslma::Allocator&#39;, meets the
         // requirements for &#39;FACTORY_TYPE&#39;.
 
-    template &lt;class FACTORY_TYPE&gt;
-    void load(bsl::nullptr_t, FACTORY_TYPE *factory);
-        // Destroy the current managed object (if any) and reset this managed
-        // pointer as empty.  Note that the specified &#39;factory&#39; will be
-        // ignored, as empty managed pointers do not invoke a deleter.
-
     template &lt;class MANAGED_TYPE&gt;
     void load(MANAGED_TYPE *ptr, void *cookie, DeleterFunc deleter);
         // Destroy the currently managed object, if any.  Then, set the target
@@ -1172,70 +1103,24 @@ class ManagedPtr {
         // This function will be restored on that platform once the deprecated
         // signatures are finally removed.
 
-    void load(TARGET_TYPE *ptr, void *cookie, DeleterFunc deleter);
-        // Destroy the currently managed object, if any.  Then, set the target
-        // object of this managed pointer to be that referenced by the
-        // specified &#39;ptr&#39;, take ownership of &#39;*ptr&#39; as the currently managed
-        // object, and set a deleter that will invoke the specified &#39;deleter&#39;
-        // with the address of the currently managed object, and with the
-        // specified &#39;cookie&#39; (that the deleter can use for its own purposes),
-        // unless &#39;0 == ptr&#39;, in which case reset this managed pointer as
-        // empty.  The behavior is undefined if &#39;ptr&#39; is already managed by
-        // another object, or if &#39;0 == deleter &amp;&amp; 0 != ptr&#39;.  Note that this
-        // declaration is required only because the deprecated overloads create
-        // an ambiguity for this specific this case.  It should be removed when
-        // the deprecated overloads are removed.
+    void load(bsl::nullptr_t = 0, void *cookie = 0, DeleterFunc deleter = 0);
+        // Destroy the current managed object (if any) and reset this managed
+        // pointer as empty.  Note that the optionally specified &#39;cookie&#39; and
+        // &#39;deleter&#39; will be ignored, as empty managed pointers do not invoke a
+        // deleter.
 
-    template &lt;class MANAGED_TYPE, class COOKIE_TYPE&gt;
-    void load(MANAGED_TYPE *ptr, COOKIE_TYPE *cookie, DeleterFunc deleter);
-
-    template &lt;class MANAGED_TYPE, class MANAGED_BASE&gt;
-    void load(MANAGED_TYPE *ptr,
-              void         *cookie,
-              void        (*deleter)(MANAGED_BASE *, void*));
-
-    template &lt;class MANAGED_TYPE,
-              class MANAGED_BASE,
-              class COOKIE_TYPE,
-              class COOKIE_BASE&gt;
-    void load(MANAGED_TYPE *ptr,
-              COOKIE_TYPE  *factory,
-              void        (*deleter)(MANAGED_BASE*, COOKIE_BASE *));
-        // [!DEPRECATED!] Instead, use:
-        //..
-        //  template &lt;class MANAGED_TYPE&gt;
-        //  void load(MANAGED_TYPE *ptr,
-        //            void         *cookie,
-        //            DeleterFunc   deleter);
-        //..
-        // Destroy the currently managed object, if any.  Then, set the target
-        // object of this managed pointer to be that referenced by the
-        // specified &#39;ptr&#39;, take ownership of &#39;*ptr&#39; as the currently managed
-        // object, and set a deleter that will invoke the specified &#39;deleter&#39;
-        // with the address of the currently managed object, and with the
-        // specified &#39;cookie&#39; (that the deleter can use for its own purposes),
-        // unless &#39;0 == ptr&#39;, in which case reset this managed pointer as
-        // empty.  The behavior is undefined if &#39;ptr&#39; is already managed by
-        // another object, or if &#39;0 == deleter &amp;&amp; 0 != ptr&#39;.  Note that
-        // this function is *deprecated* as it relies on undefined compiler
-        // behavior for its implementation, but luckily perform as required for
-        // all currently supported platforms; on platforms where the
-        // non-deprecated overload is not available (e.g., GCC 3.4) code should
-        // be written as if it were available, as an appropriate (deprecated)
-        // overload will be selected with the correct (non-deprecated)
-        // behavior.
 
     template &lt;class ALIASED_TYPE&gt;
     void loadAlias(ManagedPtr&lt;ALIASED_TYPE&gt;&amp; alias, TARGET_TYPE *ptr);
-        // If &#39;alias&#39; manages the same object as this managed pointer, set the
-        // target object of this managed pointer to be that referenced by the
-        // specified &#39;ptr&#39;; otherwise, destroy the currently managed object
-        // (if any), and if &#39;alias&#39; is empty, reset this managed pointer as
-        // empty, otherwise transfer ownership (and the deleter) of the object
-        // managed by the specified &#39;alias&#39;, and set the target object of this
+        // If the specified &#39;alias&#39; manages the same object as this managed
+        // pointer, set the target object of this managed pointer to be that
+        // referenced by the specified &#39;ptr&#39;; otherwise, destroy the currently
+        // managed object (if any), and if &#39;alias&#39; is empty, reset this managed
+        // pointer as empty, otherwise transfer ownership (and the deleter) of
+        // the object managed by &#39;alias&#39;, and set the target object of this
         // managed pointer to be that referenced by &#39;ptr&#39;.  The behavior is
         // undefined if &#39;0 == ptr&#39; and &#39;alias&#39; is not empty, or if &#39;0 != ptr&#39;
-        // and alias is empty, or if &#39;ptr&#39; is already managed by a managed
+        // and &#39;alias&#39; is empty, or if &#39;ptr&#39; is already managed by a managed
         // pointer other than &#39;alias&#39;.  Note that this establishes a managed
         // pointer where &#39;ptr&#39; aliases &#39;alias&#39;.  The managed object for &#39;alias&#39;
         // will ultimately be destroyed, and the destructor for &#39;ptr&#39; is not
@@ -1278,14 +1163,14 @@ class ManagedPtr {
         // Return the address of the target object, or 0 if this managed
         // pointer is empty.
 
-    TARGET_TYPE *ptr() const;
-        // Return the address of the target object, or 0 if this managed
-        // pointer is empty.
-
     const ManagedPtrDeleter&amp; deleter() const;
         // Return a reference to the non-modifiable deleter information
         // associated with this managed pointer.  Behavior is undefined if this
         // managed pointer is empty.
+
+    TARGET_TYPE *ptr() const;
+        // Return the address of the target object, or 0 if this managed
+        // pointer is empty.
 };
 
 template &lt;class TARGET_TYPE&gt;
@@ -1293,9 +1178,9 @@ void swap(ManagedPtr&lt;TARGET_TYPE&gt;&amp; a, ManagedPtr&lt;TARGET_TYPE&gt;&am
     // Efficiently exchange the values of the specified &#39;a&#39; and &#39;b&#39; objects.
     // This function provides the no-throw exception-safety guarantee.
 
-                    // ============================
-                    // struct ManagedPtrNoOpDeleter
-                    // ============================
+                        // =====================
+                        // struct ManagedPtrUtil
+                        // =====================
 
 struct ManagedPtrUtil {
     // This utility class provides a general no-op deleter, which is useful
@@ -1312,7 +1197,8 @@ struct ManagedPtrUtil {
 
 template &lt;class TARGET_TYPE&gt;
 struct ManagedPtrNilDeleter {
-    // [!DEPRECATED!] Use &#39;ManagedPtrNoOpDeleter&#39; instead.
+    // [!DEPRECATED!]: Use &#39;ManagedPtrNoOpDeleter&#39; instead.
+    //
     // This utility class provides a general no-op deleter, which is useful
     // when creating managed pointers to stack-allocated objects.  Note that
     // the non-template class &#39;ManagedPtrUtil&#39; should be used in preference to
@@ -1349,12 +1235,13 @@ struct ManagedPtr_FactoryDeleterType
 
 template &lt;class MANAGED_TYPE&gt;
 struct ManagedPtr_DefaultDeleter {
-    // This &#39;struct&#39; provides a function-like shared pointer deleter that
+    // This &#39;struct&#39; provides a function-like managed pointer deleter that
     // invokes &#39;delete&#39; with the passed pointer.
 
     // CLASS METHODS
     static void deleter(void *ptr, void *);
-        // Calls &#39;delete(ptr)&#39; after casting &#39;ptr&#39; to a &#39;MANAGED_TYPE *&#39;.
+        // Cast the specified &#39;ptr&#39; to (template parameter) type
+        // &#39;MANAGED_TYPE *&#39;, and then call &#39;delete&#39; with the cast pointer.
 };
 
                         // =================================
@@ -1367,13 +1254,13 @@ struct ManagedPtr_ImpUtil {
 
     static void checkDefaultAllocatorIsNewDeleteAllocator();
         // If the currently installed default allocator is not the NewDelete
-        // allocator singleton then, if this is the first such occurence since
+        // allocator singleton then, if this is the first such occurrence since
         // the current task was started, write a message to the console warning
         // about a pending change of behavior in the next BDE release.
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//              INLINE FUNCTION AND FUNCTION TEMPLATE DEFINITIONS
 // ============================================================================
 
                       // ----------------------------
@@ -1464,21 +1351,6 @@ ManagedPtr&lt;TARGET_TYPE&gt;::ManagedPtr(bsl::nullptr_t, FACTORY_TYPE *)
 {
 }
 
-#if defined(BSLMA_USE_OLD_DEFAULT_ALLOCATOR_SEMANTICS_BEFORE_DRQS27411521)
-template &lt;class TARGET_TYPE&gt;
-template &lt;class MANAGED_TYPE&gt;
-inline
-ManagedPtr&lt;TARGET_TYPE&gt;::ManagedPtr(MANAGED_TYPE *ptr)
-: d_members(stripCompletePointerType(ptr),
-            Default::allocator(),
-            &amp;ManagedPtr_FactoryDeleter&lt;MANAGED_TYPE, Allocator&gt;::deleter,
-            stripBasePointerType(ptr))
-{
-    BSLMF_ASSERT((bsl::is_convertible&lt;MANAGED_TYPE *, TARGET_TYPE *&gt;::value));
-
-    ManagedPtr_ImpUtil::checkDefaultAllocatorIsNewDeleteAllocator();
-}
-#else
 template &lt;class TARGET_TYPE&gt;
 template &lt;class MANAGED_TYPE&gt;
 inline
@@ -1490,7 +1362,6 @@ ManagedPtr&lt;TARGET_TYPE&gt;::ManagedPtr(MANAGED_TYPE *ptr)
 {
     BSLMF_ASSERT((bsl::is_convertible&lt;MANAGED_TYPE *, TARGET_TYPE *&gt;::VALUE));
 }
-#endif
 
 template &lt;class TARGET_TYPE&gt;
 inline
@@ -1502,8 +1373,8 @@ ManagedPtr&lt;TARGET_TYPE&gt;::ManagedPtr(ManagedPtr_Ref&lt;TARGET_TYPE&gt; ref)
 
 template &lt;class TARGET_TYPE&gt;
 inline
-ManagedPtr&lt;TARGET_TYPE&gt;::ManagedPtr(ManagedPtr&amp; other)
-: d_members(other.d_members)
+ManagedPtr&lt;TARGET_TYPE&gt;::ManagedPtr(ManagedPtr&amp; original)
+: d_members(original.d_members)
 {
 }
 
@@ -1539,8 +1410,8 @@ ManagedPtr&lt;TARGET_TYPE&gt;::ManagedPtr(MANAGED_TYPE *ptr, FACTORY_TYPE *facto
 template &lt;class TARGET_TYPE&gt;
 inline
 ManagedPtr&lt;TARGET_TYPE&gt;::ManagedPtr(TARGET_TYPE *ptr,
-                                                void        *cookie,
-                                                DeleterFunc  deleter)
+                                    void        *cookie,
+                                    DeleterFunc  deleter)
 : d_members(stripBasePointerType(ptr), cookie, deleter)
 {
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
@@ -1562,53 +1433,6 @@ ManagedPtr&lt;TARGET_TYPE&gt;::ManagedPtr(MANAGED_TYPE *ptr,
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 }
 
-template &lt;class TARGET_TYPE&gt;
-template &lt;class MANAGED_TYPE, class MANAGED_BASE&gt;
-inline
-ManagedPtr&lt;TARGET_TYPE&gt;::ManagedPtr(MANAGED_TYPE *ptr,
-                                    void         *cookie,
-                                    void (*deleter)(MANAGED_BASE*, void*))
-: d_members(stripCompletePointerType(ptr),
-            cookie,
-            reinterpret_cast&lt;DeleterFunc&gt;(deleter),
-            stripBasePointerType(ptr))
-{
-    BSLMF_ASSERT((bsl::is_convertible&lt;MANAGED_TYPE *, TARGET_TYPE *&gt;::value));
-    BSLMF_ASSERT((bsl::is_convertible&lt;MANAGED_TYPE *,
-                                      const MANAGED_BASE *&gt;::value));
-
-    BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
-}
-
-template &lt;class TARGET_TYPE&gt;
-template &lt;class MANAGED_TYPE,
-          class MANAGED_BASE,
-          class COOKIE_TYPE,
-          class COOKIE_BASE&gt;
-inline
-ManagedPtr&lt;TARGET_TYPE&gt;::ManagedPtr(
-                          MANAGED_TYPE *ptr,
-                          COOKIE_TYPE  *cookie,
-                          void        (*deleter)(MANAGED_BASE*, COOKIE_BASE *))
-: d_members(stripCompletePointerType(ptr),
-            static_cast&lt;COOKIE_BASE *&gt;(cookie),
-            reinterpret_cast&lt;DeleterFunc&gt;(deleter),
-            stripBasePointerType(ptr))
-{
-    BSLMF_ASSERT((bsl::is_convertible&lt;MANAGED_TYPE *, TARGET_TYPE *&gt;::value));
-    BSLMF_ASSERT((bsl::is_convertible&lt;MANAGED_TYPE *,
-                                      const MANAGED_BASE *&gt;::value));
-    BSLMF_ASSERT((bsl::is_convertible&lt;COOKIE_TYPE *, COOKIE_BASE *&gt;::value));
-
-    // Note that the undefined behavior embodied in the &#39;reinterpret_cast&#39;
-    // above could be removed by inserting an additional forwarding function
-    // truly of type &#39;DeleterFunc&#39; which &#39;reinterpret_cast&#39;s each pointer
-    // argument as part of its forwarding behavior.  We choose not to do this
-    // on the grounds of simple efficiency, and there is currently no known
-    // supported compiler that we use where this does not work as desired.
-
-    BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
-}
 
 template &lt;class TARGET_TYPE&gt;
 inline
@@ -1617,38 +1441,7 @@ ManagedPtr&lt;TARGET_TYPE&gt;::~ManagedPtr()
     d_members.runDeleter();
 }
 
-template &lt;class TARGET_TYPE&gt;
-inline
-void ManagedPtr&lt;TARGET_TYPE&gt;::load(bsl::nullptr_t, bsl::nullptr_t)
-{
-    this-&gt;clear();
-}
-
-template &lt;class TARGET_TYPE&gt;
-inline
-void ManagedPtr&lt;TARGET_TYPE&gt;::load(TARGET_TYPE *ptr,
-                                   void        *cookie,
-                                   DeleterFunc  deleter)
-{
-    BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
-
-    d_members.runDeleter();
-    d_members.set(stripBasePointerType(ptr), cookie, deleter);
-}
-
-template &lt;class TARGET_TYPE&gt;
-template &lt;class MANAGED_TYPE&gt;
-inline
-void ManagedPtr&lt;TARGET_TYPE&gt;::load(MANAGED_TYPE *ptr,
-                                   void         *cookie,
-                                   DeleterFunc   deleter)
-{
-    BSLMF_ASSERT((bsl::is_convertible&lt;MANAGED_TYPE *, TARGET_TYPE *&gt;::value));
-    BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
-
-    this-&gt;loadImp(ptr, cookie, deleter);
-}
-
+// PRIVATE MANIPULATORS
 template &lt;class TARGET_TYPE&gt;
 template &lt;class MANAGED_TYPE&gt;
 inline
@@ -1664,17 +1457,26 @@ void ManagedPtr&lt;TARGET_TYPE&gt;::loadImp(MANAGED_TYPE *ptr,
     d_members.setAliasPtr(stripBasePointerType(ptr));
 }
 
+// MANIPULATORS
 template &lt;class TARGET_TYPE&gt;
-template &lt;class MANAGED_TYPE, class COOKIE_TYPE&gt;
+inline
+void ManagedPtr&lt;TARGET_TYPE&gt;::clear()
+{
+    d_members.runDeleter();
+    d_members.clear();
+}
+
+template &lt;class TARGET_TYPE&gt;
+template &lt;class MANAGED_TYPE&gt;
 inline
 void ManagedPtr&lt;TARGET_TYPE&gt;::load(MANAGED_TYPE *ptr,
-                                   COOKIE_TYPE  *cookie,
+                                   void         *cookie,
                                    DeleterFunc   deleter)
 {
     BSLMF_ASSERT((bsl::is_convertible&lt;MANAGED_TYPE *, TARGET_TYPE *&gt;::value));
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 
-    this-&gt;loadImp(ptr, static_cast&lt;void *&gt;(cookie), deleter);
+    this-&gt;loadImp(ptr, cookie, deleter);
 }
 
 template &lt;class TARGET_TYPE&gt;
@@ -1705,52 +1507,17 @@ void ManagedPtr&lt;TARGET_TYPE&gt;::load(MANAGED_TYPE *ptr, FACTORY_TYPE *factor
 }
 
 template &lt;class TARGET_TYPE&gt;
-template &lt;class FACTORY_TYPE&gt;
 inline
-void ManagedPtr&lt;TARGET_TYPE&gt;::load(bsl::nullptr_t, FACTORY_TYPE *)
+void ManagedPtr&lt;TARGET_TYPE&gt;::load(bsl::nullptr_t, void *, DeleterFunc)
 {
     this-&gt;clear();
 }
 
-template &lt;class TARGET_TYPE&gt;
-template &lt;class MANAGED_TYPE, class MANAGED_BASE&gt;
-inline
-void ManagedPtr&lt;TARGET_TYPE&gt;::load(MANAGED_TYPE *ptr,
-                                   void         *cookie,
-                                   void (*deleter)(MANAGED_BASE *, void*))
-{
-    BSLMF_ASSERT((bsl::is_convertible&lt;MANAGED_TYPE *, TARGET_TYPE *&gt;::VALUE));
-    BSLMF_ASSERT((!bsl::is_void&lt;MANAGED_BASE&gt;::value));
-    BSLMF_ASSERT((bsl::is_convertible&lt;MANAGED_TYPE *, MANAGED_BASE *&gt;::value));
-    BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
-
-    this-&gt;loadImp(ptr, cookie, reinterpret_cast&lt;DeleterFunc&gt;(deleter));
-}
-
-template &lt;class TARGET_TYPE&gt;
-template &lt;class MANAGED_TYPE,
-          class MANAGED_BASE,
-          class COOKIE_TYPE,
-          class COOKIE_BASE&gt;
-inline
-void ManagedPtr&lt;TARGET_TYPE&gt;::load(MANAGED_TYPE *ptr,
-                                   COOKIE_TYPE  *cookie,
-                                 void (*deleter)(MANAGED_BASE*, COOKIE_BASE *))
-{
-    BSLMF_ASSERT((bsl::is_convertible&lt;MANAGED_TYPE *, TARGET_TYPE *&gt;::VALUE));
-    BSLMF_ASSERT((bsl::is_convertible&lt;MANAGED_TYPE *, MANAGED_BASE *&gt;::VALUE));
-    BSLMF_ASSERT((bsl::is_convertible&lt;COOKIE_TYPE *, COOKIE_BASE *&gt;::VALUE));
-    BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
-
-    this-&gt;loadImp(ptr,
-                  static_cast&lt;void *&gt;(static_cast&lt;COOKIE_BASE *&gt;(cookie)),
-                  reinterpret_cast&lt;DeleterFunc&gt;(deleter));
-}
 
 template &lt;class TARGET_TYPE&gt;
 template &lt;class ALIASED_TYPE&gt;
 void ManagedPtr&lt;TARGET_TYPE&gt;::loadAlias(ManagedPtr&lt;ALIASED_TYPE&gt;&amp;  alias,
-                                         TARGET_TYPE               *ptr)
+                                        TARGET_TYPE               *ptr)
 {
     BSLS_ASSERT_SAFE((0 == ptr &amp;&amp; 0 == alias.ptr())
                    ||(0 != ptr &amp;&amp; 0 != alias.ptr()));
@@ -1766,22 +1533,14 @@ void ManagedPtr&lt;TARGET_TYPE&gt;::loadAlias(ManagedPtr&lt;ALIASED_TYPE&gt;&amp
 }
 
 template &lt;class TARGET_TYPE&gt;
-inline
-void ManagedPtr&lt;TARGET_TYPE&gt;::clear()
-{
-    d_members.runDeleter();
-    d_members.clear();
-}
-
-template &lt;typename TARGET_TYPE&gt;
 ManagedPtr_PairProxy&lt;TARGET_TYPE, ManagedPtrDeleter&gt;
 ManagedPtr&lt;TARGET_TYPE&gt;::release()
 {
-    typedef ManagedPtr_PairProxy&lt;TARGET_TYPE, ManagedPtrDeleter&gt;
-                                                                   ResultType;
+    typedef ManagedPtr_PairProxy&lt;TARGET_TYPE, ManagedPtrDeleter&gt; ResultType;
+
     TARGET_TYPE *p = ptr();
     if (!p) {
-        // undefined behavior to call d_members.deleter() if &#39;p&#39; is null.
+        // It is undefined behavior to call d_members.deleter() if &#39;p&#39; is null.
 
         return ResultType();                                          // RETURN
     }
@@ -1790,7 +1549,7 @@ ManagedPtr&lt;TARGET_TYPE&gt;::release()
     return result;
 }
 
-template &lt;typename TARGET_TYPE&gt;
+template &lt;class TARGET_TYPE&gt;
 TARGET_TYPE *ManagedPtr&lt;TARGET_TYPE&gt;::release(ManagedPtrDeleter *deleter)
 {
     BSLS_ASSERT_SAFE(deleter);
@@ -1931,6 +1690,10 @@ void ManagedPtr_DefaultDeleter&lt;MANAGED_TYPE&gt;::deleter(void *ptr, void *)
 
 }  // close package namespace
 
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
 namespace bslmf {
 
 template &lt;class TARGET_TYPE&gt;
@@ -1940,33 +1703,25 @@ struct HasPointerSemantics&lt;bslma::ManagedPtr&lt;TARGET_TYPE&gt; &gt;
 template &lt;class TARGET_TYPE&gt;
 struct IsBitwiseMoveable&lt;bslma::ManagedPtr&lt;TARGET_TYPE&gt; &gt; : bsl::true_type {};
 
-}  // close namespace bslmf
-
+}  // close traits namespace
 }  // close enterprise namespace
 
 #endif
 
-
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the &quot;Software&quot;), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
 </pre>
 </body>

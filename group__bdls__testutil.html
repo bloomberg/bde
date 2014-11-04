@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: bdls_testutil Component</title>
+<title>BDE 2.22.1.2 OSS: bdls_testutil Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -179,8 +179,6 @@ Namespaces</h2></td></tr>
           <span class="keywordflow">if</span> (testStatus &gt;= 0 &amp;&amp; testStatus &lt;= 100) ++testStatus;
       }
   }
-
-<span class="preprocessor">  # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }</span>
 </pre></div><br/>
 <br/>
  Next, we define the standard print and <code>LOOP_ASSERT</code> macros, as aliases to the macros defined by this component: <br/>
@@ -188,16 +186,21 @@ Namespaces</h2></td></tr>
 <div class="fragment"><pre class="fragment">  <span class="comment">//=========================================================================</span>
   <span class="comment">//                       STANDARD BDE TEST DRIVER MACROS</span>
   <span class="comment">//-------------------------------------------------------------------------</span>
-<span class="preprocessor">  #define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT</span>
+
+<span class="preprocessor">  #define ASSERT       BDLS_TESTUTIL_ASSERT</span>
+<span class="preprocessor"></span><span class="preprocessor">  #define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT</span>
+<span class="preprocessor"></span><span class="preprocessor">  #define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT</span>
+<span class="preprocessor"></span><span class="preprocessor">  #define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT</span>
 <span class="preprocessor"></span><span class="preprocessor">  #define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT</span>
 <span class="preprocessor"></span><span class="preprocessor">  #define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT</span>
 <span class="preprocessor"></span><span class="preprocessor">  #define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT</span>
 <span class="preprocessor"></span><span class="preprocessor">  #define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT</span>
 <span class="preprocessor"></span><span class="preprocessor">  #define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT</span>
+<span class="preprocessor"></span><span class="preprocessor">  #define ASSERTV      BDLS_TESTUTIL_ASSERTV</span>
 <span class="preprocessor"></span>
 <span class="preprocessor">  #define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.</span>
 <span class="preprocessor"></span><span class="preprocessor">  #define P   BDLS_TESTUTIL_P   // Print identifier and value.</span>
-<span class="preprocessor"></span><span class="preprocessor">  #define P_  BDLS_TESTUTIL_P_  // &#39;P(X)&#39; without &#39;\n&#39;.</span>
+<span class="preprocessor"></span><span class="preprocessor">  #define P_  BDLS_TESTUTIL_P_  // P(X) without &#39;\n&#39;.</span>
 <span class="preprocessor"></span><span class="preprocessor">  #define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).</span>
 <span class="preprocessor">  #define L_  BDLS_TESTUTIL_L_  // current Line number</span>
 </pre></div><br/>
@@ -240,7 +243,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:33 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:27 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

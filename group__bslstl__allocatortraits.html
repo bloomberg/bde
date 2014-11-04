@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.20 OSS: bslstl_allocatortraits Component</title>
+<title>BDE 2.22.1.2 OSS: bslstl_allocatortraits Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -89,16 +89,16 @@ ALLOCATOR_TYPE::difference_type&nbsp;</td><td class="memItemRight" valign="botto
 <tr><td class="memItemLeft" align="right" valign="top">typedef false_type&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocatortraits.html#ga3e4cc6138c8cd5a05f7de602693f6c6a">bsl::allocator_traits::propagate_on_container_swap</a></td></tr>
 <tr><td colspan="2"><h2><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static pointer&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocatortraits.html#gabd471363a7905cfefa1466cd3da77db9">bsl::allocator_traits::allocate</a> (ALLOCATOR_TYPE &amp;allocator, size_type n)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static pointer&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocatortraits.html#ga90f29e856a98fb925f954fd021c10533">bsl::allocator_traits::allocate</a> (ALLOCATOR_TYPE &amp;allocator, size_type n, const_void_pointer hint)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocatortraits.html#ga25606c21510854bf2a4606568cd9a534">bsl::allocator_traits::deallocate</a> (ALLOCATOR_TYPE &amp;allocator, pointer elementAddr, size_type n)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static pointer&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocatortraits.html#gab8b0765f4c8aaab08a9f5f330183f042">bsl::allocator_traits::allocate</a> (ALLOCATOR_TYPE &amp;basicAllocator, size_type n)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static pointer&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocatortraits.html#ga02722952476f936d64e76c2da3ca4ee0">bsl::allocator_traits::allocate</a> (ALLOCATOR_TYPE &amp;basicAllocator, size_type n, const_void_pointer hint)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocatortraits.html#ga1379f79e6549b07219ad9d358474ade0">bsl::allocator_traits::deallocate</a> (ALLOCATOR_TYPE &amp;basicAllocator, pointer elementAddr, size_type n)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__allocatortraits.html#ga661fe02ede7caf823194fe573f61bc1c">bsl::allocator_traits::construct</a> (ALLOCATOR_TYPE &amp;allocator, ELEMENT_TYPE *elementAddr)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__allocatortraits.html#gab1c6b0656d9734078a2f1ffe3afcb675">bsl::allocator_traits::construct</a> (ALLOCATOR_TYPE &amp;basicAllocator, ELEMENT_TYPE *elementAddr)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class CTOR_ARGS_0 , class... CTOR_ARGS&gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__allocatortraits.html#ga74c0222be024f5e3bd1379bf4383dfa1">bsl::allocator_traits::construct</a> (ALLOCATOR_TYPE &amp;allocator, ELEMENT_TYPE *elementAddr, CTOR_ARGS_0 &amp;&amp;ctorArgs_0, CTOR_ARGS &amp;&amp;...ctorArgs)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__allocatortraits.html#ga9205e72e5182ead99085d2c7987de4f3">bsl::allocator_traits::construct</a> (ALLOCATOR_TYPE &amp;basicAllocator, ELEMENT_TYPE *elementAddr, CTOR_ARGS_0 &amp;&amp;ctorArgs_0, CTOR_ARGS &amp;&amp;...ctorArgs)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__allocatortraits.html#ga422a2643ebb2f18791165e52b6acb081">bsl::allocator_traits::destroy</a> (ALLOCATOR_TYPE &amp;allocator, ELEMENT_TYPE *elementAddr)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static size_type&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocatortraits.html#gabb3b525b874d7c1ccbd85adbaeb86d08">bsl::allocator_traits::max_size</a> (const ALLOCATOR_TYPE &amp;allocator)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__allocatortraits.html#ga401ba399a2d92530a3af6d64e5934383">bsl::allocator_traits::destroy</a> (ALLOCATOR_TYPE &amp;basicAllocator, ELEMENT_TYPE *elementAddr)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static size_type&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocatortraits.html#ga151e0515a13e0e2d18d74f19badde71c">bsl::allocator_traits::max_size</a> (const ALLOCATOR_TYPE &amp;basicAllocator)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static ALLOCATOR_TYPE&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__allocatortraits.html#ga7434b6558162892c0e3a2a8b314be86b">bsl::allocator_traits::select_on_container_copy_construction</a> (const ALLOCATOR_TYPE &amp;rhs)</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
@@ -593,7 +593,7 @@ template&lt;class ALLOCATOR_TYPE&gt; </div>
 </div>
 </div>
 <hr/><h2>Function Documentation</h2>
-<a class="anchor" id="gabd471363a7905cfefa1466cd3da77db9"></a><!-- doxytag: member="bsl::allocator_traits::allocate" ref="gabd471363a7905cfefa1466cd3da77db9" args="(ALLOCATOR_TYPE &amp;allocator, size_type n)" -->
+<a class="anchor" id="gab8b0765f4c8aaab08a9f5f330183f042"></a><!-- doxytag: member="bsl::allocator_traits::allocate" ref="gab8b0765f4c8aaab08a9f5f330183f042" args="(ALLOCATOR_TYPE &amp;basicAllocator, size_type n)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -603,7 +603,7 @@ template&lt;class ALLOCATOR_TYPE&gt; </div>
           <td class="memname">static pointer <a class="el" href="structbsl_1_1allocator__traits.html">bsl::allocator_traits</a>&lt; ALLOCATOR_TYPE &gt;::allocate </td>
           <td>(</td>
           <td class="paramtype">ALLOCATOR_TYPE &amp;&nbsp;</td>
-          <td class="paramname"> <em>allocator</em>, </td>
+          <td class="paramname"> <em>basicAllocator</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -619,11 +619,11 @@ template&lt;class ALLOCATOR_TYPE&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>allocator.allocate(n)</code>. </p>
+<p>Return <code>basicAllocator.allocate(n)</code>. </p>
 
 </div>
 </div>
-<a class="anchor" id="ga90f29e856a98fb925f954fd021c10533"></a><!-- doxytag: member="bsl::allocator_traits::allocate" ref="ga90f29e856a98fb925f954fd021c10533" args="(ALLOCATOR_TYPE &amp;allocator, size_type n, const_void_pointer hint)" -->
+<a class="anchor" id="ga02722952476f936d64e76c2da3ca4ee0"></a><!-- doxytag: member="bsl::allocator_traits::allocate" ref="ga02722952476f936d64e76c2da3ca4ee0" args="(ALLOCATOR_TYPE &amp;basicAllocator, size_type n, const_void_pointer hint)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -633,7 +633,7 @@ template&lt;class ALLOCATOR_TYPE&gt; </div>
           <td class="memname">static pointer <a class="el" href="structbsl_1_1allocator__traits.html">bsl::allocator_traits</a>&lt; ALLOCATOR_TYPE &gt;::allocate </td>
           <td>(</td>
           <td class="paramtype">ALLOCATOR_TYPE &amp;&nbsp;</td>
-          <td class="paramname"> <em>allocator</em>, </td>
+          <td class="paramname"> <em>basicAllocator</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -655,11 +655,11 @@ template&lt;class ALLOCATOR_TYPE&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>allocator.allocate(n, hint)</code>. </p>
+<p>Return <code>basicAllocator.allocate(n, hint)</code>. </p>
 
 </div>
 </div>
-<a class="anchor" id="ga25606c21510854bf2a4606568cd9a534"></a><!-- doxytag: member="bsl::allocator_traits::deallocate" ref="ga25606c21510854bf2a4606568cd9a534" args="(ALLOCATOR_TYPE &amp;allocator, pointer elementAddr, size_type n)" -->
+<a class="anchor" id="ga1379f79e6549b07219ad9d358474ade0"></a><!-- doxytag: member="bsl::allocator_traits::deallocate" ref="ga1379f79e6549b07219ad9d358474ade0" args="(ALLOCATOR_TYPE &amp;basicAllocator, pointer elementAddr, size_type n)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -669,7 +669,7 @@ template&lt;class ALLOCATOR_TYPE&gt; </div>
           <td class="memname">static void <a class="el" href="structbsl_1_1allocator__traits.html">bsl::allocator_traits</a>&lt; ALLOCATOR_TYPE &gt;::deallocate </td>
           <td>(</td>
           <td class="paramtype">ALLOCATOR_TYPE &amp;&nbsp;</td>
-          <td class="paramname"> <em>allocator</em>, </td>
+          <td class="paramname"> <em>basicAllocator</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -691,11 +691,11 @@ template&lt;class ALLOCATOR_TYPE&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Invoke <code>allocator.deallocate(elementAddr, n)</code>. The behavior is undefined unless the specified <code>elementAddr</code> was returned from a prior call to the <code>allocate</code> method of an allocator that compares equal to the specified <code>allocator</code>, and has not yet been passed to a <code>deallocate</code> call of such an allocator object. </p>
+<p>Invoke <code>basicAllocator.deallocate(elementAddr, n)</code>. The behavior is undefined unless the specified <code>elementAddr</code> was returned from a prior call to the <code>allocate</code> method of an allocator that compares equal to the specified <code>allocator</code>, and has not yet been passed to a <code>deallocate</code> call of such an allocator object. </p>
 
 </div>
 </div>
-<a class="anchor" id="ga661fe02ede7caf823194fe573f61bc1c"></a><!-- doxytag: member="bsl::allocator_traits::construct" ref="ga661fe02ede7caf823194fe573f61bc1c" args="(ALLOCATOR_TYPE &amp;allocator, ELEMENT_TYPE *elementAddr)" -->
+<a class="anchor" id="gab1c6b0656d9734078a2f1ffe3afcb675"></a><!-- doxytag: member="bsl::allocator_traits::construct" ref="gab1c6b0656d9734078a2f1ffe3afcb675" args="(ALLOCATOR_TYPE &amp;basicAllocator, ELEMENT_TYPE *elementAddr)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -707,7 +707,7 @@ template&lt;class ELEMENT_TYPE &gt; </div>
           <td class="memname">static void <a class="el" href="structbsl_1_1allocator__traits.html">bsl::allocator_traits</a>&lt; ALLOCATOR_TYPE &gt;::construct </td>
           <td>(</td>
           <td class="paramtype">ALLOCATOR_TYPE &amp;&nbsp;</td>
-          <td class="paramname"> <em>allocator</em>, </td>
+          <td class="paramname"> <em>basicAllocator</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -723,11 +723,11 @@ template&lt;class ELEMENT_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Default construct an object of the parameterized <code>ELEMENT_TYPE</code> at the specified <code>elementAddr</code>. If the parameterized <code>ALLOCATOR_TYPE</code> is bslma-compatible and <code>ELEMENT_TYPE</code> has the <code><a class="el" href="structbslma_1_1UsesBslmaAllocator.html">bslma::UsesBslmaAllocator</a></code> trait, then pass the mechanism from the specified <code>allocator</code> as an additional constructor argument (at the end of the argument list). The behavior is undefined unless <code>elementAddr</code> refers to valid, uninitialized storage. Note that this overload of <code>construct</code> is implemented using <code><a class="el" href="structbslalg_1_1ScalarPrimitives.html#a085932db0670470048dcfff9cb553e8c">bslalg::ScalarPrimitives::defaultConstruct</a></code> whereas those overloads that take at least one additional constructor argument are implemented in terms of <code><a class="el" href="structbslalg_1_1ScalarPrimitives.html#a2a589c408ae61aaf57853373a742c181">bslalg::ScalarPrimitives::construct</a></code> </p>
+<p>Default construct an object of the parameterized <code>ELEMENT_TYPE</code> at the specified <code>elementAddr</code>. If the parameterized <code>ALLOCATOR_TYPE</code> is bslma-compatible and <code>ELEMENT_TYPE</code> has the <code><a class="el" href="structbslma_1_1UsesBslmaAllocator.html">bslma::UsesBslmaAllocator</a></code> trait, then pass the mechanism from the specified <code>basicAllocator</code> as an additional constructor argument (at the end of the argument list). The behavior is undefined unless <code>elementAddr</code> refers to valid, uninitialized storage. Note that this overload of <code>construct</code> is implemented using <code><a class="el" href="structbslalg_1_1ScalarPrimitives.html#a085932db0670470048dcfff9cb553e8c">bslalg::ScalarPrimitives::defaultConstruct</a></code> whereas those overloads that take at least one additional constructor argument are implemented in terms of <code><a class="el" href="structbslalg_1_1ScalarPrimitives.html#a2a589c408ae61aaf57853373a742c181">bslalg::ScalarPrimitives::construct</a></code> </p>
 
 </div>
 </div>
-<a class="anchor" id="ga74c0222be024f5e3bd1379bf4383dfa1"></a><!-- doxytag: member="bsl::allocator_traits::construct" ref="ga74c0222be024f5e3bd1379bf4383dfa1" args="(ALLOCATOR_TYPE &amp;allocator, ELEMENT_TYPE *elementAddr, CTOR_ARGS_0 &amp;&amp;ctorArgs_0, CTOR_ARGS &amp;&amp;...ctorArgs)" -->
+<a class="anchor" id="ga9205e72e5182ead99085d2c7987de4f3"></a><!-- doxytag: member="bsl::allocator_traits::construct" ref="ga9205e72e5182ead99085d2c7987de4f3" args="(ALLOCATOR_TYPE &amp;basicAllocator, ELEMENT_TYPE *elementAddr, CTOR_ARGS_0 &amp;&amp;ctorArgs_0, CTOR_ARGS &amp;&amp;...ctorArgs)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -739,7 +739,7 @@ template&lt;class ELEMENT_TYPE , class CTOR_ARGS_0 , class... CTOR_ARGS&gt; </di
           <td class="memname">static void <a class="el" href="structbsl_1_1allocator__traits.html">bsl::allocator_traits</a>&lt; ALLOCATOR_TYPE &gt;::construct </td>
           <td>(</td>
           <td class="paramtype">ALLOCATOR_TYPE &amp;&nbsp;</td>
-          <td class="paramname"> <em>allocator</em>, </td>
+          <td class="paramname"> <em>basicAllocator</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -767,11 +767,11 @@ template&lt;class ELEMENT_TYPE , class CTOR_ARGS_0 , class... CTOR_ARGS&gt; </di
       </table>
 </div>
 <div class="memdoc">
-<p>Construct an object of the parameterized <code>ELEMENT_TYPE</code> at the specified <code>elementAddr</code> using a constructor argument list comprising the specified <code>ctorArgs_0</code> and <code>ctorArgs</code>. If the parameterized <code>ALLOCATOR_TYPE</code> is bslma-compatible and <code>ELEMENT_TYPE</code> has the <code><a class="el" href="structbslma_1_1UsesBslmaAllocator.html">bslma::UsesBslmaAllocator</a></code> trait, then pass the mechanism from the specified <code>allocator</code> as an additional constructor argument (at the end of the argument list). The behavior is undefined unless <code>elementAddr</code> refers to valid, uninitialized storage. Note that this overload of <code>construct</code> takes at least one constructor argument in addition to the allocator argument. </p>
+<p>Construct an object of the parameterized <code>ELEMENT_TYPE</code> at the specified <code>elementAddr</code> using a constructor argument list comprising the specified <code>ctorArgs_0</code> and <code>ctorArgs</code>. If the parameterized <code>ALLOCATOR_TYPE</code> is bslma-compatible and <code>ELEMENT_TYPE</code> has the <code><a class="el" href="structbslma_1_1UsesBslmaAllocator.html">bslma::UsesBslmaAllocator</a></code> trait, then pass the mechanism from the specified <code>basicAllocator</code> as an additional constructor argument (at the end of the argument list). The behavior is undefined unless <code>elementAddr</code> refers to valid, uninitialized storage. Note that this overload of <code>construct</code> takes at least one constructor argument in addition to the allocator argument. </p>
 
 </div>
 </div>
-<a class="anchor" id="ga422a2643ebb2f18791165e52b6acb081"></a><!-- doxytag: member="bsl::allocator_traits::destroy" ref="ga422a2643ebb2f18791165e52b6acb081" args="(ALLOCATOR_TYPE &amp;allocator, ELEMENT_TYPE *elementAddr)" -->
+<a class="anchor" id="ga401ba399a2d92530a3af6d64e5934383"></a><!-- doxytag: member="bsl::allocator_traits::destroy" ref="ga401ba399a2d92530a3af6d64e5934383" args="(ALLOCATOR_TYPE &amp;basicAllocator, ELEMENT_TYPE *elementAddr)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -783,7 +783,7 @@ template&lt;class ELEMENT_TYPE &gt; </div>
           <td class="memname">static void <a class="el" href="structbsl_1_1allocator__traits.html">bsl::allocator_traits</a>&lt; ALLOCATOR_TYPE &gt;::destroy </td>
           <td>(</td>
           <td class="paramtype">ALLOCATOR_TYPE &amp;&nbsp;</td>
-          <td class="paramname"> <em>allocator</em>, </td>
+          <td class="paramname"> <em>basicAllocator</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -799,11 +799,11 @@ template&lt;class ELEMENT_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Invoke the destructor for the object at the specified <code>elementAddr</code>; the specified <code>allocator</code> (of parameterized <code>ALLOCATOR_TYPE</code>) is ignored. The behavior is undefined unless <code>elementAddr</code> refers to a valid, constructed object. </p>
+<p>Invoke the destructor for the object at the specified <code>elementAddr</code>; the specified <code>basicAllocator</code> (of parameterized <code>ALLOCATOR_TYPE</code>) is ignored. The behavior is undefined unless <code>elementAddr</code> refers to a valid, constructed object. </p>
 
 </div>
 </div>
-<a class="anchor" id="gabb3b525b874d7c1ccbd85adbaeb86d08"></a><!-- doxytag: member="bsl::allocator_traits::max_size" ref="gabb3b525b874d7c1ccbd85adbaeb86d08" args="(const ALLOCATOR_TYPE &amp;allocator)" -->
+<a class="anchor" id="ga151e0515a13e0e2d18d74f19badde71c"></a><!-- doxytag: member="bsl::allocator_traits::max_size" ref="ga151e0515a13e0e2d18d74f19badde71c" args="(const ALLOCATOR_TYPE &amp;basicAllocator)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -813,7 +813,7 @@ template&lt;class ALLOCATOR_TYPE&gt; </div>
           <td class="memname">static size_type <a class="el" href="structbsl_1_1allocator__traits.html">bsl::allocator_traits</a>&lt; ALLOCATOR_TYPE &gt;::max_size </td>
           <td>(</td>
           <td class="paramtype">const ALLOCATOR_TYPE &amp;&nbsp;</td>
-          <td class="paramname"> <em>allocator</em></td>
+          <td class="paramname"> <em>basicAllocator</em></td>
           <td>&nbsp;)&nbsp;</td>
           <td><code> [static, inherited]</code></td>
         </tr>
@@ -846,7 +846,7 @@ template&lt;class ALLOCATOR_TYPE&gt; </div>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:34 for BDE Release 2.20 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:29 for BDE Release 2.22.1.2 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>
