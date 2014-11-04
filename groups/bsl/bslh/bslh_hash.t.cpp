@@ -656,9 +656,17 @@ class TestDriver {
         hashAppend(zeroAlg, zero);
         MockHashingAlgorithm negativeZeroAlg;
         hashAppend(negativeZeroAlg, negativeZero);
+
+        // Note that we're going to binaryCompare 'getLength()' bytes rather
+        // than 'sizeof(TYPE)' bytes, since for 'long double' only 10 bytes of
+        // the footprint are significant on some platforms.  See comments in
+        // the 'long double' overload of 'hashAppend' in 'bslh_hash.h' for more
+        // details.
+
+        ASSERT(zeroAlg.getLength() == negativeZeroAlg.getLength());
         ASSERT(binaryCompare(zeroAlg.getData(),
                              negativeZeroAlg.getData(),
-                             sizeof(TYPE)));
+                             zeroAlg.getLength()));
     }
 
     void testHashAppendInfinity()
@@ -1163,7 +1171,7 @@ int main(int argc, char *argv[])
         //:   double' if there is, ASSERT that all data including and after the
         //:   garbage is ignored by 'hashAppend'.
         //:
-        //: 5 Copy a known bitsequece into each fundamental type and pass it
+        //: 5 Copy a known bitsequence into each fundamental type and pass it
         //:   into 'hashAppend' with a mocked hashing algorith.  Verify that
         //:   the data inputted into the hashing algorithm matches the known
         //:   input bitsequence.  Test with 'const' types.  (C-1,6,9)
@@ -1421,7 +1429,7 @@ int main(int argc, char *argv[])
             ASSERTV(L_, alg.getLength(), size, alg.getLength() == size);
         }
 
-        if (verbose) printf("Copy a known bitsequece into each fundamental"
+        if (verbose) printf("Copy a known bitsequence into each fundamental"
                             " type and pass it into 'hashAppend' with a mocked"
                             " hashing algorith.  Verify that the data inputted"
                             " into the hashing algorithm matches the known"
