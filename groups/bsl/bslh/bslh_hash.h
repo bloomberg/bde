@@ -96,7 +96,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Requirements for Regular 'bslh' Hashing Algorithms
 ///--------------------------------------------------
-// Users of this modular hashing system are free write their own hashing
+// Users of this modular hashing system are free to write their own hashing
 // algorithms.  In order to plug into 'bslh::Hash', the user-implemented
 // algorithms must implement the interface shown here:
 //..

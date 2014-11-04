@@ -541,7 +541,7 @@ requirements of the algorithms in 'bslh':
 +-----------------------------------+-----------------------------------------+
 |'bslh::SpookyHashAlgorithm'        |      Y      |       N        |     N    |
 +-----------------------------------+-----------------------------------------+
-[*] "Crypto" is revering to the requirement on the seed, not the quality of the
+[*] "Crypto" is reverting to the requirement on the seed, not the quality of the
 algorithm.  I.e., 'bslh::SipHashAlgorithm' is not a cryptographically secure
 algorithm, but it *is* a cryptographically strong pseudorandom function, *if*
 it's provided a cryptographically secure seed (see 'bslh_siphashalgorithm' for
