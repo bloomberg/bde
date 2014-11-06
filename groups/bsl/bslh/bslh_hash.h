@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 // provide 'hashAppend' an instance of the 'HASH_ALGORITHM'.
 //
 // This component also contains 'hashAppend' definitions for fundamental types,
-// which are required by algorithms deinfed in 'bslh'.  Clients are expected to
+// which are required by algorithms defined in 'bslh'.  Clients are expected to
 // define a free-function 'hashAppend' for each of the types they wish to be
 // hashable (see {'hashAppend'} below).  More information can be found in the
 // package level documentation for 'bslh' (internal users can also find
@@ -41,7 +41,7 @@ BSLS_IDENT("$Id: $")
 // to the decoupling of the various tasks associated with hashing.  Using this
 // system, type implementers can identify attributes of their type that are
 // salient to hashing, without having to write a hashing algorithm.
-// Conversely, hashing algorithms can be written independant of types.
+// Conversely, hashing algorithms can be written independent of types.
 // Attributes that are salient to hashing are called out on a type using
 // 'hashAppend'.  Hashing algorithms are written to operate on the attributes
 // called out by 'hashAppend'.  Some default algorithms have been provided in
@@ -74,15 +74,15 @@ BSLS_IDENT("$Id: $")
 // hashing algorithm is no longer propagated, and instead a pointer to the
 // beginning of the type in memory is passed to the algorithm, along with the
 // length of the type.  There are special cases with floating point numbers and
-// bools where the data is tweaked before hashing to ensure that values that
-// compare equal will be hashed with the same bit-wise representation.  The
-// algorithm will then incorporate the type into its internal state and return
-// a finalized hash when requested.
+// boolean values where the data is tweaked before hashing to ensure that
+// values that compare equal will be hashed with the same bit-wise
+// representation.  The algorithm will then incorporate the type into its
+// internal state and return a finalized hash when requested.
 //
 ///Hashing Algorithms
 ///------------------
 // There are algorithms implemented in the 'bslh' package that can be passed in
-// and used as template parameters for 'bslh::Hash' or other structs like it.
+// and used as template parameters for 'bslh::Hash' or other 'struct's like it.
 // Some of these algorithms, such as 'bslh::SpookyHashAlgorithm', are named for
 // the algorithm they implement.  These named algorithms are intended for use
 // by those who want a specific algorithm.  There are other algorithms, such as
@@ -96,7 +96,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Requirements for Regular 'bslh' Hashing Algorithms
 ///--------------------------------------------------
-// Users of this modular hashing system are free write their own hashing
+// Users of this modular hashing system are free to write their own hashing
 // algorithms.  In order to plug into 'bslh::Hash', the user-implemented
 // algorithms must implement the interface shown here:
 //..
@@ -139,16 +139,16 @@ BSLS_IDENT("$Id: $")
 // want to store objects of type 'Box' in a hash table, so we need to be able
 // to produce hash values that represent instances of 'Box'.  We don't want to
 // write our own hashing or hash combine algorithm, because we know it is very
-// difficult and labour intensive to write a proper hashing algorithm.  In
+// difficult and labor-intensive to write a proper hashing algorithm.  In
 // order to hash this 'Box', we will use the modular hashing system supplied in
 // 'bslh'.
 //
-// First, we define 'Point', a class that allows us to identify a loction on a
-// two dimensional cartesian plane.
+// First, we define 'Point', a class that allows us to identify a location on a
+// two dimensional Cartesian plane.
 //..
 //  class Point {
 //      // This class is a value semantic type that represents a two
-//      // dimensional location on a cartesian plane.
+//      // dimensional location on a Cartesian plane.
 //
 //    private:
 //      int    d_x;
@@ -232,7 +232,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  class Box {
 //      // This class is a value semantic type that represents a box drawn on
-//      // to a cartesian plane.
+//      // to a Cartesian plane.
 //
 //    private:
 //      Point d_position;
@@ -249,7 +249,7 @@ BSLS_IDENT("$Id: $")
 //
 //      Point getPosition() const;
 //          // Return a 'Point' representing the upper left corner of this box
-//          // on a cartesian plane
+//          // on a Cartesian plane
 //
 //      int getWidth() const;
 //          // Return the width of this box.

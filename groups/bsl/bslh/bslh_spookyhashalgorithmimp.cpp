@@ -10,13 +10,13 @@ BSLS_IDENT("$Id$ $CSID$")
 // continues until the BloombergLP copyright notice.  Changes made to the
 // original code include:
 //
-//: 1 Added BloombergLP and bslh namespaces
+//: 1 Added 'BloombergLP' and 'bslh' namespaces
 //:
 //: 2 Renamed 'SpookyHash' to 'SpookyHashAlgorithmImp'
 //:
 //: 3 Changed formatting to match BDE conventions
 //:
-//: 4 Changed C-Style casts to static casts to match BDE conventions
+//: 4 Changed C-style casts to 'static_cast's to match BDE conventions
 //:
 //: 5 Made function names lower case (had to change 'Final' to 'finalize' and
 //:   'Short' to 'shortHash' to avoid using a keyword)
