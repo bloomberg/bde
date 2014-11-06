@@ -739,7 +739,7 @@ int main(int argc, char *argv[])
         //:   pointers.
         //
         // Plan:
-        //: 1 Assert the algorithm does not have the is_default_constructable
+        //: 1 Assert the algorithm does not have the 'is_default_constructible'
         //:   trait. (C-1)
         //:
         //: 2 Call the parameterized constructor using a seed and allow it to
@@ -757,7 +757,7 @@ int main(int argc, char *argv[])
                    "\n================\n");
 
         if (verbose) printf("Assert the algorithm does not have the"
-                            " is_default_constructable trait. (C-1)\n");
+                            " is_default_constructible trait. (C-1)\n");
         {
             // This cannot be done without C++11
             //ASSERT(!std::is_default_constructible<SipHashAlgorithm>::value);

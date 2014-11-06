@@ -35,7 +35,7 @@ windows                 _       STL_DEFINES     = /D_STLP_USE_STATIC_LIB /D_STLP
 # # shared library support
 # windows			shr	STL_DEFINES	= /D_STLP_USE_DECLSPEC
 #
-# # STL_NATIVE* defines explict locations of native STL, used in packages that
+# # STL_NATIVE* defines explicit locations of native STL, used in packages that
 # # are beneath bde+stlport until their test drivers no longer use iostreams;
 # # set STL_INCLUDE to STL_NATIVEINC and STL_LDFLAGS to STL_NATIVELIB
 # unix-dgux		_	STL_NATIVEINC	= -I/usr/local/como/libcomo
@@ -49,7 +49,7 @@ windows                 _       STL_DEFINES     = /D_STLP_USE_STATIC_LIB /D_STLP
 # *			_	BDE_CFLAGS	= $(STL_DEFINES) $(STL_CFLAGS)
 # *			_	BDE_CXXINCLUDE  = $(STL_INCLUDE)
 # *			_	BDE_LDFLAGS	= $(STL_LDFLAGS)
-# # AIX compiler requires -I directives on link line to do lazy temlate
+# # AIX compiler requires -I directives on link line to do lazy template
 # # instantiation.  The $(BDE_INCLUDES) variable is not defined in this .opts file
 # # but is constructed automatically by the build tool to have -I options for
 # # all needed package dependencies (including BDE_INCLUDE (no S) above)
