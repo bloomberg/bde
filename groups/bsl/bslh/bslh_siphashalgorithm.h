@@ -58,11 +58,11 @@ BSLS_IDENT("$Id: $")
 // distribution means that there is no way for an attacker to predict which
 // keys will cause collisions, meaning that this algorithm can help mitigate
 // Denial of Service (DoS) attacks on a hash table.  DoS attacks occur when an
-// attacker deliberately degrades the performance of the hash table by inserting
-// data that will collide to the same bucket, causing an average  constant time
-// lookup to become a linear search.  This protection is only effective if the
-// seed provided is a cryptographically secure random number that is not
-// available to the attacker.
+// attacker deliberately degrades the performance of the hash table by
+// inserting data that will collide to the same bucket, causing an average
+// constant time lookup to become a linear search.  This protection is only
+// effective if the seed provided is a cryptographically secure random number
+// that is not available to the attacker.
 //
 ///Speed
 ///-----
@@ -82,7 +82,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Hash Consistency
 ///----------------
-// This hash algorithm is endian-specific.  The algorithm will run on big and
+// This hash algorithm is endian-specific.  The algorithm will run on big- and
 // little-endian machines and the above guarantees apply on both architectures,
 // however, the hashes produced will be different.  Therefor it is not
 // recommended to send hashes from 'bslh::SipHashAlgorithm' over a network.  It
