@@ -15,7 +15,7 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslh_hash, bslh_spookyhashalgorithm
 //
 //@DESCRIPTION: 'bslh::SpookyHashAlgorithmImp' provides BDE style encapsulation
-// around Bob Jenkins cannonical SpookyHash implementation.  SpookyHash
+// around Bob Jenkins' canonical SpookyHash implementation.  SpookyHash
 // provides a way to hash contiguous data all at once, or discontiguous data in
 // pieces.  More information is available at:
 // http://burtleburtle.net/bob/hash/spooky.html
@@ -53,7 +53,7 @@ BSLS_IDENT("$Id: $")
 //    public:
 //      CheckedData(const char *data, size_t length);
 //          // Creates an instance of this class having the specified 'length'
-//          // bytes of 'data'.  The behaviour is undefined unless 'data' is
+//          // bytes of 'data'.  The behavior is undefined unless 'data' is
 //          // initialized with at least 'length' bytes, and remains valid for
 //          // the lifetime of this object.  Note that only a pointer to the
 //          // data will be maintained, it will not be copied.
@@ -92,7 +92,7 @@ BSLS_IDENT("$Id: $")
 // Next, we define 'isDataValid'.  We will generate a checksum from the
 // contained data and then compare it to the checksum we generated when the
 // class was created.  If the two hashes match, then we can be reasonably
-// certian that the data is still in a valid state (the chance of an accidental
+// certain that the data is still in a valid state (the chance of an accidental
 // collision is very low).  If the checksums do not match, we know that the
 // data has been corrupted.  We will not be able to restore it, but we will
 // know not to trust it.
@@ -168,14 +168,14 @@ BSLS_IDENT("$Id: $")
 // continues until the BloombergLP copyright notice.  Changes made to the
 // original code include:
 //
-//: 1 Added BloombergLP and bslh namespaces
+//: 1 Added 'BloombergLP' and 'bslh' namespaces
 //:
 //: 2 Renamed 'SpookyHash' to 'SpookyHashAlgorithmImp'
 //:
-//: 3 Removed usage of 'stdint.h' (which might not be availible on all
-//:   platforms) and updated associated typedefs
+//: 3 Removed usage of 'stdint.h' (which might not be available on all
+//:   platforms) and updated associated 'typedef's
 //:
-//: 4 Added include guards
+//: 4 Added 'include' guards
 //:
 //: 5 Made some methods private
 //:
@@ -183,9 +183,9 @@ BSLS_IDENT("$Id: $")
 //:
 //: 7 Updated indenting to BDE style
 //:
-//: 8 Moved typedefs within class
+//: 8 Moved 'typedef's within class
 //:
-//: 9 Changed c style casts to static_casts
+//: 9 Changed C-style casts to 'static_cast's
 //:
 //: 10 Reordered methods according to BDE style
 //:
@@ -193,7 +193,7 @@ BSLS_IDENT("$Id: $")
 //:
 //: 12 Changed static constants to 'enum's to avoid storage overhead
 //:
-//: 13 Added constructor in place of init
+//: 13 Added constructor in place of 'init'
 //:
 //: 14 Made function names lower case (had to change 'Final' to 'finalize' and
 //:    'Short' to 'shortHash' to avoid using a keyword)
@@ -410,7 +410,7 @@ class SpookyHashAlgorithmImp {
         // algorithm will be modified, meaning that calling final multiple
         // times will result in different hash values being returned.  The
         // returned hash will be the same as if 'Hash128' had been called will
-        // all of the accumulated data in one block.  The behaviour is
+        // all of the accumulated data in one block.  The behavior is
         // undefined unless both 'hash1' and 'hash2' point to 8 bytes of
         // modifiable memory.  Note that a value will be returned even if
         // 'update' has not been called.

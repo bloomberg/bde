@@ -37,7 +37,7 @@ BSLS_IDENT("$Id: $")
 // call the 'hashAppend' free function for 'TYPE' and provide 'hashAppend' an
 // instance of the 'HASH_ALGORITHM' which has been constructed using the stored
 // seed.  Clients are expected to define a free-function 'hashAppend' for each
-// of the types they wish to be hashable (see bslh_hash.h for details on
+// of the types they wish to be hashable (see 'bslh_hash.h' for details on
 // 'hashAppend').  More information can be found in the package level
 // documentation for 'bslh' (internal users can also find information here
 // {TEAM BDE:USING MODULAR HASHING<GO>})
@@ -55,9 +55,9 @@ BSLS_IDENT("$Id: $")
 // Users of this modular hashing system are free write their own hashing
 // algorithms.  In order to plug into 'bslh::SeededHash', the user-implemented
 // algorithms must meet the requirements for regular 'bslh' hashing algorithms
-// defined in bslh_hash.h, with the exception that a default constructor is not
-// required.  The user-implemented algorithm must also implement the interface
-// shown here:
+// defined in 'bslh_hash.h', with the exception that a default constructor is
+// not required.  The user-implemented algorithm must also implement the
+// interface shown here:
 //..
 // class SomeHashAlgorithm
 // {
@@ -96,7 +96,7 @@ BSLS_IDENT("$Id: $")
 //:
 //: B The seed generator is copy constructible.
 //
-// Option A is prefered because it allows 'bslh::SeededHash' to be defualt
+// Option A is preferred because it allows 'bslh::SeededHash' to be default
 // constructible.  Option B is allowed, but means that 'bslh::SeededHash' must
 // be passed an already-instantiated 'SEED_GENERATOR' at construction.
 //

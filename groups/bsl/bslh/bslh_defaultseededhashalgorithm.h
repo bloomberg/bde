@@ -20,9 +20,9 @@ BSLS_IDENT("$Id: $")
 // change in future releases.
 //
 // This class satisfies the requirements for seeded 'bslh' hashing algorithms,
-// defined in bslh_seededhash.h.  More information can be found in the package
-// level documentation for 'bslh' (internal users can also find information
-// here {TEAM BDE:USING MODULAR HASHING<GO>})
+// defined in 'bslh_seededhash.h'.  More information can be found in the
+// package level documentation for 'bslh' (internal users can also find
+// information here {TEAM BDE:USING MODULAR HASHING<GO>})
 //
 ///Security
 ///--------
@@ -34,10 +34,10 @@ BSLS_IDENT("$Id: $")
 // meaning attackers may be able to engineer keys that will cause a Denial of
 // Service (DoS) attack in hash tables using this algorithm.  Note that even if
 // an attacker does not know the seed used to initialize this algorithm, they
-// may still be able to produce keys that will cause a DOS attack in hash
+// may still be able to produce keys that will cause a DoS attack in hash
 // tables using this algorithm.  If security is required, an algorithm that
 // documents better secure properties should be used, such as
-// 'bslh_siphashalgorithm'.
+// 'bslh::SipHashAlgorithm'.
 //
 ///Speed
 ///-----
@@ -49,7 +49,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Hash Distribution
 ///-----------------
-// The default hash algorithm will distribute hashes in a pseudorandom
+// The default hash algorithm will distribute hashes in a pseudo-random
 // distribution across the key space.  The hash function will exhibit avalanche
 // behavior, meaning changing one bit of input will result in a 50% chance of
 // each output bit changing.  Avalanche behavior is enough to guarantee good

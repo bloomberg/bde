@@ -46,7 +46,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Hash Distribution
 ///-----------------
-// The default hash algorithm will distribute hashes in a pseudorandom
+// The default hash algorithm will distribute hashes in a pseudo-random
 // distribution across the key space.  The hash function will exhibit avalanche
 // behavior, meaning changing one bit of input will result in a 50% chance of
 // each output bit changing.  Avalanche behavior is enough to guarantee good

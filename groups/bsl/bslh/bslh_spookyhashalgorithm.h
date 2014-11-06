@@ -17,14 +17,14 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: 'bslh::SpookyHashAlgorithm' implements the SpookyHash algorithm
 // by Bob Jenkins.  This algorithm is a general purpose algorithm that is known
 // to quickly reach good avalanche performance and execute in time that is
-// comprable to or faster than other industry standard algorithms such as
+// comparable to or faster than other industry standard algorithms such as
 // CityHash.  It is a good default choice for hashing values in unordered
 // associative containers.  For more information, see:
 // http://burtleburtle.net/bob/hash/spooky.html
 //
 // This class satisfies the requirements for regular 'bslh' hashing algorithms
-// and seeded 'bslh' hashing algorithms, defined in bslh_hash.h and
-// bslh_seededhash.h respectively.  More information can be found in the
+// and seeded 'bslh' hashing algorithms, defined in 'bslh_hash.h' and
+// 'bslh_seededhash.h' respectively.  More information can be found in the
 // package level documentation for 'bslh' (internal users can also find
 // information here {TEAM BDE:USING MODULAR HASHING<GO>})
 //
@@ -41,7 +41,7 @@ BSLS_IDENT("$Id: $")
 // may still be able to produce keys that will cause a DoS attack in hash
 // tables using this algorithm.  If security is required, an algorithm that
 // documents better secure properties should be used, such as
-// 'bslh_siphashalgorithm'.
+// 'bslh::SipHashAlgorithm'.
 //
 ///Speed
 ///-----
@@ -60,14 +60,14 @@ BSLS_IDENT("$Id: $")
 //
 ///Hash Consistency
 ///----------------
-// This hash algorithm is endian-specific.  It is designed for little endian
-// machines, however, it will run on big endian machines.  On big endian
+// This hash algorithm is endian-specific.  It is designed for little-endian
+// machines, however, it will run on big-endian machines.  On big-endian
 // machines, the Performance and Security Guarantees still apply, however the
 // hashes produced will be different from those produced by the canonical
 // implementation.  The creator of this algorithm acknowledges this and says
 // that the big-endian hashes are just as good as the little-endian ones.  It
 // is not recommended to send hashes from 'bslh::SpookyHashAlgorihtm' over a
-// network becuase of the differances in hashes across architectures.  It is
+// network because of the differences in hashes across architectures.  It is
 // also not recommended to write hashes from 'bslh::SpookyHashAlgorihtm' to any
 // memory accessible by multiple machines.
 //
