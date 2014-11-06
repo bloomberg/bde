@@ -27,20 +27,18 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsl' package group currently has 15 packages having 12 levels of physical
+ The 'bsl' package group currently has 13 packages having 11 levels of physical
  dependency.  The list below shows the hierarchical ordering of the packages.
  The order of packages within each level is not architecturally significant,
  just alphabetical.
 ..
-  12. bslx
+  11. bslx
 
-  11. bslim
+  10. bslim
 
-  10. bsl+stdhdrs
+   9. bsl+stdhdrs
 
-   9. bsl+bslhdrs
-
-   8. bslstp
+   8. bsl+bslhdrs
 
    7. bslstl
 
@@ -56,8 +54,7 @@
 
    2. bslscm
 
-   1. bslfwd
-      bsls
+   1. bsls
 ..
  Note that the 'bsl+stdhdrs' package is only a compatibility layer for
  Bloomberg managed code.  It is not an essential package for the rest of the
@@ -84,9 +81,6 @@
 : 'bsldoc':
 :      Provide documentation of terms and concepts used throughout BDE.
 :
-: 'bslfwd':
-:      Provide compatibility for clients using single-level namespace
-:
 : 'bslh':
 :      Provide a framework for hashing types using swapable algorithms.
 :
@@ -107,9 +101,6 @@
 :
 : 'bslstl':
 :      Provide replacement classes for STL constructs.
-:
-: 'bslstp':
-:      Provide replacement classes (adopted from STLport) for STL.
 :
 : 'bsltf':
 :      Provide a set of utilities and types to help with testing.
