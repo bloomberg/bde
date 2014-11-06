@@ -126,7 +126,7 @@ class SomeRNG {
         // Type of the number that will be returned.
 
     result_type operator()();
-        // Return a pseudorandom number.
+        // Return a pseudo-random number.
 };
 SomeRNG::result_type SomeRNG::operator()() {
     return 49872534ULL; // NOTE: not actually random

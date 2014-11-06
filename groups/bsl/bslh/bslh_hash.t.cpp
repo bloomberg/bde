@@ -161,16 +161,16 @@ void aSsErT(bool b, const char *s, int i)
 // want to store objects of type 'Box' in a hash table, so we need to be able
 // to produce hash values that represent instances of 'Box'.  We don't want to
 // write our own hashing or hash combine algorithm, because we know it is very
-// difficult and labour intensive to write a proper hashing algorithm.  In
+// difficult and labor-intensive to write a proper hashing algorithm.  In
 // order to hash this 'Box', we will use the modular hashing system supplied in
 // 'bslh'.
 //
-// First, we define 'Point', a class that allows us to identify a loction on a
-// two dimensional cartesian plane.
+// First, we define 'Point', a class that allows us to identify a location on a
+// two dimensional Cartesian plane.
 //..
     class Point {
         // This class is a value semantic type that represents a two
-        // dimensional location on a cartesian plane.
+        // dimensional location on a Cartesian plane.
 
       private:
         int    d_x;
@@ -254,7 +254,7 @@ void aSsErT(bool b, const char *s, int i)
 //..
     class Box {
         // This class is a value semantic type that represents a box drawn on
-        // to a cartesian plane.
+        // to a Cartesian plane.
 
       private:
         Point d_position;
@@ -271,7 +271,7 @@ void aSsErT(bool b, const char *s, int i)
 
         Point getPosition() const;
             // Return a 'Point' representing the upper left corner of this box
-            // on a cartesian plane
+            // on a Cartesian plane
 
         int getWidth() const;
             // Return the width of this box.

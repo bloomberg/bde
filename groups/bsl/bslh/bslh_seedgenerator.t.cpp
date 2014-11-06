@@ -309,7 +309,7 @@ typedef bslh::SeedGenerator<MockRNG> Obj;
 
 //..
 // Next, we define our constructor where we actually use 'bslh::SeedGenerator'.
-// 'bslh::SeedGenerator' allows us to create arbitarty length seeds to match
+// 'bslh::SeedGenerator' allows us to create arbitrary length seeds to match
 // the requirements of the above declared algorithms.
 //..
 
