@@ -4957,7 +4957,7 @@ bsl::allocate_shared(ALLOC *a, const ARGS&... args)
 }
 
 template<class ELEMENT_TYPE, class... ARGS>
-bsl::shared_ptr<ELEMENT_TYPE> bsl::make_shared(const ARGS&... args);
+bsl::shared_ptr<ELEMENT_TYPE> bsl::make_shared(const ARGS&... args)
 {
     typedef BloombergLP::bslma::SharedPtrInplaceRep<ELEMENT_TYPE> Rep;
     BloombergLP::bslma::Allocator *basicAllocator =
