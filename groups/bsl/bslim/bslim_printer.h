@@ -662,6 +662,9 @@ class Printer {
         //: o If 'TYPE' is a 'bsl::pair' object, print out the two elements of
         //:   the pair.
         //:
+        //: o If 'TYPE' is a 'bslstl::StringRef' object, print the referenced
+        //:   string enclosed in quotes (possibly including embedded 0s).
+        //:
         //: o If 'TYPE' has STL iterators (this includes all STL sequence and
         //:   associative containers: vector, deque, list, set, map, multiset,
         //:   multimap, unordered_set, unordered_map, unordered_multiset, and
@@ -752,6 +755,9 @@ class Printer {
         //:
         //: o If 'TYPE' is a 'bsl::pair' object, print out the two elements of
         //:   the pair.
+        //:
+        //: o If 'TYPE' is a 'bslstl::StringRef' object, print the referenced
+        //:   string enclosed in quotes (possibly including embedded 0s).
         //:
         //: o If 'TYPE' has STL iterators (this includes all STL sequence and
         //:   associative containers: vector, deque, list, set, map, multiset,
@@ -921,6 +927,13 @@ struct Printer_Helper {
     static void printRaw(
                         bsl::ostream&              stream,
                         const bsl::pair<T1, T2>&   data,
+                        int                        level,
+                        int                        spacesPerLevel,
+                        bslmf::SelectTraitCase<>);
+
+    static void printRaw(
+                        bsl::ostream&              stream,
+                        const bslstl::StringRef&   data,
                         int                        level,
                         int                        spacesPerLevel,
                         bslmf::SelectTraitCase<>);
