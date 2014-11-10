@@ -230,32 +230,28 @@ static ostream& printDoubleBits(ostream& stream, double number)
     const int SIZE = static_cast<int>(sizeof number);
     ASSERT(8 <= SIZE);
 
-    union {
-        double        d_double;
-        unsigned char d_chars[1];
-    } u;
-
-    u.d_double = number;
+    double         tmp = number;
+    unsigned char *bytes = reinterpret_cast<unsigned char *>(&tmp);
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    swap(u.d_chars + SIZE - 1, u.d_chars + 0);
-    swap(u.d_chars + SIZE - 2, u.d_chars + 1);
-    swap(u.d_chars + SIZE - 3, u.d_chars + 2);
-    swap(u.d_chars + SIZE - 4, u.d_chars + 3);
+    swap(bytes + SIZE - 1, bytes + 0);
+    swap(bytes + SIZE - 2, bytes + 1);
+    swap(bytes + SIZE - 3, bytes + 2);
+    swap(bytes + SIZE - 4, bytes + 3);
 #endif
 
     for (int i = 0; i < SIZE; ++i) {
         if (i) {
             stream << ' ';
         }
-        stream << !!(u.d_chars[i] & 0x80)
-               << !!(u.d_chars[i] & 0x40)
-               << !!(u.d_chars[i] & 0x20)
-               << !!(u.d_chars[i] & 0x10)
-               << !!(u.d_chars[i] & 0x08)
-               << !!(u.d_chars[i] & 0x04)
-               << !!(u.d_chars[i] & 0x02)
-               << !!(u.d_chars[i] & 0x01);
+        stream << !!(bytes[i] & 0x80)
+               << !!(bytes[i] & 0x40)
+               << !!(bytes[i] & 0x20)
+               << !!(bytes[i] & 0x10)
+               << !!(bytes[i] & 0x08)
+               << !!(bytes[i] & 0x04)
+               << !!(bytes[i] & 0x02)
+               << !!(bytes[i] & 0x01);
     }
 
     return stream;
@@ -290,32 +286,28 @@ static ostream& printFloatBits(ostream& stream, float number)
     const int SIZE = static_cast<int>(sizeof number);
     ASSERT(4 <= SIZE);
 
-    union {
-        float         d_float;
-        unsigned char d_chars[1];
-    } u;
-
-    u.d_float = number;
+    float          tmp = number;
+    unsigned char *bytes = reinterpret_cast<unsigned char *>(&tmp);
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    swap(u.d_chars + SIZE - 1, u.d_chars + 0);
-    swap(u.d_chars + SIZE - 2, u.d_chars + 1);
-    swap(u.d_chars + SIZE - 3, u.d_chars + 2);
-    swap(u.d_chars + SIZE - 4, u.d_chars + 3);
+    swap(bytes + SIZE - 1, bytes + 0);
+    swap(bytes + SIZE - 2, bytes + 1);
+    swap(bytes + SIZE - 3, bytes + 2);
+    swap(bytes + SIZE - 4, bytes + 3);
 #endif
 
     for (int i = 0; i < SIZE; ++i) {
         if (i) {
             stream << ' ';
         }
-        stream << !!(u.d_chars[i] & 0x80)
-               << !!(u.d_chars[i] & 0x40)
-               << !!(u.d_chars[i] & 0x20)
-               << !!(u.d_chars[i] & 0x10)
-               << !!(u.d_chars[i] & 0x08)
-               << !!(u.d_chars[i] & 0x04)
-               << !!(u.d_chars[i] & 0x02)
-               << !!(u.d_chars[i] & 0x01);
+        stream << !!(bytes[i] & 0x80)
+               << !!(bytes[i] & 0x40)
+               << !!(bytes[i] & 0x20)
+               << !!(bytes[i] & 0x10)
+               << !!(bytes[i] & 0x08)
+               << !!(bytes[i] & 0x04)
+               << !!(bytes[i] & 0x02)
+               << !!(bytes[i] & 0x01);
     }
 
     return stream;
@@ -4745,22 +4737,19 @@ int main(int argc, char *argv[]) {
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int di = 0; di < NUM_DATA; ++di) {
-            const int    LINE = DATA[di].d_lineNum;
+            const int    LINE   = DATA[di].d_lineNum;
             const float  number = DATA[di].d_number;
-            const char  *exp = DATA[di].d_spec;
-            const int    SIZE = static_cast<int>(sizeof number);
+            const char  *exp    = DATA[di].d_spec;
+            const int    SIZE   = static_cast<int>(sizeof number);
 
-            union {
-                float d_number;
-                char  d_bytes[1];
-            } u;
+            float  tmp   = number;
+            char  *bytes = reinterpret_cast<char *>(&tmp);
 
-            u.d_number = number;
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-            reverse(u.d_bytes, SIZE);
+            reverse(bytes, SIZE);
 #endif
 
-            bool isEq = 0 == memcmp(u.d_bytes, exp, SIZE);
+            bool isEq = 0 == memcmp(bytes, exp, SIZE);
 
             if (veryVerbose || !isEq) {
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
@@ -4770,7 +4759,7 @@ int main(int argc, char *argv[]) {
 #endif
                 cout << e; P(number)
                 cout << "exp: "; pBytes(exp, SIZE) << endl;
-                cout << "act: "; pBytes(u.d_bytes, SIZE) << endl;
+                cout << "act: "; pBytes(bytes, SIZE) << endl;
             }
             LOOP_ASSERT(LINE, isEq);
 
@@ -4779,15 +4768,15 @@ int main(int argc, char *argv[]) {
             // should be compatible.
 
             if (isEq) {         // If the original test failed skip this one.
-                u.d_number = -number;
+                tmp = -number;
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-                reverse(u.d_bytes, SIZE);
+                reverse(bytes, SIZE);
 #endif
                 char EXP[SIZE];
                 memcpy(EXP, exp, SIZE);
                 EXP[0] =
                    static_cast<char>(static_cast<unsigned int>(EXP[0]) ^ 0x80);
-                LOOP_ASSERT(LINE, 0 == memcmp(u.d_bytes, EXP, SIZE));
+                LOOP_ASSERT(LINE, 0 == memcmp(bytes, EXP, SIZE));
             }
         }
       } break;
@@ -4894,17 +4883,14 @@ int main(int argc, char *argv[]) {
             const char   *exp = DATA[di].d_spec;
             const int     SIZE = static_cast<int>(sizeof number);
 
-            union {
-                double d_number;
-                char   d_bytes[1];
-            } u;
+            double  tmp   = number;
+            char   *bytes = reinterpret_cast<char *>(&tmp);
 
-            u.d_number = number;
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-            reverse(u.d_bytes, SIZE);
+            reverse(bytes, SIZE);
 #endif
 
-            bool isEq = 0 == memcmp(u.d_bytes, exp, SIZE);
+            bool isEq = 0 == memcmp(bytes, exp, SIZE);
 
             if (veryVerbose || !isEq) {
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
@@ -4914,7 +4900,7 @@ int main(int argc, char *argv[]) {
 #endif
                 cout << e; P(number)
                 cout << "exp: "; pBytes(exp, SIZE) << endl;
-                cout << "act: "; pBytes(u.d_bytes, SIZE) << endl;
+                cout << "act: "; pBytes(bytes, SIZE) << endl;
             }
             LOOP_ASSERT(LINE, isEq);
 
@@ -4923,15 +4909,15 @@ int main(int argc, char *argv[]) {
             // should be compatible.
 
             if (isEq) {         // If the original test failed skip this one.
-                u.d_number = -number;
+                tmp = -number;
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-                reverse(u.d_bytes, SIZE);
+                reverse(bytes, SIZE);
 #endif
                 char EXP[SIZE];
                 memcpy(EXP, exp, SIZE);
                 EXP[0] =
                    static_cast<char>(static_cast<unsigned int>(EXP[0]) ^ 0x80);
-                LOOP_ASSERT(LINE, 0 == memcmp(u.d_bytes, EXP, SIZE));
+                LOOP_ASSERT(LINE, 0 == memcmp(bytes, EXP, SIZE));
             }
         }
       } break;

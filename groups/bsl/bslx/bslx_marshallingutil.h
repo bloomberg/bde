@@ -805,29 +805,26 @@ void MarshallingUtil::putInt64(char *buffer, bsls::Types::Int64 value)
 {
     BSLS_ASSERT_SAFE(buffer);
 
-    typedef const union Dummy {
-        bsls::Types::Int64 d_variable;
-        char               d_bytes[sizeof value];
-    }& Value;
+    char *bytes = reinterpret_cast<char *>(&value);
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    buffer[0] = Value(value).d_bytes[7];
-    buffer[1] = Value(value).d_bytes[6];
-    buffer[2] = Value(value).d_bytes[5];
-    buffer[3] = Value(value).d_bytes[4];
-    buffer[4] = Value(value).d_bytes[3];
-    buffer[5] = Value(value).d_bytes[2];
-    buffer[6] = Value(value).d_bytes[1];
-    buffer[7] = Value(value).d_bytes[0];
+    buffer[0] = bytes[7];
+    buffer[1] = bytes[6];
+    buffer[2] = bytes[5];
+    buffer[3] = bytes[4];
+    buffer[4] = bytes[3];
+    buffer[5] = bytes[2];
+    buffer[6] = bytes[1];
+    buffer[7] = bytes[0];
 #else
-    buffer[0] = Value(value).d_bytes[sizeof value - 8];
-    buffer[1] = Value(value).d_bytes[sizeof value - 7];
-    buffer[2] = Value(value).d_bytes[sizeof value - 6];
-    buffer[3] = Value(value).d_bytes[sizeof value - 5];
-    buffer[4] = Value(value).d_bytes[sizeof value - 4];
-    buffer[5] = Value(value).d_bytes[sizeof value - 3];
-    buffer[6] = Value(value).d_bytes[sizeof value - 2];
-    buffer[7] = Value(value).d_bytes[sizeof value - 1];
+    buffer[0] = bytes[sizeof value - 8];
+    buffer[1] = bytes[sizeof value - 7];
+    buffer[2] = bytes[sizeof value - 6];
+    buffer[3] = bytes[sizeof value - 5];
+    buffer[4] = bytes[sizeof value - 4];
+    buffer[5] = bytes[sizeof value - 3];
+    buffer[6] = bytes[sizeof value - 2];
+    buffer[7] = bytes[sizeof value - 1];
 #endif
 }
 
@@ -836,27 +833,24 @@ void MarshallingUtil::putInt56(char *buffer, bsls::Types::Int64 value)
 {
     BSLS_ASSERT_SAFE(buffer);
 
-    typedef const union Dummy {
-        bsls::Types::Int64 d_variable;
-        char               d_bytes[sizeof value];
-    }& Value;
+    char *bytes = reinterpret_cast<char *>(&value);
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    buffer[0] = Value(value).d_bytes[6];
-    buffer[1] = Value(value).d_bytes[5];
-    buffer[2] = Value(value).d_bytes[4];
-    buffer[3] = Value(value).d_bytes[3];
-    buffer[4] = Value(value).d_bytes[2];
-    buffer[5] = Value(value).d_bytes[1];
-    buffer[6] = Value(value).d_bytes[0];
+    buffer[0] = bytes[6];
+    buffer[1] = bytes[5];
+    buffer[2] = bytes[4];
+    buffer[3] = bytes[3];
+    buffer[4] = bytes[2];
+    buffer[5] = bytes[1];
+    buffer[6] = bytes[0];
 #else
-    buffer[0] = Value(value).d_bytes[sizeof value - 7];
-    buffer[1] = Value(value).d_bytes[sizeof value - 6];
-    buffer[2] = Value(value).d_bytes[sizeof value - 5];
-    buffer[3] = Value(value).d_bytes[sizeof value - 4];
-    buffer[4] = Value(value).d_bytes[sizeof value - 3];
-    buffer[5] = Value(value).d_bytes[sizeof value - 2];
-    buffer[6] = Value(value).d_bytes[sizeof value - 1];
+    buffer[0] = bytes[sizeof value - 7];
+    buffer[1] = bytes[sizeof value - 6];
+    buffer[2] = bytes[sizeof value - 5];
+    buffer[3] = bytes[sizeof value - 4];
+    buffer[4] = bytes[sizeof value - 3];
+    buffer[5] = bytes[sizeof value - 2];
+    buffer[6] = bytes[sizeof value - 1];
 #endif
 }
 
@@ -865,25 +859,22 @@ void MarshallingUtil::putInt48(char *buffer, bsls::Types::Int64 value)
 {
     BSLS_ASSERT_SAFE(buffer);
 
-    typedef const union Dummy {
-        bsls::Types::Int64 d_variable;
-        char               d_bytes[sizeof value];
-    }& Value;
+    char *bytes = reinterpret_cast<char *>(&value);
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    buffer[0] = Value(value).d_bytes[5];
-    buffer[1] = Value(value).d_bytes[4];
-    buffer[2] = Value(value).d_bytes[3];
-    buffer[3] = Value(value).d_bytes[2];
-    buffer[4] = Value(value).d_bytes[1];
-    buffer[5] = Value(value).d_bytes[0];
+    buffer[0] = bytes[5];
+    buffer[1] = bytes[4];
+    buffer[2] = bytes[3];
+    buffer[3] = bytes[2];
+    buffer[4] = bytes[1];
+    buffer[5] = bytes[0];
 #else
-    buffer[0] = Value(value).d_bytes[sizeof value - 6];
-    buffer[1] = Value(value).d_bytes[sizeof value - 5];
-    buffer[2] = Value(value).d_bytes[sizeof value - 4];
-    buffer[3] = Value(value).d_bytes[sizeof value - 3];
-    buffer[4] = Value(value).d_bytes[sizeof value - 2];
-    buffer[5] = Value(value).d_bytes[sizeof value - 1];
+    buffer[0] = bytes[sizeof value - 6];
+    buffer[1] = bytes[sizeof value - 5];
+    buffer[2] = bytes[sizeof value - 4];
+    buffer[3] = bytes[sizeof value - 3];
+    buffer[4] = bytes[sizeof value - 2];
+    buffer[5] = bytes[sizeof value - 1];
 #endif
 }
 
@@ -892,23 +883,20 @@ void MarshallingUtil::putInt40(char *buffer, bsls::Types::Int64 value)
 {
     BSLS_ASSERT_SAFE(buffer);
 
-    typedef const union Dummy {
-        bsls::Types::Int64 d_variable;
-        char               d_bytes[sizeof value];
-    }& Value;
+    char *bytes = reinterpret_cast<char *>(&value);
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    buffer[0] = Value(value).d_bytes[4];
-    buffer[1] = Value(value).d_bytes[3];
-    buffer[2] = Value(value).d_bytes[2];
-    buffer[3] = Value(value).d_bytes[1];
-    buffer[4] = Value(value).d_bytes[0];
+    buffer[0] = bytes[4];
+    buffer[1] = bytes[3];
+    buffer[2] = bytes[2];
+    buffer[3] = bytes[1];
+    buffer[4] = bytes[0];
 #else
-    buffer[0] = Value(value).d_bytes[sizeof value - 5];
-    buffer[1] = Value(value).d_bytes[sizeof value - 4];
-    buffer[2] = Value(value).d_bytes[sizeof value - 3];
-    buffer[3] = Value(value).d_bytes[sizeof value - 2];
-    buffer[4] = Value(value).d_bytes[sizeof value - 1];
+    buffer[0] = bytes[sizeof value - 5];
+    buffer[1] = bytes[sizeof value - 4];
+    buffer[2] = bytes[sizeof value - 3];
+    buffer[3] = bytes[sizeof value - 2];
+    buffer[4] = bytes[sizeof value - 1];
 #endif
 }
 
@@ -917,21 +905,18 @@ void MarshallingUtil::putInt32(char *buffer, int value)
 {
     BSLS_ASSERT_SAFE(buffer);
 
-    typedef const union Dummy {
-        int  d_variable;
-        char d_bytes[sizeof value];
-    }& Value;
+    char *bytes = reinterpret_cast<char *>(&value);
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    buffer[0] = Value(value).d_bytes[3];
-    buffer[1] = Value(value).d_bytes[2];
-    buffer[2] = Value(value).d_bytes[1];
-    buffer[3] = Value(value).d_bytes[0];
+    buffer[0] = bytes[3];
+    buffer[1] = bytes[2];
+    buffer[2] = bytes[1];
+    buffer[3] = bytes[0];
 #else
-    buffer[0] = Value(value).d_bytes[sizeof value - 4];
-    buffer[1] = Value(value).d_bytes[sizeof value - 3];
-    buffer[2] = Value(value).d_bytes[sizeof value - 2];
-    buffer[3] = Value(value).d_bytes[sizeof value - 1];
+    buffer[0] = bytes[sizeof value - 4];
+    buffer[1] = bytes[sizeof value - 3];
+    buffer[2] = bytes[sizeof value - 2];
+    buffer[3] = bytes[sizeof value - 1];
 #endif
 }
 
@@ -940,19 +925,16 @@ void MarshallingUtil::putInt24(char *buffer, int value)
 {
     BSLS_ASSERT_SAFE(buffer);
 
-    typedef const union Dummy {
-        int  d_variable;
-        char d_bytes[sizeof value];
-    }& Value;
+    char *bytes = reinterpret_cast<char *>(&value);
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    buffer[0] = Value(value).d_bytes[2];
-    buffer[1] = Value(value).d_bytes[1];
-    buffer[2] = Value(value).d_bytes[0];
+    buffer[0] = bytes[2];
+    buffer[1] = bytes[1];
+    buffer[2] = bytes[0];
 #else
-    buffer[0] = Value(value).d_bytes[sizeof value - 3];
-    buffer[1] = Value(value).d_bytes[sizeof value - 2];
-    buffer[2] = Value(value).d_bytes[sizeof value - 1];
+    buffer[0] = bytes[sizeof value - 3];
+    buffer[1] = bytes[sizeof value - 2];
+    buffer[2] = bytes[sizeof value - 1];
 #endif
 }
 
@@ -961,17 +943,14 @@ void MarshallingUtil::putInt16(char *buffer, int value)
 {
     BSLS_ASSERT_SAFE(buffer);
 
-    typedef const union Dummy {
-        int  d_variable;
-        char d_bytes[sizeof value];
-    }& Value;
+    char *bytes = reinterpret_cast<char *>(&value);
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    buffer[0] = Value(value).d_bytes[1];
-    buffer[1] = Value(value).d_bytes[0];
+    buffer[0] = bytes[1];
+    buffer[1] = bytes[0];
 #else
-    buffer[0] = Value(value).d_bytes[sizeof value - 2];
-    buffer[1] = Value(value).d_bytes[sizeof value - 1];
+    buffer[0] = bytes[sizeof value - 2];
+    buffer[1] = bytes[sizeof value - 1];
 #endif
 }
 
@@ -990,29 +969,26 @@ void MarshallingUtil::putFloat64(char *buffer, double value)
 {
     BSLS_ASSERT_SAFE(buffer);
 
-    typedef const union Dummy {
-        double d_variable;
-        char   d_bytes[sizeof value];
-    }& Value;
+    char *bytes = reinterpret_cast<char *>(&value);
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    buffer[0] = Value(value).d_bytes[sizeof value - 1];
-    buffer[1] = Value(value).d_bytes[sizeof value - 2];
-    buffer[2] = Value(value).d_bytes[sizeof value - 3];
-    buffer[3] = Value(value).d_bytes[sizeof value - 4];
-    buffer[4] = Value(value).d_bytes[sizeof value - 5];
-    buffer[5] = Value(value).d_bytes[sizeof value - 6];
-    buffer[6] = Value(value).d_bytes[sizeof value - 7];
-    buffer[7] = Value(value).d_bytes[sizeof value - 8];
+    buffer[0] = bytes[sizeof value - 1];
+    buffer[1] = bytes[sizeof value - 2];
+    buffer[2] = bytes[sizeof value - 3];
+    buffer[3] = bytes[sizeof value - 4];
+    buffer[4] = bytes[sizeof value - 5];
+    buffer[5] = bytes[sizeof value - 6];
+    buffer[6] = bytes[sizeof value - 7];
+    buffer[7] = bytes[sizeof value - 8];
 #else
-    buffer[0] = Value(value).d_bytes[0];
-    buffer[1] = Value(value).d_bytes[1];
-    buffer[2] = Value(value).d_bytes[2];
-    buffer[3] = Value(value).d_bytes[3];
-    buffer[4] = Value(value).d_bytes[4];
-    buffer[5] = Value(value).d_bytes[5];
-    buffer[6] = Value(value).d_bytes[6];
-    buffer[7] = Value(value).d_bytes[7];
+    buffer[0] = bytes[0];
+    buffer[1] = bytes[1];
+    buffer[2] = bytes[2];
+    buffer[3] = bytes[3];
+    buffer[4] = bytes[4];
+    buffer[5] = bytes[5];
+    buffer[6] = bytes[6];
+    buffer[7] = bytes[7];
 #endif
 }
 
@@ -1021,21 +997,18 @@ void MarshallingUtil::putFloat32(char *buffer, float value)
 {
     BSLS_ASSERT_SAFE(buffer);
 
-    typedef const union Dummy {
-        float d_variable;
-        char  d_bytes[sizeof value];
-    }& Value;
+    char *bytes = reinterpret_cast<char *>(&value);
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    buffer[0] = Value(value).d_bytes[sizeof value - 1];
-    buffer[1] = Value(value).d_bytes[sizeof value - 2];
-    buffer[2] = Value(value).d_bytes[sizeof value - 3];
-    buffer[3] = Value(value).d_bytes[sizeof value - 4];
+    buffer[0] = bytes[sizeof value - 1];
+    buffer[1] = bytes[sizeof value - 2];
+    buffer[2] = bytes[sizeof value - 3];
+    buffer[3] = bytes[sizeof value - 4];
 #else
-    buffer[0] = Value(value).d_bytes[0];
-    buffer[1] = Value(value).d_bytes[1];
-    buffer[2] = Value(value).d_bytes[2];
-    buffer[3] = Value(value).d_bytes[3];
+    buffer[0] = bytes[0];
+    buffer[1] = bytes[1];
+    buffer[2] = bytes[2];
+    buffer[3] = bytes[3];
 #endif
 }
 
@@ -1052,29 +1025,26 @@ void MarshallingUtil::getInt64(bsls::Types::Int64 *variable,
         *variable = 0x80 & buffer[0] ? -1 : 0;  // sign extend
     }
 
-    typedef union Dummy {
-        bsls::Types::Int64 d_variable;
-        char               d_bytes[sizeof *variable];
-    }& Value;
+    char *bytes = reinterpret_cast<char *>(variable);
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    Value(*variable).d_bytes[7] = buffer[0];
-    Value(*variable).d_bytes[6] = buffer[1];
-    Value(*variable).d_bytes[5] = buffer[2];
-    Value(*variable).d_bytes[4] = buffer[3];
-    Value(*variable).d_bytes[3] = buffer[4];
-    Value(*variable).d_bytes[2] = buffer[5];
-    Value(*variable).d_bytes[1] = buffer[6];
-    Value(*variable).d_bytes[0] = buffer[7];
+    bytes[7] = buffer[0];
+    bytes[6] = buffer[1];
+    bytes[5] = buffer[2];
+    bytes[4] = buffer[3];
+    bytes[3] = buffer[4];
+    bytes[2] = buffer[5];
+    bytes[1] = buffer[6];
+    bytes[0] = buffer[7];
 #else
-    Value(*variable).d_bytes[sizeof *variable - 8] = buffer[0];
-    Value(*variable).d_bytes[sizeof *variable - 7] = buffer[1];
-    Value(*variable).d_bytes[sizeof *variable - 6] = buffer[2];
-    Value(*variable).d_bytes[sizeof *variable - 5] = buffer[3];
-    Value(*variable).d_bytes[sizeof *variable - 4] = buffer[4];
-    Value(*variable).d_bytes[sizeof *variable - 3] = buffer[5];
-    Value(*variable).d_bytes[sizeof *variable - 2] = buffer[6];
-    Value(*variable).d_bytes[sizeof *variable - 1] = buffer[7];
+    bytes[sizeof *variable - 8] = buffer[0];
+    bytes[sizeof *variable - 7] = buffer[1];
+    bytes[sizeof *variable - 6] = buffer[2];
+    bytes[sizeof *variable - 5] = buffer[3];
+    bytes[sizeof *variable - 4] = buffer[4];
+    bytes[sizeof *variable - 3] = buffer[5];
+    bytes[sizeof *variable - 2] = buffer[6];
+    bytes[sizeof *variable - 1] = buffer[7];
 #endif
 }
 
@@ -1089,29 +1059,26 @@ void MarshallingUtil::getUint64(bsls::Types::Uint64 *variable,
         *variable = 0;  // zero-extend
     }
 
-    typedef union Dummy {
-        bsls::Types::Uint64 d_variable;
-        char                d_bytes[sizeof *variable];
-    }& Value;
+    char *bytes = reinterpret_cast<char *>(variable);
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    Value(*variable).d_bytes[7] = buffer[0];
-    Value(*variable).d_bytes[6] = buffer[1];
-    Value(*variable).d_bytes[5] = buffer[2];
-    Value(*variable).d_bytes[4] = buffer[3];
-    Value(*variable).d_bytes[3] = buffer[4];
-    Value(*variable).d_bytes[2] = buffer[5];
-    Value(*variable).d_bytes[1] = buffer[6];
-    Value(*variable).d_bytes[0] = buffer[7];
+    bytes[7] = buffer[0];
+    bytes[6] = buffer[1];
+    bytes[5] = buffer[2];
+    bytes[4] = buffer[3];
+    bytes[3] = buffer[4];
+    bytes[2] = buffer[5];
+    bytes[1] = buffer[6];
+    bytes[0] = buffer[7];
 #else
-    Value(*variable).d_bytes[sizeof *variable - 8] = buffer[0];
-    Value(*variable).d_bytes[sizeof *variable - 7] = buffer[1];
-    Value(*variable).d_bytes[sizeof *variable - 6] = buffer[2];
-    Value(*variable).d_bytes[sizeof *variable - 5] = buffer[3];
-    Value(*variable).d_bytes[sizeof *variable - 4] = buffer[4];
-    Value(*variable).d_bytes[sizeof *variable - 3] = buffer[5];
-    Value(*variable).d_bytes[sizeof *variable - 2] = buffer[6];
-    Value(*variable).d_bytes[sizeof *variable - 1] = buffer[7];
+    bytes[sizeof *variable - 8] = buffer[0];
+    bytes[sizeof *variable - 7] = buffer[1];
+    bytes[sizeof *variable - 6] = buffer[2];
+    bytes[sizeof *variable - 5] = buffer[3];
+    bytes[sizeof *variable - 4] = buffer[4];
+    bytes[sizeof *variable - 3] = buffer[5];
+    bytes[sizeof *variable - 2] = buffer[6];
+    bytes[sizeof *variable - 1] = buffer[7];
 #endif
 }
 
@@ -1122,29 +1089,26 @@ void MarshallingUtil::getInt56(bsls::Types::Int64 *variable,
     BSLS_ASSERT_SAFE(variable);
     BSLS_ASSERT_SAFE(buffer);
 
-    typedef union Dummy {
-        bsls::Types::Int64 d_variable;
-        char               d_bytes[sizeof *variable];
-    }& Value;
-
     *variable = 0x80 & buffer[0] ? -1 : 0;  // sign extend
 
+    char *bytes = reinterpret_cast<char *>(variable);
+
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    Value(*variable).d_bytes[6] = buffer[0];
-    Value(*variable).d_bytes[5] = buffer[1];
-    Value(*variable).d_bytes[4] = buffer[2];
-    Value(*variable).d_bytes[3] = buffer[3];
-    Value(*variable).d_bytes[2] = buffer[4];
-    Value(*variable).d_bytes[1] = buffer[5];
-    Value(*variable).d_bytes[0] = buffer[6];
+    bytes[6] = buffer[0];
+    bytes[5] = buffer[1];
+    bytes[4] = buffer[2];
+    bytes[3] = buffer[3];
+    bytes[2] = buffer[4];
+    bytes[1] = buffer[5];
+    bytes[0] = buffer[6];
 #else
-    Value(*variable).d_bytes[sizeof *variable - 7] = buffer[0];
-    Value(*variable).d_bytes[sizeof *variable - 6] = buffer[1];
-    Value(*variable).d_bytes[sizeof *variable - 5] = buffer[2];
-    Value(*variable).d_bytes[sizeof *variable - 4] = buffer[3];
-    Value(*variable).d_bytes[sizeof *variable - 3] = buffer[4];
-    Value(*variable).d_bytes[sizeof *variable - 2] = buffer[5];
-    Value(*variable).d_bytes[sizeof *variable - 1] = buffer[6];
+    bytes[sizeof *variable - 7] = buffer[0];
+    bytes[sizeof *variable - 6] = buffer[1];
+    bytes[sizeof *variable - 5] = buffer[2];
+    bytes[sizeof *variable - 4] = buffer[3];
+    bytes[sizeof *variable - 3] = buffer[4];
+    bytes[sizeof *variable - 2] = buffer[5];
+    bytes[sizeof *variable - 1] = buffer[6];
 #endif
 }
 
@@ -1155,29 +1119,26 @@ void MarshallingUtil::getUint56(bsls::Types::Uint64 *variable,
     BSLS_ASSERT_SAFE(variable);
     BSLS_ASSERT_SAFE(buffer);
 
-    typedef union Dummy {
-        bsls::Types::Uint64 d_variable;
-        char                d_bytes[sizeof *variable];
-    }& Value;
-
     *variable = 0;  // zero-extend
 
+    char *bytes = reinterpret_cast<char *>(variable);
+
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    Value(*variable).d_bytes[6] = buffer[0];
-    Value(*variable).d_bytes[5] = buffer[1];
-    Value(*variable).d_bytes[4] = buffer[2];
-    Value(*variable).d_bytes[3] = buffer[3];
-    Value(*variable).d_bytes[2] = buffer[4];
-    Value(*variable).d_bytes[1] = buffer[5];
-    Value(*variable).d_bytes[0] = buffer[6];
+    bytes[6] = buffer[0];
+    bytes[5] = buffer[1];
+    bytes[4] = buffer[2];
+    bytes[3] = buffer[3];
+    bytes[2] = buffer[4];
+    bytes[1] = buffer[5];
+    bytes[0] = buffer[6];
 #else
-    Value(*variable).d_bytes[sizeof *variable - 7] = buffer[0];
-    Value(*variable).d_bytes[sizeof *variable - 6] = buffer[1];
-    Value(*variable).d_bytes[sizeof *variable - 5] = buffer[2];
-    Value(*variable).d_bytes[sizeof *variable - 4] = buffer[3];
-    Value(*variable).d_bytes[sizeof *variable - 3] = buffer[4];
-    Value(*variable).d_bytes[sizeof *variable - 2] = buffer[5];
-    Value(*variable).d_bytes[sizeof *variable - 1] = buffer[6];
+    bytes[sizeof *variable - 7] = buffer[0];
+    bytes[sizeof *variable - 6] = buffer[1];
+    bytes[sizeof *variable - 5] = buffer[2];
+    bytes[sizeof *variable - 4] = buffer[3];
+    bytes[sizeof *variable - 3] = buffer[4];
+    bytes[sizeof *variable - 2] = buffer[5];
+    bytes[sizeof *variable - 1] = buffer[6];
 #endif
 }
 
@@ -1188,27 +1149,24 @@ void MarshallingUtil::getInt48(bsls::Types::Int64 *variable,
     BSLS_ASSERT_SAFE(variable);
     BSLS_ASSERT_SAFE(buffer);
 
-    typedef union Dummy {
-        bsls::Types::Int64 d_variable;
-        char               d_bytes[sizeof *variable];
-    }& Value;
-
     *variable = 0x80 & buffer[0] ? -1 : 0;  // sign extend
 
+    char *bytes = reinterpret_cast<char *>(variable);
+
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    Value(*variable).d_bytes[5] = buffer[0];
-    Value(*variable).d_bytes[4] = buffer[1];
-    Value(*variable).d_bytes[3] = buffer[2];
-    Value(*variable).d_bytes[2] = buffer[3];
-    Value(*variable).d_bytes[1] = buffer[4];
-    Value(*variable).d_bytes[0] = buffer[5];
+    bytes[5] = buffer[0];
+    bytes[4] = buffer[1];
+    bytes[3] = buffer[2];
+    bytes[2] = buffer[3];
+    bytes[1] = buffer[4];
+    bytes[0] = buffer[5];
 #else
-    Value(*variable).d_bytes[sizeof *variable - 6] = buffer[0];
-    Value(*variable).d_bytes[sizeof *variable - 5] = buffer[1];
-    Value(*variable).d_bytes[sizeof *variable - 4] = buffer[2];
-    Value(*variable).d_bytes[sizeof *variable - 3] = buffer[3];
-    Value(*variable).d_bytes[sizeof *variable - 2] = buffer[4];
-    Value(*variable).d_bytes[sizeof *variable - 1] = buffer[5];
+    bytes[sizeof *variable - 6] = buffer[0];
+    bytes[sizeof *variable - 5] = buffer[1];
+    bytes[sizeof *variable - 4] = buffer[2];
+    bytes[sizeof *variable - 3] = buffer[3];
+    bytes[sizeof *variable - 2] = buffer[4];
+    bytes[sizeof *variable - 1] = buffer[5];
 #endif
 }
 
@@ -1219,27 +1177,24 @@ void MarshallingUtil::getUint48(bsls::Types::Uint64 *variable,
     BSLS_ASSERT_SAFE(variable);
     BSLS_ASSERT_SAFE(buffer);
 
-    typedef union Dummy {
-        bsls::Types::Uint64 d_variable;
-        char                d_bytes[sizeof *variable];
-    }& Value;
-
     *variable = 0;  // zero-extend
 
+    char *bytes = reinterpret_cast<char *>(variable);
+
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    Value(*variable).d_bytes[5] = buffer[0];
-    Value(*variable).d_bytes[4] = buffer[1];
-    Value(*variable).d_bytes[3] = buffer[2];
-    Value(*variable).d_bytes[2] = buffer[3];
-    Value(*variable).d_bytes[1] = buffer[4];
-    Value(*variable).d_bytes[0] = buffer[5];
+    bytes[5] = buffer[0];
+    bytes[4] = buffer[1];
+    bytes[3] = buffer[2];
+    bytes[2] = buffer[3];
+    bytes[1] = buffer[4];
+    bytes[0] = buffer[5];
 #else
-    Value(*variable).d_bytes[sizeof *variable - 6] = buffer[0];
-    Value(*variable).d_bytes[sizeof *variable - 5] = buffer[1];
-    Value(*variable).d_bytes[sizeof *variable - 4] = buffer[2];
-    Value(*variable).d_bytes[sizeof *variable - 3] = buffer[3];
-    Value(*variable).d_bytes[sizeof *variable - 2] = buffer[4];
-    Value(*variable).d_bytes[sizeof *variable - 1] = buffer[5];
+    bytes[sizeof *variable - 6] = buffer[0];
+    bytes[sizeof *variable - 5] = buffer[1];
+    bytes[sizeof *variable - 4] = buffer[2];
+    bytes[sizeof *variable - 3] = buffer[3];
+    bytes[sizeof *variable - 2] = buffer[4];
+    bytes[sizeof *variable - 1] = buffer[5];
 #endif
 }
 
@@ -1250,25 +1205,22 @@ void MarshallingUtil::getInt40(bsls::Types::Int64 *variable,
     BSLS_ASSERT_SAFE(variable);
     BSLS_ASSERT_SAFE(buffer);
 
-    typedef union Dummy {
-        bsls::Types::Int64 d_variable;
-        char               d_bytes[sizeof *variable];
-    }& Value;
-
     *variable = 0x80 & buffer[0] ? -1 : 0;  // sign extend
 
+    char *bytes = reinterpret_cast<char *>(variable);
+
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    Value(*variable).d_bytes[4] = buffer[0];
-    Value(*variable).d_bytes[3] = buffer[1];
-    Value(*variable).d_bytes[2] = buffer[2];
-    Value(*variable).d_bytes[1] = buffer[3];
-    Value(*variable).d_bytes[0] = buffer[4];
+    bytes[4] = buffer[0];
+    bytes[3] = buffer[1];
+    bytes[2] = buffer[2];
+    bytes[1] = buffer[3];
+    bytes[0] = buffer[4];
 #else
-    Value(*variable).d_bytes[sizeof *variable - 5] = buffer[0];
-    Value(*variable).d_bytes[sizeof *variable - 4] = buffer[1];
-    Value(*variable).d_bytes[sizeof *variable - 3] = buffer[2];
-    Value(*variable).d_bytes[sizeof *variable - 2] = buffer[3];
-    Value(*variable).d_bytes[sizeof *variable - 1] = buffer[4];
+    bytes[sizeof *variable - 5] = buffer[0];
+    bytes[sizeof *variable - 4] = buffer[1];
+    bytes[sizeof *variable - 3] = buffer[2];
+    bytes[sizeof *variable - 2] = buffer[3];
+    bytes[sizeof *variable - 1] = buffer[4];
 #endif
 }
 
@@ -1279,25 +1231,22 @@ void MarshallingUtil::getUint40(bsls::Types::Uint64 *variable,
     BSLS_ASSERT_SAFE(variable);
     BSLS_ASSERT_SAFE(buffer);
 
-    typedef union Dummy {
-        bsls::Types::Uint64 d_variable;
-        char                d_bytes[sizeof *variable];
-    }& Value;
-
     *variable = 0;  // zero-extend
 
+    char *bytes = reinterpret_cast<char *>(variable);
+
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    Value(*variable).d_bytes[4] = buffer[0];
-    Value(*variable).d_bytes[3] = buffer[1];
-    Value(*variable).d_bytes[2] = buffer[2];
-    Value(*variable).d_bytes[1] = buffer[3];
-    Value(*variable).d_bytes[0] = buffer[4];
+    bytes[4] = buffer[0];
+    bytes[3] = buffer[1];
+    bytes[2] = buffer[2];
+    bytes[1] = buffer[3];
+    bytes[0] = buffer[4];
 #else
-    Value(*variable).d_bytes[sizeof *variable - 5] = buffer[0];
-    Value(*variable).d_bytes[sizeof *variable - 4] = buffer[1];
-    Value(*variable).d_bytes[sizeof *variable - 3] = buffer[2];
-    Value(*variable).d_bytes[sizeof *variable - 2] = buffer[3];
-    Value(*variable).d_bytes[sizeof *variable - 1] = buffer[4];
+    bytes[sizeof *variable - 5] = buffer[0];
+    bytes[sizeof *variable - 4] = buffer[1];
+    bytes[sizeof *variable - 3] = buffer[2];
+    bytes[sizeof *variable - 2] = buffer[3];
+    bytes[sizeof *variable - 1] = buffer[4];
 #endif
 }
 
@@ -1311,21 +1260,18 @@ void MarshallingUtil::getInt32(int *variable, const char *buffer)
         *variable = 0x80 & buffer[0] ? -1 : 0;  // sign extend
     }
 
-    typedef union Dummy {
-        int  d_variable;
-        char d_bytes[sizeof *variable];
-    }& Value;
+    char *bytes = reinterpret_cast<char *>(variable);
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    Value(*variable).d_bytes[3] = buffer[0];
-    Value(*variable).d_bytes[2] = buffer[1];
-    Value(*variable).d_bytes[1] = buffer[2];
-    Value(*variable).d_bytes[0] = buffer[3];
+    bytes[3] = buffer[0];
+    bytes[2] = buffer[1];
+    bytes[1] = buffer[2];
+    bytes[0] = buffer[3];
 #else
-    Value(*variable).d_bytes[sizeof *variable - 4] = buffer[0];
-    Value(*variable).d_bytes[sizeof *variable - 3] = buffer[1];
-    Value(*variable).d_bytes[sizeof *variable - 2] = buffer[2];
-    Value(*variable).d_bytes[sizeof *variable - 1] = buffer[3];
+    bytes[sizeof *variable - 4] = buffer[0];
+    bytes[sizeof *variable - 3] = buffer[1];
+    bytes[sizeof *variable - 2] = buffer[2];
+    bytes[sizeof *variable - 1] = buffer[3];
 #endif
 }
 
@@ -1339,21 +1285,18 @@ void MarshallingUtil::getUint32(unsigned int *variable, const char *buffer)
         *variable = 0;  // zero-extend
     }
 
-    typedef union Dummy {
-        unsigned int d_variable;
-        char         d_bytes[sizeof *variable];
-    }& Value;
+    char *bytes = reinterpret_cast<char *>(variable);
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    Value(*variable).d_bytes[3] = buffer[0];
-    Value(*variable).d_bytes[2] = buffer[1];
-    Value(*variable).d_bytes[1] = buffer[2];
-    Value(*variable).d_bytes[0] = buffer[3];
+    bytes[3] = buffer[0];
+    bytes[2] = buffer[1];
+    bytes[1] = buffer[2];
+    bytes[0] = buffer[3];
 #else
-    Value(*variable).d_bytes[sizeof *variable - 4] = buffer[0];
-    Value(*variable).d_bytes[sizeof *variable - 3] = buffer[1];
-    Value(*variable).d_bytes[sizeof *variable - 2] = buffer[2];
-    Value(*variable).d_bytes[sizeof *variable - 1] = buffer[3];
+    bytes[sizeof *variable - 4] = buffer[0];
+    bytes[sizeof *variable - 3] = buffer[1];
+    bytes[sizeof *variable - 2] = buffer[2];
+    bytes[sizeof *variable - 1] = buffer[3];
 #endif
 }
 
@@ -1363,21 +1306,18 @@ void MarshallingUtil::getInt24(int *variable, const char *buffer)
     BSLS_ASSERT_SAFE(variable);
     BSLS_ASSERT_SAFE(buffer);
 
-    typedef union Dummy {
-        int  d_variable;
-        char d_bytes[sizeof *variable];
-    }& Value;
-
     *variable = 0x80 & buffer[0] ? -1 : 0;  // sign extend
 
+    char *bytes = reinterpret_cast<char *>(variable);
+
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    Value(*variable).d_bytes[2] = buffer[0];
-    Value(*variable).d_bytes[1] = buffer[1];
-    Value(*variable).d_bytes[0] = buffer[2];
+    bytes[2] = buffer[0];
+    bytes[1] = buffer[1];
+    bytes[0] = buffer[2];
 #else
-    Value(*variable).d_bytes[sizeof *variable - 3] = buffer[0];
-    Value(*variable).d_bytes[sizeof *variable - 2] = buffer[1];
-    Value(*variable).d_bytes[sizeof *variable - 1] = buffer[2];
+    bytes[sizeof *variable - 3] = buffer[0];
+    bytes[sizeof *variable - 2] = buffer[1];
+    bytes[sizeof *variable - 1] = buffer[2];
 #endif
 }
 
@@ -1387,21 +1327,18 @@ void MarshallingUtil::getUint24(unsigned int *variable, const char *buffer)
     BSLS_ASSERT_SAFE(variable);
     BSLS_ASSERT_SAFE(buffer);
 
-    typedef union Dummy {
-        unsigned int d_variable;
-        char         d_bytes[sizeof *variable];
-    }& Value;
-
     *variable = 0x80 & buffer[0] ? -1 : 0;  // sign extend
 
+    char *bytes = reinterpret_cast<char *>(variable);
+
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    Value(*variable).d_bytes[2] = buffer[0];
-    Value(*variable).d_bytes[1] = buffer[1];
-    Value(*variable).d_bytes[0] = buffer[2];
+    bytes[2] = buffer[0];
+    bytes[1] = buffer[1];
+    bytes[0] = buffer[2];
 #else
-    Value(*variable).d_bytes[sizeof *variable - 3] = buffer[0];
-    Value(*variable).d_bytes[sizeof *variable - 2] = buffer[1];
-    Value(*variable).d_bytes[sizeof *variable - 1] = buffer[2];
+    bytes[sizeof *variable - 3] = buffer[0];
+    bytes[sizeof *variable - 2] = buffer[1];
+    bytes[sizeof *variable - 1] = buffer[2];
 #endif
 }
 
@@ -1416,17 +1353,14 @@ void MarshallingUtil::getInt16(short *variable, const char *buffer)
                                                                  // sign extend
     }
 
-    typedef union Dummy {
-        short d_variable;
-        char  d_bytes[sizeof *variable];
-    }& Value;
+    char *bytes = reinterpret_cast<char *>(variable);
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    Value(*variable).d_bytes[1] = buffer[0];
-    Value(*variable).d_bytes[0] = buffer[1];
+    bytes[1] = buffer[0];
+    bytes[0] = buffer[1];
 #else
-    Value(*variable).d_bytes[sizeof *variable - 2] = buffer[0];
-    Value(*variable).d_bytes[sizeof *variable - 1] = buffer[1];
+    bytes[sizeof *variable - 2] = buffer[0];
+    bytes[sizeof *variable - 1] = buffer[1];
 #endif
 }
 
@@ -1440,17 +1374,14 @@ void MarshallingUtil::getUint16(unsigned short *variable, const char *buffer)
         *variable = 0;  // zero-extend
     }
 
-    typedef union Dummy {
-        unsigned short d_variable;
-        char           d_bytes[sizeof *variable];
-    }& Value;
+    char *bytes = reinterpret_cast<char *>(variable);
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    Value(*variable).d_bytes[1] = buffer[0];
-    Value(*variable).d_bytes[0] = buffer[1];
+    bytes[1] = buffer[0];
+    bytes[0] = buffer[1];
 #else
-    Value(*variable).d_bytes[sizeof *variable - 2] = buffer[0];
-    Value(*variable).d_bytes[sizeof *variable - 1] = buffer[1];
+    bytes[sizeof *variable - 2] = buffer[0];
+    bytes[sizeof *variable - 1] = buffer[1];
 #endif
 }
 
@@ -1493,29 +1424,26 @@ void MarshallingUtil::getFloat64(double *variable, const char *buffer)
         *variable = 0;  // zero-fill mantissa
     }
 
-    typedef union Dummy {
-        double d_variable;
-        char   d_bytes[sizeof *variable];
-    }& Value;
+    char *bytes = reinterpret_cast<char *>(variable);
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    Value(*variable).d_bytes[sizeof *variable - 1] = buffer[0];
-    Value(*variable).d_bytes[sizeof *variable - 2] = buffer[1];
-    Value(*variable).d_bytes[sizeof *variable - 3] = buffer[2];
-    Value(*variable).d_bytes[sizeof *variable - 4] = buffer[3];
-    Value(*variable).d_bytes[sizeof *variable - 5] = buffer[4];
-    Value(*variable).d_bytes[sizeof *variable - 6] = buffer[5];
-    Value(*variable).d_bytes[sizeof *variable - 7] = buffer[6];
-    Value(*variable).d_bytes[sizeof *variable - 8] = buffer[7];
+    bytes[sizeof *variable - 1] = buffer[0];
+    bytes[sizeof *variable - 2] = buffer[1];
+    bytes[sizeof *variable - 3] = buffer[2];
+    bytes[sizeof *variable - 4] = buffer[3];
+    bytes[sizeof *variable - 5] = buffer[4];
+    bytes[sizeof *variable - 6] = buffer[5];
+    bytes[sizeof *variable - 7] = buffer[6];
+    bytes[sizeof *variable - 8] = buffer[7];
 #else
-    Value(*variable).d_bytes[0] = buffer[0];
-    Value(*variable).d_bytes[1] = buffer[1];
-    Value(*variable).d_bytes[2] = buffer[2];
-    Value(*variable).d_bytes[3] = buffer[3];
-    Value(*variable).d_bytes[4] = buffer[4];
-    Value(*variable).d_bytes[5] = buffer[5];
-    Value(*variable).d_bytes[6] = buffer[6];
-    Value(*variable).d_bytes[7] = buffer[7];
+    bytes[0] = buffer[0];
+    bytes[1] = buffer[1];
+    bytes[2] = buffer[2];
+    bytes[3] = buffer[3];
+    bytes[4] = buffer[4];
+    bytes[5] = buffer[5];
+    bytes[6] = buffer[6];
+    bytes[7] = buffer[7];
 #endif
 }
 
@@ -1529,21 +1457,18 @@ void MarshallingUtil::getFloat32(float *variable, const char *buffer)
         *variable = 0;  // zero-fill mantissa
     }
 
-    typedef union Dummy {
-        float d_variable;
-        char  d_bytes[sizeof *variable];
-    }& Value;
+    char *bytes = reinterpret_cast<char *>(variable);
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    Value(*variable).d_bytes[sizeof *variable - 1] = buffer[0];
-    Value(*variable).d_bytes[sizeof *variable - 2] = buffer[1];
-    Value(*variable).d_bytes[sizeof *variable - 3] = buffer[2];
-    Value(*variable).d_bytes[sizeof *variable - 4] = buffer[3];
+    bytes[sizeof *variable - 1] = buffer[0];
+    bytes[sizeof *variable - 2] = buffer[1];
+    bytes[sizeof *variable - 3] = buffer[2];
+    bytes[sizeof *variable - 4] = buffer[3];
 #else
-    Value(*variable).d_bytes[0] = buffer[0];
-    Value(*variable).d_bytes[1] = buffer[1];
-    Value(*variable).d_bytes[2] = buffer[2];
-    Value(*variable).d_bytes[3] = buffer[3];
+    bytes[0] = buffer[0];
+    bytes[1] = buffer[1];
+    bytes[2] = buffer[2];
+    bytes[3] = buffer[3];
 #endif
 }
 
