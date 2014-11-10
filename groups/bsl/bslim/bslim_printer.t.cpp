@@ -839,15 +839,18 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // 'printValue' ALL STL SEQUENCE AND ASSOCIATIVE CONTAINERS
         //
-        // Concern:
-        //   Though 'bslim' has no awareness of STL types, it knows about pairs
-        //   and can print ranges, which should enable it to print these types.
-        //   Verify that this is the case.
+        // Concerns:
+        //: 1 Printing a type defining 'bslalg::HasStlIterators' (i.e., STL
+        //:   container types) will print each of the elements in the range
+        //:   between 'begin' and 'end'.
+        //: 2 Printing a 'bsl::pair' will print the first and second element of
+        //:   the pair.
+        //: 3 Printing a 'bslstl::StringRef' will print the referenced string.
         //
         // Plan:
-        //   Create and populate various 'bsl' objects, print using range
-        //   'printValue', and verify that the string printed out is what is
-        //   expected.
+        //: 1 Create and populate various 'bsl' objects, print using range
+        //:   'printValue', and verify that the string printed out is what is
+        //:   expected.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl <<
@@ -1031,7 +1034,7 @@ int main(int argc, char *argv[])
             const bsl::multimap<int, int>& MM = mm;
             for (int i = 0; i < NUM_DATA; ++i) {
                 const S& s = redundantData[i];
-                mm.insert(std::pair<int, int>(s.d_key, s.d_value));
+                mm.insert(bsl::pair<int, int>(s.d_key, s.d_value));
             }
             bsl::ostringstream out;
             bslim::Printer p(&out, 2, 2);
@@ -1147,7 +1150,7 @@ int main(int argc, char *argv[])
             const bsl::unordered_multimap<int, int>& MM = mm;
             for (int i = 0; i < NUM_DATA; ++i) {
                 const S& s = redundantData[i];
-                mm.insert(std::pair<int, int>(s.d_key, s.d_value));
+                mm.insert(bsl::pair<int, int>(s.d_key, s.d_value));
             }
             bsl::ostringstream out;
             bslim::Printer p(&out, 2, 2);
@@ -1167,6 +1170,19 @@ int main(int argc, char *argv[])
                 }
                 EXP << "      ]\n";
             }
+
+            LOOP2_ASSERT(EXP.str(), out.str(), EXP.str() == out.str());
+        }
+
+        {
+            bslstl::StringRef ref = "Testing";
+            const bslstl::StringRef& REF = ref;
+            bsl::ostringstream out;
+            bslim::Printer p(&out, 2, 2);
+            p.printAttribute("stringref", REF);
+
+            bsl::ostringstream EXP;
+            EXP << "      stringref = \"Testing\"\n";
 
             LOOP2_ASSERT(EXP.str(), out.str(), EXP.str() == out.str());
         }
