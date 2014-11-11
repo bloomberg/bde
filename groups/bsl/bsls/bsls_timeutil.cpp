@@ -512,11 +512,10 @@ mach_timebase_info_data_t MachTimerUtil::s_timeBase;
 inline
 void MachTimerUtil::initialize()
 {
-    static BslOnce once = BSLS_BSLONCE_INITIALIZER;
+    static bsls::BslOnce once = BSLS_BSLONCE_INITIALIZER;
 
-    BslOnceGuard onceGuard;
+    bsls::BslOnceGuard onceGuard;
     if (onceGuard.enter(&once)) {
-
 
         // There is little official documentation on 'mach_absolute_time'
         // and 'mach_timebase_info'.  The 'mach_absolute_time' return value
@@ -560,18 +559,14 @@ bsls::Types::Int64 MachTimerUtil::convertRawTime(bsls::Types::Int64 rawTime)
 
 #else // !__SIZEOF_INT128__
 
-    #if defined(BSLS_PLATFORM_CMP_CLANG) || \
-        defined(BSLS_PLATFORM_CMP_GNU)
-
     // In practice, it is not expected that multiplying 'rawTime' by
     // 's_timeBase.numer' will overflow an Int64.  The 'numer' and
     // 'denom' values have been observed to both be 1 on a late model
     // laptop and mac mini.  Just to be safe, the overflow is checked in safe
     // builds.
 
-    BSLS_ASSERT(LLONG_MAX / s_timeBase.numer >= rawTime &&
-                LLONG_MIN / s_timeBase.numer <= rawTime);
-    #endif
+    BSLS_ASSERT_SAFE(LLONG_MAX / s_timeBase.numer >= rawTime &&
+                     LLONG_MIN / s_timeBase.numer <= rawTime);
 
     return rawTime * s_timeBase.numer / s_timeBase.denom;
 
