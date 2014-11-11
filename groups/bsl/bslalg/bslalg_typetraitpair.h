@@ -27,7 +27,7 @@ BSLS_IDENT("$Id: $")
 //  TYPE::second_type
 //
 //  mX.first             first_type
-//  mX.second            second
+//  mX.second            second_type
 //  X.first              const first_type
 //  X.second             const second_type
 //..
