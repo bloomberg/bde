@@ -1,7 +1,9 @@
 // bsls_timeutil.cpp                                                  -*-C++-*-
 #include <bsls_timeutil.h>
 
+#include <bsls_bslonce.h>
 #include <bsls_bsltestutil.h>  // for testing only
+
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
@@ -76,6 +78,7 @@ struct UnixTimerUtil {
 
 bsls::AtomicOperations::AtomicTypes::Int64
                                         UnixTimerUtil::s_ticksPerSecond = {-1};
+
 const bsls::Types::Int64 UnixTimerUtil::s_nsecsPerSecond = 1000 * 1000 * 1000;
 
 inline
@@ -464,25 +467,6 @@ bsls::Types::Int64 WindowsTimerUtil::getTimerRaw()
 
 #ifdef BSLS_PLATFORM_OS_DARWIN
 
-// Define a local assert macro to serve the same function as 'BSLS_ASSERT'
-// because this component can not depend on bsls_assert.  The bsls_assert
-// component has an indirect (and testing only) dependency on this
-// component.
-//
-// TBD: Replace with BSLS_ASSERT once indirect dependency is removed.
-
-#if defined(BDE_BUILD_TARGET_SAFE_2) ||                                       \
-    defined(BDE_BUILD_TARGET_SAFE) ||                                         \
-    !defined(BDE_BUILD_TARGET_OPT)
-    #define BSLS_TIMEUTIL_ASSERT(x) do {                                      \
-        if (!(x)) {                                                           \
-            abort();                                                          \
-        }                                                                     \
-    } while (false)
-#else
-    #define BSLS_TIMEUTIL_ASSERT(x)
-#endif
-
 struct MachTimerUtil {
     // Provides access to high-resolution Mach kernel timer
 
@@ -522,15 +506,17 @@ struct MachTimerUtil {
         // 'initialize' has been called before.
 };
 
-bsls::AtomicOperations::AtomicTypes::Int
-                                     MachTimerUtil::s_initRequired   = { 1};
-bsls::Types::Int64                   MachTimerUtil::s_initialTime    = {-1};
-mach_timebase_info_data_t            MachTimerUtil::s_timeBase;
+bsls::Types::Int64        MachTimerUtil::s_initialTime    = {-1};
+mach_timebase_info_data_t MachTimerUtil::s_timeBase;
 
 inline
 void MachTimerUtil::initialize()
 {
-    if (bsls::AtomicOperations::getIntAcquire(&s_initRequired)) {
+    static BslOnce once = BSLS_BSLONCE_INITIALIZER;
+
+    BslOnceGuard onceGuard;
+    if (onceGuard.enter(&once)) {
+
 
         // There is little official documentation on 'mach_absolute_time'
         // and 'mach_timebase_info'.  The 'mach_absolute_time' return value
@@ -553,10 +539,8 @@ void MachTimerUtil::initialize()
 
         (void) mach_timebase_info(&s_timeBase);
 
-        BSLS_TIMEUTIL_ASSERT(0 < s_timeBase.numer);
-        BSLS_TIMEUTIL_ASSERT(0 < s_timeBase.denom);
-
-        bsls::AtomicOperations::setIntRelease(&s_initRequired, 0);
+        BSLS_ASSERT(0 < s_timeBase.numer);
+        BSLS_ASSERT(0 < s_timeBase.denom);
     }
 }
 
@@ -585,8 +569,8 @@ bsls::Types::Int64 MachTimerUtil::convertRawTime(bsls::Types::Int64 rawTime)
     // laptop and mac mini.  Just to be safe, the overflow is checked in safe
     // builds.
 
-    BSLS_TIMEUTIL_ASSERT(LLONG_MAX / s_timeBase.numer >= rawTime &&
-                         LLONG_MIN / s_timeBase.numer <= rawTime);
+    BSLS_ASSERT(LLONG_MAX / s_timeBase.numer >= rawTime &&
+                LLONG_MIN / s_timeBase.numer <= rawTime);
     #endif
 
     return rawTime * s_timeBase.numer / s_timeBase.denom;
