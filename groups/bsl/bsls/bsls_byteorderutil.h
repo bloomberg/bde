@@ -77,57 +77,6 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bsls {
 
-                         // =========================
-                         // struct ByteOrderUtil_Impl
-                         // =========================
-
-template <class T, Types::size_type WIDTH = sizeof(T)>
-struct ByteOrderUtil_Impl;
-
-template <class T>
-struct ByteOrderUtil_Impl<T, 1> {
-    // This 'class' provides a namespace for functions used for reversing the
-    // byte order of values having integral type.
-
-    // CLASS METHODS
-    static T swapBytes(T x);
-        // Return the value that results from reversing the order of the bytes
-        // in the specified 'x'.
-};
-
-template <class T>
-struct ByteOrderUtil_Impl<T, 2> {
-    // This 'class' provides a namespace for functions used for reversing the
-    // byte order of values having integral type.
-
-    // CLASS METHODS
-    static T swapBytes(T x);
-        // Return the value that results from reversing the order of the bytes
-        // in the specified 'x'.
-};
-
-template <class T>
-struct ByteOrderUtil_Impl<T, 4> {
-    // This 'class' provides a namespace for functions used for reversing the
-    // byte order of values having integral type.
-
-    // CLASS METHODS
-    static T swapBytes(T x);
-        // Return the value that results from reversing the order of the bytes
-        // in the specified 'x'.
-};
-
-template <class T>
-struct ByteOrderUtil_Impl<T, 8> {
-    // This 'class' provides a namespace for functions used for reversing the
-    // byte order of values having integral type.
-
-    // CLASS METHODS
-    static T swapBytes(T x);
-        // Return the value that results from reversing the order of the bytes
-        // in the specified 'x'.
-};
-
                           // ====================
                           // struct ByteOrderUtil
                           // ====================
@@ -149,19 +98,19 @@ struct ByteOrderUtil : public ByteOrderUtil_Impl<bool>,
     // byte order of values having integral type.
 
     // CLASS METHODS
-    using ByteOrderUtil_Impl<bool               > ::swapBytes;
-    using ByteOrderUtil_Impl<char               > ::swapBytes;
-    using ByteOrderUtil_Impl<unsigned char      > ::swapBytes;
-    using ByteOrderUtil_Impl<signed char        > ::swapBytes;
-    using ByteOrderUtil_Impl<wchar_t            > ::swapBytes;
-    using ByteOrderUtil_Impl<short              > ::swapBytes;
-    using ByteOrderUtil_Impl<unsigned short     > ::swapBytes;
-    using ByteOrderUtil_Impl<int                > ::swapBytes;
-    using ByteOrderUtil_Impl<unsigned int       > ::swapBytes;
-    using ByteOrderUtil_Impl<long               > ::swapBytes;
-    using ByteOrderUtil_Impl<unsigned long      > ::swapBytes;
-    using ByteOrderUtil_Impl<bsls::Types::Uint64> ::swapBytes;
-    using ByteOrderUtil_Impl<bsls::Types::Int64 > ::swapBytes;
+    using ByteOrderUtil_Impl<bool               >::swapBytes;
+    using ByteOrderUtil_Impl<char               >::swapBytes;
+    using ByteOrderUtil_Impl<unsigned char      >::swapBytes;
+    using ByteOrderUtil_Impl<signed char        >::swapBytes;
+    using ByteOrderUtil_Impl<wchar_t            >::swapBytes;
+    using ByteOrderUtil_Impl<short              >::swapBytes;
+    using ByteOrderUtil_Impl<unsigned short     >::swapBytes;
+    using ByteOrderUtil_Impl<int                >::swapBytes;
+    using ByteOrderUtil_Impl<unsigned int       >::swapBytes;
+    using ByteOrderUtil_Impl<long               >::swapBytes;
+    using ByteOrderUtil_Impl<unsigned long      >::swapBytes;
+    using ByteOrderUtil_Impl<bsls::Types::Uint64>::swapBytes;
+    using ByteOrderUtil_Impl<bsls::Types::Int64 >::swapBytes;
 
     static unsigned short swapBytes16(unsigned short x);
         // Return the value that results from reversing the order of the bytes
@@ -179,63 +128,6 @@ struct ByteOrderUtil : public ByteOrderUtil_Impl<bool>,
 // ============================================================================
 //                          INLINE FUNCTION DEFINITIONS
 // ============================================================================
-
-                         // -------------------------
-                         // struct ByteOrderUtil_Impl
-                         // -------------------------
-
-// CLASS METHODS
-template <class T>
-inline
-T ByteOrderUtil_Impl<T, 1>::swapBytes(T x)
-{
-    return x;
-}
-
-template <class T>
-inline
-T ByteOrderUtil_Impl<T, 2>::swapBytes(T x)
-{
-    // These macros all return a value of type 'T'.
-
-#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16)
-    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16(T, x);
-#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16)
-    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16(T, &x);
-#else
-    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(T, x);
-#endif
-}
-
-template <class T>
-inline
-T ByteOrderUtil_Impl<T, 4>::swapBytes(T x)
-{
-    // These macros all return a value of type 'T'.
-
-#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32)
-    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32(T, x);
-#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32)
-    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32(T, &x);
-#else
-    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32(T, x);
-#endif
-}
-
-template <class T>
-inline
-T ByteOrderUtil_Impl<T, 8>::swapBytes(T x)
-{
-    // These macros all return a value of type 'T'.
-
-#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64)
-    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64(T, x);
-#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64)
-    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(T, &x);
-#else
-    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(T, x);
-#endif
-}
 
                             // -------------------
                             // class ByteOrderUtil

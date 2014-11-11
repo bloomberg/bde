@@ -58,6 +58,60 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
+namespace bsls {
+
+                         // =========================
+                         // struct ByteOrderUtil_Impl
+                         // =========================
+
+template <class T, Types::size_type WIDTH = sizeof(T)>
+struct ByteOrderUtil_Impl;
+
+template <class T>
+struct ByteOrderUtil_Impl<T, 1> {
+    // This 'class' provides a namespace for functions used for reversing the
+    // byte order of values having integral type.
+
+    // CLASS METHODS
+    static T swapBytes(T x);
+        // Return the value that results from reversing the order of the bytes
+        // in the specified 'x'.
+};
+
+template <class T>
+struct ByteOrderUtil_Impl<T, 2> {
+    // This 'class' provides a namespace for functions used for reversing the
+    // byte order of values having integral type.
+
+    // CLASS METHODS
+    static T swapBytes(T x);
+        // Return the value that results from reversing the order of the bytes
+        // in the specified 'x'.
+};
+
+template <class T>
+struct ByteOrderUtil_Impl<T, 4> {
+    // This 'class' provides a namespace for functions used for reversing the
+    // byte order of values having integral type.
+
+    // CLASS METHODS
+    static T swapBytes(T x);
+        // Return the value that results from reversing the order of the bytes
+        // in the specified 'x'.
+};
+
+template <class T>
+struct ByteOrderUtil_Impl<T, 8> {
+    // This 'class' provides a namespace for functions used for reversing the
+    // byte order of values having integral type.
+
+    // CLASS METHODS
+    static T swapBytes(T x);
+        // Return the value that results from reversing the order of the bytes
+        // in the specified 'x'.
+};
+
+}  // close package namespace
 
 // ============================================================================
 //                                  LOCAL MACROS
@@ -88,8 +142,11 @@ namespace BloombergLP {
 #endif
 
 // ============================================================================
-//                          INLINE FUNCTION DEFINITIONS
+//                                  MACROS
 // ============================================================================
+
+// These macros are only intended to be used in this component and
+// 'bsls_byteorderutil'.
 
 // We did benchmarks and found that many of the custom assembly implementations
 // below were slower than the generic implementation, so we disable the slow
@@ -99,10 +156,6 @@ namespace BloombergLP {
 #ifndef BSLS_BYTEORDERUTIL_IMPL_ENABLE_COUNTERPRODUCTIVE_MACROS
 #define BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS 1
 #endif
-
-                         // -------------------------
-                         // struct ByteOrderUtil_Impl
-                         // -------------------------
 
 #if  defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40300
 
@@ -475,6 +528,66 @@ unsigned long long bsls_byteOrderUtil_Impl_sparc_CC_swap_p64(
                                   | (static_cast<Uint64>(x)      >> 56));     \
     }
 
+namespace bsls {
+
+                         // -------------------------
+                         // struct ByteOrderUtil_Impl
+                         // -------------------------
+
+// CLASS METHODS
+template <class T>
+inline
+T ByteOrderUtil_Impl<T, 1>::swapBytes(T x)
+{
+    return x;
+}
+
+template <class T>
+inline
+T ByteOrderUtil_Impl<T, 2>::swapBytes(T x)
+{
+    // These macros all return a value of type 'T'.
+
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16(T, x);
+#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16(T, &x);
+#else
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(T, x);
+#endif
+}
+
+template <class T>
+inline
+T ByteOrderUtil_Impl<T, 4>::swapBytes(T x)
+{
+    // These macros all return a value of type 'T'.
+
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32(T, x);
+#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32(T, &x);
+#else
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32(T, x);
+#endif
+}
+
+template <class T>
+inline
+T ByteOrderUtil_Impl<T, 8>::swapBytes(T x)
+{
+    // These macros all return a value of type 'T'.
+
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64(T, x);
+#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(T, &x);
+#else
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(T, x);
+#endif
+}
+
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif
