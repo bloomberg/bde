@@ -81,36 +81,26 @@ namespace bsls {
                           // struct ByteOrderUtil
                           // ====================
 
-struct ByteOrderUtil : public ByteOrderUtil_Impl<bool>,
-                       public ByteOrderUtil_Impl<char>,
-                       public ByteOrderUtil_Impl<unsigned char>,
-                       public ByteOrderUtil_Impl<signed char>,
-                       public ByteOrderUtil_Impl<wchar_t>,
-                       public ByteOrderUtil_Impl<short>,
-                       public ByteOrderUtil_Impl<unsigned short>,
-                       public ByteOrderUtil_Impl<int>,
-                       public ByteOrderUtil_Impl<unsigned int>,
-                       public ByteOrderUtil_Impl<long>,
-                       public ByteOrderUtil_Impl<unsigned long>,
-                       public ByteOrderUtil_Impl<bsls::Types::Uint64>,
-                       public ByteOrderUtil_Impl<bsls::Types::Int64> {
+struct ByteOrderUtil {
     // This 'class' provides a namespace for functions used for reversing the
     // byte order of values having integral type.
 
     // CLASS METHODS
-    using ByteOrderUtil_Impl<bool               >::swapBytes;
-    using ByteOrderUtil_Impl<char               >::swapBytes;
-    using ByteOrderUtil_Impl<unsigned char      >::swapBytes;
-    using ByteOrderUtil_Impl<signed char        >::swapBytes;
-    using ByteOrderUtil_Impl<wchar_t            >::swapBytes;
-    using ByteOrderUtil_Impl<short              >::swapBytes;
-    using ByteOrderUtil_Impl<unsigned short     >::swapBytes;
-    using ByteOrderUtil_Impl<int                >::swapBytes;
-    using ByteOrderUtil_Impl<unsigned int       >::swapBytes;
-    using ByteOrderUtil_Impl<long               >::swapBytes;
-    using ByteOrderUtil_Impl<unsigned long      >::swapBytes;
-    using ByteOrderUtil_Impl<bsls::Types::Uint64>::swapBytes;
-    using ByteOrderUtil_Impl<bsls::Types::Int64 >::swapBytes;
+    static bool           swapBytes(bool           x);
+    static char           swapBytes(char           x);
+    static unsigned char  swapBytes(unsigned char  x);
+    static signed char    swapBytes(signed char    x);
+    static wchar_t        swapBytes(wchar_t        x);
+    static short          swapBytes(short          x);
+    static unsigned short swapBytes(unsigned short x);
+    static int            swapBytes(int            x);
+    static unsigned int   swapBytes(unsigned int   x);
+    static long           swapBytes(long           x);
+    static unsigned long  swapBytes(unsigned long  x);
+    static Types::Uint64  swapBytes(Types::Uint64  x);
+    static Types::Int64   swapBytes(Types::Int64   x);
+        // Return the value that results from reversing the order of the bytes
+        // in the specified 'x'.
 
     static unsigned short swapBytes16(unsigned short x);
         // Return the value that results from reversing the order of the bytes
@@ -134,13 +124,161 @@ struct ByteOrderUtil : public ByteOrderUtil_Impl<bool>,
                             // -------------------
 
 inline
+bool
+ByteOrderUtil::swapBytes(bool           x)
+{
+    return x;
+}
+
+inline
+char
+ByteOrderUtil::swapBytes(char           x)
+{
+    return x;
+}
+
+inline
+unsigned char
+ByteOrderUtil::swapBytes(unsigned char  x)
+{
+    return x;
+}
+
+inline
+signed char
+ByteOrderUtil::swapBytes(signed char    x)
+{
+    return x;
+}
+
+inline
+wchar_t
+ByteOrderUtil::swapBytes(wchar_t        x)
+{
+    // Size of 'wchar_t' varies unpredicably depending on platform and compiler
+    // switches, use 'ByteOrderUtil_Impl' to adjust automatically.
+
+    return ByteOrderUtil_Impl<wchar_t>::swapBytes(x);
+}
+
+inline
+short
+ByteOrderUtil::swapBytes(short          x)
+{
+    // These macros all return a value of type 'short'.
+
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16( short, x);
+#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16(short, &x);
+#else
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(short, x);
+#endif
+}
+
+inline
+unsigned short
+ByteOrderUtil::swapBytes(unsigned short x)
+{
+    // These macros all return a value of type 'unsigned short'.
+
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16( unsigned short, x);
+#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16(unsigned short, &x);
+#else
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(unsigned short, x);
+#endif
+}
+
+inline
+int
+ByteOrderUtil::swapBytes(int            x)
+{
+    // These macros all return a value of type ' int'.
+
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32( int, x);
+#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32(int, &x);
+#else
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32(int, x);
+#endif
+}
+
+inline
+unsigned int
+ByteOrderUtil::swapBytes(unsigned int   x)
+{
+    // These macros all return a value of type 'unsigned int'.
+
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32( unsigned int, x);
+#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32(unsigned int, &x);
+#else
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32(unsigned int, x);
+#endif
+}
+
+inline
+long
+ByteOrderUtil::swapBytes(long           x)
+{
+    // Size of 'long' varies unpredicably depending on platform and compiler
+    // switches, use 'ByteOrderUtil_Impl' to adjust automatically.
+
+    return ByteOrderUtil_Impl<long>::swapBytes(x);
+}
+
+inline
+unsigned long
+ByteOrderUtil::swapBytes(unsigned long  x)
+{
+    // Size of 'unsigned long' varies unpredicably depending on platform and
+    // compiler switches, use 'ByteOrderUtil_Impl' to adjust automatically.
+
+    return ByteOrderUtil_Impl<unsigned long>::swapBytes(x);
+}
+
+inline
+Types::Uint64
+ByteOrderUtil::swapBytes(Types::Uint64  x)
+{
+    // These macros all return a value of type 'bsls::Types::Uint64'.
+
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64( bsls::Types::Uint64, x);
+#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(bsls::Types::Uint64, &x);
+#else
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(bsls::Types::Uint64, x);
+#endif
+}
+
+inline
+Types::Int64
+ByteOrderUtil::swapBytes(Types::Int64   x)
+{
+    // These macros all return a value of type 'bsls::Types::Int64'.
+
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64( bsls::Types::Int64, x);
+#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(bsls::Types::Int64, &x);
+#else
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(bsls::Types::Int64, x);
+#endif
+}
+
+inline
 unsigned short
 ByteOrderUtil::swapBytes16(unsigned short x)
 {
     // These macros all return a value of type 'unsigned short'.
 
 #if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16)
-    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16(unsigned short, x);
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16( unsigned short, x);
 #elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16(unsigned short, &x);
 #else
@@ -155,7 +293,7 @@ ByteOrderUtil::swapBytes32(unsigned int x)
     // These macros all return a value of type 'unsigned int'.
 
 #if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32)
-    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32(unsigned int, x);
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32( unsigned int, x);
 #elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32(unsigned int, &x);
 #else
@@ -170,7 +308,7 @@ ByteOrderUtil::swapBytes64(bsls::Types::Uint64 x)
     // These macros all return a value of type 'bsls::Types::Uint64'.
 
 #if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64)
-    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64(bsls::Types::Uint64, x);
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64( bsls::Types::Uint64, x);
 #elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(bsls::Types::Uint64, &x);
 #else
