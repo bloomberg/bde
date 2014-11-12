@@ -295,7 +295,7 @@ class Datetime {
         k_MILLISECONDS_PER_DAY    = TimeUnitRatio::k_MS_PER_D_32,
         k_MILLISECONDS_PER_HOUR   = TimeUnitRatio::k_MS_PER_H_32,
         k_MILLISECONDS_PER_MINUTE = TimeUnitRatio::k_MS_PER_M_32,
-        k_MILLISECONDS_PER_SECOND = TimeUnitRatio::k_MS_PER_S_32,
+        k_MILLISECONDS_PER_SECOND = TimeUnitRatio::k_MS_PER_S_32
     };
 
     // CLASS DATA
