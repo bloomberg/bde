@@ -74,6 +74,8 @@
      bslalg_typetraitnil
      bslalg_typetraitpair
      bslalg_typetraitusesbslmaallocator
+
+  1. bslalg_typetraitpair
 ..
 
 /Component Synopsis
