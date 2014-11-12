@@ -867,27 +867,6 @@ struct hash<unsigned long long> {
         // Return a hash value computed using the specified 'x'.
 };
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // DEPRECATED
-
-#if !defined(BSL_HASH_CSTRINGS_AS_POINTERS)
-template <>
-struct hash<const char *>;
-    // This explicit specialization of 'hash' is declared, but not defined,
-    // so that the compiler will complain about use of this template
-    // instantiation.  If you are reading this because your compiler is
-    // complaining, review the code in question.  If it relies on the
-    // 'hash' call treating 'const char *' as a string, you should switch to
-    // a different hash function that supports this behavior, such as
-    // 'bdeu_cstringhash'.  Otherwise, if your code expects that 'hash' to
-    // act on the value of the pointer, you may define the macro
-    // 'BSL_HASH_CSTRINGS_AS_POINTERS' to recompile your code selecting the
-    // partial specialization for pointers defined above.  In a subsequent
-    // BDE release this usage will become the default, rather than an error, so
-    // that the explicit use of this macro should no longer be necessary.
-#endif  // BSL_HASH_CSTRINGS_AS_POINTERS
-
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
-
 // ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ============================================================================
