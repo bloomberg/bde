@@ -114,8 +114,16 @@ struct ByteOrderUtil_Impl<T, 8> {
 }  // close package namespace
 
 // ============================================================================
-//                                  LOCAL MACROS
+//                                  MACROS
 // ============================================================================
+
+// These macros are only intended to be used in this component and
+// 'bsls_byteorderutil'.
+
+// We did benchmarks and found that many of the custom assembly implementations
+// below were slower than the generic implementation, so we disable the slow
+// ones unless 'BSLS_BYTEORDERUTIL_IMPL_ENABLE_COUNTERPRODUCTIVE_MACROS' is
+// defined.
 
                // -------------------------------------------------
                // macro BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT
@@ -141,18 +149,6 @@ struct ByteOrderUtil_Impl<T, 8> {
 
 #endif
 
-// ============================================================================
-//                                  MACROS
-// ============================================================================
-
-// These macros are only intended to be used in this component and
-// 'bsls_byteorderutil'.
-
-// We did benchmarks and found that many of the custom assembly implementations
-// below were slower than the generic implementation, so we disable the slow
-// ones unless 'BSLS_BYTEORDERUTIL_IMPL_ENABLE_COUNTERPRODUCTIVE_MACROS' is
-// defined.
-
 #ifndef BSLS_BYTEORDERUTIL_IMPL_ENABLE_COUNTERPRODUCTIVE_MACROS
 #define BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS 1
 #endif
@@ -174,9 +170,15 @@ struct ByteOrderUtil_Impl<T, 8> {
 
 #endif
 
+#if !defined(BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS) ||     \
+    !defined(BSLS_PLATFORM_OS_SOLARIS) ||                                     \
+    !defined(BSLS_PLATFORM_CPU_64_BIT) || !defined(BDE_BUILD_TARGET_OPT)
+
 #define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64(dstType, x)                     \
     return static_cast<dstType>(__builtin_bswap64(                            \
                               static_cast<BloombergLP::bsls::Types::Int64>(x)))
+
+#endif
 
 #elif defined(BSLS_PLATFORM_CMP_MSVC)
 
@@ -344,7 +346,7 @@ unsigned long long bsls_byteOrderUtil_Impl_powerpc_swap_p64(
 #define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(dstType, x)                    \
     {                                                                         \
         BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(8 == sizeof *x);          \
-        register Types::Uint64 y;                                             \
+        register BloombergLP::bsls::Types::Uint64 y;                          \
         asm("ldxa [%1] %2, %0"                                                \
           : "=r" (y)                                                          \
           : "r" (x), "i"(0x88), "m" (                                         \
