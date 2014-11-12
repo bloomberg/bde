@@ -34,12 +34,6 @@ unix-*-*-*-*    	_       STL_DEFINES     = $(STL_EXCDEFS)
 !! unix-*-*-*-* 	mt      STL_MTDEFS      =
 unix-*-*-*-*    	_       STL_DEFINES     = $(STL_MTDEFS)
 
-# STL_NATIVE* defines explicit locations of native STL, used in packages that
-# are beneath bsl+stlport until their test drivers no longer use iostreams;
-# set STL_INCLUDE to STL_NATIVEINC and STL_LDFLAGS to STL_NATIVELIB
-unix-dgux		_	STL_NATIVEINC	= -I/usr/local/como/libcomo
-unix-dgux		_	STL_NATIVELIB   = -L/usr/local/como/libcomo -lcomo
-
 unix-SunOS-*-*-*	_	STL_CXXFLAGS	= -library=no%rwtools7
 !! unix-SunOS-*-*-gcc	_	STL_CXXFLAGS	=
 
@@ -56,12 +50,7 @@ unix-SunOS-*-*-*	_	STL_CXXFLAGS	= -library=no%rwtools7
 unix-AIX-*-*-*  	_	BDE_LDFLAGS	= $(BSL_INCLUDES)
 
 # -lrt needed by bsls_systemtime.cpp
-unix-SunOS-*-*-*        _       BDE_ENDLDFLAGS  = -lrt
-
-# on Sun and Forte6 we need sunmath
-
-unix-SunOS-*-*-cc-5.2 	_ 	BDE_EXTRALIBS = -lsunmath
-!! unix-SunOS-*-*-cc-5.5  _	BDE_EXTRALIBS =
+unix-SunOS-*-*-*        _       BDE_ENDLDFLAGS  = $(BDE_DYNAMIC) -lrt $(BDE_STATIC)
 
 -- *			_	BDE_ENDLDFLAGS = $(BSL_EXTRALIBS)
 
