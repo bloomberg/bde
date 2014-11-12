@@ -25,16 +25,16 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE ALSO: bsls_byteorderutil, bsls_byteorder
 //
-//@DESCRIPTION: This component provides a set of macros suitable for swapping
-// byte orders of all integral types.  The '*_CUSTOMSWAP_*' macros use assembly
-// language or compiler primitives, the '*_GENERICSWAP_*' macros use C bitwise
-// operators to perform the swap.  The '*_CUSTOMSWAP_*' macros are not defined
-// on all platforms, callers must perform an '#ifdef' to see if they are
-// defined before calling them.  At most one of '*_CUSTOMSWAP_NN' and
-// '*_CUSTOMSWAP_PNN' are defined on any one platform for any value of 'NN',
-// while '*_GENERICSWAP_NN' macros are defined on all platforms and are meant
-// to be called when the other macros are not available, and are also used for
-// benchmarking.
+//@DESCRIPTION: This component provides a template class 'ByteOrderUtil_Impl'
+// and a set of macros suitable for swapping byte orders of all integral types.
+// The '*_CUSTOMSWAP_*' macros use assembly language or compiler primitives,
+// the '*_GENERICSWAP_*' macros use C bitwise operators to perform the swap.
+// The '*_CUSTOMSWAP_*' macros are not defined on all platforms, callers must
+// perform an '#ifdef' to see if they are defined before calling them.  At most
+// one of '*_CUSTOMSWAP_NN' and '*_CUSTOMSWAP_PNN' are defined on any one
+// platform for any value of 'NN', while '*_GENERICSWAP_NN' macros are defined
+// on all platforms and are meant to be called when the other macros are not
+// available, and are also used for benchmarking.
 
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
@@ -64,49 +64,49 @@ namespace bsls {
                          // struct ByteOrderUtil_Impl
                          // =========================
 
-template <class T, Types::size_type WIDTH = sizeof(T)>
+template <class TYPE, Types::size_type WIDTH = sizeof(TYPE)>
 struct ByteOrderUtil_Impl;
 
-template <class T>
-struct ByteOrderUtil_Impl<T, 1> {
+template <class TYPE>
+struct ByteOrderUtil_Impl<TYPE, 1> {
     // This 'class' provides a namespace for functions used for reversing the
     // byte order of values having integral type.
 
     // CLASS METHODS
-    static T swapBytes(T x);
+    static TYPE swapBytes(TYPE x);
         // Return the value that results from reversing the order of the bytes
         // in the specified 'x'.
 };
 
-template <class T>
-struct ByteOrderUtil_Impl<T, 2> {
+template <class TYPE>
+struct ByteOrderUtil_Impl<TYPE, 2> {
     // This 'class' provides a namespace for functions used for reversing the
     // byte order of values having integral type.
 
     // CLASS METHODS
-    static T swapBytes(T x);
+    static TYPE swapBytes(TYPE x);
         // Return the value that results from reversing the order of the bytes
         // in the specified 'x'.
 };
 
-template <class T>
-struct ByteOrderUtil_Impl<T, 4> {
+template <class TYPE>
+struct ByteOrderUtil_Impl<TYPE, 4> {
     // This 'class' provides a namespace for functions used for reversing the
     // byte order of values having integral type.
 
     // CLASS METHODS
-    static T swapBytes(T x);
+    static TYPE swapBytes(TYPE x);
         // Return the value that results from reversing the order of the bytes
         // in the specified 'x'.
 };
 
-template <class T>
-struct ByteOrderUtil_Impl<T, 8> {
+template <class TYPE>
+struct ByteOrderUtil_Impl<TYPE, 8> {
     // This 'class' provides a namespace for functions used for reversing the
     // byte order of values having integral type.
 
     // CLASS METHODS
-    static T swapBytes(T x);
+    static TYPE swapBytes(TYPE x);
         // Return the value that results from reversing the order of the bytes
         // in the specified 'x'.
 };
@@ -532,60 +532,64 @@ unsigned long long bsls_byteOrderUtil_Impl_sparc_CC_swap_p64(
 
 namespace bsls {
 
-                         // -------------------------
-                         // struct ByteOrderUtil_Impl
-                         // -------------------------
+// ============================================================================
+//                               INLINE DEFINITIONS
+// ============================================================================
+
+                            // -------------------------
+                            // struct ByteOrderUtil_Impl
+                            // -------------------------
 
 // CLASS METHODS
-template <class T>
+template <class TYPE>
 inline
-T ByteOrderUtil_Impl<T, 1>::swapBytes(T x)
+TYPE ByteOrderUtil_Impl<TYPE, 1>::swapBytes(TYPE x)
 {
     return x;
 }
 
-template <class T>
+template <class TYPE>
 inline
-T ByteOrderUtil_Impl<T, 2>::swapBytes(T x)
+TYPE ByteOrderUtil_Impl<TYPE, 2>::swapBytes(TYPE x)
 {
-    // These macros all return a value of type 'T'.
+    // These macros all return a value of type 'TYPE'.
 
 #if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16)
-    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16(T, x);
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16( TYPE, x);
 #elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16)
-    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16(T, &x);
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16(TYPE, &x);
 #else
-    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(T, x);
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(TYPE, x);
 #endif
 }
 
-template <class T>
+template <class TYPE>
 inline
-T ByteOrderUtil_Impl<T, 4>::swapBytes(T x)
+TYPE ByteOrderUtil_Impl<TYPE, 4>::swapBytes(TYPE x)
 {
-    // These macros all return a value of type 'T'.
+    // These macros all return a value of type 'TYPE'.
 
 #if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32)
-    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32(T, x);
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32( TYPE, x);
 #elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32)
-    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32(T, &x);
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32(TYPE, &x);
 #else
-    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32(T, x);
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32(TYPE, x);
 #endif
 }
 
-template <class T>
+template <class TYPE>
 inline
-T ByteOrderUtil_Impl<T, 8>::swapBytes(T x)
+TYPE ByteOrderUtil_Impl<TYPE, 8>::swapBytes(TYPE x)
 {
-    // These macros all return a value of type 'T'.
+    // These macros all return a value of type 'TYPE'.
 
 #if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64)
-    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64(T, x);
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64( TYPE, x);
 #elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64)
-    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(T, &x);
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(TYPE, &x);
 #else
-    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(T, x);
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(TYPE, x);
 #endif
 }
 
