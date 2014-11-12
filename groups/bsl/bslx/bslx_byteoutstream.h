@@ -132,8 +132,8 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, we compare the contents of the stream to the expected value:
 //..
-//  const char *theChars = outStream.data();
-//  int         length = outStream.length();
+//  const char  *theChars = outStream.data();
+//  bsl::size_t  length   = outStream.length();
 //  assert(15 == length);
 //  assert( 0 == bsl::memcmp(theChars,
 //                           "\x00\x00\x00\x01\x00\x00\x00\x02""c\x05""hello",
@@ -141,7 +141,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally, we print the stream's contents to 'bsl::cout'.
 //..
-//  for (int i = 0; i < length; ++i) {
+//  for (bsl::size_t i = 0; i < length; ++i) {
 //      if (bsl::isalnum(static_cast<unsigned char>(theChars[i]))) {
 //          bsl::cout << "nextByte (char): " << theChars[i] << bsl::endl;
 //      }
@@ -269,16 +269,16 @@ class ByteOutStream {
         // be formatted as "YYYYMMDD", a date representation.
 
     ByteOutStream(int               versionSelector,
-                  int               initialCapacity,
+                  bsl::size_t       initialCapacity,
                   bslma::Allocator *basicAllocator = 0);
         // Create an empty output byte stream having an initial buffer capacity
         // of at least the specified 'initialCapacity' (in bytes) and that will
         // use the specified (*compile*-time-defined) 'versionSelector' as
         // needed (see {Versioning}).  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.  The behavior is undefined
-        // unless '0 <= initialCapacity'.  Note that the 'versionSelector' is
-        // expected to be formatted as "YYYYMMDD", a date representation.
+        // installed default allocator is used.  Note that the
+        // 'versionSelector' is expected to be formatted as "YYYYMMDD", a date
+        // representation.
 
     ~ByteOutStream();
         // Destroy this object.
@@ -304,10 +304,9 @@ class ByteOutStream {
         // 'version', and return a reference to this stream.  If this stream is
         // initially invalid, this operation has no effect.
 
-    void reserveCapacity(int newCapacity);
+    void reserveCapacity(bsl::size_t newCapacity);
         // Set the internal buffer size of this stream to be at least the
-        // specified 'newCapacity' (in bytes).  The behavior is undefined
-        // unless '0 <= newCapacity'.
+        // specified 'newCapacity' (in bytes).
 
     void reset();
         // Remove all content in this stream and validate this stream if it is
@@ -652,7 +651,7 @@ class ByteOutStream {
         // invalid stream is a stream for which an output operation was
         // detected to have failed or 'invalidate' was called.
 
-    int length() const;
+    bsl::size_t length() const;
         // Return the number of bytes in this stream.
 };
 
@@ -696,14 +695,12 @@ ByteOutStream::ByteOutStream(int               versionSelector,
 
 inline
 ByteOutStream::ByteOutStream(int               versionSelector,
-                             int               initialCapacity,
+                             bsl::size_t       initialCapacity,
                              bslma::Allocator *basicAllocator)
 : d_buffer(basicAllocator)
 , d_versionSelector(versionSelector)
 , d_validFlag(true)
 {
-    BSLS_ASSERT_SAFE(0 <= initialCapacity);
-
     d_buffer.reserve(initialCapacity);
 }
 
@@ -739,10 +736,8 @@ ByteOutStream& ByteOutStream::putVersion(int version)
 }
 
 inline
-void ByteOutStream::reserveCapacity(int newCapacity)
+void ByteOutStream::reserveCapacity(bsl::size_t newCapacity)
 {
-    BSLS_ASSERT_SAFE(0 <= newCapacity);
-
     d_buffer.reserve(newCapacity);
 }
 
@@ -1608,9 +1603,9 @@ bool ByteOutStream::isValid() const
 }
 
 inline
-int ByteOutStream::length() const
+bsl::size_t ByteOutStream::length() const
 {
-    return static_cast<int>(d_buffer.size());
+    return d_buffer.size();
 }
 
 template <class TYPE>

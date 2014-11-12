@@ -7,6 +7,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstdio.h>
 #include <bsl_cstring.h>
@@ -44,15 +45,9 @@ using namespace bslx;
 // thrown when expected.
 // ----------------------------------------------------------------------------
 // [ 3] TestInStream();
-// [ 3] TestInStream(const char *buffer, int numBytes);
+// [ 3] TestInStream(const char *buffer, bsl::size_t numBytes);
 // [ 3] TestInStream(const bslstl::StringRef& srcData);
 // [ 3] ~TestInStream();
-// [26] void reset();
-// [28] void reset(const char *buffer, int numBytes);
-// [28] void reset(const bslstl::StringRef& srcData);
-// [27] setInputLimit(int limit);
-// [ 3] setQuiet(int flag);
-// [26] seek(int offset);
 // [29] getLength(int& variable);
 // [29] getVersion(int& variable);
 // [13] getInt64(bsls::Types::Int64& variable);
@@ -97,13 +92,19 @@ using namespace bslx;
 // [25] getArrayFloat64(double *variables, int numVariables);
 // [24] getArrayFloat32(float *variables, int numVariables);
 // [ 3] void invalidate();
+// [26] void reset();
+// [28] void reset(const char *buffer, bsl::size_t numBytes);
+// [28] void reset(const bslstl::StringRef& srcData);
+// [27] setInputLimit(int limit);
+// [ 3] setQuiet(int flag);
+// [26] seek(bsl::size_t offset);
 // [ 4] operator const void *() const;
-// [ 4] int cursor() const;
+// [ 4] bsl::size_t cursor() const;
 // [27] int inputLimit() const;
 // [ 4] bool isEmpty() const;
 // [ 4] bool isValid() const;
 // [ 3] bool isQuiet() const;
-// [ 4] int length() const;
+// [ 4] bsl::size_t length() const;
 //
 // [ 5] ostream& operator<<(ostream& stream, const TestInStream& obj);
 // [31] TestInStream& operator>>(TestInStream&, TYPE& value);
@@ -1601,8 +1602,6 @@ int main(int argc, char *argv[]) {
         //: 2 Every method sets the cursor to zero.
         //:
         //: 3 Every method marks the stream valid.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Initialize an input stream, read some data to ensure the cursor
@@ -1611,11 +1610,9 @@ int main(int argc, char *argv[]) {
         //: 2 Call the 'reset' method and verify the buffer and length are
         //:   correctly assigned, the cursor is zero, and the stream is valid.
         //:   (C-1..3)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
-        //   void reset(const char *buffer, int numBytes);
+        //   void reset(const char *buffer, bsl::size_t numBytes);
         //   void reset(const bslstl::StringRef& srcData);
         // --------------------------------------------------------------------
 
@@ -1689,21 +1686,6 @@ int main(int argc, char *argv[]) {
             ASSERT(0 == X.cursor());
             ASSERT(LEN == X.length());
             ASSERT(X.isValid());
-        }
-
-        if (verbose)
-            cout << "\nNegative Testing." << endl;
-        {
-            char DATA[16];
-            Obj mX;
-
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
-
-            ASSERT_SAFE_FAIL(mX.reset(DATA, -1));
-            ASSERT_SAFE_PASS(mX.reset(DATA, 0));
-            ASSERT_SAFE_PASS(mX.reset(DATA, 1));
-            ASSERT_SAFE_PASS(mX.reset(0, 0));
         }
 
       } break;
@@ -2014,7 +1996,7 @@ int main(int argc, char *argv[]) {
         //:   (C-2)
         //
         // Testing:
-        //   void seek(int offset);
+        //   void seek(bsl::size_t offset);
         //   void reset();
         // --------------------------------------------------------------------
 
@@ -4468,10 +4450,10 @@ int main(int argc, char *argv[]) {
         //
         // Testing
         //   operator const void *() const;
+        //   bsl::size_t cursor() const;
         //   bool isValid() const;
         //   bool isEmpty() const;
-        //   int length() const;
-        //   int cursor() const;
+        //   bsl::size_t length() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "BASIC ACCESSORS TEST" << endl
@@ -4490,7 +4472,7 @@ int main(int argc, char *argv[]) {
             for (j = 0; j < i;  ++j) o.putInt8(j);
 
             Obj mX2(o.data(), o.length());  const Obj& X2 = mX2;
-            int len = X2.length();
+            bsl::size_t len = X2.length();
             LOOP_ASSERT(i, len != 0);
             if (veryVerbose) { P(X2) }
             LOOP_ASSERT(i, X2 && X2.isValid());
@@ -4537,7 +4519,8 @@ int main(int argc, char *argv[]) {
             char c;
             mX2.getInt8(c);  // get version
             for (j = 0; j < i; ++j) {
-                const int EXP = VERSION_LEN + (SIZEOF_CODE + SIZEOF_INT8) * j;
+                const bsl::size_t EXP =
+                                 VERSION_LEN + (SIZEOF_CODE + SIZEOF_INT8) * j;
                 LOOP2_ASSERT(i, j, X2.cursor() == EXP);
                 mX2.getInt8(c);
             }
@@ -4557,8 +4540,6 @@ int main(int argc, char *argv[]) {
         //: 3 'invalidate' produces the expected results.
         //:
         //: 4 Destructor functions properly.
-        //:
-        //: 5 QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 For 'getInt8', see documentation of the testing mechanism
@@ -4572,12 +4553,10 @@ int main(int argc, char *argv[]) {
         //:
         //: 5 Since the destructor for this object is empty, the concern
         //:   regarding the destructor is trivially satisfied.  (C-4)
-        //:
-        //: 6 Verify defensive checks are triggered for invalid values.  (C-5)
         //
         // Testing
         //   TestInStream();
-        //   TestInStream(const char *buffer, int numBytes);
+        //   TestInStream(const char *buffer, bsl::size_t numBytes);
         //   TestInStream(const bslstl::StringRef& srcData);
         //   ~TestInStream();
         //   setQuiet(int flag);
@@ -4664,7 +4643,7 @@ int main(int argc, char *argv[]) {
             o.putInt8(7);
             o.putInt8(8);
 
-            bslstl::StringRef srcData(o.data(), o.length());
+            bslstl::StringRef srcData(o.data(), static_cast<int>(o.length()));
 
             Obj mX(srcData);  const Obj& X = mX;
             ASSERT(X);
@@ -4713,20 +4692,6 @@ int main(int argc, char *argv[]) {
             ASSERT(1 == X.isQuiet());
             mX.setQuiet(0);
             ASSERT(0 == X.isQuiet());
-        }
-
-        if (verbose)
-            cout << "\nNegative Testing." << endl;
-        {
-            char DATA[16];
-
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
-
-            ASSERT_SAFE_FAIL(Obj mX(DATA, -1));
-            ASSERT_SAFE_PASS(Obj mX(DATA, 0));
-            ASSERT_SAFE_PASS(Obj mX(DATA, 1));
-            ASSERT_SAFE_PASS(Obj mX(0, 0));
         }
       } break;
       case 2: {

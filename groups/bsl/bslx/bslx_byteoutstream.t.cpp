@@ -9,6 +9,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_cctype.h>
@@ -37,12 +38,12 @@ using namespace bslx;
 // 'putInt8'.
 // ----------------------------------------------------------------------------
 // [ 2] ByteOutStream(int sV, *ba = 0);
-// [ 2] ByteOutStream(int sV, int initialCapacity, *ba = 0);
+// [ 2] ByteOutStream(int sV, bsl::size_t initialCapacity, *ba = 0);
 // [ 2] ~ByteOutStream();
 // [ 4] void invalidate();
 // [25] putLength(int length);
 // [25] putVersion(int version);
-// [ 2] reserveCapacity(int newCapacity);
+// [ 2] reserveCapacity(bsl::size_t newCapacity);
 // [ 2] reset();
 // [12] putInt64(bsls::Types::Int64 value);
 // [12] putUint64(bsls::Types::Uint64 value);
@@ -87,7 +88,7 @@ using namespace bslx;
 // [ 3] int bdexVersionSelector() const;
 // [ 3] const char *data() const;
 // [ 4] bool isValid() const;
-// [ 3] int length() const;
+// [ 3] bsl::size_t length() const;
 //
 // [ 5] ostream& operator<<(ostream& stream, const ByteOutStream&);
 // [27] ByteOutStream& operator<<(ByteOutStream&, const TYPE& value);
@@ -231,8 +232,8 @@ int main(int argc, char *argv[])
 //..
 // Then, we compare the contents of the stream to the expected value:
 //..
-    const char *theChars = outStream.data();
-    int         length = outStream.length();
+    const char  *theChars = outStream.data();
+    bsl::size_t  length   = outStream.length();
     ASSERT(15 == length);
     ASSERT( 0 == bsl::memcmp(theChars,
                              "\x00\x00\x00\x01\x00\x00\x00\x02""c\x05""hello",
@@ -241,7 +242,7 @@ int main(int argc, char *argv[])
 // Finally, we print the stream's contents to 'bsl::cout'.
 //..
     if (veryVerbose)
-    for (int i = 0; i < length; ++i) {
+    for (bsl::size_t i = 0; i < length; ++i) {
         if (bsl::isalnum(static_cast<unsigned char>(theChars[i]))) {
             bsl::cout << "nextByte (char): " << theChars[i] << bsl::endl;
         }
@@ -389,7 +390,7 @@ int main(int argc, char *argv[])
             mX.putString(DATA);     mX.putInt8(0xfc);
             if (veryVerbose) { P(X); }
 
-            const int NUM_BYTES = 4 * SIZEOF_INT8 + 4 * SIZE;
+            const bsl::size_t NUM_BYTES = 4 * SIZEOF_INT8 + 4 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                "\x05hello" "\xff"
@@ -451,7 +452,8 @@ int main(int argc, char *argv[])
                 mX.putLength(256);     mX.putInt8(0xfb);
                 if (veryVerbose) { P(X); }
 
-                const int NUM_BYTES = 7 * SIZEOF_INT8 + 2 * SIZEOF_INT32;
+                const bsl::size_t NUM_BYTES =
+                                            7 * SIZEOF_INT8 + 2 * SIZEOF_INT32;
                 ASSERT(NUM_BYTES == X.length());
                 ASSERT(0 == memcmp(X.data(),
                                    "\xff" "\x01" "\xfe"
@@ -490,7 +492,7 @@ int main(int argc, char *argv[])
                 mX.putVersion(4);
                 if (veryVerbose) { P(X); }
 
-                const int NUM_BYTES = 4 * SIZE;
+                const bsl::size_t NUM_BYTES = 4 * SIZE;
                 ASSERT(NUM_BYTES == X.length());
                 ASSERT(0 == memcmp(X.data(),
                                    "\x01\x02\x03\x04",
@@ -517,7 +519,7 @@ int main(int argc, char *argv[])
                 mX.putVersion(255);
                 if (veryVerbose) { P(X); }
 
-                const int NUM_BYTES = 4 * SIZE;
+                const bsl::size_t NUM_BYTES = 4 * SIZE;
                 ASSERT(NUM_BYTES == X.length());
                 ASSERT(0 == memcmp(X.data(),
                                    "\xfc\xfd\xfe\xff",
@@ -576,7 +578,7 @@ int main(int argc, char *argv[])
             mX.putArrayFloat64(DATA, 3);     mX.putInt8(0xfc);
             if (veryVerbose) { P(X); }
 
-            const int NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
+            const bsl::size_t NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""                                 "\xff"
@@ -661,7 +663,7 @@ int main(int argc, char *argv[])
             mX.putArrayFloat32(DATA, 3);     mX.putInt8(0xfc);
             if (veryVerbose) { P(X); }
 
-            const int NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
+            const bsl::size_t NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""                 "\xff"
@@ -747,7 +749,7 @@ int main(int argc, char *argv[])
             mX.putArrayInt64(DATA, 3);     mX.putInt8(0xfc);
             if (veryVerbose) { P(X); }
 
-            const int NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
+            const bsl::size_t NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""                                 "\xff"
@@ -791,7 +793,7 @@ int main(int argc, char *argv[])
             mX.putArrayUint64(DATA, 3);     mX.putInt8(0xfc);
             if (veryVerbose) { P(X); }
 
-            const int NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
+            const bsl::size_t NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""                                 "\xff"
@@ -889,7 +891,7 @@ int main(int argc, char *argv[])
             mX.putArrayInt56(DATA, 3);     mX.putInt8(0xfc);
             if (veryVerbose) { P(X); }
 
-            const int NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
+            const bsl::size_t NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""                             "\xff"
@@ -933,7 +935,7 @@ int main(int argc, char *argv[])
             mX.putArrayUint56(DATA, 3);     mX.putInt8(0xfc);
             if (veryVerbose) { P(X); }
 
-            const int NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
+            const bsl::size_t NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""                             "\xff"
@@ -1031,7 +1033,7 @@ int main(int argc, char *argv[])
             mX.putArrayInt48(DATA, 3);     mX.putInt8(0xfc);
             if (veryVerbose) { P(X); }
 
-            const int NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
+            const bsl::size_t NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""                         "\xff"
@@ -1075,7 +1077,7 @@ int main(int argc, char *argv[])
             mX.putArrayUint48(DATA, 3);     mX.putInt8(0xfc);
             if (veryVerbose) { P(X); }
 
-            const int NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
+            const bsl::size_t NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""                         "\xff"
@@ -1173,7 +1175,7 @@ int main(int argc, char *argv[])
             mX.putArrayInt40(DATA, 3);     mX.putInt8(0xfc);
             if (veryVerbose) { P(X); }
 
-            const int NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
+            const bsl::size_t NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""                     "\xff"
@@ -1217,7 +1219,7 @@ int main(int argc, char *argv[])
             mX.putArrayUint40(DATA, 3);     mX.putInt8(0xfc);
             if (veryVerbose) { P(X); }
 
-            const int NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
+            const bsl::size_t NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""                     "\xff"
@@ -1315,7 +1317,7 @@ int main(int argc, char *argv[])
             mX.putArrayInt32(DATA, 3);     mX.putInt8(0xfc);
             if (veryVerbose) { P(X); }
 
-            const int NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
+            const bsl::size_t NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""                 "\xff"
@@ -1359,7 +1361,7 @@ int main(int argc, char *argv[])
             mX.putArrayUint32(DATA, 3);     mX.putInt8(0xfc);
             if (veryVerbose) { P(X); }
 
-            const int NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
+            const bsl::size_t NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""                 "\xff"
@@ -1457,7 +1459,7 @@ int main(int argc, char *argv[])
             mX.putArrayInt24(DATA, 3);     mX.putInt8(0xfc);
             if (veryVerbose) { P(X); }
 
-            const int NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
+            const bsl::size_t NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""             "\xff"
@@ -1501,7 +1503,7 @@ int main(int argc, char *argv[])
             mX.putArrayUint24(DATA, 3);     mX.putInt8(0xfc);
             if (veryVerbose) { P(X); }
 
-            const int NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
+            const bsl::size_t NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""             "\xff"
@@ -1599,7 +1601,7 @@ int main(int argc, char *argv[])
             mX.putArrayInt16(DATA, 3);     mX.putInt8(0xfc);
             if (veryVerbose) { P(X); }
 
-            const int NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
+            const bsl::size_t NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""                               "\xff"
@@ -1637,7 +1639,7 @@ int main(int argc, char *argv[])
             mX.putArrayUint16(DATA, 3);     mX.putInt8(0xfc);
             if (veryVerbose) { P(X); }
 
-            const int NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
+            const bsl::size_t NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""                               "\xff"
@@ -1729,7 +1731,7 @@ int main(int argc, char *argv[])
             mX.putArrayInt8(DATA, 3);     mX.putInt8(0xfc);
             if (veryVerbose) { P(X); }
 
-            const int NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
+            const bsl::size_t NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""                   "\xff"
@@ -1767,7 +1769,7 @@ int main(int argc, char *argv[])
             mX.putArrayUint8(DATA, 3);     mX.putInt8(0xfc);
             if (veryVerbose) { P(X); }
 
-            const int NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
+            const bsl::size_t NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""                   "\xff"
@@ -1806,7 +1808,7 @@ int main(int argc, char *argv[])
             mX.putArrayUint8(DATA, 3);     mX.putInt8(0xfc);
             if (veryVerbose) { P(X); }
 
-            const int NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
+            const bsl::size_t NUM_BYTES = 4 * SIZEOF_INT8 + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""                   "\xff"
@@ -1915,7 +1917,7 @@ int main(int argc, char *argv[])
             mX.putFloat64(3);     mX.putInt8(0xfc);
             mX.putFloat64(4);     mX.putInt8(0xfb);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 5 * SIZEOF_INT8 + 4 * SIZE;
+            const bsl::size_t NUM_BYTES = 5 * SIZEOF_INT8 + 4 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""                                 "\xff"
@@ -1975,7 +1977,7 @@ int main(int argc, char *argv[])
             mX.putFloat32(3);     mX.putInt8(0xfc);
             mX.putFloat32(4);     mX.putInt8(0xfb);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 5 * SIZEOF_INT8 + 4 * SIZE;
+            const bsl::size_t NUM_BYTES = 5 * SIZEOF_INT8 + 4 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""                 "\xff"
@@ -2036,7 +2038,7 @@ int main(int argc, char *argv[])
             mX.putInt64(3);     mX.putInt8(0xfc);
             mX.putInt64(4);     mX.putInt8(0xfb);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 5 * SIZEOF_INT8 + 4 * SIZE;
+            const bsl::size_t NUM_BYTES = 5 * SIZEOF_INT8 + 4 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""                                 "\xff"
@@ -2074,7 +2076,7 @@ int main(int argc, char *argv[])
             mX.putUint64(3);     mX.putInt8(0xfc);
             mX.putUint64(4);     mX.putInt8(0xfb);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 5 * SIZEOF_INT8 + 4 * SIZE;
+            const bsl::size_t NUM_BYTES = 5 * SIZEOF_INT8 + 4 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""                                 "\xff"
@@ -2135,7 +2137,7 @@ int main(int argc, char *argv[])
             mX.putInt56(3);     mX.putInt8(0xfc);
             mX.putInt56(4);     mX.putInt8(0xfb);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 5 * SIZEOF_INT8 + 4 * SIZE;
+            const bsl::size_t NUM_BYTES = 5 * SIZEOF_INT8 + 4 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""                             "\xff"
@@ -2173,7 +2175,7 @@ int main(int argc, char *argv[])
             mX.putUint56(3);     mX.putInt8(0xfc);
             mX.putUint56(4);     mX.putInt8(0xfb);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 5 * SIZEOF_INT8 + 4 * SIZE;
+            const bsl::size_t NUM_BYTES = 5 * SIZEOF_INT8 + 4 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""                             "\xff"
@@ -2234,7 +2236,7 @@ int main(int argc, char *argv[])
             mX.putInt48(3);     mX.putInt8(0xfc);
             mX.putInt48(4);     mX.putInt8(0xfb);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 5 * SIZEOF_INT8 + 4 * SIZE;
+            const bsl::size_t NUM_BYTES = 5 * SIZEOF_INT8 + 4 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""                         "\xff"
@@ -2272,7 +2274,7 @@ int main(int argc, char *argv[])
             mX.putUint48(3);     mX.putInt8(0xfc);
             mX.putUint48(4);     mX.putInt8(0xfb);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 5 * SIZEOF_INT8 + 4 * SIZE;
+            const bsl::size_t NUM_BYTES = 5 * SIZEOF_INT8 + 4 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""                         "\xff"
@@ -2333,7 +2335,7 @@ int main(int argc, char *argv[])
             mX.putInt40(3);     mX.putInt8(0xfc);
             mX.putInt40(4);     mX.putInt8(0xfb);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 5 * SIZEOF_INT8 + 4 * SIZE;
+            const bsl::size_t NUM_BYTES = 5 * SIZEOF_INT8 + 4 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""                     "\xff"
@@ -2371,7 +2373,7 @@ int main(int argc, char *argv[])
             mX.putUint40(3);     mX.putInt8(0xfc);
             mX.putUint40(4);     mX.putInt8(0xfb);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 5 * SIZEOF_INT8 + 4 * SIZE;
+            const bsl::size_t NUM_BYTES = 5 * SIZEOF_INT8 + 4 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""                     "\xff"
@@ -2432,7 +2434,7 @@ int main(int argc, char *argv[])
             mX.putInt32(3);     mX.putInt8(0xfc);
             mX.putInt32(4);     mX.putInt8(0xfb);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 5 * SIZEOF_INT8 + 4 * SIZE;
+            const bsl::size_t NUM_BYTES = 5 * SIZEOF_INT8 + 4 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""                 "\xff"
@@ -2470,7 +2472,7 @@ int main(int argc, char *argv[])
             mX.putUint32(3);     mX.putInt8(0xfc);
             mX.putUint32(4);     mX.putInt8(0xfb);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 5 * SIZEOF_INT8 + 4 * SIZE;
+            const bsl::size_t NUM_BYTES = 5 * SIZEOF_INT8 + 4 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""                 "\xff"
@@ -2531,7 +2533,7 @@ int main(int argc, char *argv[])
             mX.putInt24(3);     mX.putInt8(0xfc);
             mX.putInt24(4);     mX.putInt8(0xfb);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 5 * SIZEOF_INT8 + 4 * SIZE;
+            const bsl::size_t NUM_BYTES = 5 * SIZEOF_INT8 + 4 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""             "\xff"
@@ -2569,7 +2571,7 @@ int main(int argc, char *argv[])
             mX.putUint24(3);     mX.putInt8(0xfc);
             mX.putUint24(4);     mX.putInt8(0xfb);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 5 * SIZEOF_INT8 + 4 * SIZE;
+            const bsl::size_t NUM_BYTES = 5 * SIZEOF_INT8 + 4 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""             "\xff"
@@ -2630,7 +2632,7 @@ int main(int argc, char *argv[])
             mX.putInt16(3);     mX.putInt8(0xfc);
             mX.putInt16(4);     mX.putInt8(0xfb);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 5 * SIZEOF_INT8 + 4 * SIZE;
+            const bsl::size_t NUM_BYTES = 5 * SIZEOF_INT8 + 4 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""         "\xff"
@@ -2668,7 +2670,7 @@ int main(int argc, char *argv[])
             mX.putUint16(3);     mX.putInt8(0xfc);
             mX.putUint16(4);     mX.putInt8(0xfb);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 5 * SIZEOF_INT8 + 4 * SIZE;
+            const bsl::size_t NUM_BYTES = 5 * SIZEOF_INT8 + 4 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                ""         "\xff"
@@ -2862,7 +2864,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   int bdexVersionSelector() const;
         //   const char *data() const;
-        //   int length() const;
+        //   bsl::size_t length() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2888,7 +2890,7 @@ int main(int argc, char *argv[])
             }
 
             if (veryVerbose) { P_(iLen); P(X); }
-            const int bytes = iLen * SIZEOF_INT8;
+            const bsl::size_t bytes = iLen * SIZEOF_INT8;
             // verify length()
             LOOP_ASSERT(iLen, X.length() == bytes);
             // verify data()
@@ -2918,8 +2920,6 @@ int main(int argc, char *argv[])
         //: 4 'reset' validates and removes all data from the object.
         //:
         //: 5 The destructor functions properly.
-        //:
-        //: 6 QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Verify allocation occurrences by using a test allocator.
@@ -2941,17 +2941,15 @@ int main(int argc, char *argv[])
         //:
         //: 6 Verify the functionality of the destructor using test allocators.
         //:   (C-5)
-        //:
-        //: 7 Verify defensive checks are triggered for invalid values.  (C-6)
         //
         // Testing:
         //   ByteOutStream(int sV, *ba = 0);
-        //   ByteOutStream(int sV, int initialCapacity, *ba = 0);
+        //   ByteOutStream(int sV, bsl::size_t initialCapacity, *ba = 0);
         //   ~ByteOutStream();
         //   putInt8(int value);
         //   putUint8(unsigned int value);
         //   reset();
-        //   reserveCapacity(int newCapacity);
+        //   reserveCapacity(bsl::size_t newCapacity);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2974,7 +2972,7 @@ int main(int argc, char *argv[])
             mX.putInt8(4);
             if (veryVerbose) { P(X); }
 
-            const int NUM_BYTES = 4 * SIZE;
+            const bsl::size_t NUM_BYTES = 4 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(), "\x01\x02\x03\x04", NUM_BYTES));
             ASSERT(allocations + 1 == defaultAllocator.numAllocations());
@@ -3005,7 +3003,7 @@ int main(int argc, char *argv[])
             mX.putInt8(8);
             if (veryVerbose) { P(X); }
 
-            const int NUM_BYTES = 4 * SIZE;
+            const bsl::size_t NUM_BYTES = 4 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(), "\x05\x06\x07\x08", NUM_BYTES));
             ASSERT(allocations + 1 == defaultAllocator.numAllocations());
@@ -3027,7 +3025,7 @@ int main(int argc, char *argv[])
             mX.putInt8(4);
             if (veryVerbose) { P(X); }
 
-            const int NUM_BYTES = 4 * SIZE;
+            const bsl::size_t NUM_BYTES = 4 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(), "\x01\x02\x03\x04", NUM_BYTES));
             ASSERT(allocations + 1 == ta.numAllocations());
@@ -3058,7 +3056,7 @@ int main(int argc, char *argv[])
             mX.putInt8(8);
             if (veryVerbose) { P(X); }
 
-            const int NUM_BYTES = 4 * SIZE;
+            const bsl::size_t NUM_BYTES = 4 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(), "\x05\x06\x07\x08", NUM_BYTES));
             ASSERT(allocations + 1 == ta.numAllocations());
@@ -3075,7 +3073,7 @@ int main(int argc, char *argv[])
             mX.putUint8(3);
             mX.putUint8(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * SIZE;
+            const bsl::size_t NUM_BYTES = 4 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(), "\x01\x02\x03\x04", NUM_BYTES));
 
@@ -3117,22 +3115,6 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(iLen, X.isValid());
                 LOOP_ASSERT(iLen, 0 == X.length());
             }
-        }
-
-        if (verbose)
-            cout << "\nNegative Testing." << endl;
-        {
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
-
-            ASSERT_SAFE_FAIL(Obj x(VERSION_SELECTOR, -1));
-            ASSERT_SAFE_PASS(Obj x(VERSION_SELECTOR, 0));
-            ASSERT_SAFE_PASS(Obj x(VERSION_SELECTOR, 1));
-
-            Obj mX(VERSION_SELECTOR);
-            ASSERT_SAFE_FAIL(mX.reserveCapacity(-1));
-            ASSERT_SAFE_PASS(mX.reserveCapacity(0));
-            ASSERT_SAFE_PASS(mX.reserveCapacity(1));
         }
       } break;
       case 1: {

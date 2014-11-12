@@ -364,6 +364,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
+#ifndef INCLUDED_BSL_CSTDDEF
+#include <bsl_cstddef.h>
+#endif
+
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
@@ -395,15 +399,15 @@ class ByteInStream {
     // the definition of the BDEX 'InStream' protocol.
 
     // DATA
-    const char *d_buffer;     // bytes to be unexternalized
+    const char  *d_buffer;     // bytes to be unexternalized
 
-    int         d_numBytes;   // number of bytes in 'd_buffer'
+    bsl::size_t  d_numBytes;   // number of bytes in 'd_buffer'
 
-    bool        d_validFlag;  // stream validity flag; 'true' if stream is in
-                              // valid state, 'false' otherwise
+    bool         d_validFlag;  // stream validity flag; 'true' if stream is in
+                               // valid state, 'false' otherwise
 
-    int         d_cursor;     // index of the next byte to be extracted from
-                              // this stream
+    bsl::size_t  d_cursor;     // index of the next byte to be extracted from
+                               // this stream
 
     // FRIENDS
     friend bsl::ostream& operator<<(bsl::ostream&       stream,
@@ -420,10 +424,10 @@ class ByteInStream {
         // Create an empty input byte stream.  Note that the constructed object
         // is useless until a buffer is set with the 'reset' method.
 
-    ByteInStream(const char *buffer, int numBytes);
+    ByteInStream(const char *buffer, bsl::size_t numBytes);
         // Create an input byte stream containing the specified initial
         // 'numBytes' from the specified 'buffer'.  The behavior is undefined
-        // unless '0 <= numBytes' and, if '0 == buffer', then '0 == numBytes'.
+        // unless, if '0 == buffer', then '0 == numBytes'.
 
     explicit ByteInStream(const bslstl::StringRef& srcData);
         // Create an input byte stream containing the specified 'srcData'.
@@ -467,12 +471,12 @@ class ByteInStream {
         // (i.e., the beginning of the stream) and validate this stream if it
         // is currently invalid.
 
-    void reset(const char *buffer, int numBytes);
+    void reset(const char *buffer, bsl::size_t numBytes);
         // Reset this stream to extract from the specified 'buffer' containing
         // the specified 'numBytes', set the index of the next byte to be
         // extracted to 0 (i.e., the beginning of the stream), and validate
         // this stream if it is currently invalid.  The behavior is undefined
-        // unless '0 <= numBytes' and, if '0 == buffer', then '0 == numBytes'.
+        // unless, if '0 == buffer', then '0 == numBytes'.
 
     void reset(const bslstl::StringRef& srcData);
         // Reset this stream to extract from the specified 'srcData', set the
@@ -921,7 +925,7 @@ class ByteInStream {
         // An invalid stream is a stream for which an input operation was
         // detected to have failed.
 
-    int cursor() const;
+    bsl::size_t cursor() const;
         // Return the index of the next byte to be extracted from this stream.
 
     const char *data() const;
@@ -941,7 +945,7 @@ class ByteInStream {
         // will be valid unless an extraction attempt or explicit invalidation
         // causes it to be otherwise.
 
-    int length() const;
+    bsl::size_t length() const;
         // Return the total number of bytes stored in the external memory
         // buffer.
 };
@@ -978,14 +982,13 @@ ByteInStream::ByteInStream()
 }
 
 inline
-ByteInStream::ByteInStream(const char *buffer, int numBytes)
+ByteInStream::ByteInStream(const char *buffer, bsl::size_t numBytes)
 : d_buffer(buffer)
 , d_numBytes(numBytes)
 , d_validFlag(true)
 , d_cursor(0)
 {
     BSLS_ASSERT_SAFE(buffer || 0 == numBytes);
-    BSLS_ASSERT_SAFE(0 <= numBytes);
 }
 
 inline
@@ -1064,10 +1067,9 @@ void ByteInStream::reset()
 }
 
 inline
-void ByteInStream::reset(const char *buffer, int numBytes)
+void ByteInStream::reset(const char *buffer, bsl::size_t numBytes)
 {
     BSLS_ASSERT_SAFE(buffer || 0 == numBytes);
-    BSLS_ASSERT_SAFE(0 <= numBytes);
 
     d_buffer    = buffer;
     d_numBytes  = numBytes;
@@ -1079,7 +1081,7 @@ inline
 void ByteInStream::reset(const bslstl::StringRef& srcData)
 {
     d_buffer    = srcData.data();
-    d_numBytes  = static_cast<int>(srcData.length());
+    d_numBytes  = srcData.length();
     d_validFlag = true;
     d_cursor    = 0;
 }
@@ -1951,7 +1953,7 @@ ByteInStream::operator const void *() const
 }
 
 inline
-int ByteInStream::cursor() const
+bsl::size_t ByteInStream::cursor() const
 {
     return d_cursor;
 }
@@ -1975,7 +1977,7 @@ bool ByteInStream::isValid() const
 }
 
 inline
-int ByteInStream::length() const
+bsl::size_t ByteInStream::length() const
 {
     return d_numBytes;
 }

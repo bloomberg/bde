@@ -7,6 +7,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
@@ -37,7 +38,7 @@ using namespace bslx;
 // empty, and the cursor is properly placed.
 // ----------------------------------------------------------------------------
 // [ 2] ByteInStream();
-// [ 2] ByteInStream(const char *buffer, int numBytes);
+// [ 2] ByteInStream(const char *buffer, bsl::size_t numBytes);
 // [ 2] ByteInStream(const bslstl::StringRef& srcData);
 // [ 2] ~ByteInStream();
 // [25] getLength(int& variable);
@@ -85,14 +86,14 @@ using namespace bslx;
 // [23] getArrayFloat32(float *variables, int numVariables);
 // [ 2] void invalidate();
 // [27] void reset();
-// [27] void reset(const char *buffer, int numBytes);
+// [27] void reset(const char *buffer, bsl::size_t numBytes);
 // [27] void reset(const bslstl::StringRef& srcData);
 // [ 3] operator const void *() const;
-// [ 3] int cursor() const;
+// [ 3] bsl::size_t cursor() const;
 // [ 3] const char *data() const;
 // [ 3] bool isEmpty() const;
 // [ 3] bool isValid() const;
-// [ 3] int length() const;
+// [ 3] bsl::size_t length() const;
 //
 // [ 4] ostream& operator<<(ostream& stream, const ByteInStream& obj);
 // [28] ByteInStream& operator>>(ByteInStream&, TYPE& value);
@@ -769,8 +770,6 @@ if (veryVerbose) {
         //: 2 Every method sets the cursor to zero.
         //:
         //: 3 Every method marks the stream valid.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Initialize an input stream, read some data to ensure the cursor
@@ -779,12 +778,10 @@ if (veryVerbose) {
         //: 2 Call the 'reset' method and verify the buffer and length are
         //:   correctly assigned, the cursor is zero, and the stream is valid.
         //:   (C-1..3)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   void reset();
-        //   void reset(const char *buffer, int numBytes);
+        //   void reset(const char *buffer, bsl::size_t numBytes);
         //   void reset(const bslstl::StringRef& srcData);
         // --------------------------------------------------------------------
 
@@ -863,22 +860,6 @@ if (veryVerbose) {
             ASSERT(0 == X.cursor());
             ASSERT(LEN == X.length());
             ASSERT(X.isValid());
-        }
-
-        if (verbose)
-            cout << "\nNegative Testing." << endl;
-        {
-            char DATA[16];
-
-            Obj mX;
-
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
-
-            ASSERT_SAFE_FAIL(mX.reset(DATA, -1));
-            ASSERT_SAFE_PASS(mX.reset(DATA, 0));
-            ASSERT_SAFE_PASS(mX.reset(DATA, 1));
-            ASSERT_SAFE_PASS(mX.reset(0, 0));
         }
 
       } break;
@@ -4738,11 +4719,11 @@ if (veryVerbose) {
         //
         // Testing:
         //   operator const void *() const;
-        //   int cursor() const;
+        //   bsl::size_t cursor() const;
         //   const char *data() const;
         //   bool isEmpty() const;
         //   bool isValid() const;
-        //   int length() const;
+        //   bsl::size_t length() const;
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -4805,7 +4786,7 @@ if (veryVerbose) {
             Obj mX2(o.data(), o.length());  const Obj& X2 = mX2;
             if (veryVerbose) { P(X2) }
             LOOP_ASSERT(i, (0 == i && X2.isEmpty()) || !X2.isEmpty());
-            LOOP_ASSERT(i, X2.length() == i);
+            LOOP_ASSERT(i, X2.length() == static_cast<bsl::size_t>(i));
             LOOP_ASSERT(i, X2.cursor() == 0);
 
             char c;
@@ -4813,7 +4794,8 @@ if (veryVerbose) {
                 if (veryVerbose) { P_(i) P(j); }
                 LOOP2_ASSERT(i,
                              j,
-                             X2.cursor() == SIZEOF_INT8 * j);
+                             X2.cursor() ==
+                                    static_cast<bsl::size_t>(SIZEOF_INT8 * j));
                 mX2.getInt8(c);
             }
             LOOP_ASSERT(i, X2.isEmpty());
@@ -4832,8 +4814,6 @@ if (veryVerbose) {
         //: 3 'invalidate' produces the expected results.
         //:
         //: 4 The destructor functions properly.
-        //:
-        //: 5 QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Create objects containing various data.
@@ -4844,12 +4824,10 @@ if (veryVerbose) {
         //:
         //: 4 Since the destructor for this object is empty, the concern
         //:   regarding the destructor is trivially satisfied.  (C-4)
-        //:
-        //: 5 Verify defensive checks are triggered for invalid values.  (C-5)
         //
         // Testing:
         //   ByteInStream();
-        //   ByteInStream(const char *buffer, int numBytes);
+        //   ByteInStream(const char *buffer, bsl::size_t numBytes);
         //   ByteInStream(const bslstl::StringRef& srcData);
         //   ~ByteInStream();
         //   getInt8(char& variable);
@@ -4903,7 +4881,7 @@ if (veryVerbose) {
             o.putInt8(7);
             o.putInt8(8);
 
-            bslstl::StringRef srcData(o.data(), o.length());
+            bslstl::StringRef srcData(o.data(), static_cast<int>(o.length()));
 
             Obj mX(srcData);  const Obj& X = mX;
             ASSERT(X);
@@ -4965,22 +4943,6 @@ if (veryVerbose) {
             LOOP_ASSERT(i, X2);
             mX2.invalidate();
             LOOP_ASSERT(i, !X2);
-        }
-
-        // --------------------------------------------------------------------
-
-        if (verbose)
-            cout << "\nNegative Testing." << endl;
-        {
-            char DATA[16];
-
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
-
-            ASSERT_SAFE_FAIL(Obj mX(DATA, -1));
-            ASSERT_SAFE_PASS(Obj mX(DATA, 0));
-            ASSERT_SAFE_PASS(Obj mX(DATA, 1));
-            ASSERT_SAFE_PASS(Obj mX(0, 0));
         }
       } break;
       case 1: {

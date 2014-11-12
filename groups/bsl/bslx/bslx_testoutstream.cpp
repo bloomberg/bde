@@ -26,13 +26,11 @@ TestOutStream::TestOutStream(int               versionSelector,
 }
 
 TestOutStream::TestOutStream(int               versionSelector,
-                             int               initialCapacity,
+                             bsl::size_t       initialCapacity,
                              bslma::Allocator *basicAllocator)
 : d_imp(versionSelector, basicAllocator)
 , d_makeNextInvalidFlag(0)
 {
-    BSLS_ASSERT(0 <= initialCapacity);
-
     d_imp.reserveCapacity(initialCapacity);
 }
 

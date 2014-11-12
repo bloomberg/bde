@@ -136,8 +136,8 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, we compare the contents of the stream to the expected value:
 //..
-//  const char *theChars = outStream.data();
-//  int         length = outStream.length();
+//  const char  *theChars = outStream.data();
+//  bsl::size_t  length   = outStream.length();
 //  assert(24 == length);
 //  assert( 0 == bsl::memcmp(theChars,
 //                           "\xE6\x00\x00\x00\x01\xE6\x00\x00\x00\x02\xE0"
@@ -146,7 +146,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally, we print the stream's contents to 'bsl::cout'.
 //..
-//  for (int i = 0; i < length; ++i) {
+//  for (bsl::size_t i = 0; i < length; ++i) {
 //      if(bsl::isalnum(static_cast<unsigned char>(theChars[i]))) {
 //          bsl::cout << "nextByte (char): " << theChars[i] << bsl::endl;
 //      }
@@ -202,6 +202,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
+#ifndef INCLUDED_BSL_CSTDDEF
+#include <bsl_cstddef.h>
+#endif
+
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
@@ -252,16 +256,16 @@ class TestOutStream {
         // be formatted as "YYYYMMDD", a date representation.
 
     TestOutStream(int               versionSelector,
-                  int               initialCapacity,
+                  bsl::size_t       initialCapacity,
                   bslma::Allocator *basicAllocator = 0);
         // Create an empty output byte stream having an initial buffer capacity
         // of at least the specified 'initialCapacity' (in bytes) and that will
         // use the specified (*compile*-time-defined) 'versionSelector' as
         // needed (see {Versioning}).  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.  The behavior is undefined
-        // unless '0 <= initialCapacity'.  Note that the 'versionSelector' is
-        // expected to be formatted as "YYYYMMDD", a date representation.
+        // installed default allocator is used.  Note that the
+        // 'versionSelector' is expected to be formatted as "YYYYMMDD", a date
+        // representation.
 
     ~TestOutStream();
         // Destroy this object.
@@ -302,10 +306,9 @@ class TestOutStream {
         // reset this marking and emit the invalid indicator instead of the
         // type indicator.
 
-    void reserveCapacity(int newCapacity);
+    void reserveCapacity(bsl::size_t newCapacity);
         // Set the internal buffer size of this stream to be at least the
-        // specified 'newCapacity' (in bytes).  The behavior is undefined
-        // unless '0 <= newCapacity'.
+        // specified 'newCapacity' (in bytes).
 
     void reset();
         // Remove all content in this stream and validate this stream if it is
@@ -825,7 +828,7 @@ class TestOutStream {
         // invalid stream is a stream for which an output operation was
         // detected to have failed or 'invalidate' was called.
 
-    int length() const;
+    bsl::size_t length() const;
         // Return the number of bytes in this stream.
 };
 
@@ -864,10 +867,8 @@ void TestOutStream::makeNextInvalid()
 }
 
 inline
-void TestOutStream::reserveCapacity(int newCapacity)
+void TestOutStream::reserveCapacity(bsl::size_t newCapacity)
 {
-    BSLS_ASSERT_SAFE(0 <= newCapacity);
-
     d_imp.reserveCapacity(newCapacity);
 }
 
@@ -912,7 +913,7 @@ bool TestOutStream::isValid() const
 }
 
 inline
-int TestOutStream::length() const
+bsl::size_t TestOutStream::length() const
 {
     return d_imp.length();
 }
