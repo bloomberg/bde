@@ -646,7 +646,7 @@ struct DecimalConvertUtil {
         // 'decimal64ToMultiWidthEncoding' function.
 
     static Decimal64 decimal64FromMultiWidthEncodingRaw(
-                                                unsigned char          *buffer,
+                                                const unsigned char    *buffer,
                                                 bsls::Types::size_type  size);
         // Decode a decimal value in the *multi-width encoding* format from the
         // specified 'buffer' having the specified 'size'. Return the decoded
@@ -658,7 +658,7 @@ struct DecimalConvertUtil {
         // 'decimal64FromMultiWidthEncoding' function.
 
     static Decimal64 decimal64FromMultiWidthEncoding(
-                                                unsigned char          *buffer,
+                                                const unsigned char    *buffer,
                                                 bsls::Types::size_type  size);
         // Decode a decimal value in the *multi-width Encoding' format from the
         // specified 'buffer' having the specified 'size'. Return the decoded
@@ -675,9 +675,9 @@ struct DecimalConvertUtil {
         // unless 'buffer' points to a memory area with enough room to hold the
         // encoded value (which has a maximum size of 9 bytes).
 
-    static unsigned char *decimal64FromVariableWidthEncoding(
-                                                    bdldfp::Decimal64 *decimal,
-                                                    unsigned char     *buffer);
+    static const unsigned char *decimal64FromVariableWidthEncoding(
+                                                  bdldfp::Decimal64   *decimal,
+                                                  const unsigned char *buffer);
         // Store into the specified 'decimal', the value of 'Decimal64' value
         // stored in the *variable-width encoding* format at the specified
         // 'buffer' address. Return the address one past the last byte read
@@ -875,7 +875,7 @@ bsls::Types::size_type DecimalConvertUtil::decimal64ToMultiWidthEncodingRaw(
 
 inline
 Decimal64 DecimalConvertUtil::decimal64FromMultiWidthEncoding(
-                                                unsigned char          *buffer,
+                                                const unsigned char    *buffer,
                                                 bsls::Types::size_type  size)
 {
     BSLS_ASSERT(1 <= size);
@@ -899,7 +899,7 @@ Decimal64 DecimalConvertUtil::decimal64FromMultiWidthEncoding(
 
 inline
 Decimal64 DecimalConvertUtil::decimal64FromMultiWidthEncodingRaw(
-                                                unsigned char          *buffer,
+                                                const unsigned char    *buffer,
                                                 bsls::Types::size_type  size)
 {
     BSLS_ASSERT(1 <= size);
@@ -1054,9 +1054,9 @@ unsigned char *DecimalConvertUtil::decimal64ToVariableWidthEncoding(
 }
 
 inline
-unsigned char *DecimalConvertUtil::decimal64FromVariableWidthEncoding(
-                                                    bdldfp::Decimal64 *decimal,
-                                                    unsigned char     *buffer)
+const unsigned char *DecimalConvertUtil::decimal64FromVariableWidthEncoding(
+                                                  bdldfp::Decimal64   *decimal,
+                                                  const unsigned char *buffer)
 {
     if (!(*buffer & 0x80)) {
 

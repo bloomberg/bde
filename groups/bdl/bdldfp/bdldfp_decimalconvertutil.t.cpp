@@ -712,9 +712,10 @@ int main(int argc, char* argv[])
             Decimal64 actualDecodedValue = MDF(123,123);  // initialize to
                                                           // unused value
 
-            unsigned char *actualRet =
-                Util::decimal64FromVariableWidthEncoding(&actualDecodedValue,
-                                                         encodedBuffer);
+            const unsigned char *actualRet =
+                Util::decimal64FromVariableWidthEncoding(
+                              &actualDecodedValue,
+                              const_cast<const unsigned char*>(encodedBuffer));
 
             bsls::Types::size_type actualSize = actualRet - encodedBuffer;
 
@@ -870,8 +871,9 @@ int main(int argc, char* argv[])
             // Test 'decimal64FromMultiWidthEncoding'.
             {
                 Decimal64 actualDecodedValue =
-                    Util::decimal64FromMultiWidthEncoding(encodedBuffer,
-                                                          encodedSize);
+                    Util::decimal64FromMultiWidthEncoding(
+                               const_cast<const unsigned char*>(encodedBuffer),
+                               encodedSize);
                 if (veryVerbose) {
                     P(actualDecodedValue);
                 }
@@ -889,8 +891,9 @@ int main(int argc, char* argv[])
             // Test 'decimal64FromMultiWidthEncodingRaw'.
             if (!useFullEncodingFlag) {
                 Decimal64 actualDecodedValue =
-                    Util::decimal64FromMultiWidthEncoding(encodedBuffer,
-                                                          encodedSize);
+                    Util::decimal64FromMultiWidthEncodingRaw(
+                               const_cast<const unsigned char*>(encodedBuffer),
+                               encodedSize);
                 if (veryVerbose) {
                     P(actualDecodedValue);
                 }
