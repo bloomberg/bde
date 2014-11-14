@@ -705,7 +705,7 @@ int main(int argc, char *argv[]) {
         { // negative testing
             char  BUFFER[32];
             char *ZCHARPTR = static_cast<char *>(0);
-            T    *ZTPTR = static_cast<T *>(0);
+            T    *ZTPTR    = static_cast<T *>(0);
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -954,7 +954,7 @@ int main(int argc, char *argv[]) {
         { // negative testing
             char  BUFFER[32];
             char *ZCHARPTR = static_cast<char *>(0);
-            T    *ZTPTR = static_cast<T *>(0);
+            T    *ZTPTR    = static_cast<T *>(0);
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -1196,9 +1196,9 @@ int main(int argc, char *argv[]) {
             S     SV[4];
             U     UV[4];
             char *ZCHARPTR = static_cast<char *>(0);
-            T    *ZTPTR = static_cast<T *>(0);
-            S    *ZSPTR = static_cast<S *>(0);
-            U    *ZUPTR = static_cast<U *>(0);
+            T    *ZTPTR    = static_cast<T *>(0);
+            S    *ZSPTR    = static_cast<S *>(0);
+            U    *ZUPTR    = static_cast<U *>(0);
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -1426,8 +1426,8 @@ int main(int argc, char *argv[]) {
             T     TV[4];
             U     UV[4];
             char *ZCHARPTR = static_cast<char *>(0);
-            T    *ZTPTR = static_cast<T *>(0);
-            U    *ZUPTR = static_cast<U *>(0);
+            T    *ZTPTR    = static_cast<T *>(0);
+            U    *ZUPTR    = static_cast<U *>(0);
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -1660,8 +1660,8 @@ int main(int argc, char *argv[]) {
             T     TV[4];
             U     UV[4];
             char *ZCHARPTR = static_cast<char *>(0);
-            T    *ZTPTR = static_cast<T *>(0);
-            U    *ZUPTR = static_cast<U *>(0);
+            T    *ZTPTR    = static_cast<T *>(0);
+            U    *ZUPTR    = static_cast<U *>(0);
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -1890,8 +1890,8 @@ int main(int argc, char *argv[]) {
             T     TV[4];
             U     UV[4];
             char *ZCHARPTR = static_cast<char *>(0);
-            T    *ZTPTR = static_cast<T *>(0);
-            U    *ZUPTR = static_cast<U *>(0);
+            T    *ZTPTR    = static_cast<T *>(0);
+            U    *ZUPTR    = static_cast<U *>(0);
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -2131,8 +2131,8 @@ int main(int argc, char *argv[]) {
             T     TV[4];
             U     UV[4];
             char *ZCHARPTR = static_cast<char *>(0);
-            T    *ZTPTR = static_cast<T *>(0);
-            U    *ZUPTR = static_cast<U *>(0);
+            T    *ZTPTR    = static_cast<T *>(0);
+            U    *ZUPTR    = static_cast<U *>(0);
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -2372,8 +2372,8 @@ int main(int argc, char *argv[]) {
             T     TV[4];
             U     UV[4];
             char *ZCHARPTR = static_cast<char *>(0);
-            T    *ZTPTR = static_cast<T *>(0);
-            U    *ZUPTR = static_cast<U *>(0);
+            T    *ZTPTR    = static_cast<T *>(0);
+            U    *ZUPTR    = static_cast<U *>(0);
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -2613,8 +2613,8 @@ int main(int argc, char *argv[]) {
             T     TV[4];
             U     UV[4];
             char *ZCHARPTR = static_cast<char *>(0);
-            T    *ZTPTR = static_cast<T *>(0);
-            U    *ZUPTR = static_cast<U *>(0);
+            T    *ZTPTR    = static_cast<T *>(0);
+            U    *ZUPTR    = static_cast<U *>(0);
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -2850,8 +2850,8 @@ int main(int argc, char *argv[]) {
             T     TV[4];
             U     UV[4];
             char *ZCHARPTR = static_cast<char *>(0);
-            T    *ZTPTR = static_cast<T *>(0);
-            U    *ZUPTR = static_cast<U *>(0);
+            T    *ZTPTR    = static_cast<T *>(0);
+            U    *ZUPTR    = static_cast<U *>(0);
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -3105,8 +3105,8 @@ int main(int argc, char *argv[]) {
         { // negative testing
             char  BUFFER[32];
             char *ZCHARPTR = static_cast<char *>(0);
-            T    *ZTPTR = static_cast<T *>(0);
-            T     TV;
+            T    *ZTPTR    = static_cast<T *>(0);
+            T     TV       = 0;
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -3350,8 +3350,8 @@ int main(int argc, char *argv[]) {
         { // negative testing
             char  BUFFER[32];
             char *ZCHARPTR = static_cast<char *>(0);
-            T    *ZTPTR = static_cast<T *>(0);
-            T     TV;
+            T    *ZTPTR    = static_cast<T *>(0);
+            T     TV       = 0;
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -3532,13 +3532,13 @@ int main(int argc, char *argv[]) {
         { // negative testing
             char  BUFFER[32];
             char *ZCHARPTR = static_cast<char *>(0);
-            T    *ZTPTR = static_cast<T *>(0);
-            U    *ZUPTR = static_cast<U *>(0);
-            S    *ZSPTR = static_cast<S *>(0);
-            int   V = 0;
-            T     TV;
-            U     TU;
-            S     TS;
+            T    *ZTPTR    = static_cast<T *>(0);
+            U    *ZUPTR    = static_cast<U *>(0);
+            S    *ZSPTR    = static_cast<S *>(0);
+            int   V        = 0;
+            T     TV       = 0;
+            U     TU       = 0;
+            S     TS       = 0;
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -3686,11 +3686,11 @@ int main(int argc, char *argv[]) {
         { // negative testing
             char  BUFFER[32];
             char *ZCHARPTR = static_cast<char *>(0);
-            T    *ZTPTR = static_cast<T *>(0);
-            U    *ZUPTR = static_cast<U *>(0);
-            int   V = 0;
-            T     TV;
-            U     TU;
+            T    *ZTPTR    = static_cast<T *>(0);
+            U    *ZUPTR    = static_cast<U *>(0);
+            int   V        = 0;
+            T     TV       = 0;
+            U     TU       = 0;
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -3840,11 +3840,11 @@ int main(int argc, char *argv[]) {
         { // negative testing
             char  BUFFER[32];
             char *ZCHARPTR = static_cast<char *>(0);
-            T    *ZTPTR = static_cast<T *>(0);
-            U    *ZUPTR = static_cast<U *>(0);
-            int   V = 0;
-            T     TV;
-            U     TU;
+            T    *ZTPTR    = static_cast<T *>(0);
+            U    *ZUPTR    = static_cast<U *>(0);
+            int   V        = 0;
+            T     TV       = 0;
+            U     TU       = 0;
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -3991,11 +3991,11 @@ int main(int argc, char *argv[]) {
         { // negative testing
             char  BUFFER[32];
             char *ZCHARPTR = static_cast<char *>(0);
-            T    *ZTPTR = static_cast<T *>(0);
-            U    *ZUPTR = static_cast<U *>(0);
-            int   V = 0;
-            T     TV;
-            U     TU;
+            T    *ZTPTR    = static_cast<T *>(0);
+            U    *ZUPTR    = static_cast<U *>(0);
+            int   V        = 0;
+            T     TV       = 0;
+            U     TU       = 0;
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -4147,11 +4147,11 @@ int main(int argc, char *argv[]) {
         { // negative testing
             char  BUFFER[32];
             char *ZCHARPTR = static_cast<char *>(0);
-            T    *ZTPTR = static_cast<T *>(0);
-            U    *ZUPTR = static_cast<U *>(0);
-            T     V = 0;
-            T     TV;
-            U     TU;
+            T    *ZTPTR    = static_cast<T *>(0);
+            U    *ZUPTR    = static_cast<U *>(0);
+            T     V        = 0;
+            T     TV       = 0;
+            U     TU       = 0;
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -4304,11 +4304,11 @@ int main(int argc, char *argv[]) {
         { // negative testing
             char  BUFFER[32];
             char *ZCHARPTR = static_cast<char *>(0);
-            T    *ZTPTR = static_cast<T *>(0);
-            U    *ZUPTR = static_cast<U *>(0);
-            T     V = 0;
-            T     TV;
-            U     TU;
+            T    *ZTPTR    = static_cast<T *>(0);
+            U    *ZUPTR    = static_cast<U *>(0);
+            T     V        = 0;
+            T     TV       = 0;
+            U     TU       = 0;
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -4461,11 +4461,11 @@ int main(int argc, char *argv[]) {
         { // negative testing
             char  BUFFER[32];
             char *ZCHARPTR = static_cast<char *>(0);
-            T    *ZTPTR = static_cast<T *>(0);
-            U    *ZUPTR = static_cast<U *>(0);
-            T     V = 0;
-            T     TV;
-            U     TU;
+            T    *ZTPTR    = static_cast<T *>(0);
+            U    *ZUPTR    = static_cast<U *>(0);
+            T     V        = 0;
+            T     TV       = 0;
+            U     TU       = 0;
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -4614,11 +4614,11 @@ int main(int argc, char *argv[]) {
         { // negative testing
             char  BUFFER[32];
             char *ZCHARPTR = static_cast<char *>(0);
-            T    *ZTPTR = static_cast<T *>(0);
-            U    *ZUPTR = static_cast<U *>(0);
-            T     V = 0;
-            T     TV;
-            U     TU;
+            T    *ZTPTR    = static_cast<T *>(0);
+            U    *ZUPTR    = static_cast<U *>(0);
+            T     V        = 0;
+            T     TV       = 0;
+            U     TU       = 0;
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
