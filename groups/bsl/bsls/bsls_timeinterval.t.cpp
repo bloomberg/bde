@@ -4887,7 +4887,7 @@ int main(int argc, char *argv[])
         //:
         //: 2 An object can be safely destroyed.
         //:
-        //: 3 The 'setInterval' method can set an object to have any
+        //: 3 The 'setIntervalRaw' method can set an object to have any
         //:   value that does not violate the method's documented
         //:   preconditions.
         //:
