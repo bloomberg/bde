@@ -3783,17 +3783,16 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their canonical
-        //:   representation.
+        //:   object values (one per row).
         //:
         //: 2 For each row 'R1' in the table of P-3:  (C-1..3)
         //:
         //:   1 Create an object 'X' using the default constructor.
         //:
-        //:   2 Using the 'setInterval' (primary) manipulator, set 'X'
-        //:     to the value specified in 'R1'.
+        //:   2 Using the 'setInterval' manipulator, set 'X' to the value
+        //:     specified in 'R1'. 
         //:
-        //:   3 Verify, using 'seconds' and 'nanoseconds'', that 'X' has the
+        //:   3 Verify, using 'seconds' and 'nanoseconds', that 'X' has the
         //:     expected value.  (C-1..3)
         //:
         //: 3 Verify that, in appropriate build modes, defensive checks are
@@ -3806,17 +3805,6 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         if (verbose) printf("\nTESTING: 'setInterval(Int64, int)'"
                             "\n==================================\n");
-
-        if (verbose) printf("\nTesting default constructor.\n");
-
-        {
-            Obj mX;  const Obj& X = mX;
-
-            if (veryVerbose) P(X);
-
-            ASSERT(0 == X.seconds());
-            ASSERT(0 == X.nanoseconds());
-        }
 
         if (verbose) printf("\nTesting 'setInterval'.\n");
         {
@@ -3837,9 +3825,7 @@ int main(int argc, char *argv[])
       { L_,           -2,    1000000001,                0,       -999999999 },
       { L_,   k_SECS_MAX,     999999999,       k_SECS_MAX,        999999999 },
       { L_,   k_SECS_MIN,    -999999999,       k_SECS_MIN,       -999999999 },
-
             };
-
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
@@ -3874,9 +3860,7 @@ int main(int argc, char *argv[])
                 { L_,        -1000 },
                 { L_,   k_SECS_MIN },
                 { L_,   k_SECS_MAX },
-
             };
-
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
@@ -3892,7 +3876,6 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, 0    == X.nanoseconds());
             }
         }
-
 
         if (verbose) printf("\nNegative Testing.\n");
         {
@@ -3914,14 +3897,14 @@ int main(int argc, char *argv[])
             {
                 Obj mX;
                 ASSERT_SAFE_FAIL(mX.setInterval(SMAX, k_NANOSECS_PER_SEC));
-                ASSERT_SAFE_PASS(mX.setInterval(SMAX, k_NANOSECS_PER_SEC -1));
+                ASSERT_SAFE_PASS(mX.setInterval(SMAX, k_NANOSECS_PER_SEC-1));
             }
 
             if (veryVerbose) printf("\tMinimum interval\n");
             {
                 Obj mX;
                 ASSERT_SAFE_FAIL(mX.setInterval(SMIN, -k_NANOSECS_PER_SEC));
-                ASSERT_SAFE_PASS(mX.setInterval(SMIN, -k_NANOSECS_PER_SEC +1));
+                ASSERT_SAFE_PASS(mX.setInterval(SMIN, -k_NANOSECS_PER_SEC+1));
             }
         }
       } break;
@@ -4908,10 +4891,10 @@ int main(int argc, char *argv[])
         //:   value that does not violate the method's documented
         //:   preconditions.
         //:
-        //: 4 'setInterval' is not affected by the state of the object
+        //: 4 'setIntervalRaw' is not affected by the state of the object
         //:   on entry.
         //:
-        //: 5 The 'nanoseconds' parameter of 'setInterval' defaults to 0.
+        //: 5 The 'nanoseconds' parameter of 'setIntervalRaw' defaults to 0.
         //:
         //: 6 QoI: Asserted precondition violations are detected when enabled.
         //
@@ -4930,7 +4913,7 @@ int main(int argc, char *argv[])
         //:
         //:   1 Create an object 'X' using the default constructor.
         //:
-        //:   2 Using the 'setInterval' (primary) manipulator, set 'X'
+        //:   2 Using the 'setIntervalRaw' (primary) manipulator, set 'X'
         //:     to the value specified in 'R1'.
         //:
         //:   3 Verify, using 'seconds' and 'nanoseconds'', that 'X' has the
@@ -4960,7 +4943,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == X.nanoseconds());
         }
 
-        if (verbose) printf("\nTesting 'setInterval'.\n");
+        if (verbose) printf("\nTesting 'setIntervalRaw'.\n");
         {
             static const struct {
                 int                d_lineNum;  // Source line number
@@ -5043,14 +5026,14 @@ int main(int argc, char *argv[])
             {
                 Obj mX;
                 ASSERT_SAFE_FAIL(mX.setIntervalRaw(0, k_NANOSECS_PER_SEC));
-                ASSERT_SAFE_PASS(mX.setIntervalRaw(0, k_NANOSECS_PER_SEC -1));
+                ASSERT_SAFE_PASS(mX.setIntervalRaw(0, k_NANOSECS_PER_SEC-1));
             }
 
             if (veryVerbose) printf("\tMinimum interval\n");
             {
                 Obj mX;
                 ASSERT_SAFE_FAIL(mX.setIntervalRaw(0, -k_NANOSECS_PER_SEC));
-                ASSERT_SAFE_PASS(mX.setIntervalRaw(0, -k_NANOSECS_PER_SEC +1));
+                ASSERT_SAFE_PASS(mX.setIntervalRaw(0, -k_NANOSECS_PER_SEC+1));
             }
 
             if (veryVerbose) printf("\tMatching sign values\n");
@@ -5058,7 +5041,9 @@ int main(int argc, char *argv[])
                 Obj mX;
                 ASSERT_SAFE_PASS(mX.setIntervalRaw( 0,  0));
                 ASSERT_SAFE_PASS(mX.setIntervalRaw( 1,  0));
+                ASSERT_SAFE_PASS(mX.setIntervalRaw(-1,  0));
                 ASSERT_SAFE_PASS(mX.setIntervalRaw( 0,  1));
+                ASSERT_SAFE_PASS(mX.setIntervalRaw( 0, -1));
                 ASSERT_SAFE_PASS(mX.setIntervalRaw( 1,  1));
                 ASSERT_SAFE_PASS(mX.setIntervalRaw(-1, -1));
 

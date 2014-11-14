@@ -365,14 +365,13 @@ class TimeInterval {
         // Set this time interval to have the value given by the sum of the
         // specified integral number of 'seconds', and the optionally specified
         // integral number of 'nanoseconds', where 'seconds' and 'nanoseconds'
-        // form a canonical representation of a time interval (see undefined
-        // behavior).  If unspecified, 'nanoseconds' is  0.  The behavior is
-        // undefined unless '-999999999 <= nanoseoncds <= 999999999' and
-        // 'seconds' and 'nanoseconds' are either both non-negative or both
-        // non-positive.  Note that this function provides a subset of the
-        // defined behavior of 'setInterval' chosen to minimize runtime
-        // performance cost.
-
+        // form a canonical representation of a time interval (see
+        // {'Representation'}).  If unspecified, 'nanoseconds' is 0.  The
+        // behavior is undefined unless
+        // '-999999999 <= nanoseconds <= 999999999' and 'seconds' and
+        // 'nanoseconds' are either both non-negative or both non-positive.
+        // Note that this function provides a subset of the defined behavior of
+        // 'setInterval' chosen to minimize runtime performance cost.
 
     // ACCESSORS
     int nanoseconds() const;
