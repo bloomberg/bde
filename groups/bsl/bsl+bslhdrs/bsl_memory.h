@@ -32,7 +32,7 @@ namespace bsl
     //  using native_std::allocator;
     //..
 
-    using native_std::auto_ptr;
+    using native_std::auto_ptr;  // May not be available from C++17 libraries
     using native_std::get_temporary_buffer;
     using native_std::raw_storage_iterator;
     using native_std::return_temporary_buffer;
