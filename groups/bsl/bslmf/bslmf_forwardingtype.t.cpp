@@ -30,11 +30,12 @@ using namespace std;
 // use of the component in order to verify that it is actually useful as
 // specified.
 // ----------------------------------------------------------------------------
-// [ 1] bslmf::ForwardingType<TYPE>::Type
-// [ 2] bslmf::ForwardingTypeUtil<TYPE>::TargetType
-// [ 2] bslmf::ForwardingTypeUtil<TYPE>::forwardToTarget(v)
-// [ 3] END-TO-END OVERLOADING
-// [ 4] USAGE EXAMPLES
+// [ 1] Test infrastructure
+// [ 2] bslmf::ForwardingType<TYPE>::Type
+// [ 3] bslmf::ForwardingTypeUtil<TYPE>::TargetType
+// [ 3] bslmf::ForwardingTypeUtil<TYPE>::forwardToTarget(v)
+// [ 4] END-TO-END OVERLOADING
+// [ 5] USAGE EXAMPLES
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -212,17 +213,28 @@ struct CvRefMatch {
 };
 
 template <class TP>
-struct CvArrayMatch {
+class CvArrayMatch {
     // Function object type that can be invoked with an array of the specified
     // 'TP' parameter type.
 
-    template <std::size_t k_SZ>
-    int operator()(TP (&)[k_SZ]) const { return int(k_SZ); }
-        // Invoke with an array of known size.
+    template <size_t k_SZ>
+    int match(TP (&)[k_SZ], int) const { return int(k_SZ); }
+        // Matches an array of known size.
 
-    int operator()(TP *const&) const { return 0; }
-        // Invoke with an array of unknown size.
-};
+    int match(TP [], ...) const { return 0; }
+        // Matches an array of unknown size.
+
+public:
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    template <class U>
+    int operator()(U&& u) const { return match(u, 0); }
+        // Matches both lvalue and rvalue arrays.
+#else
+    template <class U>
+    int operator()(U& u) const { return match(u, 0); }
+#endif
+}; 
 
 template <class TP, class INVOCABLE>
 int endToEndIntermediary(typename bslmf::ForwardingType<TP>::Type arg,
@@ -519,7 +531,7 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
 
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLES
         //
@@ -542,7 +554,7 @@ int main(int argc, char *argv[])
 
       } break;
 
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING END-TO-END OVERLOADING
         //
@@ -710,12 +722,12 @@ int main(int argc, char *argv[])
 
       } break;
 
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // TESTING 'bslmf::ForwardingTypeUtil'
         //
         // Concerns:
-        //: 1 For types that are neither references not arrays,
+        //: 1 For types that are neither references nor arrays,
         //:   'ForwardingTypeUtil<TYPE>::TargetType' is similar to
         //:   'TYPE' except that 'TargetType' might be a const reference
         //:   (C++03) or rvalue reference (C++11+). An object of 'TYPE'
@@ -917,7 +929,7 @@ int main(int argc, char *argv[])
 
       } break;
 
-      case 1: {
+      case 2: {
         // --------------------------------------------------------------------
         // TESTING 'bslmf::ForwardingType<TYPE>::Type'
         //
@@ -932,9 +944,8 @@ int main(int argc, char *argv[])
         //:   'F'". The forwarding type for "pointer to function of type 'F'"
         //:   is the same pointer type, 'F*'.
         //: 4 The forwarding type for "array of cvq 'TP'" or "(lvalue or
-        //:   rvalue) reference to
-        //:   array of cvq 'TP'" is "cvq 'TP*'", regardless of whether
-        //:   the array size is known.
+        //:   rvalue) reference to array of cvq 'TP'" is "cvq 'TP*'",
+        //:   regardless of whether the array size is known.
         //: 5 The forwarding type for "lvalue reference to type cvq 'TP'" is
         //:   the same "lvalue reference to cvq 'TP', for non-function and
         //:   non-array types.
@@ -1183,6 +1194,110 @@ int main(int argc, char *argv[])
         TEST_FWD_TYPE(const volatile Union&& , const volatile Union&);
 
 #endif // defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+
+      } break;
+
+      case 1: {
+        // --------------------------------------------------------------------
+        // TESTING TEST INFRASTRUCTURE
+        //
+        // Concerns:
+        //: 1 For 'crm' of type 'CvRefMatch<T>', 'crm(v)' returns the correct
+        //:   enumerator indicating whether 'v' is an lvalue, const lvalue,
+        //:   volatile lvalue, const volatile lvalue, rvalue, const rvalue,
+        //:   volatile rvalue, or const volatile rvalue.
+        //: 2 For 'cam' of type 'CvArrayMatch<T>', and 'a' of type array-of-T,
+        //:   'cam(a)' returns the number of elements of 'a' or '0' if 'a' has
+        //:   unknown bounds.
+        //: 3 For 'cam' of type 'CvArrayMatch<T>', and 'p' of type
+        //:   pointer-to-T, 'cam(p)' returns 0.
+        //: 4 Concerns 2 and 3 apply regardless of the cv qualification of 'a'
+        //:   or 'p'.
+        //: 5 For 'cam' of type 'CvArrayMatch<T>', and 'a' of type
+        //:   rvalue-reference-to-array-of-T, 'CvArrayMatch<T>' returns the
+        //:   same value as if 'a' were not an rvalue reference.
+        //
+        // Plan:   
+        //: 1 For concern 1, create a variable, 'crm' of type
+        //:   'CvRefMatch<int>'. Call 'crm(v)' for variables 'v' of type cvq
+        //:   'int' correct lvalue enumeration value is returned.  In C++11 or
+        //:   later mode, test with 'std::move(v)' and verify that the correct
+        //:   lvalue enmeration is returned.  Also test with a literal integer
+        //:   and verify that the return value is 'k_RVALUE_REF' in C++11 mode
+        //:   or 'k_CONST_LVALUE_REF' in C++03 mode.
+        //: 2 For concerns 2 and 3, create a variable, 'cam' of type
+        //:   'CvArrayMatch<int>'.  Define variables of type array-of-int,
+        //:   with both known and unknown sizes.  Verify that 'cam(v)' returns
+        //:   the correct size (or 0) for each array variable, 'v'.
+        //: 3 For concern 4, repeat step 2 for variables of each cvq
+        //:   combination.
+        //: 4 For concern 5 (C++11 or later), repeat steps 2 and 3 using
+        //:   'cam(std::move(v))'.
+        //
+        // Testing:
+        //      CvRefMatch<T>::operator()()
+        //      CvArrayMatch<T>::operator()()
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING TEST INFRASTRUCTURE"
+                          << "\n==========================="
+                          << endl;
+
+        int i                  = 0;
+        const int ci           = 1;
+        volatile int vi        = 2;
+        const volatile int cvi = 3;
+        volatile int &rvi      = vi;
+
+        CvRefMatch<int> crm;
+        ASSERT(k_LVALUE                  == crm(  i));
+        ASSERT(k_CONST_LVALUE            == crm( ci));
+        ASSERT(k_VOLATILE_LVALUE         == crm( vi));
+        ASSERT(k_CONST_VOLATILE_LVALUE   == crm(cvi));
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        ASSERT(k_RVALUE                  == crm(std::move(  i)));
+        ASSERT(k_CONST_RVALUE            == crm(std::move( ci)));
+        ASSERT(k_VOLATILE_RVALUE         == crm(std::move( vi)));
+        ASSERT(k_CONST_VOLATILE_RVALUE   == crm(std::move(cvi)));
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        ASSERT(k_RVALUE                  == crm(5));
+        ASSERT(k_RVALUE                  == crm(toRvalue(rvi)));
+#else
+        ASSERT(k_CONST_LVALUE            == crm(5));
+        ASSERT(k_CONST_LVALUE            == crm(toRvalue(rvi)));
+#endif
+
+        int                  a[1]   = { 1 };
+        const int            ca[2]  = { 1, 2 };
+        volatile int         va[3]  = { 1, 2, 3 };
+        const volatile int   cva[4] = { 1, 2, 3, 4};
+        int                (*pa)[]   = reinterpret_cast<int (*)[]>(a);
+        const int          (*cpa)[]  = pa;
+        volatile int       (*vpa)[]  = pa;
+        const volatile int (*cvpa)[] = pa;
+        int                 *p;
+        const int           *cp;
+        volatile int        *vp;
+        const volatile int  *cvp;
+
+        CvArrayMatch<int>                cam;
+        CvArrayMatch<const int>          camc;
+        CvArrayMatch<volatile int>       camv;
+        CvArrayMatch<const volatile int> camcv;
+        ASSERT(1 == cam  (  a));
+        ASSERT(2 == camc ( ca));
+        ASSERT(3 == camv ( va));
+        ASSERT(4 == camcv(cva));
+        ASSERT(0 == cam  (*  pa));
+        ASSERT(0 == camc (* cpa));
+        ASSERT(0 == camv (* vpa));
+        ASSERT(0 == camcv(*cvpa));
+        ASSERT(0 == cam  (  p));
+        ASSERT(0 == camc ( cp));
+        ASSERT(0 == camv ( vp));
+        ASSERT(0 == camcv(cvp));
 
       } break;
 
