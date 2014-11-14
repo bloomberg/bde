@@ -1,0 +1,31 @@
+bdlt_time.h                             **
+bdlt_datetimeinterval.h                 **
+        made min and max value always available
+bdlt_dayofweekset.h                     **
+
+bdlt_dayofweek.h                        *
+bdlt_monthofyear.h                      *
+
+bdlt_datetimetz.h                       **
+bdlt_datetz.h                           **
+bdlt_timetz.h                           **
+bdlt_date.h                             **
+        removed BSLS_ASSERT_OPT to ensure value is valid in bdexStreamOut
+bdlt_datetime.h                         **
+
+
+NOTHING TO DO:
+bdlt_currenttime.h
+bdlt_datetimeutil.h
+bdlt_dateutil.h
+bdlt_epochutil.h
+bdlt_intervalconversionutil.h
+bdlt_localtimeoffset.h
+bdlt_posixdateimputil.h
+bdlt_serialdateimputil.h
+bdlt_systemtimeutil.h
+bdlt_timeunitratio.h
+
+
+change bdlt_time, bdlt_datetimetz to have maxSupportedVersion call with 0 and invert order
+    of test in bdexStreamIn

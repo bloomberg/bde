@@ -1,0 +1,12 @@
+waf configure --abi-bits=64 --assert-level=safe
+waf configure --abi-bits=64 --assert-level=none
+CXXFLAGS=-DBDE_OMIT_INTERNAL_DEPRECATED waf configure --abi-bits=64 --assert-level=safe
+
+
+
+waf build --test=none --target=bsl
+waf build --test=run --show-test-out --target=bslx
+
+waf build --test=run --target=bdlt
+
+export PREFIX=~/bde-install
