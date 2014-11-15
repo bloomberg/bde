@@ -156,8 +156,8 @@ BSLS_IDENT("$Id$")
 //:   hardware.)
 //
 // Notes:
-//   (*) IEEE Floating-point user is any person, hardware or software that
-//       uses the IEEE floating-point implementation.
+//   (*) IEEE Floating-point user is any person, hardware or software that uses
+//       the IEEE floating-point implementation.
 //
 ///Floating-Point Environment
 /// - - - - - - - - - - - - -
@@ -613,16 +613,16 @@ class Decimal_Type32 {
 
     // CREATORS
     Decimal_Type32();
-        // Create a 'Decimal32_Type' object having the value positive zero, and 0
-        // exponent (quantum 1e-6).
+        // Create a 'Decimal32_Type' object having the value positive zero, and
+        // 0 exponent (quantum 1e-6).
 
     Decimal_Type32(DecimalImpUtil::ValueType32 value);              // IMPLICIT
         // Create a 'Decimal32_Type' object having the specified 'value'.
 
     explicit Decimal_Type32(Decimal_Type64 other);
-        // Create a 'Decimal32_Type' object having the value closest to the value of
-        // the specified 'other' following the conversion rules defined by
-        // IEEE-754:
+        // Create a 'Decimal32_Type' object having the value closest to the
+        // value of the specified 'other' following the conversion rules
+        // defined by IEEE-754:
         //
         //: o If 'other' is NaN, initialize this object to a NaN.
         //:
@@ -654,9 +654,9 @@ class Decimal_Type32 {
 
     explicit Decimal_Type32(float       other);
     explicit Decimal_Type32(double      other);
-        // Create a 'Decimal32_Type' object having the value closest to the value of
-        // the specified 'other' following the conversion rules as defined by
-        // IEEE-754:
+        // Create a 'Decimal32_Type' object having the value closest to the
+        // value of the specified 'other' following the conversion rules as
+        // defined by IEEE-754:
         //
         //: o If 'other' is NaN, initialize this object to a NaN.
         //:
@@ -690,9 +690,9 @@ class Decimal_Type32 {
     explicit Decimal_Type32(unsigned long int  other);
     explicit Decimal_Type32(long long          other);
     explicit Decimal_Type32(unsigned long long other);
-        // Create a 'Decimal32_Type' object having the value closest to the value of
-        // the specified 'other' following the conversion rules as defined by
-        // IEEE-754:
+        // Create a 'Decimal32_Type' object having the value closest to the
+        // value of the specified 'other' following the conversion rules as
+        // defined by IEEE-754:
         //
         //: o If 'other' is zero then initialize this object to positive zero
         //:   with a 0 exponent (quantum 1e-6).
@@ -957,8 +957,8 @@ class Decimal_Type64 {
 
     // CREATORS
     Decimal_Type64();
-        // Create a 'Decimal64_Type' object having the value positive zero, and 0
-        // exponent (quantum 1e-15).
+        // Create a 'Decimal64_Type' object having the value positive zero, and
+        // 0 exponent (quantum 1e-15).
 
     Decimal_Type64(DecimalImpUtil::ValueType64 value);              // IMPLICIT
         // Create a 'Decimal64_Type' object having the specified 'value'.
@@ -1010,9 +1010,9 @@ class Decimal_Type64 {
 
     explicit Decimal_Type64(float       other);
     explicit Decimal_Type64(double      other);
-        // Create a 'Decimal64_Type' object having the value closest to the value of
-        // the specified 'other' following the conversion rules as defined by
-        // IEEE-754:
+        // Create a 'Decimal64_Type' object having the value closest to the
+        // value of the specified 'other' following the conversion rules as
+        // defined by IEEE-754:
         //
         //: o If 'other' is NaN, initialize this object to a NaN.
         //:
@@ -1046,9 +1046,9 @@ class Decimal_Type64 {
     explicit Decimal_Type64(unsigned long      other);
     explicit Decimal_Type64(long long          other);
     explicit Decimal_Type64(unsigned long long other);
-        // Create a 'Decimal64_Type' object having the value closest to the value of
-        // the specified 'other' following the conversion rules as defined by
-        // IEEE-754:
+        // Create a 'Decimal64_Type' object having the value closest to the
+        // value of the specified 'other' following the conversion rules as
+        // defined by IEEE-754:
         //
         //: o If 'other' is zero then initialize this object to positive zero
         //:   with a 0 exponent (quantum 1e-15).
@@ -2106,16 +2106,16 @@ class Decimal_Type128 {
 
     // CREATORS
     Decimal_Type128();
-        // Create a 'Decimal128_Type' object having the value positive zero, and 0
-        // exponent (quantum 1e-33).
+        // Create a 'Decimal128_Type' object having the value positive zero,
+        // and 0 exponent (quantum 1e-33).
 
     Decimal_Type128(DecimalImpUtil::ValueType128 value);            // IMPLICIT
         // Create a 'Decimal128_Type' object having the specified 'value'.
 
     Decimal_Type128(Decimal32 value);                               // IMPLICIT
     Decimal_Type128(Decimal64 value);                               // IMPLICIT
-        // Create a 'Decimal128_Type' object having the specified 'value', subject
-        // to the conversion rules defined by IEEE-754:
+        // Create a 'Decimal128_Type' object having the specified 'value',
+        // subject to the conversion rules defined by IEEE-754:
         //
         //: o If 'value' is NaN, initialize this object to a NaN.
         //:
@@ -4124,8 +4124,8 @@ class numeric_limits<BloombergLP::bdldfp::Decimal64>
 
     static BloombergLP::bdldfp::Decimal64 denorm_min() BSLS_NOTHROW_SPEC;
         // Return the smallest non-zero denormalized value for the
-        // 'BloombergLP::bdldfp::Decimal64' type.
-        // (IEEE-754: +0.000000000000001e-383)
+        // 'BloombergLP::bdldfp::Decimal64' type.  (IEEE-754:
+        // +0.000000000000001e-383)
 
     static BloombergLP::bdldfp::Decimal64 infinity() BSLS_NOTHROW_SPEC;
         // Return the the value that represents positive infinity for the
@@ -4175,8 +4175,8 @@ class numeric_limits<BloombergLP::bdldfp::Decimal128>
 
     static BloombergLP::bdldfp::Decimal128 denorm_min() BSLS_NOTHROW_SPEC;
         // Return the smallest non-zero denormalized value for the
-        // 'BloombergLP::bdldfp::Decimal128' type.
-        // (IEEE-754: +0.000000000000000000000000000000001e-6143)
+        // 'BloombergLP::bdldfp::Decimal128' type.  (IEEE-754:
+        // +0.000000000000000000000000000000001e-6143)
 
     static BloombergLP::bdldfp::Decimal128 infinity() BSLS_NOTHROW_SPEC;
         // Return the the value that represents positive infinity for the
