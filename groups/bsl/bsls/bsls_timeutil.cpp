@@ -229,16 +229,16 @@ struct WindowsTimerUtil {
         // 'timeValue' must be converted by the 'convertRawTime' method to
         // conventional units (nanoseconds).  This method is intended to
         // facilitate accurate timing of small segments of code, and care must
-        // be used in interpreting the results.  Note that this method is
-        // thread-safe only if 'initialize' has been called before.  The
-        // behavior is undefined unless 'initialize' has been called.
+        // be used in interpreting the results.  The behavior is undefined
+        // unless 'initialize' has been called.Note that this method is
+        // thread-safe only if 'initialize' has been called before.
 
     static bsls::Types::Int64 convertRawTime(bsls::Types::Int64 rawTime);
         // Convert the specified 'rawTime' to a value in nanoseconds,
         // referenced to an arbitrary but fixed origin, and return the result
-        // of the conversion.  Note that this method is thread-safe only if
-        // 'initialize' has been called before.  The behavior is undefined
-        // unless 'initialize' has been called.
+        // of the conversion.  The behavior is undefined unless 'initialize'
+        // has been called.  Note that this method is thread-safe only if
+        // 'initialize' has been called before.
 };
 
 bsls::AtomicOperations::AtomicTypes::Int
@@ -562,7 +562,7 @@ bsls::Types::Int64 MachTimerUtil::convertRawTime(bsls::Types::Int64 rawTime)
     // In practice, it is not expected that multiplying 'rawTime' by
     // 's_timeBase.numer' will overflow an Int64.  The 'numer' and
     // 'denom' values have been observed to both be 1 on a late model
-    // laptop and mac mini.  Just to be safe, the overflow is checked in safe
+    // laptop and Mac mini.  Just to be safe, the overflow is checked in safe
     // builds.
 
     BSLS_ASSERT_SAFE(LLONG_MAX / s_timeBase.numer >= rawTime &&
@@ -578,7 +578,7 @@ bsls::Types::Int64 MachTimerUtil::getTimerRaw()
 {
     initialize();
 
-    return (bsls::Types::Int64) (mach_absolute_time() - s_initialTime);
+    return stat_cast<bsls::Types::Int64>(mach_absolute_time() - s_initialTime);
 }
 
 #endif
@@ -596,9 +596,9 @@ void TimeUtil::initialize()
 {
 #if defined BSLS_PLATFORM_OS_UNIX
     UnixTimerUtil::initialize();
-    #if defined BSLS_PLATFORM_OS_DARWIN
-        MachTimerUtil::initialize();
-    #endif
+#  if defined BSLS_PLATFORM_OS_DARWIN
+    MachTimerUtil::initialize();
+#  endif
 #elif defined BSLS_PLATFORM_OS_WINDOWS
     WindowsTimerUtil::initialize();
 #else
