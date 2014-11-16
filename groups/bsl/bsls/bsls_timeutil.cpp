@@ -230,7 +230,7 @@ struct WindowsTimerUtil {
         // conventional units (nanoseconds).  This method is intended to
         // facilitate accurate timing of small segments of code, and care must
         // be used in interpreting the results.  The behavior is undefined
-        // unless 'initialize' has been called.Note that this method is
+        // unless 'initialize' has been called.  Note that this method is
         // thread-safe only if 'initialize' has been called before.
 
     static bsls::Types::Int64 convertRawTime(bsls::Types::Int64 rawTime);
@@ -578,7 +578,8 @@ bsls::Types::Int64 MachTimerUtil::getTimerRaw()
 {
     initialize();
 
-    return stat_cast<bsls::Types::Int64>(mach_absolute_time() - s_initialTime);
+    return static_cast<bsls::Types::Int64>(
+                                         mach_absolute_time() - s_initialTime);
 }
 
 #endif
