@@ -366,7 +366,7 @@ class TimeInterval {
         // specified integral number of 'seconds', and the optionally specified
         // integral number of 'nanoseconds', where 'seconds' and 'nanoseconds'
         // form a canonical representation of a time interval (see
-        // {'Representation'}).  If unspecified, 'nanoseconds' is 0.  The
+        // {Representation}).  If unspecified, 'nanoseconds' is 0.  The
         // behavior is undefined unless
         // '-999999999 <= nanoseconds <= 999999999' and 'seconds' and
         // 'nanoseconds' are either both non-negative or both non-positive.
