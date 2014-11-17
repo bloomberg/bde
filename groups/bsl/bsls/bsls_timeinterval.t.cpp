@@ -5262,7 +5262,7 @@ int main(int argc, char *argv[])
         //   N/A
         //
         // Testing:
-        //  Reservered for 'swap' testing.
+        //  Reserved for 'swap' testing.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nSWAP MEMBER AND FREE FUNCTIONS"
