@@ -181,13 +181,18 @@ struct MyStruct {
 };
 
 template <class STREAM>
-STREAM& bdexStreamIn(STREAM& stream, MyStruct::EnumValue& value, int version)
-    // Load into the specified 'variable' the value read from the specified
+STREAM& bdexStreamIn(STREAM&              stream,
+                     MyStruct::EnumValue& variable,
+                     int                  version)
+    // Assign to the specified 'variable' the value read from the specified
     // input 'stream' using the specified 'version' format, and return a
     // reference to 'stream'.  If 'stream' is initially invalid, this operation
-    // has no effect.  If 'version' is not supported, 'stream' is invalidated
-    // but otherwise unmodified.  The behavior is undefined unless 'STREAM' is
-    // BDEX-compliant.
+    // has no effect.  If 'version' is not supported, 'variable' is unaltered
+    // and 'stream' is invalidated, but otherwise unmodified.  If 'version' is
+    // supported but 'stream' becomes invalid during this operation, 'variable'
+    // has an undefined, but valid, state.  Note that no version is read from
+    // 'stream'.  See the 'bslx' package-level documentation for more
+    // information on BDEX streaming of value-semantic types and containers.
 {
     using bslx::InStreamFunctions::bdexStreamIn;
 
@@ -197,14 +202,14 @@ STREAM& bdexStreamIn(STREAM& stream, MyStruct::EnumValue& value, int version)
             short newValue;
             stream.getInt16(newValue);
             if (stream) {
-                value = static_cast<MyStruct::EnumValue>(newValue);
+                variable = static_cast<MyStruct::EnumValue>(newValue);
             }
           } break;
           case 1: {
             char newValue;
             stream.getInt8(newValue);
             if (stream) {
-                value = static_cast<MyStruct::EnumValue>(newValue);
+                variable = static_cast<MyStruct::EnumValue>(newValue);
             }
           } break;
           default: {
@@ -219,12 +224,13 @@ template <class STREAM>
 STREAM& bdexStreamOut(STREAM&                    stream,
                       const MyStruct::EnumValue& value,
                       int                        version)
-    // Write the specified 'value' to the specified output 'stream' using the
-    // specified 'version' format, and return a reference to 'stream'.  If
+    // Write the value of this object, using the specified 'version' format, to
+    // the specified output 'stream', and return a reference to 'stream'.  If
     // 'stream' is initially invalid, this operation has no effect.  If
-    // 'version' is not supported, 'stream' is invalidated but otherwise
-    // unmodified.  The behavior is undefined unless 'STREAM' is
-    // BDEX-compliant.  Note that 'version' is not written to 'stream'.
+    // 'version' is not supported, 'stream' is invalidated, but otherwise
+    // unmodified.  Note that 'version' is not written to 'stream'.  See the
+    // 'bslx' package-level documentation for more information on BDEX
+    // streaming of value-semantic types and containers.
 {
     using bslx::OutStreamFunctions::bdexStreamOut;
 
@@ -247,8 +253,12 @@ STREAM& bdexStreamOut(STREAM&                    stream,
 inline
 int maxSupportedBdexVersion(const MyStruct::EnumValue *,
                             int                        versionSelector)
-    // Return the 'version' to be used with the 'bdexStreamOut' method
-    // corresponding to the specified 'versionSelector'.  See the 'bslx'
+    // Return the maximum valid BDEX format version, as indicated by the
+    // specified 'versionSelector', to be passed to the 'bdexStreamOut' method.
+    // Note that it is highly recommended that 'versionSelector' be formatted
+    // as "YYYYMMDD", a date representation.  Also note that 'versionSelector'
+    // should be a *compile*-time-chosen value that selects a format version
+    // supported by both externalizer and unexternalizer.  See the 'bslx'
     // package-level documentation for more information on BDEX streaming of
     // value-semantic types and containers.
 {
@@ -299,10 +309,13 @@ int maxSupportedBdexVersion(const MyStruct::EnumValue *,
         static int maxSupportedBdexVersion(int versionSelector);
             // Return the maximum valid BDEX format version, as indicated by
             // the specified 'versionSelector', to be passed to the
-            // 'bdexStreamOut' method.  Note that the 'versionSelector' is
-            // expected to be formatted as "YYYYMMDD", a date representation.
-            // See the 'bslx' package-level documentation for more information
-            // on BDEX streaming of value-semantic types and containers.
+            // 'bdexStreamOut' method.  Note that it is highly recommended that
+            // 'versionSelector' be formatted as "YYYYMMDD", a date
+            // representation.  Also note that 'versionSelector' should be a
+            // *compile*-time-chosen value that selects a format version
+            // supported by both externalizer and unexternalizer.  See the
+            // 'bslx' package-level documentation for more information on BDEX
+            // streaming of value-semantic types and containers.
 
         // CREATORS
         MyPerson();
@@ -330,7 +343,7 @@ int maxSupportedBdexVersion(const MyStruct::EnumValue *,
             // 'stream' using the specified 'version' format, and return a
             // reference to 'stream'.  If 'stream' is initially invalid, this
             // operation has no effect.  If 'version' is not supported, this
-            // object is unaltered and 'stream' is invalidated but otherwise
+            // object is unaltered and 'stream' is invalidated, but otherwise
             // unmodified.  If 'version' is supported but 'stream' becomes
             // invalid during this operation, this object has an undefined, but
             // valid, state.  Note that no version is read from 'stream'.  See
@@ -345,14 +358,14 @@ int maxSupportedBdexVersion(const MyStruct::EnumValue *,
 
         template <class STREAM>
         STREAM& bdexStreamOut(STREAM& stream, int version) const;
-            // Write this value to the specified output 'stream' using the
-            // specified 'version' format, and return a reference to 'stream'.
-            // If 'stream' is initially invalid, this operation has no effect.
-            // If 'version' is not supported, 'stream' is invalidated but
-            // otherwise unmodified.  Note that 'version' is not written to
-            // 'stream'.  See the 'bslx' package-level documentation for more
-            // information on BDEX streaming of value-semantic types and
-            // containers.
+            // Write the value of this object, using the specified 'version'
+            // format, to the specified output 'stream', and return a reference
+            // to 'stream'.  If 'stream' is initially invalid, this operation
+            // has no effect.  If 'version' is not supported, 'stream' is
+            // invalidated, but otherwise unmodified.  Note that 'version' is
+            // not written to 'stream'.  See the 'bslx' package-level
+            // documentation for more information on BDEX streaming of
+            // value-semantic types and containers.
 
         const bsl::string& firstName() const;
             // Return the first name of this person.

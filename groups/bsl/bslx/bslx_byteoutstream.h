@@ -76,10 +76,10 @@ BSLS_IDENT("$Id: $")
 // type by the type's implementation of 'maxSupportedBdexVersion'.
 //
 // Selecting a value for a 'versionSelector' is required at two different
-// points: when a new 'version' format is implemented within the 'bdexStreamIn'
-// and 'bdexStreamOut' methods of a type and when an 'OutStream' is
-// constructed.  In both cases, the value should be a *compile*-time-selected
-// value.
+// points: (1) when implementing a new 'version' format within the
+// 'bdexStreamIn' and 'bdexStreamOut' methods of a type, and (2) when
+// implementing code that constructs a BDEX 'OutStream'.  In both cases, the
+// value should be a *compile*-time-selected value.
 //
 // When a new 'version' format is implemented within the 'bdexStreamIn' and
 // 'bdexStreamOut' methods of a type, a new mapping in
@@ -88,21 +88,15 @@ BSLS_IDENT("$Id: $")
 // use a value having the pattern "YYYYMMDD", where "YYYYMMDD" corresponds to
 // the "go-live" date of the corresponding 'version' format.
 //
-// When constructing an 'OutStream', the simplest approach is to use the
-// current date as a *compile*-time constant value.  In combination with the
+// When constructing an 'OutStream', a simple approach is to use the current
+// date as a *compile*-time constant value.  In combination with the
 // recommended selection of 'versionSelector' values for
 // 'maxSupportedBdexVersion', this will result in consistent and predictable
-// behavior while externalizing types.  However, consider when a newer
-// externalization version of some dependant type is available and needed.
-// Switching to the current date for the 'versionSelector' in the 'OutStream'
-// is acceptable, but selecting the maximum of the previously used
-// 'versionSelector' and the value used in the type's 'maxSupportedBdexVersion'
-// *may* result in a larger set of potential unexternalizers of the data.  In
-// fact, a good choice for the 'versionSelector' used in the 'OutStream'
-// construction is the minimum value that will result in the desired version of
-// all types externalized with 'operator<<' being selected.  This will result
-// in the largest possible audience at the expense of investigating the
-// 'maxSupportedBdexVersion' implementations of the types.
+// behavior while externalizing types.  Note that this recommendation is chosen
+// for its simplicity: to ensure the largest possible audience for an
+// externalized representation, clients can select the minimum date value that
+// will result in the desired version of all types externalized with
+// 'operator<<' being selected.
 //
 // See the 'bslx' package-level documentation for more detailed information
 // about versioning.

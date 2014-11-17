@@ -1024,10 +1024,13 @@ struct GetArray {
         static int maxSupportedBdexVersion(int versionSelector);
             // Return the maximum valid BDEX format version, as indicated by
             // the specified 'versionSelector', to be passed to the
-            // 'bdexStreamOut' method.  Note that the 'versionSelector' is
-            // expected to be formatted as "YYYYMMDD", a date representation.
-            // See the 'bslx' package-level documentation for more information
-            // on BDEX streaming of value-semantic types and containers.
+            // 'bdexStreamOut' method.  Note that it is highly recommended that
+            // 'versionSelector' be formatted as "YYYYMMDD", a date
+            // representation.  Also note that 'versionSelector' should be a
+            // *compile*-time-chosen value that selects a format version
+            // supported by both externalizer and unexternalizer.  See the
+            // 'bslx' package-level documentation for more information on BDEX
+            // streaming of value-semantic types and containers.
 
         // CREATORS
         MyPerson();
@@ -1055,7 +1058,7 @@ struct GetArray {
             // 'stream' using the specified 'version' format, and return a
             // reference to 'stream'.  If 'stream' is initially invalid, this
             // operation has no effect.  If 'version' is not supported, this
-            // object is unaltered and 'stream' is invalidated but otherwise
+            // object is unaltered and 'stream' is invalidated, but otherwise
             // unmodified.  If 'version' is supported but 'stream' becomes
             // invalid during this operation, this object has an undefined, but
             // valid, state.  Note that no version is read from 'stream'.  See
@@ -1076,14 +1079,14 @@ struct GetArray {
 
         template <class STREAM>
         STREAM& bdexStreamOut(STREAM& stream, int version) const;
-            // Write this value to the specified output 'stream' using the
-            // specified 'version' format, and return a reference to 'stream'.
-            // If 'stream' is initially invalid, this operation has no effect.
-            // If 'version' is not supported, 'stream' is invalidated but
-            // otherwise unmodified.  Note that 'version' is not written to
-            // 'stream'.  See the 'bslx' package-level documentation for more
-            // information on BDEX streaming of value-semantic types and
-            // containers.
+            // Write the value of this object, using the specified 'version'
+            // format, to the specified output 'stream', and return a reference
+            // to 'stream'.  If 'stream' is initially invalid, this operation
+            // has no effect.  If 'version' is not supported, 'stream' is
+            // invalidated, but otherwise unmodified.  Note that 'version' is
+            // not written to 'stream'.  See the 'bslx' package-level
+            // documentation for more information on BDEX streaming of
+            // value-semantic types and containers.
 
         //...
 

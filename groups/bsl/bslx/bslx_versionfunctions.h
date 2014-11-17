@@ -154,22 +154,29 @@ struct VersionFunctions_NonFundamentalImpl {
 
     static int maxSupportedBdexVersion(int versionSelector);
         // Return the maximum valid BDEX format version, as indicated by the
-        // specified 'versionSelector', to use while streaming an object of the
-        // (template parameter) type 'TYPE'.  Note that the 'versionSelector'
-        // is expected to be formatted as "YYYYMMDD", a date representation.
-        // See the 'bslx' package-level documentation for more information on
-        // BDEX streaming of value-semantic types and containers.
+        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
+        // method while streaming an object of the (template parameter) type
+        // 'TYPE'.  Note that it is highly recommended that 'versionSelector'
+        // be formatted as "YYYYMMDD", a date representation.  Also note that
+        // 'versionSelector' should be a *compile*-time-chosen value that
+        // selects a format version supported by both externalizer and
+        // unexternalizer.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
 };
 
 template <class TYPE, class ALLOC>
 struct VersionFunctions_NonFundamentalImpl<bsl::vector<TYPE, ALLOC> > {
     static int maxSupportedBdexVersion(int versionSelector);
         // Return the maximum valid BDEX format version, as indicated by the
-        // specified 'versionSelector', to use while streaming an object of the
-        // (template parameter) type 'bsl::vector<TYPE, ALLOC>'.  Note that the
-        // 'versionSelector' is expected to be formatted as "YYYYMMDD", a date
-        // representation.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
+        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
+        // method while streaming an object of the (template parameter) type
+        // 'bsl::vector<TYPE, ALLOC>'.  Note that it is highly recommended that
+        // 'versionSelector' be formatted as "YYYYMMDD", a date representation.
+        // Also note that 'versionSelector' should be a *compile*-time-chosen
+        // value that selects a format version supported by both externalizer
+        // and unexternalizer.  See the 'bslx' package-level documentation for
+        // more information on BDEX streaming of value-semantic types and
         // containers.
 };
 
@@ -198,26 +205,33 @@ namespace VersionFunctions_Impl {
                         int                                    versionSelector,
                         const VersionFunctions_HasBdexVersion&);
         // Return the maximum valid BDEX format version, as indicated by the
-        // specified 'versionSelector', to use while streaming an object of the
-        // (template parameter) type 'TYPE'.  Note that the 'versionSelector'
-        // is expected to be formatted as "YYYYMMDD", a date representation.
-        // Also note that this function assumes the 'TYPE' is neither 'const'
-        // nor 'volatile' and that this function is called only for types which
-        // are not enumerations, not fundamental types, and not 'bsl::string'
-        // (vectors and other BDEX-compliant types will use this function).
-        // See the 'bslx' package-level documentation for more information on
-        // BDEX streaming of value-semantic types and containers.
+        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
+        // method while streaming an object of the (template parameter) type
+        // 'TYPE'.  Note that it is highly recommended that 'versionSelector'
+        // be formatted as "YYYYMMDD", a date representation.  Also note that
+        // 'versionSelector' should be a *compile*-time-chosen value that
+        // selects a format version supported by both externalizer and
+        // unexternalizer.  Also note that this function assumes the 'TYPE' is
+        // neither 'const' nor 'volatile' and that this function is called only
+        // for types which are not enumerations, not fundamental types, and not
+        // 'bsl::string' (vectors and other BDEX-compliant types will use this
+        // function).  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
 
     template <class TYPE>
     int maxSupportedBdexVersion(int versionSelector);
         // Return the maximum valid BDEX format version, as indicated by the
-        // specified 'versionSelector', to use while streaming an object of the
-        // (template parameter) type 'TYPE'.  Note that the 'versionSelector'
-        // is expected to be formatted as "YYYYMMDD", a date representation.
-        // Also note that this function assumes the 'TYPE' is neither 'const'
-        // nor 'volatile'.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
+        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
+        // method while streaming an object of the (template parameter) type
+        // 'TYPE'.  Note that it is highly recommended that 'versionSelector'
+        // be formatted as "YYYYMMDD", a date representation.  Also note that
+        // 'versionSelector' should be a *compile*-time-chosen value that
+        // selects a format version supported by both externalizer and
+        // unexternalizer.  Also note that this function assumes the 'TYPE' is
+        // neither 'const' nor 'volatile'.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
 }  // close VersionFunctions_Impl namespace
 
@@ -238,13 +252,16 @@ namespace VersionFunctions {
     template <class TYPE>
     int maxSupportedBdexVersion(const TYPE *, int versionSelector);
         // Return the maximum valid BDEX format version, as indicated by the
-        // specified 'versionSelector', to use while streaming an object of the
-        // (template parameter) type 'TYPE'.  Note that the 'versionSelector'
-        // is expected to be formatted as "YYYYMMDD", a date representation.
-        // Also note that this function ignores any 'const' and 'volatile'
-        // qualifiers on the 'TYPE'.  See the 'bslx' package-level
-        // documentation for more information on BDEX streaming of
-        // value-semantic types and containers.
+        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
+        // method while streaming an object of the (template parameter) type
+        // 'TYPE'.  Note that it is highly recommended that 'versionSelector'
+        // be formatted as "YYYYMMDD", a date representation.  Also note that
+        // 'versionSelector' should be a *compile*-time-chosen value that
+        // selects a format version supported by both externalizer and
+        // unexternalizer.  Also note that this function ignores any 'const'
+        // and 'volatile' qualifiers on the 'TYPE'.  See the 'bslx'
+        // package-level documentation for more information on BDEX streaming
+        // of value-semantic types and containers.
 
 }  // close VersionFunctions namespace
 

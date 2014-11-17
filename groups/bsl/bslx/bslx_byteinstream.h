@@ -103,10 +103,13 @@ BSLS_IDENT("$Id: $")
 //      static int maxSupportedBdexVersion(int versionSelector);
 //          // Return the maximum valid BDEX format version, as indicated by
 //          // the specified 'versionSelector', to be passed to the
-//          // 'bdexStreamOut' method.  Note that the 'versionSelector' is
-//          // expected to be formatted as "YYYYMMDD", a date representation.
-//          // See the 'bslx' package-level documentation for more information
-//          // on BDEX streaming of value-semantic types and containers.
+//          // 'bdexStreamOut' method.  Note that it is highly recommended that
+//          // 'versionSelector' be formatted as "YYYYMMDD", a date
+//          // representation.  Also note that 'versionSelector' should be a
+//          // *compile*-time-chosen value that selects a format version
+//          // supported by both externalizer and unexternalizer.  See the
+//          // 'bslx' package-level documentation for more information on BDEX
+//          // streaming of value-semantic types and containers.
 //
 //      // CREATORS
 //      MyPerson();
@@ -134,7 +137,7 @@ BSLS_IDENT("$Id: $")
 //          // 'stream' using the specified 'version' format, and return a
 //          // reference to 'stream'.  If 'stream' is initially invalid, this
 //          // operation has no effect.  If 'version' is not supported, this
-//          // object is unaltered and 'stream' is invalidated but otherwise
+//          // object is unaltered and 'stream' is invalidated, but otherwise
 //          // unmodified.  If 'version' is supported but 'stream' becomes
 //          // invalid during this operation, this object has an undefined, but
 //          // valid, state.  Note that no version is read from 'stream'.  See
@@ -149,14 +152,14 @@ BSLS_IDENT("$Id: $")
 //
 //      template <class STREAM>
 //      STREAM& bdexStreamOut(STREAM& stream, int version) const;
-//          // Write this value to the specified output 'stream' using the
-//          // specified 'version' format, and return a reference to 'stream'.
-//          // If 'stream' is initially invalid, this operation has no effect.
-//          // If 'version' is not supported, 'stream' is invalidated but
-//          // otherwise unmodified.  Note that 'version' is not written to
-//          // 'stream'.  See the 'bslx' package-level documentation for more
-//          // information on BDEX streaming of value-semantic types and
-//          // containers.
+//          // Write the value of this object, using the specified 'version'
+//          // format, to the specified output 'stream', and return a reference
+//          // to 'stream'.  If 'stream' is initially invalid, this operation
+//          // has no effect.  If 'version' is not supported, 'stream' is
+//          // invalidated, but otherwise unmodified.  Note that 'version' is
+//          // not written to 'stream'.  See the 'bslx' package-level
+//          // documentation for more information on BDEX streaming of
+//          // value-semantic types and containers.
 //
 //      const bsl::string& firstName() const;
 //          // Return the first name of this person.
@@ -451,7 +454,7 @@ class ByteInStream {
         // undefined.  Note that the value will be zero-extended.
 
     ByteInStream& getVersion(int& version);
-        // Load into the specified 'version' the one-byte, two's complement
+        // Assign to the specified 'version' the one-byte, two's complement
         // unsigned integer comprised of the one byte of this stream at the
         // current cursor location, update the cursor location, and return a
         // reference to this stream.  If this stream is initially invalid, this
@@ -486,7 +489,7 @@ class ByteInStream {
                       // *** scalar integer values ***
 
     ByteInStream& getInt64(bsls::Types::Int64& variable);
-        // Load into the specified 'variable' the eight-byte, two's complement
+        // Assign to the specified 'variable' the eight-byte, two's complement
         // integer (in host byte order) comprised of the eight bytes of this
         // stream at the current cursor location (in network byte order),
         // update the cursor location, and return a reference to this stream.
@@ -496,7 +499,7 @@ class ByteInStream {
         // Note that the value will be sign-extended.
 
     ByteInStream& getUint64(bsls::Types::Uint64& variable);
-        // Load into the specified 'variable' the eight-byte, two's complement
+        // Assign to the specified 'variable' the eight-byte, two's complement
         // unsigned integer (in host byte order) comprised of the eight bytes
         // of this stream at the current cursor location (in network byte
         // order), update the cursor location, and return a reference to this
@@ -506,7 +509,7 @@ class ByteInStream {
         // undefined.  Note that the value will be zero-extended.
 
     ByteInStream& getInt56(bsls::Types::Int64& variable);
-        // Load into the specified 'variable' the seven-byte, two's complement
+        // Assign to the specified 'variable' the seven-byte, two's complement
         // integer (in host byte order) comprised of the seven bytes of this
         // stream at the current cursor location (in network byte order),
         // update the cursor location, and return a reference to this stream.
@@ -516,7 +519,7 @@ class ByteInStream {
         // Note that the value will be sign-extended.
 
     ByteInStream& getUint56(bsls::Types::Uint64& variable);
-        // Load into the specified 'variable' the seven-byte, two's complement
+        // Assign to the specified 'variable' the seven-byte, two's complement
         // unsigned integer (in host byte order) comprised of the seven bytes
         // of this stream at the current cursor location (in network byte
         // order), update the cursor location, and return a reference to this
@@ -526,7 +529,7 @@ class ByteInStream {
         // undefined.  Note that the value will be zero-extended.
 
     ByteInStream& getInt48(bsls::Types::Int64& variable);
-        // Load into the specified 'variable' the six-byte, two's complement
+        // Assign to the specified 'variable' the six-byte, two's complement
         // integer (in host byte order) comprised of the six bytes of this
         // stream at the current cursor location (in network byte order),
         // update the cursor location, and return a reference to this stream.
@@ -536,7 +539,7 @@ class ByteInStream {
         // Note that the value will be sign-extended.
 
     ByteInStream& getUint48(bsls::Types::Uint64& variable);
-        // Load into the specified 'variable' the six-byte, two's complement
+        // Assign to the specified 'variable' the six-byte, two's complement
         // unsigned integer (in host byte order) comprised of the six bytes of
         // this stream at the current cursor location (in network byte order),
         // update the cursor location, and return a reference to this stream.
@@ -546,7 +549,7 @@ class ByteInStream {
         // Note that the value will be zero-extended.
 
     ByteInStream& getInt40(bsls::Types::Int64& variable);
-        // Load into the specified 'variable' the five-byte, two's complement
+        // Assign to the specified 'variable' the five-byte, two's complement
         // integer (in host byte order) comprised of the five bytes of this
         // stream at the current cursor location (in network byte order),
         // update the cursor location, and return a reference to this stream.
@@ -556,7 +559,7 @@ class ByteInStream {
         // Note that the value will be sign-extended.
 
     ByteInStream& getUint40(bsls::Types::Uint64& variable);
-        // Load into the specified 'variable' the five-byte, two's complement
+        // Assign to the specified 'variable' the five-byte, two's complement
         // unsigned integer (in host byte order) comprised of the five bytes of
         // this stream at the current cursor location (in network byte order),
         // update the cursor location, and return a reference to this stream.
@@ -566,7 +569,7 @@ class ByteInStream {
         // Note that the value will be zero-extended.
 
     ByteInStream& getInt32(int& variable);
-        // Load into the specified 'variable' the four-byte, two's complement
+        // Assign to the specified 'variable' the four-byte, two's complement
         // integer (in host byte order) comprised of the four bytes of this
         // stream at the current cursor location (in network byte order),
         // update the cursor location, and return a reference to this stream.
@@ -576,7 +579,7 @@ class ByteInStream {
         // Note that the value will be sign-extended.
 
     ByteInStream& getUint32(unsigned int& variable);
-        // Load into the specified 'variable' the four-byte, two's complement
+        // Assign to the specified 'variable' the four-byte, two's complement
         // unsigned integer (in host byte order) comprised of the four bytes of
         // this stream at the current cursor location (in network byte order),
         // update the cursor location, and return a reference to this stream.
@@ -586,7 +589,7 @@ class ByteInStream {
         // Note that the value will be zero-extended.
 
     ByteInStream& getInt24(int& variable);
-        // Load into the specified 'variable' the three-byte, two's complement
+        // Assign to the specified 'variable' the three-byte, two's complement
         // integer (in host byte order) comprised of the three bytes of this
         // stream at the current cursor location (in network byte order),
         // update the cursor location, and return a reference to this stream.
@@ -596,7 +599,7 @@ class ByteInStream {
         // Note that the value will be sign-extended.
 
     ByteInStream& getUint24(unsigned int& variable);
-        // Load into the specified 'variable' the three-byte, two's complement
+        // Assign to the specified 'variable' the three-byte, two's complement
         // unsigned integer (in host byte order) comprised of the three bytes
         // of this stream at the current cursor location (in network byte
         // order), update the cursor location, and return a reference to this
@@ -606,7 +609,7 @@ class ByteInStream {
         // undefined.  Note that the value will be zero-extended.
 
     ByteInStream& getInt16(short& variable);
-        // Load into the specified 'variable' the two-byte, two's complement
+        // Assign to the specified 'variable' the two-byte, two's complement
         // integer (in host byte order) comprised of the two bytes of this
         // stream at the current cursor location (in network byte order),
         // update the cursor location, and return a reference to this stream.
@@ -616,7 +619,7 @@ class ByteInStream {
         // Note that the value will be sign-extended.
 
     ByteInStream& getUint16(unsigned short& variable);
-        // Load into the specified 'variable' the two-byte, two's complement
+        // Assign to the specified 'variable' the two-byte, two's complement
         // unsigned integer (in host byte order) comprised of the two bytes of
         // this stream at the current cursor location (in network byte order),
         // update the cursor location, and return a reference to this stream.
@@ -627,7 +630,7 @@ class ByteInStream {
 
     ByteInStream& getInt8(char&        variable);
     ByteInStream& getInt8(signed char& variable);
-        // Load into the specified 'variable' the one-byte, two's complement
+        // Assign to the specified 'variable' the one-byte, two's complement
         // integer comprised of the one byte of this stream at the current
         // cursor location, update the cursor location, and return a reference
         // to this stream.  If this stream is initially invalid, this operation
@@ -637,7 +640,7 @@ class ByteInStream {
 
     ByteInStream& getUint8(char&          variable);
     ByteInStream& getUint8(unsigned char& variable);
-        // Load into the specified 'variable' the one-byte, two's complement
+        // Assign to the specified 'variable' the one-byte, two's complement
         // unsigned integer comprised of the one byte of this stream at the
         // current cursor location, update the cursor location, and return a
         // reference to this stream.  If this stream is initially invalid, this
@@ -649,7 +652,7 @@ class ByteInStream {
                       // *** scalar floating-point values ***
 
     ByteInStream& getFloat64(double& variable);
-        // Load into the specified 'variable' the eight-byte IEEE
+        // Assign to the specified 'variable' the eight-byte IEEE
         // double-precision floating-point number (in host byte order)
         // comprised of the eight bytes of this stream at the current cursor
         // location (in network byte order), update the cursor location, and
@@ -659,7 +662,7 @@ class ByteInStream {
         // the value of 'variable' is undefined.
 
     ByteInStream& getFloat32(float& variable);
-        // Load into the specified 'variable' the four-byte IEEE
+        // Assign to the specified 'variable' the four-byte IEEE
         // single-precision floating-point number (in host byte order)
         // comprised of the four bytes of this stream at the current cursor
         // location (in network byte order), update the cursor location, and
@@ -671,7 +674,7 @@ class ByteInStream {
                       // *** string values ***
 
     ByteInStream& getString(bsl::string& variable);
-        // Load into the specified 'variable' the string comprised of the
+        // Assign to the specified 'variable' the string comprised of the
         // length of the string (see 'getLength') and the string data (see
         // 'getUint8'), update the cursor location, and return a reference to
         // this stream.  If this stream is initially invalid, this operation
@@ -683,7 +686,7 @@ class ByteInStream {
 
     ByteInStream& getArrayInt64(bsls::Types::Int64 *variables,
                                 int                 numVariables);
-        // Load into the specified 'variables' the consecutive eight-byte,
+        // Assign to the specified 'variables' the consecutive eight-byte,
         // two's complement integers (in host byte order) comprised of each of
         // the specified 'numVariables' eight-byte sequences of this stream at
         // the current cursor location (in network byte order), update the
@@ -697,7 +700,7 @@ class ByteInStream {
 
     ByteInStream& getArrayUint64(bsls::Types::Uint64 *variables,
                                  int                  numVariables);
-        // Load into the specified 'variables' the consecutive eight-byte,
+        // Assign to the specified 'variables' the consecutive eight-byte,
         // two's complement unsigned integers (in host byte order) comprised of
         // each of the specified 'numVariables' eight-byte sequences of this
         // stream at the current cursor location (in network byte order),
@@ -711,7 +714,7 @@ class ByteInStream {
 
     ByteInStream& getArrayInt56(bsls::Types::Int64 *variables,
                                 int                 numVariables);
-        // Load into the specified 'variables' the consecutive seven-byte,
+        // Assign to the specified 'variables' the consecutive seven-byte,
         // two's complement integers (in host byte order) comprised of each of
         // the specified 'numVariables' seven-byte sequences of this stream at
         // the current cursor location (in network byte order), update the
@@ -725,7 +728,7 @@ class ByteInStream {
 
     ByteInStream& getArrayUint56(bsls::Types::Uint64 *variables,
                                  int                  numVariables);
-        // Load into the specified 'variables' the consecutive seven-byte,
+        // Assign to the specified 'variables' the consecutive seven-byte,
         // two's complement unsigned integers (in host byte order) comprised of
         // each of the specified 'numVariables' seven-byte sequences of this
         // stream at the current cursor location (in network byte order),
@@ -739,7 +742,7 @@ class ByteInStream {
 
     ByteInStream& getArrayInt48(bsls::Types::Int64 *variables,
                                 int                 numVariables);
-        // Load into the specified 'variables' the consecutive six-byte, two's
+        // Assign to the specified 'variables' the consecutive six-byte, two's
         // complement integers (in host byte order) comprised of each of the
         // specified 'numVariables' six-byte sequences of this stream at the
         // current cursor location (in network byte order), update the cursor
@@ -752,7 +755,7 @@ class ByteInStream {
 
     ByteInStream& getArrayUint48(bsls::Types::Uint64 *variables,
                                  int                  numVariables);
-        // Load into the specified 'variables' the consecutive six-byte, two's
+        // Assign to the specified 'variables' the consecutive six-byte, two's
         // complement unsigned integers (in host byte order) comprised of each
         // of the specified 'numVariables' six-byte sequences of this stream at
         // the current cursor location (in network byte order), update the
@@ -766,7 +769,7 @@ class ByteInStream {
 
     ByteInStream& getArrayInt40(bsls::Types::Int64 *variables,
                                 int                 numVariables);
-        // Load into the specified 'variables' the consecutive five-byte, two's
+        // Assign to the specified 'variables' the consecutive five-byte, two's
         // complement integers (in host byte order) comprised of each of the
         // specified 'numVariables' five-byte sequences of this stream at the
         // current cursor location (in network byte order), update the cursor
@@ -779,7 +782,7 @@ class ByteInStream {
 
     ByteInStream& getArrayUint40(bsls::Types::Uint64 *variables,
                                  int                  numVariables);
-        // Load into the specified 'variables' the consecutive five-byte, two's
+        // Assign to the specified 'variables' the consecutive five-byte, two's
         // complement unsigned integers (in host byte order) comprised of each
         // of the specified 'numVariables' five-byte sequences of this stream
         // at the current cursor location (in network byte order), update the
@@ -792,7 +795,7 @@ class ByteInStream {
         // zero-extended.
 
     ByteInStream& getArrayInt32(int *variables, int numVariables);
-        // Load into the specified 'variables' the consecutive four-byte, two's
+        // Assign to the specified 'variables' the consecutive four-byte, two's
         // complement integers (in host byte order) comprised of each of the
         // specified 'numVariables' four-byte sequences of this stream at the
         // current cursor location (in network byte order), update the cursor
@@ -804,7 +807,7 @@ class ByteInStream {
         // capacity.  Note that each of the values will be sign-extended.
 
     ByteInStream& getArrayUint32(unsigned int *variables, int numVariables);
-        // Load into the specified 'variables' the consecutive four-byte, two's
+        // Assign to the specified 'variables' the consecutive four-byte, two's
         // complement unsigned integers (in host byte order) comprised of each
         // of the specified 'numVariables' four-byte sequences of this stream
         // at the current cursor location (in network byte order), update the
@@ -817,7 +820,7 @@ class ByteInStream {
         // zero-extended.
 
     ByteInStream& getArrayInt24(int *variables, int numVariables);
-        // Load into the specified 'variables' the consecutive three-byte,
+        // Assign to the specified 'variables' the consecutive three-byte,
         // two's complement integers (in host byte order) comprised of each of
         // the specified 'numVariables' three-byte sequences of this stream at
         // the current cursor location (in network byte order), update the
@@ -830,7 +833,7 @@ class ByteInStream {
         // sign-extended.
 
     ByteInStream& getArrayUint24(unsigned int *variables, int numVariables);
-        // Load into the specified 'variables' the consecutive three-byte,
+        // Assign to the specified 'variables' the consecutive three-byte,
         // two's complement unsigned integers (in host byte order) comprised of
         // each of the specified 'numVariables' three-byte sequences of this
         // stream at the current cursor location (in network byte order),
@@ -843,7 +846,7 @@ class ByteInStream {
         // zero-extended.
 
     ByteInStream& getArrayInt16(short *variables, int numVariables);
-        // Load into the specified 'variables' the consecutive two-byte, two's
+        // Assign to the specified 'variables' the consecutive two-byte, two's
         // complement integers (in host byte order) comprised of each of the
         // specified 'numVariables' two-byte sequences of this stream at the
         // current cursor location (in network byte order), update the cursor
@@ -855,7 +858,7 @@ class ByteInStream {
         // capacity.  Note that each of the values will be sign-extended.
 
     ByteInStream& getArrayUint16(unsigned short *variables, int numVariables);
-        // Load into the specified 'variables' the consecutive two-byte, two's
+        // Assign to the specified 'variables' the consecutive two-byte, two's
         // complement unsigned integers (in host byte order) comprised of each
         // of the specified 'numVariables' two-byte sequences of this stream at
         // the current cursor location (in network byte order), update the
@@ -869,7 +872,7 @@ class ByteInStream {
 
     ByteInStream& getArrayInt8(char *variables,        int numVariables);
     ByteInStream& getArrayInt8(signed char *variables, int numVariables);
-        // Load into the specified 'variables' the consecutive one-byte, two's
+        // Assign to the specified 'variables' the consecutive one-byte, two's
         // complement integers comprised of each of the specified
         // 'numVariables' one-byte sequences of this stream at the current
         // cursor location, update the cursor location, and return a reference
@@ -882,7 +885,7 @@ class ByteInStream {
 
     ByteInStream& getArrayUint8(char *variables,          int numVariables);
     ByteInStream& getArrayUint8(unsigned char *variables, int numVariables);
-        // Load into the specified 'variables' the consecutive one-byte, two's
+        // Assign to the specified 'variables' the consecutive one-byte, two's
         // complement unsigned integers comprised of each of the specified
         // 'numVariables' one-byte sequences of this stream at the current
         // cursor location, update the cursor location, and return a reference
@@ -896,7 +899,7 @@ class ByteInStream {
                       // *** arrays of floating-point values ***
 
     ByteInStream& getArrayFloat64(double *variables, int numVariables);
-        // Load into the specified 'variables' the consecutive eight-byte IEEE
+        // Assign to the specified 'variables' the consecutive eight-byte IEEE
         // double-precision floating-point numbers (in host byte order)
         // comprised of each of the specified 'numVariables' eight-byte
         // sequences of this stream at the current cursor location (in network
@@ -908,7 +911,7 @@ class ByteInStream {
         // 'variables' has sufficient capacity.
 
     ByteInStream& getArrayFloat32(float *variables, int numVariables);
-        // Load into the specified 'variables' the consecutive four-byte IEEE
+        // Assign to the specified 'variables' the consecutive four-byte IEEE
         // single-precision floating-point numbers (in host byte order)
         // comprised of each of the specified 'numVariables' four-byte
         // sequences of this stream at the current cursor location (in network
