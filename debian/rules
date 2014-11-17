@@ -189,6 +189,8 @@ ifneq ($(STATIC_FLAVORS),)
 	)
 	ln -sf lib$(1).$(DEFAULT_STATIC_FLAVOR_32bit).a debian/lib$(1)-dev/$(PREFIX)/lib/lib$(1).a
 	ln -sf lib$(1).$(DEFAULT_STATIC_FLAVOR_64bit).a debian/lib$(1)-dev/$(PREFIX)/lib64/lib$(1).a
+	ln -sf $(1).$(DEFAULT_STATIC_FLAVOR_32bit).pc debian/lib$(1)-dev/$(PREFIX)/lib/pkgconfig/$(1).pc
+	ln -sf $(1).$(DEFAULT_STATIC_FLAVOR_64bit).pc debian/lib$(1)-dev/$(PREFIX)/lib64/pkgconfig/$(1).pc
 	mkdir -p debian/lib$(1)-dev/$(PREFIX)/include
 	cp $$(GROUP_$(1)_INSTALL_HEADERS) debian/lib$(1)-dev/$(PREFIX)/include/
 endif
