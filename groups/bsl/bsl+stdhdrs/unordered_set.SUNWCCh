@@ -25,9 +25,7 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#if 0 // Native STL header disabled until we routinely test for C++11 *libs*
 #   include BSL_NATIVE_CPP_LIB_HEADER(unordered_set)
-#endif
 
 #else
 
