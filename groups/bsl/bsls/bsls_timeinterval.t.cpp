@@ -586,29 +586,26 @@ ByteInStream& ByteInStream::getInt64(bsls::Types::Int64& variable)
             variable = 0x80 & buffer[0] ? -1 : 0;  // sign extend
         }
 
-        typedef union Dummy {
-            bsls::Types::Int64 d_variable;
-            char               d_bytes[sizeof variable];
-        }& T;
+        char *bytes = reinterpret_cast<char *>(&variable);
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-        T(variable).d_bytes[7] = buffer[0];
-        T(variable).d_bytes[6] = buffer[1];
-        T(variable).d_bytes[5] = buffer[2];
-        T(variable).d_bytes[4] = buffer[3];
-        T(variable).d_bytes[3] = buffer[4];
-        T(variable).d_bytes[2] = buffer[5];
-        T(variable).d_bytes[1] = buffer[6];
-        T(variable).d_bytes[0] = buffer[7];
+        bytes[7] = buffer[0];
+        bytes[6] = buffer[1];
+        bytes[5] = buffer[2];
+        bytes[4] = buffer[3];
+        bytes[3] = buffer[4];
+        bytes[2] = buffer[5];
+        bytes[1] = buffer[6];
+        bytes[0] = buffer[7];
 #else
-        T(variable).d_bytes[sizeof *variable - 8] = buffer[0];
-        T(variable).d_bytes[sizeof *variable - 7] = buffer[1];
-        T(variable).d_bytes[sizeof *variable - 6] = buffer[2];
-        T(variable).d_bytes[sizeof *variable - 5] = buffer[3];
-        T(variable).d_bytes[sizeof *variable - 4] = buffer[4];
-        T(variable).d_bytes[sizeof *variable - 3] = buffer[5];
-        T(variable).d_bytes[sizeof *variable - 2] = buffer[6];
-        T(variable).d_bytes[sizeof *variable - 1] = buffer[7];
+        bytes[sizeof *variable - 8] = buffer[0];
+        bytes[sizeof *variable - 7] = buffer[1];
+        bytes[sizeof *variable - 6] = buffer[2];
+        bytes[sizeof *variable - 5] = buffer[3];
+        bytes[sizeof *variable - 4] = buffer[4];
+        bytes[sizeof *variable - 3] = buffer[5];
+        bytes[sizeof *variable - 2] = buffer[6];
+        bytes[sizeof *variable - 1] = buffer[7];
 #endif
 
         d_cursor += k_BDEX_SIZEOF_INT64;
@@ -636,21 +633,18 @@ ByteInStream& ByteInStream::getInt32(int& variable)
             variable = 0x80 & buffer[0] ? -1 : 0;  // sign extend
         }
 
-        typedef union Dummy {
-            int  d_variable;
-            char d_bytes[sizeof variable];
-        }& T;
+        char *bytes = reinterpret_cast<char *>(&variable);
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-        T(variable).d_bytes[3] = buffer[0];
-        T(variable).d_bytes[2] = buffer[1];
-        T(variable).d_bytes[1] = buffer[2];
-        T(variable).d_bytes[0] = buffer[3];
+        bytes[3] = buffer[0];
+        bytes[2] = buffer[1];
+        bytes[1] = buffer[2];
+        bytes[0] = buffer[3];
 #else
-        T(variable).d_bytes[sizeof *variable - 4] = buffer[0];
-        T(variable).d_bytes[sizeof *variable - 3] = buffer[1];
-        T(variable).d_bytes[sizeof *variable - 2] = buffer[2];
-        T(variable).d_bytes[sizeof *variable - 1] = buffer[3];
+        bytes[sizeof *variable - 4] = buffer[0];
+        bytes[sizeof *variable - 3] = buffer[1];
+        bytes[sizeof *variable - 2] = buffer[2];
+        bytes[sizeof *variable - 1] = buffer[3];
 #endif
 
         d_cursor += k_BDEX_SIZEOF_INT32;
@@ -833,31 +827,28 @@ ByteOutStream& ByteOutStream::putInt64(bsls::Types::Int64 value)
 
     // Write to the buffer the specified 'value'.
 
-    typedef const union Dummy {
-        bsls::Types::Int64 d_variable;
-        char               d_bytes[sizeof value];
-    }& T;
-
     char *buffer = d_buffer + d_size;
 
+    char *bytes = reinterpret_cast<char *>(&value);
+
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    buffer[0] = T(value).d_bytes[7];
-    buffer[1] = T(value).d_bytes[6];
-    buffer[2] = T(value).d_bytes[5];
-    buffer[3] = T(value).d_bytes[4];
-    buffer[4] = T(value).d_bytes[3];
-    buffer[5] = T(value).d_bytes[2];
-    buffer[6] = T(value).d_bytes[1];
-    buffer[7] = T(value).d_bytes[0];
+    buffer[0] = bytes[7];
+    buffer[1] = bytes[6];
+    buffer[2] = bytes[5];
+    buffer[3] = bytes[4];
+    buffer[4] = bytes[3];
+    buffer[5] = bytes[2];
+    buffer[6] = bytes[1];
+    buffer[7] = bytes[0];
 #else
-    buffer[0] = T(value).d_bytes[sizeof value - 8];
-    buffer[1] = T(value).d_bytes[sizeof value - 7];
-    buffer[2] = T(value).d_bytes[sizeof value - 6];
-    buffer[3] = T(value).d_bytes[sizeof value - 5];
-    buffer[4] = T(value).d_bytes[sizeof value - 4];
-    buffer[5] = T(value).d_bytes[sizeof value - 3];
-    buffer[6] = T(value).d_bytes[sizeof value - 2];
-    buffer[7] = T(value).d_bytes[sizeof value - 1];
+    buffer[0] = bytes[sizeof value - 8];
+    buffer[1] = bytes[sizeof value - 7];
+    buffer[2] = bytes[sizeof value - 6];
+    buffer[3] = bytes[sizeof value - 5];
+    buffer[4] = bytes[sizeof value - 4];
+    buffer[5] = bytes[sizeof value - 3];
+    buffer[6] = bytes[sizeof value - 2];
+    buffer[7] = bytes[sizeof value - 1];
 #endif
 
     d_size += k_BDEX_SIZEOF_INT64;
@@ -876,21 +867,18 @@ ByteOutStream& ByteOutStream::putInt32(int value)
 
     char *buffer = d_buffer + d_size;
 
-    typedef const union Dummy {
-        int  d_variable;
-        char d_bytes[sizeof value];
-    }& T;
+    char *bytes = reinterpret_cast<char *>(&value);
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    buffer[0] = T(value).d_bytes[3];
-    buffer[1] = T(value).d_bytes[2];
-    buffer[2] = T(value).d_bytes[1];
-    buffer[3] = T(value).d_bytes[0];
+    buffer[0] = bytes[3];
+    buffer[1] = bytes[2];
+    buffer[2] = bytes[1];
+    buffer[3] = bytes[0];
 #else
-    buffer[0] = T(value).d_bytes[sizeof value - 4];
-    buffer[1] = T(value).d_bytes[sizeof value - 3];
-    buffer[2] = T(value).d_bytes[sizeof value - 2];
-    buffer[3] = T(value).d_bytes[sizeof value - 1];
+    buffer[0] = bytes[sizeof value - 4];
+    buffer[1] = bytes[sizeof value - 3];
+    buffer[2] = bytes[sizeof value - 2];
+    buffer[3] = bytes[sizeof value - 1];
 #endif
 
     d_size += k_BDEX_SIZEOF_INT32;
@@ -1179,7 +1167,7 @@ int main(int argc, char *argv[])
             { L_, LLONG_MIN, -1999999999, false },
             { L_, LLONG_MIN,     INT_MIN, false },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) printf(
             "\nTesting: 'isValid' with test table\n");
@@ -1259,7 +1247,7 @@ int main(int argc, char *argv[])
             { L_,     -3,         -1 },
             { L_,     -1, -999999999 }
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) printf(
             "\nTesting: 'operator-' with 'TimeInterval'\n");
@@ -1393,7 +1381,7 @@ int main(int argc, char *argv[])
             { L_,     -3,         -1 },
             { L_,     -1, -999999999 }
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) printf(
             "\nTesting: 'operator+' and 'operator-' with 'TimeInterval'\n");
@@ -1727,7 +1715,7 @@ int main(int argc, char *argv[])
             { L_,     -3,         -1 },
             { L_,     -1, -999999999 }
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) printf(
             "\nTesting: 'operator+=' and 'operator-=' with 'TimeInterval'\n");
@@ -2038,7 +2026,7 @@ int main(int argc, char *argv[])
                 { L_,   k_SECS_MAX,     999999999 },
                 { L_,   k_SECS_MIN,    -999999999 }
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int                LINE   = DATA[i].d_lineNum;
@@ -2092,7 +2080,7 @@ int main(int argc, char *argv[])
                 { L_,   k_SECS_MIN,    -999999998,          0,          -1 },
 
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int                LINE        = DATA[i].d_lineNum;
@@ -2136,7 +2124,7 @@ int main(int argc, char *argv[])
                 { L_,       -56711,         54322,     -50000 },
 
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int                LINE        = DATA[i].d_lineNum;
@@ -2195,7 +2183,7 @@ int main(int argc, char *argv[])
                 { L_,   k_SECS_MIN + 86400,  999999999,            -1 },
 
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int                LINE        = DATA[i].d_lineNum;
@@ -2253,7 +2241,7 @@ int main(int argc, char *argv[])
                 { L_,    k_SECS_MIN + 3600,  999999999,              -1 },
 
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int                LINE        = DATA[i].d_lineNum;
@@ -2311,7 +2299,7 @@ int main(int argc, char *argv[])
                 { L_,      k_SECS_MIN + 60,  999999999,            -1 },
 
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int                LINE        = DATA[i].d_lineNum;
@@ -2363,7 +2351,7 @@ int main(int argc, char *argv[])
                 { L_,       k_SECS_MIN + 1,  999999999,            -1 },
 
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int                LINE        = DATA[i].d_lineNum;
@@ -2434,7 +2422,7 @@ int main(int argc, char *argv[])
                 { L_,        k_SECS_MIN, -999999999 + 1000000,           -1 },
 
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int                LINE        = DATA[i].d_lineNum;
@@ -2509,7 +2497,7 @@ int main(int argc, char *argv[])
                 { L_,        k_SECS_MIN,    -999999999 + 1000,           -1 },
 
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int                LINE        = DATA[i].d_lineNum;
@@ -2582,7 +2570,7 @@ int main(int argc, char *argv[])
                 { L_,        k_SECS_MIN,       -999999999 + 1,           -1 },
 
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int                LINE        = DATA[i].d_lineNum;
@@ -3023,7 +3011,7 @@ int main(int argc, char *argv[])
             { L_,        LLONG_MIN,  -999999999 },
 
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) printf(
            "\nTest secs, mins, hours, days, totalSecondsAsDouble w/ table.\n");
@@ -3086,7 +3074,7 @@ int main(int argc, char *argv[])
                 { L_,  k_MAX_MILLISECS_SECS,   k_MAX_MILLISECS_NANOS },
                 { L_,  k_MIN_MILLISECS_SECS,   k_MIN_MILLISECS_NANOS },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int                LINE    = DATA[ti].d_lineNum;
@@ -3126,7 +3114,7 @@ int main(int argc, char *argv[])
                 { L_,  k_MAX_MICROSECS_SECS,   k_MAX_MICROSECS_NANOS },
                 { L_,  k_MIN_MICROSECS_SECS,   k_MIN_MICROSECS_NANOS },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int                LINE    = DATA[ti].d_lineNum;
@@ -3166,7 +3154,7 @@ int main(int argc, char *argv[])
                 { L_,   k_MAX_NANOSECS_SECS,    k_MAX_NANOSECS_NANOS },
                 { L_,   k_MIN_NANOSECS_SECS,    k_MIN_NANOSECS_NANOS },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int                LINE    = DATA[ti].d_lineNum;
@@ -3425,7 +3413,7 @@ int main(int argc, char *argv[])
                 { L_,        -42058 },
                 { L_,    k_DAYS_MIN },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int   ILINE       = DATA[ti].d_line;
@@ -3471,7 +3459,7 @@ int main(int argc, char *argv[])
                 { L_,         -42058 },
                 { L_,    k_HOURS_MIN },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int   ILINE        = DATA[ti].d_line;
@@ -3517,7 +3505,7 @@ int main(int argc, char *argv[])
                 { L_,        -42058 },
                 { L_,    k_MINS_MIN },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int   ILINE       = DATA[ti].d_line;
@@ -3563,7 +3551,7 @@ int main(int argc, char *argv[])
                 { L_,        -42058 },
                 { L_,    k_SECS_MIN },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int   ILINE       = DATA[ti].d_line;
@@ -3610,7 +3598,7 @@ int main(int argc, char *argv[])
                 { L_,        -42058 },
                 { L_,     LLONG_MIN },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int   ILINE            = DATA[ti].d_line;
@@ -3666,7 +3654,7 @@ int main(int argc, char *argv[])
                 { L_,        -42058 },
                 { L_,     LLONG_MIN },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int   ILINE            = DATA[ti].d_line;
@@ -3723,7 +3711,7 @@ int main(int argc, char *argv[])
                 { L_,        -42058 },
                 { L_,     LLONG_MIN },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int   ILINE            = DATA[ti].d_line;
@@ -3978,7 +3966,7 @@ int main(int argc, char *argv[])
             { L_,        LLONG_MIN,  -999999999 },
 
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
 
         if (verbose) printf("\nCompare every value with every value.\n");
@@ -4200,7 +4188,7 @@ int main(int argc, char *argv[])
             { L_,     3000000000LL,   999999999 },
             { L_,    -3000000000LL,  -999999999 },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) printf("\nCompare every value with every value.\n");
 
@@ -4296,7 +4284,7 @@ int main(int argc, char *argv[])
             { L_,   4.0000000005,   4,            1 },
             { L_,  -4.0000000005,  -4,           -1 }
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) printf("\nTest conversion from 'double'.\n");
 
@@ -4404,7 +4392,7 @@ int main(int argc, char *argv[])
       { L_,   k_SECS_MAX,     999999999,       k_SECS_MAX,        999999999 },
       { L_,   k_SECS_MIN,    -999999999,       k_SECS_MIN,       -999999999 },
             };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) printf("\nUse a table of distinct object values.\n");
 
@@ -4602,15 +4590,6 @@ int main(int argc, char *argv[])
             ASSERT(in);
             ASSERT(in.isEmpty());
         }
-
-        // We will use the stream free functions provided by 'bslx', as opposed
-        // to the class member functions, since the 'bslx' implementation gives
-        // priority to the free function implementations; we want to test what
-        // will be used.  Furthermore, toward making this test case more
-        // reusable in other components, from here on we generally use the
-        // 'bdexStreamIn' and 'bdexStreamOut' free functions that are defined
-        // in the 'bslx' package rather than call the like-named member
-        // functions directly.
 
         if (verbose) {
             printf("\nThorough test.\n");
@@ -4965,6 +4944,56 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
+            printf("\t\tNanoseconds too small.\n");
+        }
+        {
+            Out out(VERSION_SELECTOR);
+
+            // Stream out "new" value.
+            out.putInt64(0);
+            out.putInt32(-k_NANOSECS_PER_SEC);
+
+            const char *const OD  = out.data();
+            const int         LOD = out.length();
+
+            Obj mT(X);  const Obj& T = mT;
+            ASSERT(X == T);
+
+            In in(OD, LOD);
+            ASSERT(in);
+
+            In& rvIn = mT.bdexStreamIn(in, VERSION);
+            ASSERT(&in == &rvIn);
+            ASSERT(!in);
+            ASSERT(X == T);
+        }
+
+        if (verbose) {
+            printf("\t\tNanoseconds too large.\n");
+        }
+        {
+            Out out(VERSION_SELECTOR);
+
+            // Stream out "new" value.
+            out.putInt64(0);
+            out.putInt32(k_NANOSECS_PER_SEC);
+
+            const char *const OD  = out.data();
+            const int         LOD = out.length();
+
+            Obj mT(X);  const Obj& T = mT;
+            ASSERT(X == T);
+
+            In in(OD, LOD);
+            ASSERT(in);
+
+            In& rvIn = mT.bdexStreamIn(in, VERSION);
+            ASSERT(&in == &rvIn);
+            ASSERT(!in);
+            ASSERT(X == T);
+        }
+
+        if (verbose) {
             printf("\nWire format direct tests.\n");
         }
         {
@@ -5155,7 +5184,7 @@ int main(int argc, char *argv[])
             { L_,        LLONG_MIN,  -999999999 },
 
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int                ILINE    = DATA[ti].d_lineNum;
@@ -5302,7 +5331,7 @@ int main(int argc, char *argv[])
             { L_,        LLONG_MIN,  -999999999 },
 
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int                LINE    = DATA[ti].d_lineNum;
@@ -5441,7 +5470,7 @@ int main(int argc, char *argv[])
             { L_,        LLONG_MIN,  -999999999 },
 
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) printf("\nCompare every value with every value.\n");
 
@@ -5670,7 +5699,7 @@ int main(int argc, char *argv[])
 #undef NL
 
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) printf("\nTesting with various print specifications.\n");
         {
@@ -5746,7 +5775,7 @@ int main(int argc, char *argv[])
                 { L_, -3000000000LL, -999999999, "(-3000000000, -999999999)" }
             };
 
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int di = 0; di < NUM_DATA;  ++di) {
                 const int                LINE     = DATA[di].d_lineNum;
@@ -5835,7 +5864,7 @@ int main(int argc, char *argv[])
                 { L_,        k_SECS_MIN,  -999999999 }
             };
 
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const bsls::Types::Int64 SECS = DATA[i].d_secs;
@@ -6079,7 +6108,7 @@ int main(int argc, char *argv[])
 
             };
 
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int                LINE   = DATA[i].d_lineNum;
@@ -6116,7 +6145,7 @@ int main(int argc, char *argv[])
 
             };
 
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int                LINE   = DATA[i].d_lineNum;

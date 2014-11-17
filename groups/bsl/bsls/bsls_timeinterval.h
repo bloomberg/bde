@@ -391,11 +391,6 @@ class TimeInterval {
         // documentation for more information on BDEX streaming of
         // value-semantic types and containers.
 
-    void swap(TimeInterval& other);
-        // Efficiently exchange the value of this object with the value of the
-        // specified 'other' object.  This method provides the no-throw
-        // exception-safety guarantee.
-
     // ACCESSORS
     int nanoseconds() const;
         // Return the nanoseconds field in the canonical representation of the
@@ -784,7 +779,9 @@ STREAM& TimeInterval::bdexStreamIn(STREAM& stream, int version)
             stream.getInt32(nanoseconds);
 
             if (stream && (   (seconds >= 0 && nanoseconds >= 0)
-                           || (seconds <= 0 && nanoseconds <= 0))) {
+                           || (seconds <= 0 && nanoseconds <= 0))
+                       && nanoseconds > -k_NANOSECS_PER_SEC
+                       && nanoseconds <  k_NANOSECS_PER_SEC) {
                 d_seconds     = seconds;
                 d_nanoseconds = nanoseconds;
             }
