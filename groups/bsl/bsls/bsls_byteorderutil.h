@@ -155,8 +155,8 @@ inline
 wchar_t
 ByteOrderUtil::swapBytes(wchar_t        x)
 {
-    // Size of 'wchar_t' varies unpredicably depending on platform and compiler
-    // switches, use 'ByteOrderUtil_Impl' to adjust automatically.
+    // Size of 'wchar_t' varies unpredictably depending on platform and
+    // compiler switches, use 'ByteOrderUtil_Impl' to adjust automatically.
 
     return ByteOrderUtil_Impl<wchar_t>::swapBytes(x);
 }
@@ -225,7 +225,7 @@ inline
 long
 ByteOrderUtil::swapBytes(long           x)
 {
-    // Size of 'long' varies unpredicably depending on platform and compiler
+    // Size of 'long' varies unpredictably depending on platform and compiler
     // switches, use 'ByteOrderUtil_Impl' to adjust automatically.
 
     return ByteOrderUtil_Impl<long>::swapBytes(x);
@@ -235,7 +235,7 @@ inline
 unsigned long
 ByteOrderUtil::swapBytes(unsigned long  x)
 {
-    // Size of 'unsigned long' varies unpredicably depending on platform and
+    // Size of 'unsigned long' varies unpredictably depending on platform and
     // compiler switches, use 'ByteOrderUtil_Impl' to adjust automatically.
 
     return ByteOrderUtil_Impl<unsigned long>::swapBytes(x);

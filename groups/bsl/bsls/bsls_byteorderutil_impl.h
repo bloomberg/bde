@@ -28,10 +28,10 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a template class 'ByteOrderUtil_Impl'
 // and a set of macros suitable for swapping byte orders of all integral types.
 // The '*_CUSTOMSWAP_*' macros use assembly language or compiler primitives,
-// the '*_GENERICSWAP_*' macros use C bitwise operators to perform the swap.
-// The '*_CUSTOMSWAP_*' macros are not defined on all platforms, callers must
-// perform an '#ifdef' to see if they are defined before calling them.  At most
-// one of '*_CUSTOMSWAP_NN' and '*_CUSTOMSWAP_PNN' are defined on any one
+// whereas the '*_GENERICSWAP_*' macros use C bitwise operations to perform the
+// swap.  The '*_CUSTOMSWAP_*' macros are not defined on all platforms; callers
+// must perform an '#ifdef' to see if they are defined before calling them.  At
+// most one of '*_CUSTOMSWAP_NN' and '*_CUSTOMSWAP_PNN' are defined on any one
 // platform for any value of 'NN', while '*_GENERICSWAP_NN' macros are defined
 // on all platforms and are meant to be called when the other macros are not
 // available, and are also used for benchmarking.
@@ -48,7 +48,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
-#ifdef BSLS_PLATFORM_CMP_MSVC
+#ifdef BSLS_PLATFORM_OS_WINDOWS
 
 #ifndef INCLUDED_STDLIB
 #include <stdlib.h>        // '_byteswap_*'
@@ -180,10 +180,10 @@ struct ByteOrderUtil_Impl<TYPE, 8> {
 
 #endif
 
-#elif defined(BSLS_PLATFORM_CMP_MSVC)
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
 
 // ----------------------------------------------------------------------------
-// MSVC
+// Windows
 
 #if !defined(BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS)
 
@@ -245,7 +245,7 @@ unsigned long long bsls_byteOrderUtil_Impl_powerpc_swap_p64(
 //  addi r3,r3,4       // change r3 to point to the 4 lower-order bytes
 //  lwbrx r3,0,r3      // reverse the 4 lower-order bytes
 //..
-#pragma mc_func bsls_byteOrderUtil_Impl_powerpc_swap_p64                   \
+#pragma mc_func bsls_byteOrderUtil_Impl_powerpc_swap_p64                      \
                                             { "7c801c2c" "38630004" "7c601c2c"}
 #pragma reg_killed_by bsls_byteOrderUtil_Impl_powerpc_swap_p64 gr3,gr4
 
@@ -257,7 +257,7 @@ unsigned long long bsls_byteOrderUtil_Impl_powerpc_swap_p64(
 //  lwbrx r4,0,r4      // reverse the 4 lower-order bytes
 //  rldimi r3,r4,32,0  // rotate 'r4' left and insert to 'r3' with a mask
 //..
-#pragma mc_func bsls_byteOrderUtil_Impl_powerpc_swap_p64                   \
+#pragma mc_func bsls_byteOrderUtil_Impl_powerpc_swap_p64                      \
                                 { "38830004" "7c601c2c" "7c80242c" "7883000e" }
 #pragma reg_killed_by bsls_byteOrderUtil_Impl_powerpc_swap_p64 gr3,gr4,cr0
 
@@ -304,7 +304,7 @@ unsigned long long bsls_byteOrderUtil_Impl_powerpc_swap_p64(
 
 #define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16(dstType, x)                    \
     {                                                                         \
-        BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(2 == sizeof *x);         \
+        BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(2 == sizeof *x);          \
         register unsigned int y;                                              \
         asm("lduha [%1] %2, %0"                                               \
           : "=r" (y)                                                          \
@@ -314,7 +314,7 @@ unsigned long long bsls_byteOrderUtil_Impl_powerpc_swap_p64(
         return static_cast<dstType>(y);                                       \
     }
 
-#endif // not disabled || dbg
+#endif // !disabled || dbg
 
 #if !defined(BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS) &&     \
     !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32) &&                        \
@@ -334,7 +334,7 @@ unsigned long long bsls_byteOrderUtil_Impl_powerpc_swap_p64(
         return static_cast<dstType>(y);                                       \
     }
 
-#endif // not disabled, ...CUSTOM_32, CUSTOM_P32 not defined
+#endif // not disabled, ...CUSTOMSWAP_32, CUSTOMSWAP_P32 not defined
 
 #if   !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64)                         \
    && !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64)
@@ -414,7 +414,7 @@ unsigned long long bsls_byteOrderUtil_Impl_sparc_CC_swap_p64(
                           reinterpret_cast<const unsigned long long *>(x)));  \
     }
 
-#endif  // !disabled || dbg
+#endif  // !disabled || opt
 
 #endif  // BSLS_PLATFORM_CMP_GNU else
 

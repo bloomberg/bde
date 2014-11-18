@@ -14,11 +14,11 @@
 //                                  --------
 // [3] TESTING CONSISTENCY OF COMPILE-TIME FLAGS
 // [2] TESTING 'mySwapBytes*'
-// [1] TESTING 'genericSwap*' & SOUNDNESS OF TABLE
+// [1] TESTING 'BSLS_BYTEORDERUTIL_IMPL_GENERIC_SWAP*' & SOUNDNESS OF TABLE
 //-----------------------------------------------------------------------------
 // [3] 'BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_*'
 // [2] 'mySwapBytes[16,32,64}'
-// [1] 'genericSwap{16,32,64}'
+// [1] 'BSLS_BYTEORDERUTIL_IMPL_GENERIC_SWAP{16,32,64}'
 //-----------------------------------------------------------------------------
 
 using namespace BloombergLP;
@@ -67,11 +67,11 @@ void aSsErT(bool b, const char *s, int i)
 #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
 #define PHEX(X)  printf(#X " = 0x%llx\n", (Uint64) (X));
-#define PHEX_(X) printf(#X " = 0x%llx\t", (Uint64) (X));                     \
+#define PHEX_(X) printf(#X " = 0x%llx\t", (Uint64) (X));                      \
                  bsls::BslTestUtil::flush();
 
 
-#if defined(BSLS_PLATFORM_CMP_MSVC) ||                                        \
+#if defined(BSLS_PLATFORM_OS_WINDOWS) ||                                      \
     (defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_CPU_32_BIT))
 #define BYTEORDERUTIL_SIZEOF_WCHAR_T 2
 #else
@@ -556,7 +556,8 @@ int main(int argc, char *argv[])
         //:
         //: 2 Test that the tables are of significant length (> 10 entries).
         //:
-        //: 3 Test that 'genericSwapNN' works correctly.
+        //: 3 Test that 'BSLS_BYTEORDERUTIL_IMPL_GENERIC_SWAPNN' works
+        //:   correctly.
         //
         // Plan:
         //: 1 Create a template function 'swapBytesInPlace' that, given a
@@ -571,7 +572,7 @@ int main(int argc, char *argv[])
         //:     confirm the result matches the expected value.
         //
         // Testing:
-        //   'genericSwap{16,32,64}'
+        //   'BSLS_BYTEORDERUTIL_IMPL_GENERIC_SWAP{16,32,64}'
         // --------------------------------------------------------------------
 
         if (verbose) printf(

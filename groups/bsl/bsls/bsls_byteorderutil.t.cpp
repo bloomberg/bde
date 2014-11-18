@@ -36,7 +36,7 @@
 // type, the type is loaded with the unswapped value, then this is fed into
 // function under test, and the result compared to the swapped value.
 //
-// Some types vary in size across different platforms, and accomodation is
+// Some types vary in size across different platforms, and accommodation is
 // made for this, plus tests to make sure that all types are in fact tested.
 //
 // Single byte values are tested for all possible value in the 'singleByteTest'
@@ -107,12 +107,12 @@ void aSsErT(bool b, const char *s, int i)
 #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
 #define PHEX(X)  printf(#X " = 0x%llx\n", (Uint64) (X));
-#define PHEX_(X) printf(#X " = 0x%llx\t", (Uint64) (X));                     \
+#define PHEX_(X) printf(#X " = 0x%llx\t", (Uint64) (X));                      \
                  bsls::BslTestUtil::flush();
 
-#if defined(BSLS_PLATFORM_CMP_MSVC) ||                                        \
+#if defined(BSLS_PLATFORM_OS_WINDOWS) ||                                      \
     (defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_CPU_32_BIT))
-#define BYTEORDERUTIL_SIZEOF_WCHAR_T 2
+# define BYTEORDERUTIL_SIZEOF_WCHAR_T 2
 #else
 # define BYTEORDERUTIL_SIZEOF_WCHAR_T 4
 #endif
@@ -856,18 +856,18 @@ int main(int argc, char *argv[])
         //: 1 Test 16 bit swaps.
         //:   A Test 'swapBytes16'
         //:   B Test 'swapBytes' on 'short' and 'unsigned short'
-        //:   C If '2 == sizeof(wchar_t)'. test 'swapBytes(wchar_t)'
+        //:   C If '2 == sizeof(wchar_t)', test 'swapBytes(wchar_t)'
         //:
         //: 2 Test 32 bit swaps.
         //:   A Test 'swapBytes32'
         //:   B Test 'swapBytes' on 'int' and 'unsigned int'
-        //:   C If '4 == sizeof(wchar_t)'. test 'swapBytes(wchar_t)'
-        //:   D If '4 == sizeof(long)'. test 'swapBytes(long)'
+        //:   C If '4 == sizeof(wchar_t)', test 'swapBytes(wchar_t)'
+        //:   D If '4 == sizeof(long)', test 'swapBytes(long)'
         //:
         //: 3 Test 64 bit swaps.
         //:   A Test 'swapBytes64'
         //:   B Test 'swapBytes' on 'Types::Int64' and 'Types::Uint64'
-        //:   C If '8 == sizeof(long)'. test 'swapBytes(long)'
+        //:   C If '8 == sizeof(long)', test 'swapBytes(long)'
         //:
         //: 4 Check 'bool's set when testing 'wchar_t' and 'long' to make
         //:   sure the #ifdef logic resulted in both types being tested.
@@ -1178,8 +1178,8 @@ int main(int argc, char *argv[])
         printf("64: custom/generic: %g\n", int64Time / genericInt64Time);
         P_(int64Time); P(genericInt64Time);
 
-        // Output 'int64Total' to make sure it's observed and prevent optimzers
-        // from optimizing loops out of existence.
+        // Output 'int64Total' to make sure it's observed and prevent
+        // optimizers from optimizing loops out of existence.
 
         P(int64Total);
       } break;
