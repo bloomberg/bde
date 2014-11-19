@@ -6,6 +6,7 @@ BSLS_IDENT("$Id$")
 
 #include <bdls_testutil.h>
 #include <bsls_assert.h>
+#include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 
 // ============================================================================
