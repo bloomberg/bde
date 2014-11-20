@@ -278,10 +278,10 @@ struct DecimalConvertUtil {
                                          bdldfp::Decimal64    value);
         // If the specified 'value' is NaN, +infinity, -infinity, or its
         // unbiased exponent is 384, return a non-zero value and leave all
-        // output parameters unmodified.  Otherwise, partition the specified
-        // 'value' into sign, biased exponent, and mantissa compartments, and
-        // load the corresponding values into the specified 'isNegative',
-        // biasedExponent', and 'mantissa'. Return 0.  Note that a non-zero
+        // output parameters unmodified.  Otherwise, partition the 'value' into
+        // sign, biased exponent, and mantissa compartments, and load the
+        // corresponding values into the specified 'isNegative',
+        // 'biasedExponent', and 'mantissa'. Return 0.  Note that a non-zero
         // value does not indicate that 'value' can not be partitioned, just
         // that it can not be partitioned by this function.  Also note that the
         // bias for 'Decimal64' is 398.
@@ -472,18 +472,18 @@ struct DecimalConvertUtil {
 
                         // decimalToBID functions
 
-    static void decimal32ToBID( unsigned char *buffer,
-                                          Decimal32      decimal);
-    static void decimal64ToBID( unsigned char *buffer,
-                                          Decimal64      decimal);
+    static void decimal32ToBID (unsigned char *buffer,
+                                Decimal32      decimal);
+    static void decimal64ToBID (unsigned char *buffer,
+                                Decimal64      decimal);
     static void decimal128ToBID(unsigned char *buffer,
-                                          Decimal128     decimal);
-    static void decimalToBID(   unsigned char *buffer,
-                                          Decimal32      decimal);
-    static void decimalToBID(   unsigned char *buffer,
-                                          Decimal64      decimal);
-    static void decimalToBID(   unsigned char *buffer,
-                                          Decimal128     decimal);
+                                Decimal128     decimal);
+    static void decimalToBID   (unsigned char *buffer,
+                                Decimal32      decimal);
+    static void decimalToBID   (unsigned char *buffer,
+                                Decimal64      decimal);
+    static void decimalToBID   (unsigned char *buffer,
+                                Decimal128     decimal);
         // Populate the specified 'buffer' with the Binary Integral Decimal
         // (BID) representation of the specified 'decimal' value.  The BID
         // representations of 'Decimal32', 'Decimal64', and 'Decimal128'
@@ -494,8 +494,8 @@ struct DecimalConvertUtil {
 
                         // decimalFromBID functions
 
-    static Decimal32  decimal32FromBID( const unsigned char *buffer);
-    static Decimal64  decimal64FromBID( const unsigned char *buffer);
+    static Decimal32  decimal32FromBID (const unsigned char *buffer);
+    static Decimal64  decimal64FromBID (const unsigned char *buffer);
     static Decimal128 decimal128FromBID(const unsigned char *buffer);
         // Return the native implementation representation of the value of the
         // same size base-10 floating-point value stored in Binary Integral
@@ -503,18 +503,18 @@ struct DecimalConvertUtil {
         // undefined unless 'buffer' points to a memory area at least
         // 'sizeof(decimal)' in size containing a value in BID format.
 
-    static void decimalFromBID(   Decimal32           *decimal,
-                                            const unsigned char *buffer);
-    static void decimalFromBID(   Decimal64           *decimal,
-                                            const unsigned char *buffer);
-    static void decimalFromBID(   Decimal128          *decimal,
-                                            const unsigned char *buffer);
-    static void decimal32FromBID( Decimal32           *decimal,
-                                            const unsigned char *buffer);
-    static void decimal64FromBID( Decimal64           *decimal,
-                                            const unsigned char *buffer);
+    static void decimalFromBID   (Decimal32           *decimal,
+                                  const unsigned char *buffer);
+    static void decimalFromBID   (Decimal64           *decimal,
+                                  const unsigned char *buffer);
+    static void decimalFromBID   (Decimal128          *decimal,
+                                  const unsigned char *buffer);
+    static void decimal32FromBID (Decimal32           *decimal,
+                                  const unsigned char *buffer);
+    static void decimal64FromBID (Decimal64           *decimal,
+                                  const unsigned char *buffer);
     static void decimal128FromBID(Decimal128          *decimal,
-                                            const unsigned char *buffer);
+                                  const unsigned char *buffer);
         // Store, into the specified 'decimal', the native implmentation
         // representation of the value of the same size base-10 floating point
         // value represented in Binary Integral Decimal format, at the specified
@@ -525,18 +525,18 @@ struct DecimalConvertUtil {
 
                         // decimalToDPD functions
 
-    static void decimal32ToDPD( unsigned char *buffer,
-                                          Decimal32      decimal);
-    static void decimal64ToDPD( unsigned char *buffer,
-                                          Decimal64      decimal);
+    static void decimal32ToDPD (unsigned char *buffer,
+                                Decimal32      decimal);
+    static void decimal64ToDPD (unsigned char *buffer,
+                                Decimal64      decimal);
     static void decimal128ToDPD(unsigned char *buffer,
-                                          Decimal128     decimal);
-    static void decimalToDPD(   unsigned char *buffer,
-                                          Decimal32      decimal);
-    static void decimalToDPD(   unsigned char *buffer,
-                                          Decimal64      decimal);
-    static void decimalToDPD(   unsigned char *buffer,
-                                          Decimal128     decimal);
+                                Decimal128     decimal);
+    static void decimalToDPD   (unsigned char *buffer,
+                                Decimal32      decimal);
+    static void decimalToDPD   (unsigned char *buffer,
+                                Decimal64      decimal);
+    static void decimalToDPD   (unsigned char *buffer,
+                                Decimal128     decimal);
         // Populate the specified 'buffer' with the Densely Packed Decimal
         // (DPD) representation of the specified 'decimal' value.  The DPD
         // representations of 'Decimal32', 'Decimal64', and 'Decimal128'
@@ -547,8 +547,8 @@ struct DecimalConvertUtil {
 
                         // decimalFromDPD functions
 
-    static Decimal32  decimal32FromDPD( const unsigned char *buffer);
-    static Decimal64  decimal64FromDPD( const unsigned char *buffer);
+    static Decimal32  decimal32FromDPD (const unsigned char *buffer);
+    static Decimal64  decimal64FromDPD (const unsigned char *buffer);
     static Decimal128 decimal128FromDPD(const unsigned char *buffer);
         // Return the native implementation representation of the value of the
         // same size base-10 floating-point value stored in Densely Packed
@@ -556,18 +556,18 @@ struct DecimalConvertUtil {
         // undefined unless 'buffer' points to a memory area at least
         // 'sizeof(decimal)' in size containing a value in DPD format.
 
-    static void decimalFromDPD(   Decimal32           *decimal,
-                                            const unsigned char *buffer);
-    static void decimalFromDPD(   Decimal64           *decimal,
-                                            const unsigned char *buffer);
-    static void decimalFromDPD(   Decimal128          *decimal,
-                                            const unsigned char *buffer);
-    static void decimal32FromDPD( Decimal32           *decimal,
-                                            const unsigned char *buffer);
-    static void decimal64FromDPD( Decimal64           *decimal,
-                                            const unsigned char *buffer);
+    static void decimalFromDPD   (Decimal32           *decimal,
+                                  const unsigned char *buffer);
+    static void decimalFromDPD   (Decimal64           *decimal,
+                                  const unsigned char *buffer);
+    static void decimalFromDPD   (Decimal128          *decimal,
+                                  const unsigned char *buffer);
+    static void decimal32FromDPD (Decimal32           *decimal,
+                                  const unsigned char *buffer);
+    static void decimal64FromDPD (Decimal64           *decimal,
+                                  const unsigned char *buffer);
     static void decimal128FromDPD(Decimal128          *decimal,
-                                            const unsigned char *buffer);
+                                  const unsigned char *buffer);
         // Store, into the specified 'decimal', the native implmentation
         // representation of the value of the same size base-10 floating point
         // value represented in Densely Packed Decimal format, at the specified
@@ -577,18 +577,18 @@ struct DecimalConvertUtil {
 
                         // decimalToNetwork functions
 
-    static unsigned char *decimal32ToNetwork(unsigned char *buffer,
-                                             Decimal32      decimal);
-    static unsigned char *decimal64ToNetwork(unsigned char *buffer,
-                                             Decimal64      decimal);
+    static unsigned char *decimal32ToNetwork (unsigned char *buffer,
+                                              Decimal32      decimal);
+    static unsigned char *decimal64ToNetwork (unsigned char *buffer,
+                                              Decimal64      decimal);
     static unsigned char *decimal128ToNetwork(unsigned char *buffer,
                                               Decimal128     decimal);
-    static unsigned char *decimalToNetwork(unsigned char *buffer,
-                                           Decimal32      decimal);
-    static unsigned char *decimalToNetwork(unsigned char *buffer,
-                                           Decimal64      decimal);
-    static unsigned char *decimalToNetwork(unsigned char *buffer,
-                                           Decimal128     decimal);
+    static unsigned char *decimalToNetwork   (unsigned char *buffer,
+                                              Decimal32      decimal);
+    static unsigned char *decimalToNetwork   (unsigned char *buffer,
+                                              Decimal64      decimal);
+    static unsigned char *decimalToNetwork   (unsigned char *buffer,
+                                              Decimal128     decimal);
         // Store the specified 'decimal', in network format, into the specified
         // 'buffer' and return the address one past the last byte written into
         // the 'buffer'. The network format is defined as big endian byte order
@@ -601,18 +601,18 @@ struct DecimalConvertUtil {
 
                         // decimalFromNetwork functions
 
-    static unsigned char *decimal32FromNetwork(Decimal32           *decimal,
-                                               const unsigned char *buffer);
-    static unsigned char *decimal64FromNetwork(Decimal64           *decimal,
-                                               const unsigned char *buffer);
+    static unsigned char *decimal32FromNetwork (Decimal32           *decimal,
+                                                const unsigned char *buffer);
+    static unsigned char *decimal64FromNetwork (Decimal64           *decimal,
+                                                const unsigned char *buffer);
     static unsigned char *decimal128FromNetwork(Decimal128          *decimal,
                                                 const unsigned char *buffer);
-    static unsigned char *decimalFromNetwork(Decimal32           *decimal,
-                                             const unsigned char *buffer);
-    static unsigned char *decimalFromNetwork(Decimal64           *decimal,
-                                             const unsigned char *buffer);
-    static unsigned char *decimalFromNetwork(Decimal128          *decimal,
-                                             const unsigned char *buffer);
+    static unsigned char *decimalFromNetwork   (Decimal32           *decimal,
+                                                const unsigned char *buffer);
+    static unsigned char *decimalFromNetwork   (Decimal64           *decimal,
+                                                const unsigned char *buffer);
+    static unsigned char *decimalFromNetwork   (Decimal128          *decimal,
+                                                const unsigned char *buffer);
         // Store into the specified 'decimal', the value of the same size
         // base-10 floating-point value stored in network format at the
         // specified 'buffer' address and return the address one past the last
@@ -784,8 +784,7 @@ bsls::Types::size_type DecimalConvertUtil::decimal64ToMultiWidthEncoding(
     else {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         bsls::Types::Uint64 encoded;
-        decimal64ToBinaryIntegral(reinterpret_cast<unsigned char *>(&encoded),
-                                  decimal);
+        decimal64ToBID(reinterpret_cast<unsigned char *>(&encoded), decimal);
 
         encoded = BSLS_BYTEORDER_HTONLL(encoded);
 
@@ -891,8 +890,7 @@ Decimal64 DecimalConvertUtil::decimal64FromMultiWidthEncoding(
         bsl::memcpy(&encoded, buffer, 8);
         encoded = BSLS_BYTEORDER_NTOHLL(encoded);
 
-        return decimal64FromBinaryIntegral(
-                                reinterpret_cast<unsigned char *>(&encoded));
+        return decimal64FromBID(reinterpret_cast<unsigned char *>(&encoded));
                                                                       // RETURN
     }
 }
@@ -1043,8 +1041,7 @@ unsigned char *DecimalConvertUtil::decimal64ToVariableWidthEncoding(
     *buffer++ = 0xFF;
 
     bsls::Types::Uint64 encoded;
-    decimal64ToBinaryIntegral(reinterpret_cast<unsigned char *>(&encoded),
-                              decimal);
+    decimal64ToBID(reinterpret_cast<unsigned char *>(&encoded), decimal);
 
     encoded = BSLS_BYTEORDER_HTONLL(encoded);
 
@@ -1091,9 +1088,7 @@ const unsigned char *DecimalConvertUtil::decimal64FromVariableWidthEncoding(
         bsl::memcpy(&encoded, buffer, 8);
         encoded = BSLS_BYTEORDER_NTOHLL(encoded);
 
-        decimal64FromBinaryIntegral(
-                                  decimal,
-                                  reinterpret_cast<unsigned char *>(&encoded));
+        decimal64FromBID(decimal, reinterpret_cast<unsigned char *>(&encoded));
 
         return buffer + 8;                                            // RETURN
     }
