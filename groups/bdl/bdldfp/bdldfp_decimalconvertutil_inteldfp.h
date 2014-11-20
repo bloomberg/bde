@@ -156,19 +156,19 @@ struct DecimalConvertUtil_IntelDfp {
         //:   initialization if this object.
 
 
-                        // decimalToDenselyPacked functions
+                        // decimalToDPD functions
 
-    static void decimal32ToDenselyPacked( unsigned char *buffer,
+    static void decimal32ToDPD( unsigned char *buffer,
                                           Decimal32      decimal);
-    static void decimal64ToDenselyPacked( unsigned char *buffer,
+    static void decimal64ToDPD( unsigned char *buffer,
                                           Decimal64      decimal);
-    static void decimal128ToDenselyPacked(unsigned char *buffer,
+    static void decimal128ToDPD(unsigned char *buffer,
                                           Decimal128     decimal);
-    static void decimalToDenselyPacked(   unsigned char *buffer,
+    static void decimalToDPD(   unsigned char *buffer,
                                           Decimal32      decimal);
-    static void decimalToDenselyPacked(   unsigned char *buffer,
+    static void decimalToDPD(   unsigned char *buffer,
                                           Decimal64      decimal);
-    static void decimalToDenselyPacked(   unsigned char *buffer,
+    static void decimalToDPD(   unsigned char *buffer,
                                           Decimal128     decimal);
         // Populate the specified 'buffer' with the Densely Packed Decimal
         // (DPD) representation of the specified 'decimal' value.  The DPD
@@ -178,22 +178,22 @@ struct DecimalConvertUtil_IntelDfp {
         // 'sizeof(decimal)' bytes.  Note that the DPD representation is
         // defined in section 3.5 of IEEE 754-2008.
 
-                        // decimalFromDenselyPacked functions
+                        // decimalFromDPD functions
 
-    static Decimal32  decimal32FromDenselyPacked( const unsigned char *buffer);
-    static Decimal64  decimal64FromDenselyPacked( const unsigned char *buffer);
-    static Decimal128 decimal128FromDenselyPacked(const unsigned char *buffer);
+    static Decimal32  decimal32FromDPD( const unsigned char *buffer);
+    static Decimal64  decimal64FromDPD( const unsigned char *buffer);
+    static Decimal128 decimal128FromDPD(const unsigned char *buffer);
         // Return the native implementation representation of the value of the
         // same size base-10 floating-point value stored in Densely Packed
         // Decimal format at the specified 'buffer' address.  The behavior is
         // undefined unless 'buffer' points to a memory area at least
         // 'sizeof(decimal)' in size containing a value in DPD format.
 
-    static void decimalFromDenselyPacked(Decimal32           *decimal,
+    static void decimalFromDPD(Decimal32           *decimal,
                                          const unsigned char *buffer);
-    static void decimalFromDenselyPacked(Decimal64           *decimal,
+    static void decimalFromDPD(Decimal64           *decimal,
                                          const unsigned char *buffer);
-    static void decimalFromDenselyPacked(Decimal128          *decimal,
+    static void decimalFromDPD(Decimal128          *decimal,
                                          const unsigned char *buffer);
         // Store, into the specified 'decimal', the native implmentation
         // representation of the value of the same size base-10 floating point
@@ -303,31 +303,31 @@ DecimalConvertUtil_IntelDfp::decimalToFloat(Decimal128 decimal)
 
 inline
 void
-DecimalConvertUtil_IntelDfp::decimal32ToDenselyPacked(unsigned char *buffer,
+DecimalConvertUtil_IntelDfp::decimal32ToDPD(unsigned char *buffer,
                                                       Decimal32      decimal)
 {
-    decimalToDenselyPacked(buffer, decimal);
+    decimalToDPD(buffer, decimal);
 }
 
 inline
 void
-DecimalConvertUtil_IntelDfp::decimal64ToDenselyPacked(unsigned char *buffer,
+DecimalConvertUtil_IntelDfp::decimal64ToDPD(unsigned char *buffer,
                                                       Decimal64      decimal)
 {
-    decimalToDenselyPacked(buffer, decimal);
+    decimalToDPD(buffer, decimal);
 }
 
 inline
 void
-DecimalConvertUtil_IntelDfp::decimal128ToDenselyPacked(unsigned char *buffer,
+DecimalConvertUtil_IntelDfp::decimal128ToDPD(unsigned char *buffer,
                                                        Decimal128     decimal)
 {
-    decimalToDenselyPacked(buffer, decimal);
+    decimalToDPD(buffer, decimal);
 }
 
 inline
 void
-DecimalConvertUtil_IntelDfp::decimalToDenselyPacked(unsigned char *buffer,
+DecimalConvertUtil_IntelDfp::decimalToDPD(unsigned char *buffer,
                                                     Decimal32      decimal)
 {
     decimal.data()->d_raw = __bid_to_dpd32(decimal.data()->d_raw);
@@ -336,7 +336,7 @@ DecimalConvertUtil_IntelDfp::decimalToDenselyPacked(unsigned char *buffer,
 
 inline
 void
-DecimalConvertUtil_IntelDfp::decimalToDenselyPacked(unsigned char *buffer,
+DecimalConvertUtil_IntelDfp::decimalToDPD(unsigned char *buffer,
                                                     Decimal64      decimal)
 {
     decimal.data()->d_raw = __bid_to_dpd64(decimal.data()->d_raw);
@@ -345,18 +345,18 @@ DecimalConvertUtil_IntelDfp::decimalToDenselyPacked(unsigned char *buffer,
 
 inline
 void
-DecimalConvertUtil_IntelDfp::decimalToDenselyPacked(unsigned char *buffer,
+DecimalConvertUtil_IntelDfp::decimalToDPD(unsigned char *buffer,
                                                     Decimal128     decimal)
 {
     decimal.data()->d_raw = __bid_to_dpd128(decimal.data()->d_raw);
     bsl::memcpy(buffer, &decimal, sizeof(decimal));
 }
 
-                        // decimalFromDenselyPacked functions
+                        // decimalFromDPD functions
 
 inline
 Decimal32
-DecimalConvertUtil_IntelDfp::decimal32FromDenselyPacked(
+DecimalConvertUtil_IntelDfp::decimal32FromDPD(
                                                    const unsigned char *buffer)
 {
     BSLS_ASSERT(buffer);
@@ -370,7 +370,7 @@ DecimalConvertUtil_IntelDfp::decimal32FromDenselyPacked(
 
 inline
 Decimal64
-DecimalConvertUtil_IntelDfp::decimal64FromDenselyPacked(
+DecimalConvertUtil_IntelDfp::decimal64FromDPD(
                                                    const unsigned char *buffer)
 {
     BSLS_ASSERT(buffer);
@@ -384,7 +384,7 @@ DecimalConvertUtil_IntelDfp::decimal64FromDenselyPacked(
 
 inline
 Decimal128
-DecimalConvertUtil_IntelDfp::decimal128FromDenselyPacked(
+DecimalConvertUtil_IntelDfp::decimal128FromDPD(
                                                    const unsigned char *buffer)
 {
     BSLS_ASSERT(buffer);
@@ -398,38 +398,38 @@ DecimalConvertUtil_IntelDfp::decimal128FromDenselyPacked(
 
 inline
 void
-DecimalConvertUtil_IntelDfp::decimalFromDenselyPacked(
+DecimalConvertUtil_IntelDfp::decimalFromDPD(
                                                   Decimal32           *decimal,
                                                   const unsigned char *buffer)
 {
     BSLS_ASSERT(decimal);
     BSLS_ASSERT(buffer);
 
-    *decimal = decimal32FromDenselyPacked(buffer);
+    *decimal = decimal32FromDPD(buffer);
 }
 
 inline
 void
-DecimalConvertUtil_IntelDfp::decimalFromDenselyPacked(
+DecimalConvertUtil_IntelDfp::decimalFromDPD(
                                                   Decimal64           *decimal,
                                                   const unsigned char *buffer)
 {
     BSLS_ASSERT(decimal);
     BSLS_ASSERT(buffer);
 
-    *decimal = decimal64FromDenselyPacked(buffer);
+    *decimal = decimal64FromDPD(buffer);
 }
 
 inline
 void
-DecimalConvertUtil_IntelDfp::decimalFromDenselyPacked(
+DecimalConvertUtil_IntelDfp::decimalFromDPD(
                                                   Decimal128          *decimal,
                                                   const unsigned char *buffer)
 {
     BSLS_ASSERT(decimal);
     BSLS_ASSERT(buffer);
 
-    *decimal = decimal128FromDenselyPacked(buffer);
+    *decimal = decimal128FromDPD(buffer);
 }
 
 

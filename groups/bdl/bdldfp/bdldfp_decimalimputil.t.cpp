@@ -118,18 +118,18 @@ using bsl::atoi;
 // [18] format(ValueType64,  char *)
 // [18] format(ValueType128, char *)
 // [ 1] checkLiteral(double)
-// [20] convertFromDenselyPacked(DenselyPackedDecimalImpUtil::StorageType32)
-// [20] convertFromDenselyPacked(DenselyPackedDecimalImpUtil::StorageType64)
-// [20] convertFromDenselyPacked(DenselyPackedDecimalImpUtil::StorageType128)
-// [19] convertToDenselyPacked(ValueType32)
-// [19] convertToDenselyPacked(ValueType64)
-// [19] convertToDenselyPacked(ValueType128)
-// [22] convertFromBinaryIntegral(BinaryIntegralDecimalImpUtil::StorageType32)
-// [22] convertFromBinaryIntegral(BinaryIntegralDecimalImpUtil::StorageType64)
-// [22] convertFromBinaryIntegral(BinaryIntegralDecimalImpUtil::StorageType128)
-// [21] convertToBinaryIntegral(ValueType32)
-// [21] convertToBinaryIntegral(ValueType64)
-// [21] convertToBinaryIntegral(ValueType128)
+// [20] convertFromDPD(DenselyPackedDecimalImpUtil::StorageType32)
+// [20] convertFromDPD(DenselyPackedDecimalImpUtil::StorageType64)
+// [20] convertFromDPD(DenselyPackedDecimalImpUtil::StorageType128)
+// [19] convertToDPD(ValueType32)
+// [19] convertToDPD(ValueType64)
+// [19] convertToDPD(ValueType128)
+// [22] convertFromBID(BinaryIntegralDecimalImpUtil::StorageType32)
+// [22] convertFromBID(BinaryIntegralDecimalImpUtil::StorageType64)
+// [22] convertFromBID(BinaryIntegralDecimalImpUtil::StorageType128)
+// [21] convertToBID(ValueType32)
+// [21] convertToBID(ValueType64)
+// [21] convertToBID(ValueType128)
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 4] TEST 'notEqual' FOR 'NaN' CORRECTNESS
@@ -948,9 +948,9 @@ void TestDriver::testCase22()
     //:    special cases hold.  (C-2..5)
     //
     // Testing
-    //   convertFromBinaryIntegral(ValueType32)
-    //   convertFromBinaryIntegral(ValueType64)
-    //   convertFromBinaryIntegral(ValueType128)
+    //   convertFromBID(ValueType32)
+    //   convertFromBID(ValueType64)
+    //   convertFromBID(ValueType128)
     // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
@@ -975,24 +975,24 @@ void TestDriver::testCase22()
                     // 0e0
 
         testDecimal = Util::makeDecimalRaw32(0, 0);
-        witnessBID  = Util::convertToBinaryIntegral(testDecimal);
-        witness     = Util::convertFromBinaryIntegral(witnessBID);
+        witnessBID  = Util::convertToBID(testDecimal);
+        witness     = Util::convertFromBID(witnessBID);
 
         ASSERT(!bsl::memcmp(&testDecimal, &witness, sizeof(witness)));
 
                     // 7e0
 
         testDecimal = Util::makeDecimalRaw32(7, 0);
-        witnessBID  = Util::convertToBinaryIntegral(testDecimal);
-        witness     = Util::convertFromBinaryIntegral(witnessBID);
+        witnessBID  = Util::convertToBID(testDecimal);
+        witness     = Util::convertFromBID(witnessBID);
 
         ASSERT(!bsl::memcmp(&testDecimal, &witness, sizeof(witness)));
 
                     // 52e0
 
         testDecimal = Util::makeDecimalRaw32(52, 0);
-        witnessBID  = Util::convertToBinaryIntegral(testDecimal);
-        witness     = Util::convertFromBinaryIntegral(witnessBID);
+        witnessBID  = Util::convertToBID(testDecimal);
+        witness     = Util::convertFromBID(witnessBID);
 
         ASSERT(!bsl::memcmp(&testDecimal, &witness, sizeof(witness)));
 
@@ -1000,12 +1000,12 @@ void TestDriver::testCase22()
 
         for (int t_m = 0; t_m < numMantissas; ++t_m) {
             if (veryVerbose)
-                         cout << "convertFromBinaryIntegral, mantissa num: "
+                         cout << "convertFromBID, mantissa num: "
                                 << t_m << ", " << mantissas[t_m] << endl;
 
             for (int t_e = 0; t_e < numExponents; ++t_e) {
                 if (veryVerbose)
-                         cout << "convertFromBinaryIntegral, exponent num: "
+                         cout << "convertFromBID, exponent num: "
                                 << t_e << ", "
                                 << exponents[t_e] << endl;
 
@@ -1020,8 +1020,8 @@ void TestDriver::testCase22()
                     testDecimal = Util::makeDecimalRaw32(mantissa,
                                                          exponent);
 
-                    witnessBID = Util::convertToBinaryIntegral(testDecimal);
-                    witness = Util::convertFromBinaryIntegral(witnessBID);
+                    witnessBID = Util::convertToBID(testDecimal);
+                    witness = Util::convertFromBID(witnessBID);
 
                     LOOP4_ASSERT(t_m, t_e, mantissa, exponent,
                                  !bsl::memcmp(&testDecimal,
@@ -1034,21 +1034,21 @@ void TestDriver::testCase22()
         Util::ValueType32 specialWitness;
 
         testDecimal    = Util::parse32("NaN");
-        witnessBID     = Util::convertToBinaryIntegral(testDecimal);
-        specialWitness = Util::convertFromBinaryIntegral(witnessBID);
+        witnessBID     = Util::convertToBID(testDecimal);
+        specialWitness = Util::convertFromBID(witnessBID);
 
         ASSERT(!Util::equal(testDecimal,    testDecimal));
         ASSERT(!Util::equal(specialWitness, specialWitness));
 
         testDecimal    = Util::parse32("+Inf");
-        witnessBID     = Util::convertToBinaryIntegral(testDecimal);
-        specialWitness = Util::convertFromBinaryIntegral(witnessBID);
+        witnessBID     = Util::convertToBID(testDecimal);
+        specialWitness = Util::convertFromBID(witnessBID);
 
         ASSERT( Util::equal(testDecimal, specialWitness));
 
         testDecimal    = Util::parse32("-Inf");
-        witnessBID     = Util::convertToBinaryIntegral(testDecimal);
-        specialWitness = Util::convertFromBinaryIntegral(witnessBID);
+        witnessBID     = Util::convertToBID(testDecimal);
+        specialWitness = Util::convertFromBID(witnessBID);
 
         ASSERT( Util::equal(testDecimal, specialWitness));
     }
@@ -1064,24 +1064,24 @@ void TestDriver::testCase22()
                     // 0e0
 
         testDecimal = Util::makeDecimalRaw64(0, 0);
-        witnessBID  = Util::convertToBinaryIntegral(testDecimal);
-        witness     = Util::convertFromBinaryIntegral(witnessBID);
+        witnessBID  = Util::convertToBID(testDecimal);
+        witness     = Util::convertFromBID(witnessBID);
 
         ASSERT(!bsl::memcmp(&testDecimal, &witness, sizeof(witness)));
 
                     // 7e0
 
         testDecimal = Util::makeDecimalRaw64(7, 0);
-        witnessBID  = Util::convertToBinaryIntegral(testDecimal);
-        witness     = Util::convertFromBinaryIntegral(witnessBID);
+        witnessBID  = Util::convertToBID(testDecimal);
+        witness     = Util::convertFromBID(witnessBID);
 
         ASSERT(!bsl::memcmp(&testDecimal, &witness, sizeof(witness)));
 
                     // 52e0
 
         testDecimal = Util::makeDecimalRaw64(52, 0);
-        witnessBID  = Util::convertToBinaryIntegral(testDecimal);
-        witness     = Util::convertFromBinaryIntegral(witnessBID);
+        witnessBID  = Util::convertToBID(testDecimal);
+        witness     = Util::convertFromBID(witnessBID);
 
         ASSERT(!bsl::memcmp(&testDecimal, &witness, sizeof(witness)));
 
@@ -1089,12 +1089,12 @@ void TestDriver::testCase22()
 
         for (int t_m = 0; t_m < numMantissas; ++t_m) {
             if (veryVerbose)
-                         cout << "convertFromBinaryIntegral, mantissa num: "
+                         cout << "convertFromBID, mantissa num: "
                                 << t_m << ", " << mantissas[t_m] << endl;
 
             for (int t_e = 0; t_e < numExponents; ++t_e) {
                 if (veryVerbose)
-                         cout << "convertFromBinaryIntegral, exponent num: "
+                         cout << "convertFromBID, exponent num: "
                                 << t_e << ", "
                                 << exponents[t_e] << endl;
 
@@ -1109,8 +1109,8 @@ void TestDriver::testCase22()
                     testDecimal = Util::makeDecimalRaw64(mantissa,
                                                          exponent);
 
-                    witnessBID = Util::convertToBinaryIntegral(testDecimal);
-                    witness = Util::convertFromBinaryIntegral(witnessBID);
+                    witnessBID = Util::convertToBID(testDecimal);
+                    witness = Util::convertFromBID(witnessBID);
 
                     LOOP4_ASSERT(t_m, t_e, mantissa, exponent,
                                  !bsl::memcmp(&testDecimal,
@@ -1123,21 +1123,21 @@ void TestDriver::testCase22()
         Util::ValueType64 specialWitness;
 
         testDecimal    = Util::parse64("NaN");
-        witnessBID     = Util::convertToBinaryIntegral(testDecimal);
-        specialWitness = Util::convertFromBinaryIntegral(witnessBID);
+        witnessBID     = Util::convertToBID(testDecimal);
+        specialWitness = Util::convertFromBID(witnessBID);
 
         ASSERT(!Util::equal(testDecimal,    testDecimal));
         ASSERT(!Util::equal(specialWitness, specialWitness));
 
         testDecimal    = Util::parse64("+Inf");
-        witnessBID     = Util::convertToBinaryIntegral(testDecimal);
-        specialWitness = Util::convertFromBinaryIntegral(witnessBID);
+        witnessBID     = Util::convertToBID(testDecimal);
+        specialWitness = Util::convertFromBID(witnessBID);
 
         ASSERT( Util::equal(testDecimal, specialWitness));
 
         testDecimal    = Util::parse64("-Inf");
-        witnessBID     = Util::convertToBinaryIntegral(testDecimal);
-        specialWitness = Util::convertFromBinaryIntegral(witnessBID);
+        witnessBID     = Util::convertToBID(testDecimal);
+        specialWitness = Util::convertFromBID(witnessBID);
 
         ASSERT( Util::equal(testDecimal, specialWitness));
     }
@@ -1153,24 +1153,24 @@ void TestDriver::testCase22()
                     // 0e0
 
         testDecimal = Util::makeDecimalRaw128(0, 0);
-        witnessBID  = Util::convertToBinaryIntegral(testDecimal);
-        witness     = Util::convertFromBinaryIntegral(witnessBID);
+        witnessBID  = Util::convertToBID(testDecimal);
+        witness     = Util::convertFromBID(witnessBID);
 
         ASSERT(!bsl::memcmp(&testDecimal, &witness, sizeof(witness)));
 
                     // 7e0
 
         testDecimal = Util::makeDecimalRaw128(7, 0);
-        witnessBID  = Util::convertToBinaryIntegral(testDecimal);
-        witness     = Util::convertFromBinaryIntegral(witnessBID);
+        witnessBID  = Util::convertToBID(testDecimal);
+        witness     = Util::convertFromBID(witnessBID);
 
         ASSERT(!bsl::memcmp(&testDecimal, &witness, sizeof(witness)));
 
                     // 52e0
 
         testDecimal = Util::makeDecimalRaw128(52, 0);
-        witnessBID  = Util::convertToBinaryIntegral(testDecimal);
-        witness     = Util::convertFromBinaryIntegral(witnessBID);
+        witnessBID  = Util::convertToBID(testDecimal);
+        witness     = Util::convertFromBID(witnessBID);
 
         ASSERT(!bsl::memcmp(&testDecimal, &witness, sizeof(witness)));
 
@@ -1178,12 +1178,12 @@ void TestDriver::testCase22()
 
         for (int t_m = 0; t_m < numMantissas; ++t_m) {
             if (veryVerbose)
-                         cout << "convertFromBinaryIntegral, mantissa num: "
+                         cout << "convertFromBID, mantissa num: "
                                 << t_m << ", " << mantissas[t_m] << endl;
 
             for (int t_e = 0; t_e < numExponents; ++t_e) {
                 if (veryVerbose)
-                         cout << "convertFromBinaryIntegral, exponent num: "
+                         cout << "convertFromBID, exponent num: "
                                 << t_e << ", "
                                 << exponents[t_e] << endl;
 
@@ -1198,8 +1198,8 @@ void TestDriver::testCase22()
                     testDecimal = Util::makeDecimalRaw128(mantissa,
                                                          exponent);
 
-                    witnessBID = Util::convertToBinaryIntegral(testDecimal);
-                    witness = Util::convertFromBinaryIntegral(witnessBID);
+                    witnessBID = Util::convertToBID(testDecimal);
+                    witness = Util::convertFromBID(witnessBID);
 
                     LOOP4_ASSERT(t_m, t_e, mantissa, exponent,
                                  !bsl::memcmp(&testDecimal,
@@ -1212,21 +1212,21 @@ void TestDriver::testCase22()
         Util::ValueType128 specialWitness;
 
         testDecimal    = Util::parse128("NaN");
-        witnessBID     = Util::convertToBinaryIntegral(testDecimal);
-        specialWitness = Util::convertFromBinaryIntegral(witnessBID);
+        witnessBID     = Util::convertToBID(testDecimal);
+        specialWitness = Util::convertFromBID(witnessBID);
 
         ASSERT(!Util::equal(testDecimal,    testDecimal));
         ASSERT(!Util::equal(specialWitness, specialWitness));
 
         testDecimal    = Util::parse128("+Inf");
-        witnessBID     = Util::convertToBinaryIntegral(testDecimal);
-        specialWitness = Util::convertFromBinaryIntegral(witnessBID);
+        witnessBID     = Util::convertToBID(testDecimal);
+        specialWitness = Util::convertFromBID(witnessBID);
 
         ASSERT( Util::equal(testDecimal, specialWitness));
 
         testDecimal    = Util::parse128("-Inf");
-        witnessBID     = Util::convertToBinaryIntegral(testDecimal);
-        specialWitness = Util::convertFromBinaryIntegral(witnessBID);
+        witnessBID     = Util::convertToBID(testDecimal);
+        specialWitness = Util::convertFromBID(witnessBID);
 
         ASSERT( Util::equal(testDecimal, specialWitness));
     }
@@ -1259,9 +1259,9 @@ void TestDriver::testCase21()
     //:    special cases hold. (C-3,4)
     //
     // Testing
-    //   convertToBinaryIntegral(ValueType32)
-    //   convertToBinaryIntegral(ValueType64)
-    //   convertToBinaryIntegral(ValueType128)
+    //   convertToBID(ValueType32)
+    //   convertToBID(ValueType64)
+    //   convertToBID(ValueType128)
     // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
@@ -1287,7 +1287,7 @@ void TestDriver::testCase21()
 
         witness     =    Util::makeDecimalRaw32(0, 0);
         testDecimal =    Util::makeDecimalRaw32(0, 0);
-        testConvert =    Util::convertToBinaryIntegral(testDecimal);
+        testConvert =    Util::convertToBID(testDecimal);
 
         ASSERT(!bsl::memcmp(&testConvert, &witness, sizeof(testConvert)));
 
@@ -1295,7 +1295,7 @@ void TestDriver::testCase21()
 
         witness     =    Util::makeDecimalRaw32(7, 0);
         testDecimal =    Util::makeDecimalRaw32(7, 0);
-        testConvert =    Util::convertToBinaryIntegral(testDecimal);
+        testConvert =    Util::convertToBID(testDecimal);
 
         ASSERT(!bsl::memcmp(&testConvert, &witness, sizeof(testConvert)));
 
@@ -1303,7 +1303,7 @@ void TestDriver::testCase21()
 
         witness     =    Util::makeDecimalRaw32(52, 0);
         testDecimal =    Util::makeDecimalRaw32(52, 0);
-        testConvert =    Util::convertToBinaryIntegral(testDecimal);
+        testConvert =    Util::convertToBID(testDecimal);
 
         ASSERT(!bsl::memcmp(&testConvert, &witness, sizeof(testConvert)));
 
@@ -1311,12 +1311,12 @@ void TestDriver::testCase21()
 
         for (int t_m = 0; t_m < numMantissas; ++t_m) {
             if (veryVerbose)
-                           cout << "convertToBinaryIntegral, mantissa num: "
+                           cout << "convertToBID, mantissa num: "
                                 << t_m << ", " << mantissas[t_m] << endl;
 
             for (int t_e = 0; t_e < numExponents; ++t_e) {
                 if (veryVerbose)
-                           cout << "convertToBinaryIntegral, exponent num: "
+                           cout << "convertToBID, exponent num: "
                                 << t_e << ", "
                                 << exponents[t_e] << endl;
 
@@ -1332,7 +1332,7 @@ void TestDriver::testCase21()
                                                             exponent);
                     testDecimal =    Util::makeDecimalRaw32(mantissa,
                                                             exponent);
-                    testConvert =    Util::convertToBinaryIntegral(
+                    testConvert =    Util::convertToBID(
                                                               testDecimal);
 
                     LOOP4_ASSERT(t_m, t_e, mantissa, exponent,
@@ -1347,21 +1347,21 @@ void TestDriver::testCase21()
         Util::ValueType32 specialWitness;
 
         testDecimal    = Util::parse32("NaN");
-        testConvert    = Util::convertToBinaryIntegral(testDecimal);
-        specialWitness = Util::convertFromBinaryIntegral(testConvert);
+        testConvert    = Util::convertToBID(testDecimal);
+        specialWitness = Util::convertFromBID(testConvert);
 
         ASSERT(!Util::equal(testDecimal,    testDecimal));
         ASSERT(!Util::equal(specialWitness, specialWitness));
 
         testDecimal    = Util::parse32("+Inf");
-        testConvert    = Util::convertToBinaryIntegral(testDecimal);
-        specialWitness = Util::convertFromBinaryIntegral(testConvert);
+        testConvert    = Util::convertToBID(testDecimal);
+        specialWitness = Util::convertFromBID(testConvert);
 
         ASSERT( Util::equal(testDecimal, specialWitness));
 
         testDecimal    = Util::parse32("-Inf");
-        testConvert    = Util::convertToBinaryIntegral(testDecimal);
-        specialWitness = Util::convertFromBinaryIntegral(testConvert);
+        testConvert    = Util::convertToBID(testDecimal);
+        specialWitness = Util::convertFromBID(testConvert);
 
         ASSERT( Util::equal(testDecimal, specialWitness));
     }
@@ -1378,7 +1378,7 @@ void TestDriver::testCase21()
 
         witness     =    Util::makeDecimalRaw64(0, 0);
         testDecimal =    Util::makeDecimalRaw64(0, 0);
-        testConvert =    Util::convertToBinaryIntegral(testDecimal);
+        testConvert =    Util::convertToBID(testDecimal);
 
         ASSERT(!bsl::memcmp(&testConvert, &witness, sizeof(testConvert)));
 
@@ -1386,7 +1386,7 @@ void TestDriver::testCase21()
 
         witness     =    Util::makeDecimalRaw64(7, 0);
         testDecimal =    Util::makeDecimalRaw64(7, 0);
-        testConvert =    Util::convertToBinaryIntegral(testDecimal);
+        testConvert =    Util::convertToBID(testDecimal);
 
         ASSERT(!bsl::memcmp(&testConvert, &witness, sizeof(testConvert)));
 
@@ -1394,7 +1394,7 @@ void TestDriver::testCase21()
 
         witness     =    Util::makeDecimalRaw64(52, 0);
         testDecimal =    Util::makeDecimalRaw64(52, 0);
-        testConvert =    Util::convertToBinaryIntegral(testDecimal);
+        testConvert =    Util::convertToBID(testDecimal);
 
         ASSERT(!bsl::memcmp(&testConvert, &witness, sizeof(testConvert)));
 
@@ -1402,12 +1402,12 @@ void TestDriver::testCase21()
 
         for (int t_m = 0; t_m < numMantissas; ++t_m) {
             if (veryVerbose)
-                           cout << "convertToBinaryIntegral, mantissa num: "
+                           cout << "convertToBID, mantissa num: "
                                 << t_m << ", " << mantissas[t_m] << endl;
 
             for (int t_e = 0; t_e < numExponents; ++t_e) {
                 if (veryVerbose)
-                           cout << "convertToBinaryIntegral, exponent num: "
+                           cout << "convertToBID, exponent num: "
                                 << t_e << ", "
                                 << exponents[t_e] << endl;
 
@@ -1422,7 +1422,7 @@ void TestDriver::testCase21()
                                                             exponent);
                     testDecimal =    Util::makeDecimalRaw64(mantissa,
                                                             exponent);
-                    testConvert =    Util::convertToBinaryIntegral(
+                    testConvert =    Util::convertToBID(
                                                               testDecimal);
 
                     LOOP4_ASSERT(t_m, t_e, mantissa, exponent,
@@ -1436,21 +1436,21 @@ void TestDriver::testCase21()
         Util::ValueType64 specialWitness;
 
         testDecimal    = Util::parse64("NaN");
-        testConvert    = Util::convertToBinaryIntegral(testDecimal);
-        specialWitness = Util::convertFromBinaryIntegral(testConvert);
+        testConvert    = Util::convertToBID(testDecimal);
+        specialWitness = Util::convertFromBID(testConvert);
 
         ASSERT(!Util::equal(testDecimal,    testDecimal));
         ASSERT(!Util::equal(specialWitness, specialWitness));
 
         testDecimal    = Util::parse64("+Inf");
-        testConvert    = Util::convertToBinaryIntegral(testDecimal);
-        specialWitness = Util::convertFromBinaryIntegral(testConvert);
+        testConvert    = Util::convertToBID(testDecimal);
+        specialWitness = Util::convertFromBID(testConvert);
 
         ASSERT( Util::equal(testDecimal, specialWitness));
 
         testDecimal    = Util::parse64("-Inf");
-        testConvert    = Util::convertToBinaryIntegral(testDecimal);
-        specialWitness = Util::convertFromBinaryIntegral(testConvert);
+        testConvert    = Util::convertToBID(testDecimal);
+        specialWitness = Util::convertFromBID(testConvert);
 
         ASSERT( Util::equal(testDecimal, specialWitness));
     }
@@ -1467,7 +1467,7 @@ void TestDriver::testCase21()
 
         witness     =    Util::makeDecimalRaw128(0, 0);
         testDecimal =    Util::makeDecimalRaw128(0, 0);
-        testConvert =    Util::convertToBinaryIntegral(testDecimal);
+        testConvert =    Util::convertToBID(testDecimal);
 
         ASSERT(!bsl::memcmp(&testConvert, &witness, sizeof(testConvert)));
 
@@ -1475,7 +1475,7 @@ void TestDriver::testCase21()
 
         witness     =    Util::makeDecimalRaw128(7, 0);
         testDecimal =    Util::makeDecimalRaw128(7, 0);
-        testConvert =    Util::convertToBinaryIntegral(testDecimal);
+        testConvert =    Util::convertToBID(testDecimal);
 
         ASSERT(!bsl::memcmp(&testConvert, &witness, sizeof(testConvert)));
 
@@ -1483,7 +1483,7 @@ void TestDriver::testCase21()
 
         witness     =    Util::makeDecimalRaw128(52, 0);
         testDecimal =    Util::makeDecimalRaw128(52, 0);
-        testConvert =    Util::convertToBinaryIntegral(testDecimal);
+        testConvert =    Util::convertToBID(testDecimal);
 
         ASSERT(!bsl::memcmp(&testConvert, &witness, sizeof(testConvert)));
 
@@ -1491,12 +1491,12 @@ void TestDriver::testCase21()
 
         for (int t_m = 0; t_m < numMantissas; ++t_m) {
             if (veryVerbose)
-                           cout << "convertToBinaryIntegral, mantissa num: "
+                           cout << "convertToBID, mantissa num: "
                                 << t_m << ", " << mantissas[t_m] << endl;
 
             for (int t_e = 0; t_e < numExponents; ++t_e) {
                 if (veryVerbose)
-                           cout << "convertToBinaryIntegral, exponent num: "
+                           cout << "convertToBID, exponent num: "
                                 << t_e << ", "
                                 << exponents[t_e] << endl;
 
@@ -1509,7 +1509,7 @@ void TestDriver::testCase21()
                                                             exponent);
                     testDecimal =    Util::makeDecimalRaw128(mantissa,
                                                             exponent);
-                    testConvert =    Util::convertToBinaryIntegral(
+                    testConvert =    Util::convertToBID(
                                                               testDecimal);
 
                     LOOP4_ASSERT(t_m, t_e, mantissa, exponent,
@@ -1523,21 +1523,21 @@ void TestDriver::testCase21()
         Util::ValueType128 specialWitness;
 
         testDecimal    = Util::parse128("NaN");
-        testConvert    = Util::convertToBinaryIntegral(testDecimal);
-        specialWitness = Util::convertFromBinaryIntegral(testConvert);
+        testConvert    = Util::convertToBID(testDecimal);
+        specialWitness = Util::convertFromBID(testConvert);
 
         ASSERT(!Util::equal(testDecimal,    testDecimal));
         ASSERT(!Util::equal(specialWitness, specialWitness));
 
         testDecimal    = Util::parse128("+Inf");
-        testConvert    = Util::convertToBinaryIntegral(testDecimal);
-        specialWitness = Util::convertFromBinaryIntegral(testConvert);
+        testConvert    = Util::convertToBID(testDecimal);
+        specialWitness = Util::convertFromBID(testConvert);
 
         ASSERT( Util::equal(testDecimal, specialWitness));
 
         testDecimal    = Util::parse128("-Inf");
-        testConvert    = Util::convertToBinaryIntegral(testDecimal);
-        specialWitness = Util::convertFromBinaryIntegral(testConvert);
+        testConvert    = Util::convertToBID(testDecimal);
+        specialWitness = Util::convertFromBID(testConvert);
 
         ASSERT( Util::equal(testDecimal, specialWitness));
     }
@@ -1573,9 +1573,9 @@ void TestDriver::testCase20()
     //:    special cases hold.  (C-2..5)
     //
     // Testing
-    //   convertFromDenselyPacked(ValueType32)
-    //   convertFromDenselyPacked(ValueType64)
-    //   convertFromDenselyPacked(ValueType128)
+    //   convertFromDPD(ValueType32)
+    //   convertFromDPD(ValueType64)
+    //   convertFromDPD(ValueType128)
     // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
@@ -1595,24 +1595,24 @@ void TestDriver::testCase20()
                     // 0e0
 
         testDecimal = Util::makeDecimalRaw32(0, 0);
-        witnessDPD  = Util::convertToDenselyPacked(testDecimal);
-        witness     = Util::convertFromDenselyPacked(witnessDPD);
+        witnessDPD  = Util::convertToDPD(testDecimal);
+        witness     = Util::convertFromDPD(witnessDPD);
 
         ASSERT(!bsl::memcmp(&testDecimal, &witness, sizeof(witness)));
 
                     // 7e0
 
         testDecimal = Util::makeDecimalRaw32(7, 0);
-        witnessDPD  = Util::convertToDenselyPacked(testDecimal);
-        witness     = Util::convertFromDenselyPacked(witnessDPD);
+        witnessDPD  = Util::convertToDPD(testDecimal);
+        witness     = Util::convertFromDPD(witnessDPD);
 
         ASSERT(!bsl::memcmp(&testDecimal, &witness, sizeof(witness)));
 
                     // 52e0
 
         testDecimal = Util::makeDecimalRaw32(52, 0);
-        witnessDPD  = Util::convertToDenselyPacked(testDecimal);
-        witness     = Util::convertFromDenselyPacked(witnessDPD);
+        witnessDPD  = Util::convertToDPD(testDecimal);
+        witness     = Util::convertFromDPD(witnessDPD);
 
         ASSERT(!bsl::memcmp(&testDecimal, &witness, sizeof(witness)));
 
@@ -1620,12 +1620,12 @@ void TestDriver::testCase20()
 
         for (int t_m = 0; t_m < numMantissas; ++t_m) {
             if (veryVerbose)
-                         cout << "convertFromDenselyPacked, mantissa num: "
+                         cout << "convertFromDPD, mantissa num: "
                                 << t_m << ", " << mantissas[t_m] << endl;
 
             for (int t_e = 0; t_e < numExponents; ++t_e) {
                 if (veryVerbose)
-                         cout << "convertFromDenselyPacked, exponent num: "
+                         cout << "convertFromDPD, exponent num: "
                                 << t_e << ", "
                                 << exponents[t_e] << endl;
 
@@ -1640,8 +1640,8 @@ void TestDriver::testCase20()
                     testDecimal = Util::makeDecimalRaw32(mantissa,
                                                          exponent);
 
-                    witnessDPD = Util::convertToDenselyPacked(testDecimal);
-                    witness = Util::convertFromDenselyPacked(witnessDPD);
+                    witnessDPD = Util::convertToDPD(testDecimal);
+                    witness = Util::convertFromDPD(witnessDPD);
 
                     LOOP4_ASSERT(t_m, t_e, mantissa, exponent,
                                  !bsl::memcmp(&testDecimal,
@@ -1654,21 +1654,21 @@ void TestDriver::testCase20()
         Util::ValueType32 specialWitness;
 
         testDecimal    = Util::parse32("NaN");
-        witnessDPD     = Util::convertToDenselyPacked(testDecimal);
-        specialWitness = Util::convertFromDenselyPacked(witnessDPD);
+        witnessDPD     = Util::convertToDPD(testDecimal);
+        specialWitness = Util::convertFromDPD(witnessDPD);
 
         ASSERT(!Util::equal(testDecimal,    testDecimal));
         ASSERT(!Util::equal(specialWitness, specialWitness));
 
         testDecimal    = Util::parse32("+Inf");
-        witnessDPD     = Util::convertToDenselyPacked(testDecimal);
-        specialWitness = Util::convertFromDenselyPacked(witnessDPD);
+        witnessDPD     = Util::convertToDPD(testDecimal);
+        specialWitness = Util::convertFromDPD(witnessDPD);
 
         ASSERT( Util::equal(testDecimal, specialWitness));
 
         testDecimal    = Util::parse32("-Inf");
-        witnessDPD     = Util::convertToDenselyPacked(testDecimal);
-        specialWitness = Util::convertFromDenselyPacked(witnessDPD);
+        witnessDPD     = Util::convertToDPD(testDecimal);
+        specialWitness = Util::convertFromDPD(witnessDPD);
 
         ASSERT( Util::equal(testDecimal, specialWitness));
     }
@@ -1684,24 +1684,24 @@ void TestDriver::testCase20()
                     // 0e0
 
         testDecimal = Util::makeDecimalRaw64(0, 0);
-        witnessDPD  = Util::convertToDenselyPacked(testDecimal);
-        witness     = Util::convertFromDenselyPacked(witnessDPD);
+        witnessDPD  = Util::convertToDPD(testDecimal);
+        witness     = Util::convertFromDPD(witnessDPD);
 
         ASSERT(!bsl::memcmp(&testDecimal, &witness, sizeof(witness)));
 
                     // 7e0
 
         testDecimal = Util::makeDecimalRaw64(7, 0);
-        witnessDPD  = Util::convertToDenselyPacked(testDecimal);
-        witness     = Util::convertFromDenselyPacked(witnessDPD);
+        witnessDPD  = Util::convertToDPD(testDecimal);
+        witness     = Util::convertFromDPD(witnessDPD);
 
         ASSERT(!bsl::memcmp(&testDecimal, &witness, sizeof(witness)));
 
                     // 52e0
 
         testDecimal = Util::makeDecimalRaw64(52, 0);
-        witnessDPD  = Util::convertToDenselyPacked(testDecimal);
-        witness     = Util::convertFromDenselyPacked(witnessDPD);
+        witnessDPD  = Util::convertToDPD(testDecimal);
+        witness     = Util::convertFromDPD(witnessDPD);
 
         ASSERT(!bsl::memcmp(&testDecimal, &witness, sizeof(witness)));
 
@@ -1709,12 +1709,12 @@ void TestDriver::testCase20()
 
         for (int t_m = 0; t_m < numMantissas; ++t_m) {
             if (veryVerbose)
-                         cout << "convertFromDenselyPacked, mantissa num: "
+                         cout << "convertFromDPD, mantissa num: "
                                 << t_m << ", " << mantissas[t_m] << endl;
 
             for (int t_e = 0; t_e < numExponents; ++t_e) {
                 if (veryVerbose)
-                         cout << "convertFromDenselyPacked, exponent num: "
+                         cout << "convertFromDPD, exponent num: "
                                 << t_e << ", "
                                 << exponents[t_e] << endl;
 
@@ -1729,8 +1729,8 @@ void TestDriver::testCase20()
                     testDecimal = Util::makeDecimalRaw64(mantissa,
                                                          exponent);
 
-                    witnessDPD = Util::convertToDenselyPacked(testDecimal);
-                    witness = Util::convertFromDenselyPacked(witnessDPD);
+                    witnessDPD = Util::convertToDPD(testDecimal);
+                    witness = Util::convertFromDPD(witnessDPD);
 
                     LOOP4_ASSERT(t_m, t_e, mantissa, exponent,
                                  !bsl::memcmp(&testDecimal,
@@ -1743,21 +1743,21 @@ void TestDriver::testCase20()
         Util::ValueType64 specialWitness;
 
         testDecimal    = Util::parse64("NaN");
-        witnessDPD     = Util::convertToDenselyPacked(testDecimal);
-        specialWitness = Util::convertFromDenselyPacked(witnessDPD);
+        witnessDPD     = Util::convertToDPD(testDecimal);
+        specialWitness = Util::convertFromDPD(witnessDPD);
 
         ASSERT(!Util::equal(testDecimal,    testDecimal));
         ASSERT(!Util::equal(specialWitness, specialWitness));
 
         testDecimal    = Util::parse64("+Inf");
-        witnessDPD     = Util::convertToDenselyPacked(testDecimal);
-        specialWitness = Util::convertFromDenselyPacked(witnessDPD);
+        witnessDPD     = Util::convertToDPD(testDecimal);
+        specialWitness = Util::convertFromDPD(witnessDPD);
 
         ASSERT( Util::equal(testDecimal, specialWitness));
 
         testDecimal    = Util::parse64("-Inf");
-        witnessDPD     = Util::convertToDenselyPacked(testDecimal);
-        specialWitness = Util::convertFromDenselyPacked(witnessDPD);
+        witnessDPD     = Util::convertToDPD(testDecimal);
+        specialWitness = Util::convertFromDPD(witnessDPD);
 
         ASSERT( Util::equal(testDecimal, specialWitness));
     }
@@ -1773,24 +1773,24 @@ void TestDriver::testCase20()
                     // 0e0
 
         testDecimal = Util::makeDecimalRaw128(0, 0);
-        witnessDPD  = Util::convertToDenselyPacked(testDecimal);
-        witness     = Util::convertFromDenselyPacked(witnessDPD);
+        witnessDPD  = Util::convertToDPD(testDecimal);
+        witness     = Util::convertFromDPD(witnessDPD);
 
         ASSERT(!bsl::memcmp(&testDecimal, &witness, sizeof(witness)));
 
                     // 7e0
 
         testDecimal = Util::makeDecimalRaw128(7, 0);
-        witnessDPD  = Util::convertToDenselyPacked(testDecimal);
-        witness     = Util::convertFromDenselyPacked(witnessDPD);
+        witnessDPD  = Util::convertToDPD(testDecimal);
+        witness     = Util::convertFromDPD(witnessDPD);
 
         ASSERT(!bsl::memcmp(&testDecimal, &witness, sizeof(witness)));
 
                     // 52e0
 
         testDecimal = Util::makeDecimalRaw128(52, 0);
-        witnessDPD  = Util::convertToDenselyPacked(testDecimal);
-        witness     = Util::convertFromDenselyPacked(witnessDPD);
+        witnessDPD  = Util::convertToDPD(testDecimal);
+        witness     = Util::convertFromDPD(witnessDPD);
 
         ASSERT(!bsl::memcmp(&testDecimal, &witness, sizeof(witness)));
 
@@ -1798,12 +1798,12 @@ void TestDriver::testCase20()
 
         for (int t_m = 0; t_m < numMantissas; ++t_m) {
             if (veryVerbose)
-                         cout << "convertFromDenselyPacked, mantissa num: "
+                         cout << "convertFromDPD, mantissa num: "
                                 << t_m << ", " << mantissas[t_m] << endl;
 
             for (int t_e = 0; t_e < numExponents; ++t_e) {
                 if (veryVerbose)
-                         cout << "convertFromDenselyPacked, exponent num: "
+                         cout << "convertFromDPD, exponent num: "
                                 << t_e << ", "
                                 << exponents[t_e] << endl;
 
@@ -1818,8 +1818,8 @@ void TestDriver::testCase20()
                     testDecimal = Util::makeDecimalRaw128(mantissa,
                                                          exponent);
 
-                    witnessDPD = Util::convertToDenselyPacked(testDecimal);
-                    witness = Util::convertFromDenselyPacked(witnessDPD);
+                    witnessDPD = Util::convertToDPD(testDecimal);
+                    witness = Util::convertFromDPD(witnessDPD);
 
                     LOOP4_ASSERT(t_m, t_e, mantissa, exponent,
                                  !bsl::memcmp(&testDecimal,
@@ -1832,21 +1832,21 @@ void TestDriver::testCase20()
         Util::ValueType128 specialWitness;
 
         testDecimal    = Util::parse128("NaN");
-        witnessDPD     = Util::convertToDenselyPacked(testDecimal);
-        specialWitness = Util::convertFromDenselyPacked(witnessDPD);
+        witnessDPD     = Util::convertToDPD(testDecimal);
+        specialWitness = Util::convertFromDPD(witnessDPD);
 
         ASSERT(!Util::equal(testDecimal,    testDecimal));
         ASSERT(!Util::equal(specialWitness, specialWitness));
 
         testDecimal    = Util::parse128("+Inf");
-        witnessDPD     = Util::convertToDenselyPacked(testDecimal);
-        specialWitness = Util::convertFromDenselyPacked(witnessDPD);
+        witnessDPD     = Util::convertToDPD(testDecimal);
+        specialWitness = Util::convertFromDPD(witnessDPD);
 
         ASSERT( Util::equal(testDecimal, specialWitness));
 
         testDecimal    = Util::parse128("-Inf");
-        witnessDPD     = Util::convertToDenselyPacked(testDecimal);
-        specialWitness = Util::convertFromDenselyPacked(witnessDPD);
+        witnessDPD     = Util::convertToDPD(testDecimal);
+        specialWitness = Util::convertFromDPD(witnessDPD);
 
         ASSERT( Util::equal(testDecimal, specialWitness));
     }
@@ -1879,9 +1879,9 @@ void TestDriver::testCase19()
     //:    special cases hold. (C-3,4)
     //
     // Testing
-    //   convertToDenselyPacked(ValueType32)
-    //   convertToDenselyPacked(ValueType64)
-    //   convertToDenselyPacked(ValueType128)
+    //   convertToDPD(ValueType32)
+    //   convertToDPD(ValueType64)
+    //   convertToDPD(ValueType128)
     // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
@@ -1902,7 +1902,7 @@ void TestDriver::testCase19()
 
         witness     = DpdUtil::makeDecimalRaw32(0, 0);
         testDecimal =    Util::makeDecimalRaw32(0, 0);
-        testConvert =    Util::convertToDenselyPacked(testDecimal);
+        testConvert =    Util::convertToDPD(testDecimal);
 
         ASSERT(!bsl::memcmp(&testConvert, &witness, sizeof(testConvert)));
 
@@ -1910,7 +1910,7 @@ void TestDriver::testCase19()
 
         witness     = DpdUtil::makeDecimalRaw32(7, 0);
         testDecimal =    Util::makeDecimalRaw32(7, 0);
-        testConvert =    Util::convertToDenselyPacked(testDecimal);
+        testConvert =    Util::convertToDPD(testDecimal);
 
         ASSERT(!bsl::memcmp(&testConvert, &witness, sizeof(testConvert)));
 
@@ -1918,7 +1918,7 @@ void TestDriver::testCase19()
 
         witness     = DpdUtil::makeDecimalRaw32(52, 0);
         testDecimal =    Util::makeDecimalRaw32(52, 0);
-        testConvert =    Util::convertToDenselyPacked(testDecimal);
+        testConvert =    Util::convertToDPD(testDecimal);
 
         ASSERT(!bsl::memcmp(&testConvert, &witness, sizeof(testConvert)));
 
@@ -1926,12 +1926,12 @@ void TestDriver::testCase19()
 
         for (int t_m = 0; t_m < numMantissas; ++t_m) {
             if (veryVerbose)
-                           cout << "convertToDenselyPacked, mantissa num: "
+                           cout << "convertToDPD, mantissa num: "
                                 << t_m << ", " << mantissas[t_m] << endl;
 
             for (int t_e = 0; t_e < numExponents; ++t_e) {
                 if (veryVerbose)
-                           cout << "convertToDenselyPacked, exponent num: "
+                           cout << "convertToDPD, exponent num: "
                                 << t_e << ", "
                                 << exponents[t_e] << endl;
 
@@ -1947,7 +1947,7 @@ void TestDriver::testCase19()
                                                             exponent);
                     testDecimal =    Util::makeDecimalRaw32(mantissa,
                                                             exponent);
-                    testConvert =    Util::convertToDenselyPacked(
+                    testConvert =    Util::convertToDPD(
                                                               testDecimal);
 
                     LOOP4_ASSERT(t_m, t_e, mantissa, exponent,
@@ -1962,21 +1962,21 @@ void TestDriver::testCase19()
         Util::ValueType32 specialWitness;
 
         testDecimal    = Util::parse32("NaN");
-        testConvert    = Util::convertToDenselyPacked(testDecimal);
-        specialWitness = Util::convertFromDenselyPacked(testConvert);
+        testConvert    = Util::convertToDPD(testDecimal);
+        specialWitness = Util::convertFromDPD(testConvert);
 
         ASSERT(!Util::equal(testDecimal,    testDecimal));
         ASSERT(!Util::equal(specialWitness, specialWitness));
 
         testDecimal    = Util::parse32("+Inf");
-        testConvert    = Util::convertToDenselyPacked(testDecimal);
-        specialWitness = Util::convertFromDenselyPacked(testConvert);
+        testConvert    = Util::convertToDPD(testDecimal);
+        specialWitness = Util::convertFromDPD(testConvert);
 
         ASSERT( Util::equal(testDecimal, specialWitness));
 
         testDecimal    = Util::parse32("-Inf");
-        testConvert    = Util::convertToDenselyPacked(testDecimal);
-        specialWitness = Util::convertFromDenselyPacked(testConvert);
+        testConvert    = Util::convertToDPD(testDecimal);
+        specialWitness = Util::convertFromDPD(testConvert);
 
         ASSERT( Util::equal(testDecimal, specialWitness));
     }
@@ -1993,7 +1993,7 @@ void TestDriver::testCase19()
 
         witness     = DpdUtil::makeDecimalRaw64(0, 0);
         testDecimal =    Util::makeDecimalRaw64(0, 0);
-        testConvert =    Util::convertToDenselyPacked(testDecimal);
+        testConvert =    Util::convertToDPD(testDecimal);
 
         ASSERT(!bsl::memcmp(&testConvert, &witness, sizeof(testConvert)));
 
@@ -2001,7 +2001,7 @@ void TestDriver::testCase19()
 
         witness     = DpdUtil::makeDecimalRaw64(7, 0);
         testDecimal =    Util::makeDecimalRaw64(7, 0);
-        testConvert =    Util::convertToDenselyPacked(testDecimal);
+        testConvert =    Util::convertToDPD(testDecimal);
 
         ASSERT(!bsl::memcmp(&testConvert, &witness, sizeof(testConvert)));
 
@@ -2009,7 +2009,7 @@ void TestDriver::testCase19()
 
         witness     = DpdUtil::makeDecimalRaw64(52, 0);
         testDecimal =    Util::makeDecimalRaw64(52, 0);
-        testConvert =    Util::convertToDenselyPacked(testDecimal);
+        testConvert =    Util::convertToDPD(testDecimal);
 
         ASSERT(!bsl::memcmp(&testConvert, &witness, sizeof(testConvert)));
 
@@ -2017,12 +2017,12 @@ void TestDriver::testCase19()
 
         for (int t_m = 0; t_m < numMantissas; ++t_m) {
             if (veryVerbose)
-                           cout << "convertToDenselyPacked, mantissa num: "
+                           cout << "convertToDPD, mantissa num: "
                                 << t_m << ", " << mantissas[t_m] << endl;
 
             for (int t_e = 0; t_e < numExponents; ++t_e) {
                 if (veryVerbose)
-                           cout << "convertToDenselyPacked, exponent num: "
+                           cout << "convertToDPD, exponent num: "
                                 << t_e << ", "
                                 << exponents[t_e] << endl;
 
@@ -2037,7 +2037,7 @@ void TestDriver::testCase19()
                                                             exponent);
                     testDecimal =    Util::makeDecimalRaw64(mantissa,
                                                             exponent);
-                    testConvert =    Util::convertToDenselyPacked(
+                    testConvert =    Util::convertToDPD(
                                                               testDecimal);
 
                     LOOP4_ASSERT(t_m, t_e, mantissa, exponent,
@@ -2051,21 +2051,21 @@ void TestDriver::testCase19()
         Util::ValueType64 specialWitness;
 
         testDecimal    = Util::parse64("NaN");
-        testConvert    = Util::convertToDenselyPacked(testDecimal);
-        specialWitness = Util::convertFromDenselyPacked(testConvert);
+        testConvert    = Util::convertToDPD(testDecimal);
+        specialWitness = Util::convertFromDPD(testConvert);
 
         ASSERT(!Util::equal(testDecimal,    testDecimal));
         ASSERT(!Util::equal(specialWitness, specialWitness));
 
         testDecimal    = Util::parse64("+Inf");
-        testConvert    = Util::convertToDenselyPacked(testDecimal);
-        specialWitness = Util::convertFromDenselyPacked(testConvert);
+        testConvert    = Util::convertToDPD(testDecimal);
+        specialWitness = Util::convertFromDPD(testConvert);
 
         ASSERT( Util::equal(testDecimal, specialWitness));
 
         testDecimal    = Util::parse64("-Inf");
-        testConvert    = Util::convertToDenselyPacked(testDecimal);
-        specialWitness = Util::convertFromDenselyPacked(testConvert);
+        testConvert    = Util::convertToDPD(testDecimal);
+        specialWitness = Util::convertFromDPD(testConvert);
 
         ASSERT( Util::equal(testDecimal, specialWitness));
     }
@@ -2082,7 +2082,7 @@ void TestDriver::testCase19()
 
         witness     = DpdUtil::makeDecimalRaw128(0, 0);
         testDecimal =    Util::makeDecimalRaw128(0, 0);
-        testConvert =    Util::convertToDenselyPacked(testDecimal);
+        testConvert =    Util::convertToDPD(testDecimal);
 
         ASSERT(!bsl::memcmp(&testConvert, &witness, sizeof(testConvert)));
 
@@ -2090,7 +2090,7 @@ void TestDriver::testCase19()
 
         witness     = DpdUtil::makeDecimalRaw128(7, 0);
         testDecimal =    Util::makeDecimalRaw128(7, 0);
-        testConvert =    Util::convertToDenselyPacked(testDecimal);
+        testConvert =    Util::convertToDPD(testDecimal);
 
         ASSERT(!bsl::memcmp(&testConvert, &witness, sizeof(testConvert)));
 
@@ -2098,7 +2098,7 @@ void TestDriver::testCase19()
 
         witness     = DpdUtil::makeDecimalRaw128(52, 0);
         testDecimal =    Util::makeDecimalRaw128(52, 0);
-        testConvert =    Util::convertToDenselyPacked(testDecimal);
+        testConvert =    Util::convertToDPD(testDecimal);
 
         ASSERT(!bsl::memcmp(&testConvert, &witness, sizeof(testConvert)));
 
@@ -2106,12 +2106,12 @@ void TestDriver::testCase19()
 
         for (int t_m = 0; t_m < numMantissas; ++t_m) {
             if (veryVerbose)
-                           cout << "convertToDenselyPacked, mantissa num: "
+                           cout << "convertToDPD, mantissa num: "
                                 << t_m << ", " << mantissas[t_m] << endl;
 
             for (int t_e = 0; t_e < numExponents; ++t_e) {
                 if (veryVerbose)
-                           cout << "convertToDenselyPacked, exponent num: "
+                           cout << "convertToDPD, exponent num: "
                                 << t_e << ", "
                                 << exponents[t_e] << endl;
 
@@ -2124,7 +2124,7 @@ void TestDriver::testCase19()
                                                             exponent);
                     testDecimal =    Util::makeDecimalRaw128(mantissa,
                                                             exponent);
-                    testConvert =    Util::convertToDenselyPacked(
+                    testConvert =    Util::convertToDPD(
                                                               testDecimal);
 
                     LOOP4_ASSERT(t_m, t_e, mantissa, exponent,
@@ -2138,21 +2138,21 @@ void TestDriver::testCase19()
         Util::ValueType128 specialWitness;
 
         testDecimal    = Util::parse128("NaN");
-        testConvert    = Util::convertToDenselyPacked(testDecimal);
-        specialWitness = Util::convertFromDenselyPacked(testConvert);
+        testConvert    = Util::convertToDPD(testDecimal);
+        specialWitness = Util::convertFromDPD(testConvert);
 
         ASSERT(!Util::equal(testDecimal,    testDecimal));
         ASSERT(!Util::equal(specialWitness, specialWitness));
 
         testDecimal    = Util::parse128("+Inf");
-        testConvert    = Util::convertToDenselyPacked(testDecimal);
-        specialWitness = Util::convertFromDenselyPacked(testConvert);
+        testConvert    = Util::convertToDPD(testDecimal);
+        specialWitness = Util::convertFromDPD(testConvert);
 
         ASSERT( Util::equal(testDecimal, specialWitness));
 
         testDecimal    = Util::parse128("-Inf");
-        testConvert    = Util::convertToDenselyPacked(testDecimal);
-        specialWitness = Util::convertFromDenselyPacked(testConvert);
+        testConvert    = Util::convertToDPD(testDecimal);
+        specialWitness = Util::convertFromDPD(testConvert);
 
         ASSERT( Util::equal(testDecimal, specialWitness));
     }
