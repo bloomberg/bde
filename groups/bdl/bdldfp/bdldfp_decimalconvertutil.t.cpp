@@ -108,8 +108,6 @@ namespace BDEC = BloombergLP::bdldfp;
 
 typedef bdldfp::DecimalConvertUtil Util;
 
-static bslma::Allocator *ia = bslma::Default::globalAllocator();
-
 #define PARSEDECIMAL(p, nn)                                                   \
         BDEC::Decimal##nn(BDEC::DecimalImpUtil::parse##nn(p))
 #define PARSEDEC32(p) PARSEDECIMAL((p), 32)
@@ -424,9 +422,7 @@ unsigned char * decimal64ToBinaryIntegralNetwork(unsigned char *buffer,
                                                  Decimal64 decimal)
 {
     bsls::Types::Uint64 encoded;
-    Util::decimal64ToBinaryIntegral(
-                                   reinterpret_cast<unsigned char *>(&encoded),
-                                   decimal);
+    Util::decimal64ToBID(reinterpret_cast<unsigned char *>(&encoded), decimal);
 
     encoded = BSLS_BYTEORDER_HTONLL(encoded);
 
