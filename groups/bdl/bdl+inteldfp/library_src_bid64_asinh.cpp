@@ -1,12 +1,9 @@
 #include <bsls_platform.h>
 
-#if 1
-
-#  pragma GCC diagnostic push
-#  pragma GCC diagnostic ignored "-Wcast-qual"
-
 #ifdef __GNUC__
 #  define _WCHAR_T
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wcast-qual"
 #elif !defined(BSLS_PLATFORM_OS_WINDOWS)
 #  define __thread
 #  define __QNX__
@@ -37,6 +34,6 @@ extern "C" {
   #include "LIBRARY/src/bid64_asinh.c"
 }
 
+#ifdef __GNUC__
 #  pragma GCC diagnostic pop
-
 #endif

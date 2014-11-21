@@ -220,19 +220,19 @@ struct DecimalConvertUtil_IbmXlc {
         // *not* to create a decimal from the exact base-2 value.  Use the
         // conversion constructors when you are not restoring a decimal.
 
-                        // decimalToDenselyPacked functions
+                        // decimalToDPD functions
 
-    static void decimal32ToDenselyPacked( unsigned char *buffer,
+    static void decimal32ToDPD( unsigned char *buffer,
                                           Decimal32      decimal);
-    static void decimal64ToDenselyPacked( unsigned char *buffer,
+    static void decimal64ToDPD( unsigned char *buffer,
                                           Decimal64      decimal);
-    static void decimal128ToDenselyPacked(unsigned char *buffer,
+    static void decimal128ToDPD(unsigned char *buffer,
                                           Decimal128     decimal);
-    static void decimalToDenselyPacked(   unsigned char *buffer,
+    static void decimalToDPD(   unsigned char *buffer,
                                           Decimal32      decimal);
-    static void decimalToDenselyPacked(   unsigned char *buffer,
+    static void decimalToDPD(   unsigned char *buffer,
                                           Decimal64      decimal);
-    static void decimalToDenselyPacked(   unsigned char *buffer,
+    static void decimalToDPD(   unsigned char *buffer,
                                           Decimal128     decimal);
         // Populate the specified 'buffer' with the Densely Packed Decimal
         // (DPD) representation of the specified 'decimal' value.  The DPD
@@ -242,22 +242,22 @@ struct DecimalConvertUtil_IbmXlc {
         // 'sizeof(decimal)' bytes.  Note that the DPD representation is
         // defined in section 3.5 of IEEE 754-2008.
 
-                        // decimalFromDenselyPacked functions
+                        // decimalFromDPD functions
 
-    static Decimal32  decimal32FromDenselyPacked( const unsigned char *buffer);
-    static Decimal64  decimal64FromDenselyPacked( const unsigned char *buffer);
-    static Decimal128 decimal128FromDenselyPacked(const unsigned char *buffer);
+    static Decimal32  decimal32FromDPD( const unsigned char *buffer);
+    static Decimal64  decimal64FromDPD( const unsigned char *buffer);
+    static Decimal128 decimal128FromDPD(const unsigned char *buffer);
         // Return the native implementation representation of the value of the
         // same size base-10 floating-point value stored in Densely Packed
         // Decimal format at the specified 'buffer' address.  The behavior is
         // undefined unless 'buffer' points to a memory area at least
         // 'sizeof(decimal)' in size containing a value in DPD format.
 
-    static void decimalFromDenselyPacked(Decimal32           *decimal,
+    static void decimalFromDPD(Decimal32           *decimal,
                                          const unsigned char *buffer);
-    static void decimalFromDenselyPacked(Decimal64           *decimal,
+    static void decimalFromDPD(Decimal64           *decimal,
                                          const unsigned char *buffer);
-    static void decimalFromDenselyPacked(Decimal128          *decimal,
+    static void decimalFromDPD(Decimal128          *decimal,
                                          const unsigned char *buffer);
         // Store, into the specified 'decimal', the native implmentation
         // representation of the value of the same size base-10 floating point
@@ -363,37 +363,37 @@ DecimalConvertUtil_IbmXlc::decimalToFloat(Decimal128 decimal)
 
 inline
 void
-DecimalConvertUtil_IbmXlc::decimal32ToDenselyPacked(unsigned char *buffer,
+DecimalConvertUtil_IbmXlc::decimal32ToDPD(unsigned char *buffer,
                                                        Decimal32      decimal)
 {
     BSLS_ASSERT(buffer);
 
-    decimalToDenselyPacked(buffer, decimal);
+    decimalToDPD(buffer, decimal);
 }
 
 inline
 void
-DecimalConvertUtil_IbmXlc::decimal64ToDenselyPacked(unsigned char *buffer,
+DecimalConvertUtil_IbmXlc::decimal64ToDPD(unsigned char *buffer,
                                                        Decimal64      decimal)
 {
     BSLS_ASSERT(buffer);
 
-    decimalToDenselyPacked(buffer, decimal);
+    decimalToDPD(buffer, decimal);
 }
 
 inline
 void
-DecimalConvertUtil_IbmXlc::decimal128ToDenselyPacked(unsigned char *buffer,
+DecimalConvertUtil_IbmXlc::decimal128ToDPD(unsigned char *buffer,
                                                         Decimal128     decimal)
 {
     BSLS_ASSERT(buffer);
 
-    decimalToDenselyPacked(buffer, decimal);
+    decimalToDPD(buffer, decimal);
 }
 
 inline
 void
-DecimalConvertUtil_IbmXlc::decimalToDenselyPacked(unsigned char *buffer,
+DecimalConvertUtil_IbmXlc::decimalToDPD(unsigned char *buffer,
                                                      Decimal32      decimal)
 {
     BSLS_ASSERT(buffer);
@@ -403,7 +403,7 @@ DecimalConvertUtil_IbmXlc::decimalToDenselyPacked(unsigned char *buffer,
 
 inline
 void
-DecimalConvertUtil_IbmXlc::decimalToDenselyPacked(unsigned char *buffer,
+DecimalConvertUtil_IbmXlc::decimalToDPD(unsigned char *buffer,
                                                      Decimal64      decimal)
 {
     BSLS_ASSERT(buffer);
@@ -413,7 +413,7 @@ DecimalConvertUtil_IbmXlc::decimalToDenselyPacked(unsigned char *buffer,
 
 inline
 void
-DecimalConvertUtil_IbmXlc::decimalToDenselyPacked(unsigned char *buffer,
+DecimalConvertUtil_IbmXlc::decimalToDPD(unsigned char *buffer,
                                                      Decimal128     decimal)
 {
     BSLS_ASSERT(buffer);
@@ -421,11 +421,11 @@ DecimalConvertUtil_IbmXlc::decimalToDenselyPacked(unsigned char *buffer,
     bsl::memcpy(buffer, &decimal, sizeof(decimal));
 }
 
-                        // decimalFromDenselyPacked functions
+                        // decimalFromDPD functions
 
 inline
 Decimal32
-DecimalConvertUtil_IbmXlc::decimal32FromDenselyPacked(
+DecimalConvertUtil_IbmXlc::decimal32FromDPD(
                                                    const unsigned char *buffer)
 {
     BSLS_ASSERT(buffer);
@@ -437,7 +437,7 @@ DecimalConvertUtil_IbmXlc::decimal32FromDenselyPacked(
 
 inline
 Decimal64
-DecimalConvertUtil_IbmXlc::decimal64FromDenselyPacked(
+DecimalConvertUtil_IbmXlc::decimal64FromDPD(
                                                    const unsigned char *buffer)
 {
     BSLS_ASSERT(buffer);
@@ -449,7 +449,7 @@ DecimalConvertUtil_IbmXlc::decimal64FromDenselyPacked(
 
 inline
 Decimal128
-DecimalConvertUtil_IbmXlc::decimal128FromDenselyPacked(
+DecimalConvertUtil_IbmXlc::decimal128FromDPD(
                                                    const unsigned char *buffer)
 {
     BSLS_ASSERT(buffer);
@@ -461,38 +461,38 @@ DecimalConvertUtil_IbmXlc::decimal128FromDenselyPacked(
 
 inline
 void
-DecimalConvertUtil_IbmXlc::decimalFromDenselyPacked(
+DecimalConvertUtil_IbmXlc::decimalFromDPD(
                                                   Decimal32           *decimal,
                                                   const unsigned char *buffer)
 {
     BSLS_ASSERT(decimal);
     BSLS_ASSERT(buffer);
 
-    *decimal = decimal32FromDenselyPacked(buffer);
+    *decimal = decimal32FromDPD(buffer);
 }
 
 inline
 void
-DecimalConvertUtil_IbmXlc::decimalFromDenselyPacked(
+DecimalConvertUtil_IbmXlc::decimalFromDPD(
                                                   Decimal64           *decimal,
                                                   const unsigned char *buffer)
 {
     BSLS_ASSERT(decimal);
     BSLS_ASSERT(buffer);
 
-    *decimal = decimal64FromDenselyPacked(buffer);
+    *decimal = decimal64FromDPD(buffer);
 }
 
 inline
 void
-DecimalConvertUtil_IbmXlc::decimalFromDenselyPacked(
+DecimalConvertUtil_IbmXlc::decimalFromDPD(
                                                   Decimal128          *decimal,
                                                   const unsigned char *buffer)
 {
     BSLS_ASSERT(decimal);
     BSLS_ASSERT(buffer);
 
-    *decimal = decimal128FromDenselyPacked(buffer);
+    *decimal = decimal128FromDPD(buffer);
 }
 
 
