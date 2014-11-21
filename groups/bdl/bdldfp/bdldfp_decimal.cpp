@@ -644,7 +644,7 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put(iter_type      out,
     char  buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
 
     DenselyPackedDecimalImpUtil::StorageType32 dpdStorage;
-    dpdStorage = DecimalImpUtil::convertToDenselyPacked(*value.data());
+    dpdStorage = DecimalImpUtil::convertToDPD(*value.data());
 
     DecimalImpUtil_DecNumber::ValueType32 dpdValue;
     bsl::memcpy(&dpdValue, &dpdStorage, sizeof(dpdValue));
@@ -663,7 +663,7 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put(iter_type      out,
     char  buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
 
     DenselyPackedDecimalImpUtil::StorageType64 dpdStorage;
-    dpdStorage = DecimalImpUtil::convertToDenselyPacked(*value.data());
+    dpdStorage = DecimalImpUtil::convertToDPD(*value.data());
 
     DecimalImpUtil_DecNumber::ValueType64 dpdValue;
     bsl::memcpy(&dpdValue, &dpdStorage, sizeof(dpdValue));
@@ -682,7 +682,7 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put(iter_type      out,
     char  buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
 
     DenselyPackedDecimalImpUtil::StorageType128 dpdStorage;
-    dpdStorage = DecimalImpUtil::convertToDenselyPacked(*value.data());
+    dpdStorage = DecimalImpUtil::convertToDPD(*value.data());
 
     DecimalImpUtil_DecNumber::ValueType128 dpdValue;
     bsl::memcpy(&dpdValue, &dpdStorage, sizeof(dpdValue));

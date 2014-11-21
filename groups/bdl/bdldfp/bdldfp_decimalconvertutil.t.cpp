@@ -108,8 +108,6 @@ namespace BDEC = BloombergLP::bdldfp;
 
 typedef bdldfp::DecimalConvertUtil Util;
 
-static bslma::Allocator *ia = bslma::Default::globalAllocator();
-
 #define PARSEDECIMAL(p, nn)                                                   \
         BDEC::Decimal##nn(BDEC::DecimalImpUtil::parse##nn(p))
 #define PARSEDEC32(p) PARSEDECIMAL((p), 32)
@@ -424,9 +422,7 @@ unsigned char * decimal64ToBinaryIntegralNetwork(unsigned char *buffer,
                                                  Decimal64 decimal)
 {
     bsls::Types::Uint64 encoded;
-    Util::decimal64ToBinaryIntegral(
-                                   reinterpret_cast<unsigned char *>(&encoded),
-                                   decimal);
+    Util::decimal64ToBID(reinterpret_cast<unsigned char *>(&encoded), decimal);
 
     encoded = BSLS_BYTEORDER_HTONLL(encoded);
 
@@ -712,9 +708,10 @@ int main(int argc, char* argv[])
             Decimal64 actualDecodedValue = MDF(123,123);  // initialize to
                                                           // unused value
 
-            unsigned char *actualRet =
-                Util::decimal64FromVariableWidthEncoding(&actualDecodedValue,
-                                                         encodedBuffer);
+            const unsigned char *actualRet =
+                Util::decimal64FromVariableWidthEncoding(
+                              &actualDecodedValue,
+                              const_cast<const unsigned char*>(encodedBuffer));
 
             bsls::Types::size_type actualSize = actualRet - encodedBuffer;
 
@@ -870,8 +867,9 @@ int main(int argc, char* argv[])
             // Test 'decimal64FromMultiWidthEncoding'.
             {
                 Decimal64 actualDecodedValue =
-                    Util::decimal64FromMultiWidthEncoding(encodedBuffer,
-                                                          encodedSize);
+                    Util::decimal64FromMultiWidthEncoding(
+                               const_cast<const unsigned char*>(encodedBuffer),
+                               encodedSize);
                 if (veryVerbose) {
                     P(actualDecodedValue);
                 }
@@ -889,8 +887,9 @@ int main(int argc, char* argv[])
             // Test 'decimal64FromMultiWidthEncodingRaw'.
             if (!useFullEncodingFlag) {
                 Decimal64 actualDecodedValue =
-                    Util::decimal64FromMultiWidthEncoding(encodedBuffer,
-                                                          encodedSize);
+                    Util::decimal64FromMultiWidthEncodingRaw(
+                               const_cast<const unsigned char*>(encodedBuffer),
+                               encodedSize);
                 if (veryVerbose) {
                     P(actualDecodedValue);
                 }
@@ -1301,18 +1300,18 @@ int main(int argc, char* argv[])
 
             unsigned int rawData = 0x2654D2E7;
 
-            Util::decimalToDenselyPacked(buffer, h_d32);
+            Util::decimalToDPD(buffer, h_d32);
             ASSERT(0 == memcmp(buffer, &rawData, sizeof(rawData)));
 
-            Util::decimal32ToDenselyPacked(buffer, h_d32);
+            Util::decimal32ToDPD(buffer, h_d32);
             ASSERT(0 == memcmp(buffer, &rawData, sizeof(rawData)));
 
-            ASSERT(Util::decimal32FromDenselyPacked(buffer) == h_d32);
+            ASSERT(Util::decimal32FromDPD(buffer) == h_d32);
 
-            Util::decimal32FromDenselyPacked(&d32, buffer);
+            Util::decimal32FromDPD(&d32, buffer);
             ASSERT(d32 == h_d32);
 
-            Util::decimalFromDenselyPacked(&d32, buffer);
+            Util::decimalFromDPD(&d32, buffer);
             ASSERT(d32 == h_d32);
         }
 
@@ -1331,18 +1330,18 @@ int main(int argc, char* argv[])
 
             unsigned long long rawData = 0x263934B9C1E28E56ULL;
 
-            Util::decimalToDenselyPacked(buffer, h_d64);
+            Util::decimalToDPD(buffer, h_d64);
             ASSERT(0 == memcmp(&rawData, buffer, sizeof(rawData)));
 
-            Util::decimal64ToDenselyPacked(buffer, h_d64);
+            Util::decimal64ToDPD(buffer, h_d64);
             ASSERT(0 == memcmp(&rawData, buffer, sizeof(rawData)));
 
-            ASSERT(Util::decimal64FromDenselyPacked(buffer) == h_d64);
+            ASSERT(Util::decimal64FromDPD(buffer) == h_d64);
 
-            Util::decimal64FromDenselyPacked(&d64, buffer);
+            Util::decimal64FromDPD(&d64, buffer);
             ASSERT(d64 == h_d64);
 
-            Util::decimalFromDenselyPacked(&d64, buffer);
+            Util::decimalFromDPD(&d64, buffer);
             ASSERT(d64 == h_d64);
         }
 
@@ -1365,18 +1364,18 @@ int main(int argc, char* argv[])
             bdldfp::Uint128 rawData(0x2608134B9C1E28E5ULL,
                                     0x6F3C127177823534ULL);
 
-            Util::decimalToDenselyPacked(buffer, h_d128);
+            Util::decimalToDPD(buffer, h_d128);
             ASSERT(0 == memcmp(&rawData, buffer, sizeof(rawData)));
 
-            Util::decimal128ToDenselyPacked(buffer, h_d128);
+            Util::decimal128ToDPD(buffer, h_d128);
             ASSERT(0 == memcmp(&rawData, buffer, sizeof(rawData)));
 
-            ASSERT(Util::decimal128FromDenselyPacked(buffer) == h_d128);
+            ASSERT(Util::decimal128FromDPD(buffer) == h_d128);
 
-            Util::decimal128FromDenselyPacked(&d128, buffer);
+            Util::decimal128FromDPD(&d128, buffer);
             ASSERT(d128 == h_d128);
 
-            Util::decimalFromDenselyPacked(&d128, buffer);
+            Util::decimalFromDPD(&d128, buffer);
             ASSERT(d128 == h_d128);
         }
 
