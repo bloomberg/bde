@@ -8,7 +8,7 @@
 
 //@PURPOSE: Provide a forward-declaration for the corresponding BDE type.
 //
-//@DEPRECATED:  Do not use.
+//@DEPRECATED: Do not use.
 //
 //@SEE_ALSO: bslfwd_buildtarget
 //

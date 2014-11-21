@@ -4,7 +4,7 @@
 
 //@PURPOSE: Supply a compile-time indicator of whether BSL uses C++ namespaces.
 //
-//@DEPRECATED:  Do not use.
+//@DEPRECATED: Do not use.
 //
 //@CLASSES:
 //

@@ -2,7 +2,7 @@
 
 @PURPOSE: Provide compatibility for clients using single-level namespace
 
-@DEPRECATED:  Do not use.
+@DEPRECATED: Do not use.
 
 @MNEMONIC: Basic Standard Library System forwarding declarations (bslfwd)
 
