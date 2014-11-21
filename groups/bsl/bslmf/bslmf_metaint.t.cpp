@@ -122,11 +122,6 @@ int dispatchOnIntConstant(int, const char*, bslmf::MetaInt<1>)
     return 1;
 }
 
-int dispatchOnIntConstant(int, const char*, bslmf::MetaInt<-1>)
-{
-    return -1;
-}
-
 int dispatchOnIntConstant(int, const char*, bslmf::MetaInt<999>)
 {
     return 999;
@@ -324,7 +319,6 @@ int main(int argc, char *argv[])
         if (veryVerbose) printf("Testing good conversions\n");
         ASSERT(  (matchIntConstant<0>(MetaInt<0>())));
         ASSERT(  (matchIntConstant<1>(MetaInt<1>())));
-        ASSERT(  (matchIntConstant<-99>(MetaInt<-99>())));
         ASSERT(  (matchIntConstant<1000>(MetaInt<1000>())));
         ASSERT(  (matchIntConstant<INT_MAX>(MetaInt<INT_MAX>())));
 
@@ -333,12 +327,10 @@ int main(int argc, char *argv[])
         ASSERT(! (matchIntConstant<1>(MetaInt<0>())));
         ASSERT(! (matchIntConstant<-99>(MetaInt<99>())));
         ASSERT(! (matchIntConstant<1000>(MetaInt<6>())));
-        ASSERT(! (matchIntConstant<INT_MAX>(MetaInt<INT_MIN>())));
 
         if (veryVerbose) printf("Testing int dispatch\n");
         ASSERT(0 == dispatchOnIntConstant(9, "hello", MetaInt<0>()));
         ASSERT(1 == dispatchOnIntConstant(8, "world", MetaInt<1>()));
-        ASSERT(-1 == dispatchOnIntConstant(7, "seven", MetaInt<-1>()));
         ASSERT(999 == dispatchOnIntConstant(8, "nine", MetaInt<999>()));
 
         if (veryVerbose) printf("Testing bool dispatch\n");
@@ -417,7 +409,6 @@ int main(int argc, char *argv[])
         if (veryVerbose) printf("Testing good conversions\n");
         ASSERT(  (matchIntConstant<0>(MetaInt<0>())));
         ASSERT(  (matchIntConstant<1>(MetaInt<1>())));
-        ASSERT(  (matchIntConstant<-99>(MetaInt<-99>())));
         ASSERT(  (matchIntConstant<1000>(MetaInt<1000>())));
         ASSERT(  (matchIntConstant<INT_MAX>(MetaInt<INT_MAX>())));
 
@@ -426,12 +417,10 @@ int main(int argc, char *argv[])
         ASSERT(! (matchIntConstant<1>(MetaInt<0>())));
         ASSERT(! (matchIntConstant<-99>(MetaInt<99>())));
         ASSERT(! (matchIntConstant<1000>(MetaInt<6>())));
-        ASSERT(! (matchIntConstant<INT_MAX>(MetaInt<INT_MIN>())));
 
         if (veryVerbose) printf("Testing int dispatch\n");
         ASSERT(0 == dispatchOnIntConstant(9, "hello", MetaInt<0>()));
         ASSERT(1 == dispatchOnIntConstant(8, "world", MetaInt<1>()));
-        ASSERT(-1 == dispatchOnIntConstant(7, "seven", MetaInt<-1>()));
         ASSERT(999 == dispatchOnIntConstant(8, "nine", MetaInt<999>()));
 
         if (veryVerbose) printf("Testing bool dispatch\n");
@@ -478,14 +467,8 @@ int main(int argc, char *argv[])
         int b = MetaInt<1>();
         ASSERT(1 == b);
 
-        int c = MetaInt<-1>();
-        ASSERT(-1 == c);
-
         int d = MetaInt<INT_MAX>();
         ASSERT(INT_MAX == d);
-
-        int e = MetaInt<INT_MIN>();
-        ASSERT(INT_MIN == e);
 
         bool f = MetaInt<0>();
         ASSERT(!f);
@@ -531,8 +514,22 @@ int main(int argc, char *argv[])
         ASSERT(1 == i1.value);
         ASSERT(2 == i2.value);
 
-        ASSERT(-5 == bslmf::MetaInt<(unsigned)-5>::VALUE);
+        // 'MetaInt' supports all non-negative integer values:
+        ASSERT(0 == bslmf::MetaInt<0>::VALUE);
+        ASSERT(1 == bslmf::MetaInt<1>::VALUE);
+        ASSERT(INT_MAX == bslmf::MetaInt<INT_MAX>::VALUE);
 
+#if ! defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT)
+        // The following tests will not compile if the current compiler
+        // supports static asserts.
+
+        // 'VALUE' is signed:
+        ASSERT(bslmf::MetaInt<(unsigned) 5>::VALUE !=
+               bslmf::MetaInt<(unsigned)-5>::VALUE);
+
+        ASSERT(bslmf::MetaInt<           5>::VALUE !=
+               bslmf::MetaInt<          -5>::VALUE);
+#endif
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
