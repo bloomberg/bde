@@ -326,11 +326,11 @@ int main(int argc, char *argv[])
         // TESTING CONSISTENCY OF COMPILE-TIME FLAGS
         //
         // Concerns:
-        //: 1 When run in 'veryVerbose' moded, display which compile-time flags
+        //: 1 When run in 'veryVerbose' mode, display which compile-time flags
         //:   are defined and which are not.
         //:
-        //: 2 Verify that 'customSwapNN' and 'customSwapPNN' are never both
-        //:   set for any value of 'NN' on any platform (note that it is
+        //: 2 Verify that '*_CUSTOMSWAP_NN' and '_CUSTOMSWAPP_NN' are never
+        //:   both set for any value of 'NN' on any platform (note that it is
         //:   permissible for neither to be set).
         //
         // Plan:
@@ -401,8 +401,8 @@ int main(int argc, char *argv[])
         // TESTING 'mySwapBytes*'
         //
         // Concerns:
-        //: 1 That all incarnations of 'customSwapNN' or 'customSwapPNN' or
-        //:   'genericSwapNN' work.
+        //: 1 That all incarnations of '*_CUSTOMSWAP_NN' or '*_CUSTOMSWAP_PNN'
+        //:   or '_GENERICSWAP_NN' work.
         //
         // Plan:
         //: 1 Create the functions 'mySwapBytesNN' (before 'main', above),
@@ -414,7 +414,7 @@ int main(int argc, char *argv[])
         //:
         //: 3 For word widths 16, 32, and 64
         //:   A Test swapping signed and unsigned types with 'mySwapBytesNN'.
-        //:   B Test swapping the unsigned type with 'genericSwapNN'
+        //:   B Test swapping the unsigned type with 'myGenericSwapNN'
         //:   C Use '#ifdef's to determine if 'long' or 'wchar_t' have the
         //:     designated word width under test, and if so, test it.
         //
@@ -548,7 +548,7 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'genericSwap*' & SOUNDNESS OF TABLES
+        // TESTING 'myGenericSwap*' & SOUNDNESS OF TABLES
         //
         // Concerns:
         //: 1 Test that the tables 'data16', 'data32', and 'data64', accurately
@@ -568,7 +568,7 @@ int main(int argc, char *argv[])
         //:   A Assert that the table length is >10.
         //:   B Traverse the table, apply 'swapBytesInPlace' to verify the
         //:     expected swapped value matches the swapped value.
-        //:   6 Call 'Impl::genericSwapNN' on signed and unsigned values and
+        //:   6 Call 'myGenericSwapNN' on signed and unsigned values and
         //:     confirm the result matches the expected value.
         //
         // Testing:
@@ -576,8 +576,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                          "\nTESTING 'genericSwap*' & SOUNDNESS OF TABLE\n"
-                            "=============================================\n");
+                         "\nTESTING '*_GENERICSWAP_*' & SOUNDNESS OF TABLE\n"
+                           "==============================================\n");
 
         if (verbose) printf("Testing 16 Bit\n");
         {

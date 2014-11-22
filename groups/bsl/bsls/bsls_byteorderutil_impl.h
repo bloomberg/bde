@@ -48,7 +48,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
-#ifdef BSLS_PLATFORM_OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_MSVC
 
 #ifndef INCLUDED_STDLIB
 #include <stdlib.h>        // '_byteswap_*'
@@ -180,10 +180,10 @@ struct ByteOrderUtil_Impl<TYPE, 8> {
 
 #endif
 
-#elif defined(BSLS_PLATFORM_OS_WINDOWS)
+#elif defined(BSLS_PLATFORM_OS_MSVC)
 
 // ----------------------------------------------------------------------------
-// Windows
+// Microsoft Visual C++
 
 #if !defined(BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS)
 
@@ -314,7 +314,7 @@ unsigned long long bsls_byteOrderUtil_Impl_powerpc_swap_p64(
         return static_cast<dstType>(y);                                       \
     }
 
-#endif // !disabled || dbg
+#endif // !disabled || !opt
 
 #if !defined(BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS) &&     \
     !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32) &&                        \
@@ -395,9 +395,9 @@ unsigned long long bsls_byteOrderUtil_Impl_powerpc_swap_p64(
 #if !defined(BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS) ||     \
     !defined(BDE_BUILD_TARGET_OPT)
 
-// Removed assembly implementation since
-// 'BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_{16,32}' are probably faster than the
-// function call for 16 and 32 bits.
+// Solaris non-GNU assembly implementations must be out of line.  Removed 16
+// and 32 bit implemenations since the generic implementations, which are
+// always inline, are probably faster than a function call.
 
 extern "C" {
 unsigned long long bsls_byteOrderUtil_Impl_sparc_CC_swap_p64(
@@ -414,7 +414,7 @@ unsigned long long bsls_byteOrderUtil_Impl_sparc_CC_swap_p64(
                           reinterpret_cast<const unsigned long long *>(x)));  \
     }
 
-#endif  // !disabled || opt
+#endif  // !disabled || !opt
 
 #endif  // BSLS_PLATFORM_CMP_GNU else
 

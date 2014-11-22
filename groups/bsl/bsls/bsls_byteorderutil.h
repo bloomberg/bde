@@ -123,6 +123,7 @@ struct ByteOrderUtil {
                             // class ByteOrderUtil
                             // -------------------
 
+// CLASS METHODS
 inline
 bool
 ByteOrderUtil::swapBytes(bool           x)
@@ -155,8 +156,9 @@ inline
 wchar_t
 ByteOrderUtil::swapBytes(wchar_t        x)
 {
-    // Size of 'wchar_t' varies unpredictably depending on platform and
-    // compiler switches, use 'ByteOrderUtil_Impl' to adjust automatically.
+    // Size of 'wchar_t' varies depending on platform and compiler switches,
+    // we could not find any compiler-defined macros that would reliably
+    // indicate the size, so use 'ByteOrderUtil_Impl' to adjust automatically.
 
     return ByteOrderUtil_Impl<wchar_t>::swapBytes(x);
 }
@@ -195,7 +197,7 @@ inline
 int
 ByteOrderUtil::swapBytes(int            x)
 {
-    // These macros all return a value of type ' int'.
+    // These macros all return a value of type 'int'.
 
 #if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32( int, x);
@@ -225,8 +227,9 @@ inline
 long
 ByteOrderUtil::swapBytes(long           x)
 {
-    // Size of 'long' varies unpredictably depending on platform and compiler
-    // switches, use 'ByteOrderUtil_Impl' to adjust automatically.
+    // Size of 'long' varies depending on platform and compiler switches, we
+    // could not find any compiler-defined macros that would reliably indicate
+    // the size, so use 'ByteOrderUtil_Impl' to adjust automatically.
 
     return ByteOrderUtil_Impl<long>::swapBytes(x);
 }
@@ -235,8 +238,10 @@ inline
 unsigned long
 ByteOrderUtil::swapBytes(unsigned long  x)
 {
-    // Size of 'unsigned long' varies unpredictably depending on platform and
-    // compiler switches, use 'ByteOrderUtil_Impl' to adjust automatically.
+    // Size of 'unsigned long' varies depending on platform and compiler
+    // switches, we could not find any compiler-defined macros that would
+    // reliably indicate the size, so use 'ByteOrderUtil_Impl' to adjust
+    // automatically.
 
     return ByteOrderUtil_Impl<unsigned long>::swapBytes(x);
 }
