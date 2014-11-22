@@ -483,7 +483,7 @@ unsigned long long bsls_byteOrderUtil_Impl_sparc_CC_swap_p64(
                                                                               \
         BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(8 == sizeof x);           \
                                                                               \
-        register Types::Uint64 y;                                             \
+        register Uint64 y;                                                    \
         __asm__ ("bswap %0" : "=r" (y) : "0" (x));                            \
                                                                               \
         return static_cast<dstType>(y);                                       \
