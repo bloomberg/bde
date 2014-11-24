@@ -502,15 +502,16 @@ int main(int argc, char* argv[])
         // format:
         //..
         { // "client"
-            unsigned char   msgbuffer[] ={
-                0x25, 0x55, 0x34, 0xb9, 0xc1, 0xe2, 0x8e, 0x56 };
+            const unsigned char   msgbuffer[] ={
+                              0x25, 0x55, 0x34, 0xb9, 0xc1, 0xe2, 0x8e, 0x56 };
             BDEC::Decimal64 number;
             BDEC::Decimal64 expected(BDLDFP_DECIMAL_DD(1.234567890123456e-42));
 
-            unsigned char *next = msgbuffer;
+            const unsigned char *next = msgbuffer;
             next = bdldfp::DecimalConvertUtil::decimalFromNetwork(&number,
                                                                   next);
 
+            ASSERT(next == msgbuffer + sizeof(BDEC::Decimal64));
             ASSERT(number == expected);
         }
         //..
