@@ -145,6 +145,21 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 // ============================================================================
+//                      HELPER CLASSES AND FUNCTIONS
+// ----------------------------------------------------------------------------
+
+namespace BloombergLP {
+namespace bslx {
+
+void debugprint(const ByteOutStream& object)
+{
+    bsl::cout << object;
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+// ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
