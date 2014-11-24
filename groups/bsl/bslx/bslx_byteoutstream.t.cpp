@@ -3142,7 +3142,7 @@ int main(int argc, char *argv[])
                           << "==============" << endl;
 
         if (verbose) cout << "\nCreate object x1 using default ctor." << endl;
-        Obj x1(VERSION_SELECTOR);;
+        Obj x1(VERSION_SELECTOR);
         ASSERT(0 == x1.length());
 
         if (verbose) cout << "\nTry putInt32 with x1." << endl;

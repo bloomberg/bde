@@ -670,7 +670,7 @@ ByteOutStream& operator<<(ByteOutStream& stream, const TYPE& value);
                          // class ByteOutStream
                          // -------------------
 
-// MANIPULATORS
+// PRIVATE MANIPULATORS
 inline
 void ByteOutStream::validate()
 {
@@ -1602,6 +1602,7 @@ bsl::size_t ByteOutStream::length() const
     return d_buffer.size();
 }
 
+// FREE OPERATORS
 template <class TYPE>
 inline
 ByteOutStream& operator<<(ByteOutStream& stream, const TYPE& value)
