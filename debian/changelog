@@ -1,5 +1,18 @@
-bsl-internal (2.22.1.3) unstable; urgency=low
+bsl-internal (2.22.1.4) unstable; urgency=low
 
+  * 6094de5 [APPROVAL] review/update_grp_pkg_synopses-drqs-58978504 to releases/2.22.x
+  * 1142357 [APPROVAL] OSS pending/master/fix-decimalfromnetwork-drqs-59157247-releasemerge to releases/2.22.x
+  * 8508c06 [APPROVAL] pending/master/fix-decimalfromnetwork-drqs-59157247-releasemerge to releases/2.22.x
+  * 66181dd [APPROVAL] OSS fix-function-decimal-encoding-signature-drqs-59011942-2.22 to releases/2.22.x
+  * c9d3a00 [APPROVAL] fix-function-decimal-encoding-signature-drqs-59011942-2.22 to releases/2.22.x
+  * 50bf5d9 Add tests to ImpUtil for BinaryIntegral conversion
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 24 Nov 2014 14:51:58 -0500
+
+bsl-internal (2.22.1.3) git; urgency=low
+
+  * 98521f3 [APPROVAL] bump-changelog-to-2.22.1.3 to releases/2.22.x
+  * 89c690a bump changelog to 2.22.1.3
   * 84f7c9f Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.22.x
   * 0ed9966 [APPROVAL] INTERNAL review/bslh_hash_osx_failure-merge-base-drqs-58605182 to releases/2.22.x
   * 1fe3b79 [APPROVAL] review/bslh_hash_osx_failure-merge-base-drqs-58605182 to releases/2.22.x
@@ -10,7 +23,7 @@ bsl-internal (2.22.1.3) unstable; urgency=low
   * f9471ce [APPROVAL] review/missing_headers_in_bsl_memory_drqs59127285 to releases/2.22.x
   * 6c25cee Merge branch 'oss-releases-2.22.x' into releases/2.22.x
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 17 Nov 2014 14:19:45 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 17 Nov 2014 14:24:56 -0500
 
 bsl-internal (2.22.1.2) git; urgency=low
 
