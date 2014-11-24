@@ -9,25 +9,27 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdldfp' package currently has 14 components having 7 levels of physical
+ The 'bdldfp' package currently has 15 components having 8 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  7. bdldfp_decimalconvertutil
+  8. bdldfp_decimalconvertutil
 
-  6. bdldfp_decimalconvertutil_decnumber
+  7. bdldfp_decimalconvertutil_decnumber
      bdldfp_decimalconvertutil_ibmxlc
      bdldfp_decimalconvertutil_inteldfp
      bdldfp_decimalutil
 
-  5. bdldfp_decimal
+  6. bdldfp_decimal
 
-  4. bdldfp_decimalimputil
+  5. bdldfp_decimalimputil
 
-  3. bdldfp_decimalimputil_decnumber
+  4. bdldfp_decimalimputil_inteldfp
+
+  3. bdldfp_binaryintegraldecimalimputil
+     bdldfp_decimalimputil_decnumber
      bdldfp_decimalimputil_ibmxlc
-     bdldfp_decimalimputil_inteldfp
 
   2. bdldfp_denselypackeddecimalimputil
      bdldfp_intelimpwrapper
@@ -38,6 +40,9 @@
 
 /Component Synopsis
 /------------------
+: 'bdldfp_binaryintegraldecimalimputil':
+:      Utilities for working with Binary Integral Decimal representation.
+:
 : 'bdldfp_decimal':
 :      Provide IEEE-754 decimal floating-point types.
 :
