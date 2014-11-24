@@ -48,7 +48,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
-#ifdef BSLS_PLATFORM_OS_MSVC
+#ifdef BSLS_PLATFORM_CMP_MSVC
 
 #ifndef INCLUDED_STDLIB
 #include <stdlib.h>        // '_byteswap_*'
@@ -158,8 +158,8 @@ struct ByteOrderUtil_Impl<TYPE, 8> {
 // ----------------------------------------------------------------------------
 // Advanced GNU
 
-// Let the 16-bit gnu implementation default to
-// 'BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16' or other platform-specific gnu
+// Let the 16-bit GNU implementation default to
+// 'BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16' or other platform-specific GNU
 // implementations.
 
 #if !defined(BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS) ||     \
@@ -180,7 +180,7 @@ struct ByteOrderUtil_Impl<TYPE, 8> {
 
 #endif
 
-#elif defined(BSLS_PLATFORM_OS_MSVC)
+#elif defined(BSLSBSLS_PLATFORM_CMP_MSVC)
 
 // ----------------------------------------------------------------------------
 // Microsoft Visual C++
@@ -320,7 +320,7 @@ unsigned long long bsls_byteOrderUtil_Impl_powerpc_swap_p64(
     !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32) &&                        \
     !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32)
 
-// sparc gnu pre-4.03 impl
+// sparc GNU pre-4.03 impl
 
 #define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32(dstType, x)                    \
     {                                                                         \
@@ -341,7 +341,7 @@ unsigned long long bsls_byteOrderUtil_Impl_powerpc_swap_p64(
 
 #if defined(BSLS_PLATFORM_CPU_64_BIT)
 
-// sparc gnu pre-4.03 impl
+// sparc GNU pre-4.03 impl
 
 #define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(dstType, x)                    \
     {                                                                         \
@@ -357,7 +357,7 @@ unsigned long long bsls_byteOrderUtil_Impl_powerpc_swap_p64(
 
 #else
 
-// sparc gnu pre-4.03 impl
+// sparc GNU pre-4.03 impl
 
 //  asm("ldxa [%1] %2, %0\n\t"  // After the load, the full data is in '%0'.
 //                              // But we have to split it into two registers
@@ -395,8 +395,8 @@ unsigned long long bsls_byteOrderUtil_Impl_powerpc_swap_p64(
 #if !defined(BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS) ||     \
     !defined(BDE_BUILD_TARGET_OPT)
 
-// Solaris non-GNU assembly implementations must be out of line.  Removed 16
-// and 32 bit implemenations since the generic implementations, which are
+// Solaris non-GNU assembly implementations must be out of line.  Removed 16-
+// and 32-bit implemenations since the generic implementations, which are
 // always inline, are probably faster than a function call.
 
 extern "C" {
@@ -426,7 +426,7 @@ unsigned long long bsls_byteOrderUtil_Impl_sparc_CC_swap_p64(
 // Note that 32 and 64 bit may have already been defined by the advanced GNU
 // case.
 
-// x86 gnu impl
+// x86 GNU impl
 
 #define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16(dstType, x)                     \
     {                                                                         \
@@ -444,7 +444,7 @@ unsigned long long bsls_byteOrderUtil_Impl_sparc_CC_swap_p64(
    && !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32)                        \
    && !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64)
 
-// x86 gnu pre-4.03 impl
+// x86 GNU pre-4.03 impl
 
 #define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32(dstType, x)                     \
     {                                                                         \
@@ -456,7 +456,7 @@ unsigned long long bsls_byteOrderUtil_Impl_sparc_CC_swap_p64(
 
 #if BSLS_PLATFORM_CPU_32_BIT
 
-// x86 gnu pre-4.03 impl
+// x86 GNU pre-4.03 impl
 
 #define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64(dstType, x)                     \
     {                                                                         \
@@ -475,7 +475,7 @@ unsigned long long bsls_byteOrderUtil_Impl_sparc_CC_swap_p64(
 
 #else  // BSLS_PLATFORM_CPU_64_BIT
 
-// x86 gnu pre-4.03 impl
+// x86 GNU pre-4.03 impl
 
 #define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64(dstType, x)                     \
     {                                                                         \

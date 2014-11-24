@@ -119,9 +119,9 @@ struct ByteOrderUtil {
 //                          INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                            // -------------------
-                            // class ByteOrderUtil
-                            // -------------------
+                            // --------------------
+                            // struct ByteOrderUtil
+                            // --------------------
 
 // CLASS METHODS
 inline
@@ -156,8 +156,8 @@ inline
 wchar_t
 ByteOrderUtil::swapBytes(wchar_t        x)
 {
-    // Size of 'wchar_t' varies depending on platform and compiler switches,
-    // we could not find any compiler-defined macros that would reliably
+    // Size of 'wchar_t' varies depending on platform and compiler switches.
+    // We could not find any compiler-defined macros that would reliably
     // indicate the size, so use 'ByteOrderUtil_Impl' to adjust automatically.
 
     return ByteOrderUtil_Impl<wchar_t>::swapBytes(x);
@@ -227,7 +227,7 @@ inline
 long
 ByteOrderUtil::swapBytes(long           x)
 {
-    // Size of 'long' varies depending on platform and compiler switches, we
+    // Size of 'long' varies depending on platform and compiler switches.  We
     // could not find any compiler-defined macros that would reliably indicate
     // the size, so use 'ByteOrderUtil_Impl' to adjust automatically.
 
@@ -239,7 +239,7 @@ unsigned long
 ByteOrderUtil::swapBytes(unsigned long  x)
 {
     // Size of 'unsigned long' varies depending on platform and compiler
-    // switches, we could not find any compiler-defined macros that would
+    // switches.  We could not find any compiler-defined macros that would
     // reliably indicate the size, so use 'ByteOrderUtil_Impl' to adjust
     // automatically.
 
