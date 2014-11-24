@@ -601,18 +601,24 @@ struct DecimalConvertUtil {
 
                         // decimalFromNetwork functions
 
-    static unsigned char *decimal32FromNetwork (Decimal32           *decimal,
-                                                const unsigned char *buffer);
-    static unsigned char *decimal64FromNetwork (Decimal64           *decimal,
-                                                const unsigned char *buffer);
-    static unsigned char *decimal128FromNetwork(Decimal128          *decimal,
-                                                const unsigned char *buffer);
-    static unsigned char *decimalFromNetwork   (Decimal32           *decimal,
-                                                const unsigned char *buffer);
-    static unsigned char *decimalFromNetwork   (Decimal64           *decimal,
-                                                const unsigned char *buffer);
-    static unsigned char *decimalFromNetwork   (Decimal128          *decimal,
-                                                const unsigned char *buffer);
+    static const unsigned char *decimal32FromNetwork(
+                                                  Decimal32           *decimal,
+                                                  const unsigned char *buffer);
+    static const unsigned char *decimal64FromNetwork(
+                                                  Decimal64           *decimal,
+                                                  const unsigned char *buffer);
+    static const unsigned char *decimal128FromNetwork(
+                                                  Decimal128          *decimal,
+                                                  const unsigned char *buffer);
+    static const unsigned char *decimalFromNetwork(
+                                                  Decimal32           *decimal,
+                                                  const unsigned char *buffer);
+    static const unsigned char *decimalFromNetwork(
+                                                  Decimal64           *decimal,
+                                                  const unsigned char *buffer);
+    static const unsigned char *decimalFromNetwork(
+                                                  Decimal128          *decimal,
+                                                  const unsigned char *buffer);
         // Store into the specified 'decimal', the value of the same size
         // base-10 floating-point value stored in network format at the
         // specified 'buffer' address and return the address one past the last
@@ -620,7 +626,7 @@ struct DecimalConvertUtil {
         // endian byte order and densely packed base-10 significand encoding.
         // This corresponds to the way IBM hardware represents these numbers in
         // memory.  The behavior is undefined unless 'buffer' points to a
-        // memory area at least 'sizeof(decimal)' in size.  Note that these
+        // memory area at least 'sizeof(decimal)' bytes.  Note that these
         // functions always return 'buffer + sizeof(decimal)' on the supported
         // 8-bits-byte architectures.
 
