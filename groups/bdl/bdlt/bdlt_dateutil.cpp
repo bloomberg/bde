@@ -43,11 +43,20 @@ Date DateUtil::addYearsEomEndOfFebruary(const Date& original, int numYears)
     BSLS_ASSERT_SAFE(28 == original.day() || 29 == original.day());
 
     const int newYear = original.year() + numYears;
+#ifdef BDE_OMIT_TRANSITIONAL
     const int eom     = SerialDateImpUtil::isLeapYear(original.year()) ? 29
                                                                        : 28;
+#else
+    const int eom     =       DateImpUtil::isLeapYear(original.year()) ? 29
+                                                                       : 28;
+#endif
 
     if (original.day() == eom) {
+#ifdef BDE_OMIT_TRANSITIONAL
         const int newEom = SerialDateImpUtil::isLeapYear(newYear) ? 29 : 28;
+#else
+        const int newEom =       DateImpUtil::isLeapYear(newYear) ? 29 : 28;
+#endif
 
         return Date(newYear, original.month(), newEom);               // RETURN
     }
@@ -71,9 +80,15 @@ Date DateUtil::addMonthsEom(const Date& original, int numMonths)
     BSLS_ASSERT_SAFE(1 <= newYear);
     BSLS_ASSERT_SAFE(newYear <= 9999);
 
+#ifdef BDE_OMIT_TRANSITIONAL
     const int eom    = SerialDateImpUtil::lastDayOfMonth(original.year(),
                                                          original.month());
     const int newEom = SerialDateImpUtil::lastDayOfMonth(newYear, newMonth);
+#else
+    const int eom    =       DateImpUtil::lastDayOfMonth(original.year(),
+                                                         original.month());
+    const int newEom =       DateImpUtil::lastDayOfMonth(newYear, newMonth);
+#endif
 
     if (original.day() == eom) {
         return Date(newYear, newMonth, newEom);                       // RETURN
@@ -99,7 +114,11 @@ Date DateUtil::addMonthsNoEom(const Date& original, int numMonths)
     BSLS_ASSERT_SAFE(1 <= newYear);
     BSLS_ASSERT_SAFE(newYear <= 9999);
 
+#ifdef BDE_OMIT_TRANSITIONAL
     const int newEom = SerialDateImpUtil::lastDayOfMonth(newYear, newMonth);
+#else
+    const int newEom =       DateImpUtil::lastDayOfMonth(newYear, newMonth);
+#endif
 
     if (newEom < original.day()) {
         return Date(newYear, newMonth, newEom);                       // RETURN
@@ -116,7 +135,11 @@ Date DateUtil::lastDayOfWeekInMonth(int             year,
     BSLS_ASSERT_SAFE(1 <= year);   BSLS_ASSERT_SAFE(year  <= 9999);
     BSLS_ASSERT_SAFE(1 <= month);  BSLS_ASSERT_SAFE(month <= 12);
 
+#ifdef BDE_OMIT_TRANSITIONAL
     const int eom = SerialDateImpUtil::lastDayOfMonth(year, month);
+#else
+    const int eom =       DateImpUtil::lastDayOfMonth(year, month);
+#endif
 
     return previousDayOfWeekInclusive(dayOfWeek, Date(year, month, eom));
 }

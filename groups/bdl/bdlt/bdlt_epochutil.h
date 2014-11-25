@@ -128,6 +128,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
+#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef INCLUDED_BDLT_DATEIMPUTIL
+#include <bdlt_dateimputil.h>
+#endif
+#endif
+
 #ifndef INCLUDED_BDLT_DATETIME
 #include <bdlt_datetime.h>
 #endif
@@ -174,6 +180,10 @@ struct EpochUtil {
   private:
     // CLASS DATA
     static const Datetime *s_epoch_p;  // pointer to epoch time value
+#ifndef BDE_OMIT_TRANSITIONAL
+    static const Datetime *s_posixEpoch_p;
+                                       // pointer to POSIX epoch time value
+#endif
 
   public:
     // TYPES
@@ -350,7 +360,13 @@ struct EpochUtil {
 inline
 const Datetime& EpochUtil::epoch()
 {
+#ifdef BDE_OMIT_TRANSITIONAL
     return *s_epoch_p;
+#else
+    return DateImpUtil::isProlepticGregorianMode()
+           ? *s_epoch_p
+           : *s_posixEpoch_p;
+#endif
 }
 
                            // 'time_t'-Based Methods

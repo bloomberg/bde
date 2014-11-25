@@ -24,6 +24,11 @@ namespace bdlt {
 
 static const int epochData[2] = { 719163, 0 };
                                  // 719163 is 1970/01/01 in Proleptic Gregorian
+#ifndef BDE_OMIT_TRANSITIONAL
+static const int posixEpochData[2]
+                              = { 719165, 0 };
+                                 // 719165 is 1970/01/01 in POSIX
+#endif
 
                             // ----------------
                             // struct EpochUtil
@@ -33,6 +38,10 @@ static const int epochData[2] = { 719163, 0 };
 
 const bdlt::Datetime *EpochUtil::s_epoch_p =
                            reinterpret_cast<const bdlt::Datetime *>(epochData);
+#ifndef BDE_OMIT_TRANSITIONAL
+const bdlt::Datetime *EpochUtil::s_posixEpoch_p =
+                      reinterpret_cast<const bdlt::Datetime *>(posixEpochData);
+#endif
 
 }  // close package namespace
 }  // close enterprise namespace

@@ -1,5 +1,6 @@
 bdlt_currenttime
 bdlt_date
+bdlt_dateimputil
 bdlt_datetime
 bdlt_datetimeinterval
 bdlt_datetimetz

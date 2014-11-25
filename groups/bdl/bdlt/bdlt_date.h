@@ -188,8 +188,14 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_dayofweek.h>
 #endif
 
+#ifdef BDE_OMIT_TRANSITIONAL
 #ifndef INCLUDED_BDLT_SERIALDATEIMPUTIL
 #include <bdlt_serialdateimputil.h>
+#endif
+#else
+#ifndef INCLUDED_BDLT_DATEIMPUTIL
+#include <bdlt_dateimputil.h>
+#endif
 #endif
 
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
@@ -582,20 +588,32 @@ inline
 Date::Date(int serialDate)
 : d_serialDate(serialDate)
 {
+#ifdef BDE_OMIT_TRANSITIONAL
     BSLS_ASSERT_SAFE(SerialDateImpUtil::isValidSerial(d_serialDate));
+#else
+    BSLS_ASSERT_SAFE(      DateImpUtil::isValidSerial(d_serialDate));
+#endif
 }
 
 // CLASS METHODS
 inline
 bool Date::isValidYearDay(int year, int dayOfYear)
 {
+#ifdef BDE_OMIT_TRANSITIONAL
     return SerialDateImpUtil::isValidYearDay(year, dayOfYear);
+#else
+    return       DateImpUtil::isValidYearDay(year, dayOfYear);
+#endif
 }
 
 inline
 bool Date::isValidYearMonthDay(int year, int month, int day)
 {
+#ifdef BDE_OMIT_TRANSITIONAL
     return SerialDateImpUtil::isValidYearMonthDay(year, month, day);
+#else
+    return       DateImpUtil::isValidYearMonthDay(year, month, day);
+#endif
 }
 
                                   // Aspects
@@ -615,14 +633,22 @@ Date::Date()
 
 inline
 Date::Date(int year, int dayOfYear)
+#ifdef BDE_OMIT_TRANSITIONAL
 : d_serialDate(SerialDateImpUtil::ydToSerial(year, dayOfYear))
+#else
+: d_serialDate(      DateImpUtil::ydToSerial(year, dayOfYear))
+#endif
 {
     BSLS_ASSERT_SAFE(isValidYearDay(year, dayOfYear));
 }
 
 inline
 Date::Date(int year, int month, int day)
+#ifdef BDE_OMIT_TRANSITIONAL
 : d_serialDate(SerialDateImpUtil::ymdToSerial(year, month, day))
+#else
+: d_serialDate(      DateImpUtil::ymdToSerial(year, month, day))
+#endif
 {
     BSLS_ASSERT_SAFE(isValidYearMonthDay(year, month, day));
 }
@@ -636,7 +662,11 @@ Date::Date(const Date& original)
 inline
 Date::~Date()
 {
+#ifdef BDE_OMIT_TRANSITIONAL
     BSLS_ASSERT_SAFE(SerialDateImpUtil::isValidSerial(d_serialDate));
+#else
+    BSLS_ASSERT_SAFE(      DateImpUtil::isValidSerial(d_serialDate));
+#endif
 }
 
 // MANIPULATORS
@@ -650,7 +680,11 @@ Date& Date::operator=(const Date& rhs)
 inline
 Date& Date::operator+=(int numDays)
 {
+#ifdef BDE_OMIT_TRANSITIONAL
     BSLS_ASSERT_SAFE(SerialDateImpUtil::isValidSerial(d_serialDate + numDays));
+#else
+    BSLS_ASSERT_SAFE(      DateImpUtil::isValidSerial(d_serialDate + numDays));
+#endif
 
     d_serialDate += numDays;
     return *this;
@@ -659,7 +693,11 @@ Date& Date::operator+=(int numDays)
 inline
 Date& Date::operator-=(int numDays)
 {
+#ifdef BDE_OMIT_TRANSITIONAL
     BSLS_ASSERT_SAFE(SerialDateImpUtil::isValidSerial(d_serialDate - numDays));
+#else
+    BSLS_ASSERT_SAFE(      DateImpUtil::isValidSerial(d_serialDate - numDays));
+#endif
 
     d_serialDate -= numDays;
     return *this;
@@ -688,7 +726,11 @@ void Date::setYearDay(int year, int dayOfYear)
 {
     BSLS_ASSERT_SAFE(isValidYearDay(year, dayOfYear));
 
+#ifdef BDE_OMIT_TRANSITIONAL
     d_serialDate = SerialDateImpUtil::ydToSerial(year, dayOfYear);
+#else
+    d_serialDate =       DateImpUtil::ydToSerial(year, dayOfYear);
+#endif
 }
 
 inline
@@ -709,7 +751,11 @@ void Date::setYearMonthDay(int year, int month, int day)
 {
     BSLS_ASSERT_SAFE(isValidYearMonthDay(year, month, day));
 
+#ifdef BDE_OMIT_TRANSITIONAL
     d_serialDate = SerialDateImpUtil::ymdToSerial(year, month, day);
+#else
+    d_serialDate =       DateImpUtil::ymdToSerial(year, month, day);
+#endif
 }
 
 inline
@@ -738,7 +784,11 @@ STREAM& Date::bdexStreamIn(STREAM& stream, int version)
             stream.getInt24(tmpSerialDate);
 
             if (   stream
+#ifdef BDE_OMIT_TRANSITIONAL
                 && SerialDateImpUtil::isValidSerial(tmpSerialDate)) {
+#else
+                &&       DateImpUtil::isValidSerial(tmpSerialDate)) {
+#endif
                 d_serialDate = tmpSerialDate;
             }
             else {
@@ -758,32 +808,52 @@ STREAM& Date::bdexStreamIn(STREAM& stream, int version)
 inline
 int Date::day() const
 {
+#ifdef BDE_OMIT_TRANSITIONAL
     return SerialDateImpUtil::serialToDay(d_serialDate);
+#else
+    return       DateImpUtil::serialToDay(d_serialDate);
+#endif
 }
 
 inline
 int Date::dayOfYear() const
 {
+#ifdef BDE_OMIT_TRANSITIONAL
     return SerialDateImpUtil::serialToDayOfYear(d_serialDate);
+#else
+    return       DateImpUtil::serialToDayOfYear(d_serialDate);
+#endif
 }
 
 inline
 int Date::month() const
 {
+#ifdef BDE_OMIT_TRANSITIONAL
     return SerialDateImpUtil::serialToMonth(d_serialDate);
+#else
+    return       DateImpUtil::serialToMonth(d_serialDate);
+#endif
 }
 
 inline
 int Date::year() const
 {
+#ifdef BDE_OMIT_TRANSITIONAL
     return SerialDateImpUtil::serialToYear(d_serialDate);
+#else
+    return       DateImpUtil::serialToYear(d_serialDate);
+#endif
 }
 
 // ACCESSORS
 inline
 DayOfWeek::Enum Date::dayOfWeek() const
 {
+#ifdef BDE_OMIT_TRANSITIONAL
     return DayOfWeek::Enum(SerialDateImpUtil::serialToDayOfWeek(d_serialDate));
+#else
+    return DayOfWeek::Enum(      DateImpUtil::serialToDayOfWeek(d_serialDate));
+#endif
 }
 
 inline
@@ -792,7 +862,11 @@ void Date::getYearDay(int *year, int *dayOfYear) const
     BSLS_ASSERT_SAFE(year);
     BSLS_ASSERT_SAFE(dayOfYear);
 
+#ifdef BDE_OMIT_TRANSITIONAL
     SerialDateImpUtil::serialToYd(year, dayOfYear, d_serialDate);
+#else
+          DateImpUtil::serialToYd(year, dayOfYear, d_serialDate);
+#endif
 }
 
 inline
@@ -802,7 +876,11 @@ void Date::getYearMonthDay(int *year, int *month, int *day) const
     BSLS_ASSERT_SAFE(month);
     BSLS_ASSERT_SAFE(day);
 
+#ifdef BDE_OMIT_TRANSITIONAL
     SerialDateImpUtil::serialToYmd(year, month, day, d_serialDate);
+#else
+          DateImpUtil::serialToYmd(year, month, day, d_serialDate);
+#endif
 }
 
                                   // Aspects
@@ -817,7 +895,11 @@ STREAM& Date::bdexStreamOut(STREAM& stream, int version) const
             // Prevent a corrupt date value from escaping the process (whereby
             // it may contaminate a database, for example).
 
+#ifdef BDE_OMIT_TRANSITIONAL
             BSLS_ASSERT_OPT(SerialDateImpUtil::isValidSerial(d_serialDate));
+#else
+            BSLS_ASSERT_OPT(      DateImpUtil::isValidSerial(d_serialDate));
+#endif
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
             stream.putInt24(d_serialDate);
           } break;
@@ -944,8 +1026,13 @@ bdlt::Date bdlt::operator--(Date& date, int)
 inline
 bdlt::Date bdlt::operator+(const Date& date, int numDays)
 {
+#ifdef BDE_OMIT_TRANSITIONAL
     BSLS_ASSERT_SAFE(SerialDateImpUtil::isValidSerial(
                                                  date.d_serialDate + numDays));
+#else
+    BSLS_ASSERT_SAFE(      DateImpUtil::isValidSerial(
+                                                 date.d_serialDate + numDays));
+#endif
 
     return Date(date.d_serialDate + numDays);
 }
@@ -953,8 +1040,13 @@ bdlt::Date bdlt::operator+(const Date& date, int numDays)
 inline
 bdlt::Date bdlt::operator+(int numDays, const Date& date)
 {
+#ifdef BDE_OMIT_TRANSITIONAL
     BSLS_ASSERT_SAFE(SerialDateImpUtil::isValidSerial(
                                                  numDays + date.d_serialDate));
+#else
+    BSLS_ASSERT_SAFE(      DateImpUtil::isValidSerial(
+                                                 numDays + date.d_serialDate));
+#endif
 
     return Date(numDays + date.d_serialDate);
 }
@@ -962,8 +1054,13 @@ bdlt::Date bdlt::operator+(int numDays, const Date& date)
 inline
 bdlt::Date bdlt::operator-(const Date& date, int numDays)
 {
+#ifdef BDE_OMIT_TRANSITIONAL
     BSLS_ASSERT_SAFE(SerialDateImpUtil::isValidSerial(
                                                  date.d_serialDate - numDays));
+#else
+    BSLS_ASSERT_SAFE(      DateImpUtil::isValidSerial(
+                                                 date.d_serialDate - numDays));
+#endif
 
     return Date(date.d_serialDate - numDays);
 }
