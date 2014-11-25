@@ -401,7 +401,7 @@ int main(int argc, char *argv[])
         // TESTING 'mySwapBytes*'
         //
         // Concerns:
-        //: 1 That all incarnations of '*_CUSTOMSWAP_NN', '*_CUSTOMSWAP_PNN'
+        //: 1 That all incarnations of '*_CUSTOMSWAP_NN', '*_CUSTOMSWAP_PNN',
         //:   and '_GENERICSWAP_NN' work.
         //
         // Plan:

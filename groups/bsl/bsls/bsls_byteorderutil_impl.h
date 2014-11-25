@@ -180,7 +180,7 @@ struct ByteOrderUtil_Impl<TYPE, 8> {
 
 #endif
 
-#elif defined(BSLSBSLS_PLATFORM_CMP_MSVC)
+#elif defined(BSLS_PLATFORM_CMP_MSVC)
 
 // ----------------------------------------------------------------------------
 // Microsoft Visual C++
@@ -396,7 +396,7 @@ unsigned long long bsls_byteOrderUtil_Impl_powerpc_swap_p64(
     !defined(BDE_BUILD_TARGET_OPT)
 
 // Solaris non-GNU assembly implementations must be out of line.  Removed 16-
-// and 32-bit implemenations since the generic implementations, which are
+// and 32-bit implementations since the generic implementations, which are
 // always inline, are probably faster than a function call.
 
 extern "C" {
