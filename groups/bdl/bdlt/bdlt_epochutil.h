@@ -429,7 +429,16 @@ int EpochUtil::convertToTimeT(bsl::time_t     *result,
 inline
 Datetime EpochUtil::convertFromTimeT64(TimeT64 time)
 {
+#ifdef BDE_OMIT_TRANSITIONAL
     BSLS_ASSERT_SAFE(-62135596800LL <= time);  // January    1, 0001 00:00:00
+#else
+    if (DateImpUtil::isProlepticGregorianMode()) {
+    BSLS_ASSERT_SAFE(-62135596800LL <= time);  // January    1, 0001 00:00:00
+    }
+    else {
+    BSLS_ASSERT_SAFE(-62135769600LL <= time);  // January    1, 0001 00:00:00
+    }
+#endif
     BSLS_ASSERT_SAFE(253402300799LL >= time);  // December  31, 9999 23:59:59
 
     Datetime datetime(epoch());
@@ -443,7 +452,12 @@ int EpochUtil::convertFromTimeT64(Datetime *result, TimeT64 time)
 {
     BSLS_ASSERT_SAFE(result);
 
+#ifndef BDE_OMIT_TRANSITIONAL
+    if (( DateImpUtil::isProlepticGregorianMode() && -62135596800LL > time)
+     || (!DateImpUtil::isProlepticGregorianMode() && -62135769600LL > time) ||
+#else
     if (-62135596800LL > time ||  // January    1, 0001 00:00:00
+#endif
         253402300799LL < time) {  // December  31, 9999 23:59:59
         return 1;                                                     // RETURN
     }

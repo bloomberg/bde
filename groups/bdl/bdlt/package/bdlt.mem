@@ -16,5 +16,5 @@ bdlt_monthofyear
 bdlt_posixdateimputil
 bdlt_serialdateimputil
 bdlt_time
-bdlt_timeunitratio
 bdlt_timetz
+bdlt_timeunitratio

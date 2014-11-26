@@ -783,6 +783,21 @@ STREAM& Date::bdexStreamIn(STREAM& stream, int version)
 
             stream.getInt24(tmpSerialDate);
 
+#ifndef BDE_OMIT_TRANSITIONAL
+            // TBD Note that this must be handled with great care when the
+            // 'bdlt_dateimputil' component is retired and the
+            // 'BDE_OMIT_TRANSITIONAL' code is removed from 'bdlt'.
+
+            if (DateImpUtil::isProlepticGregorianMode()) {
+                if (tmpSerialDate > 3) {
+                    tmpSerialDate -= 2;  // align post-GR serial values
+                }
+                else if (tmpSerialDate & 0x3) {
+                    tmpSerialDate = 1;   // "fuzzy" default value '[1 .. 3]'
+                }
+            }
+#endif
+
             if (   stream
 #ifdef BDE_OMIT_TRANSITIONAL
                 && SerialDateImpUtil::isValidSerial(tmpSerialDate)) {
@@ -901,7 +916,26 @@ STREAM& Date::bdexStreamOut(STREAM& stream, int version) const
             BSLS_ASSERT_OPT(      DateImpUtil::isValidSerial(d_serialDate));
 #endif
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
+#ifdef BDE_OMIT_TRANSITIONAL
             stream.putInt24(d_serialDate);
+#else
+            // TBD Note that this must be handled with great care when the
+            // 'bdlt_dateimputil' component is retired and the
+            // 'BDE_OMIT_TRANSITIONAL' code is removed from 'bdlt'.
+
+            if (!DateImpUtil::isProlepticGregorianMode()) {
+                stream.putInt24(d_serialDate);
+            }
+            else {
+                if (1 == d_serialDate) {  // preserve default value
+                    stream.putInt24(d_serialDate);
+                }
+                else {
+                    stream.putInt24(d_serialDate + 2);
+                                          // align post-GR serial values
+                }
+            }
+#endif
           } break;
           default: {
             stream.invalidate();  // unrecognized version number
