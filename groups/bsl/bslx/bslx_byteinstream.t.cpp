@@ -650,7 +650,6 @@ if (veryVerbose) {
 
             Out o(VERSION_SELECTOR);
             o << initial;
-            P(o.length());
             ASSERT(3 == o.length());
             ASSERT(0 == bsl::memcmp(o.data(), "\x02\x00\x07", o.length()));
 
