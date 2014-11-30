@@ -14,18 +14,27 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlt::DateImpUtil: low-level date-related stateless functions
 //
+//@SEE_ALSO: bdlt_posixdateimputil, bdlt_serialdateimputil
+//
 //@DESCRIPTION: This component provides a utility 'struct',
-// 'bdlt::DateImpUtil', that defines the same interface as that provided by
-// 'bdlt::SerialDateImpUtil'.  Each function defined in 'DateImpUtil' also has
-// a corresponding function in 'bdlt::PosixDateImpUtil', but in that case the
-// name of the function typically differs in the latter; e.g., the 'ydToSerial'
-// function in 'DateImpUtil' (and 'SerialDateImpUtil') corresponds to
-// 'yd2serial' in 'PosixDateImpUtil'.
+// 'bdlt::DateImpUtil', that serves as a "switch" between the two underlying
+// utilities 'bdlt::SerialDateImpUtil' (whose functionality is consistent with
+// the proleptic Gregorian calendar) and 'bdlt::PosixDateImpUtil' (which is
+// consistent with the POSIX 'cal' command).  'bdlt::DateImpUtil' has a
+// two-state calendar mode that is in either POSIX mode or proleptic Gregorian
+// mode.  When the calendar mode in effect is POSIX (proleptic Gregorian),
+// functions in 'bdlt::DateImpUtil' forward to corresponding functions in
+// 'bdlt::PosixDateImpUtil' ('bdlt::SerialDateImpUtil').
+
+// The calendar mode is set by the 'disableProlepticGregorianMode' and
+// 'enableProlepticGregorianMode' functions, and queried by the
+// 'isProlepticGregorianMode' function (which returns 'true' for proleptic
+// Gregorian and 'false' for POSIX).  Expected usage is that the calendar mode
+// will be established *once*, early in 'main', and not changed throughout the
+// lifetime of a process.
 //
-// establish when early in 'main'
-//
-// TBD used for the transition
-// Since this component is meant for *internal* *use* *only* , there is no
+// This component is meant for *internal* *use* *only*.  Do *NOT* use unless
+// you know what you are doing.
 //
 ///Usage
 ///-----

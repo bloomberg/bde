@@ -4,6 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlt_dateimputil_cpp,"$Id$ $CSID$")
 
+#include <bsl_cstdio.h>    // 'fprintf'
+
 namespace BloombergLP {
 namespace bdlt {
 
@@ -21,14 +23,16 @@ void DateImpUtil::disableProlepticGregorianMode()
 {
     s_prolepticGregorianModeFlag = false;
 
-    // TBD log
+    bsl::fprintf(stderr,
+                 "bdlt::DateImpUtil: BDE calendar mode set to POSIX\n");
 }
 
 void DateImpUtil::enableProlepticGregorianMode()
 {
     s_prolepticGregorianModeFlag = true;
 
-    // TBD log
+    bsl::fprintf(stderr,
+          "bdlt::DateImpUtil: BDE calendar mode set to proleptic Gregorian\n");
 }
 
 }  // close package namespace

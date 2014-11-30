@@ -3372,15 +3372,26 @@ if (verbose)
         }
 
         const Obj W;                // default value
-        const Obj X(1, 1, 2);       // original (control)
-        const Obj Y(1, 1, 3);       // new (streamed-out)
+        const Obj X(2, 1, 1);       // original (control)
+        const Obj Y(3, 1, 1);       // new (streamed-out)
 
         // Verify the three objects are distinct.
         ASSERT(W != X);
         ASSERT(W != Y);
         ASSERT(X != Y);
 
-        const int SERIAL_Y = 3;       // internal rep. of 'Y'
+#ifdef BDE_OMIT_TRANSITIONAL
+        const int SERIAL_Y = 731;   // internal rep. of 'Y'
+#else
+        int SERIAL_Y;               // streamed rep. of 'Y'
+
+        if (bdlt::DateImpUtil::isProlepticGregorianMode()) {
+            SERIAL_Y = 733;
+        }
+        else {
+            SERIAL_Y = 731;
+        }
+#endif
 
         if (verbose) {
             cout << "\t\tGood stream (for control)." << endl;
@@ -3488,12 +3499,7 @@ if (verbose)
 #ifdef BDE_OMIT_TRANSITIONAL
             out.putInt24(3652060);  // Stream out "new" value.
 #else
-            if (bdlt::DateImpUtil::isProlepticGregorianMode()) {
-                out.putInt24(3652060);
-            }
-            else {
-                out.putInt24(3652062);
-            }
+            out.putInt24(3652062);
 #endif
 
             const char *const OD  = out.data();

@@ -5,7 +5,6 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
-#include <bsls_stopwatch.h>
 
 #include <bsl_climits.h>
 #include <bsl_cstdlib.h>     // 'atoi'
@@ -21,38 +20,45 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// TBD
+// All but three of the functions in the component under test forward to
+// corresponding functions in one of two other utility components depending on
+// which calendar mode is in effect.  To test these forwarding functions it is
+// sufficient to use argument values that produce different results between the
+// two calendar modes.  The three functions that pertain to setting and testing
+// the calendar mode are trivially tested in case 1.
 // ----------------------------------------------------------------------------
 // CLASS METHODS
 // [ 2] static bool isLeapYear(int year);
-// [ 4] static int  lastDayOfMonth(int year, int month);
-// [ 3] static int  numLeapYears(int year1, int year2);
-// [ 5] static bool isValidSerial(int serialDay);
-// [ 5] static bool isValidYearDay(int year, int dayOfYear);
-// [ 5] static bool isValidYearMonthDay(int year, int month, int day);
-// [ 5] static bool isValidYearMonthDayNoCache(int y, int m, int day);
-// [ 9] static int  ydToSerial(int year, int dayOfYear);
-// [ 6] static int  ymdToSerial(int year, int month, int day);
-// [ 6] static int  ymdToSerialNoCache(int year, int month, int day);
-// [10] static int  serialToDayOfYear(int serialDay);
-// [10] static void serialToYd(int *year, int *dayOfYear, int serialDay);
-// [ 7] static int  ymdToDayOfYear(int year, int month, int day);
-// [11] static int  serialToDay(int serialDay);
-// [11] static int  serialToDayNoCache(int serialDay);
-// [11] static int  serialToMonth(int serialDay);
-// [11] static int  serialToMonthNoCache(int serialDay);
-// [10] static int  serialToYear(int serialDay);
-// [10] static int  serialToYearNoCache(int serialDay);
-// [11] static void serialToYmd(int *y, int *m, int *d, int sD);
-// [11] static void serialToYmdNoCache(int *y, int *m, int *d, int sD);
-// [ 8] static int  ydToDay(int year, int dayOfYear);
-// [ 8] static void ydToMd(int *month, int *day, int year, int dayOfYear);
-// [ 8] static int  ydToMonth(int year, int dayOfYear);
-// [12] static int  serialToDayOfWeek(int serialDay);
-// [12] static int  ydToDayOfWeek(int year, int dayOfYear);
-// [12] static int  ymdToDayOfWeek(int year, int month, int day);
+// [ 2] static int  lastDayOfMonth(int year, int month);
+// [ 2] static int  numLeapYears(int year1, int year2);
+// [ 3] static bool isValidSerial(int serialDay);
+// [ 3] static bool isValidYearDay(int year, int dayOfYear);
+// [ 3] static bool isValidYearMonthDay(int year, int month, int day);
+// [ 3] static bool isValidYearMonthDayNoCache(int y, int m, int day);
+// [ 4] static int  ydToSerial(int year, int dayOfYear);
+// [ 4] static int  ymdToSerial(int year, int month, int day);
+// [ 4] static int  ymdToSerialNoCache(int year, int month, int day);
+// [ 5] static int  serialToDayOfYear(int serialDay);
+// [ 5] static void serialToYd(int *year, int *dayOfYear, int serialDay);
+// [ 5] static int  ymdToDayOfYear(int year, int month, int day);
+// [ 6] static int  serialToDay(int serialDay);
+// [ 6] static int  serialToDayNoCache(int serialDay);
+// [ 6] static int  serialToMonth(int serialDay);
+// [ 6] static int  serialToMonthNoCache(int serialDay);
+// [ 6] static int  serialToYear(int serialDay);
+// [ 6] static int  serialToYearNoCache(int serialDay);
+// [ 6] static void serialToYmd(int *y, int *m, int *d, int sD);
+// [ 6] static void serialToYmdNoCache(int *y, int *m, int *d, int sD);
+// [ 6] static int  ydToDay(int year, int dayOfYear);
+// [ 6] static void ydToMd(int *month, int *day, int year, int dayOfYear);
+// [ 6] static int  ydToMonth(int year, int dayOfYear);
+// [ 7] static int  serialToDayOfWeek(int serialDay);
+// [ 7] static int  ydToDayOfWeek(int year, int dayOfYear);
+// [ 7] static int  ymdToDayOfWeek(int year, int month, int day);
+// [ 1] static void disableProlepticGregorianMode();
+// [ 1] static void enableProlepticGregorianMode();
+// [ 1] static bool isProlepticGregorianMode();
 // ----------------------------------------------------------------------------
-// [ 1] CONCERN: The global constants used for testing are correct.
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -113,32 +119,14 @@ void aSsErT(bool condition, const char *message, int line)
 //                     GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdlt::DateImpUtil Util;
+typedef bdlt::DateImpUtil       Util;
+
+typedef bdlt::PosixDateImpUtil  PosixUtil;
+typedef bdlt::SerialDateImpUtil SerialUtil;
 
 // ============================================================================
 //                     GLOBAL CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
-
-enum {
-    k_MIN_MONTH                 =       1,
-    k_MAX_MONTH                 =      12,
-
-    k_MIN_YEAR                  =       1,
-    k_MAX_YEAR                  =    9999,
-
-    k_MIN_SERIAL                =       1,  // 0001/01/01 (earliest valid date)
-    k_MAX_SERIAL                = 3652059,  // 9999/12/31 (latest valid date)
-
-    k_MIN_DAYOFWEEK             =       2,  // 0001/01/01 was a Monday.
-
-    k_SHORT_RANGE_MIN_YEAR      =    1699,  // "reasonable" history
-    k_SHORT_RANGE_MAX_YEAR      =    2201,  // "reasonable" future
-
-    k_SHORT_RANGE_MIN_SERIAL    =  620183,  // 1699/01/01
-    k_SHORT_RANGE_MAX_SERIAL    =  803898,  // 2201/12/31
-
-    k_SHORT_RANGE_MIN_DAYOFWEEK =       5,  // 1699/01/01 was a Thursday.
-};
 
 // ============================================================================
 //                              USAGE EXAMPLE
@@ -158,55 +146,20 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // 'yearRangeFlag' determines the range of years over which exhaustive
-    // testing is performed.  By default, that range is abridged (see 'enum'
-    // above).  In 'veryVerbose' mode, the range includes '[1 .. 9999]'.  In
-    // any case, the entire cache is always exercised.
-
-    bool yearRangeFlag = !(argc > 3);
-
-    // TBD fix test driver
-    if (!Util::isProlepticGregorianMode()) {
-        return -1;
-    }
-
     switch (test) { case 0:
-      case 12: {
+      case 7: {
         // --------------------------------------------------------------------
-        // TESTING '{serial|yd|ymd}ToDayOfWeek'
-        //   Ensure that the methods correctly map every date, in any of the
-        //   three supported formats, to its corresponding day of the week.
+        // TESTING '*ToDayOfWeek'
         //
         // Concerns:
-        //: 1 The 'serialToDayOfWeek' method correctly maps every valid serial
-        //:   date to the corresponding day of the week.
-        //:
-        //: 2 The 'ydToDayOfWeek' method correctly maps every valid
-        //:   year/day-of-year date to the corresponding day of the week.
-        //:
-        //: 3 The 'ymdToDayOfWeek' method correctly maps every valid
-        //:   year/month/day date to the corresponding day of the week.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        //: 1 Each method forwards to the mode-specific implementation that is
+        //:   currently in effect and produces the expected result.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of (unique) valid
-        //:   year/month/day dates (one per row), and the (integral) day (of
-        //:   the week) results expected from 'ymdToDayOfWeek' when applied to
-        //:   those tabulated dates.
-        //:
-        //: 2 Use the table described in P-1, and the (previously tested)
-        //:   'ymdToDayOfYear' and 'ymdToSerial' methods, to verify,
-        //:   respectively, that the results from 'ydToDayOfWeek' and
-        //:   'serialToDayOfWeek' are as expected.
-        //:
-        //: 3 For further assurance, exhaustively test the three methods over a
-        //:   range of years that is governed by the 'yearRangeFlag'.  (C-1..3)
-        //:
-        //: 4 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-4)
+        //: 1 In both calendar modes, exercise each method on data that
+        //:   produces different results between the two modes.  Use the
+        //:   underlying 'PosixDateImpUtil' and 'SerialDateImpUtil' as oracles
+        //:   to verify the expected behavior.  (C-1)
         //
         // Testing:
         //   static int  serialToDayOfWeek(int serialDay);
@@ -215,1361 +168,575 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING '{serial|yd|ymd}ToDayOfWeek'" << endl
-                          << "====================================" << endl;
+                          << "TESTING '*ToDayOfWeek'" << endl
+                          << "======================" << endl;
 
         enum { SUN = 1, MON, TUE, WED, THU, FRI, SAT };
 
+        if (verbose) cout << "\nTesting 'serialToDayOfWeek'." << endl;
         {
-            static const struct {
-                int d_line;   // source line number
-                int d_year;   // year under test
-                int d_month;  // month under test
-                int d_day;    // day under test
-                int d_exp;    // expected value
-            } DATA[] = {
-                //LINE   YEAR   MONTH   DAY   EXPECTED
-                //----   ----   -----   ---   --------
-                { L_,       1,      1,    1,       MON },
-                { L_,       1,      1,    2,       TUE },
-                { L_,       1,      1,    3,       WED },
-                { L_,       1,      1,    4,       THU },
-                { L_,       1,      1,    5,       FRI },
-                { L_,       1,      1,    6,       SAT },
-                { L_,       1,      1,    7,       SUN },
-                { L_,       1,      1,    8,       MON },
+            // proleptic Gregorian mode
 
-                { L_,       1,      2,    1,       THU },
-                { L_,       2,      1,    1,       TUE },
+            Util::enableProlepticGregorianMode();
+            ASSERT(true == Util::isProlepticGregorianMode());
 
-                { L_,    1600,     12,   31,       SUN },
+            ASSERT(MON ==       Util::serialToDayOfWeek(1));
+            ASSERT(SAT ==  PosixUtil::serial2weekday(   1));
+            ASSERT(MON == SerialUtil::serialToDayOfWeek(1));
+        }
+        {
+            // POSIX mode
 
-                { L_,    1752,      9,    2,       SAT },
-                { L_,    1752,      9,    3,       SUN },
-                { L_,    1752,      9,   13,       WED },
-                { L_,    1752,      9,   14,       THU },
+            Util::disableProlepticGregorianMode();
+            ASSERT(false == Util::isProlepticGregorianMode());
 
-                { L_,    1999,     12,   31,       FRI },
-
-                { L_,    2000,      1,    1,       SAT },
-                { L_,    2000,      2,   28,       MON },
-                { L_,    2000,      2,   29,       TUE },
-
-                { L_,    9999,     12,   31,       FRI },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int LINE  = DATA[ti].d_line;
-                const int YEAR  = DATA[ti].d_year;
-                const int MONTH = DATA[ti].d_month;
-                const int DAY   = DATA[ti].d_day;
-                const int EXP   = DATA[ti].d_exp;
-
-                if (veryVerbose) {
-                    P_(LINE);  P_(YEAR);  P_(MONTH);  P_(DAY);  P(EXP);
-                }
-
-                LOOP_ASSERT(LINE,
-                            EXP == Util::ymdToDayOfWeek(YEAR, MONTH, DAY));
-
-                const int doy = Util::ymdToDayOfYear(YEAR, MONTH, DAY);
-
-                LOOP_ASSERT(LINE, EXP == Util::ydToDayOfWeek(YEAR, doy));
-
-                const int serial = Util::ymdToSerial(YEAR, MONTH, DAY);
-
-                LOOP_ASSERT(LINE, EXP == Util::serialToDayOfWeek(serial));
-            }
+            ASSERT(SAT ==       Util::serialToDayOfWeek(1));
+            ASSERT(SAT ==  PosixUtil::serial2weekday(   1));
+            ASSERT(MON == SerialUtil::serialToDayOfWeek(1));
         }
 
-        const int first = yearRangeFlag ? k_SHORT_RANGE_MIN_SERIAL
-                                        : k_MIN_SERIAL;
-        const int last  = yearRangeFlag ? k_SHORT_RANGE_MAX_SERIAL
-                                        : k_MAX_SERIAL;
+        if (verbose) cout << "\nTesting 'ydToDayOfWeek'." << endl;
+        {
+            // proleptic Gregorian mode
 
-        int dow = yearRangeFlag ? k_SHORT_RANGE_MIN_DAYOFWEEK
-                                : k_MIN_DAYOFWEEK;
+            Util::enableProlepticGregorianMode();
+            ASSERT(true == Util::isProlepticGregorianMode());
 
-        if (verbose) cout << "\tExhaustively testing serial years "
-                          << first << '-' << last << '.' << endl;
+            ASSERT(WED ==       Util::ydToDayOfWeek(1, 3));
+            ASSERT(MON ==  PosixUtil::yd2weekday(   1, 3));
+            ASSERT(WED == SerialUtil::ydToDayOfWeek(1, 3));
+        }
+        {
+            // POSIX mode
 
-        for (int s = first; s <= last; ++s) {
+            Util::disableProlepticGregorianMode();
+            ASSERT(false == Util::isProlepticGregorianMode());
 
-            int y = -1, m = -1, d = -1;
-            Util::serialToYmd(&y, &m, &d, s);
+            ASSERT(MON ==       Util::ydToDayOfWeek(1, 3));
+            ASSERT(MON ==  PosixUtil::yd2weekday(   1, 3));
+            ASSERT(WED == SerialUtil::ydToDayOfWeek(1, 3));
+        }
 
-            int doy = Util::serialToDayOfYear(s);
+        if (verbose) cout << "\nTesting 'ymdToDayOfWeek'." << endl;
+        {
+            // proleptic Gregorian mode
 
-            if (veryVerbose && 0 == (s - 1) % 100) {
-                P_(s);  P_(y);  P_(m);  P_(d);  P(doy);
-            }
+            Util::enableProlepticGregorianMode();
+            ASSERT(true == Util::isProlepticGregorianMode());
 
-            LOOP2_ASSERT(s,       dow, dow == Util::serialToDayOfWeek(s));
-            LOOP4_ASSERT(y, m, d, dow, dow == Util::ymdToDayOfWeek(y, m, d));
-            LOOP3_ASSERT(y, doy,  dow, dow == Util::ydToDayOfWeek(y, doy));
+            ASSERT(FRI ==       Util::ymdToDayOfWeek(1, 1, 5));
+            ASSERT(WED ==  PosixUtil::ymd2weekday(   1, 1, 5));
+            ASSERT(FRI == SerialUtil::ymdToDayOfWeek(1, 1, 5));
+        }
+        {
+            // POSIX mode
 
-            if (8 == ++dow) {
-                dow = 1;
-            }
+            Util::disableProlepticGregorianMode();
+            ASSERT(false == Util::isProlepticGregorianMode());
+
+            ASSERT(WED ==       Util::ymdToDayOfWeek(1, 1, 5));
+            ASSERT(WED ==  PosixUtil::ymd2weekday(   1, 1, 5));
+            ASSERT(FRI == SerialUtil::ymdToDayOfWeek(1, 1, 5));
         }
 
       } break;
-      case 11: {
+      case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'serialTo{Day|Month|Ymd}[NoCache]'
-        //   Ensure that the methods correctly map every serial date to the
-        //   corresponding year, month, and day (of the month).
+        // TESTING TO YEAR-MONTH-DAY DATE
         //
         // Concerns:
-        //: 1 The 'serialToYmd[NoCache]' methods correctly map every valid
-        //:   serial date to its corresponding year/month/day date.
-        //:
-        //: 2 The 'serialToMonth[NoCache]' methods correctly map every valid
-        //:   serial date to the corresponding month.
-        //:
-        //: 3 The 'serialToDay[NoCache]' methods correctly map every valid
-        //:   serial date to the corresponding day (of the month).
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        //: 1 Each method forwards to the mode-specific implementation that is
+        //:   currently in effect and produces the expected result.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of (unique) valid
-        //:   serial dates (one per row), and the (integral) year, month, and
-        //:   day (of the month) results expected from the four methods when
-        //:   applied to those tabulated dates.  For further assurance,
-        //:   exhaustively test the methods over a range of years that is
-        //:   governed by the 'yearRangeFlag'.  (C-1..3)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-4)
+        //: 1 In both calendar modes, exercise each method on data that
+        //:   produces different results between the two modes.  Use the
+        //:   underlying 'PosixDateImpUtil' and 'SerialDateImpUtil' as oracles
+        //:   to verify the expected behavior.  (C-1)
         //
         // Testing:
         //   static int  serialToDay(int serialDay);
         //   static int  serialToDayNoCache(int serialDay);
         //   static int  serialToMonth(int serialDay);
         //   static int  serialToMonthNoCache(int serialDay);
-        //   static void serialToYmd(int *y, int *m, int *d, int sD);
-        //   static void serialToYmdNoCache(int *y, int *m, int *d, int sD);
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "TESTING 'serialTo{Day|Month|Ymd}[NoCache]'"
-                          << endl
-                          << "=========================================="
-                          << endl;
-
-        if (verbose) cout << "\tDirect test vectors." << endl;
-        {
-            static const struct {
-                int d_line;      // source line number
-                int d_serial;    // serial date under test
-                int d_expYear;   // expected year value
-                int d_expMonth;  // expected month value
-                int d_expDay;    // expected day value
-            } DATA[] = {
-                //                    <--- EXPECTED --->
-                //LINE      SERIAL    YEAR   MONTH   DAY
-                //----      ------    ----   -----   ---
-                { L_,            1,      1,      1,    1 },
-                { L_,            2,      1,      1,    2 },
-                { L_,           32,      1,      2,    1 },
-                { L_,          365,      1,     12,   31 },
-                { L_,          366,      2,      1,    1 },
-                { L_,          730,      2,     12,   31 },
-                { L_,          731,      3,      1,    1 },
-                { L_,         1095,      3,     12,   31 },
-
-                { L_,         1096,      4,      1,    1 },
-                { L_,         1460,      4,     12,   30 },
-                { L_,         1461,      4,     12,   31 },
-                { L_,         1462,      5,      1,    1 },
-
-                { L_,        36160,    100,      1,    1 },
-                { L_,        36523,    100,     12,   30 },
-                { L_,        36524,    100,     12,   31 },
-                { L_,        36525,    101,      1,    1 },
-
-                { L_,       145732,    400,      1,    1 },
-                { L_,       146096,    400,     12,   30 },
-                { L_,       146097,    400,     12,   31 },
-                { L_,       146098,    401,      1,    1 },
-
-                { L_,       147193,    404,      1,    1 },
-                { L_,       147557,    404,     12,   30 },
-                { L_,       147558,    404,     12,   31 },
-                { L_,       147559,    405,      1,    1 },
-
-                { L_,       182257,    500,      1,    1 },
-                { L_,       182620,    500,     12,   30 },
-                { L_,       182621,    500,     12,   31 },
-                { L_,       182622,    501,      1,    1 },
-
-                { L_,       291829,    800,      1,    1 },
-                { L_,       292193,    800,     12,   30 },
-                { L_,       292194,    800,     12,   31 },
-                { L_,       292195,    801,      1,    1 },
-
-                { L_,       657071,   1799,     12,   31 },
-                { L_,       657072,   1800,      1,    1 },
-                { L_,       657436,   1800,     12,   31 },
-                { L_,       657437,   1801,      1,    1 },
-                { L_,       657801,   1801,     12,   31 },
-                { L_,       657802,   1802,      1,    1 },
-
-                { L_,       693595,   1899,     12,   31 },
-                { L_,       693596,   1900,      1,    1 },
-                { L_,       693960,   1900,     12,   31 },
-                { L_,       693961,   1901,      1,    1 },
-                { L_,       694325,   1901,     12,   31 },
-                { L_,       694326,   1902,      1,    1 },
-
-                { L_,       730119,   1999,     12,   31 },
-                { L_,       730120,   2000,      1,    1 },
-                { L_,       730485,   2000,     12,   31 },
-                { L_,       730486,   2001,      1,    1 },
-                { L_,       730850,   2001,     12,   31 },
-                { L_,       730851,   2002,      1,    1 },
-
-                { L_,       766644,   2099,     12,   31 },
-                { L_,       766645,   2100,      1,    1 },
-                { L_,       767009,   2100,     12,   31 },
-                { L_,       767010,   2101,      1,    1 },
-                { L_,       767374,   2101,     12,   31 },
-                { L_,       767375,   2102,      1,    1 },
-
-                { L_,       876216,   2399,     12,   31 },
-                { L_,       876217,   2400,      1,    1 },
-                { L_,       876582,   2400,     12,   31 },
-                { L_,       876583,   2401,      1,    1 },
-                { L_,       876947,   2401,     12,   31 },
-                { L_,       876948,   2402,      1,    1 },
-
-                { L_,      3650233,   9994,     12,   31 },
-                { L_,      3650234,   9995,      1,    1 },
-                { L_,      3650598,   9995,     12,   31 },
-                { L_,      3650599,   9996,      1,    1 },
-                { L_,      3650964,   9996,     12,   31 },
-                { L_,      3650965,   9997,      1,    1 },
-                { L_,      3651329,   9997,     12,   31 },
-                { L_,      3651330,   9998,      1,    1 },
-                { L_,      3651694,   9998,     12,   31 },
-                { L_,      3651695,   9999,      1,    1 },
-                { L_, k_MAX_SERIAL,   9999,     12,   31 },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int LINE     = DATA[ti].d_line;
-                const int SERIAL   = DATA[ti].d_serial;
-                const int EXPYEAR  = DATA[ti].d_expYear;
-                const int EXPMONTH = DATA[ti].d_expMonth;
-                const int EXPDAY   = DATA[ti].d_expDay;
-
-                int yy = -1, mm = -1, dd = -1;
-                Util::serialToYmd(&yy, &mm, &dd, SERIAL);
-
-                if (veryVerbose) {
-                    cout << setw(15) << SERIAL << ": "
-                         << setw( 4) << yy     << " / "
-                         << setw( 2) << mm     << " / "
-                         << setw( 2) << dd     << endl;
-                }
-
-                LOOP_ASSERT(LINE, EXPYEAR  == yy);
-                LOOP_ASSERT(LINE, EXPMONTH == mm);
-                LOOP_ASSERT(LINE, EXPDAY   == dd);
-
-                LOOP_ASSERT(LINE, EXPMONTH == Util::serialToMonth(SERIAL));
-                LOOP_ASSERT(LINE, EXPDAY   == Util::serialToDay(SERIAL));
-
-                yy = mm = dd = -1;
-                Util::serialToYmdNoCache(&yy, &mm, &dd, SERIAL);
-
-                if (veryVerbose) {
-                    cout << setw(15) << SERIAL << ": "
-                         << setw( 4) << yy     << " / "
-                         << setw( 2) << mm     << " / "
-                         << setw( 2) << dd     << endl;
-                }
-
-                LOOP_ASSERT(LINE, EXPYEAR  == yy);
-                LOOP_ASSERT(LINE, EXPMONTH == mm);
-                LOOP_ASSERT(LINE, EXPDAY   == dd);
-
-                LOOP_ASSERT(LINE,
-                            EXPMONTH == Util::serialToMonthNoCache(SERIAL));
-                LOOP_ASSERT(LINE,
-                            EXPDAY   == Util::serialToDayNoCache(SERIAL));
-            }
-        }
-
-        const int first = yearRangeFlag ? k_SHORT_RANGE_MIN_YEAR : k_MIN_YEAR;
-        const int last  = yearRangeFlag ? k_SHORT_RANGE_MAX_YEAR : k_MAX_YEAR;
-
-        if (verbose) cout << "\tExhaustively testing years "
-                          << first << '-' << last << '.' << endl;
-
-        int serial =
-                 (yearRangeFlag ? k_SHORT_RANGE_MIN_SERIAL : k_MIN_SERIAL) - 1;
-
-        for (int y = first; y <= last; ++y) {
-            for (int m = 1; m <= 12; ++m) {
-                for (int d = 1; d <= 31; ++d) {
-                    if (Util::isValidYearMonthDay(y, m, d)) {
-                        ++serial;
-
-                        if (veryVerbose && 0 == (serial - 1) % 100) {
-                            P_(serial);  P_(y);  P_(m);  P(d);
-                        }
-
-                        int yy = -1, mm = -1, dd = -1;
-                        Util::serialToYmd(&yy, &mm, &dd, serial);
-
-                        LOOP2_ASSERT(y, yy, y == yy);
-                        LOOP2_ASSERT(m, mm, m == mm);
-                        LOOP2_ASSERT(d, dd, d == dd);
-
-                        ASSERT(m == Util::serialToMonth(serial));
-                        ASSERT(d == Util::serialToDay(serial));
-
-                        yy = mm = dd = -1;
-                        Util::serialToYmdNoCache(&yy, &mm, &dd, serial);
-
-                        LOOP2_ASSERT(y, yy, y == yy);
-                        LOOP2_ASSERT(m, mm, m == mm);
-                        LOOP2_ASSERT(d, dd, d == dd);
-
-                        ASSERT(m == Util::serialToMonthNoCache(serial));
-                        ASSERT(d == Util::serialToDayNoCache(serial));
-                    }
-                }
-            }
-        }
-        ASSERT(serial ==
-                    (yearRangeFlag ? k_SHORT_RANGE_MAX_SERIAL : k_MAX_SERIAL));
-
-      } break;
-      case 10: {
-        // --------------------------------------------------------------------
-        // TESTING 'serialTo{DayOfYear|Yd|Year[NoCache]}'
-        //   Ensure that the methods correctly map every serial date to the
-        //   corresponding year and day (of the year).
-        //
-        // Concerns:
-        //: 1 The 'serialToYd' method correctly maps every valid serial date to
-        //:   the corresponding year and day of year.
-        //:
-        //: 2 The 'serialToDayOfYear' method correctly maps every valid serial
-        //:   date to the corresponding day of year.
-        //:
-        //: 3 The 'serialToYear[NoCache]' methods correctly map every valid
-        //:   serial date to the corresponding year.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
-        //
-        // Plan:
-        //: 1 Using the table-driven technique, specify a set of (unique) valid
-        //:   serial dates (one per row), and the (integral) year and day of
-        //:   year results expected from the three methods when applied to
-        //:   those tabulated dates.  For further assurance, exhaustively test
-        //:   the methods over a range of years that is governed by the
-        //:   'yearRangeFlag'.  (C-1..3)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-4)
-        //
-        // Testing:
-        //   static int  serialToDayOfYear(int serialDay);
-        //   static void serialToYd(int *year, int *dayOfYear, int serialDay);
         //   static int  serialToYear(int serialDay);
         //   static int  serialToYearNoCache(int serialDay);
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "TESTING 'serialTo{DayOfYear|Yd|Year[NoCache]}'"
-                          << endl
-                          << "=============================================="
-                          << endl;
-
-        if (verbose) cout << "\tDirect test vectors." << endl;
-        {
-            static const struct {
-                int d_line;          // source line number
-                int d_serial;        // serial date under test
-                int d_expYear;       // expected year value
-                int d_expDayOfYear;  // expected day of year value
-            } DATA[] = {
-                //                     <--- EXPECTED--->
-                //LINE       SERIAL    YEAR  DAY OF YEAR
-                //----       ------    ----  -----------
-                { L_,             1,      1,           1 },
-                { L_,             2,      1,           2 },
-                { L_,            32,      1,          32 },
-                { L_,           365,      1,         365 },
-                { L_,           366,      2,           1 },
-                { L_,           730,      2,         365 },
-                { L_,           731,      3,           1 },
-                { L_,          1095,      3,         365 },
-
-                { L_,          1096,      4,           1 },
-                { L_,          1460,      4,         365 },
-                { L_,          1461,      4,         366 },
-                { L_,          1462,      5,           1 },
-
-                { L_,         36160,    100,           1 },
-                { L_,         36523,    100,         364 },
-                { L_,         36524,    100,         365 },
-                { L_,         36525,    101,           1 },
-
-                { L_,        145732,    400,           1 },
-                { L_,        146096,    400,         365 },
-                { L_,        146097,    400,         366 },
-                { L_,        146098,    401,           1 },
-
-                { L_,        147193,    404,           1 },
-                { L_,        147557,    404,         365 },
-                { L_,        147558,    404,         366 },
-                { L_,        147559,    405,           1 },
-
-                { L_,        182257,    500,           1 },
-                { L_,        182620,    500,         364 },
-                { L_,        182621,    500,         365 },
-                { L_,        182622,    501,           1 },
-
-                { L_,        291829,    800,           1 },
-                { L_,        292193,    800,         365 },
-                { L_,        292194,    800,         366 },
-                { L_,        292195,    801,           1 },
-
-                { L_,        639174,   1750,         365 },
-                { L_,        639175,   1751,           1 },
-                { L_,        639539,   1751,         365 },
-                { L_,        639540,   1752,           1 },
-                { L_,        639905,   1752,         366 },
-                { L_,        639906,   1753,           1 },
-                { L_,        640270,   1753,         365 },
-                { L_,        640271,   1754,           1 },
-                { L_,        640635,   1754,         365 },
-                { L_,        640636,   1755,           1 },
-                { L_,        641000,   1755,         365 },
-                { L_,        641001,   1756,           1 },
-                { L_,        641366,   1756,         366 },
-                { L_,        641367,   1757,           1 },
-
-                { L_,        657071,   1799,         365 },
-                { L_,        657072,   1800,           1 },
-                { L_,        657436,   1800,         365 },
-                { L_,        657437,   1801,           1 },
-                { L_,        657801,   1801,         365 },
-                { L_,        657802,   1802,           1 },
-
-                { L_,        693595,   1899,         365 },
-                { L_,        693596,   1900,           1 },
-                { L_,        693960,   1900,         365 },
-                { L_,        693961,   1901,           1 },
-                { L_,        694325,   1901,         365 },
-                { L_,        694326,   1902,           1 },
-
-                { L_,        730119,   1999,         365 },
-                { L_,        730120,   2000,           1 },
-                { L_,        730485,   2000,         366 },
-                { L_,        730486,   2001,           1 },
-                { L_,        730850,   2001,         365 },
-                { L_,        730851,   2002,           1 },
-
-                { L_,        766644,   2099,         365 },
-                { L_,        766645,   2100,           1 },
-                { L_,        767009,   2100,         365 },
-                { L_,        767010,   2101,           1 },
-                { L_,        767374,   2101,         365 },
-                { L_,        767375,   2102,           1 },
-
-                { L_,        876216,   2399,         365 },
-                { L_,        876217,   2400,           1 },
-                { L_,        876582,   2400,         366 },
-                { L_,        876583,   2401,           1 },
-                { L_,        876947,   2401,         365 },
-                { L_,        876948,   2402,           1 },
-
-                { L_,       3650233,   9994,         365 },
-                { L_,       3650234,   9995,           1 },
-                { L_,       3650598,   9995,         365 },
-                { L_,       3650599,   9996,           1 },
-                { L_,       3650964,   9996,         366 },
-                { L_,       3650965,   9997,           1 },
-                { L_,       3651329,   9997,         365 },
-                { L_,       3651330,   9998,           1 },
-                { L_,       3651694,   9998,         365 },
-                { L_,       3651695,   9999,           1 },
-                { L_,  k_MAX_SERIAL,   9999,         365 },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int LINE         = DATA[ti].d_line;
-                const int SERIAL       = DATA[ti].d_serial;
-                const int EXPYEAR      = DATA[ti].d_expYear;
-                const int EXPDAYOFYEAR = DATA[ti].d_expDayOfYear;
-
-                int yy = -1, dd = -1;
-                Util::serialToYd(&yy, &dd, SERIAL);
-
-                if (veryVerbose) {
-                    cout << setw(15) << SERIAL << ": "
-                         << setw( 4) << yy     << " / "
-                         << setw( 3) << dd     << endl;
-                }
-
-                LOOP3_ASSERT(LINE, EXPYEAR,      yy, EXPYEAR      == yy);
-                LOOP3_ASSERT(LINE, EXPDAYOFYEAR, dd, EXPDAYOFYEAR == dd);
-
-                yy = Util::serialToYear(SERIAL);
-                dd = Util::serialToDayOfYear(SERIAL);
-
-                LOOP3_ASSERT(LINE, EXPYEAR,      yy, EXPYEAR      == yy);
-                LOOP3_ASSERT(LINE, EXPDAYOFYEAR, dd, EXPDAYOFYEAR == dd);
-
-                LOOP3_ASSERT(LINE, EXPYEAR, yy,
-                             yy == Util::serialToYearNoCache(SERIAL));
-            }
-        }
-
-        const int first = yearRangeFlag ? k_SHORT_RANGE_MIN_YEAR : k_MIN_YEAR;
-        const int last  = yearRangeFlag ? k_SHORT_RANGE_MAX_YEAR : k_MAX_YEAR;
-
-        if (verbose) cout << "\tExhaustively testing years "
-                          << first << '-' << last << '.' << endl;
-
-        int serial =
-                 (yearRangeFlag ? k_SHORT_RANGE_MIN_SERIAL : k_MIN_SERIAL) - 1;
-
-        for (int y = first; y <= last; ++y) {
-            for (int doy = 1; doy <= 366; ++doy) {
-                if (Util::isValidYearDay(y, doy)) {
-                    ++serial;
-
-                    if (veryVerbose && 0 == (serial - 1) % 100) {
-                        P_(serial);  P_(y);  P(doy);
-                    }
-
-                    int yy = -1, dd = -1;
-                    Util::serialToYd(&yy, &dd, serial);
-
-                    LOOP2_ASSERT(  y, yy,   y == yy);
-                    LOOP2_ASSERT(doy, dd, doy == dd);
-
-                    yy = Util::serialToYear(serial);
-                    dd = Util::serialToDayOfYear(serial);
-
-                    LOOP2_ASSERT(  y, yy,   y == yy);
-                    LOOP2_ASSERT(doy, dd, doy == dd);
-
-                    ASSERT(yy == Util::serialToYearNoCache(serial));
-                }
-            }
-        }
-        ASSERT(serial ==
-                    (yearRangeFlag ? k_SHORT_RANGE_MAX_SERIAL : k_MAX_SERIAL));
-
-      } break;
-      case 9: {
-        // --------------------------------------------------------------------
-        // TESTING 'ydToSerial'
-        //   Ensure that the method correctly maps every year/day-of-year date
-        //   to its corresponding serial date.
-        //
-        // Concerns:
-        //: 1 The method correctly maps every valid year/day-of-year date to
-        //:   its corresponding serial date.
-        //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
-        //
-        // Plan:
-        //: 1 Using the table-driven technique, specify a set of (unique) valid
-        //:   year/day-of-year dates (one per row), and the (integral) results
-        //:   expected from 'ydToSerial' when applied to those tabulated dates.
-        //:   For further assurance, exhaustively test 'ydToSerial' over a
-        //:   range of years that is governed by the 'yearRangeFlag'.  (C-1)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-2)
-        //
-        // Testing:
-        //   static int  ydToSerial(int year, int dayOfYear);
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "TESTING 'ydToSerial'" << endl
-                          << "====================" << endl;
-
-        if (verbose) cout << "\tDirect test vectors." << endl;
-        {
-            static const struct {
-                int d_line;       // source line number
-                int d_year;       // year under test
-                int d_dayOfYear;  // day of year under test
-                int d_exp;        // expected value
-            } DATA[] = {
-                //LINE   YEAR   DAY OF YEAR       EXPECTED
-                //----   ----   -----------       --------
-                { L_,       1,            1,             1 },
-                { L_,       1,          365,           365 },
-                { L_,       2,            1,           366 },
-                { L_,       2,          365,           730 },
-                { L_,       3,          365,          1095 },
-                { L_,       4,          365,          1460 },
-                { L_,       4,          366,          1461 },
-                { L_,       5,          365,          1826 },
-
-                { L_,    1751,            1,        639175 },
-                { L_,    1751,          365,        639539 },
-                { L_,    1752,            1,        639540 },
-                { L_,    1752,          355,        639894 },
-                { L_,    1753,            1,        639906 },
-
-                { L_,    1799,          365,        657071 },
-                { L_,    1800,            1,        657072 },
-                { L_,    1800,          365,        657436 },
-                { L_,    1801,            1,        657437 },
-
-                { L_,    1899,          365,        693595 },
-                { L_,    1900,            1,        693596 },
-                { L_,    1900,          365,        693960 },
-                { L_,    1901,            1,        693961 },
-
-                { L_,    1999,          365,        730119 },
-                { L_,    2000,            1,        730120 },
-                { L_,    2000,          366,        730485 },
-                { L_,    2001,            1,        730486 },
-
-                { L_,    2099,          365,        766644 },
-                { L_,    2100,            1,        766645 },
-                { L_,    2100,          365,        767009 },
-                { L_,    2101,            1,        767010 },
-
-                { L_,    2399,          365,        876216 },
-                { L_,    2400,            1,        876217 },
-                { L_,    2400,          366,        876582 },
-                { L_,    2401,            1,        876583 },
-
-                { L_,    9995,          365,       3650598 },
-                { L_,    9996,            1,       3650599 },
-                { L_,    9996,          366,       3650964 },
-                { L_,    9997,            1,       3650965 },
-                { L_,    9999,          365,  k_MAX_SERIAL },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int LINE      = DATA[ti].d_line;
-                const int YEAR      = DATA[ti].d_year;
-                const int DAYOFYEAR = DATA[ti].d_dayOfYear;
-                const int EXP       = DATA[ti].d_exp;
-
-                if (veryVerbose) {
-                    P_(LINE);  P_(YEAR);  P_(DAYOFYEAR);  P(EXP);
-                }
-
-                LOOP_ASSERT(LINE, EXP == Util::ydToSerial(YEAR, DAYOFYEAR));
-            }
-        }
-
-        const int first = yearRangeFlag ? k_SHORT_RANGE_MIN_YEAR : k_MIN_YEAR;
-        const int last  = yearRangeFlag ? k_SHORT_RANGE_MAX_YEAR : k_MAX_YEAR;
-
-        if (verbose) cout << "\tExhaustively testing years "
-                          << first << '-' << last << '.' << endl;
-
-        int serial =
-                 (yearRangeFlag ? k_SHORT_RANGE_MIN_SERIAL : k_MIN_SERIAL) - 1;
-
-        for (int y = first; y <= last; ++y) {
-            for (int m = 1; m <= 12; ++m) {
-                for (int d = 1; d <= 31; ++d) {
-                    if (Util::isValidYearMonthDay(y, m, d)) {
-                        ++serial;
-
-                        int doy = Util::ymdToDayOfYear(y, m, d);
-
-                        if (veryVerbose && 0 == (serial - 1) % 100) {
-                            P_(y);  P_(doy);  P(serial);
-                        }
-
-                        int ss = Util::ydToSerial(y, doy);
-
-                        LOOP4_ASSERT(y, doy, ss, serial, ss == serial);
-                    }
-                }
-            }
-        }
-        ASSERT(serial ==
-                    (yearRangeFlag ? k_SHORT_RANGE_MAX_SERIAL : k_MAX_SERIAL));
-
-      } break;
-      case 8: {
-        // --------------------------------------------------------------------
-        // TESTING 'ydTo{Day|Md|Month}'
-        //   Ensure that the methods correctly map every year/day-of-year date
-        //   to the corresponding month and day of the month.
-        //
-        // Concerns:
-        //: 1 The 'ydToMd' method correctly maps every valid year/day-of-year
-        //:   date to the corresponding month and day of the month.
-        //:
-        //: 2 The 'ydToMonth' method correctly maps every valid
-        //:   year/day-of-year date to the corresponding month.
-        //:
-        //: 3 The 'ydToDay' method correctly maps every valid year/day-of-year
-        //:   date to the corresponding day of the month.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
-        //
-        // Plan:
-        //: 1 Using the table-driven technique, specify a set of (unique) valid
-        //:   year/day-of-year dates (one per row), and the (integral) month
-        //:   and day (of the month) results expected from the three methods
-        //:   when applied to those tabulated dates.  For further assurance,
-        //:   exhaustively test the methods over a range of years that is
-        //:   governed by the 'yearRangeFlag'.  (C-1..3)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-4)
-        //
-        // Testing:
+        //   static void serialToYmd(int *y, int *m, int *d, int sD);
+        //   static void serialToYmdNoCache(int *y, int *m, int *d, int sD);
         //   static int  ydToDay(int year, int dayOfYear);
         //   static void ydToMd(int *month, int *day, int year, int dayOfYear);
         //   static int  ydToMonth(int year, int dayOfYear);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'ydTo{Day|Md|Month}'" << endl
-                          << "============================" << endl;
+                          << "TESTING TO YEAR-MONTH-DAY DATE" << endl
+                          << "==============================" << endl;
 
-        if (verbose) cout << "\tDirect test vectors." << endl;
+        // In proleptic Gregorian (POSIX), serial value 36525 is 0101/01/01
+        // (0100/12/31).
+
+        if (verbose) cout << "\nTesting 'serialToDay[NoCache]'." << endl;
         {
-            static const struct {
-                int d_line;       // source line number
-                int d_year;       // year under test
-                int d_dayOfYear;  // day of year under test
-                int d_expMonth;   // expected value for month
-                int d_expDay;     // expected value for day
-            } DATA[] = {
-                //                            < EXPECTED >
-                //LINE   YEAR   DAY OF YEAR   MONTH    DAY
-                //----   ----   -----------   -----    ---
-                { L_,       1,            1,      1,     1 },
-                { L_,       1,          365,     12,    31 },
-                { L_,       2,          365,     12,    31 },
-                { L_,       3,          365,     12,    31 },
-                { L_,       4,          365,     12,    30 },
-                { L_,       4,          366,     12,    31 },
-                { L_,       5,          365,     12,    31 },
+            // proleptic Gregorian mode
 
-                { L_,    1751,          365,     12,    31 },
-                { L_,    1752,          355,     12,    20 },
+            Util::enableProlepticGregorianMode();
+            ASSERT(true == Util::isProlepticGregorianMode());
 
-                { L_,    1980,          365,     12,    30 },
-                { L_,    1980,          366,     12,    31 },
-                { L_,    1990,          365,     12,    31 },
+            ASSERT( 1 ==       Util::serialToDay(       36525));
+            ASSERT(31 ==  PosixUtil::serial2day(        36525));
+            ASSERT( 1 == SerialUtil::serialToDay(       36525));
 
-                { L_,    1996,            1,      1,     1 },
-                { L_,    1996,           31,      1,    31 },
-                { L_,    1996,           32,      2,     1 },
-                { L_,    1996,           59,      2,    28 },
-                { L_,    1996,           60,      2,    29 },
-                { L_,    1996,           61,      3,     1 },
-                { L_,    1996,           91,      3,    31 },
-                { L_,    1996,           92,      4,     1 },
-                { L_,    1996,          121,      4,    30 },
-                { L_,    1996,          122,      5,     1 },
-                { L_,    1996,          152,      5,    31 },
-                { L_,    1996,          153,      6,     1 },
-                { L_,    1996,          182,      6,    30 },
-                { L_,    1996,          183,      7,     1 },
-                { L_,    1996,          213,      7,    31 },
-                { L_,    1996,          214,      8,     1 },
-                { L_,    1996,          244,      8,    31 },
-                { L_,    1996,          245,      9,     1 },
-                { L_,    1996,          274,      9,    30 },
-                { L_,    1996,          275,     10,     1 },
-                { L_,    1996,          305,     10,    31 },
-                { L_,    1996,          306,     11,     1 },
-                { L_,    1996,          335,     11,    30 },
-                { L_,    1996,          336,     12,     1 },
-                { L_,    1996,          366,     12,    31 },
+            ASSERT( 1 ==       Util::serialToDayNoCache(36525));
+            ASSERT(31 ==  PosixUtil::serial2dayNoCache( 36525));
+            ASSERT( 1 == SerialUtil::serialToDayNoCache(36525));
+        }
+        {
+            // POSIX mode
 
-                { L_,    2000,          365,     12,    30 },
-                { L_,    2000,          366,     12,    31 },
-                { L_,    2001,          365,     12,    31 },
-                { L_,    2002,          365,     12,    31 },
-                { L_,    2003,          365,     12,    31 },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            Util::disableProlepticGregorianMode();
+            ASSERT(false == Util::isProlepticGregorianMode());
 
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int LINE      = DATA[ti].d_line;
-                const int YEAR      = DATA[ti].d_year;
-                const int DAYOFYEAR = DATA[ti].d_dayOfYear;
-                const int EXPMONTH  = DATA[ti].d_expMonth;
-                const int EXPDAY    = DATA[ti].d_expDay;
+            ASSERT(31 ==       Util::serialToDay(       36525));
+            ASSERT(31 ==  PosixUtil::serial2day(        36525));
+            ASSERT( 1 == SerialUtil::serialToDay(       36525));
 
-                if (veryVerbose) {
-                    P_(LINE);  P_(YEAR);  P_(DAYOFYEAR);
-                    P_(EXPMONTH);  P(EXPDAY);
-                }
-
-                int mm, dd;
-                Util::ydToMd(&mm, &dd, YEAR, DAYOFYEAR);
-
-                LOOP_ASSERT(LINE, EXPMONTH == mm);
-                LOOP_ASSERT(LINE, EXPDAY   == dd);
-
-                mm = Util::ydToMonth(YEAR, DAYOFYEAR);
-                dd = Util::ydToDay(  YEAR, DAYOFYEAR);
-
-                LOOP_ASSERT(LINE, EXPMONTH == mm);
-                LOOP_ASSERT(LINE, EXPDAY   == dd);
-            }
+            ASSERT(31 ==       Util::serialToDayNoCache(36525));
+            ASSERT(31 ==  PosixUtil::serial2dayNoCache( 36525));
+            ASSERT( 1 == SerialUtil::serialToDayNoCache(36525));
         }
 
-        const int first = yearRangeFlag ? k_SHORT_RANGE_MIN_YEAR : k_MIN_YEAR;
-        const int last  = yearRangeFlag ? k_SHORT_RANGE_MAX_YEAR : k_MAX_YEAR;
+        if (verbose) cout << "\nTesting 'serialToMonth[NoCache]'." << endl;
+        {
+            // proleptic Gregorian mode
 
-        if (verbose) cout << "\tExhaustively testing years "
-                          << first << '-' << last << '.' << endl;
+            Util::enableProlepticGregorianMode();
+            ASSERT(true == Util::isProlepticGregorianMode());
 
-        int loopCount = 0;  // governs excessive verbosity
+            ASSERT( 1 ==       Util::serialToMonth(       36525));
+            ASSERT(12 ==  PosixUtil::serial2month(        36525));
+            ASSERT( 1 == SerialUtil::serialToMonth(       36525));
 
-        for (int y = first; y <= last; ++y) {
-            for (int m = 1; m <= 12; ++m) {
-                for (int d = 1; d <= 31; ++d) {
-                    if (Util::isValidYearMonthDay(y, m, d)) {
+            ASSERT( 1 ==       Util::serialToMonthNoCache(36525));
+            ASSERT(12 ==  PosixUtil::serial2monthNoCache( 36525));
+            ASSERT( 1 == SerialUtil::serialToMonthNoCache(36525));
+        }
+        {
+            // POSIX mode
 
-                        int doy = Util::ymdToDayOfYear(y, m, d);
+            Util::disableProlepticGregorianMode();
+            ASSERT(false == Util::isProlepticGregorianMode());
 
-                        if (veryVerbose && 0 == loopCount % 100) {
-                            P_(y);  P_(m);  P_(d);  P(doy);
-                        }
-                        ++loopCount;
+            ASSERT(12 ==       Util::serialToMonth(       36525));
+            ASSERT(12 ==  PosixUtil::serial2month(        36525));
+            ASSERT( 1 == SerialUtil::serialToMonth(       36525));
 
-                        int mm = -1, dd = -1;
-                        Util::ydToMd(&mm, &dd, y, doy);
+            ASSERT(12 ==       Util::serialToMonthNoCache(36525));
+            ASSERT(12 ==  PosixUtil::serial2monthNoCache( 36525));
+            ASSERT( 1 == SerialUtil::serialToMonthNoCache(36525));
+        }
 
-                        LOOP4_ASSERT(y, doy, m, mm, m == mm);
-                        LOOP4_ASSERT(y, doy, d, dd, d == dd);
+        if (verbose) cout << "\nTesting 'serialToYear[NoCache]'." << endl;
+        {
+            // proleptic Gregorian mode
 
-                        mm = Util::ydToMonth(y, doy);
-                        dd = Util::ydToDay(  y, doy);
+            Util::enableProlepticGregorianMode();
+            ASSERT(true == Util::isProlepticGregorianMode());
 
-                        LOOP4_ASSERT(y, doy, m, mm, m == mm);
-                        LOOP4_ASSERT(y, doy, d, dd, d == dd);
-                    }
-                }
-            }
+            ASSERT(101 ==       Util::serialToYear(       36525));
+            ASSERT(100 ==  PosixUtil::serial2year(        36525));
+            ASSERT(101 == SerialUtil::serialToYear(       36525));
+
+            ASSERT(101 ==       Util::serialToYearNoCache(36525));
+            ASSERT(100 ==  PosixUtil::serial2yearNoCache( 36525));
+            ASSERT(101 == SerialUtil::serialToYearNoCache(36525));
+        }
+        {
+            // POSIX mode
+
+            Util::disableProlepticGregorianMode();
+            ASSERT(false == Util::isProlepticGregorianMode());
+
+            ASSERT(100 ==       Util::serialToYear(       36525));
+            ASSERT(100 ==  PosixUtil::serial2year(        36525));
+            ASSERT(101 == SerialUtil::serialToYear(       36525));
+
+            ASSERT(100 ==       Util::serialToYearNoCache(36525));
+            ASSERT(100 ==  PosixUtil::serial2yearNoCache( 36525));
+            ASSERT(101 == SerialUtil::serialToYearNoCache(36525));
+        }
+
+        if (verbose) cout << "\nTesting 'serialToYmd[NoCache]'." << endl;
+        {
+            // proleptic Gregorian mode
+
+            Util::enableProlepticGregorianMode();
+            ASSERT(true == Util::isProlepticGregorianMode());
+
+            int y, m, d;
+
+                  Util::serialToYmd(       &y, &m, &d, 36525);
+            ASSERT(101 == y);
+            ASSERT(  1 == m);
+            ASSERT(  1 == d);
+
+             PosixUtil::serial2ymd(        &y, &m, &d, 36525);
+            ASSERT(100 == y);
+            ASSERT( 12 == m);
+            ASSERT( 31 == d);
+
+            SerialUtil::serialToYmd(       &y, &m, &d, 36525);
+            ASSERT(101 == y);
+            ASSERT(  1 == m);
+            ASSERT(  1 == d);
+
+                  Util::serialToYmdNoCache(&y, &m, &d, 36525);
+            ASSERT(101 == y);
+            ASSERT(  1 == m);
+            ASSERT(  1 == d);
+
+             PosixUtil::serial2ymdNoCache( &y, &m, &d, 36525);
+            ASSERT(100 == y);
+            ASSERT( 12 == m);
+            ASSERT( 31 == d);
+
+            SerialUtil::serialToYmdNoCache(&y, &m, &d, 36525);
+            ASSERT(101 == y);
+            ASSERT(  1 == m);
+            ASSERT(  1 == d);
+        }
+        {
+            // POSIX mode
+
+            Util::disableProlepticGregorianMode();
+            ASSERT(false == Util::isProlepticGregorianMode());
+
+            int y, m, d;
+
+                  Util::serialToYmd(       &y, &m, &d, 36525);
+            ASSERT(100 == y);
+            ASSERT( 12 == m);
+            ASSERT( 31 == d);
+
+             PosixUtil::serial2ymd(        &y, &m, &d, 36525);
+            ASSERT(100 == y);
+            ASSERT( 12 == m);
+            ASSERT( 31 == d);
+
+            SerialUtil::serialToYmd(       &y, &m, &d, 36525);
+            ASSERT(101 == y);
+            ASSERT(  1 == m);
+            ASSERT(  1 == d);
+
+                  Util::serialToYmdNoCache(&y, &m, &d, 36525);
+            ASSERT(100 == y);
+            ASSERT( 12 == m);
+            ASSERT( 31 == d);
+
+             PosixUtil::serial2ymdNoCache( &y, &m, &d, 36525);
+            ASSERT(100 == y);
+            ASSERT( 12 == m);
+            ASSERT( 31 == d);
+
+            SerialUtil::serialToYmdNoCache(&y, &m, &d, 36525);
+            ASSERT(101 == y);
+            ASSERT(  1 == m);
+            ASSERT(  1 == d);
+        }
+
+        if (verbose) cout << "\nTesting 'ydToDay'." << endl;
+        {
+            // proleptic Gregorian mode
+
+            Util::enableProlepticGregorianMode();
+            ASSERT(true == Util::isProlepticGregorianMode());
+
+            ASSERT( 1 ==       Util::ydToDay(100, 335));
+            ASSERT(30 ==  PosixUtil::yd2day( 100, 335));
+            ASSERT( 1 == SerialUtil::ydToDay(100, 335));
+        }
+        {
+            // POSIX mode
+
+            Util::disableProlepticGregorianMode();
+            ASSERT(false == Util::isProlepticGregorianMode());
+
+            ASSERT(30 ==       Util::ydToDay(100, 335));
+            ASSERT(30 ==  PosixUtil::yd2day( 100, 335));
+            ASSERT( 1 == SerialUtil::ydToDay(100, 335));
+        }
+
+        if (verbose) cout << "\nTesting 'ydToMd'." << endl;
+        {
+            // proleptic Gregorian mode
+
+            Util::enableProlepticGregorianMode();
+            ASSERT(true == Util::isProlepticGregorianMode());
+
+            int m, d;
+
+                  Util::ydToMd(&m, &d, 100, 335);
+            ASSERT(12 == m);
+            ASSERT( 1 == d);
+
+             PosixUtil::yd2md( &m, &d, 100, 335);
+            ASSERT(11 == m);
+            ASSERT(30 == d);
+
+            SerialUtil::ydToMd(&m, &d, 100, 335);
+            ASSERT(12 == m);
+            ASSERT( 1 == d);
+        }
+        {
+            // POSIX mode
+
+            Util::disableProlepticGregorianMode();
+            ASSERT(false == Util::isProlepticGregorianMode());
+
+            int m, d;
+
+                  Util::ydToMd(&m, &d, 100, 335);
+            ASSERT(11 == m);
+            ASSERT(30 == d);
+
+             PosixUtil::yd2md( &m, &d, 100, 335);
+            ASSERT(11 == m);
+            ASSERT(30 == d);
+
+            SerialUtil::ydToMd(&m, &d, 100, 335);
+            ASSERT(12 == m);
+            ASSERT( 1 == d);
+        }
+
+        if (verbose) cout << "\nTesting 'ydToMonth'." << endl;
+        {
+            // proleptic Gregorian mode
+
+            Util::enableProlepticGregorianMode();
+            ASSERT(true == Util::isProlepticGregorianMode());
+
+            ASSERT(12 ==       Util::ydToMonth(100, 335));
+            ASSERT(11 ==  PosixUtil::yd2month( 100, 335));
+            ASSERT(12 == SerialUtil::ydToMonth(100, 335));
+        }
+        {
+            // POSIX mode
+
+            Util::disableProlepticGregorianMode();
+            ASSERT(false == Util::isProlepticGregorianMode());
+
+            ASSERT(11 ==       Util::ydToMonth(100, 335));
+            ASSERT(11 ==  PosixUtil::yd2month( 100, 335));
+            ASSERT(12 == SerialUtil::ydToMonth(100, 335));
         }
 
       } break;
-      case 7: {
+      case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'ymdToDayOfYear'
-        //   Ensure that the method correctly maps every year/month/day date to
-        //   the corresponding day of the year.
+        // TESTING TO YEAR-DAY DATE
         //
         // Concerns:
-        //: 1 The method correctly maps every valid year/month/day date to its
-        //:   corresponding day of the year.
-        //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        //: 1 Each method forwards to the mode-specific implementation that is
+        //:   currently in effect and produces the expected result.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of (unique) valid
-        //:   year/month/day dates (one per row), and the (integral) results
-        //:   expected from 'ymdToDayOfYear' when applied to those tabulated
-        //:   dates.  For further assurance, exhaustively test 'ymdToDayOfYear'
-        //:   over a range of years that is governed by the 'yearRangeFlag'.
-        //:   (C-1)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-2)
+        //: 1 In both calendar modes, exercise each method on data that
+        //:   produces different results between the two modes.  Use the
+        //:   underlying 'PosixDateImpUtil' and 'SerialDateImpUtil' as oracles
+        //:   to verify the expected behavior.  (C-1)
         //
         // Testing:
+        //   static int  serialToDayOfYear(int serialDay);
+        //   static void serialToYd(int *year, int *dayOfYear, int serialDay);
         //   static int  ymdToDayOfYear(int year, int month, int day);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'ymdToDayOfYear'" << endl
+                          << "TESTING TO YEAR-DAY DATE" << endl
                           << "========================" << endl;
 
-        if (verbose) cout << "\tDirect test vectors." << endl;
+        // In proleptic Gregorian (POSIX), serial value 36525 is 0101/001
+        // (0100/366).
+
+        if (verbose) cout << "\nTesting 'serialToDayOfYear'." << endl;
         {
-            static const struct {
-                int d_line;   // source line number
-                int d_year;   // year under test
-                int d_month;  // month under test
-                int d_day;    // day under test
-                int d_exp;    // expected value
-            } DATA[] = {
-                //LINE   YEAR   MONTH    DAY   EXPECTED
-                //----   ----   -----    ---   --------
-                { L_,       1,      1,     1,         1 },
-                { L_,       1,      1,     2,         2 },
-                { L_,       1,      1,    30,        30 },
-                { L_,       1,      1,    31,        31 },
-                { L_,       1,      2,     1,        32 },
-                { L_,       1,      2,    28,        59 },
-                { L_,       1,      3,     1,        60 },
-                { L_,       1,      3,    31,        90 },
-                { L_,       1,      4,     1,        91 },
-                { L_,       1,      4,    30,       120 },
-                { L_,       1,      5,     1,       121 },
-                { L_,       1,      5,    31,       151 },
-                { L_,       1,      6,     1,       152 },
-                { L_,       1,      6,    30,       181 },
-                { L_,       1,      7,     1,       182 },
-                { L_,       1,      7,    31,       212 },
-                { L_,       1,      8,     1,       213 },
-                { L_,       1,      8,    31,       243 },
-                { L_,       1,      9,     1,       244 },
-                { L_,       1,      9,    30,       273 },
-                { L_,       1,     10,     1,       274 },
-                { L_,       1,     10,    31,       304 },
-                { L_,       1,     11,     1,       305 },
-                { L_,       1,     11,    30,       334 },
-                { L_,       1,     12,     1,       335 },
-                { L_,       1,     12,    31,       365 },
+            // proleptic Gregorian mode
 
-                { L_,       2,      1,     1,         1 },
-                { L_,       2,     12,    31,       365 },
-                { L_,       3,      1,     1,         1 },
-                { L_,       3,     12,    31,       365 },
+            Util::enableProlepticGregorianMode();
+            ASSERT(true == Util::isProlepticGregorianMode());
 
-                { L_,       4,      1,     1,         1 },
-                { L_,       4,      1,     2,         2 },
-                { L_,       4,      1,    30,        30 },
-                { L_,       4,      1,    31,        31 },
-                { L_,       4,      2,     1,        32 },
-                { L_,       4,      2,    28,        59 },
-                { L_,       4,      2,    29,        60 },
-                { L_,       4,      3,     1,        61 },
-                { L_,       4,      3,    31,        91 },
-                { L_,       4,      4,     1,        92 },
-                { L_,       4,      4,    30,       121 },
-                { L_,       4,      5,     1,       122 },
-                { L_,       4,      5,    31,       152 },
-                { L_,       4,      6,     1,       153 },
-                { L_,       4,      6,    30,       182 },
-                { L_,       4,      7,     1,       183 },
-                { L_,       4,      7,    31,       213 },
-                { L_,       4,      8,     1,       214 },
-                { L_,       4,      8,    31,       244 },
-                { L_,       4,      9,     1,       245 },
-                { L_,       4,      9,    30,       274 },
-                { L_,       4,     10,     1,       275 },
-                { L_,       4,     10,    31,       305 },
-                { L_,       4,     11,     1,       306 },
-                { L_,       4,     11,    30,       335 },
-                { L_,       4,     12,     1,       336 },
-                { L_,       4,     12,    31,       366 },
+            ASSERT(  1 ==       Util::serialToDayOfYear(36525));
+            ASSERT(366 ==  PosixUtil::serial2dayOfYear( 36525));
+            ASSERT(  1 == SerialUtil::serialToDayOfYear(36525));
+        }
+        {
+            // POSIX mode
 
-                { L_,       5,      1,     1,         1 },
-                { L_,       5,     12,    31,       365 },
+            Util::disableProlepticGregorianMode();
+            ASSERT(false == Util::isProlepticGregorianMode());
 
-                { L_,    1601,     12,    31,       365 },
-                { L_,    1721,     12,    31,       365 },
-                { L_,    1749,     12,    31,       365 },
-                { L_,    1750,     12,    31,       365 },
-                { L_,    1751,     12,    31,       365 },
-
-                { L_,    1752,      1,     1,         1 },
-                { L_,    1752,      1,     2,         2 },
-                { L_,    1752,      1,    30,        30 },
-                { L_,    1752,      1,    31,        31 },
-                { L_,    1752,      2,     1,        32 },
-                { L_,    1752,      2,    28,        59 },
-                { L_,    1752,      2,    29,        60 },
-                { L_,    1752,      3,     1,        61 },
-                { L_,    1752,      3,    31,        91 },
-                { L_,    1752,      4,     1,        92 },
-                { L_,    1752,      4,    30,       121 },
-                { L_,    1752,      5,     1,       122 },
-                { L_,    1752,      5,    31,       152 },
-                { L_,    1752,      6,     1,       153 },
-                { L_,    1752,      6,    30,       182 },
-                { L_,    1752,      7,     1,       183 },
-                { L_,    1752,      7,    31,       213 },
-                { L_,    1752,      8,     1,       214 },
-                { L_,    1752,      8,    31,       244 },
-                { L_,    1752,      9,     1,       245 },
-                { L_,    1752,      9,    30,       274 },
-                { L_,    1752,     10,     1,       275 },
-                { L_,    1752,     10,    31,       305 },
-                { L_,    1752,     11,     1,       306 },
-                { L_,    1752,     11,    30,       335 },
-                { L_,    1752,     12,     1,       336 },
-                { L_,    1752,     12,    31,       366 },
-
-                { L_,    1753,     12,    31,       365 },
-                { L_,    1754,     12,    31,       365 },
-                { L_,    1755,     12,    31,       365 },
-
-                { L_,    1756,      1,     1,         1 },
-                { L_,    1756,      2,    28,        59 },
-                { L_,    1756,      2,    29,        60 },
-                { L_,    1756,      3,     1,        61 },
-                { L_,    1756,      9,     1,       245 },
-                { L_,    1756,      9,    30,       274 },
-                { L_,    1756,     12,    31,       366 },
-
-                { L_,    1757,     12,    31,       365 },
-                { L_,    1758,     12,    31,       365 },
-                { L_,    1759,     12,    31,       365 },
-                { L_,    1760,     12,    31,       366 },
-
-                { L_,    1799,     12,    31,       365 },
-                { L_,    1800,     12,    31,       365 },
-                { L_,    1801,     12,    31,       365 },
-                { L_,    1802,     12,    31,       365 },
-
-                { L_,    1899,     12,    31,       365 },
-                { L_,    1900,     12,    31,       365 },
-                { L_,    1901,     12,    31,       365 },
-                { L_,    1902,     12,    31,       365 },
-
-                { L_,    1999,     12,    31,       365 },
-                { L_,    2000,     12,    31,       366 },
-                { L_,    2001,     12,    31,       365 },
-                { L_,    2002,     12,    31,       365 },
-
-                { L_,    2099,     12,    31,       365 },
-                { L_,    2100,     12,    31,       365 },
-                { L_,    2101,     12,    31,       365 },
-                { L_,    2102,     12,    31,       365 },
-
-                { L_,    2399,     12,    31,       365 },
-                { L_,    2400,     12,    31,       366 },
-                { L_,    2401,     12,    31,       365 },
-                { L_,    2402,     12,    31,       365 },
-
-                { L_,    9995,     12,    31,       365 },
-                { L_,    9996,     12,    31,       366 },
-                { L_,    9997,     12,    31,       365 },
-                { L_,    9998,     12,    31,       365 },
-                { L_,    9999,     12,    31,       365 },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int LINE  = DATA[ti].d_line;
-                const int YEAR  = DATA[ti].d_year;
-                const int MONTH = DATA[ti].d_month;
-                const int DAY   = DATA[ti].d_day;
-                const int EXP   = DATA[ti].d_exp;
-
-                if (veryVerbose) {
-                    P_(LINE);  P_(YEAR);  P_(MONTH);  P_(DAY);  P(EXP);
-                }
-
-                LOOP_ASSERT(LINE,
-                            EXP == Util::ymdToDayOfYear(YEAR, MONTH, DAY));
-            }
+            ASSERT(366 ==       Util::serialToDayOfYear(36525));
+            ASSERT(366 ==  PosixUtil::serial2dayOfYear( 36525));
+            ASSERT(  1 == SerialUtil::serialToDayOfYear(36525));
         }
 
-        const int first = yearRangeFlag ? k_SHORT_RANGE_MIN_YEAR : k_MIN_YEAR;
-        const int last  = yearRangeFlag ? k_SHORT_RANGE_MAX_YEAR : k_MAX_YEAR;
+        if (verbose) cout << "\nTesting 'serialToYd'." << endl;
+        {
+            // proleptic Gregorian mode
 
-        if (verbose) cout << "\tExhaustively testing years "
-                          << first << '-' << last << '.' << endl;
+            Util::enableProlepticGregorianMode();
+            ASSERT(true == Util::isProlepticGregorianMode());
 
-        int loopCount = 0;  // governs excessive verbosity
+            int y, d;
 
-        for (int y = first; y <= last; ++y) {
-            int doy = 0;
+                  Util::serialToYd(&y, &d, 36525);
+            ASSERT(101 == y);
+            ASSERT(  1 == d);
 
-            for (int m = 1; m <= 12; ++m) {
-                for (int d = 1; d <= 31; ++d) {
-                    if (Util::isValidYearMonthDay(y, m, d)) {
-                        ++doy;
+             PosixUtil::serial2yd( &y, &d, 36525);
+            ASSERT(100 == y);
+            ASSERT(366 == d);
 
-                        if (veryVerbose && 0 == loopCount % 100) {
-                            P_(y);  P_(m);  P_(d);  P(doy);
-                        }
-                        ++loopCount;
+            SerialUtil::serialToYd(&y, &d, 36525);
+            ASSERT(101 == y);
+            ASSERT(  1 == d);
+        }
+        {
+            // POSIX mode
 
-                        ASSERT(doy == Util::ymdToDayOfYear(y, m, d));
-                    }
-                }
-            }
+            Util::disableProlepticGregorianMode();
+            ASSERT(false == Util::isProlepticGregorianMode());
+
+            int y, d;
+
+                  Util::serialToYd(&y, &d, 36525);
+            ASSERT(100 == y);
+            ASSERT(366 == d);
+
+             PosixUtil::serial2yd( &y, &d, 36525);
+            ASSERT(100 == y);
+            ASSERT(366 == d);
+
+            SerialUtil::serialToYd(&y, &d, 36525);
+            ASSERT(101 == y);
+            ASSERT(  1 == d);
+        }
+
+        if (verbose) cout << "\nTesting 'ymdToDayOfYear'." << endl;
+        {
+            // proleptic Gregorian mode
+
+            Util::enableProlepticGregorianMode();
+            ASSERT(true == Util::isProlepticGregorianMode());
+
+            ASSERT(60 ==       Util::ymdToDayOfYear(1700, 3, 1));
+            ASSERT(61 ==  PosixUtil::ymd2dayOfYear (1700, 3, 1));
+            ASSERT(60 == SerialUtil::ymdToDayOfYear(1700, 3, 1));
+        }
+        {
+            // POSIX mode
+
+            Util::disableProlepticGregorianMode();
+            ASSERT(false == Util::isProlepticGregorianMode());
+
+            ASSERT(61 ==       Util::ymdToDayOfYear(1700, 3, 1));
+            ASSERT(61 ==  PosixUtil::ymd2dayOfYear (1700, 3, 1));
+            ASSERT(60 == SerialUtil::ymdToDayOfYear(1700, 3, 1));
         }
 
       } break;
-      case 6: {
+      case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'ymdToSerial[NoCache]'
-        //   Ensure that the methods correctly map every year/month/day date to
-        //   its corresponding serial date.
+        // TESTING '*ToSerial'
         //
         // Concerns:
-        //: 1 Both methods correctly map every valid year/month/day date to its
-        //:   corresponding serial date.
-        //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        //: 1 Each method forwards to the mode-specific implementation that is
+        //:   currently in effect and produces the expected result.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of (unique) valid
-        //:   year/month/day dates (one per row), and the (integral) results
-        //:   expected from 'ymdToSerial[NoCache]' when applied to those
-        //:   tabulated dates.  For further assurance, exhaustively test
-        //:   'ymdToSerial[NoCache]' over a range of years that is governed by
-        //:   the 'yearRangeFlag'.  (C-1)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-2)
+        //: 1 In both calendar modes, exercise each method on data that
+        //:   produces different results between the two modes.  Use the
+        //:   underlying 'PosixDateImpUtil' and 'SerialDateImpUtil' as oracles
+        //:   to verify the expected behavior.  (C-1)
         //
         // Testing:
+        //   static int  ydToSerial(int year, int dayOfYear);
         //   static int  ymdToSerial(int year, int month, int day);
         //   static int  ymdToSerialNoCache(int year, int month, int day);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'ymdToSerial[NoCache]'" << endl
-                          << "==============================" << endl;
+                          << "TESTING '*ToSerial'" << endl
+                          << "===================" << endl;
 
-        if (verbose) cout << "\tDirect test vectors." << endl;
+        if (verbose) cout << "\nTesting 'ydToSerial'." << endl;
         {
-            static const struct {
-                int d_line;   // source line number
-                int d_year;   // year under test
-                int d_month;  // month under test
-                int d_day;    // day under test
-                int d_exp;    // expected value
-            } DATA[] = {
-                //LINE   YEAR   MONTH    DAY       EXPECTED
-                //----   ----   -----    ---       --------
-                { L_,       1,      1,     1,             1 },
-                { L_,       1,      1,     2,             2 },
-                { L_,       1,      1,    30,            30 },
-                { L_,       1,      1,    31,            31 },
-                { L_,       1,      2,     1,            32 },
-                { L_,       1,      2,    28,            59 },
-                { L_,       1,      3,     1,            60 },
-                { L_,       1,      3,    31,            90 },
-                { L_,       1,      4,     1,            91 },
-                { L_,       1,      4,    30,           120 },
-                { L_,       1,      5,     1,           121 },
-                { L_,       1,      5,    31,           151 },
-                { L_,       1,      6,     1,           152 },
-                { L_,       1,      6,    30,           181 },
-                { L_,       1,      7,     1,           182 },
-                { L_,       1,      7,    31,           212 },
-                { L_,       1,      8,     1,           213 },
-                { L_,       1,      8,    31,           243 },
-                { L_,       1,      9,     1,           244 },
-                { L_,       1,      9,    30,           273 },
-                { L_,       1,     10,     1,           274 },
-                { L_,       1,     10,    31,           304 },
-                { L_,       1,     11,     1,           305 },
-                { L_,       1,     11,    30,           334 },
-                { L_,       1,     12,     1,           335 },
-                { L_,       1,     12,    31,           365 },
+            // proleptic Gregorian mode
 
-                { L_,       2,      1,     1,           366 },
-                { L_,       3,      1,     1,           731 },
+            Util::enableProlepticGregorianMode();
+            ASSERT(true == Util::isProlepticGregorianMode());
 
-                { L_,       4,      1,     1,          1096 },
-                { L_,       4,      1,     2,          1097 },
-                { L_,       4,      1,    30,          1125 },
-                { L_,       4,      1,    31,          1126 },
-                { L_,       4,      2,     1,          1127 },
-                { L_,       4,      2,    28,          1154 },
-                { L_,       4,      2,    29,          1155 },
-                { L_,       4,      3,     1,          1156 },
-                { L_,       4,      3,    31,          1186 },
-                { L_,       4,      4,     1,          1187 },
-                { L_,       4,      4,    30,          1216 },
-                { L_,       4,      5,     1,          1217 },
-                { L_,       4,      5,    31,          1247 },
-                { L_,       4,      6,     1,          1248 },
-                { L_,       4,      6,    30,          1277 },
-                { L_,       4,      7,     1,          1278 },
-                { L_,       4,      7,    31,          1308 },
-                { L_,       4,      8,     1,          1309 },
-                { L_,       4,      8,    31,          1339 },
-                { L_,       4,      9,     1,          1340 },
-                { L_,       4,      9,    30,          1369 },
-                { L_,       4,     10,     1,          1370 },
-                { L_,       4,     10,    31,          1400 },
-                { L_,       4,     11,     1,          1401 },
-                { L_,       4,     11,    30,          1430 },
-                { L_,       4,     12,     1,          1431 },
-                { L_,       4,     12,    31,          1461 },
+            ASSERT(36525 ==       Util::ydToSerial(101, 1));
+            ASSERT(36526 ==  PosixUtil::yd2serial( 101, 1));
+            ASSERT(36525 == SerialUtil::ydToSerial(101, 1));
+        }
+        {
+            // POSIX mode
 
-                { L_,       5,      1,     1,          1462 },
+            Util::disableProlepticGregorianMode();
+            ASSERT(false == Util::isProlepticGregorianMode());
 
-                { L_,     100,     12,    31,         36524 },
-                { L_,     101,      1,     1,         36525 },
-
-                { L_,     400,     12,    31,        146097 },
-                { L_,     401,      1,     1,        146098 },
-
-                { L_,    1600,     12,    31,        584388 },
-                { L_,    1601,      1,     1,        584389 },
-
-                { L_,    1800,      1,     1,        657072 },
-                { L_,    1800,     12,    31,        657436 },
-
-                { L_,    1801,      1,     1,        657437 },
-                { L_,    1801,     12,    31,        657801 },
-                { L_,    1802,      1,     1,        657802 },
-
-                { L_,    1899,     12,    31,        693595 },
-                { L_,    1900,      1,     1,        693596 },
-                { L_,    1900,     12,    31,        693960 },
-                { L_,    1901,      1,     1,        693961 },
-                { L_,    1901,     12,    31,        694325 },
-                { L_,    1902,      1,     1,        694326 },
-
-                { L_,    1999,     12,    31,        730119 },
-                { L_,    2000,      1,     1,        730120 },
-                { L_,    2000,     12,    31,        730485 },
-                { L_,    2001,      1,     1,        730486 },
-                { L_,    2001,     12,    31,        730850 },
-                { L_,    2002,      1,     1,        730851 },
-
-                { L_,    2099,     12,    31,        766644 },
-                { L_,    2100,      1,     1,        766645 },
-                { L_,    2100,     12,    31,        767009 },
-                { L_,    2101,      1,     1,        767010 },
-                { L_,    2101,     12,    31,        767374 },
-                { L_,    2102,      1,     1,        767375 },
-
-                { L_,    2399,     12,    31,        876216 },
-                { L_,    2400,      1,     1,        876217 },
-                { L_,    2400,     12,    31,        876582 },
-                { L_,    2401,      1,     1,        876583 },
-                { L_,    2401,     12,    31,        876947 },
-                { L_,    2402,      1,     1,        876948 },
-
-                { L_,    9995,      1,     1,       3650234 },
-                { L_,    9995,     12,    31,       3650598 },
-                { L_,    9996,      1,     1,       3650599 },
-                { L_,    9996,     12,    31,       3650964 },
-                { L_,    9997,      1,     1,       3650965 },
-                { L_,    9997,     12,    31,       3651329 },
-                { L_,    9998,      1,     1,       3651330 },
-                { L_,    9998,     12,    31,       3651694 },
-                { L_,    9999,      1,     1,       3651695 },
-                { L_,    9999,     12,    31,  k_MAX_SERIAL },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int LINE  = DATA[ti].d_line;
-                const int YEAR  = DATA[ti].d_year;
-                const int MONTH = DATA[ti].d_month;
-                const int DAY   = DATA[ti].d_day;
-                const int EXP   = DATA[ti].d_exp;
-
-                if (veryVerbose) {
-                    P_(LINE);  P_(YEAR);  P_(MONTH);  P_(DAY);  P(EXP);
-                }
-
-                const int s1 = Util::ymdToSerial(YEAR, MONTH, DAY);
-                const int s2 = Util::ymdToSerialNoCache(YEAR, MONTH, DAY);
-
-                LOOP3_ASSERT(LINE, EXP, s1, EXP == s1);
-                LOOP3_ASSERT(LINE, EXP, s2, EXP == s2);
-            }
+            ASSERT(36526 ==       Util::ydToSerial(101, 1));
+            ASSERT(36526 ==  PosixUtil::yd2serial( 101, 1));
+            ASSERT(36525 == SerialUtil::ydToSerial(101, 1));
         }
 
-        const int first = yearRangeFlag ? k_SHORT_RANGE_MIN_YEAR : k_MIN_YEAR;
-        const int last  = yearRangeFlag ? k_SHORT_RANGE_MAX_YEAR : k_MAX_YEAR;
+        // The maximum proleptic Gregorian (POSIX) serial value is 3652059
+        // (3652061).
 
-        if (verbose) cout << "\tExhaustively testing years "
-                          << first << '-' << last << '.' << endl;
+        if (verbose) cout << "\nTesting 'ymdToSerial[NoCache]'." << endl;
+        {
+            // proleptic Gregorian mode
 
-        int serial =
-                 (yearRangeFlag ? k_SHORT_RANGE_MIN_SERIAL : k_MIN_SERIAL) - 1;
+            Util::enableProlepticGregorianMode();
+            ASSERT(true == Util::isProlepticGregorianMode());
 
-        for (int y = first; y <= last; ++y) {
-            for (int m = 1; m <= 12; ++m) {
-                for (int d = 1; d <= 31; ++d) {
-                    if (Util::isValidYearMonthDay(y, m, d)) {
-                        ++serial;
+            ASSERT(3652058 ==       Util::ymdToSerial(       9999, 12, 30));
+            ASSERT(3652060 ==  PosixUtil::ymd2serial(        9999, 12, 30));
+            ASSERT(3652058 == SerialUtil::ymdToSerial(       9999, 12, 30));
 
-                        if (veryVerbose && 0 == (serial - 1) % 100) {
-                            P_(y);  P_(m);  P_(d);  P(serial);
-                        }
-
-                        int s1 = Util::ymdToSerial(y, m, d);
-                        int s2 = Util::ymdToSerialNoCache(y, m, d);
-
-                        LOOP3_ASSERT(y, m, d, s1 == s2);
-                        LOOP3_ASSERT(y, m, d, s2 == serial);
-                    }
-                }
-            }
+            ASSERT(3652058 ==       Util::ymdToSerialNoCache(9999, 12, 30));
+            ASSERT(3652060 ==  PosixUtil::ymd2serialNoCache( 9999, 12, 30));
+            ASSERT(3652058 == SerialUtil::ymdToSerialNoCache(9999, 12, 30));
         }
-        ASSERT(serial ==
-                    (yearRangeFlag ? k_SHORT_RANGE_MAX_SERIAL : k_MAX_SERIAL));
+        {
+            // POSIX mode
+
+            Util::disableProlepticGregorianMode();
+            ASSERT(false == Util::isProlepticGregorianMode());
+
+            ASSERT(3652060 ==       Util::ymdToSerial(       9999, 12, 30));
+            ASSERT(3652060 ==  PosixUtil::ymd2serial(        9999, 12, 30));
+            ASSERT(3652058 == SerialUtil::ymdToSerial(       9999, 12, 30));
+
+            ASSERT(3652060 ==       Util::ymdToSerialNoCache(9999, 12, 30));
+            ASSERT(3652060 ==  PosixUtil::ymd2serialNoCache( 9999, 12, 30));
+            ASSERT(3652058 == SerialUtil::ymdToSerialNoCache(9999, 12, 30));
+        }
 
       } break;
-      case 5: {
+      case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'isValid{Serial|YearDay|YearMonthDay}[NoCache]'
-        //   Ensure that the methods accept (reject) valid (invalid) dates in
-        //   any of the three supported formats.
+        // TESTING 'isValid*'
         //
         // Concerns:
-        //: 1 The 'isValidYearMonthDay[NoCache]' methods correctly categorize
-        //:   every (year, month, day) triple as either a valid or an invalid
-        //:   year/month/day date.
-        //:
-        //: 2 The 'isValidYearDay' method correctly categorizes every
-        //:   (year, dayOfYear) pair as either a valid or an invalid
-        //:   year/day-of-year date.
-        //:
-        //: 3 The 'isValidSerial' method correctly categorizes every 'int'
-        //:   value as either a valid or an invalid serial date.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        //: 1 Each method forwards to the mode-specific implementation that is
+        //:   currently in effect and produces the expected result.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of (unique) valid
-        //:   (year, month, day) triples (one per row), and the (boolean)
-        //:   results expected from 'isValidYearMonthDay[NoCache]' when applied
-        //:   to those tabulated triples.  For further assurance, exhaustively
-        //:   test 'isValidYearMonthDay[NoCache]' over a range of years that is
-        //:   governed by the 'yearRangeFlag'.  (C-1)
-        //:
-        //: 2 Using the table-driven technique, specify a set of (unique) valid
-        //:   (year, dayOfYear) pairs (one per row), and the (boolean) results
-        //:   expected from 'isValidYearDay' when applied to those
-        //:   tabulated pairs.  For further assurance, exhaustively test
-        //:   'isValidYearDay' over a range of years that is governed by
-        //:   the 'yearRangeFlag'.  (C-2)
-        //:
-        //: 3 Using the table-driven technique, specify a set of (unique) valid
-        //:   'int' values (one per row), and the (boolean) results expected
-        //:   from 'isValidSerial' when applied to those tabulated values.
-        //:   (C-3)
-        //:
-        //: 4 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-4)
+        //: 1 In both calendar modes, exercise each method on data that
+        //:   produces different results between the two modes.  Use the
+        //:   underlying 'PosixDateImpUtil' and 'SerialDateImpUtil' as oracles
+        //:   to verify the expected behavior.  (C-1)
         //
         // Testing:
         //   static bool isValidSerial(int serialDay);
@@ -1578,1036 +745,235 @@ int main(int argc, char *argv[])
         //   static bool isValidYearMonthDayNoCache(int y, int m, int day);
         // --------------------------------------------------------------------
 
-        if (verbose)
-            cout << endl
-                 << "TESTING 'isValid{Serial|YearDay|YearMonthDay}[NoCache]'"
-                 << endl
-                 << "======================================================="
-                 << endl;
+        if (verbose) cout << endl
+                          << "TESTING 'isValid*'" << endl
+                          << "==================" << endl;
 
-        if (verbose) cout << "\nTesting: 'isValidYearMonthDay[NoCache]'"
+        // The maximum proleptic Gregorian (POSIX) serial value is 3652059
+        // (3652061).
+
+        if (verbose) cout << "\nTesting 'isValidSerial'." << endl;
+        {
+            // proleptic Gregorian mode
+
+            Util::enableProlepticGregorianMode();
+            ASSERT(true == Util::isProlepticGregorianMode());
+
+            ASSERT(false ==       Util::isValidSerial(    3652060));
+            ASSERT(true  ==  PosixUtil::isValidSerialDate(3652060));
+            ASSERT(false == SerialUtil::isValidSerial(    3652060));
+        }
+        {
+            // POSIX mode
+
+            Util::disableProlepticGregorianMode();
+            ASSERT(false == Util::isProlepticGregorianMode());
+
+            ASSERT(true  ==       Util::isValidSerial(    3652060));
+            ASSERT(true  ==  PosixUtil::isValidSerialDate(3652060));
+            ASSERT(false == SerialUtil::isValidSerial(    3652060));
+        }
+
+        if (verbose) cout << "\nTesting 'isValidYearDay'." << endl;
+        {
+            // proleptic Gregorian mode
+
+            Util::enableProlepticGregorianMode();
+            ASSERT(true == Util::isProlepticGregorianMode());
+
+            ASSERT(false ==       Util::isValidYearDay(    1700, 366));
+            ASSERT(true  ==  PosixUtil::isValidYearDayDate(1700, 366));
+            ASSERT(false == SerialUtil::isValidYearDay(    1700, 366));
+        }
+        {
+            // POSIX mode
+
+            Util::disableProlepticGregorianMode();
+            ASSERT(false == Util::isProlepticGregorianMode());
+
+            ASSERT(true  ==       Util::isValidYearDay(    1700, 366));
+            ASSERT(true  ==  PosixUtil::isValidYearDayDate(1700, 366));
+            ASSERT(false == SerialUtil::isValidYearDay(    1700, 366));
+        }
+
+        if (verbose) cout << "\nTesting 'isValidYearMonthDay[NoCache]'."
                           << endl;
-
-        if (verbose) cout << "\tDirect test vectors." << endl;
         {
-            static const struct {
-                int d_line;   // source line number
-                int d_year;   // year under test
-                int d_month;  // month under test
-                int d_day;    // day under test
-                int d_exp;    // expected value
-            } DATA[] = {
-                //LINE    YEAR     MONTH       DAY   EXPECTED
-                //----    ----     -----       ---   --------
-                { L_,        0,        0,        0,         0 },
-                { L_,        1,        1,        0,         0 },
-                { L_,        1,        0,        1,         0 },
-                { L_,        0,        1,        1,         0 },
-                { L_,        1,        1,       -1,         0 },
-                { L_,        1,        1,  INT_MIN,         0 },
-                { L_,        1,       -1,        1,         0 },
-                { L_,        1,  INT_MIN,        1,         0 },
-                { L_,       -1,        1,        1,         0 },
-                { L_,  INT_MIN,        1,        1,         0 },
-                { L_,        0,       11,       30,         0 },
-                { L_,        0,       12,       31,         0 },
+            // proleptic Gregorian mode
 
-                { L_,        1,        1,        1,         1 },
-                { L_,        1,        1,       31,         1 },
-                { L_,        2,        2,       28,         1 },
-                { L_,        2,        2,       29,         0 },
-                { L_,        2,        2,       30,         0 },
-                { L_,        2,        3,        1,         1 },
+            Util::enableProlepticGregorianMode();
+            ASSERT(true == Util::isProlepticGregorianMode());
 
-                { L_,        4,        2,       28,         1 },
-                { L_,        4,        2,       29,         1 },
-                { L_,        4,        2,       30,         0 },
-                { L_,        4,        3,        1,         1 },
+            ASSERT(false ==       Util::isValidYearMonthDay(1700, 2, 29));
+            ASSERT(true  ==  PosixUtil::isValidCalendarDate(1700, 2, 29));
+            ASSERT(false == SerialUtil::isValidYearMonthDay(1700, 2, 29));
 
-                { L_,      100,        2,       28,         1 },
-                { L_,      100,        2,       29,         0 },
-                { L_,      100,        3,        1,         1 },
-
-                { L_,      200,        2,       28,         1 },
-                { L_,      200,        2,       29,         0 },
-                { L_,      200,        3,        1,         1 },
-
-                { L_,      400,        2,       28,         1 },
-                { L_,      400,        2,       29,         1 },
-                { L_,      400,        3,        1,         1 },
-
-                { L_,      500,        2,       28,         1 },
-                { L_,      500,        2,       29,         0 },
-                { L_,      500,        3,        1,         1 },
-
-                { L_,      800,        2,       28,         1 },
-                { L_,      800,        2,       29,         1 },
-                { L_,      800,        3,        1,         1 },
-
-                { L_,     1600,        2,       29,         1 },
-                { L_,     1700,        2,       29,         0 },
-                { L_,     1800,        2,       29,         0 },
-                { L_,     1900,        2,       29,         0 },
-                { L_,     2000,        2,       29,         1 },
-                { L_,     2100,        2,       29,         0 },
-
-                { L_,     1752,        2,       28,         1 },
-                { L_,     1752,        2,       29,         1 },
-                { L_,     1752,        2,       30,         0 },
-
-                { L_,     1752,        9,        3,         1 },
-                { L_,     1752,        9,        4,         1 },
-                { L_,     1752,        9,       13,         1 },
-                { L_,     1752,        9,       14,         1 },
-                { L_,     1752,        9,       30,         1 },
-                { L_,     1752,        9,       31,         0 },
-
-                { L_,     1900,        1,       30,         1 },
-                { L_,     1900,        1,       31,         1 },
-                { L_,     1900,        1,       32,         0 },
-
-                { L_,     1900,        2,       28,         1 },
-                { L_,     1900,        2,       29,         0 },
-                { L_,     1900,        2,       30,         0 },
-
-                { L_,     1900,        3,       30,         1 },
-                { L_,     1900,        3,       31,         1 },
-                { L_,     1900,        3,       32,         0 },
-
-                { L_,     1900,        4,       30,         1 },
-                { L_,     1900,        4,       31,         0 },
-                { L_,     1900,        4,       32,         0 },
-
-                { L_,     1900,        5,       30,         1 },
-                { L_,     1900,        5,       31,         1 },
-                { L_,     1900,        5,       32,         0 },
-
-                { L_,     1900,        6,       30,         1 },
-                { L_,     1900,        6,       31,         0 },
-                { L_,     1900,        6,       32,         0 },
-
-                { L_,     1900,        7,       30,         1 },
-                { L_,     1900,        7,       31,         1 },
-                { L_,     1900,        7,       32,         0 },
-
-                { L_,     1900,        8,       30,         1 },
-                { L_,     1900,        8,       31,         1 },
-                { L_,     1900,        8,       32,         0 },
-
-                { L_,     1900,        9,       30,         1 },
-                { L_,     1900,        9,       31,         0 },
-                { L_,     1900,        9,       32,         0 },
-
-                { L_,     1900,       10,       30,         1 },
-                { L_,     1900,       10,       31,         1 },
-                { L_,     1900,       10,       32,         0 },
-
-                { L_,     1900,       11,       30,         1 },
-                { L_,     1900,       11,       31,         0 },
-                { L_,     1900,       11,       32,         0 },
-
-                { L_,     1900,       12,       30,         1 },
-                { L_,     1900,       12,       31,         1 },
-                { L_,     1900,       12,       32,         0 },
-
-                { L_,     1996,        1,        1,         1 },
-                { L_,     1996,        2,        1,         1 },
-                { L_,     1996,        3,        1,         1 },
-                { L_,     1996,        4,        1,         1 },
-                { L_,     1996,        5,        1,         1 },
-                { L_,     1996,        6,        1,         1 },
-                { L_,     1996,        7,        1,         1 },
-                { L_,     1996,        8,        1,         1 },
-                { L_,     1996,        9,        1,         1 },
-                { L_,     1996,       10,        1,         1 },
-                { L_,     1996,       11,        1,         1 },
-                { L_,     1996,       12,        1,         1 },
-                { L_,     1996,       13,        1,         0 },
-
-                { L_,     1997,        1,        1,         1 },
-                { L_,     1997,        2,        1,         1 },
-                { L_,     1997,        3,        1,         1 },
-                { L_,     1997,        4,        1,         1 },
-                { L_,     1997,        5,        1,         1 },
-                { L_,     1997,        6,        1,         1 },
-                { L_,     1997,        7,        1,         1 },
-                { L_,     1997,        8,        1,         1 },
-                { L_,     1997,        9,        1,         1 },
-                { L_,     1997,       10,        1,         1 },
-                { L_,     1997,       11,        1,         1 },
-                { L_,     1997,       12,        1,         1 },
-                { L_,     1997,       13,        1,         0 },
-
-                { L_,     2000,        1,       30,         1 },
-                { L_,     2000,        1,       31,         1 },
-                { L_,     2000,        1,       32,         0 },
-
-                { L_,     2000,        2,       28,         1 },
-                { L_,     2000,        2,       29,         1 },
-                { L_,     2000,        2,       30,         0 },
-
-                { L_,     2000,        3,       30,         1 },
-                { L_,     2000,        3,       31,         1 },
-                { L_,     2000,        3,       32,         0 },
-
-                { L_,     2000,        4,       30,         1 },
-                { L_,     2000,        4,       31,         0 },
-                { L_,     2000,        4,       32,         0 },
-
-                { L_,     2000,        5,       30,         1 },
-                { L_,     2000,        5,       31,         1 },
-                { L_,     2000,        5,       32,         0 },
-
-                { L_,     2000,        6,       30,         1 },
-                { L_,     2000,        6,       31,         0 },
-                { L_,     2000,        6,       32,         0 },
-
-                { L_,     2000,        7,       30,         1 },
-                { L_,     2000,        7,       31,         1 },
-                { L_,     2000,        7,       32,         0 },
-
-                { L_,     2000,        8,       30,         1 },
-                { L_,     2000,        8,       31,         1 },
-                { L_,     2000,        8,       32,         0 },
-
-                { L_,     2000,        9,       30,         1 },
-                { L_,     2000,        9,       31,         0 },
-                { L_,     2000,        9,       32,         0 },
-
-                { L_,     2000,       10,       30,         1 },
-                { L_,     2000,       10,       31,         1 },
-                { L_,     2000,       10,       32,         0 },
-
-                { L_,     2000,       11,       30,         1 },
-                { L_,     2000,       11,       31,         0 },
-                { L_,     2000,       11,       32,         0 },
-
-                { L_,     2000,       12,       30,         1 },
-                { L_,     2000,       12,       31,         1 },
-                { L_,     2000,       12,       32,         0 },
-
-                { L_,     9999,        0,       10,         0 },
-                { L_,     9999,       10,        0,         0 },
-                { L_,     9999,       12,       31,         1 },
-                { L_,    10000,        1,        1,         0 },
-                { L_,  INT_MAX,        1,        1,         0 },
-                { L_,        1,  INT_MAX,        1,         0 },
-                { L_,        1,        1,  INT_MAX,         0 },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int LINE  = DATA[ti].d_line;
-                const int YEAR  = DATA[ti].d_year;
-                const int MONTH = DATA[ti].d_month;
-                const int DAY   = DATA[ti].d_day;
-                const int EXP   = DATA[ti].d_exp;
-
-                if (veryVerbose) {
-                    P_(LINE);  P_(YEAR);  P_(MONTH);  P_(DAY);  P(EXP);
-                }
-
-                LOOP4_ASSERT(LINE, YEAR, MONTH, DAY,
-                           EXP == Util::isValidYearMonthDay(YEAR, MONTH, DAY));
-
-                LOOP4_ASSERT(LINE, YEAR, MONTH, DAY,
-                    EXP == Util::isValidYearMonthDayNoCache(YEAR, MONTH, DAY));
-            }
+            ASSERT(true  ==       Util::isValidYearMonthDayNoCache(
+                                                            1752, 9, 10));
+            ASSERT(false ==  PosixUtil::isValidCalendarDateNoCache(
+                                                            1752, 9, 10));
+            ASSERT(true  == SerialUtil::isValidYearMonthDayNoCache(
+                                                            1752, 9, 10));
         }
-
         {
-            const int first = yearRangeFlag ? k_SHORT_RANGE_MIN_YEAR :    -1;
-            const int last  = yearRangeFlag ? k_SHORT_RANGE_MAX_YEAR : 10000;
-
-            if (verbose) cout << "\tExhaustively testing years "
-                              << first << '-' << last << '.' << endl;
-
-            int loopCount = 0;  // governs excessive verbosity
-
-            for (int y = first; y <= last; ++y) {
-                for (int m = -1; m <= 13; ++m) {
-                    for (int d = -1; d <= 32; ++d) {
-
-                        bool isValid = y >= k_MIN_YEAR  && y <= k_MAX_YEAR
-                                    && m >= k_MIN_MONTH && m <= k_MAX_MONTH
-                                    && d >= 1
-                                    && d <= Util::lastDayOfMonth(y, m);
-
-                        if (veryVerbose && 0 == loopCount % 100) {
-                            P_(isValid);  P_(y);  P_(m);  P(d);
-                        }
-                        ++loopCount;
-
-                        int v1 = Util::isValidYearMonthDay(y, m, d);
-                        int v2 = Util::isValidYearMonthDayNoCache(y, m, d);
-
-                        LOOP3_ASSERT(y, m, d, isValid == v1);
-                        LOOP3_ASSERT(y, m, d, isValid == v2);
-                    }
-                }
-            }
-        }
-
-        if (verbose) cout << "\nTesting: 'isValidYearDay'" << endl;
-
-        if (verbose) cout << "\tDirect test vectors." << endl;
-        {
-            static const struct {
-                int d_line;       // source line number
-                int d_year;       // year under test
-                int d_dayOfYear;  // day of year under test
-                int d_exp;        // expected value
-            } DATA[] = {
-                //LINE    YEAR   DAY OF YEAR   EXPECTED
-                //----    ----   -----------   --------
-                { L_,        0,            0,         0 },
-                { L_,        1,            0,         0 },
-                { L_,        0,            1,         0 },
-                { L_,        1,           -1,         0 },
-                { L_,        1,      INT_MIN,         0 },
-                { L_,       -1,            1,         0 },
-                { L_,  INT_MIN,            1,         0 },
-                { L_,        0,          365,         0 },
-                { L_,        0,          366,         0 },
-
-                { L_,        1,            1,         1 },
-                { L_,        1,          365,         1 },
-                { L_,        1,          366,         0 },
-                { L_,        2,          365,         1 },
-                { L_,        2,          366,         0 },
-                { L_,        3,          365,         1 },
-                { L_,        3,          366,         0 },
-                { L_,        4,          365,         1 },
-                { L_,        4,          366,         1 },
-                { L_,        4,          367,         0 },
-                { L_,        5,          365,         1 },
-                { L_,        5,          366,         0 },
-
-                { L_,     1752,          366,         1 },
-                { L_,     1752,          367,         0 },
-                { L_,     1753,          365,         1 },
-                { L_,     1753,          366,         0 },
-                { L_,     1754,          365,         1 },
-                { L_,     1754,          366,         0 },
-                { L_,     1755,          365,         1 },
-                { L_,     1755,          366,         0 },
-                { L_,     1756,          366,         1 },
-                { L_,     1756,          367,         0 },
-
-                { L_,     1899,          365,         1 },
-                { L_,     1899,          366,         0 },
-                { L_,     1900,          365,         1 },
-                { L_,     1900,          366,         0 },
-                { L_,     1901,          365,         1 },
-                { L_,     1901,          366,         0 },
-                { L_,     1902,          365,         1 },
-                { L_,     1902,          366,         0 },
-                { L_,     1903,          365,         1 },
-                { L_,     1903,          366,         0 },
-                { L_,     1904,          366,         1 },
-                { L_,     1904,          367,         0 },
-                { L_,     1905,          365,         1 },
-                { L_,     1905,          366,         0 },
-
-                { L_,     1999,          365,         1 },
-                { L_,     1999,          366,         0 },
-                { L_,     2000,          366,         1 },
-                { L_,     2000,          367,         0 },
-                { L_,     2001,          365,         1 },
-                { L_,     2001,          366,         0 },
-                { L_,     2002,          365,         1 },
-                { L_,     2002,          366,         0 },
-                { L_,     2003,          365,         1 },
-                { L_,     2003,          366,         0 },
-                { L_,     2004,          366,         1 },
-                { L_,     2004,          367,         0 },
-                { L_,     2005,          365,         1 },
-                { L_,     2005,          366,         0 },
-
-                { L_,     9999,            0,         0 },
-                { L_,     9999,            1,         1 },
-                { L_,     9999,          365,         1 },
-                { L_,     9999,          366,         0 },
-                { L_,     9999,      INT_MAX,         0 },
-                { L_,    10000,          366,         0 },
-                { L_,  INT_MAX,          365,         0 },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int LINE       = DATA[ti].d_line;
-                const int YEAR       = DATA[ti].d_year;
-                const int DAYOFYEAR  = DATA[ti].d_dayOfYear;
-                const int EXP        = DATA[ti].d_exp;
-
-                if (veryVerbose) {
-                    P_(LINE);  P_(YEAR);  P_(DAYOFYEAR);  P(EXP);
-                }
-
-                LOOP3_ASSERT(LINE, YEAR, DAYOFYEAR,
-                             EXP == Util::isValidYearDay(YEAR, DAYOFYEAR));
-            }
-        }
-
-        {
-            const int first = yearRangeFlag ? k_SHORT_RANGE_MIN_YEAR
-                                            : k_MIN_YEAR;
-            const int last  = yearRangeFlag ? k_SHORT_RANGE_MAX_YEAR
-                                            : k_MAX_YEAR;
-
-            if (verbose) cout << "\tExhaustively testing years "
-                              << first << '-' << last << '.' << endl;
-
-            int loopCount = 0;  // governs excessive verbosity
-
-            for (int y = first; y <= last; ++y) {
-                ASSERT(0 == Util::isValidYearDay(y, -y));
-                ASSERT(0 == Util::isValidYearDay(y,  0));
-
-                for (int doy = 1; doy <= 365; ++doy) {
-
-                    if (veryVerbose && 0 == loopCount % 100) {
-                        P_(y);  P(doy);
-                    }
-                    ++loopCount;
-
-                    ASSERT(1 == Util::isValidYearDay(y, doy));
-                }
-
-                const bool isLeapYear = Util::isLeapYear(y);
-
-                ASSERT(isLeapYear == Util::isValidYearDay(y, 366));
-                ASSERT(         0 == Util::isValidYearDay(y, 367));
-            }
-        }
-
-        if (verbose) cout << "\nTesting: 'isValidSerial'" << endl;
-        {
-            const int k_MID_SERIAL = (k_MAX_SERIAL - k_MIN_SERIAL) / 2 + 1;
-
-            static const struct {
-                int d_line;    // source line number
-                int d_serial;  // serial date
-                int d_exp;     // expected value
-            } DATA[] = {
-                //LINE       SERIAL       EXPECTED
-                //----   --------------   --------
-                { L_,    k_MIN_SERIAL-2,         0 },
-                { L_,    k_MIN_SERIAL-1,         0 },
-                { L_,    k_MIN_SERIAL  ,         1 },
-                { L_,    k_MIN_SERIAL+1,         1 },
-                { L_,    k_MIN_SERIAL+2,         1 },
-
-                { L_,    k_MID_SERIAL-2,         1 },
-                { L_,    k_MID_SERIAL-1,         1 },
-                { L_,    k_MID_SERIAL  ,         1 },
-                { L_,    k_MID_SERIAL+1,         1 },
-                { L_,    k_MID_SERIAL+2,         1 },
-
-                { L_,    k_MAX_SERIAL-2,         1 },
-                { L_,    k_MAX_SERIAL-1,         1 },
-                { L_,    k_MAX_SERIAL  ,         1 },
-                { L_,    k_MAX_SERIAL+1,         0 },
-                { L_,    k_MAX_SERIAL+2,         0 },
-
-                { L_,         INT_MIN  ,         0 },
-                { L_,         INT_MIN+1,         0 },
-                { L_,         INT_MIN+2,         0 },
-
-                { L_,         INT_MAX-2,         0 },
-                { L_,         INT_MAX-1,         0 },
-                { L_,         INT_MAX  ,         0 },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int LINE   = DATA[ti].d_line;
-                const int SERIAL = DATA[ti].d_serial;
-                const int EXP    = DATA[ti].d_exp;
-
-                if (veryVerbose) { P_(LINE);  P_(SERIAL);  P(EXP); }
-
-                LOOP2_ASSERT(LINE, SERIAL,
-                             EXP == Util::isValidSerial(SERIAL));
-            }
-        }
-
-      } break;
-      case 4: {
-        // --------------------------------------------------------------------
-        // TESTING 'lastDayOfMonth'
-        //   Ensure that the method correctly identifies the last day of the
-        //   month.
-        //
-        // Concerns:
-        //: 1 The method correctly identifies the last day of the month for
-        //:   every valid (year, month) pair.
-        //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
-        //
-        // Plan:
-        //: 1 Using the table-driven technique, specify a set of (unique) valid
-        //:   (year, month) pairs (one per row), and the (integral) results
-        //:   expected from 'lastDayOfMonth' when applied to those tabulated
-        //:   pairs.  For further assurance, exhaustively test 'lastDayOfMonth'
-        //:   over a range of years that is governed by the 'yearRangeFlag'.
-        //:   (C-1)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-2)
-        //
-        // Testing:
-        //   static int  lastDayOfMonth(int year, int month);
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "TESTING 'lastDayOfMonth'" << endl
-                          << "========================" << endl;
-
-        if (verbose) cout << "\tDirect test vectors." << endl;
-        {
-            static const struct {
-                int d_line;   // source line number
-                int d_year;   // year under test
-                int d_month;  // month under test
-                int d_exp;    // expected value
-            } DATA[] = {
-                //LINE   YEAR   MONTH   EXPECTED
-                //----   ----   -----   --------
-                { L_,    1999,      1,        31 },
-                { L_,    2000,      1,        31 },
-                { L_,    2001,      1,        31 },
-                { L_,    2002,      1,        31 },
-                { L_,    2096,      1,        31 },
-                { L_,    2100,      1,        31 },
-
-                { L_,    1999,      2,        28 },
-                { L_,    2000,      2,        29 },
-                { L_,    2001,      2,        28 },
-                { L_,    2002,      2,        28 },
-                { L_,    2096,      2,        29 },
-                { L_,    2100,      2,        28 },
-
-                { L_,    1999,      3,        31 },
-                { L_,    2000,      3,        31 },
-                { L_,    2001,      3,        31 },
-                { L_,    2002,      3,        31 },
-                { L_,    2096,      3,        31 },
-                { L_,    2100,      3,        31 },
-
-                { L_,    1999,      4,        30 },
-                { L_,    2000,      4,        30 },
-                { L_,    2001,      4,        30 },
-                { L_,    2002,      4,        30 },
-                { L_,    2096,      4,        30 },
-                { L_,    2100,      4,        30 },
-
-                { L_,    1999,      5,        31 },
-                { L_,    2000,      5,        31 },
-                { L_,    2001,      5,        31 },
-                { L_,    2002,      5,        31 },
-                { L_,    2096,      5,        31 },
-                { L_,    2100,      5,        31 },
-
-                { L_,    1999,      6,        30 },
-                { L_,    2000,      6,        30 },
-                { L_,    2001,      6,        30 },
-                { L_,    2002,      6,        30 },
-                { L_,    2096,      6,        30 },
-                { L_,    2100,      6,        30 },
-
-                { L_,    1999,      7,        31 },
-                { L_,    2000,      7,        31 },
-                { L_,    2001,      7,        31 },
-                { L_,    2002,      7,        31 },
-                { L_,    2096,      7,        31 },
-                { L_,    2100,      7,        31 },
-
-                { L_,    1999,      8,        31 },
-                { L_,    2000,      8,        31 },
-                { L_,    2001,      8,        31 },
-                { L_,    2002,      8,        31 },
-                { L_,    2096,      8,        31 },
-                { L_,    2100,      8,        31 },
-
-                { L_,    1999,      9,        30 },
-                { L_,    2000,      9,        30 },
-                { L_,    2001,      9,        30 },
-                { L_,    2002,      9,        30 },
-                { L_,    2096,      9,        30 },
-                { L_,    2100,      9,        30 },
-
-                { L_,    1999,     10,        31 },
-                { L_,    2000,     10,        31 },
-                { L_,    2001,     10,        31 },
-                { L_,    2002,     10,        31 },
-                { L_,    2096,     10,        31 },
-                { L_,    2100,     10,        31 },
-
-                { L_,    1999,     11,        30 },
-                { L_,    2000,     11,        30 },
-                { L_,    2001,     11,        30 },
-                { L_,    2002,     11,        30 },
-                { L_,    2096,     11,        30 },
-                { L_,    2100,     11,        30 },
-
-                { L_,    1999,     12,        31 },
-                { L_,    2000,     12,        31 },
-                { L_,    2001,     12,        31 },
-                { L_,    2002,     12,        31 },
-                { L_,    2096,     12,        31 },
-                { L_,    2100,     12,        31 },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int LINE  = DATA[ti].d_line;
-                const int YEAR  = DATA[ti].d_year;
-                const int MONTH = DATA[ti].d_month;
-                const int EXP   = DATA[ti].d_exp;
-
-                if (veryVerbose) {
-                    P_(LINE);  P_(YEAR);  P_(MONTH);  P(EXP);
-                }
-
-                LOOP3_ASSERT(LINE, YEAR, MONTH,
-                             EXP == Util::lastDayOfMonth(YEAR, MONTH));
-            }
-        }
-
-        const int first = yearRangeFlag ? k_SHORT_RANGE_MIN_YEAR : k_MIN_YEAR;
-        const int last  = yearRangeFlag ? k_SHORT_RANGE_MAX_YEAR : k_MAX_YEAR;
-
-        if (verbose) cout << "\tExhaustively testing years "
-                          << first << '-' << last << '.' << endl;
-
-        for (int y = first; y <= last; ++y) {
-            for (int m = 1; m <= 12; ++m) {
-                int exp = -1;
-
-                switch (m) {
-                  case  1: {  // JAN
-                  case  3:    // MAR
-                  case  5:    // MAY
-                  case  7:    // JUL
-                  case  8:    // AUG
-                  case 10:    // OCT
-                  case 12:    // DEC
-                    exp = 31;
-                  } break;
-                  case  4: {  // APR
-                  case  6:    // JUN
-                  case  9:    // SEP
-                  case 11:    // NOV
-                    exp = 30;
-                  } break;
-                  case  2: {  // FEB
-                    exp = Util::isLeapYear(y) ? 29 : 28;
-                  } break;
-                  default: {
-                    BSLS_ASSERT_OPT(0 && "month value out of range");
-                  } break;
-                }
-
-                if (veryVeryVerbose) { P_(y);  P_(m);  P(exp); }
-
-                LOOP3_ASSERT(y, m, exp, exp == Util::lastDayOfMonth(y, m));
-            }
-        }
-
-      } break;
-      case 3: {
-        // --------------------------------------------------------------------
-        // TESTING 'numLeapYears'
-        //   Ensure that the method correctly calculates the number of leap
-        //   years within any valid range of years.
-        //
-        // Concerns:
-        //: 1 The method correctly computes the number of leap years within any
-        //:   valid '[year1 .. year2]' range.
-        //:
-        //: 2 The rule regarding divisibility by { 4, 100, 400 } for
-        //:   determining leap years is correctly applied.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
-        //
-        // Plan:
-        //: 1 Using the table-driven technique, specify a set of (unique) valid
-        //:   '[year1 .. year2]' range values (one per row), and the (integral)
-        //:   results expected from 'numLeapYears' when applied to those
-        //:   tabulated values.  For further assurance, use the (already
-        //:   proven) 'isLeapYear' function to verify the expected values.
-        //:   (C-1..2)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-3)
-        //
-        // Testing:
-        //   static int  numLeapYears(int year1, int year2);
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "TESTING 'numLeapYears'" << endl
-                          << "======================" << endl;
-
-        {
-            static const struct {
-                int d_line;   // source line number
-                int d_year1;  // 1st year in range under test
-                int d_year2;  // 2nd year in range under test
-                int d_exp;    // expected value
-            } DATA[] = {
-                //LINE   YEAR1   YEAR2   EXPECTED
-                //----   -----   -----   --------
-                { L_,        1,      1,         0 },
-                { L_,        1,      2,         0 },
-                { L_,        1,      3,         0 },
-                { L_,        2,      2,         0 },
-                { L_,        5,      7,         0 },
-                { L_,        9,     11,         0 },
-                { L_,       13,     15,         0 },
-                { L_,       97,    103,         0 },
-                { L_,      100,    100,         0 },
-                { L_,      397,    399,         0 },
-                { L_,      401,    403,         0 },
-                { L_,      997,   1003,         0 },
-                { L_,     1000,   1000,         0 },
-                { L_,     1197,   1199,         0 },
-                { L_,     1201,   1203,         0 },
-                { L_,     9997,   9999,         0 },
-                { L_,     9999,   9999,         0 },
-
-                { L_,        1,      4,         1 },
-                { L_,        1,      7,         1 },
-                { L_,        4,      4,         1 },
-                { L_,        5,      8,         1 },
-                { L_,        5,     11,         1 },
-                { L_,        8,      8,         1 },
-                { L_,       93,    103,         1 },
-                { L_,       96,     96,         1 },
-                { L_,       97,    107,         1 },
-                { L_,      104,    104,         1 },
-                { L_,      397,    403,         1 },
-                { L_,      400,    400,         1 },
-                { L_,      993,   1003,         1 },
-                { L_,      996,    996,         1 },
-                { L_,     1193,   1199,         1 },
-                { L_,     1196,   1196,         1 },
-                { L_,     1197,   1203,         1 },
-                { L_,     1200,   1200,         1 },
-                { L_,     9993,   9996,         1 },
-                { L_,     9993,   9999,         1 },
-                { L_,     9996,   9996,         1 },
-                { L_,     9996,   9999,         1 },
-
-                { L_,        1,      8,         2 },
-                { L_,        1,     11,         2 },
-                { L_,        4,      8,         2 },
-                { L_,        4,     11,         2 },
-                { L_,       89,    103,         2 },
-                { L_,       92,    103,         2 },
-                { L_,       93,    104,         2 },
-                { L_,      396,    403,         2 },
-                { L_,      397,    404,         2 },
-                { L_,      992,   1003,         2 },
-                { L_,      993,   1004,         2 },
-                { L_,     1196,   1203,         2 },
-                { L_,     1197,   1204,         2 },
-                { L_,     9992,   9999,         2 },
-
-                { L_,        1,     99,        24 },
-                { L_,        1,    103,        24 },
-                { L_,        5,    107,        24 },
-                { L_,      421,    523,        24 },
-                { L_,      425,    527,        24 },
-                { L_,     1361,   1463,        24 },
-                { L_,     1365,   1467,        24 },
-
-                { L_,        1,    399,        96 },
-                { L_,        5,    403,        96 },
-                { L_,      401,    799,        96 },
-                { L_,      405,    803,        96 },
-
-                { L_,      201,    603,        97 },
-                { L_,      205,    607,        97 },
-                { L_,     1041,   1443,        97 },
-                { L_,     1045,   1447,        97 },
-
-                { L_,        1,   9995,      2423 },
-                { L_,        4,   9995,      2423 },
-                { L_,        5,   9996,      2423 },
-                { L_,        5,   9999,      2423 },
-
-                { L_,        1,   9996,      2424 },
-                { L_,        1,   9999,      2424 },
-                { L_,        4,   9996,      2424 },
-                { L_,        4,   9999,      2424 },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int LINE  = DATA[ti].d_line;
-                const int YEAR1 = DATA[ti].d_year1;
-                const int YEAR2 = DATA[ti].d_year2;
-                const int EXP   = DATA[ti].d_exp;
-
-                if (veryVerbose) {
-                    P_(LINE);  P_(YEAR1);  P_(YEAR2);  P(EXP);
-                }
-
-                int actual = 0;
-                for (int y = YEAR1; y <= YEAR2; ++y) {
-                    actual += Util::isLeapYear(y);
-                }
-                LOOP3_ASSERT(LINE, YEAR1, YEAR2, EXP == actual);
-
-                LOOP3_ASSERT(LINE, YEAR1, YEAR2,
-                             EXP == Util::numLeapYears(YEAR1, YEAR2));
-            }
+            // POSIX mode
+
+            Util::disableProlepticGregorianMode();
+            ASSERT(false == Util::isProlepticGregorianMode());
+
+            ASSERT(true  ==       Util::isValidYearMonthDay(1700, 2, 29));
+            ASSERT(true  ==  PosixUtil::isValidCalendarDate(1700, 2, 29));
+            ASSERT(false == SerialUtil::isValidYearMonthDay(1700, 2, 29));
+
+            ASSERT(false ==       Util::isValidYearMonthDayNoCache(
+                                                            1752, 9, 10));
+            ASSERT(false ==  PosixUtil::isValidCalendarDateNoCache(
+                                                            1752, 9, 10));
+            ASSERT(true  == SerialUtil::isValidYearMonthDayNoCache(
+                                                            1752, 9, 10));
         }
 
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'isLeapYear'
-        //   Ensure that the method correctly identifies leap years.
+        // TESTING LEAP YEAR FUNCTIONS
         //
         // Concerns:
-        //: 1 The method correctly identifies every year in the supported range
-        //:   ('[1 .. 9999]') as either a leap year or a non-leap year.
-        //:
-        //: 2 The rule regarding divisibility by { 4, 100, 400 } is
-        //:   implemented correctly.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        //: 1 Each method forwards to the mode-specific implementation that is
+        //:   currently in effect and produces the expected result.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of (unique) valid
-        //:   year values (one per row), and the (boolean) results expected
-        //:   from 'isLeapYear' when applied to those tabulated values.  For
-        //:   further assurance, exhaustively test 'isLeapYear' over the entire
-        //:   range of valid years.  (C-1..2)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-3)
+        //: 1 In both calendar modes, exercise each method on data that
+        //:   produces different results between the two modes.  Use the
+        //:   underlying 'PosixDateImpUtil' and 'SerialDateImpUtil' as oracles
+        //:   to verify the expected behavior.  (C-1)
         //
         // Testing:
         //   static bool isLeapYear(int year);
+        //   static int  lastDayOfMonth(int year, int month);
+        //   static int  numLeapYears(int year1, int year2);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'isLeapYear'" << endl
-                          << "====================" << endl;
+                          << "TESTING LEAP YEAR FUNCTIONS" << endl
+                          << "===========================" << endl;
 
-        if (verbose) cout << "\tDirect test vectors." << endl;
+        if (verbose) cout << "\nTesting 'isLeapYear'." << endl;
         {
-            static const struct {
-                int d_line;  // source line number
-                int d_year;  // year under test
-                int d_exp;   // expected value
-            } DATA[] = {
-                //LINE   YEAR   EXPECTED
-                //----   ----   --------
-                { L_,       1,         0 },
-                { L_,       2,         0 },
-                { L_,       3,         0 },
-                { L_,       4,         1 },
-                { L_,       5,         0 },
-                { L_,       8,         1 },
-                { L_,      10,         0 },
-                { L_,      96,         1 },
-                { L_,      99,         0 },
-                { L_,     100,         0 },
-                { L_,     101,         0 },
-                { L_,     104,         1 },
-                { L_,     200,         0 },
-                { L_,     300,         0 },
-                { L_,     396,         1 },
-                { L_,     399,         0 },
-                { L_,     400,         1 },
-                { L_,     401,         0 },
-                { L_,     499,         0 },
-                { L_,     500,         0 },
-                { L_,     501,         0 },
-                { L_,     600,         0 },
-                { L_,     700,         0 },
-                { L_,     799,         0 },
-                { L_,     800,         1 },
-                { L_,     801,         0 },
-                { L_,     900,         0 },
-                { L_,    1000,         0 },
-                { L_,    1100,         0 },
-                { L_,    1200,         1 },
-                { L_,    1300,         0 },
-                { L_,    1400,         0 },
-                { L_,    1500,         0 },
-                { L_,    1582,         0 },
-                { L_,    1583,         0 },
-                { L_,    1584,         1 },
-                { L_,    1600,         1 },
-                { L_,    1700,         0 },
-                { L_,    1752,         1 },
-                { L_,    1753,         0 },
-                { L_,    1800,         0 },
-                { L_,    1801,         0 },
-                { L_,    1804,         1 },
-                { L_,    1896,         1 },
-                { L_,    1899,         0 },
-                { L_,    1900,         0 },
-                { L_,    1901,         0 },
-                { L_,    1904,         1 },
-                { L_,    1996,         1 },
-                { L_,    1999,         0 },
-                { L_,    2000,         1 },
-                { L_,    2001,         0 },
-                { L_,    2004,         1 },
-                { L_,    2096,         1 },
-                { L_,    2099,         0 },
-                { L_,    2100,         0 },
-                { L_,    2101,         0 },
-                { L_,    2104,         1 },
-                { L_,    2399,         0 },
-                { L_,    2400,         1 },
-                { L_,    2401,         0 },
-                { L_,    7100,         0 },
-                { L_,    8000,         1 },
-                { L_,    9900,         0 },
-                { L_,    9995,         0 },
-                { L_,    9996,         1 },
-                { L_,    9997,         0 },
-                { L_,    9998,         0 },
-                { L_,    9999,         0 },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            // proleptic Gregorian mode
 
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int LINE = DATA[ti].d_line;
-                const int YEAR = DATA[ti].d_year;
-                const int EXP  = DATA[ti].d_exp;
+            Util::enableProlepticGregorianMode();
+            ASSERT(true == Util::isProlepticGregorianMode());
 
-                if (veryVerbose) { P_(LINE);  P_(YEAR);  P(EXP); }
+            ASSERT(false ==       Util::isLeapYear(1700));
+            ASSERT(true  ==  PosixUtil::isLeapYear(1700));
+            ASSERT(false == SerialUtil::isLeapYear(1700));
+        }
+        {
+            // POSIX mode
 
-                LOOP_ASSERT(LINE, EXP == Util::isLeapYear(YEAR));
-            }
+            Util::disableProlepticGregorianMode();
+            ASSERT(false == Util::isProlepticGregorianMode());
+
+            ASSERT(true  ==       Util::isLeapYear(1700));
+            ASSERT(true  ==  PosixUtil::isLeapYear(1700));
+            ASSERT(false == SerialUtil::isLeapYear(1700));
         }
 
-        const int first = k_MIN_YEAR;
-        const int last  = k_MAX_YEAR;
+        if (verbose) cout << "\nTesting 'lastDayOfMonth'." << endl;
+        {
+            // proleptic Gregorian mode
 
-        if (verbose) cout << "\tExhaustively testing years "
-                          << first << '-' << last << '.' << endl;
+            Util::enableProlepticGregorianMode();
+            ASSERT(true == Util::isProlepticGregorianMode());
 
-        for (int y = first; y <= last; ++y) {
-            const bool isLeapFlag = Util::isLeapYear(y);
+            ASSERT(28 ==       Util::lastDayOfMonth(1700, 2));
+            ASSERT(29 ==  PosixUtil::lastDayOfMonth(1700, 2));
+            ASSERT(28 == SerialUtil::lastDayOfMonth(1700, 2));
+        }
+        {
+            // POSIX mode
 
-            if (veryVeryVerbose) { P_(y);  P(isLeapFlag); }
+            Util::disableProlepticGregorianMode();
+            ASSERT(false == Util::isProlepticGregorianMode());
 
-            // 1. All years not divisible by 4 are non-leap years.
+            ASSERT(29 ==       Util::lastDayOfMonth(1700, 2));
+            ASSERT(29 ==  PosixUtil::lastDayOfMonth(1700, 2));
+            ASSERT(28 == SerialUtil::lastDayOfMonth(1700, 2));
+        }
 
-            if (0 != y % 4) {
-                LOOP2_ASSERT(y, isLeapFlag, !isLeapFlag);
-            }
+        if (verbose) cout << "\nTesting 'numLeapYears'." << endl;
+        {
+            // proleptic Gregorian mode
 
-            // 2. All years divisible by 4 that are not century years are leap
-            // years.
+            Util::enableProlepticGregorianMode();
+            ASSERT(true == Util::isProlepticGregorianMode());
 
-            if (0 == y % 4 && 0 != y % 100) {
-                LOOP2_ASSERT(y, isLeapFlag,  isLeapFlag);
-            }
+            ASSERT(0 ==       Util::numLeapYears(1699, 1701));
+            ASSERT(1 ==  PosixUtil::numLeapYears(1699, 1701));
+            ASSERT(0 == SerialUtil::numLeapYears(1699, 1701));
+        }
+        {
+            // POSIX mode
 
-            // 3. Century years are leap years iff they are divisible by 400.
+            Util::disableProlepticGregorianMode();
+            ASSERT(false == Util::isProlepticGregorianMode());
 
-            if (0 == y % 100) {
-                LOOP2_ASSERT(y, isLeapFlag,  isLeapFlag == (0 == y % 400));
-            }
+            ASSERT(1 ==       Util::numLeapYears(1699, 1701));
+            ASSERT(1 ==  PosixUtil::numLeapYears(1699, 1701));
+            ASSERT(0 == SerialUtil::numLeapYears(1699, 1701));
         }
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING GLOBAL CONSTANTS
-        //   Ensure that the global constants whose values are not self-evident
-        //   are correct.
+        // TESTING '*ProlepticGregorianMode'
         //
         // Concerns:
-        //: 1 The "magic" values of 'k_MAX_SERIAL', 'k_SHORT_RANGE_MIN_SERIAL',
-        //:   and 'k_SHORT_RANGE_MAX_SERIAL' are correct.
+        //: 1 The 'disableProlepticGregorianMode' function sets the calendar
+        //:   mode to POSIX (i.e., sets the underlying mode flag to 'false')
+        //:   regardless of its current setting.
+        //:
+        //: 2 The 'enableProlepticGregorianMode' function sets the calendar
+        //:   mode to proleptic Gregorian (i.e., sets the underlying mode flag
+        //:   to 'true') regardless of its current setting.
+        //:
+        //: 3 The value returned by the 'isProlepticGregorianMode' function
+        //:   indicates the calendar mode currently in effect ('true' for
+        //:   proleptic Gregorian and 'false' for POSIX).
         //
         // Plan:
-        //: 1 For completeness, assert axiomatic values and manifest
-        //:   relationships among the constants.
-        //:
-        //: 2 Use the (as yet unproven) 'isLeapYear' function to calculate the
-        //:   expected values of 'k_MAX_SERIAL', 'k_SHORT_RANGE_MIN_SERIAL',
-        //:   and 'k_SHORT_RANGE_MAX_SERIAL'.  (Note that 'isLeapYear' is
-        //:   thoroughly tested in case 2.)  (C-1)
+        //: 1 Cycle through a sequence of calls to the "disable" and "enable"
+        //:   functions ensuring that each function is called at least once
+        //:   when the current calendar mode is proleptic Gregorian and at
+        //:   least once when the mode is POSIX.  Follow each call with a call
+        //:   to 'isProlepticGregorianMode' to verify that the expected
+        //:   calendar mode is in effect.  (C-1..3)
         //
         // Testing:
-        //   CONCERN: The global constants used for testing are correct.
+        //   static void disableProlepticGregorianMode();
+        //   static void enableProlepticGregorianMode();
+        //   static bool isProlepticGregorianMode();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING GLOBAL CONSTANTS" << endl
-                          << "========================" << endl;
+                          << "TESTING '*ProlepticGregorianMode'" << endl
+                          << "=================================" << endl;
 
-        if (verbose) cout << "\tAssert axiomatic values and relationships."
-                          << endl;
+        Util::disableProlepticGregorianMode();
+        ASSERT(false == Util::isProlepticGregorianMode());
 
-        ASSERT(   1 == k_MIN_MONTH);
-        ASSERT(  12 == k_MAX_MONTH);
+        Util::disableProlepticGregorianMode();
+        ASSERT(false == Util::isProlepticGregorianMode());
 
-        ASSERT(   1 == k_MIN_YEAR);
-        ASSERT(9999 == k_MAX_YEAR);
+        Util::enableProlepticGregorianMode();
+        ASSERT(true  == Util::isProlepticGregorianMode());
 
-        ASSERT(k_MIN_YEAR               < k_SHORT_RANGE_MIN_YEAR);
-        ASSERT(k_SHORT_RANGE_MIN_YEAR   < k_SHORT_RANGE_MAX_YEAR);
-        ASSERT(k_SHORT_RANGE_MAX_YEAR   < k_MAX_YEAR);
+        Util::enableProlepticGregorianMode();
+        ASSERT(true  == Util::isProlepticGregorianMode());
 
-        ASSERT(500 <= k_SHORT_RANGE_MAX_YEAR - k_SHORT_RANGE_MIN_YEAR);
-
-        ASSERT(   1 == k_MIN_SERIAL);
-
-        ASSERT(k_MIN_SERIAL             < k_SHORT_RANGE_MIN_SERIAL);
-        ASSERT(k_SHORT_RANGE_MIN_SERIAL < k_SHORT_RANGE_MAX_SERIAL);
-        ASSERT(k_SHORT_RANGE_MAX_SERIAL < k_MAX_SERIAL);
-
-        ASSERT(   2 == k_MIN_DAYOFWEEK);
-
-        if (verbose) cout << "\tVerify non-axiomatic values." << endl;
-
-        int computedSerialValue = k_MIN_SERIAL - 1;
-
-        for (int y = k_MIN_YEAR; y <= k_MAX_YEAR; ++y) {
-            computedSerialValue += Util::isLeapYear(y) ? 366 : 365;
-        }
-        ASSERT(k_MAX_SERIAL == computedSerialValue);
-
-        computedSerialValue = k_MIN_SERIAL - 1;
-
-        for (int y = k_MIN_YEAR; y < k_SHORT_RANGE_MIN_YEAR; ++y) {
-            computedSerialValue += Util::isLeapYear(y) ? 366 : 365;
-        }
-        ASSERT(k_SHORT_RANGE_MIN_SERIAL == computedSerialValue + 1);
-
-        for (int y = k_SHORT_RANGE_MIN_YEAR; y <= k_SHORT_RANGE_MAX_YEAR; ++y){
-            computedSerialValue += Util::isLeapYear(y) ? 366 : 365;
-        }
-        ASSERT(k_SHORT_RANGE_MAX_SERIAL == computedSerialValue);
-
-        int computedShortRangeMinDayOfWeek =
-               (k_MIN_DAYOFWEEK + k_SHORT_RANGE_MIN_SERIAL - k_MIN_SERIAL) % 7;
-
-        if (0 == computedShortRangeMinDayOfWeek) {
-            computedShortRangeMinDayOfWeek = 1;
-        }
-
-        ASSERT(k_SHORT_RANGE_MIN_DAYOFWEEK == computedShortRangeMinDayOfWeek);
+        Util::disableProlepticGregorianMode();
+        ASSERT(false == Util::isProlepticGregorianMode());
 
       } break;
       default: {
