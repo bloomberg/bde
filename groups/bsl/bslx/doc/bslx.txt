@@ -13,17 +13,18 @@
 
 /Hierarchical Synopsis
 /---------------------
- 'bslx' has 10 components having five levels of dependency.  The table below
+ 'bslx' has 14 components having five levels of dependency.  The table below
  shows the hierarchical ordering of the components.  The package prefix and
  underscore ('bslx_') are omitted from the full component names for layout
  efficiency:
 ..
   Level
-    5:  testinstream
+    5:  testinstream         byteinstreamformatter
 
-    4:  byteinstream         testoutstream
+    4:  byteinstream         genericbyteinstream   testoutstream
+                                                         byteoutstreamformatter
 
-    3:  byteoutstream
+    3:  byteoutstream        genericbyteoutstream
 
     2:  outstreamfunctions   testinstreamexception
 
@@ -36,7 +37,15 @@
 ..
   bslx_byteinstream            - primary production input stream
 
+  bslx_byteinstreamformatter   - 'bsl::streambuf' input stream
+
   bslx_byteoutstream           - primary production output stream
+
+  bslx_byteoutstreamformatter  - 'bsl::streambuf' output stream
+
+  bslx_genericbyteinstream     - templatized buffer input stream
+
+  bslx_genericbyteoutstream    - templatized buffer output stream
 
   bslx_instreamfunctions       - templated validator/wrapper for the
                                  'bdexStreamIn' method required of
