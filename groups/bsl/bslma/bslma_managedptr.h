@@ -1729,14 +1729,16 @@ ManagedPtr<TARGET_TYPE>::release()
 {
     typedef ManagedPtr_PairProxy<TARGET_TYPE, ManagedPtrDeleter> ResultType;
 
-    ResultType result = {ptr(), ManagedPtrDeleter()};
+    TARGET_TYPE *p = ptr();
 
-    // It is undefined behavior to call d_members.deleter() if 'ptr()' is null.
+    // It is undefined behavior to call d_members.deleter() if 'p' is null.
 
-    if (result.first) {
-        result.second = d_members.deleter();
+    if (p) {
+        ResultType result = { p, d_members.deleter() };
         d_members.clear();
+        return result;                                                // RETURN
     }
+    ResultType result = { p, ManagedPtrDeleter() };
     return result;
 }
 
