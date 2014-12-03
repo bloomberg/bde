@@ -1037,9 +1037,7 @@ inline
 DecimalImpUtil_DecNumber::ValueType32
 DecimalImpUtil_DecNumber::negate(DecimalImpUtil_DecNumber::ValueType32 value)
 {
-    DecimalImpUtil_DecNumber::ValueType32 result;
-    decSingleCopyNegate(&result, &value);
-    return result;
+	return convertToDecimal32(negate(convertToDecimal64(value)));
 }
 
 inline

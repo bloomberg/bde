@@ -1,0 +1,304 @@
+
+
+***************** RUNNING EXAMPLE FOR icc 000 **************************
+
+
+cp: cannot stat ‘../LIBRARY/icc000libbid.a’: No such file or directory
+./linuxbuild: line 9: icc: command not found
+./linuxbuild: line 10: ./a.out: No such file or directory
+rm: cannot remove ‘a.out’: No such file or directory
+
+
+***************** RUNNING EXAMPLE FOR icc 001 **************************
+
+
+cp: cannot stat ‘../LIBRARY/icc001libbid.a’: No such file or directory
+./linuxbuild: line 20: icc: command not found
+./linuxbuild: line 21: ./a.out: No such file or directory
+rm: cannot remove ‘a.out’: No such file or directory
+
+
+***************** RUNNING EXAMPLE FOR icc 010 **************************
+
+
+cp: cannot stat ‘../LIBRARY/icc010libbid.a’: No such file or directory
+./linuxbuild: line 31: icc: command not found
+./linuxbuild: line 32: ./a.out: No such file or directory
+rm: cannot remove ‘a.out’: No such file or directory
+
+
+***************** RUNNING EXAMPLE FOR icc 011 **************************
+
+
+cp: cannot stat ‘../LIBRARY/icc011libbid.a’: No such file or directory
+./linuxbuild: line 42: icc: command not found
+./linuxbuild: line 43: ./a.out: No such file or directory
+rm: cannot remove ‘a.out’: No such file or directory
+
+
+***************** RUNNING EXAMPLE FOR icc 100 **************************
+
+
+cp: cannot stat ‘../LIBRARY/icc100libbid.a’: No such file or directory
+./linuxbuild: line 53: icc: command not found
+./linuxbuild: line 54: ./a.out: No such file or directory
+rm: cannot remove ‘a.out’: No such file or directory
+
+
+***************** RUNNING EXAMPLE FOR icc 101 **************************
+
+
+cp: cannot stat ‘../LIBRARY/icc101libbid.a’: No such file or directory
+./linuxbuild: line 64: icc: command not found
+./linuxbuild: line 65: ./a.out: No such file or directory
+rm: cannot remove ‘a.out’: No such file or directory
+
+
+***************** RUNNING EXAMPLE FOR icc 110 **************************
+
+
+cp: cannot stat ‘../LIBRARY/icc110libbid.a’: No such file or directory
+./linuxbuild: line 75: icc: command not found
+./linuxbuild: line 76: ./a.out: No such file or directory
+rm: cannot remove ‘a.out’: No such file or directory
+
+
+***************** RUNNING EXAMPLE FOR icc 111 **************************
+
+
+cp: cannot stat ‘../LIBRARY/icc111libbid.a’: No such file or directory
+./linuxbuild: line 86: icc: command not found
+./linuxbuild: line 87: ./a.out: No such file or directory
+rm: cannot remove ‘a.out’: No such file or directory
+
+
+***************** RUNNING EXAMPLE FOR gcc 000 **************************
+
+
+Begin Decimal Floating-Point Sanity Check
+TEST CASE 1 FOR __bid128_mul 000 () PASSED
+TEST CASE 2 FOR __bid128_mul 000 () PASSED
+TEST CASE 3 FOR __bid128_mul 000 () PASSED
+End Decimal Floating-Point Sanity Check
+
+
+***************** RUNNING EXAMPLE FOR gcc 001 **************************
+
+
+Begin Decimal Floating-Point Sanity Check
+TEST CASE 1 FOR __bid128_mul 001 () PASSED
+TEST CASE 2 FOR __bid128_mul 001 () PASSED
+TEST CASE 3 FOR __bid128_mul 001 () PASSED
+End Decimal Floating-Point Sanity Check
+
+
+***************** RUNNING EXAMPLE FOR gcc 010 **************************
+
+
+Begin Decimal Floating-Point Sanity Check
+TEST CASE 1 FOR __bid128_mul 010 () PASSED
+TEST CASE 2 FOR __bid128_mul 010 () PASSED
+TEST CASE 3 FOR __bid128_mul 010 () PASSED
+End Decimal Floating-Point Sanity Check
+
+
+***************** RUNNING EXAMPLE FOR gcc 011 **************************
+
+
+Begin Decimal Floating-Point Sanity Check
+TEST CASE 1 FOR __bid128_mul 011 () PASSED
+TEST CASE 2 FOR __bid128_mul 011 () PASSED
+TEST CASE 3 FOR __bid128_mul 011 () PASSED
+End Decimal Floating-Point Sanity Check
+
+
+***************** RUNNING EXAMPLE FOR gcc 100 **************************
+
+
+Begin Decimal Floating-Point Sanity Check
+TEST CASE 1 FOR __bid128_mul 100 () PASSED
+TEST CASE 2 FOR __bid128_mul 100 () PASSED
+TEST CASE 3 FOR __bid128_mul 100 () PASSED
+End Decimal Floating-Point Sanity Check
+
+
+***************** RUNNING EXAMPLE FOR gcc 101 **************************
+
+
+Begin Decimal Floating-Point Sanity Check
+TEST CASE 1 FOR __bid128_mul 101 () PASSED
+TEST CASE 2 FOR __bid128_mul 101 () PASSED
+TEST CASE 3 FOR __bid128_mul 101 () PASSED
+End Decimal Floating-Point Sanity Check
+
+
+***************** RUNNING EXAMPLE FOR gcc 110 **************************
+
+
+Begin Decimal Floating-Point Sanity Check
+TEST CASE 1 FOR __bid128_mul 110 () PASSED
+TEST CASE 2 FOR __bid128_mul 110 () PASSED
+TEST CASE 3 FOR __bid128_mul 110 () PASSED
+End Decimal Floating-Point Sanity Check
+
+
+***************** RUNNING EXAMPLE FOR gcc 111 **************************
+
+
+Begin Decimal Floating-Point Sanity Check
+TEST CASE 1 FOR __bid128_mul 111 () PASSED
+TEST CASE 2 FOR __bid128_mul 111 () PASSED
+TEST CASE 3 FOR __bid128_mul 111 () PASSED
+End Decimal Floating-Point Sanity Check
+
+
+***************** RUNNING EXAMPLE FOR icc 000b **************************
+
+
+cp: cannot stat ‘../LIBRARY/icc000blibbid.a’: No such file or directory
+./linuxbuild: line 189: icc: command not found
+./linuxbuild: line 190: ./a.out: No such file or directory
+rm: cannot remove ‘a.out’: No such file or directory
+
+
+***************** RUNNING EXAMPLE FOR icc 001b **************************
+
+
+cp: cannot stat ‘../LIBRARY/icc001blibbid.a’: No such file or directory
+./linuxbuild: line 200: icc: command not found
+./linuxbuild: line 201: ./a.out: No such file or directory
+rm: cannot remove ‘a.out’: No such file or directory
+
+
+***************** RUNNING EXAMPLE FOR icc 010b **************************
+
+
+cp: cannot stat ‘../LIBRARY/icc010blibbid.a’: No such file or directory
+./linuxbuild: line 211: icc: command not found
+./linuxbuild: line 212: ./a.out: No such file or directory
+rm: cannot remove ‘a.out’: No such file or directory
+
+
+***************** RUNNING EXAMPLE FOR icc 011b **************************
+
+
+cp: cannot stat ‘../LIBRARY/icc011blibbid.a’: No such file or directory
+./linuxbuild: line 222: icc: command not found
+./linuxbuild: line 223: ./a.out: No such file or directory
+rm: cannot remove ‘a.out’: No such file or directory
+
+
+***************** RUNNING EXAMPLE FOR icc 100b **************************
+
+
+cp: cannot stat ‘../LIBRARY/icc100blibbid.a’: No such file or directory
+./linuxbuild: line 233: icc: command not found
+./linuxbuild: line 234: ./a.out: No such file or directory
+rm: cannot remove ‘a.out’: No such file or directory
+
+
+***************** RUNNING EXAMPLE FOR icc 101b **************************
+
+
+cp: cannot stat ‘../LIBRARY/icc101blibbid.a’: No such file or directory
+./linuxbuild: line 244: icc: command not found
+./linuxbuild: line 245: ./a.out: No such file or directory
+rm: cannot remove ‘a.out’: No such file or directory
+
+
+***************** RUNNING EXAMPLE FOR icc 110b **************************
+
+
+cp: cannot stat ‘../LIBRARY/icc110blibbid.a’: No such file or directory
+./linuxbuild: line 255: icc: command not found
+./linuxbuild: line 256: ./a.out: No such file or directory
+rm: cannot remove ‘a.out’: No such file or directory
+
+
+***************** RUNNING EXAMPLE FOR icc 111b **************************
+
+
+cp: cannot stat ‘../LIBRARY/icc111blibbid.a’: No such file or directory
+./linuxbuild: line 266: icc: command not found
+./linuxbuild: line 267: ./a.out: No such file or directory
+rm: cannot remove ‘a.out’: No such file or directory
+
+
+***************** RUNNING EXAMPLE FOR gcc 000b **************************
+
+
+Begin Decimal Floating-Point Sanity Check
+TEST CASE 1 FOR __bid128_mul 000 () PASSED
+TEST CASE 2 FOR __bid128_mul 000 () PASSED
+TEST CASE 3 FOR __bid128_mul 000 () PASSED
+End Decimal Floating-Point Sanity Check
+
+
+***************** RUNNING EXAMPLE FOR gcc 001b **************************
+
+
+Begin Decimal Floating-Point Sanity Check
+TEST CASE 1 FOR __bid128_mul 001 () PASSED
+TEST CASE 2 FOR __bid128_mul 001 () PASSED
+TEST CASE 3 FOR __bid128_mul 001 () PASSED
+End Decimal Floating-Point Sanity Check
+
+
+***************** RUNNING EXAMPLE FOR gcc 010b **************************
+
+
+Begin Decimal Floating-Point Sanity Check
+TEST CASE 1 FOR __bid128_mul 010 () PASSED
+TEST CASE 2 FOR __bid128_mul 010 () PASSED
+TEST CASE 3 FOR __bid128_mul 010 () PASSED
+End Decimal Floating-Point Sanity Check
+
+
+***************** RUNNING EXAMPLE FOR gcc 011b **************************
+
+
+Begin Decimal Floating-Point Sanity Check
+TEST CASE 1 FOR __bid128_mul 011 () PASSED
+TEST CASE 2 FOR __bid128_mul 011 () PASSED
+TEST CASE 3 FOR __bid128_mul 011 () PASSED
+End Decimal Floating-Point Sanity Check
+
+
+***************** RUNNING EXAMPLE FOR gcc 100b **************************
+
+
+Begin Decimal Floating-Point Sanity Check
+TEST CASE 1 FOR __bid128_mul 100 () PASSED
+TEST CASE 2 FOR __bid128_mul 100 () PASSED
+TEST CASE 3 FOR __bid128_mul 100 () PASSED
+End Decimal Floating-Point Sanity Check
+
+
+***************** RUNNING EXAMPLE FOR gcc 101b **************************
+
+
+Begin Decimal Floating-Point Sanity Check
+TEST CASE 1 FOR __bid128_mul 101 () PASSED
+TEST CASE 2 FOR __bid128_mul 101 () PASSED
+TEST CASE 3 FOR __bid128_mul 101 () PASSED
+End Decimal Floating-Point Sanity Check
+
+
+***************** RUNNING EXAMPLE FOR gcc 110b **************************
+
+
+Begin Decimal Floating-Point Sanity Check
+TEST CASE 1 FOR __bid128_mul 110 () PASSED
+TEST CASE 2 FOR __bid128_mul 110 () PASSED
+TEST CASE 3 FOR __bid128_mul 110 () PASSED
+End Decimal Floating-Point Sanity Check
+
+
+***************** RUNNING EXAMPLE FOR gcc 111b **************************
+
+
+Begin Decimal Floating-Point Sanity Check
+TEST CASE 1 FOR __bid128_mul 111 () PASSED
+TEST CASE 2 FOR __bid128_mul 111 () PASSED
+TEST CASE 3 FOR __bid128_mul 111 () PASSED
+End Decimal Floating-Point Sanity Check

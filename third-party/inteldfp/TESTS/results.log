@@ -1,0 +1,320 @@
+
+
+****************** RUNNING TESTS FOR icc 000 ***************************
+
+
+rm -f *.o
+rm -f readtest
+cp: cannot stat ‘../LIBRARY/icc000libbid.a’: No such file or directory
+ranlib: '../LIBRARY/libbid.a': No such file
+make: *** No rule to make target `../LIBRARY/libbid.a', needed by `readtest'.  Stop.
+./linuxbuild: line 10: ./readtest: No such file or directory
+
+
+****************** RUNNING TESTS FOR icc 001 ***************************
+
+
+rm -f *.o
+rm -f readtest
+cp: cannot stat ‘../LIBRARY/icc001libbid.a’: No such file or directory
+ranlib: '../LIBRARY/libbid.a': No such file
+make: *** No rule to make target `../LIBRARY/libbid.a', needed by `readtest'.  Stop.
+./linuxbuild: line 20: ./readtest: No such file or directory
+
+
+****************** RUNNING TESTS FOR icc 010 ***************************
+
+
+rm -f *.o
+rm -f readtest
+cp: cannot stat ‘../LIBRARY/icc010libbid.a’: No such file or directory
+ranlib: '../LIBRARY/libbid.a': No such file
+make: *** No rule to make target `../LIBRARY/libbid.a', needed by `readtest'.  Stop.
+./linuxbuild: line 30: ./readtest: No such file or directory
+
+
+****************** RUNNING TESTS FOR icc 011 ***************************
+
+
+rm -f *.o
+rm -f readtest
+cp: cannot stat ‘../LIBRARY/icc011libbid.a’: No such file or directory
+ranlib: '../LIBRARY/libbid.a': No such file
+make: *** No rule to make target `../LIBRARY/libbid.a', needed by `readtest'.  Stop.
+./linuxbuild: line 40: ./readtest: No such file or directory
+
+
+****************** RUNNING TESTS FOR icc 100 ***************************
+
+
+rm -f *.o
+rm -f readtest
+cp: cannot stat ‘../LIBRARY/icc100libbid.a’: No such file or directory
+ranlib: '../LIBRARY/libbid.a': No such file
+make: *** No rule to make target `../LIBRARY/libbid.a', needed by `readtest'.  Stop.
+./linuxbuild: line 50: ./readtest: No such file or directory
+
+
+****************** RUNNING TESTS FOR icc 101 ***************************
+
+
+rm -f *.o
+rm -f readtest
+cp: cannot stat ‘../LIBRARY/icc101libbid.a’: No such file or directory
+ranlib: '../LIBRARY/libbid.a': No such file
+make: *** No rule to make target `../LIBRARY/libbid.a', needed by `readtest'.  Stop.
+./linuxbuild: line 60: ./readtest: No such file or directory
+
+
+****************** RUNNING TESTS FOR icc 110 ***************************
+
+
+rm -f *.o
+rm -f readtest
+cp: cannot stat ‘../LIBRARY/icc110libbid.a’: No such file or directory
+ranlib: '../LIBRARY/libbid.a': No such file
+make: *** No rule to make target `../LIBRARY/libbid.a', needed by `readtest'.  Stop.
+./linuxbuild: line 70: ./readtest: No such file or directory
+
+
+****************** RUNNING TESTS FOR icc 111 ***************************
+
+
+rm -f *.o
+rm -f readtest
+cp: cannot stat ‘../LIBRARY/icc111libbid.a’: No such file or directory
+ranlib: '../LIBRARY/libbid.a': No such file
+make: *** No rule to make target `../LIBRARY/libbid.a', needed by `readtest'.  Stop.
+./linuxbuild: line 80: ./readtest: No such file or directory
+
+
+****************** RUNNING TESTS FOR gcc 000 ***************************
+
+
+rm -f *.o
+rm -f readtest
+gcc -O0 -D__intptr_t_defined -DLINUX -Werror -DDECIMAL_CALL_BY_REFERENCE=0 -DDECIMAL_GLOBAL_ROUNDING=0 -DDECIMAL_GLOBAL_EXCEPTION_FLAGS=0 -UBID_BIG_ENDIAN -UHPUX_OS    -o readtest readtest.c ../LIBRARY/libbid.a -lm 
+Total tests: 119171, failed result: 0, failed status: 0
+
+
+****************** RUNNING TESTS FOR gcc 001 ***************************
+
+
+rm -f *.o
+rm -f readtest
+gcc -O0 -D__intptr_t_defined -DLINUX -Werror -DDECIMAL_CALL_BY_REFERENCE=0 -DDECIMAL_GLOBAL_ROUNDING=0 -DDECIMAL_GLOBAL_EXCEPTION_FLAGS=1 -UBID_BIG_ENDIAN -UHPUX_OS    -o readtest readtest.c ../LIBRARY/libbid.a -lm 
+Total tests: 119171, failed result: 0, failed status: 0
+
+
+****************** RUNNING TESTS FOR gcc 010 ***************************
+
+
+rm -f *.o
+rm -f readtest
+gcc -O0 -D__intptr_t_defined -DLINUX -Werror -DDECIMAL_CALL_BY_REFERENCE=0 -DDECIMAL_GLOBAL_ROUNDING=1 -DDECIMAL_GLOBAL_EXCEPTION_FLAGS=0 -UBID_BIG_ENDIAN -UHPUX_OS    -o readtest readtest.c ../LIBRARY/libbid.a -lm 
+Total tests: 119171, failed result: 0, failed status: 0
+
+
+****************** RUNNING TESTS FOR gcc 011 ***************************
+
+
+rm -f *.o
+rm -f readtest
+gcc -O0 -D__intptr_t_defined -DLINUX -Werror -DDECIMAL_CALL_BY_REFERENCE=0 -DDECIMAL_GLOBAL_ROUNDING=1 -DDECIMAL_GLOBAL_EXCEPTION_FLAGS=1 -UBID_BIG_ENDIAN -UHPUX_OS    -o readtest readtest.c ../LIBRARY/libbid.a -lm 
+Total tests: 119171, failed result: 0, failed status: 0
+
+
+****************** RUNNING TESTS FOR gcc 100 ***************************
+
+
+rm -f *.o
+rm -f readtest
+gcc -O0 -D__intptr_t_defined -DLINUX -Werror -DDECIMAL_CALL_BY_REFERENCE=1 -DDECIMAL_GLOBAL_ROUNDING=0 -DDECIMAL_GLOBAL_EXCEPTION_FLAGS=0 -UBID_BIG_ENDIAN -UHPUX_OS    -o readtest readtest.c ../LIBRARY/libbid.a -lm 
+Total tests: 119171, failed result: 0, failed status: 0
+
+
+****************** RUNNING TESTS FOR gcc 101 ***************************
+
+
+rm -f *.o
+rm -f readtest
+gcc -O0 -D__intptr_t_defined -DLINUX -Werror -DDECIMAL_CALL_BY_REFERENCE=1 -DDECIMAL_GLOBAL_ROUNDING=0 -DDECIMAL_GLOBAL_EXCEPTION_FLAGS=1 -UBID_BIG_ENDIAN -UHPUX_OS    -o readtest readtest.c ../LIBRARY/libbid.a -lm 
+Total tests: 119171, failed result: 0, failed status: 0
+
+
+****************** RUNNING TESTS FOR gcc 110 ***************************
+
+
+rm -f *.o
+rm -f readtest
+gcc -O0 -D__intptr_t_defined -DLINUX -Werror -DDECIMAL_CALL_BY_REFERENCE=1 -DDECIMAL_GLOBAL_ROUNDING=1 -DDECIMAL_GLOBAL_EXCEPTION_FLAGS=0 -UBID_BIG_ENDIAN -UHPUX_OS    -o readtest readtest.c ../LIBRARY/libbid.a -lm 
+Total tests: 119171, failed result: 0, failed status: 0
+
+
+****************** RUNNING TESTS FOR gcc 111 ***************************
+
+
+rm -f *.o
+rm -f readtest
+gcc -O0 -D__intptr_t_defined -DLINUX -Werror -DDECIMAL_CALL_BY_REFERENCE=1 -DDECIMAL_GLOBAL_ROUNDING=1 -DDECIMAL_GLOBAL_EXCEPTION_FLAGS=1 -UBID_BIG_ENDIAN -UHPUX_OS    -o readtest readtest.c ../LIBRARY/libbid.a -lm 
+Total tests: 119171, failed result: 0, failed status: 0
+
+
+****************** RUNNING TESTS FOR icc 000b ***************************
+
+
+rm -f *.o
+rm -f readtest
+cp: cannot stat ‘../LIBRARY/icc000blibbid.a’: No such file or directory
+ranlib: '../LIBRARY/libbid.a': No such file
+make: *** No rule to make target `../LIBRARY/libbid.a', needed by `readtest'.  Stop.
+./linuxbuild: line 178: ./readtest: No such file or directory
+
+
+****************** RUNNING TESTS FOR icc 001b ***************************
+
+
+rm -f *.o
+rm -f readtest
+cp: cannot stat ‘../LIBRARY/icc001blibbid.a’: No such file or directory
+ranlib: '../LIBRARY/libbid.a': No such file
+make: *** No rule to make target `../LIBRARY/libbid.a', needed by `readtest'.  Stop.
+./linuxbuild: line 188: ./readtest: No such file or directory
+
+
+****************** RUNNING TESTS FOR icc 010b ***************************
+
+
+rm -f *.o
+rm -f readtest
+cp: cannot stat ‘../LIBRARY/icc010blibbid.a’: No such file or directory
+ranlib: '../LIBRARY/libbid.a': No such file
+make: *** No rule to make target `../LIBRARY/libbid.a', needed by `readtest'.  Stop.
+./linuxbuild: line 198: ./readtest: No such file or directory
+
+
+****************** RUNNING TESTS FOR icc 011b ***************************
+
+
+rm -f *.o
+rm -f readtest
+cp: cannot stat ‘../LIBRARY/icc011blibbid.a’: No such file or directory
+ranlib: '../LIBRARY/libbid.a': No such file
+make: *** No rule to make target `../LIBRARY/libbid.a', needed by `readtest'.  Stop.
+./linuxbuild: line 208: ./readtest: No such file or directory
+
+
+****************** RUNNING TESTS FOR icc 100b ***************************
+
+
+rm -f *.o
+rm -f readtest
+cp: cannot stat ‘../LIBRARY/icc100blibbid.a’: No such file or directory
+ranlib: '../LIBRARY/libbid.a': No such file
+make: *** No rule to make target `../LIBRARY/libbid.a', needed by `readtest'.  Stop.
+./linuxbuild: line 218: ./readtest: No such file or directory
+
+
+****************** RUNNING TESTS FOR icc 101b ***************************
+
+
+rm -f *.o
+rm -f readtest
+cp: cannot stat ‘../LIBRARY/icc101blibbid.a’: No such file or directory
+ranlib: '../LIBRARY/libbid.a': No such file
+make: *** No rule to make target `../LIBRARY/libbid.a', needed by `readtest'.  Stop.
+./linuxbuild: line 228: ./readtest: No such file or directory
+
+
+****************** RUNNING TESTS FOR icc 110b ***************************
+
+
+rm -f *.o
+rm -f readtest
+cp: cannot stat ‘../LIBRARY/icc110blibbid.a’: No such file or directory
+ranlib: '../LIBRARY/libbid.a': No such file
+make: *** No rule to make target `../LIBRARY/libbid.a', needed by `readtest'.  Stop.
+./linuxbuild: line 238: ./readtest: No such file or directory
+
+
+****************** RUNNING TESTS FOR icc 111b ***************************
+
+
+rm -f *.o
+rm -f readtest
+cp: cannot stat ‘../LIBRARY/icc111blibbid.a’: No such file or directory
+ranlib: '../LIBRARY/libbid.a': No such file
+make: *** No rule to make target `../LIBRARY/libbid.a', needed by `readtest'.  Stop.
+./linuxbuild: line 248: ./readtest: No such file or directory
+
+
+****************** RUNNING TESTS FOR gcc 000b ***************************
+
+
+rm -f *.o
+rm -f readtest
+gcc -O0 -D__intptr_t_defined -DLINUX -Werror -DDECIMAL_CALL_BY_REFERENCE=0 -DDECIMAL_GLOBAL_ROUNDING=0 -DDECIMAL_GLOBAL_EXCEPTION_FLAGS=0 -UBID_BIG_ENDIAN -UHPUX_OS -DUNCHANGED_BINARY_STATUS_FLAGS    -o readtest readtest.c ../LIBRARY/libbid.a -lm 
+Total tests: 119171, failed result: 0, failed status: 0
+
+
+****************** RUNNING TESTS FOR gcc 001b ***************************
+
+
+rm -f *.o
+rm -f readtest
+gcc -O0 -D__intptr_t_defined -DLINUX -Werror -DDECIMAL_CALL_BY_REFERENCE=0 -DDECIMAL_GLOBAL_ROUNDING=0 -DDECIMAL_GLOBAL_EXCEPTION_FLAGS=1 -UBID_BIG_ENDIAN -UHPUX_OS -DUNCHANGED_BINARY_STATUS_FLAGS    -o readtest readtest.c ../LIBRARY/libbid.a -lm 
+Total tests: 119171, failed result: 0, failed status: 0
+
+
+****************** RUNNING TESTS FOR gcc 010b ***************************
+
+
+rm -f *.o
+rm -f readtest
+gcc -O0 -D__intptr_t_defined -DLINUX -Werror -DDECIMAL_CALL_BY_REFERENCE=0 -DDECIMAL_GLOBAL_ROUNDING=1 -DDECIMAL_GLOBAL_EXCEPTION_FLAGS=0 -UBID_BIG_ENDIAN -UHPUX_OS -DUNCHANGED_BINARY_STATUS_FLAGS    -o readtest readtest.c ../LIBRARY/libbid.a -lm 
+Total tests: 119171, failed result: 0, failed status: 0
+
+
+****************** RUNNING TESTS FOR gcc 011b ***************************
+
+
+rm -f *.o
+rm -f readtest
+gcc -O0 -D__intptr_t_defined -DLINUX -Werror -DDECIMAL_CALL_BY_REFERENCE=0 -DDECIMAL_GLOBAL_ROUNDING=1 -DDECIMAL_GLOBAL_EXCEPTION_FLAGS=1 -UBID_BIG_ENDIAN -UHPUX_OS -DUNCHANGED_BINARY_STATUS_FLAGS    -o readtest readtest.c ../LIBRARY/libbid.a -lm 
+Total tests: 119171, failed result: 0, failed status: 0
+
+
+****************** RUNNING TESTS FOR gcc 100b ***************************
+
+
+rm -f *.o
+rm -f readtest
+gcc -O0 -D__intptr_t_defined -DLINUX -Werror -DDECIMAL_CALL_BY_REFERENCE=1 -DDECIMAL_GLOBAL_ROUNDING=0 -DDECIMAL_GLOBAL_EXCEPTION_FLAGS=0 -UBID_BIG_ENDIAN -UHPUX_OS -DUNCHANGED_BINARY_STATUS_FLAGS    -o readtest readtest.c ../LIBRARY/libbid.a -lm 
+Total tests: 119171, failed result: 0, failed status: 0
+
+
+****************** RUNNING TESTS FOR gcc 101b ***************************
+
+
+rm -f *.o
+rm -f readtest
+gcc -O0 -D__intptr_t_defined -DLINUX -Werror -DDECIMAL_CALL_BY_REFERENCE=1 -DDECIMAL_GLOBAL_ROUNDING=0 -DDECIMAL_GLOBAL_EXCEPTION_FLAGS=1 -UBID_BIG_ENDIAN -UHPUX_OS -DUNCHANGED_BINARY_STATUS_FLAGS    -o readtest readtest.c ../LIBRARY/libbid.a -lm 
+Total tests: 119171, failed result: 0, failed status: 0
+
+
+****************** RUNNING TESTS FOR gcc 110b ***************************
+
+
+rm -f *.o
+rm -f readtest
+gcc -O0 -D__intptr_t_defined -DLINUX -Werror -DDECIMAL_CALL_BY_REFERENCE=1 -DDECIMAL_GLOBAL_ROUNDING=1 -DDECIMAL_GLOBAL_EXCEPTION_FLAGS=0 -UBID_BIG_ENDIAN -UHPUX_OS -DUNCHANGED_BINARY_STATUS_FLAGS    -o readtest readtest.c ../LIBRARY/libbid.a -lm 
+Total tests: 119171, failed result: 0, failed status: 0
+
+
+****************** RUNNING TESTS FOR gcc 111b ***************************
+
+
+rm -f *.o
+rm -f readtest
+gcc -O0 -D__intptr_t_defined -DLINUX -Werror -DDECIMAL_CALL_BY_REFERENCE=1 -DDECIMAL_GLOBAL_ROUNDING=1 -DDECIMAL_GLOBAL_EXCEPTION_FLAGS=1 -UBID_BIG_ENDIAN -UHPUX_OS -DUNCHANGED_BINARY_STATUS_FLAGS    -o readtest readtest.c ../LIBRARY/libbid.a -lm 
+Total tests: 119171, failed result: 0, failed status: 0

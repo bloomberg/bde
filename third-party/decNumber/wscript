@@ -1,0 +1,91 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+from waflib import Logs, Utils
+from waflib.Configure import ConfigurationContext
+
+import os
+import sys
+
+top = '.'
+out = 'build'
+
+def options(opt):
+    opt.load('compiler_c')
+
+def configure(conf):
+    conf.load('compiler_c')
+
+decnumber_sources = '\
+decContext.c \
+decDouble.c \
+decQuad.c \
+decSingle.c \
+decNumber.c \
+decimal128.c \
+decimal64.c \
+decimal32.c \
+'
+
+def build(bld):
+    if 'BDE_THIRD_PARTY_CFLAGS' in bld.env:
+        bde_cflags = bld.env['BDE_THIRD_PARTY_CFLAGS']
+    else:
+        bde_cflags = []
+
+    if sys.byteorder == 'big':
+        cflags = ["-DDECLITEND=0"]
+    else:
+        assert(sys.byteorder == 'little')
+        cflags = ["-DDECLITEND=1"]
+
+
+    prefix  = bld.env['PREFIX']
+    if 'install_lib_dir' in bld.env:
+        lib_dir = bld.env['install_lib_dir']
+    else:
+        lib_dir = 'lib'
+
+    bld.stlib(source=decnumber_sources,
+              target='decNumber',
+              export_includes='.',
+              name='decNumber_lib',
+              cflags=bde_cflags + cflags,
+              install_path = os.path.join(prefix, lib_dir))
+
+    bld(name = "decNumber_pc",
+        source = 'decNumber.pc.in',
+        target = 'decNumber.pc',
+        prefix = prefix,
+        lib_dir = lib_dir,
+        libs = '-ldecNumber',
+        cflags = ' '.join(cflags),
+        install_path = os.path.join(prefix, lib_dir, 'pkgconfig')
+    )
+
+    bld.install_files(os.path.join(prefix, 'include', 'decNumber'),
+                      bld.path.ant_glob('*.h'))
+
+
+
+# ----------------------------------------------------------------------------
+# Copyright (C) 2014 Bloomberg Finance L.P.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to
+# deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+# sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+# IN THE SOFTWARE.
+# ----------------------------- END-OF-FILE ----------------------------------
