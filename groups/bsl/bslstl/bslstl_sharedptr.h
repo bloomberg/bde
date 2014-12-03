@@ -1360,7 +1360,8 @@ class shared_ptr {
         // still allocate an internal representation to share ownership of that
         // empty state, which will be reclaimed when the last reference is
         // destroyed.  Note that if 'ptr' is a null-pointer constant, the
-        // compiler will actually select the 'shared_ptr(bsl::nullptr_t)'
+        // compiler will actually select the
+        // 'shared_ptr(bsl::nullptr_t, BloombergLP::bslma::Allocator *)'
         // constructor, resulting in an empty shared pointer.  Note that if
         // 'basicAllocator' is a pointer to a class derived from
         // 'bslma::Allocator', the compiler will actually select the following
