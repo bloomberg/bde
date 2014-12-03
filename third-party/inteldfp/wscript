@@ -277,7 +277,7 @@ def build(bld):
     elif platform == "win64":
         cflags += ['-DWINNT', '-DWINDOWS', '-DWNT']
     elif platform == "linux" or platform == "darwin":
-        cflags += ['-DLINUX', '-Wno-cast-qual']
+        cflags += ['-DLINUX']
     elif platform == 'aix':
         cflags += ['-D__linux', '-DLINUX', '-DHPUX_OS', '-D__QNX__',
                    '-D__thread=']
