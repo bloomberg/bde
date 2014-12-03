@@ -1339,7 +1339,9 @@ class shared_ptr {
         // representation to share ownership of that empty state, which will be
         // reclaimed when the last reference is destroyed.  If an exception is
         // thrown allocating storage for the representation, then 'delete ptr'
-        // will be called.
+        // will be called.  Note that if 'ptr' is a null-pointer constant, the
+        // compiler will actually select the 'shared_ptr(bsl::nullptr_t)'
+        // constructor, resulting in an empty shared pointer.
 
     template <class COMPATIBLE_TYPE>
     shared_ptr(COMPATIBLE_TYPE               *ptr,
@@ -1357,9 +1359,12 @@ class shared_ptr {
         // indicating the error.  If 'ptr' is 0, then this shared pointer will
         // still allocate an internal representation to share ownership of that
         // empty state, which will be reclaimed when the last reference is
-        // destroyed.  Note that if 'basicAllocator' is a pointer to a class
-        // derived from 'bslma::Allocator', the compiler will actually select
-        // the following (more general) constructor that has the same behavior:
+        // destroyed.  Note that if 'ptr' is a null-pointer constant, the
+        // compiler will actually select the 'shared_ptr(bsl::nullptr_t)'
+        // constructor, resulting in an empty shared pointer.  Note that if
+        // 'basicAllocator' is a pointer to a class derived from
+        // 'bslma::Allocator', the compiler will actually select the following
+        // (more general) constructor that has the same behavior:
         //..
         //  template <class COMPATIBLE_TYPE, class DELETER>
         //  shared_ptr(COMPATIBLE_TYPE *ptr, DELETER * deleter);
