@@ -170,7 +170,7 @@ CFLAGS_OS     ?= $(_CFLAGS_OS)
 CFLAGS_INC    ?= $(_CFLAGS_INC)
 CFLAGS_CONFIG ?= $(_CFLAGS_CONFIG)
 
-CFLAGS        += $(foreach n,INC CONFIG OS ARCH CC OPT AUX,$(CFLAGS_$n))
+CFLAGS        ?= $(foreach n,INC CONFIG OS ARCH CC OPT AUX,$(CFLAGS_$n))
 # get rid of extra blank characters
 CFLAGS        := $(foreach n,$(CFLAGS),$n)
 
@@ -348,12 +348,12 @@ $(OBJ_DIR)/bid32_sqrt.$O   :: $(SRC_DIR)/bid_sqrt_macros.h
 $(OBJ_DIR)/bid32_div.$O    :: $(SRC_DIR)/bid_div_macros.h
 
 $(BID_TRANS_OBJS)    :: $(OBJ_DIR)/%.$O : $(SRC_DIR)/%.c $(SRC_DIR)/bid_trans.h
-	$(CC) -c $(FO) $@ $(CFLAGS) $(BID_BLD_FLAGS) $<
+	$(CC) -c $(FO)$@ $(CFLAGS) $(BID_BLD_FLAGS) $<
 	
 
 $(BID_INTERNAL_OBJS) :: $(OBJ_DIR)/%.$O : $(SRC_DIR)/%.c \
                         $(SRC_DIR)/bid_internal.h
-	$(CC) -c $(FO) $@ $(CFLAGS) $(BID_BLD_FLAGS) $<
+	$(CC) -c $(FO)$@ $(CFLAGS) $(BID_BLD_FLAGS) $<
 
 $(SRC_DIR)/bid_trans.h : $(SRC_DIR)/bid_internal.h
 	touch $@
@@ -429,7 +429,7 @@ $(OBJ_DIR)/dpml_exception.$O :: $(call PrefixSuffix, $(F128_DIR)/, \
 $(F128_HDR_OBJS) :: $(OBJ_DIR)/dpml_ux_%.$O : $(F128_DIR)/dpml_%_x.h
 
 $(F128_OBJS) :: $(OBJ_DIR)/%.$O : $(F128_DIR)/%.c $(F128_DIR)/dpml_ux.h
-	$(CC) -c $(FO) $@ $(F128_CFLAGS) $<
+	$(CC) -c $(FO)$@ $(F128_CFLAGS) $<
 
 	
 # =============================================================================
@@ -455,49 +455,49 @@ $(OBJ_DIR)/dpml_asinh_t.$O  :: $(OBJ_DIR)/dpml_%_t.$O : $(F128_DIR)/dpml_%.c \
  
 $(OBJ_DIR)/dpml_rt_lgamma_t.$O :: $(F128_DIR)/dpml_lgamma.c \
                                   $(F128_DIR)/dpml_lgamma_t.h
-	$(CC) -c $(FO) $@ $(F53_CFLAGS) -DT_FLOAT -DBUILD_FILE_NAME=dpml_lgamma_t.h $<
+	$(CC) -c $(FO)$@ $(F53_CFLAGS) -DT_FLOAT -DBUILD_FILE_NAME=dpml_lgamma_t.h $<
  
 $(OBJ_DIR)/dpml_lgamma_t.$O :: $(F128_DIR)/dpml_lgamma.c \
                                   $(F128_DIR)/dpml_lgamma_t.h
-	$(CC) -c $(FO) $@ $(F53_CFLAGS) $(D_F_TYPE) -DDO_LGAMMA -DHACK_GAMMA_INLINE=0 \
+	$(CC) -c $(FO)$@ $(F53_CFLAGS) $(D_F_TYPE) -DDO_LGAMMA -DHACK_GAMMA_INLINE=0 \
              -DBUILD_FILE_NAME=dpml_lgamma_t.h $<
  
 $(OBJ_DIR)/dpml_acosh_t.$O :: $(F128_DIR)/dpml_asinh.c $(F128_DIR)/dpml_acosh_t.h \
                               $(F128_DIR)/sqrt_tab_t.c
-	$(CC) -c $(FO) $@ $(F53_CFLAGS) $(D_F_NAME) $(D_F_TYPE) $<
+	$(CC) -c $(FO)$@ $(F53_CFLAGS) $(D_F_NAME) $(D_F_TYPE) $<
  
 $(OBJ_DIR)/dpml_erfc_t.$O  :: $(F128_DIR)/dpml_erf.c   $(F128_DIR)/dpml_erf_t.h
-	$(CC) -c $(FO) $@ $(F53_CFLAGS) $(D_F_NAME) $(D_F_TYPE) \
+	$(CC) -c $(FO)$@ $(F53_CFLAGS) $(D_F_NAME) $(D_F_TYPE) \
         -DBUILD_FILE_NAME=dpml_erf_t.h $<
  
 $(OBJ_DIR)/dpml_log1p_t.$O :: $(F128_DIR)/dpml_log.c $(F128_DIR)/dpml_log_t.h
-	$(CC) -c $(FO) $@ $(F53_CFLAGS) $(D_F_NAME) $(D_F_TYPE) $<
+	$(CC) -c $(FO)$@ $(F53_CFLAGS) $(D_F_NAME) $(D_F_TYPE) $<
  
 $(OBJ_DIR)/dpml_log2_t.$O :: $(F128_DIR)/dpml_log.c $(F128_DIR)/dpml_log_t.h
-	$(CC) -c $(FO) $@ $(F53_CFLAGS) $(D_F_NAME) $(D_F_TYPE) $<
+	$(CC) -c $(FO)$@ $(F53_CFLAGS) $(D_F_NAME) $(D_F_TYPE) $<
  
 $(OBJ_DIR)/dpml_cbrt_t.$O :: $(F128_DIR)/dpml_cbrt.c $(F128_DIR)/dpml_cbrt_t_table.c
-	$(CC) -c $(FO) $@ $(F53_CFLAGS) $(D_F_NAME) $(D_F_TYPE) \
+	$(CC) -c $(FO)$@ $(F53_CFLAGS) $(D_F_NAME) $(D_F_TYPE) \
         -DBUILD_FILE_NAME=dpml_cbrt_t_table.c $<
  
 $(OBJ_DIR)/dpml_exp10_t.$O \
 $(OBJ_DIR)/dpml_exp2_t.$O  :: $(F128_DIR)/dpml_exp.c $(F128_DIR)/dpml_pow_t_table.c
-	$(CC) -c $(FO) $@ $(F53_CFLAGS) $(D_F_NAME) $(D_F_TYPE) -DUSE_CONTROL87 $<
+	$(CC) -c $(FO)$@ $(F53_CFLAGS) $(D_F_NAME) $(D_F_TYPE) -DUSE_CONTROL87 $<
 
 $(OBJ_DIR)/dpml_expm1_t.$O :: $(F128_DIR)/dpml_expm1.c $(F128_DIR)/dpml_pow_t_table.c
-	$(CC) -c $(FO) $@ $(F53_CFLAGS) $(D_F_NAME) $(D_F_TYPE) -DUSE_CONTROL87 $<
+	$(CC) -c $(FO)$@ $(F53_CFLAGS) $(D_F_NAME) $(D_F_TYPE) -DUSE_CONTROL87 $<
 
 $(OBJ_DIR)/dpml_tgamma_t.$O :: $(F128_DIR)/dpml_tgamma.c $(F128_DIR)/dpml_special_exp.h
-	$(CC) -c $(FO) $@ $(F53_CFLAGS) $(D_F_NAME) $(D_F_TYPE) $<
+	$(CC) -c $(FO)$@ $(F53_CFLAGS) $(D_F_NAME) $(D_F_TYPE) $<
  
 $(OBJ_DIR)/dpml_special_exp_t.$O :: $(F128_DIR)/dpml_exp.c \
                                   $(F128_DIR)/dpml_pow_t_table.c
-	$(CC) -c $(FO) $@ $(F53_CFLAGS) -DSPECIAL_EXP -DT_FLOAT $<
+	$(CC) -c $(FO)$@ $(F53_CFLAGS) -DSPECIAL_EXP -DT_FLOAT $<
  
  
 $(OBJ_DIR)/dpml_pow_t_table.$O \
 $(OBJ_DIR)/dpml_cbrt_t_table.$O :: $(OBJ_DIR)/%.$O : $(F128_DIR)/%.c
-	$(CC) -c $(FO) $@ $(F53_CFLAGS) $(D_F_TYPE) $<
+	$(CC) -c $(FO)$@ $(F53_CFLAGS) $(D_F_TYPE) $<
 
                                                            
 cleanBinary :

@@ -293,8 +293,8 @@ LongFileListToFile = rm -f $4; $(call EchoLongFileList,$1,$2,$3) > $4
 Warning = $(warning $1 = $($1))
 Error = $(warning $1 = $($1))
        
-OS_ALIAS     := Linux FreeBSD  Darwin SunOS HP-UX Windows_NT CYGWIN_NT-5.1 CYGWIN_NT-5.2-WOW64 CYGWIN_NT-6.1-WOW64 AIX
-OS_MAP_LIST  := LINUX FREEBSD  MACH   LINUX LINUX WINNT      WINNT         WINNT               WINNT               LINUX
+OS_ALIAS     := Linux FreeBSD  Darwin SunOS HP-UX Windows_NT CYGWIN_NT-5.1 CYGWIN_NT-5.2-WOW64 CYGWIN_NT-6.1-WOW64
+OS_MAP_LIST  := LINUX FREEBSD  MACH   LINUX LINUX WINNT      WINNT         WINNT               WINNT
 OS_LIST      := LINUX FREEBSD  MACH   WINNT
 OS_TYPE      := LINUX LINUX    LINUX  WINNT
 OS_TYPES := LINUX WINNT
@@ -344,9 +344,9 @@ else
     endif
 endif
 
-ARCH_ALIAS := x86  ia64 EM64T x86_64 i686 amd64 Intel64 sun4v sun4u 00F81A204C00
-ARCH_LIST  := IA32 IA64 EFI2  EFI2   IA32 EFI2  EFI2    EFI2  EFI2  EFI2
-ARCH_TYPE  := IA32 IA64 EFI2  EFI2   IA32 EFI2  EFI2    EFI2  EFI2  EFI2
+ARCH_ALIAS := x86  ia64 EM64T x86_64 i686 amd64 Intel64 sun4u
+ARCH_LIST  := IA32 IA64 EFI2  EFI2   IA32 EFI2  EFI2    EFI2
+ARCH_TYPE  := IA32 IA64 EFI2  EFI2   IA32 EFI2  EFI2    EFI2
 ARCH_TYPES := IA32 IA64 EFI2
 
 UARCH_LIST := SSE GSSE LRB LRB2
@@ -490,7 +490,7 @@ MACH__space:=$(__empty) $(__empty)
 
 FLS        := $(call CselOs,FLS,       $(_OS_CHOICE),       :,           ;)
 RM         := $(call CselOs, RM,       $(_OS_CHOICE),   rm -f, del        )
-AR_CMD     := $(call CselOsName,AR_CMD,$(_OS_CHOICE),   gar -vr, gar -vr, libtool, lib -nologo)
+AR_CMD     := $(call CselOsName,AR_CMD,$(_OS_CHOICE),   ar rv, ar rv, libtool, lib -nologo)
 AR_OUT     := $(call CselOsName,AR_OUT,$(_OS_CHOICE),        ,      ,      -o, /out:)$($(IML_TARGET_OS)__space)
 LD_CMD     := $(call CselOsName,LD_CMD,$(_OS_CHOICE),icc,icc,libtool,link /nologo)
 LD_OUT     := $(call CselOs, LD_OUT,   $(_OS_CHOICE),      -o,       /out:)$($(IML_TARGET_OS)__space)
@@ -522,8 +522,8 @@ ifeq ($(origin CC_NAME),undefined)
     endif
 endif
 
-CC_NAME_LIST  := icc icl gcc cl cc   CC  /bb/util/common/SS12_3-20131030/solarisstudio12.3/bin/CC /bb/util/common/SS12_3-20131030/solarisstudio12.3/bin/cc
-CC_TYPE_LIST  := gcc cl  gcc cl gcc gcc  gcc                                                      gcc
+CC_NAME_LIST  := icc icl gcc cl cc
+CC_TYPE_LIST  := gcc cl  gcc cl gcc
 CC_TYPES      := gcc cl
 INTEL_CC_LIST := icc icl
 

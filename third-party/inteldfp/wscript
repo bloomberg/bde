@@ -290,7 +290,7 @@ def build(bld):
 
     cflags += ['-DDECIMAL_CALL_BY_REFERENCE=0',
                '-DDECIMAL_GLOBAL_ROUNDING=1',
-               '-DDECIMAL_GLOBAL_EXCEPTION_FLAGS=1']
+               '-DDECIMAL_GLOBAL_EXCEPTION_FLAGS=0']
 
     prefix  = bld.env['PREFIX']
     if 'install_lib_dir' in bld.env:

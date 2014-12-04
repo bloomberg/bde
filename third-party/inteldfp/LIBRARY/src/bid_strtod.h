@@ -61,7 +61,7 @@ char * ps0, *ps, *ptail;
 		   return NULL;
    }
    while(isspace(*ps_in)) ps_in++;
-   ps = (char *) malloc((strlen(ps_in)+2)*sizeof(char));
+   ps = malloc((strlen(ps_in)+2)*sizeof(char));
    if(!ps)
    {
 		   set_str_end(endptr, ps_in);
@@ -132,7 +132,7 @@ int i,k;
    }
    while(iswspace(*ps_in)) ps_in++;
    k = 1+wcslen(ps_in);
-   ps = (wchar_t *) malloc((k+1)*sizeof(wchar_t));
+   ps = malloc((k+1)*sizeof(wchar_t));
    if(!ps)
    {
 		   set_wcs_end(endptr,ps_in);
@@ -198,7 +198,7 @@ int i,k;
    }
 
    *ps = L'\0';
-   ps0_c = (char *) malloc(k*sizeof(char));
+   ps0_c = malloc(k*sizeof(char));
    if(!ps0_c)
    { free(ps0); return NULL;}
    for(i=0; i<=k; i++)
