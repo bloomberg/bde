@@ -61,7 +61,7 @@ class reference_wrapper <T>
 
     operator T&() const;
         // implicitly convert '*this' to a reference to T.
- 
+
     T& get() const;
         // Return the reference contructed or assigned to '*this'.
 

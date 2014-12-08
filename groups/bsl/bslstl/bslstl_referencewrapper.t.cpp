@@ -15,7 +15,7 @@
 // is capture a type in an assignable, copyable object. Therefore, it suffices
 // to verify, via appropriate declarations, that the names required are defined,
 // and usable as intended
-// 
+//
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 
@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST:
-        //   
+        //
         //
         // Plan:
         //   Define a dummy type, wrap it, and use the wrapper.
@@ -130,11 +130,11 @@ int main(int argc, char *argv[])
         copyrwa = rwa;
         copyrwca = rwca;
         copyrwcb = rwcb;
-        
+
         dummy& rax = rwa;
         const dummy& rcax = rwca;
         const dummy& rcbx = rwcb;
-        
+
         dummy& ray = bsl::ref(a);
         const dummy& rcay = bsl::cref(a);
         const dummy& rcby = bsl::cref(b);
