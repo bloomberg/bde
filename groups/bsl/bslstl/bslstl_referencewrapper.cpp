@@ -1,6 +1,6 @@
 
 // bslstl_referencewrapper.cpp                                         -*-C++-*-
-#include <bslstl_hash.h>
+#include <bslstl_referencewrapper.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
