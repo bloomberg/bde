@@ -1,22 +1,22 @@
-// bslstl_referencewrapper.h                                           -*-C++-*-
-#ifndef INCLUDED_BSLSTL_REFERENCE_WRAPPER
-#define INCLUDED_BSLSTL_REFERENCE_WRAPPER
+// bslstl_referencewrapper.h                                          -*-C++-*-
+#ifndef INCLUDED_BSLSTL_REFERENCEWRAPPER
+#define INCLUDED_BSLSTL_REFERENCEWRAPPER
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Wrap a reference in a copyable, assignable object
+//@PURPOSE: Wrap a reference in a copyable, assignable object.
 //
 //@CLASSES:
-//  bsl::reference_wrapper<T>
+//  bsl::reference_wrapper: A wrapper for a reference
 //
-//@DESCRIPTION:
-//  reference_wrapper simply wraps a reference into a copyable, assignable
-//  object to allow it to be stored in a place that cannot normally hold a
-//  reference, such as a standard container.  Because it is convertible to
-//  T&, it can be used with functions that take a T&.
+//@DESCRIPTION: 'bsl::reference_wrapper' simply wraps a reference into a
+//  copyable, assignable object to allow it to be stored in a place that cannot
+//  normally hold a reference, such as a standard container.  Because it is
+//  convertible to TYPENAME&, it can be used with functions that take a
+//  TYPENAME&.
 //
 //  Helper functions bsl::ref and bsl::cref may be used to generate
 //  reference_wrapper objects more concisely than with the constructor.
@@ -42,19 +42,22 @@ BSL_OVERRIDES_STD mode"
 
 namespace bsl {
 
-template <typename T>
+template <class TYPENAME>
 class reference_wrapper
 {
   public:
     // PUBLIC TYPES
 
-    typedef T type;
+    typedef TYPENAME type;
 
     // CREATORS
 
-    reference_wrapper(T& t);
-    reference_wrapper(const reference_wrapper& t);
+        // BDE_VERIFY pragma: -IC01 // This really is a conversion.
+    reference_wrapper(TYPENAME& t);
         // Wrap a reference to specified argument 't'.
+
+    reference_wrapper(const reference_wrapper& ref);
+        // Copy specified wrapper 'ref'
 
     // ASSIGNMENT
 
@@ -63,19 +66,15 @@ class reference_wrapper
 
     // ACCESSORS
 
-    operator T&() const;
-        // implicitly convert '*this' to a reference to T.
+    operator TYPENAME&() const;
+        // implicitly convert '*this' to a reference to TYPENAME.
 
-    T& get() const;
+    TYPENAME& get() const;
         // Return the reference contructed or assigned to '*this'.
 
 
   private:
-    T* d_p;
-
-#if 201103L <= __cplusplus
-    reference_wrapper(reference_wrapper&&) = delete;
-#endif
+    TYPENAME* d_p;
 };
 
     // The following helper functions 'ref()' and 'cref()' each return a
@@ -83,78 +82,86 @@ class reference_wrapper
     // abbreviations, solely for convenience in writing and reading code that
     // uses reference wrappers.
 
-template <typename T>
-reference_wrapper<T> ref(T& t);
+    // REF
 
-template <typename T>
-reference_wrapper<T> ref(reference_wrapper<T> t);
+template <class TYPENAME>
+reference_wrapper<TYPENAME> ref(TYPENAME& t);
+    // Return a wrapper of the specified 't'.
 
-template <typename T>
-reference_wrapper<const T> cref(const T& t);
+template <class TYPENAME>
+reference_wrapper<TYPENAME> ref(reference_wrapper<TYPENAME> t);
+    // Return a wrapper of the specified 't'.
 
-template <typename T>
-reference_wrapper<const T> cref(reference_wrapper<T> t);
+    // CREF
 
-#if 201103L <= __cplusplus
-template <typename T>
-void ref(T&&) = delete;
-template <typename T>
-void cref(const T&&) = delete;
-#endif
+template <class TYPENAME>
+reference_wrapper<const TYPENAME> cref(const TYPENAME& t);
+    // Return a wrapper of the specified 't'.
 
+template <class TYPENAME>
+reference_wrapper<const TYPENAME> cref(reference_wrapper<TYPENAME> t);
+    // Return a wrapper of the specified 't'.
 
-}  // namespace bsl
+   // preparing to close namespace bsl, get ready...
 
-//                      INLINE FUNCTION DEFINITIONS
+}  // close namespace bsl
+
+   // successfully closed namespace bsl, success!
+
+// ============================================================================
+//                      INLINE DEFINITIONS
 // ============================================================================
 
 namespace bsl {
 
-    // reference_wrapper<T> members
+    // reference_wrapper<TYPENAME> members
 
-template <typename T>
-inline reference_wrapper<T>::reference_wrapper(T& t)
+template <class TYPENAME>
+inline reference_wrapper<TYPENAME>::reference_wrapper(TYPENAME& t)
 : d_p(BSLS_UTIL_ADDRESSOF(t)) {}
 
-template <typename T>
-inline reference_wrapper<T>::reference_wrapper(const reference_wrapper<T>& ref)
+template <class TYPENAME>
+inline reference_wrapper<TYPENAME>::reference_wrapper(
+                                        const reference_wrapper<TYPENAME>& ref)
 : d_p(ref.d_p) {}
 
-template <typename T>
-inline reference_wrapper<T>& reference_wrapper<T>::operator=(
-                                          const reference_wrapper<T>& ref)
+template <class TYPENAME>
+inline reference_wrapper<TYPENAME>& reference_wrapper<TYPENAME>::operator=(
+                                        const reference_wrapper<TYPENAME>& ref)
 {
     d_p = ref.d_p;
     return *this;
 }
 
-template <typename T>
-inline reference_wrapper<T>::operator T&() const
+template <class TYPENAME>
+inline reference_wrapper<TYPENAME>::operator TYPENAME&() const
 { return *d_p; }
 
-template <typename T>
-inline T& reference_wrapper<T>::get() const
+template <class TYPENAME>
+inline TYPENAME& reference_wrapper<TYPENAME>::get() const
 { return *d_p; }
 
-    // ref(), cref()
+    // REF()
 
-template <typename T>
-inline reference_wrapper<T> ref(T& t)
-{ return reference_wrapper<T>(t); }
+template <class TYPENAME>
+inline reference_wrapper<TYPENAME> ref(TYPENAME& t)
+{ return reference_wrapper<TYPENAME>(t); }
 
-template <typename T>
-inline reference_wrapper<T> ref(reference_wrapper<T> t)
-{ return reference_wrapper<T>(t); }
+template <class TYPENAME>
+inline reference_wrapper<TYPENAME> ref(reference_wrapper<TYPENAME> t)
+{ return reference_wrapper<TYPENAME>(t); }
 
-template <typename T>
-inline reference_wrapper<const T> cref(const T& t)
-{ return reference_wrapper<const T>(t); }
+    // CREF()
 
-template <typename T>
-inline reference_wrapper<const T> cref(reference_wrapper<T> t)
-{ return reference_wrapper<const T>(*t.get()); }
+template <class TYPENAME>
+inline reference_wrapper<const TYPENAME> cref(const TYPENAME& t)
+{ return reference_wrapper<const TYPENAME>(t); }
 
-}  // namespace bsl
+template <class TYPENAME>
+inline reference_wrapper<const TYPENAME> cref(reference_wrapper<TYPENAME> t)
+{ return reference_wrapper<const TYPENAME>(*t.get()); }
+
+}  // close namespace bsl
 
 #endif
 
