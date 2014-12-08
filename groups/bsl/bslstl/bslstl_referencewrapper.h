@@ -20,6 +20,11 @@ BSLS_IDENT("$Id: $")
 //
 //  Helper functions bsl::ref and bsl::cref may be used to generate
 //  reference_wrapper objects more concisely than with the constructor.
+//
+//  NOTE: This component is a partial implementation that does not support its
+//  use as a function object.  Do not try to use it where operator() would be
+//  called on it.
+//
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
@@ -35,11 +40,10 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_util.h>
 #endif
 
-namespace Bloomberg_LP {
 namespace bsl {
 
 template <typename T>
-class reference_wrapper <T>
+class reference_wrapper
 {
   public:
     // PUBLIC TYPES
@@ -54,7 +58,7 @@ class reference_wrapper <T>
 
     // ASSIGNMENT
 
-    reference_wrapper& operator=(const reference_wrapper& ref) const;
+    reference_wrapper& operator=(const reference_wrapper& ref);
         // Return a copy of the specified 'ref'.
 
     // ACCESSORS
@@ -118,8 +122,11 @@ inline reference_wrapper<T>::reference_wrapper(const reference_wrapper<T>& ref)
 
 template <typename T>
 inline reference_wrapper<T>& reference_wrapper<T>::operator=(
-                                          const reference_wrapper<T> ref&) const
-{ d_p = ref.d_p; }
+                                          const reference_wrapper<T>& ref)
+{
+    d_p = ref.d_p;
+    return *this;
+}
 
 template <typename T>
 inline reference_wrapper<T>::operator T&() const
@@ -148,7 +155,6 @@ inline reference_wrapper<const T> cref(reference_wrapper<T> t)
 { return reference_wrapper<const T>(*t.get()); }
 
 }  // namespace bsl
-}  // namespace BloombergLP
 
 #endif
 

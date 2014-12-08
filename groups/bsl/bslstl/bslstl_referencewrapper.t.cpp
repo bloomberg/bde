@@ -77,6 +77,10 @@ static bool veryVeryVeryVerbose;
 //                               TEST FACILITIES
 //-----------------------------------------------------------------------------
 
+struct dummy {};
+inline void use(dummy&) {}
+inline void const_use(const dummy&) {}
+
 //=============================================================================
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -111,9 +115,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        struct dummy { void use() {} void const_use() const {} };
         dummy a;
-        const dummy b;
+        const dummy b = {};
 
         bsl::reference_wrapper<dummy> rwa(a);
         bsl::reference_wrapper<const dummy> rwca(a);
@@ -143,12 +146,18 @@ int main(int argc, char *argv[])
         bsl::reference_wrapper<const dummy> copyrwcaz(bsl::ref(rwca));
         bsl::reference_wrapper<const dummy> copyrwcbz(bsl::ref(rwcb));
 
+        use(rwa);
+        const_use(rwca);
+        const_use(rwcb);
+
         ASSERT(&copyrwa.get() == &a);
         ASSERT(&copyrwca.get() == &a);
         ASSERT(&copyrwcb.get() == &b);
         ASSERT(&copyrwaz.get() == &a);
         ASSERT(&copyrwcaz.get() == &a);
         ASSERT(&copyrwcbz.get() == &b);
+
+        (void)rax; (void)rcax; (void)rcbx; (void)ray; (void)rcay; (void)rcby;
 
       } break;
       default: {
