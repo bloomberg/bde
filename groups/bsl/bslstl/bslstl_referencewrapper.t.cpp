@@ -3,6 +3,7 @@
 
 #include <bsls_bsltestutil.h>
 
+#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -11,23 +12,33 @@
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test provides no functionality per se.  Its sole purpose
-// is capture a type in an assignable, copyable object. Therefore, it suffices
-// to verify, via appropriate declarations, that the names required are
-// defined, and usable as intended
+// The component under test is fully specified by the standard, verifiable by
+// inspection.  Therefore, testing only exercises basic uses to ensure template
+// specializations may be instantiated successfully.
 //
 // ----------------------------------------------------------------------------
-// class reference_wrapper<TYPENAME> (reference_wrapper)
+// class reference_wrapper<T> (reference_wrapper)
 // ============================================================================
 //
 // ----------------------------------------------------------------------------
-// [ 1] reference_wrapper(TYPENAME&);
-// [ 1] reference_wrapper(consts reference_wrapper<TYPENAME>&)
-// [ 1] reference_wrapper<TYPENAME>& operator=(
-// [ 1]                                    reference_wrapper<TYPENAME>&) const;
-// [ 1] operator TYPENAME&() const;
-// [ 1] TYPENAME& get() const;
+// TESTING INSTANTIATIONS AND BASIC FUNCTIONALITY
+// [ 1] reference_wrapper(T&);
+// [ 1] reference_wrapper(consts reference_wrapper<T>&)
+// [ 1] reference_wrapper<T>& operator=(reference_wrapper<T>&) const;
+// [ 1] operator T&() const;
+// [ 1] T& get() const;
+// [ 1] reference_wrapper<T> cref(T&)
+// [ 1] reference_wrapper<T> ref(T&)
+//
+// USAGE EXAMPLE
+// [ 2] reference_wrapper(T&);
+// [ 2] reference_wrapper<T>& operator=(reference_wrapper<T>&) const;
+// [ 2] operator T&() const;
+// [ 2] reference_wrapper<T> ref(T&)
+// [ 2] T& get() const;
 // ----------------------------------------------------------------------------
+// [ 1] BASIC TESTS
+// [ 2] USAGE EXAMPLE
 
 // ============================================================================
 //                  STANDARD BSL ASSERT TEST FUNCTION
@@ -97,8 +108,53 @@ void const_use(const dummy&) {}
     // be passed to a function expecting an actual reference.
 
 // ============================================================================
-//                                USAGE EXAMPLE
+//              USAGE EXAMPLE CLASSES AND FUNCTIONS
 // ----------------------------------------------------------------------------
+
+namespace TEST_CASE_USAGE {
+
+// Let us suppose that we wish to handle objects that will be passed to a
+// comparison function expecting references to the objects.  Let us suppose
+// further that these objects are large enough that we would not wish to move
+// them around bodily as they are sorted. (Please note that plausible examples
+// of uses for this component are limited in C++98, particularly so when given
+// that the example may not depend on other library components.)
+//
+/// First, let us define the large object:
+
+struct Canary {
+    int d_values[1000];
+
+    explicit Canary(int values);
+};
+
+Canary::Canary(int values)
+{
+     for (int i = 0; i < 1000; ++i) {
+         d_values[i] = values;
+     }
+}
+
+// the comparison function:
+
+bool operator<(Canary const& a, Canary const& b)
+{
+   return a.d_values[0] < b.d_values[0];
+}
+
+// and a function to sort two items:
+
+template <typename T>
+void sort_two_things(T& a, T& b)
+{
+    if (b < a) {
+        T tmp(a);
+        a = b;
+        b = tmp;
+    }
+}
+
+}  // close namespace TEST_CASE_USAGE
 
 // ============================================================================
 //                                 MAIN PROGRAM
@@ -115,9 +171,49 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING USAGE EXAMPLE
+        //
+        // Plan:
+        //   Reformat the comment to runnable code.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        //   reference_wrapper(T&);
+        //   reference_wrapper<T>& operator=(reference_wrapper<T>&) const;
+        //   operator T&() const;
+        //   reference_wrapper<T> ref(T&)
+        //   T& get() const;
+        //
+        // --------------------------------------------------------------------
+
+        verbose && (std::cout << "\nTesting Usage example"
+                                 "\n=====================\n");
+
+        using namespace TEST_CASE_USAGE;
+
+            // We can call 'sort_two_things()' on wrappers representing Canary
+            // objects without need to move actual, large 'Canary' objects
+            // about. In the call to 'sort_two_things()', below, the
+            // 'operator=' used in it is that of
+            // 'bsl::reference_wrapper<Canary>', but the 'operator<' used is
+            // the one declared for 'Canary&' objects.  All of the conversions
+            // needed are applied implicitly.
+
+        Canary two(2);
+        Canary one(1);
+        bsl::reference_wrapper<Canary> canaryA = bsl::ref(two);
+        bsl::reference_wrapper<Canary> canaryB = bsl::ref(one);
+        sort_two_things(canaryA, canaryB);
+
+        ASSERT(&canaryA.get() == &one);
+        ASSERT(&canaryB.get() == &two);
+
+      } break;
       case 1: {
         // --------------------------------------------------------------------
-        // BREATHING TEST
+        // BASIC INSTANTIATION TESTS
         //   Create objects each possible way, verify they have the right
         //   contents and can be used in the standard ways.
         //
@@ -125,17 +221,18 @@ int main(int argc, char *argv[])
         //   Define a dummy type, wrap it, and use the wrapper.
         //
         // Testing:
-        //   reference_wrapper(TYPENAME&);
-        //   reference_wrapper(consts reference_wrapper<TYPENAME>&)
-        //   reference_wrapper<TYPENAME>& operator=(
-        //                                 reference_wrapper<TYPENAME>&) const;
-        //   operator TYPENAME&() const;
-        //   TYPENAME& get() const;
+        //   BASIC TESTS
+        //   reference_wrapper(T&);
+        //   reference_wrapper(consts reference_wrapper<T>&)
+        //   reference_wrapper<T>& operator=(reference_wrapper<T>&) const;
+        //   operator T&() const;
+        //   T& get() const;
+        //   reference_wrapper<T> cref(T&)
+        //   reference_wrapper<T> ref(T&)
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nBREATHING TEST"
-                            "\n==============\n");
-
+        verbose && (std::cout << "\nBASIC INSTANTIATION TESTS"
+                                 "\n=========================\n");
         dummy a;
         const dummy b = {};
 
