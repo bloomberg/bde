@@ -549,11 +549,10 @@ namespace InStreamFunctions {
         // 'TYPE', 'variable' is unaltered and 'stream' is invalidated, but
         // otherwise unmodified.  If 'version' is supported but 'stream'
         // becomes invalid during this operation, 'variable' has an undefined,
-        // but valid, state.  Note that no version is read from 'stream'.  Also
-        // note that this function is called only for enumeration types and
-        // that this function is for internal use only.  See the 'bslx'
-        // package-level documentation for more information on BDEX streaming
-        // of value-semantic types and containers.
+        // but valid, state.  Note that this function is called only for
+        // enumeration types and that this function is for internal use only.
+        // See the 'bslx' package-level documentation for more information on
+        // BDEX streaming of value-semantic types and containers.
 
     template <class STREAM, class TYPE>
     STREAM& bdexStreamInImp(STREAM&              stream,
@@ -567,10 +566,9 @@ namespace InStreamFunctions {
         // 'TYPE', 'variable' is unaltered and 'stream' is invalidated, but
         // otherwise unmodified.  If 'version' is supported but 'stream'
         // becomes invalid during this operation, 'variable' has an undefined,
-        // but valid, state.  Note that no version is read from 'stream'.  Also
-        // note that this function is for internal use only.  See the 'bslx'
-        // package-level documentation for more information on BDEX streaming
-        // of value-semantic types and containers.
+        // but valid, state.  Note that this function is for internal use only.
+        // See the 'bslx' package-level documentation for more information on
+        // BDEX streaming of value-semantic types and containers.
 
     // CLASS METHODS
     template <class STREAM, class TYPE>
@@ -596,9 +594,9 @@ namespace InStreamFunctions {
         // 'TYPE', 'variable' is unaltered and 'stream' is invalidated, but
         // otherwise unmodified.  If 'version' is supported but 'stream'
         // becomes invalid during this operation, 'variable' has an undefined,
-        // but valid, state.  Note that no version is read from 'stream'.  See
-        // the 'bslx' package-level documentation for more information on BDEX
-        // streaming of value-semantic types and containers.
+        // but valid, state.  See the 'bslx' package-level documentation for
+        // more information on BDEX streaming of value-semantic types and
+        // containers.
 
                        /* overloads */
 
@@ -609,9 +607,9 @@ namespace InStreamFunctions {
         // optionally specified 'version' is ignored.  If 'stream' is initially
         // invalid, this operation has no effect.  If 'stream' becomes invalid
         // during this operation, 'variable' has an undefined, but valid,
-        // state.  Note that no version is read from 'stream'.  See the 'bslx'
-        // package-level documentation for more information on BDEX streaming
-        // of value-semantic types and containers.
+        // state.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
 
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, char& variable, int version = 0);
@@ -620,9 +618,9 @@ namespace InStreamFunctions {
         // optionally specified 'version' is ignored.  If 'stream' is initially
         // invalid, this operation has no effect.  If 'stream' becomes invalid
         // during this operation, 'variable' has an undefined, but valid,
-        // state.  Note that no version is read from 'stream'.  See the 'bslx'
-        // package-level documentation for more information on BDEX streaming
-        // of value-semantic types and containers.
+        // state.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
 
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM&      stream,
@@ -633,9 +631,9 @@ namespace InStreamFunctions {
         // The optionally specified 'version' is ignored.  If 'stream' is
         // initially invalid, this operation has no effect.  If 'stream'
         // becomes invalid during this operation, 'variable' has an undefined,
-        // but valid, state.  Note that no version is read from 'stream'.  See
-        // the 'bslx' package-level documentation for more information on BDEX
-        // streaming of value-semantic types and containers.
+        // but valid, state.  See the 'bslx' package-level documentation for
+        // more information on BDEX streaming of value-semantic types and
+        // containers.
 
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM&        stream,
@@ -646,10 +644,9 @@ namespace InStreamFunctions {
         // 'stream'.  The optionally specified 'version' is ignored.  If
         // 'stream' is initially invalid, this operation has no effect.  If
         // 'stream' becomes invalid during this operation, 'variable' has an
-        // undefined, but valid, state.  Note that no version is read from
-        // 'stream'.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
+        // undefined, but valid, state.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, short& variable, int version = 0);
@@ -658,9 +655,9 @@ namespace InStreamFunctions {
         // optionally specified 'version' is ignored.  If 'stream' is initially
         // invalid, this operation has no effect.  If 'stream' becomes invalid
         // during this operation, 'variable' has an undefined, but valid,
-        // state.  Note that no version is read from 'stream'.  See the 'bslx'
-        // package-level documentation for more information on BDEX streaming
-        // of value-semantic types and containers.
+        // state.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
 
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM&         stream,
@@ -671,10 +668,9 @@ namespace InStreamFunctions {
         // 'stream'.  The optionally specified 'version' is ignored.  If
         // 'stream' is initially invalid, this operation has no effect.  If
         // 'stream' becomes invalid during this operation, 'variable' has an
-        // undefined, but valid, state.  Note that no version is read from
-        // 'stream'.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
+        // undefined, but valid, state.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int& variable, int version = 0);
@@ -683,9 +679,9 @@ namespace InStreamFunctions {
         // optionally specified 'version' is ignored.  If 'stream' is initially
         // invalid, this operation has no effect.  If 'stream' becomes invalid
         // during this operation, 'variable' has an undefined, but valid,
-        // state.  Note that no version is read from 'stream'.  See the 'bslx'
-        // package-level documentation for more information on BDEX streaming
-        // of value-semantic types and containers.
+        // state.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
 
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM&       stream,
@@ -696,10 +692,9 @@ namespace InStreamFunctions {
         // 'stream'.  The optionally specified 'version' is ignored.  If
         // 'stream' is initially invalid, this operation has no effect.  If
         // 'stream' becomes invalid during this operation, 'variable' has an
-        // undefined, but valid, state.  Note that no version is read from
-        // 'stream'.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
+        // undefined, but valid, state.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, long& variable, int version = 0);
@@ -708,9 +703,9 @@ namespace InStreamFunctions {
         // The optionally specified 'version' is ignored.  If 'stream' is
         // initially invalid, this operation has no effect.  If 'stream'
         // becomes invalid during this operation, 'variable' has an undefined,
-        // but valid, state.  Note that no version is read from 'stream'.  See
-        // the 'bslx' package-level documentation for more information on BDEX
-        // streaming of value-semantic types and containers.
+        // but valid, state.  See the 'bslx' package-level documentation for
+        // more information on BDEX streaming of value-semantic types and
+        // containers.
 
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM&        stream,
@@ -721,10 +716,9 @@ namespace InStreamFunctions {
         // 'stream'.  The optionally specified 'version' is ignored.  If
         // 'stream' is initially invalid, this operation has no effect.  If
         // 'stream' becomes invalid during this operation, 'variable' has an
-        // undefined, but valid, state.  Note that no version is read from
-        // 'stream'.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
+        // undefined, but valid, state.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM&             stream,
@@ -735,10 +729,9 @@ namespace InStreamFunctions {
         // 'stream'.  The optionally specified 'version' is ignored.  If
         // 'stream' is initially invalid, this operation has no effect.  If
         // 'stream' becomes invalid during this operation, 'variable' has an
-        // undefined, but valid, state.  Note that no version is read from
-        // 'stream'.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
+        // undefined, but valid, state.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM&              stream,
@@ -749,10 +742,9 @@ namespace InStreamFunctions {
         // 'stream'.  The optionally specified 'version' is ignored.  If
         // 'stream' is initially invalid, this operation has no effect.  If
         // 'stream' becomes invalid during this operation, 'variable' has an
-        // undefined, but valid, state.  Note that no version is read from
-        // 'stream'.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
+        // undefined, but valid, state.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, float& variable, int version = 0);
@@ -761,9 +753,9 @@ namespace InStreamFunctions {
         // optionally specified 'version' is ignored.  If 'stream' is initially
         // invalid, this operation has no effect.  If 'stream' becomes invalid
         // during this operation, 'variable' has an undefined, but valid,
-        // state.  Note that no version is read from 'stream'.  See the 'bslx'
-        // package-level documentation for more information on BDEX streaming
-        // of value-semantic types and containers.
+        // state.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
 
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, double& variable, int version = 0);
@@ -772,9 +764,9 @@ namespace InStreamFunctions {
         // optionally specified 'version' is ignored.  If 'stream' is initially
         // invalid, this operation has no effect.  If 'stream' becomes invalid
         // during this operation, 'variable' has an undefined, but valid,
-        // state.  Note that no version is read from 'stream'.  See the 'bslx'
-        // package-level documentation for more information on BDEX streaming
-        // of value-semantic types and containers.
+        // state.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
 
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM&      stream,
@@ -785,9 +777,9 @@ namespace InStreamFunctions {
         // The optionally specified 'version' is ignored.  If 'stream' is
         // initially invalid, this operation has no effect.  If 'stream'
         // becomes invalid during this operation, 'variable' has an undefined,
-        // but valid, state.  Note that no version is read from 'stream'.  See
-        // the 'bslx' package-level documentation for more information on BDEX
-        // streaming of value-semantic types and containers.
+        // but valid, state.  See the 'bslx' package-level documentation for
+        // more information on BDEX streaming of value-semantic types and
+        // containers.
 
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamIn(STREAM&                   stream,
@@ -798,9 +790,9 @@ namespace InStreamFunctions {
         // to 'stream'.  The specified 'version' is ignored.  If 'stream' is
         // initially invalid, this operation has no effect.  If 'stream'
         // becomes invalid during this operation, 'variable' has an undefined,
-        // but valid, state.  Note that no version is read from 'stream'.  See
-        // the 'bslx' package-level documentation for more information on BDEX
-        // streaming of value-semantic types and containers.
+        // but valid, state.  See the 'bslx' package-level documentation for
+        // more information on BDEX streaming of value-semantic types and
+        // containers.
 
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamIn(STREAM&                          stream,
@@ -811,10 +803,9 @@ namespace InStreamFunctions {
         // input 'stream', and return a reference to 'stream'.  The specified
         // 'version' is ignored.  If 'stream' is initially invalid, this
         // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, 'variable' has an undefined, but valid, state.  Note that
-        // no version is read from 'stream'.  See the 'bslx' package-level
-        // documentation for more information on BDEX streaming of
-        // value-semantic types and containers.
+        // operation, 'variable' has an undefined, but valid, state.  See the
+        // 'bslx' package-level documentation for more information on BDEX
+        // streaming of value-semantic types and containers.
 
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamIn(STREAM&                            stream,
@@ -825,10 +816,9 @@ namespace InStreamFunctions {
         // input 'stream', and return a reference to 'stream'.  The specified
         // 'version' is ignored.  If 'stream' is initially invalid, this
         // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, 'variable' has an undefined, but valid, state.  Note that
-        // no version is read from 'stream'.  See the 'bslx' package-level
-        // documentation for more information on BDEX streaming of
-        // value-semantic types and containers.
+        // operation, 'variable' has an undefined, but valid, state.  See the
+        // 'bslx' package-level documentation for more information on BDEX
+        // streaming of value-semantic types and containers.
 
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamIn(STREAM&                    stream,
@@ -839,9 +829,9 @@ namespace InStreamFunctions {
         // to 'stream'.  The specified 'version' is ignored.  If 'stream' is
         // initially invalid, this operation has no effect.  If 'stream'
         // becomes invalid during this operation, 'variable' has an undefined,
-        // but valid, state.  Note that no version is read from 'stream'.  See
-        // the 'bslx' package-level documentation for more information on BDEX
-        // streaming of value-semantic types and containers.
+        // but valid, state.  See the 'bslx' package-level documentation for
+        // more information on BDEX streaming of value-semantic types and
+        // containers.
 
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamIn(STREAM&                             stream,
@@ -852,10 +842,9 @@ namespace InStreamFunctions {
         // input 'stream', and return a reference to 'stream'.  The specified
         // 'version' is ignored.  If 'stream' is initially invalid, this
         // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, 'variable' has an undefined, but valid, state.  Note that
-        // no version is read from 'stream'.  See the 'bslx' package-level
-        // documentation for more information on BDEX streaming of
-        // value-semantic types and containers.
+        // operation, 'variable' has an undefined, but valid, state.  See the
+        // 'bslx' package-level documentation for more information on BDEX
+        // streaming of value-semantic types and containers.
 
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamIn(STREAM&                  stream,
@@ -866,9 +855,9 @@ namespace InStreamFunctions {
         // to 'stream'.  The specified 'version' is ignored.  If 'stream' is
         // initially invalid, this operation has no effect.  If 'stream'
         // becomes invalid during this operation, 'variable' has an undefined,
-        // but valid, state.  Note that no version is read from 'stream'.  See
-        // the 'bslx' package-level documentation for more information on BDEX
-        // streaming of value-semantic types and containers.
+        // but valid, state.  See the 'bslx' package-level documentation for
+        // more information on BDEX streaming of value-semantic types and
+        // containers.
 
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamIn(STREAM&                           stream,
@@ -879,10 +868,9 @@ namespace InStreamFunctions {
         // input 'stream', and return a reference to 'stream'.  The specified
         // 'version' is ignored.  If 'stream' is initially invalid, this
         // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, 'variable' has an undefined, but valid, state.  Note that
-        // no version is read from 'stream'.  See the 'bslx' package-level
-        // documentation for more information on BDEX streaming of
-        // value-semantic types and containers.
+        // operation, 'variable' has an undefined, but valid, state.  See the
+        // 'bslx' package-level documentation for more information on BDEX
+        // streaming of value-semantic types and containers.
 
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamIn(STREAM&                                 stream,
@@ -893,10 +881,9 @@ namespace InStreamFunctions {
         // specified input 'stream', and return a reference to 'stream'.  The
         // specified 'version' is ignored.  If 'stream' is initially invalid,
         // this operation has no effect.  If 'stream' becomes invalid during
-        // this operation, 'variable' has an undefined, but valid, state.  Note
-        // that no version is read from 'stream'.  See the 'bslx' package-level
-        // documentation for more information on BDEX streaming of
-        // value-semantic types and containers.
+        // this operation, 'variable' has an undefined, but valid, state.  See
+        // the 'bslx' package-level documentation for more information on BDEX
+        // streaming of value-semantic types and containers.
 
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamIn(STREAM&                                  stream,
@@ -907,10 +894,9 @@ namespace InStreamFunctions {
         // specified input 'stream', and return a reference to 'stream'.  The
         // specified 'version' is ignored.  If 'stream' is initially invalid,
         // this operation has no effect.  If 'stream' becomes invalid during
-        // this operation, 'variable' has an undefined, but valid, state.  Note
-        // that no version is read from 'stream'.  See the 'bslx' package-level
-        // documentation for more information on BDEX streaming of
-        // value-semantic types and containers.
+        // this operation, 'variable' has an undefined, but valid, state.  See
+        // the 'bslx' package-level documentation for more information on BDEX
+        // streaming of value-semantic types and containers.
 
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamIn(STREAM&                    stream,
@@ -921,9 +907,9 @@ namespace InStreamFunctions {
         // to 'stream'.  The specified 'version' is ignored.  If 'stream' is
         // initially invalid, this operation has no effect.  If 'stream'
         // becomes invalid during this operation, 'variable' has an undefined,
-        // but valid, state.  Note that no version is read from 'stream'.  See
-        // the 'bslx' package-level documentation for more information on BDEX
-        // streaming of value-semantic types and containers.
+        // but valid, state.  See the 'bslx' package-level documentation for
+        // more information on BDEX streaming of value-semantic types and
+        // containers.
 
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamIn(STREAM&                     stream,
@@ -934,9 +920,9 @@ namespace InStreamFunctions {
         // to 'stream'.  The specified 'version' is ignored.  If 'stream' is
         // initially invalid, this operation has no effect.  If 'stream'
         // becomes invalid during this operation, 'variable' has an undefined,
-        // but valid, state.  Note that no version is read from 'stream'.  See
-        // the 'bslx' package-level documentation for more information on BDEX
-        // streaming of value-semantic types and containers.
+        // but valid, state.  See the 'bslx' package-level documentation for
+        // more information on BDEX streaming of value-semantic types and
+        // containers.
 
     template <class STREAM, class TYPE, class ALLOC>
     STREAM& bdexStreamIn(STREAM&                   stream,
@@ -963,9 +949,9 @@ namespace InStreamFunctions {
         // not supported by 'TYPE' and the vector is not empty, 'stream' is
         // invalidated, but otherwise unmodified.  If 'stream' becomes invalid
         // during this operation, 'variable' has an undefined, but valid,
-        // state.  Note that no version is read from 'stream'.  See the 'bslx'
-        // package-level documentation for more information on BDEX streaming
-        // of value-semantic types and containers.
+        // state.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
 
 }  // close InStreamFunctions namespace
 

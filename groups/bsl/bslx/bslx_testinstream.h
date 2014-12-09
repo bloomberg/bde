@@ -488,7 +488,7 @@ class TestInStream {
     TestInStream(const char *buffer, bsl::size_t numBytes);
         // Create a test input stream containing the specified initial
         // 'numBytes' from the specified 'buffer'.  The behavior is undefined
-        // unless, if '0 == buffer', then '0 == numBytes'.
+        // unless '0 == numBytes' if '0 == buffer'.
 
     explicit TestInStream(const bslstl::StringRef& srcData);
         // Create a test input stream containing the specified 'srcData'.
@@ -544,7 +544,7 @@ class TestInStream {
         // the specified 'numBytes', set the index of the next byte to be
         // extracted to 0 (i.e., the beginning of the stream), and validate
         // this stream if it is currently invalid.  The behavior is undefined
-        // unless, if '0 == buffer', then '0 == numBytes'.
+        // unless '0 == numBytes' if '0 == buffer'.
 
     void reset(const bslstl::StringRef& srcData);
         // Reset this stream to extract from the specified 'srcData', set the

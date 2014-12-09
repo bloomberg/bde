@@ -430,7 +430,7 @@ class ByteInStream {
     ByteInStream(const char *buffer, bsl::size_t numBytes);
         // Create an input byte stream containing the specified initial
         // 'numBytes' from the specified 'buffer'.  The behavior is undefined
-        // unless, if '0 == buffer', then '0 == numBytes'.
+        // unless '0 == numBytes' if '0 == buffer'.
 
     explicit ByteInStream(const bslstl::StringRef& srcData);
         // Create an input byte stream containing the specified 'srcData'.
@@ -441,17 +441,17 @@ class ByteInStream {
     // MANIPULATORS
     ByteInStream& getLength(int& length);
         // If the most-significant bit of the one byte of this stream at the
-        // current cursor location is set, load into the specified 'length' the
+        // current cursor location is set, assign to the specified 'length' the
         // four-byte, two's complement integer (in host byte order) comprised
         // of the four bytes of this stream at the current cursor location (in
         // network byte order) with the most-significant bit unset; otherwise,
-        // load into the 'length' the one-byte, two's complement integer
-        // comprised of the one byte of this stream at the current cursor
-        // location.  Update the cursor location and return a reference to this
-        // stream.  If this stream is initially invalid, this operation has no
-        // effect.  If this function otherwise fails to extract a valid value,
-        // this stream is marked invalid and the value of 'length' is
-        // undefined.  Note that the value will be zero-extended.
+        // assign to 'length' the one-byte, two's complement integer comprised
+        // of the one byte of this stream at the current cursor location.
+        // Update the cursor location and return a reference to this stream.
+        // If this stream is initially invalid, this operation has no effect.
+        // If this function otherwise fails to extract a valid value, this
+        // stream is marked invalid and the value of 'length' is undefined.
+        // Note that the value will be zero-extended.
 
     ByteInStream& getVersion(int& version);
         // Assign to the specified 'version' the one-byte, two's complement
@@ -479,7 +479,7 @@ class ByteInStream {
         // the specified 'numBytes', set the index of the next byte to be
         // extracted to 0 (i.e., the beginning of the stream), and validate
         // this stream if it is currently invalid.  The behavior is undefined
-        // unless, if '0 == buffer', then '0 == numBytes'.
+        // unless '0 == numBytes' if '0 == buffer'.
 
     void reset(const bslstl::StringRef& srcData);
         // Reset this stream to extract from the specified 'srcData', set the

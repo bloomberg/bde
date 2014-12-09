@@ -805,7 +805,7 @@ void MarshallingUtil::putInt64(char *buffer, bsls::Types::Int64 value)
 {
     BSLS_ASSERT_SAFE(buffer);
 
-    char *bytes = reinterpret_cast<char *>(&value);
+    const char *bytes = reinterpret_cast<char *>(&value);
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     buffer[0] = bytes[7];
@@ -833,7 +833,7 @@ void MarshallingUtil::putInt56(char *buffer, bsls::Types::Int64 value)
 {
     BSLS_ASSERT_SAFE(buffer);
 
-    char *bytes = reinterpret_cast<char *>(&value);
+    const char *bytes = reinterpret_cast<char *>(&value);
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     buffer[0] = bytes[6];
@@ -859,7 +859,7 @@ void MarshallingUtil::putInt48(char *buffer, bsls::Types::Int64 value)
 {
     BSLS_ASSERT_SAFE(buffer);
 
-    char *bytes = reinterpret_cast<char *>(&value);
+    const char *bytes = reinterpret_cast<char *>(&value);
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     buffer[0] = bytes[5];
@@ -883,7 +883,7 @@ void MarshallingUtil::putInt40(char *buffer, bsls::Types::Int64 value)
 {
     BSLS_ASSERT_SAFE(buffer);
 
-    char *bytes = reinterpret_cast<char *>(&value);
+    const char *bytes = reinterpret_cast<char *>(&value);
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     buffer[0] = bytes[4];
@@ -905,7 +905,7 @@ void MarshallingUtil::putInt32(char *buffer, int value)
 {
     BSLS_ASSERT_SAFE(buffer);
 
-    char *bytes = reinterpret_cast<char *>(&value);
+    const char *bytes = reinterpret_cast<char *>(&value);
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     buffer[0] = bytes[3];
@@ -925,7 +925,7 @@ void MarshallingUtil::putInt24(char *buffer, int value)
 {
     BSLS_ASSERT_SAFE(buffer);
 
-    char *bytes = reinterpret_cast<char *>(&value);
+    const char *bytes = reinterpret_cast<char *>(&value);
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     buffer[0] = bytes[2];
@@ -943,7 +943,7 @@ void MarshallingUtil::putInt16(char *buffer, int value)
 {
     BSLS_ASSERT_SAFE(buffer);
 
-    char *bytes = reinterpret_cast<char *>(&value);
+    const char *bytes = reinterpret_cast<char *>(&value);
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     buffer[0] = bytes[1];
@@ -969,7 +969,7 @@ void MarshallingUtil::putFloat64(char *buffer, double value)
 {
     BSLS_ASSERT_SAFE(buffer);
 
-    char *bytes = reinterpret_cast<char *>(&value);
+    const char *bytes = reinterpret_cast<char *>(&value);
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     buffer[0] = bytes[sizeof value - 1];
@@ -997,7 +997,7 @@ void MarshallingUtil::putFloat32(char *buffer, float value)
 {
     BSLS_ASSERT_SAFE(buffer);
 
-    char *bytes = reinterpret_cast<char *>(&value);
+    const char *bytes = reinterpret_cast<char *>(&value);
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     buffer[0] = bytes[sizeof value - 1];

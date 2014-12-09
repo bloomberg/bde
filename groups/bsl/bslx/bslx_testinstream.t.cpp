@@ -559,7 +559,9 @@ void testGetArray(const ArrayTestTable *data,
         ElemType data[SIZE] = { 1, 1, 1 };    // array of original values
         ElemType arr[SIZE]  = { 0, 0, 0 };    // array of read values
 
-        Obj mX((const char *)data, sizeof data);  const Obj& X = mX;
+        Obj        mX(reinterpret_cast<const char *>(data), sizeof data);
+        const Obj& X = mX;
+
         mX.setQuiet(true);
         mX.invalidate();
         (mX.*getArrayFunc)(arr, SIZE);
@@ -574,22 +576,22 @@ void testGetArray(const ArrayTestTable *data,
         const int SIZE = 5;                   // temporary array size
         ElemType arr[SIZE];                   // array of read values
         {
-            Obj mX((const char *)arr, sizeof arr);
+            Obj mX(reinterpret_cast<const char *>(arr), sizeof arr);
             mX.setQuiet(true);
             ASSERT_FAIL((mX.*getArrayFunc)(0, 0));
         }
         {
-            Obj mX((const char *)arr, sizeof arr);
+            Obj mX(reinterpret_cast<const char *>(arr), sizeof arr);
             mX.setQuiet(true);
             ASSERT_FAIL((mX.*getArrayFunc)(arr, -1));
         }
         {
-            Obj mX((const char *)arr, sizeof arr);
+            Obj mX(reinterpret_cast<const char *>(arr), sizeof arr);
             mX.setQuiet(true);
             ASSERT_PASS((mX.*getArrayFunc)(arr, 0));
         }
         {
-            Obj mX((const char *)arr, sizeof arr);
+            Obj mX(reinterpret_cast<const char *>(arr), sizeof arr);
             mX.setQuiet(true);
             ASSERT_PASS((mX.*getArrayFunc)(arr, 1));
         }
@@ -684,7 +686,9 @@ void testGetScalar(const ScalarTestTable<ElemType> *data,
         ElemType data = 1;
         ElemType val = 0;
 
-        Obj mX((const char *)&data, sizeof data);  const Obj& X = mX;
+        Obj        mX(reinterpret_cast<const char *>(&data), sizeof data);
+        const Obj& X = mX;
+
         mX.setQuiet(true);
         mX.invalidate();
         (mX.*getFunc)(val);
@@ -1620,6 +1624,8 @@ int main(int argc, char *argv[]) {
         //: 2 Every method sets the cursor to zero.
         //:
         //: 3 Every method marks the stream valid.
+        //:
+        //: 4 QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Initialize an input stream, read some data to ensure the cursor
@@ -1628,6 +1634,8 @@ int main(int argc, char *argv[]) {
         //: 2 Call the 'reset' method and verify the buffer and length are
         //:   correctly assigned, the cursor is zero, and the stream is valid.
         //:   (C-1..3)
+        //:
+        //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   void reset(const char *buffer, bsl::size_t numBytes);
@@ -1706,6 +1714,16 @@ int main(int argc, char *argv[]) {
             ASSERT(X.isValid());
         }
 
+        if (verbose)
+            cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
+
+            Obj mX;
+            ASSERT_SAFE_PASS(mX.reset(0, 0));
+            ASSERT_SAFE_FAIL(mX.reset(0, 1));
+        }
       } break;
       case 27: {
         // --------------------------------------------------------------------
@@ -4558,6 +4576,8 @@ int main(int argc, char *argv[]) {
         //: 3 'invalidate' produces the expected results.
         //:
         //: 4 Destructor functions properly.
+        //:
+        //: 5 QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 For 'getInt8', see documentation of the testing mechanism
@@ -4571,6 +4591,8 @@ int main(int argc, char *argv[]) {
         //:
         //: 5 Since the destructor for this object is empty, the concern
         //:   regarding the destructor is trivially satisfied.  (C-4)
+        //:
+        //: 6 Verify defensive checks are triggered for invalid values.  (C-5)
         //
         // Testing
         //   TestInStream();
@@ -4710,6 +4732,18 @@ int main(int argc, char *argv[]) {
             ASSERT(1 == X.isQuiet());
             mX.setQuiet(0);
             ASSERT(0 == X.isQuiet());
+        }
+
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
+
+            ASSERT_SAFE_PASS(Obj mX(0, 0));
+            ASSERT_SAFE_FAIL(Obj mX(0, 1));
         }
       } break;
       case 2: {

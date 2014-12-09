@@ -797,6 +797,8 @@ if (veryVerbose) {
         //: 2 Every method sets the cursor to zero.
         //:
         //: 3 Every method marks the stream valid.
+        //:
+        //: 4 QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Initialize an input stream, read some data to ensure the cursor
@@ -805,6 +807,8 @@ if (veryVerbose) {
         //: 2 Call the 'reset' method and verify the buffer and length are
         //:   correctly assigned, the cursor is zero, and the stream is valid.
         //:   (C-1..3)
+        //:
+        //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   void reset();
@@ -889,6 +893,16 @@ if (veryVerbose) {
             ASSERT(X.isValid());
         }
 
+        if (verbose)
+            cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
+
+            Obj mX;
+            ASSERT_SAFE_PASS(mX.reset(0, 0));
+            ASSERT_SAFE_FAIL(mX.reset(0, 1));
+        }
       } break;
       case 26: {
         // --------------------------------------------------------------------
@@ -4841,6 +4855,8 @@ if (veryVerbose) {
         //: 3 'invalidate' produces the expected results.
         //:
         //: 4 The destructor functions properly.
+        //:
+        //: 5 QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Create objects containing various data.
@@ -4851,6 +4867,8 @@ if (veryVerbose) {
         //:
         //: 4 Since the destructor for this object is empty, the concern
         //:   regarding the destructor is trivially satisfied.  (C-4)
+        //:
+        //: 5 Verify defensive checks are triggered for invalid values.  (C-5)
         //
         // Testing:
         //   ByteInStream();
@@ -4970,6 +4988,18 @@ if (veryVerbose) {
             LOOP_ASSERT(i, X2);
             mX2.invalidate();
             LOOP_ASSERT(i, !X2);
+        }
+
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
+
+            ASSERT_SAFE_PASS(Obj mX(0, 0));
+            ASSERT_SAFE_FAIL(Obj mX(0, 1));
         }
       } break;
       case 1: {

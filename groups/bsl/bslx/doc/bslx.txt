@@ -22,7 +22,7 @@
     5:  testinstream         byteinstreamformatter
 
     4:  byteinstream         genericbyteinstream   testoutstream
-                                                         byteoutstreamformatter
+        byteoutstreamformatter
 
     3:  byteoutstream        genericbyteoutstream
 
@@ -572,18 +572,18 @@
  the tasks participating in the system are capable of reading that BDEX version
  before selecting it as an output version.  
 
- The roll-out for a change to a BDEX version for an existing type ("A") 
- in a production system typically involves these steps:
+ The roll-out of a new BDEX version for an existing type ('A') in a production
+ system typically involves these steps:
 
  1. Update Type 'A', introducing a new BDEX version, and version selector
     for that version that is the date the change is expected to "go-live".
 
- 2. Rebuild & redeploy all the tasks that de-serialize 'A'.
+ 2. Rebuild and redeploy all the tasks that de-serialize 'A'.
 
- 3. Update the version selector for tasks task that serialize 'A' (choosing
-    the date that change is made for the 'versionSelector').
+ 3. Update the version selector for tasks that serialize 'A' (choosing the date
+    used in step 1).
 
- 4. Rebuild & redeploy all the tasks that serialize 'A'.
+ 4. Rebuild and redeploy all the tasks that serialize 'A'.
 
 /Overloading BDEX Free Functions
 /-------------------------------
@@ -1081,7 +1081,7 @@
          // invalid stream is a stream for which an output operation was
          // detected to have failed or 'invalidate' was called.
 
-     int length() const;
+     bsl::size_t length() const;
          // Return the number of bytes in this stream.
 
  // FREE OPERATORS
@@ -1101,15 +1101,15 @@
      // MANIPULATORS
      InStream& getLength(int& length);
          // If the most-significant bit of the one byte of this stream at the
-         // current cursor location is set, load into the specified 'length'
+         // current cursor location is set, assign to the specified 'length'
          // the four-byte, two's complement integer (in host byte order)
          // comprised of the four bytes of this stream at the current cursor
          // location (in network byte order) with the most-significant bit
-         // unset; otherwise, load into the 'length' the one-byte, two's
-         // complement integer comprised of the one byte of this stream at the
-         // current cursor location.  Update the cursor location and return a
-         // reference to this stream.  If this stream is initially invalid,
-         // this operation has no effect.  If this function otherwise fails to
+         // unset; otherwise, assign to 'length' the one-byte, two's complement
+         // integer comprised of the one byte of this stream at the current
+         // cursor location.  Update the cursor location and return a reference
+         // to this stream.  If this stream is initially invalid, this
+         // operation has no effect.  If this function otherwise fails to
          // extract a valid value, this stream is marked invalid and the value
          // of 'length' is undefined.  Note that the value will be
          // zero-extended.
@@ -1135,12 +1135,12 @@
          // 0 (i.e., the beginning of the stream) and validate this stream if
          // it is currently invalid.
 
-     void reset(const char *buffer, int numBytes);
+     void reset(const char *buffer, bsl::size_t numBytes);
          // Reset this stream to extract from the specified 'buffer' containing
          // the specified 'numBytes', set the index of the next byte to be
          // extracted to 0 (i.e., the beginning of the stream), and validate
          // this stream if it is currently invalid.  The behavior is undefined
-         // unless '0 <= numBytes' and, if '0 == buffer', then '0 == numBytes'.
+         // unless '0 == numBytes' if '0 == buffer'.
 
      void reset(const bslstl::StringRef& srcData);
          // Reset this stream to extract from the specified 'srcData', set the
@@ -1588,7 +1588,7 @@
          // An invalid stream is a stream for which an input operation was
          // detected to have failed.
 
-     int cursor() const;
+     bsl::size_t cursor() const;
          // Return the index of the next byte to be extracted from this stream.
 
      const char *data() const;
@@ -1609,7 +1609,7 @@
          // that this function enables higher-level types to verify that, after
          // successfully reading all expected data, no data remains.
 
-     int length() const;
+     bsl::size_t length() const;
          // Return the total number of bytes stored in the external memory
          // buffer.
 

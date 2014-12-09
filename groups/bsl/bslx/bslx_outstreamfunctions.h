@@ -578,21 +578,20 @@ namespace OutStreamFunctions {
     // CLASS METHODS
     template <class STREAM, class TYPE>
     STREAM& bdexStreamOut(STREAM& stream, const TYPE& value);
-        // Write the specified 'value', using the specified 'version' format,
-        // to the specified output 'stream', and return a reference to
-        // 'stream'.  If 'stream' is initially invalid, this operation has no
-        // effect.  If needed, first write the computed version information to
-        // the 'stream' and if this version is not supported by 'TYPE',
-        // 'stream' is invalidated.  Note that the version is only needed when
-        // the (template parameter) 'TYPE' is a 'bsl::vector' or a user-defined
-        // type.  See the 'bslx' package-level documentation for more
-        // information on BDEX streaming of value-semantic types and
-        // containers.
+        // Write the specified 'value' to the specified output 'stream', and
+        // return a reference to 'stream'.  If 'stream' is initially invalid,
+        // this operation has no effect.  If needed, first write the computed
+        // version information to the 'stream' and if this version is not
+        // supported by 'TYPE', 'stream' is invalidated.  Note that the version
+        // is only needed when the (template parameter) 'TYPE' is a
+        // 'bsl::vector' or a user-defined type.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     template <class STREAM, class TYPE>
     STREAM& bdexStreamOut(STREAM& stream, const TYPE& value, int version);
         // Write the specified 'value', using the specified 'version' format,
-        // to the specified output 'stream', and return a reference to 
+        // to the specified output 'stream', and return a reference to
         // 'stream'.  If 'stream' is initially invalid, this operation has no
         // effect.  If 'version' is not supported by 'TYPE', 'stream' is
         // invalidated, but otherwise unmodified.  Note that 'version' is not
