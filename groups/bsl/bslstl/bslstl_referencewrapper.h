@@ -115,9 +115,9 @@ template <typename REFERENCED_TYPE>
 class reference_wrapper {
     // This class is a wrapper that encapsulates an object reference, enabling
     // operations not possible on actual references, including assignment,
-    // copying, and storage in standard containers.  When stored in a container,
-    // it enables functions defined to operate on references to the type 
-    // represented to be called on the container elements.
+    // copying, and storage in standard containers.  When stored in a
+    // container, it enables functions defined to operate on references to the
+    // type represented to be called on the container elements.
 
   private:
     // DATA
@@ -160,7 +160,7 @@ reference_wrapper<const REFERENCED_TYPE> cref(const REFERENCED_TYPE& object);
 
 template <typename REFERENCED_TYPE>
 reference_wrapper<const REFERENCED_TYPE> cref(
-                                   reference_wrapper<REFERENCED_TYPE> original);
+                                  reference_wrapper<REFERENCED_TYPE> original);
     // Return a reference wrapper representing a 'const' view of the same
     // object as the specified 'original'.
 
@@ -170,7 +170,7 @@ reference_wrapper<REFERENCED_TYPE> ref(REFERENCED_TYPE& object);
 
 template <typename REFERENCED_TYPE>
 reference_wrapper<REFERENCED_TYPE> ref(
-                                   reference_wrapper<REFERENCED_TYPE> original);
+                                  reference_wrapper<REFERENCED_TYPE> original);
     // Return a reference wrapper that represents the same object as the
     // specified 'original'.
 
@@ -187,14 +187,14 @@ reference_wrapper<REFERENCED_TYPE> ref(
 // CREATORS
 template <typename REFERENCED_TYPE>
 inline reference_wrapper<REFERENCED_TYPE>::reference_wrapper(
-                                                        REFERENCED_TYPE& object)
+                                                       REFERENCED_TYPE& object)
 : d_represented_p(BSLS_UTIL_ADDRESSOF(object))
 {
 }
 
 template <typename REFERENCED_TYPE>
 inline reference_wrapper<REFERENCED_TYPE>::reference_wrapper(
-                                       const reference_wrapper<REFERENCED_TYPE>& original)
+                            const reference_wrapper<REFERENCED_TYPE>& original)
 : d_represented_p(original.d_represented_p)
 {
 }
@@ -203,7 +203,7 @@ inline reference_wrapper<REFERENCED_TYPE>::reference_wrapper(
 template <typename REFERENCED_TYPE>
 inline reference_wrapper<REFERENCED_TYPE>&
 reference_wrapper<REFERENCED_TYPE>::operator=(
-                                       const reference_wrapper<REFERENCED_TYPE>& rhs)
+                                 const reference_wrapper<REFERENCED_TYPE>& rhs)
 {
     d_represented_p = rhs.d_represented_p;
     return *this;
@@ -225,14 +225,14 @@ inline reference_wrapper<REFERENCED_TYPE>::operator REFERENCED_TYPE&() const
 // FREE FUNCTIONS
 template <typename REFERENCED_TYPE>
 inline reference_wrapper<const REFERENCED_TYPE> cref(
-                                                  const REFERENCED_TYPE& object)
+                                                 const REFERENCED_TYPE& object)
 {
     return reference_wrapper<const REFERENCED_TYPE>(object);
 }
 
 template <typename REFERENCED_TYPE>
 inline reference_wrapper<const REFERENCED_TYPE> cref(
-                                    reference_wrapper<REFERENCED_TYPE> original)
+                                   reference_wrapper<REFERENCED_TYPE> original)
 {
     return reference_wrapper<const REFERENCED_TYPE>(*original.get());
 }
@@ -245,7 +245,7 @@ inline reference_wrapper<REFERENCED_TYPE> ref(REFERENCED_TYPE& object)
 
 template <typename REFERENCED_TYPE>
 inline reference_wrapper<REFERENCED_TYPE> ref(
-                                    reference_wrapper<REFERENCED_TYPE> original)
+                                   reference_wrapper<REFERENCED_TYPE> original)
 {
     return reference_wrapper<REFERENCED_TYPE>(original);
 }
