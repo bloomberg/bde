@@ -131,7 +131,7 @@ class reference_wrapper {
     reference_wrapper(REFERENCED_TYPE& object);    // IMPLICIT
         // Create a reference wrapper representing the specified 'object'.
 
-    reference_wrapper(const reference_wrapper& original);
+    // reference_wrapper(const reference_wrapper& original) = default;
         // Create a reference_wrapper object having the same value as the
         // specified 'original' object.
 
@@ -139,7 +139,7 @@ class reference_wrapper {
         // Destroy this object.
 
     // MANIPULATORS
-    reference_wrapper& operator=(const reference_wrapper& rhs);
+    // reference_wrapper& operator=(const reference_wrapper& rhs) = default;
         // Assign this object to have the same value as the specified 'rhs'.
         // Return '*this'.
 
@@ -190,23 +190,6 @@ inline reference_wrapper<REFERENCED_TYPE>::reference_wrapper(
                                                        REFERENCED_TYPE& object)
 : d_represented_p(BSLS_UTIL_ADDRESSOF(object))
 {
-}
-
-template <typename REFERENCED_TYPE>
-inline reference_wrapper<REFERENCED_TYPE>::reference_wrapper(
-                            const reference_wrapper<REFERENCED_TYPE>& original)
-: d_represented_p(original.d_represented_p)
-{
-}
-
-// MANIPULATORS
-template <typename REFERENCED_TYPE>
-inline reference_wrapper<REFERENCED_TYPE>&
-reference_wrapper<REFERENCED_TYPE>::operator=(
-                                 const reference_wrapper<REFERENCED_TYPE>& rhs)
-{
-    d_represented_p = rhs.d_represented_p;
-    return *this;
 }
 
 // ACCESSORS
