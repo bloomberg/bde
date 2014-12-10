@@ -132,16 +132,16 @@ class reference_wrapper {
         // Create a reference wrapper representing the specified 'object'.
 
     // reference_wrapper(const reference_wrapper& original) = default;
-        // Create a reference_wrapper object having the same value as the
-        // specified 'original' object.
+        // Create a reference_wrapper object referring to the same object as
+        // the specified 'original'.
 
     // ~reference_wrapper() = default;
         // Destroy this object.
 
     // MANIPULATORS
     // reference_wrapper& operator=(const reference_wrapper& rhs) = default;
-        // Assign this object to have the same value as the specified 'rhs'.
-        // Return '*this'.
+        // Assign this object to refer to the same object as the specified
+        // 'rhs'. Return '*this'.
 
     // ACCESSORS
     REFERENCED_TYPE& get() const;
@@ -181,8 +181,6 @@ reference_wrapper<REFERENCED_TYPE> ref(
                     // =======================
                     // class reference_wrapper
                     // =======================
-
-    // reference_wrapper members
 
 // CREATORS
 template <typename REFERENCED_TYPE>

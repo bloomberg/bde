@@ -180,8 +180,10 @@ int main(int argc, char *argv[])
         //
         // --------------------------------------------------------------------
 
-        verbose && (std::cout << "\nUsage example"
-                                 "\n=============\n");
+        if (verbose) {
+            printf("\nUsage example"
+                   "\n=============\n");
+        }
 
         using namespace TEST_CASE_USAGE;
 
@@ -233,8 +235,10 @@ int main(int argc, char *argv[])
         //   reference_wrapper<T> ref(T&)
         // --------------------------------------------------------------------
 
-        verbose && (std::cout << "\nBasic tests"
-                                 "\n===========\n");
+        if (verbose) {
+            printf("\nBasic tests"
+                   "\n===========\n");
+        }
         dummy a;
         const dummy b = {};
 
