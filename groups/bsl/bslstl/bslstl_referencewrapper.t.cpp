@@ -29,13 +29,6 @@
 // [ 1] T& get() const;
 // [ 1] reference_wrapper<T> cref(T&)
 // [ 1] reference_wrapper<T> ref(T&)
-//
-// USAGE EXAMPLE
-// [ 2] reference_wrapper(T&);
-// [ 2] reference_wrapper<T>& operator=(reference_wrapper<T>&) const;
-// [ 2] operator T&() const;
-// [ 2] reference_wrapper<T> ref(T&)
-// [ 2] T& get() const;
 // ----------------------------------------------------------------------------
 // [ 1] BASIC TESTS
 // [ 2] USAGE EXAMPLE
@@ -135,17 +128,17 @@ Canary::Canary(int values)
      }
 }
 
-// the comparison function:
+// Next, the comparison function:
 
 bool operator<(Canary const& a, Canary const& b)
 {
    return a.d_values[0] < b.d_values[0];
 }
 
-// and a function to sort two items:
+// Finally, a generic function to sort two items:
 
 template <typename T>
-void sort_two_things(T& a, T& b)
+void sortTwoItems(T& a, T& b)
 {
     if (b < a) {
         T tmp(a);
@@ -173,39 +166,37 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
+        // USAGE EXAMPLE
+        //   Extracted from bslstl_referencewrapper.h
+        //
+        // Concerns:
+        //  1 The example in the header builds and runs as claimed.
         //
         // Plan:
-        //   Reformat the comment to runnable code.
+        //  1 Reformat the comment to runnable code, as prescribed.
         //
         // Testing:
         //   USAGE EXAMPLE
-        //   reference_wrapper(T&);
-        //   reference_wrapper<T>& operator=(reference_wrapper<T>&) const;
-        //   operator T&() const;
-        //   reference_wrapper<T> ref(T&)
-        //   T& get() const;
         //
         // --------------------------------------------------------------------
 
-        verbose && (std::cout << "\nTesting Usage example"
-                                 "\n=====================\n");
+        verbose && (std::cout << "\nUsage example"
+                                 "\n=============\n");
 
         using namespace TEST_CASE_USAGE;
 
-            // We can call 'sort_two_things()' on wrappers representing Canary
+            // We can call 'sortTwoItems()' on wrappers representing Canary
             // objects without need to move actual, large 'Canary' objects
-            // about. In the call to 'sort_two_things()', below, the
-            // 'operator=' used in it is that of
-            // 'bsl::reference_wrapper<Canary>', but the 'operator<' used is
-            // the one declared for 'Canary&' objects.  All of the conversions
-            // needed are applied implicitly.
+            // about. In the call to 'sortTwoItems()', below, the 'operator='
+            // used in it is that of 'bsl::reference_wrapper<Canary>', but the
+            // 'operator<' used is the one declared for 'Canary&' objects.  All
+            // of the conversions needed are applied implicitly.
 
         Canary two(2);
         Canary one(1);
         bsl::reference_wrapper<Canary> canaryA = bsl::ref(two);
         bsl::reference_wrapper<Canary> canaryB = bsl::ref(one);
-        sort_two_things(canaryA, canaryB);
+        sortTwoItems(canaryA, canaryB);
 
         ASSERT(&canaryA.get() == &one);
         ASSERT(&canaryB.get() == &two);
@@ -213,15 +204,26 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // BASIC INSTANTIATION TESTS
+        // BASIC TESTS
         //   Create objects each possible way, verify they have the right
         //   contents and can be used in the standard ways.
         //
+        // Concerns:
+        //  1 Template functions defined are only checked by the compiler when
+        //    called, so all templates must be instantiated here.
+        //
+        //  2 The various functions' argument must be copied into the object
+        //    correctly.
+        //
+        //  3 The accessors must reproduce the various functions' argument
+        //    values.
+        //
         // Plan:
-        //   Define a dummy type, wrap it, and use the wrapper.
+        //  1 Define a dummy type
+        //  2 Wrap the dummy type using each available method
+        //  3 Use the wrappers' explicit and implicit accessors
         //
         // Testing:
-        //   BASIC TESTS
         //   reference_wrapper(T&);
         //   reference_wrapper(consts reference_wrapper<T>&)
         //   reference_wrapper<T>& operator=(reference_wrapper<T>&) const;
@@ -231,8 +233,8 @@ int main(int argc, char *argv[])
         //   reference_wrapper<T> ref(T&)
         // --------------------------------------------------------------------
 
-        verbose && (std::cout << "\nBASIC INSTANTIATION TESTS"
-                                 "\n=========================\n");
+        verbose && (std::cout << "\nBasic tests"
+                                 "\n===========\n");
         dummy a;
         const dummy b = {};
 

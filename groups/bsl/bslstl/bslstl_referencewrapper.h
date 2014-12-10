@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Wrap a reference in a copyable, assignable object.
 //
 //@CLASSES:
-//  bsl::reference_wrapper: A class object to wrap a reference
+//  bsl::reference_wrapper: A class object to hold a reference to an object
 //
 //@DESCRIPTION: This component provides 'bsl::reference_wrapper', a reduced
 //  implementation of the standard C++2011 template of the same name, which
@@ -29,16 +29,15 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This is a section meant to illustrate a conceivable use of this component.
+// This section illustrates intended use of this component.
 //
 ///Example 1: Sorted references
 /// - - - - - - - - - - - - - -
 // Let us suppose that we wish to handle objects that will be passed to a
 // comparison function expecting references to the objects.  Let us suppose
 // further that these objects are large enough that we would not wish to move
-// them around bodily as they are sorted. (Please note that plausible examples
-// of uses for this component are limited in C++98, particularly so when given
-// that the example may not depend on other library components.)
+// them around bodily as they are sorted. Note that plausible examples of uses
+// for this component are limited in freestanding C++98.
 //
 // First, let us define the large object:
 //..
@@ -55,17 +54,17 @@ BSLS_IDENT("$Id: $")
 //       }
 //  }
 //..
-// the comparison function:
+// Next, the comparison function:
 //..
 //  bool operator<(Canary const& a, Canary const& b)
 //  {
 //     return a.d_values[0] < b.d_values[0];
 //  }
 //..
-// and a function to sort two items:
+// Finally, a generic function to sort two items:
 //..
 //  template <typename T>
-//  void sort_two_things(T& a, T& b)
+//  void sortTwoItems(T& a, T& b)
 //  {
 //      if (b < a) {
 //          T tmp(a);
@@ -74,9 +73,9 @@ BSLS_IDENT("$Id: $")
 //      }
 //  }
 //..
-// We can call 'sort_two_things()' on wrappers representing Canary objects
-// without need to move actual, large 'Canary' objects about. In the call to
-// 'sort_two_things()', below, the 'operator=' used in it is that of
+// We can call 'sortTwoItems()' on wrappers representing Canary objects without
+// need to move actual, large 'Canary' objects about. In the call to
+// 'sortTwoItems()', below, the 'operator=' used in it is that of
 // 'bsl::reference_wrapper<Canary>', but the 'operator<' used is the one
 // declared for 'Canary&' objects.  All of the conversions needed are applied
 // implicitly.
@@ -85,7 +84,7 @@ BSLS_IDENT("$Id: $")
 //  Canary one(1);
 //  bsl::reference_wrapper<Canary> canaryA = bsd::ref(two);
 //  bsl::reference_wrapper<Canary> canaryA = bsd::ref(one);
-//  sort_two_things(canaryA, canaryB);
+//  sortTwoItems(canaryA, canaryB);
 //
 //  assert(&canaryA.get() == &one);
 //  assert(&canaryB.get() == &two);
@@ -108,128 +107,150 @@ BSL_OVERRIDES_STD mode"
 
 namespace bsl {
 
-template <typename T>
+                    // =======================
+                    // class reference_wrapper
+                    // =======================
+
+template <typename REFERENCED_TYPE>
 class reference_wrapper {
+    // This class is a wrapper that encapsulates an object reference, enabling
+    // operations not possible on actual references, including assignment,
+    // copying, and storage in standard containers.  When stored in a container,
+    // it enables functions defined to operate on references to the type 
+    // represented to be called on the container elements.
 
   private:
-    T* d_pointer;
+    // DATA
+    REFERENCED_TYPE* d_represented_p;  // (not owned)
 
   public:
-    // PUBLIC TYPES
-    typedef T type;
+    // TYPES
+    typedef REFERENCED_TYPE type;
 
     // CREATORS
-    reference_wrapper(T& object);
-        // Create a reference wrapper capturing a pointer to the object
-        // presumed to be referred to by the specified reference 'object'.
-        // Note that this is an implicitly converting constructor.
+    reference_wrapper(REFERENCED_TYPE& object);    // IMPLICIT
+        // Create a reference wrapper representing the specified 'object'.
 
     reference_wrapper(const reference_wrapper& original);
-        // Create a reference wrapper that refers to the same presumed object
-        // as the specified 'original'.
+        // Create a reference_wrapper object having the same value as the
+        // specified 'original' object.
 
+    // ~reference_wrapper() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
     reference_wrapper& operator=(const reference_wrapper& rhs);
-        // Assign '*this' to refer to the same object as the specified 'rhs'.
+        // Assign this object to have the same value as the specified 'rhs'.
         // Return '*this'.
 
     // ACCESSORS
-    T& get() const;
-        // Return a reference to the presumed object previously passed to the
-        // constructor or assignment operator of this object.
+    REFERENCED_TYPE& get() const;
+        // Return a reference to the object that '*this' represents.
 
-    operator T&() const;
-        // Return 'this->get()', so that objects of this type may be passed to
-        // arguments declared as 'T&'.
+    operator REFERENCED_TYPE&() const;
+        // Return a reference to the object that '*this' represents.
 };
 
 // FREE FUNCTIONS
 
-template <typename T>
-reference_wrapper<const T> cref(const T& object);
+template <typename REFERENCED_TYPE>
+reference_wrapper<const REFERENCED_TYPE> cref(const REFERENCED_TYPE& object);
+    // Return a reference wrapper representing a 'const' view of the specified
+    // 'object'.
 
-template <typename T>
-reference_wrapper<const T> cref(reference_wrapper<T> original);
-    // Return a wrapper representing the const T object presumed to be referred
-    // to by the specified 'object' or 'original'.
+template <typename REFERENCED_TYPE>
+reference_wrapper<const REFERENCED_TYPE> cref(
+                                   reference_wrapper<REFERENCED_TYPE> original);
+    // Return a reference wrapper representing a 'const' view of the same
+    // object as the specified 'original'.
 
-template <typename T>
-reference_wrapper<T> ref(T& object);
+template <typename REFERENCED_TYPE>
+reference_wrapper<REFERENCED_TYPE> ref(REFERENCED_TYPE& object);
+    // Return a reference wrapper that represents the specified 'object'.
 
-template <typename T>
-reference_wrapper<T> ref(reference_wrapper<T> original);
-    // Return a wrapper representing the T object presumed to be referred to by
-    // the specified 'object' or 'original'.
+template <typename REFERENCED_TYPE>
+reference_wrapper<REFERENCED_TYPE> ref(
+                                   reference_wrapper<REFERENCED_TYPE> original);
+    // Return a reference wrapper that represents the same object as the
+    // specified 'original'.
 
 // ============================================================================
 //                      INLINE DEFINITIONS
 // ============================================================================
 
-    // reference_wrapper<T> members
+                    // =======================
+                    // class reference_wrapper
+                    // =======================
 
-template <typename T>
-inline reference_wrapper<T>::reference_wrapper(T& object)
-: d_pointer(BSLS_UTIL_ADDRESSOF(object))
+    // reference_wrapper members
+
+// CREATORS
+template <typename REFERENCED_TYPE>
+inline reference_wrapper<REFERENCED_TYPE>::reference_wrapper(
+                                                        REFERENCED_TYPE& object)
+: d_represented_p(BSLS_UTIL_ADDRESSOF(object))
 {
 }
 
-template <typename T>
-inline reference_wrapper<T>::reference_wrapper(
-                                          const reference_wrapper<T>& original)
-: d_pointer(original.d_pointer)
+template <typename REFERENCED_TYPE>
+inline reference_wrapper<REFERENCED_TYPE>::reference_wrapper(
+                                       const reference_wrapper<REFERENCED_TYPE>& original)
+: d_represented_p(original.d_represented_p)
 {
 }
 
-template <typename T>
-inline reference_wrapper<T>& reference_wrapper<T>::operator=(
-                                               const reference_wrapper<T>& rhs)
+// MANIPULATORS
+template <typename REFERENCED_TYPE>
+inline reference_wrapper<REFERENCED_TYPE>&
+reference_wrapper<REFERENCED_TYPE>::operator=(
+                                       const reference_wrapper<REFERENCED_TYPE>& rhs)
 {
-    d_pointer = rhs.d_pointer;
+    d_represented_p = rhs.d_represented_p;
     return *this;
 }
 
-template <typename T>
-inline reference_wrapper<T>::operator T&() const
+// ACCESSORS
+template <typename REFERENCED_TYPE>
+inline REFERENCED_TYPE& reference_wrapper<REFERENCED_TYPE>::get() const
 {
-    return *d_pointer;
+    return *d_represented_p;
 }
 
-template <typename T>
-inline T& reference_wrapper<T>::get() const
+template <typename REFERENCED_TYPE>
+inline reference_wrapper<REFERENCED_TYPE>::operator REFERENCED_TYPE&() const
 {
-    return *d_pointer;
+    return *d_represented_p;
 }
 
-template <typename T>
-inline reference_wrapper<const T> cref(const T& object)
+// FREE FUNCTIONS
+template <typename REFERENCED_TYPE>
+inline reference_wrapper<const REFERENCED_TYPE> cref(
+                                                  const REFERENCED_TYPE& object)
 {
-    return reference_wrapper<const T>(object);
+    return reference_wrapper<const REFERENCED_TYPE>(object);
 }
 
-    // free functions cref, ref
-
-template <typename T>
-inline reference_wrapper<const T> cref(reference_wrapper<T> original)
+template <typename REFERENCED_TYPE>
+inline reference_wrapper<const REFERENCED_TYPE> cref(
+                                    reference_wrapper<REFERENCED_TYPE> original)
 {
-    return reference_wrapper<const T>(*original.get());
+    return reference_wrapper<const REFERENCED_TYPE>(*original.get());
 }
 
-template <typename T>
-inline reference_wrapper<T> ref(T& object)
+template <typename REFERENCED_TYPE>
+inline reference_wrapper<REFERENCED_TYPE> ref(REFERENCED_TYPE& object)
 {
-    return reference_wrapper<T>(object);
+    return reference_wrapper<REFERENCED_TYPE>(object);
 }
 
-template <typename T>
-inline reference_wrapper<T> ref(reference_wrapper<T> original)
+template <typename REFERENCED_TYPE>
+inline reference_wrapper<REFERENCED_TYPE> ref(
+                                    reference_wrapper<REFERENCED_TYPE> original)
 {
-    return reference_wrapper<T>(original);
+    return reference_wrapper<REFERENCED_TYPE>(original);
 }
-
-   // Preparing to close namespace bsl...
 
 }  // close namespace bsl
-
-   // Successfully closed namespace bsl.
 
 #endif
 
