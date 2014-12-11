@@ -132,8 +132,8 @@ class reference_wrapper {
         // Create a reference wrapper representing the specified 'object'.
 
     // reference_wrapper(const reference_wrapper& original) = default;
-        // Create a reference_wrapper object referring to the same object as
-        // the specified 'original'.
+        // Create a reference wrapper referring to the same object as the
+        // specified 'original'.
 
     // ~reference_wrapper() = default;
         // Destroy this object.
