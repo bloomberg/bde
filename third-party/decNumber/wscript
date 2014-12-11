@@ -13,19 +13,25 @@ out = 'build'
 def options(opt):
     opt.load('compiler_c')
 
+
 def configure(conf):
     conf.load('compiler_c')
 
 def build(bld):
-    decnumber_sources = ['decContext.c',
-                         'decDouble.c',
-                         'decPacked.c',
-                         'decQuad.c',
-                         'decSingle.c',
-                         'decNumber.c',
-                         'decimal128.c',
-                         'decimal64.c',
-                         'decimal32.c']
+    # This set of c source files correspond to the set of modules mentioned in
+    # the "Modules" section of the decNumber documentation
+    # (http://speleotrove.com/decimal/decnumber.html).
+    source_files = [
+        'decContext.c',
+        'decDouble.c',
+        'decPacked.c',
+        'decQuad.c',
+        'decSingle.c',
+        'decNumber.c',
+        'decimal128.c',
+        'decimal64.c',
+        'decimal32.c'
+    ]
 
     if 'BDE_THIRD_PARTY_CFLAGS' in bld.env:
         bde_cflags = bld.env['BDE_THIRD_PARTY_CFLAGS']
@@ -38,14 +44,13 @@ def build(bld):
         assert(sys.byteorder == 'little')
         cflags = ["-DDECLITEND=1"]
 
-
     prefix  = bld.env['PREFIX']
     if 'install_lib_dir' in bld.env:
         lib_dir = bld.env['install_lib_dir']
     else:
         lib_dir = 'lib'
 
-    bld.stlib(source=decnumber_sources,
+    bld.stlib(source=source_files,
               target='decNumber',
               export_includes='.',
               name='decNumber_lib',

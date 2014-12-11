@@ -12,3 +12,11 @@ The following changes have been made from the upstream:
 
 - Created 'wscript' file to build using waf, because the DecNumber library did
   not come with a build system.
+
+Note that the set of C source files linked into the library (defined in the
+wscript) correspond to the set of modules mentioned in the "Modules" section
+of the decNumber documentation (http://speleotrove.com/decimal/decnumber.html).
+Other C source files contained in this directory are either usage examples or
+files pound included by the actual modules source files.  When this package is
+updated, care should be taken to ensure that the set of C source files defined
+in the wscript is up-to-date.
