@@ -292,16 +292,17 @@ class basic_stringbuf
         // input position's offset from the beginning of the sequence.
         // Optionally specify an 'outputOffset' indicating the current output
         // position's offset from the beginning of the sequence.  If this
-        // buffer is in input mode, assign the beginning of the input sequence,
-        // 'eback', to the address of the first character of 'd_ptr', the
-        // current input position, 'gptr', to 'eback + inputOffset', and the
-        // end of the input sequence to the last written character in 'd_str'
-        // ('&d_ptr[0] + d_lastWrittenChar').  If this buffer is in output
-        // mode, assign the beginning of the output sequence, 'pback', to the
-        // address of the first character of 'd_ptr', the current output
-        // position, 'pptr', to 'pback + outputOffset', and the end of the
-        // output sequence to the last accessible character in 'd_str'
-        // ('&d_ptr[0] + d_ptr.size()').
+        // buffer is in output mode, assign the beginning of the output
+        // sequence, 'pback', to the address of the first character of
+        // 'd_ptr', the current output position, 'pptr', to
+        // 'pback + outputOffset', and the end of the output sequence to the
+        // last accessible character in 'd_str' ('&d_ptr[0] + d_ptr.size()').
+        // If this buffer is in input mode, assign the beginning of the input
+        // sequence, 'eback', to the address of the first character of
+        // 'd_ptr', the current input position, 'gptr', to
+        // 'eback + inputOffset', and the end of the input sequence to the
+        // last written character in 'd_str'
+        // ('&d_ptr[0] + d_lastWrittenChar').
 
     bool extendInputArea();
         // Attempt to expand the sequence of characters available for input
@@ -597,14 +598,6 @@ void basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
     d_str.resize(d_str.capacity());
     char_type *dataPtr = &d_str[0];
 
-    if (d_mode & ios_base::in) {
-        // Update the input position.
-
-        this->setg(dataPtr,
-                   dataPtr + inputOffset,
-                   dataPtr + static_cast<std::ptrdiff_t>(streamSize()));
-    }
-
     if (d_mode & ios_base::out) {
         // Update the output position.
 
@@ -613,6 +606,14 @@ void basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
         if (outputOffset) {
             this->pbump(int(outputOffset));
         }
+    }
+
+    if (d_mode & ios_base::in) {
+        // Update the input position.
+
+        this->setg(dataPtr,
+                   dataPtr + inputOffset,
+                   dataPtr + static_cast<std::ptrdiff_t>(streamSize()));
     }
 }
 
