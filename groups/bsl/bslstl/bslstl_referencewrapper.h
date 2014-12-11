@@ -121,7 +121,7 @@ class reference_wrapper {
 
   private:
     // DATA
-    REFERENCED_TYPE* d_represented_p;  // (not owned)
+    REFERENCED_TYPE *d_represented_p;  // (not owned)
 
   public:
     // TYPES

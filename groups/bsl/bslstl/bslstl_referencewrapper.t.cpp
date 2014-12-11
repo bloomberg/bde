@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            printf("\nUsage example"
+            printf("\nUSAGE EXAMPLE"
                    "\n=============\n");
         }
 
@@ -236,7 +236,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            printf("\nBasic tests"
+            printf("\nBASIC TESTS"
                    "\n===========\n");
         }
         dummy a;
