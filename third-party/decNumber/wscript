@@ -16,18 +16,17 @@ def options(opt):
 def configure(conf):
     conf.load('compiler_c')
 
-decnumber_sources = '\
-decContext.c \
-decDouble.c \
-decQuad.c \
-decSingle.c \
-decNumber.c \
-decimal128.c \
-decimal64.c \
-decimal32.c \
-'
-
 def build(bld):
+    decnumber_sources = ['decContext.c',
+                         'decDouble.c',
+                         'decPacked.c',
+                         'decQuad.c',
+                         'decSingle.c',
+                         'decNumber.c',
+                         'decimal128.c',
+                         'decimal64.c',
+                         'decimal32.c']
+
     if 'BDE_THIRD_PARTY_CFLAGS' in bld.env:
         bde_cflags = bld.env['BDE_THIRD_PARTY_CFLAGS']
     else:
