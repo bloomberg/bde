@@ -17,18 +17,16 @@
 // specializations may be instantiated successfully.
 //
 // ----------------------------------------------------------------------------
-// class reference_wrapper<T> (reference_wrapper)
-// ============================================================================
-//
-// ----------------------------------------------------------------------------
 // TESTING INSTANTIATIONS AND BASIC FUNCTIONALITY
 // [ 1] reference_wrapper(T&);
-// [ 1] reference_wrapper(consts reference_wrapper<T>&)
-// [ 1] reference_wrapper<T>& operator=(reference_wrapper<T>&) const;
+// [ 1] reference_wrapper(const reference_wrapper<T>&)
+// [ 1] reference_wrapper<T>& operator=(reference_wrapper<T>&);
 // [ 1] operator T&() const;
 // [ 1] T& get() const;
-// [ 1] reference_wrapper<T> cref(T&)
+// [ 1] reference_wrapper<T> cref(const T&)
+// [ 1] reference_wrapper<T> cref(reference_wrapper<T>)
 // [ 1] reference_wrapper<T> ref(T&)
+// [ 1] reference_wrapper<T> ref(reference_wrapper<T>)
 // ----------------------------------------------------------------------------
 // [ 1] BASIC TESTS
 // [ 2] USAGE EXAMPLE
@@ -97,7 +95,7 @@ static bool veryVeryVeryVerbose;
 struct dummy {};
 void use(dummy&) {}
 void const_use(const dummy&) {}
-    // these functions are used solely to verify that a reference_wrapper can
+    // these functions are used solely to verify that a 'reference_wrapper' can
     // be passed to a function expecting an actual reference.
 
 // ============================================================================
@@ -106,47 +104,52 @@ void const_use(const dummy&) {}
 
 namespace TEST_CASE_USAGE {
 
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Sorted References
+/// - - - - - - - - - - - - - -
 // Let us suppose that we wish to handle objects that will be passed to a
 // comparison function expecting references to the objects.  Let us suppose
 // further that these objects are large enough that we would not wish to move
-// them around bodily as they are sorted. (Please note that plausible examples
-// of uses for this component are limited in C++98, particularly so when given
-// that the example may not depend on other library components.)
+// them around bodily as they are sorted. Note that plausible examples of uses
+// for this component are limited in freestanding C++98.
 //
-/// First, let us define the large object:
+// First, let us define the large-object type:
+//..
+    struct Canary {
+        int d_values[1000];
 
-struct Canary {
-    int d_values[1000];
-
-    explicit Canary(int values);
-};
-
-Canary::Canary(int values)
-{
-     for (int i = 0; i < 1000; ++i) {
-         d_values[i] = values;
-     }
-}
-
-// Next, the comparison function:
-
-bool operator<(Canary const& a, Canary const& b)
-{
-   return a.d_values[0] < b.d_values[0];
-}
-
-// Finally, a generic function to sort two items:
-
-template <typename T>
-void sortTwoItems(T& a, T& b)
-{
-    if (b < a) {
-        T tmp(a);
-        a = b;
-        b = tmp;
+        explicit Canary(int values);
+    };
+//..
+    Canary::Canary(int values)
+    {
+         for (int i = 0; i < 1000; ++i) {
+             d_values[i] = values;
+         }
     }
-}
-
+//..
+// Next, we define the comparison function:
+//..
+    bool operator<(Canary const& a, Canary const& b)
+    {
+        return a.d_values[0] < b.d_values[0];
+    }
+//..
+// Finally, we define a generic function to sort two items:
+//..
+    template <typename T>
+    void sortTwoItems(T& a, T& b)
+    {
+        if (b < a) {
+            T tmp(a);
+            a = b;
+            b = tmp;
+        }
+    }
+//..
 }  // close namespace TEST_CASE_USAGE
 
 // ============================================================================
@@ -170,10 +173,10 @@ int main(int argc, char *argv[])
         //   Extracted from bslstl_referencewrapper.h
         //
         // Concerns:
-        //  1 The example in the header builds and runs as claimed.
+        //: 1 The example in the header builds and runs as claimed.
         //
         // Plan:
-        //  1 Reformat the comment to runnable code, as prescribed.
+        //: 1 Reformat the comment to runnable code, as prescribed.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -187,22 +190,23 @@ int main(int argc, char *argv[])
 
         using namespace TEST_CASE_USAGE;
 
-            // We can call 'sortTwoItems()' on wrappers representing Canary
-            // objects without need to move actual, large 'Canary' objects
-            // about. In the call to 'sortTwoItems()', below, the 'operator='
-            // used in it is that of 'bsl::reference_wrapper<Canary>', but the
-            // 'operator<' used is the one declared for 'Canary&' objects.  All
-            // of the conversions needed are applied implicitly.
+        //..
+        // We can call 'sortTwoItems' on wrappers representing 'Canary' objects
+        // without need to move actual, large 'Canary' objects about. In the
+        // call to 'sortTwoItems()', below, the 'operator=' used in it is that
+        // of 'bsl::reference_wrapper<Canary>', but the 'operator<' used is the
+        // one declared for 'Canary&' arguments.  All of the conversions needed
+        // are applied implicitly.
+        //..
+            Canary two(2);
+            Canary one(1);
+            bsl::reference_wrapper<Canary> canaryA = bsl::ref(two);
+            bsl::reference_wrapper<Canary> canaryB = bsl::ref(one);
+            sortTwoItems(canaryA, canaryB);
 
-        Canary two(2);
-        Canary one(1);
-        bsl::reference_wrapper<Canary> canaryA = bsl::ref(two);
-        bsl::reference_wrapper<Canary> canaryB = bsl::ref(one);
-        sortTwoItems(canaryA, canaryB);
-
-        ASSERT(&canaryA.get() == &one);
-        ASSERT(&canaryB.get() == &two);
-
+            ASSERT(&canaryA.get() == &one);
+            ASSERT(&canaryB.get() == &two);
+        //..
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -211,28 +215,30 @@ int main(int argc, char *argv[])
         //   contents and can be used in the standard ways.
         //
         // Concerns:
-        //  1 Template functions defined are only checked by the compiler when
-        //    called, so all templates must be instantiated here.
-        //
-        //  2 The various functions' argument must be copied into the object
-        //    correctly.
-        //
-        //  3 The accessors must reproduce the various functions' argument
-        //    values.
+        //: 1 Template functions defined are only checked by the compiler when
+        //:   called, so all templates must be instantiated here.
+        //:
+        //: 2 The various functions' argument must be copied into the object
+        //:   correctly.
+        //:
+        //: 3 The accessors must reproduce the various functions' argument
+        //:   values.
         //
         // Plan:
-        //  1 Define a dummy type
-        //  2 Wrap the dummy type using each available method
-        //  3 Use the wrappers' explicit and implicit accessors
+        //: 1 Define a dummy type (C-1..3)
+        //: 2 Wrap the dummy type using each available method (C-1..3)
+        //: 3 Use the wrappers' explicit and implicit accessors (C-1..3)
         //
         // Testing:
         //   reference_wrapper(T&);
         //   reference_wrapper(consts reference_wrapper<T>&)
-        //   reference_wrapper<T>& operator=(reference_wrapper<T>&) const;
+        //   reference_wrapper<T>& operator=(reference_wrapper<T>&);
         //   operator T&() const;
         //   T& get() const;
-        //   reference_wrapper<T> cref(T&)
+        //   reference_wrapper<T> cref(const T&)
+        //   reference_wrapper<T> cref(reference_wrapper<T>)
         //   reference_wrapper<T> ref(T&)
+        //   reference_wrapper<T> ref(reference_wrapper<T>)
         // --------------------------------------------------------------------
 
         if (verbose) {

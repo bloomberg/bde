@@ -7,31 +7,32 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Wrap a reference in a copyable, assignable object.
+//@PURPOSE: Provide copyable, assignable object wrapper for references.
 //
 //@CLASSES:
-//  bsl::reference_wrapper: A class object to hold a reference to an object
+//  bsl::reference_wrapper: class object to hold a reference to an object
 //
 //@DESCRIPTION: This component provides 'bsl::reference_wrapper', a reduced
 //  implementation of the standard C++2011 template of the same name, which
 //  simply wraps a reference into a copyable, assignable object to allow it to
 //  be stored in a place that cannot normally hold a reference, such as a
-//  standard container.  Because it is convertible to its contained reference
-//  type, it can be passed to functions that take such a reference.
+//  standard container.  Because a reference wrapper is convertible to its
+//  contained reference type, it can be passed to functions that take such a
+//  reference.
 //
-//  This component also provides helper functions 'bsl::ref' and 'bsl::cref'
-//  that may be used to generate reference_wrapper objects more concisely than
-//  with the constructor.
+//  This component also provides the (free) helper functions 'bsl::ref' and
+//  'bsl::cref' that may be used to generate 'reference_wrapper' objects more
+//  concisely than with the constructor.
 //
-//  NOTE: This component is a partial implementation that does not support its
-//  use as a function object, and is in any case of limited usefulness in a
-//  pure C++98 environment.
+//  NOTE: This component is a partial implementation of the standard class,
+//  omitting support for use as a function object, and is in any case of
+//  limited usefulness in a pure C++98 environment.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Sorted references
+///Example 1: Sorted References
 /// - - - - - - - - - - - - - -
 // Let us suppose that we wish to handle objects that will be passed to a
 // comparison function expecting references to the objects.  Let us suppose
@@ -39,7 +40,7 @@ BSLS_IDENT("$Id: $")
 // them around bodily as they are sorted. Note that plausible examples of uses
 // for this component are limited in freestanding C++98.
 //
-// First, let us define the large object:
+// First, let us define the large-object type:
 //..
 //  struct Canary {
 //      int d_values[1000];
@@ -54,14 +55,14 @@ BSLS_IDENT("$Id: $")
 //       }
 //  }
 //..
-// Next, the comparison function:
+// Next, we define the comparison function:
 //..
 //  bool operator<(Canary const& a, Canary const& b)
 //  {
-//     return a.d_values[0] < b.d_values[0];
+//      return a.d_values[0] < b.d_values[0];
 //  }
 //..
-// Finally, a generic function to sort two items:
+// Finally, we define a generic function to sort two items:
 //..
 //  template <typename T>
 //  void sortTwoItems(T& a, T& b)
@@ -73,17 +74,17 @@ BSLS_IDENT("$Id: $")
 //      }
 //  }
 //..
-// We can call 'sortTwoItems()' on wrappers representing Canary objects without
-// need to move actual, large 'Canary' objects about. In the call to
+// We can call 'sortTwoItems' on wrappers representing 'Canary' objects
+// without need to move actual, large 'Canary' objects about. In the call to
 // 'sortTwoItems()', below, the 'operator=' used in it is that of
 // 'bsl::reference_wrapper<Canary>', but the 'operator<' used is the one
-// declared for 'Canary&' objects.  All of the conversions needed are applied
-// implicitly.
+// declared for 'Canary&' arguments.  All of the conversions needed are
+// applied implicitly.
 //..
 //  Canary two(2);
 //  Canary one(1);
-//  bsl::reference_wrapper<Canary> canaryA = bsd::ref(two);
-//  bsl::reference_wrapper<Canary> canaryA = bsd::ref(one);
+//  bsl::reference_wrapper<Canary> canaryA = bsl::ref(two);
+//  bsl::reference_wrapper<Canary> canaryB = bsl::ref(one);
 //  sortTwoItems(canaryA, canaryB);
 //
 //  assert(&canaryA.get() == &one);
@@ -102,7 +103,7 @@ BSL_OVERRIDES_STD mode"
 #endif
 
 #ifndef INCLUDED_BSLS_UTIL
-#include <bsls_util.h>                               // for BSLS_UTIL_ADDRESSOF
+#include <bsls_util.h>                             // for 'BSLS_UTIL_ADDRESSOF'
 #endif
 
 namespace bsl {
@@ -121,7 +122,7 @@ class reference_wrapper {
 
   private:
     // DATA
-    REFERENCED_TYPE *d_represented_p;  // (not owned)
+    REFERENCED_TYPE *d_represented_p;  // the represented object (not owned)
 
   public:
     // TYPES
@@ -141,7 +142,7 @@ class reference_wrapper {
     // MANIPULATORS
     // reference_wrapper& operator=(const reference_wrapper& rhs) = default;
         // Assign this object to refer to the same object as the specified
-        // 'rhs'. Return '*this'.
+        // 'rhs', and return '*this'.
 
     // ACCESSORS
     REFERENCED_TYPE& get() const;
@@ -152,7 +153,6 @@ class reference_wrapper {
 };
 
 // FREE FUNCTIONS
-
 template <typename REFERENCED_TYPE>
 reference_wrapper<const REFERENCED_TYPE> cref(const REFERENCED_TYPE& object);
     // Return a reference wrapper representing a 'const' view of the specified
@@ -178,54 +178,59 @@ reference_wrapper<REFERENCED_TYPE> ref(
 //                      INLINE DEFINITIONS
 // ============================================================================
 
-                    // =======================
+                    // -----------------------
                     // class reference_wrapper
-                    // =======================
+                    // -----------------------
 
 // CREATORS
 template <typename REFERENCED_TYPE>
-inline reference_wrapper<REFERENCED_TYPE>::reference_wrapper(
-                                                       REFERENCED_TYPE& object)
+inline
+reference_wrapper<REFERENCED_TYPE>::reference_wrapper(REFERENCED_TYPE& object)
 : d_represented_p(BSLS_UTIL_ADDRESSOF(object))
 {
 }
 
 // ACCESSORS
 template <typename REFERENCED_TYPE>
-inline REFERENCED_TYPE& reference_wrapper<REFERENCED_TYPE>::get() const
+inline
+REFERENCED_TYPE& reference_wrapper<REFERENCED_TYPE>::get() const
 {
     return *d_represented_p;
 }
 
 template <typename REFERENCED_TYPE>
-inline reference_wrapper<REFERENCED_TYPE>::operator REFERENCED_TYPE&() const
+inline
+reference_wrapper<REFERENCED_TYPE>::operator REFERENCED_TYPE&() const
 {
     return *d_represented_p;
 }
 
 // FREE FUNCTIONS
 template <typename REFERENCED_TYPE>
-inline reference_wrapper<const REFERENCED_TYPE> cref(
-                                                 const REFERENCED_TYPE& object)
+inline
+reference_wrapper<const REFERENCED_TYPE> cref(const REFERENCED_TYPE& object)
 {
     return reference_wrapper<const REFERENCED_TYPE>(object);
 }
 
 template <typename REFERENCED_TYPE>
-inline reference_wrapper<const REFERENCED_TYPE> cref(
+inline
+reference_wrapper<const REFERENCED_TYPE> cref(
                                    reference_wrapper<REFERENCED_TYPE> original)
 {
     return reference_wrapper<const REFERENCED_TYPE>(*original.get());
 }
 
 template <typename REFERENCED_TYPE>
-inline reference_wrapper<REFERENCED_TYPE> ref(REFERENCED_TYPE& object)
+inline
+reference_wrapper<REFERENCED_TYPE> ref(REFERENCED_TYPE& object)
 {
     return reference_wrapper<REFERENCED_TYPE>(object);
 }
 
 template <typename REFERENCED_TYPE>
-inline reference_wrapper<REFERENCED_TYPE> ref(
+inline
+reference_wrapper<REFERENCED_TYPE> ref(
                                    reference_wrapper<REFERENCED_TYPE> original)
 {
     return reference_wrapper<REFERENCED_TYPE>(original);
