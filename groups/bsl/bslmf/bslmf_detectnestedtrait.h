@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a meta-function to test for a nested trait.
+//@PURPOSE: Provide a meta-function to test a type for an associated trait.
 //
 //@CLASSES:
 //   bslmf::DetectNestedTrait: meta-function to test a nested trait
@@ -50,7 +50,7 @@ BSLS_IDENT("$Id: $")
 //
 // Additionally, if a trait derives its truth value from
 // 'bslmf::DetectNestedTrait', and then that trait is associated with a type as
-// a nested trait, we will be able to directly inspect the trait
+// a nested trait, we will be able to directly inspect the trait.
 //
 ///Detecting Nested Traits Without 'bslmf::DetectNestedTrait'
 ///----------------------------------------------------------
@@ -147,21 +147,22 @@ BSLS_IDENT("$Id: $")
 // associating types with custom traits that indicate what capabilities are
 // provided by a given type.
 //
-// First, in package 'abcd', define a trait, 'RequiresLock', that indicates
-// that a type's methods must not be called unless a known lock it first
-// acquired:
+// First, in package 'abcd', define a trait, 'RequiresLockTrait', that
+// indicates that a type's methods must not be called unless a known lock it
+// first acquired:
 //..
 //  namespace abcd {
 //
 //  template <class TYPE>
-//  struct RequiresLock : bslmf::DetectNestedTrait<TYPE, RequiresLock>::type {
+//  struct RequiresLockTrait :
+//                    bslmf::DetectNestedTrait<TYPE, RequiresLockTrait>::type {
 //  };
 //
 //  } // close package namespace
 //..
-// Notice that 'RequiresLock' derives from
-// 'bslmf::DetectNestedTrait<TYPE, RequiresLock>::type' using the curiously
-// recurring template pattern.
+// Notice that 'RequiresLockTrait' derives from
+// 'bslmf::DetectNestedTrait<TYPE, RequiresLockTrait>::type' using the
+// curiously recurring template pattern.
 //
 // Then, in package 'xyza', we declare a type, 'DoesNotRequireALockType', that
 // can be used without acquiring the lock:
@@ -179,14 +180,15 @@ BSLS_IDENT("$Id: $")
 //..
 // Next, we declare a type, 'RequiresLockTypeA', that does require the lock.
 // We use the 'BSLMF_NESTED_TRAIT_DECLARATION' macro to associate the type with
-// the 'abcd::RequiresLock' trait:
+// the 'abcd::RequiresLockTrait' trait:
 //..
 //  class RequiresLockTypeA {
 //      // ...
 //
 //    public:
 //      // TRAITS
-//      BSLMF_NESTED_TRAIT_DECLARATION(RequiresLockTypeA, abcd::RequiresLock);
+//      BSLMF_NESTED_TRAIT_DECLARATION(RequiresLockTypeA,
+//                                     abcd::RequiresLockTrait);
 //
 //      // CREATORS
 //      RequiresLockTypeA();
@@ -201,8 +203,8 @@ BSLS_IDENT("$Id: $")
 // parameterized on some 'ELEMENT' type.  If 'ELEMENT' requires a lock, then a
 // 'Container' of 'ELEMENT's will require a lock as well.  This can be
 // expressed using the 'BSLMF_NESTED_TRAIT_DECLARATION_IF' macro, by providing
-// 'abcd::RequiresLock<ELEMENT>::value' as the condition for associating the
-// trait with 'Container'.
+// 'abcd::RequiresLockTrait<ELEMENT>::value' as the condition for associating
+// the trait with 'Container'.
 //..
 //  template <class ELEMENT>
 //  struct Container {
@@ -210,9 +212,8 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // TRAITS
-//      BSLMF_NESTED_TRAIT_DECLARATION_IF(Container,
-//                                        abcd::RequiresLock,
-//                                        abcd::RequiresLock<ELEMENT>::value);
+//      BSLMF_NESTED_TRAIT_DECLARATION_IF(Container, abcd::RequiresLockTrait,
+//                                    abcd::RequiresLockTrait<ELEMENT>::value);
 //
 //      // ...
 //  };
@@ -234,44 +235,44 @@ BSLS_IDENT("$Id: $")
 //
 //  } // close package namespace
 //..
-// Then, we associate 'RequiresLockTypeB' with 'abcd::RequiresLock' by directly
-// specializing 'abcd::RequiresLock<xyza::RequiresLockTypeB>'.  This is the
-// standard way of associating a type with a trait since C++11:
+// Then, we associate 'RequiresLockTypeB' with 'abcd::RequiresLockTrait' by
+// directly specializing 'abcd::RequiresLockTrait<xyza::RequiresLockTypeB>'.
+// This is the standard way of associating a type with a trait since C++11:
 //..
 //  namespace abcd {
 //
 //  template <>
-//  struct RequiresLock<xyza::RequiresLockTypeB> : bsl::true_type {
+//  struct RequiresLockTrait<xyza::RequiresLockTypeB> : bsl::true_type {
 //  };
 //
-//  } // close namespace 'abcd'
+//  } // close namespace abcd
 //..
-// Now, we can write a function that inspects 'abcd::RequiresLock<TYPE>::value'
-// to test whether or not various types are associated with
-// 'abcd::RequiresLock':
+// Now, we can write a function that inspects
+// 'abcd::RequiresLockTrait<TYPE>::value' to test whether or not various types
+// are associated with 'abcd::RequiresLockTrait':
 //..
 //  void example1()
 //  {
 //      assert(false ==
-//             abcd::RequiresLock<xyza::DoesNotRequireLockType>::value);
+//             abcd::RequiresLockTrait<xyza::DoesNotRequireLockType>::value);
 //
 //      assert(true  ==
-//             abcd::RequiresLock<xyza::RequiresLockTypeA>::value);
+//             abcd::RequiresLockTrait<xyza::RequiresLockTypeA>::value);
 //
 //      assert(true  ==
-//             abcd::RequiresLock<xyza::RequiresLockTypeB>::value);
+//             abcd::RequiresLockTrait<xyza::RequiresLockTypeB>::value);
 //
 //      assert(false ==
-//             abcd::RequiresLock<xyza::Container<xyza::DoesNotRequireLockType>
-//                               >::value);
+//             abcd::RequiresLockTrait<
+//                     xyza::Container<xyza::DoesNotRequireLockType> >::value);
 //
 //      assert(true  ==
-//             abcd::RequiresLock<xyza::Container<xyza::RequiresLockTypeA>
-//                               >::value);
+//             abcd::RequiresLockTrait<
+//                          xyza::Container<xyza::RequiresLockTypeA> >::value);
 //
 //      assert(true  ==
-//             abcd::RequiresLock<xyza::Container<xyza::RequiresLockTypeB>
-//                               >::value);
+//             abcd::RequiresLockTrait<
+//                          xyza::Container<xyza::RequiresLockTypeB> >::value);
 //
 //      // ...
 //  }
@@ -283,25 +284,25 @@ BSLS_IDENT("$Id: $")
 //  void example2()
 //  {
 //      BSLMF_ASSERT(false ==
-//             abcd::RequiresLock<xyza::DoesNotRequireLockType>::value);
+//             abcd::RequiresLockTrait<xyza::DoesNotRequireLockType>::value);
 //
 //      BSLMF_ASSERT(true  ==
-//             abcd::RequiresLock<xyza::RequiresLockTypeA>::value);
+//             abcd::RequiresLockTrait<xyza::RequiresLockTypeA>::value);
 //
 //      BSLMF_ASSERT(true  ==
-//             abcd::RequiresLock<xyza::RequiresLockTypeB>::value);
+//             abcd::RequiresLockTrait<xyza::RequiresLockTypeB>::value);
 //
 //      BSLMF_ASSERT(false ==
-//             abcd::RequiresLock<xyza::Container<xyza::DoesNotRequireLockType>
-//                               >::value);
+//             abcd::RequiresLockTrait<
+//                     xyza::Container<xyza::DoesNotRequireLockType> >::value);
 //
 //      BSLMF_ASSERT(true  ==
-//             abcd::RequiresLock<xyza::Container<xyza::RequiresLockTypeA>
-//                               >::value);
+//             abcd::RequiresLockTrait<
+//                          xyza::Container<xyza::RequiresLockTypeA> >::value);
 //
 //      BSLMF_ASSERT(true  ==
-//             abcd::RequiresLock<xyza::Container<xyza::RequiresLockTypeB>
-//                               >::value);
+//             abcd::RequiresLockTrait<
+//                          xyza::Container<xyza::RequiresLockTypeB> >::value);
 //
 //  }
 //..

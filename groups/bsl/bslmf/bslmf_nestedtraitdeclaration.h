@@ -80,13 +80,13 @@ BSLS_IDENT("$Id: $")
 // associating types with custom traits that indicate what capabilities are
 // provided by a given type.
 //
-// First, assume that a compatible trait, 'abcd::RequiresLock', has been
+// First, assume that a compatible trait, 'abcd::RequiresLockTrait', has been
 // defined that indicates that a type's methods must not be called unless a
 // known lock it first acquired:
 //..
-//  namespace abcd { template <class TYPE> struct RequiresLock; }
+//  namespace abcd { template <class TYPE> struct RequiresLockTrait; }
 //..
-// For brevity, the implementation of 'abcd::RequiresLock' is not shown.
+// The implementation of 'abcd::RequiresLockTrait' is not shown.
 //
 // Then, in package 'xyza', we declare a type, 'DoesNotRequireLockType', that
 // can be used without acquiring the lock:
@@ -104,14 +104,15 @@ BSLS_IDENT("$Id: $")
 //..
 // Next, we declare a type, 'RequiresLockType', that does require the lock.  We
 // use the 'BSLMF_NESTED_TRAIT_DECLARATION' macro to associate the type with
-// the 'abcd::RequiresLock' trait:
+// the 'abcd::RequiresLockTrait' trait:
 //..
 //  class RequiresLockType {
 //      // ...
 //
 //    public:
 //      // TRAITS
-//      BSLMF_NESTED_TRAIT_DECLARATION(RequiresLockType, abcd::RequiresLock);
+//      BSLMF_NESTED_TRAIT_DECLARATION(RequiresLockType,
+//                                     abcd::RequiresLockTrait);
 //
 //      // CREATORS
 //      RequiresLockType();
@@ -126,8 +127,8 @@ BSLS_IDENT("$Id: $")
 // parameterized on some 'ELEMENT' type.  If 'ELEMENT' requires a lock, then a
 // 'Container' of 'ELEMENT's will require a lock as well.  This can be
 // expressed using the 'BSLMF_NESTED_TRAIT_DECLARATION_IF' macro, by providing
-// 'abcd::RequiresLock<ELEMENT>::value' as the condition for associating the
-// trait with 'Container'.
+// 'abcd::RequiresLockTrait<ELEMENT>::value' as the condition for associating
+// the trait with 'Container'.
 //..
 //  template <class ELEMENT>
 //  struct Container {
@@ -135,18 +136,19 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // TRAITS
-//      BSLMF_NESTED_TRAIT_DECLARATION_IF(Container,
-//                                        abcd::RequiresLock,
-//                                        abcd::RequiresLock<ELEMENT>::value);
+//      BSLMF_NESTED_TRAIT_DECLARATION_IF(Container, abcd::RequiresLockTrait,
+//                                    abcd::RequiresLockTrait<ELEMENT>::value);
 //
 //      // ...
 //  };
 //
 //  } // close package namespace
 //..
-// Finally, code  interacting with 'xyza::DoesNotRequireLockType',
+// Finally, code interacting with 'xyza::DoesNotRequireLockType',
 // 'xyza::RequiresLockType' or 'xyza::Container' objects will be able to choose
-// the appropriate code path by checking for the 'abcd::RequiresLock' trait.
+// the appropriate code path by checking for the 'abcd::RequiresLockTrait'
+// trait.  See 'bslmf_detectnestedtrait' for an example of how generic code
+// would use such a trait.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
