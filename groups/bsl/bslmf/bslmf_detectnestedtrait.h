@@ -19,11 +19,13 @@ BSLS_IDENT("$Id: $")
 // been associated with a particular type by means of the macros provided in
 // 'bslmf_nestedtraitdeclaration'.  Such traits are referred to as "nested
 // traits" because their association with a type is embedded within the type's
-// definition.
+// definition.  **This component should be used exclusively to author new
+// user-defined traits that need to support the nested trait idiom**
 //
-///Detecting Nested Traits
-///-----------------------
-// If a nested trait, 'TRAIT', is associated with a type, 'TYPE', then
+///Mechanics
+///---------
+// If a trait, 'TRAIT', has been associated with a type, 'TYPE', using one of
+// the 'BSLMF_NESTED_TRAIT_DECLARATION*' macros then
 // 'bslmf::DetectNestedTrait<TYPE, TRAIT>' derives from 'bsl::true_type'.
 // Otherwise, 'bslmf::DetectNestedTrait<TYPE, TRAIT>' derives from
 // 'bsl::false_type'.
@@ -43,71 +45,79 @@ BSLS_IDENT("$Id: $")
 //      // ... the rest of the public interface ...
 //  };
 //
-//  }  // close namespace 'xyza'
+//  }  // close namespace xyza
 //..
 // then 'bslmf::DetectNestedTrait<TYPE, TRAIT>::value' will evaluate to 'true'
 // and 'bslmf::DetectNestedTrait<TYPE, TRAIT>::type' will be 'bsl::true_type'.
 //
-// Additionally, if a trait derives its truth value from
-// 'bslmf::DetectNestedTrait', and then that trait is associated with a type as
-// a nested trait, we will be able to directly inspect the trait.
+///Nested Trait Idiom vs. C++11 Trait Idiom
+///----------------------------------------
+// BDE supports two idioms for defining traits and associating them with types.
+// The older, legacy idiom uses 'bslmf::DetectNestedTrait' to define traits,
+// and the 'BSLMF_NESTED_TRAIT_DECLARATION*' macros to associate traits with
+// types.  This idiom is called the "nested trait" idiom.
 //
-///Detecting Nested Traits Without 'bslmf::DetectNestedTrait'
-///----------------------------------------------------------
-// A nested trait can be detected by inspecting
-// 'bslmf::DetectNestedTrait<TYPE, TRAIT>::value', but not by inspecting the
-// trait directly.  I.e., in the example shown above,
-// 'abcd::BarTrait<Foo>::value' will not by default evaluate to 'true'.
-// However, if a nested trait derives its truth value from
-// 'bslmf::DetectNestedTrait', then it **can** be detected by inspecting the
-// trait directly.  I.e., if 'abcd::BarTrait' were defined as follows,
+// The newer idiom is familiar to users of C++11 traits, and is referred to
+// here as the "C++11 trait" idiom.  In the C++11 trait idiom, a trait is a
+// template that derives its truth value from 'bsl::true_type' or
+// 'bsl::false_type', and is associated with a type by providing a
+// specialization of the trait for the associated type.
+//
+// For example, a minimal C++11 trait, 'abcd::C11Trait', could be defined as:
 //..
 //  namespace abcd {
 //
 //  template <class TYPE>
-//  struct BarTrait : bslmf::DetectNestedTrait<TYPE, BarTrait>::type {
+//  struct C11Trait : bsl::false_type {
 //  };
 //
-//  }  // close namespace 'abcd'
+//  }  // close namespace abcd
 //..
-// and associated with 'Foo' as a nested trait, then
-// 'abcd::BarTrait<Foo>::value' would evaluate to 'true'.
-//
-///Compatibility with "C++11-style" Traits
-///---------------------------------------
-// By "C++11-style" traits, we mean traits that do not derive from
-// 'bslmf::DetectNestedTrait', and are not associated with a type by means of
-// the macros provided by 'bslmf_nestedtypetrait'.
-//
-// Nested traits are "C++11-style" traits are not by default compatible.  The
-// following chart shows which combinations of nested and "C++11-style" idioms
-// for defining, associating, and detecting traits will result in successful
-// detection of a trait:
+// 'abcd::C11Trait' would then be associated with a class, 'xyza::SomeClass',
+// by specializing the trait for that class:
 //..
-//            \      Trait Structure        /
-//  Association\                           /Detection
-//  Method      \   C++11      :DNT<T,TR> / Method
-//               |-----------------------|
-//  C++11        |    OK     |    OK     |  TR<T>::value
-//               |-----------------------|
-//  C++11        | XXXXXXXXX | XXXXXXXXX |  DNT<T,TR>::value
-//               |-----------------------|
-//  Nested       | XXXXXXXXX |    OK     |  TR<T>::value
-//               |-----------------------|
-//  Nested       |    OK     |    OK     |  DNT<T,TR>::value
-//               |-----------------------|
-//..
+//  namespace xyza {
 //
-///Best Practices
-///--------------
-// Since the standard method for detecting a trait is to inspect the trait
-// directly, a new user-defined trait that might be used as a nested trait
+//  class SomeClass {
+//      // The definition of 'SomeClass' does not affect the trait mechanism.
+//
+//      // ...
+//  };
+//
+//  }  // close namespace xyza
+//
+//  namespace abcd {
+//
+//  template <>
+//  struct C11Trait<xyza::SomeClass> : bsl::true_type {
+//  };
+//
+//  }  // close namespace abcd
+//..
+// Note that the specialization is defined in the same namespace as the
+// original trait.
+//
+// Both idioms detect the association of a trait with a class in the same way:
+// by inspecting the trait's 'value' member.
+//..
+//  assert(true  == abcd::C11Trait<xyza::SomeClass>::value);
+//  assert(false == abcd::C11Trait<xyza::Foo>::value);
+//  assert(true  == abcd::BarTrait<xyza::Foo>::value);
+//  assert(false == abcd::BarTrait<xyza::SomeClass>::value);
+//..
+// The C++11 trait idiom is the standard idiom for all new code.
+//
+///Writing a User-Defined Trait
+///----------------------------
+// On systems that do not require compatibility with the legacy nested trait
+// idiom, new traits should be written according to the C++11 trait idiom.
+//
+// On systems that support the nested trait idiom, any new user-defined trait
 // should derive its truth value from 'bslmf::DetectNestedTrait' following the
-// Curiously Recurring Template Pattern.  If all user-defined traits derive
-// their true values from 'bslmf::DetectNestedTrait', and all clients test
-// traits by directly inspecting the trait's 'value' member, then all clients
-// will be able to detect all traits properly, regardless of what mechanism is
-// used to associate a particular type with a particular trait.
+// Curiously Recurring Template Pattern.  This will allow the trait to be
+// detected by directly inspecting the trait's 'value' member, regardless of
+// whether the trait is associated with a type through the nested trait idiom
+// or through the C++11 trait idiom.
 //
 // Therefore, the simplest maximally-compatible trait would look like this:
 //..
@@ -124,10 +134,9 @@ BSLS_IDENT("$Id: $")
 //                          || SomeOtherTrait<TYPE>::value> {
 //  };
 //..
-// These are the only compatible uses of
+// These are the only recommended uses of
 // 'bslmf::DetectNestedTrait<TYPE, TRAIT>::type' and
-// 'bslmf::DetectNestedTrait<TYPE, TRAIT>::value' in a system that also uses
-// C++11 trait idioms.
+// 'bslmf::DetectNestedTrait<TYPE, TRAIT>::value'.
 //
 ///Usage
 ///-----
