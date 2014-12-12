@@ -18,15 +18,15 @@
 //
 // ----------------------------------------------------------------------------
 // TESTING INSTANTIATIONS AND BASIC FUNCTIONALITY
-// [ 1] reference_wrapper(T&)
-// [ 1] reference_wrapper(const reference_wrapper<T>&)
-// [ 1] reference_wrapper<T>& operator=(reference_wrapper<T>&)
-// [ 1] operator T&() const
-// [ 1] T& get() const
-// [ 1] reference_wrapper<T> cref(const T&)
-// [ 1] reference_wrapper<T> cref(reference_wrapper<T>)
-// [ 1] reference_wrapper<T> ref(T&)
-// [ 1] reference_wrapper<T> ref(reference_wrapper<T>)
+// [ 1] reference_wrapper(T&);
+// [ 1] reference_wrapper(const reference_wrapper<T>&);
+// [ 1] reference_wrapper<T>& operator=(reference_wrapper<T>&);
+// [ 1] operator T&() const;
+// [ 1] T& get() const;
+// [ 1] reference_wrapper<T> cref(const T&);
+// [ 1] reference_wrapper<T> cref(reference_wrapper<T>);
+// [ 1] reference_wrapper<T> ref(T&);
+// [ 1] reference_wrapper<T> ref(reference_wrapper<T>);
 // ----------------------------------------------------------------------------
 // [ 1] BASIC TESTS
 // [ 2] USAGE EXAMPLE
@@ -92,10 +92,10 @@ static bool veryVeryVeryVerbose;
 //                               TEST FACILITIES
 // ----------------------------------------------------------------------------
 
-struct dummy {};
-void use(dummy&) {}
-void const_use(const dummy&) {}
-    // these functions are used solely to verify that a 'reference_wrapper' can
+struct Dummy {};
+void use(Dummy&) {}
+void constUse(const Dummy&) {}
+    // These functions are used solely to verify that a 'reference_wrapper' can
     // be passed to a function expecting an actual reference.
 
 // ============================================================================
@@ -119,15 +119,15 @@ namespace TEST_CASE_USAGE {
 // First, let us define the large-object type:
 //..
     struct Canary {
-        int d_values[1000];
-
-        explicit Canary(int values);
+        static const int s_size = 1000;
+        Canary *d_values[s_size];
+        Canary();
     };
 //..
-    Canary::Canary(int values)
+    Canary::Canary()
     {
-         for (int i = 0; i < 1000; ++i) {
-             d_values[i] = values;
+         for (int i = 0; i < s_size; ++i) {
+             d_values[i] = this;
          }
     }
 //..
@@ -190,23 +190,23 @@ int main(int argc, char *argv[])
 
         using namespace TEST_CASE_USAGE;
 
-        //..
-        // We can call 'sortTwoItems' on wrappers representing 'Canary' objects
-        // without need to move actual, large 'Canary' objects about. In the
-        // call to 'sortTwoItems()', below, the 'operator=' used in it is that
-        // of 'bsl::reference_wrapper<Canary>', but the 'operator<' used is the
-        // one declared for 'Canary&' arguments.  All of the conversions needed
-        // are applied implicitly.
-        //..
-            Canary two(2);
-            Canary one(1);
-            bsl::reference_wrapper<Canary> canaryA = bsl::ref(two);
-            bsl::reference_wrapper<Canary> canaryB = bsl::ref(one);
-            sortTwoItems(canaryA, canaryB);
+//..
+// We can call 'sortTwoItems' on wrappers representing 'Canary' objects
+// without need to move actual, large 'Canary' objects about. In the call to
+// 'sortTwoItems', below, the 'operator=' used in it is that of
+// 'bsl::reference_wrapper<Canary>', but the 'operator<' used is the one
+// declared for 'Canary&' arguments.  All of the conversions needed are
+// applied implicitly:
+//..
+    Canary canaries[2];
+    bsl::reference_wrapper<Canary> canaryA = bsl::ref(canaries[1]);
+    bsl::reference_wrapper<Canary> canaryB = bsl::ref(canaries[0]);
+    sortTwoItems(canaryA, canaryB);
+//
+    ASSERT(&canaryA.get() == canaries);
+    ASSERT(&canaryB.get() == canaries + 1);
+//..
 
-            ASSERT(&canaryA.get() == &one);
-            ASSERT(&canaryB.get() == &two);
-        //..
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -225,36 +225,38 @@ int main(int argc, char *argv[])
         //:   values.
         //
         // Plan:
-        //: 1 Define a dummy type (C-1..3)
-        //: 2 Wrap the dummy type using each available method (C-1..3)
-        //: 3 Use the wrappers' explicit and implicit accessors (C-1..3)
+        //: 1 Define a dummy type.
+        //:
+        //: 2 Wrap the dummy type using each available method.
+        //:
+        //: 3 Use the wrappers' explicit and implicit accessors. (C-1..3)
         //
         // Testing:
-        //   reference_wrapper(T&)
-        //   reference_wrapper(const reference_wrapper<T>&)
-        //   reference_wrapper<T>& operator=(reference_wrapper<T>&)
-        //   operator T&() const
-        //   T& get() const
-        //   reference_wrapper<T> cref(const T&)
-        //   reference_wrapper<T> cref(reference_wrapper<T>)
-        //   reference_wrapper<T> ref(T&)
-        //   reference_wrapper<T> ref(reference_wrapper<T>)
+        //   reference_wrapper(T&);
+        //   reference_wrapper(const reference_wrapper<T>&);
+        //   reference_wrapper<T>& operator=(reference_wrapper<T>&);
+        //   operator T&() const;
+        //   T& get() const;
+        //   reference_wrapper<T> cref(const T&);
+        //   reference_wrapper<T> cref(reference_wrapper<T>);
+        //   reference_wrapper<T> ref(T&);
+        //   reference_wrapper<T> ref(reference_wrapper<T>);
         // --------------------------------------------------------------------
 
         if (verbose) {
             printf("\nBASIC TESTS"
                    "\n===========\n");
         }
-        dummy a;
-        const dummy b = {};
+        Dummy a;
+        const Dummy b = {};
 
-        bsl::reference_wrapper<dummy> rwa(a);
-        bsl::reference_wrapper<const dummy> rwca(a);
-        bsl::reference_wrapper<const dummy> rwcb(b);
+        bsl::reference_wrapper<Dummy> rwa(a);
+        bsl::reference_wrapper<const Dummy> rwca(a);
+        bsl::reference_wrapper<const Dummy> rwcb(b);
 
-        bsl::reference_wrapper<dummy> copyrwa(rwa);
-        bsl::reference_wrapper<const dummy> copyrwca(rwca);
-        bsl::reference_wrapper<const dummy> copyrwcb(rwcb);
+        bsl::reference_wrapper<Dummy> copyrwa(rwa);
+        bsl::reference_wrapper<const Dummy> copyrwca(rwca);
+        bsl::reference_wrapper<const Dummy> copyrwcb(rwcb);
 
         copyrwa = a;
         copyrwca = a;
@@ -264,31 +266,31 @@ int main(int argc, char *argv[])
         copyrwca = rwca;
         copyrwcb = rwcb;
 
-        dummy& rax = rwa;
-        const dummy& rcax = rwca;
-        const dummy& rcbx = rwcb;
+        Dummy& rax = rwa;
+        const Dummy& rcax = rwca;
+        const Dummy& rcbx = rwcb;
 
-        dummy& ray = bsl::ref(a);
-        const dummy& rcay = bsl::cref(a);
-        const dummy& rcby = bsl::cref(b);
+        Dummy& ray = bsl::ref(a);
+        const Dummy& rcay = bsl::cref(a);
+        const Dummy& rcby = bsl::cref(b);
 
-        bsl::reference_wrapper<dummy> copyrwaz(bsl::ref(rwa));
-        bsl::reference_wrapper<const dummy> copyrwcaz(bsl::ref(rwca));
-        bsl::reference_wrapper<const dummy> copyrwcbz(bsl::ref(rwcb));
+        bsl::reference_wrapper<Dummy> copyrwaz(bsl::ref(rwa));
+        bsl::reference_wrapper<const Dummy> copyrwcaz(bsl::ref(rwca));
+        bsl::reference_wrapper<const Dummy> copyrwcbz(bsl::ref(rwcb));
 
-        bsl::reference_wrapper<const dummy> copyrwcazb(bsl::cref(rwca));
-        bsl::reference_wrapper<const dummy> copyrwcbzc(bsl::cref(rwcb));
+        bsl::reference_wrapper<const Dummy> copyrwcazb(bsl::cref(rwca));
+        bsl::reference_wrapper<const Dummy> copyrwcbzc(bsl::cref(rwcb));
 
         use(rwa);
-        const_use(rwca);
-        const_use(rwcb);
+        constUse(rwca);
+        constUse(rwcb);
 
-        dummy c;
-        bsl::reference_wrapper<dummy> assrwaz(bsl::ref(rwa));
+        Dummy c;
+        bsl::reference_wrapper<Dummy> assrwaz(bsl::ref(rwa));
         assrwaz = a;
         assrwaz = c;
         assrwaz = rwa;
-        bsl::reference_wrapper<const dummy> assrwcaz(bsl::ref(rwca));
+        bsl::reference_wrapper<const Dummy> assrwcaz(bsl::ref(rwca));
         assrwcaz = b;
         assrwcaz = c;
         assrwcaz = rwca;
