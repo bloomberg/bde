@@ -75,7 +75,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // We can call 'sortTwoItems' on wrappers representing 'Canary' objects
-// without need to move actual, large 'Canary' objects about. In the call to
+// without need to move actual, large 'Canary' objects about.  In the call to
 // 'sortTwoItems', below, the 'operator=' used in it is that of
 // 'bsl::reference_wrapper<Canary>', but the 'operator<' used is the one
 // declared for 'Canary&' arguments.  All of the conversions needed are

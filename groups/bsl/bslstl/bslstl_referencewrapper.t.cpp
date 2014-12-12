@@ -113,7 +113,7 @@ namespace TEST_CASE_USAGE {
 // Let us suppose that we wish to handle objects that will be passed to a
 // comparison function expecting references to the objects.  Let us suppose
 // further that these objects are large enough that we would not wish to move
-// them around bodily as they are sorted. Note that plausible examples of uses
+// them around bodily as they are sorted.  Note that plausible examples of uses
 // for this component are limited in freestanding C++98.
 //
 // First, let us define the large-object type:
@@ -170,17 +170,19 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
-        //   Extracted from bslstl_referencewrapper.h
+        //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The example in the header builds and runs as claimed.
+        //: 1 The usage example in the component header file compiles, links,
+        //    and runs as shown.
         //
         // Plan:
-        //: 1 Reformat the comment to runnable code, as prescribed.
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
-        //
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -192,7 +194,7 @@ int main(int argc, char *argv[])
 
 //..
 // We can call 'sortTwoItems' on wrappers representing 'Canary' objects
-// without need to move actual, large 'Canary' objects about. In the call to
+// without need to move actual, large 'Canary' objects about.  In the call to
 // 'sortTwoItems', below, the 'operator=' used in it is that of
 // 'bsl::reference_wrapper<Canary>', but the 'operator<' used is the one
 // declared for 'Canary&' arguments.  All of the conversions needed are
@@ -229,7 +231,7 @@ int main(int argc, char *argv[])
         //:
         //: 2 Wrap the dummy type using each available method.
         //:
-        //: 3 Use the wrappers' explicit and implicit accessors. (C-1..3)
+        //: 3 Use the wrappers' explicit and implicit accessors.  (C-1..3)
         //
         // Testing:
         //   reference_wrapper(T&);
