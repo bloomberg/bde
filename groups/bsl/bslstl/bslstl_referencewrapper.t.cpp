@@ -20,7 +20,7 @@
 // TESTING INSTANTIATIONS AND BASIC FUNCTIONALITY
 // [ 1] reference_wrapper(T&);
 // [ 1] reference_wrapper(const reference_wrapper<T>&)
-// [ 1] reference_wrapper<T>& operator=(reference_wrapper<T>&);
+// [ 1] reference_wrapper<T>& operator=(reference_wrapper<T>&)
 // [ 1] operator T&() const;
 // [ 1] T& get() const;
 // [ 1] reference_wrapper<T> cref(const T&)
@@ -230,11 +230,11 @@ int main(int argc, char *argv[])
         //: 3 Use the wrappers' explicit and implicit accessors (C-1..3)
         //
         // Testing:
-        //   reference_wrapper(T&);
-        //   reference_wrapper(consts reference_wrapper<T>&)
-        //   reference_wrapper<T>& operator=(reference_wrapper<T>&);
-        //   operator T&() const;
-        //   T& get() const;
+        //   reference_wrapper(T&)
+        //   reference_wrapper(const reference_wrapper<T>&)
+        //   reference_wrapper<T>& operator=(reference_wrapper<T>&)
+        //   operator T&() const
+        //   T& get() const
         //   reference_wrapper<T> cref(const T&)
         //   reference_wrapper<T> cref(reference_wrapper<T>)
         //   reference_wrapper<T> ref(T&)
