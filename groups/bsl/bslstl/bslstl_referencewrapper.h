@@ -218,7 +218,7 @@ inline
 reference_wrapper<const REFERENCED_TYPE> cref(
                                    reference_wrapper<REFERENCED_TYPE> original)
 {
-    return reference_wrapper<const REFERENCED_TYPE>(*original.get());
+    return cref(original.get());
 }
 
 template <typename REFERENCED_TYPE>
@@ -233,7 +233,7 @@ inline
 reference_wrapper<REFERENCED_TYPE> ref(
                                    reference_wrapper<REFERENCED_TYPE> original)
 {
-    return reference_wrapper<REFERENCED_TYPE>(original);
+    return ref(original.get());
 }
 
 }  // close namespace bsl

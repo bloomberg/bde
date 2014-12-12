@@ -276,9 +276,23 @@ int main(int argc, char *argv[])
         bsl::reference_wrapper<const dummy> copyrwcaz(bsl::ref(rwca));
         bsl::reference_wrapper<const dummy> copyrwcbz(bsl::ref(rwcb));
 
+        bsl::reference_wrapper<const dummy> copyrwcazb(bsl::cref(rwca));
+        bsl::reference_wrapper<const dummy> copyrwcbzc(bsl::cref(rwcb));
+
         use(rwa);
         const_use(rwca);
         const_use(rwcb);
+
+        dummy c;
+        bsl::reference_wrapper<dummy> assrwaz(bsl::ref(rwa));
+        assrwaz = a;
+        assrwaz = c;
+        assrwaz = rwa;
+        bsl::reference_wrapper<const dummy> assrwcaz(bsl::ref(rwca));
+        assrwcaz = b;
+        assrwcaz = c;
+        assrwcaz = rwca;
+        assrwcaz = rwcb;
 
         ASSERT(&copyrwa.get() == &a);
         ASSERT(&copyrwca.get() == &a);
@@ -288,6 +302,7 @@ int main(int argc, char *argv[])
         ASSERT(&copyrwcbz.get() == &b);
 
         (void)rax; (void)rcax; (void)rcbx; (void)ray; (void)rcay; (void)rcby;
+        (void)copyrwcazb; (void)copyrwcbzc;
 
       } break;
       default: {
