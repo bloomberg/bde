@@ -18,11 +18,11 @@
 //
 // ----------------------------------------------------------------------------
 // TESTING INSTANTIATIONS AND BASIC FUNCTIONALITY
-// [ 1] reference_wrapper(T&);
+// [ 1] reference_wrapper(T&)
 // [ 1] reference_wrapper(const reference_wrapper<T>&)
 // [ 1] reference_wrapper<T>& operator=(reference_wrapper<T>&)
-// [ 1] operator T&() const;
-// [ 1] T& get() const;
+// [ 1] operator T&() const
+// [ 1] T& get() const
 // [ 1] reference_wrapper<T> cref(const T&)
 // [ 1] reference_wrapper<T> cref(reference_wrapper<T>)
 // [ 1] reference_wrapper<T> ref(T&)
