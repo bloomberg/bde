@@ -147,18 +147,12 @@ inline bool operator==(Class a, Class b)
 }
 
 typedef void      F ();
-typedef void ( & RF)();
 typedef void (*  PF)();
-typedef void (*&RPF)();
 
 typedef void    Fi  (int);
-typedef void (&RFi) (int);
-typedef void (*PFi) (int);
 typedef void    FRi (int&);
-typedef void (&RFRi)(int&);
 
 typedef char    A [5];
-typedef char (&RA)[5];
 typedef char   AU [];
 
 typedef int Struct::*Pm;
@@ -244,21 +238,22 @@ public:
 template <class FUNC> struct FuncMatch;
 
 template <class FUNC>
-struct FuncMatch<FUNC*> {
+struct FuncMatch {
     // Function object type that can be invoked with a function, function
-    // pointer, or function reference.  Specialzation for pointer type.
+    // pointer, or function reference.
 
-    int operator()(FUNC*) const { return k_FUNC_POINTER; }
-        // Match a function or function pointer.
-};
-
-template <class FUNC>
-struct FuncMatch<FUNC&> {
-    // Function object type that can be invoked with a function, function
-    // pointer, or function reference.  Specialization for reference type.
+    struct MatchFuncPtr {
+        // Class that is convertible from 'FUNC*'
+        MatchFuncPtr(FUNC*) { }
+    };
 
     int operator()(FUNC&) const { return k_FUNC_REFERENCE; }
-        // Match a function reference.
+        // Match a function or a function reference.
+
+    int operator()(MatchFuncPtr) const { return k_FUNC_POINTER; }
+        // Match function pointer.  This overload requires a user-defined
+        // conversion and this is less prefered than the previous one for
+        // arguments that match both.
 };
 
 template <class TP, class INVOCABLE>
@@ -765,10 +760,9 @@ int main(int argc, char *argv[])
 #endif
 
         if (veryVerbose) cout << "function types" << endl;
-        FuncMatch<F*> fpm;
-        ASSERT(testEndToEnd<F*>(f_p, fpm)  == k_FUNC_POINTER);
-        FuncMatch<F&> frm;
-        ASSERT(testEndToEnd<F&>(func, frm) == k_FUNC_REFERENCE);
+        FuncMatch<F> fm;
+        ASSERT(testEndToEnd<F*>(f_p,  fm) == k_FUNC_POINTER);
+        ASSERT(testEndToEnd<F&>(func, fm) == k_FUNC_REFERENCE);
 
       } break;
 
@@ -1281,16 +1275,19 @@ int main(int argc, char *argv[])
         //:   enumerator indicating whether 'v' is an lvalue, const lvalue,
         //:   volatile lvalue, const volatile lvalue, rvalue, const rvalue,
         //:   volatile rvalue, or const volatile rvalue.
-        //: 2 For 'cam' of type 'CvArrayMatch<T>', and 'a' of type array-of-T,
+        //: 2 For 'cam' of type 'CvArrayMatch<T>' and 'a' of type array-of-T,
         //:   'cam(a)' returns the number of elements of 'a' or '0' if 'a' has
         //:   unknown bounds.
-        //: 3 For 'cam' of type 'CvArrayMatch<T>', and 'p' of type
+        //: 3 For 'cam' of type 'CvArrayMatch<T>' and 'p' of type
         //:   pointer-to-T, 'cam(p)' returns 0.
         //: 4 Concerns 2 and 3 apply regardless of the cv qualification of 'a'
         //:   or 'p'.
-        //: 5 For 'cam' of type 'CvArrayMatch<T>', and 'a' of type
+        //: 5 For 'cam' of type 'CvArrayMatch<T>' and 'a' of type
         //:   rvalue-reference-to-array-of-T, 'CvArrayMatch<T>' returns the
         //:   same value as if 'a' were not an rvalue reference.
+        //: 6 For 'fm' of type 'FuncMatch<F>', 'fm(f)' returns
+        //:   'k_FUNC_REFERENCE' if 'f' is of type 'F' or 'F&' and
+        //:   'k_FUNC_POINTER' if 'f' is of type 'F*'.
         //
         // Plan:   
         //: 1 For concern 1, create a variable, 'crm' of type
@@ -1308,15 +1305,22 @@ int main(int argc, char *argv[])
         //:   combination.
         //: 4 For concern 5 (C++11 or later), repeat steps 2 and 3 using
         //:   'cam(std::move(v))'.
+        //: 6 For concern 6, create a variable, 'fm', of type
+        //:   'FuncMatch<F>'. Call 'fm(f)' for arguments 'f' of type 'void()',
+        //:   'void(&)()', and 'void(*)()', and verify that the correct
+        //:   enumeration value is returned.
         //
         // Testing:
         //      CvRefMatch<T>::operator()()
         //      CvArrayMatch<T>::operator()()
+        //      FuncMatch<F>::operator()()
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING TEST INFRASTRUCTURE"
                           << "\n==========================="
                           << endl;
+
+        if (veryVerbose) cout << "CvRefMatch" << endl;
 
         int i                  = 0;
         const int ci           = 1;
@@ -1343,6 +1347,8 @@ int main(int argc, char *argv[])
         ASSERT(k_CONST_LVALUE            == crm(5));
         ASSERT(k_CONST_LVALUE            == crm(toRvalue(rvi)));
 #endif
+
+        if (veryVerbose) cout << "CvArrayMatch" << endl;
 
         int                  a[1]   = { 1 };
         const int            ca[2]  = { 1, 2 };
@@ -1374,6 +1380,14 @@ int main(int argc, char *argv[])
         ASSERT(0 == camv ( vp));
         ASSERT(0 == camcv(cvp));
 
+        if (veryVerbose) cout << "FuncMatch" << endl;
+        FuncMatch<F> fm;
+        F& func_r = func;
+        F* func_p = func;
+        ASSERT(k_FUNC_REFERENCE == fm(func));
+        ASSERT(k_FUNC_REFERENCE == fm(func_r));
+        ASSERT(k_FUNC_POINTER   == fm(&func));
+        ASSERT(k_FUNC_POINTER   == fm(func_p));
       } break;
 
       default: {
