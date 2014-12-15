@@ -97,12 +97,12 @@ BSLS_IDENT("$Id: $")
 BSL_OVERRIDES_STD mode"
 #endif
 
-#ifndef INCLUDED_BSLS_UTIL
-#include <bsls_util.h>  // for BloombergLP::bsls::Util::addressOf
-#endif
-
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
+#endif
+
+#ifndef INCLUDED_BSLS_UTIL
+#include <bsls_util.h>  // for BloombergLP::bsls::Util::addressOf
 #endif
 
 namespace bsl {
