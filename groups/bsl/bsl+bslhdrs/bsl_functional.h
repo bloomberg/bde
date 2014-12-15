@@ -72,10 +72,9 @@ namespace bsl
 
 #ifndef BSL_OVERRIDES_STD
 
-
 #include <bslstl_equalto.h>
 #include <bslstl_hash.h>
-#endif
+#include <bslstl_referencewrapper.h
 
 #endif
 
