@@ -247,23 +247,6 @@ void Printer_Helper::printRaw(bsl::ostream&              stream,
     }
 }
 
-void Printer_Helper::printRaw(bsl::ostream&              stream,
-                              const bslstl::StringRef&   data,
-                              int                        ,
-                              int                        spacesPerLevel,
-                              bslmf::SelectTraitCase<>)
-{
-    // Use the defined 'operator<<' for 'bslstl::StringRef' because it does
-    // not define a 'print' method and also does not define the
-    // 'bslalg::HasStlIterators' type trait due to only having defined a
-    // 'const_iterator' interface.
-
-    stream << '"' << data << '"';
-    if (spacesPerLevel >= 0) {
-        stream << '\n';
-    }
-}
-
 }  // close package namespace
 }  // close enterprise namespace
 
