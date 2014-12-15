@@ -94,7 +94,7 @@ static bool veryVeryVeryVerbose;
 
 struct Dummy {
     void operator&();
-    const Dummy *local_address_of() const { return this; }
+    const Dummy *localAddressOf() const { return this; }
 };
 void use(Dummy&) {}
 void constUse(const Dummy&) {}
@@ -301,14 +301,23 @@ int main(int argc, char *argv[])
         assrwcaz = rwca;
         assrwcaz = rwcb;
 
-        ASSERT(copyrwa.get().local_address_of() == a.local_address_of());
-        ASSERT(copyrwca.get().local_address_of() == a.local_address_of());
-        ASSERT(copyrwcb.get().local_address_of() == b.local_address_of());
-        ASSERT(copyrwaz.get().local_address_of() == a.local_address_of());
-        ASSERT(copyrwcaz.get().local_address_of() == a.local_address_of());
-        ASSERT(copyrwcbz.get().local_address_of() == b.local_address_of());
+        ASSERT(copyrwa.get().localAddressOf() == a.localAddressOf());
+        ASSERT(copyrwca.get().localAddressOf() == a.localAddressOf());
+        ASSERT(copyrwcb.get().localAddressOf() == b.localAddressOf());
+        ASSERT(copyrwaz.get().localAddressOf() == a.localAddressOf());
+        ASSERT(copyrwcaz.get().localAddressOf() == a.localAddressOf());
+        ASSERT(copyrwcbz.get().localAddressOf() == b.localAddressOf());
 
-        void((rax, rcax, rcbx, ray, rcay, rcby, copyrwcazb, copyrwcbzc));
+            // These do not test much, but they seem preferable to "void(e)":
+
+        ASSERT(rax.localAddressOf() == a.localAddressOf());
+        ASSERT(rcax.localAddressOf() == a.localAddressOf());
+        ASSERT(rcbx.localAddressOf() == b.localAddressOf());
+        ASSERT(ray.localAddressOf() == a.localAddressOf());
+        ASSERT(rcay.localAddressOf() == a.localAddressOf());
+        ASSERT(rcby.localAddressOf() == b.localAddressOf());
+        ASSERT(copyrwcazb.get().localAddressOf() == a.localAddressOf());
+        ASSERT(copyrwcbzc.get().localAddressOf() == b.localAddressOf());
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

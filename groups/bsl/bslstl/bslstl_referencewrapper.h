@@ -97,6 +97,10 @@ BSLS_IDENT("$Id: $")
 BSL_OVERRIDES_STD mode"
 #endif
 
+#ifndef INCLUDED_BSLS_UTIL
+#include <bsls_util.h>  // for BloombergLP::bsls::Util::addressOf
+#endif
+
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif
@@ -179,8 +183,7 @@ reference_wrapper<T> ref(reference_wrapper<T> original);
 template <typename T>
 inline
 reference_wrapper<T>::reference_wrapper(T& object)
-: d_represented_p(const_cast<T*>(reinterpret_cast<const T*>(
-                                       &reinterpret_cast<const char&>(object))))
+  : d_represented_p(BloombergLP::bsls::Util::addressOf(object))
 {
 }
 
