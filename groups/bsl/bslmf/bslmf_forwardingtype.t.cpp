@@ -5,6 +5,7 @@
 #include <bslmf_issame.h>          // for testing only
 
 #include <bsls_platform.h>
+#include <bsls_bsltestutil.h>
 
 #include <stdlib.h>    // atoi()
 #include <iostream>
@@ -13,29 +14,39 @@
 using namespace BloombergLP;
 using namespace std;
 
-//=============================================================================
+// Suppress messages about all-uppercase type names.  Test drivers are rife
+// with short names like 'F' or 'PF' or 'T' or 'T1'.
+
+// BDE_VERIFY pragma: -UC01
+
+// ============================================================================
 //                                TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                Overview
 //                                --------
 // This component provides a meta-function.  We simply verify that it returns
-// the proper type for a list of suitably chosen arguments.  It also provides
-// a utility function for which we verify that it returns the correct type and
-// value.  Finally, we perform and end-to-end test that exercises the intended
+// the proper type for a list of suitably chosen arguments.  It also provides a
+// utility function for which we verify that it returns the correct type and
+// value.  Finally, we perform an end-to-end test that exercises the intended
 // use of the component in order to verify that it is actually useful as
 // specified.
-//-----------------------------------------------------------------------------
-// [ 1] bslmf::ForwardingType<TYPE>::Type
-// [ 2] bslmf::ForwardingTypeUtil<TYPE>::TargetType
-// [ 2] bslmf::ForwardingTypeUtil<TYPE>::forwardToTarget(v)
-// [ 3] END-TO-END OVERLOADING
-// [ 4] USAGE EXAMPLES
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// [ 1] Test infrastructure
+// [ 2] bslmf::ForwardingType<TYPE>::Type
+// [ 3] bslmf::ForwardingTypeUtil<TYPE>::TargetType
+// [ 3] bslmf::ForwardingTypeUtil<TYPE>::forwardToTarget(v)
+// [ 4] END-TO-END OVERLOADING
+// [ 5] USAGE EXAMPLES
+// ----------------------------------------------------------------------------
+
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
+
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
+static void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
@@ -44,21 +55,28 @@ static void aSsErT(int c, const char *s, int i) {
 }
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
-
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-        << J << "\n"; aSsErT(1, #X, __LINE__); } }
-//=============================================================================
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_() cout << '\t' << flush;           // Print tab w/o linefeed.
-
 #define ASSERT_SAME(X, Y) ASSERT((bsl::is_same<X, Y>::value))
+
+// ============================================================================
+//                    STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
+
+#define C_(X)   << #X << ": " << X << '\t'
+#define A_(X,S) { if (!(X)) { cout S << endl; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT(I,X)            A_(X,C_(I))
+#define LOOP2_ASSERT(I,J,X)         A_(X,C_(I)C_(J))
+#define LOOP3_ASSERT(I,J,K,X)       A_(X,C_(I)C_(J)C_(K))
+#define LOOP4_ASSERT(I,J,K,L,X)     A_(X,C_(I)C_(J)C_(K)C_(L))
+#define LOOP5_ASSERT(I,J,K,L,M,X)   A_(X,C_(I)C_(J)C_(K)C_(L)C_(M))
+#define LOOP6_ASSERT(I,J,K,L,M,N,X) A_(X,C_(I)C_(J)C_(K)C_(L)C_(M)C_(N))
+
+//=============================================================================
+
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPES/OBJECTS FOR TESTING
@@ -68,66 +86,86 @@ enum   Enum   { e_VAL1 = 1, e_VAL2 };
 
 struct Struct {
     int d_data;
-    Struct(int v) : d_data(v) { }
+
+    explicit Struct(int v) : d_data(v) { }
+        // Construct from the specified 'v'.
+
     Struct(Struct& other) : d_data(other.d_data) { }
     Struct(const Struct& other) : d_data(other.d_data) { }
     Struct(volatile Struct& other) : d_data(other.d_data) { }
     Struct(const volatile Struct& other) : d_data(other.d_data) { }
+        // Copy-construct from the specified 'other'.
 };
 
-inline bool operator==(Struct a, Struct b) {
+inline bool operator==(Struct a, Struct b)
+    // Return true if the specified 'a' and 'b' objects have same data member
+    // value.
+{
     return a.d_data == b.d_data;
 }
 
 union  Union  {
     int d_data;
-    Union(int v) : d_data(v) { }
+
+    explicit Union(int v) : d_data(v) { }
+        // Construct from the specified 'v'.
+
     Union(Union& other) : d_data(other.d_data) { }
     Union(const Union& other) : d_data(other.d_data) { }
     Union(volatile Union& other) : d_data(other.d_data) { }
     Union(const volatile Union& other) : d_data(other.d_data) { }
+        // Copy-construct from the specified 'other'.
 };
 
-inline bool operator==(Union a, Union b) {
+inline bool operator==(Union a, Union b)
+    // Return true if the specified 'a' and 'b' objects have the same data
+    // member value.
+{
     return a.d_data == b.d_data;
 }
 
 class  Class  {
     int d_data;
 public:
-    Class(int v) : d_data(v) { }
+    explicit Class(int v) : d_data(v) { }
+        // Construct from the specified 'v'.
+
     Class(Class& other) : d_data(other.d_data) { }
     Class(const Class& other) : d_data(other.d_data) { }
     Class(volatile Class& other) : d_data(other.d_data) { }
     Class(const volatile Class& other) : d_data(other.d_data) { }
+        // Copy-construct from the specified 'other'.
+
     int value() const { return d_data; }
+        // Return the value of this object.
 };
 
-inline bool operator==(Class a, Class b) {
+inline bool operator==(Class a, Class b)
+    // Return true if the specified 'a' and 'b' have the same 'value()'.
+{
     return a.value() == b.value();
 }
 
 typedef void      F ();
-typedef void ( & RF)();
 typedef void (*  PF)();
-typedef void (*&RPF)();
 
 typedef void    Fi  (int);
-typedef void (&RFi) (int);
-typedef void (*PFi) (int);
 typedef void    FRi (int&);
-typedef void (&RFRi)(int&);
 
 typedef char    A [5];
-typedef char (&RA)[5];
 typedef char   AU [];
 
 typedef int Struct::*Pm;
 typedef int (Class::*Pmf)() const;
 
 void func() { }
+    // Noop function that takes no arguments and returns nothing.
+
 void funcI(int) { }
+    // Noop function that takes one by-value argument and returns nothing.
+
 void funcRi(int&) { }
+    // Noop function that takes one by-reference argument and returns nothing.
 
 enum {
     k_LVALUE,
@@ -137,55 +175,105 @@ enum {
     k_RVALUE,
     k_CONST_RVALUE,
     k_VOLATILE_RVALUE,
-    k_CONST_VOLATILE_RVALUE
+    k_CONST_VOLATILE_RVALUE,
+    k_FUNC_POINTER,
+    k_FUNC_REFERENCE
 };
 
-template <class T>
-T toRvalue(T v)
-    // Return a copy of the specified 'v' object.  If 'T' has a cv-qualifier,
+template <class TP>
+TP toRvalue(TP v)
+    // Return a copy of the specified 'v' object.  If 'TP' has a cv-qualifier,
     // then the compiler might discard it in the return type.  For testing
-    // purposes, what is important is that we get exactly what we would
-    // get when returning an object of type 'T'.
+    // purposes, what is important is that we get exactly what we would get
+    // when returning an object of type 'TP'.
 {
     return v;
 }
 
-template <class T>
+template <class TP>
 struct CvRefMatch {
-    int operator()(T&) const { return k_LVALUE; }
-    int operator()(const T&) const { return k_CONST_LVALUE; }
-    int operator()(volatile T&) const { return k_VOLATILE_LVALUE; }
-    int operator()(const volatile T&) const { return k_CONST_VOLATILE_LVALUE; }
+    // Function object type that can be invoked with a cv-qualified reference
+    // to an object of the specified 'TP' parameter type.
+
+    int operator()(TP&) const { return k_LVALUE; }
+    int operator()(const TP&) const { return k_CONST_LVALUE; }
+    int operator()(volatile TP&) const { return k_VOLATILE_LVALUE; }
+    int operator()(const volatile TP&) const { return k_CONST_VOLATILE_LVALUE;}
+        // Invoke with an l-value reference.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-    int operator()(T&&) const { return k_RVALUE; }
-    int operator()(const T&&) const { return k_CONST_RVALUE; }
-    int operator()(volatile T&&) const { return k_VOLATILE_RVALUE; }
-    int operator()(const volatile T&&) const
+    int operator()(TP&&) const { return k_RVALUE; }
+    int operator()(const TP&&) const { return k_CONST_RVALUE; }
+    int operator()(volatile TP&&) const { return k_VOLATILE_RVALUE; }
+    int operator()(const volatile TP&&) const
+        // Invoke with an r-value reference.
         { return k_CONST_VOLATILE_RVALUE; }
 #endif
 };
 
-    template <class T>
-struct CvArrayMatch {
+template <class TP>
+class CvArrayMatch {
+    // Function object type that can be invoked with an array of the specified
+    // 'TP' parameter type.
 
-    template <std::size_t SZ>
-    int operator()(T (&)[SZ]) const { return int(SZ); }
+    template <size_t k_SZ>
+    int match(TP (&)[k_SZ], int) const { return int(k_SZ); }
+        // Matches an array of known size.
 
-    int operator()(T *const&) const { return 0; }
+    int match(TP [], ...) const { return 0; }
+        // Matches an array of unknown size.
+
+public:
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    template <class U>
+    int operator()(U&& u) const { return match(u, 0); }
+        // Matches both lvalue and rvalue arrays.
+#else
+    template <class U>
+    int operator()(U& u) const { return match(u, 0); }
+#endif
+}; 
+
+template <class FUNC> struct FuncMatch;
+
+template <class FUNC>
+struct FuncMatch {
+    // Function object type that can be invoked with a function, function
+    // pointer, or function reference.
+
+    struct MatchFuncPtr {
+        // Class that is convertible from 'FUNC*'
+        MatchFuncPtr(FUNC*) { }
+    };
+
+    int operator()(FUNC&) const { return k_FUNC_REFERENCE; }
+        // Match a function or a function reference.
+
+    int operator()(MatchFuncPtr) const { return k_FUNC_POINTER; }
+        // Match function pointer.  This overload requires a user-defined
+        // conversion and this is less prefered than the previous one for
+        // arguments that match both.
 };
 
-template <class T, class INVOCABLE>
-int endToEndIntermediary(typename bslmf::ForwardingType<T>::Type arg,
+template <class TP, class INVOCABLE>
+int endToEndIntermediary(typename bslmf::ForwardingType<TP>::Type arg,
                          const INVOCABLE& target)
+    // Forward the specified 'arg' to the specified 'target'.  This function is
+    // called in the middle of a chain of function calls that forward to the
+    // eventual 'target' invocable object.
 {
-    return target(bslmf::ForwardingTypeUtil<T>::forwardToTarget(arg));
+    return target(bslmf::ForwardingTypeUtil<TP>::forwardToTarget(arg));
 }
 
-template <class T, class INVOCABLE>
-int testEndToEnd(T arg, const INVOCABLE& target)
+template <class TP, class INVOCABLE>
+int testEndToEnd(TP arg, const INVOCABLE& target)
+    // Forward the specified 'arg' to the specified 'target' via an
+    // intermediate function.  This function is called at the start of a chain
+    // of function callss that forward to the eventual 'target' invocable
+    // object.
 {
-    return endToEndIntermediary<T>(arg, target);
+    return endToEndIntermediary<TP>(arg, target);
 }
 
 //=============================================================================
@@ -194,7 +282,6 @@ int testEndToEnd(T arg, const INVOCABLE& target)
 
 ///Usage
 ///-----
-// These examples demonstrate the expected use of this component.
 // In this section we show intended use of this component.
 //
 ///Example 1: Direct look at metafunction results
@@ -204,8 +291,9 @@ int testEndToEnd(T arg, const INVOCABLE& target)
 //..
     struct MyType {};
     typedef MyType& MyTypeRef;
-
+  
     void usageExample1()
+        // Usage example.
     {
         typedef int                    T1;
         typedef int&                   T2;
@@ -216,8 +304,8 @@ int testEndToEnd(T arg, const INVOCABLE& target)
         typedef MyType                 T7;
         typedef const MyType&          T8;
         typedef MyType&                T9;
-        typedef MyType*                T10;
-
+        typedef MyType                *T10;
+  
         typedef int                    EXP1;
         typedef int&                   EXP2;
         typedef const volatile double& EXP3;
@@ -227,8 +315,8 @@ int testEndToEnd(T arg, const INVOCABLE& target)
         typedef const MyType&          EXP7;
         typedef const MyType&          EXP8;
         typedef MyType&                EXP9;
-        typedef MyType*                EXP10;
-
+        typedef MyType                *EXP10;
+  
         ASSERT((bsl::is_same<bslmf::ForwardingType<T1>::Type, EXP1>::value));
         ASSERT((bsl::is_same<bslmf::ForwardingType<T2>::Type, EXP2>::value));
         ASSERT((bsl::is_same<bslmf::ForwardingType<T3>::Type, EXP3>::value));
@@ -247,48 +335,60 @@ int testEndToEnd(T arg, const INVOCABLE& target)
 // This example illustrates the use of 'ForwardingType' to efficiently
 // implement a wrapper class that holds a function pointer and logs
 // information about each call to the pointed-to-function through the wrapper.
-// The pointed-to-function takes three arguments whose types a4re specified
-// via template arguments.  The first argument is required to be convertible
-// to 'int'.  The class definition looks as follows:
+// Suppose the pointed-to-function takes three arguments whose types are
+// specified via template arguments, where the first argument is required to
+// be convertible to 'int'.
+//
+// First we create a wrapper class that holds a function pointer of the
+// desired type:
 //..
     // Primary template is never defined
     template <class PROTOTYPE> class LoggingWrapper;
-
+  
     template <class RET, class ARG1, class ARG2, class ARG3>
     class LoggingWrapper<RET(ARG1, ARG2, ARG3)> {
         // Specialization of wrapper for specified function prototype.
-
+  
         RET (*d_function_p)(ARG1, ARG2, ARG3);
-
+  
     public:
-        LoggingWrapper(RET (*function_p)(ARG1, ARG2, ARG3))
+        explicit LoggingWrapper(RET (*function_p)(ARG1, ARG2, ARG3))
+            // Create a 'LoggingWrapper' object for the specified 'function_p'
+            // function.
           : d_function_p(function_p) { }
-
+  
         RET operator()(ARG1, ARG2, ARG3) const;
+            // Invoke the stored function pointer with the specified 'ARG1',
+            // 'ARG2', and 'ARG3' arguments, logging the invocation and
+            // returning the result of the function pointer invocation.
 //..
 // Next, we declare a private member function that actually invokes the
-// function. This member function will be called by 'operator()' and must
-// therefore receive arguments indirectly through 'operator()'. In order to
-// avoid excessive copies of pass-by-value arguments, we use 'ForwardingType'
-// to declare a more efficient intermediate argument type for our private
-// member function:
+// wrapped function. This member function will be called by 'operator()' and
+// must therefore receive arguments indirectly through 'operator()'. In order
+// to avoid excessive copies of pass-by-value arguments, we use
+// 'ForwardingType' to declare a more efficient intermediate argument type for
+// our private member function:
 //..
     private:
         RET invoke(typename bslmf::ForwardingType<ARG1>::Type a1,
                    typename bslmf::ForwardingType<ARG2>::Type a2,
                    typename bslmf::ForwardingType<ARG3>::Type a3) const;
+            // Invoke the wrapped function with the specified 'a1', 'a2', and
+            // 'a3' arguments and return the result of the invocation.
     };
 //..
 // Next, we define logging functions that simply count the number of
-// invocations and return from invocations (e.g., to count how may invocations
-// completed without exceptions):
+// invocations and number of returns from invocations (e.g., to count how may
+// invocations completed without exceptions):
 //..
     int invocations = 0, returns = 0;
     void logInvocation(int /* ignored */) { ++invocations; }
+        // Log an invocation of the wrapped function.
     void logReturn(int /* ignored */) { ++returns; }
+        // Log a return from the wrapped function.
 //..
-// Next, we implement 'operator()' to call the logging functions and call
-// 'invoke()':
+// Next, we implement 'operator()' to call the logging functions and then call
+// 'invoke':
 //..
     template <class RET, class ARG1, class ARG2, class ARG3>
     RET LoggingWrapper<RET(ARG1, ARG2, ARG3)>::operator()(ARG1 a1,
@@ -300,10 +400,10 @@ int testEndToEnd(T arg, const INVOCABLE& target)
         return r;
     }
 //..
-// Next, we implement 'invoke()' to actually call the function through the
-// pointer. To reconstitute the arguments to the function as close as possible
-// to the types they were passed in as, we call the 'forwardToTarget' member
-// of 'ForwardingTypeUtil':
+// Next, we implement 'invoke' to actually call the function through the
+// wrapped pointer. To reconstitute the arguments to the function as close as
+// possible to the types they were passed in as, we call the 'forwardToTarget'
+// member of 'ForwardingTypeUtil':
 //..
     template <class RET, class ARG1, class ARG2, class ARG3>
     RET LoggingWrapper<RET(ARG1,ARG2,ARG3)>::invoke(
@@ -317,27 +417,38 @@ int testEndToEnd(T arg, const INVOCABLE& target)
             bslmf::ForwardingTypeUtil<ARG3>::forwardToTarget(a3));
     }
 //..
-// Next, in order to see this wrapper in action, we must define the function
-// we wish to wrap.  This function will take an argument of type 'ArgType',
-// which, among other things, keeps track of whether it has been directly
+// Next, in order to see this wrapper in action, we must define a function we
+// wish to wrap.  This function will take an argument of type 'ArgType' that
+// holds an integer 'value' and keeps track of whether it has been directly
 // constructed or copied from anther 'ArgType' object.  If it has been copied,
-// it keeps track of how many "generations" of copy were done:
+// it keeps track of how many "generations" of copy were made:
 //..
     class ArgType {
         int d_value;
         int d_copies;
     public:
-        ArgType(int v = 0) : d_value(v), d_copies(0) { }
-        ArgType(const ArgType& other)
-          : d_value(other.d_value)
-          , d_copies(other.d_copies + 1) { }
-
-        int value() const { return d_value; }
+        explicit ArgType(int v = 0) : d_value(v), d_copies(0) { }
+            // Create an 'ArgType` object storing the value of the
+            // optionally-specified 'v' argument (default 0).
+  
+        ArgType(const ArgType& original)
+            // Copy-construct from the specified 'original'.
+          : d_value(original.d_value)
+          , d_copies(original.d_copies + 1) { }
+  
         int copies() const { return d_copies; }
+            // Return the number of copies that this object is from the
+            // original.
+  
+        int value() const { return d_value; }
+            // Return the value of this object.
     };
-
+  
     int myFunc(const short& i, ArgType& x, ArgType y)
-        // Assign 'x' the value of 'y' and return the 'value()' of 'x'.
+        // Assign the specified 'x' the value of the specified 'y' and return
+        // the 'value()' of 'x'.  Verify that the specified 'i' matches
+        // 'y.copies()'.  'x' is passed by reference in order to demonstrate
+        // forwarding of reference arguments.
     {
         ASSERT(i == y.copies());
         x = y;
@@ -345,24 +456,26 @@ int testEndToEnd(T arg, const INVOCABLE& target)
     }
 //..
 // Finally, we create a instance of 'LoggingWrapper' to wrap 'myFunc', and we
-// invoke it.  Note that 'y' is copied into the second argument of
-// 'operator()' and is copied again when 'myFunc' is invoked.  However, it is
-// *not* copied when 'operator()' calls 'invoke()' because the 'ForwardType'
-// of 'ArgType' is 'const ArgType&', which does not create another copy.  In
-// C++11, if 'ArgType' had a move constructor, then the number of copies would
-// be only 1, since the final forwarding would be a move instead of a copy.
+// invoke it.  Note that 'y' is copied into the second argument of 'operator()'
+// and is copied again when 'myFunc' is invoked.  However, it is *not* copied
+// when 'operator()' calls 'invoke()' because the 'ForwardType' of 'ArgType' is
+// 'const ArgType&', which does not create another copy.  In C++11, if
+// 'ArgType' had a move constructor, then the number of copies would be only 1,
+// since the final forwarding would be a move instead of a copy.
 //..
-    void usageExample2() {
+    void usageExample2()
+        // Usage Example
+    {
         ArgType x(0);
         ArgType y(99);
-
+  
         LoggingWrapper<int(const short&, ArgType&, ArgType)> lw(myFunc);
         ASSERT(0 == invocations && 0 == returns);
         lw(2, x, y);  // Expect two copies of 'y'
         ASSERT(1 == invocations && 1 == returns);
         ASSERT(99 == x.value());
     }
-//..    
+//..
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -371,14 +484,15 @@ int testEndToEnd(T arg, const INVOCABLE& target)
 template <class TYPE>
 bool sameAddress(const TYPE& a, const TYPE& b)
     // Return true if address of the specified 'a' object matches the address
-    // of the specified 'b' object.  Unlike a direct test, this function can
-    // be called even if 'a' or 'b' is an rvalue or rvalue refearence.
+    // of the specified 'b' object.  Unlike a direct test, this function can be
+    // called even if 'a' or 'b' is an rvalue or rvalue refearence.
 {
     return &a == &b;
 }
 
 template <class TYPE>
 void testForwardToTargetVal(TYPE obj)
+    // Test 'forwardToTarget' when the specified 'obj' is an rvalue.
 {
     typedef typename bslmf::ForwardingType<TYPE>::Type FwdType;
     typedef typename bslmf::ForwardingTypeUtil<TYPE>::TargetType TargetType;
@@ -400,6 +514,7 @@ void testForwardToTargetVal(TYPE obj)
 
 template <class TYPE>
 void testForwardToTargetArray(TYPE obj)
+    // Test 'forwardToTarget' when the specified 'obj' is an array.
 {
     typedef typename bslmf::ForwardingType<TYPE>::Type FwdType;
     typedef typename bslmf::ForwardingTypeUtil<TYPE>::TargetType TargetType;
@@ -408,7 +523,7 @@ void testForwardToTargetArray(TYPE obj)
 
     FwdType fwdObj = obj;
 
-    // For arrays,j compare address of first element of original and final
+    // For arrays, compare address of first element of original and final
     // arrays.
     ASSERT(&obj[0] ==
            &bslmf::ForwardingTypeUtil<TYPE>::forwardToTarget(fwdObj)[0]);
@@ -416,6 +531,7 @@ void testForwardToTargetArray(TYPE obj)
 
 template <class TYPE>
 void testForwardToTargetRef(TYPE ref)
+    // Test 'forwardToTarget' when the specified 'ref' is a reference type.
 {
     typedef typename bslmf::ForwardingType<TYPE>::Type FwdType;
     typedef typename bslmf::ForwardingTypeUtil<TYPE>::TargetType TargetType;
@@ -432,9 +548,9 @@ void testForwardToTargetRef(TYPE ref)
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
+    int  test        = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose     = argc > 2;
+    bool veryVerbose = argc > 3;
 
     (void) verbose;      // eliminate unused variable warning
     (void) veryVerbose;  // eliminate unused variable warning
@@ -443,7 +559,7 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
 
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLES
         //
@@ -466,21 +582,21 @@ int main(int argc, char *argv[])
 
       } break;
 
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
-        // END-TO-END OVERLOADING
+        // TESTING END-TO-END OVERLOADING
         //
         // Concerns:
-        //: 1 An argument of type 'T' that is passed to one function as 'T',
-        //:   forwarded through a second function as 'ForwardingType<T>::Type'
-        //:   and passed to a third (target) function by calling
-        //:   'ForwardingTypeUtil<T>::forwardToTarget()' will be seen by the
-        //:   target function almost exactly as if the original argument had
-        //:   been passed directly to it, including selecting the correct
+        //: 1 An argument of type 'TP' that is passed to one function as 'TP',
+        //:   forwarded through a second function as
+        //:   'ForwardingType<TP>::Type' and passed to a third (target)
+        //:   function by calling 'ForwardingTypeUtil<TP>::forwardToTarget()'
+        //:   will be seen by the target function as if the original argument
+        //:   had been passed directly to it, including selecting the correct
         //:   overload and instantiation of the target function.
         //: 2 Rvalue types are forwarded to the target function without
         //:   cv-qualification, regardless of whether an rvalue type is
-        //:   primitive or of class type
+        //:   primitive or of class type.
         //: 3 Lvalue reference types are forwarded to the target with the
         //:   original cv-qualification.
         //: 4 Rvalue reference types (C++11 and newer) are forwarded to the
@@ -494,8 +610,8 @@ int main(int argc, char *argv[])
         //:   several overloads of 'operator()'.  Each overload verifies
         //:   correct invocation by returning a different enumerated
         //:   value.  Call each functor via an intermediary function that
-        //:   takes a 'T' argument and passes it to a second intermediary
-        //:   function taking a 'ForwardingType<T>::Type' argument which, in
+        //:   takes a 'TP' argument and passes it to a second intermediary
+        //:   function taking a 'ForwardingType<TP>::Type' argument which, in
         //:   turn, calls the functor.  Verify that the functor returns the
         //:   same value as would be returned if it were called directly.
         //: 2 For concern 2, perform step 1 with a functor class whose
@@ -514,12 +630,12 @@ int main(int argc, char *argv[])
         //:   called, or zero for pointer types.  Instantiate with a variety
         //:   of array types and reference-to-array types.
         //
-        // TESTING
+        // Testing:
         //      END-TO-END OVERLOADING
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nEND-TO-END OVERLOADING"
-                          << "\n======================" << endl;
+        if (verbose) cout << "\nTESTING END-TO-END OVERLOADING"
+                          << "\n==============================" << endl;
 
         int     i = 5;
         Enum    e = e_VAL2;
@@ -535,8 +651,9 @@ int main(int argc, char *argv[])
         char a[5]    = { '5', '4', '3', '2', '1' };
         char (&au)[] = reinterpret_cast<AU&>(a);
 
-// Volatile rvalue types are not useful and have strange rules.
-// Do not test them.
+// Volatile rvalue types are not useful and have strange rules.  Do not test
+// them.  Attempting to test volatile rvalues will not only complicated the
+// test driver unnecessarily, it may actually hide real errors.
 #define TEST_ENDTOEND_RVALUE(TP, v) {                                         \
             typedef TP T;                                                     \
             typedef const T CT;                                               \
@@ -559,7 +676,7 @@ int main(int argc, char *argv[])
 
 #undef TEST_ENDTOEND_RVALUE
 
-#define TEST_ENDTOEND_LVALUE_REF(TP, v) {                                         \
+#define TEST_ENDTOEND_LVALUE_REF(TP, v) {                                     \
             typedef TP T;                                                     \
             typedef const T CT;                                               \
             typedef volatile T VT;                                            \
@@ -623,66 +740,86 @@ int main(int argc, char *argv[])
 #endif // defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 
         if (veryVerbose) cout << "array types" << endl;
-        CvArrayMatch<char> am;
-        ASSERT(testEndToEnd<char[5]>(a, am)    == am(a));
-        ASSERT(testEndToEnd<char[]>(au, am)    == am(au));
-        ASSERT(testEndToEnd<char(&)[5]>(a, am) == am(a));
-        ASSERT(testEndToEnd<char(&)[]>(au, am) == am(au));
+#define TEST_ENDTOEND_ARRAY(TP, a, exp) {                                     \
+            CvArrayMatch<char> am;                                            \
+            ASSERT(testEndToEnd<TP>(a, am)   == exp);                         \
+            CvArrayMatch<const char> acm;                                     \
+            ASSERT(testEndToEnd<const TP>(a, acm)  == exp);                   \
+            CvArrayMatch<volatile char> avm;                                  \
+            ASSERT(testEndToEnd<volatile TP>(a, avm)  == exp);                \
+            CvArrayMatch<const volatile char> acvm;                           \
+            ASSERT(testEndToEnd<const volatile TP>(a, acvm) == exp);          \
+        }
+
+        TEST_ENDTOEND_ARRAY(char[5], a,    5);
+        TEST_ENDTOEND_ARRAY(char[], au,    0);
+        TEST_ENDTOEND_ARRAY(char(&)[5], a, 5);
+        TEST_ENDTOEND_ARRAY(char(&)[], au, 0);
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-        ASSERT(testEndToEnd<char *&&>(au, am)  == am(std::move(au)));
+        TEST_ENDTOEND_ARRAY(char *&&, au,  0);
 #endif
+
+        if (veryVerbose) cout << "function types" << endl;
+        FuncMatch<F> fm;
+        ASSERT(testEndToEnd<F*>(f_p,  fm) == k_FUNC_POINTER);
+        ASSERT(testEndToEnd<F&>(func, fm) == k_FUNC_REFERENCE);
 
       } break;
 
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
-        // TESTING bslmf::ForwardingTypeUtil
+        // TESTING 'bslmf::ForwardingTypeUtil'
         //
         // Concerns:
-        //: 1 For types that are neither references not arrays,
+        //: 1 For types that are not references, arrays, or functions,
         //:   'ForwardingTypeUtil<TYPE>::TargetType' is similar to
         //:   'TYPE' except that 'TargetType' might be a const reference
         //:   (C++03) or rvalue reference (C++11+). An object of 'TYPE'
-        //:   converted to 'ForwardingType<TYPE>::Type', then forwarded using
-        //:   'ForwardingTypeUtil<TYPE>::forwardToTarget() will yield a value
-        //:   equal to the original object.
+        //:   converted to 'ForwardingType<TYPE>::Type' and then forwarded
+        //:   using 'ForwardingTypeUtil<TYPE>::forwardToTarget(), will yield
+        //:   a value equal to the original object.
         //: 2 For array types of (known or unknown) size,
         //:   'ForwardingTypeUtil<TYPE>::TargetType' yields a reference to
         //:   'TYPE'. An array object of 'TYPE' converted to
-        //:   'ForwardingType<TYPE>::Type' then forwarded using 
+        //:   'ForwardingType<TYPE>::Type' then forwarded using
         //:   'ForwardingTypeUtil<TYPE>::forwardToTarget() will yield a
         //:   reference to the original array.
         //: 3 For reference types, 'ForwardingTypeUtil<TYPE>::TargetType'
         //:   yields 'TYPE'.  A reference of 'TYPE' converted to
-        //:   'ForwardingType<TYPE>::Type' then forwarded using 
+        //:   'ForwardingType<TYPE>::Type' then forwarded using
         //:   'ForwardingTypeUtil<TYPE>::forwardToTarget() will yield a
         //:   a reference identical to the original.
         //: 4 All of the above concerns apply when 'TYPE' is
         //:   cv-qualified. Note that passing volatile-qualified objects by
         //:   value or by rvalue-reference does not really happen in real code
-        //:   and need not be tested.
+        //:   and is not supported by this component.
+        //: 5 For function types, 'ForwardingTypeUtil<TYPE>::TargetType'
+        //:   yields 'TYPE&'.  A function converted to
+        //:   'ForwardingType<TYPE>::Type' then forwarded using
+        //:   'ForwardingTypeUtil<TYPE>::forwardToTarget() will yield a a
+        //:   reference to the original function.
         //
         // Plan:
         //: 1 For concern 1, implement a function template,
         //:   'testForwardToTargetVal' that can be instantiated with a 'TYPE'
         //:   and which takes an argument 'obj' of 'TYPE'.  Instantiated
         //:   on a variety of basic and non-basic types,
-        //:   'testForwardToTargetVal' performs the following operations: 
+        //:   'testForwardToTargetVal' performs the following operations:
         //:   a Verify that 'TargetType' is the expected transformation of
-        //:     'TYPE'
+        //:     'TYPE'.
         //:   b Initialize a temporary variable of type
         //:     'ForwardingType<TYPE>::Type' using 'obj.
         //:   c Call 'forwardToTarget' on the temporary variable and verify
         //:     that the resulting object compares equal to 'obj'.
         //: 2 For concern 2, implement a function template,
-        //    'testForwardToTargetArray' that can be instantiated with an
+        //    'testForwardToTargetArray', that can be instantiated with an
         //:   an array 'TYPE' (or reference-to-array 'TYPE') and which takes
         //:   an argument 'obj' of 'TYPE'.  Instantiated on a variety of array
         //:   types of known and unknown size as well a lvalue and rvalues to
         //:   such types, 'testForwardToTargetArray' performs the following
         //:   operations:
         //:   a Verify that 'TargetType' is the expected transformation of
-        //:     'TYPE'
+        //:     'TYPE'.
         //:   b Initialize a temporary variable of type
         //:     'ForwardingType<TYPE>::Type' using 'obj.
         //:   c Call 'forwardToTarget' on the temporary variable and verify
@@ -691,23 +828,30 @@ int main(int argc, char *argv[])
         //:   'testForwardToTargetRef' that can be instantiated with a
         //:   reference 'TYPE' and which takes an argument 'ref' of 'TYPE'.
         //:   Instantiated on a variety of lvalue and rvalue reference types,
-        //:   'testForwardToTargetRef' performs the following operations:
+        //:   'testForwardToTargetRef', performs the following operations:
         //:   a Verify that 'TargetType' is the expected transformation of
-        //:     'TYPE'
+        //:     'TYPE'.
         //:   b Initialize a temporary variable of type
-        //:     'ForwardingType<TYPE>::Type' using 'obj.
+        //:     'ForwardingType<TYPE>::Type' using 'obj'.
         //:   c Call 'forwardToTarget' on the temporary variable and verify
-        //:     that the resulting object has the same address as 'obj'.
+        //:     that the returned reference has the same address as 'obj'.
         //: 4 For concern 4, instantiate the templates defined in the previous
         //:   steps using cv-qualified template parameters.
-        // 
+        //: 5 For concern 5, instantiate the template with a function
+        //:   type, 'F' and then:
+        //:   a Verify that 'TargetType' is 'F&'. 
+        //:   b Initialize a tempoary variable of type
+        //:     'ForwardingType<F>::Type' using 'func'.
+        //:   c Call 'forwardToTarget' on the temporary variable and verify
+        //:     that the returned reference has the same address as 'func'.
+        //
         // Testing:
         //      bslmf::ForwardingTypeUtil<TYPE>::TargetType
         //      bslmf::ForwardingTypeUtil<TYPE>::forwardToTarget(v)
         // --------------------------------------------------------------------
-          
-        if (verbose) cout << "\nbslmf::ForwardingTypeUtil"
-                          << "\n=========================" << endl;
+
+        if (verbose) cout << "\nTESTING 'bslmf::ForwardingTypeUtil'"
+                          << "\n===================================" << endl;
 
         Enum    e = e_VAL2;
         Struct  s(99);
@@ -730,7 +874,7 @@ int main(int argc, char *argv[])
         testForwardToTargetVal<PF      >(f_p);
         testForwardToTargetVal<Pm      >(m_p);
         testForwardToTargetVal<Pmf     >(mf_p);
-        
+
         testForwardToTargetVal<Enum    const>(e);
         testForwardToTargetVal<Struct  const>(s);
         testForwardToTargetVal<Union   const>(u);
@@ -792,7 +936,7 @@ int main(int argc, char *argv[])
         testForwardToTargetRef<PF      const&>(f_p);
         testForwardToTargetRef<Pm      const&>(m_p);
         testForwardToTargetRef<Pmf     const&>(mf_p);
-        
+
         testForwardToTargetRef<Enum    volatile&>(e);
         testForwardToTargetRef<Struct  volatile&>(s);
         testForwardToTargetRef<Union   volatile&>(u);
@@ -802,7 +946,7 @@ int main(int argc, char *argv[])
         testForwardToTargetRef<PF      volatile&>(f_p);
         testForwardToTargetRef<Pm      volatile&>(m_p);
         testForwardToTargetRef<Pmf     volatile&>(mf_p);
-        
+
         testForwardToTargetRef<Enum    const volatile&>(e);
         testForwardToTargetRef<Struct  const volatile&>(s);
         testForwardToTargetRef<Union   const volatile&>(u);
@@ -812,7 +956,7 @@ int main(int argc, char *argv[])
         testForwardToTargetRef<PF      const volatile&>(f_p);
         testForwardToTargetRef<Pm      const volatile&>(m_p);
         testForwardToTargetRef<Pmf     const volatile&>(mf_p);
-        
+
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
         testForwardToTargetRef<Enum    &&>(std::move(e));
         testForwardToTargetRef<Struct  &&>(std::move(s));
@@ -839,33 +983,45 @@ int main(int argc, char *argv[])
         // actual errors.
 #endif
 
+        // Test function type
+        {
+            typedef typename bslmf::ForwardingType<F>::Type FwdType;
+            typedef typename
+                bslmf::ForwardingTypeUtil<F>::TargetType TargetType;
+
+            ASSERT_SAME(F&, TargetType);
+
+            FwdType fwdRef = func;
+            ASSERT(&func ==
+                   bslmf::ForwardingTypeUtil<F>::forwardToTarget(fwdRef));
+        }
+
       } break;
 
-      case 1: {
+      case 2: {
         // --------------------------------------------------------------------
-        // TESTING bslmf::ForwardingType<TYPE>::Type
+        // TESTING 'bslmf::ForwardingType<TYPE>::Type'
         //
         // Concerns:
-        //: 1 The forwarding type for "*basic* type cvq 'T'" is the same as
-        //:   'T' with the cv-qualification removed.
-        //: 2 The forwarding type for "*class* *or* *union* type cvq 'T'" is
-        //:   'const vq T&', where 'vq' is 'volatile' if 'T' is
+        //: 1 The forwarding type for "*basic* type cvq 'TP'" is the same as
+        //:   'TP' with the cv-qualification removed.
+        //: 2 The forwarding type for "*class* *or* *union* type cvq 'TP'" is
+        //:   'const vq TP&', where 'vq' is 'volatile' if 'TP' is
         //:   volatile-qualified and is empty otherwise.
         //: 3 The forwarding type for "function of type 'F'" or "reference to
         //:   function of type 'F'" is "reference to function of type
         //:   'F'". The forwarding type for "pointer to function of type 'F'"
         //:   is the same pointer type, 'F*'.
-        //: 4 The forwarding type for "array of cvq 'T'" or "(lvalue or
-        //:   rvalue) reference to
-        //:   array of cvq 'T'" is "cvq 'T*'", regardless of whether
-        //:   the array size is known.
-        //: 5 The forwarding type for "lvalue reference to type cvq 'T'" is
-        //:   the same "lvalue reference to cvq 'T', for non-function and
+        //: 4 The forwarding type for "array of cvq 'TP'" or "(lvalue or
+        //:   rvalue) reference to array of cvq 'TP'" is "cvq 'TP*'",
+        //:   regardless of whether the array size is known.
+        //: 5 The forwarding type for "lvalue reference to type cvq 'TP'" is
+        //:   the same "lvalue reference to cvq 'TP', for non-function and
         //:   non-array types.
         //: 6 (C++11 and newer only) The forwarding type for "rvalue reference
-        //:   to cvq type 'T'" for non-function and non-array 'T' is 'const vq
-        //:   T&', where 'vq' is 'volatile' if 'T' is volatile-qualified and
-        //:   'vq' is empty otherwise.
+        //:   to cvq type 'TP'" for non-function and non-array 'TP' is 'const
+        //:   vq TP&', where 'vq' is 'volatile' if 'TP' is volatile-qualified
+        //:   and 'vq' is empty otherwise.
         //
         // Test Plan:
         //: 1 For concern 1, instantiate 'ForwardingType' for fundamental,
@@ -875,7 +1031,7 @@ int main(int argc, char *argv[])
         //: 2 For concern 2, instantiate 'ForwardingType' for class and union
         //:   type, both unqualified and cv-qualified, and verify that the
         //:   resulting 'Type' member is the expected const lvalue reference
-        //:   type. 
+        //:   type.
         //: 3 For concern 3, instantiate 'ForwardingType' for a small number
         //:   of function, reference-to-function, and pointer-to-function
         //:   parameters and verify that the resulting 'Type' member is the
@@ -889,18 +1045,19 @@ int main(int argc, char *argv[])
         //:   reference to fundamental, pointer, enumeration, class, and union
         //:   types, both cv-qualified and unqualified, and verify that the
         //:   resulting 'Type' member is the same as the parameter type.
-        //: 6 For concern 6, instantiate 'ForwardingType' for *rvalue* reference
-        //:   to fundamental, pointer, enumeration, class, and union
-        //:   types, both cv-qualified and unqualified, and
-        //:   verify that the resulting 'Type' member is the expected const
-        //:   lvalue reference type.
+        //: 6 For concern 6, instantiate 'ForwardingType' for *rvalue*
+        //:   reference to fundamental, pointer, enumeration, class, and union
+        //:   types, both cv-qualified and unqualified, and verify that the
+        //:   resulting 'Type' member is the expected const lvalue reference
+        //:   type.
         //
         // Testing:
         //     bslmf::ForwardingType<TYPE>::Type
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nbslmf::ForwardingType<TYPE>::Type"
-                          << "\n=================================" << endl;
+        if (verbose) cout << "\nTESTING 'bslmf::ForwardingType<TYPE>::Type'"
+                          << "\n==========================================="
+                          << endl;
 
 #define TEST_FWD_TYPE(T, EXP) ASSERT_SAME(bslmf::ForwardingType<T>::Type, EXP)
 #define TEST_FWD_TYPE_UNCHANGED(T) TEST_FWD_TYPE(T, T)
@@ -957,8 +1114,8 @@ int main(int argc, char *argv[])
 
 #if !defined(BSLS_PLATFORM_CMP_MSVC) && \
     (!defined(BSLS_PLATFORM_CMP_IBM) || (BSLS_PLATFORM_CMP_VER_MAJOR < 0x0800))
-        // xlc-8 and MSVC 2005 seem to have problems with function types.
-        // Skip these tests for those compilers
+        // xlc-8 and MSVC 2005 seem to have problems with function types.  Skip
+        // these tests for those compilers.
         TEST_FWD_TYPE(void()        , void(&)());
         TEST_FWD_TYPE(int(int)      , int(&)(int));
         TEST_FWD_TYPE(void(int&)    , void(&)(int&));
@@ -1109,6 +1266,130 @@ int main(int argc, char *argv[])
 
       } break;
 
+      case 1: {
+        // --------------------------------------------------------------------
+        // TESTING TEST INFRASTRUCTURE
+        //
+        // Concerns:
+        //: 1 For 'crm' of type 'CvRefMatch<T>', 'crm(v)' returns the correct
+        //:   enumerator indicating whether 'v' is an lvalue, const lvalue,
+        //:   volatile lvalue, const volatile lvalue, rvalue, const rvalue,
+        //:   volatile rvalue, or const volatile rvalue.
+        //: 2 For 'cam' of type 'CvArrayMatch<T>' and 'a' of type array-of-T,
+        //:   'cam(a)' returns the number of elements of 'a' or '0' if 'a' has
+        //:   unknown bounds.
+        //: 3 For 'cam' of type 'CvArrayMatch<T>' and 'p' of type
+        //:   pointer-to-T, 'cam(p)' returns 0.
+        //: 4 Concerns 2 and 3 apply regardless of the cv qualification of 'a'
+        //:   or 'p'.
+        //: 5 For 'cam' of type 'CvArrayMatch<T>' and 'a' of type
+        //:   rvalue-reference-to-array-of-T, 'CvArrayMatch<T>' returns the
+        //:   same value as if 'a' were not an rvalue reference.
+        //: 6 For 'fm' of type 'FuncMatch<F>', 'fm(f)' returns
+        //:   'k_FUNC_REFERENCE' if 'f' is of type 'F' or 'F&' and
+        //:   'k_FUNC_POINTER' if 'f' is of type 'F*'.
+        //
+        // Plan:   
+        //: 1 For concern 1, create a variable, 'crm' of type
+        //:   'CvRefMatch<int>'. Call 'crm(v)' for variables 'v' of type cvq
+        //:   'int' correct lvalue enumeration value is returned.  In C++11 or
+        //:   later mode, test with 'std::move(v)' and verify that the correct
+        //:   lvalue enmeration is returned.  Also test with a literal integer
+        //:   and verify that the return value is 'k_RVALUE_REF' in C++11 mode
+        //:   or 'k_CONST_LVALUE_REF' in C++03 mode.
+        //: 2 For concerns 2 and 3, create a variable, 'cam' of type
+        //:   'CvArrayMatch<int>'.  Define variables of type array-of-int,
+        //:   with both known and unknown sizes.  Verify that 'cam(v)' returns
+        //:   the correct size (or 0) for each array variable, 'v'.
+        //: 3 For concern 4, repeat step 2 for variables of each cvq
+        //:   combination.
+        //: 4 For concern 5 (C++11 or later), repeat steps 2 and 3 using
+        //:   'cam(std::move(v))'.
+        //: 6 For concern 6, create a variable, 'fm', of type
+        //:   'FuncMatch<F>'. Call 'fm(f)' for arguments 'f' of type 'void()',
+        //:   'void(&)()', and 'void(*)()', and verify that the correct
+        //:   enumeration value is returned.
+        //
+        // Testing:
+        //      CvRefMatch<T>::operator()()
+        //      CvArrayMatch<T>::operator()()
+        //      FuncMatch<F>::operator()()
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING TEST INFRASTRUCTURE"
+                          << "\n==========================="
+                          << endl;
+
+        if (veryVerbose) cout << "CvRefMatch" << endl;
+
+        int i                  = 0;
+        const int ci           = 1;
+        volatile int vi        = 2;
+        const volatile int cvi = 3;
+        volatile int &rvi      = vi;
+
+        CvRefMatch<int> crm;
+        ASSERT(k_LVALUE                  == crm(  i));
+        ASSERT(k_CONST_LVALUE            == crm( ci));
+        ASSERT(k_VOLATILE_LVALUE         == crm( vi));
+        ASSERT(k_CONST_VOLATILE_LVALUE   == crm(cvi));
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        ASSERT(k_RVALUE                  == crm(std::move(  i)));
+        ASSERT(k_CONST_RVALUE            == crm(std::move( ci)));
+        ASSERT(k_VOLATILE_RVALUE         == crm(std::move( vi)));
+        ASSERT(k_CONST_VOLATILE_RVALUE   == crm(std::move(cvi)));
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        ASSERT(k_RVALUE                  == crm(5));
+        ASSERT(k_RVALUE                  == crm(toRvalue(rvi)));
+#else
+        ASSERT(k_CONST_LVALUE            == crm(5));
+        ASSERT(k_CONST_LVALUE            == crm(toRvalue(rvi)));
+#endif
+
+        if (veryVerbose) cout << "CvArrayMatch" << endl;
+
+        int                  a[1]   = { 1 };
+        const int            ca[2]  = { 1, 2 };
+        volatile int         va[3]  = { 1, 2, 3 };
+        const volatile int   cva[4] = { 1, 2, 3, 4};
+        int                (*pa)[]   = reinterpret_cast<int (*)[]>(a);
+        const int          (*cpa)[]  = pa;
+        volatile int       (*vpa)[]  = pa;
+        const volatile int (*cvpa)[] = pa;
+        int                 *p;
+        const int           *cp;
+        volatile int        *vp;
+        const volatile int  *cvp;
+
+        CvArrayMatch<int>                cam;
+        CvArrayMatch<const int>          camc;
+        CvArrayMatch<volatile int>       camv;
+        CvArrayMatch<const volatile int> camcv;
+        ASSERT(1 == cam  (  a));
+        ASSERT(2 == camc ( ca));
+        ASSERT(3 == camv ( va));
+        ASSERT(4 == camcv(cva));
+        ASSERT(0 == cam  (*  pa));
+        ASSERT(0 == camc (* cpa));
+        ASSERT(0 == camv (* vpa));
+        ASSERT(0 == camcv(*cvpa));
+        ASSERT(0 == cam  (  p));
+        ASSERT(0 == camc ( cp));
+        ASSERT(0 == camv ( vp));
+        ASSERT(0 == camcv(cvp));
+
+        if (veryVerbose) cout << "FuncMatch" << endl;
+        FuncMatch<F> fm;
+        F& func_r = func;
+        F* func_p = func;
+        ASSERT(k_FUNC_REFERENCE == fm(func));
+        ASSERT(k_FUNC_REFERENCE == fm(func_r));
+        ASSERT(k_FUNC_POINTER   == fm(&func));
+        ASSERT(k_FUNC_POINTER   == fm(func_p));
+      } break;
+
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;
@@ -1119,6 +1400,7 @@ int main(int argc, char *argv[])
         cerr << "Error, non-zero test status = "
              << testStatus << "." << endl;
     }
+
     return testStatus;
 }
 
