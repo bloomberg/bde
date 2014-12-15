@@ -1,5 +1,22 @@
-bsl-internal (2.22.1.4) unstable; urgency=low
+bsl-internal (2.22.2.0) unstable; urgency=low
 
+  * 85d38d1 bump BSL patch version to 2.22.2
+  * 0b90d74 [APPROVAL] OSS bslim-printer-stringref-drqs-58996420-2.22 to releases/2.22.x
+  * 90e29ca [APPROVAL] bslim-printer-stringref-drqs-58996420-2.22 to releases/2.22.x
+  * a825379 [APPROVAL] OSS ssysrandom_to_randomdevice-drqs-50471211 to releases/2.22.x
+  * 6bc790c [APPROVAL] ssysrandom_to_randomdevice-drqs-50471211 to releases/2.22.x
+  * 9ba4912 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.22.x
+  * d9a8e53 [APPROVAL] INTERNAL rebased-drqs-59774381-bslma_managedptr-release to releases/2.22.x
+  * 9066ff1 [APPROVAL] rebased-drqs-59774381-bslma_managedptr-release to releases/2.22.x
+  * 25af2ec [APPROVAL] OSS pending/master/bslim-printer-stringref-drqs-58996420-2.22 to releases/2.22.x
+  * 6279a91 [APPROVAL] pending/master/bslim-printer-stringref-drqs-58996420-2.22 to releases/2.22.x
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 15 Dec 2014 13:20:16 -0500
+
+bsl-internal (2.22.1.4) git; urgency=low
+
+  * c9130ce [APPROVAL] bump-changelog-to-2.22.1.4 to releases/2.22.x
+  * 496997f bump changelog to 2.22.1.4
   * 6094de5 [APPROVAL] review/update_grp_pkg_synopses-drqs-58978504 to releases/2.22.x
   * 1142357 [APPROVAL] OSS pending/master/fix-decimalfromnetwork-drqs-59157247-releasemerge to releases/2.22.x
   * 8508c06 [APPROVAL] pending/master/fix-decimalfromnetwork-drqs-59157247-releasemerge to releases/2.22.x
@@ -7,7 +24,7 @@ bsl-internal (2.22.1.4) unstable; urgency=low
   * c9d3a00 [APPROVAL] fix-function-decimal-encoding-signature-drqs-59011942-2.22 to releases/2.22.x
   * 50bf5d9 Add tests to ImpUtil for BinaryIntegral conversion
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 24 Nov 2014 14:51:58 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 24 Nov 2014 15:16:29 -0500
 
 bsl-internal (2.22.1.3) git; urgency=low
 
