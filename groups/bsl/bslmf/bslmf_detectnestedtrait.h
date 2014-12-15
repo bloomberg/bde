@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a meta-function to test a type for an associated trait.
+//@PURPOSE: Provide a facility for defining traits and detecting legacy traits.
 //
 //@CLASSES:
 //   bslmf::DetectNestedTrait: meta-function to test a nested trait
@@ -22,40 +22,32 @@ BSLS_IDENT("$Id: $")
 // definition.  **This component should be used exclusively to author new
 // user-defined traits that need to support the nested trait idiom**
 //
-///Mechanics
-///---------
-// If a trait, 'TRAIT', has been associated with a type, 'TYPE', using one of
-// the 'BSLMF_NESTED_TRAIT_DECLARATION*' macros then
-// 'bslmf::DetectNestedTrait<TYPE, TRAIT>' derives from 'bsl::true_type'.
-// Otherwise, 'bslmf::DetectNestedTrait<TYPE, TRAIT>' derives from
-// 'bsl::false_type'.
+//@DESCRIPTION: This component defines a meta-function,
+// 'bslmf::DetectNestedTrait', that facilitates the creation of traits that can
+// be associated with a type using the nested trait mechanism in
+// 'bslmf_declarenestedtrait'.  Such traits are referred to as "nested traits"
+// because their association with a type is embedded within the type's
+// definition.  'bslmf::DetectNestedTrait' and can also be used to detect
+// traits created using older legacy traits definitions mechanisms used at
+// Bloomberg.
 //
-// Therefore, if a trait 'abcd::BarTrait' has been associated with a class
-// 'xyza::Foo' in the following way:
-//..
-//  namespace xyza {
-//
-//  class Foo {
-//      // ... various implementation details ...
-//
-//    public:
-//      // TRAITS
-//      BSLMF_NESTED_TRAIT_DECLARATION(Foo, abcd::BarTrait);
-//
-//      // ... the rest of the public interface ...
-//  };
-//
-//  }  // close namespace xyza
-//..
-// then 'bslmf::DetectNestedTrait<TYPE, TRAIT>::value' will evaluate to 'true'
-// and 'bslmf::DetectNestedTrait<TYPE, TRAIT>::type' will be 'bsl::true_type'.
+// Please note:
+//: 1. The use of 'bslmf::DetectNestedTrait' to detect traits is *deprecated*.
+//:    Clients should detect traits using the C++11 idiom (see
+//:    {Nested Trait Idiom vs. C++11 Trait Idiom} below)
+//:
+//: 2. Clients are encouraged to use a C++11 idiom for defining traits.
+//:    However, authors of traits who want trait users to be able to take
+//:    advantage of 'bslmf_nestedtraitdeclaration' must define traits that
+//:    inherit from 'bslmf::DetectNestedTrait' (see
+//:    {Writing a User-Defined Trait} below).
 //
 ///Nested Trait Idiom vs. C++11 Trait Idiom
 ///----------------------------------------
 // BDE supports two idioms for defining traits and associating them with types.
-// The older, legacy idiom uses 'bslmf::DetectNestedTrait' to define traits,
-// and the 'BSLMF_NESTED_TRAIT_DECLARATION*' macros to associate traits with
-// types.  This idiom is called the "nested trait" idiom.
+// The older idiom uses 'bslmf::DetectNestedTrait' to define traits, and the
+// 'BSLMF_NESTED_TRAIT_DECLARATION*' macros to associate traits with types.
+// This idiom is called the "nested trait" idiom.
 //
 // The newer idiom is familiar to users of C++11 traits, and is referred to
 // here as the "C++11 trait" idiom.  In the C++11 trait idiom, a trait is a
@@ -105,12 +97,12 @@ BSLS_IDENT("$Id: $")
 //  assert(true  == abcd::BarTrait<xyza::Foo>::value);
 //  assert(false == abcd::BarTrait<xyza::SomeClass>::value);
 //..
-// The C++11 trait idiom is the standard idiom for all new code.
+// The C++11 trait idiom is the standard idiom for new code in BDE.
 //
 ///Writing a User-Defined Trait
 ///----------------------------
-// On systems that do not require compatibility with the legacy nested trait
-// idiom, new traits should be written according to the C++11 trait idiom.
+// On systems that do not require compatibility with the nested trait idiom,
+// new traits should be written according to the C++11 trait idiom.
 //
 // On systems that support the nested trait idiom, any new user-defined trait
 // should derive its truth value from 'bslmf::DetectNestedTrait' following the
@@ -137,6 +129,34 @@ BSLS_IDENT("$Id: $")
 // These are the only recommended uses of
 // 'bslmf::DetectNestedTrait<TYPE, TRAIT>::type' and
 // 'bslmf::DetectNestedTrait<TYPE, TRAIT>::value'.
+//
+///Detecting Legacy Traits
+///-----------------------
+// If a trait, 'TRAIT', has been associated with a type, 'TYPE', using one of
+// the 'BSLMF_NESTED_TRAIT_DECLARATION*' macros then
+// 'bslmf::DetectNestedTrait<TYPE, TRAIT>' derives from 'bsl::true_type'.
+// Otherwise, 'bslmf::DetectNestedTrait<TYPE, TRAIT>' derives from
+// 'bsl::false_type'.
+//
+// Therefore, if a trait 'abcd::BarTrait' has been associated with a class
+// 'xyza::Foo' in the following way:
+//..
+//  namespace xyza {
+//
+//  class Foo {
+//      // ... various implementation details ...
+//
+//    public:
+//      // TRAITS
+//      BSLMF_NESTED_TRAIT_DECLARATION(Foo, abcd::BarTrait);
+//
+//      // ... the rest of the public interface ...
+//  };
+//
+//  }  // close namespace xyza
+//..
+// then 'bslmf::DetectNestedTrait<TYPE, TRAIT>::value' will evaluate to 'true'
+// and 'bslmf::DetectNestedTrait<TYPE, TRAIT>::type' will be 'bsl::true_type'.
 //
 ///Usage
 ///-----
