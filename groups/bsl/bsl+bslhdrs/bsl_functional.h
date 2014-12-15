@@ -78,6 +78,8 @@ namespace bsl
 
 #endif
 
+#endif // INCLUDED_BSL_FUNCTIONAL
+
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.
 //
