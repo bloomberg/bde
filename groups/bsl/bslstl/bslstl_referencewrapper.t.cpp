@@ -92,7 +92,10 @@ static bool veryVeryVeryVerbose;
 //                               TEST FACILITIES
 // ----------------------------------------------------------------------------
 
-struct Dummy {};
+struct Dummy {
+    void operator&();
+    const Dummy *local_address_of() const { return this; }
+};
 void use(Dummy&) {}
 void constUse(const Dummy&) {}
     // These functions are used solely to verify that a 'reference_wrapper' can
@@ -298,16 +301,14 @@ int main(int argc, char *argv[])
         assrwcaz = rwca;
         assrwcaz = rwcb;
 
-        ASSERT(&copyrwa.get() == &a);
-        ASSERT(&copyrwca.get() == &a);
-        ASSERT(&copyrwcb.get() == &b);
-        ASSERT(&copyrwaz.get() == &a);
-        ASSERT(&copyrwcaz.get() == &a);
-        ASSERT(&copyrwcbz.get() == &b);
+        ASSERT(copyrwa.get().local_address_of() == a.local_address_of());
+        ASSERT(copyrwca.get().local_address_of() == a.local_address_of());
+        ASSERT(copyrwcb.get().local_address_of() == b.local_address_of());
+        ASSERT(copyrwaz.get().local_address_of() == a.local_address_of());
+        ASSERT(copyrwcaz.get().local_address_of() == a.local_address_of());
+        ASSERT(copyrwcbz.get().local_address_of() == b.local_address_of());
 
-        (void)rax; (void)rcax; (void)rcbx; (void)ray; (void)rcay; (void)rcby;
-        (void)copyrwcazb; (void)copyrwcbzc;
-
+        void((rax, rcax, rcbx, ray, rcay, rcby, copyrwcazb, copyrwcbzc));
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

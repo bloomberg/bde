@@ -101,10 +101,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLS_UTIL
-#include <bsls_util.h>                             // for 'BSLS_UTIL_ADDRESSOF'
-#endif
-
 namespace bsl {
 
                     // =======================
@@ -183,7 +179,8 @@ reference_wrapper<T> ref(reference_wrapper<T> original);
 template <typename T>
 inline
 reference_wrapper<T>::reference_wrapper(T& object)
-: d_represented_p(BSLS_UTIL_ADDRESSOF(object))
+: d_represented_p(const_cast<T*>(reinterpret_cast<const T*>(
+                                       &reinterpret_cast<const char&>(object))))
 {
 }
 
