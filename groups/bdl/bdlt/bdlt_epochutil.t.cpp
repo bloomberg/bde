@@ -2209,7 +2209,7 @@ int main(int argc, char *argv[])
         const int SECONDS_IN_TWO_DAYS = 2 * (24 * 60 * 60);
         int adjust;
 
-        if (bdlt::DateImpUtil::isProlepticGregorianMode()) {
+        if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
             adjust = 0;
         }
         else {

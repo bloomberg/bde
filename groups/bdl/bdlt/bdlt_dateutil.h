@@ -162,8 +162,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_serialdateimputil.h>
 #endif
 #else
-#ifndef INCLUDED_BDLT_DATEIMPUTIL
-#include <bdlt_dateimputil.h>
+#ifndef INCLUDED_BDLT_DELEGATINGDATEIMPUTIL
+#include <bdlt_delegatingdateimputil.h>
 #endif
 #endif
 
@@ -380,7 +380,7 @@ Date DateUtil::addYearsNoEom(const Date& original, int numYears)
 #ifdef BDE_OMIT_TRANSITIONAL
                     SerialDateImpUtil::isLeapYear(newYear) ? 29 : 28);
 #else
-                          DateImpUtil::isLeapYear(newYear) ? 29 : 28);
+                    DelegatingDateImpUtil::isLeapYear(newYear) ? 29 : 28);
 #endif
                                                                       // RETURN
     }
@@ -428,9 +428,9 @@ bool DateUtil::isValidYYYYMMDD(int yyyymmddValue)
                                                   month,
                                                   day);
 #else
-    return       DateImpUtil::isValidYearMonthDay(yyyymmddValue / 100,
-                                                  month,
-                                                  day);
+    return DelegatingDateImpUtil::isValidYearMonthDay(yyyymmddValue / 100,
+                                                      month,
+                                                      day);
 #endif
 }
 

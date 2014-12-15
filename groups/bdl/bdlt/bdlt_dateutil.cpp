@@ -47,7 +47,8 @@ Date DateUtil::addYearsEomEndOfFebruary(const Date& original, int numYears)
     const int eom     = SerialDateImpUtil::isLeapYear(original.year()) ? 29
                                                                        : 28;
 #else
-    const int eom     =       DateImpUtil::isLeapYear(original.year()) ? 29
+    const int eom     = DelegatingDateImpUtil::isLeapYear(original.year())
+                                                                       ? 29
                                                                        : 28;
 #endif
 
@@ -55,7 +56,8 @@ Date DateUtil::addYearsEomEndOfFebruary(const Date& original, int numYears)
 #ifdef BDE_OMIT_TRANSITIONAL
         const int newEom = SerialDateImpUtil::isLeapYear(newYear) ? 29 : 28;
 #else
-        const int newEom =       DateImpUtil::isLeapYear(newYear) ? 29 : 28;
+        const int newEom = DelegatingDateImpUtil::isLeapYear(newYear)
+                                                                  ? 29 : 28;
 #endif
 
         return Date(newYear, original.month(), newEom);               // RETURN
@@ -85,9 +87,10 @@ Date DateUtil::addMonthsEom(const Date& original, int numMonths)
                                                          original.month());
     const int newEom = SerialDateImpUtil::lastDayOfMonth(newYear, newMonth);
 #else
-    const int eom    =       DateImpUtil::lastDayOfMonth(original.year(),
-                                                         original.month());
-    const int newEom =       DateImpUtil::lastDayOfMonth(newYear, newMonth);
+    const int eom    = DelegatingDateImpUtil::lastDayOfMonth(original.year(),
+                                                             original.month());
+    const int newEom = DelegatingDateImpUtil::lastDayOfMonth(newYear,
+                                                             newMonth);
 #endif
 
     if (original.day() == eom) {
@@ -117,7 +120,8 @@ Date DateUtil::addMonthsNoEom(const Date& original, int numMonths)
 #ifdef BDE_OMIT_TRANSITIONAL
     const int newEom = SerialDateImpUtil::lastDayOfMonth(newYear, newMonth);
 #else
-    const int newEom =       DateImpUtil::lastDayOfMonth(newYear, newMonth);
+    const int newEom = DelegatingDateImpUtil::lastDayOfMonth(newYear,
+                                                             newMonth);
 #endif
 
     if (newEom < original.day()) {
@@ -138,7 +142,7 @@ Date DateUtil::lastDayOfWeekInMonth(int             year,
 #ifdef BDE_OMIT_TRANSITIONAL
     const int eom = SerialDateImpUtil::lastDayOfMonth(year, month);
 #else
-    const int eom =       DateImpUtil::lastDayOfMonth(year, month);
+    const int eom = DelegatingDateImpUtil::lastDayOfMonth(year, month);
 #endif
 
     return previousDayOfWeekInclusive(dayOfWeek, Date(year, month, eom));

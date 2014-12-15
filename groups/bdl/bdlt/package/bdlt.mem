@@ -1,6 +1,5 @@
 bdlt_currenttime
 bdlt_date
-bdlt_dateimputil
 bdlt_datetime
 bdlt_datetimeinterval
 bdlt_datetimetz
@@ -9,6 +8,7 @@ bdlt_datetz
 bdlt_dateutil
 bdlt_dayofweek
 bdlt_dayofweekset
+bdlt_delegatingdateimputil
 bdlt_epochutil
 bdlt_intervalconversionutil
 bdlt_localtimeoffset

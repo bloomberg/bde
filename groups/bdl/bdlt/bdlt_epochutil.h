@@ -128,18 +128,18 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef BDE_OMIT_TRANSITIONAL
-#ifndef INCLUDED_BDLT_DATEIMPUTIL
-#include <bdlt_dateimputil.h>
-#endif
-#endif
-
 #ifndef INCLUDED_BDLT_DATETIME
 #include <bdlt_datetime.h>
 #endif
 
 #ifndef INCLUDED_BDLT_DATETIMEINTERVAL
 #include <bdlt_datetimeinterval.h>
+#endif
+
+#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef INCLUDED_BDLT_DELEGATINGDATEIMPUTIL
+#include <bdlt_delegatingdateimputil.h>
+#endif
 #endif
 
 #ifndef INCLUDED_BDLT_TIME
@@ -363,7 +363,7 @@ const Datetime& EpochUtil::epoch()
 #ifdef BDE_OMIT_TRANSITIONAL
     return *s_epoch_p;
 #else
-    return DateImpUtil::isProlepticGregorianMode()
+    return DelegatingDateImpUtil::isProlepticGregorianMode()
            ? *s_epoch_p
            : *s_posixEpoch_p;
 #endif
@@ -432,7 +432,7 @@ Datetime EpochUtil::convertFromTimeT64(TimeT64 time)
 #ifdef BDE_OMIT_TRANSITIONAL
     BSLS_ASSERT_SAFE(-62135596800LL <= time);  // January    1, 0001 00:00:00
 #else
-    if (DateImpUtil::isProlepticGregorianMode()) {
+    if (DelegatingDateImpUtil::isProlepticGregorianMode()) {
     BSLS_ASSERT_SAFE(-62135596800LL <= time);  // January    1, 0001 00:00:00
     }
     else {
@@ -453,8 +453,10 @@ int EpochUtil::convertFromTimeT64(Datetime *result, TimeT64 time)
     BSLS_ASSERT_SAFE(result);
 
 #ifndef BDE_OMIT_TRANSITIONAL
-    if (( DateImpUtil::isProlepticGregorianMode() && -62135596800LL > time)
-     || (!DateImpUtil::isProlepticGregorianMode() && -62135769600LL > time) ||
+    if (( DelegatingDateImpUtil::isProlepticGregorianMode() &&
+                                                      -62135596800LL > time)
+     || (!DelegatingDateImpUtil::isProlepticGregorianMode() &&
+                                                      -62135769600LL > time) ||
 #else
     if (-62135596800LL > time ||  // January    1, 0001 00:00:00
 #endif

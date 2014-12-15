@@ -712,7 +712,7 @@ if (verbose)
             if (veryVerbose) { T_ P_(LINE) P_(YEAR) P_(MONTH) P_(DAY) P(EXP) }
 
 #ifndef BDE_OMIT_TRANSITIONAL
-            if (!bdlt::DateImpUtil::isProlepticGregorianMode()
+            if (!bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()
              && YEAR <= 1752) {
                 continue;
             }
@@ -1408,7 +1408,8 @@ if (verbose)
                     Obj mX(V);  ASSERT_SAFE_PASS(mX +=  3652058);
                     Obj mY(V);  ASSERT_SAFE_FAIL(mY +=  3652059);
 #else
-                    if (bdlt::DateImpUtil::isProlepticGregorianMode()) {
+                    if (
+                     bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
                         Obj mX(V);  ASSERT_SAFE_PASS(mX +=  3652058);
                         Obj mY(V);  ASSERT_SAFE_FAIL(mY +=  3652059);
                     }
@@ -1430,7 +1431,8 @@ if (verbose)
                     Obj mX(W);  ASSERT_SAFE_PASS(mX += -3652058);
                     Obj mY(W);  ASSERT_SAFE_FAIL(mY += -3652059);
 #else
-                    if (bdlt::DateImpUtil::isProlepticGregorianMode()) {
+                    if (
+                     bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
                         Obj mX(W);  ASSERT_SAFE_PASS(mX += -3652058);
                         Obj mY(W);  ASSERT_SAFE_FAIL(mY += -3652059);
                     }
@@ -1455,7 +1457,8 @@ if (verbose)
                     Obj mX(V);  ASSERT_SAFE_PASS(mX -= -3652058);
                     Obj mY(V);  ASSERT_SAFE_FAIL(mY -= -3652059);
 #else
-                    if (bdlt::DateImpUtil::isProlepticGregorianMode()) {
+                    if (
+                     bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
                         Obj mX(V);  ASSERT_SAFE_PASS(mX -= -3652058);
                         Obj mY(V);  ASSERT_SAFE_FAIL(mY -= -3652059);
                     }
@@ -1477,7 +1480,8 @@ if (verbose)
                     Obj mX(W);  ASSERT_SAFE_PASS(mX -=  3652058);
                     Obj mY(W);  ASSERT_SAFE_FAIL(mY -=  3652059);
 #else
-                    if (bdlt::DateImpUtil::isProlepticGregorianMode()) {
+                    if (
+                     bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
                         Obj mX(W);  ASSERT_SAFE_PASS(mX -=  3652058);
                         Obj mY(W);  ASSERT_SAFE_FAIL(mY -=  3652059);
                     }
@@ -1500,7 +1504,7 @@ if (verbose)
                 ASSERT_SAFE_PASS(V +  3652058);
                 ASSERT_SAFE_FAIL(V +  3652059);
 #else
-                if (bdlt::DateImpUtil::isProlepticGregorianMode()) {
+                if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
                     ASSERT_SAFE_PASS(V +  3652058);
                     ASSERT_SAFE_FAIL(V +  3652059);
                 }
@@ -1519,7 +1523,7 @@ if (verbose)
                 ASSERT_SAFE_PASS(W + -3652058);
                 ASSERT_SAFE_FAIL(W + -3652059);
 #else
-                if (bdlt::DateImpUtil::isProlepticGregorianMode()) {
+                if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
                     ASSERT_SAFE_PASS(W + -3652058);
                     ASSERT_SAFE_FAIL(W + -3652059);
                 }
@@ -1541,7 +1545,7 @@ if (verbose)
                 ASSERT_SAFE_PASS( 3652058 + V);
                 ASSERT_SAFE_FAIL( 3652059 + V);
 #else
-                if (bdlt::DateImpUtil::isProlepticGregorianMode()) {
+                if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
                     ASSERT_SAFE_PASS( 3652058 + V);
                     ASSERT_SAFE_FAIL( 3652059 + V);
                 }
@@ -1560,7 +1564,7 @@ if (verbose)
                 ASSERT_SAFE_PASS(-3652058 + W);
                 ASSERT_SAFE_FAIL(-3652059 + W);
 #else
-                if (bdlt::DateImpUtil::isProlepticGregorianMode()) {
+                if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
                     ASSERT_SAFE_PASS(-3652058 + W);
                     ASSERT_SAFE_FAIL(-3652059 + W);
                 }
@@ -1582,7 +1586,7 @@ if (verbose)
                 ASSERT_SAFE_PASS(V - -3652058);
                 ASSERT_SAFE_FAIL(V - -3652059);
 #else
-                if (bdlt::DateImpUtil::isProlepticGregorianMode()) {
+                if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
                     ASSERT_SAFE_PASS(V - -3652058);
                     ASSERT_SAFE_FAIL(V - -3652059);
                 }
@@ -1601,7 +1605,7 @@ if (verbose)
                 ASSERT_SAFE_PASS(W -  3652058);
                 ASSERT_SAFE_FAIL(W -  3652059);
 #else
-                if (bdlt::DateImpUtil::isProlepticGregorianMode()) {
+                if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
                     ASSERT_SAFE_PASS(W -  3652058);
                     ASSERT_SAFE_FAIL(W -  3652059);
                 }
@@ -3385,7 +3389,7 @@ if (verbose)
 #else
         int SERIAL_Y;               // streamed rep. of 'Y'
 
-        if (bdlt::DateImpUtil::isProlepticGregorianMode()) {
+        if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
             SERIAL_Y = 733;
         }
         else {

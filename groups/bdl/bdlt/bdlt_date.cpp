@@ -37,7 +37,7 @@ int Date::addDaysIfValid(int numDays)
 #ifdef BDE_OMIT_TRANSITIONAL
     if (!SerialDateImpUtil::isValidSerial(tmpSerialDate)) {
 #else
-    if (!      DateImpUtil::isValidSerial(tmpSerialDate)) {
+    if (!DelegatingDateImpUtil::isValidSerial(tmpSerialDate)) {
 #endif
         return k_FAILURE;                                             // RETURN
     }
@@ -70,7 +70,8 @@ bsl::ostream& Date::print(bsl::ostream& stream,
                             !SerialDateImpUtil::isValidSerial(d_serialDate))) {
 #else
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                            !      DateImpUtil::isValidSerial(d_serialDate))) {
+                            !DelegatingDateImpUtil::isValidSerial(
+                                                              d_serialDate))) {
 #endif
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
