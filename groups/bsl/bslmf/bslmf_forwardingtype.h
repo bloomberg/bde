@@ -32,10 +32,13 @@ BSLS_IDENT("$Id: $")
 // preventing a proliferation of different template instantiations for every
 // array size being used.  Although the outermost function may still be
 // instantiated on the full array type, intermediate functions are all
-// instantiated on the same pointer type, regardless of array size.
+// instantiated on the same pointer type, regardless of array size.  This
+// decay also applies to reference-to-array types.  The user can recover the
+// orignal array type when forwarding to the final consumer by using
+// 'bslmf::ForwardingTypeUtil<T>::forwardToTarget()' (see below).
 //
 // An argument 'v' of type 'T' can be passed as type 'ForwardingType<T>::Type'
-// down an arbitrarily-long chain of function calls without every calling
+// down an arbitrarily-long chain of function calls without ever calling
 // 'std::forward'. However, in order to avoid an extra copy as well as to
 // select the correct overload and instantiation of the eventual target
 // function, it should be converted back to a type that more closely resembles
@@ -53,8 +56,9 @@ BSLS_IDENT("$Id: $")
 // because, in the rare case where the target function cares about the address
 // of the reference (e.g., if it compares it to some known address), it would
 // wind up with the address of a temporary copy, rather than the address of the
-// original argument.  Thus, the current component forward references as
-// references in call cases, including for basic types.
+// original argument.  Thus, the current component forwards references as
+// references in call cases, including for basic types, except in the case of
+// arrays and functions (which decay to pointers).
 //
 ///Usage
 ///-----
@@ -80,7 +84,7 @@ BSLS_IDENT("$Id: $")
 //      typedef MyType                 T7;
 //      typedef const MyType&          T8;
 //      typedef MyType&                T9;
-//      typedef MyType*                T10;
+//      typedef MyType                *T10;
 //
 //      typedef int                    EXP1;
 //      typedef int&                   EXP2;
@@ -91,7 +95,7 @@ BSLS_IDENT("$Id: $")
 //      typedef const MyType&          EXP7;
 //      typedef const MyType&          EXP8;
 //      typedef MyType&                EXP9;
-//      typedef MyType*                EXP10;
+//      typedef MyType                *EXP10;
 //
 //      assert((bsl::is_same<bslmf::ForwardingType<T1>::Type, EXP1>::value));
 //      assert((bsl::is_same<bslmf::ForwardingType<T2>::Type, EXP2>::value));
@@ -109,11 +113,14 @@ BSLS_IDENT("$Id: $")
 ///Example 2: A logging invocation wrapper
 ///- - - - - - - - - - - - - - - - - - - - - - -
 // This example illustrates the use of 'ForwardingType' to efficiently
-// implement a wrapper class that holds a function pointer and logs information
-// about each call to the pointed-to-function through the wrapper.  The
-// pointed-to-function takes three arguments whose types are specified via
-// template arguments.  The first argument is required to be convertible to
-// 'int'.  The class definition looks as follows:
+// implement a wrapper class that holds a function pointer and logs
+// information about each call to the pointed-to-function through the wrapper.
+// Suppose the pointed-to-function takes three arguments whose types are
+// specified via template arguments, where the first argument is required to
+// be convertible to 'int'.
+//
+// First we create a wrapper class that holds a function pointer of the
+// desired type:
 //..
 //  // Primary template is never defined
 //  template <class PROTOTYPE> class LoggingWrapper;
@@ -125,40 +132,43 @@ BSLS_IDENT("$Id: $")
 //      RET (*d_function_p)(ARG1, ARG2, ARG3);
 //
 //  public:
-//      LoggingWrapper(RET (*function_p)(ARG1, ARG2, ARG3))
-//          // Construct wrapper to specified 'function_p' pointer.
+//      explicit LoggingWrapper(RET (*function_p)(ARG1, ARG2, ARG3))
+//          // Create a 'LoggingWrapper' object for the specified 'function_p'
+//          // function.
 //        : d_function_p(function_p) { }
 //
 //      RET operator()(ARG1, ARG2, ARG3) const;
-//          // Invoke the stored function pointer, logging the invocation and
-//          // return.
+//          // Invoke the stored function pointer with the specified 'ARG1',
+//          // 'ARG2', and 'ARG3' arguments, logging the invocation and
+//          // returning the result of the function pointer invocation.
 //..
 // Next, we declare a private member function that actually invokes the
-// function. This member function will be called by 'operator()' and must
-// therefore receive arguments indirectly through 'operator()'. In order to
-// avoid excessive copies of pass-by-value arguments, we use 'ForwardingType'
-// to declare a more efficient intermediate argument type for our private
-// member function:
+// wrapped function. This member function will be called by 'operator()' and
+// must therefore receive arguments indirectly through 'operator()'. In order
+// to avoid excessive copies of pass-by-value arguments, we use
+// 'ForwardingType' to declare a more efficient intermediate argument type for
+// our private member function:
 //..
 //  private:
 //      RET invoke(typename bslmf::ForwardingType<ARG1>::Type a1,
 //                 typename bslmf::ForwardingType<ARG2>::Type a2,
 //                 typename bslmf::ForwardingType<ARG3>::Type a3) const;
-//          // Invoke the wrapped function.
+//          // Invoke the wrapped function with the specified 'a1', 'a2', and
+//          // 'a3' arguments and return the result of the invocation.
 //  };
 //..
 // Next, we define logging functions that simply count the number of
-// invocations and return from invocations (e.g., to count how may invocations
-// completed without exceptions):
+// invocations and number of returns from invocations (e.g., to count how may
+// invocations completed without exceptions):
 //..
 //  int invocations = 0, returns = 0;
 //  void logInvocation(int /* ignored */) { ++invocations; }
-//      // Log the invocation of the wrapped function.
+//      // Log an invocation of the wrapped function.
 //  void logReturn(int /* ignored */) { ++returns; }
 //      // Log a return from the wrapped function.
 //..
-// Next, we implement 'operator()' to call the logging functions and call
-// 'invoke()':
+// Next, we implement 'operator()' to call the logging functions and then call
+// 'invoke':
 //..
 //  template <class RET, class ARG1, class ARG2, class ARG3>
 //  RET LoggingWrapper<RET(ARG1, ARG2, ARG3)>::operator()(ARG1 a1,
@@ -170,10 +180,10 @@ BSLS_IDENT("$Id: $")
 //      return r;
 //  }
 //..
-// Next, we implement 'invoke()' to actually call the function through the
-// pointer. To reconstitute the arguments to the function as close as possible
-// to the types they were passed in as, we call the 'forwardToTarget' member of
-// 'ForwardingTypeUtil':
+// Next, we implement 'invoke' to actually call the function through the
+// wrapped pointer. To reconstitute the arguments to the function as close as
+// possible to the types they were passed in as, we call the 'forwardToTarget'
+// member of 'ForwardingTypeUtil':
 //..
 //  template <class RET, class ARG1, class ARG2, class ARG3>
 //  RET LoggingWrapper<RET(ARG1,ARG2,ARG3)>::invoke(
@@ -187,23 +197,24 @@ BSLS_IDENT("$Id: $")
 //          bslmf::ForwardingTypeUtil<ARG3>::forwardToTarget(a3));
 //  }
 //..
-// Next, in order to see this wrapper in action, we must define the function we
-// wish to wrap.  This function will take an argument of type 'ArgType', which,
-// among other things, keeps track of whether it has been directly constructed
-// or copied from anther 'ArgType' object.  If it has been copied, it keeps
-// track of how many "generations" of copy were done:
+// Next, in order to see this wrapper in action, we must define a function we
+// wish to wrap.  This function will take an argument of type 'ArgType' that
+// holds an integer 'value' and keeps track of whether it has been directly
+// constructed or copied from anther 'ArgType' object.  If it has been copied,
+// it keeps track of how many "generations" of copy were made:
 //..
 //  class ArgType {
 //      int d_value;
 //      int d_copies;
 //  public:
 //      explicit ArgType(int v = 0) : d_value(v), d_copies(0) { }
-//          // Construct. Optionally specify 'v'.
+//          // Create an 'ArgType` object storing the value of the
+//          // optionally-specified 'v' argument (default 0).
 //
-//      ArgType(const ArgType& other)
-//          // Copy-construct from the specified 'other'.
-//        : d_value(other.d_value)
-//        , d_copies(other.d_copies + 1) { }
+//      ArgType(const ArgType& original)
+//          // Copy-construct from the specified 'original'.
+//        : d_value(original.d_value)
+//        , d_copies(original.d_copies + 1) { }
 //
 //      int copies() const { return d_copies; }
 //          // Return the number of copies that this object is from the
@@ -216,7 +227,8 @@ BSLS_IDENT("$Id: $")
 //  int myFunc(const short& i, ArgType& x, ArgType y)
 //      // Assign the specified 'x' the value of the specified 'y' and return
 //      // the 'value()' of 'x'.  Verify that the specified 'i' matches
-//      // 'y.copies()'.
+//      // 'y.copies()'.  'x' is passed by reference in order to demonstrate
+//      // forwarding of reference arguments.
 //  {
 //      assert(i == y.copies());
 //      x = y;
@@ -249,10 +261,6 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_CONDITIONAL
-#include <bslmf_conditional.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ISARRAY
 #include <bslmf_isarray.h>
 #endif
@@ -277,8 +285,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_ispointertomember.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_REMOVECVQ
-#include <bslmf_removecvq.h>
+#ifndef INCLUDED_BSLMF_REMOVECV
+#include <bslmf_removecv.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_REMOVEREFERENCE
@@ -324,11 +332,11 @@ struct ForwardingType_Dispatch {
 
 template <class TYPE>
 struct ForwardingType {
-    // This template metafunction has a member 'Type' computed such that, for a
-    // specified 'TYPE' paramter, a function with argument of 'TYPE' can be
+    // This template metafunction has a member 'Type' computed such that, for
+    // a specified 'TYPE' parameter, a function with argument of 'TYPE' can be
     // called efficiently from another function (e.g., a wrapper) by declaring
-    // the corresponding parameter of the other wrapper as
-    // 'ForwardingType<TYPE>::Type'. The 'Type' member is computed to minimize
+    // the corresponding parameter of the other wrapper as 'typename
+    // ForwardingType<TYPE>::Type'. The 'Type' member is computed to minimize
     // the number of expensive copies while forwarding the arguments as
     // faithfully as possible.
 
@@ -347,7 +355,6 @@ private:
                       bsl::is_fundamental<TYPE>::value ||
                       bsl::is_pointer<TYPE>::value ||
                       bsl::is_member_pointer<TYPE>::value ||
-                      IsFunctionPointer<TYPE>::value ||
                       bsl::is_enum<TYPE>::value             ?
                                         ForwardingType_Dispatch::e_BASIC      :
                                         ForwardingType_Dispatch::e_CLASS)
@@ -389,7 +396,10 @@ struct ForwardingTypeUtil {
         // an rvalue move when possible.  For compilers that do not supprt
         // rvalue references, return 'v' unchanged.  This function is intended
         // to be called to forward an argument to the final target function of
-        // a forwarding call chain.
+        // a forwarding call chain. Note that this function is not intended
+        // for use with 'TYPE' parameters of 'volatile'-qualifed rvalue type,
+        // which are effectively unheard of in real code and have strange and
+        // hard-to-understand rules.
 };
 
                         // =========================
@@ -409,8 +419,8 @@ struct ConstForwardingType : public ForwardingType<TYPE> {
 //                           IMPLEMENTATION
 // ============================================================================
 
-#pragma bdeverify push  // Relax some bdeverify rules in the imp section
-#pragma bdeverify -CD01 // Allow member function defind in class definition
+// BDE_VERIFY pragma: push  // Relax some bdeverify rules in the imp section
+// BDE_VERIFY pragma: -CD01 // Allow member function defind in class definition
 
 template <class TYPE>
 inline typename ForwardingTypeUtil<TYPE>::TargetType
@@ -567,11 +577,11 @@ struct ForwardingType_Imp<UNREF_TYPE,
 #ifdef bslmf_ConstForwardingType
 #undef bslmf_ConstForwardingType
 #endif
-#pragma bdeverify -SLM01 // Allow non-standard macro to leak from header
+// BDE_VERIFY pragma: -SLM01 // Allow non-standard macro to leak from header
 #define bslmf_ConstForwardingType bslmf::ConstForwardingType
     // This alias is defined for backward compatibility.
 
-#pragma bdeverify pop // Restore bdeverify rules
+// BDE_VERIFY pragma: pop // Restore bdeverify rules
 
 #endif
 
