@@ -171,6 +171,8 @@ reference_wrapper<T> ref(reference_wrapper<T> original);
     // Return a reference wrapper that represents the same object as the
     // specified 'original'.
 
+}  // close namespace bsl
+
 // ============================================================================
 //                      INLINE DEFINITIONS
 // ============================================================================
@@ -182,7 +184,7 @@ reference_wrapper<T> ref(reference_wrapper<T> original);
 // CREATORS
 template <typename T>
 inline
-reference_wrapper<T>::reference_wrapper(T& object)
+bsl::reference_wrapper<T>::reference_wrapper(T& object)
   : d_represented_p(BloombergLP::bsls::Util::addressOf(object))
 {
 }
@@ -190,14 +192,14 @@ reference_wrapper<T>::reference_wrapper(T& object)
 // ACCESSORS
 template <typename T>
 inline
-T& reference_wrapper<T>::get() const
+T& bsl::reference_wrapper<T>::get() const
 {
     return *d_represented_p;
 }
 
 template <typename T>
 inline
-reference_wrapper<T>::operator T&() const
+bsl::reference_wrapper<T>::operator T&() const
 {
     return *d_represented_p;
 }
@@ -205,33 +207,31 @@ reference_wrapper<T>::operator T&() const
 // FREE FUNCTIONS
 template <typename T>
 inline
-reference_wrapper<const T> cref(const T& object)
+bsl::reference_wrapper<const T> bsl::cref(const T& object)
 {
     return reference_wrapper<const T>(object);
 }
 
 template <typename T>
 inline
-reference_wrapper<const T> cref(reference_wrapper<T> original)
+bsl::reference_wrapper<const T> bsl::cref(bsl::reference_wrapper<T> original)
 {
     return cref(original.get());
 }
 
 template <typename T>
 inline
-reference_wrapper<T> ref(T& object)
+bsl::reference_wrapper<T> bsl::ref(T& object)
 {
     return reference_wrapper<T>(object);
 }
 
 template <typename T>
 inline
-reference_wrapper<T> ref(reference_wrapper<T> original)
+bsl::reference_wrapper<T> bsl::ref(bsl::reference_wrapper<T> original)
 {
     return ref(original.get());
 }
-
-}  // close namespace bsl
 
 #endif
 
