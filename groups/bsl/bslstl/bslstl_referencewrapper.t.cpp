@@ -96,8 +96,8 @@ struct Dummy {
     void operator&();
     const Dummy *localAddressOf() const { return this; }
 };
-void use(Dummy&) {}
-void constUse(const Dummy&) {}
+bool isConst(Dummy&) { return false; }
+bool isConst(const Dummy&) { return true; }
     // These functions are used solely to verify that a 'reference_wrapper' can
     // be passed to a function expecting an actual reference.
 
@@ -255,6 +255,8 @@ int main(int argc, char *argv[])
         Dummy a;
         const Dummy b = {};
 
+        ASSERT(!isConst(a) && isConst(b));  // Test 'isConst'.
+
         bsl::reference_wrapper<Dummy> rwa(a);
         bsl::reference_wrapper<const Dummy> rwca(a);
         bsl::reference_wrapper<const Dummy> rwcb(b);
@@ -263,21 +265,33 @@ int main(int argc, char *argv[])
         bsl::reference_wrapper<const Dummy> copyrwca(rwca);
         bsl::reference_wrapper<const Dummy> copyrwcb(rwcb);
 
-        copyrwa = a;
-        copyrwca = a;
+        ASSERT(!isConst(rwa));  //  Check conversion to ref type, constness.
+        ASSERT(isConst(rwca));  //  Likewise.
+        ASSERT(isConst(rwcb));
+
+        copyrwa = a;  // Assign from raw reference.
+        copyrwca = a;  // Likewise.
         copyrwcb = b;
 
-        copyrwa = rwa;
-        copyrwca = rwca;
+        copyrwa = rwa;  // Assign from other 'reference_wrapper'.
+        copyrwca = rwca;   // Likewise.
         copyrwcb = rwcb;
 
-        Dummy& rax = rwa;
-        const Dummy& rcax = rwca;
+        Dummy& rax = rwa;  // Initialize from 'reference_wrapper'.
+        const Dummy& rcax = rwca;  // Likewise.
         const Dummy& rcbx = rwcb;
 
-        Dummy& ray = bsl::ref(a);
-        const Dummy& rcay = bsl::cref(a);
+        Dummy& ray = bsl::ref(a);   // Initialize from ref result.
+        const Dummy& rcay = bsl::cref(a);  // Likewise.
         const Dummy& rcby = bsl::cref(b);
+
+        ASSERT(!isConst(bsl::ref(a)));
+        ASSERT(isConst(bsl::cref(a)));
+        ASSERT(isConst(bsl::cref(b)));
+
+        ASSERT(!isConst(bsl::ref(rwa)));
+        ASSERT(isConst(bsl::cref(rwca)));
+        ASSERT(isConst(bsl::cref(rwcb)));
 
         bsl::reference_wrapper<Dummy> copyrwaz(bsl::ref(rwa));
         bsl::reference_wrapper<const Dummy> copyrwcaz(bsl::ref(rwca));
@@ -285,10 +299,6 @@ int main(int argc, char *argv[])
 
         bsl::reference_wrapper<const Dummy> copyrwcazb(bsl::cref(rwca));
         bsl::reference_wrapper<const Dummy> copyrwcbzc(bsl::cref(rwcb));
-
-        use(rwa);
-        constUse(rwca);
-        constUse(rwcb);
 
         Dummy c;
         bsl::reference_wrapper<Dummy> assrwaz(bsl::ref(rwa));
