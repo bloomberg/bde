@@ -18,7 +18,7 @@ BDE_OSS_TOOLS_ETC:=$(DISTRIBUTION_REFROOT)/$(PREFIX)/etc/bde-oss-tools
 BDE_TOOLS_LIBEXEC:=$(DISTRIBUTION_REFROOT)/$(PREFIX)/libexec/bde-tools
 BDE_OSS_TOOLS_LIBEXEC:=$(DISTRIBUTION_REFROOT)/$(PREFIX)/libexec/bde-oss-tools
 
-PATH:=$(BDE_OSS_TOOLS_LIBEXEC):$(BDE_TOOLS_LIBEXEC):$(PREFIX)/bin:/opt/swt/bin:/usr/bin:/bin:/usr/ccs/bin:$(PATH)
+PATH:=$(BDE_EXTRA_PATH):$(BDE_OSS_TOOLS_LIBEXEC):$(BDE_TOOLS_LIBEXEC):$(PREFIX)/bin:/opt/swt/bin:/usr/bin:/bin:/usr/ccs/bin:$(PATH)
 
 BDE_SETWAFENV=$(BDE_TOOLS_LIBEXEC)/bde_setwafenv.py
 WAF=$(BDE_OSS_TOOLS_LIBEXEC)/waf
@@ -65,7 +65,7 @@ define flavor-template-dynamic-32
 $(1)-build-dynamic-32: etc/default.opts
 ifneq ($(GROUPS_DYNAMIC),)
 	eval `PATH=$(PATH) HOME=/ BDE_ROOT=. $(BDE_SETWAFENV) -t $(1) --force_uplid $(UPLID)`; \
-	PATH=$(PATH) HOME=/ PREFIX=$(DISTRIBUTION_REFROOT)/$(PREFIX) BDE_BSL_SONAME=libbsl_$(RSSUITE).so BDE_ROOT=. $(WAF) configure build --target $(call join-with,$(comma),$(GROUPS_DYNAMIC))
+	PATH=$(PATH) HOME=/ PREFIX=$(DISTRIBUTION_REFROOT)/$(PREFIX) BDE_BSL_SONAME=libbsl_$(RSSUITE).so BDE_ROOT=. $(WAF) configure build -v --target $(call join-with,$(comma),$(GROUPS_DYNAMIC))
 endif
 
 endef
