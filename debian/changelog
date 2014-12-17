@@ -1,5 +1,14 @@
-bsl-internal (2.22.2.0) unstable; urgency=low
+bsl-internal (2.22.2.1.machinelearning) unstable; urgency=low
 
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 17 Dec 2014 16:18:54 -0500
+
+bsl-internal (2.22.2.0) git; urgency=low
+
+  * 01004ae Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.22.x
+  * 9b24fcd [APPROVAL] INTERNAL bump-version-to-2.22.2.0 to releases/2.22.x
+  * 1d9d64f [APPROVAL] bump-version-to-2.22.2.0 to releases/2.22.x
+  * dc4601f bump changelog to 2.22.2.0
   * 85d38d1 bump BSL patch version to 2.22.2
   * 0b90d74 [APPROVAL] OSS bslim-printer-stringref-drqs-58996420-2.22 to releases/2.22.x
   * 90e29ca [APPROVAL] bslim-printer-stringref-drqs-58996420-2.22 to releases/2.22.x
@@ -11,7 +20,7 @@ bsl-internal (2.22.2.0) unstable; urgency=low
   * 25af2ec [APPROVAL] OSS pending/master/bslim-printer-stringref-drqs-58996420-2.22 to releases/2.22.x
   * 6279a91 [APPROVAL] pending/master/bslim-printer-stringref-drqs-58996420-2.22 to releases/2.22.x
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 15 Dec 2014 13:20:16 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 15 Dec 2014 13:25:08 -0500
 
 bsl-internal (2.22.1.4) git; urgency=low
 
