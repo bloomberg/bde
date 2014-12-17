@@ -100,61 +100,86 @@ BSLS_IDENT("$Id: $")
 //
 ///Feature Support in Compilers
 ///----------------------------
-// BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+// BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES is defined if the compiler
+// supports syntax to introduce a typedef-name using alias-declaration syntax,
+// declaring a name for a family of types.
+// Compiler support:
 //   gcc 4.7
 //   clang 3.0
 //   MSVC 2013
 //   Oracle CC 12.4
 //
-// BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
+// BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN is defined if the compiler
+// supports '[[noreturn]]' C++11 attribute syntax.  MSVC supports the attribute
+// with alternative syntax __declspec(noreturn), and earlier versions of gcc
+// and clang support the alternative syntax '__attribute__((noreturn))'.
+// Compiler support:
 //   gcc 4.8
 //   clang 3.3
 //   xlC 12.1
 //   Oracle CC 12.4
 //
-// BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+// BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE is defined if the compiler supports
+// the 'decltype' reserved word.
+// Compiler support:
 //   gcc 4.3
 //   clang 3.3
 //   MSVC 2010
 //   xlC 11.1
 //   Oracle CC 12.4
 //
-// BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
+// BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE is defined if the compiler
+// supports allowing supression of implicit instantiation of templates by
+// prefixing an explicit instantiation directive with the 'extern' keyword.
+// Compiler support:
 //   gcc 3.3
 //   clang (any)
 //   MSVC 2010
 //   xlC 11.1
 //   Oracle CC 12.4
 //
-// BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+// BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT is defined if the compiler
+// supports #include_next semantics expected by the deprecated and internal
+// include code wrapped by BSL_OVERRIDES_STD macro.
+// Compiler support:
 //   gcc (any)
 //   clang (any)
 //   xlC 8
 //   Oracle CC 12.4
 //
-// BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+// BSLS_COMPILERFEATURES_SUPPORT_NULLPTR is defined if the compiler supports
+// the 'nullptr' reserved word.
+// Compiler support:
 //   gcc 4.6
 //   clang 3.0
 //   MSVC 2010
 //   xlC 13.1
 //   Oracle CC 12.4
 //
-// BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-//   gcc 4.5 (r-value references v2.1; original draft support in gcc 4.3
+// BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES is defined if the compiler
+// supports rvalue references and move semantics compatible with the final
+// C++11 specification.  (Semantics have changed since early draft proposals.)
+// Compiler support:
+//   gcc 4.5 (rvalue references v2.1; original draft support in gcc 4.3
 //            is not correct with respect to final spec (v3.0))
 //   clang 2.9
 //   MSVC 2010
 //   xlC 12.1
 //   Oracle CC 12.4
 //
-// BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+// BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT is defined if the compiler
+// supports the 'static_assert' reserved word.
+// Compiler support:
 //   gcc 4.3
 //   clang 2.9
 //   MSVC 2010
 //   xlC 11.1
 //   Oracle CC 12.4
 //
-// BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+// BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES is defined if the compiler
+// supports the ability to express a template that accepts an arbitrary number
+// of parameters in a type-safe manner.
+// Compiler support:
 //   gcc 4.3
 //   clang 2.9
 //   MSVC 2013
