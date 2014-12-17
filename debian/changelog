@@ -1,7 +1,8 @@
 bsl-internal (2.22.2.1.machinelearning) unstable; urgency=low
 
+  * c1c3301 bump changelog to 2.22.2.1.machinelearning
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 17 Dec 2014 16:18:54 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 17 Dec 2014 16:19:35 -0500
 
 bsl-internal (2.22.2.0) git; urgency=low
 
