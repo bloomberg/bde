@@ -97,6 +97,69 @@ BSLS_IDENT("$Id: $")
 //  template class bsl::basic_string<char>;
 //  #endif
 //  // ...
+//
+///Feature Support in Compilers
+///----------------------------
+// BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+//   gcc 4.7
+//   clang 3.0
+//   MSVC 2013
+//   Oracle CC 12.4
+//
+// BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
+//   gcc 4.8
+//   clang 3.3
+//   xlC 12.1
+//   Oracle CC 12.4
+//
+// BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+//   gcc 4.3
+//   clang 3.3
+//   MSVC 2010
+//   xlC 11.1
+//   Oracle CC 12.4
+//
+// BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
+//   gcc 3.3
+//   clang (any)
+//   MSVC 2010
+//   xlC 11.1
+//   Oracle CC 12.4
+//
+// BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+//   gcc (any)
+//   clang (any)
+//   xlC 8
+//   Oracle CC 12.4
+//
+// BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+//   gcc 4.6
+//   clang 3.0
+//   MSVC 2010
+//   xlC 13.1
+//   Oracle CC 12.4
+//
+// BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+//   gcc 4.5 (r-value references v2.1; original draft support in gcc 4.3
+//            is not correct with respect to final spec (v3.0))
+//   clang 2.9
+//   MSVC 2010
+//   xlC 12.1
+//   Oracle CC 12.4
+//
+// BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+//   gcc 4.3
+//   clang 2.9
+//   MSVC 2010
+//   xlC 11.1
+//   Oracle CC 12.4
+//
+// BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+//   gcc 4.3
+//   clang 2.9
+//   MSVC 2013
+//   xlC 11.1
+//   Oracle CC 12.4
 //..
 
 #ifndef INCLUDED_BSLS_PLATFORM
