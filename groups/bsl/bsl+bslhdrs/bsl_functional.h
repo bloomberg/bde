@@ -80,7 +80,7 @@ namespace bsl
 
 #include <bslstl_equalto.h>
 #include <bslstl_hash.h>
-#include <bslstl_referencewrapper.h
+#include <bslstl_referencewrapper.h>
 
 #endif
 
