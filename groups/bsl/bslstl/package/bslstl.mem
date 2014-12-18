@@ -27,6 +27,7 @@ bslstl_pair
 bslstl_priorityqueue
 bslstl_queue
 bslstl_randomaccessiterator
+bslstl_referencewrapper
 bslstl_set
 bslstl_setcomparator
 bslstl_sharedptr
