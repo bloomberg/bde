@@ -14,6 +14,28 @@ namespace BloombergLP {
 
 namespace {
 
+static
+void putSpaces(bsl::ostream& stream, int numSpaces)
+    // Efficiently insert the specified 'numSpaces' spaces into the specified
+    // 'stream'.  This function has no effect on 'stream' if 'numSpaces < 0'.
+{
+    // Algorithm: Write spaces in chunks.  The chunk size is large enough so
+    // that most times only a single call to the 'write' method is needed.
+
+    // Define the largest chunk of spaces:
+    static const char SPACES[]    = "                                        ";
+           const int  SPACES_SIZE = sizeof(SPACES) - 1;
+
+    while (SPACES_SIZE < numSpaces) {
+        stream.write(SPACES, SPACES_SIZE);
+        numSpaces -= SPACES_SIZE;
+    }
+
+    if (0 < numSpaces) {
+        stream.write(SPACES, numSpaces);
+    }
+}
+
 class FormatGuard {
     // Class that saves the format flags from a stream.  Note 'ios_base' is
     // a base class that both 'ostream' and 'istream' inherit from.
@@ -60,24 +82,17 @@ namespace bslim {
 // PRIVATE ACCESSORS
 void Printer::printEndIndentation() const
 {
-    if (d_spacesPerLevel < 0) {
-        *d_stream_p << ' ';
-    }
-    else {
-        *d_stream_p << bsl::setw(d_spacesPerLevel * d_level) << "";
-    }
+    putSpaces(*d_stream_p, d_spacesPerLevel < 0 
+                           ? 1 
+                           : d_spacesPerLevel * d_level);
 }
 
 void Printer::printIndentation() const
 {
-    if (d_spacesPerLevel < 0) {
-        *d_stream_p << ' ';
-    }
-    else {
-        *d_stream_p << bsl::setw(d_spacesPerLevel * d_levelPlusOne) << "";
-    }
+    putSpaces(*d_stream_p, d_spacesPerLevel < 0 
+                           ? 1 
+                           : d_spacesPerLevel * d_levelPlusOne);
 }
-
 // CREATORS
 Printer::Printer(bsl::ostream *stream, int level, int spacesPerLevel)
 : d_stream_p(stream)
@@ -137,7 +152,7 @@ void Printer::start(bool suppressBracket) const
         const int absSpacesPerLevel = d_spacesPerLevel < 0
                                       ? -d_spacesPerLevel
                                       :  d_spacesPerLevel;
-        *d_stream_p << bsl::setw(absSpacesPerLevel * d_level) << "";
+        putSpaces(*d_stream_p, absSpacesPerLevel * d_level);
     }
 
     if (!suppressBracket) {
