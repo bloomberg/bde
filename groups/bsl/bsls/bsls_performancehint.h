@@ -436,14 +436,14 @@ namespace BloombergLP {
 #endif
 
 // Workaround for optimization issue in xlC that mishandles pointer aliasing.
+//   IV56864: ALIASING BEHAVIOUR FOR PLACEMENT NEW
+//   http://www-01.ibm.com/support/docview.wss?uid=swg1IV56864
 // Place this macro following each use of placment new.  Alternatively,
 // compile with xlC_r -qalias=noansi, which reduces optimization opportunities
 // across entire translation unit instead of simply across optimization fence.
-// Issue appears to be fixed in xlC 12.1.  When fix is confirmed from IBM, then
-// BSLS_PLATFORM_CMP_VERSION can be checked and macro made a no-op in later
-// versions of xlC compiler.
+// Update: issue is fixed in xlC 13.1 (__xlC__ >= 0x0d01).
 
-#if defined(BSLS_PLATFORM_CMP_IBM)
+#if defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VERSION < 0x0d01
     #define BSLS_PERFORMANCEHINT_PLACEMENT_NEW_FENCE                          \
                              BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE
 #else
