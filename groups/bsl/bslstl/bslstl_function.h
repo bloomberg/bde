@@ -74,6 +74,10 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_exceptionutil.h>
 #endif
 
+#ifndef INCLUDED_BSLS_UNSPECIFIEDBOOL
+#include <bsls_unspecifiedbool.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_ALLOCATORADAPTOR
 #include <bslma_allocatoradaptor.h>
 #endif
@@ -661,11 +665,14 @@ class function<RET(ARGS...)> :
     // template parameters that specify a function prototype; the primary
     // template (taking an arbitrary template parameter) is not defined.
 
+    // PRIVATE TYPES
     typedef RET Invoker(const Function_Rep* rep,
                         typename bslmf::ForwardingType<ARGS>::Type... args);
 
+    // PRIVATE DATA
     Invoker *d_invoker_p;
 
+    // PRIVATE MEMBER FUNCTIONS
     template <class FUNC>
     static Invoker *getInvoker(const FUNC&,
                              bslmf::SelectTraitCase<bslmf::IsFunctionPointer>);
@@ -700,6 +707,23 @@ class function<RET(ARGS...)> :
     template <class FUNC>
     static RET outofplaceFunctorInvoker(const Function_Rep *rep, 
                                 typename bslmf::ForwardingType<ARGS>::Type...);
+
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+    // UNSPECIFIED BOOL
+
+    // This type is needed only in C++03 mode, where 'explicit' conversion
+    // operators are not supported.  A 'function' is implicitly converted to
+    // 'UnspecifiedBool' when used in 'if' statements, but is not implicitly
+    // convertible to 'bool'.
+    typedef bsls::UnspecifiedBool<function>        UnspecifiedBoolUtil;
+    typedef typename UnspecifiedBoolUtil::BoolType UnspecifiedBool;
+
+    // Since 'function' does not support 'operator==' and 'operator!=', they
+    // must be deliberately supressed; otherwise 'function' objects would be
+    // implicitly comparible by implicit conversion to 'UnspecifiedBool'.
+    bool operator==(const function&) const;  // Declared but not defined
+    bool operator!=(const function&) const;  // Declared but not defined
+#endif
 
 public:
     // PUBLIC TYPES
@@ -760,7 +784,8 @@ public:
     explicit  // Explicit conversion available only with C++11
     operator bool() const BSLS_NOTHROW_SPEC;
 #else
-    operator bool() const BSLS_NOTHROW_SPEC;
+    // Simulation of explicit converstion to bool
+    operator UnspecifiedBool() const BSLS_NOTHROW_SPEC;
 #endif
 
 };
@@ -1774,6 +1799,7 @@ RET bsl::function<RET(ARGS...)>::operator()(ARGS... args) const
 
 // ACCESSORS
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 template <class RET, class... ARGS>
 inline
 bsl::function<RET(ARGS...)>::operator bool() const BSLS_NOTHROW_SPEC
@@ -1782,6 +1808,16 @@ bsl::function<RET(ARGS...)>::operator bool() const BSLS_NOTHROW_SPEC
     // otherwise it is empty (return false).
     return d_invoker_p;
 }
+#else
+template <class RET, class... ARGS>
+inline
+bsl::function<RET(ARGS...)>::operator UnspecifiedBool() const BSLS_NOTHROW_SPEC
+{
+    // If there is an invoker, then this function is non-empty (return true);
+    // otherwise it is empty (return false).
+    return UnspecifiedBoolUtil::makeValue(d_invoker_p);
+}
+#endif
 
 
 // FREE FUNCTIONS
