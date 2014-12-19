@@ -23,22 +23,22 @@ void putSpaces(bsl::ostream& stream, int numSpaces)
     // that most times only a single call to the 'write' method is needed.
 
     // Define the largest chunk of spaces:
-    static const char SPACES[]    = "                                        ";
-           const int  SPACES_SIZE = sizeof(SPACES) - 1;
+    static const char k_SPACES[]    = "                                      ";
+           const int  k_SPACES_SIZE = sizeof(k_SPACES) - 1;
 
-    while (SPACES_SIZE < numSpaces) {
-        stream.write(SPACES, SPACES_SIZE);
-        numSpaces -= SPACES_SIZE;
+    while (k_SPACES_SIZE < numSpaces) {
+        stream.write(k_SPACES, k_SPACES_SIZE);
+        numSpaces -= k_SPACES_SIZE;
     }
 
     if (0 < numSpaces) {
-        stream.write(SPACES, numSpaces);
+        stream.write(k_SPACES, numSpaces);
     }
 }
 
 class FormatGuard {
-    // Class that saves the format flags from a stream.  Note 'ios_base' is
-    // a base class that both 'ostream' and 'istream' inherit from.
+    // Class that saves the format flags from a stream.  Note 'ios_base' is a
+    // base class that both 'ostream' and 'istream' inherit from.
 
     // DATA
     bsl::ios_base           *d_stream;
@@ -82,15 +82,15 @@ namespace bslim {
 // PRIVATE ACCESSORS
 void Printer::printEndIndentation() const
 {
-    putSpaces(*d_stream_p, d_spacesPerLevel < 0 
-                           ? 1 
+    putSpaces(*d_stream_p, d_spacesPerLevel < 0
+                           ? 1
                            : d_spacesPerLevel * d_level);
 }
 
 void Printer::printIndentation() const
 {
-    putSpaces(*d_stream_p, d_spacesPerLevel < 0 
-                           ? 1 
+    putSpaces(*d_stream_p, d_spacesPerLevel < 0
+                           ? 1
                            : d_spacesPerLevel * d_levelPlusOne);
 }
 // CREATORS

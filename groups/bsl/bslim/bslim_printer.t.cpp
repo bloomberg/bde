@@ -839,36 +839,37 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // CONCERN: Printer(stream, 0, -1) can be formatted with 'setw'
-        //
-        //   The concern is that 'operator<<' is implemented using the a
-        //   'Printer' constructed with the arguments 'Printer(stream, 0 -1)'.
-        //   It is clients can produce implementations of 'operator<<' 
-        //   that respect 'setw' when using the 'bslim::Printer'.
+        // INTERACTION WITH SETW
+        //   'operator<<' is commonly implemented for BDE types using a
+        //   'bslim::Printer' object constructed with the arguments
+        //   'Printer(stream, 0, -1)'.  The concern is that such
+        //   implementations of 'operator<<' correctly respect 'bsl::setw' on
+        //   'stream'.
         //
         // Concerns:
         //: 1 That an 'operator<<' implemented with 'bslim::Printer' will
         //:   respect the use of 'setw' by the user.
-        //:   
         //
         // Plan:
         //: 1 Create a table of test data varying in the use of 'setw' and
         //:   left/right, justification.  For each element, execute a
-        //:   simulated 'operator<<' implementation using 
+        //:   simulated 'operator<<' implementation using
         //:   'Printer(stream, 0 -1)', and verify the resulting output matches
         //:   the expected output.
+        //
+        // Testing:
+        //   CONCERN: Printer(stream, 0, -1) can be formatted with 'setw'
         // --------------------------------------------------------------------
 
-        if (verbose) cout 
-            << "\nCONCERN: Printer(stream, 0, -1) can be formatted with 'setw'"
-            << "\n==========================================================="
-            << "\n";
+        if (verbose) cout << endl
+                          << "INTERACTION WITH SETW" << endl
+                          << "=====================" << endl;
 
         struct {
-           int         d_line;
-           const char *d_text;     
-           int         d_setw;         // negative values = left-justified
-           const char *d_expected;
+            int         d_line;
+            const char *d_text;
+            int         d_setw;         // negative values = left-justified
+            const char *d_expected;
         } DATA[] = {
             { L_, "FOO",  0, "FOO"     },
             { L_, "FOO",  3, "FOO"     },
@@ -892,7 +893,7 @@ int main(int argc, char *argv[])
             }
 
             bsl::ostringstream stream;
-            
+
             if (SETW < 0) {
                 stream << bsl::setiosflags(ios::left) << bsl::setw(-SETW);
             }
@@ -907,7 +908,7 @@ int main(int argc, char *argv[])
             stream << INPUT;
             printer.end(true);
 
-            LOOP3_ASSERT(INPUT, SETW, EXPECTED, stream.str() == EXPECTED );
+            LOOP3_ASSERT(INPUT, SETW, EXPECTED, stream.str() == EXPECTED);
         }
 
       } break;
