@@ -15,14 +15,6 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslmf_nestedtraitdeclaration
 //
 //@DESCRIPTION: This component defines a meta-function,
-// 'bslmf::DetectNestedTrait', that detects whether or not a given trait has
-// been associated with a particular type by means of the macros provided in
-// 'bslmf_nestedtraitdeclaration'.  Such traits are referred to as "nested
-// traits" because their association with a type is embedded within the type's
-// definition.  **This component should be used exclusively to author new
-// user-defined traits that need to support the nested trait idiom**
-//
-//@DESCRIPTION: This component defines a meta-function,
 // 'bslmf::DetectNestedTrait', that facilitates the creation of traits that can
 // be associated with a type using the nested trait mechanism in
 // 'bslmf_declarenestedtrait'.  Such traits are referred to as "nested traits"
