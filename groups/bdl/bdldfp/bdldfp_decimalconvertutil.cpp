@@ -20,9 +20,7 @@ BSLS_IDENT_RCSID(bdldfp_decimalconvertutil_cpp,"$Id$ $CSID$")
 #include <bsl_cstring.h>
 
 #include <bsl_algorithm.h>
-#include <bsl_cstring.h>
 #include <bsl_iostream.h>  // TODO TBD - remove this, it is just for debugging
-#include <bsl_cstring.h>
 
 namespace BloombergLP {
 namespace bdldfp {
@@ -134,21 +132,21 @@ unsigned char *memReverseIfNeeded(void *buffer, size_t count)
                         // Decimal-network conversion functions
 
 template <class DECIMAL_TYPE>
-unsigned char *decimalFromNetworkT(DECIMAL_TYPE        *decimal,
-                                   const unsigned char *buffer)
+const unsigned char *decimalFromNetworkT(DECIMAL_TYPE        *decimal,
+                                         const unsigned char *buffer)
     // Construct into the specified 'decimal', the base-10 value represented by
     // the network-ordered bytes in the specified 'buffer', and return a raw
     // memory pointer, providing modifiable access, to one byte past the last
-    // byte of 'decimal'.
+    // byte read from 'buffer'.
 {
     bsl::memcpy(decimal, buffer, sizeof(DECIMAL_TYPE));
     unsigned char *result = memReverseIfNeeded(decimal, sizeof(DECIMAL_TYPE));
 
-    DecimalConvertUtil::decimalFromDenselyPacked(
+    DecimalConvertUtil::decimalFromDPD(
                                    decimal,
                                    reinterpret_cast<unsigned char *>(decimal));
 
-    return result;
+    return buffer + sizeof(DECIMAL_TYPE);
 }
 
 
@@ -159,7 +157,7 @@ unsigned char *decimalToNetworkT(unsigned char *buffer, DECIMAL_TYPE decimal)
     // return a raw memory pointer, providing modifiable access, to one byte
     // past the last written byte of the 'buffer'.
 {
-    DecimalConvertUtil::decimalToDenselyPacked(buffer, decimal);
+    DecimalConvertUtil::decimalToDPD(buffer, decimal);
     return memReverseIfNeeded(buffer, sizeof(DECIMAL_TYPE));
 }
 
@@ -272,7 +270,7 @@ unsigned char *DecimalConvertUtil::decimalToNetwork(unsigned char *buffer,
 
                         // Conversion to Network functions
 
-unsigned char *DecimalConvertUtil::decimal32FromNetwork(
+const unsigned char *DecimalConvertUtil::decimal32FromNetwork(
                                                   Decimal32           *decimal,
                                                   const unsigned char *buffer)
 {
@@ -280,7 +278,7 @@ unsigned char *DecimalConvertUtil::decimal32FromNetwork(
     return decimalFromNetworkT(decimal, buffer);
 }
 
-unsigned char *DecimalConvertUtil::decimal64FromNetwork(
+const unsigned char *DecimalConvertUtil::decimal64FromNetwork(
                                                   Decimal64           *decimal,
                                                   const unsigned char *buffer)
 {
@@ -288,7 +286,7 @@ unsigned char *DecimalConvertUtil::decimal64FromNetwork(
     return decimalFromNetworkT(decimal, buffer);
 }
 
-unsigned char *DecimalConvertUtil::decimal128FromNetwork(
+const unsigned char *DecimalConvertUtil::decimal128FromNetwork(
                                                   Decimal128          *decimal,
                                                   const unsigned char *buffer)
 {
@@ -296,7 +294,7 @@ unsigned char *DecimalConvertUtil::decimal128FromNetwork(
     return decimalFromNetworkT(decimal, buffer);
 }
 
-unsigned char *DecimalConvertUtil::decimalFromNetwork(
+const unsigned char *DecimalConvertUtil::decimalFromNetwork(
                                                   Decimal32           *decimal,
                                                   const unsigned char *buffer)
 {
@@ -304,7 +302,7 @@ unsigned char *DecimalConvertUtil::decimalFromNetwork(
     return decimalFromNetworkT(decimal, buffer);
 }
 
-unsigned char *DecimalConvertUtil::decimalFromNetwork(
+const unsigned char *DecimalConvertUtil::decimalFromNetwork(
                                                   Decimal64           *decimal,
                                                   const unsigned char *buffer)
 {
@@ -312,7 +310,7 @@ unsigned char *DecimalConvertUtil::decimalFromNetwork(
     return decimalFromNetworkT(decimal, buffer);
 }
 
-unsigned char *DecimalConvertUtil::decimalFromNetwork(
+const unsigned char *DecimalConvertUtil::decimalFromNetwork(
                                                   Decimal128          *decimal,
                                                   const unsigned char *buffer)
 {

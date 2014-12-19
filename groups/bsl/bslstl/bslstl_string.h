@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::basic_string: C++ standard compliant 'basic_string' implementation
 //  bsl::string: 'typedef' for 'bsl::basic_string<char>'
-//  bsl::wstring: 'typedef' for 'bsl::basic_string<wchar>'
+//  bsl::wstring: 'typedef' for 'bsl::basic_string<wchar_t>'
 //
 //@SEE_ALSO: ISO C++ Standard, Section 21 [strings]
 //

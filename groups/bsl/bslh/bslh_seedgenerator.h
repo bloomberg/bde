@@ -22,7 +22,7 @@ BSLS_IDENT("$Id: $")
 // secure algorithm.
 //
 // This class satisfies the requirements for a seed generator, defined in
-// bslh_seededhash.h.  More information can be found in the package level
+// 'bslh_seededhash.h'.  More information can be found in the package level
 // documentation for 'bslh' (internal users can also find information here
 // {TEAM BDE:USING MODULAR HASHING<GO>})
 //
@@ -150,7 +150,7 @@ BSLS_IDENT("$Id: $")
 //  };
 //..
 // Next, we define our constructor where we actually use 'bslh::SeedGenerator'.
-// 'bslh::SeedGenerator' allows us to create arbitarty length seeds to match
+// 'bslh::SeedGenerator' allows us to create arbitrary length seeds to match
 // the requirements of the above declared algorithms.
 //..
 //  template <class HASH_ALGORITHM>

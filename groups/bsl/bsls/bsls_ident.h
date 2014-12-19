@@ -254,11 +254,8 @@ BSLS_IDENT_RCSID(sysutil_ident_h,"$Id: $")
   #define BSLS_IDENT_PRAGMA_ONCE
 #elif defined(__IBMC__) || defined(__IBMCPP__)
   #define BSLS_IDENT_PRAGMA_ONCE _Pragma("once")
-#elif (0 && defined(_MSC_VER))
-  /* XXX: It's unclear what level of support Microsoft's compiler has for
-   * _Pragma("once") - leave disabled for now.
-   */
-  #define BSLS_IDENT_PRAGMA_ONCE _Pragma("once")
+#elif defined(_MSC_VER)
+  #define BSLS_IDENT_PRAGMA_ONCE __pragma(once)
 #elif (defined(__HP_cc)  && __HP_cc-0  >= 62500) \
    || (defined(__HP_aCC) && __HP_aCC-0 >= 62500)
   /* supported in aCC A.06.25 (had not been fully supported in aCC A.06.20) */

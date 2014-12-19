@@ -161,16 +161,16 @@ void aSsErT(bool b, const char *s, int i)
 // want to store objects of type 'Box' in a hash table, so we need to be able
 // to produce hash values that represent instances of 'Box'.  We don't want to
 // write our own hashing or hash combine algorithm, because we know it is very
-// difficult and labour intensive to write a proper hashing algorithm.  In
+// difficult and labor-intensive to write a proper hashing algorithm.  In
 // order to hash this 'Box', we will use the modular hashing system supplied in
 // 'bslh'.
 //
-// First, we define 'Point', a class that allows us to identify a loction on a
-// two dimensional cartesian plane.
+// First, we define 'Point', a class that allows us to identify a location on a
+// two dimensional Cartesian plane.
 //..
     class Point {
         // This class is a value semantic type that represents a two
-        // dimensional location on a cartesian plane.
+        // dimensional location on a Cartesian plane.
 
       private:
         int    d_x;
@@ -254,7 +254,7 @@ void aSsErT(bool b, const char *s, int i)
 //..
     class Box {
         // This class is a value semantic type that represents a box drawn on
-        // to a cartesian plane.
+        // to a Cartesian plane.
 
       private:
         Point d_position;
@@ -271,7 +271,7 @@ void aSsErT(bool b, const char *s, int i)
 
         Point getPosition() const;
             // Return a 'Point' representing the upper left corner of this box
-            // on a cartesian plane
+            // on a Cartesian plane
 
         int getWidth() const;
             // Return the width of this box.
@@ -656,9 +656,17 @@ class TestDriver {
         hashAppend(zeroAlg, zero);
         MockHashingAlgorithm negativeZeroAlg;
         hashAppend(negativeZeroAlg, negativeZero);
+
+        // Note that we're going to binaryCompare 'getLength()' bytes rather
+        // than 'sizeof(TYPE)' bytes, since for 'long double' only 10 bytes of
+        // the footprint are significant on some platforms.  See comments in
+        // the 'long double' overload of 'hashAppend' in 'bslh_hash.h' for more
+        // details.
+
+        ASSERT(zeroAlg.getLength() == negativeZeroAlg.getLength());
         ASSERT(binaryCompare(zeroAlg.getData(),
                              negativeZeroAlg.getData(),
-                             sizeof(TYPE)));
+                             zeroAlg.getLength()));
     }
 
     void testHashAppendInfinity()
@@ -696,14 +704,19 @@ class TestDriver {
                 MockHashingAlgorithm infAlg6;
                 hashAppend(infAlg6, inf6);
 
+                ASSERT(infAlg1.getLength() == infAlg2.getLength());
                 ASSERT(binaryCompare(infAlg1.getData(), infAlg2.getData(),
                                                          infAlg1.getLength()));
+                ASSERT(infAlg1.getLength() == infAlg3.getLength());
                 ASSERT(binaryCompare(infAlg1.getData(), infAlg3.getData(),
                                                          infAlg1.getLength()));
+                ASSERT(infAlg1.getLength() == infAlg4.getLength());
                 ASSERT(binaryCompare(infAlg1.getData(), infAlg4.getData(),
                                                          infAlg1.getLength()));
+                ASSERT(infAlg1.getLength() == infAlg5.getLength());
                 ASSERT(binaryCompare(infAlg1.getData(), infAlg5.getData(),
                                                          infAlg1.getLength()));
+                ASSERT(infAlg1.getLength() == infAlg6.getLength());
                 ASSERT(binaryCompare(infAlg1.getData(), infAlg6.getData(),
                                                          infAlg1.getLength()));
             }
@@ -750,13 +763,13 @@ class TypeChecker {
 };
 
 template<class EXPECTED_TYPE>
-bool TypeChecker<EXPECTED_TYPE>::isCorrectType(EXPECTED_TYPE type) {
+bool TypeChecker<EXPECTED_TYPE>::isCorrectType(EXPECTED_TYPE /*type*/) {
     return true;
 }
 
 template<class EXPECTED_TYPE>
 template<class OTHER_TYPE>
-bool TypeChecker<EXPECTED_TYPE>::isCorrectType(OTHER_TYPE type) {
+bool TypeChecker<EXPECTED_TYPE>::isCorrectType(OTHER_TYPE /*type*/) {
     return false;
 }
 
@@ -772,6 +785,8 @@ namespace X {
         // 'hashAppend' to ensure that the correct 'hashAppend' is picked up by
         // ADL.
     {
+        (void) hashAlg;
+        (void) &a;
     }
 }  // close test namespace
 
@@ -782,6 +797,8 @@ namespace Y {
         // 'hashAppend' that should not be picked up by ADL.
     {
         ASSERT(!"ADL picked the wrong 'hashAppend'");
+        (void) hashAlg;
+        (void) &a;
     }
 }  // close test namespace
 
@@ -1163,9 +1180,9 @@ int main(int argc, char *argv[])
         //:   double' if there is, ASSERT that all data including and after the
         //:   garbage is ignored by 'hashAppend'.
         //:
-        //: 5 Copy a known bitsequece into each fundamental type and pass it
-        //:   into 'hashAppend' with a mocked hashing algorith.  Verify that
-        //:   the data inputted into the hashing algorithm matches the known
+        //: 5 Copy a known bitsequence into each fundamental type and pass it
+        //:   into 'hashAppend' with a mocked hashing algorithm.  Verify that
+        //:   the data input into the hashing algorithm matches the known
         //:   input bitsequence.  Test with 'const' types.  (C-1,6,9)
         //:
         //: 6 Generate positive infinity in a number of ways and call
@@ -1243,21 +1260,26 @@ int main(int argc, char *argv[])
             hashAppend(assignedAlg, assignedBool);
 
             // All various 'true's are the same
-            ASSERT(binaryCompare(defaultAlg.getData(),
-                                 incrementedAlg.getData(),
-                                 sizeof(bool)));
+            ASSERT(defaultAlg.getLength() == sizeof(bool));
+            ASSERT(defaultAlg.getLength() == incrementedAlg.getLength());
 
             ASSERT(binaryCompare(defaultAlg.getData(),
+                                 incrementedAlg.getData(),
+                                 defaultAlg.getLength()));
+
+            ASSERT(defaultAlg.getLength() == assignedAlg.getLength());
+            ASSERT(binaryCompare(defaultAlg.getData(),
                                  assignedAlg.getData(),
-                                 sizeof(bool)));
+                                 defaultAlg.getLength()));
 
             MockHashingAlgorithm falseAlg;
             hashAppend(falseAlg, false);
 
             // 'true' and 'false' are different
+            ASSERT(defaultAlg.getLength() == falseAlg.getLength());
             ASSERT(!binaryCompare(defaultAlg.getData(),
                                   falseAlg.getData(),
-                                  sizeof(bool)));
+                                  defaultAlg.getLength()));
         }
 
         if (verbose) printf("Hash different pointers pointing to different"
@@ -1299,17 +1321,17 @@ int main(int argc, char *argv[])
             // Pointers to same location come out the same
             ASSERT(binaryCompare(ptr1Loc1Val1Alg.getData(),
                                  ptr2Loc1Val1Alg.getData(),
-                                 sizeof(const char *)));
+                                 ptr1Loc1Val1Alg.getLength()));
 
             // Pointers to same value, different location come out different
             ASSERT(!binaryCompare(ptr1Loc1Val1Alg.getData(),
                                   ptr3Loc2Val1Alg.getData(),
-                                  sizeof(const char *)));
+                                  ptr1Loc1Val1Alg.getLength()));
 
             // Pointers to different value and location come out different
             ASSERT(!binaryCompare(ptr1Loc1Val1Alg.getData(),
                                   ptr4Loc3Val2Alg.getData(),
-                                  sizeof(const char *)));
+                                  ptr1Loc1Val1Alg.getLength()));
 
             if (veryVerbose) printf("Testing function pointers\n");
 
@@ -1339,22 +1361,22 @@ int main(int argc, char *argv[])
             // Pointers to same location come out the same
             ASSERT(binaryCompare(fnptr1Loc1Val1Alg.getData(),
                                  fnptr2Loc1Val1Alg.getData(),
-                                 sizeof(int (*)())));
+                                 fnptr1Loc1Val1Alg.getLength()));
 
 #if !defined(BSLS_PLATFORM_OS_WINDOWS)
-            // We cant test this on Windows, because the compiler will colapse
+            // We cant test this on Windows, because the compiler will collapse
             // two identical functions down to just one location in memory.
 
             // Pointers to same value, different location come out different
             ASSERT(!binaryCompare(fnptr1Loc1Val1Alg.getData(),
                                   fnptr3Loc2Val1Alg.getData(),
-                                  sizeof(int (*)())));
+                                  fnptr1Loc1Val1Alg.getLength()));
 #endif
 
             // Pointers to different value and location come out different
             ASSERT(!binaryCompare(fnptr1Loc1Val1Alg.getData(),
                                   fnptr4Loc3Val2Alg.getData(),
-                                  sizeof(int (*)())));
+                                  fnptr1Loc1Val1Alg.getLength()));
 
         }
 
@@ -1421,9 +1443,9 @@ int main(int argc, char *argv[])
             ASSERTV(L_, alg.getLength(), size, alg.getLength() == size);
         }
 
-        if (verbose) printf("Copy a known bitsequece into each fundamental"
+        if (verbose) printf("Copy a known bitsequence into each fundamental"
                             " type and pass it into 'hashAppend' with a mocked"
-                            " hashing algorith.  Verify that the data inputted"
+                            " hashing algorithm.  Verify that the data input"
                             " into the hashing algorithm matches the known"
                             " input bitsequence.  Test with 'const' types."
                             "  (C-1,6,9)\n");
@@ -1478,7 +1500,7 @@ int main(int argc, char *argv[])
             TestDriver<double> doubleDriver;
             doubleDriver.testHashAppendPassThrough(L_);
 
-            // Special Case for 'long double' because of hack required to get
+            // Special case for 'long double' because of hack required to get
             // around how 'long double' is represented on Linux x86-64 in Clang
             // and GCC.
             MockHashingAlgorithm alg;
@@ -1558,40 +1580,40 @@ int main(int argc, char *argv[])
             // hashAppend function pointers
 
             TestDriver<void (*)(int, int, int, int, int,
-                                int, int, int, int, int)> fnptr10Driver;
+                                int, int, int, int, int)>        fnptr10Driver;
             fnptr10Driver.testHashAppendPassThrough(L_);
 
             TestDriver<void (*)(int, int, int, int, int, int, int, int, int)>
-                                                                  fnptr9Driver;
+                                                                 fnptr9Driver;
             fnptr9Driver.testHashAppendPassThrough(L_);
 
             TestDriver<void (*)(int, int, int, int, int, int, int, int)>
-                                                                  fnptr8Driver;
+                                                                 fnptr8Driver;
             fnptr8Driver.testHashAppendPassThrough(L_);
 
             TestDriver<void (*)(int, int, int, int, int, int, int)>
-                                                                  fnptr7Driver;
+                                                                 fnptr7Driver;
             fnptr7Driver.testHashAppendPassThrough(L_);
 
-            TestDriver<void (*)(int, int, int, int, int, int)> fnptr6Driver;
+            TestDriver<void (*)(int, int, int, int, int, int)>   fnptr6Driver;
             fnptr6Driver.testHashAppendPassThrough(L_);
 
-            TestDriver<void (*)(int, int, int, int, int)> fnptr5Driver;
+            TestDriver<void (*)(int, int, int, int, int)>        fnptr5Driver;
             fnptr5Driver.testHashAppendPassThrough(L_);
 
-            TestDriver<void (*)(int, int, int, int)> fnptr4Driver;
+            TestDriver<void (*)(int, int, int, int)>             fnptr4Driver;
             fnptr4Driver.testHashAppendPassThrough(L_);
 
-            TestDriver<void (*)(int, int, int)> fnptr3Driver;
+            TestDriver<void (*)(int, int, int)>                  fnptr3Driver;
             fnptr3Driver.testHashAppendPassThrough(L_);
 
-            TestDriver<void (*)(int, int)> fnptr2Driver;
+            TestDriver<void (*)(int, int)>                       fnptr2Driver;
             fnptr2Driver.testHashAppendPassThrough(L_);
 
-            TestDriver<void (*)(int)> fnptr1Driver;
+            TestDriver<void (*)(int)>                            fnptr1Driver;
             fnptr1Driver.testHashAppendPassThrough(L_);
 
-            TestDriver<void (*)()> fnptr0Driver;
+            TestDriver<void (*)()>                               fnptr0Driver;
             fnptr0Driver.testHashAppendPassThrough(L_);
         }
 
@@ -1601,10 +1623,12 @@ int main(int argc, char *argv[])
                             " algorithm is always the same. Repeat with"
                             " negative infinity. (C-7)\n");
         {
-            TestDriver<float> floatDriver;
+            TestDriver<float>       floatDriver;
             floatDriver.testHashAppendInfinity();
-            TestDriver<double> doubleDriver;
+
+            TestDriver<double>      doubleDriver;
             doubleDriver.testHashAppendInfinity();
+
             TestDriver<long double> longDoubleDriver;
             longDoubleDriver.testHashAppendInfinity();
         }
@@ -1686,6 +1710,8 @@ int main(int argc, char *argv[])
                             " to leave scope to be destroyed. (C-1,6)\n");
         {
             Obj alg1 = Obj();
+
+            (void) alg1;
         }
 
         if (verbose) printf("Use the copy-initialization syntax to create a"
@@ -1694,6 +1720,8 @@ int main(int argc, char *argv[])
         {
             const Obj alg1 = Obj();
             Obj alg2 = alg1;
+
+            (void) alg2;
         }
 
         if (verbose) printf("Assign the value of the one (const) instance of"
@@ -1701,6 +1729,8 @@ int main(int argc, char *argv[])
         {
             const Obj alg1 = Obj();
             Obj alg2 = alg1;
+
+            (void) alg2;
         }
 
         if (verbose) printf("Chain the assignment of the value of the one"
@@ -1740,6 +1770,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("Instantiate 'bslh::Hash'\n");
         {
             Obj hashAlg;
+
+            (void) hashAlg;
         }
 
         if (verbose) printf("Verify different hashes are produced for"

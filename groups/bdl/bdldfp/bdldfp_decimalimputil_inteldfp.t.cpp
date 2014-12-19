@@ -4,8 +4,87 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$")
 
+#include <bdls_testutil.h>
+#include <bsls_assert.h>
+#include <bsl_iostream.h>
+#include <bsl_cstdlib.h>
+
+// ============================================================================
+//                                 TEST PLAN
+// ----------------------------------------------------------------------------
+//                                  Overview
+//                                  --------
+// The Intel DFP implementation provides a BID representation of DFP.  The code
+// is written in C, but due to compiler-portability concerns, we have to
+// compile it with a C++ compiler.  This test driver is not blank, to address
+// some C/C++ compatibility concerns.
+//
+// Global Concerns:
+//
+//:  1 The IntelDFP library defines some manifest constants that might cause
+//:    linker failures.
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
+using namespace BloombergLP;
+using bsl::cout;
+using bsl::cerr;
+using bsl::flush;
+using bsl::endl;
+using bsl::atoi;
+
+//=============================================================================
+//                    STANDARD BDE ASSERT TEST MACRO
+//-----------------------------------------------------------------------------
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool b, const char *s, int i)
+{
+    if (b) {
+        cout << "Error " << __FILE__ << "(" << i << "): " << s
+             << "    (failed)" << endl;
+        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+    }
+}
+
+}  // close unnamed namespace
+
+//=============================================================================
+//                       STANDARD BDE TEST DRIVER MACROS
+//-----------------------------------------------------------------------------
+
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+
+#ifdef BSLS_PLATFORM_OS_LINUX
+extern "C" {
+extern const unsigned long long int  __four_over_pi[];
+}
+
+#define DEFINES
+#include "library_float128_dpml_four_over_pi.cpp"
+typedef struct { float a, b; double c; } SQRT_COEF_STRUCT;
+extern "C" const SQRT_COEF_STRUCT __dpml_bid_sqrt_t_table[];
+#undef DEFINES
+#endif
+
 int main()
 {
+#ifdef BSLS_PLATFORM_OS_LINUX
+    {
+        const SQRT_COEF_STRUCT *p = &__dpml_bid_sqrt_t_table[0];
+        ASSERT(p);
+    }
+
+    {
+        const DIGIT_TYPE *p = &FOUR_OVER_PI_TABLE_NAME[0];
+        ASSERT(p);
+    }
+#endif
+
     return -1;
 }
 

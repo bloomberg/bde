@@ -1,16 +1,19 @@
 // bdldfp_intelimpwrapper.t.cpp                                       -*-C++-*-
 #include <bdldfp_intelimpwrapper.h>
 
-// We include the 'fenv.h' header to ensure that there are no defninition
-// conflicts between the Intel DFP code and the system 'fenv' header.
-
-#include <fenv.h>
-
 #include <bsls_platform.h>
 
 #include <bsl_iostream.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+
+// We include the 'fenv.h' header to ensure that there are no definition
+// conflicts between the Intel DFP code and the system 'fenv' header.
+
+#ifndef BSLS_PLATFORM_CMP_MSVC
+#include <fenv.h>
+#endif
+#include <wchar.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -31,6 +34,7 @@ using bsl::atoi;
 // Global Concerns:
 //: o Intel Headers are included correctly
 //: o No #define detritus is left behind
+//: o Intel Headers do not interact poorly with system headers
 //
 // TBD:
 // ----------------------------------------------------------------------------
@@ -122,7 +126,10 @@ int main(int argc, char* argv[])
     int            test = argc > 1 ? atoi(argv[1]) : 0;
     int         verbose = argc > 2;
     int     veryVerbose = argc > 3;
-    int veryveryVerbose = argc > 4;
+    int veryVeryVerbose = argc > 4;
+
+    (void) veryVerbose;
+    (void) veryVeryVerbose;
 
     _IDEC_flags flags;
 
@@ -241,6 +248,8 @@ int main(int argc, char* argv[])
         BID_UINT64  doubleDecimalComputed;
         BID_UINT128   quadDecimalComputed;
 
+        (void) singleDecimal2;
+
         doubleDecimalComputed = __bid64_add(  doubleDecimal,
                                               doubleDecimal2,
                                              &flags);
@@ -330,6 +339,7 @@ int main(int argc, char* argv[])
 
         BID_UINT64 simpleDecimal;
         simpleDecimal = 42;
+        (void) simpleDecimal;
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

@@ -54,7 +54,7 @@ bsls::Types::Int64 getTimerMs() {
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
     timeb t;
     ::ftime(&t);
-    return = static_cast<bsls::Types::Int64>(t.time) * 1000 + t.millitm;
+    return static_cast<bsls::Types::Int64>(t.time) * 1000 + t.millitm;
 #else
 #error "Don't know how to get timer for this platform"
 #endif

@@ -28,6 +28,7 @@
 ******************************************************************************/
 
 #include "dpml_ux.h"
+#include "bid_conf.h"
 
 #define NUM_FRAC_BITS 7
 
@@ -36,7 +37,7 @@ typedef struct {
 	double c;
 } SQRT_COEF_STRUCT;
 
-const SQRT_COEF_STRUCT D_SQRT_TABLE_NAME[(1<<(NUM_FRAC_BITS+1))] = {
+BID_EXTERN_C const SQRT_COEF_STRUCT D_SQRT_TABLE_NAME[(1<<(NUM_FRAC_BITS+1))] = {
 
 
 /*

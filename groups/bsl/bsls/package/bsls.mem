@@ -28,6 +28,7 @@ bsls_atomicoperations_x86_win_msvc
 bsls_blockgrowth
 bsls_bslexceptionutil
 bsls_bsllock
+bsls_bslonce
 bsls_bsltestutil
 bsls_buildtarget
 bsls_byteorder
@@ -49,6 +50,9 @@ bsls_platform
 bsls_platformutil
 bsls_protocoltest
 bsls_stopwatch
+bsls_systemclocktype
+bsls_systemtime
+bsls_timeinterval
 bsls_timeutil
 bsls_types
 bsls_unspecifiedbool
