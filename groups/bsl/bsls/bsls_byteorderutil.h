@@ -174,7 +174,7 @@ signed char ByteOrderUtil::swapBytes(signed char x)
 inline
 wchar_t ByteOrderUtil::swapBytes(wchar_t x)
 {
-#if defined(BSLS_PLATFORM_CMP_MSVC) ||                                        \
+#if defined(BSLS_PLATFORM_OS_WINDOWS) ||                                      \
     (defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_CPU_32_BIT))
     BSLS_BYTEORDERUTIL_COMPILE_TIME_ASSERT(2 == sizeof x);
 
