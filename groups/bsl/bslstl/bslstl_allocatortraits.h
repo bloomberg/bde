@@ -404,6 +404,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include <bslma_default.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISCONVERTIBLE
 #include <bslmf_isconvertible.h>
 #endif
@@ -455,8 +459,10 @@ struct allocator_traits {
     typedef typename is_convertible<BloombergLP::bslma::Allocator*,
                                     ALLOCATOR_TYPE>::type IsBslma;
 
-    static void *mechanism(const ALLOCATOR_TYPE&, false_type);
-        // Return a null pointer.  Note that this function is called only when
+    static BloombergLP::bslma::Allocator *mechanism(const ALLOCATOR_TYPE&,
+                                                    false_type);
+        // Return the address of the currently installed default
+        // 'bslma::Allocator'.  Note that this function is called only when
         // 'ALLOCATOR_TYPE' is not a bslma allocator.
 
     static
@@ -912,11 +918,11 @@ struct allocator_traits {
 
 template <class ALLOCATOR_TYPE>
 inline
-void *
+BloombergLP::bslma::Allocator *
 allocator_traits<ALLOCATOR_TYPE>::mechanism(const ALLOCATOR_TYPE&,
                                             false_type)
 {
-    return 0;
+    return BloombergLP::bslma::Default::allocator();
 }
 
 template <class ALLOCATOR_TYPE>
