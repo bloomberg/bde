@@ -1287,7 +1287,7 @@ struct ManagedPtrUtil {
 
 template <class TARGET_TYPE>
 struct ManagedPtrNilDeleter {
-    // [!DEPRECATED!]: Use 'ManagedPtrNoOpDeleter' instead.
+    // [!DEPRECATED!]: Use 'ManagedPtrUtil::noOpDeleter' instead.
     //
     // This utility class provides a general no-op deleter, which is useful
     // when creating managed pointers to stack-allocated objects.  Note that
