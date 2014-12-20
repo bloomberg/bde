@@ -794,7 +794,7 @@ STREAM& Date::bdexStreamIn(STREAM& stream, int version)
                 if (tmpSerialDate > 3) {
                     tmpSerialDate -= 2;  // align post-GR serial values
                 }
-                else if (tmpSerialDate & 0x3) {
+                else if (tmpSerialDate > 0) {
                     tmpSerialDate = 1;   // "fuzzy" default value '[1 .. 3]'
                 }
             }
