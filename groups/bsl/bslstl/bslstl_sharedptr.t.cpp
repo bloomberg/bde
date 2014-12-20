@@ -4251,7 +4251,7 @@ int main(int argc, char *argv[])
           const Obj obj3(obj2, obj1.get());
 
           {
-              const bsl::hash<Obj> hashX = {};
+              const bsl::hash<Obj> hashX = bsl::hash<Obj>();
               bsl::hash<Obj> hashY = hashX;
               (void) hashY;  // Suppress 'unused variable' warning
 
