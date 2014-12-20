@@ -1334,10 +1334,14 @@ class shared_ptr {
         // released, the object pointed to by the managed pointer will be
         // destroyed by a call to 'delete ptr'.  If 'COMPATIBLE_TYPE *' is not
         // implicitly convertible to 'ELEMENT_TYPE *', then a compiler
-        // diagnostic will be emitted indicating the error.  If 'ptr' is 0, an
-        // empty shared pointer is created and no memory is allocated.  If an
-        // exception is thrown allocating storage for the representation, then
-        // 'delete ptr' will be called.
+        // diagnostic will be emitted indicating the error.  If 'ptr' is 0,
+        // then this shared pointer will still allocate an internal
+        // representation to share ownership of that empty state, which will be
+        // reclaimed when the last reference is destroyed.  If an exception is
+        // thrown allocating storage for the representation, then 'delete ptr'
+        // will be called.  Note that if 'ptr' is a null-pointer constant, the
+        // compiler will actually select the 'shared_ptr(bsl::nullptr_t)'
+        // constructor, resulting in an empty shared pointer.
 
     template <class COMPATIBLE_TYPE>
     shared_ptr(COMPATIBLE_TYPE               *ptr,
@@ -1352,8 +1356,13 @@ class shared_ptr {
         // currently installed default allocator is used.  If
         // 'COMPATIBLE_TYPE *' is not implicitly convertible to
         // 'ELEMENT_TYPE *', then a compiler diagnostic will be emitted
-        // indicating the error.  If 'ptr' is 0, an empty shared pointer is
-        // created and 'basicAllocator' is ignored.  Note that if
+        // indicating the error.  If 'ptr' is 0, then this shared pointer will
+        // still allocate an internal representation to share ownership of that
+        // empty state, which will be reclaimed when the last reference is
+        // destroyed.  Note that if 'ptr' is a null-pointer constant, the
+        // compiler will actually select the
+        // 'shared_ptr(bsl::nullptr_t, BloombergLP::bslma::Allocator *)'
+        // constructor, resulting in an empty shared pointer.  Note that if
         // 'basicAllocator' is a pointer to a class derived from
         // 'bslma::Allocator', the compiler will actually select the following
         // (more general) constructor that has the same behavior:
