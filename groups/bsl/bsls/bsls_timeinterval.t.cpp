@@ -2,20 +2,8 @@
 
 #include <bsls_timeinterval.h>
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-#if 0  // TBD: BDEX
-#include <bdex_instreamfunctions.h>
-#include <bdex_outstreamfunctions.h>
-#include <bdex_testinstream.h>
-#include <bdex_testoutstream.h>
-#include <bdex_testinstreamexception.h>
-#include <bdex_byteoutstream.h>
-#include <bdex_byteinstream.h>
-#endif // TBD BDEX
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-
-#include <bsls_asserttest.h>
-#include <bsls_bsltestutil.h>
+#include <bsls_asserttest.h>   // for testing only
+#include <bsls_bsltestutil.h>  // for testing only
 #include <bsls_platform.h>
 
 #include <limits.h>  // LLONG_MAX
@@ -62,6 +50,7 @@ using namespace std;
 // ----------------------------------------------------------------------------
 // CLASS METHODS
 // [22] bool isValid(Int64, int);
+// [10] static int maxSupportedBdexVersion(int versionSelector);
 //
 // CREATORS
 // [ 2] TimeInterval();
@@ -94,6 +83,7 @@ using namespace std;
 // [18] void addInterval(Int64, int);
 // [11] void setInterval(Int64, int);
 // [ 2] void setIntervalRaw(Int64, int);
+// [10] STREAM& bdexStreamIn(STREAM& stream, int version);
 //
 // ACCESSORS
 // [ 4] bsls::Types::Int64 seconds() const;
@@ -106,6 +96,7 @@ using namespace std;
 // [17] Int64 totalMicroseconds() const;
 // [17] Int64 totalNanoseconds() const;
 // [17] double totalSecondsAsDouble() const;
+// [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
 // [ 5] STREAM& print(STREAM&, int, int) const;
 //
 // FREE OPERATORS
@@ -136,20 +127,15 @@ using namespace std;
 // [15] bool operator>=(double, const TimeInterval&);
 // [ 5] STREAM& operator<<(STREAM&, const TimeInterval&);
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-//
 // DEPRECATED
-// [10] int maxSupportedBdexVersion();
-// [10] int maxSupportedVersion();
-// [ 5] STREAM& streamOut(STREAM& stream) const;
+// [10] static int maxSupportedBdexVersion();
+// [10] static int maxSupportedVersion();
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] TESTING TEST-DRIVER MACHINERY
 // [23] USAGE EXAMPLE
 // [ 8] Reserved for 'swap' testing.
-#ifdef BDE_OMIT_INTERNAL_DEPRECATED
-// [10] Reserved for BDEX support.
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -212,6 +198,9 @@ void aSsErT(bool condition, const char *message, int line)
 typedef bsls::TimeInterval Obj;
 typedef bsls::Types::Int64 Int64;
 
+#define BUFFER_SIZE 512            // must be large enough to enable BDEX tests
+#define VERSION_SELECTOR 20140601
+
 const int k_MILLISECS_PER_SEC     = 1000;        // one thousand
 const int k_MICROSECS_PER_SEC     = 1000000;     // one million
 const int k_NANOSECS_PER_MICROSEC = 1000;        // one thousand
@@ -234,12 +223,8 @@ const bsls::Types::Int64 k_HOURS_MIN = LLONG_MIN / 3600; // min number of hours
 const bsls::Types::Int64 k_DAYS_MAX  = LLONG_MAX / 86400; // max number of days
 const bsls::Types::Int64 k_DAYS_MIN  = LLONG_MIN / 86400; // min number of days
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-#if 0  // TBD: BDEX
-typedef bdex_TestInStream  In;
-typedef bdex_TestOutStream Out;
-#endif
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+const int k_BDEX_SIZEOF_INT32 = 4;
+const int k_BDEX_SIZEOF_INT64 = 8;
 
 //=============================================================================
 //                      HELPER FUNCTIONS FOR TESTING
@@ -264,6 +249,675 @@ void debugprint(const bsls::TimeInterval& timeInterval)
 
 #define snprintf _snprintf
 #endif
+
+                        // ===========================
+                        // class TestInStreamException
+                        // ===========================
+
+class TestInStreamException {
+    // This class defines an exception object for unexternalization operations.
+    // Instances of this class contain information about an unexternalization
+    // request.
+
+    // DATA
+    int d_dataType;  // type of the input data requested
+
+  public:
+    // CREATORS
+    explicit TestInStreamException(int type);
+        // Create an exception object initialized with the specified 'type'.
+
+    //! ~TestInStreamException() = default;
+        // Destroy this object.  Note that this method's definition is compiler
+        // generated.
+
+    // ACCESSORS
+    int dataType() const;
+        // Return the type code that was supplied at construction of this
+        // exception object.
+};
+// CREATORS
+inline
+TestInStreamException::TestInStreamException(int type)
+: d_dataType(type)
+{
+}
+
+// ACCESSORS
+inline
+int TestInStreamException::dataType() const
+{
+    return d_dataType;
+}
+
+               // ============================================
+               // macro BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN
+               // ============================================
+
+#ifdef BDE_BUILD_TARGET_EXC
+
+class TestInStream_ProxyBase {
+    // This class provides a common base class for the parameterized
+    // 'TestInStream_Proxy' class (below).  Note that the 'virtual'
+    // 'setInputLimit' method, although a "setter", *must* be declared 'const'.
+
+  public:
+    virtual ~TestInStream_ProxyBase()
+    {
+    }
+
+    // ACCESSORS
+    virtual void setInputLimit(int limit) const = 0;
+};
+
+template <class BSLX_STREAM_TYPE>
+class TestInStream_Proxy: public TestInStream_ProxyBase {
+    // This class provides a proxy to the test stream that is supplied to the
+    // 'BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN' macro.  This proxy may be
+    // instantiated with 'TestInStream', or with a type that supports the same
+    // interface as 'TestInStream'.
+
+    // DATA
+    BSLX_STREAM_TYPE *d_stream_p;  // stream used in '*_BEGIN' and
+                                   // '*_END' macros (held, not owned)
+
+  public:
+    // CREATORS
+    TestInStream_Proxy(BSLX_STREAM_TYPE *stream)
+    : d_stream_p(stream)
+    {
+    }
+
+    ~TestInStream_Proxy()
+    {
+    }
+
+    // ACCESSORS
+    virtual void setInputLimit(int limit) const
+    {
+        d_stream_p->setInputLimit(limit);
+    }
+};
+
+template <class BSLX_STREAM_TYPE>
+inline
+TestInStream_Proxy<BSLX_STREAM_TYPE>
+TestInStream_getProxy(BSLX_STREAM_TYPE *stream)
+    // Return, by value, a test stream proxy for the specified parameterized
+    // 'stream'.
+{
+    return TestInStream_Proxy<BSLX_STREAM_TYPE>(stream);
+}
+
+#ifndef BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN
+#define BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(BSLX_TESTINSTREAM)             \
+{                                                                             \
+    const TestInStream_ProxyBase& testInStream =                              \
+                             TestInStream_getProxy(&BSLX_TESTINSTREAM);       \
+    {                                                                         \
+        static int firstTime = 1;                                             \
+        if (veryVerbose && firstTime)                                         \
+                printf("### BSLX EXCEPTION TEST -- (ENABLED) --\n");          \
+        firstTime = 0;                                                        \
+    }                                                                         \
+    if (veryVeryVerbose) printf("### Begin BSLX exception test.\n");          \
+    int bslxExceptionCounter = 0;                                             \
+    static int bslxExceptionLimit = 100;                                      \
+    testInStream.setInputLimit(bslxExceptionCounter);                         \
+    do {                                                                      \
+        try {
+#endif  // BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN
+
+#else // !defined(BDE_BUILD_TARGET_EXC)
+
+#ifndef BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN
+#define BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(testInStream)                  \
+{                                                                             \
+    static int firstTime = 1;                                                 \
+    if (verbose && firstTime) {                                               \
+        printf("### BSLX EXCEPTION TEST -- (NOT ENABLED) --\n");              \
+        firstTime = 0;                                                        \
+    }                                                                         \
+}
+#endif  // BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN
+
+#endif  // BDE_BUILD_TARGET_EXC
+
+               // ==========================================
+               // macro BSLX_TESTINSTREAM_EXCEPTION_TEST_END
+               // ==========================================
+
+#ifdef BDE_BUILD_TARGET_EXC
+
+#ifndef BSLX_TESTINSTREAM_EXCEPTION_TEST_END
+#define BSLX_TESTINSTREAM_EXCEPTION_TEST_END                                  \
+        } catch (TestInStreamException& e) {                                  \
+            if ((veryVerbose && bslxExceptionLimit) || veryVeryVerbose)       \
+            {                                                                 \
+                --bslxExceptionLimit;                                         \
+                printf("(%i)", bslxExceptionCounter);                         \
+                if (veryVeryVerbose) {                                        \
+                    printf(" BSLX EXCEPTION: input limit = %i,"               \
+                           "last data type = %i",                             \
+                           bslxExceptionCounter,                              \
+                           e.dataType());                                     \
+                }                                                             \
+                else if (0 == bslxExceptionLimit) {                           \
+                    printf(" [ Note: 'bslxExceptionLimit' reached. ]");       \
+                }                                                             \
+                printf("\n");                                                 \
+            }                                                                 \
+            testInStream.setInputLimit(++bslxExceptionCounter);               \
+            continue;                                                         \
+        }                                                                     \
+        testInStream.setInputLimit(-1);                                       \
+        break;                                                                \
+    } while (1);                                                              \
+    if (veryVeryVerbose) {                                                    \
+        printf("### End BSLX exception test.\n");                             \
+    }                                                                         \
+}
+#endif  // BSLX_TESTINSTREAM_EXCEPTION_TEST_END
+
+#else // !defined(BDE_BUILD_TARGET_EXC)
+
+#ifndef BSLX_TESTINSTREAM_EXCEPTION_TEST_END
+#define BSLX_TESTINSTREAM_EXCEPTION_TEST_END
+#endif
+
+#endif  // BDE_BUILD_TARGET_EXC
+
+                         // ==================
+                         // class ByteInStream
+                         // ==================
+
+class ByteInStream {
+    // This class provides input methods to unexternalize 'bsls::Types::Int64'
+    // and 'int' values from their byte representations.
+
+    // DATA
+    const char *d_buffer;      // bytes to be unexternalized
+
+    int         d_numBytes;    // number of bytes in 'd_buffer'
+
+    bool        d_validFlag;   // stream validity flag; 'true' if stream is in
+                               // valid state, 'false' otherwise
+
+    int         d_inputLimit;  // number of input op's before exception
+
+    int         d_cursor;      // index of the next byte to be extracted from
+                               // this stream
+
+  private:
+    // PRIVATE MANIPULATORS
+    void throwExceptionIfInputLimitExhausted(int code);
+        // Decrement the internal input limit of this test stream.  If the
+        // input limit becomes negative and exception-handling is enabled
+        // (i.e., '-DBDE_BUILD_TARGET_EXC' was supplied at compile time), then
+        // throw a 'TestInStreamException' object initialized with the
+        // specified type 'code'.  If exception-handling is not enabled, this
+        // method has no effect.
+
+    // NOT IMPLEMENTED
+    ByteInStream(const ByteInStream&);
+    ByteInStream& operator=(const ByteInStream&);
+
+  public:
+    // CREATORS
+    ByteInStream(const char *buffer, int numBytes);
+        // Create an input byte stream containing the specified initial
+        // 'numBytes' from the specified 'buffer'.  The behavior is undefined
+        // unless '0 <= numBytes' and, if '0 == buffer', then '0 == numBytes'.
+
+    ~ByteInStream();
+        // Destroy this object.
+
+    // MANIPULATORS
+    ByteInStream& getInt64(bsls::Types::Int64& variable);
+        // If required, throw a 'TestInStreamException' (see
+        // 'throwExceptionIfInputLimitExhausted'); otherwise, consume the
+        // 64-bit signed integer value into the specified 'variable', update
+        // the cursor location, and return a reference to this stream.  If this
+        // stream is initially invalid, this operation has no effect.  If this
+        // function otherwise fails to extract a valid value, this stream is
+        // marked invalid and the value of 'variable' is undefined.
+
+    ByteInStream& getInt32(int& variable);
+        // If required, throw a 'TestInStreamException' (see
+        // 'throwExceptionIfInputLimitExhausted'); otherwise, consume the
+        // 32-bit signed integer value into the specified 'variable', update
+        // the cursor location, and return a reference to this stream.  If this
+        // stream is initially invalid, this operation has no effect.  If this
+        // function otherwise fails to extract a valid value, this stream is
+        // marked invalid and the value of 'variable' is undefined.
+
+    void invalidate();
+        // Put this input stream in an invalid state.  This function has no
+        // effect if this stream is already invalid.  Note that this function
+        // should be called whenever a value extracted from this stream is
+        // determined to be invalid, inconsistent, or otherwise incorrect.
+
+    void setInputLimit(int limit);
+        // Set the number of input operations allowed on this stream to the
+        // specified 'limit' before an exception is thrown.  If 'limit' is less
+        // than 0, no exception is to be thrown.  By default, no exception is
+        // scheduled.
+
+    void reset();
+        // Set the index of the next byte to be extracted from this stream to 0
+        // (i.e., the beginning of the stream) and validate this stream if it
+        // is currently invalid.
+
+    // ACCESSORS
+    operator const void *() const;
+        // Return a non-zero value if this stream is valid, and 0 otherwise.
+        // An invalid stream is a stream for which an input operation was
+        // detected to have failed.
+
+    int cursor() const;
+        // Return the index of the next byte to be extracted from this stream.
+
+    const char *data() const;
+        // Return the address of the contiguous, non-modifiable external memory
+        // buffer of this stream.  The behavior of accessing elements outside
+        // the range '[ data() .. data() + (length() - 1) ]' is undefined.
+
+    bool isValid() const;
+        // Return 'true' if this stream is valid, and 'false' otherwise.  An
+        // invalid stream is a stream in which insufficient or invalid data was
+        // detected during an extraction operation.  Note that an empty stream
+        // will be valid unless an extraction attempt or explicit invalidation
+        // causes it to be otherwise.
+
+    bool isEmpty() const;
+        // Return 'true' if this stream is empty, and 'false' otherwise.  Note
+        // that this function enables higher-level components to verify that,
+        // after successfully reading all expected data, no data remains.
+
+    int length() const;
+        // Return the total number of bytes stored in the external memory
+        // buffer.
+};
+
+// PRIVATE MANIPULATORS
+inline
+void ByteInStream::throwExceptionIfInputLimitExhausted(int code)
+{
+#ifdef BDE_BUILD_TARGET_EXC
+    if (0 <= d_inputLimit) {
+        --d_inputLimit;
+        if (0 > d_inputLimit) {
+            throw TestInStreamException(code);
+        }
+    }
+#endif
+}
+
+// CREATORS
+inline
+ByteInStream::ByteInStream(const char *buffer, int numBytes)
+: d_buffer(buffer)
+, d_numBytes(numBytes)
+, d_validFlag(1)
+, d_inputLimit(-1)
+, d_cursor(0)
+{
+    BSLS_ASSERT_SAFE(buffer || 0 == numBytes);
+    BSLS_ASSERT_SAFE(0 <= numBytes);
+}
+
+inline
+ByteInStream::~ByteInStream()
+{
+}
+
+// MANIPULATORS
+inline
+ByteInStream& ByteInStream::getInt64(bsls::Types::Int64& variable)
+{
+    throwExceptionIfInputLimitExhausted(64);
+
+    if (!isValid()) {
+        return *this;                                                 // RETURN
+    }
+
+    if (cursor() + k_BDEX_SIZEOF_INT64 <= length()) {
+        const char *buffer = d_buffer + cursor();
+
+        if (sizeof variable > k_BDEX_SIZEOF_INT64) {
+            variable = 0x80 & buffer[0] ? -1 : 0;  // sign extend
+        }
+
+        char *bytes = reinterpret_cast<char *>(&variable);
+
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
+        bytes[7] = buffer[0];
+        bytes[6] = buffer[1];
+        bytes[5] = buffer[2];
+        bytes[4] = buffer[3];
+        bytes[3] = buffer[4];
+        bytes[2] = buffer[5];
+        bytes[1] = buffer[6];
+        bytes[0] = buffer[7];
+#else
+        bytes[sizeof *variable - 8] = buffer[0];
+        bytes[sizeof *variable - 7] = buffer[1];
+        bytes[sizeof *variable - 6] = buffer[2];
+        bytes[sizeof *variable - 5] = buffer[3];
+        bytes[sizeof *variable - 4] = buffer[4];
+        bytes[sizeof *variable - 3] = buffer[5];
+        bytes[sizeof *variable - 2] = buffer[6];
+        bytes[sizeof *variable - 1] = buffer[7];
+#endif
+
+        d_cursor += k_BDEX_SIZEOF_INT64;
+    }
+    else {
+        invalidate();
+    }
+
+    return *this;
+}
+
+inline
+ByteInStream& ByteInStream::getInt32(int& variable)
+{
+    throwExceptionIfInputLimitExhausted(32);
+
+    if (!isValid()) {
+        return *this;                                                 // RETURN
+    }
+
+    if (cursor() + k_BDEX_SIZEOF_INT32 <= length()) {
+        const char *buffer = d_buffer + cursor();
+
+        if (sizeof variable > k_BDEX_SIZEOF_INT32) {
+            variable = 0x80 & buffer[0] ? -1 : 0;  // sign extend
+        }
+
+        char *bytes = reinterpret_cast<char *>(&variable);
+
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
+        bytes[3] = buffer[0];
+        bytes[2] = buffer[1];
+        bytes[1] = buffer[2];
+        bytes[0] = buffer[3];
+#else
+        bytes[sizeof *variable - 4] = buffer[0];
+        bytes[sizeof *variable - 3] = buffer[1];
+        bytes[sizeof *variable - 2] = buffer[2];
+        bytes[sizeof *variable - 1] = buffer[3];
+#endif
+
+        d_cursor += k_BDEX_SIZEOF_INT32;
+    }
+    else {
+        invalidate();
+    }
+
+    return *this;
+}
+
+inline
+void ByteInStream::invalidate()
+{
+    d_validFlag = false;
+}
+
+inline
+void ByteInStream::setInputLimit(int limit)
+{
+    d_inputLimit = limit;
+}
+
+inline
+void ByteInStream::reset()
+{
+    d_validFlag = true;
+    d_cursor    = 0;
+}
+
+// ACCESSORS
+inline
+ByteInStream::operator const void *() const
+{
+    return isValid() ? this : 0;
+}
+
+inline
+int ByteInStream::cursor() const
+{
+    return d_cursor;
+}
+
+inline
+const char *ByteInStream::data() const
+{
+    return d_numBytes ? d_buffer : 0;
+}
+
+inline
+bool ByteInStream::isValid() const
+{
+    return d_validFlag;
+}
+
+inline
+bool ByteInStream::isEmpty() const
+{
+    return cursor() == length();
+}
+
+inline
+int ByteInStream::length() const
+{
+    return d_numBytes;
+}
+
+typedef ByteInStream  In;
+
+                         // ===================
+                         // class ByteOutStream
+                         // ===================
+
+class ByteOutStream {
+    // This class provides output methods to externalize 'bsls::Types::Int64'
+    // and 'int' values from their byte representations.  In particular, each
+    // 'put' method of this class is guaranteed to write stream data that can
+    // be read by the corresponding 'get' method of 'ByteInStream'.
+
+    // DATA
+    char            d_buffer[BUFFER_SIZE];  // byte buffer to write to
+
+    int             d_size;         // size of data written to buffer
+
+    int             d_validFlag;    // stream validity flag; 'true' if stream
+                                    // is in valid state, 'false' otherwise
+
+    // NOT IMPLEMENTED
+    ByteOutStream(const ByteOutStream&);
+    ByteOutStream& operator=(const ByteOutStream&);
+
+  private:
+    // PRIVATE MANIPULATORS
+    void validate();
+        // Put this output stream into a valid state.  This function has no
+        // effect if this stream is already valid.
+
+  public:
+    // CREATORS
+    explicit ByteOutStream(int serializationVersion);
+        // Create an empty output byte stream.  The specified
+        // 'serializationVersion' is ignored.
+
+    ~ByteOutStream();
+        // Destroy this object.
+
+    // MANIPULATORS
+    void invalidate();
+        // Put this output stream in an invalid state.  This function has no
+        // effect if this stream is already invalid.
+
+    ByteOutStream& putInt64(bsls::Types::Int64 value);
+        // Write to this stream the eight-byte, two's complement integer (in
+        // network byte order) comprised of the least-significant eight bytes
+        // of the specified 'value' (in host byte order), and return a
+        // reference to this stream.  If this stream is initially invalid, this
+        // operation has no effect.
+
+    ByteOutStream& putInt32(int value);
+        // Write to this stream the four-byte, two's complement integer (in
+        // network byte order) comprised of the least-significant four bytes of
+        // the specified 'value' (in host byte order), and return a reference
+        // to this stream.  If this stream is initially invalid, this operation
+        // has no effect.
+
+    // ACCESSORS
+    operator const void *() const;
+        // Return a non-zero value if this stream is valid, and 0 otherwise.
+        // An invalid stream is a stream for which an output operation was
+        // detected to have failed or 'invalidate' was called.
+
+    const char *data() const;
+        // Return the address of the contiguous, non-modifiable internal memory
+        // buffer of this stream.  The address will remain valid as long as
+        // this stream is not destroyed or modified.  The behavior of accessing
+        // elements outside the range '[ data() .. data() + (length() - 1) ]'
+        // is undefined.
+
+    bool isValid() const;
+        // Return 'true' if this stream is valid, and 'false' otherwise.  An
+        // invalid stream is a stream for which an output operation was
+        // detected to have failed or 'invalidate' was called.
+
+    int length() const;
+        // Return the number of bytes in this stream.
+};
+
+// PRIVATE MANIPULATORS
+inline
+void ByteOutStream::validate()
+{
+    d_validFlag = true;
+}
+
+// CREATORS
+inline
+ByteOutStream::ByteOutStream(int /* serializationVersion */)
+: d_size(0)
+, d_validFlag(true)
+{
+}
+
+inline
+ByteOutStream::~ByteOutStream()
+{
+}
+
+// MANIPULATORS
+inline
+void ByteOutStream::invalidate()
+{
+    d_validFlag = false;
+}
+inline
+ByteOutStream& ByteOutStream::putInt64(bsls::Types::Int64 value)
+{
+    if (!isValid()) {
+        return *this;                                                 // RETURN
+    }
+
+    // Write to the buffer the specified 'value'.
+
+    char *buffer = d_buffer + d_size;
+
+    char *bytes = reinterpret_cast<char *>(&value);
+
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    buffer[0] = bytes[7];
+    buffer[1] = bytes[6];
+    buffer[2] = bytes[5];
+    buffer[3] = bytes[4];
+    buffer[4] = bytes[3];
+    buffer[5] = bytes[2];
+    buffer[6] = bytes[1];
+    buffer[7] = bytes[0];
+#else
+    buffer[0] = bytes[sizeof value - 8];
+    buffer[1] = bytes[sizeof value - 7];
+    buffer[2] = bytes[sizeof value - 6];
+    buffer[3] = bytes[sizeof value - 5];
+    buffer[4] = bytes[sizeof value - 4];
+    buffer[5] = bytes[sizeof value - 3];
+    buffer[6] = bytes[sizeof value - 2];
+    buffer[7] = bytes[sizeof value - 1];
+#endif
+
+    d_size += k_BDEX_SIZEOF_INT64;
+
+    return *this;
+}
+
+inline
+ByteOutStream& ByteOutStream::putInt32(int value)
+{
+    if (!isValid()) {
+        return *this;                                                 // RETURN
+    }
+
+    // Write to the buffer the specified 'value'.
+
+    char *buffer = d_buffer + d_size;
+
+    char *bytes = reinterpret_cast<char *>(&value);
+
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    buffer[0] = bytes[3];
+    buffer[1] = bytes[2];
+    buffer[2] = bytes[1];
+    buffer[3] = bytes[0];
+#else
+    buffer[0] = bytes[sizeof value - 4];
+    buffer[1] = bytes[sizeof value - 3];
+    buffer[2] = bytes[sizeof value - 2];
+    buffer[3] = bytes[sizeof value - 1];
+#endif
+
+    d_size += k_BDEX_SIZEOF_INT32;
+
+    return *this;
+}
+
+// ACCESSORS
+inline
+ByteOutStream::operator const void *() const
+{
+    return isValid() ? this : 0;
+}
+
+inline
+const char *ByteOutStream::data() const
+{
+    return d_buffer;
+}
+
+inline
+bool ByteOutStream::isValid() const
+{
+    return d_validFlag;
+}
+
+inline
+int ByteOutStream::length() const
+{
+    return static_cast<int>(d_size);
+}
+
+typedef ByteOutStream Out;
+
+                         // ================
+                         // class TestStream
+                         // ================
 
 class TestStream {
     // This class provides a test stream on which one may call 'operator<<'
@@ -515,7 +1169,7 @@ int main(int argc, char *argv[])
             { L_, LLONG_MIN, -1999999999, false },
             { L_, LLONG_MIN,     INT_MIN, false },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) printf(
             "\nTesting: 'isValid' with test table\n");
@@ -595,7 +1249,7 @@ int main(int argc, char *argv[])
             { L_,     -3,         -1 },
             { L_,     -1, -999999999 }
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) printf(
             "\nTesting: 'operator-' with 'TimeInterval'\n");
@@ -729,7 +1383,7 @@ int main(int argc, char *argv[])
             { L_,     -3,         -1 },
             { L_,     -1, -999999999 }
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) printf(
             "\nTesting: 'operator+' and 'operator-' with 'TimeInterval'\n");
@@ -1063,7 +1717,7 @@ int main(int argc, char *argv[])
             { L_,     -3,         -1 },
             { L_,     -1, -999999999 }
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) printf(
             "\nTesting: 'operator+=' and 'operator-=' with 'TimeInterval'\n");
@@ -1374,7 +2028,7 @@ int main(int argc, char *argv[])
                 { L_,   k_SECS_MAX,     999999999 },
                 { L_,   k_SECS_MIN,    -999999999 }
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int                LINE   = DATA[i].d_lineNum;
@@ -1428,7 +2082,7 @@ int main(int argc, char *argv[])
                 { L_,   k_SECS_MIN,    -999999998,          0,          -1 },
 
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int                LINE        = DATA[i].d_lineNum;
@@ -1472,7 +2126,7 @@ int main(int argc, char *argv[])
                 { L_,       -56711,         54322,     -50000 },
 
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int                LINE        = DATA[i].d_lineNum;
@@ -1531,7 +2185,7 @@ int main(int argc, char *argv[])
                 { L_,   k_SECS_MIN + 86400,  999999999,            -1 },
 
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int                LINE        = DATA[i].d_lineNum;
@@ -1589,7 +2243,7 @@ int main(int argc, char *argv[])
                 { L_,    k_SECS_MIN + 3600,  999999999,              -1 },
 
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int                LINE        = DATA[i].d_lineNum;
@@ -1647,7 +2301,7 @@ int main(int argc, char *argv[])
                 { L_,      k_SECS_MIN + 60,  999999999,            -1 },
 
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int                LINE        = DATA[i].d_lineNum;
@@ -1699,7 +2353,7 @@ int main(int argc, char *argv[])
                 { L_,       k_SECS_MIN + 1,  999999999,            -1 },
 
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int                LINE        = DATA[i].d_lineNum;
@@ -1770,7 +2424,7 @@ int main(int argc, char *argv[])
                 { L_,        k_SECS_MIN, -999999999 + 1000000,           -1 },
 
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int                LINE        = DATA[i].d_lineNum;
@@ -1845,7 +2499,7 @@ int main(int argc, char *argv[])
                 { L_,        k_SECS_MIN,    -999999999 + 1000,           -1 },
 
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int                LINE        = DATA[i].d_lineNum;
@@ -1918,7 +2572,7 @@ int main(int argc, char *argv[])
                 { L_,        k_SECS_MIN,       -999999999 + 1,           -1 },
 
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int                LINE        = DATA[i].d_lineNum;
@@ -2359,7 +3013,7 @@ int main(int argc, char *argv[])
             { L_,        LLONG_MIN,  -999999999 },
 
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) printf(
            "\nTest secs, mins, hours, days, totalSecondsAsDouble w/ table.\n");
@@ -2422,7 +3076,7 @@ int main(int argc, char *argv[])
                 { L_,  k_MAX_MILLISECS_SECS,   k_MAX_MILLISECS_NANOS },
                 { L_,  k_MIN_MILLISECS_SECS,   k_MIN_MILLISECS_NANOS },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int                LINE    = DATA[ti].d_lineNum;
@@ -2462,7 +3116,7 @@ int main(int argc, char *argv[])
                 { L_,  k_MAX_MICROSECS_SECS,   k_MAX_MICROSECS_NANOS },
                 { L_,  k_MIN_MICROSECS_SECS,   k_MIN_MICROSECS_NANOS },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int                LINE    = DATA[ti].d_lineNum;
@@ -2502,7 +3156,7 @@ int main(int argc, char *argv[])
                 { L_,   k_MAX_NANOSECS_SECS,    k_MAX_NANOSECS_NANOS },
                 { L_,   k_MIN_NANOSECS_SECS,    k_MIN_NANOSECS_NANOS },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int                LINE    = DATA[ti].d_lineNum;
@@ -2761,7 +3415,7 @@ int main(int argc, char *argv[])
                 { L_,        -42058 },
                 { L_,    k_DAYS_MIN },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int   ILINE       = DATA[ti].d_line;
@@ -2807,7 +3461,7 @@ int main(int argc, char *argv[])
                 { L_,         -42058 },
                 { L_,    k_HOURS_MIN },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int   ILINE        = DATA[ti].d_line;
@@ -2853,7 +3507,7 @@ int main(int argc, char *argv[])
                 { L_,        -42058 },
                 { L_,    k_MINS_MIN },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int   ILINE       = DATA[ti].d_line;
@@ -2899,7 +3553,7 @@ int main(int argc, char *argv[])
                 { L_,        -42058 },
                 { L_,    k_SECS_MIN },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int   ILINE       = DATA[ti].d_line;
@@ -2946,7 +3600,7 @@ int main(int argc, char *argv[])
                 { L_,        -42058 },
                 { L_,     LLONG_MIN },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int   ILINE            = DATA[ti].d_line;
@@ -3002,7 +3656,7 @@ int main(int argc, char *argv[])
                 { L_,        -42058 },
                 { L_,     LLONG_MIN },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int   ILINE            = DATA[ti].d_line;
@@ -3059,7 +3713,7 @@ int main(int argc, char *argv[])
                 { L_,        -42058 },
                 { L_,     LLONG_MIN },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int   ILINE            = DATA[ti].d_line;
@@ -3314,7 +3968,7 @@ int main(int argc, char *argv[])
             { L_,        LLONG_MIN,  -999999999 },
 
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
 
         if (verbose) printf("\nCompare every value with every value.\n");
@@ -3536,7 +4190,7 @@ int main(int argc, char *argv[])
             { L_,     3000000000LL,   999999999 },
             { L_,    -3000000000LL,  -999999999 },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) printf("\nCompare every value with every value.\n");
 
@@ -3632,7 +4286,7 @@ int main(int argc, char *argv[])
             { L_,   4.0000000005,   4,            1 },
             { L_,  -4.0000000005,  -4,           -1 }
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) printf("\nTest conversion from 'double'.\n");
 
@@ -3740,7 +4394,7 @@ int main(int argc, char *argv[])
       { L_,   k_SECS_MAX,     999999999,       k_SECS_MAX,        999999999 },
       { L_,   k_SECS_MIN,    -999999999,       k_SECS_MIN,       -999999999 },
             };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) printf("\nUse a table of distinct object values.\n");
 
@@ -3934,28 +4588,636 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-
       case 10: {
         // --------------------------------------------------------------------
-        // BSLX STREAMING
-        //   Ensure that we can serialize the value of any object of the class,
-        //   and then deserialize that value back into any object of the class.
+        // TESTING BDEX STREAMING
+        //   Verify the BDEX streaming implementation works correctly.
+        //   Specific concerns include wire format, handling of stream states
+        //   (valid, empty, invalid, incomplete, and corrupted), and exception
+        //   neutrality.
         //
         // Concerns:
-        //   N/A
+        //: 1 The class method 'maxSupportedBdexVersion' returns the correct
+        //:   version to be used for the specified 'versionSelector'.
+        //:
+        //: 2 The 'bdexStreamOut' method is callable on a reference providing
+        //:   only non-modifiable access.
+        //:
+        //: 3 For valid streams, externalization and unexternalization are
+        //:   inverse operations.
+        //:
+        //: 4 For invalid streams, externalization leaves the stream invalid
+        //:   and unexternalization does not alter the value of the object and
+        //:   leaves the stream invalid.
+        //:
+        //: 5 Unexternalizing of incomplete, invalid, or corrupted data results
+        //:   in a valid object of unspecified value and an invalidated stream.
+        //:
+        //: 6 The wire format of the object is as expected.
+        //:
+        //: 7 All methods are exception neutral.
+        //:
+        //: 8 The 'bdexStreamIn' and 'bdexStreamOut' methods return a reference
+        //:   to the provided stream in all situations.
+        //:
+        //: 9 The initial value of the object has no affect on
+        //:   unexternalization.
         //
         // Plan:
-        //   N/A
+        //: 1 Test 'maxSupportedBdexVersion' explicitly.  (C-1)
+        //:
+        //: 2 All calls to the 'bdexStreamOut' accessor will be done from a
+        //:   'const' object or reference.  (C-2)
+        //:
+        //: 3 Perform a direct test of the 'bdexStreamOut' and 'bdexStreamIn'
+        //:   methods.
+        //:
+        //: 4 Define a set 'S' of test values to be used throughout the test
+        //:   case.
+        //:
+        //: 5 For all '(u, v)' in the cross product 'S X S', stream the value
+        //:   of 'u' into (a temporary copy of) 'v', 'T', and assert 'T == u'.
+        //:   (C-3, 9)
+        //:
+        //: 6 For all 'u' in 'S', create a copy of 'u' and attempt to stream
+        //:   into it from an invalid stream.  Verify after each attempt that
+        //:   the object is unchanged and that the stream is invalid.  (C-4)
+        //:
+        //: 7 Write 3 distinct objects to an output stream buffer of total
+        //:   length 'N'.  For each partial stream length from 0 to 'N - 1',
+        //:   construct an input stream and attempt to read into objects
+        //:   initialized with distinct values.  Verify values of objects
+        //:   that are either successfully modified or left entirely
+        //:   unmodified, and that the stream became invalid immediately after
+        //:   the first incomplete read.  Finally, ensure that each object
+        //:   streamed into is in some valid state.
+        //:
+        //: 8 Use the underlying stream package to simulate a typical valid
+        //:   (control) stream and verify that it can be streamed in
+        //:   successfully.  Then for each data field in the stream (beginning
+        //:   with the version number), provide one or more similar tests with
+        //:   that data field corrupted.  After each test, verify that the
+        //:   object is in some valid state after streaming, and that the
+        //:   input stream has become invalid.  (C-5)
+        //:
+        //: 9 Explicitly test the wire format.  (C-6)
+        //:
+        //:10 In all cases, confirm exception neutrality using the specially
+        //:   instrumented 'bslx::TestInStream' and a pair of standard macros,
+        //:   'BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN' and
+        //:   'BSLX_TESTINSTREAM_EXCEPTION_TEST_END', which configure the
+        //:   'bslx::TestInStream' object appropriately in a loop.  (C-7)
+        //:
+        //:11 In all cases, verify the return value of the tested method.
+        //:   (C-8)
         //
         // Testing:
-        //   Reserved for 'bslx' streaming.
+        //   static int maxSupportedBdexVersion(int versionSelector);
+        //   STREAM& bdexStreamIn(STREAM& stream, int version);
+        //   STREAM& bdexStreamOut(STREAM& stream, int version) const;
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+        //   static int maxSupportedBdexVersion();
+        //   static int maxSupportedVersion();
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nBSLX STREAMING"
-                            "\n==============\n");
+        if (verbose) printf("\nTESTING BDEX STREAMING"
+                            "\n======================\n");
 
-        if (verbose) printf("Not yet implemented.\n");
+        // Scalar object values used in various stream tests.
+        const Obj VA(  0,  0);
+        const Obj VB(  0,  1);
+        const Obj VC(  1,  0);
+        const Obj VD( 10, 59);
+        const Obj VE( 23,  0);
+        const Obj VF( 23, 22);
+        const Obj VG( 24,  0);
 
+        // Array object used in various stream tests.
+        const Obj VALUES[]   = { VA, VB, VC, VD, VE, VF, VG };
+        const int NUM_VALUES = static_cast<int>(sizeof VALUES
+                                                / sizeof *VALUES);
+
+        if (verbose) {
+            printf("\nTesting 'maxSupportedBdexVersion'.\n");
+        }
+        {
+            ASSERT(1 == Obj::maxSupportedBdexVersion(0));
+            ASSERT(1 == Obj::maxSupportedBdexVersion(VERSION_SELECTOR));
+        }
+
+        const int VERSION = Obj::maxSupportedBdexVersion(0);
+
+        if (verbose) {
+            printf("\nDirect initial trial of 'bdexStreamOut' and (valid) "
+                   "'bdexStreamIn' functionality.\n");
+        }
+        {
+            const Obj X(VC);
+            Out       out(VERSION_SELECTOR);
+
+            Out& rvOut = X.bdexStreamOut(out, VERSION);
+            ASSERT(&out == &rvOut);
+
+            const char *const OD  = out.data();
+            const int         LOD = out.length();
+
+            In in(OD, LOD);
+            ASSERT(in);
+            ASSERT(!in.isEmpty());
+
+            Obj mT(VA);  const Obj& T = mT;
+            ASSERT(X != T);
+
+            In& rvIn = mT.bdexStreamIn(in, VERSION);
+            ASSERT(&in == &rvIn);
+            ASSERT(X == T);
+            ASSERT(in);
+            ASSERT(in.isEmpty());
+        }
+
+        if (verbose) {
+            printf("\nThorough test.\n");
+        }
+        {
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                const Obj X(VALUES[i]);
+
+                Out out(VERSION_SELECTOR);
+
+                Out& rvOut = X.bdexStreamOut(out, VERSION);
+                LOOP_ASSERT(i, &out == &rvOut);
+                const char *const OD  = out.data();
+                const int         LOD = out.length();
+
+                // Verify that each new value overwrites every old value and
+                // that the input stream is emptied, but remains valid.
+
+                for (int j = 0; j < NUM_VALUES; ++j) {
+                    In in(OD, LOD);
+                    LOOP2_ASSERT(i, j, in);
+                    LOOP2_ASSERT(i, j, !in.isEmpty());
+
+                    Obj mT(VALUES[j]);  const Obj& T = mT;
+                    LOOP2_ASSERT(i, j, (X == T) == (i == j));
+
+                    BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
+                        in.reset();
+                        In& rvIn = mT.bdexStreamIn(in, VERSION);
+                        LOOP2_ASSERT(i, j, &in == &rvIn);
+                    } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
+
+                    LOOP2_ASSERT(i, j, X == T);
+                    LOOP2_ASSERT(i, j, in);
+                    LOOP2_ASSERT(i, j, in.isEmpty());
+                }
+            }
+        }
+
+        if (verbose) {
+            printf("\tOn empty streams and non-empty, invalid streams.\n");
+        }
+
+        // Verify correct behavior for empty streams (valid and invalid).
+
+        {
+            Out               out(VERSION_SELECTOR);
+            const char *const OD  = out.data();
+            const int         LOD = out.length();
+            ASSERT(0 == LOD);
+
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                In in(OD, LOD);
+                LOOP_ASSERT(i, in);
+                LOOP_ASSERT(i, in.isEmpty());
+
+                // Ensure that reading from an empty or invalid input stream
+                // leaves the stream invalid and the target object unchanged.
+
+                const Obj  X(VALUES[i]);
+                Obj        mT(X);
+                const Obj& T = mT;
+                LOOP_ASSERT(i, X == T);
+
+                BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
+                    in.reset();
+
+                    // Stream is valid.
+                    In& rvIn1 = mT.bdexStreamIn(in, VERSION);
+                    LOOP_ASSERT(i, &in == &rvIn1);
+                    LOOP_ASSERT(i, !in);
+                    LOOP_ASSERT(i, X == T);
+
+                    // Stream is invalid.
+                    In& rvIn2 = mT.bdexStreamIn(in, VERSION);
+                    LOOP_ASSERT(i, &in == &rvIn2);
+                    LOOP_ASSERT(i, !in);
+                    LOOP_ASSERT(i, X == T);
+                } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
+            }
+        }
+
+        // Verify correct behavior for non-empty, invalid streams.
+
+        {
+            Out               out(VERSION_SELECTOR);
+
+            Out& rvOut = Obj().bdexStreamOut(out, VERSION);
+            ASSERT(&out == &rvOut);
+
+            const char *const OD  = out.data();
+            const int         LOD = out.length();
+            ASSERT(0 < LOD);
+
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                In in(OD, LOD);
+                in.invalidate();
+                LOOP_ASSERT(i, !in);
+                LOOP_ASSERT(i, !in.isEmpty());
+
+                // Ensure that reading from a non-empty, invalid input stream
+                // leaves the stream invalid and the target object unchanged.
+
+                const Obj  X(VALUES[i]);
+                Obj        mT(X);
+                const Obj& T = mT;
+                LOOP_ASSERT(i, X == T);
+
+                BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
+                    in.reset();
+                    in.invalidate();
+                    LOOP_ASSERT(i, !in);
+                    LOOP_ASSERT(i, !in.isEmpty());
+
+                    In& rvIn = mT.bdexStreamIn(in, VERSION);
+                    LOOP_ASSERT(i, &in == &rvIn);
+                    LOOP_ASSERT(i, !in);
+                    LOOP_ASSERT(i, X == T);
+                } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
+            }
+        }
+
+        if (verbose) {
+            printf("\tOn incomplete (but otherwise valid) data.\n");
+        }
+        {
+            const Obj W1 = VA, X1 = VB;
+            const Obj W2 = VB, X2 = VC;
+            const Obj W3 = VC, X3 = VD;
+
+            Out out(VERSION_SELECTOR);
+
+            Out& rvOut1 = X1.bdexStreamOut(out, VERSION);
+            ASSERT(&out == &rvOut1);
+            const int         LOD1 = out.length();
+
+            Out& rvOut2 = X2.bdexStreamOut(out, VERSION);
+            ASSERT(&out == &rvOut2);
+            const int         LOD2 = out.length();
+
+            Out& rvOut3 = X3.bdexStreamOut(out, VERSION);
+            ASSERT(&out == &rvOut3);
+            const int         LOD3 = out.length();
+            const char *const OD3  = out.data();
+
+            for (int i = 0; i < LOD3; ++i) {
+                In in(OD3, i);
+
+                BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
+                    in.reset();
+                    LOOP_ASSERT(i, in);
+                    LOOP_ASSERT(i, !i == in.isEmpty());
+
+                    Obj mT1(W1);  const Obj& T1 = mT1;
+                    Obj mT2(W2);  const Obj& T2 = mT2;
+                    Obj mT3(W3);  const Obj& T3 = mT3;
+
+                    if (i < LOD1) {
+                        In& rvIn1 = mT1.bdexStreamIn(in, VERSION);
+                        LOOP_ASSERT(i, &in == &rvIn1);
+                        LOOP_ASSERT(i, !in);
+                        if (0 == i) LOOP_ASSERT(i, W1 == T1);
+                        In& rvIn2 = mT2.bdexStreamIn(in, VERSION);
+                        LOOP_ASSERT(i, &in == &rvIn2);
+                        LOOP_ASSERT(i, !in);
+                        LOOP_ASSERT(i, W2 == T2);
+                        In& rvIn3 = mT3.bdexStreamIn(in, VERSION);
+                        LOOP_ASSERT(i, &in == &rvIn3);
+                        LOOP_ASSERT(i, !in);
+                        LOOP_ASSERT(i, W3 == T3);
+                    }
+                    else if (i < LOD2) {
+                        In& rvIn1 = mT1.bdexStreamIn(in, VERSION);
+                        LOOP_ASSERT(i, &in == &rvIn1);
+                        LOOP_ASSERT(i,  in);
+                        LOOP_ASSERT(i, X1 == T1);
+                        In& rvIn2 = mT2.bdexStreamIn(in, VERSION);
+                        LOOP_ASSERT(i, &in == &rvIn2);
+                        LOOP_ASSERT(i, !in);
+                        if (LOD1 <= i) LOOP_ASSERT(i, W2 == T2);
+                        In& rvIn3 = mT3.bdexStreamIn(in, VERSION);
+                        LOOP_ASSERT(i, &in == &rvIn3);
+                        LOOP_ASSERT(i, !in);
+                        LOOP_ASSERT(i, W3 == T3);
+                    }
+                    else {  // 'LOD2 <= i < LOD3'
+                        In& rvIn1 = mT1.bdexStreamIn(in, VERSION);
+                        LOOP_ASSERT(i, &in == &rvIn1);
+                        LOOP_ASSERT(i,  in);
+                        LOOP_ASSERT(i, X1 == T1);
+                        In& rvIn2 = mT2.bdexStreamIn(in, VERSION);
+                        LOOP_ASSERT(i, &in == &rvIn2);
+                        LOOP_ASSERT(i,  in);
+                        LOOP_ASSERT(i, X2 == T2);
+                        In& rvIn3 = mT3.bdexStreamIn(in, VERSION);
+                        LOOP_ASSERT(i, &in == &rvIn3);
+                        LOOP_ASSERT(i, !in);
+                        if (LOD2 <= i) LOOP_ASSERT(i, W3 == T3);
+                    }
+
+                    // Verify the objects are in a valid state.
+
+                    LOOP_ASSERT(i, Obj::isValid(T1.seconds(),
+                                                T1.nanoseconds()));
+
+                    LOOP_ASSERT(i, Obj::isValid(T2.seconds(),
+                                                T2.nanoseconds()));
+
+                    LOOP_ASSERT(i, Obj::isValid(T3.seconds(),
+                                                T3.nanoseconds()));
+
+                } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
+            }
+        }
+
+        if (verbose) {
+            printf("\tOn corrupted data.\n");
+        }
+
+        const Obj W;             // default value
+        const Obj X(1, 3);       // original (control)
+        const Obj Y(0, 2);       // new (streamed-out)
+
+        // Verify the three objects are distinct.
+        ASSERT(W != X);
+        ASSERT(W != Y);
+        ASSERT(X != Y);
+
+        if (verbose) {
+            printf("\t\tGood stream (for control).\n");
+        }
+        {
+            Out out(VERSION_SELECTOR);
+
+            // Stream out "new" value.
+            out.putInt64(0);
+            out.putInt32(2);
+
+            const char *const OD  = out.data();
+            const int         LOD = out.length();
+
+            Obj mT(X);  const Obj& T = mT;
+            ASSERT(X == T);
+
+            In in(OD, LOD);
+            ASSERT(in);
+
+            In& rvIn = mT.bdexStreamIn(in, VERSION);
+            ASSERT(&in == &rvIn);
+            ASSERT(in);
+            ASSERT(Y == T);
+        }
+
+        if (verbose) {
+            printf("\t\tBad version.\n");
+        }
+        {
+            const char version = 0; // too small ('version' must be >= 1)
+
+            Out out(VERSION_SELECTOR);
+
+            // Stream out "new" value.
+            out.putInt64(0);
+            out.putInt32(2);
+
+            const char *const OD  = out.data();
+            const int         LOD = out.length();
+
+            Obj mT(X);  const Obj& T = mT;
+            ASSERT(X == T);
+
+            In in(OD, LOD);
+            ASSERT(in);
+
+            In& rvIn = mT.bdexStreamIn(in, version);
+            ASSERT(&in == &rvIn);
+            ASSERT(!in);
+            ASSERT(X == T);
+        }
+        {
+            const char version = 2 ; // too large (current version is 1)
+
+            Out out(VERSION_SELECTOR);
+
+            // Stream out "new" value.
+            out.putInt64(0);
+            out.putInt32(2);
+
+            const char *const OD  = out.data();
+            const int         LOD = out.length();
+
+            Obj mT(X);  const Obj& T = mT;
+            ASSERT(X == T);
+
+            In in(OD, LOD);
+            ASSERT(in);
+
+            In& rvIn = mT.bdexStreamIn(in, version);
+            ASSERT(&in == &rvIn);
+            ASSERT(!in);
+            ASSERT(X == T);
+        }
+
+        if (verbose) {
+            printf("\t\tSeconds positive, nanoseconds negative.\n");
+        }
+        {
+            Out out(VERSION_SELECTOR);
+
+            // Stream out "new" value.
+            out.putInt64( 1);
+            out.putInt32(-1);
+
+            const char *const OD  = out.data();
+            const int         LOD = out.length();
+
+            Obj mT(X);  const Obj& T = mT;
+            ASSERT(X == T);
+
+            In in(OD, LOD);
+            ASSERT(in);
+
+            In& rvIn = mT.bdexStreamIn(in, VERSION);
+            ASSERT(&in == &rvIn);
+            ASSERT(!in);
+            ASSERT(X == T);
+        }
+
+        if (verbose) {
+            printf("\t\tSeconds negative, nanoseconds positive.\n");
+        }
+        {
+            Out out(VERSION_SELECTOR);
+
+            // Stream out "new" value.
+            out.putInt64(-1);
+            out.putInt32( 1);
+
+            const char *const OD  = out.data();
+            const int         LOD = out.length();
+
+            Obj mT(X);  const Obj& T = mT;
+            ASSERT(X == T);
+
+            In in(OD, LOD);
+            ASSERT(in);
+
+            In& rvIn = mT.bdexStreamIn(in, VERSION);
+            ASSERT(&in == &rvIn);
+            ASSERT(!in);
+            ASSERT(X == T);
+        }
+
+        if (verbose) {
+            printf("\t\tNanoseconds too small.\n");
+        }
+        {
+            Out out(VERSION_SELECTOR);
+
+            // Stream out "new" value.
+            out.putInt64(0);
+            out.putInt32(-k_NANOSECS_PER_SEC);
+
+            const char *const OD  = out.data();
+            const int         LOD = out.length();
+
+            Obj mT(X);  const Obj& T = mT;
+            ASSERT(X == T);
+
+            In in(OD, LOD);
+            ASSERT(in);
+
+            In& rvIn = mT.bdexStreamIn(in, VERSION);
+            ASSERT(&in == &rvIn);
+            ASSERT(!in);
+            ASSERT(X == T);
+        }
+
+        if (verbose) {
+            printf("\t\tNanoseconds too large.\n");
+        }
+        {
+            Out out(VERSION_SELECTOR);
+
+            // Stream out "new" value.
+            out.putInt64(0);
+            out.putInt32(k_NANOSECS_PER_SEC);
+
+            const char *const OD  = out.data();
+            const int         LOD = out.length();
+
+            Obj mT(X);  const Obj& T = mT;
+            ASSERT(X == T);
+
+            In in(OD, LOD);
+            ASSERT(in);
+
+            In& rvIn = mT.bdexStreamIn(in, VERSION);
+            ASSERT(&in == &rvIn);
+            ASSERT(!in);
+            ASSERT(X == T);
+        }
+
+        if (verbose) {
+            printf("\nWire format direct tests.\n");
+        }
+        {
+            static const struct {
+                int         d_lineNum;      // source line number
+                int         d_seconds;      // specification seconds
+                int         d_nanoseconds;  // specification nanoseconds
+                int         d_version;      // version to stream with
+                int         d_length;       // expect output length
+                const char *d_fmt_p;        // expected output format
+            } DATA[] = {
+                //LINE  SEC   NS   VER  LEN  FORMAT
+                //----  ----  ---  ---  ---  -------------------
+                { L_,      0,   0,   1,  12,
+                         "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"  },
+                { L_,      0,   1,   1,  12,
+                         "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01"  },
+                { L_,      1,   0,   1,  12,
+                         "\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00"  },
+                { L_,     20,   8,   1,  12,
+                         "\x00\x00\x00\x00\x00\x00\x00\x14\x00\x00\x00\x08"  }
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int         LINE        = DATA[i].d_lineNum;
+                const int         SECONDS     = DATA[i].d_seconds;
+                const int         NANOSECONDS = DATA[i].d_nanoseconds;
+                const int         VERSION     = DATA[i].d_version;
+                const int         LEN         = DATA[i].d_length;
+                const char *const FMT         = DATA[i].d_fmt_p;
+
+                {
+                    Obj        mX(SECONDS, NANOSECONDS);
+                    const Obj& X = mX;
+
+                    Out  out(VERSION_SELECTOR);
+                    Out& rvOut = X.bdexStreamOut(out, VERSION);
+                    LOOP_ASSERT(LINE, &out == &rvOut);
+
+                    LOOP_ASSERT(LINE, LEN == out.length());
+                    LOOP_ASSERT(LINE, 0 == memcmp(out.data(), FMT, LEN));
+
+                    if (verbose && memcmp(out.data(), FMT, LEN)) {
+                        const char *hex = "0123456789abcdef";
+                        P_(LINE);
+                        for (int j = 0; j < out.length(); ++j) {
+                            printf("\\x%c%c",
+                                   hex[static_cast<unsigned char>
+                                           ((*(out.data() + j) >> 4) & 0x0f)],
+                                   hex[static_cast<unsigned char>
+                                                  (*(out.data() + j) & 0x0f)]);
+                        }
+                        printf("\n");
+                    }
+
+                    Obj mY;  const Obj& Y = mY;
+
+                    In  in(out.data(), out.length());
+                    In& rvIn = mY.bdexStreamIn(in, VERSION);
+                    LOOP_ASSERT(LINE, &in == &rvIn);
+                    LOOP_ASSERT(LINE, X == Y);
+                }
+            }
+        }
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+
+        if (verbose) {
+            printf("\nTesting deprecated methods.\n");
+        }
+        {
+            ASSERT(Obj::maxSupportedVersion()
+                                           == Obj::maxSupportedBdexVersion(0));
+            ASSERT(Obj::maxSupportedBdexVersion()
+                                           == Obj::maxSupportedBdexVersion(0));
+        }
+
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -4067,7 +5329,7 @@ int main(int argc, char *argv[])
             { L_,        LLONG_MIN,  -999999999 },
 
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int                ILINE    = DATA[ti].d_lineNum;
@@ -4145,7 +5407,7 @@ int main(int argc, char *argv[])
         //   N/A
         //
         // Testing:
-        //  Reservered for 'swap' testing.
+        //  Reserved for 'swap' testing.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nSWAP MEMBER AND FREE FUNCTIONS"
@@ -4214,7 +5476,7 @@ int main(int argc, char *argv[])
             { L_,        LLONG_MIN,  -999999999 },
 
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int                LINE    = DATA[ti].d_lineNum;
@@ -4353,7 +5615,7 @@ int main(int argc, char *argv[])
             { L_,        LLONG_MIN,  -999999999 },
 
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) printf("\nCompare every value with every value.\n");
 
@@ -4582,7 +5844,7 @@ int main(int argc, char *argv[])
 #undef NL
 
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) printf("\nTesting with various print specifications.\n");
         {
@@ -4658,7 +5920,7 @@ int main(int argc, char *argv[])
                 { L_, -3000000000LL, -999999999, "(-3000000000, -999999999)" }
             };
 
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int di = 0; di < NUM_DATA;  ++di) {
                 const int                LINE     = DATA[di].d_lineNum;
@@ -4747,7 +6009,7 @@ int main(int argc, char *argv[])
                 { L_,        k_SECS_MIN,  -999999999 }
             };
 
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const bsls::Types::Int64 SECS = DATA[i].d_secs;
@@ -4991,7 +6253,7 @@ int main(int argc, char *argv[])
 
             };
 
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int                LINE   = DATA[i].d_lineNum;
@@ -5026,7 +6288,7 @@ int main(int argc, char *argv[])
 
             };
 
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int                LINE   = DATA[i].d_lineNum;
