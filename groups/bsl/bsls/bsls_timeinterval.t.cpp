@@ -45,7 +45,8 @@ using namespace std;
 // case 2.
 //
 // Primary Manipulators:
-//: o void setInterval(bsls::Types::Int64 secs, int nanoseconds);
+//: o void setIntervalRaw(bsls::Types::Int64 secs, int nanoseconds);
+//
 //
 // Basic Accessors:
 //: o int nanoseconds() const;
@@ -60,78 +61,79 @@ using namespace std;
 //: o Precondition violations are detected in appropriate build modes.
 // ----------------------------------------------------------------------------
 // CLASS METHODS
-// [21] bool isValid(Int64, int);
+// [22] bool isValid(Int64, int);
 //
 // CREATORS
 // [ 2] TimeInterval();
-// [11] TimeInterval(Int64, int);
-// [12] TimeInterval(double);
+// [12] TimeInterval(Int64, int);
+// [13] TimeInterval(double);
 // [ 7] TimeInterval(const TimeInterval&);
 // [ 2] ~TimeInterval();
 //
 // MANIPULATORS
 // [ 9] TimeInterval& operator=(const TimeInterval&);
-// [12] TimeInterval& operator=(double);
-// [18] TimeInterval& operator+=(const TimeInterval&);
-// [18] TimeInterval& operator+=(double);
-// [18] TimeInterval& operator-=(const TimeInterval&);
-// [18] TimeInterval& operator-=(double);
-// [17] TimeInterval& addDays(bsls::Types::Int64);
-// [17] TimeInterval& addHours(bsls::Types::Int64);
-// [17] TimeInterval& addMinutes(bsls::Types::Int64);
-// [17] TimeInterval& addSeconds(bsls::Types::Int64);
-// [17] TimeInterval& addMilliseconds(Int64);
-// [17] TimeInterval& addMicroseconds(Int64);
-// [17] TimeInterval& addNanoseconds(Int64);
-// [15] void setTotalDays(int);
-// [15] void setTotalHours(Int64);
-// [15] void setTotalMinutes(Int64);
-// [15] void setTotalSeconds(Int64);
-// [15] void setTotalMilliseconds(Int64);
-// [15] void setTotalMicroseconds(Int64);
-// [15] void setTotalNanoseconds(Int64);
-// [17] void addInterval(Int64, int);
-// [ 2] void setInterval(Int64, int);
+// [13] TimeInterval& operator=(double);
+// [19] TimeInterval& operator+=(const TimeInterval&);
+// [19] TimeInterval& operator+=(double);
+// [19] TimeInterval& operator-=(const TimeInterval&);
+// [19] TimeInterval& operator-=(double);
+// [18] TimeInterval& addDays(bsls::Types::Int64);
+// [18] TimeInterval& addHours(bsls::Types::Int64);
+// [18] TimeInterval& addMinutes(bsls::Types::Int64);
+// [18] TimeInterval& addSeconds(bsls::Types::Int64);
+// [18] TimeInterval& addMilliseconds(Int64);
+// [18] TimeInterval& addMicroseconds(Int64);
+// [18] TimeInterval& addNanoseconds(Int64);
+// [16] void setTotalDays(int);
+// [16] void setTotalHours(Int64);
+// [16] void setTotalMinutes(Int64);
+// [16] void setTotalSeconds(Int64);
+// [16] void setTotalMilliseconds(Int64);
+// [16] void setTotalMicroseconds(Int64);
+// [16] void setTotalNanoseconds(Int64);
+// [18] void addInterval(Int64, int);
+// [11] void setInterval(Int64, int);
+// [ 2] void setIntervalRaw(Int64, int);
 //
 // ACCESSORS
 // [ 4] bsls::Types::Int64 seconds() const;
 // [ 4] int nanoseconds() const;
-// [16] Int64 totalSeconds() const;
-// [16] Int64 totalMinutes() const;
-// [16] Int64 totalHours() const;
-// [16] Int64 totalDays() const;
-// [16] Int64 totalMilliseconds() const;
-// [16] Int64 totalMicroseconds() const;
-// [16] Int64 totalNanoseconds() const;
-// [16] double totalSecondsAsDouble() const;
+// [17] Int64 totalSeconds() const;
+// [17] Int64 totalMinutes() const;
+// [17] Int64 totalHours() const;
+// [17] Int64 totalDays() const;
+// [17] Int64 totalMilliseconds() const;
+// [17] Int64 totalMicroseconds() const;
+// [17] Int64 totalNanoseconds() const;
+// [17] double totalSecondsAsDouble() const;
 // [ 5] STREAM& print(STREAM&, int, int) const;
 //
 // FREE OPERATORS
-// [19] TimeInterval operator+(const Obj& lhs, const Obj& rhs);
-// [19] TimeInterval operator+(const Obj& lhs, double rhs);
-// [19] TimeInterval operator+(double lhs, const Obj& rhs);
-// [19] TimeInterval operator-(const Obj& lhs, const Obj& rhs);
-// [19] TimeInterval operator-(const Obj& lhs, double rhs);
-// [19] TimeInterval operator-(double lhs, const Obj& rhs);
-// [20] TimeInterval operator-(const TimeInterval& rhs);
+// [20] TimeInterval operator+(const Obj& lhs, const Obj& rhs);
+// [20] TimeInterval operator+(const Obj& lhs, double rhs);
+// [20] TimeInterval operator+(double lhs, const Obj& rhs);
+// [20] TimeInterval operator-(const Obj& lhs, const Obj& rhs);
+// [20] TimeInterval operator-(const Obj& lhs, double rhs);
+// [20] TimeInterval operator-(double lhs, const Obj& rhs);
+// [21] TimeInterval operator-(const TimeInterval& rhs);
 // [ 6] bool operator==(const TimeInterval&, const TimeInterval&);
-// [13] bool operator==(const TimeInterval&, double);
-// [13] bool operator==(double, const TimeInterval&);
+// [14] bool operator==(const TimeInterval&, double);
+// [14] bool operator==(double, const TimeInterval&);
 // [ 6] bool operator!=(const TimeInterval&, const TimeInterval&);
-// [13] bool operator!=(const TimeInterval&, double);
-// [13] bool operator!=(double, const TimeInterval&);
-// [14] bool operator< (const TimeInterval&, const TimeInterval&);
-// [14] bool operator< (const TimeInterval&, double);
-// [14] bool operator< (double, const TimeInterval&);
-// [14] bool operator<=(const TimeInterval&, const TimeInterval&);
-// [14] bool operator<=(const TimeInterval&, double);
-// [14] bool operator<=(double, const TimeInterval&);
-// [14] bool operator> (const TimeInterval&, const TimeInterval&);
-// [14] bool operator> (const TimeInterval&, double);
-// [14] bool operator> (double, const TimeInterval&);
-// [14] bool operator<=(const TimeInterval&, const TimeInterval&);
-// [14] bool operator<=(const TimeInterval&, double);
-// [14] bool operator>=(double, const TimeInterval&);
+// [14] bool operator!=(const TimeInterval&, double);
+// [14] bool operator!=(double, const TimeInterval&);
+// [15] bool operator< (const TimeInterval&, const TimeInterval&);
+// [15] bool operator< (const TimeInterval&, double);
+// [15] bool operator< (double, const TimeInterval&);
+// [15] bool operator<=(const TimeInterval&, const TimeInterval&);
+// [15] bool operator<=(const TimeInterval&, double);
+// [15] bool operator<=(double, const TimeInterval&);
+// [15] bool operator> (const TimeInterval&, const TimeInterval&);
+// [15] bool operator> (const TimeInterval&, double);
+// [15] bool operator> (double, const TimeInterval&);
+// [15] bool operator<=(const TimeInterval&, const TimeInterval&);
+// [15] bool operator<=(const TimeInterval&, double);
+// [15] bool operator>=(double, const TimeInterval&);
 // [ 5] STREAM& operator<<(STREAM&, const TimeInterval&);
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 //
@@ -143,7 +145,7 @@ using namespace std;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] TESTING TEST-DRIVER MACHINERY
-// [22] USAGE EXAMPLE
+// [23] USAGE EXAMPLE
 // [ 8] Reserved for 'swap' testing.
 #ifdef BDE_OMIT_INTERNAL_DEPRECATED
 // [10] Reserved for BDEX support.
@@ -392,7 +394,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 22: {
+      case 23: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -463,7 +465,7 @@ int main(int argc, char *argv[])
 
         }
       } break;
-      case 21: {
+      case 22: {
         // --------------------------------------------------------------------
         // TESTING: 'isValid'
         //   Ensure that 'isValid' correctly indicates whether the
@@ -530,7 +532,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 20: {
+      case 21: {
         // --------------------------------------------------------------------
         // TESTING: 'operator-' (NEGATION)
         //   Ensure the negation operator returns a time interval having the
@@ -617,7 +619,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 19: {
+      case 20: {
         // --------------------------------------------------------------------
         // ARITHMETIC FREE OPERATORS (+, -)
         //   Ensure that each operator correctly computes the underlying
@@ -967,7 +969,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 18: {
+      case 19: {
         // --------------------------------------------------------------------
         // ARITHMETIC ASSIGNMENT OPERATORS (+=, -=)
         //   Ensure that each operator correctly adjusts the underlying
@@ -1275,7 +1277,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         // TESTING: 'add*' MANIPULATORS
         //   Ensure that each method correctly adjusts the underlying
@@ -2222,7 +2224,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // 'total*' ACCESSORS
         //   Ensure each 'total*' accessor properly interprets object state.
@@ -2530,8 +2532,8 @@ int main(int argc, char *argv[])
                     // Maximum.
 
                     Obj mX;  const Obj& X = mX;
-                    mX.setInterval(k_MAX_MILLISECS_SECS,
-                                   k_MAX_MILLISECS_NANOS);
+                    mX.setIntervalRaw(k_MAX_MILLISECS_SECS,
+                                      k_MAX_MILLISECS_NANOS);
 
                     ASSERT_SAFE_PASS(X.totalMilliseconds());
 
@@ -2543,7 +2545,7 @@ int main(int argc, char *argv[])
 
                     ASSERT_SAFE_PASS(X.totalMilliseconds());
 
-                    mX.setInterval(LLONG_MAX, 999999999);
+                    mX.setIntervalRaw(LLONG_MAX, 999999999);
 
                     ASSERT_SAFE_FAIL(X.totalMilliseconds());
 
@@ -2552,8 +2554,8 @@ int main(int argc, char *argv[])
                     // Minimum.
 
                     Obj mX;  const Obj& X = mX;
-                    mX.setInterval(k_MIN_MILLISECS_SECS,
-                                   k_MIN_MILLISECS_NANOS);
+                    mX.setIntervalRaw(k_MIN_MILLISECS_SECS,
+                                      k_MIN_MILLISECS_NANOS);
 
 
                     ASSERT_SAFE_PASS(X.totalMilliseconds());
@@ -2566,7 +2568,7 @@ int main(int argc, char *argv[])
 
                     ASSERT_SAFE_PASS(X.totalMilliseconds());
 
-                    mX.setInterval(LLONG_MIN, -999999999);
+                    mX.setIntervalRaw(LLONG_MIN, -999999999);
 
                     ASSERT_SAFE_FAIL(X.totalMilliseconds());
 
@@ -2579,8 +2581,8 @@ int main(int argc, char *argv[])
                     // Maximum.
 
                     Obj mX;  const Obj& X = mX;
-                    mX.setInterval(k_MAX_MICROSECS_SECS,
-                                   k_MAX_MICROSECS_NANOS);
+                    mX.setIntervalRaw(k_MAX_MICROSECS_SECS,
+                                      k_MAX_MICROSECS_NANOS);
 
 
                     ASSERT_SAFE_PASS(X.totalMicroseconds());
@@ -2593,7 +2595,7 @@ int main(int argc, char *argv[])
 
                     ASSERT_SAFE_PASS(X.totalMicroseconds());
 
-                    mX.setInterval(LLONG_MAX, 999999999);
+                    mX.setIntervalRaw(LLONG_MAX, 999999999);
 
                     ASSERT_SAFE_FAIL(X.totalMicroseconds());
 
@@ -2602,8 +2604,8 @@ int main(int argc, char *argv[])
                     // Minimum.
 
                     Obj mX;  const Obj& X = mX;
-                    mX.setInterval(k_MIN_MICROSECS_SECS,
-                                   k_MIN_MICROSECS_NANOS);
+                    mX.setIntervalRaw(k_MIN_MICROSECS_SECS,
+                                      k_MIN_MICROSECS_NANOS);
 
 
                     ASSERT_SAFE_PASS(X.totalMicroseconds());
@@ -2616,7 +2618,7 @@ int main(int argc, char *argv[])
 
                     ASSERT_SAFE_PASS(X.totalMicroseconds());
 
-                    mX.setInterval(LLONG_MIN, 0);
+                    mX.setIntervalRaw(LLONG_MIN, 0);
 
                     ASSERT_SAFE_FAIL(X.totalMicroseconds());
 
@@ -2628,8 +2630,8 @@ int main(int argc, char *argv[])
                     // Maximum.
 
                     Obj mX;  const Obj& X = mX;
-                    mX.setInterval(k_MAX_NANOSECS_SECS,
-                                   k_MAX_NANOSECS_NANOS);
+                    mX.setIntervalRaw(k_MAX_NANOSECS_SECS,
+                                      k_MAX_NANOSECS_NANOS);
 
 
                     ASSERT_SAFE_PASS(X.totalNanoseconds());
@@ -2642,7 +2644,7 @@ int main(int argc, char *argv[])
 
                     ASSERT_SAFE_PASS(X.totalNanoseconds());
 
-                    mX.setInterval(LLONG_MAX, 999999999);
+                    mX.setIntervalRaw(LLONG_MAX, 999999999);
 
                     ASSERT_SAFE_FAIL(X.totalNanoseconds());
 
@@ -2651,8 +2653,8 @@ int main(int argc, char *argv[])
                     // Minimum.
 
                     Obj mX;  const Obj& X = mX;
-                    mX.setInterval(k_MIN_NANOSECS_SECS,
-                                   k_MIN_NANOSECS_NANOS);
+                    mX.setIntervalRaw(k_MIN_NANOSECS_SECS,
+                                      k_MIN_NANOSECS_NANOS);
 
 
                     ASSERT_SAFE_PASS(X.totalNanoseconds());
@@ -2665,7 +2667,7 @@ int main(int argc, char *argv[])
 
                     ASSERT_SAFE_PASS(X.totalNanoseconds());
 
-                    mX.setInterval(LLONG_MIN, 0);
+                    mX.setIntervalRaw(LLONG_MIN, 0);
 
                     ASSERT_SAFE_FAIL(X.totalNanoseconds());
 
@@ -2673,7 +2675,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // 'setTotal*' MANIPULATORS
         //   Ensure that each method correctly computes the underlying
@@ -2695,7 +2697,7 @@ int main(int argc, char *argv[])
         //:
         //: 2 For each row 'R1' in the table of P-1:  (C-1..2)
         //:
-        //:   1 Use the default constructor and 'setInterval' to
+        //:   1 Use the default constructor and 'setIntervalRaw' to
         //:     create an object, 'W', having the value from 'R1' interpreted
         //:     as total milliseconds.  (This expedient reuse of 'R1' is for
         //:     giving 'W' a unique value in each iteration of the loop.)
@@ -2708,7 +2710,7 @@ int main(int argc, char *argv[])
         //:       days from 'R2'.
         //:
         //:     3 Create an object 'EXP' using the previously tested
-        //:       'setInterval' function.
+        //:       'setIntervalRaw' function.
         //:
         //:     4 Verify 'EXP' equals 'X'.
         //:
@@ -2766,7 +2768,7 @@ int main(int argc, char *argv[])
                 const Int64 ITOTAL_DAYS = DATA[ti].d_totalDays;
 
                 Obj mW;  const Obj& W = mW;
-                mW.setInterval(ITOTAL_DAYS * 86400, 0);
+                mW.setIntervalRaw(ITOTAL_DAYS * 86400, 0);
 
                 for (int tj = 0; tj < NUM_DATA; ++tj) {
                     const int   JLINE       = DATA[tj].d_line;
@@ -2812,7 +2814,7 @@ int main(int argc, char *argv[])
                 const Int64 ITOTAL_HOURS = DATA[ti].d_totalHours;
 
                 Obj mW;  const Obj& W = mW;
-                mW.setInterval(ITOTAL_HOURS * 3600, 0);
+                mW.setIntervalRaw(ITOTAL_HOURS * 3600, 0);
 
                 for (int tj = 0; tj < NUM_DATA; ++tj) {
                     const int   JLINE        = DATA[tj].d_line;
@@ -2858,7 +2860,7 @@ int main(int argc, char *argv[])
                 const Int64 ITOTAL_MINS = DATA[ti].d_totalMins;
 
                 Obj mW;  const Obj& W = mW;
-                mW.setInterval(ITOTAL_MINS * 60, 0);
+                mW.setIntervalRaw(ITOTAL_MINS * 60, 0);
 
                 for (int tj = 0; tj < NUM_DATA; ++tj) {
                     const int   JLINE       = DATA[tj].d_line;
@@ -2904,7 +2906,7 @@ int main(int argc, char *argv[])
                 const Int64 ITOTAL_SECS = DATA[ti].d_totalSecs;
 
                 Obj mW;  const Obj& W = mW;
-                mW.setInterval(ITOTAL_SECS, 0);
+                mW.setIntervalRaw(ITOTAL_SECS, 0);
 
                 for (int tj = 0; tj < NUM_DATA; ++tj) {
                     const int   JLINE       = DATA[tj].d_line;
@@ -2951,7 +2953,7 @@ int main(int argc, char *argv[])
                 const Int64 ITOTAL_MILLISECS = DATA[ti].d_totalMillisecs;
 
                 Obj mW;  const Obj& W = mW;
-                mW.setInterval(ITOTAL_MILLISECS / k_MILLISECS_PER_SEC,
+                mW.setIntervalRaw(ITOTAL_MILLISECS / k_MILLISECS_PER_SEC,
                                static_cast<int>(
                                 (ITOTAL_MILLISECS % k_MILLISECS_PER_SEC)
                                                   * k_NANOSECS_PER_MILLISEC));
@@ -3007,7 +3009,7 @@ int main(int argc, char *argv[])
                 const Int64 ITOTAL_MICROSECS = DATA[ti].d_totalMicrosecs;
 
                 Obj mW;  const Obj& W = mW;
-                mW.setInterval(ITOTAL_MICROSECS / k_MICROSECS_PER_SEC,
+                mW.setIntervalRaw(ITOTAL_MICROSECS / k_MICROSECS_PER_SEC,
                                static_cast<int>(
                                 (ITOTAL_MICROSECS % k_MICROSECS_PER_SEC)
                                                   * k_NANOSECS_PER_MICROSEC));
@@ -3064,7 +3066,7 @@ int main(int argc, char *argv[])
                 const Int64 ITOTAL_NANOSECS = DATA[ti].d_totalNanosecs;
 
                 Obj mW;  const Obj& W = mW;
-                mW.setInterval(ITOTAL_NANOSECS / k_NANOSECS_PER_SEC,
+                mW.setIntervalRaw(ITOTAL_NANOSECS / k_NANOSECS_PER_SEC,
                                static_cast<int>(
                                ITOTAL_NANOSECS % k_NANOSECS_PER_SEC));
 
@@ -3134,7 +3136,7 @@ int main(int argc, char *argv[])
             // undefined behavior.
         }
       } break;
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // RELATIONAL-COMPARISON OPERATORS (<, <=, >, >=)
         //   Ensure that each operator defines the correct relationship between
@@ -3183,7 +3185,7 @@ int main(int argc, char *argv[])
         //:
         //: 3 For each row 'R1' in the table of P-2:  (C-1..9)
         //:
-        //:   1 Use the default constructor and 'setInterval' to
+        //:   1 Use the default constructor and 'setIntervalRaw' to
         //:     create an object, 'W', having the value from 'R1'.
         //:
         //:   2 Using 'W', verify the anti-reflexive (reflexive) property of
@@ -3192,10 +3194,10 @@ int main(int argc, char *argv[])
         //:
         //:   3 For each row 'R2' in the table of P-2:  (C-1, 6..9)
         //:
-        //:     1 Use the default constructor and 'setInterval' to create an
+        //:     1 Use the default constructor and 'setIntervalRaw' to create an
         //:       object, 'X', having the value from 'R1'.
         //:
-        //:     2 Use the default constructor and 'setInterval' to create a
+        //:     2 Use the default constructor and 'setIntervalRaw' to create a
         //:       second object, 'Y', having the value from 'R2'.
         //:
         //:     3 Record, in 'EXP', whether or not an object set to the value
@@ -3328,7 +3330,7 @@ int main(int argc, char *argv[])
             // Ensure an object compares correctly with itself (alias test).
             {
                 Obj mW;  const Obj& W = mW;
-                mW.setInterval(ISECONDS, INSECS);
+                mW.setIntervalRaw(ISECONDS, INSECS);
 
                 ASSERTV(ILINE, W, !(W <  W));
                 ASSERTV(ILINE, W,   W <= W);
@@ -3351,10 +3353,10 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { T_ P_(JLINE) P_(JSECONDS) P(JNSECS) }
 
                 Obj mX;  const Obj& X = mX;
-                mX.setInterval(ISECONDS, INSECS);
+                mX.setIntervalRaw(ISECONDS, INSECS);
 
                 Obj mY;  const Obj& Y = mY;
-                mY.setInterval(JSECONDS, JNSECS);
+                mY.setIntervalRaw(JSECONDS, JNSECS);
 
                 if (veryVerbose) { T_ T_ P_(X) P(Y) }
 
@@ -3452,7 +3454,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // COMPARISONS WITH DOUBLE (==, !=)
         //   Ensure that '==' and '!=' correctly compare values with 'double'.
@@ -3578,7 +3580,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING CONVERT AND ASSIGN FROM 'double'
         //   Ensure that we can put an object into any valid initial state.
@@ -3676,7 +3678,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING: 'TimeInterval(Int64, int)'
         //   Ensure that we can put an object into any valid initial state.
@@ -3789,6 +3791,150 @@ int main(int argc, char *argv[])
             }
         }
       } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // TESTING: 'setInterval(Int64, int)'
+        //
+        // Concerns:
+        //: 1 The 'setInterval' method can set an object to have any
+        //:   value that does not violate the method's documented
+        //:   preconditions.
+        //:
+        //: 2 'setInterval' is not affected by the state of the object
+        //:   on entry.
+        //:
+        //: 3 The 'nanoseconds' parameter of 'setInterval' defaults to 0.
+        //:
+        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   object values (one per row).
+        //:
+        //: 2 For each row 'R1' in the table of P-3:  (C-1..3)
+        //:
+        //:   1 Create an object 'X' using the default constructor.
+        //:
+        //:   2 Using the 'setInterval' manipulator, set 'X' to the value
+        //:     specified in 'R1'. 
+        //:
+        //:   3 Verify, using 'seconds' and 'nanoseconds', that 'X' has the
+        //:     expected value.  (C-1..3)
+        //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid time interval values, but not triggered
+        //:   for adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
+        //:   (C-4)
+        //
+        // Testing:
+        //   void setInterval(Int64, int);
+        // --------------------------------------------------------------------
+        if (verbose) printf("\nTESTING: 'setInterval(Int64, int)'"
+                            "\n==================================\n");
+
+        if (verbose) printf("\nTesting 'setInterval'.\n");
+        {
+            static const struct {
+                int                d_lineNum;  // Source line number
+                bsls::Types::Int64 d_secs;     // Input seconds
+                int                d_nsecs;    // Input nanoseconds
+                bsls::Types::Int64 d_expSecs;  // Expected seconds
+                int                d_expNsecs; // Expected nanoseconds
+            } DATA[] = {
+     //line         secs      nanosecs      expected secs   expected nanosecs
+     //----         ----      --------      -------------   -----------------
+      { L_,            0,             0,                0,                0 },
+      { L_,            1,             2,                1,                2 },
+      { L_,            1,    1000000000,                2,                0 },
+      { L_,           -1,   -1000000000,               -2,                0 },
+      { L_,            2,   -1000000001,                0,        999999999 },
+      { L_,           -2,    1000000001,                0,       -999999999 },
+      { L_,   k_SECS_MAX,     999999999,       k_SECS_MAX,        999999999 },
+      { L_,   k_SECS_MIN,    -999999999,       k_SECS_MIN,       -999999999 },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int                LINE   = DATA[i].d_lineNum;
+                const bsls::Types::Int64 SECS   = DATA[i].d_secs;
+                const int                NSECS  = DATA[i].d_nsecs;
+                const bsls::Types::Int64 ESECS  = DATA[i].d_expSecs;
+                const int                ENSECS = DATA[i].d_expNsecs;
+
+                Obj mX;  const Obj& X = mX;
+                mX.setInterval(SECS, NSECS);
+                if (veryVerbose) {
+                    T_; P_(X); P_(SECS); P(NSECS);
+                }
+                ASSERTV(LINE, ESECS  == X.seconds());
+                ASSERTV(LINE, ENSECS == X.nanoseconds());
+            }
+        }
+
+        if (verbose) printf("\nTesting default 'nanoseconds' value.\n");
+        {
+            static const struct {
+                int                d_lineNum;  // Source line number
+                bsls::Types::Int64 d_secs;     // Input seconds
+            } DATA[] = {
+                //line         secs
+                //----         ----
+                { L_,            0 },
+                { L_,            1 },
+                { L_,           -1 },
+                { L_,         1000 },
+                { L_,        -1000 },
+                { L_,   k_SECS_MIN },
+                { L_,   k_SECS_MAX },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int                LINE   = DATA[i].d_lineNum;
+                const bsls::Types::Int64 SECS   = DATA[i].d_secs;
+
+                Obj mX;  const Obj& X = mX;
+                mX.setInterval(SECS);
+                if (veryVerbose) {
+                    T_; P_(X); P_(SECS);
+                }
+                ASSERTV(LINE, SECS == X.seconds());
+                ASSERTV(LINE, 0    == X.nanoseconds());
+            }
+        }
+
+        if (verbose) printf("\nNegative Testing.\n");
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            const Int64 SMAX = k_SECS_MAX;
+            const Int64 SMIN = k_SECS_MIN;
+
+            ASSERT( Obj::isValid(SMAX, k_NANOSECS_PER_SEC - 1));
+            ASSERT(!Obj::isValid(SMAX, k_NANOSECS_PER_SEC));
+            ASSERT(!Obj::isValid(SMAX, k_NANOSECS_PER_SEC + 1));
+
+            ASSERT( Obj::isValid(SMIN, -k_NANOSECS_PER_SEC + 1));
+            ASSERT(!Obj::isValid(SMIN, -k_NANOSECS_PER_SEC));
+            ASSERT(!Obj::isValid(SMIN, -k_NANOSECS_PER_SEC - 1));
+
+            if (veryVerbose) printf("\tMaximum interval\n");
+            {
+                Obj mX;
+                ASSERT_SAFE_FAIL(mX.setInterval(SMAX, k_NANOSECS_PER_SEC));
+                ASSERT_SAFE_PASS(mX.setInterval(SMAX, k_NANOSECS_PER_SEC-1));
+            }
+
+            if (veryVerbose) printf("\tMinimum interval\n");
+            {
+                Obj mX;
+                ASSERT_SAFE_FAIL(mX.setInterval(SMIN, -k_NANOSECS_PER_SEC));
+                ASSERT_SAFE_PASS(mX.setInterval(SMIN, -k_NANOSECS_PER_SEC+1));
+            }
+        }
+      } break;
+
       case 10: {
         // --------------------------------------------------------------------
         // BSLX STREAMING
@@ -3841,13 +3987,13 @@ int main(int argc, char *argv[])
         //:
         //: 3 For each row 'R1' in the table of P-2:  (C-1, 3..4)
         //:
-        //:   1 Use the default constructor and 'setInterval' to
+        //:   1 Use the default constructor and 'setIntervalRaw' to
         //:     create two 'const' 'Obj', 'Z' and 'ZZ', having the value from
         //:     'R1'.
         //:
         //:   2 For each row 'R2' in the table of P-2:  (C-1, 3..4)
         //:
-        //:     1 Use the default constructor and 'setInterval' to
+        //:     1 Use the default constructor and 'setIntervalRaw' to
         //:       create a modifiable 'Obj', 'mX', having the value from 'R2'.
         //:
         //:     2 Assign 'mX' from 'Z'.
@@ -3868,9 +4014,9 @@ int main(int argc, char *argv[])
         //:   'mX' and 'ZZ' are created to have the value from 'R1'.  For each
         //:   'R1' in the table of P-2:  (C-5)
         //:
-        //:   1 Use the default constructor and 'setInterval' to
+        //:   1 Use the default constructor and 'setIntervalRaw' to
         //:     create a modifiable 'Obj', 'mX', having the value from 'R1';
-        //:     also use the default constructor and 'setInterval' to
+        //:     also use the default constructor and 'setIntervalRaw' to
         //:     create a 'const' 'Obj', 'ZZ', also having the value from 'R1'.
         //:
         //:   2 Let 'Z' be a reference providing only 'const' access to 'mX'.
@@ -3929,10 +4075,10 @@ int main(int argc, char *argv[])
             const int                INSECS   = DATA[ti].d_nsecs;
 
             Obj mZ;   const Obj& Z  = mZ;
-            mZ. setInterval(ISECONDS, INSECS);
+            mZ. setIntervalRaw(ISECONDS, INSECS);
 
             Obj mZZ;  const Obj& ZZ = mZZ;
-            mZZ.setInterval(ISECONDS, INSECS);
+            mZZ.setIntervalRaw(ISECONDS, INSECS);
 
             if (veryVerbose) { T_ P_(ILINE) P(Z) }
 
@@ -3951,7 +4097,7 @@ int main(int argc, char *argv[])
                 const int                JNSECS   = DATA[tj].d_nsecs;
 
                 Obj mX;  const Obj& X = mX;
-                mX.setInterval(JSECONDS, JNSECS);
+                mX.setIntervalRaw(JSECONDS, JNSECS);
 
                 if (veryVerbose) { T_ T_ P_(JLINE) P(X) }
 
@@ -3969,10 +4115,10 @@ int main(int argc, char *argv[])
 
             {
                 Obj mX;
-                mX. setInterval(ISECONDS, INSECS);
+                mX. setIntervalRaw(ISECONDS, INSECS);
 
                 Obj mZZ;  const Obj& ZZ = mZZ;
-                mZZ.setInterval(ISECONDS, INSECS);
+                mZZ.setIntervalRaw(ISECONDS, INSECS);
 
                 const Obj& Z = mX;
 
@@ -4076,10 +4222,10 @@ int main(int argc, char *argv[])
             const int                NSECS   = DATA[ti].d_nsecs;
 
             Obj mZ;   const Obj& Z  = mZ;
-            mZ. setInterval(SECONDS, NSECS);
+            mZ. setIntervalRaw(SECONDS, NSECS);
 
             Obj mZZ;  const Obj& ZZ = mZZ;
-            mZZ.setInterval(SECONDS, NSECS);
+            mZZ.setIntervalRaw(SECONDS, NSECS);
 
             if (veryVerbose) { T_ P_(Z) P(ZZ) }
 
@@ -4221,7 +4367,7 @@ int main(int argc, char *argv[])
             // Ensure an object compares correctly with itself (alias test).
             {
                 Obj mW;  const Obj& W = mW;
-                mW.setInterval(ISECONDS, INSECS);
+                mW.setIntervalRaw(ISECONDS, INSECS);
 
                 ASSERTV(ILINE, W,   W == W);
                 ASSERTV(ILINE, W, !(W != W));
@@ -4246,10 +4392,10 @@ int main(int argc, char *argv[])
                 const bool EXP = ti == tj;  // expected for equality comparison
 
                 Obj mX;  const Obj& X = mX;
-                mX.setInterval(ISECONDS, INSECS);
+                mX.setIntervalRaw(ISECONDS, INSECS);
 
                 Obj mY;  const Obj& Y = mY;
-                mY.setInterval(JSECONDS, JNSECS);
+                mY.setIntervalRaw(JSECONDS, JNSECS);
 
                 if (veryVerbose) { T_ T_ T_ P_(EXP) P_(X) P(Y) }
 
@@ -4522,7 +4668,7 @@ int main(int argc, char *argv[])
 
 
                 Obj mX;  const Obj& X = mX;
-                mX.setInterval(SECONDS, NSECS);
+                mX.setIntervalRaw(SECONDS, NSECS);
 
                 TestStream out;
 
@@ -4567,7 +4713,7 @@ int main(int argc, char *argv[])
         //:
         //:   1 Create an object 'X' using the default constructor.
         //:
-        //:   3 Using 'setInterval', set 'X' to the value computed in
+        //:   3 Using 'setIntervalRaw', set 'X' to the value computed in
         //:     P-2.1.
         //:
         //:   4 Verify that each basic accessor, invoked on a reference
@@ -4609,7 +4755,7 @@ int main(int argc, char *argv[])
                 const int NSECS = DATA[i].d_nsecs;
 
                 Obj mX;  const Obj& X = mX;
-                mX.setInterval(SECS, NSECS);
+                mX.setIntervalRaw(SECS, NSECS);
 
                 if (veryVerbose) {
                     T_; P_(i);    P(X);
@@ -4767,14 +4913,14 @@ int main(int argc, char *argv[])
         //:
         //: 2 An object can be safely destroyed.
         //:
-        //: 3 The 'setInterval' method can set an object to have any
+        //: 3 The 'setIntervalRaw' method can set an object to have any
         //:   value that does not violate the method's documented
         //:   preconditions.
         //:
-        //: 4 'setInterval' is not affected by the state of the object
+        //: 4 'setIntervalRaw' is not affected by the state of the object
         //:   on entry.
         //:
-        //: 5 The 'nanoseconds' parameter of 'setInterval' defaults to 0.
+        //: 5 The 'nanoseconds' parameter of 'setIntervalRaw' defaults to 0.
         //:
         //: 6 QoI: Asserted precondition violations are detected when enabled.
         //
@@ -4793,7 +4939,7 @@ int main(int argc, char *argv[])
         //:
         //:   1 Create an object 'X' using the default constructor.
         //:
-        //:   2 Using the 'setInterval' (primary) manipulator, set 'X'
+        //:   2 Using the 'setIntervalRaw' (primary) manipulator, set 'X'
         //:     to the value specified in 'R1'.
         //:
         //:   3 Verify, using 'seconds' and 'nanoseconds'', that 'X' has the
@@ -4807,7 +4953,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   TimeInterval();
         //   ~TimeInterval();
-        //   void setInterval(Int64, int);
+        //   void setIntervalRaw(Int64, int);
         // --------------------------------------------------------------------
         if (verbose) printf("\nDEFAULT CTOR, PRIMARY MANIPULATORS, & DTOR"
                             "\n==========================================\n");
@@ -4823,25 +4969,25 @@ int main(int argc, char *argv[])
             ASSERT(0 == X.nanoseconds());
         }
 
-        if (verbose) printf("\nTesting 'setInterval'.\n");
+        if (verbose) printf("\nTesting 'setIntervalRaw'.\n");
         {
             static const struct {
                 int                d_lineNum;  // Source line number
                 bsls::Types::Int64 d_secs;     // Input seconds
                 int                d_nsecs;    // Input nanoseconds
-                bsls::Types::Int64 d_expSecs;  // Expected seconds
-                int                d_expNsecs; // Expected nanoseconds
             } DATA[] = {
-     //line         secs      nanosecs      expected secs   expected nanosecs
-     //----         ----      --------      -------------   -----------------
-      { L_,            0,             0,                0,                0 },
-      { L_,            1,             2,                1,                2 },
-      { L_,            1,    1000000000,                2,                0 },
-      { L_,           -1,   -1000000000,               -2,                0 },
-      { L_,            2,   -1000000001,                0,        999999999 },
-      { L_,           -2,    1000000001,                0,       -999999999 },
-      { L_,   k_SECS_MAX,     999999999,       k_SECS_MAX,        999999999 },
-      { L_,   k_SECS_MIN,    -999999999,       k_SECS_MIN,       -999999999 },
+                //line         secs      nanosecs
+                //----         ----      --------
+                { L_,            0,                       0 },
+                { L_,            0,  k_NANOSECS_PER_SEC - 1 },
+                { L_,            0, -k_NANOSECS_PER_SEC + 1 },
+                { L_,         9999,                    9999 },
+                { L_,        -9999,                   -9999 },
+                { L_,   k_SECS_MAX,                       0 },
+                { L_,   k_SECS_MIN,                       0 },
+                { L_,   k_SECS_MAX,  k_NANOSECS_PER_SEC - 1 },
+                { L_,   k_SECS_MIN, -k_NANOSECS_PER_SEC + 1 },
+
 
             };
 
@@ -4851,16 +4997,14 @@ int main(int argc, char *argv[])
                 const int                LINE   = DATA[i].d_lineNum;
                 const bsls::Types::Int64 SECS   = DATA[i].d_secs;
                 const int                NSECS  = DATA[i].d_nsecs;
-                const bsls::Types::Int64 ESECS  = DATA[i].d_expSecs;
-                const int                ENSECS = DATA[i].d_expNsecs;
 
                 Obj mX;  const Obj& X = mX;
-                mX.setInterval(SECS, NSECS);
+                mX.setIntervalRaw(SECS, NSECS);
                 if (veryVerbose) {
                     T_; P_(X); P_(SECS); P(NSECS);
                 }
-                ASSERTV(LINE, ESECS  == X.seconds());
-                ASSERTV(LINE, ENSECS == X.nanoseconds());
+                ASSERTV(LINE, SECS  == X.seconds());
+                ASSERTV(LINE, NSECS == X.nanoseconds());
             }
         }
 
@@ -4889,7 +5033,7 @@ int main(int argc, char *argv[])
                 const bsls::Types::Int64 SECS   = DATA[i].d_secs;
 
                 Obj mX;  const Obj& X = mX;
-                mX.setInterval(SECS);
+                mX.setIntervalRaw(SECS);
                 if (veryVerbose) {
                     T_; P_(X); P_(SECS);
                 }
@@ -4904,30 +5048,35 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
 
-            const Int64 SMAX = k_SECS_MAX;
-            const Int64 SMIN = k_SECS_MIN;
-
-            ASSERT( Obj::isValid(SMAX, k_NANOSECS_PER_SEC - 1));
-            ASSERT(!Obj::isValid(SMAX, k_NANOSECS_PER_SEC));
-            ASSERT(!Obj::isValid(SMAX, k_NANOSECS_PER_SEC + 1));
-
-            ASSERT( Obj::isValid(SMIN, -k_NANOSECS_PER_SEC + 1));
-            ASSERT(!Obj::isValid(SMIN, -k_NANOSECS_PER_SEC));
-            ASSERT(!Obj::isValid(SMIN, -k_NANOSECS_PER_SEC - 1));
-
             if (veryVerbose) printf("\tMaximum interval\n");
             {
                 Obj mX;
-                ASSERT_SAFE_FAIL(mX.setInterval(SMAX, k_NANOSECS_PER_SEC));
-                ASSERT_SAFE_PASS(mX.setInterval(SMAX, k_NANOSECS_PER_SEC -1));
+                ASSERT_SAFE_FAIL(mX.setIntervalRaw(0, k_NANOSECS_PER_SEC));
+                ASSERT_SAFE_PASS(mX.setIntervalRaw(0, k_NANOSECS_PER_SEC-1));
             }
 
             if (veryVerbose) printf("\tMinimum interval\n");
             {
                 Obj mX;
-                ASSERT_SAFE_FAIL(mX.setInterval(SMIN, -k_NANOSECS_PER_SEC));
-                ASSERT_SAFE_PASS(mX.setInterval(SMIN, -k_NANOSECS_PER_SEC +1));
+                ASSERT_SAFE_FAIL(mX.setIntervalRaw(0, -k_NANOSECS_PER_SEC));
+                ASSERT_SAFE_PASS(mX.setIntervalRaw(0, -k_NANOSECS_PER_SEC+1));
             }
+
+            if (veryVerbose) printf("\tMatching sign values\n");
+            {
+                Obj mX;
+                ASSERT_SAFE_PASS(mX.setIntervalRaw( 0,  0));
+                ASSERT_SAFE_PASS(mX.setIntervalRaw( 1,  0));
+                ASSERT_SAFE_PASS(mX.setIntervalRaw(-1,  0));
+                ASSERT_SAFE_PASS(mX.setIntervalRaw( 0,  1));
+                ASSERT_SAFE_PASS(mX.setIntervalRaw( 0, -1));
+                ASSERT_SAFE_PASS(mX.setIntervalRaw( 1,  1));
+                ASSERT_SAFE_PASS(mX.setIntervalRaw(-1, -1));
+
+                ASSERT_SAFE_FAIL(mX.setIntervalRaw( 1, -1));
+                ASSERT_SAFE_FAIL(mX.setIntervalRaw(-1,  1));
+            }
+
         }
       } break;
       case 1: {
