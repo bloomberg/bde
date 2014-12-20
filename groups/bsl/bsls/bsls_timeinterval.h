@@ -159,6 +159,19 @@ class TimeInterval {
         // 'nanoseconds' if their sum results in a time interval whose total
         // number of seconds can be represented with a 64-bit signed integer.
 
+                                  // Aspects
+
+    static int maxSupportedBdexVersion(int versionSelector);
+        // Return the maximum valid BDEX format version, as indicated by the
+        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
+        // method.  Note that it is highly recommended that 'versionSelector'
+        // be formatted as "YYYYMMDD", a date representation.  Also note that
+        // 'versionSelector' should be a *compile*-time-chosen value that
+        // selects a format version supported by both externalizer and
+        // unexternalizer.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
+
     // CREATORS
     TimeInterval();
         // Create a time interval having the value of 0 seconds and 0
@@ -373,6 +386,21 @@ class TimeInterval {
         // Note that this function provides a subset of the defined behavior of
         // 'setInterval' chosen to minimize runtime performance cost.
 
+                                  // Aspects
+
+    template <class STREAM>
+    STREAM& bdexStreamIn(STREAM& stream, int version);
+        // Assign to this object the value read from the specified input
+        // 'stream' using the specified 'version' format, and return a
+        // reference to 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'version' is not supported, this object
+        // is unaltered and 'stream' is invalidated, but otherwise unmodified.
+        // If 'version' is supported but 'stream' becomes invalid during this
+        // operation, this object has an undefined, but valid, state.  Note
+        // that no version is read from 'stream'.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
+
     // ACCESSORS
     int nanoseconds() const;
         // Return the nanoseconds field in the canonical representation of the
@@ -429,6 +457,17 @@ class TimeInterval {
         // may *lose* precision.
 
                                   // Aspects
+
+    template <class STREAM>
+    STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        // Write the value of this object, using the specified 'version'
+        // format, to the specified output 'stream', and return a reference to
+        // 'stream'.  If 'stream' is initially invalid, this operation has no
+        // effect.  If 'version' is not supported, 'stream' is invalidated, but
+        // otherwise unmodified.  Note that 'version' is not written to
+        // 'stream'.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
 
     template <class STREAM>
     STREAM& print(STREAM& stream,
@@ -531,6 +570,12 @@ STREAM& operator<<(STREAM&             stream,
                         // ------------------
 
 // CLASS METHODS
+inline
+int TimeInterval::maxSupportedBdexVersion(int /* versionSelector */)
+{
+    return 1;
+}
+
 inline
 bool TimeInterval::isValid(bsls::Types::Int64 seconds,
                            int                nanoseconds)
@@ -721,6 +766,37 @@ void TimeInterval::setIntervalRaw(bsls::Types::Int64 seconds,
     d_nanoseconds = nanoseconds;
 }
 
+                                  // Aspects
+
+template <class STREAM>
+STREAM& TimeInterval::bdexStreamIn(STREAM& stream, int version)
+{
+    if (stream) {
+        switch (version) { // switch on the schema version
+          case 1: {
+            bsls::Types::Int64 seconds;
+            int                nanoseconds;
+            stream.getInt64(seconds);
+            stream.getInt32(nanoseconds);
+
+            if (stream && (   (seconds >= 0 && nanoseconds >= 0)
+                           || (seconds <= 0 && nanoseconds <= 0))
+                       && nanoseconds > -k_NANOSECS_PER_SEC
+                       && nanoseconds <  k_NANOSECS_PER_SEC) {
+                d_seconds     = seconds;
+                d_nanoseconds = nanoseconds;
+            }
+            else {
+                stream.invalidate();
+            }
+          } break;
+          default: {
+            stream.invalidate();  // unrecognized version number
+          }
+        }
+    }
+    return stream;
+}
 
 // ACCESSORS
 inline
@@ -803,6 +879,23 @@ double TimeInterval::totalSecondsAsDouble() const
 }
 
                                   // Aspects
+
+template <class STREAM>
+STREAM& TimeInterval::bdexStreamOut(STREAM& stream, int version) const
+{
+    if (stream) {
+        switch (version) { // switch on the schema version
+          case 1: {
+            stream.putInt64(d_seconds);
+            stream.putInt32(d_nanoseconds);
+          } break;
+          default: {
+            stream.invalidate();  // unrecognized version number
+          }
+        }
+    }
+    return stream;
+}
 
 template <class STREAM>
 STREAM& TimeInterval::print(STREAM& stream,
