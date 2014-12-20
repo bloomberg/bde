@@ -361,6 +361,18 @@ class TimeInterval {
         // sign or magnitude of either argument except that they must not
         // violate the method's preconditions.
 
+    void setIntervalRaw(bsls::Types::Int64 seconds, int nanoseconds = 0);
+        // Set this time interval to have the value given by the sum of the
+        // specified integral number of 'seconds', and the optionally specified
+        // integral number of 'nanoseconds', where 'seconds' and 'nanoseconds'
+        // form a canonical representation of a time interval (see
+        // {Representation}).  If unspecified, 'nanoseconds' is 0.  The
+        // behavior is undefined unless
+        // '-999999999 <= nanoseconds <= 999999999' and 'seconds' and
+        // 'nanoseconds' are either both non-negative or both non-positive.
+        // Note that this function provides a subset of the defined behavior of
+        // 'setInterval' chosen to minimize runtime performance cost.
+
     // ACCESSORS
     int nanoseconds() const;
         // Return the nanoseconds field in the canonical representation of the
@@ -695,6 +707,20 @@ void TimeInterval::setTotalNanoseconds(bsls::Types::Int64 nanoseconds)
     setInterval(                 nanoseconds / k_NANOSECS_PER_SEC,
                 static_cast<int>(nanoseconds % k_NANOSECS_PER_SEC));
 }
+
+inline
+void TimeInterval::setIntervalRaw(bsls::Types::Int64 seconds,
+                                  int                nanoseconds)
+{
+    BSLS_ASSERT_SAFE(-k_NANOSECS_PER_SEC < nanoseconds &&
+                      k_NANOSECS_PER_SEC > nanoseconds);
+    BSLS_ASSERT_SAFE((seconds >= 0 && nanoseconds >= 0) ||
+                     (seconds <= 0 && nanoseconds <= 0));
+
+    d_seconds     = seconds;
+    d_nanoseconds = nanoseconds;
+}
+
 
 // ACCESSORS
 inline
@@ -1036,7 +1062,7 @@ struct is_trivially_copyable<BloombergLP::bsls::TimeInterval>  {
 };
 #pragma bde_verify pop
 
-}  // close bsl namespace
+}  // close namespace bsl
 
 #endif
 
