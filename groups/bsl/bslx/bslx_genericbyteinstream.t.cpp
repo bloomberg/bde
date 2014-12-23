@@ -1,4 +1,4 @@
-// bslx_genricbyteinstream.t.cpp                                      -*-C++-*-
+// bslx_genericbyteinstream.t.cpp                                     -*-C++-*-
 
 #include <bslx_genericbyteinstream.h>
 #include <bslx_genericbyteoutstream.h>  // for testing only
@@ -80,7 +80,7 @@ using namespace bslx;
 // [ 3] operator const void *() const;
 // [ 3] bool isValid() const;
 //
-// [26] GenericByteInStream& operator>>(GenericByteInStream&, TYPE& value);
+// [26] GenericByteInStream& operator>>(GenericByteInStream&, TYPE&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [27] THIRD-PARTY EXTERNALIZATION
@@ -142,16 +142,17 @@ class TestStreamBuf {
     // This class implements a very basic stream buffer suitable for use in
     // 'bslx::GenericByteOutStream' and 'bslx::GenericByteInStream'.
 
-    // FRIENDS
-    friend bsl::ostream& operator<<(bsl::ostream&, const TestStreamBuf&);
-
-  private:
+    // DATA
     bsl::stringbuf d_buffer;  // buffer
 
     int            d_limit;   // number of bytes to read before failure; -1
                               // implies  will never fail
 
+    // FRIENDS
+    friend bsl::ostream& operator<<(bsl::ostream&, const TestStreamBuf&);
+
   public:
+    // TYPES
     struct traits_type {
         static int eof() {  return -1;  }
     };
@@ -179,8 +180,8 @@ class TestStreamBuf {
         // successful, return the value of the character; otherwise, 'EOF'.
 
     bsl::streamsize sgetn(char *s, bsl::streamsize length);
-        // Load the specified 'length' characters into the specified address 's'
-        // and return the number of characters read.
+        // Load the specified 'length' characters into the specified address
+        // 's' and return the number of characters read.
 
     int sputc(char c);
         // Write the specified character 'c' to this buffer.  If the write is
@@ -815,21 +816,21 @@ if (veryVerbose) {
         //   Verify 'operator>>' works correctly.
         //
         // Concerns:
-        //: 1 Method inline-forwards to implementation correctly.
+        //: 1 The method inline-forwards to the implementation correctly.
         //:
         //: 2 Invocations of the method can be chained.
         //
         // Plan:
         //: 1 Externalize a set of values to an out stream.
         //:
-        //: 2 Unexternalize the values and verify the values match the initial
-        //:   values.  (C-1)
+        //: 2 The unexternalize the values and verify the values match the
+        //:   initial values.  (C-1)
         //:
         //: 3 Unexternalize a set of values from the stream in one code line.
         //:   (C-2)
         //
         // Testing:
-        //   GenericByteInStream& operator>>(GenericByteInStream&, TYPE& value);
+        //   GenericByteInStream& operator>>(GenericByteInStream&, TYPE&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -901,7 +902,7 @@ if (veryVerbose) {
         }
 
         {
-            // Verify method has no effect if the stream is invalid.
+            // Verify the method has no effect if the stream is invalid.
 
             char initial = 'a';
             char value = 'b';
@@ -938,13 +939,13 @@ if (veryVerbose) {
         //   Verify this method unexternalizes the expected values.
         //
         // Concerns:
-        //: 1 Method unexternalizes the expected values.
+        //: 1 The method unexternalizes the expected values.
         //:
-        //: 2 Unexternalization position does not effect output.
+        //: 2 The unexternalization position does not effect output.
         //
         // Plan:
-        //: 1 Unexternalize at different offsets and verify the values.  (C-1,
-        //:   C-2)
+        //: 1 Unexternalize at different offsets and verify the values.
+        //:   (C-1..2)
         //
         // Testing:
         //   getString(bsl::string& variable);
@@ -1035,9 +1036,9 @@ if (veryVerbose) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 Methods unexternalize the expected values.
+        //: 1 The methods unexternalize the expected values.
         //:
-        //: 2 Unexternalization position does not effect output.
+        //: 2 The unexternalization position does not effect output.
         //
         // Plan:
         //: 1 Unexternalize at different offsets and verify the values.  (C-1,
@@ -1554,9 +1555,9 @@ if (veryVerbose) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 Methods unexternalize the expected values.
+        //: 1 The methods unexternalize the expected values.
         //:
-        //: 2 Unexternalization position does not effect output.
+        //: 2 The unexternalization position does not effect output.
         //:
         //: 3 QoI: asserted precondition violations are detected when enabled.
         //
@@ -1836,9 +1837,9 @@ if (veryVerbose) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 Methods unexternalize the expected values.
+        //: 1 The methods unexternalize the expected values.
         //:
-        //: 2 Unexternalization position does not effect output.
+        //: 2 The unexternalization position does not effect output.
         //:
         //: 3 QoI: asserted precondition violations are detected when enabled.
         //
@@ -2116,9 +2117,9 @@ if (veryVerbose) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 Methods unexternalize the expected values.
+        //: 1 The methods unexternalize the expected values.
         //:
-        //: 2 Unexternalization position does not effect output.
+        //: 2 The unexternalization position does not effect output.
         //:
         //: 3 QoI: asserted precondition violations are detected when enabled.
         //
@@ -2397,9 +2398,9 @@ if (veryVerbose) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 Methods unexternalize the expected values.
+        //: 1 The methods unexternalize the expected values.
         //:
-        //: 2 Unexternalization position does not effect output.
+        //: 2 The unexternalization position does not effect output.
         //:
         //: 3 QoI: asserted precondition violations are detected when enabled.
         //
@@ -2678,9 +2679,9 @@ if (veryVerbose) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 Methods unexternalize the expected values.
+        //: 1 The methods unexternalize the expected values.
         //:
-        //: 2 Unexternalization position does not effect output.
+        //: 2 The unexternalization position does not effect output.
         //:
         //: 3 QoI: asserted precondition violations are detected when enabled.
         //
@@ -2957,9 +2958,9 @@ if (veryVerbose) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 Methods unexternalize the expected values.
+        //: 1 The methods unexternalize the expected values.
         //:
-        //: 2 Unexternalization position does not effect output.
+        //: 2 The unexternalization position does not effect output.
         //:
         //: 3 QoI: asserted precondition violations are detected when enabled.
         //
@@ -3237,9 +3238,9 @@ if (veryVerbose) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 Methods unexternalize the expected values.
+        //: 1 The methods unexternalize the expected values.
         //:
-        //: 2 Unexternalization position does not effect output.
+        //: 2 The unexternalization position does not effect output.
         //:
         //: 3 QoI: asserted precondition violations are detected when enabled.
         //
@@ -3517,9 +3518,9 @@ if (veryVerbose) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 Methods unexternalize the expected values.
+        //: 1 The methods unexternalize the expected values.
         //:
-        //: 2 Unexternalization position does not effect output.
+        //: 2 The unexternalization position does not effect output.
         //:
         //: 3 QoI: asserted precondition violations are detected when enabled.
         //
@@ -4233,9 +4234,9 @@ if (veryVerbose) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 Methods unexternalize the expected values.
+        //: 1 The methods unexternalize the expected values.
         //:
-        //: 2 Unexternalization position does not effect output.
+        //: 2 The unexternalization position does not effect output.
         //
         // Plan:
         //: 1 Unexternalize at different offsets and verify the values.  (C-1,
@@ -4399,9 +4400,9 @@ if (veryVerbose) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 Methods unexternalize the expected values.
+        //: 1 The methods unexternalize the expected values.
         //:
-        //: 2 Unexternalization position does not effect output.
+        //: 2 The unexternalization position does not effect output.
         //
         // Plan:
         //: 1 Unexternalize at different offsets and verify the values.  (C-1,
@@ -4565,9 +4566,9 @@ if (veryVerbose) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 Methods unexternalize the expected values.
+        //: 1 The methods unexternalize the expected values.
         //:
-        //: 2 Unexternalization position does not effect output.
+        //: 2 The unexternalization position does not effect output.
         //
         // Plan:
         //: 1 Unexternalize at different offsets and verify the values.  (C-1,
@@ -4732,9 +4733,9 @@ if (veryVerbose) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 Methods unexternalize the expected values.
+        //: 1 The methods unexternalize the expected values.
         //:
-        //: 2 Unexternalization position does not effect output.
+        //: 2 The unexternalization position does not effect output.
         //
         // Plan:
         //: 1 Unexternalize at different offsets and verify the values.  (C-1,
@@ -4898,9 +4899,9 @@ if (veryVerbose) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 Methods unexternalize the expected values.
+        //: 1 The methods unexternalize the expected values.
         //:
-        //: 2 Unexternalization position does not effect output.
+        //: 2 The unexternalization position does not effect output.
         //
         // Plan:
         //: 1 Unexternalize at different offsets and verify the values.  (C-1,
@@ -5066,9 +5067,9 @@ if (veryVerbose) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 Methods unexternalize the expected values.
+        //: 1 The methods unexternalize the expected values.
         //:
-        //: 2 Unexternalization position does not effect output.
+        //: 2 The unexternalization position does not effect output.
         //
         // Plan:
         //: 1 Unexternalize at different offsets and verify the values.  (C-1,
@@ -5233,9 +5234,9 @@ if (veryVerbose) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 Methods unexternalize the expected values.
+        //: 1 The methods unexternalize the expected values.
         //:
-        //: 2 Unexternalization position does not effect output.
+        //: 2 The unexternalization position does not effect output.
         //
         // Plan:
         //: 1 Unexternalize at different offsets and verify the values.  (C-1,
@@ -5401,9 +5402,9 @@ if (veryVerbose) {
         //   getInt8(char&) is tested in the PRIMARY MANIPULATORS test.
         //
         // Concerns:
-        //: 1 Methods unexternalize the expected values.
+        //: 1 The methods unexternalize the expected values.
         //:
-        //: 2 Unexternalization position does not effect output.
+        //: 2 The unexternalization position does not effect output.
         //
         // Plan:
         //: 1 Unexternalize at different offsets and verify the values.  (C-1,
@@ -5635,7 +5636,7 @@ if (veryVerbose) {
         //   Verify functionality of the basic accessors.
         //
         // Concerns:
-        //: 1 Methods return correct values.
+        //: 1 The methods return correct values.
         //
         // Plan:
         //: 1 Create an empty object, use 'invalidate' to modify state, and

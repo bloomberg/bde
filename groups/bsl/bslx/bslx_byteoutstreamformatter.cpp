@@ -4,10 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslx_byteoutstreamformatter_cpp,"$Id$ $CSID$")
 
-#include <bsl_iomanip.h>
-#include <bsl_ios.h>
-#include <bsl_ostream.h>
-
 namespace BloombergLP {
 namespace bslx {
 

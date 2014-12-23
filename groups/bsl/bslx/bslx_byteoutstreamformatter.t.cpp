@@ -110,8 +110,6 @@ int main(int argc, char *argv[])
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
     bslma::Default::setDefaultAllocator(&defaultAllocator);
 
-    bslma::TestAllocator ta(veryVeryVeryVerbose);
-
     switch (test) { case 0:
       case 2: {
         // --------------------------------------------------------------------
@@ -211,9 +209,9 @@ int main(int argc, char *argv[])
         //: 1 The 'typedef' is correct.
         //
         // Plan:
-        //: 1 Externalize a few items with 'bslx::ByteOutStreamFormatter' and
-        //:   'bslx::GenericByteOutStreamFormatter' and verify the results are
-        //:   the same.
+        //: 1 Externalize a few items with 'bslx::ByteOutStreamFormatter'
+        //:   (using a 'bsl::stringbuf') and 'bslx::GenericByteOutStream', and
+        //:   verify the results are the same.
         //
         // Testing:
         //   TYPEDEF

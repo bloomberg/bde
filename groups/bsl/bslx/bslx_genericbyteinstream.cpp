@@ -1,4 +1,4 @@
-// bslx_genericbyteinstream.cpp                                      -*-C++-*-
+// bslx_genericbyteinstream.cpp                                       -*-C++-*-
 #include <bslx_genericbyteinstream.h>
 
 #include <bsls_ident.h>

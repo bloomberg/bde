@@ -412,8 +412,9 @@ if (veryVerbose) {
         //: 1 The 'typedef' is correct.
         //
         // Plan:
-        //: 1 Externalize a few items with 'bslx::ByteOutStreamFormatter' and
-        //:   verify 'bslx::ByteInStreamFormatter' correctly unexternalizes the
+        //: 1 Externalize a few items with 'bslx::ByteOutStreamFormatter',
+        //:   using a 'bsl::stringbuf', and verify
+        //:   'bslx::ByteInStreamFormatter' correctly unexternalizes the
         //:   values.
         //
         // Testing:

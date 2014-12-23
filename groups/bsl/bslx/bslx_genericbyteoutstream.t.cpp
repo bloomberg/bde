@@ -148,10 +148,7 @@ class TestOutStreamBuf {
     // This class implements a very basic stream buffer suitable for use in
     // 'bslx::GenericByteOutStream'.
 
-    // FRIENDS
-    friend bsl::ostream& operator<<(bsl::ostream&, const TestOutStreamBuf&);
-
-  private:
+    // DATA
     bsl::stringbuf      d_buffer;      // output buffer
 
     mutable bsl::string d_cache;       // caches the data for the 'data' method
@@ -163,7 +160,11 @@ class TestOutStreamBuf {
     int                 d_limit;       // number of bytes to write before
                                        // failure; -1 implies will never fail
 
+    // FRIENDS
+    friend bsl::ostream& operator<<(bsl::ostream&, const TestOutStreamBuf&);
+
   public:
+    // TYPES
     struct traits_type {
         static int eof() {  return -1;  }
     };
@@ -359,8 +360,6 @@ int main(int argc, char *argv[])
 
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
     bslma::Default::setDefaultAllocator(&defaultAllocator);
-
-    bslma::TestAllocator ta(veryVeryVeryVerbose);
 
     switch (test) { case 0:
       case 28: {
@@ -563,7 +562,7 @@ int main(int argc, char *argv[])
         //:   'TestOutStreamBuf'.  (C-1)
         //:
         //: 2 Use the 'setFlushFail' method of the 'TestOutStreamBuf' to verify
-        //:   errors are handled correctly.  (C-3)
+        //:   errors are handled correctly.  (C-2)
         //
         // Testing:
         //   GenericByteOutStream& flush();
