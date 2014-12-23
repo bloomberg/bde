@@ -185,6 +185,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_dayofweek.h>
 #endif
 
+#ifndef INCLUDED_BDLT_MONTHOFYEAR
+#include <bdlt_monthofyear.h>
+#endif
+
 #ifndef INCLUDED_BDLT_SERIALDATEIMPUTIL
 #include <bdlt_serialdateimputil.h>
 #endif
@@ -393,6 +397,10 @@ class Date {
     DayOfWeek::Enum dayOfWeek() const;
         // Return the day of the week in the range
         // '[DayOfWeek::e_SUN .. DayOfWeek::e_SAT]' of this date.
+
+    MonthOfYear::Enum monthOfYear() const;
+       // Return the month of the year in the range 
+       // '[MonthOfYear::e_JAN .. MonthOfYear::e_DEC]' of this date.
 
     void getYearDay(int *year, int *dayOfYear) const;
         // Load, into the specified 'year' and 'dayOfYear', the respective
@@ -717,6 +725,12 @@ inline
 DayOfWeek::Enum Date::dayOfWeek() const
 {
     return DayOfWeek::Enum(SerialDateImpUtil::serialToDayOfWeek(d_serialDate));
+}
+
+inline
+MonthOfYear::Enum Date::monthOfYear() const
+{
+    return MonthOfYear::Enum(month());
 }
 
 inline
