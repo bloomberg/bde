@@ -398,10 +398,6 @@ class Date {
         // Return the day of the week in the range
         // '[DayOfWeek::e_SUN .. DayOfWeek::e_SAT]' of this date.
 
-    MonthOfYear::Enum monthOfYear() const;
-       // Return the month of the year in the range 
-       // '[MonthOfYear::e_JAN .. MonthOfYear::e_DEC]' of this date.
-
     void getYearDay(int *year, int *dayOfYear) const;
         // Load, into the specified 'year' and 'dayOfYear', the respective
         // 'year' and 'dayOfYear' attribute values of this date.
@@ -409,6 +405,10 @@ class Date {
     void getYearMonthDay(int *year, int *month, int *day) const;
         // Load, into the specified 'year', 'month', and 'day', the respective
         // 'year', 'month', and 'day' attribute values of this date.
+
+    MonthOfYear::Enum monthOfYear() const;
+        // Return the month of the year in the range
+        // '[MonthOfYear::e_JAN .. MonthOfYear::e_DEC]' of this date.
 
                                   // Aspects
 
@@ -728,12 +728,6 @@ DayOfWeek::Enum Date::dayOfWeek() const
 }
 
 inline
-MonthOfYear::Enum Date::monthOfYear() const
-{
-    return MonthOfYear::Enum(month());
-}
-
-inline
 void Date::getYearDay(int *year, int *dayOfYear) const
 {
     BSLS_ASSERT_SAFE(year);
@@ -750,6 +744,12 @@ void Date::getYearMonthDay(int *year, int *month, int *day) const
     BSLS_ASSERT_SAFE(day);
 
     SerialDateImpUtil::serialToYmd(year, month, day, d_serialDate);
+}
+
+inline
+MonthOfYear::Enum Date::monthOfYear() const
+{
+    return MonthOfYear::Enum(month());
 }
 
                                   // Aspects

@@ -103,6 +103,7 @@ using namespace bsl;
 // [18] bdlt::DayOfWeek::Enum dayOfWeek() const;
 // [12] void getYearDay(int *year, int *dayOfYear) const;
 // [11] void getYearMonthDay(int *year, int *month, int *day) const;
+// [ 4] MonthOfYear::Enum monthOfYear() const;
 // [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
 // [ 5] ostream& print(ostream& s, int level = 0, int sPL = 4) const;
 //
@@ -375,6 +376,8 @@ int main(int argc, char *argv[])
     bdlt::Date d1;           ASSERT(   1 == d1.year());
                              ASSERT(   1 == d1.month());
                              ASSERT(   1 == d1.day());
+                             ASSERT(   bdlt::MonthOfYear::e_JAN ==
+                                       d1.monthOfYear());
 //..
 // Next, we set 'd1' to July 4, 1776:
 //..
@@ -382,6 +385,9 @@ int main(int argc, char *argv[])
                              ASSERT(1776 == d1.year());
                              ASSERT(   7 == d1.month());
                              ASSERT(   4 == d1.day());
+                             ASSERT(   bdlt::MonthOfYear::e_JUL ==
+                                       d1.monthOfYear());
+
 //..
 // We can also use 'setYearMonthDayIfValid' if we are not sure whether a
 // particular year/month/day combination constitutes a valid 'bdlt::Date'.  For
@@ -394,6 +400,9 @@ int main(int argc, char *argv[])
                              ASSERT(1776 == d1.year());   // no effect on 'd1'
                              ASSERT(   7 == d1.month());
                              ASSERT(   4 == d1.day());
+                             ASSERT(   bdlt::MonthOfYear::e_JUL ==
+                                       d1.monthOfYear());
+
 //..
 // Then, from 'd1', we can determine the day of the year, and the day of the
 // week, of July 4, 1776:
@@ -412,6 +421,8 @@ int main(int argc, char *argv[])
                              ASSERT( 186 == d2.dayOfYear());
                              ASSERT(   7 == d2.month());
                              ASSERT(   4 == d2.day());
+                             ASSERT(   bdlt::MonthOfYear::e_JUL ==
+                                       d1.monthOfYear());
                              ASSERT(  d1 == d2);
 //..
 // Then, we add six days to the value of 'd2':
@@ -419,6 +430,9 @@ int main(int argc, char *argv[])
     d2 += 6;                 ASSERT(1776 == d2.year());
                              ASSERT(   7 == d2.month());
                              ASSERT(  10 == d2.day());
+                             ASSERT(   bdlt::MonthOfYear::e_JUL ==
+                                       d1.monthOfYear());
+
 //..
 // Now, we subtract 'd1' from 'd2', storing the (signed) difference in days
 // (a.k.a. *Actual* difference) in 'daysDiff':
@@ -2616,6 +2630,7 @@ if (verbose)
             ASSERT(1 == X.year());
             ASSERT(1 == X.month());
             ASSERT(1 == X.day());
+            ASSERT(bdlt::MonthOfYear::e_JAN == X.monthOfYear());
         }
 
         if (verbose)
@@ -2633,6 +2648,8 @@ if (verbose)
                 const int IYEAR  = DATA[ti].d_year;
                 const int IMONTH = DATA[ti].d_month;
                 const int IDAY   = DATA[ti].d_day;
+                const bdlt::MonthOfYear::Enum IMONTH_OF_YEAR =
+                    bdlt::MonthOfYear::Enum(DATA[ti].d_month);
 
                 if (veryVerbose) { T_ P_(ILINE) P_(IYEAR) P_(IMONTH) P(IDAY) }
 
@@ -2643,6 +2660,7 @@ if (verbose)
                 LOOP_ASSERT(ILINE, IYEAR  == X.year());
                 LOOP_ASSERT(ILINE, IMONTH == X.month());
                 LOOP_ASSERT(ILINE, IDAY   == X.day());
+                LOOP_ASSERT(ILINE, IMONTH_OF_YEAR == X.monthOfYear());
 
                 for (int tj = 0; tj < NUM_DATA; ++tj) {
                     const int JLINE  = DATA[tj].d_line;
@@ -2685,6 +2703,7 @@ if (verbose)
                 ASSERT(1 == X.year());
                 ASSERT(1 == X.month());
                 ASSERT(1 == X.day());
+                ASSERT(bdlt::MonthOfYear::e_JAN == X.monthOfYear());
 
                 ASSERT_SAFE_FAIL(mX.setYearMonthDay(      0,       1,      1));
                 ASSERT_SAFE_FAIL(mX.setYearMonthDay(     -1,       1,      1));
@@ -2703,11 +2722,13 @@ if (verbose)
                 ASSERT(1 == X.year());
                 ASSERT(1 == X.month());
                 ASSERT(1 == X.day());
+                ASSERT(bdlt::MonthOfYear::e_JAN == X.monthOfYear());
 
                 ASSERT_SAFE_PASS(mX.setYearMonthDay(   9999,      12,     31));
                 ASSERT(9999 == X.year());
                 ASSERT(  12 == X.month());
                 ASSERT(  31 == X.day());
+                ASSERT(bdlt::MonthOfYear::e_DEC == X.monthOfYear());
 
                 ASSERT_SAFE_FAIL(mX.setYearMonthDay(   9999,       0,     31));
 
@@ -2728,6 +2749,8 @@ if (verbose)
                 ASSERT(9999 == X.year());
                 ASSERT(  12 == X.month());
                 ASSERT(  31 == X.day());
+                ASSERT(bdlt::MonthOfYear::e_DEC == X.monthOfYear());
+
             }
 
             if (verbose) cout << "\t'getYearMonthDay'" << endl;
@@ -4087,6 +4110,7 @@ if (verbose)
         // Testing:
         //   int day() const;
         //   int month() const;
+        //   MonthOfYear::Enum monthOfYear() const;
         //   int year() const;
         // --------------------------------------------------------------------
 
@@ -4111,14 +4135,17 @@ if (verbose)
             const int YEAR  = DATA[ti].d_year;
             const int MONTH = DATA[ti].d_month;
             const int DAY   = DATA[ti].d_day;
+            const bdlt::MonthOfYear::Enum MONTH_OF_YEAR =
+                bdlt::MonthOfYear::Enum(MONTH);
 
             const Obj X(YEAR, MONTH, DAY);
 
             if (veryVerbose) { T_ P_(LINE) P_(YEAR) P_(MONTH) P_(DAY) P(X) }
 
-            LOOP_ASSERT(LINE, YEAR  == X.year());
-            LOOP_ASSERT(LINE, MONTH == X.month());
-            LOOP_ASSERT(LINE, DAY   == X.day());
+            LOOP_ASSERT(LINE, YEAR          == X.year());
+            LOOP_ASSERT(LINE, MONTH         == X.month());
+            LOOP_ASSERT(LINE, MONTH_OF_YEAR == X.monthOfYear());
+            LOOP_ASSERT(LINE, DAY           == X.day());
         }
 
       } break;
