@@ -21,12 +21,12 @@ BSLS_IDENT("$Id: $")
 //
 // This component is intended to be used in conjunction with the
 // 'bslx_genericbyteinstream' "unexternalization" component.  Each output
-// method of 'bslx::GenericByteOutStream' writes a value or a homogeneous array
-// of values to parameterized type (i.e. 'bsl::streambuf').  The values are
-// formatted to be readable by the corresponding 'bslx::GenericByteInStream'
-// method.  In general, the user cannot rely on any other mechanism to read
-// data written by 'bslx::GenericByteOutStream' unless that mechanism
-// explicitly states its ability to do so.
+// method of 'bslx::GenericByteOutStream' writes either a value or a
+// homogeneous array of values of a fundamental type, in a format that is
+// readable by the corresponding 'bslx::GenericByteInStream' method.  In
+// general, the user cannot rely on any other mechanism to read data written by
+// 'bslx::GenericByteOutStream' unless that mechanism explicitly states its
+// ability to do so.
 //
 // The supported types and required content are listed in the table below.  All
 // of the fundamental types in the table may be output as scalar values or as
@@ -68,10 +68,10 @@ BSLS_IDENT("$Id: $")
 // *validity*.  Writing to an initially invalid stream has no effect.  Whenever
 // an output operation fails, the stream should be invalidated explicitly.
 //
-///Generic Byte-format Formatter
+///Generic Byte-Format Generator
 ///-----------------------------
 // The class 'bslx::GenericByteOutStream' is parameterized by a buffered stream
-// class 'STREAMBUF' which, given the declarations:
+// class, 'STREAMBUF', which, given the declarations:
 //..
 //  char        c;
 //  int         len;
@@ -79,7 +79,7 @@ BSLS_IDENT("$Id: $")
 //  STREAMBUF  *sb;
 //..
 // must make the following expressions syntactically valid, with the assert
-// statement highlighting the expected return values:
+// statements highlighting the expected return values:
 //..
 //  STREAMBUF::traits_type::int_type eof = STREAMBUF::traits_type::eof();
 //  assert(eof != sb->sputc(c));
@@ -89,8 +89,7 @@ BSLS_IDENT("$Id: $")
 // Suitable choices for 'STREAMBUF' include any class that implements the
 // 'bsl::basic_streambuf' protocol.
 //
-// The class 'bslx::ByteOutStreamFormatter' is not parameterized and is
-// resolved to be the same type as
+// The class 'bslx::ByteOutStreamFormatter' is a 'typedef' of
 // 'bslx::GenericByteOutStream<bsl::streambuf>'.
 //
 ///Versioning
@@ -154,8 +153,8 @@ BSLS_IDENT("$Id: $")
 // Then, we compare the contents of the buffer to the expected value:
 //..
 //  bsl::string  theChars = buffer.str();
-//  ASSERT(15 == theChars.size());
-//  ASSERT( 0 == bsl::memcmp(theChars.data(),
+//  assert(15 == theChars.size());
+//  assert( 0 == bsl::memcmp(theChars.data(),
 //                           "\x00\x00\x00\x01\x00\x00\x00\x02""c\x05""hello",
 //                           15));
 //..
@@ -288,7 +287,7 @@ class GenericByteOutStream {
     // CREATORS
     GenericByteOutStream(STREAMBUF *streamBuf, int versionSelector);
         // Create an output byte stream that writes its output to the specified
-        // 'streamBuf' and will use the specified (*compile*-time-defined)
+        // 'streamBuf' and uses the specified (*compile*-time-defined)
         // 'versionSelector' as needed (see {Versioning}).  Note that the
         // 'versionSelector' is expected to be formatted as "YYYYMMDD", a date
         // representation.
@@ -298,9 +297,9 @@ class GenericByteOutStream {
 
     // MANIPULATORS
     GenericByteOutStream& flush();
-        // If the stream is valid, invoke the 'pubsync' method on the
-        // underlying stream passed at construction of this object; otherwise,
-        // this function has no effect.
+        // If this stream is valid, invoke the 'pubsync' method on the
+        // underlying stream supplied at construction of this object;
+        // otherwise, this function has no effect.
 
     void invalidate();
         // Put this output stream in an invalid state.  This function has no
@@ -308,17 +307,17 @@ class GenericByteOutStream {
 
     GenericByteOutStream& putLength(int length);
         // If the specified 'length' is less than 128, write to the stream
-        // passed at construction the one-byte integer comprised of the
+        // supplied at construction the one-byte integer comprised of the
         // least-significant one byte of the 'length'; otherwise, write to the
-        // stream passed at construction the four-byte, two's complement
-        // integer (in network byte order) comprised of the least-significant
-        // four bytes of the 'length' (in host byte order) with the
-        // most-significant bit set.  Return a reference to this stream.  If
-        // this stream is initially invalid, this operation has no effect.  The
-        // behavior is undefined unless '0 <= length'.
+        // stream the four-byte, two's complement integer (in network byte
+        // order) comprised of the least-significant four bytes of the 'length'
+        // (in host byte order) with the most-significant bit set.  Return a
+        // reference to this stream.  If this stream is initially invalid, this
+        // operation has no effect.  The behavior is undefined unless
+        // '0 <= length'.
 
     GenericByteOutStream& putVersion(int version);
-        // Write to the stream passed at construction the one-byte, two's
+        // Write to the stream supplied at construction the one-byte, two's
         // complement unsigned integer comprised of the least-significant one
         // byte of the specified 'version', and return a reference to this
         // stream.  If this stream is initially invalid, this operation has no
@@ -327,111 +326,111 @@ class GenericByteOutStream {
                       // *** scalar integer values ***
 
     GenericByteOutStream& putInt64(bsls::Types::Int64 value);
-        // Write to the stream passed at construction the eight-byte, two's
+        // Write to the stream supplied at construction the eight-byte, two's
         // complement integer (in network byte order) comprised of the
         // least-significant eight bytes of the specified 'value' (in host byte
         // order), and return a reference to this stream.  If this stream is
         // initially invalid, this operation has no effect.
 
     GenericByteOutStream& putUint64(bsls::Types::Uint64 value);
-        // Write to the stream passed at construction the eight-byte, two's
+        // Write to the stream supplied at construction the eight-byte, two's
         // complement unsigned integer (in network byte order) comprised of the
         // least-significant eight bytes of the specified 'value' (in host byte
         // order), and return a reference to this stream.  If this stream is
         // initially invalid, this operation has no effect.
 
     GenericByteOutStream& putInt56(bsls::Types::Int64 value);
-        // Write to the stream passed at construction the seven-byte, two's
+        // Write to the stream supplied at construction the seven-byte, two's
         // complement integer (in network byte order) comprised of the
         // least-significant seven bytes of the specified 'value' (in host byte
         // order), and return a reference to this stream.  If this stream is
         // initially invalid, this operation has no effect.
 
     GenericByteOutStream& putUint56(bsls::Types::Uint64 value);
-        // Write to the stream passed at construction the seven-byte, two's
+        // Write to the stream supplied at construction the seven-byte, two's
         // complement unsigned integer (in network byte order) comprised of the
         // least-significant seven bytes of the specified 'value' (in host byte
         // order), and return a reference to this stream.  If this stream is
         // initially invalid, this operation has no effect.
 
     GenericByteOutStream& putInt48(bsls::Types::Int64 value);
-        // Write to the stream passed at construction the six-byte, two's
+        // Write to the stream supplied at construction the six-byte, two's
         // complement integer (in network byte order) comprised of the
         // least-significant six bytes of the specified 'value' (in host byte
         // order), and return a reference to this stream.  If this stream is
         // initially invalid, this operation has no effect.
 
     GenericByteOutStream& putUint48(bsls::Types::Uint64 value);
-        // Write to the stream passed at construction the six-byte, two's
+        // Write to the stream supplied at construction the six-byte, two's
         // complement unsigned integer (in network byte order) comprised of the
         // least-significant six bytes of the specified 'value' (in host byte
         // order), and return a reference to this stream.  If this stream is
         // initially invalid, this operation has no effect.
 
     GenericByteOutStream& putInt40(bsls::Types::Int64 value);
-        // Write to the stream passed at construction the five-byte, two's
+        // Write to the stream supplied at construction the five-byte, two's
         // complement integer (in network byte order) comprised of the
         // least-significant five bytes of the specified 'value' (in host byte
         // order), and return a reference to this stream.  If this stream is
         // initially invalid, this operation has no effect.
 
     GenericByteOutStream& putUint40(bsls::Types::Uint64 value);
-        // Write to the stream passed at construction the five-byte, two's
+        // Write to the stream supplied at construction the five-byte, two's
         // complement unsigned integer (in network byte order) comprised of the
         // least-significant five bytes of the specified 'value' (in host byte
         // order), and return a reference to this stream.  If this stream is
         // initially invalid, this operation has no effect.
 
     GenericByteOutStream& putInt32(int value);
-        // Write to the stream passed at construction the four-byte, two's
+        // Write to the stream supplied at construction the four-byte, two's
         // complement integer (in network byte order) comprised of the
         // least-significant four bytes of the specified 'value' (in host byte
         // order), and return a reference to this stream.  If this stream is
         // initially invalid, this operation has no effect.
 
     GenericByteOutStream& putUint32(unsigned int value);
-        // Write to the stream passed at construction the four-byte, two's
+        // Write to the stream supplied at construction the four-byte, two's
         // complement unsigned integer (in network byte order) comprised of the
         // least-significant four bytes of the specified 'value' (in host byte
         // order), and return a reference to this stream.  If this stream is
         // initially invalid, this operation has no effect.
 
     GenericByteOutStream& putInt24(int value);
-        // Write to the stream passed at construction the three-byte, two's
+        // Write to the stream supplied at construction the three-byte, two's
         // complement integer (in network byte order) comprised of the
         // least-significant three bytes of the specified 'value' (in host byte
         // order), and return a reference to this stream.  If this stream is
         // initially invalid, this operation has no effect.
 
     GenericByteOutStream& putUint24(unsigned int value);
-        // Write to the stream passed at construction the three-byte, two's
+        // Write to the stream supplied at construction the three-byte, two's
         // complement unsigned integer (in network byte order) comprised of the
         // least-significant three bytes of the specified 'value' (in host byte
         // order), and return a reference to this stream.  If this stream is
         // initially invalid, this operation has no effect.
 
     GenericByteOutStream& putInt16(int value);
-        // Write to the stream passed at construction the two-byte, two's
+        // Write to the stream supplied at construction the two-byte, two's
         // complement integer (in network byte order) comprised of the
         // least-significant two bytes of the specified 'value' (in host byte
         // order), and return a reference to this stream.  If this stream is
         // initially invalid, this operation has no effect.
 
     GenericByteOutStream& putUint16(unsigned int value);
-        // Write to the stream passed at construction the two-byte, two's
+        // Write to the stream supplied at construction the two-byte, two's
         // complement unsigned integer (in network byte order) comprised of the
         // least-significant two bytes of the specified 'value' (in host byte
         // order), and return a reference to this stream.  If this stream is
         // initially invalid, this operation has no effect.
 
     GenericByteOutStream& putInt8(int value);
-        // Write to the stream passed at construction the one-byte, two's
+        // Write to the stream supplied at construction the one-byte, two's
         // complement integer comprised of the least-significant one byte of
         // the specified 'value', and return a reference to this stream.  If
         // this stream is initially invalid, this operation has no effect.
 
     GenericByteOutStream& putUint8(unsigned int value);
-        // Write to the stream passed at construction the one-byte, two's
+        // Write to the stream supplied at construction the one-byte, two's
         // complement unsigned integer comprised of the least-significant one
         // byte of the specified 'value', and return a reference to this
         // stream.  If this stream is initially invalid, this operation has no
@@ -440,7 +439,7 @@ class GenericByteOutStream {
                       // *** scalar floating-point values ***
 
     GenericByteOutStream& putFloat64(double value);
-        // Write to the stream passed at construction the eight-byte IEEE
+        // Write to the stream supplied at construction the eight-byte IEEE
         // double-precision floating-point number (in network byte order)
         // comprised of the most-significant eight bytes of the specified
         // 'value' (in host byte order), and return a reference to this stream.
@@ -448,7 +447,7 @@ class GenericByteOutStream {
         // Note that for non-conforming platforms, this operation may be lossy.
 
     GenericByteOutStream& putFloat32(float value);
-        // Write to the stream passed at construction the four-byte IEEE
+        // Write to the stream supplied at construction the four-byte IEEE
         // single-precision floating-point number (in network byte order)
         // comprised of the most-significant four bytes of the specified
         // 'value' (in host byte order), and return a reference to this stream.
@@ -458,7 +457,7 @@ class GenericByteOutStream {
                       // *** string values ***
 
     GenericByteOutStream& putString(const bsl::string& value);
-        // Write to the stream passed at construction the length of the
+        // Write to the stream supplied at construction the length of the
         // specified 'value' (see 'putLength') and an array of one-byte, two's
         // complement unsigned integers comprised of the least-significant one
         // byte of each character in the 'value', and return a reference to
@@ -469,7 +468,7 @@ class GenericByteOutStream {
 
     GenericByteOutStream& putArrayInt64(const bsls::Types::Int64 *values,
                                         int                       numValues);
-        // Write to the stream passed at construction the consecutive
+        // Write to the stream supplied at construction the consecutive
         // eight-byte, two's complement integers (in network byte order)
         // comprised of the least-significant eight bytes of each of the
         // specified 'numValues' leading entries in the specified 'values' (in
@@ -480,7 +479,7 @@ class GenericByteOutStream {
 
     GenericByteOutStream& putArrayUint64(const bsls::Types::Uint64 *values,
                                          int                        numValues);
-        // Write to the stream passed at construction the consecutive
+        // Write to the stream supplied at construction the consecutive
         // eight-byte, two's complement unsigned integers (in network byte
         // order) comprised of the least-significant eight bytes of each of the
         // specified 'numValues' leading entries in the specified 'values' (in
@@ -491,7 +490,7 @@ class GenericByteOutStream {
 
     GenericByteOutStream& putArrayInt56(const bsls::Types::Int64 *values,
                                         int                       numValues);
-        // Write to the stream passed at construction the consecutive
+        // Write to the stream supplied at construction the consecutive
         // seven-byte, two's complement integers (in network byte order)
         // comprised of the least-significant seven bytes of each of the
         // specified 'numValues' leading entries in the specified 'values' (in
@@ -502,7 +501,7 @@ class GenericByteOutStream {
 
     GenericByteOutStream& putArrayUint56(const bsls::Types::Uint64 *values,
                                          int                        numValues);
-        // Write to the stream passed at construction the consecutive
+        // Write to the stream supplied at construction the consecutive
         // seven-byte, two's complement unsigned integers (in network byte
         // order) comprised of the least-significant seven bytes of each of the
         // specified 'numValues' leading entries in the specified 'values' (in
@@ -513,28 +512,29 @@ class GenericByteOutStream {
 
     GenericByteOutStream& putArrayInt48(const bsls::Types::Int64 *values,
                                         int                       numValues);
-        // Write to the stream passed at construction the consecutive six-byte,
-        // two's complement integers (in network byte order) comprised of the
-        // least-significant six bytes of each of the specified 'numValues'
-        // leading entries in the specified 'values' (in host byte order), and
-        // return a reference to this stream.  If this stream is initially
-        // invalid, this operation has no effect.  The behavior is undefined
-        // unless '0 <= numValues' and 'values' has sufficient contents.
+        // Write to the stream supplied at construction the consecutive
+        // six-byte, two's complement integers (in network byte order)
+        // comprised of the least-significant six bytes of each of the
+        // specified 'numValues' leading entries in the specified 'values' (in
+        // host byte order), and return a reference to this stream.  If this
+        // stream is initially invalid, this operation has no effect.  The
+        // behavior is undefined unless '0 <= numValues' and 'values' has
+        // sufficient contents.
 
     GenericByteOutStream& putArrayUint48(const bsls::Types::Uint64 *values,
                                          int                        numValues);
-        // Write to the stream passed at construction the consecutive six-byte,
-        // two's complement unsigned integers (in network byte order) comprised
-        // of the least-significant six bytes of each of the specified
-        // 'numValues' leading entries in the specified 'values' (in host byte
-        // order), and return a reference to this stream.  If this stream is
-        // initially invalid, this operation has no effect.  The behavior is
-        // undefined unless '0 <= numValues' and 'values' has sufficient
-        // contents.
+        // Write to the stream supplied at construction the consecutive
+        // six-byte, two's complement unsigned integers (in network byte order)
+        // comprised of the least-significant six bytes of each of the
+        // specified 'numValues' leading entries in the specified 'values' (in
+        // host byte order), and return a reference to this stream.  If this
+        // stream is initially invalid, this operation has no effect.  The
+        // behavior is undefined unless '0 <= numValues' and 'values' has
+        // sufficient contents.
 
     GenericByteOutStream& putArrayInt40(const bsls::Types::Int64 *values,
                                         int                       numValues);
-        // Write to the stream passed at construction the consecutive
+        // Write to the stream supplied at construction the consecutive
         // five-byte, two's complement integers (in network byte order)
         // comprised of the least-significant five bytes of each of the
         // specified 'numValues' leading entries in the specified 'values' (in
@@ -545,7 +545,7 @@ class GenericByteOutStream {
 
     GenericByteOutStream& putArrayUint40(const bsls::Types::Uint64 *values,
                                          int                        numValues);
-        // Write to the stream passed at construction the consecutive
+        // Write to the stream supplied at construction the consecutive
         // five-byte, two's complement unsigned integers (in network byte
         // order) comprised of the least-significant five bytes of each of the
         // specified 'numValues' leading entries in the specified 'values' (in
@@ -555,7 +555,7 @@ class GenericByteOutStream {
         // sufficient contents.
 
     GenericByteOutStream& putArrayInt32(const int *values, int numValues);
-        // Write to the stream passed at construction the consecutive
+        // Write to the stream supplied at construction the consecutive
         // four-byte, two's complement integers (in network byte order)
         // comprised of the least-significant four bytes of each of the
         // specified 'numValues' leading entries in the specified 'values' (in
@@ -566,7 +566,7 @@ class GenericByteOutStream {
 
     GenericByteOutStream& putArrayUint32(const unsigned int *values,
                                          int                 numValues);
-        // Write to the stream passed at construction the consecutive
+        // Write to the stream supplied at construction the consecutive
         // four-byte, two's complement unsigned integers (in network byte
         // order) comprised of the least-significant four bytes of each of the
         // specified 'numValues' leading entries in the specified 'values' (in
@@ -576,7 +576,7 @@ class GenericByteOutStream {
         // sufficient contents.
 
     GenericByteOutStream& putArrayInt24(const int *values, int numValues);
-        // Write to the stream passed at construction the consecutive
+        // Write to the stream supplied at construction the consecutive
         // three-byte, two's complement integers (in network byte order)
         // comprised of the least-significant three bytes of each of the
         // specified 'numValues' leading entries in the specified 'values' (in
@@ -587,7 +587,7 @@ class GenericByteOutStream {
 
     GenericByteOutStream& putArrayUint24(const unsigned int *values,
                                          int                 numValues);
-        // Write to the stream passed at construction the consecutive
+        // Write to the stream supplied at construction the consecutive
         // three-byte, two's complement unsigned integers (in network byte
         // order) comprised of the least-significant three bytes of each of the
         // specified 'numValues' leading entries in the specified 'values' (in
@@ -597,43 +597,44 @@ class GenericByteOutStream {
         // sufficient contents.
 
     GenericByteOutStream& putArrayInt16(const short *values, int numValues);
-        // Write to the stream passed at construction the consecutive two-byte,
-        // two's complement integers (in network byte order) comprised of the
-        // least-significant two bytes of each of the specified 'numValues'
-        // leading entries in the specified 'values' (in host byte order), and
-        // return a reference to this stream.  If this stream is initially
-        // invalid, this operation has no effect.  The behavior is undefined
-        // unless '0 <= numValues' and 'values' has sufficient contents.
+        // Write to the stream supplied at construction the consecutive
+        // two-byte, two's complement integers (in network byte order)
+        // comprised of the least-significant two bytes of each of the
+        // specified 'numValues' leading entries in the specified 'values' (in
+        // host byte order), and return a reference to this stream.  If this
+        // stream is initially invalid, this operation has no effect.  The
+        // behavior is undefined unless '0 <= numValues' and 'values' has
+        // sufficient contents.
 
     GenericByteOutStream& putArrayUint16(const unsigned short *values,
                                          int                   numValues);
-        // Write to the stream passed at construction the consecutive two-byte,
-        // two's complement unsigned integers (in network byte order) comprised
-        // of the least-significant two bytes of each of the specified
-        // 'numValues' leading entries in the specified 'values' (in host byte
-        // order), and return a reference to this stream.  If this stream is
-        // initially invalid, this operation has no effect.  The behavior is
-        // undefined unless '0 <= numValues' and 'values' has sufficient
-        // contents.
+        // Write to the stream supplied at construction the consecutive
+        // two-byte, two's complement unsigned integers (in network byte order)
+        // comprised of the least-significant two bytes of each of the
+        // specified 'numValues' leading entries in the specified 'values' (in
+        // host byte order), and return a reference to this stream.  If this
+        // stream is initially invalid, this operation has no effect.  The
+        // behavior is undefined unless '0 <= numValues' and 'values' has
+        // sufficient contents.
 
     GenericByteOutStream& putArrayInt8(const char        *values,
                                        int                numValues);
     GenericByteOutStream& putArrayInt8(const signed char *values,
                                        int                numValues);
-        // Write to the stream passed at construction the consecutive one-byte,
-        // two's complement integers comprised of the least-significant one
-        // byte of each of the specified 'numValues' leading entries in the
-        // specified 'values', and return a reference to this stream.  If this
-        // stream is initially invalid, this operation has no effect.  The
-        // behavior is undefined unless '0 <= numValues' and 'values' has
-        // sufficient contents.
+        // Write to the stream supplied at construction the consecutive
+        // one-byte, two's complement integers comprised of the
+        // least-significant one byte of each of the specified 'numValues'
+        // leading entries in the specified 'values', and return a reference to
+        // this stream.  If this stream is initially invalid, this operation
+        // has no effect.  The behavior is undefined unless '0 <= numValues'
+        // and 'values' has sufficient contents.
 
     GenericByteOutStream& putArrayUint8(const char          *values,
                                         int                  numValues);
     GenericByteOutStream& putArrayUint8(const unsigned char *values,
                                         int                  numValues);
-        // Write to the stream passed at construction the consecutive one-byte,
-        // two's complement unsigned integers comprised of the
+        // Write to the stream supplied at construction the consecutive
+        // one-byte, two's complement unsigned integers comprised of the
         // least-significant one byte of each of the specified 'numValues'
         // leading entries in the specified 'values', and return a reference to
         // this stream.  If this stream is initially invalid, this operation
@@ -643,7 +644,7 @@ class GenericByteOutStream {
                       // *** arrays of floating-point values ***
 
     GenericByteOutStream& putArrayFloat64(const double *values, int numValues);
-        // Write to the stream passed at construction the consecutive
+        // Write to the stream supplied at construction the consecutive
         // eight-byte IEEE double-precision floating-point numbers (in network
         // byte order) comprised of the most-significant eight bytes of each of
         // the specified 'numValues' leading entries in the specified 'values'
@@ -654,12 +655,12 @@ class GenericByteOutStream {
         // operation may be lossy.
 
     GenericByteOutStream& putArrayFloat32(const float *values, int numValues);
-        // Write to the stream passed at construction the consecutive four-byte
-        // IEEE single-precision floating-point numbers (in network byte order)
-        // comprised of the most-significant four bytes of each of the
-        // specified 'numValues' leading entries in the specified 'values' (in
-        // host byte order), and return a reference to this stream.  If this
-        // stream is initially invalid, this operation has no effect.  The
+        // Write to the stream supplied at construction the consecutive
+        // four-byte IEEE single-precision floating-point numbers (in network
+        // byte order) comprised of the most-significant four bytes of each of
+        // the specified 'numValues' leading entries in the specified 'values'
+        // (in host byte order), and return a reference to this stream.  If
+        // this stream is initially invalid, this operation has no effect.  The
         // behavior is undefined unless '0 <= numValues' and 'values' has
         // sufficient contents.  Note that for non-conforming platforms, this
         // operation may be lossy.
@@ -731,7 +732,9 @@ GenericByteOutStream<STREAMBUF>& GenericByteOutStream<STREAMBUF>::flush()
 {
     if (isValid()) {
         invalidate();
-        if (0 == d_streamBuf->pubsync()) validate();
+        if (0 == d_streamBuf->pubsync()) {
+            validate();
+        }
     }
     return *this;
 }
@@ -782,8 +785,8 @@ GenericByteOutStream<STREAMBUF>::putInt64(bsls::Types::Int64 value)
     invalidate();
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    char *rawBytes = reinterpret_cast<char *>(&value);
-    char  bytes[k_SIZEOF_INT64];
+    const char *rawBytes = reinterpret_cast<char *>(&value);
+    char        bytes[k_SIZEOF_INT64];
 
     bytes[0] = rawBytes[7];
     bytes[1] = rawBytes[6];
@@ -794,7 +797,7 @@ GenericByteOutStream<STREAMBUF>::putInt64(bsls::Types::Int64 value)
     bytes[6] = rawBytes[1];
     bytes[7] = rawBytes[0];
 #else
-    char *bytes =
+    const char *bytes =
               reinterpret_cast<char *>(&value) + sizeof value - k_SIZEOF_INT64;
 #endif
 
@@ -826,8 +829,8 @@ GenericByteOutStream<STREAMBUF>::putInt56(bsls::Types::Int64 value)
     invalidate();
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    char *rawBytes = reinterpret_cast<char *>(&value);
-    char  bytes[k_SIZEOF_INT56];
+    const char *rawBytes = reinterpret_cast<char *>(&value);
+    char        bytes[k_SIZEOF_INT56];
 
     bytes[0] = rawBytes[6];
     bytes[1] = rawBytes[5];
@@ -837,7 +840,7 @@ GenericByteOutStream<STREAMBUF>::putInt56(bsls::Types::Int64 value)
     bytes[5] = rawBytes[1];
     bytes[6] = rawBytes[0];
 #else
-    char *bytes =
+    const char *bytes =
               reinterpret_cast<char *>(&value) + sizeof value - k_SIZEOF_INT56;
 #endif
 
@@ -869,8 +872,8 @@ GenericByteOutStream<STREAMBUF>::putInt48(bsls::Types::Int64 value)
     invalidate();
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    char *rawBytes = reinterpret_cast<char *>(&value);
-    char  bytes[k_SIZEOF_INT48];
+    const char *rawBytes = reinterpret_cast<char *>(&value);
+    char        bytes[k_SIZEOF_INT48];
 
     bytes[0] = rawBytes[5];
     bytes[1] = rawBytes[4];
@@ -879,7 +882,7 @@ GenericByteOutStream<STREAMBUF>::putInt48(bsls::Types::Int64 value)
     bytes[4] = rawBytes[1];
     bytes[5] = rawBytes[0];
 #else
-    char *bytes =
+    const char *bytes =
               reinterpret_cast<char *>(&value) + sizeof value - k_SIZEOF_INT48;
 #endif
 
@@ -911,8 +914,8 @@ GenericByteOutStream<STREAMBUF>::putInt40(bsls::Types::Int64 value)
     invalidate();
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    char *rawBytes = reinterpret_cast<char *>(&value);
-    char  bytes[k_SIZEOF_INT40];
+    const char *rawBytes = reinterpret_cast<char *>(&value);
+    char        bytes[k_SIZEOF_INT40];
 
     bytes[0] = rawBytes[4];
     bytes[1] = rawBytes[3];
@@ -920,7 +923,7 @@ GenericByteOutStream<STREAMBUF>::putInt40(bsls::Types::Int64 value)
     bytes[3] = rawBytes[1];
     bytes[4] = rawBytes[0];
 #else
-    char *bytes =
+    const char *bytes =
               reinterpret_cast<char *>(&value) + sizeof value - k_SIZEOF_INT40;
 #endif
 
@@ -952,15 +955,15 @@ GenericByteOutStream<STREAMBUF>::putInt32(int value)
     invalidate();
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    char *rawBytes = reinterpret_cast<char *>(&value);
-    char  bytes[k_SIZEOF_INT32];
+    const char *rawBytes = reinterpret_cast<char *>(&value);
+    char        bytes[k_SIZEOF_INT32];
 
     bytes[0] = rawBytes[3];
     bytes[1] = rawBytes[2];
     bytes[2] = rawBytes[1];
     bytes[3] = rawBytes[0];
 #else
-    char *bytes =
+    const char *bytes =
               reinterpret_cast<char *>(&value) + sizeof value - k_SIZEOF_INT32;
 #endif
 
@@ -992,14 +995,14 @@ GenericByteOutStream<STREAMBUF>::putInt24(int value)
     invalidate();
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    char *rawBytes = reinterpret_cast<char *>(&value);
-    char  bytes[k_SIZEOF_INT24];
+    const char *rawBytes = reinterpret_cast<char *>(&value);
+    char        bytes[k_SIZEOF_INT24];
 
     bytes[0] = rawBytes[2];
     bytes[1] = rawBytes[1];
     bytes[2] = rawBytes[0];
 #else
-    char *bytes =
+    const char *bytes =
               reinterpret_cast<char *>(&value) + sizeof value - k_SIZEOF_INT24;
 #endif
 
@@ -1031,13 +1034,13 @@ GenericByteOutStream<STREAMBUF>::putInt16(int value)
     invalidate();
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    char *rawBytes = reinterpret_cast<char *>(&value);
-    char  bytes[k_SIZEOF_INT16];
+    const char *rawBytes = reinterpret_cast<char *>(&value);
+    char        bytes[k_SIZEOF_INT16];
 
     bytes[0] = rawBytes[1];
     bytes[1] = rawBytes[0];
 #else
-    char *bytes =
+    const char *bytes =
               reinterpret_cast<char *>(&value) + sizeof value - k_SIZEOF_INT16;
 #endif
 
@@ -1069,7 +1072,9 @@ GenericByteOutStream<STREAMBUF>::putInt8(int value)
     invalidate();
 
     if (STREAMBUF::traits_type::eof() !=
-                      d_streamBuf->sputc(static_cast<char>(value))) validate();
+                                d_streamBuf->sputc(static_cast<char>(value))) {
+        validate();
+    }
 
     return *this;
 }
@@ -1097,8 +1102,8 @@ GenericByteOutStream<STREAMBUF>::putFloat64(double value)
     invalidate();
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    char *rawBytes = reinterpret_cast<char *>(&value);
-    char  bytes[k_SIZEOF_FLOAT64];
+    const char *rawBytes = reinterpret_cast<char *>(&value);
+    char        bytes[k_SIZEOF_FLOAT64];
 
     bytes[0] = rawBytes[sizeof value - 1];
     bytes[1] = rawBytes[sizeof value - 2];
@@ -1109,7 +1114,7 @@ GenericByteOutStream<STREAMBUF>::putFloat64(double value)
     bytes[6] = rawBytes[sizeof value - 7];
     bytes[7] = rawBytes[sizeof value - 8];
 #else
-    char *bytes = reinterpret_cast<char *>(&value);
+    const char *bytes = reinterpret_cast<char *>(&value);
 #endif
 
     if (k_SIZEOF_FLOAT64 == d_streamBuf->sputn(bytes, k_SIZEOF_FLOAT64)) {
@@ -1132,15 +1137,15 @@ GenericByteOutStream<STREAMBUF>::putFloat32(float value)
     invalidate();
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    char *rawBytes = reinterpret_cast<char *>(&value);
-    char  bytes[k_SIZEOF_FLOAT32];
+    const char *rawBytes = reinterpret_cast<char *>(&value);
+    char        bytes[k_SIZEOF_FLOAT32];
 
     bytes[0] = rawBytes[sizeof value - 1];
     bytes[1] = rawBytes[sizeof value - 2];
     bytes[2] = rawBytes[sizeof value - 3];
     bytes[3] = rawBytes[sizeof value - 4];
 #else
-    char *bytes = reinterpret_cast<char *>(&value);
+    const char *bytes = reinterpret_cast<char *>(&value);
 #endif
 
     if (k_SIZEOF_FLOAT32 == d_streamBuf->sputn(bytes, k_SIZEOF_FLOAT32)) {
@@ -1164,7 +1169,6 @@ GenericByteOutStream<STREAMBUF>::putString(const bsl::string& value)
                       // *** arrays of integer values ***
 
 template <class STREAMBUF>
-inline
 GenericByteOutStream<STREAMBUF>&
 GenericByteOutStream<STREAMBUF>::putArrayInt64(
                                            const bsls::Types::Int64 *values,
@@ -1187,7 +1191,6 @@ GenericByteOutStream<STREAMBUF>::putArrayInt64(
 }
 
 template <class STREAMBUF>
-inline
 GenericByteOutStream<STREAMBUF>&
 GenericByteOutStream<STREAMBUF>::putArrayUint64(
                                           const bsls::Types::Uint64 *values,
@@ -1210,7 +1213,6 @@ GenericByteOutStream<STREAMBUF>::putArrayUint64(
 }
 
 template <class STREAMBUF>
-inline
 GenericByteOutStream<STREAMBUF>&
 GenericByteOutStream<STREAMBUF>::putArrayInt56(
                                            const bsls::Types::Int64 *values,
@@ -1233,7 +1235,6 @@ GenericByteOutStream<STREAMBUF>::putArrayInt56(
 }
 
 template <class STREAMBUF>
-inline
 GenericByteOutStream<STREAMBUF>&
 GenericByteOutStream<STREAMBUF>::putArrayUint56(
                                           const bsls::Types::Uint64 *values,
@@ -1256,7 +1257,6 @@ GenericByteOutStream<STREAMBUF>::putArrayUint56(
 }
 
 template <class STREAMBUF>
-inline
 GenericByteOutStream<STREAMBUF>&
 GenericByteOutStream<STREAMBUF>::putArrayInt48(
                                            const bsls::Types::Int64 *values,
@@ -1279,7 +1279,6 @@ GenericByteOutStream<STREAMBUF>::putArrayInt48(
 }
 
 template <class STREAMBUF>
-inline
 GenericByteOutStream<STREAMBUF>&
 GenericByteOutStream<STREAMBUF>::putArrayUint48(
                                           const bsls::Types::Uint64 *values,
@@ -1302,7 +1301,6 @@ GenericByteOutStream<STREAMBUF>::putArrayUint48(
 }
 
 template <class STREAMBUF>
-inline
 GenericByteOutStream<STREAMBUF>&
 GenericByteOutStream<STREAMBUF>::putArrayInt40(
                                            const bsls::Types::Int64 *values,
@@ -1325,7 +1323,6 @@ GenericByteOutStream<STREAMBUF>::putArrayInt40(
 }
 
 template <class STREAMBUF>
-inline
 GenericByteOutStream<STREAMBUF>&
 GenericByteOutStream<STREAMBUF>::putArrayUint40(
                                           const bsls::Types::Uint64 *values,
@@ -1348,7 +1345,6 @@ GenericByteOutStream<STREAMBUF>::putArrayUint40(
 }
 
 template <class STREAMBUF>
-inline
 GenericByteOutStream<STREAMBUF>&
 GenericByteOutStream<STREAMBUF>::putArrayInt32(const int *values,
                                                int        numValues)
@@ -1370,7 +1366,6 @@ GenericByteOutStream<STREAMBUF>::putArrayInt32(const int *values,
 }
 
 template <class STREAMBUF>
-inline
 GenericByteOutStream<STREAMBUF>&
 GenericByteOutStream<STREAMBUF>::putArrayUint32(const unsigned int *values,
                                                 int                 numValues)
@@ -1392,7 +1387,6 @@ GenericByteOutStream<STREAMBUF>::putArrayUint32(const unsigned int *values,
 }
 
 template <class STREAMBUF>
-inline
 GenericByteOutStream<STREAMBUF>&
 GenericByteOutStream<STREAMBUF>::putArrayInt24(const int *values,
                                                int        numValues)
@@ -1414,7 +1408,6 @@ GenericByteOutStream<STREAMBUF>::putArrayInt24(const int *values,
 }
 
 template <class STREAMBUF>
-inline
 GenericByteOutStream<STREAMBUF>&
 GenericByteOutStream<STREAMBUF>::putArrayUint24(const unsigned int *values,
                                                 int                 numValues)
@@ -1436,7 +1429,6 @@ GenericByteOutStream<STREAMBUF>::putArrayUint24(const unsigned int *values,
 }
 
 template <class STREAMBUF>
-inline
 GenericByteOutStream<STREAMBUF>&
 GenericByteOutStream<STREAMBUF>::putArrayInt16(const short *values,
                                                int          numValues)
@@ -1458,7 +1450,6 @@ GenericByteOutStream<STREAMBUF>::putArrayInt16(const short *values,
 }
 
 template <class STREAMBUF>
-inline
 GenericByteOutStream<STREAMBUF>&
 GenericByteOutStream<STREAMBUF>::putArrayUint16(
                                                const unsigned short *values,
@@ -1496,7 +1487,9 @@ GenericByteOutStream<STREAMBUF>::putArrayInt8(const char *values,
 
     invalidate();
 
-    if (numValues == d_streamBuf->sputn(values, numValues)) validate();
+    if (numValues == d_streamBuf->sputn(values, numValues)) {
+        validate();
+    }
 
     return *this;
 }
@@ -1541,7 +1534,9 @@ GenericByteOutStream<STREAMBUF>::putArrayUint8(const char *values,
 
     invalidate();
 
-    if (numValues == d_streamBuf->sputn(values, numValues)) validate();
+    if (numValues == d_streamBuf->sputn(values, numValues)) {
+        validate();
+    }
 
     return *this;
 }
@@ -1573,7 +1568,6 @@ GenericByteOutStream<STREAMBUF>::putArrayUint8(const unsigned char *values,
                       // *** arrays of floating-point values ***
 
 template <class STREAMBUF>
-inline
 GenericByteOutStream<STREAMBUF>&
 GenericByteOutStream<STREAMBUF>::putArrayFloat64(const double *values,
                                                  int           numValues)
@@ -1595,7 +1589,6 @@ GenericByteOutStream<STREAMBUF>::putArrayFloat64(const double *values,
 }
 
 template <class STREAMBUF>
-inline
 GenericByteOutStream<STREAMBUF>&
 GenericByteOutStream<STREAMBUF>::putArrayFloat32(const float *values,
                                                  int          numValues)
