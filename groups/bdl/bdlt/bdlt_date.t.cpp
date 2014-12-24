@@ -24,6 +24,18 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
+#ifndef BDE_OMIT_TRANSITIONAL
+// TBD Extra inclusions needed temporarily for testing 'logIfProblematicDate*'.
+#include <bsls_platform.h>
+#include <bsl_cstdio.h>
+#include <bsl_c_stdio.h>     // 'tempnam'
+#ifndef BSLS_PLATFORM_OS_WINDOWS
+#include <sys/stat.h>        // 'struct stat64'
+#include <sys/types.h>       // 'off64_t'
+#include <unistd.h>          // 'stat64'
+#endif
+#endif
+
 using namespace BloombergLP;
 using namespace bsl;
 
@@ -214,6 +226,37 @@ typedef bslx::TestOutStream Out;
 
 #define VERSION_SELECTOR 20140601
 
+#ifndef BDE_OMIT_TRANSITIONAL
+
+// TBD stuff needed temporarily for testing 'logIfProblematicDate*'
+
+// Since the logging functions are temporary, all of their test cases need not
+// run on all supported platforms.
+
+#if defined(BSLS_PLATFORM_OS_UNIX)           \
+    && (!defined(BSLS_PLATFORM_OS_CYGWIN)    \
+     && !defined(BSLS_PLATFORM_OS_DARWIN)    \
+     && !defined(BSLS_PLATFORM_OS_FREEBSD))
+
+typedef off64_t Offset;
+
+static
+Offset getFileSize(const char *path)
+{
+    struct stat64 fileStats;
+
+    fflush(stderr);  // We *know* that 'stderr' is being redirected to 'path'.
+
+    if (0 != stat64(path, &fileStats)) {
+        return -1;
+    }
+
+    return fileStats.st_size;
+}
+
+#endif
+#endif
+
 // ============================================================================
 //                                 TYPE TRAITS
 // ----------------------------------------------------------------------------
@@ -353,6 +396,577 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
 
     switch (test) { case 0:
+#ifndef BDE_OMIT_TRANSITIONAL
+#if defined(BSLS_PLATFORM_OS_UNIX)           \
+    && (!defined(BSLS_PLATFORM_OS_CYGWIN)    \
+     && !defined(BSLS_PLATFORM_OS_DARWIN)    \
+     && !defined(BSLS_PLATFORM_OS_FREEBSD))
+      case 21: {
+        // --------------------------------------------------------------------
+        // TESTING 'logIfProblematicDate*'
+        //
+        // Concerns:
+        //: 1 Each 'Date' method or free operator that is expected to be
+        //:   instrumented with an appropriate 'logIfProblematicDate*' function
+        //:   is so instrumented.
+        //:
+        //: 2 Edge cases at which logging to 'stderr' should or should not
+        //:   occur are handled as expected.
+        //:
+        //: 3 Log message throttling works as expected to prevent spew to
+        //:   'stderr'.
+        //
+        // Plan:
+        //: 1 Create a temporary file and redirect 'stderr' to that file.  For
+        //:   each instrumented method, perform an action that should *not*
+        //:   incur a log message to the file ('stderr') followed by an action
+        //:   that *should*.  Verify the expected behavior by examining the
+        //:   size of the file at each step.  (Note that the actual contents of
+        //:   the log messages should be inspected manually using test case
+        //:   -1.)  Edge cases are tested via the 'setYearMonthDay' manipulator
+        //:   and the two free 'operator-' functions.  (C-1..2)
+        //:
+        //: 2 Test throttling on each of the three logging functions
+        //:   separately.  (C-3)
+        //
+        // Testing:
+        //   void logIfProblematicDate*(args); (indirectly)
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'logIfProblematicDate*'"
+                          << "\n===============================" << endl;
+
+        // Create a temporary file and redirect 'stderr' to it.
+
+        char *filename = tempnam(0, "bdlt");  ASSERT(filename);
+        {
+            const FILE *err = stderr;
+            ASSERT(err == freopen(filename, "w", stderr));
+            ASSERT(0   == getFileSize(filename));
+        }
+
+        if (verbose) cout << "\n'Obj(y, d)'." << endl;
+        {
+            const Offset n = getFileSize(filename);
+
+            const Obj X(1800, 98);
+            ASSERT(n == getFileSize(filename));  // nothing logged
+
+            const Obj Y(1700, 98);
+            ASSERT(n < getFileSize(filename));   // something logged
+        }
+
+        if (verbose) cout << "\n'Obj(y, m, d)'." << endl;
+        {
+            const Offset n = getFileSize(filename);
+
+            const Obj X(1800, 10, 31);
+            ASSERT(n == getFileSize(filename));  // nothing logged
+
+            const Obj Y(1700, 10, 31);
+            ASSERT(n < getFileSize(filename));   // something logged
+        }
+
+        if (verbose) cout << "\n'setYearDay(y, d)'." << endl;
+        {
+            const Offset n = getFileSize(filename);
+
+            Obj mX;
+
+            mX.setYearDay(1800, 98);
+            ASSERT(n == getFileSize(filename));  // nothing logged
+
+            mX.setYearDay(1700, 98);
+            ASSERT(n < getFileSize(filename));   // something logged
+        }
+
+        if (verbose) cout << "\n'setYearMonthDay(y, m, d)'." << endl;
+        if (verbose) cout << "\tTest edge cases." << endl;
+        {
+            Offset n = getFileSize(filename);
+
+            Obj mX(1800, 11, 11);
+
+            mX.setYearMonthDay(1, 1, 1);
+            ASSERT(n == getFileSize(filename));  // nothing logged
+
+            mX.setYearMonthDay(1, 1, 2);
+            ASSERT(n < getFileSize(filename));   // something logged
+
+            n = getFileSize(filename);
+
+            if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
+                mX.setYearMonthDay(1752, 9, 16);
+                ASSERT(n == getFileSize(filename));  // nothing logged
+
+                mX.setYearMonthDay(1752, 9, 15);
+                ASSERT(n < getFileSize(filename));   // something logged
+            }
+            else {
+                mX.setYearMonthDay(1752, 9, 14);
+                ASSERT(n == getFileSize(filename));  // nothing logged
+
+                mX.setYearMonthDay(1752, 9,  2);
+                ASSERT(n < getFileSize(filename));   // something logged
+            }
+        }
+
+        if (verbose) cout << "\n'bdexStreamIn' and 'bdexStreamOut'." << endl;
+        {
+            // Allocator to use instead of the default allocator.
+            bslma::TestAllocator ta("bslx", veryVeryVeryVerbose);
+
+            const int VERSION = Obj::maxSupportedBdexVersion(0);
+
+            using bslx::OutStreamFunctions::bdexStreamOut;
+            using bslx::InStreamFunctions::bdexStreamIn;
+
+            {
+                const Offset n = getFileSize(filename);
+
+                Out out(VERSION_SELECTOR, &ta);
+                bdexStreamOut(out, Obj(1800, 200), VERSION);
+
+                In in(out.data(), out.length());
+
+                Obj mX;
+
+                bdexStreamIn(in, mX, VERSION);
+
+                ASSERT(n == getFileSize(filename));  // nothing logged
+            }
+
+            {
+                Offset n = getFileSize(filename);
+
+                Out out(VERSION_SELECTOR, &ta);
+                bdexStreamOut(out, Obj(1700, 200), VERSION);
+                ASSERT(n < getFileSize(filename));   // something logged
+
+                n = getFileSize(filename);
+
+                In in(out.data(), out.length());
+
+                Obj mX;
+                bdexStreamIn(in, mX, VERSION);
+                ASSERT(n < getFileSize(filename));   // something logged
+            }
+        }
+
+        if (verbose) cout << "\n*** 'logIfProblematicDateAddition' ***"
+                          << endl;
+
+        if (verbose) cout << "\n'operator+=(n)'." << endl;
+        {
+            const Offset n = getFileSize(filename);
+
+            Obj mX(1800, 10, 31);
+            mX += 1000;
+            ASSERT(n == getFileSize(filename));  // nothing logged
+
+            Obj mY;
+            mY += 700000;
+            ASSERT(n < getFileSize(filename));   // something logged
+        }
+
+        if (verbose) cout << "\n'operator-=(n)'." << endl;
+        {
+            const Offset n = getFileSize(filename);
+
+            Obj mX(1800, 10, 31);
+
+            mX -= 1000;
+            ASSERT(n == getFileSize(filename));  // nothing logged
+
+            mX -= 500000;
+            ASSERT(n < getFileSize(filename));   // something logged
+        }
+
+        if (verbose) cout << "\nMember 'operator++'." << endl;
+        {
+            Offset n = getFileSize(filename);
+
+            Obj mX(1800, 200);
+            ++mX;
+            ASSERT(n == getFileSize(filename));  // nothing logged
+
+            Obj mY(1700, 200);
+            n = getFileSize(filename);
+            ++mY;
+            ASSERT(n < getFileSize(filename));   // something logged
+        }
+
+        if (verbose) cout << "\nMember 'operator--'." << endl;
+        {
+            Offset n = getFileSize(filename);
+
+            Obj mX(1800, 200);
+            --mX;
+            ASSERT(n == getFileSize(filename));  // nothing logged
+
+            Obj mY(1700, 200);
+            n = getFileSize(filename);
+            --mY;
+            ASSERT(n < getFileSize(filename));   // something logged
+        }
+
+        if (verbose) cout << "\n'addDaysIfValid(n)'." << endl;
+        {
+            const Offset n = getFileSize(filename);
+
+            Obj mX(1800, 10, 31);
+            mX.addDaysIfValid(1000);
+            ASSERT(n == getFileSize(filename));  // nothing logged
+
+            Obj mY;
+            mY.addDaysIfValid(700000);
+            ASSERT(n < getFileSize(filename));   // something logged
+        }
+
+        if (verbose) cout << "\nFree 'operator++'." << endl;
+        {
+            Offset n = getFileSize(filename);
+
+            Obj mX(1800, 200);
+            mX++;
+            ASSERT(n == getFileSize(filename));  // nothing logged
+
+            Obj mY(1700, 200);
+            n = getFileSize(filename);
+            mY++;
+            ASSERT(n < getFileSize(filename));   // something logged
+        }
+
+        if (verbose) cout << "\nFree 'operator--'." << endl;
+        {
+            Offset n = getFileSize(filename);
+
+            Obj mX(1800, 200);
+            mX--;
+            ASSERT(n == getFileSize(filename));  // nothing logged
+
+            Obj mY(1700, 200);
+            n = getFileSize(filename);
+            mY--;
+            ASSERT(n < getFileSize(filename));   // something logged
+        }
+
+        if (verbose) cout << "\n'operator+(Date, n)'." << endl;
+        {
+            const Offset n = getFileSize(filename);
+
+            const Obj X(1800, 10, 31);
+            X + 1000;
+            ASSERT(n == getFileSize(filename));  // nothing logged
+
+            const Obj Y;
+            Y + 700000;
+            ASSERT(n < getFileSize(filename));   // something logged
+        }
+
+        if (verbose) cout << "\n'operator+(n, Date)'." << endl;
+        {
+            const Offset n = getFileSize(filename);
+
+            const Obj X(1800, 10, 31);
+            1000 + X;
+            ASSERT(n == getFileSize(filename));  // nothing logged
+
+            Obj Y;
+            700000 + Y;
+            ASSERT(n < getFileSize(filename));   // something logged
+        }
+
+        if (verbose) cout << "\n'operator-(Date, n)'." << endl;
+        if (verbose) cout << "\tTest edge cases." << endl;
+        {
+            Offset n = getFileSize(filename);
+
+            const Obj X(1800, 10, 31);
+
+            X - 1000;
+            ASSERT(n == getFileSize(filename));  // nothing logged
+
+            X - 500000;
+            ASSERT(n < getFileSize(filename));   // something logged
+
+            n = getFileSize(filename);
+
+            if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
+                Obj mX(1752, 9, 17);
+
+                mX - 1;
+                ASSERT(n == getFileSize(filename));  // nothing logged
+
+                mX - 2;
+                ASSERT(n < getFileSize(filename));   // something logged
+
+                n = getFileSize(filename);
+
+                mX.setYearMonthDay(1752, 9, 16);
+                mX - 0;
+                mX - 0;
+                ASSERT(n == getFileSize(filename));  // nothing logged
+
+                mX.setYearMonthDay(1752, 9, 15);
+
+                n = getFileSize(filename);
+
+                // Nothing is logged for the first 'mX - 0', but the count is
+                // incremented.
+
+                mX - 0;
+                mX - 0;
+                ASSERT(n < getFileSize(filename));   // something logged
+            }
+            else {
+                Obj mX(1752, 9, 15);
+
+                mX - 1;
+                ASSERT(n == getFileSize(filename));  // nothing logged
+
+                mX - 2;
+                ASSERT(n < getFileSize(filename));   // something logged
+
+                n = getFileSize(filename);
+
+                mX.setYearMonthDay(1752, 9, 14);
+                mX - 0;
+                mX - 0;
+                ASSERT(n == getFileSize(filename));  // nothing logged
+
+                mX.setYearMonthDay(1752, 9,  2);
+
+                n = getFileSize(filename);
+
+                // Nothing is logged for the first 'mX - 0', but the count is
+                // incremented.
+
+                mX - 0;
+                mX - 0;
+                ASSERT(n < getFileSize(filename));   // something logged
+            }
+        }
+
+        if (verbose) cout << "\n*** 'logIfProblematicDateDifference' ***"
+                          << endl;
+
+        if (verbose) cout << "\n'operator-(Date, Date)'." << endl;
+        if (verbose) cout << "\tTest edge cases." << endl;
+        {
+            Offset n = getFileSize(filename);
+
+            const Obj X(1800, 200);
+            const Obj Y(1900, 200);
+
+            Y - X;
+            ASSERT(n == getFileSize(filename));  // nothing logged
+
+            const Obj Z(1700, 200);
+            n = getFileSize(filename);
+            Y - Z;
+            ASSERT(n < getFileSize(filename));   // something logged
+
+            n = getFileSize(filename);
+
+            if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
+                const Obj X(1752, 9, 16);
+
+                X - X;
+                ASSERT(n == getFileSize(filename));  // nothing logged
+
+                Obj mY;  const Obj &Y = mY;
+                mY.setYearMonthDay(1752, 9, 15);
+
+                n = getFileSize(filename);
+
+                X - Y;
+                ASSERT(n < getFileSize(filename));   // something logged
+
+                n = getFileSize(filename);
+
+                // Nothing is logged for the first 'Y - X', but the count is
+                // incremented.
+
+                Y - X;
+                Y - X;
+                ASSERT(n < getFileSize(filename));   // something logged
+            }
+            else {
+                const Obj X(1752, 9, 14);
+
+                X - X;
+                ASSERT(n == getFileSize(filename));  // nothing logged
+
+                Obj mY;  const Obj &Y = mY;
+                mY.setYearMonthDay(1752, 9,  2);
+
+                n = getFileSize(filename);
+
+                X - Y;
+                ASSERT(n < getFileSize(filename));   // something logged
+
+                n = getFileSize(filename);
+
+                // Nothing is logged for the first 'Y - X', but the count is
+                // incremented.
+
+                Y - X;
+                Y - X;
+                ASSERT(n < getFileSize(filename));   // something logged
+            }
+        }
+
+        if (verbose) cout << "\nTest log throttling." << endl;
+
+        if (verbose) cout << "\t'logIfProblematicDateValue'." << endl;
+        {
+            // Test throttling using 'Obj(y, m, d)'.  Note that the first
+            // occurrence was logged earlier in this test case.
+
+            // log the 2nd occurrence
+            {
+               const Offset n = getFileSize(filename);
+
+               const Obj X(1700, 10, 31);
+               ASSERT(n < getFileSize(filename));   // something logged
+            }
+
+            // log the 4th occurrence, but not the 3rd
+            {
+               const Offset n = getFileSize(filename);
+
+               const Obj X(1700, 10, 31);
+               ASSERT(n == getFileSize(filename));  // nothing logged
+
+               const Obj Y(1700, 10, 31);
+               ASSERT(n < getFileSize(filename));   // something logged
+            }
+
+            // log the 8th occurrence, but not the 5th through 7th
+            {
+               const Offset n = getFileSize(filename);
+
+               for (int i = 0; i < 3; ++i) {
+                  const Obj X(1700, 10, 31);
+                  ASSERT(n == getFileSize(filename));  // nothing logged
+               }
+
+               const Obj Y(1700, 10, 31);
+               ASSERT(n < getFileSize(filename));      // something logged
+            }
+
+            // next to be logged is the 16th occurrence
+            {
+               const Offset n = getFileSize(filename);
+
+               for (int i = 0; i < 7; ++i) {
+                  const Obj X(1700, 10, 31);
+                  ASSERT(n == getFileSize(filename));  // nothing logged
+               }
+
+               const Obj Y(1700, 10, 31);
+               ASSERT(n < getFileSize(filename));      // something logged
+            }
+        }
+
+        if (verbose) cout << "\t'logIfProblematicDateAddition'." << endl;
+        {
+            // Test throttling using 'operator+(Date, n)'.  Note that the first
+            // occurrence was logged earlier in this test case.
+
+            const Obj X;
+
+            // log the 2nd occurrence
+            {
+               const Offset n = getFileSize(filename);
+
+               X + 700000;
+               ASSERT(n < getFileSize(filename));   // something logged
+            }
+
+            // log the 4th occurrence, but not the 3rd
+            {
+               const Offset n = getFileSize(filename);
+
+               X + 700000;
+               ASSERT(n == getFileSize(filename));  // nothing logged
+
+               X + 700000;
+               ASSERT(n < getFileSize(filename));   // something logged
+            }
+
+            // log the 8th occurrence, but not the 5th through 7th
+            {
+               const Offset n = getFileSize(filename);
+
+               for (int i = 0; i < 3; ++i) {
+                  X + 700000;
+                  ASSERT(n == getFileSize(filename));  // nothing logged
+               }
+
+               X + 700000;
+               ASSERT(n < getFileSize(filename));      // something logged
+            }
+
+            // next to be logged is the 16th occurrence
+            {
+               const Offset n = getFileSize(filename);
+
+               for (int i = 0; i < 7; ++i) {
+                  X + 700000;
+                  ASSERT(n == getFileSize(filename));  // nothing logged
+               }
+
+               X + 700000;
+               ASSERT(n < getFileSize(filename));      // something logged
+            }
+        }
+
+        if (verbose) cout << "\t'logIfProblematicDateDifference'." << endl;
+        {
+            // Test throttling using 'operator-(Date, Date)'.  Note that the
+            // first four occurrences were logged earlier in this test case.
+
+            const Obj X(2015, 1, 1);
+            const Obj Y;
+
+            // log the 8th occurrence, but not the 5th through 7th
+            {
+               const Offset n = getFileSize(filename);
+
+               for (int i = 0; i < 3; ++i) {
+                  X - Y;
+                  ASSERT(n == getFileSize(filename));  // nothing logged
+               }
+
+               X - Y;
+               ASSERT(n < getFileSize(filename));      // something logged
+            }
+
+            // next to be logged is the 16th occurrence
+            {
+               const Offset n = getFileSize(filename);
+
+               for (int i = 0; i < 7; ++i) {
+                  X - Y;
+                  ASSERT(n == getFileSize(filename));  // nothing logged
+               }
+
+               X - Y;
+               ASSERT(n < getFileSize(filename));      // something logged
+            }
+        }
+
+        // Remove temporary file.
+
+        fclose(stderr);
+        remove(filename);
+        free(filename);
+
+      } break;
+#endif
+#endif
       case 20: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
@@ -5107,6 +5721,300 @@ if (verbose)
         ASSERT(0 == (X == Z));        ASSERT(1 == (X != Z));
 
       } break;
+#ifndef BDE_OMIT_TRANSITIONAL
+      case -1: {
+        // --------------------------------------------------------------------
+        // 'logIfProblematicDate*' Log Messages
+        //
+        // Testing:
+        //   Manual inspection of log message content.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\n'logIfProblematicDate*' Log Messages"
+                          << "\n====================================" << endl;
+
+        if (verbose) cout << "\n*** 'logIfProblematicDateValue' ***" << endl;
+
+        if (verbose) cout << "\n'Obj(y, d)'." << endl;
+        {
+            const Obj X(1800, 98);
+            const Obj Y(1700, 98);
+        }
+
+        if (verbose) cout << "\n'Obj(y, m, d)'." << endl;
+        {
+            const Obj X(1800, 10, 31);
+            const Obj Y(1700, 10, 31);
+        }
+
+        if (verbose) cout << "\n'setYearDay(y, d)'." << endl;
+        {
+            Obj mX;
+
+            mX.setYearDay(1800, 98);
+            mX.setYearDay(1700, 98);
+        }
+
+        if (verbose) cout << "\n'setYearMonthDay(y, m, d)'." << endl;
+        {
+            Obj mX;
+
+            mX.setYearMonthDay(1800, 11, 11);
+            mX.setYearMonthDay(1700, 11, 11);
+        }
+
+        if (verbose) cout << "\n'bdexStreamIn' and 'bdexStreamOut'." << endl;
+        {
+            // Allocator to use instead of the default allocator.
+            bslma::TestAllocator ta("bslx", veryVeryVeryVerbose);
+
+            const int VERSION = Obj::maxSupportedBdexVersion(0);
+
+            using bslx::OutStreamFunctions::bdexStreamOut;
+            using bslx::InStreamFunctions::bdexStreamIn;
+
+            {
+                Out out(VERSION_SELECTOR, &ta);
+                bdexStreamOut(out, Obj(1800, 200), VERSION);
+
+                In in(out.data(), out.length());
+
+                Obj mX;
+
+                bdexStreamIn(in, mX, VERSION);
+            }
+
+            {
+                Out out(VERSION_SELECTOR, &ta);
+                bdexStreamOut(out, Obj(1700, 200), VERSION);
+
+                In in(out.data(), out.length());
+
+                Obj mX;
+
+                bdexStreamIn(in, mX, VERSION);
+            }
+        }
+
+        if (verbose) cout << "\n*** 'logIfProblematicDateAddition' ***"
+                          << endl;
+
+        if (verbose) cout << "\n'operator+=(n)'." << endl;
+        {
+            Obj mX(1800, 10, 31);
+            mX += 1000;
+
+            Obj mY;
+            mY += 700000;
+        }
+
+        if (verbose) cout << "\n'operator-=(n)'." << endl;
+        {
+            Obj mX(1800, 10, 31);
+
+            mX -= 1000;
+            mX -= 500000;
+        }
+
+        if (verbose) cout << "\nMember 'operator++'." << endl;
+        {
+            Obj mX(1800, 200);
+            ++mX;
+
+            Obj mY(1700, 200);
+            ++mY;
+        }
+
+        if (verbose) cout << "\nMember 'operator--'." << endl;
+        {
+            Obj mX(1800, 200);
+            --mX;
+
+            Obj mY(1700, 200);
+            --mY;
+        }
+
+        if (verbose) cout << "\n'addDaysIfValid(n)'." << endl;
+        {
+            Obj mX(1800, 10, 31);
+            mX.addDaysIfValid(1000);
+
+            Obj mY;
+            mY.addDaysIfValid(700000);
+        }
+
+        if (verbose) cout << "\nFree 'operator++'." << endl;
+        {
+            Obj mX(1800, 200);
+            mX++;
+
+            Obj mY(1700, 200);
+            mY++;
+        }
+
+        if (verbose) cout << "\nFree 'operator--'." << endl;
+        {
+            Obj mX(1800, 200);
+            mX--;
+
+            Obj mY(1700, 200);
+            mY--;
+        }
+
+        if (verbose) cout << "\n'operator+(Date, n)'." << endl;
+        {
+            const Obj X(1800, 10, 31);
+            X + 1000;
+
+            const Obj Y;
+            Y + 700000;
+        }
+
+        if (verbose) cout << "\n'operator+(n, Date)'." << endl;
+        {
+            const Obj X(1800, 10, 31);
+            1000 + X;
+
+            Obj Y;
+            700000 + Y;
+        }
+
+        if (verbose) cout << "\n'operator-(Date, n)'." << endl;
+        {
+            const Obj X(1800, 10, 31);
+
+            X - 1000;
+            X - 500000;
+        }
+
+        if (verbose) cout << "\n*** 'logIfProblematicDateDifference' ***"
+                          << endl;
+
+        if (verbose) cout << "\n'operator-(Date, Date)'." << endl;
+        {
+            const Obj X(1800, 200);
+            const Obj Y(1900, 200);
+
+            Y - X;
+
+            const Obj Z(1700, 200);
+            Y - Z;
+        }
+
+        if (verbose) cout << "\nTest log throttling." << endl;
+
+        if (verbose) cout << "\t'logIfProblematicDateValue'." << endl;
+        {
+            // Test throttling using 'Obj(y, m, d)'.  Note that the first
+            // occurrence was logged earlier in this test case.
+
+            // log the 2nd occurrence
+            {
+                const Obj X(1700, 10, 31);
+            }
+
+            // log the 4th occurrence, but not the 3rd
+            {
+                const Obj X(1700, 10, 31);
+                const Obj Y(1700, 10, 31);
+            }
+
+            // log the 8th occurrence, but not the 5th through 7th
+            {
+                for (int i = 0; i < 3; ++i) {
+                    const Obj X(1700, 10, 31);
+                }
+
+                const Obj Y(1700, 10, 31);
+            }
+
+            // next to be logged is the 16th occurrence
+            {
+                for (int i = 0; i < 7; ++i) {
+                    const Obj X(1700, 10, 31);
+                }
+
+                const Obj Y(1700, 10, 31);
+            }
+        }
+
+        if (verbose) cout << "\t'logIfProblematicDateAddition'." << endl;
+        {
+            // Test throttling using 'operator+(Date, n)'.  Note that the first
+            // occurrence was logged earlier in this test case.
+
+            const Obj X;
+
+            // log the 2nd occurrence
+            {
+               X + 700000;
+            }
+
+            // log the 4th occurrence, but not the 3rd
+            {
+               X + 700000;
+               X + 700000;
+            }
+
+            // log the 8th occurrence, but not the 5th through 7th
+            {
+               for (int i = 0; i < 3; ++i) {
+                  X + 700000;
+               }
+
+               X + 700000;
+            }
+
+            // next to be logged is the 16th occurrence
+            {
+               for (int i = 0; i < 7; ++i) {
+                  X + 700000;
+               }
+
+               X + 700000;
+            }
+        }
+
+        if (verbose) cout << "\t'logIfProblematicDateDifference'." << endl;
+        {
+            // Test throttling using 'operator-(Date, Date)'.  Note that the
+            // first occurrence was logged earlier in this test case.
+
+            const Obj X(2015, 1, 1);
+            const Obj Y;
+
+            // log the 2nd occurrence
+            {
+               X - Y;
+            }
+
+            // log the 4th occurrence, but not the 3rd
+            {
+               X - Y;
+               X - Y;
+            }
+
+            // log the 8th occurrence, but not the 5th through 7th
+            {
+               for (int i = 0; i < 3; ++i) {
+                  X - Y;
+               }
+
+               X - Y;
+            }
+
+            // next to be logged is the 16th occurrence
+            {
+               for (int i = 0; i < 7; ++i) {
+                  X - Y;
+               }
+
+               X - Y;
+            }
+        }
+
+      } break;
+#endif
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;

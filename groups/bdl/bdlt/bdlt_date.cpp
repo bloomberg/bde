@@ -14,6 +14,10 @@ BSLS_IDENT_RCSID(bdlt_date_cpp,"$Id$ $CSID$")
 
 #include <bsl_c_stdio.h>   // 'snprintf'
 
+#ifndef BDE_OMIT_TRANSITIONAL
+#include <bdlb_bitutil.h>
+#endif
+
 namespace BloombergLP {
 namespace bdlt {
 
@@ -26,6 +30,119 @@ static const char *const months[] = {
                                   // ----------
                                   // class Date
                                   // ----------
+
+#ifndef BDE_OMIT_TRANSITIONAL
+
+// In the POSIX calendar, the first day after 1752/09/02 is 1752/09/14.  With
+// 639798 for the "magic" serial date value, '>' is the appropriate comparison
+// operator to use in the various 'logIfProblematicDate*' functions.
+
+static const int MAGIC_SERIAL = 639798;  // 1752/09/02 POSIX
+                                         // 1752/09/15 proleptic Gregorian
+
+// PRIVATE CLASS METHODS
+void Date::logIfProblematicDateAddition(
+                       const char                               *fileName,
+                       int                                       lineNumber,
+                       int                                       serialDate,
+                       int                                       numDays,
+                       bsls::AtomicOperations::AtomicTypes::Int *count)
+{
+    if (serialDate > MAGIC_SERIAL && (serialDate + numDays) > MAGIC_SERIAL) {
+        return;                                                       // RETURN
+    }
+
+    const int tmpCount = bsls::AtomicOperations::addIntNvRelaxed(count, 1);
+
+    // To limit spewing to 'stderr', log an occurrence of a problematic date
+    // addition only if its associated count is a power of 2.
+
+    if (1 == bdlb::BitUtil::numBitsSet(
+                             static_cast<bdlb::BitUtil::uint32_t>(tmpCount))) {
+
+        int year, month, day;
+        DelegatingDateImpUtil::serialToYmd(&year, &month, &day, serialDate);
+
+        bsl::fprintf(stderr,
+                     "%s:%d WARNING: problematic addition detected: "
+                     "%d/%d/%d + %d [%d times].  "
+                     "Please contact BDE (DRQS Group 101).\n",
+                     fileName, lineNumber,
+                     year, month, day, numDays,
+                     tmpCount);
+    }
+}
+
+void Date::logIfProblematicDateDifference(
+                       const char                               *fileName,
+                       int                                       lineNumber,
+                       int                                       lhsSerialDate,
+                       int                                       rhsSerialDate,
+                       bsls::AtomicOperations::AtomicTypes::Int *count)
+{
+    if (lhsSerialDate > MAGIC_SERIAL && rhsSerialDate > MAGIC_SERIAL) {
+        return;                                                       // RETURN
+    }
+
+    const int tmpCount = bsls::AtomicOperations::addIntNvRelaxed(count, 1);
+
+    // To limit spewing to 'stderr', log an occurrence of a problematic date
+    // difference only if its associated count is a power of 2.
+
+    if (1 == bdlb::BitUtil::numBitsSet(
+                             static_cast<bdlb::BitUtil::uint32_t>(tmpCount))) {
+
+        int lhsYear, lhsMonth, lhsDay;
+        DelegatingDateImpUtil::serialToYmd(&lhsYear, &lhsMonth, &lhsDay,
+                                           lhsSerialDate);
+
+        int rhsYear, rhsMonth, rhsDay;
+        DelegatingDateImpUtil::serialToYmd(&rhsYear, &rhsMonth, &rhsDay,
+                                           rhsSerialDate);
+
+        bsl::fprintf(stderr,
+                     "%s:%d WARNING: problematic difference detected: "
+                     "%d/%d/%d - %d/%d/%d [%d times].  "
+                     "Please contact BDE (DRQS Group 101).\n",
+                     fileName, lineNumber,
+                     lhsYear, lhsMonth, lhsDay,
+                     rhsYear, rhsMonth, rhsDay,
+                     tmpCount);
+    }
+}
+
+void Date::logIfProblematicDateValue(
+                       const char                               *fileName,
+                       int                                       lineNumber,
+                       int                                       serialDate,
+                       bsls::AtomicOperations::AtomicTypes::Int *count)
+{
+    if (serialDate > MAGIC_SERIAL || 1 == serialDate) {
+        return;                                                       // RETURN
+    }
+
+    const int tmpCount = bsls::AtomicOperations::addIntNvRelaxed(count, 1);
+
+    // To limit spewing to 'stderr', log an occurrence of a problematic date
+    // value only if its associated count is a power of 2.
+
+    if (1 == bdlb::BitUtil::numBitsSet(
+                             static_cast<bdlb::BitUtil::uint32_t>(tmpCount))) {
+
+        int year, month, day;
+        DelegatingDateImpUtil::serialToYmd(&year, &month, &day, serialDate);
+
+        bsl::fprintf(stderr,
+                     "%s:%d WARNING: problematic value detected: "
+                     "%d/%d/%d [%d times].  "
+                     "Please contact BDE (DRQS Group 101).\n",
+                     fileName, lineNumber,
+                     year, month, day,
+                     tmpCount);
+    }
+}
+
+#endif
 
 // MANIPULATORS
 int Date::addDaysIfValid(int numDays)
@@ -41,6 +158,13 @@ int Date::addDaysIfValid(int numDays)
 #endif
         return k_FAILURE;                                             // RETURN
     }
+
+#ifndef BDE_OMIT_TRANSITIONAL
+    static bsls::AtomicOperations::AtomicTypes::Int count = { 0 };
+
+    Date::logIfProblematicDateAddition(__FILE__, __LINE__,
+                                       d_serialDate, numDays, &count);
+#endif
 
     d_serialDate = tmpSerialDate;
 
