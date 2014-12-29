@@ -378,7 +378,7 @@ namespace BloombergLP {
 // that support '__builtin_expect'.
 
 #if defined(BDE_BUILD_TARGET_OPT) &&                                          \
-   (defined(BSLS_PLATFORM_CMP_GNU) ||                                        \
+   (defined(BSLS_PLATFORM_CMP_GNU) ||                                         \
    (defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0900))
 
     #define BSLS_PERFORMANCEHINT_PREDICT_LIKELY(expr)                         \
@@ -398,12 +398,10 @@ namespace BloombergLP {
 #if defined(BDE_BUILD_TARGET_OPT) && defined(BSLS_PLATFORM_CMP_SUN)
     #define BSLS_PERFORMANCEHINT_UNLIKELY_HINT                                \
                              BloombergLP::bsls::PerformanceHint::rarelyCalled()
-#elif defined(BDE_BUILD_TARGET_OPT) && defined(BSLS_PLATFORM_CMP_IBM)
-    #define BSLS_PERFORMANCEHINT_UNLIKELY_HINT                                \
-                             BloombergLP::bsls::PerformanceHint::lowFrequency()
-#elif defined(BDE_BUILD_TARGET_OPT) \
-   && ((defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40300) \
-       ||(defined(BSLS_PLATFORM_CMP_CLANG) && __has_attribute(cold)))
+#elif defined(BDE_BUILD_TARGET_OPT) && (                                      \
+      defined(BSLS_PLATFORM_CMP_IBM)                                          \
+   || (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40300)  \
+   || (defined(BSLS_PLATFORM_CMP_CLANG) && __has_attribute(cold)))
     #define BSLS_PERFORMANCEHINT_UNLIKELY_HINT                                \
                              BloombergLP::bsls::PerformanceHint::lowFrequency()
 #else
@@ -455,7 +453,7 @@ struct PerformanceHint {
 #endif  // BSLS_PLATFORM_CMP_SUN
 #endif  // BDE_BUILD_TARGET_OPT
 
-#if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40300) \
+#if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40300)    \
  || (defined(BSLS_PLATFORM_CMP_CLANG) && __has_attribute(cold))
     __attribute__((__cold__))
 #endif
