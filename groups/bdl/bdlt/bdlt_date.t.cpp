@@ -103,7 +103,7 @@ using namespace bsl;
 // [18] bdlt::DayOfWeek::Enum dayOfWeek() const;
 // [12] void getYearDay(int *year, int *dayOfYear) const;
 // [11] void getYearMonthDay(int *year, int *month, int *day) const;
-// [18] MonthOfYear::Enum monthOfYear() const;
+// [18] bdlt::MonthOfYear::Enum monthOfYear() const;
 // [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
 // [ 5] ostream& print(ostream& s, int level = 0, int sPL = 4) const;
 //
