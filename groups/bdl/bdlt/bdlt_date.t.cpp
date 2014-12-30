@@ -618,17 +618,21 @@ if (verbose)
         //   returned for any date.
         //
         // Concerns:
-        //: 1 The correct day of the week is returned for any date value.
-        //: 2 The correct month of the year is returned for any date value.
+        //: 1 For any date, the correct day of the week is returned by
+        //:   'dayOfWeek'.
+        //:
+        //: 2 For any date, the correct month of the year is returned by
+        //:   'monthOfYear'.
+        //:
         //: 3 The methods are declared 'const'.
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a set of distinct
         //:   object values (one per row) in terms of their year/month/day
         //:   representation, and the 'bdlt::DayOfWeek::Enum' and
-        //:   'bdlt::MonthOfYear::Enum' values expected
-        //:   from the methods 'dayOfWeek' and 'monthOfYear' when applied to
-        //:   those tabulated dates.
+        //:   'bdlt::MonthOfYear::Enum' values expected from the methods
+        //:   'dayOfWeek' and 'monthOfYear' when applied to those tabulated
+        //:   dates.
         //:
         //: 2 For each row 'R' in the table of P-1:  (C-1..3)
         //:
@@ -636,10 +640,10 @@ if (verbose)
         //:     constructor.
         //:
         //:   2 Verify that 'dayOfWeek', invoked on 'X', returns the expected
-        //:     value.  (C-1,3)
+        //:     value.  (C-1)
         //:
         //:   3 Verify that 'monthOfYear', invoked on 'X', returns the expected
-        //:     value.  (C-2,3)
+        //:     value.  (C-2..3)
         //
         // Testing:
         //   bdlt::DayOfWeek::Enum dayOfWeek() const;
@@ -651,16 +655,16 @@ if (verbose)
                           << "'dayOfWeek' AND 'monthOfYear' METHODS" << endl
                           << "=====================================" << endl;
 
-        typedef bdlt::DayOfWeek DOW;
+        typedef bdlt::DayOfWeek   DOW;
         typedef bdlt::MonthOfYear MOY;
 
         static const struct {
-            int       d_line;           // source line number
-            int       d_year;           // year under test
-            int       d_month;          // month under test
-            int       d_day;            // day under test
-            DOW::Enum d_expDayOfWeek;   // expected day of week
-            MOY::Enum d_expMonthOfYear; // expected month of year
+            int       d_line;    // source line number
+            int       d_year;    // year under test
+            int       d_month;   // month under test
+            int       d_day;     // day under test
+            DOW::Enum d_expDOW;  // expected day of week
+            MOY::Enum d_expMOY;  // expected month of year
         } DATA[] = {
             //LINE   YEAR   MONTH   DAY    EXPECTED DAY OF WEEK  EXPECTED MONTH
             //----   ----   -----   ---    --------------------  --------------
@@ -708,24 +712,25 @@ if (verbose)
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int       LINE   = DATA[ti].d_line;
-            const int       YEAR   = DATA[ti].d_year;
-            const int       MONTH  = DATA[ti].d_month;
-            const int       DAY    = DATA[ti].d_day;
-            const DOW::Enum EXP_DW = DATA[ti].d_expDayOfWeek;
-            const MOY::Enum EXP_M  = DATA[ti].d_expMonthOfYear;
+            const int       LINE    = DATA[ti].d_line;
+            const int       YEAR    = DATA[ti].d_year;
+            const int       MONTH   = DATA[ti].d_month;
+            const int       DAY     = DATA[ti].d_day;
+            const DOW::Enum EXP_DOW = DATA[ti].d_expDOW;
+            const MOY::Enum EXP_MOY = DATA[ti].d_expMOY;
+
             if (veryVerbose) {
-                T_ P_(LINE) P_(YEAR) P_(MONTH) P_(DAY) P_(EXP_DW) P_(EXP_M)
+                T_ P_(LINE) P_(YEAR) P_(MONTH) P_(DAY) P_(EXP_DOW) P(EXP_MOY)
             }
 
             const Obj X(YEAR, MONTH, DAY);
 
             if (veryVeryVerbose) {
-                T_ T_ P_(X) P(X.dayOfWeek()) P(X.monthOfYear())
+                T_ T_ P_(X) P_(X.dayOfWeek()) P(X.monthOfYear())
             }
 
-            LOOP_ASSERT(LINE, EXP_DW == X.dayOfWeek());
-            LOOP_ASSERT(LINE, EXP_M == X.monthOfYear());
+            LOOP_ASSERT(LINE, EXP_DOW == X.dayOfWeek());
+            LOOP_ASSERT(LINE, EXP_MOY == X.monthOfYear());
         }
 
       } break;
