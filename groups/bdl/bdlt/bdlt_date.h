@@ -724,7 +724,8 @@ int Date::year() const
 inline
 DayOfWeek::Enum Date::dayOfWeek() const
 {
-    return DayOfWeek::Enum(SerialDateImpUtil::serialToDayOfWeek(d_serialDate));
+    return static_cast<DayOfWeek::Enum>(
+        SerialDateImpUtil::serialToDayOfWeek(d_serialDate));
 }
 
 inline
@@ -749,7 +750,7 @@ void Date::getYearMonthDay(int *year, int *month, int *day) const
 inline
 MonthOfYear::Enum Date::monthOfYear() const
 {
-    return MonthOfYear::Enum(month());
+    return static_cast<MonthOfYear::Enum>(month());
 }
 
                                   // Aspects
