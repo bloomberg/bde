@@ -31,38 +31,8 @@ BSLS_IDENT("$Id: $")
 // on any other mechanism to read data written by 'bslx::TestOutStream' unless
 // that mechanism explicitly states its ability to do so.
 //
-// The supported types and required content are listed in the table below.  All
-// of the fundamental types in the table may be output as scalar values or as
-// homogeneous arrays.  'bsl::string' is output as an 'int' representing the
-// string's length and a homogeneous 'char' array for the string's data.  Note
-// that 'Int64' and 'Uint64' denote 'bsls::Types::Int64' and
-// 'bsls::Types::Uint64', which in turn are 'typedef' names for the signed and
-// unsigned 64-bit integer types, respectively, on the host platform.
-//..
-//      C++ TYPE          REQUIRED CONTENT OF ANY PLATFORM-NEUTRAL FORMAT
-//      --------          -----------------------------------------------
-//      Int64             least significant 64 bits (signed)
-//      Uint64            least significant 64 bits (unsigned)
-//      int               least significant 32 bits (signed)
-//      unsigned int      least significant 32 bits (unsigned)
-//      short             least significant 16 bits (signed)
-//      unsigned short    least significant 16 bits (unsigned)
-//      char              least significant  8 bits (platform-dependent)
-//      signed char       least significant  8 bits (signed)
-//      unsigned char     least significant  8 bits (unsigned)
-//      double            IEEE standard 8-byte floating-point value
-//      float             IEEE standard 4-byte floating-point value
-//
-//      bsl::string       BDE implementation of the STL string class
-//..
-// This component also supports compact streaming of integer types.  In
-// particular, 64-bit integers can be streamed as 40-, 48-, 56-, or 64-bit
-// values, and 32-bit integers can be streamed as 24- or 32-bit values, at the
-// user's discretion.  In all cases, the least significant bytes of the
-// fundamental integer type are written to the stream.  Note that, for signed
-// types, this truncation may not preserve the sign of the streamed value; it
-// is the user's responsibility to choose output methods appropriate to the
-// data.
+// The supported types and required content are listed in the 'bslx'
+// package-level documentation under "Supported Types".
 //
 // Note that the values are stored in big-endian format (i.e., network byte
 // order).

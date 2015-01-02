@@ -19,10 +19,11 @@ BSLS_IDENT("$Id: $")
 // methods ("unexternalization") on values, and arrays of values, of
 // fundamental types, and on 'bsl::string'.
 //
-// This component reads from a user-supplied buffer directly, with no data
-// copying or assumption of ownership.  The user must therefore make sure that
-// the lifetime and visibility of the buffer is sufficient to satisfy the needs
-// of the input stream.
+// This component reads from a compliant user-supplied buffer (see
+// {Generic Byte-Format Parser}) directly, with no data copying or assumption
+// of ownership.  The user must therefore make sure that the lifetime and
+// visibility of the buffer is sufficient to satisfy the needs of the input
+// stream.
 //
 // This component is intended to be used in conjunction with the
 // 'bslx_genericbyteoutstream' "externalization" component.  Each input method
@@ -32,35 +33,8 @@ BSLS_IDENT("$Id: $")
 // this component cannot rely on being able to read data that was written by
 // any mechanism other than 'bslx::GenericByteOutStream'.
 //
-// The supported types and required content are listed in the table below.  All
-// of the fundamental types in the table may be input as scalar values or as
-// homogeneous arrays.  'bsl::string' is input as an 'int' representing the
-// string's length and a homogeneous 'char' array for the string's data.  Note
-// that 'Int64' and 'Uint64' denote 'bsls::Types::Int64' and
-// 'bsls::Types::Uint64', which in turn are 'typedef' names for the signed and
-// unsigned 64-bit integer types, respectively, on the host platform.
-//..
-//      C++ TYPE          REQUIRED CONTENT OF ANY PLATFORM-NEUTRAL FORMAT
-//      --------          -----------------------------------------------
-//      Int64             least significant 64 bits (signed)
-//      Uint64            least significant 64 bits (unsigned)
-//      int               least significant 32 bits (signed)
-//      unsigned int      least significant 32 bits (unsigned)
-//      short             least significant 16 bits (signed)
-//      unsigned short    least significant 16 bits (unsigned)
-//      char              least significant  8 bits (platform-dependent)
-//      signed char       least significant  8 bits (signed)
-//      unsigned char     least significant  8 bits (unsigned)
-//      double            IEEE standard 8-byte floating-point value
-//      float             IEEE standard 4-byte floating-point value
-//
-//      bsl::string       BDE implementation of the STL string class
-//..
-// This component also supports compact streaming in of integer types.  In
-// particular, 64-bit values can be streamed in from 40-, 48-, 56-, or 64-bit
-// values, and 32-bit values can be streamed in from 24- or 32-bit values
-// (consistent with what has been written to the stream, of course).  Note
-// that, for signed types, the sign is preserved for all streamed-in values.
+// The supported types and required content are listed in the 'bslx'
+// package-level documentation under "Supported Types".
 //
 // Note that input streams can be *invalidated* explicitly and queried for
 // *validity*.  Reading from an initially invalid stream has no effect.
