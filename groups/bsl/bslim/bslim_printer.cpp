@@ -182,7 +182,8 @@ void Printer_Helper::printRaw(bsl::ostream&                  stream,
             FormatGuard guard(&stream);
             stream << bsl::hex
                    << bsl::showbase
-                   << static_cast<bsls::Types::UintPtr>(data);
+                   << static_cast<bsls::Types::UintPtr>(
+                                             static_cast<unsigned char>(data));
           }
         }
     }
