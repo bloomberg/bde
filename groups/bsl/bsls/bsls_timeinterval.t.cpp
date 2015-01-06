@@ -595,14 +595,7 @@ ByteInStream& ByteInStream::getInt64(bsls::Types::Int64& variable)
         bytes[1] = buffer[6];
         bytes[0] = buffer[7];
 #else
-        bytes[sizeof *variable - 8] = buffer[0];
-        bytes[sizeof *variable - 7] = buffer[1];
-        bytes[sizeof *variable - 6] = buffer[2];
-        bytes[sizeof *variable - 5] = buffer[3];
-        bytes[sizeof *variable - 4] = buffer[4];
-        bytes[sizeof *variable - 3] = buffer[5];
-        bytes[sizeof *variable - 2] = buffer[6];
-        bytes[sizeof *variable - 1] = buffer[7];
+        memcpy(bytes, buffer, 8);
 #endif
 
         d_cursor += k_BDEX_SIZEOF_INT64;
@@ -638,10 +631,7 @@ ByteInStream& ByteInStream::getInt32(int& variable)
         bytes[1] = buffer[2];
         bytes[0] = buffer[3];
 #else
-        bytes[sizeof *variable - 4] = buffer[0];
-        bytes[sizeof *variable - 3] = buffer[1];
-        bytes[sizeof *variable - 2] = buffer[2];
-        bytes[sizeof *variable - 1] = buffer[3];
+        memcpy(bytes, buffer, 4);
 #endif
 
         d_cursor += k_BDEX_SIZEOF_INT32;
