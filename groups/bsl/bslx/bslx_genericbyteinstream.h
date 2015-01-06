@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 // methods ("unexternalization") on values, and arrays of values, of
 // fundamental types, and on 'bsl::string'.
 //
-// This component reads from a compliant user-supplied buffer (see
+// This type reads from a compliant user-supplied buffer (see
 // {Generic Byte-Format Parser}) directly, with no data copying or assumption
 // of ownership.  The user must therefore make sure that the lifetime and
 // visibility of the buffer is sufficient to satisfy the needs of the input
@@ -1763,8 +1763,8 @@ GenericByteInStream<STREAMBUF>&
 GenericByteInStream<STREAMBUF>::getArrayInt64(bsls::Types::Int64 *variables,
                                               int                 numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
                                               || 0 == numVariables)) {
@@ -1786,8 +1786,8 @@ GenericByteInStream<STREAMBUF>::getArrayUint64(
                                              bsls::Types::Uint64 *variables,
                                              int                  numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
                                               || 0 == numVariables)) {
@@ -1808,8 +1808,8 @@ GenericByteInStream<STREAMBUF>&
 GenericByteInStream<STREAMBUF>::getArrayInt56(bsls::Types::Int64 *variables,
                                               int                 numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
                                               || 0 == numVariables)) {
@@ -1831,8 +1831,8 @@ GenericByteInStream<STREAMBUF>::getArrayUint56(
                                              bsls::Types::Uint64 *variables,
                                              int                  numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
                                               || 0 == numVariables)) {
@@ -1853,8 +1853,8 @@ GenericByteInStream<STREAMBUF>&
 GenericByteInStream<STREAMBUF>::getArrayInt48(bsls::Types::Int64 *variables,
                                               int                 numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
                                               || 0 == numVariables)) {
@@ -1876,8 +1876,8 @@ GenericByteInStream<STREAMBUF>::getArrayUint48(
                                              bsls::Types::Uint64 *variables,
                                              int                  numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
                                               || 0 == numVariables)) {
@@ -1898,8 +1898,8 @@ GenericByteInStream<STREAMBUF>&
 GenericByteInStream<STREAMBUF>::getArrayInt40(bsls::Types::Int64 *variables,
                                               int                 numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
                                               || 0 == numVariables)) {
@@ -1921,8 +1921,8 @@ GenericByteInStream<STREAMBUF>::getArrayUint40(
                                              bsls::Types::Uint64 *variables,
                                              int                  numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
                                               || 0 == numVariables)) {
@@ -1942,8 +1942,8 @@ template <class STREAMBUF>
 GenericByteInStream<STREAMBUF>&
 GenericByteInStream<STREAMBUF>::getArrayInt32(int *variables, int numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
                                               || 0 == numVariables)) {
@@ -1964,8 +1964,8 @@ GenericByteInStream<STREAMBUF>&
 GenericByteInStream<STREAMBUF>::getArrayUint32(unsigned int *variables,
                                                int           numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
                                               || 0 == numVariables)) {
@@ -1985,8 +1985,8 @@ template <class STREAMBUF>
 GenericByteInStream<STREAMBUF>&
 GenericByteInStream<STREAMBUF>::getArrayInt24(int *variables, int numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
                                               || 0 == numVariables)) {
@@ -2007,8 +2007,8 @@ GenericByteInStream<STREAMBUF>&
 GenericByteInStream<STREAMBUF>::getArrayUint24(unsigned int *variables,
                                                int           numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
                                               || 0 == numVariables)) {
@@ -2029,8 +2029,8 @@ GenericByteInStream<STREAMBUF>&
 GenericByteInStream<STREAMBUF>::getArrayInt16(short *variables,
                                               int    numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
                                               || 0 == numVariables)) {
@@ -2051,8 +2051,8 @@ GenericByteInStream<STREAMBUF>&
 GenericByteInStream<STREAMBUF>::getArrayUint16(unsigned short *variables,
                                                int             numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
                                               || 0 == numVariables)) {
@@ -2073,8 +2073,8 @@ GenericByteInStream<STREAMBUF>&
 GenericByteInStream<STREAMBUF>::getArrayInt8(char *variables,
                                              int   numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
                                               || 0 == numVariables)) {
@@ -2096,8 +2096,8 @@ GenericByteInStream<STREAMBUF>&
 GenericByteInStream<STREAMBUF>::getArrayInt8(signed char *variables,
                                              int          numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
     return getArrayInt8(reinterpret_cast<char *>(variables), numVariables);
 }
@@ -2108,8 +2108,8 @@ GenericByteInStream<STREAMBUF>&
 GenericByteInStream<STREAMBUF>::getArrayUint8(char *variables,
                                               int   numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
     return getArrayInt8(variables, numVariables);
 }
@@ -2120,8 +2120,8 @@ GenericByteInStream<STREAMBUF>&
 GenericByteInStream<STREAMBUF>::getArrayUint8(unsigned char *variables,
                                               int            numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
     return getArrayInt8(reinterpret_cast<char *>(variables), numVariables);
 }
@@ -2133,8 +2133,8 @@ GenericByteInStream<STREAMBUF>&
 GenericByteInStream<STREAMBUF>::getArrayFloat64(double *variables,
                                                 int     numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
                                               || 0 == numVariables)) {
@@ -2155,8 +2155,8 @@ GenericByteInStream<STREAMBUF>&
 GenericByteInStream<STREAMBUF>::getArrayFloat32(float *variables,
                                                 int    numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
                                               || 0 == numVariables)) {

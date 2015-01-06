@@ -19,10 +19,10 @@ BSLS_IDENT("$Id: $")
 // methods ("unexternalization") on values, and arrays of values, of
 // fundamental types, and on 'bsl::string'.
 //
-// This component reads from a user-supplied buffer directly, with no data
-// copying or assumption of ownership.  The user must therefore make sure that
-// the lifetime and visibility of the buffer is sufficient to satisfy the needs
-// of the input stream.
+// This type reads from a user-supplied buffer directly, with no data copying
+// or assumption of ownership.  The user must therefore make sure that the
+// lifetime and visibility of the buffer is sufficient to satisfy the needs of
+// the input stream.
 //
 // This component is intended to be used in conjunction with the
 // 'bslx_byteoutstream' "externalization" component.  Each input method of

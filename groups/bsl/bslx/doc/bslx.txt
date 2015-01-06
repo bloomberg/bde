@@ -37,24 +37,24 @@
 ..
   bslx_byteinstream            - primary production input stream
 
-  bslx_byteinstreamformatter   - 'bsl::streambuf' input stream
+  bslx_byteinstreamformatter   - 'bsl::streambuf'-based input stream
 
   bslx_byteoutstream           - primary production output stream
 
-  bslx_byteoutstreamformatter  - 'bsl::streambuf' output stream
+  bslx_byteoutstreamformatter  - 'bsl::streambuf'-based output stream
 
-  bslx_genericbyteinstream     - templatized buffer input stream
+  bslx_genericbyteinstream     - parameterized buffer input stream
 
-  bslx_genericbyteoutstream    - templatized buffer output stream
+  bslx_genericbyteoutstream    - parameterized buffer output stream
 
-  bslx_instreamfunctions       - templated validator/wrapper for the
+  bslx_instreamfunctions       - parameterized validator/wrapper for the
                                  'bdexStreamIn' method required of
                                  BDEX-compliant types
 
   bslx_marshallingutil         - utilities to put/get fundamental and array
                                  values to/from a character buffer
 
-  bslx_outstreamfunctions      - templated validator/wrapper for the
+  bslx_outstreamfunctions      - parameterized validator/wrapper for the
                                  'bdexStreamOut' method required of
                                  BDEX-compliant types
 
@@ -68,7 +68,7 @@
 
   bslx_typecode                - enumeration of fundamental streamable types
 
-  bslx_versionfunctions        - templated utility to compute serialization
+  bslx_versionfunctions        - parameterized utility to compute serialization
                                  version during use of 'operator<<'
 ..
  Components providing concrete streams define classes whose names are the

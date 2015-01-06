@@ -25,10 +25,10 @@ BSLS_IDENT("$Id: $")
 // these types, that the type of data requested from the stream matches what
 // was written to the stream.  This component is meant for testing only.
 //
-// This component reads from a user-supplied buffer directly, with no data
-// copying or assumption of ownership.  The user must therefore make sure that
-// the lifetime and visibility of the buffer is sufficient to satisfy the needs
-// of the input stream.
+// This type reads from a user-supplied buffer directly, with no data copying
+// or assumption of ownership.  The user must therefore make sure that the
+// lifetime and visibility of the buffer is sufficient to satisfy the needs of
+// the input stream.
 //
 // This component is intended to be used in conjunction with the
 // 'bslx_testoutstream' externalization component.  Each input method of

@@ -1144,8 +1144,8 @@ GenericByteOutStream<STREAMBUF>::putArrayInt64(
                                            const bsls::Types::Int64 *values,
                                            int                       numValues)
 {
-    BSLS_ASSERT_SAFE(values);
-    BSLS_ASSERT_SAFE(0 <= numValues);
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 <= numValues);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1166,8 +1166,8 @@ GenericByteOutStream<STREAMBUF>::putArrayUint64(
                                           const bsls::Types::Uint64 *values,
                                           int                        numValues)
 {
-    BSLS_ASSERT_SAFE(values);
-    BSLS_ASSERT_SAFE(0 <= numValues);
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 <= numValues);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1188,8 +1188,8 @@ GenericByteOutStream<STREAMBUF>::putArrayInt56(
                                            const bsls::Types::Int64 *values,
                                            int                       numValues)
 {
-    BSLS_ASSERT_SAFE(values);
-    BSLS_ASSERT_SAFE(0 <= numValues);
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 <= numValues);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1210,8 +1210,8 @@ GenericByteOutStream<STREAMBUF>::putArrayUint56(
                                           const bsls::Types::Uint64 *values,
                                           int                        numValues)
 {
-    BSLS_ASSERT_SAFE(values);
-    BSLS_ASSERT_SAFE(0 <= numValues);
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 <= numValues);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1232,8 +1232,8 @@ GenericByteOutStream<STREAMBUF>::putArrayInt48(
                                            const bsls::Types::Int64 *values,
                                            int                       numValues)
 {
-    BSLS_ASSERT_SAFE(values);
-    BSLS_ASSERT_SAFE(0 <= numValues);
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 <= numValues);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1254,8 +1254,8 @@ GenericByteOutStream<STREAMBUF>::putArrayUint48(
                                           const bsls::Types::Uint64 *values,
                                           int                        numValues)
 {
-    BSLS_ASSERT_SAFE(values);
-    BSLS_ASSERT_SAFE(0 <= numValues);
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 <= numValues);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1276,8 +1276,8 @@ GenericByteOutStream<STREAMBUF>::putArrayInt40(
                                            const bsls::Types::Int64 *values,
                                            int                       numValues)
 {
-    BSLS_ASSERT_SAFE(values);
-    BSLS_ASSERT_SAFE(0 <= numValues);
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 <= numValues);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1298,8 +1298,8 @@ GenericByteOutStream<STREAMBUF>::putArrayUint40(
                                           const bsls::Types::Uint64 *values,
                                           int                        numValues)
 {
-    BSLS_ASSERT_SAFE(values);
-    BSLS_ASSERT_SAFE(0 <= numValues);
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 <= numValues);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1319,8 +1319,8 @@ GenericByteOutStream<STREAMBUF>&
 GenericByteOutStream<STREAMBUF>::putArrayInt32(const int *values,
                                                int        numValues)
 {
-    BSLS_ASSERT_SAFE(values);
-    BSLS_ASSERT_SAFE(0 <= numValues);
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 <= numValues);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1340,8 +1340,8 @@ GenericByteOutStream<STREAMBUF>&
 GenericByteOutStream<STREAMBUF>::putArrayUint32(const unsigned int *values,
                                                 int                 numValues)
 {
-    BSLS_ASSERT_SAFE(values);
-    BSLS_ASSERT_SAFE(0 <= numValues);
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 <= numValues);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1361,8 +1361,8 @@ GenericByteOutStream<STREAMBUF>&
 GenericByteOutStream<STREAMBUF>::putArrayInt24(const int *values,
                                                int        numValues)
 {
-    BSLS_ASSERT_SAFE(values);
-    BSLS_ASSERT_SAFE(0 <= numValues);
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 <= numValues);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1382,8 +1382,8 @@ GenericByteOutStream<STREAMBUF>&
 GenericByteOutStream<STREAMBUF>::putArrayUint24(const unsigned int *values,
                                                 int                 numValues)
 {
-    BSLS_ASSERT_SAFE(values);
-    BSLS_ASSERT_SAFE(0 <= numValues);
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 <= numValues);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1403,8 +1403,8 @@ GenericByteOutStream<STREAMBUF>&
 GenericByteOutStream<STREAMBUF>::putArrayInt16(const short *values,
                                                int          numValues)
 {
-    BSLS_ASSERT_SAFE(values);
-    BSLS_ASSERT_SAFE(0 <= numValues);
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 <= numValues);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1425,8 +1425,8 @@ GenericByteOutStream<STREAMBUF>::putArrayUint16(
                                                const unsigned short *values,
                                                int                   numValues)
 {
-    BSLS_ASSERT_SAFE(values);
-    BSLS_ASSERT_SAFE(0 <= numValues);
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 <= numValues);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1447,8 +1447,8 @@ GenericByteOutStream<STREAMBUF>&
 GenericByteOutStream<STREAMBUF>::putArrayInt8(const char *values,
                                               int         numValues)
 {
-    BSLS_ASSERT_SAFE(values);
-    BSLS_ASSERT_SAFE(0 <= numValues);
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 <= numValues);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1470,8 +1470,8 @@ GenericByteOutStream<STREAMBUF>&
 GenericByteOutStream<STREAMBUF>::putArrayInt8(const signed char *values,
                                               int                numValues)
 {
-    BSLS_ASSERT_SAFE(values);
-    BSLS_ASSERT_SAFE(0 <= numValues);
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 <= numValues);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1494,8 +1494,8 @@ GenericByteOutStream<STREAMBUF>&
 GenericByteOutStream<STREAMBUF>::putArrayUint8(const char *values,
                                                int         numValues)
 {
-    BSLS_ASSERT_SAFE(values);
-    BSLS_ASSERT_SAFE(0 <= numValues);
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 <= numValues);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1517,8 +1517,8 @@ GenericByteOutStream<STREAMBUF>&
 GenericByteOutStream<STREAMBUF>::putArrayUint8(const unsigned char *values,
                                                int                  numValues)
 {
-    BSLS_ASSERT_SAFE(values);
-    BSLS_ASSERT_SAFE(0 <= numValues);
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 <= numValues);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1542,8 +1542,8 @@ GenericByteOutStream<STREAMBUF>&
 GenericByteOutStream<STREAMBUF>::putArrayFloat64(const double *values,
                                                  int           numValues)
 {
-    BSLS_ASSERT_SAFE(values);
-    BSLS_ASSERT_SAFE(0 <= numValues);
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 <= numValues);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1563,8 +1563,8 @@ GenericByteOutStream<STREAMBUF>&
 GenericByteOutStream<STREAMBUF>::putArrayFloat32(const float *values,
                                                  int          numValues)
 {
-    BSLS_ASSERT_SAFE(values);
-    BSLS_ASSERT_SAFE(0 <= numValues);
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 <= numValues);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;

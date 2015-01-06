@@ -85,7 +85,7 @@ typedef bsls::Types::Uint64 Uint64;
 // ============================================================================
 //              Classes, functions, etc., needed for Usage Example
 // ----------------------------------------------------------------------------
-// In this example we illustrate the primary intended use of the templatized
+// In this example we illustrate the primary intended use of the parameterized
 // methods of this component, as well as a few trivial invocations just to show
 // the syntax clearly.  To accomplish this, we exhibit three separate example
 // "components": an 'enum', a value-semantic point object, and an input stream.

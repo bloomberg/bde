@@ -823,8 +823,8 @@ if (veryVerbose) {
         // Plan:
         //: 1 Externalize a set of values to an out stream.
         //:
-        //: 2 The unexternalize the values and verify the values match the
-        //:   initial values.  (C-1)
+        //: 2 Unexternalize the values and verify the values match the initial
+        //:   values.  (C-1)
         //:
         //: 3 Unexternalize a set of values from the stream in one code line.
         //:   (C-2)
@@ -1378,20 +1378,20 @@ if (veryVerbose) {
 
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayFloat64(static_cast<double *>(0),
+                ASSERT_FAIL(mX.getArrayFloat64(static_cast<double *>(0),
                                                    0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayFloat64(DATA, -1));
+                ASSERT_FAIL(mX.getArrayFloat64(DATA, -1));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayFloat64(DATA, 0));
+                ASSERT_PASS(mX.getArrayFloat64(DATA, 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayFloat64(DATA, 1));
+                ASSERT_PASS(mX.getArrayFloat64(DATA, 1));
             }
         }
       } break;
@@ -1532,20 +1532,20 @@ if (veryVerbose) {
 
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayFloat32(static_cast<float *>(0),
+                ASSERT_FAIL(mX.getArrayFloat32(static_cast<float *>(0),
                                                    0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayFloat32(DATA, -1));
+                ASSERT_FAIL(mX.getArrayFloat32(DATA, -1));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayFloat32(DATA, 0));
+                ASSERT_PASS(mX.getArrayFloat32(DATA, 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayFloat32(DATA, 1));
+                ASSERT_PASS(mX.getArrayFloat32(DATA, 1));
             }
         }
       } break;
@@ -1785,20 +1785,20 @@ if (veryVerbose) {
 
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayInt64(
+                ASSERT_FAIL(mX.getArrayInt64(
                                      static_cast<bsls::Types::Int64 *>(0), 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayInt64(DATA, -1));
+                ASSERT_FAIL(mX.getArrayInt64(DATA, -1));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayInt64(DATA, 0));
+                ASSERT_PASS(mX.getArrayInt64(DATA, 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayInt64(DATA, 1));
+                ASSERT_PASS(mX.getArrayInt64(DATA, 1));
             }
         }
         {
@@ -1814,20 +1814,20 @@ if (veryVerbose) {
 
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayUint64(
+                ASSERT_FAIL(mX.getArrayUint64(
                                     static_cast<bsls::Types::Uint64 *>(0), 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayUint64(DATA, -1));
+                ASSERT_FAIL(mX.getArrayUint64(DATA, -1));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayUint64(DATA, 0));
+                ASSERT_PASS(mX.getArrayUint64(DATA, 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayUint64(DATA, 1));
+                ASSERT_PASS(mX.getArrayUint64(DATA, 1));
             }
         }
       } break;
@@ -2065,20 +2065,20 @@ if (veryVerbose) {
 
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayInt56(
+                ASSERT_FAIL(mX.getArrayInt56(
                                      static_cast<bsls::Types::Int64 *>(0), 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayInt56(DATA, -1));
+                ASSERT_FAIL(mX.getArrayInt56(DATA, -1));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayInt56(DATA, 0));
+                ASSERT_PASS(mX.getArrayInt56(DATA, 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayInt56(DATA, 1));
+                ASSERT_PASS(mX.getArrayInt56(DATA, 1));
             }
         }
         {
@@ -2094,20 +2094,20 @@ if (veryVerbose) {
 
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayUint56(
+                ASSERT_FAIL(mX.getArrayUint56(
                                     static_cast<bsls::Types::Uint64 *>(0), 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayUint56(DATA, -1));
+                ASSERT_FAIL(mX.getArrayUint56(DATA, -1));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayUint56(DATA, 0));
+                ASSERT_PASS(mX.getArrayUint56(DATA, 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayUint56(DATA, 1));
+                ASSERT_PASS(mX.getArrayUint56(DATA, 1));
             }
         }
       } break;
@@ -2346,20 +2346,20 @@ if (veryVerbose) {
 
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayInt48(
+                ASSERT_FAIL(mX.getArrayInt48(
                                      static_cast<bsls::Types::Int64 *>(0), 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayInt48(DATA, -1));
+                ASSERT_FAIL(mX.getArrayInt48(DATA, -1));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayInt48(DATA, 0));
+                ASSERT_PASS(mX.getArrayInt48(DATA, 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayInt48(DATA, 1));
+                ASSERT_PASS(mX.getArrayInt48(DATA, 1));
             }
         }
         {
@@ -2375,20 +2375,20 @@ if (veryVerbose) {
 
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayUint48(
+                ASSERT_FAIL(mX.getArrayUint48(
                                     static_cast<bsls::Types::Uint64 *>(0), 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayUint48(DATA, -1));
+                ASSERT_FAIL(mX.getArrayUint48(DATA, -1));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayUint48(DATA, 0));
+                ASSERT_PASS(mX.getArrayUint48(DATA, 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayUint48(DATA, 1));
+                ASSERT_PASS(mX.getArrayUint48(DATA, 1));
             }
         }
       } break;
@@ -2627,20 +2627,20 @@ if (veryVerbose) {
 
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayInt40(
+                ASSERT_FAIL(mX.getArrayInt40(
                                      static_cast<bsls::Types::Int64 *>(0), 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayInt40(DATA, -1));
+                ASSERT_FAIL(mX.getArrayInt40(DATA, -1));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayInt40(DATA, 0));
+                ASSERT_PASS(mX.getArrayInt40(DATA, 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayInt40(DATA, 1));
+                ASSERT_PASS(mX.getArrayInt40(DATA, 1));
             }
         }
         {
@@ -2656,20 +2656,20 @@ if (veryVerbose) {
 
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayUint40(
+                ASSERT_FAIL(mX.getArrayUint40(
                                     static_cast<bsls::Types::Uint64 *>(0), 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayUint40(DATA, -1));
+                ASSERT_FAIL(mX.getArrayUint40(DATA, -1));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayUint40(DATA, 0));
+                ASSERT_PASS(mX.getArrayUint40(DATA, 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayUint40(DATA, 1));
+                ASSERT_PASS(mX.getArrayUint40(DATA, 1));
             }
         }
       } break;
@@ -2907,19 +2907,19 @@ if (veryVerbose) {
 
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayInt32(static_cast<int *>(0), 0));
+                ASSERT_FAIL(mX.getArrayInt32(static_cast<int *>(0), 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayInt32(DATA, -1));
+                ASSERT_FAIL(mX.getArrayInt32(DATA, -1));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayInt32(DATA, 0));
+                ASSERT_PASS(mX.getArrayInt32(DATA, 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayInt32(DATA, 1));
+                ASSERT_PASS(mX.getArrayInt32(DATA, 1));
             }
         }
         {
@@ -2935,20 +2935,20 @@ if (veryVerbose) {
 
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayUint32(
+                ASSERT_FAIL(mX.getArrayUint32(
                                            static_cast<unsigned int *>(0), 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayUint32(DATA, -1));
+                ASSERT_FAIL(mX.getArrayUint32(DATA, -1));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayUint32(DATA, 0));
+                ASSERT_PASS(mX.getArrayUint32(DATA, 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayUint32(DATA, 1));
+                ASSERT_PASS(mX.getArrayUint32(DATA, 1));
             }
         }
       } break;
@@ -3187,19 +3187,19 @@ if (veryVerbose) {
 
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayInt24(static_cast<int *>(0), 0));
+                ASSERT_FAIL(mX.getArrayInt24(static_cast<int *>(0), 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayInt24(DATA, -1));
+                ASSERT_FAIL(mX.getArrayInt24(DATA, -1));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayInt24(DATA, 0));
+                ASSERT_PASS(mX.getArrayInt24(DATA, 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayInt24(DATA, 1));
+                ASSERT_PASS(mX.getArrayInt24(DATA, 1));
             }
         }
         {
@@ -3215,20 +3215,20 @@ if (veryVerbose) {
 
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayUint24(
+                ASSERT_FAIL(mX.getArrayUint24(
                                            static_cast<unsigned int *>(0), 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayUint24(DATA, -1));
+                ASSERT_FAIL(mX.getArrayUint24(DATA, -1));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayUint24(DATA, 0));
+                ASSERT_PASS(mX.getArrayUint24(DATA, 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayUint24(DATA, 1));
+                ASSERT_PASS(mX.getArrayUint24(DATA, 1));
             }
         }
       } break;
@@ -3467,19 +3467,19 @@ if (veryVerbose) {
 
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayInt16(static_cast<short *>(0), 0));
+                ASSERT_FAIL(mX.getArrayInt16(static_cast<short *>(0), 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayInt16(DATA, -1));
+                ASSERT_FAIL(mX.getArrayInt16(DATA, -1));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayInt16(DATA, 0));
+                ASSERT_PASS(mX.getArrayInt16(DATA, 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayInt16(DATA, 1));
+                ASSERT_PASS(mX.getArrayInt16(DATA, 1));
             }
         }
         {
@@ -3495,20 +3495,20 @@ if (veryVerbose) {
 
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayUint16(
+                ASSERT_FAIL(mX.getArrayUint16(
                                          static_cast<unsigned short *>(0), 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayUint16(DATA, -1));
+                ASSERT_FAIL(mX.getArrayUint16(DATA, -1));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayUint16(DATA, 0));
+                ASSERT_PASS(mX.getArrayUint16(DATA, 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayUint16(DATA, 1));
+                ASSERT_PASS(mX.getArrayUint16(DATA, 1));
             }
         }
       } break;
@@ -3940,19 +3940,19 @@ if (veryVerbose) {
 
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayInt8(static_cast<char *>(0), 0));
+                ASSERT_FAIL(mX.getArrayInt8(static_cast<char *>(0), 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayInt8(DATA, -1));
+                ASSERT_FAIL(mX.getArrayInt8(DATA, -1));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayInt8(DATA, 0));
+                ASSERT_PASS(mX.getArrayInt8(DATA, 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayInt8(DATA, 1));
+                ASSERT_PASS(mX.getArrayInt8(DATA, 1));
             }
         }
         {
@@ -3968,20 +3968,20 @@ if (veryVerbose) {
 
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayInt8(
+                ASSERT_FAIL(mX.getArrayInt8(
                                             static_cast<signed char *>(0), 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayInt8(DATA, -1));
+                ASSERT_FAIL(mX.getArrayInt8(DATA, -1));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayInt8(DATA, 0));
+                ASSERT_PASS(mX.getArrayInt8(DATA, 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayInt8(DATA, 1));
+                ASSERT_PASS(mX.getArrayInt8(DATA, 1));
             }
         }
         {
@@ -3997,19 +3997,19 @@ if (veryVerbose) {
 
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayUint8(static_cast<char *>(0), 0));
+                ASSERT_FAIL(mX.getArrayUint8(static_cast<char *>(0), 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayUint8(DATA, -1));
+                ASSERT_FAIL(mX.getArrayUint8(DATA, -1));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayUint8(DATA, 0));
+                ASSERT_PASS(mX.getArrayUint8(DATA, 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayUint8(DATA, 1));
+                ASSERT_PASS(mX.getArrayUint8(DATA, 1));
             }
         }
         {
@@ -4025,20 +4025,20 @@ if (veryVerbose) {
 
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayUint8(
+                ASSERT_FAIL(mX.getArrayUint8(
                                           static_cast<unsigned char *>(0), 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_FAIL(mX.getArrayUint8(DATA, -1));
+                ASSERT_FAIL(mX.getArrayUint8(DATA, -1));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayUint8(DATA, 0));
+                ASSERT_PASS(mX.getArrayUint8(DATA, 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_SAFE_PASS(mX.getArrayUint8(DATA, 1));
+                ASSERT_PASS(mX.getArrayUint8(DATA, 1));
             }
         }
       } break;

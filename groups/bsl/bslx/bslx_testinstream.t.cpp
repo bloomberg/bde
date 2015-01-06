@@ -462,8 +462,8 @@ int g(Out *o, const char *spec) {
 // ============================================================================
 //                    FUNCTION 'testGetArray' FOR TESTING
 // ----------------------------------------------------------------------------
-// The function 'testGetArray' is a generic, templatized function to test array
-// input methods of various data types.  The function accepts an array of
+// The function 'testGetArray' is a generic, parameterized function to test
+// array input methods of various data types.  The function accepts an array of
 // vectors having the structure defined by 'ArrayTestTable' (see above) as its
 // test data.  It iterates over the vectors in the array and performs an
 // independent test for each vector.  In each test, it first generates a test
@@ -602,7 +602,7 @@ void testGetArray(const ArrayTestTable *data,
 // ============================================================================
 //                    FUNCTION 'testGetScalar' FOR TESTING
 // ----------------------------------------------------------------------------
-// The function 'testGetScalar' is a generic, templatized function to test
+// The function 'testGetScalar' is a generic, parameterized function to test
 // scalar input methods of various data types.  The function accepts an array
 // of vectors having the structure defined by 'ScalarTestTable' (see above) as
 // its test data.  It iterates over the vectors in the array and performs an
@@ -700,8 +700,8 @@ void testGetScalar(const ScalarTestTable<ElemType> *data,
 // ============================================================================
 //                FUNCTION 'testGetArrayInputLimit' FOR TESTING
 // ----------------------------------------------------------------------------
-// The function 'testGetArrayInputLimit' is a generic, templatized function to
-// test the behavior of array input methods with varying stream input limit
+// The function 'testGetArrayInputLimit' is a generic, parameterized function
+// to test the behavior of array input methods with varying stream input limit
 // values.  The function accepts as its test data an array of vectors having
 // the structure defined by 'InputLimitTestTable' (see above) and performs an
 // independent test for each vector.  In each test, a test input stream is
@@ -807,8 +807,8 @@ void testGetArrayInputLimit(const InputLimitTestTable *data,
 // ============================================================================
 //               FUNCTION 'testGetScalarInputLimit' FOR TESTING
 // ----------------------------------------------------------------------------
-// The function 'testGetScalarInputLimit' is a generic, templatized function to
-// test the behavior of scalar input methods with varying stream input limit
+// The function 'testGetScalarInputLimit' is a generic, parameterized function
+// to test the behavior of scalar input methods with varying stream input limit
 // values.  The function accepts as its test data an array of vectors having
 // the structure defined by 'InputLimitTestTable' (see above) and performs an
 // independent test for each vector.  In each test, a test input stream is
@@ -912,7 +912,7 @@ void testGetScalarInputLimit(const InputLimitTestTable        *data,
 // ----------------------------------------------------------------------------
 template <typename LIST, int N = LIST::LENGTH>
 struct ForEachIn {
-    // The struct 'ForEachIn' is a generic, templatized structure that
+    // The struct 'ForEachIn' is a generic, parameterized structure that
     // implements meta-function 'testInputLimit'.  The function
     // recursively instantiates 'ForEachIn<LIST, N-1>' unless N=0.
     // For the i-th instantiation, the function calls the 'test' method of
@@ -960,7 +960,7 @@ template <typename ElemType,
           Obj& (Obj::*getFunc)(ElemType&),
           TypeCode::Enum tc>
 struct GetScalar {
-    // The struct 'GetScalar' is a generic, templatized structure that
+    // The struct 'GetScalar' is a generic, parameterized structure that
     // helps to store an address of 'TestInStream' access function for
     // the specified type 'ElemType' and corresponding type code type
     // 'tc'.  The struct serves as an item of a type list in INPUT
@@ -983,7 +983,7 @@ template <typename ElemType,
           TypeCode::Enum tc,
           int numArrayElements>
 struct GetArray {
-    // The struct 'GetArray' is a generic, templatized structure that
+    // The struct 'GetArray' is a generic, parameterized structure that
     // helps to store an address of 'TestInStream' access function for
     // the specified type 'ElemType', corresponding type code type
     // 'tc' and 'numArrayElements' value.  The struct serves as an item

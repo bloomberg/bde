@@ -161,7 +161,7 @@ typedef GenericByteOutStream<bsl::streambuf> ByteOutStreamFormatter;
     // This class facilitates the externalization of values (and C-style arrays
     // of values) of the fundamental integral and floating-point types in a
     // data-independent, platform-neutral representation.  It is currently a
-    // 'typedef' for 'bdex_GenericByteOutStream<bsl::streambuf>'.
+    // 'typedef' for 'bslx::GenericByteOutStream<bsl::streambuf>'.
 
 }  // close package namespace
 }  // close enterprise namespace

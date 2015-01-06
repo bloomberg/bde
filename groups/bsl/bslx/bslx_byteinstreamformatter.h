@@ -19,10 +19,10 @@ BSLS_IDENT("$Id: $")
 // input methods ("unexternalization") on values, and arrays of values, of
 // fundamental types, and on 'bsl::string'.
 //
-// This component reads from a user-supplied 'bsl::streambuf' directly, with no
-// data copying or assumption of ownership.  The user must therefore make sure
-// that the lifetime and visibility of the buffer is sufficient to satisfy the
-// needs of the input stream.
+// This type reads from a user-supplied 'bsl::streambuf' directly, with no data
+// copying or assumption of ownership.  The user must therefore make sure that
+// the lifetime and visibility of the buffer is sufficient to satisfy the needs
+// of the input stream.
 //
 // This component is intended to be used in conjunction with the
 // 'bslx_byteoutstreamformatter' "externalization" component.  Each input
@@ -340,7 +340,7 @@ typedef GenericByteInStream<bsl::streambuf> ByteInStreamFormatter;
     // This class facilitates the unexternalization of values (and C-style
     // arrays of values) of the fundamental integral and floating-point types
     // in a data-independent, platform-neutral representation.  It is currently
-    // a 'typedef' for 'bdex_GenericByteInStream<bsl::streambuf>'.
+    // a 'typedef' for 'bslx::GenericByteInStream<bsl::streambuf>'.
 
 }  // close package namespace
 }  // close enterprise namespace

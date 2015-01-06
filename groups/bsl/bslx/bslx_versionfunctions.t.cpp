@@ -278,7 +278,7 @@ int main(int argc, char *argv[])
         //: 4 'maxSupportedBdexVersion' is appropriately used for other types.
         //
         // Plan:
-        //: 1 Define a templatized class 'TestType' that will validate the
+        //: 1 Define a parameterized class 'TestType' that will validate the
         //:   return value against a provided value for 'TYPE', 'const TYPE',
         //:   'volatile TYPE', and against a second provided value for
         //:   'const' and 'volatile' nested vectors of 'TYPE' and use this

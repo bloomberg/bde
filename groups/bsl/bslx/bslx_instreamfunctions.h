@@ -101,7 +101,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Using 'bslx::InStreamFunctions' to Unexternalize Data
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example we illustrate the primary intended use of the templatized
+// In this example we illustrate the primary intended use of the parameterized
 // methods of this component, as well as a few trivial invocations just to show
 // the syntax clearly.  To accomplish this, we exhibit three separate example
 // "components": an 'enum', a value-semantic point object, and an input stream.

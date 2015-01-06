@@ -1010,10 +1010,10 @@ int main(int argc, char *argv[])
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
-            ASSERT_SAFE_FAIL(mX.putArrayFloat64(0, 0));
-            ASSERT_SAFE_FAIL(mX.putArrayFloat64(DATA, -1));
-            ASSERT_SAFE_PASS(mX.putArrayFloat64(DATA, 0));
-            ASSERT_SAFE_PASS(mX.putArrayFloat64(DATA, 1));
+            ASSERT_FAIL(mX.putArrayFloat64(0, 0));
+            ASSERT_FAIL(mX.putArrayFloat64(DATA, -1));
+            ASSERT_PASS(mX.putArrayFloat64(DATA, 0));
+            ASSERT_PASS(mX.putArrayFloat64(DATA, 1));
         }
       } break;
       case 22: {
@@ -1130,10 +1130,10 @@ int main(int argc, char *argv[])
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
-            ASSERT_SAFE_FAIL(mX.putArrayFloat32(0, 0));
-            ASSERT_SAFE_FAIL(mX.putArrayFloat32(DATA, -1));
-            ASSERT_SAFE_PASS(mX.putArrayFloat32(DATA, 0));
-            ASSERT_SAFE_PASS(mX.putArrayFloat32(DATA, 1));
+            ASSERT_FAIL(mX.putArrayFloat32(0, 0));
+            ASSERT_FAIL(mX.putArrayFloat32(DATA, -1));
+            ASSERT_PASS(mX.putArrayFloat32(DATA, 0));
+            ASSERT_PASS(mX.putArrayFloat32(DATA, 1));
         }
       } break;
       case 21: {
@@ -1323,10 +1323,10 @@ int main(int argc, char *argv[])
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
-            ASSERT_SAFE_FAIL(mX.putArrayInt64(0, 0));
-            ASSERT_SAFE_FAIL(mX.putArrayInt64(DATA, -1));
-            ASSERT_SAFE_PASS(mX.putArrayInt64(DATA, 0));
-            ASSERT_SAFE_PASS(mX.putArrayInt64(DATA, 1));
+            ASSERT_FAIL(mX.putArrayInt64(0, 0));
+            ASSERT_FAIL(mX.putArrayInt64(DATA, -1));
+            ASSERT_PASS(mX.putArrayInt64(DATA, 0));
+            ASSERT_PASS(mX.putArrayInt64(DATA, 1));
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
@@ -1336,10 +1336,10 @@ int main(int argc, char *argv[])
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
-            ASSERT_SAFE_FAIL(mX.putArrayUint64(0, 0));
-            ASSERT_SAFE_FAIL(mX.putArrayUint64(DATA, -1));
-            ASSERT_SAFE_PASS(mX.putArrayUint64(DATA, 0));
-            ASSERT_SAFE_PASS(mX.putArrayUint64(DATA, 1));
+            ASSERT_FAIL(mX.putArrayUint64(0, 0));
+            ASSERT_FAIL(mX.putArrayUint64(DATA, -1));
+            ASSERT_PASS(mX.putArrayUint64(DATA, 0));
+            ASSERT_PASS(mX.putArrayUint64(DATA, 1));
         }
       } break;
       case 20: {
@@ -1529,10 +1529,10 @@ int main(int argc, char *argv[])
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
-            ASSERT_SAFE_FAIL(mX.putArrayInt56(0, 0));
-            ASSERT_SAFE_FAIL(mX.putArrayInt56(DATA, -1));
-            ASSERT_SAFE_PASS(mX.putArrayInt56(DATA, 0));
-            ASSERT_SAFE_PASS(mX.putArrayInt56(DATA, 1));
+            ASSERT_FAIL(mX.putArrayInt56(0, 0));
+            ASSERT_FAIL(mX.putArrayInt56(DATA, -1));
+            ASSERT_PASS(mX.putArrayInt56(DATA, 0));
+            ASSERT_PASS(mX.putArrayInt56(DATA, 1));
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
@@ -1542,10 +1542,10 @@ int main(int argc, char *argv[])
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
-            ASSERT_SAFE_FAIL(mX.putArrayUint56(0, 0));
-            ASSERT_SAFE_FAIL(mX.putArrayUint56(DATA, -1));
-            ASSERT_SAFE_PASS(mX.putArrayUint56(DATA, 0));
-            ASSERT_SAFE_PASS(mX.putArrayUint56(DATA, 1));
+            ASSERT_FAIL(mX.putArrayUint56(0, 0));
+            ASSERT_FAIL(mX.putArrayUint56(DATA, -1));
+            ASSERT_PASS(mX.putArrayUint56(DATA, 0));
+            ASSERT_PASS(mX.putArrayUint56(DATA, 1));
         }
       } break;
       case 19: {
@@ -1735,10 +1735,10 @@ int main(int argc, char *argv[])
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
-            ASSERT_SAFE_FAIL(mX.putArrayInt48(0, 0));
-            ASSERT_SAFE_FAIL(mX.putArrayInt48(DATA, -1));
-            ASSERT_SAFE_PASS(mX.putArrayInt48(DATA, 0));
-            ASSERT_SAFE_PASS(mX.putArrayInt48(DATA, 1));
+            ASSERT_FAIL(mX.putArrayInt48(0, 0));
+            ASSERT_FAIL(mX.putArrayInt48(DATA, -1));
+            ASSERT_PASS(mX.putArrayInt48(DATA, 0));
+            ASSERT_PASS(mX.putArrayInt48(DATA, 1));
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
@@ -1748,10 +1748,10 @@ int main(int argc, char *argv[])
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
-            ASSERT_SAFE_FAIL(mX.putArrayUint48(0, 0));
-            ASSERT_SAFE_FAIL(mX.putArrayUint48(DATA, -1));
-            ASSERT_SAFE_PASS(mX.putArrayUint48(DATA, 0));
-            ASSERT_SAFE_PASS(mX.putArrayUint48(DATA, 1));
+            ASSERT_FAIL(mX.putArrayUint48(0, 0));
+            ASSERT_FAIL(mX.putArrayUint48(DATA, -1));
+            ASSERT_PASS(mX.putArrayUint48(DATA, 0));
+            ASSERT_PASS(mX.putArrayUint48(DATA, 1));
         }
       } break;
       case 18: {
@@ -1941,10 +1941,10 @@ int main(int argc, char *argv[])
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
-            ASSERT_SAFE_FAIL(mX.putArrayInt40(0, 0));
-            ASSERT_SAFE_FAIL(mX.putArrayInt40(DATA, -1));
-            ASSERT_SAFE_PASS(mX.putArrayInt40(DATA, 0));
-            ASSERT_SAFE_PASS(mX.putArrayInt40(DATA, 1));
+            ASSERT_FAIL(mX.putArrayInt40(0, 0));
+            ASSERT_FAIL(mX.putArrayInt40(DATA, -1));
+            ASSERT_PASS(mX.putArrayInt40(DATA, 0));
+            ASSERT_PASS(mX.putArrayInt40(DATA, 1));
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
@@ -1954,10 +1954,10 @@ int main(int argc, char *argv[])
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
-            ASSERT_SAFE_FAIL(mX.putArrayUint40(0, 0));
-            ASSERT_SAFE_FAIL(mX.putArrayUint40(DATA, -1));
-            ASSERT_SAFE_PASS(mX.putArrayUint40(DATA, 0));
-            ASSERT_SAFE_PASS(mX.putArrayUint40(DATA, 1));
+            ASSERT_FAIL(mX.putArrayUint40(0, 0));
+            ASSERT_FAIL(mX.putArrayUint40(DATA, -1));
+            ASSERT_PASS(mX.putArrayUint40(DATA, 0));
+            ASSERT_PASS(mX.putArrayUint40(DATA, 1));
         }
       } break;
       case 17: {
@@ -2146,10 +2146,10 @@ int main(int argc, char *argv[])
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
-            ASSERT_SAFE_FAIL(mX.putArrayInt32(0, 0));
-            ASSERT_SAFE_FAIL(mX.putArrayInt32(DATA, -1));
-            ASSERT_SAFE_PASS(mX.putArrayInt32(DATA, 0));
-            ASSERT_SAFE_PASS(mX.putArrayInt32(DATA, 1));
+            ASSERT_FAIL(mX.putArrayInt32(0, 0));
+            ASSERT_FAIL(mX.putArrayInt32(DATA, -1));
+            ASSERT_PASS(mX.putArrayInt32(DATA, 0));
+            ASSERT_PASS(mX.putArrayInt32(DATA, 1));
         }
         {
             const unsigned int DATA[] = {1, 2, 3};
@@ -2159,10 +2159,10 @@ int main(int argc, char *argv[])
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
-            ASSERT_SAFE_FAIL(mX.putArrayUint32(0, 0));
-            ASSERT_SAFE_FAIL(mX.putArrayUint32(DATA, -1));
-            ASSERT_SAFE_PASS(mX.putArrayUint32(DATA, 0));
-            ASSERT_SAFE_PASS(mX.putArrayUint32(DATA, 1));
+            ASSERT_FAIL(mX.putArrayUint32(0, 0));
+            ASSERT_FAIL(mX.putArrayUint32(DATA, -1));
+            ASSERT_PASS(mX.putArrayUint32(DATA, 0));
+            ASSERT_PASS(mX.putArrayUint32(DATA, 1));
         }
       } break;
       case 16: {
@@ -2351,10 +2351,10 @@ int main(int argc, char *argv[])
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
-            ASSERT_SAFE_FAIL(mX.putArrayInt24(0, 0));
-            ASSERT_SAFE_FAIL(mX.putArrayInt24(DATA, -1));
-            ASSERT_SAFE_PASS(mX.putArrayInt24(DATA, 0));
-            ASSERT_SAFE_PASS(mX.putArrayInt24(DATA, 1));
+            ASSERT_FAIL(mX.putArrayInt24(0, 0));
+            ASSERT_FAIL(mX.putArrayInt24(DATA, -1));
+            ASSERT_PASS(mX.putArrayInt24(DATA, 0));
+            ASSERT_PASS(mX.putArrayInt24(DATA, 1));
         }
         {
             const unsigned int DATA[] = {1, 2, 3};
@@ -2364,10 +2364,10 @@ int main(int argc, char *argv[])
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
-            ASSERT_SAFE_FAIL(mX.putArrayUint24(0, 0));
-            ASSERT_SAFE_FAIL(mX.putArrayUint24(DATA, -1));
-            ASSERT_SAFE_PASS(mX.putArrayUint24(DATA, 0));
-            ASSERT_SAFE_PASS(mX.putArrayUint24(DATA, 1));
+            ASSERT_FAIL(mX.putArrayUint24(0, 0));
+            ASSERT_FAIL(mX.putArrayUint24(DATA, -1));
+            ASSERT_PASS(mX.putArrayUint24(DATA, 0));
+            ASSERT_PASS(mX.putArrayUint24(DATA, 1));
         }
       } break;
       case 15: {
@@ -2545,10 +2545,10 @@ int main(int argc, char *argv[])
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
-            ASSERT_SAFE_FAIL(mX.putArrayInt16(0, 0));
-            ASSERT_SAFE_FAIL(mX.putArrayInt16(DATA, -1));
-            ASSERT_SAFE_PASS(mX.putArrayInt16(DATA, 0));
-            ASSERT_SAFE_PASS(mX.putArrayInt16(DATA, 1));
+            ASSERT_FAIL(mX.putArrayInt16(0, 0));
+            ASSERT_FAIL(mX.putArrayInt16(DATA, -1));
+            ASSERT_PASS(mX.putArrayInt16(DATA, 0));
+            ASSERT_PASS(mX.putArrayInt16(DATA, 1));
         }
         {
             const unsigned short DATA[] = {1, 2, 3};
@@ -2558,10 +2558,10 @@ int main(int argc, char *argv[])
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
-            ASSERT_SAFE_FAIL(mX.putArrayUint16(0, 0));
-            ASSERT_SAFE_FAIL(mX.putArrayUint16(DATA, -1));
-            ASSERT_SAFE_PASS(mX.putArrayUint16(DATA, 0));
-            ASSERT_SAFE_PASS(mX.putArrayUint16(DATA, 1));
+            ASSERT_FAIL(mX.putArrayUint16(0, 0));
+            ASSERT_FAIL(mX.putArrayUint16(DATA, -1));
+            ASSERT_PASS(mX.putArrayUint16(DATA, 0));
+            ASSERT_PASS(mX.putArrayUint16(DATA, 1));
         }
       } break;
       case 14: {
@@ -2804,10 +2804,10 @@ int main(int argc, char *argv[])
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
-            ASSERT_SAFE_FAIL(mX.putArrayInt8((char *)0, 0));
-            ASSERT_SAFE_FAIL(mX.putArrayInt8(DATA, -1));
-            ASSERT_SAFE_PASS(mX.putArrayInt8(DATA, 0));
-            ASSERT_SAFE_PASS(mX.putArrayInt8(DATA, 1));
+            ASSERT_FAIL(mX.putArrayInt8((char *)0, 0));
+            ASSERT_FAIL(mX.putArrayInt8(DATA, -1));
+            ASSERT_PASS(mX.putArrayInt8(DATA, 0));
+            ASSERT_PASS(mX.putArrayInt8(DATA, 1));
         }
         {
             const signed char DATA[] = {1, 2, 3};
@@ -2817,10 +2817,10 @@ int main(int argc, char *argv[])
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
-            ASSERT_SAFE_FAIL(mX.putArrayInt8((signed char *)0, 0));
-            ASSERT_SAFE_FAIL(mX.putArrayInt8(DATA, -1));
-            ASSERT_SAFE_PASS(mX.putArrayInt8(DATA, 0));
-            ASSERT_SAFE_PASS(mX.putArrayInt8(DATA, 1));
+            ASSERT_FAIL(mX.putArrayInt8((signed char *)0, 0));
+            ASSERT_FAIL(mX.putArrayInt8(DATA, -1));
+            ASSERT_PASS(mX.putArrayInt8(DATA, 0));
+            ASSERT_PASS(mX.putArrayInt8(DATA, 1));
         }
         {
             const char DATA[] = {1, 2, 3};
@@ -2830,10 +2830,10 @@ int main(int argc, char *argv[])
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
-            ASSERT_SAFE_FAIL(mX.putArrayUint8((char *)0, 0));
-            ASSERT_SAFE_FAIL(mX.putArrayUint8(DATA, -1));
-            ASSERT_SAFE_PASS(mX.putArrayUint8(DATA, 0));
-            ASSERT_SAFE_PASS(mX.putArrayUint8(DATA, 1));
+            ASSERT_FAIL(mX.putArrayUint8((char *)0, 0));
+            ASSERT_FAIL(mX.putArrayUint8(DATA, -1));
+            ASSERT_PASS(mX.putArrayUint8(DATA, 0));
+            ASSERT_PASS(mX.putArrayUint8(DATA, 1));
         }
         {
             const unsigned char DATA[] = {1, 2, 3};
@@ -2843,10 +2843,10 @@ int main(int argc, char *argv[])
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
-            ASSERT_SAFE_FAIL(mX.putArrayUint8((unsigned char *)0, 0));
-            ASSERT_SAFE_FAIL(mX.putArrayUint8(DATA, -1));
-            ASSERT_SAFE_PASS(mX.putArrayUint8(DATA, 0));
-            ASSERT_SAFE_PASS(mX.putArrayUint8(DATA, 1));
+            ASSERT_FAIL(mX.putArrayUint8((unsigned char *)0, 0));
+            ASSERT_FAIL(mX.putArrayUint8(DATA, -1));
+            ASSERT_PASS(mX.putArrayUint8(DATA, 0));
+            ASSERT_PASS(mX.putArrayUint8(DATA, 1));
         }
       } break;
       case 13: {
