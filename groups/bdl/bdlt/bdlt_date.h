@@ -185,6 +185,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_dayofweek.h>
 #endif
 
+#ifndef INCLUDED_BDLT_MONTHOFYEAR
+#include <bdlt_monthofyear.h>
+#endif
+
 #ifndef INCLUDED_BDLT_SERIALDATEIMPUTIL
 #include <bdlt_serialdateimputil.h>
 #endif
@@ -401,6 +405,10 @@ class Date {
     void getYearMonthDay(int *year, int *month, int *day) const;
         // Load, into the specified 'year', 'month', and 'day', the respective
         // 'year', 'month', and 'day' attribute values of this date.
+
+    MonthOfYear::Enum monthOfYear() const;
+        // Return the month of the year in the range
+        // '[MonthOfYear::e_JAN .. MonthOfYear::e_DEC]' of this date.
 
                                   // Aspects
 
@@ -716,7 +724,8 @@ int Date::year() const
 inline
 DayOfWeek::Enum Date::dayOfWeek() const
 {
-    return DayOfWeek::Enum(SerialDateImpUtil::serialToDayOfWeek(d_serialDate));
+    return static_cast<DayOfWeek::Enum>(
+        SerialDateImpUtil::serialToDayOfWeek(d_serialDate));
 }
 
 inline
@@ -736,6 +745,12 @@ void Date::getYearMonthDay(int *year, int *month, int *day) const
     BSLS_ASSERT_SAFE(day);
 
     SerialDateImpUtil::serialToYmd(year, month, day, d_serialDate);
+}
+
+inline
+MonthOfYear::Enum Date::monthOfYear() const
+{
+    return static_cast<MonthOfYear::Enum>(month());
 }
 
                                   // Aspects
