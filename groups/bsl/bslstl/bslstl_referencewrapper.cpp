@@ -1,15 +1,12 @@
-// bsls_byteorderutil.cpp                                             -*-C++-*-
-#include <bsls_byteorderutil.h>
+
+// bslstl_referencewrapper.cpp                                         -*-C++-*-
+#include <bslstl_referencewrapper.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bsls_assert.h>         // for testing only
-#include <bsls_bsltestutil.h>    // for testing only
-#include <bsls_stopwatch.h>      // for testing only
-
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

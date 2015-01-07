@@ -80,9 +80,11 @@ namespace bsl
 
 #include <bslstl_equalto.h>
 #include <bslstl_hash.h>
-#endif
+#include <bslstl_referencewrapper.h>
 
 #endif
+
+#endif // INCLUDED_BSL_FUNCTIONAL
 
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.
