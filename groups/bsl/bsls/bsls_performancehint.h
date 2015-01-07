@@ -395,17 +395,28 @@ namespace BloombergLP {
 
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_CLANG)
+    #if __has_attribute(cold)
+    #define BSLS_PERFORMANCEHINT_FUNC_ATTRIBUTE_COLD  __attribute__((cold))
+    #endif
+#elif (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40300)
+    #define BSLS_PERFORMANCEHINT_FUNC_ATTRIBUTE_COLD  __attribute__((cold))
+#endif
+
 #if defined(BDE_BUILD_TARGET_OPT) && defined(BSLS_PLATFORM_CMP_SUN)
     #define BSLS_PERFORMANCEHINT_UNLIKELY_HINT                                \
                              BloombergLP::bsls::PerformanceHint::rarelyCalled()
 #elif defined(BDE_BUILD_TARGET_OPT) && (                                      \
-      defined(BSLS_PLATFORM_CMP_IBM)                                          \
-   || (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40300)  \
-   || (defined(BSLS_PLATFORM_CMP_CLANG) && __has_attribute(cold)))
+      (defined(BSLS_PLATFORM_CMP_IBM)                                         \
+       || defined(BSLS_PERFORMANCEHINT_FUNC_ATTRIBUTE_COLD)))
     #define BSLS_PERFORMANCEHINT_UNLIKELY_HINT                                \
                              BloombergLP::bsls::PerformanceHint::lowFrequency()
 #else
     #define BSLS_PERFORMANCEHINT_UNLIKELY_HINT
+#endif
+
+#ifndef BSLS_PERFORMANCEHINT_FUNC_ATTRIBUTE_COLD
+#define BSLS_PERFORMANCEHINT_FUNC_ATTRIBUTE_COLD
 #endif
 
 namespace bsls {
@@ -453,10 +464,7 @@ struct PerformanceHint {
 #endif  // BSLS_PLATFORM_CMP_SUN
 #endif  // BDE_BUILD_TARGET_OPT
 
-#if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40300)    \
- || (defined(BSLS_PLATFORM_CMP_CLANG) && __has_attribute(cold))
-    __attribute__((__cold__))
-#endif
+    BSLS_PERFORMANCEHINT_FUNC_ATTRIBUTE_COLD
     static void lowFrequency();
         // This is an empty function that is marked with low execution
         // frequency using pragmas.  If this function is placed in a block of
@@ -539,10 +547,7 @@ void PerformanceHint::prefetchForWriting(void *address)
 // This function must be inlined for the pragma to take effect on the branch
 // prediction in IBM xlC.
 
-#if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40300) \
- || (defined(BSLS_PLATFORM_CMP_CLANG) && __has_attribute(cold))
-__attribute__((__cold__))
-#endif
+BSLS_PERFORMANCEHINT_FUNC_ATTRIBUTE_COLD
 inline
 void PerformanceHint::lowFrequency()
 {
