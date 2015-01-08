@@ -106,6 +106,19 @@ BSLS_IDENT("$Id: $")
 // for a robust implementation (such as this one) to check for the error in a
 // defensive (e.g., "DEBUG" or "SAFE") build mode.
 //
+///BDEX Compatibility with Legacy POSIX-Based Date
+///-----------------------------------------------
+// BDEX streaming version 1 of the 'bdlt::Date' class is expressly intended for
+// maintaining some degree of "compatibility" with a legacy date class that is
+// compliant with the POSIX 'cal' command.  Since the proleptic Gregorian
+// calendar defined over the range of dates supported by POSIX
+// ('[0001JAN01 .. 9999DEC31]') has two fewer days than 'cal', and some dates
+// that exist in one calendar do not exist in the other, true compatibility is
+// not possible.  The compatibility guaranteed by BDEX streaming version 1 is
+// such that all dates in the range '[1752SEP14 .. 9999DEC31]', as well as the
+// default value ('0001JAN01'), can be successfully exchanged, via BDEX,
+// between 'bdlt::Date' and the legacy date class.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -794,17 +807,19 @@ STREAM& Date::bdexStreamIn(STREAM& stream, int version)
             stream.getInt24(tmpSerialDate);
 
 #ifndef BDE_OMIT_TRANSITIONAL
-            // TBD Note that this must be handled with great care when the
-            // 'bdlt_delegatingdateimputil' component is retired and the
-            // 'BDE_OMIT_TRANSITIONAL' code is removed from 'bdlt'.
-
             if (DelegatingDateImpUtil::isProlepticGregorianMode()) {
-                if (tmpSerialDate > 3) {
-                    tmpSerialDate -= 2;  // align post-GR serial values
-                }
-                else if (tmpSerialDate > 0) {
-                    tmpSerialDate = 1;   // "fuzzy" default value '[1 .. 3]'
-                }
+#endif
+            // See {BDEX Compatibility with Legacy POSIX-Based 'Date'} in the
+            // component-level documentation.
+
+            if (tmpSerialDate > 3) {
+                tmpSerialDate -= 2;  // ensure that serial values for 1752SEP14
+                                     // and later dates "align"
+            }
+            else if (tmpSerialDate > 0) {
+                tmpSerialDate = 1;   // "fuzzy" default value '[1 .. 3]'
+            }
+#ifndef BDE_OMIT_TRANSITIONAL
             }
 #endif
 
@@ -935,24 +950,25 @@ STREAM& Date::bdexStreamOut(STREAM& stream, int version) const
                                                              d_serialDate));
 #endif
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
-#ifdef BDE_OMIT_TRANSITIONAL
-            stream.putInt24(d_serialDate);
-#else
-            // TBD Note that this must be handled with great care when the
-            // 'bdlt_delegatingdateimputil' component is retired and the
-            // 'BDE_OMIT_TRANSITIONAL' code is removed from 'bdlt'.
 
+#ifndef BDE_OMIT_TRANSITIONAL
             if (!DelegatingDateImpUtil::isProlepticGregorianMode()) {
                 stream.putInt24(d_serialDate);
             }
             else {
-                if (1 == d_serialDate) {  // preserve default value
-                    stream.putInt24(d_serialDate);
-                }
-                else {
-                    stream.putInt24(d_serialDate + 2);
-                                          // align post-GR serial values
-                }
+#endif
+            // See {BDEX Compatibility with Legacy POSIX-Based 'Date'} in the
+            // component-level documentation.
+
+            if (1 == d_serialDate) {  // preserve default value
+                stream.putInt24(d_serialDate);
+            }
+            else {
+                stream.putInt24(d_serialDate + 2);
+                                      // ensure that serial values for
+                                      // 1752SEP14 and later dates "align"
+            }
+#ifndef BDE_OMIT_TRANSITIONAL
             }
 #endif
           } break;

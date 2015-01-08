@@ -3040,6 +3040,11 @@ if (verbose)
         //:
         //: 9 The initial value of the object has no affect on
         //:   unexternalization.
+#ifndef BDE_OMIT_TRANSITIONAL
+        //:
+        //:10 Streaming version 1 provides the expected compatibility between
+        //:   the two calendar modes.
+#endif
         //
         // Plan:
         //: 1 Test 'maxSupportedBdexVersion' explicitly.  (C-1)
@@ -3092,6 +3097,13 @@ if (verbose)
         //:
         //:11 In all cases, verify the return value of the tested method.
         //:   (C-8)
+#ifndef BDE_OMIT_TRANSITIONAL
+        //:
+        //:12 Let 'M' be the ordered set of calendar modes { POSIX, proleptic
+        //:   Gregorian }.  For each '(u, v)' in the set 'M x M', verify that
+        //:   dates streamed out in calendar mode 'u' are streamed in as
+        //:   expected in calendar mode 'v'.  (C-10)
+#endif
         //
         // Testing:
         //   static int maxSupportedBdexVersion(int versionSelector);
@@ -3418,7 +3430,7 @@ if (verbose)
         ASSERT(X != Y);
 
 #ifdef BDE_OMIT_TRANSITIONAL
-        const int SERIAL_Y = 731;   // internal rep. of 'Y'
+        const int SERIAL_Y = 733;   // streamed rep. of 'Y'
 #else
         int SERIAL_Y;               // streamed rep. of 'Y'
 
@@ -3533,11 +3545,7 @@ if (verbose)
         }
         {
             Out out(VERSION_SELECTOR, &allocator);
-#ifdef BDE_OMIT_TRANSITIONAL
-            out.putInt24(3652060);  // Stream out "new" value.
-#else
-            out.putInt24(3652062);
-#endif
+            out.putInt24(3652062);  // Stream out "new" value.
 
             const char *const OD  = out.data();
             const int         LOD = out.length();
@@ -3573,13 +3581,8 @@ if (verbose)
                 //LINE  YEAR  MONTH  DAY  VER  LEN  FORMAT
                 //----  ----  -----  ---  ---  ---  ---------------
                 { L_,      1,     1,   1,   1,   3,  "\x00\x00\x01"  },
-#ifdef BDE_OMIT_TRANSITIONAL
-                { L_,   2014,    10,  22,   1,   3,  "\x0b\x39\x28"  },
-                { L_,   2016,     8,  27,   1,   3,  "\x0b\x3b\xcb"  }
-#else
                 { L_,   2014,    10,  22,   1,   3,  "\x0b\x39\x2a"  },
                 { L_,   2016,     8,  27,   1,   3,  "\x0b\x3b\xcd"  }
-#endif
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -3681,8 +3684,19 @@ if (verbose)
                        bdlt::DelegatingDateImpUtil::isProlepticGregorianMode();
 
         // Note that 'VC', used throughout this compatibility testing section,
-        // is known to be distinct from any test 'DATA', and it is immaterial
-        // in which calendar mode it was created.
+        // is known to be distinct from any test datum.  It is immaterial in
+        // which calendar mode it was created.
+
+        // The first two test blocks verify that:
+        //: 1 [POSIX --> POSIX] A date streamed out in POSIX mode is streamed
+        //:   in as expected in POSIX mode.
+        //:
+        //: 2 [proleptic Gregorian --> proleptic Gregorian] A date streamed out
+        //:   in proleptic Gregorian mode is streamed in as expected in
+        //:   proleptic Gregorian mode.
+        //
+        // These identity tests are provided for completeness and help further
+        // ensure sanity of the streaming functions.
 
         if (verbose) cout << "\tPOSIX --> POSIX." << endl;
         {
@@ -3695,7 +3709,7 @@ if (verbose)
                 int d_iMonth;  // input month
                 int d_iDay;    // input day
             } DATA[] = {
-                //LINE  OYEAR  OMONTH  ODAY  OYEAR  OMONTH  ODAY
+                //LINE  OYEAR  OMONTH  ODAY  IYEAR  IMONTH  IDAY
                 //----  -----  ------  ----  -----  ------  ----
                 { L_,       1,      1,    1,     1,      1,    1,  },
                 { L_,       1,      1,    2,     1,      1,    2,  },
@@ -3707,8 +3721,6 @@ if (verbose)
                 { L_,     303,      6,    1,   303,      6,    1,  },
 
                 { L_,    1752,      9,    2,  1752,      9,    2,  },
-
-                // identical values in both calendar modes from here on
 
                 { L_,    1752,      9,   14,  1752,      9,   14,  },
                 { L_,    1899,     12,   26,  1899,     12,   26,  },
@@ -3769,7 +3781,7 @@ if (verbose)
                 int d_iMonth;  // input month
                 int d_iDay;    // input day
             } DATA[] = {
-                //LINE  OYEAR  OMONTH  ODAY  OYEAR  OMONTH  ODAY
+                //LINE  OYEAR  OMONTH  ODAY  IYEAR  IMONTH  IDAY
                 //----  -----  ------  ----  -----  ------  ----
                 { L_,       1,      1,    1,     1,      1,    1,  },
                 { L_,       1,      1,    2,     1,      1,    2,  },
@@ -3781,8 +3793,6 @@ if (verbose)
                 { L_,     303,      6,    1,   303,      6,    1,  },
 
                 { L_,    1752,      9,    2,  1752,      9,    2,  },
-
-                // identical values in both calendar modes from here on
 
                 { L_,    1752,      9,   14,  1752,      9,   14,  },
                 { L_,    1899,     12,   26,  1899,     12,   26,  },
@@ -3831,6 +3841,20 @@ if (verbose)
             }
         }
 
+        // The next two test blocks verify the compatibility that is expected
+        // between the two calendar modes.  In particular, they verify that:
+        //: 1 [POSIX --> proleptic Gregorian] A date streamed out in POSIX mode
+        //:   is streamed in as expected in proleptic Gregorian mode.
+        //:
+        //: 2 [proleptic Gregorian --> POSIX] A date streamed out in proleptic
+        //:   Gregorian mode is streamed in as expected in POSIX mode.
+        //
+        // Note that for the range of dates '[1752/09/14 .. 9999/12/31]', the
+        // ymd attributes corresponding to the serial values that are actually
+        // streamed are identical in both calendar modes.  The "// **" comment
+        // indicates cases in the test data where the ymd attributes differ
+        // between the two calendar modes.
+
         if (verbose) cout << "\tPOSIX --> proleptic Gregorian." << endl;
         {
             static const struct {
@@ -3842,7 +3866,7 @@ if (verbose)
                 int d_iMonth;  // input month
                 int d_iDay;    // input day
             } DATA[] = {
-                //LINE  OYEAR  OMONTH  ODAY  OYEAR  OMONTH  ODAY
+                //LINE  OYEAR  OMONTH  ODAY  IYEAR  IMONTH  IDAY
                 //----  -----  ------  ----  -----  ------  ----
                 { L_,       1,      1,    1,     1,      1,    1,  },
                 { L_,       1,      1,    2,     1,      1,    1,  },  // **
@@ -3854,8 +3878,6 @@ if (verbose)
                 { L_,     303,      6,    1,   303,      6,    2,  },  // **
 
                 { L_,    1752,      9,    2,  1752,      9,   13,  },  // **
-
-                // identical values in both calendar modes from here on
 
                 { L_,    1752,      9,   14,  1752,      9,   14,  },
                 { L_,    1899,     12,   26,  1899,     12,   26,  },
@@ -3923,7 +3945,7 @@ if (verbose)
                 int d_iMonth;  // input month
                 int d_iDay;    // input day
             } DATA[] = {
-                //LINE  OYEAR  OMONTH  ODAY  OYEAR  OMONTH  ODAY
+                //LINE  OYEAR  OMONTH  ODAY  IYEAR  IMONTH  IDAY
                 //----  -----  ------  ----  -----  ------  ----
                 { L_,       1,      1,    1,     1,      1,    1,  },
                 { L_,       1,      1,    2,     1,      1,    4,  },  // **
@@ -3935,8 +3957,6 @@ if (verbose)
                 { L_,     303,      6,    1,   303,      5,   31,  },  // **
 
                 { L_,    1752,      9,    2,  1752,      8,   22,  },  // **
-
-                // identical values in both calendar modes from here on
 
                 { L_,    1752,      9,   14,  1752,      9,   14,  },
                 { L_,    1899,     12,   26,  1899,     12,   26,  },
@@ -3989,7 +4009,9 @@ if (verbose)
             }
         }
 
-        // Restore the calendar mode to what it was on entry to the test case.
+        // Restore the calendar mode to what it was on entry to the test case,
+        // so that 'VG' (defined near the beginning of case 10) can be safely
+        // destroyed.
 
         if (isPGModeOnEntry) {
             bdlt::DelegatingDateImpUtil::enableProlepticGregorianMode();
