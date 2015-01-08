@@ -9,12 +9,18 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlb' package currently has 1 component.
+ The 'bdlb' package currently has 3 components.
 ..
   1. bdlb_bitutil
+  2. bdlb_guid
+  3. bdlb_guidutil
 ..
 
 /Component Synopsis
 /------------------
 : 'bdlb_bitutil':
 :      Provide efficient bit-manipulation of 'uint32_t'/'uint64_t' values.
+: 'bdlb_guid':
+:      Provide a value-semantic type representing a globally unique identifier.
+: 'bdlb_guidutil':
+:      Provide utilities for dealing with globally unique identifiers.
