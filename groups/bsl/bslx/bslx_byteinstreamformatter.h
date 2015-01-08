@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslx::ByteInStreamFormatter: 'bsl::streambuf' input stream for fundamentals
 //
-//@SEE_ALSO: bslx_byteoutstreamformatter, bslx_genericbyteinstream
+//@SEE_ALSO: bslx_byteoutstreamformatter, bslx_genericinstream
 //
 //@DESCRIPTION: This component implements a 'bsl::streambuf' input stream
 // class, 'bslx::ByteInStreamFormatter', that provides platform-independent
@@ -321,8 +321,8 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLX_GENERICBYTEINSTREAM
-#include <bslx_genericbyteinstream.h>
+#ifndef INCLUDED_BSLX_GENERICINSTREAM
+#include <bslx_genericinstream.h>
 #endif
 
 #ifndef INCLUDED_BSL_STREAMBUF
@@ -336,11 +336,11 @@ namespace bslx {
                      // class ByteInStreamFormatter
                      // ===========================
 
-typedef GenericByteInStream<bsl::streambuf> ByteInStreamFormatter;
+typedef GenericInStream<bsl::streambuf> ByteInStreamFormatter;
     // This class facilitates the unexternalization of values (and C-style
     // arrays of values) of the fundamental integral and floating-point types
     // in a data-independent, platform-neutral representation.  It is currently
-    // a 'typedef' for 'bslx::GenericByteInStream<bsl::streambuf>'.
+    // a 'typedef' for 'bslx::GenericInStream<bsl::streambuf>'.
 
 }  // close package namespace
 }  // close enterprise namespace

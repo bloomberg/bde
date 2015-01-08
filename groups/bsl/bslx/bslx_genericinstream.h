@@ -1,6 +1,6 @@
-// bslx_genericbyteinstream.h                                         -*-C++-*-
-#ifndef INCLUDED_BSLX_GENERICBYTEINSTREAM
-#define INCLUDED_BSLX_GENERICBYTEINSTREAM
+// bslx_genericinstream.h                                             -*-C++-*-
+#ifndef INCLUDED_BSLX_GENERICINSTREAM
+#define INCLUDED_BSLX_GENERICINSTREAM
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,12 +10,12 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Unexternalization of fundamental types from a parameterized stream.
 //
 //@CLASSES:
-//  bslx::GenericByteInStream: parameterized input stream for fundamental types
+//  bslx::GenericInStream: parameterized input stream for fundamental types
 //
-//@SEE_ALSO: bslx_byteinstreamformatter, bslx_genericbyteoutstream
+//@SEE_ALSO: bslx_byteinstreamformatter, bslx_genericoutstream
 //
 //@DESCRIPTION: This component implements a parameterized input stream
-// class, 'bslx::GenericByteInStream', that provides platform-independent input
+// class, 'bslx::GenericInStream', that provides platform-independent input
 // methods ("unexternalization") on values, and arrays of values, of
 // fundamental types, and on 'bsl::string'.
 //
@@ -26,12 +26,12 @@ BSLS_IDENT("$Id: $")
 // stream.
 //
 // This component is intended to be used in conjunction with the
-// 'bslx_genericbyteoutstream' "externalization" component.  Each input method
-// of 'bslx::GenericByteInStream' reads either a value or a homogeneous array
-// of values of a fundamental type, in a format that was written by the
-// corresponding 'bslx::GenericByteOutStream' method.  In general, the user of
+// 'bslx_genericoutstream' "externalization" component.  Each input method of
+// 'bslx::GenericInStream' reads either a value or a homogeneous array of
+// values of a fundamental type, in a format that was written by the
+// corresponding 'bslx::GenericOutStream' method.  In general, the user of
 // this component cannot rely on being able to read data that was written by
-// any mechanism other than 'bslx::GenericByteOutStream'.
+// any mechanism other than 'bslx::GenericOutStream'.
 //
 // The supported types and required content are listed in the 'bslx'
 // package-level documentation under "Supported Types".
@@ -44,7 +44,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Generic Byte-Format Parser
 ///--------------------------
-// The class 'bslx::GenericByteInStream' is parameterized by a buffered stream
+// The class 'bslx::GenericInStream' is parameterized by a buffered stream
 // class, 'STREAMBUF', which, given the declarations:
 //..
 //  char        c;
@@ -64,7 +64,7 @@ BSLS_IDENT("$Id: $")
 // 'bsl::basic_streambuf' protocol.
 //
 // The class 'bslx::ByteInStreamFormatter' is a 'typedef' for
-// 'bslx::GenericByteInStream<bsl::streambuf>'.
+// 'bslx::GenericInStream<bsl::streambuf>'.
 //
 ///Usage
 ///-----
@@ -296,12 +296,12 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, we can exercise the new 'MyPerson' value-semantic class by
 // externalizing and reconstituting an object.  First, create a 'MyPerson'
-// 'janeSmith' and a 'bslx::GenericByteOutStream' 'outStream':
+// 'janeSmith' and a 'bslx::GenericOutStream' 'outStream':
 //..
-//  MyPerson                                   janeSmith("Jane", "Smith", 42);
-//  bsl::stringbuf                             buffer;
-//  bslx::GenericByteOutStream<bsl::stringbuf> outStream(&buffer, 20131127);
-//  const int                                  VERSION = 1;
+//  MyPerson                               janeSmith("Jane", "Smith", 42);
+//  bsl::stringbuf                         buffer;
+//  bslx::GenericOutStream<bsl::stringbuf> outStream(&buffer, 20131127);
+//  const int                              VERSION = 1;
 //  outStream.putVersion(VERSION);
 //  janeSmith.bdexStreamOut(outStream, VERSION);
 //  assert(outStream.isValid());
@@ -312,12 +312,12 @@ BSLS_IDENT("$Id: $")
 //  MyPerson janeCopy;
 //  assert(janeCopy != janeSmith);
 //..
-// Then, create a 'bslx::GenericByteInStream' 'inStream' initialized with the
-// buffer from the 'bslx::GenericByteOutStream' object 'outStream' and
+// Then, create a 'bslx::GenericInStream' 'inStream' initialized with the
+// buffer from the 'bslx::GenericOutStream' object 'outStream' and
 // unexternalize this data into 'janeCopy':
 //..
-//  bslx::GenericByteInStream<bsl::stringbuf> inStream(&buffer);
-//  int                                       version;
+//  bslx::GenericInStream<bsl::stringbuf> inStream(&buffer);
+//  int                                   version;
 //  inStream.getVersion(version);
 //  janeCopy.bdexStreamIn(inStream, version);
 //  assert(inStream.isValid());
@@ -381,18 +381,18 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslx {
 
-                      // =========================
-                      // class GenericByteInStream
-                      // =========================
+                        // =====================
+                        // class GenericInStream
+                        // =====================
 
 template <class STREAMBUF>
-class GenericByteInStream {
+class GenericInStream {
     // This class provides input methods to unexternalize values, and C-style
     // arrays of values, of the fundamental integral and floating-point types,
     // as well as 'bsl::string' values, using a byte format documented in the
     // 'bslx_byteoutstream' component.  In particular, each 'get' method of
     // this class is guaranteed to read stream data written by the
-    // corresponding 'put' method of 'bslx::GenericByteOutStream'.  Note that
+    // corresponding 'put' method of 'bslx::GenericOutStream'.  Note that
     // attempting to read beyond the end of a stream will automatically
     // invalidate the stream.  See the 'bslx' package-level documentation for
     // the definition of the BDEX 'InStream' protocol.
@@ -422,8 +422,8 @@ class GenericByteInStream {
                              // valid state, 'false' otherwise
 
     // NOT IMPLEMENTED
-    GenericByteInStream(const GenericByteInStream&);
-    GenericByteInStream& operator=(const GenericByteInStream&);
+    GenericInStream(const GenericInStream&);
+    GenericInStream& operator=(const GenericInStream&);
 
   private:
     // PRIVATE MANIPULATORS
@@ -433,15 +433,15 @@ class GenericByteInStream {
 
   public:
     // CREATORS
-    GenericByteInStream(STREAMBUF *streamBuf);
+    GenericInStream(STREAMBUF *streamBuf);
         // Create an input byte stream that reads its input from the specified
         // 'streamBuf'.
 
-    ~GenericByteInStream();
+    ~GenericInStream();
         // Destroy this object.
 
     // MANIPULATORS
-    GenericByteInStream& getLength(int& length);
+    GenericInStream& getLength(int& length);
         // If the most-significant bit of the one byte of this stream at the
         // current cursor location is set, assign to the specified 'length' the
         // four-byte, two's complement integer (in host byte order) comprised
@@ -455,7 +455,7 @@ class GenericByteInStream {
         // stream is marked invalid and the value of 'length' is undefined.
         // Note that the value will be zero-extended.
 
-    GenericByteInStream& getVersion(int& version);
+    GenericInStream& getVersion(int& version);
         // Assign to the specified 'version' the one-byte, two's complement
         // unsigned integer comprised of the one byte of this stream at the
         // current cursor location, update the cursor location, and return a
@@ -473,7 +473,7 @@ class GenericByteInStream {
 
                       // *** scalar integer values ***
 
-    GenericByteInStream& getInt64(bsls::Types::Int64& variable);
+    GenericInStream& getInt64(bsls::Types::Int64& variable);
         // Assign to the specified 'variable' the eight-byte, two's complement
         // integer (in host byte order) comprised of the eight bytes of this
         // stream at the current cursor location (in network byte order),
@@ -483,7 +483,7 @@ class GenericByteInStream {
         // stream is marked invalid and the value of 'variable' is undefined.
         // Note that the value will be sign-extended.
 
-    GenericByteInStream& getUint64(bsls::Types::Uint64& variable);
+    GenericInStream& getUint64(bsls::Types::Uint64& variable);
         // Assign to the specified 'variable' the eight-byte, two's complement
         // unsigned integer (in host byte order) comprised of the eight bytes
         // of this stream at the current cursor location (in network byte
@@ -493,7 +493,7 @@ class GenericByteInStream {
         // this stream is marked invalid and the value of 'variable' is
         // undefined.  Note that the value will be zero-extended.
 
-    GenericByteInStream& getInt56(bsls::Types::Int64& variable);
+    GenericInStream& getInt56(bsls::Types::Int64& variable);
         // Assign to the specified 'variable' the seven-byte, two's complement
         // integer (in host byte order) comprised of the seven bytes of this
         // stream at the current cursor location (in network byte order),
@@ -503,7 +503,7 @@ class GenericByteInStream {
         // stream is marked invalid and the value of 'variable' is undefined.
         // Note that the value will be sign-extended.
 
-    GenericByteInStream& getUint56(bsls::Types::Uint64& variable);
+    GenericInStream& getUint56(bsls::Types::Uint64& variable);
         // Assign to the specified 'variable' the seven-byte, two's complement
         // unsigned integer (in host byte order) comprised of the seven bytes
         // of this stream at the current cursor location (in network byte
@@ -513,7 +513,7 @@ class GenericByteInStream {
         // this stream is marked invalid and the value of 'variable' is
         // undefined.  Note that the value will be zero-extended.
 
-    GenericByteInStream& getInt48(bsls::Types::Int64& variable);
+    GenericInStream& getInt48(bsls::Types::Int64& variable);
         // Assign to the specified 'variable' the six-byte, two's complement
         // integer (in host byte order) comprised of the six bytes of this
         // stream at the current cursor location (in network byte order),
@@ -523,7 +523,7 @@ class GenericByteInStream {
         // stream is marked invalid and the value of 'variable' is undefined.
         // Note that the value will be sign-extended.
 
-    GenericByteInStream& getUint48(bsls::Types::Uint64& variable);
+    GenericInStream& getUint48(bsls::Types::Uint64& variable);
         // Assign to the specified 'variable' the six-byte, two's complement
         // unsigned integer (in host byte order) comprised of the six bytes of
         // this stream at the current cursor location (in network byte order),
@@ -533,7 +533,7 @@ class GenericByteInStream {
         // stream is marked invalid and the value of 'variable' is undefined.
         // Note that the value will be zero-extended.
 
-    GenericByteInStream& getInt40(bsls::Types::Int64& variable);
+    GenericInStream& getInt40(bsls::Types::Int64& variable);
         // Assign to the specified 'variable' the five-byte, two's complement
         // integer (in host byte order) comprised of the five bytes of this
         // stream at the current cursor location (in network byte order),
@@ -543,7 +543,7 @@ class GenericByteInStream {
         // stream is marked invalid and the value of 'variable' is undefined.
         // Note that the value will be sign-extended.
 
-    GenericByteInStream& getUint40(bsls::Types::Uint64& variable);
+    GenericInStream& getUint40(bsls::Types::Uint64& variable);
         // Assign to the specified 'variable' the five-byte, two's complement
         // unsigned integer (in host byte order) comprised of the five bytes of
         // this stream at the current cursor location (in network byte order),
@@ -553,7 +553,7 @@ class GenericByteInStream {
         // stream is marked invalid and the value of 'variable' is undefined.
         // Note that the value will be zero-extended.
 
-    GenericByteInStream& getInt32(int& variable);
+    GenericInStream& getInt32(int& variable);
         // Assign to the specified 'variable' the four-byte, two's complement
         // integer (in host byte order) comprised of the four bytes of this
         // stream at the current cursor location (in network byte order),
@@ -563,7 +563,7 @@ class GenericByteInStream {
         // stream is marked invalid and the value of 'variable' is undefined.
         // Note that the value will be sign-extended.
 
-    GenericByteInStream& getUint32(unsigned int& variable);
+    GenericInStream& getUint32(unsigned int& variable);
         // Assign to the specified 'variable' the four-byte, two's complement
         // unsigned integer (in host byte order) comprised of the four bytes of
         // this stream at the current cursor location (in network byte order),
@@ -573,7 +573,7 @@ class GenericByteInStream {
         // stream is marked invalid and the value of 'variable' is undefined.
         // Note that the value will be zero-extended.
 
-    GenericByteInStream& getInt24(int& variable);
+    GenericInStream& getInt24(int& variable);
         // Assign to the specified 'variable' the three-byte, two's complement
         // integer (in host byte order) comprised of the three bytes of this
         // stream at the current cursor location (in network byte order),
@@ -583,7 +583,7 @@ class GenericByteInStream {
         // stream is marked invalid and the value of 'variable' is undefined.
         // Note that the value will be sign-extended.
 
-    GenericByteInStream& getUint24(unsigned int& variable);
+    GenericInStream& getUint24(unsigned int& variable);
         // Assign to the specified 'variable' the three-byte, two's complement
         // unsigned integer (in host byte order) comprised of the three bytes
         // of this stream at the current cursor location (in network byte
@@ -593,7 +593,7 @@ class GenericByteInStream {
         // this stream is marked invalid and the value of 'variable' is
         // undefined.  Note that the value will be zero-extended.
 
-    GenericByteInStream& getInt16(short& variable);
+    GenericInStream& getInt16(short& variable);
         // Assign to the specified 'variable' the two-byte, two's complement
         // integer (in host byte order) comprised of the two bytes of this
         // stream at the current cursor location (in network byte order),
@@ -603,7 +603,7 @@ class GenericByteInStream {
         // stream is marked invalid and the value of 'variable' is undefined.
         // Note that the value will be sign-extended.
 
-    GenericByteInStream& getUint16(unsigned short& variable);
+    GenericInStream& getUint16(unsigned short& variable);
         // Assign to the specified 'variable' the two-byte, two's complement
         // unsigned integer (in host byte order) comprised of the two bytes of
         // this stream at the current cursor location (in network byte order),
@@ -613,8 +613,8 @@ class GenericByteInStream {
         // stream is marked invalid and the value of 'variable' is undefined.
         // Note that the value will be zero-extended.
 
-    GenericByteInStream& getInt8(char&        variable);
-    GenericByteInStream& getInt8(signed char& variable);
+    GenericInStream& getInt8(char&        variable);
+    GenericInStream& getInt8(signed char& variable);
         // Assign to the specified 'variable' the one-byte, two's complement
         // integer comprised of the one byte of this stream at the current
         // cursor location, update the cursor location, and return a reference
@@ -623,8 +623,8 @@ class GenericByteInStream {
         // value, this stream is marked invalid and the value of 'variable' is
         // undefined.  Note that the value will be sign-extended.
 
-    GenericByteInStream& getUint8(char&          variable);
-    GenericByteInStream& getUint8(unsigned char& variable);
+    GenericInStream& getUint8(char&          variable);
+    GenericInStream& getUint8(unsigned char& variable);
         // Assign to the specified 'variable' the one-byte, two's complement
         // unsigned integer comprised of the one byte of this stream at the
         // current cursor location, update the cursor location, and return a
@@ -636,7 +636,7 @@ class GenericByteInStream {
 
                       // *** scalar floating-point values ***
 
-    GenericByteInStream& getFloat64(double& variable);
+    GenericInStream& getFloat64(double& variable);
         // Assign to the specified 'variable' the eight-byte IEEE
         // double-precision floating-point number (in host byte order)
         // comprised of the eight bytes of this stream at the current cursor
@@ -646,7 +646,7 @@ class GenericByteInStream {
         // fails to extract a valid value, this stream is marked invalid and
         // the value of 'variable' is undefined.
 
-    GenericByteInStream& getFloat32(float& variable);
+    GenericInStream& getFloat32(float& variable);
         // Assign to the specified 'variable' the four-byte IEEE
         // single-precision floating-point number (in host byte order)
         // comprised of the four bytes of this stream at the current cursor
@@ -658,7 +658,7 @@ class GenericByteInStream {
 
                       // *** string values ***
 
-    GenericByteInStream& getString(bsl::string& variable);
+    GenericInStream& getString(bsl::string& variable);
         // Assign to the specified 'variable' the string comprised of the
         // length of the string (see 'getLength') and the string data (see
         // 'getUint8'), update the cursor location, and return a reference to
@@ -669,8 +669,8 @@ class GenericByteInStream {
 
                       // *** arrays of integer values ***
 
-    GenericByteInStream& getArrayInt64(bsls::Types::Int64 *variables,
-                                       int                 numVariables);
+    GenericInStream& getArrayInt64(bsls::Types::Int64 *variables,
+                                   int                 numVariables);
         // Assign to the specified 'variables' the consecutive eight-byte,
         // two's complement integers (in host byte order) comprised of each of
         // the specified 'numVariables' eight-byte sequences of this stream at
@@ -683,8 +683,8 @@ class GenericByteInStream {
         // sufficient capacity.  Note that each of the values will be
         // sign-extended.
 
-    GenericByteInStream& getArrayUint64(bsls::Types::Uint64 *variables,
-                                        int                  numVariables);
+    GenericInStream& getArrayUint64(bsls::Types::Uint64 *variables,
+                                    int                  numVariables);
         // Assign to the specified 'variables' the consecutive eight-byte,
         // two's complement unsigned integers (in host byte order) comprised of
         // each of the specified 'numVariables' eight-byte sequences of this
@@ -697,8 +697,8 @@ class GenericByteInStream {
         // has sufficient capacity.  Note that each of the values will be
         // zero-extended.
 
-    GenericByteInStream& getArrayInt56(bsls::Types::Int64 *variables,
-                                       int                 numVariables);
+    GenericInStream& getArrayInt56(bsls::Types::Int64 *variables,
+                                   int                 numVariables);
         // Assign to the specified 'variables' the consecutive seven-byte,
         // two's complement integers (in host byte order) comprised of each of
         // the specified 'numVariables' seven-byte sequences of this stream at
@@ -711,8 +711,8 @@ class GenericByteInStream {
         // sufficient capacity.  Note that each of the values will be
         // sign-extended.
 
-    GenericByteInStream& getArrayUint56(bsls::Types::Uint64 *variables,
-                                        int                  numVariables);
+    GenericInStream& getArrayUint56(bsls::Types::Uint64 *variables,
+                                    int                  numVariables);
         // Assign to the specified 'variables' the consecutive seven-byte,
         // two's complement unsigned integers (in host byte order) comprised of
         // each of the specified 'numVariables' seven-byte sequences of this
@@ -725,8 +725,8 @@ class GenericByteInStream {
         // has sufficient capacity.  Note that each of the values will be
         // zero-extended.
 
-    GenericByteInStream& getArrayInt48(bsls::Types::Int64 *variables,
-                                       int                 numVariables);
+    GenericInStream& getArrayInt48(bsls::Types::Int64 *variables,
+                                   int                 numVariables);
         // Assign to the specified 'variables' the consecutive six-byte, two's
         // complement integers (in host byte order) comprised of each of the
         // specified 'numVariables' six-byte sequences of this stream at the
@@ -738,8 +738,8 @@ class GenericByteInStream {
         // undefined unless '0 <= numVariables' and 'variables' has sufficient
         // capacity.  Note that each of the values will be sign-extended.
 
-    GenericByteInStream& getArrayUint48(bsls::Types::Uint64 *variables,
-                                        int                  numVariables);
+    GenericInStream& getArrayUint48(bsls::Types::Uint64 *variables,
+                                    int                  numVariables);
         // Assign to the specified 'variables' the consecutive six-byte, two's
         // complement unsigned integers (in host byte order) comprised of each
         // of the specified 'numVariables' six-byte sequences of this stream at
@@ -752,8 +752,8 @@ class GenericByteInStream {
         // sufficient capacity.  Note that each of the values will be
         // zero-extended.
 
-    GenericByteInStream& getArrayInt40(bsls::Types::Int64 *variables,
-                                       int                 numVariables);
+    GenericInStream& getArrayInt40(bsls::Types::Int64 *variables,
+                                   int                 numVariables);
         // Assign to the specified 'variables' the consecutive five-byte, two's
         // complement integers (in host byte order) comprised of each of the
         // specified 'numVariables' five-byte sequences of this stream at the
@@ -765,8 +765,8 @@ class GenericByteInStream {
         // undefined unless '0 <= numVariables' and 'variables' has sufficient
         // capacity.  Note that each of the values will be sign-extended.
 
-    GenericByteInStream& getArrayUint40(bsls::Types::Uint64 *variables,
-                                        int                  numVariables);
+    GenericInStream& getArrayUint40(bsls::Types::Uint64 *variables,
+                                    int                  numVariables);
         // Assign to the specified 'variables' the consecutive five-byte, two's
         // complement unsigned integers (in host byte order) comprised of each
         // of the specified 'numVariables' five-byte sequences of this stream
@@ -779,7 +779,7 @@ class GenericByteInStream {
         // sufficient capacity.  Note that each of the values will be
         // zero-extended.
 
-    GenericByteInStream& getArrayInt32(int *variables, int numVariables);
+    GenericInStream& getArrayInt32(int *variables, int numVariables);
         // Assign to the specified 'variables' the consecutive four-byte, two's
         // complement integers (in host byte order) comprised of each of the
         // specified 'numVariables' four-byte sequences of this stream at the
@@ -791,8 +791,7 @@ class GenericByteInStream {
         // undefined unless '0 <= numVariables' and 'variables' has sufficient
         // capacity.  Note that each of the values will be sign-extended.
 
-    GenericByteInStream& getArrayUint32(unsigned int *variables,
-                                        int           numVariables);
+    GenericInStream& getArrayUint32(unsigned int *variables, int numVariables);
         // Assign to the specified 'variables' the consecutive four-byte, two's
         // complement unsigned integers (in host byte order) comprised of each
         // of the specified 'numVariables' four-byte sequences of this stream
@@ -805,7 +804,7 @@ class GenericByteInStream {
         // sufficient capacity.  Note that each of the values will be
         // zero-extended.
 
-    GenericByteInStream& getArrayInt24(int *variables, int numVariables);
+    GenericInStream& getArrayInt24(int *variables, int numVariables);
         // Assign to the specified 'variables' the consecutive three-byte,
         // two's complement integers (in host byte order) comprised of each of
         // the specified 'numVariables' three-byte sequences of this stream at
@@ -818,8 +817,7 @@ class GenericByteInStream {
         // sufficient capacity.  Note that each of the values will be
         // sign-extended.
 
-    GenericByteInStream& getArrayUint24(unsigned int *variables,
-                                        int           numVariables);
+    GenericInStream& getArrayUint24(unsigned int *variables, int numVariables);
         // Assign to the specified 'variables' the consecutive three-byte,
         // two's complement unsigned integers (in host byte order) comprised of
         // each of the specified 'numVariables' three-byte sequences of this
@@ -832,7 +830,7 @@ class GenericByteInStream {
         // has sufficient capacity.  Note that each of the values will be
         // zero-extended.
 
-    GenericByteInStream& getArrayInt16(short *variables, int numVariables);
+    GenericInStream& getArrayInt16(short *variables, int numVariables);
         // Assign to the specified 'variables' the consecutive two-byte, two's
         // complement integers (in host byte order) comprised of each of the
         // specified 'numVariables' two-byte sequences of this stream at the
@@ -844,8 +842,8 @@ class GenericByteInStream {
         // undefined unless '0 <= numVariables' and 'variables' has sufficient
         // capacity.  Note that each of the values will be sign-extended.
 
-    GenericByteInStream& getArrayUint16(unsigned short *variables,
-                                        int             numVariables);
+    GenericInStream& getArrayUint16(unsigned short *variables,
+                                    int             numVariables);
         // Assign to the specified 'variables' the consecutive two-byte, two's
         // complement unsigned integers (in host byte order) comprised of each
         // of the specified 'numVariables' two-byte sequences of this stream at
@@ -858,9 +856,8 @@ class GenericByteInStream {
         // sufficient capacity.  Note that each of the values will be
         // zero-extended.
 
-    GenericByteInStream& getArrayInt8(char *variables, int numVariables);
-    GenericByteInStream& getArrayInt8(signed char *variables,
-                                      int          numVariables);
+    GenericInStream& getArrayInt8(char *variables, int numVariables);
+    GenericInStream& getArrayInt8(signed char *variables, int numVariables);
         // Assign to the specified 'variables' the consecutive one-byte, two's
         // complement integers comprised of each of the specified
         // 'numVariables' one-byte sequences of this stream at the current
@@ -872,9 +869,8 @@ class GenericByteInStream {
         // 'variables' has sufficient capacity.  Note that each of the values
         // will be sign-extended.
 
-    GenericByteInStream& getArrayUint8(char *variables, int numVariables);
-    GenericByteInStream& getArrayUint8(unsigned char *variables,
-                                       int            numVariables);
+    GenericInStream& getArrayUint8(char *variables, int numVariables);
+    GenericInStream& getArrayUint8(unsigned char *variables, int numVariables);
         // Assign to the specified 'variables' the consecutive one-byte, two's
         // complement unsigned integers comprised of each of the specified
         // 'numVariables' one-byte sequences of this stream at the current
@@ -888,7 +884,7 @@ class GenericByteInStream {
 
                       // *** arrays of floating-point values ***
 
-    GenericByteInStream& getArrayFloat64(double *variables, int numVariables);
+    GenericInStream& getArrayFloat64(double *variables, int numVariables);
         // Assign to the specified 'variables' the consecutive eight-byte IEEE
         // double-precision floating-point numbers (in host byte order)
         // comprised of each of the specified 'numVariables' eight-byte
@@ -900,7 +896,7 @@ class GenericByteInStream {
         // undefined.  The behavior is undefined unless '0 <= numVariables' and
         // 'variables' has sufficient capacity.
 
-    GenericByteInStream& getArrayFloat32(float *variables, int numVariables);
+    GenericInStream& getArrayFloat32(float *variables, int numVariables);
         // Assign to the specified 'variables' the consecutive four-byte IEEE
         // single-precision floating-point numbers (in host byte order)
         // comprised of each of the specified 'numVariables' four-byte
@@ -930,8 +926,8 @@ class GenericByteInStream {
 
 // FREE OPERATORS
 template <class STREAMBUF, class TYPE>
-GenericByteInStream<STREAMBUF>&
-               operator>>(GenericByteInStream<STREAMBUF>& stream, TYPE& value);
+GenericInStream<STREAMBUF>&
+                   operator>>(GenericInStream<STREAMBUF>& stream, TYPE& value);
     // Read the specified 'value' from the specified input 'stream' following
     // the requirements of the BDEX protocol (see the 'bslx' package-level
     // documentation), and return a reference to 'stream'.  The behavior is
@@ -941,14 +937,14 @@ GenericByteInStream<STREAMBUF>&
 //                           INLINE DEFINITIONS
 // ============================================================================
 
-                      // -------------------------
-                      // class GenericByteInStream
-                      // -------------------------
+                        // ---------------------
+                        // class GenericInStream
+                        // ---------------------
 
 // PRIVATE MANIPULATORS
 template <class STREAMBUF>
 inline
-void GenericByteInStream<STREAMBUF>::validate()
+void GenericInStream<STREAMBUF>::validate()
 {
     d_validFlag = true;
 }
@@ -956,7 +952,7 @@ void GenericByteInStream<STREAMBUF>::validate()
 // CREATORS
 template <class STREAMBUF>
 inline
-GenericByteInStream<STREAMBUF>::GenericByteInStream(STREAMBUF *streamBuf)
+GenericInStream<STREAMBUF>::GenericInStream(STREAMBUF *streamBuf)
 : d_streamBuf(streamBuf)
 , d_validFlag(true)
 {
@@ -965,15 +961,14 @@ GenericByteInStream<STREAMBUF>::GenericByteInStream(STREAMBUF *streamBuf)
 
 template <class STREAMBUF>
 inline
-GenericByteInStream<STREAMBUF>::~GenericByteInStream()
+GenericInStream<STREAMBUF>::~GenericInStream()
 {
 }
 
 // MANIPULATORS
 template <class STREAMBUF>
 inline
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getLength(int& length)
+GenericInStream<STREAMBUF>& GenericInStream<STREAMBUF>::getLength(int& length)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1006,8 +1001,8 @@ GenericByteInStream<STREAMBUF>::getLength(int& length)
 
 template <class STREAMBUF>
 inline
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getVersion(int& version)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getVersion(int& version)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1023,7 +1018,7 @@ GenericByteInStream<STREAMBUF>::getVersion(int& version)
 
 template <class STREAMBUF>
 inline
-void GenericByteInStream<STREAMBUF>::invalidate()
+void GenericInStream<STREAMBUF>::invalidate()
 {
     d_validFlag = false;
 }
@@ -1032,8 +1027,8 @@ void GenericByteInStream<STREAMBUF>::invalidate()
 
 template <class STREAMBUF>
 inline
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getInt64(bsls::Types::Int64& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getInt64(bsls::Types::Int64& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1079,8 +1074,8 @@ GenericByteInStream<STREAMBUF>::getInt64(bsls::Types::Int64& variable)
 
 template <class STREAMBUF>
 inline
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getUint64(bsls::Types::Uint64& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getUint64(bsls::Types::Uint64& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1120,8 +1115,8 @@ GenericByteInStream<STREAMBUF>::getUint64(bsls::Types::Uint64& variable)
 
 template <class STREAMBUF>
 inline
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getInt56(bsls::Types::Int64& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getInt56(bsls::Types::Int64& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1164,8 +1159,8 @@ GenericByteInStream<STREAMBUF>::getInt56(bsls::Types::Int64& variable)
 
 template <class STREAMBUF>
 inline
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getUint56(bsls::Types::Uint64& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getUint56(bsls::Types::Uint64& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1202,8 +1197,8 @@ GenericByteInStream<STREAMBUF>::getUint56(bsls::Types::Uint64& variable)
 
 template <class STREAMBUF>
 inline
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getInt48(bsls::Types::Int64& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getInt48(bsls::Types::Int64& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1245,8 +1240,8 @@ GenericByteInStream<STREAMBUF>::getInt48(bsls::Types::Int64& variable)
 
 template <class STREAMBUF>
 inline
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getUint48(bsls::Types::Uint64& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getUint48(bsls::Types::Uint64& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1282,8 +1277,8 @@ GenericByteInStream<STREAMBUF>::getUint48(bsls::Types::Uint64& variable)
 
 template <class STREAMBUF>
 inline
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getInt40(bsls::Types::Int64& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getInt40(bsls::Types::Int64& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1324,8 +1319,8 @@ GenericByteInStream<STREAMBUF>::getInt40(bsls::Types::Int64& variable)
 
 template <class STREAMBUF>
 inline
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getUint40(bsls::Types::Uint64& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getUint40(bsls::Types::Uint64& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1360,8 +1355,8 @@ GenericByteInStream<STREAMBUF>::getUint40(bsls::Types::Uint64& variable)
 
 template <class STREAMBUF>
 inline
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getInt32(int& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getInt32(int& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1403,8 +1398,8 @@ GenericByteInStream<STREAMBUF>::getInt32(int& variable)
 
 template <class STREAMBUF>
 inline
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getUint32(unsigned int& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getUint32(unsigned int& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1440,8 +1435,8 @@ GenericByteInStream<STREAMBUF>::getUint32(unsigned int& variable)
 
 template <class STREAMBUF>
 inline
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getInt24(int& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getInt24(int& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1480,8 +1475,8 @@ GenericByteInStream<STREAMBUF>::getInt24(int& variable)
 
 template <class STREAMBUF>
 inline
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getUint24(unsigned int& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getUint24(unsigned int& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1514,8 +1509,8 @@ GenericByteInStream<STREAMBUF>::getUint24(unsigned int& variable)
 
 template <class STREAMBUF>
 inline
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getInt16(short& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getInt16(short& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1555,8 +1550,8 @@ GenericByteInStream<STREAMBUF>::getInt16(short& variable)
 
 template <class STREAMBUF>
 inline
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getUint16(unsigned short& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getUint16(unsigned short& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1590,8 +1585,8 @@ GenericByteInStream<STREAMBUF>::getUint16(unsigned short& variable)
 
 template <class STREAMBUF>
 inline
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getInt8(char& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getInt8(char& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1611,24 +1606,24 @@ GenericByteInStream<STREAMBUF>::getInt8(char& variable)
 
 template <class STREAMBUF>
 inline
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getInt8(signed char& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getInt8(signed char& variable)
 {
     return getInt8(reinterpret_cast<char&>(variable));
 }
 
 template <class STREAMBUF>
 inline
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getUint8(char& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getUint8(char& variable)
 {
     return getInt8(variable);
 }
 
 template <class STREAMBUF>
 inline
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getUint8(unsigned char& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getUint8(unsigned char& variable)
 {
     return getInt8(reinterpret_cast<char&>(variable));
 }
@@ -1637,8 +1632,8 @@ GenericByteInStream<STREAMBUF>::getUint8(unsigned char& variable)
 
 template <class STREAMBUF>
 inline
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getFloat64(double& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getFloat64(double& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1677,8 +1672,8 @@ GenericByteInStream<STREAMBUF>::getFloat64(double& variable)
 
 template <class STREAMBUF>
 inline
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getFloat32(float& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getFloat32(float& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1714,8 +1709,8 @@ GenericByteInStream<STREAMBUF>::getFloat32(float& variable)
                       // *** string values ***
 
 template <class STREAMBUF>
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getString(bsl::string& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getString(bsl::string& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1759,9 +1754,9 @@ GenericByteInStream<STREAMBUF>::getString(bsl::string& variable)
                       // *** arrays of integer values ***
 
 template <class STREAMBUF>
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getArrayInt64(bsls::Types::Int64 *variables,
-                                              int                 numVariables)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayInt64(bsls::Types::Int64 *variables,
+                                          int                 numVariables)
 {
     BSLS_ASSERT(variables);
     BSLS_ASSERT(0 <= numVariables);
@@ -1781,10 +1776,9 @@ GenericByteInStream<STREAMBUF>::getArrayInt64(bsls::Types::Int64 *variables,
 }
 
 template <class STREAMBUF>
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getArrayUint64(
-                                             bsls::Types::Uint64 *variables,
-                                             int                  numVariables)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayUint64(bsls::Types::Uint64 *variables,
+                                           int                  numVariables)
 {
     BSLS_ASSERT(variables);
     BSLS_ASSERT(0 <= numVariables);
@@ -1804,9 +1798,9 @@ GenericByteInStream<STREAMBUF>::getArrayUint64(
 }
 
 template <class STREAMBUF>
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getArrayInt56(bsls::Types::Int64 *variables,
-                                              int                 numVariables)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayInt56(bsls::Types::Int64 *variables,
+                                          int                 numVariables)
 {
     BSLS_ASSERT(variables);
     BSLS_ASSERT(0 <= numVariables);
@@ -1826,10 +1820,9 @@ GenericByteInStream<STREAMBUF>::getArrayInt56(bsls::Types::Int64 *variables,
 }
 
 template <class STREAMBUF>
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getArrayUint56(
-                                             bsls::Types::Uint64 *variables,
-                                             int                  numVariables)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayUint56(bsls::Types::Uint64 *variables,
+                                           int                  numVariables)
 {
     BSLS_ASSERT(variables);
     BSLS_ASSERT(0 <= numVariables);
@@ -1849,9 +1842,9 @@ GenericByteInStream<STREAMBUF>::getArrayUint56(
 }
 
 template <class STREAMBUF>
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getArrayInt48(bsls::Types::Int64 *variables,
-                                              int                 numVariables)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayInt48(bsls::Types::Int64 *variables,
+                                          int                 numVariables)
 {
     BSLS_ASSERT(variables);
     BSLS_ASSERT(0 <= numVariables);
@@ -1871,10 +1864,9 @@ GenericByteInStream<STREAMBUF>::getArrayInt48(bsls::Types::Int64 *variables,
 }
 
 template <class STREAMBUF>
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getArrayUint48(
-                                             bsls::Types::Uint64 *variables,
-                                             int                  numVariables)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayUint48(bsls::Types::Uint64 *variables,
+                                           int                  numVariables)
 {
     BSLS_ASSERT(variables);
     BSLS_ASSERT(0 <= numVariables);
@@ -1894,9 +1886,9 @@ GenericByteInStream<STREAMBUF>::getArrayUint48(
 }
 
 template <class STREAMBUF>
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getArrayInt40(bsls::Types::Int64 *variables,
-                                              int                 numVariables)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayInt40(bsls::Types::Int64 *variables,
+                                          int                 numVariables)
 {
     BSLS_ASSERT(variables);
     BSLS_ASSERT(0 <= numVariables);
@@ -1916,10 +1908,9 @@ GenericByteInStream<STREAMBUF>::getArrayInt40(bsls::Types::Int64 *variables,
 }
 
 template <class STREAMBUF>
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getArrayUint40(
-                                             bsls::Types::Uint64 *variables,
-                                             int                  numVariables)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayUint40(bsls::Types::Uint64 *variables,
+                                           int                  numVariables)
 {
     BSLS_ASSERT(variables);
     BSLS_ASSERT(0 <= numVariables);
@@ -1939,8 +1930,8 @@ GenericByteInStream<STREAMBUF>::getArrayUint40(
 }
 
 template <class STREAMBUF>
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getArrayInt32(int *variables, int numVariables)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayInt32(int *variables, int numVariables)
 {
     BSLS_ASSERT(variables);
     BSLS_ASSERT(0 <= numVariables);
@@ -1960,9 +1951,9 @@ GenericByteInStream<STREAMBUF>::getArrayInt32(int *variables, int numVariables)
 }
 
 template <class STREAMBUF>
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getArrayUint32(unsigned int *variables,
-                                               int           numVariables)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayUint32(unsigned int *variables,
+                                           int           numVariables)
 {
     BSLS_ASSERT(variables);
     BSLS_ASSERT(0 <= numVariables);
@@ -1982,8 +1973,8 @@ GenericByteInStream<STREAMBUF>::getArrayUint32(unsigned int *variables,
 }
 
 template <class STREAMBUF>
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getArrayInt24(int *variables, int numVariables)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayInt24(int *variables, int numVariables)
 {
     BSLS_ASSERT(variables);
     BSLS_ASSERT(0 <= numVariables);
@@ -2003,9 +1994,9 @@ GenericByteInStream<STREAMBUF>::getArrayInt24(int *variables, int numVariables)
 }
 
 template <class STREAMBUF>
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getArrayUint24(unsigned int *variables,
-                                               int           numVariables)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayUint24(unsigned int *variables,
+                                           int           numVariables)
 {
     BSLS_ASSERT(variables);
     BSLS_ASSERT(0 <= numVariables);
@@ -2025,9 +2016,9 @@ GenericByteInStream<STREAMBUF>::getArrayUint24(unsigned int *variables,
 }
 
 template <class STREAMBUF>
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getArrayInt16(short *variables,
-                                              int    numVariables)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayInt16(short *variables,
+                                          int    numVariables)
 {
     BSLS_ASSERT(variables);
     BSLS_ASSERT(0 <= numVariables);
@@ -2047,9 +2038,9 @@ GenericByteInStream<STREAMBUF>::getArrayInt16(short *variables,
 }
 
 template <class STREAMBUF>
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getArrayUint16(unsigned short *variables,
-                                               int             numVariables)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayUint16(unsigned short *variables,
+                                           int             numVariables)
 {
     BSLS_ASSERT(variables);
     BSLS_ASSERT(0 <= numVariables);
@@ -2069,9 +2060,9 @@ GenericByteInStream<STREAMBUF>::getArrayUint16(unsigned short *variables,
 }
 
 template <class STREAMBUF>
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getArrayInt8(char *variables,
-                                             int   numVariables)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayInt8(char *variables,
+                                         int   numVariables)
 {
     BSLS_ASSERT(variables);
     BSLS_ASSERT(0 <= numVariables);
@@ -2092,9 +2083,9 @@ GenericByteInStream<STREAMBUF>::getArrayInt8(char *variables,
 
 template <class STREAMBUF>
 inline
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getArrayInt8(signed char *variables,
-                                             int          numVariables)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayInt8(signed char *variables,
+                                         int          numVariables)
 {
     BSLS_ASSERT(variables);
     BSLS_ASSERT(0 <= numVariables);
@@ -2104,9 +2095,9 @@ GenericByteInStream<STREAMBUF>::getArrayInt8(signed char *variables,
 
 template <class STREAMBUF>
 inline
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getArrayUint8(char *variables,
-                                              int   numVariables)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayUint8(char *variables,
+                                          int   numVariables)
 {
     BSLS_ASSERT(variables);
     BSLS_ASSERT(0 <= numVariables);
@@ -2116,9 +2107,9 @@ GenericByteInStream<STREAMBUF>::getArrayUint8(char *variables,
 
 template <class STREAMBUF>
 inline
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getArrayUint8(unsigned char *variables,
-                                              int            numVariables)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayUint8(unsigned char *variables,
+                                          int            numVariables)
 {
     BSLS_ASSERT(variables);
     BSLS_ASSERT(0 <= numVariables);
@@ -2129,9 +2120,9 @@ GenericByteInStream<STREAMBUF>::getArrayUint8(unsigned char *variables,
                       // *** arrays of floating-point values ***
 
 template <class STREAMBUF>
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getArrayFloat64(double *variables,
-                                                int     numVariables)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayFloat64(double *variables,
+                                            int     numVariables)
 {
     BSLS_ASSERT(variables);
     BSLS_ASSERT(0 <= numVariables);
@@ -2151,9 +2142,9 @@ GenericByteInStream<STREAMBUF>::getArrayFloat64(double *variables,
 }
 
 template <class STREAMBUF>
-GenericByteInStream<STREAMBUF>&
-GenericByteInStream<STREAMBUF>::getArrayFloat32(float *variables,
-                                                int    numVariables)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayFloat32(float *variables,
+                                            int    numVariables)
 {
     BSLS_ASSERT(variables);
     BSLS_ASSERT(0 <= numVariables);
@@ -2175,22 +2166,22 @@ GenericByteInStream<STREAMBUF>::getArrayFloat32(float *variables,
 // ACCESSORS
 template <class STREAMBUF>
 inline
-GenericByteInStream<STREAMBUF>::operator const void *() const
+GenericInStream<STREAMBUF>::operator const void *() const
 {
     return isValid() ? this : 0;
 }
 
 template <class STREAMBUF>
 inline
-bool GenericByteInStream<STREAMBUF>::isValid() const
+bool GenericInStream<STREAMBUF>::isValid() const
 {
     return d_validFlag;
 }
 
 template <class STREAMBUF, class TYPE>
 inline
-GenericByteInStream<STREAMBUF>&
-                operator>>(GenericByteInStream<STREAMBUF>& stream, TYPE& value)
+GenericInStream<STREAMBUF>&
+                operator>>(GenericInStream<STREAMBUF>& stream, TYPE& value)
 {
     return InStreamFunctions::bdexStreamIn(stream, value);
 }

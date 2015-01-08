@@ -1,7 +1,7 @@
-// bslx_genericbyteinstream.t.cpp                                     -*-C++-*-
+// bslx_genericinstream.t.cpp                                         -*-C++-*-
 
-#include <bslx_genericbyteinstream.h>
-#include <bslx_genericbyteoutstream.h>  // for testing only
+#include <bslx_genericinstream.h>
+#include <bslx_genericoutstream.h>  // for testing only
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -25,14 +25,14 @@ using namespace bslx;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// For all input methods in 'GenericByteInStream', the primary concern is the
+// For all input methods in 'GenericInStream', the primary concern is the
 // parsing of the byte representation to its correct output value.
 //
-// We have chosen the primary black-box manipulator for 'GenericByteInStream'
-// to be 'getInt8'.
+// We have chosen the primary black-box manipulator for 'GenericInStream' to be
+// 'getInt8'.
 // ----------------------------------------------------------------------------
-// [ 2] GenericByteInStream(STREAMBUF *streamBuf);
-// [ 2] ~GenericByteInStream();
+// [ 2] GenericInStream(STREAMBUF *streamBuf);
+// [ 2] ~GenericInStream();
 // [24] getLength(int& variable);
 // [24] getVersion(int& variable);
 // [11] getInt64(bsls::Types::Int64& variable);
@@ -80,7 +80,7 @@ using namespace bslx;
 // [ 3] operator const void *() const;
 // [ 3] bool isValid() const;
 //
-// [26] GenericByteInStream& operator>>(GenericByteInStream&, TYPE&);
+// [26] GenericInStream& operator>>(GenericInStream&, TYPE&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [27] THIRD-PARTY EXTERNALIZATION
@@ -140,7 +140,7 @@ static void aSsErT(int c, const char *s, int i)
 
 class TestStreamBuf {
     // This class implements a very basic stream buffer suitable for use in
-    // 'bslx::GenericByteOutStream' and 'bslx::GenericByteInStream'.
+    // 'bslx::GenericOutStream' and 'bslx::GenericInStream'.
 
     // DATA
     bsl::stringbuf d_buffer;  // buffer
@@ -299,9 +299,9 @@ void debugprint(const TestStreamBuf& object)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef TestStreamBuf                       Buf;
-typedef GenericByteInStream<TestStreamBuf>  Obj;
-typedef GenericByteOutStream<TestStreamBuf> Out;
+typedef TestStreamBuf                   Buf;
+typedef GenericInStream<TestStreamBuf>  Obj;
+typedef GenericOutStream<TestStreamBuf> Out;
 
 const int VERSION_SELECTOR = 20131127;
 const int SIZEOF_INT64   = 8;
@@ -688,12 +688,12 @@ int main(int argc, char *argv[])
 
 // Then, we can exercise the new 'MyPerson' value-semantic class by
 // externalizing and reconstituting an object.  First, create a 'MyPerson'
-// 'janeSmith' and a 'bslx::ByteOutStream' 'outStream':
+// 'janeSmith' and a 'bslx::GenericOutStream' 'outStream':
 //..
-    MyPerson                                   janeSmith("Jane", "Smith", 42);
-    bsl::stringbuf                             buffer;
-    bslx::GenericByteOutStream<bsl::stringbuf> outStream(&buffer, 20131127);
-    const int                                  VERSION = 1;
+    MyPerson                               janeSmith("Jane", "Smith", 42);
+    bsl::stringbuf                         buffer;
+    bslx::GenericOutStream<bsl::stringbuf> outStream(&buffer, 20131127);
+    const int                              VERSION = 1;
     outStream.putVersion(VERSION);
     janeSmith.bdexStreamOut(outStream, VERSION);
     ASSERT(outStream.isValid());
@@ -704,12 +704,12 @@ int main(int argc, char *argv[])
     MyPerson janeCopy;
     ASSERT(janeCopy != janeSmith);
 //..
-// Then, create a 'bslx::ByteInStream' 'inStream' initialized with the
-// buffer from the 'bslx::ByteOutStream' object 'outStream' and unexternalize
-// this data into 'janeCopy':
+// Then, create a 'bslx::GenericInStream' 'inStream' initialized with the
+// buffer from the 'bslx::GenericOutStream' object 'outStream' and
+// unexternalize this data into 'janeCopy':
 //..
-    bslx::GenericByteInStream<bsl::stringbuf> inStream(&buffer);
-    int                                       version;
+    bslx::GenericInStream<bsl::stringbuf> inStream(&buffer);
+    int                                   version;
     inStream.getVersion(version);
     janeCopy.bdexStreamIn(inStream, version);
     ASSERT(inStream.isValid());
@@ -830,7 +830,7 @@ if (veryVerbose) {
         //:   (C-2)
         //
         // Testing:
-        //   GenericByteInStream& operator>>(GenericByteInStream&, TYPE&);
+        //   GenericInStream& operator>>(GenericInStream&, TYPE&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -5714,8 +5714,8 @@ if (veryVerbose) {
         //: 5 Verify defensive checks are triggered for invalid values.  (C-5)
         //
         // Testing:
-        //   GenericByteInStream(STREAMBUF *streamBuf);
-        //   ~GenericByteInStream();
+        //   GenericInStream(STREAMBUF *streamBuf);
+        //   ~GenericInStream();
         //   getInt8(char& variable);
         //   void invalidate();
         // --------------------------------------------------------------------
@@ -5842,7 +5842,7 @@ if (veryVerbose) {
         //:   testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create 'GenericByteInStream' objects using default and buffer
+        //: 1 Create 'GenericInStream' objects using default and buffer
         //:   constructors.
         //:
         //: 2 Exercise these objects using various methods.

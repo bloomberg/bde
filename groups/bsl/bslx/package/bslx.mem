@@ -2,8 +2,8 @@ bslx_byteinstream
 bslx_byteinstreamformatter
 bslx_byteoutstream
 bslx_byteoutstreamformatter
-bslx_genericbyteinstream
-bslx_genericbyteoutstream
+bslx_genericinstream
+bslx_genericoutstream
 bslx_instreamfunctions
 bslx_marshallingutil
 bslx_outstreamfunctions

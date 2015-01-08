@@ -1,6 +1,6 @@
-// bslx_genericbyteoutstream.h                                        -*-C++-*-
-#ifndef INCLUDED_BSLX_GENERICBYTEOUTSTREAM
-#define INCLUDED_BSLX_GENERICBYTEOUTSTREAM
+// bslx_genericoutstream.h                                            -*-C++-*-
+#ifndef INCLUDED_BSLX_GENERICOUTSTREAM
+#define INCLUDED_BSLX_GENERICOUTSTREAM
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,23 +10,22 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Externalization of fundamental types to a parameterized stream.
 //
 //@CLASSES:
-//  bslx::GenericByteOutStream: parameterized output stream for fundamentals
+//  bslx::GenericOutStream: parameterized output stream for fundamentals
 //
-//@SEE_ALSO: bslx_byteoutstreamformatter, bslx_genericbyteinstream
+//@SEE_ALSO: bslx_byteoutstreamformatter, bslx_genericinstream
 //
 //@DESCRIPTION: This component implements a parameterized output stream
-// class, 'bslx::GenericByteOutStream', that provides platform-independent
-// output methods ("externalization") on values, and arrays of values, of
-// fundamental types, and on 'bsl::string'.
+// class, 'bslx::GenericOutStream', that provides platform-independent output
+// methods ("externalization") on values, and arrays of values, of fundamental
+// types, and on 'bsl::string'.
 //
 // This component is intended to be used in conjunction with the
-// 'bslx_genericbyteinstream' "unexternalization" component.  Each output
-// method of 'bslx::GenericByteOutStream' writes either a value or a
-// homogeneous array of values of a fundamental type, in a format that is
-// readable by the corresponding 'bslx::GenericByteInStream' method.  In
-// general, the user cannot rely on any other mechanism to read data written by
-// 'bslx::GenericByteOutStream' unless that mechanism explicitly states its
-// ability to do so.
+// 'bslx_genericinstream' "unexternalization" component.  Each output method of
+// 'bslx::GenericOutStream' writes either a value or a homogeneous array of
+// values of a fundamental type, in a format that is readable by the
+// corresponding 'bslx::GenericInStream' method.  In general, the user cannot
+// rely on any other mechanism to read data written by 'bslx::GenericOutStream'
+// unless that mechanism explicitly states its ability to do so.
 //
 // The supported types and required content are listed in the 'bslx'
 // package-level documentation under "Supported Types".
@@ -40,7 +39,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Generic Byte-Format Generator
 ///-----------------------------
-// The class 'bslx::GenericByteOutStream' is parameterized by a buffered stream
+// The class 'bslx::GenericOutStream' is parameterized by a buffered stream
 // class, 'STREAMBUF', which, given the declarations:
 //..
 //  char        c;
@@ -60,7 +59,7 @@ BSLS_IDENT("$Id: $")
 // 'bsl::basic_streambuf' protocol.
 //
 // The class 'bslx::ByteOutStreamFormatter' is a 'typedef' of
-// 'bslx::GenericByteOutStream<bsl::streambuf>'.
+// 'bslx::GenericOutStream<bsl::streambuf>'.
 //
 ///Versioning
 ///----------
@@ -102,19 +101,19 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Basic Externalization
 ///- - - - - - - - - - - - - - - -
-// A 'bslx::GenericByteOutStream' can be used to externalize values in a
+// A 'bslx::GenericOutStream' can be used to externalize values in a
 // platform-neutral way.  Writing out fundamental C++ types and 'bsl::string'
 // requires no additional work on the part of the client; the client can simply
 // use the stream directly.  The following code serializes a few representative
-// values using a 'bslx::GenericByteOutStream', compares the contents of this
+// values using a 'bslx::GenericOutStream', compares the contents of this
 // stream to the expected value, and then writes the contents of this stream's
 // buffer to 'stdout'.
 //
-// First, we create a 'bslx::GenericByteOutStream' with an arbitrary value for
-// its 'versionSelector' and externalize some values:
+// First, we create a 'bslx::GenericOutStream' with an arbitrary value for its
+// 'versionSelector' and externalize some values:
 //..
-//  bsl::stringbuf                             buffer;
-//  bslx::GenericByteOutStream<bsl::stringbuf> outStream(&buffer, 20131127);
+//  bsl::stringbuf                         buffer;
+//  bslx::GenericOutStream<bsl::stringbuf> outStream(&buffer, 20131127);
 //  outStream.putInt32(1);
 //  outStream.putInt32(2);
 //  outStream.putInt8('c');
@@ -159,8 +158,8 @@ BSLS_IDENT("$Id: $")
 //  nextByte (char): l
 //  nextByte (char): o
 //..
-// See the 'bslx_genericbyteinstream' component usage example for a more
-// practical example of using 'bslx' streams.
+// See the 'bslx_genericinstream' component usage example for a more practical
+// example of using 'bslx' streams.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -201,19 +200,19 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslx {
 
-                      // ==========================
-                      // class GenericByteOutStream
-                      // ==========================
+                        // ======================
+                        // class GenericOutStream
+                        // ======================
 
 template <class STREAMBUF>
-class GenericByteOutStream {
+class GenericOutStream {
     // This class provides output methods to externalize values, and C-style
     // arrays of values, of the fundamental integral and floating-point types,
     // as well as 'bsl::string' values.  In particular, each 'put' method of
     // this class is guaranteed to write stream data that can be read by the
-    // corresponding 'get' method of 'bslx::GenericByteInStream'.  See the
-    // 'bslx' package-level documentation for the definition of the BDEX
-    // 'OutStream' protocol.
+    // corresponding 'get' method of 'bslx::GenericInStream'.  See the 'bslx'
+    // package-level documentation for the definition of the BDEX 'OutStream'
+    // protocol.
 
     // PRIVATE TYPES
     enum {
@@ -244,8 +243,8 @@ class GenericByteOutStream {
                                    // in valid state, 'false' otherwise
 
     // NOT IMPLEMENTED
-    GenericByteOutStream(const GenericByteOutStream&);
-    GenericByteOutStream& operator=(const GenericByteOutStream&);
+    GenericOutStream(const GenericOutStream&);
+    GenericOutStream& operator=(const GenericOutStream&);
 
   private:
     // PRIVATE MANIPULATORS
@@ -255,18 +254,18 @@ class GenericByteOutStream {
 
   public:
     // CREATORS
-    GenericByteOutStream(STREAMBUF *streamBuf, int versionSelector);
+    GenericOutStream(STREAMBUF *streamBuf, int versionSelector);
         // Create an output byte stream that writes its output to the specified
         // 'streamBuf' and uses the specified (*compile*-time-defined)
         // 'versionSelector' as needed (see {Versioning}).  Note that the
         // 'versionSelector' is expected to be formatted as "YYYYMMDD", a date
         // representation.
 
-    ~GenericByteOutStream();
+    ~GenericOutStream();
         // Destroy this object.
 
     // MANIPULATORS
-    GenericByteOutStream& flush();
+    GenericOutStream& flush();
         // If this stream is valid, invoke the 'pubsync' method on the
         // underlying stream supplied at construction of this object;
         // otherwise, this function has no effect.
@@ -275,7 +274,7 @@ class GenericByteOutStream {
         // Put this output stream in an invalid state.  This function has no
         // effect if this stream is already invalid.
 
-    GenericByteOutStream& putLength(int length);
+    GenericOutStream& putLength(int length);
         // If the specified 'length' is less than 128, write to the stream
         // supplied at construction the one-byte integer comprised of the
         // least-significant one byte of the 'length'; otherwise, write to the
@@ -286,7 +285,7 @@ class GenericByteOutStream {
         // operation has no effect.  The behavior is undefined unless
         // '0 <= length'.
 
-    GenericByteOutStream& putVersion(int version);
+    GenericOutStream& putVersion(int version);
         // Write to the stream supplied at construction the one-byte, two's
         // complement unsigned integer comprised of the least-significant one
         // byte of the specified 'version', and return a reference to this
@@ -295,111 +294,111 @@ class GenericByteOutStream {
 
                       // *** scalar integer values ***
 
-    GenericByteOutStream& putInt64(bsls::Types::Int64 value);
+    GenericOutStream& putInt64(bsls::Types::Int64 value);
         // Write to the stream supplied at construction the eight-byte, two's
         // complement integer (in network byte order) comprised of the
         // least-significant eight bytes of the specified 'value' (in host byte
         // order), and return a reference to this stream.  If this stream is
         // initially invalid, this operation has no effect.
 
-    GenericByteOutStream& putUint64(bsls::Types::Uint64 value);
+    GenericOutStream& putUint64(bsls::Types::Uint64 value);
         // Write to the stream supplied at construction the eight-byte, two's
         // complement unsigned integer (in network byte order) comprised of the
         // least-significant eight bytes of the specified 'value' (in host byte
         // order), and return a reference to this stream.  If this stream is
         // initially invalid, this operation has no effect.
 
-    GenericByteOutStream& putInt56(bsls::Types::Int64 value);
+    GenericOutStream& putInt56(bsls::Types::Int64 value);
         // Write to the stream supplied at construction the seven-byte, two's
         // complement integer (in network byte order) comprised of the
         // least-significant seven bytes of the specified 'value' (in host byte
         // order), and return a reference to this stream.  If this stream is
         // initially invalid, this operation has no effect.
 
-    GenericByteOutStream& putUint56(bsls::Types::Uint64 value);
+    GenericOutStream& putUint56(bsls::Types::Uint64 value);
         // Write to the stream supplied at construction the seven-byte, two's
         // complement unsigned integer (in network byte order) comprised of the
         // least-significant seven bytes of the specified 'value' (in host byte
         // order), and return a reference to this stream.  If this stream is
         // initially invalid, this operation has no effect.
 
-    GenericByteOutStream& putInt48(bsls::Types::Int64 value);
+    GenericOutStream& putInt48(bsls::Types::Int64 value);
         // Write to the stream supplied at construction the six-byte, two's
         // complement integer (in network byte order) comprised of the
         // least-significant six bytes of the specified 'value' (in host byte
         // order), and return a reference to this stream.  If this stream is
         // initially invalid, this operation has no effect.
 
-    GenericByteOutStream& putUint48(bsls::Types::Uint64 value);
+    GenericOutStream& putUint48(bsls::Types::Uint64 value);
         // Write to the stream supplied at construction the six-byte, two's
         // complement unsigned integer (in network byte order) comprised of the
         // least-significant six bytes of the specified 'value' (in host byte
         // order), and return a reference to this stream.  If this stream is
         // initially invalid, this operation has no effect.
 
-    GenericByteOutStream& putInt40(bsls::Types::Int64 value);
+    GenericOutStream& putInt40(bsls::Types::Int64 value);
         // Write to the stream supplied at construction the five-byte, two's
         // complement integer (in network byte order) comprised of the
         // least-significant five bytes of the specified 'value' (in host byte
         // order), and return a reference to this stream.  If this stream is
         // initially invalid, this operation has no effect.
 
-    GenericByteOutStream& putUint40(bsls::Types::Uint64 value);
+    GenericOutStream& putUint40(bsls::Types::Uint64 value);
         // Write to the stream supplied at construction the five-byte, two's
         // complement unsigned integer (in network byte order) comprised of the
         // least-significant five bytes of the specified 'value' (in host byte
         // order), and return a reference to this stream.  If this stream is
         // initially invalid, this operation has no effect.
 
-    GenericByteOutStream& putInt32(int value);
+    GenericOutStream& putInt32(int value);
         // Write to the stream supplied at construction the four-byte, two's
         // complement integer (in network byte order) comprised of the
         // least-significant four bytes of the specified 'value' (in host byte
         // order), and return a reference to this stream.  If this stream is
         // initially invalid, this operation has no effect.
 
-    GenericByteOutStream& putUint32(unsigned int value);
+    GenericOutStream& putUint32(unsigned int value);
         // Write to the stream supplied at construction the four-byte, two's
         // complement unsigned integer (in network byte order) comprised of the
         // least-significant four bytes of the specified 'value' (in host byte
         // order), and return a reference to this stream.  If this stream is
         // initially invalid, this operation has no effect.
 
-    GenericByteOutStream& putInt24(int value);
+    GenericOutStream& putInt24(int value);
         // Write to the stream supplied at construction the three-byte, two's
         // complement integer (in network byte order) comprised of the
         // least-significant three bytes of the specified 'value' (in host byte
         // order), and return a reference to this stream.  If this stream is
         // initially invalid, this operation has no effect.
 
-    GenericByteOutStream& putUint24(unsigned int value);
+    GenericOutStream& putUint24(unsigned int value);
         // Write to the stream supplied at construction the three-byte, two's
         // complement unsigned integer (in network byte order) comprised of the
         // least-significant three bytes of the specified 'value' (in host byte
         // order), and return a reference to this stream.  If this stream is
         // initially invalid, this operation has no effect.
 
-    GenericByteOutStream& putInt16(int value);
+    GenericOutStream& putInt16(int value);
         // Write to the stream supplied at construction the two-byte, two's
         // complement integer (in network byte order) comprised of the
         // least-significant two bytes of the specified 'value' (in host byte
         // order), and return a reference to this stream.  If this stream is
         // initially invalid, this operation has no effect.
 
-    GenericByteOutStream& putUint16(unsigned int value);
+    GenericOutStream& putUint16(unsigned int value);
         // Write to the stream supplied at construction the two-byte, two's
         // complement unsigned integer (in network byte order) comprised of the
         // least-significant two bytes of the specified 'value' (in host byte
         // order), and return a reference to this stream.  If this stream is
         // initially invalid, this operation has no effect.
 
-    GenericByteOutStream& putInt8(int value);
+    GenericOutStream& putInt8(int value);
         // Write to the stream supplied at construction the one-byte, two's
         // complement integer comprised of the least-significant one byte of
         // the specified 'value', and return a reference to this stream.  If
         // this stream is initially invalid, this operation has no effect.
 
-    GenericByteOutStream& putUint8(unsigned int value);
+    GenericOutStream& putUint8(unsigned int value);
         // Write to the stream supplied at construction the one-byte, two's
         // complement unsigned integer comprised of the least-significant one
         // byte of the specified 'value', and return a reference to this
@@ -408,7 +407,7 @@ class GenericByteOutStream {
 
                       // *** scalar floating-point values ***
 
-    GenericByteOutStream& putFloat64(double value);
+    GenericOutStream& putFloat64(double value);
         // Write to the stream supplied at construction the eight-byte IEEE
         // double-precision floating-point number (in network byte order)
         // comprised of the most-significant eight bytes of the specified
@@ -416,7 +415,7 @@ class GenericByteOutStream {
         // If this stream is initially invalid, this operation has no effect.
         // Note that for non-conforming platforms, this operation may be lossy.
 
-    GenericByteOutStream& putFloat32(float value);
+    GenericOutStream& putFloat32(float value);
         // Write to the stream supplied at construction the four-byte IEEE
         // single-precision floating-point number (in network byte order)
         // comprised of the most-significant four bytes of the specified
@@ -426,7 +425,7 @@ class GenericByteOutStream {
 
                       // *** string values ***
 
-    GenericByteOutStream& putString(const bsl::string& value);
+    GenericOutStream& putString(const bsl::string& value);
         // Write to the stream supplied at construction the length of the
         // specified 'value' (see 'putLength') and an array of one-byte, two's
         // complement unsigned integers comprised of the least-significant one
@@ -436,8 +435,8 @@ class GenericByteOutStream {
 
                       // *** arrays of integer values ***
 
-    GenericByteOutStream& putArrayInt64(const bsls::Types::Int64 *values,
-                                        int                       numValues);
+    GenericOutStream& putArrayInt64(const bsls::Types::Int64 *values,
+                                    int                       numValues);
         // Write to the stream supplied at construction the consecutive
         // eight-byte, two's complement integers (in network byte order)
         // comprised of the least-significant eight bytes of each of the
@@ -447,8 +446,8 @@ class GenericByteOutStream {
         // behavior is undefined unless '0 <= numValues' and 'values' has
         // sufficient contents.
 
-    GenericByteOutStream& putArrayUint64(const bsls::Types::Uint64 *values,
-                                         int                        numValues);
+    GenericOutStream& putArrayUint64(const bsls::Types::Uint64 *values,
+                                     int                        numValues);
         // Write to the stream supplied at construction the consecutive
         // eight-byte, two's complement unsigned integers (in network byte
         // order) comprised of the least-significant eight bytes of each of the
@@ -458,8 +457,8 @@ class GenericByteOutStream {
         // behavior is undefined unless '0 <= numValues' and 'values' has
         // sufficient contents.
 
-    GenericByteOutStream& putArrayInt56(const bsls::Types::Int64 *values,
-                                        int                       numValues);
+    GenericOutStream& putArrayInt56(const bsls::Types::Int64 *values,
+                                    int                       numValues);
         // Write to the stream supplied at construction the consecutive
         // seven-byte, two's complement integers (in network byte order)
         // comprised of the least-significant seven bytes of each of the
@@ -469,8 +468,8 @@ class GenericByteOutStream {
         // behavior is undefined unless '0 <= numValues' and 'values' has
         // sufficient contents.
 
-    GenericByteOutStream& putArrayUint56(const bsls::Types::Uint64 *values,
-                                         int                        numValues);
+    GenericOutStream& putArrayUint56(const bsls::Types::Uint64 *values,
+                                     int                        numValues);
         // Write to the stream supplied at construction the consecutive
         // seven-byte, two's complement unsigned integers (in network byte
         // order) comprised of the least-significant seven bytes of each of the
@@ -480,8 +479,8 @@ class GenericByteOutStream {
         // behavior is undefined unless '0 <= numValues' and 'values' has
         // sufficient contents.
 
-    GenericByteOutStream& putArrayInt48(const bsls::Types::Int64 *values,
-                                        int                       numValues);
+    GenericOutStream& putArrayInt48(const bsls::Types::Int64 *values,
+                                    int                       numValues);
         // Write to the stream supplied at construction the consecutive
         // six-byte, two's complement integers (in network byte order)
         // comprised of the least-significant six bytes of each of the
@@ -491,8 +490,8 @@ class GenericByteOutStream {
         // behavior is undefined unless '0 <= numValues' and 'values' has
         // sufficient contents.
 
-    GenericByteOutStream& putArrayUint48(const bsls::Types::Uint64 *values,
-                                         int                        numValues);
+    GenericOutStream& putArrayUint48(const bsls::Types::Uint64 *values,
+                                     int                        numValues);
         // Write to the stream supplied at construction the consecutive
         // six-byte, two's complement unsigned integers (in network byte order)
         // comprised of the least-significant six bytes of each of the
@@ -502,8 +501,8 @@ class GenericByteOutStream {
         // behavior is undefined unless '0 <= numValues' and 'values' has
         // sufficient contents.
 
-    GenericByteOutStream& putArrayInt40(const bsls::Types::Int64 *values,
-                                        int                       numValues);
+    GenericOutStream& putArrayInt40(const bsls::Types::Int64 *values,
+                                    int                       numValues);
         // Write to the stream supplied at construction the consecutive
         // five-byte, two's complement integers (in network byte order)
         // comprised of the least-significant five bytes of each of the
@@ -513,8 +512,8 @@ class GenericByteOutStream {
         // behavior is undefined unless '0 <= numValues' and 'values' has
         // sufficient contents.
 
-    GenericByteOutStream& putArrayUint40(const bsls::Types::Uint64 *values,
-                                         int                        numValues);
+    GenericOutStream& putArrayUint40(const bsls::Types::Uint64 *values,
+                                     int                        numValues);
         // Write to the stream supplied at construction the consecutive
         // five-byte, two's complement unsigned integers (in network byte
         // order) comprised of the least-significant five bytes of each of the
@@ -524,7 +523,7 @@ class GenericByteOutStream {
         // behavior is undefined unless '0 <= numValues' and 'values' has
         // sufficient contents.
 
-    GenericByteOutStream& putArrayInt32(const int *values, int numValues);
+    GenericOutStream& putArrayInt32(const int *values, int numValues);
         // Write to the stream supplied at construction the consecutive
         // four-byte, two's complement integers (in network byte order)
         // comprised of the least-significant four bytes of each of the
@@ -534,8 +533,8 @@ class GenericByteOutStream {
         // behavior is undefined unless '0 <= numValues' and 'values' has
         // sufficient contents.
 
-    GenericByteOutStream& putArrayUint32(const unsigned int *values,
-                                         int                 numValues);
+    GenericOutStream& putArrayUint32(const unsigned int *values,
+                                     int                 numValues);
         // Write to the stream supplied at construction the consecutive
         // four-byte, two's complement unsigned integers (in network byte
         // order) comprised of the least-significant four bytes of each of the
@@ -545,7 +544,7 @@ class GenericByteOutStream {
         // behavior is undefined unless '0 <= numValues' and 'values' has
         // sufficient contents.
 
-    GenericByteOutStream& putArrayInt24(const int *values, int numValues);
+    GenericOutStream& putArrayInt24(const int *values, int numValues);
         // Write to the stream supplied at construction the consecutive
         // three-byte, two's complement integers (in network byte order)
         // comprised of the least-significant three bytes of each of the
@@ -555,8 +554,8 @@ class GenericByteOutStream {
         // behavior is undefined unless '0 <= numValues' and 'values' has
         // sufficient contents.
 
-    GenericByteOutStream& putArrayUint24(const unsigned int *values,
-                                         int                 numValues);
+    GenericOutStream& putArrayUint24(const unsigned int *values,
+                                     int                 numValues);
         // Write to the stream supplied at construction the consecutive
         // three-byte, two's complement unsigned integers (in network byte
         // order) comprised of the least-significant three bytes of each of the
@@ -566,7 +565,7 @@ class GenericByteOutStream {
         // behavior is undefined unless '0 <= numValues' and 'values' has
         // sufficient contents.
 
-    GenericByteOutStream& putArrayInt16(const short *values, int numValues);
+    GenericOutStream& putArrayInt16(const short *values, int numValues);
         // Write to the stream supplied at construction the consecutive
         // two-byte, two's complement integers (in network byte order)
         // comprised of the least-significant two bytes of each of the
@@ -576,8 +575,8 @@ class GenericByteOutStream {
         // behavior is undefined unless '0 <= numValues' and 'values' has
         // sufficient contents.
 
-    GenericByteOutStream& putArrayUint16(const unsigned short *values,
-                                         int                   numValues);
+    GenericOutStream& putArrayUint16(const unsigned short *values,
+                                     int                   numValues);
         // Write to the stream supplied at construction the consecutive
         // two-byte, two's complement unsigned integers (in network byte order)
         // comprised of the least-significant two bytes of each of the
@@ -587,10 +586,8 @@ class GenericByteOutStream {
         // behavior is undefined unless '0 <= numValues' and 'values' has
         // sufficient contents.
 
-    GenericByteOutStream& putArrayInt8(const char        *values,
-                                       int                numValues);
-    GenericByteOutStream& putArrayInt8(const signed char *values,
-                                       int                numValues);
+    GenericOutStream& putArrayInt8(const char        *values, int numValues);
+    GenericOutStream& putArrayInt8(const signed char *values, int numValues);
         // Write to the stream supplied at construction the consecutive
         // one-byte, two's complement integers comprised of the
         // least-significant one byte of each of the specified 'numValues'
@@ -599,10 +596,10 @@ class GenericByteOutStream {
         // has no effect.  The behavior is undefined unless '0 <= numValues'
         // and 'values' has sufficient contents.
 
-    GenericByteOutStream& putArrayUint8(const char          *values,
-                                        int                  numValues);
-    GenericByteOutStream& putArrayUint8(const unsigned char *values,
-                                        int                  numValues);
+    GenericOutStream& putArrayUint8(const char          *values,
+                                    int                  numValues);
+    GenericOutStream& putArrayUint8(const unsigned char *values,
+                                    int                  numValues);
         // Write to the stream supplied at construction the consecutive
         // one-byte, two's complement unsigned integers comprised of the
         // least-significant one byte of each of the specified 'numValues'
@@ -613,7 +610,7 @@ class GenericByteOutStream {
 
                       // *** arrays of floating-point values ***
 
-    GenericByteOutStream& putArrayFloat64(const double *values, int numValues);
+    GenericOutStream& putArrayFloat64(const double *values, int numValues);
         // Write to the stream supplied at construction the consecutive
         // eight-byte IEEE double-precision floating-point numbers (in network
         // byte order) comprised of the most-significant eight bytes of each of
@@ -624,7 +621,7 @@ class GenericByteOutStream {
         // sufficient contents.  Note that for non-conforming platforms, this
         // operation may be lossy.
 
-    GenericByteOutStream& putArrayFloat32(const float *values, int numValues);
+    GenericOutStream& putArrayFloat32(const float *values, int numValues);
         // Write to the stream supplied at construction the consecutive
         // four-byte IEEE single-precision floating-point numbers (in network
         // byte order) comprised of the most-significant four bytes of each of
@@ -653,8 +650,8 @@ class GenericByteOutStream {
 
 // FREE OPERATORS
 template <class STREAMBUF, class TYPE>
-GenericByteOutStream<STREAMBUF>&
-operator<<(GenericByteOutStream<STREAMBUF>& stream, const TYPE& value);
+GenericOutStream<STREAMBUF>&
+operator<<(GenericOutStream<STREAMBUF>& stream, const TYPE& value);
     // Write the specified 'value' to the specified output 'stream' following
     // the requirements of the BDEX protocol (see the 'bslx' package-level
     // documentation), and return a reference to 'stream'.  The behavior is
@@ -664,14 +661,14 @@ operator<<(GenericByteOutStream<STREAMBUF>& stream, const TYPE& value);
 //                          INLINE DEFINITIONS
 // ============================================================================
 
-                      // --------------------------
-                      // class GenericByteOutStream
-                      // --------------------------
+                        // ----------------------
+                        // class GenericOutStream
+                        // ----------------------
 
 // PRIVATE MANIPULATORS
 template <class STREAMBUF>
 inline
-void GenericByteOutStream<STREAMBUF>::validate()
+void GenericOutStream<STREAMBUF>::validate()
 {
     d_validFlag = true;
 }
@@ -679,9 +676,8 @@ void GenericByteOutStream<STREAMBUF>::validate()
 // CREATORS
 template <class STREAMBUF>
 inline
-GenericByteOutStream<STREAMBUF>::GenericByteOutStream(
-                                                    STREAMBUF *streamBuf,
-                                                    int        versionSelector)
+GenericOutStream<STREAMBUF>::GenericOutStream(STREAMBUF *streamBuf,
+                                              int        versionSelector)
 : d_streamBuf(streamBuf)
 , d_versionSelector(versionSelector)
 , d_validFlag(true)
@@ -691,14 +687,14 @@ GenericByteOutStream<STREAMBUF>::GenericByteOutStream(
 
 template <class STREAMBUF>
 inline
-GenericByteOutStream<STREAMBUF>::~GenericByteOutStream()
+GenericOutStream<STREAMBUF>::~GenericOutStream()
 {
 }
 
 // MANIPULATORS
 template <class STREAMBUF>
 inline
-GenericByteOutStream<STREAMBUF>& GenericByteOutStream<STREAMBUF>::flush()
+GenericOutStream<STREAMBUF>& GenericOutStream<STREAMBUF>::flush()
 {
     if (isValid()) {
         invalidate();
@@ -711,15 +707,15 @@ GenericByteOutStream<STREAMBUF>& GenericByteOutStream<STREAMBUF>::flush()
 
 template <class STREAMBUF>
 inline
-void GenericByteOutStream<STREAMBUF>::invalidate()
+void GenericOutStream<STREAMBUF>::invalidate()
 {
     d_validFlag = false;
 }
 
 template <class STREAMBUF>
 inline
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putLength(int length)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putLength(int length)
 {
     BSLS_ASSERT_SAFE(0 <= length);
 
@@ -734,8 +730,8 @@ GenericByteOutStream<STREAMBUF>::putLength(int length)
 
 template <class STREAMBUF>
 inline
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putVersion(int version)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putVersion(int version)
 {
     return putUint8(version);
 }
@@ -744,8 +740,8 @@ GenericByteOutStream<STREAMBUF>::putVersion(int version)
 
 template <class STREAMBUF>
 inline
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putInt64(bsls::Types::Int64 value)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putInt64(bsls::Types::Int64 value)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -780,16 +776,16 @@ GenericByteOutStream<STREAMBUF>::putInt64(bsls::Types::Int64 value)
 
 template <class STREAMBUF>
 inline
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putUint64(bsls::Types::Uint64 value)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putUint64(bsls::Types::Uint64 value)
 {
     return putInt64(static_cast<bsls::Types::Int64>(value));
 }
 
 template <class STREAMBUF>
 inline
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putInt56(bsls::Types::Int64 value)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putInt56(bsls::Types::Int64 value)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -823,16 +819,16 @@ GenericByteOutStream<STREAMBUF>::putInt56(bsls::Types::Int64 value)
 
 template <class STREAMBUF>
 inline
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putUint56(bsls::Types::Uint64 value)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putUint56(bsls::Types::Uint64 value)
 {
     return putInt56(static_cast<bsls::Types::Int64>(value));
 }
 
 template <class STREAMBUF>
 inline
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putInt48(bsls::Types::Int64 value)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putInt48(bsls::Types::Int64 value)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -865,16 +861,16 @@ GenericByteOutStream<STREAMBUF>::putInt48(bsls::Types::Int64 value)
 
 template <class STREAMBUF>
 inline
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putUint48(bsls::Types::Uint64 value)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putUint48(bsls::Types::Uint64 value)
 {
     return putInt48(static_cast<bsls::Types::Int64>(value));
 }
 
 template <class STREAMBUF>
 inline
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putInt40(bsls::Types::Int64 value)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putInt40(bsls::Types::Int64 value)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -906,16 +902,16 @@ GenericByteOutStream<STREAMBUF>::putInt40(bsls::Types::Int64 value)
 
 template <class STREAMBUF>
 inline
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putUint40(bsls::Types::Uint64 value)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putUint40(bsls::Types::Uint64 value)
 {
     return putInt40(static_cast<bsls::Types::Int64>(value));
 }
 
 template <class STREAMBUF>
 inline
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putInt32(int value)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putInt32(int value)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -946,16 +942,16 @@ GenericByteOutStream<STREAMBUF>::putInt32(int value)
 
 template <class STREAMBUF>
 inline
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putUint32(unsigned int value)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putUint32(unsigned int value)
 {
     return putInt32(static_cast<int>(value));
 }
 
 template <class STREAMBUF>
 inline
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putInt24(int value)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putInt24(int value)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -985,16 +981,16 @@ GenericByteOutStream<STREAMBUF>::putInt24(int value)
 
 template <class STREAMBUF>
 inline
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putUint24(unsigned int value)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putUint24(unsigned int value)
 {
     return putInt24(static_cast<int>(value));
 }
 
 template <class STREAMBUF>
 inline
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putInt16(int value)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putInt16(int value)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1023,16 +1019,16 @@ GenericByteOutStream<STREAMBUF>::putInt16(int value)
 
 template <class STREAMBUF>
 inline
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putUint16(unsigned int value)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putUint16(unsigned int value)
 {
     return putInt16(static_cast<int>(value));
 }
 
 template <class STREAMBUF>
 inline
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putInt8(int value)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putInt8(int value)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1051,8 +1047,8 @@ GenericByteOutStream<STREAMBUF>::putInt8(int value)
 
 template <class STREAMBUF>
 inline
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putUint8(unsigned int value)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putUint8(unsigned int value)
 {
     return putInt8(static_cast<int>(value));
 }
@@ -1061,8 +1057,8 @@ GenericByteOutStream<STREAMBUF>::putUint8(unsigned int value)
 
 template <class STREAMBUF>
 inline
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putFloat64(double value)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putFloat64(double value)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1096,8 +1092,8 @@ GenericByteOutStream<STREAMBUF>::putFloat64(double value)
 
 template <class STREAMBUF>
 inline
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putFloat32(float value)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putFloat32(float value)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1129,8 +1125,8 @@ GenericByteOutStream<STREAMBUF>::putFloat32(float value)
 
 template <class STREAMBUF>
 inline
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putString(const bsl::string& value)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putString(const bsl::string& value)
 {
     putLength(static_cast<int>(value.length()));
     return putArrayUint8(value.data(), static_cast<int>(value.length()));
@@ -1139,9 +1135,8 @@ GenericByteOutStream<STREAMBUF>::putString(const bsl::string& value)
                       // *** arrays of integer values ***
 
 template <class STREAMBUF>
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putArrayInt64(
-                                           const bsls::Types::Int64 *values,
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putArrayInt64(const bsls::Types::Int64 *values,
                                            int                       numValues)
 {
     BSLS_ASSERT(values);
@@ -1161,8 +1156,8 @@ GenericByteOutStream<STREAMBUF>::putArrayInt64(
 }
 
 template <class STREAMBUF>
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putArrayUint64(
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putArrayUint64(
                                           const bsls::Types::Uint64 *values,
                                           int                        numValues)
 {
@@ -1183,9 +1178,8 @@ GenericByteOutStream<STREAMBUF>::putArrayUint64(
 }
 
 template <class STREAMBUF>
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putArrayInt56(
-                                           const bsls::Types::Int64 *values,
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putArrayInt56(const bsls::Types::Int64 *values,
                                            int                       numValues)
 {
     BSLS_ASSERT(values);
@@ -1205,8 +1199,8 @@ GenericByteOutStream<STREAMBUF>::putArrayInt56(
 }
 
 template <class STREAMBUF>
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putArrayUint56(
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putArrayUint56(
                                           const bsls::Types::Uint64 *values,
                                           int                        numValues)
 {
@@ -1227,9 +1221,8 @@ GenericByteOutStream<STREAMBUF>::putArrayUint56(
 }
 
 template <class STREAMBUF>
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putArrayInt48(
-                                           const bsls::Types::Int64 *values,
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putArrayInt48(const bsls::Types::Int64 *values,
                                            int                       numValues)
 {
     BSLS_ASSERT(values);
@@ -1249,8 +1242,8 @@ GenericByteOutStream<STREAMBUF>::putArrayInt48(
 }
 
 template <class STREAMBUF>
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putArrayUint48(
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putArrayUint48(
                                           const bsls::Types::Uint64 *values,
                                           int                        numValues)
 {
@@ -1271,9 +1264,8 @@ GenericByteOutStream<STREAMBUF>::putArrayUint48(
 }
 
 template <class STREAMBUF>
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putArrayInt40(
-                                           const bsls::Types::Int64 *values,
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putArrayInt40(const bsls::Types::Int64 *values,
                                            int                       numValues)
 {
     BSLS_ASSERT(values);
@@ -1293,8 +1285,8 @@ GenericByteOutStream<STREAMBUF>::putArrayInt40(
 }
 
 template <class STREAMBUF>
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putArrayUint40(
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putArrayUint40(
                                           const bsls::Types::Uint64 *values,
                                           int                        numValues)
 {
@@ -1315,9 +1307,8 @@ GenericByteOutStream<STREAMBUF>::putArrayUint40(
 }
 
 template <class STREAMBUF>
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putArrayInt32(const int *values,
-                                               int        numValues)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putArrayInt32(const int *values, int numValues)
 {
     BSLS_ASSERT(values);
     BSLS_ASSERT(0 <= numValues);
@@ -1336,9 +1327,9 @@ GenericByteOutStream<STREAMBUF>::putArrayInt32(const int *values,
 }
 
 template <class STREAMBUF>
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putArrayUint32(const unsigned int *values,
-                                                int                 numValues)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putArrayUint32(const unsigned int *values,
+                                            int                 numValues)
 {
     BSLS_ASSERT(values);
     BSLS_ASSERT(0 <= numValues);
@@ -1357,9 +1348,8 @@ GenericByteOutStream<STREAMBUF>::putArrayUint32(const unsigned int *values,
 }
 
 template <class STREAMBUF>
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putArrayInt24(const int *values,
-                                               int        numValues)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putArrayInt24(const int *values, int numValues)
 {
     BSLS_ASSERT(values);
     BSLS_ASSERT(0 <= numValues);
@@ -1378,9 +1368,9 @@ GenericByteOutStream<STREAMBUF>::putArrayInt24(const int *values,
 }
 
 template <class STREAMBUF>
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putArrayUint24(const unsigned int *values,
-                                                int                 numValues)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putArrayUint24(const unsigned int *values,
+                                            int                 numValues)
 {
     BSLS_ASSERT(values);
     BSLS_ASSERT(0 <= numValues);
@@ -1399,9 +1389,8 @@ GenericByteOutStream<STREAMBUF>::putArrayUint24(const unsigned int *values,
 }
 
 template <class STREAMBUF>
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putArrayInt16(const short *values,
-                                               int          numValues)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putArrayInt16(const short *values, int numValues)
 {
     BSLS_ASSERT(values);
     BSLS_ASSERT(0 <= numValues);
@@ -1420,10 +1409,9 @@ GenericByteOutStream<STREAMBUF>::putArrayInt16(const short *values,
 }
 
 template <class STREAMBUF>
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putArrayUint16(
-                                               const unsigned short *values,
-                                               int                   numValues)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putArrayUint16(const unsigned short *values,
+                                            int                   numValues)
 {
     BSLS_ASSERT(values);
     BSLS_ASSERT(0 <= numValues);
@@ -1443,9 +1431,8 @@ GenericByteOutStream<STREAMBUF>::putArrayUint16(
 
 template <class STREAMBUF>
 inline
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putArrayInt8(const char *values,
-                                              int         numValues)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putArrayInt8(const char *values, int numValues)
 {
     BSLS_ASSERT(values);
     BSLS_ASSERT(0 <= numValues);
@@ -1466,9 +1453,9 @@ GenericByteOutStream<STREAMBUF>::putArrayInt8(const char *values,
 
 template <class STREAMBUF>
 inline
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putArrayInt8(const signed char *values,
-                                              int                numValues)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putArrayInt8(const signed char *values,
+                                          int                numValues)
 {
     BSLS_ASSERT(values);
     BSLS_ASSERT(0 <= numValues);
@@ -1490,9 +1477,8 @@ GenericByteOutStream<STREAMBUF>::putArrayInt8(const signed char *values,
 
 template <class STREAMBUF>
 inline
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putArrayUint8(const char *values,
-                                               int         numValues)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putArrayUint8(const char *values, int numValues)
 {
     BSLS_ASSERT(values);
     BSLS_ASSERT(0 <= numValues);
@@ -1513,9 +1499,9 @@ GenericByteOutStream<STREAMBUF>::putArrayUint8(const char *values,
 
 template <class STREAMBUF>
 inline
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putArrayUint8(const unsigned char *values,
-                                               int                  numValues)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putArrayUint8(const unsigned char *values,
+                                           int                  numValues)
 {
     BSLS_ASSERT(values);
     BSLS_ASSERT(0 <= numValues);
@@ -1538,9 +1524,9 @@ GenericByteOutStream<STREAMBUF>::putArrayUint8(const unsigned char *values,
                       // *** arrays of floating-point values ***
 
 template <class STREAMBUF>
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putArrayFloat64(const double *values,
-                                                 int           numValues)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putArrayFloat64(const double *values,
+                                             int           numValues)
 {
     BSLS_ASSERT(values);
     BSLS_ASSERT(0 <= numValues);
@@ -1559,9 +1545,9 @@ GenericByteOutStream<STREAMBUF>::putArrayFloat64(const double *values,
 }
 
 template <class STREAMBUF>
-GenericByteOutStream<STREAMBUF>&
-GenericByteOutStream<STREAMBUF>::putArrayFloat32(const float *values,
-                                                 int          numValues)
+GenericOutStream<STREAMBUF>&
+GenericOutStream<STREAMBUF>::putArrayFloat32(const float *values,
+                                             int          numValues)
 {
     BSLS_ASSERT(values);
     BSLS_ASSERT(0 <= numValues);
@@ -1582,21 +1568,21 @@ GenericByteOutStream<STREAMBUF>::putArrayFloat32(const float *values,
 // ACCESSORS
 template <class STREAMBUF>
 inline
-GenericByteOutStream<STREAMBUF>::operator const void *() const
+GenericOutStream<STREAMBUF>::operator const void *() const
 {
     return isValid() ? this : 0;
 }
 
 template <class STREAMBUF>
 inline
-int GenericByteOutStream<STREAMBUF>::bdexVersionSelector() const
+int GenericOutStream<STREAMBUF>::bdexVersionSelector() const
 {
     return d_versionSelector;
 }
 
 template <class STREAMBUF>
 inline
-bool GenericByteOutStream<STREAMBUF>::isValid() const
+bool GenericOutStream<STREAMBUF>::isValid() const
 {
     return d_validFlag;
 }
@@ -1604,8 +1590,8 @@ bool GenericByteOutStream<STREAMBUF>::isValid() const
 // FREE OPERATORS
 template <class STREAMBUF, class TYPE>
 inline
-GenericByteOutStream<STREAMBUF>&
-operator<<(GenericByteOutStream<STREAMBUF>& stream, const TYPE& value)
+GenericOutStream<STREAMBUF>&
+operator<<(GenericOutStream<STREAMBUF>& stream, const TYPE& value)
 {
     return OutStreamFunctions::bdexStreamOut(stream, value);
 }

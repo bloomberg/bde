@@ -21,10 +21,10 @@
   Level
     5:  testinstream         byteinstreamformatter
 
-    4:  byteinstream         genericbyteinstream   testoutstream
+    4:  byteinstream         genericinstream       testoutstream
         byteoutstreamformatter
 
-    3:  byteoutstream        genericbyteoutstream
+    3:  byteoutstream        genericoutstream
 
     2:  outstreamfunctions   testinstreamexception
 
@@ -43,9 +43,9 @@
 
   bslx_byteoutstreamformatter  - 'bsl::streambuf'-based output stream
 
-  bslx_genericbyteinstream     - parameterized buffer input stream
+  bslx_genericinstream         - parameterized buffer input stream
 
-  bslx_genericbyteoutstream    - parameterized buffer output stream
+  bslx_genericoutstream        - parameterized buffer output stream
 
   bslx_instreamfunctions       - parameterized validator/wrapper for the
                                  'bdexStreamIn' method required of

@@ -1,6 +1,6 @@
-// bslx_genericbyteoutstream.t.cpp                                    -*-C++-*-
+// bslx_genericoutstream.t.cpp                                        -*-C++-*-
 
-#include <bslx_genericbyteoutstream.h>
+#include <bslx_genericoutstream.h>
 
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
@@ -28,19 +28,19 @@ using namespace bslx;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// For all output methods in 'GenericByteOutStream', the primary concerns are
-// the formatting of the input value to its correct byte representation and the
+// For all output methods in 'GenericOutStream', the primary concerns are the
+// formatting of the input value to its correct byte representation and the
 // proper placement and alignment of bytes in the output stream.  We verify
 // these properties by inserting chosen "marker" bytes between each output
 // method call, and ensure that the new output bytes are properly interleaved
 // between the "marker" bytes.
 //
-// We have chosen the primary black-box manipulator for 'GenericByteOutStream'
-// to be 'putInt8'.
+// We have chosen the primary black-box manipulator for 'GenericOutStream' to
+// be 'putInt8'.
 // ----------------------------------------------------------------------------
-// [ 2] GenericByteOutStream(STREAMBUF *streamBuf, int sV);
-// [ 2] ~GenericByteOutStream();
-// [26] GenericByteOutStream& flush();
+// [ 2] GenericOutStream(STREAMBUF *streamBuf, int sV);
+// [ 2] ~GenericOutStream();
+// [26] GenericOutStream& flush();
 // [ 4] void invalidate();
 // [24] putLength(int length);
 // [24] putVersion(int version);
@@ -87,7 +87,7 @@ using namespace bslx;
 // [ 3] int bdexVersionSelector() const;
 // [ 4] bool isValid() const;
 //
-// [27] GenericByteOutStream& operator<<(GenericByteOutStream&, value);
+// [27] GenericOutStream& operator<<(GenericOutStream&, value);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [28] USAGE EXAMPLE
@@ -146,7 +146,7 @@ static void aSsErT(int c, const char *s, int i)
 
 class TestOutStreamBuf {
     // This class implements a very basic stream buffer suitable for use in
-    // 'bslx::GenericByteOutStream'.
+    // 'bslx::GenericOutStream'.
 
     // DATA
     bsl::stringbuf      d_buffer;      // output buffer
@@ -325,8 +325,8 @@ void debugprint(const TestOutStreamBuf& object)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef TestOutStreamBuf                       Buf;
-typedef GenericByteOutStream<TestOutStreamBuf> Obj;
+typedef TestOutStreamBuf                   Buf;
+typedef GenericOutStream<TestOutStreamBuf> Obj;
 
 const int VERSION_SELECTOR = 20131127;
 const int SIZEOF_INT64   = 8;
@@ -389,19 +389,19 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Basic Externalization
 ///- - - - - - - - - - - - - - - -
-// A 'bslx::GenericByteOutStream' can be used to externalize values in a
+// A 'bslx::GenericOutStream' can be used to externalize values in a
 // platform-neutral way.  Writing out fundamental C++ types and 'bsl::string'
 // requires no additional work on the part of the client; the client can simply
 // use the stream directly.  The following code serializes a few representative
-// values using a 'bslx::GenericByteOutStream', compares the contents of this
+// values using a 'bslx::GenericOutStream', compares the contents of this
 // stream to the expected value, and then writes the contents of this stream's
 // buffer to 'stdout'.
 //
-// First, we create a 'bslx::GenericByteOutStream' with an arbitrary value for
-// its 'versionSelector' and externalize some values:
+// First, we create a 'bslx::GenericOutStream' with an arbitrary value for its
+// 'versionSelector' and externalize some values:
 //..
-    bsl::stringbuf                             buffer;
-    bslx::GenericByteOutStream<bsl::stringbuf> outStream(&buffer, 20131127);
+    bsl::stringbuf                         buffer;
+    bslx::GenericOutStream<bsl::stringbuf> outStream(&buffer, 20131127);
     outStream.putInt32(1);
     outStream.putInt32(2);
     outStream.putInt8('c');
@@ -447,8 +447,8 @@ int main(int argc, char *argv[])
 //  nextByte (char): l
 //  nextByte (char): o
 //..
-// See the 'bslx_genericbyteinstream' component usage example for a more
-// practical example of using 'bslx' streams.
+// See the 'bslx_genericinstream' component usage example for a more practical
+// example of using 'bslx' streams.
 
       } break;
       case 27: {
@@ -470,7 +470,7 @@ int main(int argc, char *argv[])
         //:   (C-2)
         //
         // Testing:
-        //   GenericByteOutStream& operator<<(GenericByteOutStream&, value);
+        //   GenericOutStream& operator<<(GenericOutStream&, value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -565,7 +565,7 @@ int main(int argc, char *argv[])
         //:   errors are handled correctly.  (C-2)
         //
         // Testing:
-        //   GenericByteOutStream& flush();
+        //   GenericOutStream& flush();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -4169,8 +4169,8 @@ int main(int argc, char *argv[])
         //: 4 Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
-        //   GenericByteOutStream(STREAMBUF *streamBuf, int sV);
-        //   ~GenericByteOutStream();
+        //   GenericOutStream(STREAMBUF *streamBuf, int sV);
+        //   ~GenericOutStream();
         //   putInt8(int value);
         //   putUint8(unsigned int value);
         // --------------------------------------------------------------------
@@ -4298,7 +4298,7 @@ int main(int argc, char *argv[])
         //:   testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create 'GenericByteOutStream' objects.
+        //: 1 Create 'GenericOutStream' objects.
         //:
         //: 2 Exercise these objects using various methods.
         //:

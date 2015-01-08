@@ -1,6 +1,7 @@
 // bslx_byteoutstreamformatter.t.cpp                                  -*-C++-*-
 
 #include <bslx_byteoutstreamformatter.h>
+#include <bslx_genericoutstream.h>
 
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
@@ -210,7 +211,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Externalize a few items with 'bslx::ByteOutStreamFormatter'
-        //:   (using a 'bsl::stringbuf') and 'bslx::GenericByteOutStream', and
+        //:   (using a 'bsl::stringbuf') and 'bslx::GenericOutStream', and
         //:   verify the results are the same.
         //
         // Testing:
@@ -221,8 +222,8 @@ int main(int argc, char *argv[])
                           << "TYPEDEF" << endl
                           << "=======" << endl;
 
-        bsl::stringbuf                             expected;
-        bslx::GenericByteOutStream<bsl::streambuf> mX(&expected, 20131127);
+        bsl::stringbuf                         expected;
+        bslx::GenericOutStream<bsl::streambuf> mX(&expected, 20131127);
 
         bsl::stringbuf               buffer;
         bslx::ByteOutStreamFormatter mY(&buffer, 20131127);

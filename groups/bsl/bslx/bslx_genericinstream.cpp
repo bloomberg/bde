@@ -1,8 +1,10 @@
-// bslx_genericbyteoutstream.cpp                                      -*-C++-*-
-#include <bslx_genericbyteoutstream.h>
+// bslx_genericinstream.cpp                                           -*-C++-*-
+#include <bslx_genericinstream.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bslx_genericbyteoutstream_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bslx_genericinstream_cpp,"$Id$ $CSID$")
+
+#include <bslx_genericoutstream.h>  // for testing only
 
 namespace BloombergLP {
 namespace bslx {
