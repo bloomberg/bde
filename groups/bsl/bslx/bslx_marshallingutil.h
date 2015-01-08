@@ -817,14 +817,7 @@ void MarshallingUtil::putInt64(char *buffer, bsls::Types::Int64 value)
     buffer[6] = bytes[1];
     buffer[7] = bytes[0];
 #else
-    buffer[0] = bytes[sizeof value - 8];
-    buffer[1] = bytes[sizeof value - 7];
-    buffer[2] = bytes[sizeof value - 6];
-    buffer[3] = bytes[sizeof value - 5];
-    buffer[4] = bytes[sizeof value - 4];
-    buffer[5] = bytes[sizeof value - 3];
-    buffer[6] = bytes[sizeof value - 2];
-    buffer[7] = bytes[sizeof value - 1];
+    bsl::memcpy(buffer, bytes + sizeof value - k_SIZEOF_INT64, k_SIZEOF_INT64);
 #endif
 }
 
@@ -844,13 +837,7 @@ void MarshallingUtil::putInt56(char *buffer, bsls::Types::Int64 value)
     buffer[5] = bytes[1];
     buffer[6] = bytes[0];
 #else
-    buffer[0] = bytes[sizeof value - 7];
-    buffer[1] = bytes[sizeof value - 6];
-    buffer[2] = bytes[sizeof value - 5];
-    buffer[3] = bytes[sizeof value - 4];
-    buffer[4] = bytes[sizeof value - 3];
-    buffer[5] = bytes[sizeof value - 2];
-    buffer[6] = bytes[sizeof value - 1];
+    bsl::memcpy(buffer, bytes + sizeof value - k_SIZEOF_INT56, k_SIZEOF_INT56);
 #endif
 }
 
@@ -869,12 +856,7 @@ void MarshallingUtil::putInt48(char *buffer, bsls::Types::Int64 value)
     buffer[4] = bytes[1];
     buffer[5] = bytes[0];
 #else
-    buffer[0] = bytes[sizeof value - 6];
-    buffer[1] = bytes[sizeof value - 5];
-    buffer[2] = bytes[sizeof value - 4];
-    buffer[3] = bytes[sizeof value - 3];
-    buffer[4] = bytes[sizeof value - 2];
-    buffer[5] = bytes[sizeof value - 1];
+    bsl::memcpy(buffer, bytes + sizeof value - k_SIZEOF_INT48, k_SIZEOF_INT48);
 #endif
 }
 
@@ -892,11 +874,7 @@ void MarshallingUtil::putInt40(char *buffer, bsls::Types::Int64 value)
     buffer[3] = bytes[1];
     buffer[4] = bytes[0];
 #else
-    buffer[0] = bytes[sizeof value - 5];
-    buffer[1] = bytes[sizeof value - 4];
-    buffer[2] = bytes[sizeof value - 3];
-    buffer[3] = bytes[sizeof value - 2];
-    buffer[4] = bytes[sizeof value - 1];
+    bsl::memcpy(buffer, bytes + sizeof value - k_SIZEOF_INT40, k_SIZEOF_INT40);
 #endif
 }
 
@@ -913,10 +891,7 @@ void MarshallingUtil::putInt32(char *buffer, int value)
     buffer[2] = bytes[1];
     buffer[3] = bytes[0];
 #else
-    buffer[0] = bytes[sizeof value - 4];
-    buffer[1] = bytes[sizeof value - 3];
-    buffer[2] = bytes[sizeof value - 2];
-    buffer[3] = bytes[sizeof value - 1];
+    bsl::memcpy(buffer, bytes + sizeof value - k_SIZEOF_INT32, k_SIZEOF_INT32);
 #endif
 }
 
@@ -932,9 +907,7 @@ void MarshallingUtil::putInt24(char *buffer, int value)
     buffer[1] = bytes[1];
     buffer[2] = bytes[0];
 #else
-    buffer[0] = bytes[sizeof value - 3];
-    buffer[1] = bytes[sizeof value - 2];
-    buffer[2] = bytes[sizeof value - 1];
+    bsl::memcpy(buffer, bytes + sizeof value - k_SIZEOF_INT24, k_SIZEOF_INT24);
 #endif
 }
 
@@ -949,8 +922,7 @@ void MarshallingUtil::putInt16(char *buffer, int value)
     buffer[0] = bytes[1];
     buffer[1] = bytes[0];
 #else
-    buffer[0] = bytes[sizeof value - 2];
-    buffer[1] = bytes[sizeof value - 1];
+    bsl::memcpy(buffer, bytes + sizeof value - k_SIZEOF_INT16, k_SIZEOF_INT16);
 #endif
 }
 
@@ -981,14 +953,7 @@ void MarshallingUtil::putFloat64(char *buffer, double value)
     buffer[6] = bytes[sizeof value - 7];
     buffer[7] = bytes[sizeof value - 8];
 #else
-    buffer[0] = bytes[0];
-    buffer[1] = bytes[1];
-    buffer[2] = bytes[2];
-    buffer[3] = bytes[3];
-    buffer[4] = bytes[4];
-    buffer[5] = bytes[5];
-    buffer[6] = bytes[6];
-    buffer[7] = bytes[7];
+    bsl::memcpy(buffer, bytes, k_SIZEOF_FLOAT64);
 #endif
 }
 
@@ -1005,6 +970,7 @@ void MarshallingUtil::putFloat32(char *buffer, float value)
     buffer[2] = bytes[sizeof value - 3];
     buffer[3] = bytes[sizeof value - 4];
 #else
+    bsl::memcpy(buffer, bytes, k_SIZEOF_FLOAT32);
     buffer[0] = bytes[0];
     buffer[1] = bytes[1];
     buffer[2] = bytes[2];
@@ -1037,14 +1003,9 @@ void MarshallingUtil::getInt64(bsls::Types::Int64 *variable,
     bytes[1] = buffer[6];
     bytes[0] = buffer[7];
 #else
-    bytes[sizeof *variable - 8] = buffer[0];
-    bytes[sizeof *variable - 7] = buffer[1];
-    bytes[sizeof *variable - 6] = buffer[2];
-    bytes[sizeof *variable - 5] = buffer[3];
-    bytes[sizeof *variable - 4] = buffer[4];
-    bytes[sizeof *variable - 3] = buffer[5];
-    bytes[sizeof *variable - 2] = buffer[6];
-    bytes[sizeof *variable - 1] = buffer[7];
+    bsl::memcpy(bytes + sizeof *variable - k_SIZEOF_INT64,
+                buffer,
+                k_SIZEOF_INT64);
 #endif
 }
 
@@ -1071,14 +1032,9 @@ void MarshallingUtil::getUint64(bsls::Types::Uint64 *variable,
     bytes[1] = buffer[6];
     bytes[0] = buffer[7];
 #else
-    bytes[sizeof *variable - 8] = buffer[0];
-    bytes[sizeof *variable - 7] = buffer[1];
-    bytes[sizeof *variable - 6] = buffer[2];
-    bytes[sizeof *variable - 5] = buffer[3];
-    bytes[sizeof *variable - 4] = buffer[4];
-    bytes[sizeof *variable - 3] = buffer[5];
-    bytes[sizeof *variable - 2] = buffer[6];
-    bytes[sizeof *variable - 1] = buffer[7];
+    bsl::memcpy(bytes + sizeof *variable - k_SIZEOF_INT64,
+                buffer,
+                k_SIZEOF_INT64);
 #endif
 }
 
@@ -1102,13 +1058,9 @@ void MarshallingUtil::getInt56(bsls::Types::Int64 *variable,
     bytes[1] = buffer[5];
     bytes[0] = buffer[6];
 #else
-    bytes[sizeof *variable - 7] = buffer[0];
-    bytes[sizeof *variable - 6] = buffer[1];
-    bytes[sizeof *variable - 5] = buffer[2];
-    bytes[sizeof *variable - 4] = buffer[3];
-    bytes[sizeof *variable - 3] = buffer[4];
-    bytes[sizeof *variable - 2] = buffer[5];
-    bytes[sizeof *variable - 1] = buffer[6];
+    bsl::memcpy(bytes + sizeof *variable - k_SIZEOF_INT56,
+                buffer,
+                k_SIZEOF_INT56);
 #endif
 }
 
@@ -1132,13 +1084,9 @@ void MarshallingUtil::getUint56(bsls::Types::Uint64 *variable,
     bytes[1] = buffer[5];
     bytes[0] = buffer[6];
 #else
-    bytes[sizeof *variable - 7] = buffer[0];
-    bytes[sizeof *variable - 6] = buffer[1];
-    bytes[sizeof *variable - 5] = buffer[2];
-    bytes[sizeof *variable - 4] = buffer[3];
-    bytes[sizeof *variable - 3] = buffer[4];
-    bytes[sizeof *variable - 2] = buffer[5];
-    bytes[sizeof *variable - 1] = buffer[6];
+    bsl::memcpy(bytes + sizeof *variable - k_SIZEOF_INT56,
+                buffer,
+                k_SIZEOF_INT56);
 #endif
 }
 
@@ -1161,12 +1109,9 @@ void MarshallingUtil::getInt48(bsls::Types::Int64 *variable,
     bytes[1] = buffer[4];
     bytes[0] = buffer[5];
 #else
-    bytes[sizeof *variable - 6] = buffer[0];
-    bytes[sizeof *variable - 5] = buffer[1];
-    bytes[sizeof *variable - 4] = buffer[2];
-    bytes[sizeof *variable - 3] = buffer[3];
-    bytes[sizeof *variable - 2] = buffer[4];
-    bytes[sizeof *variable - 1] = buffer[5];
+    bsl::memcpy(bytes + sizeof *variable - k_SIZEOF_INT48,
+                buffer,
+                k_SIZEOF_INT48);
 #endif
 }
 
@@ -1189,12 +1134,9 @@ void MarshallingUtil::getUint48(bsls::Types::Uint64 *variable,
     bytes[1] = buffer[4];
     bytes[0] = buffer[5];
 #else
-    bytes[sizeof *variable - 6] = buffer[0];
-    bytes[sizeof *variable - 5] = buffer[1];
-    bytes[sizeof *variable - 4] = buffer[2];
-    bytes[sizeof *variable - 3] = buffer[3];
-    bytes[sizeof *variable - 2] = buffer[4];
-    bytes[sizeof *variable - 1] = buffer[5];
+    bsl::memcpy(bytes + sizeof *variable - k_SIZEOF_INT48,
+                buffer,
+                k_SIZEOF_INT48);
 #endif
 }
 
@@ -1216,11 +1158,9 @@ void MarshallingUtil::getInt40(bsls::Types::Int64 *variable,
     bytes[1] = buffer[3];
     bytes[0] = buffer[4];
 #else
-    bytes[sizeof *variable - 5] = buffer[0];
-    bytes[sizeof *variable - 4] = buffer[1];
-    bytes[sizeof *variable - 3] = buffer[2];
-    bytes[sizeof *variable - 2] = buffer[3];
-    bytes[sizeof *variable - 1] = buffer[4];
+    bsl::memcpy(bytes + sizeof *variable - k_SIZEOF_INT40,
+                buffer,
+                k_SIZEOF_INT40);
 #endif
 }
 
@@ -1242,11 +1182,9 @@ void MarshallingUtil::getUint40(bsls::Types::Uint64 *variable,
     bytes[1] = buffer[3];
     bytes[0] = buffer[4];
 #else
-    bytes[sizeof *variable - 5] = buffer[0];
-    bytes[sizeof *variable - 4] = buffer[1];
-    bytes[sizeof *variable - 3] = buffer[2];
-    bytes[sizeof *variable - 2] = buffer[3];
-    bytes[sizeof *variable - 1] = buffer[4];
+    bsl::memcpy(bytes + sizeof *variable - k_SIZEOF_INT40,
+                buffer,
+                k_SIZEOF_INT40);
 #endif
 }
 
@@ -1268,10 +1206,9 @@ void MarshallingUtil::getInt32(int *variable, const char *buffer)
     bytes[1] = buffer[2];
     bytes[0] = buffer[3];
 #else
-    bytes[sizeof *variable - 4] = buffer[0];
-    bytes[sizeof *variable - 3] = buffer[1];
-    bytes[sizeof *variable - 2] = buffer[2];
-    bytes[sizeof *variable - 1] = buffer[3];
+    bsl::memcpy(bytes + sizeof *variable - k_SIZEOF_INT32,
+                buffer,
+                k_SIZEOF_INT32);
 #endif
 }
 
@@ -1293,10 +1230,9 @@ void MarshallingUtil::getUint32(unsigned int *variable, const char *buffer)
     bytes[1] = buffer[2];
     bytes[0] = buffer[3];
 #else
-    bytes[sizeof *variable - 4] = buffer[0];
-    bytes[sizeof *variable - 3] = buffer[1];
-    bytes[sizeof *variable - 2] = buffer[2];
-    bytes[sizeof *variable - 1] = buffer[3];
+    bsl::memcpy(bytes + sizeof *variable - k_SIZEOF_INT32,
+                buffer,
+                k_SIZEOF_INT32);
 #endif
 }
 
@@ -1315,9 +1251,9 @@ void MarshallingUtil::getInt24(int *variable, const char *buffer)
     bytes[1] = buffer[1];
     bytes[0] = buffer[2];
 #else
-    bytes[sizeof *variable - 3] = buffer[0];
-    bytes[sizeof *variable - 2] = buffer[1];
-    bytes[sizeof *variable - 1] = buffer[2];
+    bsl::memcpy(bytes + sizeof *variable - k_SIZEOF_INT24,
+                buffer,
+                k_SIZEOF_INT24);
 #endif
 }
 
@@ -1336,9 +1272,9 @@ void MarshallingUtil::getUint24(unsigned int *variable, const char *buffer)
     bytes[1] = buffer[1];
     bytes[0] = buffer[2];
 #else
-    bytes[sizeof *variable - 3] = buffer[0];
-    bytes[sizeof *variable - 2] = buffer[1];
-    bytes[sizeof *variable - 1] = buffer[2];
+    bsl::memcpy(bytes + sizeof *variable - k_SIZEOF_INT24,
+                buffer,
+                k_SIZEOF_INT24);
 #endif
 }
 
@@ -1359,8 +1295,9 @@ void MarshallingUtil::getInt16(short *variable, const char *buffer)
     bytes[1] = buffer[0];
     bytes[0] = buffer[1];
 #else
-    bytes[sizeof *variable - 2] = buffer[0];
-    bytes[sizeof *variable - 1] = buffer[1];
+    bsl::memcpy(bytes + sizeof *variable - k_SIZEOF_INT16,
+                buffer,
+                k_SIZEOF_INT16);
 #endif
 }
 
@@ -1380,8 +1317,9 @@ void MarshallingUtil::getUint16(unsigned short *variable, const char *buffer)
     bytes[1] = buffer[0];
     bytes[0] = buffer[1];
 #else
-    bytes[sizeof *variable - 2] = buffer[0];
-    bytes[sizeof *variable - 1] = buffer[1];
+    bsl::memcpy(bytes + sizeof *variable - k_SIZEOF_INT16,
+                buffer,
+                k_SIZEOF_INT16);
 #endif
 }
 
@@ -1436,14 +1374,7 @@ void MarshallingUtil::getFloat64(double *variable, const char *buffer)
     bytes[sizeof *variable - 7] = buffer[6];
     bytes[sizeof *variable - 8] = buffer[7];
 #else
-    bytes[0] = buffer[0];
-    bytes[1] = buffer[1];
-    bytes[2] = buffer[2];
-    bytes[3] = buffer[3];
-    bytes[4] = buffer[4];
-    bytes[5] = buffer[5];
-    bytes[6] = buffer[6];
-    bytes[7] = buffer[7];
+    bsl::memcpy(bytes, buffer, k_SIZEOF_FLOAT64);
 #endif
 }
 
@@ -1465,10 +1396,7 @@ void MarshallingUtil::getFloat32(float *variable, const char *buffer)
     bytes[sizeof *variable - 3] = buffer[2];
     bytes[sizeof *variable - 4] = buffer[3];
 #else
-    bytes[0] = buffer[0];
-    bytes[1] = buffer[1];
-    bytes[2] = buffer[2];
-    bytes[3] = buffer[3];
+    bsl::memcpy(bytes, buffer, k_SIZEOF_FLOAT32);
 #endif
 }
 
