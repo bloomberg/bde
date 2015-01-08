@@ -1,6 +1,6 @@
-// bslx_byteoutstreamformatter.t.cpp                                  -*-C++-*-
+// bslx_streambufoutstream.t.cpp                                      -*-C++-*-
 
-#include <bslx_byteoutstreamformatter.h>
+#include <bslx_streambufoutstream.h>
 #include <bslx_genericoutstream.h>
 
 #include <bslma_default.h>
@@ -139,19 +139,19 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Basic Externalization
 ///- - - - - - - - - - - - - - - -
-// A 'bslx::ByteOutStreamFormatter' can be used to externalize values in a
+// A 'bslx::StreambufOutStream' can be used to externalize values in a
 // platform-neutral way.  Writing out fundamental C++ types and 'bsl::string'
 // requires no additional work on the part of the client; the client can simply
 // use the stream directly.  The following code serializes a few representative
-// values using a 'bslx::ByteOutStreamFormatter', compares the contents of this
+// values using a 'bslx::StreambufOutStream', compares the contents of this
 // stream to the expected value, and then writes the contents of this stream's
 // buffer to 'stdout'.
 //
-// First, we create a 'bslx::ByteOutStreamFormatter' with an arbitrary value
-// for its 'versionSelector' and externalize some values:
+// First, we create a 'bslx::StreambufOutStream' with an arbitrary value for
+// its 'versionSelector' and externalize some values:
 //..
-    bsl::stringbuf               buffer;
-    bslx::ByteOutStreamFormatter outStream(&buffer, 20131127);
+    bsl::stringbuf           buffer;
+    bslx::StreambufOutStream outStream(&buffer, 20131127);
     outStream.putInt32(1);
     outStream.putInt32(2);
     outStream.putInt8('c');
@@ -210,9 +210,9 @@ int main(int argc, char *argv[])
         //: 1 The 'typedef' is correct.
         //
         // Plan:
-        //: 1 Externalize a few items with 'bslx::ByteOutStreamFormatter'
-        //:   (using a 'bsl::stringbuf') and 'bslx::GenericOutStream', and
-        //:   verify the results are the same.
+        //: 1 Externalize a few items with 'bslx::StreambufOutStream' (using a
+        //:   'bsl::stringbuf') and 'bslx::GenericOutStream', and verify the
+        //:   results are the same.
         //
         // Testing:
         //   TYPEDEF
@@ -225,8 +225,8 @@ int main(int argc, char *argv[])
         bsl::stringbuf                         expected;
         bslx::GenericOutStream<bsl::streambuf> mX(&expected, 20131127);
 
-        bsl::stringbuf               buffer;
-        bslx::ByteOutStreamFormatter mY(&buffer, 20131127);
+        bsl::stringbuf           buffer;
+        bslx::StreambufOutStream mY(&buffer, 20131127);
 
         mX.putInt32(3);
         mY.putInt32(3);

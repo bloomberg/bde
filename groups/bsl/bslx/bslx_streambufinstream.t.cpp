@@ -1,7 +1,7 @@
-// bslx_byteinstreamformatter.t.cpp                                   -*-C++-*-
+// bslx_streambufinstream.t.cpp                                   -*-C++-*-
 
-#include <bslx_byteinstreamformatter.h>
-#include <bslx_byteoutstreamformatter.h>  // for testing only
+#include <bslx_streambufinstream.h>
+#include <bslx_streambufoutstream.h>  // for testing only
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -354,12 +354,12 @@ int main(int argc, char *argv[])
 
 // Then, we can exercise the new 'MyPerson' value-semantic class by
 // externalizing and reconstituting an object.  First, create a 'MyPerson'
-// 'janeSmith' and a 'bslx::ByteOutStreamFormatter' 'outStream':
+// 'janeSmith' and a 'bslx::StreambufOutStream' 'outStream':
 //..
-    MyPerson                     janeSmith("Jane", "Smith", 42);
-    bsl::stringbuf               buffer;
-    bslx::ByteOutStreamFormatter outStream(&buffer, 20131127);
-    const int                    VERSION = 1;
+    MyPerson                 janeSmith("Jane", "Smith", 42);
+    bsl::stringbuf           buffer;
+    bslx::StreambufOutStream outStream(&buffer, 20131127);
+    const int                VERSION = 1;
     outStream.putVersion(VERSION);
     janeSmith.bdexStreamOut(outStream, VERSION);
     ASSERT(outStream.isValid());
@@ -370,12 +370,12 @@ int main(int argc, char *argv[])
     MyPerson janeCopy;
     ASSERT(janeCopy != janeSmith);
 //..
-// Then, create a 'bslx::ByteInStreamFormatter' 'inStream' initialized with the
-// buffer from the 'bslx::ByteOutStreamFormatter' object 'outStream' and
+// Then, create a 'bslx::StreambufInStream' 'inStream' initialized with the
+// buffer from the 'bslx::StreambufOutStream' object 'outStream' and
 // unexternalize this data into 'janeCopy':
 //..
-    bslx::ByteInStreamFormatter inStream(&buffer);
-    int                         version;
+    bslx::StreambufInStream inStream(&buffer);
+    int                     version;
     inStream.getVersion(version);
     janeCopy.bdexStreamIn(inStream, version);
     ASSERT(inStream.isValid());
@@ -412,10 +412,9 @@ if (veryVerbose) {
         //: 1 The 'typedef' is correct.
         //
         // Plan:
-        //: 1 Externalize a few items with 'bslx::ByteOutStreamFormatter',
-        //:   using a 'bsl::stringbuf', and verify
-        //:   'bslx::ByteInStreamFormatter' correctly unexternalizes the
-        //:   values.
+        //: 1 Externalize a few items with 'bslx::StreambufOutStream',
+        //:   using a 'bsl::stringbuf', and verify 'bslx::StreambufInStream'
+        //:   correctly unexternalizes the values.
         //
         // Testing:
         //   TYPEDEF
@@ -429,8 +428,8 @@ if (veryVerbose) {
         double      expectedDouble = 3.25;
         bsl::string expectedString = "alpha";
 
-        bsl::stringbuf               buffer;
-        bslx::ByteOutStreamFormatter out(&buffer, 20131127);
+        bsl::stringbuf           buffer;
+        bslx::StreambufOutStream out(&buffer, 20131127);
 
         out.putInt32(expectedInt);
         out.putFloat64(expectedDouble);
@@ -440,7 +439,7 @@ if (veryVerbose) {
         double      obtainedDouble = 0.0;
         bsl::string obtainedString;
 
-        bslx::ByteInStreamFormatter in(&buffer);
+        bslx::StreambufInStream in(&buffer);
 
         in.getInt32(obtainedInt);
         in.getFloat64(obtainedDouble);

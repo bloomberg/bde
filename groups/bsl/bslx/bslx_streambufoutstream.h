@@ -1,6 +1,6 @@
-// bslx_byteoutstreamformatter.h                                      -*-C++-*-
-#ifndef INCLUDED_BSLX_BYTEOUTSTREAMFORMATTER
-#define INCLUDED_BSLX_BYTEOUTSTREAMFORMATTER
+// bslx_streambufoutstream.h                                          -*-C++-*-
+#ifndef INCLUDED_BSLX_STREAMBUFOUTSTREAM
+#define INCLUDED_BSLX_STREAMBUFOUTSTREAM
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,22 +10,22 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Externalization of fundamental types to a 'bsl::streambuf'.
 //
 //@CLASSES:
-//  bslx::ByteOutStreamFormatter: 'bsl::streambuf' output for fundamentals
+//  bslx::StreambufOutStream: 'bsl::streambuf' output for fundamentals
 //
-//@SEE_ALSO: bslx_byteinstreamformatter, bslx_genericoutstream
+//@SEE_ALSO: bslx_streambufinstream, bslx_genericoutstream
 //
 //@DESCRIPTION: This component implements a 'bsl::streambuf' output stream
-// class, 'bslx::ByteOutStreamFormatter', that provides platform-independent
+// class, 'bslx::StreambufOutStream', that provides platform-independent
 // output methods ("externalization") on values, and arrays of values, of
 // fundamental types, and on 'bsl::string'.
 //
 // This component is intended to be used in conjunction with the
-// 'bslx_byteinstreamformatter' "unexternalization" component.  Each output
-// method of 'bslx::ByteOutStreamFormatter' writes a value or a homogeneous
-// array of values to a 'bsl::streambuf'.  The values are formatted to be
-// readable by the corresponding 'bslx::ByteInStreamFormatter' method.  In
-// general, the user cannot rely on any other mechanism to read data written by
-// 'bslx::ByteOutStreamFormatter' unless that mechanism explicitly states its
+// 'bslx_streambufinstream' "unexternalization" component.  Each output method
+// of 'bslx::StreambufOutStream' writes a value or a homogeneous array of
+// values to a 'bsl::streambuf'.  The values are formatted to be readable by
+// the corresponding 'bslx::StreambufInStream' method.  In general, the user
+// cannot rely on any other mechanism to read data written by
+// 'bslx::StreambufOutStream' unless that mechanism explicitly states its
 // ability to do so.
 //
 // The supported types and required content are listed in the 'bslx'
@@ -78,19 +78,19 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Basic Externalization
 ///- - - - - - - - - - - - - - - -
-// A 'bslx::ByteOutStreamFormatter' can be used to externalize values in a
+// A 'bslx::StreambufOutStream' can be used to externalize values in a
 // platform-neutral way.  Writing out fundamental C++ types and 'bsl::string'
 // requires no additional work on the part of the client; the client can simply
 // use the stream directly.  The following code serializes a few representative
-// values using a 'bslx::ByteOutStreamFormatter', compares the contents of this
+// values using a 'bslx::StreambufOutStream', compares the contents of this
 // stream to the expected value, and then writes the contents of this stream's
 // buffer to 'stdout'.
 //
-// First, we create a 'bslx::ByteOutStreamFormatter' with an arbitrary value
-// for its 'versionSelector' and externalize some values:
+// First, we create a 'bslx::StreambufOutStream' with an arbitrary value for
+// its 'versionSelector' and externalize some values:
 //..
 //  bsl::stringbuf               buffer;
-//  bslx::ByteOutStreamFormatter outStream(&buffer, 20131127);
+//  bslx::StreambufOutStream outStream(&buffer, 20131127);
 //  outStream.putInt32(1);
 //  outStream.putInt32(2);
 //  outStream.putInt8('c');
@@ -135,7 +135,7 @@ BSLS_IDENT("$Id: $")
 //  nextByte (char): l
 //  nextByte (char): o
 //..
-// See the 'bslx_byteinstreamformatter' component usage example for a more
+// See the 'bslx_streambufinstream' component usage example for a more
 // practical example of using 'bslx' streams.
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -153,11 +153,11 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslx {
 
-                     // ============================
-                     // class ByteOutStreamFormatter
-                     // ============================
+                       // ========================
+                       // class StreambufOutStream
+                       // ========================
 
-typedef GenericOutStream<bsl::streambuf> ByteOutStreamFormatter;
+typedef GenericOutStream<bsl::streambuf> StreambufOutStream;
     // This class facilitates the externalization of values (and C-style arrays
     // of values) of the fundamental integral and floating-point types in a
     // data-independent, platform-neutral representation.  It is currently a

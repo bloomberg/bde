@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslx::GenericInStream: parameterized input stream for fundamental types
 //
-//@SEE_ALSO: bslx_byteinstreamformatter, bslx_genericoutstream
+//@SEE_ALSO: bslx_streambufinstream, bslx_genericoutstream
 //
 //@DESCRIPTION: This component implements a parameterized input stream
 // class, 'bslx::GenericInStream', that provides platform-independent input
@@ -63,7 +63,7 @@ BSLS_IDENT("$Id: $")
 // Suitable choices for 'STREAMBUF' include any class that implements the
 // 'bsl::basic_streambuf' protocol.
 //
-// The class 'bslx::ByteInStreamFormatter' is a 'typedef' for
+// The class 'bslx::StreambufInStream' is a 'typedef' for
 // 'bslx::GenericInStream<bsl::streambuf>'.
 //
 ///Usage

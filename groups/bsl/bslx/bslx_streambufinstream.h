@@ -1,6 +1,6 @@
-// bslx_byteinstreamformatter.h                                       -*-C++-*-
-#ifndef INCLUDED_BSLX_BYTEINSTREAMFORMATTER
-#define INCLUDED_BSLX_BYTEINSTREAMFORMATTER
+// bslx_streambufinstream.h                                           -*-C++-*-
+#ifndef INCLUDED_BSLX_STREAMBUFINSTREAM
+#define INCLUDED_BSLX_STREAMBUFINSTREAM
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,13 +10,13 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Unexternalization of fundamental types from a 'bsl::streambuf'.
 //
 //@CLASSES:
-//  bslx::ByteInStreamFormatter: 'bsl::streambuf' input stream for fundamentals
+//  bslx::StreambufInStream: 'bsl::streambuf' input stream for fundamentals
 //
-//@SEE_ALSO: bslx_byteoutstreamformatter, bslx_genericinstream
+//@SEE_ALSO: bslx_streambufoutstream, bslx_genericinstream
 //
 //@DESCRIPTION: This component implements a 'bsl::streambuf' input stream
-// class, 'bslx::ByteInStreamFormatter', that provides platform-independent
-// input methods ("unexternalization") on values, and arrays of values, of
+// class, 'bslx::StreambufInStream', that provides platform-independent input
+// methods ("unexternalization") on values, and arrays of values, of
 // fundamental types, and on 'bsl::string'.
 //
 // This type reads from a user-supplied 'bsl::streambuf' directly, with no data
@@ -25,12 +25,12 @@ BSLS_IDENT("$Id: $")
 // of the input stream.
 //
 // This component is intended to be used in conjunction with the
-// 'bslx_byteoutstreamformatter' "externalization" component.  Each input
-// method of 'bslx::ByteInStreamFormatter' reads either a value or a
-// homogeneous array of values of a fundamental type, in a format that was
-// written by the corresponding 'bslx::ByteOutStreamFormatter' method.  In
-// general, the user of this component cannot rely on being able to read data
-// that was written by any mechanism other than 'bslx::ByteOutStreamFormatter'.
+// 'bslx_streambufoutstream' "externalization" component.  Each input method of
+// 'bslx::StreambufInStream' reads either a value or a homogeneous array of
+// values of a fundamental type, in a format that was written by the
+// corresponding 'bslx::StreambufOutStream' method.  In general, the user of
+// this component cannot rely on being able to read data that was written by
+// any mechanism other than 'bslx::StreambufOutStream'.
 //
 // The supported types and required content are listed in the 'bslx'
 // package-level documentation under "Supported Types".
@@ -271,12 +271,12 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, we can exercise the new 'MyPerson' value-semantic class by
 // externalizing and reconstituting an object.  First, create a 'MyPerson'
-// 'janeSmith' and a 'bslx::ByteOutStreamFormatter' 'outStream':
+// 'janeSmith' and a 'bslx::StreambufOutStream' 'outStream':
 //..
-//  MyPerson                     janeSmith("Jane", "Smith", 42);
-//  bsl::stringbuf               buffer;
-//  bslx::ByteOutStreamFormatter outStream(&buffer, 20131127);
-//  const int                    VERSION = 1;
+//  MyPerson                 janeSmith("Jane", "Smith", 42);
+//  bsl::stringbuf           buffer;
+//  bslx::StreambufOutStream outStream(&buffer, 20131127);
+//  const int                VERSION = 1;
 //  outStream.putVersion(VERSION);
 //  janeSmith.bdexStreamOut(outStream, VERSION);
 //  assert(outStream.isValid());
@@ -287,12 +287,12 @@ BSLS_IDENT("$Id: $")
 //  MyPerson janeCopy;
 //  assert(janeCopy != janeSmith);
 //..
-// Then, create a 'bslx::ByteInStreamFormatter' 'inStream' initialized with the
-// buffer from the 'bslx::ByteOutStreamFormatter' object 'outStream' and
+// Then, create a 'bslx::StreambufInStream' 'inStream' initialized with the
+// buffer from the 'bslx::StreambufOutStream' object 'outStream' and
 // unexternalize this data into 'janeCopy':
 //..
-//  bslx::ByteInStreamFormatter inStream(&buffer);
-//  int                         version;
+//  bslx::StreambufInStream inStream(&buffer);
+//  int                     version;
 //  inStream.getVersion(version);
 //  janeCopy.bdexStreamIn(inStream, version);
 //  assert(inStream.isValid());
@@ -332,11 +332,11 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslx {
 
-                     // ===========================
-                     // class ByteInStreamFormatter
-                     // ===========================
+                       // =======================
+                       // class StreambufInStream
+                       // =======================
 
-typedef GenericInStream<bsl::streambuf> ByteInStreamFormatter;
+typedef GenericInStream<bsl::streambuf> StreambufInStream;
     // This class facilitates the unexternalization of values (and C-style
     // arrays of values) of the fundamental integral and floating-point types
     // in a data-independent, platform-neutral representation.  It is currently

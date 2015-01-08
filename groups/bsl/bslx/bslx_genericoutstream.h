@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslx::GenericOutStream: parameterized output stream for fundamentals
 //
-//@SEE_ALSO: bslx_byteoutstreamformatter, bslx_genericinstream
+//@SEE_ALSO: bslx_streambufoutstream, bslx_genericinstream
 //
 //@DESCRIPTION: This component implements a parameterized output stream
 // class, 'bslx::GenericOutStream', that provides platform-independent output
@@ -58,7 +58,7 @@ BSLS_IDENT("$Id: $")
 // Suitable choices for 'STREAMBUF' include any class that implements the
 // 'bsl::basic_streambuf' protocol.
 //
-// The class 'bslx::ByteOutStreamFormatter' is a 'typedef' of
+// The class 'bslx::StreambufOutStream' is a 'typedef' of
 // 'bslx::GenericOutStream<bsl::streambuf>'.
 //
 ///Versioning

@@ -1,10 +1,8 @@
-// bslx_byteinstreamformatter.cpp                                     -*-C++-*-
-#include <bslx_byteinstreamformatter.h>
+// bslx_streambufoutstream.cpp                                        -*-C++-*-
+#include <bslx_streambufoutstream.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bslx_byteinstreamformatter_cpp,"$Id$ $CSID$")
-
-#include <bslx_byteoutstreamformatter.h>        // for testing only
+BSLS_IDENT_RCSID(bslx_streambufoutstream_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 namespace bslx {
