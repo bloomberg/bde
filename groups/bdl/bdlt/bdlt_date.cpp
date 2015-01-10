@@ -6,10 +6,10 @@ BSLS_IDENT_RCSID(bdlt_date_cpp,"$Id$ $CSID$")
 
 #include <bslim_printer.h>
 
+#include <bsls_log.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 
-#include <bsl_cstdio.h>    // 'fprintf'
 #include <bsl_ostream.h>
 
 #include <bsl_c_stdio.h>   // 'snprintf'
@@ -63,13 +63,13 @@ void Date::logIfProblematicDateAddition(
         int year, month, day;
         DelegatingDateImpUtil::serialToYmd(&year, &month, &day, serialDate);
 
-        bsl::fprintf(stderr,
-                     "%s:%d WARNING: problematic addition detected: "
-                     "%d/%d/%d + %d [%d times].  "
-                     "Please contact BDE (DRQS Group 101).\n",
-                     fileName, lineNumber,
-                     year, month, day, numDays,
-                     tmpCount);
+        bsls::Log::logFormattedMessage(
+                              fileName, lineNumber,
+                              "WARNING: problematic 'Date' addition detected: "
+                              "%d/%d/%d + %d [%d times].  "
+                              "Please contact BDE (DRQS Group 101).",
+                              year, month, day, numDays,
+                              tmpCount);
     }
 }
 
@@ -100,14 +100,14 @@ void Date::logIfProblematicDateDifference(
         DelegatingDateImpUtil::serialToYmd(&rhsYear, &rhsMonth, &rhsDay,
                                            rhsSerialDate);
 
-        bsl::fprintf(stderr,
-                     "%s:%d WARNING: problematic difference detected: "
-                     "%d/%d/%d - %d/%d/%d [%d times].  "
-                     "Please contact BDE (DRQS Group 101).\n",
-                     fileName, lineNumber,
-                     lhsYear, lhsMonth, lhsDay,
-                     rhsYear, rhsMonth, rhsDay,
-                     tmpCount);
+        bsls::Log::logFormattedMessage(
+                            fileName, lineNumber,
+                            "WARNING: problematic 'Date' difference detected: "
+                            "%d/%d/%d - %d/%d/%d [%d times].  "
+                            "Please contact BDE (DRQS Group 101).",
+                            lhsYear, lhsMonth, lhsDay,
+                            rhsYear, rhsMonth, rhsDay,
+                            tmpCount);
     }
 }
 
@@ -132,13 +132,13 @@ void Date::logIfProblematicDateValue(
         int year, month, day;
         DelegatingDateImpUtil::serialToYmd(&year, &month, &day, serialDate);
 
-        bsl::fprintf(stderr,
-                     "%s:%d WARNING: problematic value detected: "
-                     "%d/%d/%d [%d times].  "
-                     "Please contact BDE (DRQS Group 101).\n",
-                     fileName, lineNumber,
-                     year, month, day,
-                     tmpCount);
+        bsls::Log::logFormattedMessage(
+                                 fileName, lineNumber,
+                                 "WARNING: problematic 'Date' value detected: "
+                                 "%d/%d/%d [%d times].  "
+                                 "Please contact BDE (DRQS Group 101).",
+                                 year, month, day,
+                                 tmpCount);
     }
 }
 
@@ -200,9 +200,7 @@ bsl::ostream& Date::print(bsl::ostream& stream,
                  d_serialDate);
 
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-        bsl::fprintf(stderr,
-                     "'bdlt::Date' precondition violated: %s.\n",
-                     buffer);
+        BSLS_LOG("'bdlt::Date' precondition violated: %s.", buffer);
 #endif
         BSLS_ASSERT_SAFE(
                  !"'bdlt::Date::print' attempted on date with invalid state.");
