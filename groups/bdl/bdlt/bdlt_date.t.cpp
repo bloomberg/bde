@@ -115,6 +115,7 @@ using namespace bsl;
 // [18] bdlt::DayOfWeek::Enum dayOfWeek() const;
 // [12] void getYearDay(int *year, int *dayOfYear) const;
 // [11] void getYearMonthDay(int *year, int *month, int *day) const;
+// [18] bdlt::MonthOfYear::Enum monthOfYear() const;
 // [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
 // [ 5] ostream& print(ostream& s, int level = 0, int sPL = 4) const;
 //
@@ -1244,86 +1245,115 @@ if (verbose)
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // 'dayOfWeek' METHOD
-        //   Ensure that the correct day of the week is returned for any date.
+        // 'dayOfWeek' AND 'monthOfYear' METHODS
+        //   Ensure that the correct day of the week and month of the year are
+        //   returned for any date.
         //
         // Concerns:
-        //: 1 The correct day of the week is returned for any date value.
+        //: 1 For any date, the correct day of the week is returned by
+        //:   'dayOfWeek'.
         //:
-        //: 2 The method is declared 'const'.
+        //: 2 For any date, the correct month of the year is returned by
+        //:   'monthOfYear'.
+        //:
+        //: 3 The methods are declared 'const'.
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a set of distinct
         //:   object values (one per row) in terms of their year/month/day
-        //:   representation, and the 'bdlt::DayOfWeek::Enum' value expected
-        //:   from 'dayOfWeek' when applied to those tabulated dates.
+        //:   representation, and the 'bdlt::DayOfWeek::Enum' and
+        //:   'bdlt::MonthOfYear::Enum' values expected from the methods
+        //:   'dayOfWeek' and 'monthOfYear' when applied to those tabulated
+        //:   dates.
         //:
-        //: 2 For each row 'R' in the table of P-1:  (C-1..2)
+        //: 2 For each row 'R' in the table of P-1:  (C-1..3)
         //:
         //:   1 Create a 'const' object 'X' using the 3-argument value
         //:     constructor.
         //:
         //:   2 Verify that 'dayOfWeek', invoked on 'X', returns the expected
-        //:     value.  (C-1..2)
+        //:     value.  (C-1)
+        //:
+        //:   3 Verify that 'monthOfYear', invoked on 'X', returns the expected
+        //:     value.  (C-2..3)
         //
         // Testing:
         //   bdlt::DayOfWeek::Enum dayOfWeek() const;
+        //   bdlt::MonthOfYear::Enum monthOfYear() const;
         //   CONCERN: All accessor methods are declared 'const'.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "'dayOfWeek' METHOD" << endl
-                          << "==================" << endl;
+                          << "'dayOfWeek' AND 'monthOfYear' METHODS" << endl
+                          << "=====================================" << endl;
 
-        typedef bdlt::DayOfWeek DOW;
+        typedef bdlt::DayOfWeek   DOW;
+        typedef bdlt::MonthOfYear MOY;
 
         static const struct {
-            int       d_line;   // source line number
-            int       d_year;   // year under test
-            int       d_month;  // month under test
-            int       d_day;    // day under test
-            DOW::Enum d_exp;    // expected day of week
+            int       d_line;    // source line number
+            int       d_year;    // year under test
+            int       d_month;   // month under test
+            int       d_day;     // day under test
+            DOW::Enum d_expDOW;  // expected day of week
+            MOY::Enum d_expMOY;  // expected month of year
         } DATA[] = {
-            //LINE   YEAR   MONTH   DAY    EXPECTED
-            //----   ----   -----   ---    ----------
-            { L_,       1,      1,    1,   DOW::e_MON },
-            { L_,       1,      1,    2,   DOW::e_TUE },
-            { L_,       1,      1,    3,   DOW::e_WED },
-            { L_,       1,      1,    4,   DOW::e_THU },
-            { L_,       1,      1,    5,   DOW::e_FRI },
-            { L_,       1,      1,    6,   DOW::e_SAT },
-            { L_,       1,      1,    7,   DOW::e_SUN },
-            { L_,       1,      1,    8,   DOW::e_MON },
+            //LINE   YEAR   MONTH   DAY    EXPECTED DAY OF WEEK  EXPECTED MONTH
+            //----   ----   -----   ---    --------------------  --------------
+            { L_,       1,      1,    1,   DOW::e_MON,           MOY::e_JAN },
+            { L_,       1,      1,    2,   DOW::e_TUE,           MOY::e_JAN },
+            { L_,       1,      1,    3,   DOW::e_WED,           MOY::e_JAN },
+            { L_,       1,      1,    4,   DOW::e_THU,           MOY::e_JAN },
+            { L_,       1,      1,    5,   DOW::e_FRI,           MOY::e_JAN },
+            { L_,       1,      1,    6,   DOW::e_SAT,           MOY::e_JAN },
+            { L_,       1,      1,    7,   DOW::e_SUN,           MOY::e_JAN },
+            { L_,       1,      1,    8,   DOW::e_MON,           MOY::e_JAN },
 
-            { L_,       1,      2,    1,   DOW::e_THU },
-            { L_,       2,      1,    1,   DOW::e_TUE },
+            { L_,       1,      2,    1,   DOW::e_THU,           MOY::e_FEB },
+            { L_,       2,      1,    1,   DOW::e_TUE,           MOY::e_JAN },
 
-            { L_,    1600,     12,   31,   DOW::e_SUN },
+            { L_,    1600,     12,   31,   DOW::e_SUN,           MOY::e_DEC },
 
-            { L_,    1752,      9,    2,   DOW::e_SAT },
-            { L_,    1752,      9,    3,   DOW::e_SUN },
-            { L_,    1752,      9,    8,   DOW::e_FRI },
-            { L_,    1752,      9,   13,   DOW::e_WED },
-            { L_,    1752,      9,   14,   DOW::e_THU },
+            { L_,    1752,      9,    2,   DOW::e_SAT,           MOY::e_SEP },
+            { L_,    1752,      9,    3,   DOW::e_SUN,           MOY::e_SEP },
+            { L_,    1752,      9,    8,   DOW::e_FRI,           MOY::e_SEP },
+            { L_,    1752,      9,   13,   DOW::e_WED,           MOY::e_SEP },
+            { L_,    1752,      9,   14,   DOW::e_THU,           MOY::e_SEP },
 
-            { L_,    1999,     12,   31,   DOW::e_FRI },
+            { L_,    1999,     12,   31,   DOW::e_FRI,           MOY::e_DEC },
 
-            { L_,    2000,      1,    1,   DOW::e_SAT },
-            { L_,    2000,      2,   28,   DOW::e_MON },
-            { L_,    2000,      2,   29,   DOW::e_TUE },
+            { L_,    2000,      1,    1,   DOW::e_SAT,           MOY::e_JAN },
+            { L_,    2000,      2,   28,   DOW::e_MON,           MOY::e_FEB },
+            { L_,    2000,      2,   29,   DOW::e_TUE,           MOY::e_FEB },
 
-            { L_,    9999,     12,   31,   DOW::e_FRI },
+            { L_,    9999,     12,   31,   DOW::e_FRI,           MOY::e_DEC },
+
+            { L_,    2014,      1,    1,   DOW::e_WED,           MOY::e_JAN },
+            { L_,    2014,      2,    1,   DOW::e_SAT,           MOY::e_FEB },
+            { L_,    2014,      3,    1,   DOW::e_SAT,           MOY::e_MAR },
+            { L_,    2014,      4,    1,   DOW::e_TUE,           MOY::e_APR },
+            { L_,    2014,      5,    1,   DOW::e_THU,           MOY::e_MAY },
+            { L_,    2014,      6,    1,   DOW::e_SUN,           MOY::e_JUN },
+            { L_,    2014,      7,    1,   DOW::e_TUE,           MOY::e_JUL },
+            { L_,    2014,      8,    1,   DOW::e_FRI,           MOY::e_AUG },
+            { L_,    2014,      9,    1,   DOW::e_MON,           MOY::e_SEP },
+            { L_,    2014,     10,    1,   DOW::e_WED,           MOY::e_OCT },
+            { L_,    2014,     11,    1,   DOW::e_SAT,           MOY::e_NOV },
+            { L_,    2014,     12,    1,   DOW::e_MON,           MOY::e_DEC },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int       LINE  = DATA[ti].d_line;
-            const int       YEAR  = DATA[ti].d_year;
-            const int       MONTH = DATA[ti].d_month;
-            const int       DAY   = DATA[ti].d_day;
-            const DOW::Enum EXP   = DATA[ti].d_exp;
+            const int       LINE    = DATA[ti].d_line;
+            const int       YEAR    = DATA[ti].d_year;
+            const int       MONTH   = DATA[ti].d_month;
+            const int       DAY     = DATA[ti].d_day;
+            const DOW::Enum EXP_DOW = DATA[ti].d_expDOW;
+            const MOY::Enum EXP_MOY = DATA[ti].d_expMOY;
 
-            if (veryVerbose) { T_ P_(LINE) P_(YEAR) P_(MONTH) P_(DAY) P(EXP) }
+            if (veryVerbose) {
+                T_ P_(LINE) P_(YEAR) P_(MONTH) P_(DAY) P_(EXP_DOW) P(EXP_MOY)
+            }
 
 #ifndef BDE_OMIT_TRANSITIONAL
             if (!bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()
@@ -1334,9 +1364,12 @@ if (verbose)
 
             const Obj X(YEAR, MONTH, DAY);
 
-            if (veryVeryVerbose) { T_ T_ P_(X) P(X.dayOfWeek()) }
+            if (veryVeryVerbose) {
+                T_ T_ P_(X) P_(X.dayOfWeek()) P(X.monthOfYear())
+            }
 
-            LOOP_ASSERT(LINE, EXP == X.dayOfWeek());
+            LOOP_ASSERT(LINE, EXP_DOW == X.dayOfWeek());
+            LOOP_ASSERT(LINE, EXP_MOY == X.monthOfYear());
         }
 
       } break;
@@ -3621,6 +3654,11 @@ if (verbose)
         //:
         //: 9 The initial value of the object has no affect on
         //:   unexternalization.
+#ifndef BDE_OMIT_TRANSITIONAL
+        //:
+        //:10 Streaming version 1 provides the expected compatibility between
+        //:   the two calendar modes.
+#endif
         //
         // Plan:
         //: 1 Test 'maxSupportedBdexVersion' explicitly.  (C-1)
@@ -3673,6 +3711,13 @@ if (verbose)
         //:
         //:11 In all cases, verify the return value of the tested method.
         //:   (C-8)
+#ifndef BDE_OMIT_TRANSITIONAL
+        //:
+        //:12 Let 'M' be the ordered set of calendar modes { POSIX, proleptic
+        //:   Gregorian }.  For each '(u, v)' in the set 'M x M', verify that
+        //:   dates streamed out in calendar mode 'u' are streamed in as
+        //:   expected in calendar mode 'v'.  (C-10)
+#endif
         //
         // Testing:
         //   static int maxSupportedBdexVersion(int versionSelector);
@@ -3999,7 +4044,7 @@ if (verbose)
         ASSERT(X != Y);
 
 #ifdef BDE_OMIT_TRANSITIONAL
-        const int SERIAL_Y = 731;   // internal rep. of 'Y'
+        const int SERIAL_Y = 733;   // streamed rep. of 'Y'
 #else
         int SERIAL_Y;               // streamed rep. of 'Y'
 
@@ -4114,11 +4159,7 @@ if (verbose)
         }
         {
             Out out(VERSION_SELECTOR, &allocator);
-#ifdef BDE_OMIT_TRANSITIONAL
-            out.putInt24(3652060);  // Stream out "new" value.
-#else
-            out.putInt24(3652062);
-#endif
+            out.putInt24(3652062);  // Stream out "new" value.
 
             const char *const OD  = out.data();
             const int         LOD = out.length();
@@ -4154,13 +4195,8 @@ if (verbose)
                 //LINE  YEAR  MONTH  DAY  VER  LEN  FORMAT
                 //----  ----  -----  ---  ---  ---  ---------------
                 { L_,      1,     1,   1,   1,   3,  "\x00\x00\x01"  },
-#ifdef BDE_OMIT_TRANSITIONAL
-                { L_,   2014,    10,  22,   1,   3,  "\x0b\x39\x28"  },
-                { L_,   2016,     8,  27,   1,   3,  "\x0b\x3b\xcb"  }
-#else
                 { L_,   2014,    10,  22,   1,   3,  "\x0b\x39\x2a"  },
                 { L_,   2016,     8,  27,   1,   3,  "\x0b\x3b\xcd"  }
-#endif
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -4262,8 +4298,19 @@ if (verbose)
                        bdlt::DelegatingDateImpUtil::isProlepticGregorianMode();
 
         // Note that 'VC', used throughout this compatibility testing section,
-        // is known to be distinct from any test 'DATA', and it is immaterial
-        // in which calendar mode it was created.
+        // is known to be distinct from any test datum.  It is immaterial in
+        // which calendar mode it was created.
+
+        // The first two test blocks verify that:
+        //: 1 [POSIX --> POSIX] A date streamed out in POSIX mode is streamed
+        //:   in as expected in POSIX mode.
+        //:
+        //: 2 [proleptic Gregorian --> proleptic Gregorian] A date streamed out
+        //:   in proleptic Gregorian mode is streamed in as expected in
+        //:   proleptic Gregorian mode.
+        //
+        // These identity tests are provided for completeness and help further
+        // ensure sanity of the streaming functions.
 
         if (verbose) cout << "\tPOSIX --> POSIX." << endl;
         {
@@ -4276,7 +4323,7 @@ if (verbose)
                 int d_iMonth;  // input month
                 int d_iDay;    // input day
             } DATA[] = {
-                //LINE  OYEAR  OMONTH  ODAY  OYEAR  OMONTH  ODAY
+                //LINE  OYEAR  OMONTH  ODAY  IYEAR  IMONTH  IDAY
                 //----  -----  ------  ----  -----  ------  ----
                 { L_,       1,      1,    1,     1,      1,    1,  },
                 { L_,       1,      1,    2,     1,      1,    2,  },
@@ -4288,8 +4335,6 @@ if (verbose)
                 { L_,     303,      6,    1,   303,      6,    1,  },
 
                 { L_,    1752,      9,    2,  1752,      9,    2,  },
-
-                // identical values in both calendar modes from here on
 
                 { L_,    1752,      9,   14,  1752,      9,   14,  },
                 { L_,    1899,     12,   26,  1899,     12,   26,  },
@@ -4350,7 +4395,7 @@ if (verbose)
                 int d_iMonth;  // input month
                 int d_iDay;    // input day
             } DATA[] = {
-                //LINE  OYEAR  OMONTH  ODAY  OYEAR  OMONTH  ODAY
+                //LINE  OYEAR  OMONTH  ODAY  IYEAR  IMONTH  IDAY
                 //----  -----  ------  ----  -----  ------  ----
                 { L_,       1,      1,    1,     1,      1,    1,  },
                 { L_,       1,      1,    2,     1,      1,    2,  },
@@ -4362,8 +4407,6 @@ if (verbose)
                 { L_,     303,      6,    1,   303,      6,    1,  },
 
                 { L_,    1752,      9,    2,  1752,      9,    2,  },
-
-                // identical values in both calendar modes from here on
 
                 { L_,    1752,      9,   14,  1752,      9,   14,  },
                 { L_,    1899,     12,   26,  1899,     12,   26,  },
@@ -4412,6 +4455,20 @@ if (verbose)
             }
         }
 
+        // The next two test blocks verify the compatibility that is expected
+        // between the two calendar modes.  In particular, they verify that:
+        //: 1 [POSIX --> proleptic Gregorian] A date streamed out in POSIX mode
+        //:   is streamed in as expected in proleptic Gregorian mode.
+        //:
+        //: 2 [proleptic Gregorian --> POSIX] A date streamed out in proleptic
+        //:   Gregorian mode is streamed in as expected in POSIX mode.
+        //
+        // Note that for the range of dates '[1752/09/14 .. 9999/12/31]', the
+        // ymd attributes corresponding to the serial values that are actually
+        // streamed are identical in both calendar modes.  The "// **" comment
+        // indicates cases in the test data where the ymd attributes differ
+        // between the two calendar modes.
+
         if (verbose) cout << "\tPOSIX --> proleptic Gregorian." << endl;
         {
             static const struct {
@@ -4423,7 +4480,7 @@ if (verbose)
                 int d_iMonth;  // input month
                 int d_iDay;    // input day
             } DATA[] = {
-                //LINE  OYEAR  OMONTH  ODAY  OYEAR  OMONTH  ODAY
+                //LINE  OYEAR  OMONTH  ODAY  IYEAR  IMONTH  IDAY
                 //----  -----  ------  ----  -----  ------  ----
                 { L_,       1,      1,    1,     1,      1,    1,  },
                 { L_,       1,      1,    2,     1,      1,    1,  },  // **
@@ -4435,8 +4492,6 @@ if (verbose)
                 { L_,     303,      6,    1,   303,      6,    2,  },  // **
 
                 { L_,    1752,      9,    2,  1752,      9,   13,  },  // **
-
-                // identical values in both calendar modes from here on
 
                 { L_,    1752,      9,   14,  1752,      9,   14,  },
                 { L_,    1899,     12,   26,  1899,     12,   26,  },
@@ -4504,7 +4559,7 @@ if (verbose)
                 int d_iMonth;  // input month
                 int d_iDay;    // input day
             } DATA[] = {
-                //LINE  OYEAR  OMONTH  ODAY  OYEAR  OMONTH  ODAY
+                //LINE  OYEAR  OMONTH  ODAY  IYEAR  IMONTH  IDAY
                 //----  -----  ------  ----  -----  ------  ----
                 { L_,       1,      1,    1,     1,      1,    1,  },
                 { L_,       1,      1,    2,     1,      1,    4,  },  // **
@@ -4516,8 +4571,6 @@ if (verbose)
                 { L_,     303,      6,    1,   303,      5,   31,  },  // **
 
                 { L_,    1752,      9,    2,  1752,      8,   22,  },  // **
-
-                // identical values in both calendar modes from here on
 
                 { L_,    1752,      9,   14,  1752,      9,   14,  },
                 { L_,    1899,     12,   26,  1899,     12,   26,  },
@@ -4570,7 +4623,9 @@ if (verbose)
             }
         }
 
-        // Restore the calendar mode to what it was on entry to the test case.
+        // Restore the calendar mode to what it was on entry to the test case,
+        // so that 'VG' (defined near the beginning of case 10) can be safely
+        // destroyed.
 
         if (isPGModeOnEntry) {
             bdlt::DelegatingDateImpUtil::enableProlepticGregorianMode();

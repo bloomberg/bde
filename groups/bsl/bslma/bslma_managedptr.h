@@ -1287,7 +1287,7 @@ struct ManagedPtrUtil {
 
 template <class TARGET_TYPE>
 struct ManagedPtrNilDeleter {
-    // [!DEPRECATED!]: Use 'ManagedPtrNoOpDeleter' instead.
+    // [!DEPRECATED!]: Use 'ManagedPtrUtil::noOpDeleter' instead.
     //
     // This utility class provides a general no-op deleter, which is useful
     // when creating managed pointers to stack-allocated objects.  Note that
@@ -1730,13 +1730,15 @@ ManagedPtr<TARGET_TYPE>::release()
     typedef ManagedPtr_PairProxy<TARGET_TYPE, ManagedPtrDeleter> ResultType;
 
     TARGET_TYPE *p = ptr();
-    if (!p) {
-        // It is undefined behavior to call d_members.deleter() if 'p' is null.
 
-        return ResultType();                                          // RETURN
+    // It is undefined behavior to call d_members.deleter() if 'p' is null.
+
+    if (p) {
+        ResultType result = { p, d_members.deleter() };
+        d_members.clear();
+        return result;                                                // RETURN
     }
-    ResultType result = {p, d_members.deleter()};
-    d_members.clear();
+    ResultType result = { p, ManagedPtrDeleter() };
     return result;
 }
 

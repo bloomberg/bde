@@ -243,13 +243,15 @@ struct DelegatingDateImpUtil {
     static void disableProlepticGregorianMode();
         // Configure this utility to be in POSIX mode.  This function has no
         // effect if this utility is already in POSIX mode.  Do *not* call this
-        // method unless you know what you are doing.
+        // method unless you know what you are doing.  The behavior is
+        // undefined if the task has started multiple threads.
 
     static void enableProlepticGregorianMode();
         // Configure this utility to be in proleptic Gregorian mode.  This
         // function has no effect if this utility is already in proleptic
         // Gregorian mode.  Do *not* call this method unless you know what you
-        // are doing.
+        // are doing.  The behavior is undefined if the task has started
+        // multiple threads.
 
     static bool isProlepticGregorianMode();
         // Return 'true' if this utility is configured to be in proleptic
