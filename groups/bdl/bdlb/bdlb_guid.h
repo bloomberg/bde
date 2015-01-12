@@ -21,11 +21,11 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Mickey Sweatt (msweatt1)
 //
 //@DESCRIPTION: This component provides a value semantic type for Globally
-// Unique Identifiers (GUIDs), 'bdlb::Guid'.  All equality and comparison
-// methods are defined for these GUIDs.  In addition this type is zero-
-// initialized to support compatibility with constructs which depend on this.
-// Note that this component does not provide the facilities to generate GUIDs,
-// and thus makes no guarantees of uniqueness.
+// Unique Identifiers (GUIDs), 'bdlb::Guid', with format as described by RFC
+// 4122 (<http://http://www.ietf.org/rfc/rfc4122.txt>).  All equality and
+// comparison methods are defined for these GUIDs.  Note that this component
+// does not provide the facilities to generate GUIDs, and thus makes no
+// guarantees of uniqueness or randomness.
 //
 ///Usage
 ///-----
@@ -159,6 +159,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 namespace BloombergLP {
 namespace bdlb {
                                 // ==========
@@ -188,8 +192,8 @@ class Guid {
   public:
     // CREATORS
     Guid();
-        // Construct a zero initialized guid object.  Note that a zero-
-        // initialized guid object is not a GUID.
+        // Construct a zero-initialized guid object.  Note that a zero-
+        // initialized guid object is not a GUID according to RFC 4122.
 
     //! ~Guid() = default;
         // Destroy this object
@@ -199,6 +203,18 @@ class Guid {
         // specified 'buffer' with the first byte representing the most
         // significant byte.  Note that this method does guarantee that the
         // created guid object is a GUID.
+
+    Guid(unsigned long       timeLow,
+         unsigned short      timeMid,
+         unsigned short      timeHiAndVersion,
+         unsigned char       clockSeqHiRes,
+         unsigned char       clockSeqLow,
+         bsls::Types::Uint64 node);
+        // Construct a guid object with an internal buffer composed from the
+        // specified 'timeLow', 'timeMid', 'timeHiAndVersion', 'clockSeqHiRes',
+        // 'clockSeqLow', and 'node' as specified by RFC 4122.  Note that only
+        // the least significant 48 bits of 'node' are used in constructing
+        // the guid.
 
     //! Guid(const Guid& original) = default;
         // Construct a guid object having the same value as the specified
@@ -219,6 +235,57 @@ class Guid {
         // specified 'offset' from the most significant byte of this guid
         // object.  The behavior is undefined unless
         // '0 <= offset < k_GUID_NUM_BYTES'.
+
+    const unsigned char *begin() const;
+    const unsigned char *data() const;
+        // Return a pointer offering unmodifiable access to the most
+        // significant byte of this guid object.
+
+    const unsigned char *end() const;
+        // Return a pointer one past the end of the least significant byte of
+        // this guid object.
+
+                        // RFC 4122 FIELD ACCESSORS
+
+    unsigned char clockSeqHi() const;
+        // Return the 5-bit value of the 'clk_seq_hi_res' field of this guid as
+        // specified in RFC 4122, excluding the variant bits.
+
+    unsigned char clockSeqHiRes() const;
+        // Return the 8-bit 'clk_seq_hi_res' field of this guid as specified in
+        // RFC 4122.
+
+    unsigned char clockSeqLow() const;
+        // Return the 8-bit 'clk_seq_low' field of this guid as specified in
+        // RFC 4122.
+
+    bsls::Types::Uint64 node() const;
+        // Return the 48-bit 'node' field of this guid as specified in RFC
+        // 4122.
+
+    unsigned short timeHi() const;
+        // Return the 12-bit value of the 'time_hi_and_version' field of this
+        // guid as specified in RFC 4122, excluding the 'version' bits.
+
+    unsigned short timeHiAndVersion() const;
+        // Return the 16-bit 'time_hi_and_version' field of this guid as
+        // specified in RFC 4122.
+
+    unsigned long timeLow() const;
+        // Return the 32-bit 'time_low' field of this guid as specified in RFC
+        // 4122.
+
+    unsigned short timeMid() const;
+        // Return the 16-bit 'time_mid' field of this guid as specified in RFC
+        // 4122.
+
+    unsigned char variant() const;
+        // Return the 3-bit 'variant' portion of the 'clk_seq_hi_res' field of
+        // this guid as specified in RFC 4122.
+
+    unsigned char version() const;
+        // Return the four-bit 'version' portion of the 'time_hi_and_version'
+        // field of this guid as specified in RFC 4122.
 
     // ASPECTS
     bsl::ostream& print(bsl::ostream& stream,
@@ -252,16 +319,6 @@ bool operator!=(const Guid& lhs, const Guid& rhs);
     // different value if any of corresponding byte in their internal buffers
     // differ.
 
-bsl::ostream& operator<<(bsl::ostream& stream, const Guid& guid);
-    // Write the value of the specified 'guid' object to the specified output
-    // 'stream' in a single-line format, and return a reference to 'stream'.
-    // If 'stream' is not valid on entry, this operation has no effect.  Note
-    // that this human-readable format is not fully specified, can change
-    // without notice, and is logically equivalent to:
-    //..
-    //  print(stream, 0, -1);
-    //..
-
 bool operator< (const Guid& lhs, const Guid& rhs);
     // Return 'true' if the value of the specified 'lhs' guid object is less
     // than the value of the specified 'rhs' guid object, and 'false'
@@ -286,6 +343,16 @@ bool operator>=(const Guid& lhs, const Guid& rhs);
     // 'false' otherwise.  Note that the comparison is accomplished using a
     // lexicographic comparison of the internal representations.
 
+bsl::ostream& operator<<(bsl::ostream& stream, const Guid& guid);
+    // Write the value of the specified 'guid' object to the specified output
+    // 'stream' in a single-line format, and return a reference to 'stream'.
+    // If 'stream' is not valid on entry, this operation has no effect.  Note
+    // that this human-readable format is not fully specified, can change
+    // without notice, and is logically equivalent to:
+    //..
+    //  print(stream, 0, -1);
+    //..
+
 // ============================================================================
 //                      INLINE DEFINITIONS
 // ============================================================================
@@ -303,8 +370,37 @@ Guid::Guid()
 inline
 Guid::Guid(const unsigned char (&buffer)[k_GUID_NUM_BYTES])
 {
-    BSLS_ASSERT_SAFE(&buffer);
     bsl::copy(buffer, buffer + k_GUID_NUM_BYTES, d_buffer);
+}
+
+inline Guid::Guid(unsigned long       timeLow,
+                  unsigned short      timeMid,
+                  unsigned short      timeHiAndVersion,
+                  unsigned char       clockSeqHiRes,
+                  unsigned char       clockSeqLow,
+                  bsls::Types::Uint64 node)
+{
+    d_buffer[ 0] = timeLow >> 24;
+    d_buffer[ 1] = timeLow >> 16;
+    d_buffer[ 2] = timeLow >>  8;
+    d_buffer[ 3] = timeLow;
+
+    d_buffer[ 4] = timeMid >> 8;
+    d_buffer[ 5] = timeMid;
+
+    d_buffer[ 6] = timeHiAndVersion >> 8;
+    d_buffer[ 7] = timeHiAndVersion;
+
+    d_buffer[ 8] = clockSeqHiRes;
+
+    d_buffer[ 9] = clockSeqLow;
+
+    d_buffer[10] = node >> 40;
+    d_buffer[11] = node >> 32;
+    d_buffer[12] = node >> 24;
+    d_buffer[13] = node >> 16;
+    d_buffer[14] = node >>  8;
+    d_buffer[15] = node;
 }
 
 // MANIPULATORS
@@ -321,6 +417,92 @@ const unsigned char& Guid::operator[](bsl::size_t offset) const
 {
     BSLS_ASSERT_SAFE(offset < k_GUID_NUM_BYTES);
     return d_buffer[offset];
+}
+
+inline
+const unsigned char *Guid::begin() const
+{
+    return d_buffer;
+}
+
+inline
+const unsigned char *Guid::data() const
+{
+    return d_buffer;
+}
+
+inline
+const unsigned char *Guid::end() const
+{
+    return d_buffer + k_GUID_NUM_BYTES;
+}
+
+                        // RFC 4122 FIELD ACCESSORS
+
+inline
+unsigned char Guid::clockSeqHi() const
+{
+    return clockSeqHiRes() & 0x1F;
+}
+
+inline
+unsigned char Guid::clockSeqHiRes() const
+{
+    return d_buffer[8];
+}
+
+inline
+unsigned char Guid::clockSeqLow() const
+{
+    return d_buffer[9];
+}
+
+inline
+bsls::Types::Uint64 Guid::node() const
+{
+    return bsls::Types::Uint64(d_buffer[10]) << 40 |
+           bsls::Types::Uint64(d_buffer[11]) << 32 |
+           bsls::Types::Uint64(d_buffer[12]) << 24 |
+           bsls::Types::Uint64(d_buffer[13]) << 16 |
+           bsls::Types::Uint64(d_buffer[14]) <<  8 |
+                               d_buffer[15];
+}
+
+inline
+unsigned short Guid::timeHi() const
+{
+    return timeHiAndVersion() & 0x0FFF;
+}
+
+inline
+unsigned short Guid::timeHiAndVersion() const
+{
+    return d_buffer[6] << 8 |
+           d_buffer[7];
+}
+
+inline
+unsigned long Guid::timeLow() const {
+    return d_buffer[0] << 24 |
+           d_buffer[1] << 16 |
+           d_buffer[2] <<  8 |
+           d_buffer[3];
+}
+
+inline
+unsigned short Guid::timeMid() const {
+    return d_buffer[4] << 8 |
+           d_buffer[5];
+}
+
+inline
+unsigned char Guid::variant() const {
+    return clockSeqHiRes() >> 5;
+}
+
+inline
+unsigned char Guid::version() const {
+    return timeHiAndVersion() >> 12;
 }
 
 }  // close package namespace

@@ -29,10 +29,24 @@ using namespace bsl;
 // CREATORS
 // [ 2] bdlb::Guid(const unsigned char values[16]);
 // [ 7] bdlb::Guid(const bdlb::Guid& original);
+// [14] bdlb::Guid(ul, us, us, uc, uc, u64);
 //
 // ACCESSORS
 // [ 2] const unsigned char& operator[](unsigned int offset) const;
 // [11] ostream& print(ostream& stream, int level, int sp) const;
+// [ 2] const unsigned char *begin() const;
+// [ 2] const unsigned char *data() const;
+// [ 2] const unsigned char *end() const;
+// [14] unsigned char clockSeqHi() const;
+// [14] unsigned char clockSeqHiRes() const;
+// [14] unsigned char clockSeqLow() const;
+// [14] bsls::Types::Uint64 node() const;
+// [14] unsigned short timeHi() const;
+// [14] unsigned short timeHiAndVersion() const;
+// [14] unsigned long timeLow() const;
+// [14] unsigned short timeMid() const;
+// [14] unsigned char variant() const;
+// [14] unsigned char version() const;
 //
 // MANIPULATORS
 // [ 3] Guid& operator=(unsigned char buffer[k_GUID_NUM_BYTES]);
@@ -55,7 +69,7 @@ using namespace bsl;
 // [ 4] bdlb::Guid& gg(bdlb::Guid *object, const char *spec);
 // [ 8] bdlb::Guid g(const char *spec);
 // [ 4] int ggg(bdlb::Guid *object, const char *spec, int vF = 1);
-// [14] USAGE EXAMPLE
+// [15] USAGE EXAMPLE
 // [10] int maxSupportedBdexVersion() const;
 // [10] STREAM& bdexStreamIn(STREAM& stream, int version);
 // [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
@@ -163,7 +177,7 @@ const Element &V0 = VALUES[0],            // V0, V1, ... are used in
 namespace BloombergLP {
 namespace bdlb {
 
-void debugprint(const bdlb::Guid& v)
+void debugprint(const Obj& v)
     // Print the specified Guid 'v' to bsl::cout.
 {
     v.print(bsl::cout);
@@ -283,7 +297,7 @@ UniqueStringGenerator::uniqueStringFromBase(bsl::string        *unique,
 //                                      // unique but otherwise arbitrary
 //-----------------------------------------------------------------------------
 
-int ggg(bdlb::Guid *object, const char *spec, int verboseFlag = 1)
+int ggg(Obj *object, const char *spec, int verboseFlag = 1)
     // Configure the specified 'object' according to the specified 'spec',
     // using only the default and value assignment.  Optionally specify a zero
     // 'verboseFlag' to suppress 'spec' syntax error messages.  Return the
@@ -327,7 +341,7 @@ int ggg(bdlb::Guid *object, const char *spec, int verboseFlag = 1)
     return rcode;
 }
 
-bdlb::Guid& gg(bdlb::Guid *object, const char *spec)
+Obj& gg(Obj *object, const char *spec)
     // Return, by reference, the specified 'object' with its value adjusted
     // according to the specified 'spec'.
 {
@@ -335,10 +349,10 @@ bdlb::Guid& gg(bdlb::Guid *object, const char *spec)
     return *object;
 }
 
-bdlb::Guid g(const char *spec)
+Obj g(const char *spec)
     // Return, by value, a new object corresponding to the specified 'spec'.
 {
-    bdlb::Guid object;
+    Obj object;
     return gg(&object, spec);
 }
 
@@ -357,7 +371,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test)  { case 0:
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -392,6 +406,71 @@ int main(int argc, char *argv[])
             previousFileName = uniqueFileName;
         }
 //..
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING RFC 4122 ACCESS
+        //
+        // Concerns:
+        //: 1 A guid object can be constructed using field values as specified
+        //:   by RFC 4122.
+        //:
+        //: 2 RFC 4122-based field accessors return the values with which the
+        //:   guid was constructed.
+        //:
+        //: 3 Verify that only the least significant 48 bits of the 'node'
+        //:   argument are used to construct the guid.
+        //
+        // Plan:
+        //: 1 Construct a guid using arbitrary values for the field-based
+        //:   arguments and verify that they can be retrieved correctly.
+        //
+        // Testing:
+        //   bdlb::Guid(ul, us, us, uc, uc, u64);
+        //   unsigned char clockSeqHi() const;
+        //   unsigned char clockSeqHiRes() const;
+        //   unsigned char clockSeqLow() const;
+        //   bsls::Types::Uint64 node() const;
+        //   unsigned short timeHi() const;
+        //   unsigned short timeHiAndVersion() const;
+        //   unsigned long timeLow() const;
+        //   unsigned short timeMid() const;
+        //   unsigned char variant() const;
+        //   unsigned char version() const;
+        // --------------------------------------------------------------------
+        if (verbose) cout << endl
+                          << "TESTING RFC 4122 ACCESS" << endl
+                          << "=======================" << endl;
+
+        const unsigned long       timeLow          = 0xFEDCBA98;
+        const unsigned short      timeMid          = 0xEBFC;
+        const unsigned short      timeHiAndVersion = 0x4F20;
+        const unsigned short      timeHi           = timeHiAndVersion & 0xFFF;
+        const unsigned short      version          = timeHiAndVersion >> 12;
+        const unsigned char       clockSeqHiRes    = 0xB1;
+        const unsigned char       clockSeqHi       = clockSeqHiRes & 0x1F;
+        const unsigned char       variant          = clockSeqHiRes >> 5;
+        const unsigned char       clockSeqLow      = 0xF7;
+        const bsls::Types::Uint64 node             = 0x0000F0E1D2C3B4A5ULL;
+        const bsls::Types::Uint64 ignored          = 0xDCBA000000000000ULL;
+
+        Obj X(timeLow,
+              timeMid,
+              timeHiAndVersion,
+              clockSeqHiRes,
+              clockSeqLow,
+              node | ignored);
+
+        ASSERT(clockSeqHi       == X.clockSeqHi());
+        ASSERT(clockSeqHiRes    == X.clockSeqHiRes());
+        ASSERT(clockSeqLow      == X.clockSeqLow());
+        ASSERT(node             == X.node());
+        ASSERT(timeHi           == X.timeHi());
+        ASSERT(timeHiAndVersion == X.timeHiAndVersion());
+        ASSERT(timeLow          == X.timeLow());
+        ASSERT(timeMid          == X.timeMid());
+        ASSERT(variant          == X.variant());
+        ASSERT(version          == X.version());
       } break;
       case 13: {
         // --------------------------------------------------------------------
@@ -456,11 +535,11 @@ int main(int argc, char *argv[])
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         X_LINE   = DATA[ti].d_lineNum;
             const char *const X_SPEC   = DATA[ti].d_spec;
-            const bdlb::Guid  X        = g(X_SPEC);
+            const Obj         X        = g(X_SPEC);
             for (int tj = ti + 1; tj < NUM_DATA; ++tj) {
                 const int         Y_LINE = DATA[tj].d_lineNum;
                 const char *const Y_SPEC = DATA[tj].d_spec;
-                const bdlb::Guid  Y      = g(Y_SPEC);
+                const Obj         Y      = g(Y_SPEC);
                 if (veryVerbose) { P_(X) P(Y) }
                 LOOP4_ASSERT(X_LINE, Y_LINE, X_SPEC, Y_SPEC,   X <= Y);
                 LOOP4_ASSERT(X_LINE, Y_LINE, X_SPEC, Y_SPEC,   X <  Y);
@@ -1260,7 +1339,7 @@ int main(int argc, char *argv[])
             Obj mX;
             mX = *ARRAY_P;
             if (veryVerbose) { P_(ARRAY_P) P(mX) }
-            for (int i = 0; i < bdlb::Guid::k_GUID_NUM_BYTES; ++i) {
+            for (int i = 0; i < Obj::k_GUID_NUM_BYTES; ++i) {
                 if (veryVeryVerbose) { P_(i) P_(ARRAY_P[i]) P(mX[i]) }
                 LOOP_ASSERT(LINE, (*ARRAY_P)[i] == mX[i]);
             }
@@ -1271,7 +1350,7 @@ int main(int argc, char *argv[])
         // CONSTRUCTORS / ACCESSORS TEST
         //
         // Concerns:
-        //: 1  A defaultly constructed 'Guid' is initialized to all 0s.
+        //: 1  A default-constructed 'Guid' is initialized to all 0s.
         //:
         //: 2 A value constructed guid compares equal to specified array.
         //:
@@ -1281,16 +1360,23 @@ int main(int argc, char *argv[])
         //:
         //: 5 The address of the object is equal to the address of the first
         //:   element.
+        //:
+        //: 6 The 'begin' and 'data' accessors point to the first element.
+        //:
+        //: 7 The 'end' accessor points one past the last element.
         //
         // Plan:
-        //: 1 Construct a defaultly constructed Guid and use 'operator[]' to
-        //:   access the individual bytes and verify they expected values. Then
-        //:   using a tabular approach value-construct a Guid, and check each
-        //:   of the above concerns in order.
+        //: 1 Construct a default-constructed Guid and use 'operator[]' to
+        //:   access the individual bytes and verify they expected values.
+        //:   Then, using a tabular approach value, construct a Guid and check
+        //:   each of the above concerns in order.
         //
         // Testing:
         //   const unsigned char& operator[](unsigned int offset) const;
         //   bdlb::Guid(const unsigned char values[16]);
+        //   const unsigned char *begin() const;
+        //   const unsigned char *data() const;
+        //   const unsigned char *end() const;
         // --------------------------------------------------------------------
         if (verbose) cout << endl
                           << "CONSTRUCTORS / ACCESSORS TEST" << endl
@@ -1299,9 +1385,9 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << endl
                               << "Testing default constructor" << endl;
 
-        bdlb::Guid g;
-        for (bsl::size_t i = 0; i < bdlb::Guid::k_GUID_NUM_BYTES; ++i) {
-            // 1.  A defaultly constructed 'Guid' is initialized to all 0s.
+        Obj g;
+        for (bsl::size_t i = 0; i < Obj::k_GUID_NUM_BYTES; ++i) {
+            // 1.  A default-constructed 'Guid' is initialized to all 0s.
             if (veryVeryVerbose) {
                 cout << hex << static_cast<unsigned int>(g[i]);
             }
@@ -1339,7 +1425,7 @@ int main(int argc, char *argv[])
             Obj x(ARRAY_P);
             if (veryVerbose) {
                 cout << "Expected Value: [";
-                for (int i = 0; i < bdlb::Guid::k_GUID_NUM_BYTES; ++i) {
+                for (int i = 0; i < Obj::k_GUID_NUM_BYTES; ++i) {
                     cout << hex << static_cast<unsigned int>(ARRAY_P[i]);
                 }
                 cout << "]" << endl;
@@ -1347,15 +1433,14 @@ int main(int argc, char *argv[])
             }
             //   2. A value constructed guid compares equal to specified array.
             LOOP_ASSERT(LINE, 0 == memcmp(&x[0], ARRAY_P,
-                                          bdlb::Guid::k_GUID_NUM_BYTES));
+                                          Obj::k_GUID_NUM_BYTES));
 
             // 3. A the reference returned by operator[] is unmodifiable.
-            const unsigned char &
-            (BloombergLP::bdlb::Guid::*f)(bsl::size_t) const =
-                                                     &bdlb::Guid::operator[];
+            const unsigned char&
+                (Obj::*f)(bsl::size_t) const = &Obj::operator[];
             (void)f;
 
-            //   6. The address of the object is equal to the address of the
+            //   5. The address of the object is equal to the address of the
             //      first element.
             ASSERT(reinterpret_cast<const void *>(&x) ==
                    reinterpret_cast<const void *>(&x[0]));
@@ -1363,17 +1448,25 @@ int main(int argc, char *argv[])
             //   4. The reference returned by operator[] is suitable for
             //      iteration.
             const unsigned char *beg = &x[0];
-            const unsigned char *end = &x[bdlb::Guid::k_GUID_NUM_BYTES - 1];
+            const unsigned char *end = &x[Obj::k_GUID_NUM_BYTES - 1];
 
-            for (int j = 0; j < bdlb::Guid::k_GUID_NUM_BYTES - 1; ++j) {
+            for (int j = 0; j < Obj::k_GUID_NUM_BYTES - 1; ++j) {
                 if (veryVerbose) { P(beg); P(end); }
                 LOOP2_ASSERT(LINE, j, &x[j] + 1 == &x[j + 1]);
-                LOOP2_ASSERT(LINE, bdlb::Guid::k_GUID_NUM_BYTES - 1 - j,
-                            end == &x[bdlb::Guid::k_GUID_NUM_BYTES - 1 - j]);
+                LOOP2_ASSERT(LINE, Obj::k_GUID_NUM_BYTES - 1 - j,
+                                     end == &x[Obj::k_GUID_NUM_BYTES - 1 - j]);
                 LOOP_ASSERT(j, beg == &x[j]);
                 ++beg;
                 --end;
             }
+
+            //   6. The 'begin' and 'data' accessors point to the first
+            //      element.
+            ASSERT(&x[0] == x.begin());
+            ASSERT(&x[0] == x.data());
+
+            //   7. The 'end' accessor points one past the last element.
+            ASSERT(x.end() == x.begin() + Obj::k_GUID_NUM_BYTES);
         }
       } break;
       case 1: {
@@ -1424,8 +1517,7 @@ int main(int argc, char *argv[])
                           << "==============" << endl;
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        BSLMF_ASSERT(16 == sizeof(bdlb::Guid) &&
-                     16 == bdlb::Guid::k_GUID_NUM_BYTES);
+        BSLMF_ASSERT(16 == sizeof(Obj) && 16 == Obj::k_GUID_NUM_BYTES);
          // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 1) Create an object x1 (default ctor)."
                              "\t\t\t{ x1: }" << endl;
