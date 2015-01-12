@@ -184,17 +184,17 @@ namespace bdlb {
                               // ===============
 
 struct GuidUtil {
-    // This 'struct' provides a namespace for functions that create universally
-    // unique Identifiers.
+    // This 'struct' provides a namespace for functions that create Universally
+    // Unique Identifiers per RFC 4122 (http://www.ietf.org/rfc/rfc4122.txt).
 
     // CLASS METHODS
     static void generate(Guid *result, bsl::size_t numGuids = 1);
-        // Generate the optionally specified 'numGuids' (default 1) GUIDs, and
-        // load the resulting GUIDs into the array referenced by the specified
-        // 'result' pointer.
+        // Generate the optionally specified 'numGuids' (default 1) RFC 4122
+        // version 4 GUIDs, and load the resulting GUIDs into the array
+        // referenced by the specified 'result' pointer.
 
     static Guid generate();
-        // Generate and return a single GUID.
+        // Generate and return a single RFC 4122 version 4 GUID.
 
     static int guidFromString(Guid *result, bslstl::StringRef guidString);
         // Parse the specified 'guidString' (in {GUID String Format}) and load
