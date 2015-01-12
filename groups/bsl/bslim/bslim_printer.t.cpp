@@ -900,6 +900,26 @@ int main(int argc, char *argv[])
         }
 
         {
+            bsl::vector<char> v(&uniqKeys[0], uniqKeys + NUM_DATA);
+            const bsl::vector<char>& V = v;
+            bsl::ostringstream out;
+            bslim::Printer p(&out, 2, 2);
+            p.printAttribute("vector", V);
+
+            const char *EXP = "      vector = [\n"
+                              "        0xfd\n"
+                              "        0x2\n"
+                              "        0x7\n"
+                              "        0x5\n"
+                              "        '\\t'\n"
+                              "        0x3\n"
+                              "        0x16\n"
+                              "        0x1\n"
+                              "      ]\n";
+            LOOP2_ASSERT(EXP, out.str(), EXP == out.str());
+        }
+
+        {
             bsl::deque<int> d(&uniqKeys[0], uniqKeys + NUM_DATA);
             const bsl::deque<int>& D = d;
             bsl::ostringstream out;

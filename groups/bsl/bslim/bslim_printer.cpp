@@ -165,7 +165,7 @@ void Printer_Helper::printRaw(bsl::ostream&                  stream,
                               bslmf::SelectTraitCase<bsl::is_fundamental>)
 {
 #define HANDLE_CONTROL_CHAR(value) case value: stream << #value; break;
-    if (bsl::isprint(data)) {
+    if (bsl::isprint(static_cast<unsigned char>(data))) {
         // print within quotes
 
         stream << "'" << data << "'";
@@ -182,7 +182,8 @@ void Printer_Helper::printRaw(bsl::ostream&                  stream,
             FormatGuard guard(&stream);
             stream << bsl::hex
                    << bsl::showbase
-                   << static_cast<bsls::Types::UintPtr>(data);
+                   << static_cast<bsls::Types::UintPtr>(
+                                             static_cast<unsigned char>(data));
           }
         }
     }
