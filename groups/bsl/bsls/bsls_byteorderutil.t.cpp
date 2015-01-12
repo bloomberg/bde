@@ -111,7 +111,7 @@ void aSsErT(bool b, const char *s, int i)
                  bsls::BslTestUtil::flush();
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS) ||                                      \
-    (defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_CPU_32_BIT))
+    (defined(BSLS_PLATFORM_OS_AIX) && defined(BSLS_PLATFORM_CPU_32_BIT))
 # define BYTEORDERUTIL_SIZEOF_WCHAR_T 2
 #else
 # define BYTEORDERUTIL_SIZEOF_WCHAR_T 4
