@@ -487,8 +487,8 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
     const CHAR_TYPE *data() const;
         // Return the address of the first character of the string bound to
         // this string reference such that '[data(), data()+length())' is a
-        // valid half-open range of characters. Note that the range of 
-        // characters may not be null-terminated and may contain embedded 
+        // valid half-open range of characters. Note that the range of
+        // characters may not be null-terminated and may contain embedded
         // null characters.
 
     bool isEmpty() const;
