@@ -489,7 +489,7 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
         // this string reference such that '[data(), data()+length())' is a
         // valid half-open range of characters. Note that the range of 
         // characters may not be null-terminated and may contain embedded 
-	// null characters.
+        // null characters.
 
     bool isEmpty() const;
         // Return 'true' if this object represents an empty string value, and
