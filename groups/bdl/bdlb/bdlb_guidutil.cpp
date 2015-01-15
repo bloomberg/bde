@@ -118,42 +118,36 @@ Guid GuidUtil::generate()
     return result;
 }
 
-void GuidUtil::generate(Guid *result, bsl::size_t numGuids)
+inline
+void GuidUtil::generate(unsigned char *result, bsl::size_t numGuids)
 {
-    for (bsl::size_t i = 0; i < numGuids; ++i) {
-        unsigned char *bytes = const_cast<unsigned char *>(&result[i][0]);
-        RandomDevice::getRandomBytesNonBlocking(bytes, Guid::k_GUID_NUM_BYTES);
+    unsigned char *bytes = result;
+    unsigned char *end = bytes + numGuids * Guid::k_GUID_NUM_BYTES;
+    RandomDevice::getRandomBytesNonBlocking(bytes, end - bytes);
+    while (bytes != end) {
         bytes[6] = 0x40 | (bytes[6] & 0x0F);
         bytes[8] = 0x80 | (bytes[8] & 0x3F);
+        bytes += Guid::k_GUID_NUM_BYTES;
     }
+}
+
+void GuidUtil::generate(Guid *result, bsl::size_t numGuids)
+{
+    generate(reinterpret_cast<unsigned char *>(result), numGuids);
 }
 
 bsls::Types::Uint64 GuidUtil::getLeastSignificantBits(const Guid& guid)
 {
-    bsls::Types::Uint64 lsb =
-                       (guid[ 8] & 0xFF);
-    lsb = (lsb << 8) | (guid[ 9] & 0xFF);
-    lsb = (lsb << 8) | (guid[10] & 0xFF);
-    lsb = (lsb << 8) | (guid[11] & 0xFF);
-    lsb = (lsb << 8) | (guid[12] & 0xFF);
-    lsb = (lsb << 8) | (guid[13] & 0xFF);
-    lsb = (lsb << 8) | (guid[14] & 0xFF);
-    lsb = (lsb << 8) | (guid[15] & 0xFF);
-    return BSLS_BYTEORDER_BE_U64_TO_HOST(lsb);
+    bsls::Types::Uint64 result = 0;
+    memcpy(&result, &guid[8], sizeof(result));
+    return result;
 }
 
 bsls::Types::Uint64 GuidUtil::getMostSignificantBits(const Guid& guid)
 {
-    bsls::Types::Uint64 msb =
-                       (guid[0] & 0xFF);
-    msb = (msb << 8) | (guid[1] & 0xFF);
-    msb = (msb << 8) | (guid[2] & 0xFF);
-    msb = (msb << 8) | (guid[3] & 0xFF);
-    msb = (msb << 8) | (guid[4] & 0xFF);
-    msb = (msb << 8) | (guid[5] & 0xFF);
-    msb = (msb << 8) | (guid[6] & 0xFF);
-    msb = (msb << 8) | (guid[7] & 0xFF);
-    return BSLS_BYTEORDER_BE_U64_TO_HOST(msb);
+    bsls::Types::Uint64 result = 0;
+    memcpy(&result, &guid[0], sizeof(result));
+    return result;
 }
 
 int GuidUtil::guidFromString(Guid *result, bslstl::StringRef guidString)

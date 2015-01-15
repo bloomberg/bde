@@ -172,6 +172,13 @@ class Guid {
     // This class implements a value-semantic 'Guid' type.  Each object
     // represents an unconstrained 'Guid' object, but its uniqueness is *not*
     // guaranteed, and this component provides no ability to generate a GUID.
+    //
+    // This class provides a constructor and several accessors with names and
+    // parameters phrased using RFC 4122 field names.  These names are used (by
+    // RFC 4122 and this component) as designators for parts of the GUID even
+    // when those names do not accurately describe the parts (for example,
+    // 'time low' names bytes 0-3 of the GUID regardless of whether the values
+    // of those bytes come from a clock or are generated randomly).
 
   public:
     // CLASS DATA
