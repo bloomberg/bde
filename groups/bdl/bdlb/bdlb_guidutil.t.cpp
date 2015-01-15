@@ -33,7 +33,8 @@ using namespace bsl;
 // responsibility of the generators themselves.
 // ----------------------------------------------------------------------------
 // CLASS METHODS
-// [1] void generate(Guid out[], size_t cnt)
+// [1] void generate(Guid *out, size_t cnt)
+// [1] void generate(unsigned char *out, size_t cnt)
 // [1] Guid generate()
 // [2] int getVersion(const Guid& guid)
 // [3] int guidFromString(Guid *result, StrRef guidString)
@@ -641,6 +642,7 @@ int main(int argc, char *argv[])
         //: 1 A single GUID can be passed and loaded.
         //: 2 If 'count' is passed, 'count' GUIDs are returned.
         //: 3 The correct type of GUID is returned.
+        //: 4 Memory outside the designated range is left unchanged.
         //
         // Plan:
         //: 1 Call the 'generate' method with a count of 1, and call the
@@ -650,9 +652,13 @@ int main(int argc, char *argv[])
         //:
         //: 3 Check the internal structure of returned GUIDs to verify that
         //:   they are the right type.  (C-3)
+        //:
+        //: 4 Inspect memory areas just before and after the region that
+        //:   receives GUIDs to verify that it is unchanged.
         //
         // Testing:
-        //   void generate(Guid out[], size_t cnt)
+        //   void generate(Guid *out, size_t cnt)
+        //   void generate(unsigned char *out, size_t cnt)
         //   Guid generate()
         // --------------------------------------------------------------------
         if (verbose) cout << endl
@@ -670,10 +676,13 @@ int main(int argc, char *argv[])
                  << "---------------------------------------" << endl;
         }
         for (bsl::size_t i = 0; i < NUM_ITERS; ++i) {
-            if (i & 1) {
+            if (i % 3 == 0) {
                 Util::generate(&guids[i], 1);
             }
-            else {
+            else if (i % 3 == 1) {
+                Util::generate(reinterpret_cast<unsigned char*>(&guids[i]), 1);
+            }
+            else if (i % 3 == 2) {
                 guids[i] = Util::generate();
             }
             prev_guids[i] = guids[i];
@@ -696,9 +705,14 @@ int main(int argc, char *argv[])
         }
         for (bsl::size_t i = 0; i < NUM_ITERS; ++i) {
             bsl::memset(guids, 0, sizeof(guids));
-            Util::generate(guids, i);
+            if (i & 1) {
+                Util::generate(guids, i);
+            }
+            else {
+                Util::generate(reinterpret_cast<unsigned char *>(guids), i);
+            }
             if (veryVerbose)  {
-                int idx = i ? i - 1: 0;
+                int idx = i ? i - 1 : 0;
                 P_(idx) P(guids[idx]);
             }
             bsl::size_t j;
