@@ -383,7 +383,7 @@ namespace BloombergLP {
 
     #define BSLS_PERFORMANCEHINT_PREDICT_LIKELY(expr)                         \
                                               __builtin_expect(!!(expr), 1)
-    #define BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(expr)                       \
+    #define BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(expr)                     \
                                               __builtin_expect((expr), 0)
     #define BSLS_PERFORMANCEHINT_PREDICT_EXPECT(expr, value)                  \
                                               __builtin_expect((expr), (value))
@@ -395,28 +395,33 @@ namespace BloombergLP {
 
 #endif
 
+// Define the 'BSLS_PERFORMANCEHINT_HAS_ATTRIBUTE_COLD' and 
+// 'BSLS_PERFORMANCEHINT_ATTRIBUTE_COLD' macros.
+
 #if defined(BSLS_PLATFORM_CMP_CLANG)
     #if __has_attribute(cold)
-    #define BSLS_PERFORMANCEHINT_FUNC_ATTRIBUTE_COLD  __attribute__((cold))
+    #define BSLS_PERFORMANCEHINT_HAS_ATTRIBUTE_COLD 1
+    #define BSLS_PERFORMANCEHINT_ATTRIBUTE_COLD  __attribute__((cold))
     #endif
 #elif (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40300)
-    #define BSLS_PERFORMANCEHINT_FUNC_ATTRIBUTE_COLD  __attribute__((cold))
+    #define BSLS_PERFORMANCEHINT_HAS_ATTRIBUTE_COLD 1
+    #define BSLS_PERFORMANCEHINT_ATTRIBUTE_COLD  __attribute__((cold))
+#else
+    #define BSLS_PERFORMANCEHINT_ATTRIBUTE_COLD
 #endif
+
+
+// Define the 'BSLS_PERFORMANCEHINT_UNLIKELY_HINT' macro.
 
 #if defined(BDE_BUILD_TARGET_OPT) && defined(BSLS_PLATFORM_CMP_SUN)
     #define BSLS_PERFORMANCEHINT_UNLIKELY_HINT                                \
                              BloombergLP::bsls::PerformanceHint::rarelyCalled()
-#elif defined(BDE_BUILD_TARGET_OPT) && (                                      \
-      (defined(BSLS_PLATFORM_CMP_IBM)                                         \
-       || defined(BSLS_PERFORMANCEHINT_FUNC_ATTRIBUTE_COLD)))
+#elif defined(BDE_BUILD_TARGET_OPT) &&                                        \
+   (defined(BSLS_PLATFORM_CMP_IBM) || BSLS_PERFORMANCEHINT_HAS_ATTRIBUTE_COLD)
     #define BSLS_PERFORMANCEHINT_UNLIKELY_HINT                                \
                              BloombergLP::bsls::PerformanceHint::lowFrequency()
 #else
     #define BSLS_PERFORMANCEHINT_UNLIKELY_HINT
-#endif
-
-#ifndef BSLS_PERFORMANCEHINT_FUNC_ATTRIBUTE_COLD
-#define BSLS_PERFORMANCEHINT_FUNC_ATTRIBUTE_COLD
 #endif
 
 namespace bsls {
@@ -464,7 +469,7 @@ struct PerformanceHint {
 #endif  // BSLS_PLATFORM_CMP_SUN
 #endif  // BDE_BUILD_TARGET_OPT
 
-    BSLS_PERFORMANCEHINT_FUNC_ATTRIBUTE_COLD
+    BSLS_PERFORMANCEHINT_ATTRIBUTE_COLD
     static void lowFrequency();
         // This is an empty function that is marked with low execution
         // frequency using pragmas.  If this function is placed in a block of
@@ -547,7 +552,7 @@ void PerformanceHint::prefetchForWriting(void *address)
 // This function must be inlined for the pragma to take effect on the branch
 // prediction in IBM xlC.
 
-BSLS_PERFORMANCEHINT_FUNC_ATTRIBUTE_COLD
+BSLS_PERFORMANCEHINT_ATTRIBUTE_COLD
 inline
 void PerformanceHint::lowFrequency()
 {
