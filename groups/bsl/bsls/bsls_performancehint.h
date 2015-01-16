@@ -400,14 +400,16 @@ namespace BloombergLP {
 
 #if defined(BSLS_PLATFORM_CMP_CLANG)
     #if __has_attribute(cold)
-    #define BSLS_PERFORMANCEHINT_HAS_ATTRIBUTE_COLD 1
     #define BSLS_PERFORMANCEHINT_ATTRIBUTE_COLD  __attribute__((cold))
     #endif
 #elif (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40300)
-    #define BSLS_PERFORMANCEHINT_HAS_ATTRIBUTE_COLD 1
     #define BSLS_PERFORMANCEHINT_ATTRIBUTE_COLD  __attribute__((cold))
-#else
+#endif
+
+#if !defined(BSLS_PERFORMANCEHINT_ATTRIBUTE_COLD)
     #define BSLS_PERFORMANCEHINT_ATTRIBUTE_COLD
+#else
+    #define BSLS_PERFORMANCEHINT_HAS_ATTRIBUTE_COLD 1
 #endif
 
 
