@@ -7,6 +7,7 @@ BSLS_IDENT_RCSID(bdlb_guid_cpp,"$Id$ $CSID$")
 
 #include <bsl_algorithm.h>
 #include <bsl_cstring.h>
+#include <bsl_iomanip.h>
 #include <bsl_ostream.h>
 
 #include <bslim_printer.h>
@@ -26,30 +27,23 @@ bsl::ostream& Guid::print(bsl::ostream& stream,
         return stream;                                                // RETURN
     }
 
+    bsl::ios save(0);
+    save.copyfmt(stream);
+
     bslim::Printer printer(&stream, level, spacesPerLevel);
 
-    printer.start();
+    printer.start(true);
+    stream << bsl::internal
+           << bsl::hex
+           << bsl::setfill('0')
+           << bsl::setw( 8) << timeLow()                              << '-'
+           << bsl::setw( 4) << timeMid()                              << '-'
+           << bsl::setw( 4) << timeHiAndVersion()                     << '-'
+           << bsl::setw( 4) << (clockSeqHiRes() << 8 | clockSeqLow()) << '-'
+           << bsl::setw(12) << node();
+    printer.end(true);
 
-    if (spacesPerLevel < 0) {
-        stream << " ";
-    }
-
-    for (bsl::size_t i = 0; i < k_GUID_NUM_BYTES; ++i) {
-        // split in conventional UUID style
-        static const char        hexdig[] = "0123456789abcdef";
-        static const char *const seps[k_GUID_NUM_BYTES] = {
-            "", "", "", "-", "", "-", "", "-", "", "-", "", "", "", "", "", ""
-        };
-        stream << hexdig[d_buffer[i] >>  4]
-               << hexdig[d_buffer[i] & 0xF]
-               << seps[i];
-    }
-
-    if (0 <= spacesPerLevel) {
-        stream << '\n';
-    }
-
-    printer.end();
+    stream.copyfmt(save);
 
     return stream;
 }
