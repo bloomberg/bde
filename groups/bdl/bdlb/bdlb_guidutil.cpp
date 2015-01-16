@@ -118,7 +118,6 @@ Guid GuidUtil::generate()
     return result;
 }
 
-inline
 void GuidUtil::generate(unsigned char *result, bsl::size_t numGuids)
 {
     unsigned char *bytes = result;
