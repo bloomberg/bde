@@ -8,6 +8,7 @@ BSLS_IDENT_RCSID(bdlb_guid_cpp,"$Id$ $CSID$")
 #include <bsl_algorithm.h>
 #include <bsl_cstring.h>
 #include <bsl_iomanip.h>
+#include <bsl_ios.h>
 #include <bsl_ostream.h>
 
 #include <bslim_printer.h>
