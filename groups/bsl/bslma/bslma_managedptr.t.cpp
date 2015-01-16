@@ -103,12 +103,14 @@ using namespace BloombergLP;
 // [12] ManagedPtr& operator=(ManagedPtr& rhs);
 // [12] ManagedPtr& operator=(ManagedPtr_Ref<ELEMENT_TYPE> ref);
 // [13] void clear();
+// [13] void reset();
 // [13] bsl::pair<TYPE*, ManagedPtrDeleter> release();
 // [  ] TARGET_TYPE *release(ManagedPtrDeleter *deleter);
 // [ 7] operator BoolType() const;
 // [ 7] TYPE& operator*() const;
 // [ 7] TYPE *operator->() const;
 // [ 7] TYPE *ptr() const;
+// [ 7] TYPE *get() const;
 // [ 7] const ManagedPtrDeleter& deleter() const;
 //-----------------------------------------------------------------------------
 // [ 4] ManagedPtr();
@@ -6940,14 +6942,15 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'clear' AND 'release'
+        // TESTING 'clear', 'reset', AND 'release'
         //
         // Concerns:
         //: 1 'clear' destroys the managed object (if any) and re-initializes
         //:   the managed pointer to an unset state.
         //:
         //: 2 'clear' destroys any managed object using the stored 'deleter'.
-        //:
+        //: 3 same conserns as 1 and 2 but with reset
+        //
         //   That release works properly.
         //   Release gives up ownership of resources without running deleters
         //
@@ -6969,7 +6972,7 @@ int main(int argc, char *argv[])
         //   bsl::pair<TYPE*, ManagedPtrDeleter> release();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'clear' AND 'release'"
+        if (verbose) printf("\nTESTING 'clear', 'reset', AND 'release'"
                             "\n=============================\n");
 
         using namespace CREATORS_TEST_NAMESPACE;
@@ -6984,6 +6987,21 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
             ASSERT(!o && !o.ptr());
+            ASSERT(!o && !o.get());
+        }
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+
+        numDeletes = 0;
+        {
+            TObj *p = new MyTestObject(&numDeletes);
+            Obj o(p);
+
+            ASSERT(0 == numDeletes);
+            o.reset();
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
+
+            ASSERT(!o && !o.ptr());
+            ASSERT(!o && !o.get());
         }
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
@@ -6998,13 +7016,14 @@ int main(int argc, char *argv[])
                 ASSERT(0 == numDeletes);
 
                 ASSERT(!o && !o.ptr());
+                ASSERT(!o && !o.get());
             }
 
             ASSERT(0 == numDeletes);
             delete p;
         }
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
-
+        
         // testing 'release().second'
         numDeletes = 0;
         {
@@ -7194,6 +7213,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
             ASSERT(o.ptr() == p);
+            ASSERT(o.get() == p);
         }
         ASSERT(1 == numDeletes);
 
@@ -7211,6 +7231,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
             ASSERT(o.ptr() == p2);
+            ASSERT(o.get() == p2);
         }
         ASSERT(2 == numDeletes);
 
@@ -7228,6 +7249,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
             ASSERT(o.ptr() == p2);
+            ASSERT(o.get() == p2);
         }
         ASSERT(101 == numDeletes);
 
@@ -7245,6 +7267,7 @@ int main(int argc, char *argv[])
                 o2 = r;
 
                 ASSERT(o2.ptr() == p);
+                ASSERT(o2.get() == p);
             }
             ASSERT(0 == numDeletes);
         }
@@ -7369,7 +7392,9 @@ int main(int argc, char *argv[])
             o.swap(o2);
 
             ASSERT(o.ptr() == p2);
+            ASSERT(o.get() == p2);
             ASSERT(o2.ptr() == p);
+            ASSERT(o2.get() == p);
         }
         LOOP_ASSERT(numDeletes, 2 == numDeletes);
 
@@ -7384,13 +7409,17 @@ int main(int argc, char *argv[])
             o.swap(o2);
 
             ASSERT(!o.ptr());
+            ASSERT(!o.get());
             ASSERT(o2.ptr() == p);
+            ASSERT(o2.get() == p);
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
             o.swap(o2);
 
             ASSERT(o.ptr() == p);
+            ASSERT(o.get() == p);
             ASSERT(!o2.ptr());
+            ASSERT(!o2.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
@@ -7411,7 +7440,9 @@ int main(int argc, char *argv[])
             o.swap(o2);
 
             ASSERT(o.ptr() == p2);
+            ASSERT(o.get() == p2);
             ASSERT(o2.ptr() == p);
+            ASSERT(o2.get() == p);
 
             ASSERT(&ta2 == o.deleter().factory());
             ASSERT(&ta1 == o2.deleter().factory());
@@ -7438,7 +7469,9 @@ int main(int argc, char *argv[])
             o.swap(o2);
 
             ASSERT( o.ptr() == &d2);
+            ASSERT( o.get() == &d2);
             ASSERT(o2.ptr() ==   p);
+            ASSERT(o2.get() ==   p);
 
             ASSERT(p3 ==  o.deleter().object());
             ASSERT( p == o2.deleter().object());
@@ -7646,10 +7679,13 @@ int main(int argc, char *argv[])
                 TObj x(&numDeletes);
                 Obj  o(&x, 0, countedNilDelete);
                 ASSERT(&x == o.ptr());
+                ASSERT(&x == o.get());
 
                 Obj o2(o);
                 ASSERT( 0 ==  o.ptr());
+                ASSERT( 0 ==  o.get());
                 ASSERT(&x == o2.ptr());
+                ASSERT(&x == o2.get());
                 ASSERT(&x == o2.deleter().object());
                 ASSERT( 0 == o2.deleter().factory());
                 ASSERT(&countedNilDelete == o2.deleter().deleter());
@@ -7668,10 +7704,13 @@ int main(int argc, char *argv[])
                 TObj x(&numDeletes);
                 Obj  o = Obj(&x, 0, countedNilDelete);
                 ASSERT(&x == o.ptr());
+                ASSERT(&x == o.get());
 
                 Obj o2(o);
                 ASSERT( 0 ==  o.ptr());
+                ASSERT( 0 ==  o.get());
                 ASSERT(&x == o2.ptr());
+                ASSERT(&x == o2.get());
                 ASSERT(&x == o2.deleter().object());
                 ASSERT( 0 == o2.deleter().factory());
                 ASSERT(&countedNilDelete == o2.deleter().deleter());
@@ -7690,7 +7729,8 @@ int main(int argc, char *argv[])
                 TObj x(&numDeletes);
                 const Obj  o(&x, 0, countedNilDelete);
                 ASSERT(&x == o.ptr());
-
+                ASSERT(&X == o.get());
+   
                 Obj o2(o);  // should not compile
                 ASSERT(!"The preceding line should not have compiled");
             }
@@ -7712,15 +7752,18 @@ int main(int argc, char *argv[])
 
             ASSERT(o);
             ASSERT(o.ptr() == p);
+            ASSERT(o.get() == p);
 
             bslma::ManagedPtr_Ref<TObj> r = o;
             ASSERT(o);
             Obj o2(r);
 
             ASSERT(!o && !o.ptr());
+            ASSERT(!o && !o.get());
             ASSERT(0 == numDeletes);
 
             ASSERT(o2.ptr() == p);
+            ASSERT(o2.get() == p);
         }
         LOOP_ASSERT(numDeletes, 100 == numDeletes);
 
@@ -7729,10 +7772,13 @@ int main(int argc, char *argv[])
             TDObj *p = new MyDerivedObject(&numDeletes);
             DObj d(p);
             ASSERT(d.ptr() == p);
+            ASSERT(d.get() == p);
 
             Obj o(d);
             ASSERT(o.ptr() == p);
+            ASSERT(o.get() == p);
             ASSERT(0 == d.ptr());
+            ASSERT(0 == d.get());
         }
         LOOP_ASSERT(numDeletes, 100 == numDeletes);
 
@@ -7753,6 +7799,7 @@ int main(int argc, char *argv[])
 
             bslma::ManagedPtr<BaseInt2> pB(pD);  // cannot use '=' form
             ASSERT(0 == pD.ptr());
+            ASSERT(0 == pD.get());
 
             testVal  = pB->data();
             testVal2 = pB->data2();
@@ -7774,6 +7821,7 @@ int main(int argc, char *argv[])
 
             pB = pD2;
             ASSERT(0 == pD2.ptr());
+            ASSERT(0 == pD2.get());
 
             testVal  = pB->data();
             testVal2 = pB->data2();
@@ -7948,6 +7996,7 @@ int main(int argc, char *argv[])
                 bslma::ManagedPtr<const int> o(p);
 
                 ASSERT(o.ptr() == p);
+                ASSERT(o.get() == p);
                 ASSERT(dam2.isInUseSame());
             }
             ASSERT(!dam.isTotalUp());
@@ -7967,6 +8016,7 @@ int main(int argc, char *argv[])
                 bslma::ManagedPtr<const int> o(p);
 
                 ASSERT(o.ptr() == p);
+                ASSERT(o.get() == p);
                 ASSERT(dam2.isInUseSame());
             }
             ASSERT(!dam.isTotalUp());
@@ -8030,6 +8080,7 @@ int main(int argc, char *argv[])
             VObj o(p);
 
             ASSERT(o.ptr() == p);
+            ASSERT(o.get() == p);
         }
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
 #endif
@@ -8078,8 +8129,8 @@ int main(int argc, char *argv[])
         // TESTING ACCESSORS
         //
         // Concerns:
-        //   That all accessors work properly.  The 'ptr' accessor has
-        //   already been substantially tested in previous tests.
+        //   That all accessors work properly.  The 'ptr' and 'get' accessors
+        //   have already been substantially tested in previous tests.
         //   The unspecified bool conversion evaluates as expected in all
         //     circumstances: if/while/for, (implied) operator!
         //   All accessors work on 'const'- qualified objects
@@ -8635,6 +8686,7 @@ int main(int argc, char *argv[])
             ASSERT(!s); // should not be testing operator! until test 13
 
             ASSERT(!strcmp(c.ptr(), "meow"));
+            ASSERT(!strcmp(c.ptr(), "meow"));
 
             ASSERT(0 == numDeletes);
         }
@@ -8659,6 +8711,7 @@ int main(int argc, char *argv[])
             ASSERT(!s); // should not be testing operator! until test 13
 
             ASSERT(!strcmp(c.ptr(), "meow"));
+            ASSERT(!strcmp(c.get(), "meow"));
         }
         ASSERT(da.numDeallocations() == numDeallocations + 1);
       } break;
@@ -8979,6 +9032,7 @@ int main(int argc, char *argv[])
             Obj o;
 
             ASSERT(0 == o.ptr());
+            ASSERT(0 == o.get());
             ASSERT(dam.isTotalSame());
         }
         ASSERT(0 == numDeletes);
@@ -8991,6 +9045,7 @@ int main(int argc, char *argv[])
             bslma::ManagedPtr<void> o;
 
             ASSERT(0 == o.ptr());
+            ASSERT(0 == o.get());
             ASSERT(dam.isTotalSame());
         }
         ASSERT(0 == numDeletes);
@@ -9003,6 +9058,7 @@ int main(int argc, char *argv[])
             bslma::ManagedPtr<const int> o;
 
             ASSERT(0 == o.ptr());
+            ASSERT(0 == o.get());
             ASSERT(dam.isTotalSame());
         }
         ASSERT(0 == numDeletes);
@@ -9019,6 +9075,7 @@ int main(int argc, char *argv[])
             Obj o(0);
 
             ASSERT(0 == o.ptr());
+            ASSERT(0 == o.get());
             ASSERT(dam.isTotalSame());
         }
         ASSERT(0 == numDeletes);
@@ -9031,6 +9088,7 @@ int main(int argc, char *argv[])
             VObj o(0);
 
             ASSERT(0 == o.ptr());
+            ASSERT(0 == o.get());
             ASSERT(dam.isTotalSame());
         }
         ASSERT(0 == numDeletes);
@@ -9043,6 +9101,7 @@ int main(int argc, char *argv[])
             bslma::ManagedPtr<const int> o(0);
 
             ASSERT(0 == o.ptr());
+            ASSERT(0 == o.get());
             ASSERT(dam.isTotalSame());
         }
         ASSERT(0 == numDeletes);
@@ -9059,6 +9118,7 @@ int main(int argc, char *argv[])
             Obj o(0, 0);
 
             ASSERT(0 == o.ptr());
+            ASSERT(0 == o.get());
             ASSERT(dam.isTotalSame());
         }
         ASSERT(0 == numDeletes);
@@ -9071,6 +9131,7 @@ int main(int argc, char *argv[])
             VObj o(0, 0);
 
             ASSERT(0 == o.ptr());
+            ASSERT(0 == o.get());
             ASSERT(dam.isTotalSame());
         }
         ASSERT(0 == numDeletes);
@@ -9083,6 +9144,7 @@ int main(int argc, char *argv[])
             bslma::ManagedPtr<const int> o(0, 0);
 
             ASSERT(0 == o.ptr());
+            ASSERT(0 == o.get());
             ASSERT(dam.isTotalSame());
         }
         ASSERT(0 == numDeletes);
@@ -9099,6 +9161,7 @@ int main(int argc, char *argv[])
             Obj o(0, 0, 0);
 
             ASSERT(0 == o.ptr());
+            ASSERT(0 == o.get());
             ASSERT(dam.isTotalSame());
         }
         ASSERT(0 == numDeletes);
@@ -9111,6 +9174,7 @@ int main(int argc, char *argv[])
             VObj o(0, 0, 0);
 
             ASSERT(0 == o.ptr());
+            ASSERT(0 == o.get());
             ASSERT(dam.isTotalSame());
         }
         ASSERT(0 == numDeletes);
@@ -9123,6 +9187,7 @@ int main(int argc, char *argv[])
             bslma::ManagedPtr<const int> o(0, 0, 0);
 
             ASSERT(0 == o.ptr());
+            ASSERT(0 == o.get());
             ASSERT(dam.isTotalSame());
         }
         ASSERT(0 == numDeletes);
@@ -9442,7 +9507,9 @@ int main(int argc, char *argv[])
             Obj o2(o);
 
             ASSERT(p == o2.ptr());
+            ASSERT(p == o2.get());
             ASSERT(0 == o.ptr());
+            ASSERT(0 == o.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
@@ -9458,12 +9525,15 @@ int main(int argc, char *argv[])
             Obj o2;
 
             ASSERT(p == o.ptr());
+            ASSERT(p == o.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
             o2  = o;
 
             ASSERT(p == o2.ptr());
+            ASSERT(p == o2.get());
             ASSERT(0 == o.ptr());
+            ASSERT(0 == o.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
@@ -9477,6 +9547,7 @@ int main(int argc, char *argv[])
             Obj x(returnManagedPtr(&numDeletes, &ta)); Obj const &X = x;
 
             ASSERT(X.ptr());
+            ASSERT(X.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
@@ -9489,6 +9560,7 @@ int main(int argc, char *argv[])
             x = returnManagedPtr(&numDeletes, &ta);
 
             ASSERT(X.ptr());
+            ASSERT(X.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
@@ -9503,18 +9575,23 @@ int main(int argc, char *argv[])
             DObj o(p);
 
             ASSERT(p == o.ptr());
+            ASSERT(p == o.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
             Obj o2(o); // conversion construction
 
             ASSERT(p == o2.ptr());
+            ASSERT(p == o2.get());
             ASSERT(0 == o.ptr());
+            ASSERT(0 == o.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
             CObj o3(o2); // const-conversion construction
 
             ASSERT(p == o3.ptr());
+            ASSERT(p == o3.get());
             ASSERT(0 == o2.ptr());
+            ASSERT(0 == o2.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
         LOOP_ASSERT(numDeletes, 100 == numDeletes);
@@ -9529,20 +9606,25 @@ int main(int argc, char *argv[])
             DObj o(p);
 
             ASSERT(p == o.ptr());
+            ASSERT(p == o.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
             Obj o2;
             o2  = o; // conversion assignment
 
             ASSERT(p == o2.ptr());
+            ASSERT(p == o2.get());
             ASSERT(0 == o.ptr());
+            ASSERT(0 == o.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
             CObj o3;
             o3 = o2; // const-conversion assignment
 
             ASSERT(p == o3.ptr());
+            ASSERT(p == o3.get());
             ASSERT(0 == o2.ptr());
+            ASSERT(0 == o2.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
         LOOP_ASSERT(numDeletes, 100 == numDeletes);
@@ -9555,6 +9637,7 @@ int main(int argc, char *argv[])
             Obj x(returnDerivedPtr(&numDeletes, &ta)); Obj const &X = x;
 
             ASSERT(X.ptr());
+            ASSERT(X.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
         LOOP_ASSERT(numDeletes, 100 == numDeletes);
@@ -9569,6 +9652,7 @@ int main(int argc, char *argv[])
                                                     // from an rvalue
 
             ASSERT(X.ptr());
+            ASSERT(X.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
         LOOP_ASSERT(numDeletes, 100 == numDeletes);
@@ -9585,7 +9669,9 @@ int main(int argc, char *argv[])
             bslma::ManagedPtr<int> o2(o, o->valuePtr()); // alias construction
 
             ASSERT(p->valuePtr() == o2.ptr());
+            ASSERT(p->valuePtr() == o2.get());
             ASSERT(0 == o.ptr());
+            ASSERT(0 == o.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
@@ -9602,7 +9688,9 @@ int main(int argc, char *argv[])
             bslma::ManagedPtr<int> o2(o, o->valuePtr()); // alias construction
 
             ASSERT(p->valuePtr() == o2.ptr());
+            ASSERT(p->valuePtr() == o2.get());
             ASSERT(0 == o.ptr());
+            ASSERT(0 == o.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
         LOOP_ASSERT(numDeletes, 100 == numDeletes);
@@ -9623,6 +9711,7 @@ int main(int argc, char *argv[])
 
             o.load(p2);
             ASSERT(p2 == o.ptr());
+            ASSERT(p2 == o.get());
             ASSERT(1 == numDeletes2);
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
@@ -9643,6 +9732,7 @@ int main(int argc, char *argv[])
 
             o.load(p2,&ta);
             ASSERT(p2 == o.ptr());
+            ASSERT(p2 == o.get());
             LOOP_ASSERT(numDeletes2, 1 == numDeletes2);
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
@@ -9659,17 +9749,21 @@ int main(int argc, char *argv[])
             bslma::ManagedPtr<int> o2;
 
             ASSERT(p == o.ptr());
+            ASSERT(p == o.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
             o2.loadAlias(o, o->valuePtr());
 
             ASSERT(p->valuePtr() == o2.ptr());
+            ASSERT(p->valuePtr() == o2.get());
             ASSERT(0 == o.ptr());
+            ASSERT(0 == o.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
             // Check load alias to self
             o2.loadAlias(o2, p->valuePtr(1));
             ASSERT(p->valuePtr(1) == o2.ptr());
+            ASSERT(p->valuePtr(1) == o2.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
@@ -9685,11 +9779,14 @@ int main(int argc, char *argv[])
             Obj o2;
 
             ASSERT(p == o.ptr());
+            ASSERT(p == o.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
             o2.swap(o);
             ASSERT(p == o2.ptr());
+            ASSERT(p == o2.get());
             ASSERT(0 == o.ptr());
+            ASSERT(0 == o.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
@@ -9705,11 +9802,14 @@ int main(int argc, char *argv[])
             Obj o2;
 
             ASSERT(p == o.ptr());
+            ASSERT(p == o.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
             o2.swap(o);
             ASSERT(p == o2.ptr());
+            ASSERT(p == o2.get());
             ASSERT(0 == o.ptr());
+            ASSERT(0 == o.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
         LOOP_ASSERT(numDeletes, 1 == numDeletes);

@@ -1105,6 +1105,10 @@ class ManagedPtr {
         // Destroy the current managed object (if any) and reset this managed
         // pointer as empty.
 
+    void reset();
+        // Destroy the current managed object (if any) and reset this managed
+        // pointer as empty.
+
     template <class MANAGED_TYPE>
     void load(MANAGED_TYPE *ptr);
         // Destroy the currently managed object, if any.  Then, set the target
@@ -1261,6 +1265,11 @@ class ManagedPtr {
     TARGET_TYPE *ptr() const;
         // Return the address of the target object, or 0 if this managed
         // pointer is empty.
+
+    TARGET_TYPE *get() const;
+        // Return the address of the target object, or 0 if this managed
+        // pointer is empty.
+
 };
 
 template <class TARGET_TYPE>
@@ -1607,6 +1616,15 @@ void ManagedPtr<TARGET_TYPE>::clear()
 }
 
 template <class TARGET_TYPE>
+inline
+void ManagedPtr<TARGET_TYPE>::reset()
+{
+    d_members.runDeleter();
+    d_members.clear();
+}
+
+
+template <class TARGET_TYPE>
 template <class MANAGED_TYPE>
 inline
 void ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr,
@@ -1851,6 +1869,14 @@ TARGET_TYPE *ManagedPtr<TARGET_TYPE>::ptr() const
 {
     return static_cast<TARGET_TYPE*>(d_members.pointer());
 }
+
+template <class TARGET_TYPE>
+inline
+TARGET_TYPE *ManagedPtr<TARGET_TYPE>::get() const
+{
+    return static_cast<TARGET_TYPE*>(d_members.pointer());
+}
+
 
 template <class TARGET_TYPE>
 inline
