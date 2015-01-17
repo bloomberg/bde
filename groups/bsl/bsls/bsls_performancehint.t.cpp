@@ -112,7 +112,8 @@ const int TESTSIZE = 10;
 const int TESTSIZE = 100;
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_GNU) && !defined(BSLS_PLATFORM_CMP_CLANG)
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40600      \
+ && !defined(BSLS_PLATFORM_CMP_CLANG)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wlarger-than="
 #endif
@@ -123,7 +124,8 @@ volatile int array2[SIZE]; // for 'addWithPrefetch'
 volatile int array3[SIZE]; // for 'addWithoutPrefetch
 volatile int array4[SIZE]; // for 'addWithoutPrefetch
 
-#if defined(BSLS_PLATFORM_CMP_GNU) && !defined(BSLS_PLATFORM_CMP_CLANG)
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40600      \
+ && !defined(BSLS_PLATFORM_CMP_CLANG)
 #pragma GCC diagnostic pop
 #endif
 
