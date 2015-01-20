@@ -591,7 +591,7 @@ namespace USAGE_EXAMPLES {
         if (g_verbose) printf("Preceded by:");
         int i;
         for (i = -1; i >= -5; --i) {
-            double quote = result.ptr()[i];
+            double quote = result.get()[i];
             if (END_QUOTE == quote) {
                 break;
             }
@@ -602,13 +602,13 @@ namespace USAGE_EXAMPLES {
 //..
 // Then, to move the finger, e.g., to the last position printed, one must be
 // careful to retain the ownership of the entire array.  Using the statement
-// 'result.load(result.ptr()-i)' would be an error, because it would first
-// compute the pointer value 'result.ptr()-i' of the argument, then release the
+// 'result.load(result.get()-i)' would be an error, because it would first
+// compute the pointer value 'result.get()-i' of the argument, then release the
 // entire array before starting to manage what has now become an invalid
 // pointer.  Instead, 'result' must retain its ownership to the entire array,
 // which can be attained by:
 //..
-        result.loadAlias(result, result.ptr()-i);
+        result.loadAlias(result, result.get()-i);
 //..
 // Finally, if we reset the result pointer, the entire array is deallocated:
 //..
@@ -827,22 +827,22 @@ typedef MyDerivedObject B;
             ASSERT(!a_mp1 && !b_mp3);
 
             // constructor conversion init with nil
-            bslma::ManagedPtr<A> a_mp4(b_mp3, b_mp3.ptr());
+            bslma::ManagedPtr<A> a_mp4(b_mp3, b_mp3.get());
             ASSERT(!a_mp4 && !b_mp3);
 
             // constructor conversion init with nonnil
             B *p_b5 = new (localTa) B(&numdels);
             bslma::ManagedPtr<B> b_mp5(p_b5, &localTa);
-            bslma::ManagedPtr<A> a_mp5(b_mp5, b_mp5.ptr());
+            bslma::ManagedPtr<A> a_mp5(b_mp5, b_mp5.get());
             ASSERT(a_mp5 && !b_mp5);
-            ASSERT(a_mp5.ptr() == p_b5);
+            ASSERT(a_mp5.get() == p_b5);
 
             // constructor conversion init with nonnil
             B *p_b6 = new (localTa) B(&numdels);
             bslma::ManagedPtr<B> b_mp6(p_b6, &localTa);
             bslma::ManagedPtr<A> a_mp6(b_mp6);
             ASSERT(a_mp6 && !b_mp6);
-            ASSERT(a_mp6.ptr() == p_b6);
+            ASSERT(a_mp6.get() == p_b6);
 
             struct S {
                 int d_i[10];
@@ -877,12 +877,12 @@ typedef MyDerivedObject B;
     void explicitCastingExample()
     {
         bslma::ManagedPtr<A> a_mp;
-        bslma::ManagedPtr<B> b_mp1(a_mp, static_cast<B*>(a_mp.ptr()));
+        bslma::ManagedPtr<B> b_mp1(a_mp, static_cast<B*>(a_mp.get()));
 //..
 // or even use the less safe "C"-style casts:
 //..
         // bslma::ManagedPtr<A> a_mp;
-        bslma::ManagedPtr<B> b_mp2(a_mp, (B*)(a_mp.ptr()));
+        bslma::ManagedPtr<B> b_mp2(a_mp, (B*)(a_mp.get()));
 
     } // explicitCastingExample()
 //..
@@ -893,7 +893,7 @@ typedef MyDerivedObject B;
     void processPolymorphicObject(bslma::ManagedPtr<A>  aPtr,
                                   bool                 *castSucceeded)
     {
-        bslma::ManagedPtr<B> bPtr(aPtr, dynamic_cast<B*>(aPtr.ptr()));
+        bslma::ManagedPtr<B> bPtr(aPtr, dynamic_cast<B*>(aPtr.get()));
         if (bPtr) {
             ASSERT(!aPtr);
             *castSucceeded = true;
