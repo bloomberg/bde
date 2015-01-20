@@ -62,11 +62,11 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 ///Aliasing
 ///--------
-// In a managed pointer, the pointer value (the value returned by the 'ptr'
+// In a managed pointer, the pointer value (the value returned by the 'get'
 // method) and the pointer to the managed object need not have the same value.
 // The 'loadAlias' method allows a managed pointer to be created as an "alias"
 // to another managed pointer (possibly of a different type), which we'll call
-// the "original" managed pointer.  When 'ptr' is invoked on the alias, the
+// the "original" managed pointer.  When 'get' is invoked on the alias, the
 // aliased pointer value is returned, but when the managed pointer is
 // destroyed, the original managed object will be passed to the deleter.  (See
 // also the documentation of the 'alias' constructor or of the 'loadAlias'
@@ -352,7 +352,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //      if (g_verbose) bsl::cout << "Preceded by:";
 //      int i;
 //      for (i = -1; i >= -5; --i) {
-//          double quote = result.ptr()[i];
+//          double quote = result.get()[i];
 //          if (END_QUOTE == quote) {
 //              break;
 //          }
@@ -363,17 +363,17 @@ BSLS_IDENT("$Id$ $CSID$")
 //..
 // Then, to move the finger, e.g., to the last position printed, one must be
 // careful to retain the ownership of the entire array.  Using the statement
-// 'result.load(result.ptr()-i)' would be an error, because it would first
-// compute the pointer value 'result.ptr()-i' of the argument, then release the
+// 'result.load(result.get()-i)' would be an error, because it would first
+// compute the pointer value 'result.get()-i' of the argument, then release the
 // entire array before starting to manage what has now become an invalid
 // pointer.  Instead, 'result' must retain its ownership to the entire array,
 // which can be attained by:
 //..
-//      result.loadAlias(result, result.ptr()-i);
+//      result.loadAlias(result, result.get()-i);
 //..
 // Finally, if we reset the result pointer, the entire array is deallocated:
 //..
-//      result.clear();
+//      result.reset();
 //      assert(0 == ta.numBlocksInUse());
 //      assert(0 == ta.numBytesInUse());
 //
@@ -498,10 +498,10 @@ BSLS_IDENT("$Id$ $CSID$")
 //              assert(cf.count() == i);
 //          }
 //..
-// Then, we 'clear' the contents of a single managed pointer in the array, and
+// Then, we 'reset' the contents of a single managed pointer in the array, and
 // assert that the factory 'count' is appropriately reduced.
 //..
-//          pData[1].clear();
+//          pData[1].reset();
 //          assert(3 == cf.count());
 //..
 // Next, we 'load' a managed pointer with another new 'int' value, again using
@@ -576,22 +576,22 @@ BSLS_IDENT("$Id$ $CSID$")
 //          assert(!a_mp1 && !b_mp3);
 //
 //          // constructor conversion init with nil
-//          bslma::ManagedPtr<A> a_mp4(b_mp3, b_mp3.ptr());
+//          bslma::ManagedPtr<A> a_mp4(b_mp3, b_mp3.get());
 //          assert(!a_mp4 && !b_mp3);
 //
 //          // constructor conversion init with nonnil
 //          B *p_b5 = new (localTa) B(&numdels);
 //          bslma::ManagedPtr<B> b_mp5(p_b5, &localTa);
-//          bslma::ManagedPtr<A> a_mp5(b_mp5, b_mp5.ptr());
+//          bslma::ManagedPtr<A> a_mp5(b_mp5, b_mp5.get());
 //          assert(a_mp5 && !b_mp5);
-//          assert(a_mp5.ptr() == p_b5);
+//          assert(a_mp5.get() == p_b5);
 //
 //          // constructor conversion init with nonnil
 //          B *p_b6 = new (localTa) B(&numdels);
 //          bslma::ManagedPtr<B> b_mp6(p_b6, &localTa);
 //          bslma::ManagedPtr<A> a_mp6(b_mp6);
 //          assert(a_mp6 && !b_mp6);
-//          assert(a_mp6.ptr() == p_b6);
+//          assert(a_mp6.get() == p_b6);
 //
 //          struct S {
 //              int d_i[10];
@@ -614,12 +614,12 @@ BSLS_IDENT("$Id$ $CSID$")
 //  void explicitCastingExample() {
 //
 //      bslma::ManagedPtr<A> a_mp;
-//      bslma::ManagedPtr<B> b_mp1(a_mp, static_cast<B*>(a_mp.ptr()));
+//      bslma::ManagedPtr<B> b_mp1(a_mp, static_cast<B*>(a_mp.get()));
 //..
 // or even use the less safe "C"-style casts:
 //..
 //      // bslma::ManagedPtr<A> a_mp;
-//      bslma::ManagedPtr<B> b_mp2(a_mp, (B*)(a_mp.ptr()));
+//      bslma::ManagedPtr<B> b_mp2(a_mp, (B*)(a_mp.get()));
 //
 //  } // explicitCastingExample()
 //..
@@ -630,7 +630,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //  void processPolymorphicObject(bslma::ManagedPtr<A> aPtr,
 //                                bool *castSucceeded)
 //  {
-//      bslma::ManagedPtr<B> bPtr(aPtr, dynamic_cast<B*>(aPtr.ptr()));
+//      bslma::ManagedPtr<B> bPtr(aPtr, dynamic_cast<B*>(aPtr.get()));
 //      if (bPtr) {
 //          assert(!aPtr);
 //          *castSucceeded = true;
@@ -1102,6 +1102,7 @@ class ManagedPtr {
         // cannot be passed by references offering modifiable access.
 
     void clear();
+        // [!DEPRECATED!] Use 'reset' instead.
         // Destroy the current managed object (if any) and reset this managed
         // pointer as empty.
 
@@ -1263,6 +1264,7 @@ class ManagedPtr {
         // managed pointer is empty.
 
     TARGET_TYPE *ptr() const;
+        // [!DEPRECATED!]: Use 'get' instead.
         // Return the address of the target object, or 0 if this managed
         // pointer is empty.
 
