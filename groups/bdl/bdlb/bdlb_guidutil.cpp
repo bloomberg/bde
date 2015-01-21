@@ -124,8 +124,9 @@ void GuidUtil::generate(unsigned char *result, bsl::size_t numGuids)
     unsigned char *end = bytes + numGuids * Guid::k_GUID_NUM_BYTES;
     RandomDevice::getRandomBytesNonBlocking(bytes, end - bytes);
     while (bytes != end) {
-        bytes[6] = 0x40 | (bytes[6] & 0x0F);
-        bytes[8] = 0x80 | (bytes[8] & 0x3F);
+        typedef unsigned char uc;
+        bytes[6] = uc(0x40 | (bytes[6] & 0x0F));
+        bytes[8] = uc(0x80 | (bytes[8] & 0x3F));
         bytes += Guid::k_GUID_NUM_BYTES;
     }
 }
