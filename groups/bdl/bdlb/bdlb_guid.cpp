@@ -28,7 +28,7 @@ bsl::ostream& Guid::print(bsl::ostream& stream,
         return stream;                                                // RETURN
     }
 
-    bsl::ios save(0);
+    bsl::ios save((bsl::streambuf *)0);
     save.copyfmt(stream);
 
     bslim::Printer printer(&stream, level, spacesPerLevel);

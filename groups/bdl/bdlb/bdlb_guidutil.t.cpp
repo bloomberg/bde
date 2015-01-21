@@ -346,23 +346,23 @@ int main(int argc, char *argv[])
                           << "=================================" << endl;
             static const struct {
                   int            d_lineNum;  // source line number
-                  const Element& d_array;    // byte array
+                  const Element *d_array;    // byte array
             } DATA[] = {
                 // Line             // Array
-                { L_,                 V0},
-                { L_,                 V1},
-                { L_,                 V2},
-                { L_,                 V3},
-                { L_,                 V4},
-                { L_,                 V5},
-                { L_,                 V6},
-                { L_,                 V7},
-                { L_,                 V8},
+                { L_,                &V0},
+                { L_,                &V1},
+                { L_,                &V2},
+                { L_,                &V3},
+                { L_,                &V4},
+                { L_,                &V5},
+                { L_,                &V6},
+                { L_,                &V7},
+                { L_,                &V8},
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int      LINE  = DATA[ti].d_lineNum;
-                const Element& ARRAY = DATA[ti].d_array;
+                const Element& ARRAY = *DATA[ti].d_array;
 
                 Obj       mX(ARRAY);
                 const Obj  X = mX;
@@ -399,23 +399,23 @@ int main(int argc, char *argv[])
                           << "================================" << endl;
             static const struct {
                   int            d_lineNum;  // source line number
-                  const Element& d_array;    // byte array
+                  const Element *d_array;    // byte array
             } DATA[] = {
                 // Line             // Array
-                { L_,                 V0},
-                { L_,                 V1},
-                { L_,                 V2},
-                { L_,                 V3},
-                { L_,                 V4},
-                { L_,                 V5},
-                { L_,                 V6},
-                { L_,                 V7},
-                { L_,                 V8},
+                { L_,                &V0},
+                { L_,                &V1},
+                { L_,                &V2},
+                { L_,                &V3},
+                { L_,                &V4},
+                { L_,                &V5},
+                { L_,                &V6},
+                { L_,                &V7},
+                { L_,                &V8},
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int      LINE  = DATA[ti].d_lineNum;
-                const Element& ARRAY = DATA[ti].d_array;
+                const Element& ARRAY = *DATA[ti].d_array;
 
                 Obj       mX(ARRAY);
                 const Obj  X = mX;
