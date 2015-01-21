@@ -387,27 +387,29 @@ inline Guid::Guid(unsigned long       timeLow,
                   unsigned char       clockSeqLow,
                   bsls::Types::Uint64 node)
 {
-    d_buffer[ 0] = timeLow >> 24;
-    d_buffer[ 1] = timeLow >> 16;
-    d_buffer[ 2] = timeLow >>  8;
-    d_buffer[ 3] = timeLow;
+    typedef unsigned char uc;
 
-    d_buffer[ 4] = timeMid >> 8;
-    d_buffer[ 5] = timeMid;
+    d_buffer[ 0] = uc(timeLow >> 24);
+    d_buffer[ 1] = uc(timeLow >> 16);
+    d_buffer[ 2] = uc(timeLow >>  8);
+    d_buffer[ 3] = uc(timeLow);
 
-    d_buffer[ 6] = timeHiAndVersion >> 8;
-    d_buffer[ 7] = timeHiAndVersion;
+    d_buffer[ 4] = uc(timeMid >> 8);
+    d_buffer[ 5] = uc(timeMid);
 
-    d_buffer[ 8] = clockSeqHiRes;
+    d_buffer[ 6] = uc(timeHiAndVersion >> 8);
+    d_buffer[ 7] = uc(timeHiAndVersion);
 
-    d_buffer[ 9] = clockSeqLow;
+    d_buffer[ 8] = uc(clockSeqHiRes);
 
-    d_buffer[10] = node >> 40;
-    d_buffer[11] = node >> 32;
-    d_buffer[12] = node >> 24;
-    d_buffer[13] = node >> 16;
-    d_buffer[14] = node >>  8;
-    d_buffer[15] = node;
+    d_buffer[ 9] = uc(clockSeqLow);
+
+    d_buffer[10] = uc(node >> 40);
+    d_buffer[11] = uc(node >> 32);
+    d_buffer[12] = uc(node >> 24);
+    d_buffer[13] = uc(node >> 16);
+    d_buffer[14] = uc(node >>  8);
+    d_buffer[15] = uc(node);
 }
 
 // MANIPULATORS
@@ -484,8 +486,9 @@ unsigned short Guid::timeHi() const
 inline
 unsigned short Guid::timeHiAndVersion() const
 {
-    return d_buffer[6] << 8 |
-           d_buffer[7];
+    typedef unsigned short us;
+    return us(d_buffer[6] << 8 |
+              d_buffer[7]);
 }
 
 inline
@@ -498,18 +501,21 @@ unsigned long Guid::timeLow() const {
 
 inline
 unsigned short Guid::timeMid() const {
-    return d_buffer[4] << 8 |
-           d_buffer[5];
+    typedef unsigned short us;
+    return us(d_buffer[4] << 8 |
+              d_buffer[5]);
 }
 
 inline
 unsigned char Guid::variant() const {
-    return clockSeqHiRes() >> 5;
+    typedef unsigned char uc;
+    return uc(clockSeqHiRes() >> 5);
 }
 
 inline
 unsigned char Guid::version() const {
-    return timeHiAndVersion() >> 12;
+    typedef unsigned char uc;
+    return uc(timeHiAndVersion() >> 12);
 }
 
 }  // close package namespace
