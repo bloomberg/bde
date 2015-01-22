@@ -18,6 +18,9 @@
 #include <stdlib.h>      // atoi()
 #include <string.h>
 
+#undef ES  // From solaris/x86 2.10 <stdlib.h>
+           //       -> sys/wait.h -> signal.h -> sys/ucontext.h -> sys/regset.h
+
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 

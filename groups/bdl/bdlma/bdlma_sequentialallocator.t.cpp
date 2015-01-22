@@ -13,6 +13,8 @@
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 
+#undef GS  // Solaris 2.10 x86 /usr/include/sys/regset.h
+
 using namespace BloombergLP;
 using namespace bsl;
 

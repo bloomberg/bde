@@ -40,6 +40,8 @@
 #pragma bde_verify -TP03  // Many tests without assigned test case
 #pragma bde_verify -UC01  // Warning on all-const identifiers is too aggressive
 
+#undef ESP  //  From somewhere in SunOS2.10/x86 system headers
+
 using namespace BloombergLP;
 
 //=============================================================================

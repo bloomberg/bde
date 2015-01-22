@@ -1257,6 +1257,7 @@ MySecondDerivedObject::~MySecondDerivedObject()
 
 namespace CREATORS_TEST_NAMESPACE {
 
+#undef SS
 struct SS {
     // DATA
     char  d_buf[100];
