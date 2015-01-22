@@ -1,2 +1,4 @@
 bdlb_bitutil
+bdlb_guid
+bdlb_guidutil
 bdlb_randomdevice
