@@ -541,7 +541,7 @@ int main(int argc, char *argv[])
                 const u64 result = hash(VALUE);
                 if (veryVerbose) printf(
                                  "Hashing: %i, Expecting: "U64", Got: "U64"\n",
-			         VALUE, HASH, result);
+                                 VALUE, HASH, result);
                 LOOP_ASSERT(LINE, result == HASH);
 
                 const Obj constHash = Obj();
@@ -608,7 +608,7 @@ int main(int argc, char *argv[])
                             " (C-1,7)\n");
         {
             Obj alg1 = Obj();
-	    (void) alg1;
+            (void) alg1;
         }
 
         if (verbose) printf("Construct a 'SeededHash' using the parameterized"
@@ -616,7 +616,7 @@ int main(int argc, char *argv[])
         {
             SeedGen seedGen;
             Obj alg1(seedGen);
-	    (void) alg1;
+            (void) alg1;
         }
 
         if (verbose) printf("Use the copy-initialization syntax to create a"
@@ -625,7 +625,7 @@ int main(int argc, char *argv[])
         {
             Obj alg1;
             Obj alg2 = alg1;
-	    (void) alg2;
+            (void) alg2;
         }
 
         if (verbose) printf("Assign the value of the one (const) instance of"
@@ -633,7 +633,7 @@ int main(int argc, char *argv[])
         {
             const Obj alg1 = Obj();
             Obj alg2 = alg1;
-	    (void) alg2;
+            (void) alg2;
         }
 
         if (verbose) printf("Chain the assignment of the value of the one"
@@ -644,7 +644,7 @@ int main(int argc, char *argv[])
             Obj alg1;
             Obj alg2 = alg1;
             alg2 = alg2 = alg1;
-	    (void) alg2;
+            (void) alg2;
         }
 
       } break;
