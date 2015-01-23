@@ -1144,6 +1144,58 @@ class MostEvilTestType {
         // Return the value of the 'data' attribute of this object.
 };
 
+                     // =======================
+                     // class ConstructorFailed
+                     // =======================
+
+struct ConstructorFailed {};
+
+                     // ==========================
+                     // class MyInstrumentedObject
+                     // ==========================
+
+class MyInstrumentedObject {
+    // This class provides a test object that keeps track of how many objects
+    // have been deleted.  Optionally, also keeps track of how many objects
+    // have been copied.
+
+    // DATA
+    int *d_constructCounter_p;
+    int *d_destroyCounter_p;
+
+  private:
+    // NOT IMPLEMENTED
+    MyInstrumentedObject(const MyInstrumentedObject& original); // = delete
+    MyInstrumentedObject& operator=(const MyInstrumentedObject& other);
+                                                                    // = delete
+
+  public:
+    // CREATORS
+
+    MyInstrumentedObject(int  *MyInstrumentedObject,
+                         int  *destroyCounter,
+                         bool  throwAfterInit = false);
+        // Create a 'MyInstrumentedObject' using the specified
+        // 'constructCounter' to track the number of times a constructor is
+        // called, the specified 'destroyCounter' to track the number of times
+        // a destructor is called, and throw a 'ConstructorFailed' exception
+        // after initializing the data members (aborting this constructor) if
+        // 'throwAfterInit' is 'true'.
+
+    ~MyInstrumentedObject();
+        // Destroy this object.
+
+    // ACCESSORS
+    int *constructCounter() const;
+        // Return a pointer to the counter used to track the number of times an
+        // object of type 'MyInstrumentedObject' has been constructed.
+
+    int *destroyCounter() const;
+        // Return a pointer to the counter used to track the number of times an
+        // object of type 'MyInstrumentedObject' has been destroyed.
+
+};
+
                             // ====================
                             // class MyPDTestObject
                             // ====================
@@ -1927,6 +1979,47 @@ template <class OBJECT_TYPE>
 void MyAllocTestDeleter::operator()(OBJECT_TYPE *ptr) const
 {
     d_deleter_p->deleteObject(ptr);
+}
+
+                     // -------------------------- 
+                     // class MyInstrumentedObject
+                     // --------------------------
+
+// CREATORS
+MyInstrumentedObject::MyInstrumentedObject(int  *constructCounter,
+                                           int  *destroyCounter,
+                                           bool  throwAfterInit)
+: d_constructCounter_p(constructCounter)
+, d_destroyCounter_p(destroyCounter)
+{
+    BSLS_ASSERT(constructCounter);
+    BSLS_ASSERT(destroyCounter);
+
+    if (throwAfterInit) {
+        throw ConstructorFailed();
+    }
+
+    ++*d_constructCounter_p;
+}
+
+MyInstrumentedObject::~MyInstrumentedObject()
+{
+    BSLS_ASSERT(d_destroyCounter_p);
+
+    ++*d_destroyCounter_p;
+}
+
+// ACCESSORS
+inline
+int *MyInstrumentedObject::constructCounter() const
+{
+    return d_constructCounter_p;
+}
+
+inline
+int *MyInstrumentedObject::destroyCounter() const
+{
+    return d_destroyCounter_p;
 }
 
                         // ----------------------
@@ -3415,6 +3508,21 @@ int main(int argc, char *argv[])
             }
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
+
+        // Test for double-destruction
+        int constructCount = 0;
+        int destroyCount = 0;
+        try {
+            bsl::allocate_shared<MyInstrumentedObject>(&ta,
+                                                       &constructCount,
+                                                       &destroyCount,
+                                                        true);
+            ASSERT(!"The previous expression should throw");
+        }
+        catch (const ConstructorFailed&) {
+        }
+
+        ASSERTV(constructCount, destroyCount, constructCount == destroyCount);
       } break;
       case 33: {
         // --------------------------------------------------------------------
@@ -3468,6 +3576,24 @@ int main(int argc, char *argv[])
                        veryVerbose,
                        veryVeryVerbose,
                        veryVeryVeryVerbose);
+
+        // Test for double-destruction
+        int constructCount = 0;
+        int destroyCount = 0;
+        try {
+            bslma::TestAllocator ta("double-destruct test allocator");
+            StdStatefulAllocator<MyInstrumentedObject, true, true, true, true>
+                                                                    alloc(&ta);
+            bsl::allocate_shared<MyInstrumentedObject>(alloc,
+                                                      &constructCount,
+                                                      &destroyCount,
+                                                       true);
+            ASSERT(!"The previous expression should throw");
+        }
+        catch (const ConstructorFailed&) {
+        }
+
+        ASSERTV(constructCount, destroyCount, constructCount == destroyCount);
       } break;
       case 32: {
         // --------------------------------------------------------------------
@@ -3820,6 +3946,20 @@ int main(int argc, char *argv[])
             ASSERT(13 == X.get()->data());
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
+
+        // Test for double-destruction
+        int constructCount = 0;
+        int destroyCount = 0;
+        try {
+            bsl::make_shared<MyInstrumentedObject>(&constructCount,
+                                                   &destroyCount,
+                                                    true);
+            ASSERT(!"The previous expression should throw");
+        }
+        catch (const ConstructorFailed&) {
+        }
+
+        ASSERTV(constructCount, destroyCount, constructCount == destroyCount);
       } break;
     case 31: {
       // --------------------------------------------------------------------
