@@ -7,12 +7,10 @@
 #include <bsls_platform.h>
 #include <bsls_bsltestutil.h>
 
+#include <stdio.h>     // atoi()
 #include <stdlib.h>    // atoi()
-#include <iostream>
-#include <typeinfo>
 
 using namespace BloombergLP;
-using namespace std;
 
 // Suppress messages about all-uppercase type names.  Test drivers are rife
 // with short names like 'F' or 'PF' or 'T' or 'T1'.
@@ -31,52 +29,64 @@ using namespace std;
 // use of the component in order to verify that it is actually useful as
 // specified.
 // ----------------------------------------------------------------------------
-// [ 1] Test infrastructure
-// [ 2] bslmf::ForwardingType<TYPE>::Type
-// [ 3] bslmf::ForwardingTypeUtil<TYPE>::TargetType
-// [ 3] bslmf::ForwardingTypeUtil<TYPE>::forwardToTarget(v)
+// [ 2] ForwardingType<TYPE>::Type
+// [ 3] ForwardingTypeUtil<TYPE>::TargetType
+// [ 3] ForwardingTypeUtil<TYPE>::forwardToTarget(v)
+// ----------------------------------------------------------------------------
 // [ 4] END-TO-END OVERLOADING
 // [ 5] USAGE EXAMPLES
-// ----------------------------------------------------------------------------
+// [ 1] CvRefMatch<T>::operator()()
+// [ 1] CvArrayMatch<T>::operator()()
+// [ 1] FuncMatch<F>::operator()()
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACROS
+//                     STANDARD BSL ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 
-static int testStatus = 0;
+namespace {
 
-static void aSsErT(int c, const char *s, int i)
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-#define ASSERT_SAME(X, Y) ASSERT((bsl::is_same<X, Y>::value))
+}  // close unnamed namespace
 
 // ============================================================================
-//                    STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define C_(X)   << #X << ": " << X << '\t'
-#define A_(X,S) { if (!(X)) { cout S << endl; aSsErT(1, #X, __LINE__); } }
-#define LOOP_ASSERT(I,X)            A_(X,C_(I))
-#define LOOP2_ASSERT(I,J,X)         A_(X,C_(I)C_(J))
-#define LOOP3_ASSERT(I,J,K,X)       A_(X,C_(I)C_(J)C_(K))
-#define LOOP4_ASSERT(I,J,K,L,X)     A_(X,C_(I)C_(J)C_(K)C_(L))
-#define LOOP5_ASSERT(I,J,K,L,M,X)   A_(X,C_(I)C_(J)C_(K)C_(L)C_(M))
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) A_(X,C_(I)C_(J)C_(K)C_(L)C_(M)C_(N))
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-//=============================================================================
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
+
+// ============================================================================
+//               ADDITIONAL MACROS FOR THIS TEST DRIVER
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAME(X, Y) ASSERT((bsl::is_same<X, Y>::value))
 
 //=============================================================================
 //                  GLOBAL TYPES/OBJECTS FOR TESTING
@@ -226,14 +236,14 @@ class CvArrayMatch {
 public:
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-    template <class U>
-    int operator()(U&& u) const { return match(u, 0); }
+    template <class ANY>
+    int operator()(ANY&& a) const { return match(a, 0); }
         // Matches both lvalue and rvalue arrays.
 #else
-    template <class U>
-    int operator()(U& u) const { return match(u, 0); }
+    template <class ANY>
+    int operator()(ANY& a) const { return match(a, 0); }
 #endif
-}; 
+};
 
 template <class FUNC> struct FuncMatch;
 
@@ -243,8 +253,9 @@ struct FuncMatch {
     // pointer, or function reference.
 
     struct MatchFuncPtr {
-        // Class that is convertible from 'FUNC*'
-        MatchFuncPtr(FUNC*) { }
+        // Class that is convertible from 'FUNC *'
+        MatchFuncPtr(FUNC *) { }                                    // IMPLICIT
+            // Convert a 'FUNC *' pointer to a 'MatchFuncPtr' object.
     };
 
     int operator()(FUNC&) const { return k_FUNC_REFERENCE; }
@@ -291,7 +302,7 @@ int testEndToEnd(TP arg, const INVOCABLE& target)
 //..
     struct MyType {};
     typedef MyType& MyTypeRef;
-  
+
     void usageExample1()
         // Usage example.
     {
@@ -305,7 +316,7 @@ int testEndToEnd(TP arg, const INVOCABLE& target)
         typedef const MyType&          T8;
         typedef MyType&                T9;
         typedef MyType                *T10;
-  
+
         typedef int                    EXP1;
         typedef int&                   EXP2;
         typedef const volatile double& EXP3;
@@ -316,7 +327,7 @@ int testEndToEnd(TP arg, const INVOCABLE& target)
         typedef const MyType&          EXP8;
         typedef MyType&                EXP9;
         typedef MyType                *EXP10;
-  
+
         ASSERT((bsl::is_same<bslmf::ForwardingType<T1>::Type, EXP1>::value));
         ASSERT((bsl::is_same<bslmf::ForwardingType<T2>::Type, EXP2>::value));
         ASSERT((bsl::is_same<bslmf::ForwardingType<T3>::Type, EXP3>::value));
@@ -344,19 +355,19 @@ int testEndToEnd(TP arg, const INVOCABLE& target)
 //..
     // Primary template is never defined
     template <class PROTOTYPE> class LoggingWrapper;
-  
+
     template <class RET, class ARG1, class ARG2, class ARG3>
     class LoggingWrapper<RET(ARG1, ARG2, ARG3)> {
         // Specialization of wrapper for specified function prototype.
-  
+
         RET (*d_function_p)(ARG1, ARG2, ARG3);
-  
+
     public:
         explicit LoggingWrapper(RET (*function_p)(ARG1, ARG2, ARG3))
             // Create a 'LoggingWrapper' object for the specified 'function_p'
             // function.
           : d_function_p(function_p) { }
-  
+
         RET operator()(ARG1, ARG2, ARG3) const;
             // Invoke the stored function pointer with the specified 'ARG1',
             // 'ARG2', and 'ARG3' arguments, logging the invocation and
@@ -428,22 +439,23 @@ int testEndToEnd(TP arg, const INVOCABLE& target)
         int d_copies;
     public:
         explicit ArgType(int v = 0) : d_value(v), d_copies(0) { }
-            // Create an 'ArgType` object storing the value of the
-            // optionally-specified 'v' argument (default 0).
-  
+            // Create an 'ArgType' object.  Optionally specify 'v' as the
+            // intial value of this 'ArgType' object, otherwise this object
+            // will hold the value 0.
+
         ArgType(const ArgType& original)
             // Copy-construct from the specified 'original'.
           : d_value(original.d_value)
           , d_copies(original.d_copies + 1) { }
-  
+
         int copies() const { return d_copies; }
             // Return the number of copies that this object is from the
             // original.
-  
+
         int value() const { return d_value; }
             // Return the value of this object.
     };
-  
+
     int myFunc(const short& i, ArgType& x, ArgType y)
         // Assign the specified 'x' the value of the specified 'y' and return
         // the 'value()' of 'x'.  Verify that the specified 'i' matches
@@ -468,7 +480,7 @@ int testEndToEnd(TP arg, const INVOCABLE& target)
     {
         ArgType x(0);
         ArgType y(99);
-  
+
         LoggingWrapper<int(const short&, ArgType&, ArgType)> lw(myFunc);
         ASSERT(0 == invocations && 0 == returns);
         lw(2, x, y);  // Expect two copies of 'y'
@@ -555,7 +567,7 @@ int main(int argc, char *argv[])
     (void) verbose;      // eliminate unused variable warning
     (void) veryVerbose;  // eliminate unused variable warning
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
 
@@ -574,8 +586,8 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLES
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nUSAGE EXAMPLES"
-                          << "\n==============" << endl;
+        if (verbose) printf("\nUSAGE EXAMPLES"
+                            "\n==============\n");
 
         usageExample1();
         usageExample2();
@@ -631,11 +643,11 @@ int main(int argc, char *argv[])
         //:   of array types and reference-to-array types.
         //
         // Testing:
-        //      END-TO-END OVERLOADING
+        //   END-TO-END OVERLOADING
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING END-TO-END OVERLOADING"
-                          << "\n==============================" << endl;
+        if (verbose) printf("\nTESTING END-TO-END OVERLOADING"
+                            "\n==============================\n");
 
         int     i = 5;
         Enum    e = e_VAL2;
@@ -662,7 +674,7 @@ int main(int argc, char *argv[])
             ASSERT(testEndToEnd<CT>(v, target)  == target(toRvalue<CT>(v)));  \
         }
 
-        if (veryVerbose) cout << "rvalue types" << endl;
+        if (veryVerbose) printf("rvalue types\n");
         TEST_ENDTOEND_RVALUE(int      , i);
         TEST_ENDTOEND_RVALUE(Enum     , e);
         TEST_ENDTOEND_RVALUE(Struct   , s);
@@ -691,7 +703,7 @@ int main(int argc, char *argv[])
             ASSERT(testEndToEnd<CVT&>(cvv, target) == target(cvv));           \
         }
 
-        if (veryVerbose) cout << "lvalue reference types" << endl;
+        if (veryVerbose) printf("lvalue reference types\n");
         TEST_ENDTOEND_LVALUE_REF(int      , i);
         TEST_ENDTOEND_LVALUE_REF(Enum     , e);
         TEST_ENDTOEND_LVALUE_REF(Struct   , s);
@@ -723,7 +735,7 @@ int main(int argc, char *argv[])
                    target(static_cast<CVT&&>(v)));                            \
         }
 
-        if (veryVerbose) cout << "rvalue reference types" << endl;
+        if (veryVerbose) printf("rvalue reference types\n");
         TEST_ENDTOEND_RVALUE_REF(int      , i);
         TEST_ENDTOEND_RVALUE_REF(Enum     , e);
         TEST_ENDTOEND_RVALUE_REF(Struct   , s);
@@ -739,7 +751,7 @@ int main(int argc, char *argv[])
 
 #endif // defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 
-        if (veryVerbose) cout << "array types" << endl;
+        if (veryVerbose) printf("array types\n");
 #define TEST_ENDTOEND_ARRAY(TP, a, exp) {                                     \
             CvArrayMatch<char> am;                                            \
             ASSERT(testEndToEnd<TP>(a, am)   == exp);                         \
@@ -759,7 +771,7 @@ int main(int argc, char *argv[])
         TEST_ENDTOEND_ARRAY(char *&&, au,  0);
 #endif
 
-        if (veryVerbose) cout << "function types" << endl;
+        if (veryVerbose) printf("function types\n");
         FuncMatch<F> fm;
         ASSERT(testEndToEnd<F*>(f_p,  fm) == k_FUNC_POINTER);
         ASSERT(testEndToEnd<F&>(func, fm) == k_FUNC_REFERENCE);
@@ -839,19 +851,19 @@ int main(int argc, char *argv[])
         //:   steps using cv-qualified template parameters.
         //: 5 For concern 5, instantiate the template with a function
         //:   type, 'F' and then:
-        //:   a Verify that 'TargetType' is 'F&'. 
+        //:   a Verify that 'TargetType' is 'F&'.
         //:   b Initialize a tempoary variable of type
         //:     'ForwardingType<F>::Type' using 'func'.
         //:   c Call 'forwardToTarget' on the temporary variable and verify
         //:     that the returned reference has the same address as 'func'.
         //
         // Testing:
-        //      bslmf::ForwardingTypeUtil<TYPE>::TargetType
-        //      bslmf::ForwardingTypeUtil<TYPE>::forwardToTarget(v)
+        //   ForwardingTypeUtil<TYPE>::TargetType
+        //   ForwardingTypeUtil<TYPE>::forwardToTarget(v)
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'bslmf::ForwardingTypeUtil'"
-                          << "\n===================================" << endl;
+        if (verbose) printf("\nTESTING 'bslmf::ForwardingTypeUtil'"
+                            "\n===================================\n");
 
         Enum    e = e_VAL2;
         Struct  s(99);
@@ -985,9 +997,8 @@ int main(int argc, char *argv[])
 
         // Test function type
         {
-            typedef typename bslmf::ForwardingType<F>::Type FwdType;
-            typedef typename
-                bslmf::ForwardingTypeUtil<F>::TargetType TargetType;
+            typedef bslmf::ForwardingType<F>::Type FwdType;
+            typedef bslmf::ForwardingTypeUtil<F>::TargetType TargetType;
 
             ASSERT_SAME(F&, TargetType);
 
@@ -1052,17 +1063,16 @@ int main(int argc, char *argv[])
         //:   type.
         //
         // Testing:
-        //     bslmf::ForwardingType<TYPE>::Type
+        //   ForwardingType<TYPE>::Type
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'bslmf::ForwardingType<TYPE>::Type'"
-                          << "\n==========================================="
-                          << endl;
+        if (verbose) printf("\nTESTING 'bslmf::ForwardingType<TYPE>::Type'"
+                            "\n===========================================\n");
 
 #define TEST_FWD_TYPE(T, EXP) ASSERT_SAME(bslmf::ForwardingType<T>::Type, EXP)
 #define TEST_FWD_TYPE_UNCHANGED(T) TEST_FWD_TYPE(T, T)
 
-        if (veryVerbose) cout << "Basic types" << endl;
+        if (veryVerbose) printf("Basic types\n");
 
         TEST_FWD_TYPE(int                        , int);
         TEST_FWD_TYPE(int *                      , int *);
@@ -1092,7 +1102,7 @@ int main(int argc, char *argv[])
         TEST_FWD_TYPE(int Class::* const volatile, int Class::*);
         TEST_FWD_TYPE(const volatile Enum        , Enum);
 
-        if (veryVerbose) cout << "Class and union types" << endl;
+        if (veryVerbose) printf("Class and union types\n");
 
         TEST_FWD_TYPE(Class                 , const Class&);
         TEST_FWD_TYPE(Struct                , const Struct&);
@@ -1110,7 +1120,7 @@ int main(int argc, char *argv[])
         TEST_FWD_TYPE(const volatile Struct , const volatile Struct&);
         TEST_FWD_TYPE(const volatile Union  , const volatile Union&);
 
-        if (veryVerbose) cout << "Function types" << endl;
+        if (veryVerbose) printf("Function types\n");
 
 #if !defined(BSLS_PLATFORM_CMP_MSVC) && \
     (!defined(BSLS_PLATFORM_CMP_IBM) || (BSLS_PLATFORM_CMP_VER_MAJOR < 0x0800))
@@ -1135,7 +1145,7 @@ int main(int argc, char *argv[])
         TEST_FWD_TYPE(int(*)(int)   , int(*)(int));
         TEST_FWD_TYPE(void(*)(int&) , void(*)(int&));
 
-        if (veryVerbose) cout << "Array types" << endl;
+        if (veryVerbose) printf("Array types\n");
 
         TEST_FWD_TYPE(int[5]                   , int*                    );
         TEST_FWD_TYPE(int*[5]                  , int**                   );
@@ -1173,7 +1183,7 @@ int main(int argc, char *argv[])
         TEST_FWD_TYPE(const volatile int(&&)[5], const volatile int*     );
 #endif
 
-        if (veryVerbose) cout << "Lvalue references" << endl;
+        if (veryVerbose) printf("Lvalue references\n");
 
         TEST_FWD_TYPE_UNCHANGED(int&                        );
         TEST_FWD_TYPE_UNCHANGED(int *&                      );
@@ -1216,7 +1226,7 @@ int main(int argc, char *argv[])
         TEST_FWD_TYPE_UNCHANGED(const volatile Union&       );
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-        if (veryVerbose) cout << "Rvalue references" << endl;
+        if (veryVerbose) printf("Rvalue references\n");
 
         TEST_FWD_TYPE(int&&                  , const int&);
         TEST_FWD_TYPE(int *&&                , int *const &);
@@ -1289,7 +1299,7 @@ int main(int argc, char *argv[])
         //:   'k_FUNC_REFERENCE' if 'f' is of type 'F' or 'F&' and
         //:   'k_FUNC_POINTER' if 'f' is of type 'F*'.
         //
-        // Plan:   
+        // Plan:
         //: 1 For concern 1, create a variable, 'crm' of type
         //:   'CvRefMatch<int>'. Call 'crm(v)' for variables 'v' of type cvq
         //:   'int' correct lvalue enumeration value is returned.  In C++11 or
@@ -1311,16 +1321,15 @@ int main(int argc, char *argv[])
         //:   enumeration value is returned.
         //
         // Testing:
-        //      CvRefMatch<T>::operator()()
-        //      CvArrayMatch<T>::operator()()
-        //      FuncMatch<F>::operator()()
+        //   CvRefMatch<T>::operator()()
+        //   CvArrayMatch<T>::operator()()
+        //   FuncMatch<F>::operator()()
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING TEST INFRASTRUCTURE"
-                          << "\n==========================="
-                          << endl;
+        if (verbose) printf("\nTESTING TEST INFRASTRUCTURE"
+                            "\n===========================\n");
 
-        if (veryVerbose) cout << "CvRefMatch" << endl;
+        if (veryVerbose) printf("CvRefMatch\n");
 
         int i                  = 0;
         const int ci           = 1;
@@ -1348,7 +1357,7 @@ int main(int argc, char *argv[])
         ASSERT(k_CONST_LVALUE            == crm(toRvalue(rvi)));
 #endif
 
-        if (veryVerbose) cout << "CvArrayMatch" << endl;
+        if (veryVerbose) printf("CvArrayMatch\n");
 
         int                  a[1]   = { 1 };
         const int            ca[2]  = { 1, 2 };
@@ -1380,7 +1389,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == camv ( vp));
         ASSERT(0 == camcv(cvp));
 
-        if (veryVerbose) cout << "FuncMatch" << endl;
+        if (veryVerbose) printf("FuncMatch\n");
         FuncMatch<F> fm;
         F& func_r = func;
         F* func_p = func;
@@ -1391,14 +1400,13 @@ int main(int argc, char *argv[])
       } break;
 
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = "
-             << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
 
     return testStatus;

@@ -17,10 +17,13 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHORS: Ilougino Rocha (irocha), Pablo Halpern (phalpern)
 //
-//@DESCRIPTION: This component provides a meta function determining the most
-// efficient forwarding type for a given template type 'TYPE'.  The forwarding
-// type is used to pass an argument from the client of a component through a
-// chain of nested function calls to the ultimate consumer of the argument.
+//@DESCRIPTION: This component provides a meta function,
+// 'bslmf::ForwardingType', determining the most efficient forwarding type for
+// a given template type 'TYPE'.  The forwarding type is used to pass an
+// argument from the client of a component through a chain of nested function
+// calls to the ultimate consumer of the argument.  This component also
+// provides a utiltiy class template, 'bslmf::ForwardingTypeUtil', supplying
+// functions to most efficiently forward an argument to another function.
 //
 // For instance, basic types (e.g., fundamental types, pointer types, function
 // references and pointers) can efficiently be passed by value down a chain of
@@ -208,8 +211,9 @@ BSLS_IDENT("$Id: $")
 //      int d_copies;
 //  public:
 //      explicit ArgType(int v = 0) : d_value(v), d_copies(0) { }
-//          // Create an 'ArgType` object storing the value of the
-//          // optionally-specified 'v' argument (default 0).
+//          // Create an 'ArgType' object.  Optionally specify 'v' as the
+//          // intial value of this 'ArgType' object, otherwise this object
+//          // will hold the value 0.
 //
 //      ArgType(const ArgType& original)
 //          // Copy-construct from the specified 'original'.
@@ -416,7 +420,7 @@ struct ConstForwardingType : public ForwardingType<TYPE> {
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 // ============================================================================
-//                           IMPLEMENTATION
+//                              INLINE DEFINITIONS
 // ============================================================================
 
 // BDE_VERIFY pragma: push  // Relax some bdeverify rules in the imp section
