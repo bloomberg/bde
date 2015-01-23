@@ -1361,7 +1361,7 @@ void validateManagedState(unsigned int                     LINE,
         LOOP_ASSERT(LINE, false == obj);
         LOOP_ASSERT(LINE, !obj);
         LOOP_ASSERT(LINE, 0 == obj.operator->());
-        LOOP_ASSERT(LINE, 0 == obj.ptr());
+        LOOP_ASSERT(LINE, 0 == obj.get());
 
 #ifdef BDE_BUILD_TARGET_EXC
         if (g_veryVerbose) printf("\tNegative testing\n");
@@ -1382,7 +1382,7 @@ void validateManagedState(unsigned int                     LINE,
         TYPE *arrow = obj.operator->();
         LOOP3_ASSERT(LINE, ptr, arrow, ptr == arrow);
 
-        TYPE * objPtr = obj.ptr();
+        TYPE * objPtr = obj.get();
         LOOP3_ASSERT(LINE, ptr, objPtr, ptr == objPtr);
 
         TYPE &target = *obj;
@@ -1421,7 +1421,7 @@ void validateManagedState(unsigned int                     LINE,
         LOOP_ASSERT(LINE, false == obj);
         LOOP_ASSERT(LINE, !obj);
         LOOP_ASSERT(LINE, 0 == obj.operator->());
-        LOOP_ASSERT(LINE, 0 == obj.ptr());
+        LOOP_ASSERT(LINE, 0 == obj.get());
 #ifdef BDE_BUILD_TARGET_EXC
         if (g_veryVerbose) printf("\tNegative testing\n");
 
@@ -1440,7 +1440,7 @@ void validateManagedState(unsigned int                     LINE,
         void *arrow = obj.operator->();
         LOOP3_ASSERT(LINE, ptr, arrow, ptr == arrow);
 
-        void * objPtr = obj.ptr();
+        void * objPtr = obj.get();
         LOOP3_ASSERT(LINE, ptr, objPtr, ptr == objPtr);
 
         const bslma::ManagedPtrDeleter& objDel = obj.deleter();
@@ -1480,7 +1480,7 @@ void validateManagedState(unsigned int                          LINE,
         LOOP_ASSERT(LINE, false == obj);
         LOOP_ASSERT(LINE, !obj);
         LOOP_ASSERT(LINE, 0 == obj.operator->());
-        LOOP_ASSERT(LINE, 0 == obj.ptr());
+        LOOP_ASSERT(LINE, 0 == obj.get());
 #ifdef BDE_BUILD_TARGET_EXC
         if (g_veryVerbose) printf("\tNegative testing\n");
 
@@ -1499,7 +1499,7 @@ void validateManagedState(unsigned int                          LINE,
         const void *arrow = obj.operator->();
         LOOP3_ASSERT(LINE, ptr, arrow, ptr == arrow);
 
-        const void * objPtr = obj.ptr();
+        const void * objPtr = obj.get();
         LOOP3_ASSERT(LINE, ptr, objPtr, ptr == objPtr);
 
         const bslma::ManagedPtrDeleter& objDel = obj.deleter();
@@ -2230,7 +2230,7 @@ void doConstruct(int callLine, int testLine, int index, TestCtorArgs *args)
 
     bslma::ManagedPtr<POINTER_TYPE> testObject;
 
-    POINTER_TYPE *ptr = testObject.ptr();
+    POINTER_TYPE *ptr = testObject.get();
     LOOP4_ASSERT(callLine, testLine, index, ptr, 0 == ptr);
 }
 
@@ -2242,7 +2242,7 @@ doConstructOnull(int callLine, int testLine, int index, TestCtorArgs *args)
 
     bslma::ManagedPtr<POINTER_TYPE> testObject(0);
 
-    POINTER_TYPE *ptr = testObject.ptr();
+    POINTER_TYPE *ptr = testObject.get();
     LOOP4_ASSERT(callLine, testLine, index, ptr, 0 == ptr);
 }
 
@@ -2256,7 +2256,7 @@ void doConstructOnullFnull(int           callLine,
 
     bslma::ManagedPtr<POINTER_TYPE> testObject(0, 0);
 
-    POINTER_TYPE *ptr = testObject.ptr();
+    POINTER_TYPE *ptr = testObject.get();
     LOOP4_ASSERT(callLine, testLine, index, ptr, 0 == ptr);
 }
 
@@ -2270,7 +2270,7 @@ void doConstructOnullFnullDnull(int           callLine,
 
     bslma::ManagedPtr<POINTER_TYPE> testObject(0, 0, 0);
 
-    POINTER_TYPE *ptr = testObject.ptr();
+    POINTER_TYPE *ptr = testObject.get();
     LOOP4_ASSERT(callLine, testLine, index, ptr, 0 == ptr);
 }
 
@@ -3618,7 +3618,7 @@ void testLoadOps(int                             callLine,
             {
                 bslma::TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
                 TestPointer p;
-                ASSERT(0 == p.ptr());
+                ASSERT(0 == p.get());
 
                 args.d_p  = &p;
                 args.d_ta = &ta;
@@ -3655,7 +3655,7 @@ void testLoadOps(int                             callLine,
                                             g_veryVeryVeryVerbose);
 
                     TestPointer p;
-                    ASSERT(0 == p.ptr());
+                    ASSERT(0 == p.get());
 
                     args.d_p  = &p;
                     args.d_ta = &ta;
@@ -3772,7 +3772,7 @@ void testLoadAliasOps1(
             {
                 bslma::TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
                 TestPointer p;
-                ASSERT(0 == p.ptr());
+                ASSERT(0 == p.get());
 
                 args.d_p  = &p;
                 args.d_ta = &ta;
@@ -3792,14 +3792,14 @@ void testLoadAliasOps1(
                                          "\tNegative testing null pointers\n");
 
                 TestPointer pAlias;
-                if (0 == p.ptr()) {
+                if (0 == p.get()) {
                     bsls::AssertTestHandlerGuard guard;
 
                     ASSERT_SAFE_FAIL(pAlias.loadAlias(p, &aliasTarget));
                     ASSERT_SAFE_PASS(pAlias.loadAlias(p, 0));
 
-                    LOOP_ASSERT(p.ptr(),      0 == p.ptr());
-                    LOOP_ASSERT(pAlias.ptr(), 0 == pAlias.ptr());
+                    LOOP_ASSERT(p.get(),      0 == p.get());
+                    LOOP_ASSERT(pAlias.get(), 0 == pAlias.get());
                 }
                 else {
                     bsls::AssertTestHandlerGuard guard;
@@ -3807,19 +3807,19 @@ void testLoadAliasOps1(
                     ASSERT_SAFE_FAIL(pAlias.loadAlias(p, 0));
                     ASSERT_SAFE_PASS(pAlias.loadAlias(p, &aliasTarget));
 
-                    LOOP_ASSERT(p.ptr(),      0 == p.ptr());
-                    LOOP_ASSERT(pAlias.ptr(), &aliasTarget == pAlias.ptr());
+                    LOOP_ASSERT(p.get(),      0 == p.get());
+                    LOOP_ASSERT(pAlias.get(), &aliasTarget == pAlias.get());
                 }
 #else
                 TestPointer pAlias;
-                TEST_TARGET *pTarget = 0 == p.ptr()
+                TEST_TARGET *pTarget = 0 == p.get()
                                      ? 0
                                      : &aliasTarget;
 
                 pAlias.loadAlias(p, pTarget);
 
-                LOOP_ASSERT(p.ptr(),  0 == p.ptr());
-                LOOP2_ASSERT(pTarget, pAlias.ptr(), pTarget == pAlias.ptr());
+                LOOP_ASSERT(p.get(),  0 == p.get());
+                LOOP2_ASSERT(pTarget, pAlias.get(), pTarget == pAlias.get());
 #endif
 
                 // Assert that no memory was allocated or freed
@@ -3903,7 +3903,7 @@ void testLoadAliasOps2(
             {
                 bslma::TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
                 TestPointer p;
-                ASSERT(0 == p.ptr());
+                ASSERT(0 == p.get());
 
                 args.d_p  = &p;
                 args.d_ta = &ta;
@@ -3928,14 +3928,14 @@ void testLoadAliasOps2(
                 TestPointer pAlias1;
                 TestPointer pAlias2;
 
-                if (0 == p.ptr()) {
+                if (0 == p.get()) {
                     bsls::AssertTestHandlerGuard guard;
 
                     ASSERT_SAFE_FAIL(pAlias1.loadAlias(p, &alias1));
                     ASSERT_SAFE_PASS(pAlias1.loadAlias(p, 0));
 
-                    LOOP_ASSERT(p.ptr(),       0 == p.ptr());
-                    LOOP_ASSERT(pAlias1.ptr(), 0 == pAlias1.ptr());
+                    LOOP_ASSERT(p.get(),       0 == p.get());
+                    LOOP_ASSERT(pAlias1.get(), 0 == pAlias1.get());
                 }
                 else {
                     bsls::AssertTestHandlerGuard guard;
@@ -3943,27 +3943,27 @@ void testLoadAliasOps2(
                     ASSERT_SAFE_FAIL(pAlias1.loadAlias(p, 0));
                     ASSERT_SAFE_PASS(pAlias1.loadAlias(p, &alias1));
 
-                    LOOP_ASSERT(p.ptr(), 0 == p.ptr());
-                    LOOP2_ASSERT(&alias1,   pAlias1.ptr(),
-                                 &alias1 == pAlias1.ptr());
+                    LOOP_ASSERT(p.get(), 0 == p.get());
+                    LOOP2_ASSERT(&alias1,   pAlias1.get(),
+                                 &alias1 == pAlias1.get());
 
                     ASSERT_SAFE_FAIL(pAlias2.loadAlias(pAlias1, 0));
                     ASSERT_SAFE_PASS(pAlias2.loadAlias(pAlias1, &alias2));
 
-                    LOOP_ASSERT(pAlias1.ptr(), 0 == pAlias1.ptr());
-                    LOOP2_ASSERT(&alias2,   pAlias2.ptr(),
-                                 &alias2 == pAlias2.ptr());
+                    LOOP_ASSERT(pAlias1.get(), 0 == pAlias1.get());
+                    LOOP2_ASSERT(&alias2,   pAlias2.get(),
+                                 &alias2 == pAlias2.get());
                 }
 #else
                 TestPointer pAlias1;
-                TEST_TARGET *pTarget = 0 == p.ptr()
+                TEST_TARGET *pTarget = 0 == p.get()
                                      ? 0
                                      : &alias1;
 
                 pAlias1.loadAlias(p, pTarget);
 
-                LOOP_ASSERT(p.ptr(),  0 == p.ptr());
-                LOOP2_ASSERT(pTarget, pAlias1.ptr(), pTarget == pAlias1.ptr());
+                LOOP_ASSERT(p.get(),  0 == p.get());
+                LOOP2_ASSERT(pTarget, pAlias1.get(), pTarget == pAlias1.get());
 #endif
 
                 // Assert that no memory was allocated or freed
@@ -4035,7 +4035,7 @@ void testLoadAliasOps3(
             {
                 bslma::TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
                 TestPointer p;
-                ASSERT(0 == p.ptr());
+                ASSERT(0 == p.get());
 
                 args.d_p  = &p;
                 args.d_ta = &ta;
@@ -4043,7 +4043,7 @@ void testLoadAliasOps3(
                 args.d_deleteCount = 0;
                 args.d_deleteDelta = 0;
                 TEST_ARRAY[i].testLoad(callLine, L_, i, &args);
-                if (0 == p.ptr()) {
+                if (0 == p.get()) {
                     // We have no interest in tests that create a null pointer,
                     // this scenario is negative tested in testLoadAliasOps1.
                     continue;
@@ -4058,8 +4058,8 @@ void testLoadAliasOps3(
                 TestPointer pAlias;
                 pAlias.loadAlias(p, &aliasTarget);
 
-                LOOP_ASSERT(p.ptr(),      0 == p.ptr());
-                LOOP_ASSERT(pAlias.ptr(), &aliasTarget == pAlias.ptr());
+                LOOP_ASSERT(p.get(),      0 == p.get());
+                LOOP_ASSERT(pAlias.get(), &aliasTarget == pAlias.get());
 
                 // Assert that no memory was allocated or freed
                 LOOP_ASSERT(i, tam2.isInUseSame());
@@ -4197,7 +4197,7 @@ void testLoadAliasOps1(int                        callLine,
             {
                 bslma::TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
                 TestPointer p;
-                ASSERT(0 == p.ptr());
+                ASSERT(0 == p.get());
 
                 args.d_p  = &p;
                 args.d_ta = &ta;
@@ -4217,14 +4217,14 @@ void testLoadAliasOps1(int                        callLine,
                                   printf("\tNegative testing null pointers\n");
 
                 TestPointer pAlias;
-                if (0 == p.ptr()) {
+                if (0 == p.get()) {
                     bsls::AssertTestHandlerGuard guard;
 
                     ASSERT_SAFE_FAIL(pAlias.loadAlias(p, &aliasTarget));
                     ASSERT_SAFE_PASS(pAlias.loadAlias(p, 0));
 
-                    LOOP_ASSERT(p.ptr(),      0 == p.ptr());
-                    LOOP_ASSERT(pAlias.ptr(), 0 == pAlias.ptr());
+                    LOOP_ASSERT(p.get(),      0 == p.get());
+                    LOOP_ASSERT(pAlias.get(), 0 == pAlias.get());
                 }
                 else {
                     bsls::AssertTestHandlerGuard guard;
@@ -4232,19 +4232,19 @@ void testLoadAliasOps1(int                        callLine,
                     ASSERT_SAFE_FAIL(pAlias.loadAlias(p, 0));
                     ASSERT_SAFE_PASS(pAlias.loadAlias(p, &aliasTarget));
 
-                    LOOP_ASSERT(p.ptr(),      0 == p.ptr());
-                    LOOP_ASSERT(pAlias.ptr(), &aliasTarget == pAlias.ptr());
+                    LOOP_ASSERT(p.get(),      0 == p.get());
+                    LOOP_ASSERT(pAlias.get(), &aliasTarget == pAlias.get());
                 }
 #else
                 TestPointer pAlias;
-                TEST_TARGET pTarget = 0 == p.ptr()
+                TEST_TARGET pTarget = 0 == p.get()
                                     ? 0
                                     : &aliasTarget;
 
                 pAlias.loadAlias(p, pTarget);
 
-                LOOP_ASSERT(p.ptr(),  0 == p.ptr());
-                LOOP2_ASSERT(pTarget, pAlias.ptr(), pTarget == pAlias.ptr());
+                LOOP_ASSERT(p.get(),  0 == p.get());
+                LOOP2_ASSERT(pTarget, pAlias.get(), pTarget == pAlias.get());
 #endif
 
                 // Assert that no memory was allocated or freed
@@ -4323,7 +4323,7 @@ void testLoadAliasOps2(int                        callLine,
             {
                 bslma::TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
                 TestPointer p;
-                ASSERT(0 == p.ptr());
+                ASSERT(0 == p.get());
 
                 args.d_p  = &p;
                 args.d_ta = &ta;
@@ -4348,14 +4348,14 @@ void testLoadAliasOps2(int                        callLine,
                 TestPointer pAlias1;
                 TestPointer pAlias2;
 
-                if (0 == p.ptr()) {
+                if (0 == p.get()) {
                     bsls::AssertTestHandlerGuard guard;
 
                     ASSERT_SAFE_FAIL(pAlias1.loadAlias(p, &alias1));
                     ASSERT_SAFE_PASS(pAlias1.loadAlias(p, 0));
 
-                    LOOP_ASSERT(p.ptr(),       0 == p.ptr());
-                    LOOP_ASSERT(pAlias1.ptr(), 0 == pAlias1.ptr());
+                    LOOP_ASSERT(p.get(),       0 == p.get());
+                    LOOP_ASSERT(pAlias1.get(), 0 == pAlias1.get());
                 }
                 else {
                     bsls::AssertTestHandlerGuard guard;
@@ -4363,27 +4363,27 @@ void testLoadAliasOps2(int                        callLine,
                     ASSERT_SAFE_FAIL(pAlias1.loadAlias(p, 0));
                     ASSERT_SAFE_PASS(pAlias1.loadAlias(p, &alias1));
 
-                    LOOP_ASSERT(p.ptr(), 0 == p.ptr());
-                    LOOP2_ASSERT(&alias1,   pAlias1.ptr(),
-                                 &alias1 == pAlias1.ptr());
+                    LOOP_ASSERT(p.get(), 0 == p.get());
+                    LOOP2_ASSERT(&alias1,   pAlias1.get(),
+                                 &alias1 == pAlias1.get());
 
                     ASSERT_SAFE_FAIL(pAlias2.loadAlias(pAlias1, 0));
                     ASSERT_SAFE_PASS(pAlias2.loadAlias(pAlias1, &alias2));
 
-                    LOOP_ASSERT(pAlias1.ptr(), 0 == pAlias1.ptr());
-                    LOOP2_ASSERT(&alias2,   pAlias2.ptr(),
-                                 &alias2 == pAlias2.ptr());
+                    LOOP_ASSERT(pAlias1.get(), 0 == pAlias1.get());
+                    LOOP2_ASSERT(&alias2,   pAlias2.get(),
+                                 &alias2 == pAlias2.get());
                 }
 #else
                 TestPointer pAlias1;
-                TEST_TARGET pTarget = 0 == p.ptr()
+                TEST_TARGET pTarget = 0 == p.get()
                                     ? 0
                                     : &alias1;
 
                 pAlias1.loadAlias(p, pTarget);
 
-                LOOP_ASSERT(p.ptr(),  0 == p.ptr());
-                LOOP2_ASSERT(pTarget, pAlias1.ptr(), pTarget == pAlias1.ptr());
+                LOOP_ASSERT(p.get(),  0 == p.get());
+                LOOP2_ASSERT(pTarget, pAlias1.get(), pTarget == pAlias1.get());
 #endif
 
                 // Assert that no memory was allocated or freed
@@ -4451,7 +4451,7 @@ void testLoadAliasOps3(int                        callLine,
             {
                 bslma::TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
                 TestPointer p;
-                ASSERT(0 == p.ptr());
+                ASSERT(0 == p.get());
 
                 args.d_p  = &p;
                 args.d_ta = &ta;
@@ -4459,7 +4459,7 @@ void testLoadAliasOps3(int                        callLine,
                 args.d_deleteCount = 0;
                 args.d_deleteDelta = 0;
                 TEST_ARRAY[i](callLine, L_, i, &args);
-                if (0 == p.ptr()) {
+                if (0 == p.get()) {
                     // We have no interest in tests that create a null pointer,
                     // this scenario is negative tested in testLoadAliasOps1.
                     continue;
@@ -4474,8 +4474,8 @@ void testLoadAliasOps3(int                        callLine,
                 TestPointer pAlias;
                 pAlias.loadAlias(p, &aliasTarget);
 
-                LOOP_ASSERT(p.ptr(),      0 == p.ptr());
-                LOOP_ASSERT(pAlias.ptr(), &aliasTarget == pAlias.ptr());
+                LOOP_ASSERT(p.get(),      0 == p.get());
+                LOOP_ASSERT(pAlias.get(), &aliasTarget == pAlias.get());
 
                 // Assert that no memory was allocated or freed
                 LOOP_ASSERT(i, tam2.isInUseSame());
@@ -6945,11 +6945,11 @@ int main(int argc, char *argv[])
         // TESTING 'clear', 'reset', AND 'release'
         //
         // Concerns:
-        //: 1 'clear' destroys the managed object (if any) and re-initializes
+        //: 1 'reset' destroys the managed object (if any) and re-initializes
         //:   the managed pointer to an unset state.
         //:
-        //: 2 'clear' destroys any managed object using the stored 'deleter'.
-        //: 3 same conserns as 1 and 2 but with reset
+        //: 2 'reset' destroys any managed object using the stored 'deleter'.
+        //: 3 same conserns as 1 and 2 but with cear
         //
         //   That release works properly.
         //   Release gives up ownership of resources without running deleters
@@ -6973,7 +6973,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'clear', 'reset', AND 'release'"
-                            "\n=============================\n");
+                            "\n=======================================\n");
 
         using namespace CREATORS_TEST_NAMESPACE;
 
@@ -6986,7 +6986,6 @@ int main(int argc, char *argv[])
             o.clear();
             LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
-            ASSERT(!o && !o.ptr());
             ASSERT(!o && !o.get());
         }
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
@@ -7000,7 +6999,6 @@ int main(int argc, char *argv[])
             o.reset();
             LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
-            ASSERT(!o && !o.ptr());
             ASSERT(!o && !o.get());
         }
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
@@ -7015,7 +7013,6 @@ int main(int argc, char *argv[])
                 ASSERT(p == o.release().first);
                 ASSERT(0 == numDeletes);
 
-                ASSERT(!o && !o.ptr());
                 ASSERT(!o && !o.get());
             }
 
@@ -7212,7 +7209,6 @@ int main(int argc, char *argv[])
             ASSERT(!o2);
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
-            ASSERT(o.ptr() == p);
             ASSERT(o.get() == p);
         }
         ASSERT(1 == numDeletes);
@@ -7230,7 +7226,6 @@ int main(int argc, char *argv[])
             ASSERT(!o2);
             LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
-            ASSERT(o.ptr() == p2);
             ASSERT(o.get() == p2);
         }
         ASSERT(2 == numDeletes);
@@ -7248,7 +7243,6 @@ int main(int argc, char *argv[])
             ASSERT(!o2);
             LOOP_ASSERT(numDeletes, 1 == numDeletes);
 
-            ASSERT(o.ptr() == p2);
             ASSERT(o.get() == p2);
         }
         ASSERT(101 == numDeletes);
@@ -7266,7 +7260,6 @@ int main(int argc, char *argv[])
                 bslma::ManagedPtr_Ref<TObj> r = o;
                 o2 = r;
 
-                ASSERT(o2.ptr() == p);
                 ASSERT(o2.get() == p);
             }
             ASSERT(0 == numDeletes);
@@ -7391,9 +7384,7 @@ int main(int argc, char *argv[])
 
             o.swap(o2);
 
-            ASSERT(o.ptr() == p2);
             ASSERT(o.get() == p2);
-            ASSERT(o2.ptr() == p);
             ASSERT(o2.get() == p);
         }
         LOOP_ASSERT(numDeletes, 2 == numDeletes);
@@ -7408,17 +7399,13 @@ int main(int argc, char *argv[])
 
             o.swap(o2);
 
-            ASSERT(!o.ptr());
             ASSERT(!o.get());
-            ASSERT(o2.ptr() == p);
             ASSERT(o2.get() == p);
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
             o.swap(o2);
 
-            ASSERT(o.ptr() == p);
             ASSERT(o.get() == p);
-            ASSERT(!o2.ptr());
             ASSERT(!o2.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
@@ -7439,9 +7426,7 @@ int main(int argc, char *argv[])
 
             o.swap(o2);
 
-            ASSERT(o.ptr() == p2);
             ASSERT(o.get() == p2);
-            ASSERT(o2.ptr() == p);
             ASSERT(o2.get() == p);
 
             ASSERT(&ta2 == o.deleter().factory());
@@ -7468,9 +7453,7 @@ int main(int argc, char *argv[])
 
             o.swap(o2);
 
-            ASSERT( o.ptr() == &d2);
             ASSERT( o.get() == &d2);
-            ASSERT(o2.ptr() ==   p);
             ASSERT(o2.get() ==   p);
 
             ASSERT(p3 ==  o.deleter().object());
@@ -7678,13 +7661,10 @@ int main(int argc, char *argv[])
             {
                 TObj x(&numDeletes);
                 Obj  o(&x, 0, countedNilDelete);
-                ASSERT(&x == o.ptr());
                 ASSERT(&x == o.get());
 
                 Obj o2(o);
-                ASSERT( 0 ==  o.ptr());
                 ASSERT( 0 ==  o.get());
-                ASSERT(&x == o2.ptr());
                 ASSERT(&x == o2.get());
                 ASSERT(&x == o2.deleter().object());
                 ASSERT( 0 == o2.deleter().factory());
@@ -7703,13 +7683,10 @@ int main(int argc, char *argv[])
             {
                 TObj x(&numDeletes);
                 Obj  o = Obj(&x, 0, countedNilDelete);
-                ASSERT(&x == o.ptr());
                 ASSERT(&x == o.get());
 
                 Obj o2(o);
-                ASSERT( 0 ==  o.ptr());
                 ASSERT( 0 ==  o.get());
-                ASSERT(&x == o2.ptr());
                 ASSERT(&x == o2.get());
                 ASSERT(&x == o2.deleter().object());
                 ASSERT( 0 == o2.deleter().factory());
@@ -7728,7 +7705,6 @@ int main(int argc, char *argv[])
             {
                 TObj x(&numDeletes);
                 const Obj  o(&x, 0, countedNilDelete);
-                ASSERT(&x == o.ptr());
                 ASSERT(&X == o.get());
    
                 Obj o2(o);  // should not compile
@@ -7751,18 +7727,15 @@ int main(int argc, char *argv[])
             DObj o(p);
 
             ASSERT(o);
-            ASSERT(o.ptr() == p);
             ASSERT(o.get() == p);
 
             bslma::ManagedPtr_Ref<TObj> r = o;
             ASSERT(o);
             Obj o2(r);
 
-            ASSERT(!o && !o.ptr());
             ASSERT(!o && !o.get());
             ASSERT(0 == numDeletes);
 
-            ASSERT(o2.ptr() == p);
             ASSERT(o2.get() == p);
         }
         LOOP_ASSERT(numDeletes, 100 == numDeletes);
@@ -7771,13 +7744,10 @@ int main(int argc, char *argv[])
         {
             TDObj *p = new MyDerivedObject(&numDeletes);
             DObj d(p);
-            ASSERT(d.ptr() == p);
             ASSERT(d.get() == p);
 
             Obj o(d);
-            ASSERT(o.ptr() == p);
             ASSERT(o.get() == p);
-            ASSERT(0 == d.ptr());
             ASSERT(0 == d.get());
         }
         LOOP_ASSERT(numDeletes, 100 == numDeletes);
@@ -7798,7 +7768,6 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(pD->d_data, 3 == pD->d_data);
 
             bslma::ManagedPtr<BaseInt2> pB(pD);  // cannot use '=' form
-            ASSERT(0 == pD.ptr());
             ASSERT(0 == pD.get());
 
             testVal  = pB->data();
@@ -7820,7 +7789,6 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(pD2->d_data, 3 == pD2->d_data);
 
             pB = pD2;
-            ASSERT(0 == pD2.ptr());
             ASSERT(0 == pD2.get());
 
             testVal  = pB->data();
@@ -7995,7 +7963,6 @@ int main(int argc, char *argv[])
                 const int *p = new const int(0);
                 bslma::ManagedPtr<const int> o(p);
 
-                ASSERT(o.ptr() == p);
                 ASSERT(o.get() == p);
                 ASSERT(dam2.isInUseSame());
             }
@@ -8015,7 +7982,6 @@ int main(int argc, char *argv[])
                 int *p = new int;
                 bslma::ManagedPtr<const int> o(p);
 
-                ASSERT(o.ptr() == p);
                 ASSERT(o.get() == p);
                 ASSERT(dam2.isInUseSame());
             }
@@ -8079,7 +8045,6 @@ int main(int argc, char *argv[])
             const MyTestObject *p = new (da) MyTestObject(&numDeletes);
             VObj o(p);
 
-            ASSERT(o.ptr() == p);
             ASSERT(o.get() == p);
         }
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
@@ -8685,8 +8650,7 @@ int main(int argc, char *argv[])
 
             ASSERT(!s); // should not be testing operator! until test 13
 
-            ASSERT(!strcmp(c.ptr(), "meow"));
-            ASSERT(!strcmp(c.ptr(), "meow"));
+            ASSERT(!strcmp(c.get(), "meow"));
 
             ASSERT(0 == numDeletes);
         }
@@ -8710,7 +8674,6 @@ int main(int argc, char *argv[])
 
             ASSERT(!s); // should not be testing operator! until test 13
 
-            ASSERT(!strcmp(c.ptr(), "meow"));
             ASSERT(!strcmp(c.get(), "meow"));
         }
         ASSERT(da.numDeallocations() == numDeallocations + 1);
@@ -9031,7 +8994,6 @@ int main(int argc, char *argv[])
             bslma::TestAllocatorMonitor dam(&da);
             Obj o;
 
-            ASSERT(0 == o.ptr());
             ASSERT(0 == o.get());
             ASSERT(dam.isTotalSame());
         }
@@ -9044,7 +9006,6 @@ int main(int argc, char *argv[])
             bslma::TestAllocatorMonitor dam(&da);
             bslma::ManagedPtr<void> o;
 
-            ASSERT(0 == o.ptr());
             ASSERT(0 == o.get());
             ASSERT(dam.isTotalSame());
         }
@@ -9057,7 +9018,6 @@ int main(int argc, char *argv[])
             bslma::TestAllocatorMonitor dam(&da);
             bslma::ManagedPtr<const int> o;
 
-            ASSERT(0 == o.ptr());
             ASSERT(0 == o.get());
             ASSERT(dam.isTotalSame());
         }
@@ -9074,7 +9034,6 @@ int main(int argc, char *argv[])
             bslma::TestAllocatorMonitor dam(&da);
             Obj o(0);
 
-            ASSERT(0 == o.ptr());
             ASSERT(0 == o.get());
             ASSERT(dam.isTotalSame());
         }
@@ -9087,7 +9046,6 @@ int main(int argc, char *argv[])
             bslma::TestAllocatorMonitor dam(&da);
             VObj o(0);
 
-            ASSERT(0 == o.ptr());
             ASSERT(0 == o.get());
             ASSERT(dam.isTotalSame());
         }
@@ -9100,7 +9058,6 @@ int main(int argc, char *argv[])
             bslma::TestAllocatorMonitor dam(&da);
             bslma::ManagedPtr<const int> o(0);
 
-            ASSERT(0 == o.ptr());
             ASSERT(0 == o.get());
             ASSERT(dam.isTotalSame());
         }
@@ -9117,7 +9074,6 @@ int main(int argc, char *argv[])
             bslma::TestAllocatorMonitor dam(&da);
             Obj o(0, 0);
 
-            ASSERT(0 == o.ptr());
             ASSERT(0 == o.get());
             ASSERT(dam.isTotalSame());
         }
@@ -9130,7 +9086,6 @@ int main(int argc, char *argv[])
             bslma::TestAllocatorMonitor dam(&da);
             VObj o(0, 0);
 
-            ASSERT(0 == o.ptr());
             ASSERT(0 == o.get());
             ASSERT(dam.isTotalSame());
         }
@@ -9143,7 +9098,6 @@ int main(int argc, char *argv[])
             bslma::TestAllocatorMonitor dam(&da);
             bslma::ManagedPtr<const int> o(0, 0);
 
-            ASSERT(0 == o.ptr());
             ASSERT(0 == o.get());
             ASSERT(dam.isTotalSame());
         }
@@ -9160,7 +9114,6 @@ int main(int argc, char *argv[])
             bslma::TestAllocatorMonitor dam(&da);
             Obj o(0, 0, 0);
 
-            ASSERT(0 == o.ptr());
             ASSERT(0 == o.get());
             ASSERT(dam.isTotalSame());
         }
@@ -9173,7 +9126,6 @@ int main(int argc, char *argv[])
             bslma::TestAllocatorMonitor dam(&da);
             VObj o(0, 0, 0);
 
-            ASSERT(0 == o.ptr());
             ASSERT(0 == o.get());
             ASSERT(dam.isTotalSame());
         }
@@ -9186,7 +9138,6 @@ int main(int argc, char *argv[])
             bslma::TestAllocatorMonitor dam(&da);
             bslma::ManagedPtr<const int> o(0, 0, 0);
 
-            ASSERT(0 == o.ptr());
             ASSERT(0 == o.get());
             ASSERT(dam.isTotalSame());
         }
@@ -9506,9 +9457,7 @@ int main(int argc, char *argv[])
             Obj o(p);
             Obj o2(o);
 
-            ASSERT(p == o2.ptr());
             ASSERT(p == o2.get());
-            ASSERT(0 == o.ptr());
             ASSERT(0 == o.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
@@ -9524,15 +9473,12 @@ int main(int argc, char *argv[])
             Obj o(p);
             Obj o2;
 
-            ASSERT(p == o.ptr());
             ASSERT(p == o.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
             o2  = o;
 
-            ASSERT(p == o2.ptr());
             ASSERT(p == o2.get());
-            ASSERT(0 == o.ptr());
             ASSERT(0 == o.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
@@ -9546,7 +9492,6 @@ int main(int argc, char *argv[])
 
             Obj x(returnManagedPtr(&numDeletes, &ta)); Obj const &X = x;
 
-            ASSERT(X.ptr());
             ASSERT(X.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
@@ -9559,7 +9504,6 @@ int main(int argc, char *argv[])
             Obj x; Obj const &X = x;
             x = returnManagedPtr(&numDeletes, &ta);
 
-            ASSERT(X.ptr());
             ASSERT(X.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
@@ -9574,23 +9518,18 @@ int main(int argc, char *argv[])
 
             DObj o(p);
 
-            ASSERT(p == o.ptr());
             ASSERT(p == o.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
             Obj o2(o); // conversion construction
 
-            ASSERT(p == o2.ptr());
             ASSERT(p == o2.get());
-            ASSERT(0 == o.ptr());
             ASSERT(0 == o.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
             CObj o3(o2); // const-conversion construction
 
-            ASSERT(p == o3.ptr());
             ASSERT(p == o3.get());
-            ASSERT(0 == o2.ptr());
             ASSERT(0 == o2.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
@@ -9605,25 +9544,20 @@ int main(int argc, char *argv[])
 
             DObj o(p);
 
-            ASSERT(p == o.ptr());
             ASSERT(p == o.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
             Obj o2;
             o2  = o; // conversion assignment
 
-            ASSERT(p == o2.ptr());
             ASSERT(p == o2.get());
-            ASSERT(0 == o.ptr());
             ASSERT(0 == o.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
             CObj o3;
             o3 = o2; // const-conversion assignment
 
-            ASSERT(p == o3.ptr());
             ASSERT(p == o3.get());
-            ASSERT(0 == o2.ptr());
             ASSERT(0 == o2.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
@@ -9636,7 +9570,6 @@ int main(int argc, char *argv[])
         {
             Obj x(returnDerivedPtr(&numDeletes, &ta)); Obj const &X = x;
 
-            ASSERT(X.ptr());
             ASSERT(X.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
@@ -9651,7 +9584,6 @@ int main(int argc, char *argv[])
             x = returnDerivedPtr(&numDeletes, &ta); // conversion-assignment
                                                     // from an rvalue
 
-            ASSERT(X.ptr());
             ASSERT(X.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
@@ -9668,9 +9600,7 @@ int main(int argc, char *argv[])
             Obj o(p);
             bslma::ManagedPtr<int> o2(o, o->valuePtr()); // alias construction
 
-            ASSERT(p->valuePtr() == o2.ptr());
             ASSERT(p->valuePtr() == o2.get());
-            ASSERT(0 == o.ptr());
             ASSERT(0 == o.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
@@ -9687,9 +9617,7 @@ int main(int argc, char *argv[])
             Obj o(p);
             bslma::ManagedPtr<int> o2(o, o->valuePtr()); // alias construction
 
-            ASSERT(p->valuePtr() == o2.ptr());
             ASSERT(p->valuePtr() == o2.get());
-            ASSERT(0 == o.ptr());
             ASSERT(0 == o.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
@@ -9710,7 +9638,6 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
             o.load(p2);
-            ASSERT(p2 == o.ptr());
             ASSERT(p2 == o.get());
             ASSERT(1 == numDeletes2);
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
@@ -9731,7 +9658,6 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
             o.load(p2,&ta);
-            ASSERT(p2 == o.ptr());
             ASSERT(p2 == o.get());
             LOOP_ASSERT(numDeletes2, 1 == numDeletes2);
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
@@ -9748,21 +9674,17 @@ int main(int argc, char *argv[])
             Obj o(p);
             bslma::ManagedPtr<int> o2;
 
-            ASSERT(p == o.ptr());
             ASSERT(p == o.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
             o2.loadAlias(o, o->valuePtr());
 
-            ASSERT(p->valuePtr() == o2.ptr());
             ASSERT(p->valuePtr() == o2.get());
-            ASSERT(0 == o.ptr());
             ASSERT(0 == o.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
             // Check load alias to self
             o2.loadAlias(o2, p->valuePtr(1));
-            ASSERT(p->valuePtr(1) == o2.ptr());
             ASSERT(p->valuePtr(1) == o2.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
@@ -9778,14 +9700,11 @@ int main(int argc, char *argv[])
             Obj o(p);
             Obj o2;
 
-            ASSERT(p == o.ptr());
             ASSERT(p == o.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
             o2.swap(o);
-            ASSERT(p == o2.ptr());
             ASSERT(p == o2.get());
-            ASSERT(0 == o.ptr());
             ASSERT(0 == o.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
@@ -9801,14 +9720,11 @@ int main(int argc, char *argv[])
             Obj o(p, &ta, &myTestDeleter);
             Obj o2;
 
-            ASSERT(p == o.ptr());
             ASSERT(p == o.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
 
             o2.swap(o);
-            ASSERT(p == o2.ptr());
             ASSERT(p == o2.get());
-            ASSERT(0 == o.ptr());
             ASSERT(0 == o.get());
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }

@@ -1103,6 +1103,7 @@ class ManagedPtr {
 
     void clear();
         // [!DEPRECATED!] Use 'reset' instead.
+    	//
         // Destroy the current managed object (if any) and reset this managed
         // pointer as empty.
 
@@ -1265,6 +1266,7 @@ class ManagedPtr {
 
     TARGET_TYPE *ptr() const;
         // [!DEPRECATED!]: Use 'get' instead.
+    	//
         // Return the address of the target object, or 0 if this managed
         // pointer is empty.
 
@@ -1613,8 +1615,7 @@ template <class TARGET_TYPE>
 inline
 void ManagedPtr<TARGET_TYPE>::clear()
 {
-    d_members.runDeleter();
-    d_members.clear();
+    reset();
 }
 
 template <class TARGET_TYPE>
@@ -1869,7 +1870,7 @@ template <class TARGET_TYPE>
 inline
 TARGET_TYPE *ManagedPtr<TARGET_TYPE>::ptr() const
 {
-    return static_cast<TARGET_TYPE*>(d_members.pointer());
+    return get();
 }
 
 template <class TARGET_TYPE>
