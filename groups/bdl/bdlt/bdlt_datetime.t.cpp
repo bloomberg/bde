@@ -83,7 +83,6 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 // CLASS METHODS
 // [17] bool isValid(int y, int m, int d, int h, int m, int s, int ms);
-// [17] bool isValid(bdlt::Date date, bdlt::Time time);
 // [10] static int maxSupportedBdexVersion(int versionSelector);
 //
 // CREATORS
@@ -222,6 +221,13 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
+#define ASSERT_SAFE_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPR)
+#define ASSERT_SAFE_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)
+#define ASSERT_PASS_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPR)
+#define ASSERT_FAIL_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
+#define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
+#define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
+
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
@@ -270,11 +276,8 @@ static const DefaultDataRow DEFAULT_DATA[] =
     {  L_, 2002,  7,  4, 21, 22, 23, 209 },
     {  L_, 2003,  8,  5, 21, 22, 23, 210 },
     {  L_, 2004,  9,  3, 22, 44, 55, 888 },
-    {  L_, 9999, 12, 31, 23, 59, 59, 999 }   // end of epoch
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED // Contract narrowed for oss release.
-                                          ,
+    {  L_, 9999, 12, 31, 23, 59, 59, 999 },  // end of epoch
     {  L_,    1,  1,  2, 24,  0,  0,   0 }   // 24 on 1/1/2
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 
@@ -399,6 +402,7 @@ int main(int argc, char *argv[])
 //..
 // Finally, we stream the value of 'dt2' to 'stdout':
 //..
+if (veryVerbose)
     bsl::cout << dt2 << bsl::endl;
 //..
 // The streaming operator produces the following output on 'stdout':
@@ -439,6 +443,7 @@ int main(int argc, char *argv[])
     for (int i = 0; i <= numShifts; ++i) {
         bdlt::Datetime startOfShift(sunset);
         startOfShift.addMilliseconds(shiftLengthInMsec * i);
+if (veryVerbose)
         bsl::cout << startOfShift << bsl::endl;
     }
 //..
@@ -494,7 +499,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'date' Overload" << endl;
 
         {
-            Obj x; const Obj& X = x;
+            Obj x;  const Obj& X = x;
 
             const Date date0             = X.date(); // accessor
             Date&      modifiableDateRef = x.date(); // manipulator
@@ -642,32 +647,32 @@ int main(int argc, char *argv[])
             const int SECS = 7;
             const int MSEC = 8;
 
-            Obj mA0; const Obj& A0 = mA0;
-            Obj mA1; const Obj& A1 = mA1;
+            Obj mA0;  const Obj& A0 = mA0;
+            Obj mA1;  const Obj& A1 = mA1;
             mA0.validateAndSetDatetime(YEAR, MON, DAY, HOUR, MIN, SECS, MSEC);
             mA1.validateAndSetDatetime(YEAR, MON, DAY, HOUR, MIN, SECS, MSEC);
             ASSERT(A0 == A1);
 
-            Obj mB0; const Obj& B0 = mB0;
-            Obj mB1; const Obj& B1 = mB1;
+            Obj mB0;  const Obj& B0 = mB0;
+            Obj mB1;  const Obj& B1 = mB1;
             mB0.validateAndSetDatetime(YEAR, MON, DAY, HOUR, MIN, SECS,    0);
             mB1.validateAndSetDatetime(YEAR, MON, DAY, HOUR, MIN, SECS);
             ASSERT(B0 == B1);
 
-            Obj mC0; const Obj& C0 = mC0;
-            Obj mC1; const Obj& C1 = mC1;
+            Obj mC0;  const Obj& C0 = mC0;
+            Obj mC1;  const Obj& C1 = mC1;
             mC0.validateAndSetDatetime(YEAR, MON, DAY, HOUR, MIN,   0,    0);
             mC1.validateAndSetDatetime(YEAR, MON, DAY, HOUR, MIN);
             ASSERT(C0 == C1);
 
-            Obj mD0; const Obj& D0 = mD0;
-            Obj mD1; const Obj& D1 = mD1;
+            Obj mD0;  const Obj& D0 = mD0;
+            Obj mD1;  const Obj& D1 = mD1;
             mD0.validateAndSetDatetime(YEAR, MON, DAY, HOUR,   0,   0,    0);
             mD1.validateAndSetDatetime(YEAR, MON, DAY, HOUR);
             ASSERT(D0 == D1);
 
-            Obj mE0; const Obj& E0 = mE0;
-            Obj mE1; const Obj& E1 = mE1;
+            Obj mE0;  const Obj& E0 = mE0;
+            Obj mE1;  const Obj& E1 = mE1;
             mE0.validateAndSetDatetime(YEAR, MON, DAY,    0,   0,   0,    0);
             mE1.validateAndSetDatetime(YEAR, MON, DAY);
             ASSERT(E0 == E1);
@@ -740,11 +745,10 @@ int main(int argc, char *argv[])
             { 2003,  8,  5, 21, 22, 23, 210 },
             { 2004,  9,  3, 22, 44, 55, 888 },
             { 9999, 12, 31, 23, 59, 59, 999 },  // end of epoch
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED // Contract narrowed for oss release.
 
-            // legacy values
-            {    1,  1,  2, 24,  0,  0,   0 },
+            // values with 24 == hour
             {    1,  1,  1, 24,  0,  0,   0 },
+            {    1,  1,  2, 24,  0,  0,   0 },
             {   10,  4,  5, 24,  0,  0,   0 },
             {  100,  6,  7, 24,  0,  0,   0 },
             { 1000,  8,  9, 24,  0,  0,   0 },
@@ -753,7 +757,6 @@ int main(int argc, char *argv[])
             { 2003,  8,  5, 24,  0,  0,   0 },
             { 2004,  9,  3, 24,  0,  0,   0 },
             { 9999, 12, 31, 24,  0,  0,   0 },
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
         };
         const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
@@ -791,16 +794,12 @@ int main(int argc, char *argv[])
                    P(MSEC)
             }
 
+            const Obj R(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, MSEC);
+
             for (int j = 0; j < NUM_DAYS; ++j) {
                 const int D = DAYS[j];
 
-                Obj u(YEAR,
-                      MONTH,
-                      DAY,
-                      HOUR,
-                      MINUTE,
-                      SECOND,
-                      MSEC); const Obj& U = u; const Obj R(U);
+                Obj mU(R);  const Obj& U = mU;
 
                 const int DELTA = D > 0
                                 ? bsl::min(D,   endOfEpoch.date() - U.date())
@@ -808,14 +807,15 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ T_ P_(U) P_(D) P(DELTA) }
 
-                 u.addDays(DELTA);
+                mU.addDays(DELTA);
 
-                 LOOP2_ASSERT(i, j, U.date() - R.date() == DELTA);
-                 if (Obj() == R) {
-                     LOOP2_ASSERT(i, j, Time(0, 0, 0, 0)    == U.time());
-                 } else {
-                     LOOP2_ASSERT(i, j, R.time()            == U.time());
-                 }
+                LOOP2_ASSERT(i, j, U.date() - R.date() == DELTA);
+
+                if (Time() == R.time()) {
+                    LOOP2_ASSERT(i, j, Time(0, 0, 0, 0) == U.time());
+                } else {
+                    LOOP2_ASSERT(i, j, R.time()         == U.time());
+                }
             }
         }
 
@@ -854,30 +854,25 @@ int main(int argc, char *argv[])
         //:   change the "date" part.
         //:
         //: 4 The methods are alias safe.
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED // Contract narrowed for oss release.
-        //:
-        //: 5 The methods work for values allowed by the legacy contracts.
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
         //
         // Plan:
-        //: 1 Construct a table of substantial and varies differences in value
+        //: 1 Construct a table of substantial and varied differences in value
         //:   that spans the range of 'Datetime' values and includes the
         //:   default value.  The table will be used to create a series of test
         //:   objects.  The table also provides a meaningful and convenient
-        //:   source of date and time methods to be used as arguments to the
-        //:   'setDate' and 'setTime' methods, respectively.  Invalid
-        //:   combinations of 'Date' and 'Time' values are skipped.
+        //:   source of date and time values to be used as arguments to the
+        //:   'setDate' and 'setTime' methods, respectively.
         //:
-        //: 2 Test the each of the values specified in the table (P-1) create a
-        //:   test object invoke the 'setDate' ('setTime') method using each of
-        //:   the day (time) values from the table.  In each case confirm that
-        //:   the date (time ) of the test object is left having the expected
-        //:   value and that the time (date) is not changed.  (C-1, C-2, C-3)
+        //: 2 For each value specified by the table (P-1) create a test object
+        //:   and invoke the 'setDate' ('setTime') method using each of the
+        //:   date (time) values from the table.  In each case confirm that the
+        //:   "date" and "time" parts of the test object have the expected
+        //:   values.  (C-1..3)
         //:
-        //: 3 For each values specified by the table (P-1) create an object and
+        //: 3 For each value specified by the table (P-1) create an object and
         //:   invoke its 'setDate' ('setTime') method using the "date" ("time")
         //:   part of that object as an argument.  Confirm that the object
-        //:   value is unchanged.
+        //:   value is unchanged.  (C-4)
         //
         // Testing:
         //   void setDate(const Date& date);
@@ -907,11 +902,10 @@ int main(int argc, char *argv[])
             { 2003,  8,  5, 21, 22, 23, 210 },
             { 2004,  9,  3, 22, 44, 55, 888 },
             { 9999, 12, 31, 23, 59, 59, 999 },  // end of epoch
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED // Contract narrowed for oss release.
 
-            // legacy values
-            {    1,  1,  2, 24,  0,  0,   0 },
+            // values with 24 == hour
             {    1,  1,  1, 24,  0,  0,   0 },
+            {    1,  1,  2, 24,  0,  0,   0 },
             {   10,  4,  5, 24,  0,  0,   0 },
             {  100,  6,  7, 24,  0,  0,   0 },
             { 1000,  8,  9, 24,  0,  0,   0 },
@@ -920,7 +914,6 @@ int main(int argc, char *argv[])
             { 2003,  8,  5, 24,  0,  0,   0 },
             { 2004,  9,  3, 24,  0,  0,   0 },
             { 9999, 12, 31, 24,  0,  0,   0 },
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
         };
         const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
@@ -945,15 +938,9 @@ int main(int argc, char *argv[])
                    P(MSEC1)
             }
 
-            Obj u(YEAR1,
-                  MONTH1,
-                  DAY1,
-                  HOUR1,
-                  MINUTE1,
-                  SECOND1,
-                  MSEC1); const Obj& U = u;
+            const Obj R(YEAR1, MONTH1, DAY1, HOUR1, MINUTE1, SECOND1, MSEC1);
 
-            if (veryVerbose) { T_ P(U) }
+            if (veryVerbose) { T_ P(R) }
 
             for (int j = 0; j < NUM_VALUES; ++j) {
                 const int YEAR2   = VALUES[j].d_year;
@@ -967,41 +954,33 @@ int main(int argc, char *argv[])
                 const Date DATE(YEAR2, MONTH2, DAY2);
                 const Time TIME(HOUR2, MINUTE2, SECOND2, MSEC2);
 
-                const Obj R(YEAR1,
-                            MONTH1,
-                            DAY1,
-                            HOUR1,
-                            MINUTE1,
-                            SECOND1,
-                            MSEC1);
-                Obj u(R); const Obj& U = u;
+                Obj mU(R);  const Obj& U = mU;
 
                 if (veryVerbose) { T_ T_ P_(U) P(DATE) }
 
-                u.setDate(DATE);
+                mU.setDate(DATE);
 
                 LOOP2_ASSERT(i, j, DATE     == U.date());
 
-                if (Obj() == R) {
+                if (Obj() == R && Date() != DATE) {
                     LOOP2_ASSERT(i, j, Time(0, 0, 0, 0) == U.time());
                 } else {
                     LOOP2_ASSERT(i, j, R.time()         == U.time());
                 }
 
-                Obj v(R); const Obj& V = v;
-
-#ifdef BDE_OMIT_INTERNAL_DEPRECATED // Contract narrowed for oss release.
-                if (!Obj::isValid(V.date(), TIME)) {
-                    continue;
-                }
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+                Obj mV(R);  const Obj& V = mV;
 
                 if (veryVerbose) { T_ T_ P_(V) P(TIME) }
 
-                v.setTime(TIME);
+                mV.setTime(TIME);
 
                 LOOP2_ASSERT(i, j, R.date() == V.date());
-                LOOP2_ASSERT(i, j, TIME     == V.time());
+
+                if (Date() != R.date() && Time() == TIME) {
+                    LOOP2_ASSERT(i, j, Time(0, 0, 0, 0) == V.time());
+                } else {
+                    LOOP2_ASSERT(i, j, TIME             == V.time());
+                }
             }
         }
 
@@ -1027,31 +1006,15 @@ int main(int argc, char *argv[])
                    P(MSEC)
             }
 
-            const Obj R(YEAR,
-                        MONTH,
-                        DAY,
-                        HOUR,
-                        MINUTE,
-                        SECOND,
-                        MSEC);
+            const Obj R(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, MSEC);
 
-            Obj u(R); const Obj& U = u;
-            u.setDate(u.date());
+            Obj mU(R);  const Obj& U = mU;
+            mU.setDate(U.date());
+            LOOP_ASSERT(i, R == U);
 
-            if (Obj() == R) {
-                LOOP_ASSERT(i, R.date()         == U.date());
-                LOOP_ASSERT(i, Time(0, 0, 0, 0) == U.time());
-            } else {
-                LOOP_ASSERT(i, R == U);
-            }
-
-            Obj v(R); const Obj& V = v;
-            v.setTime(v.time());
+            Obj mV(R);  const Obj& V = mV;
+            mV.setTime(V.time());
             LOOP_ASSERT(i, R == V);
-
-            Obj w(R); const Obj& W = w;
-            w.setTime(w.time());
-            LOOP_ASSERT(i, R == W);
         }
 
       } break;
@@ -1065,10 +1028,6 @@ int main(int argc, char *argv[])
         //:   1 Change the default time value to "00:00:00.000".
         //:   2 Otherwise leave the time value unchanged.
         //: 3 Original value of the object is not relevant.
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED // Contract narrowed for oss release.
-        //:
-        //: 4 The methods work values allowed by the legacy contracts.
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
         //
         // Plan:
         //: 1 Construct a table of valid inputs and compare results with the
@@ -1094,22 +1053,13 @@ int main(int argc, char *argv[])
 
         const Date RD(2000, 2, 3);       // Ref date (02FEB2000)
         const Time RT(23, 22, 21, 209);  // Ref time (21:22:21.209)
-        const Obj  RDT(RD.year(),
-                       RD.month(),
-                       RD.day(),
-                       RT.hour(),
-                       RT.minute(),
-                       RT.second(),
-                       RT.millisecond());
+        const Obj  RDT(RD, RT);
 
         Obj ARRAY[] = { Obj(),                              // default value
                         Obj(   1,  1,  1,  0,  0,  0,   0), // start of epoch
                         RDT,                                // arbitrary value
-                        Obj(9999, 12, 31, 23, 59, 59, 999)  // end of epoch
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED // Contract narrowed for oss release.
-                                                          ,
+                        Obj(9999, 12, 31, 23, 59, 59, 999), // end of epoch
                         Obj(   1,  1,  2, 24,  0,  0,   0)  // 24 on 1/1/2
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
                       };
         const int NUM_ARRAY = sizeof ARRAY / sizeof *ARRAY;
 
@@ -1166,23 +1116,23 @@ int main(int argc, char *argv[])
 
                 const Date ED(YEAR, MONTH, DAY);
 
-                Obj x(OBJ); const Obj& X = x;
+                Obj mX(OBJ);  const Obj& X = mX;
 
-                x.setYearDay(YEAR, DAY_OF_YEAR);
-
+                mX.setYearDay(YEAR, DAY_OF_YEAR);
                 LOOP_ASSERT(LINE, ED == X.date());
-                if (Obj() == OBJ) {
+
+                if (Time() == OBJ.time() && Date() != X.date()) {
                     LOOP_ASSERT(LINE, Time(0, 0, 0, 0) == X.time());
                 } else {
                     LOOP_ASSERT(LINE, OBJ.time()       == X.time());
                 }
 
-                Obj y(OBJ); const Obj& Y = y;
+                Obj mY(OBJ);  const Obj& Y = mY;
 
-                y.setYearMonthDay(YEAR, MONTH, DAY);
+                mY.setYearMonthDay(YEAR, MONTH, DAY);
                 LOOP_ASSERT(LINE, ED == Y.date());
 
-                if (Obj() == OBJ) {
+                if (Time() == OBJ.time() && Date() != Y.date()) {
                     LOOP_ASSERT(LINE, Time(0, 0, 0, 0) == Y.time());
                 } else {
                     LOOP_ASSERT(LINE, OBJ.time()       == Y.time());
@@ -1208,10 +1158,6 @@ int main(int argc, char *argv[])
         //:   the object.
         //:
         //: 5 Each optional argument is set to the expected value (0).
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED // Contract narrowed for oss release.
-        //:
-        //: 6 The methods work values allowed by the legacy contracts.
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
         //
         // Plan:
         //: 1 Construct a table of valid and invalid inputs and compare results
@@ -1249,11 +1195,8 @@ int main(int argc, char *argv[])
         Obj ARRAY[] = { Obj(),                              // default value
                         Obj(   1,  1,  1,  0,  0,  0,   0), // start of epoch
                         RDT,                                // arbitrary value
-                        Obj(9999, 12, 31, 23, 59, 59, 999)  // end of epoch
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED // Contract narrowed for oss release.
-                                                          ,
+                        Obj(9999, 12, 31, 23, 59, 59, 999), // end of epoch
                         Obj(   1,  1,  2, 24,  0,  0,   0)  // 24 on 1/1/2
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
                       };
         const int NUM_ARRAY = sizeof ARRAY / sizeof *ARRAY;
 
@@ -1372,32 +1315,32 @@ int main(int argc, char *argv[])
             const int SECS = 7;
             const int MSEC = 8;
 
-            Obj mA0; const Obj& A0 = mA0;
-            Obj mA1; const Obj& A1 = mA1;
+            Obj mA0;  const Obj& A0 = mA0;
+            Obj mA1;  const Obj& A1 = mA1;
             mA0.setDatetimeIfValid(YEAR, MON, DAY, HOUR, MIN, SECS, MSEC);
             mA1.setDatetimeIfValid(YEAR, MON, DAY, HOUR, MIN, SECS, MSEC);
             ASSERT(A0 == A1);
 
-            Obj mB0; const Obj& B0 = mB0;
-            Obj mB1; const Obj& B1 = mB1;
+            Obj mB0;  const Obj& B0 = mB0;
+            Obj mB1;  const Obj& B1 = mB1;
             mB0.setDatetimeIfValid(YEAR, MON, DAY, HOUR, MIN, SECS,    0);
             mB1.setDatetimeIfValid(YEAR, MON, DAY, HOUR, MIN, SECS);
             ASSERT(B0 == B1);
 
-            Obj mC0; const Obj& C0 = mC0;
-            Obj mC1; const Obj& C1 = mC1;
+            Obj mC0;  const Obj& C0 = mC0;
+            Obj mC1;  const Obj& C1 = mC1;
             mC0.setDatetimeIfValid(YEAR, MON, DAY, HOUR, MIN,   0,    0);
             mC1.setDatetimeIfValid(YEAR, MON, DAY, HOUR, MIN);
             ASSERT(C0 == C1);
 
-            Obj mD0; const Obj& D0 = mD0;
-            Obj mD1; const Obj& D1 = mD1;
+            Obj mD0;  const Obj& D0 = mD0;
+            Obj mD1;  const Obj& D1 = mD1;
             mD0.setDatetimeIfValid(YEAR, MON, DAY, HOUR,   0,   0,    0);
             mD1.setDatetimeIfValid(YEAR, MON, DAY, HOUR);
             ASSERT(D0 == D1);
 
-            Obj mE0; const Obj& E0 = mE0;
-            Obj mE1; const Obj& E1 = mE1;
+            Obj mE0;  const Obj& E0 = mE0;
+            Obj mE1;  const Obj& E1 = mE1;
             mE0.setDatetimeIfValid(YEAR, MON, DAY,    0,   0,   0,    0);
             mE1.setDatetimeIfValid(YEAR, MON, DAY);
             ASSERT(E0 == E1);
@@ -1412,21 +1355,13 @@ int main(int argc, char *argv[])
         //: 1 Each of the seven arguments contribute to the 'isValid'
         //:   calculation.
         //:
-        //: 2 The two-argument 'isValid' method produces the same results
-        //:   as the seven-argument 'isValid' method.
-        //:
         // Plan:
         //: 1 Construct a table of valid and invalid inputs and compare results
-        //:   to the expected return values.  The table entries test the range
-        //:   limits for each field.  (C-1)
-        //:
-        //: 2 When the seven arguments can be used to create 'Date' and 'Time'
-        //:   objects, do so, pass the objects to the two-argument 'isValid'
-        //:   method, and confirm that the results match calculated in P-1.
+        //:   to the expected return value of 'isValid'.  The table entries
+        //:   test the range limits for each field.  (C-1)
         //
         // Testing:
         //   bool isValid(int y, int m, int d, int h, int m, int s, int ms);
-        //   bool isValid(bdlt::Date date, bdlt::Time time);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1463,9 +1398,9 @@ int main(int argc, char *argv[])
             { L_,  1400,  10,   2,    7,   31,   2,    22,    1   }, // ad hoc
             { L_,  2002,   8,  27,   14,    2,  48,   976,    1   }, // ad hoc
 
-            // invalid 'Obj' arguments
-            { L_,     1,   1,   2,   24,    0,   0,     0,    0   }, // 24 on 2
+            { L_,     1,   1,   2,   24,    0,   0,     0,    1   }, // 24 on 2
 
+            // invalid 'Obj' arguments
             { L_,     1,   1,   1,    0,    0,   0,    -1,    0   },
             { L_,     1,   1,   1,    0,    0,  -1,     0,    0   },
             { L_,     1,   1,   1,    0,   -1,   0,     0,    0   },
@@ -1490,7 +1425,6 @@ int main(int argc, char *argv[])
 
             { L_,  1401,   2,  29,    7,   31,   2,    22,    0   }, // ad hoc
             { L_,  2002,   2,  29,   14,    2,  48,    976,   0   }, // ad hoc
-
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1517,20 +1451,6 @@ int main(int argc, char *argv[])
                                                        MINUTE,
                                                        SECOND,
                                                        MSEC));
-
-            // The attributes must be sufficiently valid to construct 'Date'
-            // and 'Time' objects.
-
-            if (!Date::isValidYearMonthDay(YEAR, MONTH, DAY)
-             || !Time::isValid(HOUR, MINUTE, SECOND, MSEC)) {
-                continue;
-            }
-
-            LOOP_ASSERT(LINE, EXPECTED == Obj::isValid(Date(YEAR, MONTH, DAY),
-                                                       Time(HOUR,
-                                                            MINUTE,
-                                                            SECOND,
-                                                            MSEC)));
         }
 
       } break;
@@ -1821,8 +1741,8 @@ int main(int argc, char *argv[])
         if (verbose) cout
           << "\nTest handling of hour 24." << endl;
         {
-            Obj x; const Obj& X = x;
-            Obj y; const Obj& Y = y;
+            Obj x;  const Obj& X = x;
+            Obj y;  const Obj& Y = y;
 
             const DatetimeInterval zero(0, 0, 0, 0, 0);
 
@@ -2095,8 +2015,8 @@ int main(int argc, char *argv[])
         if (verbose) cout
           << "\nTest handling of hour 24." << endl;
         {
-            Obj x; const Obj& X = x;
-            Obj y; const Obj& Y = y;
+            Obj x;  const Obj& X = x;
+            Obj y;  const Obj& Y = y;
 
             const DatetimeInterval zero(0, 0, 0, 0, 0);
 
@@ -2228,7 +2148,7 @@ int main(int argc, char *argv[])
                 int d_minutes;       // minutes to add
                 int d_seconds;       // seconds to add
                 int d_msecs;         // milliseconds to add
-                int d_expDays;       // expected return value (days)
+                int d_expDays;       // expected whole days added to object
                 int d_expHour;       // expected hour value
                 int d_expMinute;     // expected minute value
                 int d_expSecond;     // expected second value
@@ -2304,10 +2224,10 @@ int main(int argc, char *argv[])
                 const int EXP_SEC  = DATA[i].d_expSecond;
                 const int EXP_MSEC = DATA[i].d_expMsec;
 
-                Obj x(INITIAL_DATE, INITIAL_TIME);  const Obj& X = x;
+                Obj mX(INITIAL_DATE, INITIAL_TIME);  const Obj& X = mX;
                 if (veryVerbose) { T_  P_(X) }
 
-                x.addTime(HOURS, MINUTES, SECONDS, MSECS);
+                mX.addTime(HOURS, MINUTES, SECONDS, MSECS);
 
                 const Date EXP_D(REFERENCE_YEAR,
                                  REFERENCE_MONTH,
@@ -2346,26 +2266,26 @@ int main(int argc, char *argv[])
             const int SECONDS = 300;
             const int MSECS   = 400;
 
-            Obj mA0(IDT); const Obj& A0 = mA0;
-            Obj mA1(IDT); const Obj& A1 = mA1;
+            Obj mA0(IDT);  const Obj& A0 = mA0;
+            Obj mA1(IDT);  const Obj& A1 = mA1;
             mA0.addTime(HOURS, MINUTES, SECONDS, MSECS);
             mA1.addTime(HOURS, MINUTES, SECONDS, MSECS);
             ASSERT(A0 == A1);
 
-            Obj mB0(IDT); const Obj& B0 = mB0;
-            Obj mB1(IDT); const Obj& B1 = mB1;
+            Obj mB0(IDT);  const Obj& B0 = mB0;
+            Obj mB1(IDT);  const Obj& B1 = mB1;
             mB0.addTime(HOURS, MINUTES, SECONDS,     0);
             mB1.addTime(HOURS, MINUTES, SECONDS);
             ASSERT(B0 == B1);
 
-            Obj mC0(IDT); const Obj& C0 = mC0;
-            Obj mC1(IDT); const Obj& C1 = mC1;
+            Obj mC0(IDT);  const Obj& C0 = mC0;
+            Obj mC1(IDT);  const Obj& C1 = mC1;
             mC0.addTime(HOURS, MINUTES,       0,     0);
             mC1.addTime(HOURS, MINUTES);
             ASSERT(C0 == C1);
 
-            Obj mD0(IDT); const Obj& D0 = mD0;
-            Obj mD1(IDT); const Obj& D1 = mD1;
+            Obj mD0(IDT);  const Obj& D0 = mD0;
+            Obj mD1(IDT);  const Obj& D1 = mD1;
             mD0.addTime(HOURS,       0,       0,      0);
             mD1.addTime(HOURS);
             ASSERT(D0 == D1);
@@ -2427,8 +2347,8 @@ int main(int argc, char *argv[])
             const int STEP_HOURS  =   25;
 
             for (int hi = START_HOURS; hi <= STOP_HOURS; hi += STEP_HOURS) {
-                Obj x(ID, IT); const Obj &X = x;
-                Obj y(ID, IT); const Obj &Y = y;
+                Obj x(ID, IT);  const Obj &X = x;
+                Obj y(ID, IT);  const Obj &Y = y;
 
                 if (veryVerbose) { T_  P_(X) }
 
@@ -2462,9 +2382,9 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\nTesting: 'addSeconds'" << endl;
 
-            const int START_SECS  = -900000;
-            const int STOP_SECS   =  900000;
-            const int STEP_SECS   =   90000;
+            const int START_SECS = -900000;
+            const int STOP_SECS  =  900000;
+            const int STEP_SECS  =   90000;
 
             for (int si = START_SECS; si <= STOP_SECS; si += STEP_SECS) {
                 Obj x(ID, IT);  const Obj &X = x;
@@ -2698,13 +2618,7 @@ int main(int argc, char *argv[])
             const int SECOND1 = VALUES[i].d_second;
             const int MSEC1   = VALUES[i].d_msec;
 
-            Obj v(YEAR1,
-                  MONTH1,
-                  DAY1,
-                  HOUR1,
-                  MINUTE1,
-                  SECOND1,
-                  MSEC1); const Obj& V = v;
+            const Obj V(YEAR1, MONTH1, DAY1, HOUR1, MINUTE1, SECOND1, MSEC1);
 
             for (int j = 0; j < NUM_VALUES; ++j) {
                 const int YEAR2   = VALUES[j].d_year;
@@ -2715,13 +2629,8 @@ int main(int argc, char *argv[])
                 const int SECOND2 = VALUES[j].d_second;
                 const int MSEC2   = VALUES[j].d_msec;
 
-                Obj u(YEAR2,
-                      MONTH2,
-                      DAY2,
-                      HOUR2,
-                      MINUTE2,
-                      SECOND2,
-                      MSEC2); const Obj& U = u;
+                const Obj U(YEAR2, MONTH2, DAY2,
+                            HOUR2, MINUTE2, SECOND2, MSEC2);
 
                 if (veryVerbose) { T_  P_(i)  P_(j)  P_(V)  P(U) }
 
@@ -2879,6 +2788,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting time-'set' methods." << endl;
         if (verbose) cout << "\tFor ordinary computational values." << endl;
+
         for (int i = 0; i < NUM_ARRAY1; ++i) {
             const Obj OBJ = ARRAY1[i];
 
@@ -3013,17 +2923,13 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tSetting to value 24:00:00.000." << endl;
         {
-#ifdef BDE_OMIT_INTERNAL_DEPRECATED // Contract narrowed for oss release.
-            const Date DATE;
-#else
             const Date DATE(RD);
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-            Obj x(DATE, RT); const Obj& X = x;
+            Obj mX(DATE, RT);  const Obj& X = mX;
 
                                        if (veryVerbose) { T_;  P_(X); }
-            x.setHour(24);             if (veryVerbose) { P(X); cout << endl; }
+            mX.setHour(24);            if (veryVerbose) { P(X); cout << endl; }
             ASSERT(DATE == X.date());
-            ASSERT(24   == X.time().hour());
+            ASSERT( 0   == X.time().hour());
             ASSERT( 0   == X.time().minute());
             ASSERT( 0   == X.time().second());
             ASSERT( 0   == X.time().millisecond());
@@ -3104,32 +3010,32 @@ int main(int argc, char *argv[])
             const int SECOND = 7;
             const int MSEC   = 8;
 
-            Obj mA0; const Obj& A0 = mA0;
-            Obj mA1; const Obj& A1 = mA1;
+            Obj mA0;  const Obj& A0 = mA0;
+            Obj mA1;  const Obj& A1 = mA1;
             mA0.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, MSEC);
             mA1.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, MSEC);
             ASSERT(A0 == A1);
 
-            Obj mB0; const Obj& B0 = mB0;
-            Obj mB1; const Obj& B1 = mB1;
+            Obj mB0;  const Obj& B0 = mB0;
+            Obj mB1;  const Obj& B1 = mB1;
             mB0.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND,    0);
             mB1.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND);
             ASSERT(B0 == B1);
 
-            Obj mC0; const Obj& C0 = mC0;
-            Obj mC1; const Obj& C1 = mC1;
+            Obj mC0;  const Obj& C0 = mC0;
+            Obj mC1;  const Obj& C1 = mC1;
             mC0.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE,      0,    0);
             mC1.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE);
             ASSERT(C0 == C1);
 
-            Obj mD0; const Obj& D0 = mD0;
-            Obj mD1; const Obj& D1 = mD1;
+            Obj mD0;  const Obj& D0 = mD0;
+            Obj mD1;  const Obj& D1 = mD1;
             mD0.setDatetime(YEAR, MONTH, DAY, HOUR,       0,      0,   0);
             mD1.setDatetime(YEAR, MONTH, DAY, HOUR);
             ASSERT(D0 == D1);
 
-            Obj mE0; const Obj& E0 = mE0;
-            Obj mE1; const Obj& E1 = mE1;
+            Obj mE0;  const Obj& E0 = mE0;
+            Obj mE1;  const Obj& E1 = mE1;
             mE0.setDatetime(YEAR, MONTH, DAY,    0,       0,      0,    0);
             mE1.setDatetime(YEAR, MONTH, DAY);
             ASSERT(E0 == E1);
@@ -3148,12 +3054,10 @@ int main(int argc, char *argv[])
                 Obj x3; ASSERT_SAFE_PASS(x3.setHour(24)); // Is default object.
                 Obj x4; ASSERT_SAFE_FAIL(x4.setHour(25));
 
-#ifdef BDE_OMIT_INTERNAL_DEPRECATED // Contract narrowed for oss release.
-                Obj nonDefault(1, 1, 2); const Obj& nD = nonDefault;
+                Obj nonDefault(1, 1, 2);  const Obj& nD = nonDefault;
 
                 Obj y0(nD); ASSERT_SAFE_PASS(y0.setHour(23));
-                Obj y1(nD); ASSERT_SAFE_FAIL(y1.setHour(24));
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+                Obj y1(nD); ASSERT_SAFE_PASS(y1.setHour(24));
             }
 
             if (veryVerbose) cout << "\t'setMinute'" << endl;
@@ -3180,21 +3084,25 @@ int main(int argc, char *argv[])
                 Obj x4; ASSERT_SAFE_FAIL(x4.setMillisecond(1000));
             }
 
-#ifdef BDE_OMIT_INTERNAL_DEPRECATED // Contract narrowed for oss release.
             if (veryVerbose) cout << "\t'setDatetime'" << endl;
             {
-//  +---------->|
-    Obj x0; ASSERT_SAFE_PASS(x0.setDatetime(0001,  1,  1,  1,  0,  0,   0));
-    Obj x1; ASSERT_SAFE_FAIL(x1.setDatetime(0000,  1,  1,  1,  0,  0,   0));
-    Obj x2; ASSERT_SAFE_FAIL(x2.setDatetime(0001, 13,  1,  1,  0,  0,   0));
-    Obj x3; ASSERT_SAFE_FAIL(x3.setDatetime(0001,  1, 32,  1,  0,  0,   0));
-    Obj x4; ASSERT_SAFE_FAIL(x4.setDatetime(0001,  1,  1, 25,  0,  0,   0));
-    Obj x5; ASSERT_SAFE_FAIL(x5.setDatetime(0001,  1,  1,  1, 60,  0,   0));
-    Obj x6; ASSERT_SAFE_FAIL(x6.setDatetime(0001,  1,  1,  1,  0, 60,   0));
-    Obj x7; ASSERT_SAFE_FAIL(x7.setDatetime(0001,  1,  1,  1,  0,  0,  -1));
-//  +---------->|
+                Obj x0;
+                ASSERT_SAFE_PASS(x0.setDatetime(1,  1,  1,  1,  0,  0,   0));
+                Obj x1;
+                ASSERT_SAFE_FAIL(x1.setDatetime(0,  1,  1,  1,  0,  0,   0));
+                Obj x2;
+                ASSERT_SAFE_FAIL(x2.setDatetime(1, 13,  1,  1,  0,  0,   0));
+                Obj x3;
+                ASSERT_SAFE_FAIL(x3.setDatetime(1,  1, 32,  1,  0,  0,   0));
+                Obj x4;
+                ASSERT_SAFE_FAIL(x4.setDatetime(1,  1,  1, 25,  0,  0,   0));
+                Obj x5;
+                ASSERT_SAFE_FAIL(x5.setDatetime(1,  1,  1,  1, 60,  0,   0));
+                Obj x6;
+                ASSERT_SAFE_FAIL(x6.setDatetime(1,  1,  1,  1,  0, 60,   0));
+                Obj x7;
+                ASSERT_SAFE_FAIL(x7.setDatetime(1,  1,  1,  1,  0,  0,  -1));
             }
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
         }
       } break;
       case 11: {
@@ -3211,10 +3119,6 @@ int main(int argc, char *argv[])
         //: 3 A 'Date' object can be converted to a 'Datetime' object of having
         //:   the expected value.  (The single-value value constructor is
         //:   not 'explicit').
-#ifdef BDE_OMIT_INTERNAL_DEPRECATED // Contract narrowed for oss release.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
         //
         // Plan:
         //: 1 Specify a set of (unique) valid object values (one per row) in
@@ -3241,7 +3145,7 @@ int main(int argc, char *argv[])
         //:   For each subsequent pairs in the series, we omit an additional
         //:   optional parameter then compare to an object created by
         //:   explicitly specifying the expected default values in the value
-        //:   contructor.  The two objects, one created with omitted optional
+        //:   constructor.  The two objects, one created with omitted optional
         //:   parameters, The other created with all parameters explicitly
         //:   specified must compare equal.  (C-2)
         //:
@@ -3249,13 +3153,11 @@ int main(int argc, char *argv[])
         //:   no such assignment operator, the 'Date' object must be converted
         //:   to a 'Datetime' object for the assignment to compile.  Confirm
         //:   that the "time" part has the expected value, "00:00:00.000".
-#ifdef BDE_OMIT_INTERNAL_DEPRECATED // Contract narrowed for oss release.
         //:
         //: 5 Verify that, in appropriate build modes, defensive checks are
         //:   triggered when an attempt is made to construct objects from both
         //:   valid and invalid combinations of attributes.  (using the
         //:   'BSLS_ASSERTTEST_*' macros).  (C-7)
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
         //
         // Testing:
         //   Datetime(const Date& date);
@@ -3350,7 +3252,7 @@ int main(int argc, char *argv[])
             const Date DATE(2014, 10, 11);   // arbitrary value
             const Time TIME(0, 0, 0, 0);
 
-             Obj x; const Obj& X = x;
+             Obj x;  const Obj& X = x;
 
              x = DATE;  // 'Date' converted to 'Datetime' and assigned.
 
@@ -3358,32 +3260,23 @@ int main(int argc, char *argv[])
              ASSERT(TIME == X.time());
          }
 
-#ifdef BDE_OMIT_INTERNAL_DEPRECATED // Contract narrowed for oss release.
         if (verbose) cout << "\nNegative Testing." << endl;
         {
             bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
 
-            if (veryVerbose) cout << "\t'CTOR(date, time)'" << endl;
-            {
-                const Date defaultDate;  const Date nonDefaultDate(1, 1, 2);
-                const Time defaultTime;  const Time nonDefaultTime(0, 0, 0, 0);
-
-                ASSERT_SAFE_PASS(Obj(   defaultDate,    defaultTime));
-                ASSERT_SAFE_PASS(Obj(   defaultDate, nonDefaultTime));
-                ASSERT_SAFE_FAIL(Obj(nonDefaultDate,    defaultTime));  // fail
-                ASSERT_SAFE_PASS(Obj(nonDefaultDate, nonDefaultTime));
-            }
-
             if (veryVerbose) cout << "\t'CTOR(y, m, d, h, m, s, ms)'" << endl;
             {
-                ASSERT_SAFE_PASS(Obj(1, 1, 1, 24, 0, 0, 0));
-                ASSERT_SAFE_PASS(Obj(1, 1, 1,  0, 0, 0, 0));
-                ASSERT_SAFE_FAIL(Obj(1, 1, 2, 24, 0, 0, 0));  // fail
-                ASSERT_SAFE_PASS(Obj(1, 1, 2,  0, 0, 0, 0));
+                ASSERT_SAFE_PASS(    Obj(1,  1,  1,  1,  0,  0,   0));
+                ASSERT_SAFE_FAIL_RAW(Obj(0,  1,  1,  1,  0,  0,   0));
+                ASSERT_SAFE_FAIL_RAW(Obj(1, 13,  1,  1,  0,  0,   0));
+                ASSERT_SAFE_FAIL_RAW(Obj(1,  1, 32,  1,  0,  0,   0));
+                ASSERT_SAFE_FAIL_RAW(Obj(1,  1,  1, 25,  0,  0,   0));
+                ASSERT_SAFE_FAIL_RAW(Obj(1,  1,  1,  1, 60,  0,   0));
+                ASSERT_SAFE_FAIL_RAW(Obj(1,  1,  1,  1,  0, 60,   0));
+                ASSERT_SAFE_FAIL_RAW(Obj(1,  1,  1,  1,  0,  0,  -1));
             }
         }
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
       } break;
       case 10: {
@@ -3982,13 +3875,8 @@ int main(int argc, char *argv[])
                 // Test using class methods.
 
                 {
-                    Obj        mX(YEAR,
-                                  MONTH,
-                                  DAY,
-                                  HOUR,
-                                  MINUTE,
-                                  SECOND,
-                                  MILLISECOND);
+                    Obj mX(YEAR, MONTH, DAY,
+                           HOUR, MINUTE, SECOND, MILLISECOND);
                     const Obj& X = mX;
 
                     bslx::ByteOutStream  out(VERSION_SELECTOR, &allocator);
@@ -4022,13 +3910,8 @@ int main(int argc, char *argv[])
                 // Test using free functions.
 
                 {
-                    Obj        mX(YEAR,
-                                  MONTH,
-                                  DAY,
-                                  HOUR,
-                                  MINUTE,
-                                  SECOND,
-                                  MILLISECOND);
+                    Obj mX(YEAR, MONTH, DAY,
+                           HOUR, MINUTE, SECOND, MILLISECOND);
                     const Obj& X = mX;
 
                     using bslx::OutStreamFunctions::bdexStreamOut;
@@ -4558,11 +4441,11 @@ int main(int argc, char *argv[])
 
                 const bool EXP = ti == tj;  // expected for equality comparison
 
-                Obj mX; const Obj& X = mX;
+                Obj mX;  const Obj& X = mX;
                 mX.setYearMonthDay(YEAR1, MONTH1, DAY1);
                 mX.setTime(HOUR1, MINUTE1, SECOND1, MSEC1);
 
-                Obj mY; const Obj& Y = mY;
+                Obj mY;  const Obj& Y = mY;
                 mY.setYearMonthDay(YEAR2, MONTH2, DAY2);
                 mY.setTime(HOUR2, MINUTE2, SECOND2, MSEC2);
 
@@ -4695,8 +4578,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
              "\nCreate a table of distinct value/format combinations." << endl;
 
-        const Date DA(   1,  1,  1); const Time TA( 0,  0,  0,   0);
-        const Date DZ(9999, 12, 31); const Time TZ(23, 59, 59, 999);
+        const Date DA(   1,  1,  1);  const Time TA( 0,  0,  0,   0);
+        const Date DZ(9999, 12, 31);  const Time TZ(23, 59, 59, 999);
 
         static const struct {
             int         d_line;           // source line number
@@ -4867,7 +4750,7 @@ int main(int argc, char *argv[])
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            const int  BUF_SIZE = 1000;               // Oversized for output.
+            const int  BUF_SIZE = 1000;               // Over-sized for output.
             const char XX       = static_cast<char>(0xFF);
                                                       // Used as "unset"
                                                       // character.
@@ -5119,7 +5002,7 @@ int main(int argc, char *argv[])
         //:
         //: 2 Define a sequence of independent test values that explore the
         //:   boundaries of valid values for the "date" and "time" parts of the
-        //:   object.  Use the default contructor to create an object, the
+        //:   object.  Use the default constructor to create an object, the
         //:   primary manipulators to set its value, and the basic accessors to
         //:   verify its value.  (C-2)
         //:
@@ -5218,27 +5101,27 @@ int main(int argc, char *argv[])
             const int SECS = 7;
             const int MSEC = 8;
 
-            Obj mA0; const Obj& A0 = mA0;
-            Obj mA1; const Obj& A1 = mA1;
+            Obj mA0;  const Obj& A0 = mA0;
+            Obj mA1;  const Obj& A1 = mA1;
             mA0.setTime(HOUR, MIN, SECS, MSEC);
             mA1.setTime(HOUR, MIN, SECS, MSEC);
             ASSERT(A0 == A1);
 
-            Obj mB0; const Obj& B0 = mB0;
-            Obj mB1; const Obj& B1 = mB1;
+            Obj mB0;  const Obj& B0 = mB0;
+            Obj mB1;  const Obj& B1 = mB1;
             mB0.setTime(HOUR, MIN, SECS,    0);
             mB1.setTime(HOUR, MIN, SECS);
             ASSERT(B0 == B1);
 
-            Obj mC0; const Obj& C0 = mC0;
-            Obj mC1; const Obj& C1 = mC1;
-            mC0.setTime(HOUR, MIN,   0,    0);
+            Obj mC0;  const Obj& C0 = mC0;
+            Obj mC1;  const Obj& C1 = mC1;
+            mC0.setTime(HOUR, MIN,    0,    0);
             mC1.setTime(HOUR, MIN);
             ASSERT(C0 == C1);
 
-            Obj mD0; const Obj& D0 = mD0;
-            Obj mD1; const Obj& D1 = mD1;
-            mD0.setTime(HOUR,   0,   0,    0);
+            Obj mD0;  const Obj& D0 = mD0;
+            Obj mD1;  const Obj& D1 = mD1;
+            mD0.setTime(HOUR,   0,    0,    0);
             mD1.setTime(HOUR);
             ASSERT(D0 == D1);
         }
@@ -5277,9 +5160,9 @@ int main(int argc, char *argv[])
                 const int MONTH = VALUES[i].d_month;
                 const int DAY   = VALUES[i].d_day;
 
-                Obj x;  const Obj& X = x;
+                Obj mX;  const Obj& X = mX;
 
-                x.setYearMonthDay(YEAR, MONTH, DAY);
+                mX.setYearMonthDay(YEAR, MONTH, DAY);
 
                 if (veryVerbose) { T_ P_(YEAR)
                                       P_(MONTH)
@@ -5289,10 +5172,15 @@ int main(int argc, char *argv[])
                                       P(X.date().day())
                 }
 
-                LOOP_ASSERT(i, YEAR             == X.date().year());
-                LOOP_ASSERT(i, MONTH            == X.date().month());
-                LOOP_ASSERT(i, DAY              == X.date().day());
-                LOOP_ASSERT(i, Time(0, 0, 0, 0) == X.time());
+                LOOP_ASSERT(i, YEAR                 == X.date().year());
+                LOOP_ASSERT(i, MONTH                == X.date().month());
+                LOOP_ASSERT(i, DAY                  == X.date().day());
+                if (X.date() == Date()) {
+                    LOOP_ASSERT(i, Time()           == X.time());
+                }
+                else {
+                    LOOP_ASSERT(i, Time(0, 0, 0, 0) == X.time());
+                }
             }
         }
 
