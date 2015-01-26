@@ -1,10 +1,23 @@
-bsl-internal (2.22.3.0) unstable; urgency=low
+bsl-internal (2.22.3.1) unstable; urgency=low
 
+  * 13411f7 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.22.x
+  * 7aca5a9 [APPROVAL] INTERNAL pending/releases/bdlb_guid to releases/2.22.x
+  * fa418c3 [APPROVAL] pending/releases/bdlb_guid to releases/2.22.x
+  * 410b27b Avoid integer conversion warnings.
+
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Thu, 22 Jan 2015 00:26:14 -0500
+
+bsl-internal (2.22.3.0) git; urgency=low
+
+  * 05946e2 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.22.x
+  * 9573976 [APPROVAL] INTERNAL bump-version-to-2.22.3.0 to releases/2.22.x
+  * eb73c01 [APPROVAL] bump-version-to-2.22.3.0 to releases/2.22.x
+  * 04e0de9 Bump changelog to 2.22.3.0
   * ee6ccc3 bump bsl version to 2.22.3
   * 27c5b13 [APPROVAL] OSS non-ascii-bslim-char-fix-drqs-57352206 to releases/2.22.x
   * 719eb44 [APPROVAL] non-ascii-bslim-char-fix-drqs-57352206 to releases/2.22.x
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 12 Jan 2015 15:04:20 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 12 Jan 2015 15:07:09 -0500
 
 bsl-internal (2.22.2.0) git; urgency=low
 
