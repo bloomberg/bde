@@ -340,6 +340,100 @@ const int SIZEOF_INT8    = 1;
 const int SIZEOF_FLOAT64 = 8;
 const int SIZEOF_FLOAT32 = 4;
 
+
+// ============================================================================
+//                                 USAGE EXAMPLE
+// ----------------------------------------------------------------------------
+
+    class MyOutStreamBuf {
+        // This class implements a very basic stream buffer suitable for use in
+        // 'bslx::GenericOutStream'.
+
+        // DATA
+        bsl::string d_buffer;  // output buffer
+
+      public:
+        // TYPES
+        struct traits_type {
+            static int eof() {  return -1;  }
+        };
+
+        // CREATORS
+        MyOutStreamBuf();
+            // Create an empty stream buffer.
+
+        ~MyOutStreamBuf();
+            // Destroy this stream buffer.
+
+        // MANIPULATORS
+        int pubsync();
+            // Returns 0.
+
+        int sputc(char c);
+            // Write the specified character 'c' to this buffer.  If the write
+            // is successful, return the value 'c'; otherwise, 'EOF'.
+
+        bsl::streamsize sputn(const char *s, bsl::streamsize length);
+            // Write the specified 'length' characters at the specified address
+            // 's' to this buffer and return the number of characters written.
+
+        // ACCESSORS
+        const char *data() const;
+            // Return the address of the non-modifiable character buffer held
+            // by this stream buffer.
+
+        bsl::streamsize size() const;
+            // Return the number of characters from the beginning of the buffer
+            // to the current write position.
+    };
+
+    // ========================================================================
+    //                  INLINE FUNCTION DEFINITIONS
+    // ========================================================================
+
+    // CREATORS
+    MyOutStreamBuf::MyOutStreamBuf()
+    : d_buffer()
+    {
+    }
+
+    MyOutStreamBuf::~MyOutStreamBuf()
+    {
+    }
+
+    // MANIPULATORS
+    int MyOutStreamBuf::pubsync()
+    {
+        // In this implementation, there is nothing to be done except return
+        // success.
+
+        return 0;
+    }
+
+    int MyOutStreamBuf::sputc(char c)
+    {
+        d_buffer += c;
+        return static_cast<int>(c);
+    }
+
+    bsl::streamsize MyOutStreamBuf::sputn(const char      *s,
+                                          bsl::streamsize  length)
+    {
+        d_buffer.append(s, length);
+        return length;
+    }
+
+    // ACCESSORS
+    const char *MyOutStreamBuf::data() const
+    {
+        return d_buffer.data();
+    }
+
+    bsl::streamsize MyOutStreamBuf::size() const
+    {
+        return d_buffer.size();
+    }
+
 // ============================================================================
 //                                 MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -385,7 +479,9 @@ int main(int argc, char *argv[])
 
 ///Usage
 ///-----
-// This section illustrates intended use of this component.
+// This section illustrates intended use of this component.  The first example
+// depicts usage with a 'bsl::stringbuf'.  The second example replaces the
+// 'bsl::stringbuf' with a user-defined 'STREAMBUF'.
 //
 ///Example 1: Basic Externalization
 ///- - - - - - - - - - - - - - - -
@@ -400,16 +496,16 @@ int main(int argc, char *argv[])
 // First, we create a 'bslx::GenericOutStream' with an arbitrary value for its
 // 'versionSelector' and externalize some values:
 //..
-    bsl::stringbuf                         buffer;
-    bslx::GenericOutStream<bsl::stringbuf> outStream(&buffer, 20131127);
-    outStream.putInt32(1);
-    outStream.putInt32(2);
-    outStream.putInt8('c');
-    outStream.putString(bsl::string("hello"));
+    bsl::stringbuf                         buffer1;
+    bslx::GenericOutStream<bsl::stringbuf> outStream1(&buffer1, 20131127);
+    outStream1.putInt32(1);
+    outStream1.putInt32(2);
+    outStream1.putInt8('c');
+    outStream1.putString(bsl::string("hello"));
 //..
 // Then, we compare the contents of the buffer to the expected value:
 //..
-    bsl::string  theChars = buffer.str();
+    bsl::string  theChars = buffer1.str();
     ASSERT(15 == theChars.size());
     ASSERT( 0 == bsl::memcmp(theChars.data(),
                              "\x00\x00\x00\x01\x00\x00\x00\x02""c\x05""hello",
@@ -449,7 +545,35 @@ int main(int argc, char *argv[])
 //..
 // See the 'bslx_genericinstream' component usage example for a more practical
 // example of using 'bslx' streams.
-
+// example of using 'bslx' streams.
+//
+///Example 2: Sample STREAMBUF Implementation
+///- - - - - - - - - - - - - - - - - - - - -
+// For this example, we will implement 'MyOutStreamBuf'; a minimal 'STREAMBUF'
+// to be used with 'bslx::GenericOutStream'.  The implementation will consist
+// of only what is required of the type and two accessors to verify correct
+// functionality ('data' and 'length').
+//
+// First, we implement 'MyOutStreamBuf':
+//..
+//..
+// Then, we create 'buffer2', an instance of 'MyOutStreamBuffer', and a
+// 'bslx::GenericOutStream' using 'buffer2' with an arbitrary value for its
+// 'versionSelector' and externalize some values:
+//..
+    MyOutStreamBuf                         buffer2;
+    bslx::GenericOutStream<MyOutStreamBuf> outStream2(&buffer2, 20131127);
+    outStream2.putInt32(1);
+    outStream2.putInt32(2);
+    outStream2.putInt8('c');
+    outStream2.putString(bsl::string("hello"));
+//..
+// Finally, we compare the contents of the buffer to the expected value:
+//..
+    ASSERT(15 == buffer2.size());
+    ASSERT( 0 == bsl::memcmp(buffer2.data(),
+                             "\x00\x00\x00\x01\x00\x00\x00\x02""c\x05""hello",
+                             15));
       } break;
       case 27: {
         // --------------------------------------------------------------------
