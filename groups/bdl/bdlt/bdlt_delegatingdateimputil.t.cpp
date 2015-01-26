@@ -140,9 +140,9 @@ int main(int argc, char *argv[])
 {
     const int                 test = argc > 1 ? atoi(argv[1]) : 0;
     const bool             verbose = argc > 2;
-    const bool         veryVerbose = argc > 3;
-    const bool     veryVeryVerbose = argc > 4;
-    const bool veryVeryVeryVerbose = argc > 5;
+    const bool         veryVerbose = argc > 3;  (void)veryVerbose;
+    const bool     veryVeryVerbose = argc > 4;  (void)veryVeryVerbose;
+    const bool veryVeryVeryVerbose = argc > 5;  (void)veryVeryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 

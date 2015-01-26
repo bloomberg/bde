@@ -434,15 +434,15 @@ typedef bdlt::PosixDateImpUtil Util;
         int y, m, d;
         bdlt::PosixDateImpUtil::serial2ymd(&y, &m, &d, d_serialDate);
 
-        buf[0] = d / 10 + '0';
-        buf[1] = d % 10 + '0';
+        buf[0] = static_cast<char>(d / 10 + '0');
+        buf[1] = static_cast<char>(d % 10 + '0');
 
         bsl::memcpy(&buf[2], monthNames[m], 3);
 
-        buf[5] = y / 1000 + '0';
-        buf[6] = ((y % 1000) / 100) + '0';
-        buf[7] = ((y % 100) / 10) + '0';
-        buf[8] = y % 10 + '0';
+        buf[5] = static_cast<char>(y / 1000 + '0');
+        buf[6] = static_cast<char>(((y % 1000) / 100) + '0');
+        buf[7] = static_cast<char>(((y % 100) / 10) + '0');
+        buf[8] = static_cast<char>(y % 10 + '0');
         buf[9] = 0;
 
         stream << buf;
@@ -654,7 +654,7 @@ if (veryVerbose)
                 { L_,       2000,     2,    29,       TUE },
                 { L_,       9999,    12,    31,       FRI },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int di = 0; di < NUM_DATA ; ++di) {
                 const int y = DATA[di].d_year;
@@ -785,7 +785,7 @@ if (veryVerbose)
                 { L_,         3651697,    9999,     1,    1 },
                 { L_,       Y9999_END,    9999,    12,   31 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int di = 0; di < NUM_DATA ; ++di) {
                 const int LINE = DATA[di].d_lineNum;
@@ -998,7 +998,7 @@ if (veryVerbose)
                 { L_,         3651697,  9999,       1 },
                 { L_,       Y9999_END,  9999,     365 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int di = 0; di < NUM_DATA ; ++di) {
                 const int LINE     = DATA[di].d_lineNum;
@@ -1113,7 +1113,7 @@ if (veryVerbose)
                 { L_,       9997,     1,     3650967 },
                 { L_,       9999,   365,   Y9999_END },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int di = 0; di < NUM_DATA ; ++di) {
                 const int LINE = DATA[di].d_lineNum;
@@ -1224,7 +1224,7 @@ if (veryVerbose)
                 { L_,       2002,   365,      12,       31 },
                 { L_,       2003,   365,      12,       31 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             int m, d;
 
@@ -1445,7 +1445,7 @@ if (veryVerbose)
                 { L_,       9998,    12,    31,          365 },
                 { L_,       9999,    12,    31,          365 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int di = 0; di < NUM_DATA ; ++di) {
                 const int LINE = DATA[di].d_lineNum;
@@ -1689,7 +1689,7 @@ if (veryVerbose)
                 { L_,       9999,     1,     1,      3651697 },
                 { L_,       9999,    12,    31,    Y9999_END },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int di = 0; di < NUM_DATA ; ++di) {
                 const int LINE = DATA[di].d_lineNum;
@@ -1926,7 +1926,7 @@ if (veryVerbose)
                 { L_,       2000,    12,    31,      1 },
                 { L_,       2000,    12,    32,      0 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int di = 0; di < NUM_DATA ; ++di) {
                 const int LINE = DATA[di].d_lineNum;
@@ -2034,7 +2034,7 @@ if (veryVerbose)
                 { L_,       2005,    365,           1 },
                 { L_,       2005,    366,           0 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int di = 0; di < NUM_DATA ; ++di) {
                 const int LINE = DATA[di].d_lineNum;
@@ -2116,7 +2116,7 @@ if (veryVerbose)
                 { L_,         INT_MIN+1,    0              },
                 { L_,         INT_MIN  ,    0              },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int di = 0; di < NUM_DATA ; ++di) {
                 const int LINE = DATA[di].d_lineNum;
@@ -2213,7 +2213,7 @@ if (veryVerbose)
                 { L_,       2100,    11,       30 },
                 { L_,       2100,    12,       31 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int di = 0; di < NUM_DATA ; ++di) {
                 const int LINE = DATA[di].d_lineNum;
@@ -2323,7 +2323,7 @@ if (veryVerbose)
 
                 { L_,       9999,   9999,        0 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int di = 0; di < NUM_DATA ; ++di) {
                 const int LINE = DATA[di].d_lineNum;
@@ -2410,7 +2410,7 @@ if (veryVerbose)
                 { L_,       9998,              0 },
                 { L_,       9999,              0 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int di = 0; di < NUM_DATA ; ++di) {
                 const int LINE = DATA[di].d_lineNum;
