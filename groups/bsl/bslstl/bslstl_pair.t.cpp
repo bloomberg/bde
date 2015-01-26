@@ -68,6 +68,7 @@ using namespace BloombergLP;
 // [5] void pair::swap(pair& rhs);
 // [5] void swap(pair& lhs, pair& rhs);
 // [7] Pointer to member test
+// [8] hashAppend(HASHALG& hashAlg, const pair<T1,T2>&  input);
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
 // [6] USAGE EXAMPLE
@@ -611,6 +612,61 @@ int main(int argc, char *argv[])
     std::printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 8: {
+        // --------------------------------------------------------------------
+        // hashAppend
+        //
+        // Concerns:
+        // - Hashes different inputs differently
+        // - Hashes equal inputs identically
+        // - Works for const and non-const pairs, members
+        //
+        // Plan
+        // - Create various pairs, hash them, compare hashes.
+        //
+        // Testing:
+        //     hashAppend(HASHALG& hashAlg, const pair<T1,T2>&  input);
+        // --------------------------------------------------------------------
+        if (verbose) std::puts("\nTESTING 'hashAppend'"
+                               "\n====================");
+
+        typedef ::BloombergLP::bslh::Hash<> Hasher;
+        typedef typename Hasher::result_type HashType;
+
+        bsl::pair<int,const char*> p1(1, "hello");
+        bsl::pair<int,const char*> p2(1, "hello");
+        bsl::pair<int,const char*> p3(100, "hello");
+        bsl::pair<int,const char*> p4(1, "goodbye");
+        bsl::pair<int,const char*> p5(1, "goodbye");
+        bsl::pair<int,const char*> p6(100, "goodbye");
+        bsl::pair<const int, const char *> p7(1, "hello");
+        const bsl::pair<int,const char * const> p8(1, "hello");
+
+        Hasher hasher;
+        HashType a1 = hasher(p1), a2 = hasher(p2), a3 = hasher(p3),
+                 a4 = hasher(p4), a5 = hasher(p5), a6 = hasher(p6);
+
+        ASSERT(a1 == a2); veryVerbose && puts("\thash(p1) == hash(p2)");
+        ASSERT(a1 != a3); veryVerbose && puts("\thash(p1) != hash(p3)");
+        ASSERT(a1 != a4); veryVerbose && puts("\thash(p1) != hash(p4)");
+        ASSERT(a1 != a5); veryVerbose && puts("\thash(p1) != hash(p5)");
+        ASSERT(a1 != a6); veryVerbose && puts("\thash(p1) != hash(p6)");
+        ASSERT(a2 != a3); veryVerbose && puts("\thash(p2) != hash(p3)");
+        ASSERT(a2 != a4); veryVerbose && puts("\thash(p2) != hash(p4)");
+        ASSERT(a2 != a5); veryVerbose && puts("\thash(p2) != hash(p5)");
+        ASSERT(a2 != a6); veryVerbose && puts("\thash(a2) != hash(p6)");
+        ASSERT(a3 != a4); veryVerbose && puts("\thash(p3) != hash(p4)");
+        ASSERT(a3 != a5); veryVerbose && puts("\thash(p3) != hash(p5)");
+        ASSERT(a3 != a6); veryVerbose && puts("\thash(p3) != hash(p6)");
+        ASSERT(a4 == a5); veryVerbose && puts("\thash(p4) == hash(p5)");
+        ASSERT(a4 != a6); veryVerbose && puts("\thash(p4) != hash(p6)");
+        ASSERT(a5 != a6); veryVerbose && puts("\thash(p5) != hash(p6)");
+
+        HashType a7 = hasher(p7), a8 = hasher(p8);
+        ASSERT(a7 == a8); veryVerbose && puts("\thash(p7) == hash(p8)");
+        ASSERT(a1 == a8); veryVerbose && puts("\thash(p1) == hash(p8)");
+
+      } break;
       case 7: {
         // --------------------------------------------------------------------
         // Pointer to member
@@ -623,7 +679,7 @@ int main(int argc, char *argv[])
         //   that the behavior is as expected
         //
         // Testing:
-        //     Usage Example
+        //     Pointer to member
         // --------------------------------------------------------------------
         if (verbose) std::printf("\nPOINTER TO MEMBER TEST"
                                  "\n======================\n");

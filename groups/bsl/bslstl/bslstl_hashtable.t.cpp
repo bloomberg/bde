@@ -2107,7 +2107,9 @@ int TemplateTestFacility::getIdentifier<TestTypes::MostEvilTestType>(
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-#if !defined(BSLS_PLATFORM_CMP_CLANG)
+#if !(defined(BSLS_PLATFORM_CMP_CLANG) &&                                     \
+       (BSLS_PLATFORM_CMP_VER_MAJOR < 3 ||                                    \
+        (BSLS_PLATFORM_CMP_VER_MAJOR == 3 && BSLS_PLATFORM_CMP_VER_MINOR < 5)))
 namespace TestMachinery
 #else
 namespace

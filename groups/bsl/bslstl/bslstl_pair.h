@@ -283,6 +283,14 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_nativestd.h>
 #endif
 
+#ifndef INCLUDED_BSLSTL_HASH
+#include <bslstl_hash.h>
+#endif
+
+#ifndef INCLUDED_BSLH_HASH
+#include <bslh_hash.h>
+#endif
+
 #ifndef INCLUDED_ALGORITHM
 #include <algorithm>       // 'std::swap'
 #define INCLUDED_ALGORITHM
@@ -622,6 +630,15 @@ void swap(pair<T1, T2>& a, pair<T1, T2>& b);
     // each of the 'first' and 'second' pair fields.  Note that this method is
     // no-throw only if 'swap' on each field is no-throw.
 
+// HASH SPECIALIZATIONS
+template <class HASHALG, class T1, class T2>
+void hashAppend(HASHALG& hashAlg, const pair<T1, T2>&  input);
+    // Pass the specified 'input' to the specified 'hashAlg'
+
+template <class T1, class T2>
+std::size_t hashPair(const pair<T1, T2>&  input);
+    // Return a hash value for the specified 'str'.
+
 }  // close namespace bsl
 
 // ============================================================================
@@ -956,6 +973,23 @@ inline
 void swap(pair<T1, T2>& a, pair<T1, T2>& b)
 {
     a.swap(b);
+}
+
+// HASH SPECIALIZATIONS
+template <class HASHALG, class T1, class T2>
+void hashAppend(HASHALG& hashAlg, const pair<T1, T2>&  input)
+{
+    using ::BloombergLP::bslh::hashAppend;
+    hashAppend(hashAlg, input.first);
+    hashAppend(hashAlg, input.second);
+    hashAppend(hashAlg, std::size_t(2));
+}
+
+template <class T1, class T2>
+std::size_t
+hashPair(const pair<T1, T2>&  input)
+{
+    return ::BloombergLP::bslh::Hash<>()(input);
 }
 
 }  // close namespace bsl
