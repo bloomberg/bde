@@ -635,11 +635,7 @@ template <class HASHALG, class T1, class T2>
 void hashAppend(HASHALG& hashAlg, const pair<T1, T2>&  input);
     // Pass the specified 'input' to the specified 'hashAlg'
 
-template <class T1, class T2>
-std::size_t hashPair(const pair<T1, T2>&  input);
-    // Return a hash value for the specified 'str'.
-
-}  // close namespace bsl
+}   // close namespace bsl
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -983,13 +979,6 @@ void hashAppend(HASHALG& hashAlg, const pair<T1, T2>&  input)
     hashAppend(hashAlg, input.first);
     hashAppend(hashAlg, input.second);
     hashAppend(hashAlg, std::size_t(2));
-}
-
-template <class T1, class T2>
-std::size_t
-hashPair(const pair<T1, T2>&  input)
-{
-    return ::BloombergLP::bslh::Hash<>()(input);
 }
 
 }  // close namespace bsl
