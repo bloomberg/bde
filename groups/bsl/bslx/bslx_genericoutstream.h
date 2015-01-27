@@ -194,7 +194,7 @@ BSLS_IDENT("$Id: $")
 //
 //      // MANIPULATORS
 //      int pubsync();
-//          // Returns 0.
+//          // Return 0.
 //
 //      int sputc(char c);
 //          // Write the specified character 'c' to this buffer.  If the write

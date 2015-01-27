@@ -10,6 +10,7 @@
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <bsl_deque.h>
 #include <bsl_iomanip.h>
 #include <bsl_ios.h>
 #include <bsl_iostream.h>
@@ -653,6 +654,123 @@ int maxSupportedBdexVersion(const MyStruct::EnumValue *,
     }
 
 // ============================================================================
+//                                 USAGE EXAMPLE
+// ----------------------------------------------------------------------------
+
+    class MyStreamBuf {
+        // This class implements a very basic stream buffer suitable for use in
+        // 'bslx::GenericOutStream' and 'bslx::GenericInStream'.
+
+        // DATA
+        bsl::deque<char> d_buffer;  // the input and output buffer
+
+      public:
+        // TYPES
+        struct traits_type {
+            static int eof() {  return -1;  }
+        };
+
+        // CREATORS
+        MyStreamBuf();
+            // Create an empty stream buffer.
+
+        ~MyStreamBuf();
+            // Destroy this stream buffer.
+
+        // MANIPULATORS
+        int pubsync();
+            // Return 0.
+
+        int sbumpc();
+            // Read the next character in this buffer.  If the read is
+            // successful, return the value of the character; otherwise, 'EOF'.
+
+        int sgetc();
+            // Peek at the next character in this buffer.  If the peek is
+            // successful, return the value of the character; otherwise, 'EOF'.
+
+        bsl::streamsize sgetn(char *s, bsl::streamsize length);
+            // Load the specified 'length' characters into the specified
+            // address 's' and return the number of characters read.
+
+        int sputc(char c);
+            // Write the specified character 'c' to this buffer.  If the write
+            // is successful, return the value 'c'; otherwise, 'EOF'.
+
+        bsl::streamsize sputn(const char *s, bsl::streamsize length);
+            // Write the specified 'length' characters at the specified address
+            // 's' to this buffer and return the number of characters written.
+    };
+
+    // ========================================================================
+    //                  INLINE FUNCTION DEFINITIONS
+    // ========================================================================
+
+    // CREATORS
+    MyStreamBuf::MyStreamBuf()
+    : d_buffer()
+    {
+    }
+
+    MyStreamBuf::~MyStreamBuf()
+    {
+    }
+
+    // MANIPULATORS
+    int MyStreamBuf::pubsync()
+    {
+        // In this implementation, there is nothing to be done except return
+        // success.
+
+        return 0;
+    }
+
+    int MyStreamBuf::sbumpc()
+    {
+        if (!d_buffer.empty()) {
+            int rv = static_cast<int>(d_buffer.front());
+            d_buffer.pop_front();
+            return rv;                                                // RETURN
+        }
+        return traits_type::eof();
+    }
+
+    int MyStreamBuf::sgetc()
+    {
+        if (!d_buffer.empty()) {
+            return static_cast<int>(d_buffer.front());                // RETURN
+        }
+        return traits_type::eof();
+    }
+
+    bsl::streamsize MyStreamBuf::sgetn(char *s, bsl::streamsize length)
+    {
+        for (bsl::streamsize i = 0; i < length; ++i) {
+            if (d_buffer.empty()) {
+                return i;                                             // RETURN
+            }
+            s[i] = d_buffer.front();
+            d_buffer.pop_front();
+        }
+        return length;
+    }
+
+    int MyStreamBuf::sputc(char c)
+    {
+        d_buffer.push_back(c);
+        return static_cast<int>(c);
+    }
+
+    bsl::streamsize MyStreamBuf::sputn(const char      *s,
+                                       bsl::streamsize  length)
+    {
+        for (bsl::streamsize i = 0; i < length; ++i) {
+            d_buffer.push_back(s[i]);
+        }
+        return length;
+    }
+
+// ============================================================================
 //                                 MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
@@ -688,52 +806,96 @@ int main(int argc, char *argv[])
 
 // Then, we can exercise the new 'MyPerson' value-semantic class by
 // externalizing and reconstituting an object.  First, create a 'MyPerson'
-// 'janeSmith' and a 'bslx::GenericOutStream' 'outStream':
+// 'janeSmith1' and a 'bslx::GenericOutStream' 'outStream1':
 //..
-    MyPerson                               janeSmith("Jane", "Smith", 42);
-    bsl::stringbuf                         buffer;
-    bslx::GenericOutStream<bsl::stringbuf> outStream(&buffer, 20131127);
-    const int                              VERSION = 1;
-    outStream.putVersion(VERSION);
-    janeSmith.bdexStreamOut(outStream, VERSION);
-    ASSERT(outStream.isValid());
+    MyPerson                               janeSmith1("Jane", "Smith", 42);
+    bsl::stringbuf                         buffer1;
+    bslx::GenericOutStream<bsl::stringbuf> outStream1(&buffer1, 20131127);
+    const int                              VERSION1 = 1;
+    outStream1.putVersion(VERSION1);
+    janeSmith1.bdexStreamOut(outStream1, VERSION1);
+    ASSERT(outStream1.isValid());
 //..
-// Next, create a 'MyPerson' 'janeCopy' initialized to the default value, and
-// assert that 'janeCopy' is different from 'janeSmith':
+// Next, create a 'MyPerson' 'janeCopy1' initialized to the default value, and
+// assert that 'janeCopy1' is different from 'janeSmith1':
 //..
-    MyPerson janeCopy;
-    ASSERT(janeCopy != janeSmith);
+    MyPerson janeCopy1;
+    ASSERT(janeCopy1 != janeSmith1);
 //..
 // Then, create a 'bslx::GenericInStream' 'inStream' initialized with the
 // buffer from the 'bslx::GenericOutStream' object 'outStream' and
-// unexternalize this data into 'janeCopy':
+// unexternalize this data into 'janeCopy1':
 //..
-    bslx::GenericInStream<bsl::stringbuf> inStream(&buffer);
-    int                                   version;
-    inStream.getVersion(version);
-    janeCopy.bdexStreamIn(inStream, version);
-    ASSERT(inStream.isValid());
+    bslx::GenericInStream<bsl::stringbuf> inStream1(&buffer1);
+    int                                   version1;
+    inStream1.getVersion(version1);
+    janeCopy1.bdexStreamIn(inStream1, version1);
+    ASSERT(inStream1.isValid());
 //..
 // Finally, 'assert' the obtained values are as expected and display the
 // results to 'bsl::stdout':
 //..
-    ASSERT(version  == VERSION);
-    ASSERT(janeCopy == janeSmith);
+    ASSERT(version1  == VERSION1);
+    ASSERT(janeCopy1 == janeSmith1);
 
 if (veryVerbose) {
-    if (janeCopy == janeSmith) {
+    if (janeCopy1 == janeSmith1) {
         bsl::cout << "Successfully serialized and de-serialized Jane Smith:"
-                  << "\n\tFirstName: " << janeCopy.firstName()
-                  << "\n\tLastName : " << janeCopy.lastName()
-                  << "\n\tAge      : " << janeCopy.age() << bsl::endl;
+                  << "\n\tFirstName: " << janeCopy1.firstName()
+                  << "\n\tLastName : " << janeCopy1.lastName()
+                  << "\n\tAge      : " << janeCopy1.age() << bsl::endl;
     }
     else {
-        bsl::cout << "Serialization unsuccessful.  'janeCopy' holds:"
-                  << "\n\tFirstName: " << janeCopy.firstName()
-                  << "\n\tLastName : " << janeCopy.lastName()
-                  << "\n\tAge      : " << janeCopy.age() << bsl::endl;
+        bsl::cout << "Serialization unsuccessful.  'janeCopy1' holds:"
+                  << "\n\tFirstName: " << janeCopy1.firstName()
+                  << "\n\tLastName : " << janeCopy1.lastName()
+                  << "\n\tAge      : " << janeCopy1.age() << bsl::endl;
     }
 } // if (veryVerbose)
+//..
+//
+///Example 2: Sample STREAMBUF Implementation
+///- - - - - - - - - - - - - - - - - - - - -
+// For this example, we will implement 'MyStreamBuf'; a minimal 'STREAMBUF' to
+// to be used with 'bslx::GenericInStream' and 'bslx::GenericOutStream'.  The
+// implementation will consist of only what is required of the type.  For
+// comparison, we will reuse 'MyPerson' and repeat part of {Example 1} to
+// demonstrate how to use 'bslx::GenericInStream'.
+//
+// First, we implement 'MyStreamBuf':
+//..
+//..
+// Then, we create a 'MyPerson' 'janeSmith2' and a 'bslx::GenericOutStream'
+// 'outStream2':
+//..
+    MyPerson                               janeSmith2("Jane", "Smith", 42);
+    MyStreamBuf                            buffer2;
+    bslx::GenericOutStream<MyStreamBuf>    outStream2(&buffer2, 20131127);
+    const int                              VERSION2 = 1;
+    outStream2.putVersion(VERSION2);
+    janeSmith2.bdexStreamOut(outStream2, VERSION2);
+    ASSERT(outStream2.isValid());
+//..
+// Next, create a 'MyPerson' 'janeCopy2' initialized to the default value, and
+// assert that 'janeCopy2' is different from 'janeSmith2':
+//..
+    MyPerson janeCopy2;
+    ASSERT(janeCopy2 != janeSmith2);
+//..
+// Then, create a 'bslx::GenericInStream' 'inStream' initialized with the
+// buffer from the 'bslx::GenericOutStream' object 'outStream' and
+// unexternalize this data into 'janeCopy2':
+//..
+    bslx::GenericInStream<MyStreamBuf>    inStream2(&buffer2);
+    int                                   version2;
+    inStream2.getVersion(version2);
+    janeCopy2.bdexStreamIn(inStream2, version2);
+    ASSERT(inStream2.isValid());
+//..
+// Finally, 'assert' the obtained values are as expected:
+//..
+    ASSERT(version2  == VERSION2);
+    ASSERT(janeCopy2 == janeSmith2);
 //..
 
       } break;

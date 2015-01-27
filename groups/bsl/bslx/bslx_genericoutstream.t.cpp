@@ -340,7 +340,6 @@ const int SIZEOF_INT8    = 1;
 const int SIZEOF_FLOAT64 = 8;
 const int SIZEOF_FLOAT32 = 4;
 
-
 // ============================================================================
 //                                 USAGE EXAMPLE
 // ----------------------------------------------------------------------------
@@ -367,7 +366,7 @@ const int SIZEOF_FLOAT32 = 4;
 
         // MANIPULATORS
         int pubsync();
-            // Returns 0.
+            // Return 0.
 
         int sputc(char c);
             // Write the specified character 'c' to this buffer.  If the write
