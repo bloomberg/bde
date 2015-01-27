@@ -93,28 +93,36 @@ struct DelegatingDateImpUtil {
 
     static bool isValidSerial(int serialDay);
         // Return 'true' if the specified 'serialDay' represents a valid date
-        // value, and 'false' otherwise.  Note that valid date values are (as
-        // fully defined in the component-level documentation) in the range
-        // '[1 .. 3652059]'.
+        // value, and 'false' otherwise.  Note that valid date values, which
+        // depend on the calendar mode that is in effect, are in the range
+        // '[1 .. 3652059]' (proleptic Gregorian mode) or '[1 .. 3652061]'
+        // (POSIX mode).  See the component-level documentation of
+        // 'bdlt_posixdateimputil' and 'bdlt_serialdateimputil' for details.
 
     static bool isValidYearDay(int year, int dayOfYear);
-        // Return 'true' if the specified 'year' and 'dayOfYear' represents a
+        // Return 'true' if the specified 'year' and 'dayOfYear' represent a
         // valid date value, and 'false' otherwise.  Note that valid date
-        // values are (as fully defined in the component-level documentation)
-        // in the range '[0001/01 .. 9999/366]'.
+        // values, which depend on the calendar mode that is in effect, are in
+        // the range '[0001/001 .. 9999/366]'.  See the component-level
+        // documentation of 'bdlt_posixdateimputil' and
+        // 'bdlt_serialdateimputil' for details.
 
     static bool isValidYearMonthDay(int year, int month, int day);
-        // Return 'true' if the specified 'year', 'month', and 'day' represents
+        // Return 'true' if the specified 'year', 'month', and 'day' represent
         // a valid date value, and 'false' otherwise.  Note that valid date
-        // values are (as fully defined in the component-level documentation)
-        // in the range '[0001/01/01 .. 9999/12/31]'.
+        // values, which depend on the calendar mode that is in effect, are in
+        // the range '[0001/01/01 .. 9999/12/31]'.  See the component-level
+        // documentation of 'bdlt_posixdateimputil' and
+        // 'bdlt_serialdateimputil' for details.
 
     static bool isValidYearMonthDayNoCache(int year, int month, int day);
-        // Return 'true' if the specified 'year', 'month', and 'day' represents
+        // Return 'true' if the specified 'year', 'month', and 'day' represent
         // a valid date value,  and 'false' otherwise.  Note that valid date
-        // values are (as fully defined in the component-level documentation)
-        // in the range '[0001/01/01 .. 9999/12/31]'.  Also note that this
-        // function is guaranteed not to use any date-cache optimizations.
+        // values, which depend on the calendar mode that is in effect, are in
+        // the range '[0001/01/01 .. 9999/12/31]'.  See the component-level
+        // documentation of 'bdlt_posixdateimputil' and
+        // 'bdlt_serialdateimputil' for details.  Also note that this function
+        // is guaranteed not to use any date-cache optimizations.
 
                         // To Serial Date (s)
 
