@@ -723,6 +723,7 @@ if (verbose)
                 T_ P_(LINE) P_(YEAR) P_(MONTH) P_(DAY) P_(EXP_DOW) P(EXP_MOY)
             }
 
+
             const Obj X(YEAR, MONTH, DAY);
 
             if (veryVeryVerbose) {
@@ -3184,15 +3185,15 @@ if (verbose)
         }
 
         const Obj W;                // default value
-        const Obj X(1, 1, 2);       // original (control)
-        const Obj Y(1, 1, 3);       // new (streamed-out)
+        const Obj X(2, 1, 1);       // original (control)
+        const Obj Y(3, 1, 1);       // new (streamed-out)
 
         // Verify the three objects are distinct.
         ASSERT(W != X);
         ASSERT(W != Y);
         ASSERT(X != Y);
 
-        const int SERIAL_Y = 3;       // internal rep. of 'Y'
+        const int SERIAL_Y = 733;   // streamed rep. of 'Y'
 
         if (verbose) {
             cout << "\t\tGood stream (for control)." << endl;
@@ -3297,7 +3298,7 @@ if (verbose)
         }
         {
             Out out(VERSION_SELECTOR, &allocator);
-            out.putInt24(3652060);  // Stream out "new" value.
+            out.putInt24(3652062);  // Stream out "new" value.
 
             const char *const OD  = out.data();
             const int         LOD = out.length();
@@ -3333,8 +3334,8 @@ if (verbose)
                 //LINE  YEAR  MONTH  DAY  VER  LEN  FORMAT
                 //----  ----  -----  ---  ---  ---  ---------------
                 { L_,      1,     1,   1,   1,   3,  "\x00\x00\x01"  },
-                { L_,   2014,    10,  22,   1,   3,  "\x0b\x39\x28"  },
-                { L_,   2016,     8,  27,   1,   3,  "\x0b\x3b\xcb"  }
+                { L_,   2014,    10,  22,   1,   3,  "\x0b\x39\x2a"  },
+                { L_,   2016,     8,  27,   1,   3,  "\x0b\x3b\xcd"  }
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -3422,6 +3423,7 @@ if (verbose)
                 }
             }
         }
+
 
       } break;
       case 9: {

@@ -14,5 +14,5 @@ bdlt_localtimeoffset
 bdlt_monthofyear
 bdlt_serialdateimputil
 bdlt_time
-bdlt_timeunitratio
 bdlt_timetz
+bdlt_timeunitratio
