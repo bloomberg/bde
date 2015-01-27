@@ -532,7 +532,7 @@ void testForwardToTargetArray(TYPE obj)
     typedef typename bslmf::ForwardingType<TYPE>::Type FwdType;
     typedef typename bslmf::ForwardingTypeUtil<TYPE>::TargetType TargetType;
 
-    typedef typename bsl::add_lvalue_reference<TYPE>::Type RefType;
+    typedef typename bsl::add_lvalue_reference<TYPE>::type RefType;
                             // gcc 4.1.2 does not support reference collapsing.
     ASSERT_SAME(RefType, TargetType);
 
