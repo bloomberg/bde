@@ -2202,6 +2202,21 @@ int main(int argc, char *argv[])
                           << "==============================================="
                           << endl;
 
+#ifndef BDE_OMIT_TRANSITIONAL
+        // Prior to the Unix epoch there are two more days in the POSIX
+        // calendar as compared to the proleptic Gregorian calendar.
+
+        const int SECONDS_IN_TWO_DAYS = 2 * (24 * 60 * 60);
+        int adjust;
+
+        if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
+            adjust = 0;
+        }
+        else {
+            adjust = SECONDS_IN_TWO_DAYS;
+        }
+#endif
+
         enum { FAILURE = 1 };
 
         if (verbose) {
@@ -2226,7 +2241,12 @@ int main(int argc, char *argv[])
 
                 //lin year mon day hou min sec msec           result   ld =
                 //--- ---- --- --- --- --- --- ----  --------------    Leap Day
+#ifdef BDE_OMIT_TRANSITIONAL
                 { L_,    1,  1,  1,  0,  0,  0,   0,   -62135596800LL },
+#else
+                { L_,    1,  1,  1,  0,  0,  0,   0,   -62135596800LL
+                                                             - adjust },
+#endif
                 { L_, 1869, 12, 31, 23, 59, 59, 999,    -3155673601LL },
                 { L_, 1879, 12, 31, 23, 59, 59, 999,    -2840140801LL },
                 { L_, 1883, 10, 20, 12, 49, 20, 123,    -2720171440LL },
@@ -2316,7 +2336,12 @@ int main(int argc, char *argv[])
                     // *** Time = 24:00:00:000 converts to 00:00:00 ***
                 //lin year mon day hou min sec msec          result
                 //--- ---- --- --- --- --- --- ----  --------------
+#ifdef BDE_OMIT_TRANSITIONAL
                 { L_,    1,  1,  1, 24,  0,  0,   0,   -62135596800LL },
+#else
+                { L_,    1,  1,  1, 24,  0,  0,   0,   -62135596800LL
+                                                             - adjust },
+#endif
             };
 
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -2445,11 +2470,24 @@ int main(int argc, char *argv[])
                 { L_,  LLONG_LIMITS.min(),
                                       FAILURE,0,  0,  0,  0,  0,  0 },
                 { L_,  LLONG_MIN + 1, FAILURE,0,  0,  0,  0,  0,  0 },
+#ifdef BDE_OMIT_TRANSITIONAL
                 { L_, -62135596802LL, FAILURE,0,  0,  0,  0,  0,  0 },
                 { L_, -62135596801LL, FAILURE,0,  0,  0,  0,  0,  0 },
                 { L_, -62135596800LL, 0,      1,  1,  1,  0,  0,  0 },
                 { L_, -62135596799LL, 0,      1,  1,  1,  0,  0,  1 },
                 { L_, -62135596798LL, 0,      1,  1,  1,  0,  0,  2 },
+#else
+                { L_, -62135596802LL - adjust,
+                                      FAILURE,0,  0,  0,  0,  0,  0 },
+                { L_, -62135596801LL - adjust,
+                                      FAILURE,0,  0,  0,  0,  0,  0 },
+                { L_, -62135596800LL - adjust,
+                                      0,      1,  1,  1,  0,  0,  0 },
+                { L_, -62135596799LL - adjust,
+                                      0,      1,  1,  1,  0,  0,  1 },
+                { L_, -62135596798LL - adjust,
+                                      0,      1,  1,  1,  0,  0,  2 },
+#endif
                 { L_,  -3155673601LL, 0,   1869, 12, 31, 23, 59, 59 },
                 { L_,  -2840140801LL, 0,   1879, 12, 31, 23, 59, 59 },
                 { L_,  -2720171440LL, 0,   1883, 10, 20, 12, 49, 20 },

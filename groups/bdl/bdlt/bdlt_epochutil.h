@@ -136,6 +136,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_datetimeinterval.h>
 #endif
 
+#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef INCLUDED_BDLT_DELEGATINGDATEIMPUTIL
+#include <bdlt_delegatingdateimputil.h>
+#endif
+#endif
+
 #ifndef INCLUDED_BDLT_TIME
 #include <bdlt_time.h>
 #endif
@@ -174,6 +180,10 @@ struct EpochUtil {
   private:
     // CLASS DATA
     static const Datetime *s_epoch_p;  // pointer to epoch time value
+#ifndef BDE_OMIT_TRANSITIONAL
+    static const Datetime *s_posixEpoch_p;
+                                       // pointer to POSIX epoch time value
+#endif
 
   public:
     // TYPES
@@ -350,7 +360,13 @@ struct EpochUtil {
 inline
 const Datetime& EpochUtil::epoch()
 {
+#ifdef BDE_OMIT_TRANSITIONAL
     return *s_epoch_p;
+#else
+    return DelegatingDateImpUtil::isProlepticGregorianMode()
+           ? *s_epoch_p
+           : *s_posixEpoch_p;
+#endif
 }
 
                            // 'time_t'-Based Methods
@@ -413,7 +429,16 @@ int EpochUtil::convertToTimeT(bsl::time_t     *result,
 inline
 Datetime EpochUtil::convertFromTimeT64(TimeT64 time)
 {
+#ifdef BDE_OMIT_TRANSITIONAL
     BSLS_ASSERT_SAFE(-62135596800LL <= time);  // January    1, 0001 00:00:00
+#else
+    if (DelegatingDateImpUtil::isProlepticGregorianMode()) {
+    BSLS_ASSERT_SAFE(-62135596800LL <= time);  // January    1, 0001 00:00:00
+    }
+    else {
+    BSLS_ASSERT_SAFE(-62135769600LL <= time);  // January    1, 0001 00:00:00
+    }
+#endif
     BSLS_ASSERT_SAFE(253402300799LL >= time);  // December  31, 9999 23:59:59
 
     Datetime datetime(epoch());
@@ -427,7 +452,14 @@ int EpochUtil::convertFromTimeT64(Datetime *result, TimeT64 time)
 {
     BSLS_ASSERT_SAFE(result);
 
+#ifndef BDE_OMIT_TRANSITIONAL
+    if (( DelegatingDateImpUtil::isProlepticGregorianMode() &&
+                                                      -62135596800LL > time)
+     || (!DelegatingDateImpUtil::isProlepticGregorianMode() &&
+                                                      -62135769600LL > time) ||
+#else
     if (-62135596800LL > time ||  // January    1, 0001 00:00:00
+#endif
         253402300799LL < time) {  // December  31, 9999 23:59:59
         return 1;                                                     // RETURN
     }

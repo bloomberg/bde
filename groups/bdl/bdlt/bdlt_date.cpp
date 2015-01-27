@@ -34,7 +34,7 @@ int Date::addDaysIfValid(int numDays)
 
     const int tmpSerialDate = d_serialDate + numDays;
 
-    if (!SerialDateImpUtil::isValidSerial(tmpSerialDate)) {
+    if (!Date::isValidSerial(tmpSerialDate)) {
         return k_FAILURE;                                             // RETURN
     }
 
@@ -62,7 +62,7 @@ bsl::ostream& Date::print(bsl::ostream& stream,
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                            !SerialDateImpUtil::isValidSerial(d_serialDate))) {
+                                         !Date::isValidSerial(d_serialDate))) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)

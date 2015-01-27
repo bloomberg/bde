@@ -3962,7 +3962,7 @@ int main(int argc, char *argv[])
 { L_,      1,   1,   1, 20,   8,  27, 983,   1,   7,
                                               "\x00\x00\x01\x04\x52\x62\x4f" },
 { L_,   2014,   7,  12,  5,  32,  14,  72,   1,   7,
-                                              "\x0b\x38\xc2\x01\x30\x2b\x78" }
+                                              "\x0b\x38\xc4\x01\x30\x2b\x78" }
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 

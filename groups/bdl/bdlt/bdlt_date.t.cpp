@@ -309,7 +309,9 @@ const AltDataRow ALT_DATA[] =
 
     { L_,    1999,   59,   2000,   58,       364 },
 
+#ifdef BDE_OMIT_TRANSITIONAL
     { L_,    1000,    1,   1001,    1,       365 },
+#endif
     { L_,    1998,   59,   1999,   59,       365 },
 
     { L_,    1200,    1,   1201,    1,       366 },
@@ -319,7 +321,9 @@ const AltDataRow ALT_DATA[] =
 
     { L_,    1999,   59,   2002,   59,      1096 },
 
+#ifdef BDE_OMIT_TRANSITIONAL
     { L_,       1,    1,   9999,  365,   3652058 },
+#endif
 };
 const int ALT_NUM_DATA = sizeof ALT_DATA / sizeof *ALT_DATA;
 
@@ -571,7 +575,9 @@ if (verbose)
                 { L_,       1,     1,    INT_MIN },
                 { L_,    9999,   365,    INT_MIN },
 
+#ifdef BDE_OMIT_TRANSITIONAL
                 { L_,    9999,   365,   -3652059 },
+#endif
 
                 { L_,       1,   365,       -365 },
                 { L_,       2,     1,       -366 },
@@ -594,7 +600,9 @@ if (verbose)
 
                 { L_,    9998,   365,        366 },
 
+#ifdef BDE_OMIT_TRANSITIONAL
                 { L_,       1,     1,    3652059 },
+#endif
 
                 { L_,       1,     1,    INT_MAX },
                 { L_,    9999,   365,    INT_MAX },
@@ -732,6 +740,13 @@ if (verbose)
             if (veryVerbose) {
                 T_ P_(LINE) P_(YEAR) P_(MONTH) P_(DAY) P_(EXP_DOW) P(EXP_MOY)
             }
+
+#ifndef BDE_OMIT_TRANSITIONAL
+            if (!bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()
+             && YEAR <= 1752) {
+                continue;
+            }
+#endif
 
             const Obj X(YEAR, MONTH, DAY);
 
@@ -1422,8 +1437,20 @@ if (verbose)
                 }
 
                 {
+#ifdef BDE_OMIT_TRANSITIONAL
                     Obj mX(V);  ASSERT_SAFE_PASS(mX +=  3652058);
                     Obj mY(V);  ASSERT_SAFE_FAIL(mY +=  3652059);
+#else
+                    if (
+                     bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
+                        Obj mX(V);  ASSERT_SAFE_PASS(mX +=  3652058);
+                        Obj mY(V);  ASSERT_SAFE_FAIL(mY +=  3652059);
+                    }
+                    else {
+                        Obj mX(V);  ASSERT_SAFE_PASS(mX +=  3652060);
+                        Obj mY(V);  ASSERT_SAFE_FAIL(mY +=  3652061);
+                    }
+#endif
                 }
 
                 const Obj W(9999, 365);
@@ -1433,8 +1460,20 @@ if (verbose)
                 }
 
                 {
+#ifdef BDE_OMIT_TRANSITIONAL
                     Obj mX(W);  ASSERT_SAFE_PASS(mX += -3652058);
                     Obj mY(W);  ASSERT_SAFE_FAIL(mY += -3652059);
+#else
+                    if (
+                     bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
+                        Obj mX(W);  ASSERT_SAFE_PASS(mX += -3652058);
+                        Obj mY(W);  ASSERT_SAFE_FAIL(mY += -3652059);
+                    }
+                    else {
+                        Obj mX(W);  ASSERT_SAFE_PASS(mX += -3652060);
+                        Obj mY(W);  ASSERT_SAFE_FAIL(mY += -3652061);
+                    }
+#endif
                 }
             }
 
@@ -1447,8 +1486,20 @@ if (verbose)
                 }
 
                 {
+#ifdef BDE_OMIT_TRANSITIONAL
                     Obj mX(V);  ASSERT_SAFE_PASS(mX -= -3652058);
                     Obj mY(V);  ASSERT_SAFE_FAIL(mY -= -3652059);
+#else
+                    if (
+                     bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
+                        Obj mX(V);  ASSERT_SAFE_PASS(mX -= -3652058);
+                        Obj mY(V);  ASSERT_SAFE_FAIL(mY -= -3652059);
+                    }
+                    else {
+                        Obj mX(V);  ASSERT_SAFE_PASS(mX -= -3652060);
+                        Obj mY(V);  ASSERT_SAFE_FAIL(mY -= -3652061);
+                    }
+#endif
                 }
 
                 const Obj W(9999, 365);
@@ -1458,8 +1509,20 @@ if (verbose)
                 }
 
                 {
+#ifdef BDE_OMIT_TRANSITIONAL
                     Obj mX(W);  ASSERT_SAFE_PASS(mX -=  3652058);
                     Obj mY(W);  ASSERT_SAFE_FAIL(mY -=  3652059);
+#else
+                    if (
+                     bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
+                        Obj mX(W);  ASSERT_SAFE_PASS(mX -=  3652058);
+                        Obj mY(W);  ASSERT_SAFE_FAIL(mY -=  3652059);
+                    }
+                    else {
+                        Obj mX(W);  ASSERT_SAFE_PASS(mX -=  3652060);
+                        Obj mY(W);  ASSERT_SAFE_FAIL(mY -=  3652061);
+                    }
+#endif
                 }
             }
 
@@ -1470,16 +1533,38 @@ if (verbose)
                 ASSERT_SAFE_PASS(V +        0);
                 ASSERT_SAFE_FAIL(V +       -1);
 
+#ifdef BDE_OMIT_TRANSITIONAL
                 ASSERT_SAFE_PASS(V +  3652058);
                 ASSERT_SAFE_FAIL(V +  3652059);
+#else
+                if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
+                    ASSERT_SAFE_PASS(V +  3652058);
+                    ASSERT_SAFE_FAIL(V +  3652059);
+                }
+                else {
+                    ASSERT_SAFE_PASS(V +  3652060);
+                    ASSERT_SAFE_FAIL(V +  3652061);
+                }
+#endif
 
                 const Obj W(9999, 365);
 
                 ASSERT_SAFE_PASS(W +        0);
                 ASSERT_SAFE_FAIL(W +        1);
 
+#ifdef BDE_OMIT_TRANSITIONAL
                 ASSERT_SAFE_PASS(W + -3652058);
                 ASSERT_SAFE_FAIL(W + -3652059);
+#else
+                if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
+                    ASSERT_SAFE_PASS(W + -3652058);
+                    ASSERT_SAFE_FAIL(W + -3652059);
+                }
+                else {
+                    ASSERT_SAFE_PASS(W + -3652060);
+                    ASSERT_SAFE_FAIL(W + -3652061);
+                }
+#endif
             }
 
             if (verbose) cout << "\t'operator+(int, Date)'" << endl;
@@ -1489,16 +1574,38 @@ if (verbose)
                 ASSERT_SAFE_PASS(       0 + V);
                 ASSERT_SAFE_FAIL(      -1 + V);
 
+#ifdef BDE_OMIT_TRANSITIONAL
                 ASSERT_SAFE_PASS( 3652058 + V);
                 ASSERT_SAFE_FAIL( 3652059 + V);
+#else
+                if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
+                    ASSERT_SAFE_PASS( 3652058 + V);
+                    ASSERT_SAFE_FAIL( 3652059 + V);
+                }
+                else {
+                    ASSERT_SAFE_PASS( 3652060 + V);
+                    ASSERT_SAFE_FAIL( 3652061 + V);
+                }
+#endif
 
                 const Obj W(9999, 365);
 
                 ASSERT_SAFE_PASS(       0 + W);
                 ASSERT_SAFE_FAIL(       1 + W);
 
+#ifdef BDE_OMIT_TRANSITIONAL
                 ASSERT_SAFE_PASS(-3652058 + W);
                 ASSERT_SAFE_FAIL(-3652059 + W);
+#else
+                if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
+                    ASSERT_SAFE_PASS(-3652058 + W);
+                    ASSERT_SAFE_FAIL(-3652059 + W);
+                }
+                else {
+                    ASSERT_SAFE_PASS(-3652060 + W);
+                    ASSERT_SAFE_FAIL(-3652061 + W);
+                }
+#endif
             }
 
             if (verbose) cout << "\t'operator-(Date, int)'" << endl;
@@ -1508,16 +1615,38 @@ if (verbose)
                 ASSERT_SAFE_PASS(V -        0);
                 ASSERT_SAFE_FAIL(V -        1);
 
+#ifdef BDE_OMIT_TRANSITIONAL
                 ASSERT_SAFE_PASS(V - -3652058);
                 ASSERT_SAFE_FAIL(V - -3652059);
+#else
+                if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
+                    ASSERT_SAFE_PASS(V - -3652058);
+                    ASSERT_SAFE_FAIL(V - -3652059);
+                }
+                else {
+                    ASSERT_SAFE_PASS(V - -3652060);
+                    ASSERT_SAFE_FAIL(V - -3652061);
+                }
+#endif
 
                 const Obj W(9999, 365);
 
                 ASSERT_SAFE_PASS(W -        0);
                 ASSERT_SAFE_FAIL(W -       -1);
 
+#ifdef BDE_OMIT_TRANSITIONAL
                 ASSERT_SAFE_PASS(W -  3652058);
                 ASSERT_SAFE_FAIL(W -  3652059);
+#else
+                if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
+                    ASSERT_SAFE_PASS(W -  3652058);
+                    ASSERT_SAFE_FAIL(W -  3652059);
+                }
+                else {
+                    ASSERT_SAFE_PASS(W -  3652060);
+                    ASSERT_SAFE_FAIL(W -  3652061);
+                }
+#endif
             }
         }
 
@@ -1686,7 +1815,9 @@ if (verbose)
                 { L_,       4,  366,      5,    1 },
                 { L_,      10,   59,     10,   60 },
                 { L_,     100,   90,    100,   91 },
+#ifdef BDE_OMIT_TRANSITIONAL
                 { L_,     100,  365,    101,    1 },
+#endif
                 { L_,     400,   59,    400,   60 },
                 { L_,     400,   60,    400,   61 },
                 { L_,     400,  366,    401,    1 },
@@ -2042,7 +2173,9 @@ if (verbose)
                 { L_,        100,        0,     0 },
                 { L_,        100,        1,     1 },
                 { L_,        100,      365,     1 },
+#ifdef BDE_OMIT_TRANSITIONAL
                 { L_,        100,      366,     0 },
+#endif
 
                 { L_,        400,        0,     0 },
                 { L_,        400,        1,     1 },
@@ -2052,7 +2185,9 @@ if (verbose)
                 { L_,       1000,        0,     0 },
                 { L_,       1000,        1,     1 },
                 { L_,       1000,      365,     1 },
+#ifdef BDE_OMIT_TRANSITIONAL
                 { L_,       1000,      366,     0 },
+#endif
 
                 { L_,       9999,  INT_MIN,     0 },
                 { L_,       9999,        0,     0 },
@@ -2169,14 +2304,18 @@ if (verbose)
                 { L_,          4,        2,       30,     0 },
 
                 { L_,        100,        2,       28,     1 },
+#ifdef BDE_OMIT_TRANSITIONAL
                 { L_,        100,        2,       29,     0 },
+#endif
 
                 { L_,        400,        2,       28,     1 },
                 { L_,        400,        2,       29,     1 },
                 { L_,        400,        2,       30,     0 },
 
                 { L_,       1000,        2,       28,     1 },
+#ifdef BDE_OMIT_TRANSITIONAL
                 { L_,       1000,        2,       29,     0 },
+#endif
 
                 { L_,       2003,        1,       31,     1 },
                 { L_,       2003,        1,       32,     0 },
@@ -2430,16 +2569,22 @@ if (verbose)
                 { L_,       2,    1,      1,        1 },
                 { L_,      10,   95,      4,        5 },
                 { L_,      10,  284,     10,       11 },
+#ifdef BDE_OMIT_TRANSITIONAL
                 { L_,     100,  158,      6,        7 },
                 { L_,     100,  316,     11,       12 },
                 { L_,    1000,  221,      8,        9 },
+#endif
                 { L_,    1100,   31,      1,       31 },
                 { L_,    1200,   60,      2,       29 },
+#ifdef BDE_OMIT_TRANSITIONAL
                 { L_,    1300,   90,      3,       31 },
                 { L_,    1400,  120,      4,       30 },
                 { L_,    1500,  151,      5,       31 },
+#endif
                 { L_,    1600,  182,      6,       30 },
+#ifdef BDE_OMIT_TRANSITIONAL
                 { L_,    1700,  212,      7,       31 },
+#endif
                 { L_,    1800,  243,      8,       31 },
                 { L_,    1900,  273,      9,       30 },
                 { L_,    2000,  305,     10,       31 },
@@ -2895,6 +3040,11 @@ if (verbose)
         //:
         //: 9 The initial value of the object has no affect on
         //:   unexternalization.
+#ifndef BDE_OMIT_TRANSITIONAL
+        //:
+        //:10 Streaming version 1 provides the expected compatibility between
+        //:   the two calendar modes.
+#endif
         //
         // Plan:
         //: 1 Test 'maxSupportedBdexVersion' explicitly.  (C-1)
@@ -2947,6 +3097,13 @@ if (verbose)
         //:
         //:11 In all cases, verify the return value of the tested method.
         //:   (C-8)
+#ifndef BDE_OMIT_TRANSITIONAL
+        //:
+        //:12 Let 'M' be the ordered set of calendar modes { POSIX, proleptic
+        //:   Gregorian }.  For each '(u, v)' in the set 'M x M', verify that
+        //:   dates streamed out in calendar mode 'u' are streamed in as
+        //:   expected in calendar mode 'v'.  (C-10)
+#endif
         //
         // Testing:
         //   static int maxSupportedBdexVersion(int versionSelector);
@@ -3264,15 +3421,26 @@ if (verbose)
         }
 
         const Obj W;                // default value
-        const Obj X(1, 1, 2);       // original (control)
-        const Obj Y(1, 1, 3);       // new (streamed-out)
+        const Obj X(2, 1, 1);       // original (control)
+        const Obj Y(3, 1, 1);       // new (streamed-out)
 
         // Verify the three objects are distinct.
         ASSERT(W != X);
         ASSERT(W != Y);
         ASSERT(X != Y);
 
-        const int SERIAL_Y = 3;       // internal rep. of 'Y'
+#ifdef BDE_OMIT_TRANSITIONAL
+        const int SERIAL_Y = 733;   // streamed rep. of 'Y'
+#else
+        int SERIAL_Y;               // streamed rep. of 'Y'
+
+        if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
+            SERIAL_Y = 733;
+        }
+        else {
+            SERIAL_Y = 731;
+        }
+#endif
 
         if (verbose) {
             cout << "\t\tGood stream (for control)." << endl;
@@ -3377,7 +3545,7 @@ if (verbose)
         }
         {
             Out out(VERSION_SELECTOR, &allocator);
-            out.putInt24(3652060);  // Stream out "new" value.
+            out.putInt24(3652062);  // Stream out "new" value.
 
             const char *const OD  = out.data();
             const int         LOD = out.length();
@@ -3413,8 +3581,8 @@ if (verbose)
                 //LINE  YEAR  MONTH  DAY  VER  LEN  FORMAT
                 //----  ----  -----  ---  ---  ---  ---------------
                 { L_,      1,     1,   1,   1,   3,  "\x00\x00\x01"  },
-                { L_,   2014,    10,  22,   1,   3,  "\x0b\x39\x28"  },
-                { L_,   2016,     8,  27,   1,   3,  "\x0b\x3b\xcb"  }
+                { L_,   2014,    10,  22,   1,   3,  "\x0b\x39\x2a"  },
+                { L_,   2016,     8,  27,   1,   3,  "\x0b\x3b\xcd"  }
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -3502,6 +3670,357 @@ if (verbose)
                 }
             }
         }
+
+#ifndef BDE_OMIT_TRANSITIONAL
+
+        if (verbose) cout << "\nCompatibility of the two calendar modes."
+                          << endl;
+
+        // Save the current calendar mode, so that it can be restored at the
+        // end of the test case.  This is necessary to ensure the safe
+        // destruction of 'VG' in both modes.
+
+        const bool isPGModeOnEntry =
+                       bdlt::DelegatingDateImpUtil::isProlepticGregorianMode();
+
+        // Note that 'VC', used throughout this compatibility testing section,
+        // is known to be distinct from any test datum.  It is immaterial in
+        // which calendar mode it was created.
+
+        // The first two test blocks verify that:
+        //: 1 [POSIX --> POSIX] A date streamed out in POSIX mode is streamed
+        //:   in as expected in POSIX mode.
+        //:
+        //: 2 [proleptic Gregorian --> proleptic Gregorian] A date streamed out
+        //:   in proleptic Gregorian mode is streamed in as expected in
+        //:   proleptic Gregorian mode.
+        //
+        // These identity tests are provided for completeness and help further
+        // ensure sanity of the streaming functions.
+
+        if (verbose) cout << "\tPOSIX --> POSIX." << endl;
+        {
+            static const struct {
+                int d_line;    // source line number
+                int d_oYear;   // output year
+                int d_oMonth;  // output month
+                int d_oDay;    // output day
+                int d_iYear;   // input year
+                int d_iMonth;  // input month
+                int d_iDay;    // input day
+            } DATA[] = {
+                //LINE  OYEAR  OMONTH  ODAY  IYEAR  IMONTH  IDAY
+                //----  -----  ------  ----  -----  ------  ----
+                { L_,       1,      1,    1,     1,      1,    1,  },
+                { L_,       1,      1,    2,     1,      1,    2,  },
+                { L_,       1,      1,    3,     1,      1,    3,  },
+                { L_,       1,      1,    4,     1,      1,    4,  },
+
+                { L_,     101,      4,    1,   101,      4,    1,  },
+                { L_,     202,      5,    1,   202,      5,    1,  },
+                { L_,     303,      6,    1,   303,      6,    1,  },
+
+                { L_,    1752,      9,    2,  1752,      9,    2,  },
+
+                { L_,    1752,      9,   14,  1752,      9,   14,  },
+                { L_,    1899,     12,   26,  1899,     12,   26,  },
+                { L_,    2015,      3,   15,  2015,      3,   15,  },
+
+                { L_,    9999,     12,   31,  9999,     12,   31,  },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int LINE   = DATA[ti].d_line;
+                const int OYEAR  = DATA[ti].d_oYear;
+                const int OMONTH = DATA[ti].d_oMonth;
+                const int ODAY   = DATA[ti].d_oDay;
+                const int IYEAR  = DATA[ti].d_iYear;
+                const int IMONTH = DATA[ti].d_iMonth;
+                const int IDAY   = DATA[ti].d_iDay;
+
+                if (veryVerbose) {
+                    T_ P_(LINE)
+                    P_(OYEAR) P_(OMONTH) P_(ODAY)
+                    P_(IYEAR) P_(IMONTH) P(IDAY)
+                }
+
+                // BDEX stream out: POSIX mode
+
+                bdlt::DelegatingDateImpUtil::disableProlepticGregorianMode();
+
+                const Obj X(OYEAR, OMONTH, ODAY);
+
+                Out out(VERSION_SELECTOR, &allocator);
+                X.bdexStreamOut(out, VERSION);
+
+                // BDEX stream in: POSIX mode
+
+                bdlt::DelegatingDateImpUtil::disableProlepticGregorianMode();
+
+                const Obj Z(IYEAR, IMONTH, IDAY);
+
+                Obj mT(VC);  const Obj& T = mT;  ASSERT(Z != T);
+
+                In in(out.data(), out.length());
+                mT.bdexStreamIn(in, VERSION);    ASSERT(in);
+
+                LOOP3_ASSERT(LINE, T, Z, Z == T);
+            }
+        }
+
+        if (verbose) cout << "\tproleptic Gregorian --> proleptic Gregorian."
+                          << endl;
+        {
+            static const struct {
+                int d_line;    // source line number
+                int d_oYear;   // output year
+                int d_oMonth;  // output month
+                int d_oDay;    // output day
+                int d_iYear;   // input year
+                int d_iMonth;  // input month
+                int d_iDay;    // input day
+            } DATA[] = {
+                //LINE  OYEAR  OMONTH  ODAY  IYEAR  IMONTH  IDAY
+                //----  -----  ------  ----  -----  ------  ----
+                { L_,       1,      1,    1,     1,      1,    1,  },
+                { L_,       1,      1,    2,     1,      1,    2,  },
+                { L_,       1,      1,    3,     1,      1,    3,  },
+                { L_,       1,      1,    4,     1,      1,    4,  },
+
+                { L_,     101,      4,    1,   101,      4,    1,  },
+                { L_,     202,      5,    1,   202,      5,    1,  },
+                { L_,     303,      6,    1,   303,      6,    1,  },
+
+                { L_,    1752,      9,    2,  1752,      9,    2,  },
+
+                { L_,    1752,      9,   14,  1752,      9,   14,  },
+                { L_,    1899,     12,   26,  1899,     12,   26,  },
+                { L_,    2015,      3,   15,  2015,      3,   15,  },
+
+                { L_,    9999,     12,   31,  9999,     12,   31,  },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int LINE   = DATA[ti].d_line;
+                const int OYEAR  = DATA[ti].d_oYear;
+                const int OMONTH = DATA[ti].d_oMonth;
+                const int ODAY   = DATA[ti].d_oDay;
+                const int IYEAR  = DATA[ti].d_iYear;
+                const int IMONTH = DATA[ti].d_iMonth;
+                const int IDAY   = DATA[ti].d_iDay;
+
+                if (veryVerbose) {
+                    T_ P_(LINE)
+                    P_(OYEAR) P_(OMONTH) P_(ODAY)
+                    P_(IYEAR) P_(IMONTH) P(IDAY)
+                }
+
+                // BDEX stream out: proleptic Gregorian mode
+
+                bdlt::DelegatingDateImpUtil::enableProlepticGregorianMode();
+
+                const Obj X(OYEAR, OMONTH, ODAY);
+
+                Out out(VERSION_SELECTOR, &allocator);
+                X.bdexStreamOut(out, VERSION);
+
+                // BDEX stream in: proleptic Gregorian mode
+
+                bdlt::DelegatingDateImpUtil::enableProlepticGregorianMode();
+
+                const Obj Z(IYEAR, IMONTH, IDAY);
+
+                Obj mT(VC);  const Obj& T = mT;  ASSERT(X != T);
+
+                In in(out.data(), out.length());
+                mT.bdexStreamIn(in, VERSION);    ASSERT(in);
+
+                LOOP3_ASSERT(LINE, T, Z, Z == T);
+            }
+        }
+
+        // The next two test blocks verify the compatibility that is expected
+        // between the two calendar modes.  In particular, they verify that:
+        //: 1 [POSIX --> proleptic Gregorian] A date streamed out in POSIX mode
+        //:   is streamed in as expected in proleptic Gregorian mode.
+        //:
+        //: 2 [proleptic Gregorian --> POSIX] A date streamed out in proleptic
+        //:   Gregorian mode is streamed in as expected in POSIX mode.
+        //
+        // Note that for the range of dates '[1752/09/14 .. 9999/12/31]', the
+        // ymd attributes corresponding to the serial values that are actually
+        // streamed are identical in both calendar modes.  The "// **" comment
+        // indicates cases in the test data where the ymd attributes differ
+        // between the two calendar modes.
+
+        if (verbose) cout << "\tPOSIX --> proleptic Gregorian." << endl;
+        {
+            static const struct {
+                int d_line;    // source line number
+                int d_oYear;   // output year
+                int d_oMonth;  // output month
+                int d_oDay;    // output day
+                int d_iYear;   // input year
+                int d_iMonth;  // input month
+                int d_iDay;    // input day
+            } DATA[] = {
+                //LINE  OYEAR  OMONTH  ODAY  IYEAR  IMONTH  IDAY
+                //----  -----  ------  ----  -----  ------  ----
+                { L_,       1,      1,    1,     1,      1,    1,  },
+                { L_,       1,      1,    2,     1,      1,    1,  },  // **
+                { L_,       1,      1,    3,     1,      1,    1,  },  // **
+                { L_,       1,      1,    4,     1,      1,    2,  },  // **
+
+                { L_,     101,      4,    1,   101,      3,   31,  },  // **
+                { L_,     202,      5,    1,   202,      5,    1,  },
+                { L_,     303,      6,    1,   303,      6,    2,  },  // **
+
+                { L_,    1752,      9,    2,  1752,      9,   13,  },  // **
+
+                { L_,    1752,      9,   14,  1752,      9,   14,  },
+                { L_,    1899,     12,   26,  1899,     12,   26,  },
+                { L_,    2015,      3,   15,  2015,      3,   15,  },
+
+                // The next vector is deliberately *not* 9999/12/31 (see the
+                // comment regarding 'X' below).
+
+                { L_,    9999,     12,   29,  9999,     12,   29,  },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int LINE   = DATA[ti].d_line;
+                const int OYEAR  = DATA[ti].d_oYear;
+                const int OMONTH = DATA[ti].d_oMonth;
+                const int ODAY   = DATA[ti].d_oDay;
+                const int IYEAR  = DATA[ti].d_iYear;
+                const int IMONTH = DATA[ti].d_iMonth;
+                const int IDAY   = DATA[ti].d_iDay;
+
+                if (veryVerbose) {
+                    T_ P_(LINE)
+                    P_(OYEAR) P_(OMONTH) P_(ODAY)
+                    P_(IYEAR) P_(IMONTH) P(IDAY)
+                }
+
+                // BDEX stream out: POSIX mode
+
+                bdlt::DelegatingDateImpUtil::disableProlepticGregorianMode();
+
+                const Obj X(OYEAR, OMONTH, ODAY);
+
+                // Note that 'X' is created in POSIX mode, but destroyed in
+                // proleptic Gregorian mode.  This is a problem for 9999/12/30
+                // and 9999/12/31 due to the 'BSLS_ASSERT_SAFE' in the 'Date'
+                // destructor.
+
+                Out out(VERSION_SELECTOR, &allocator);
+                X.bdexStreamOut(out, VERSION);
+
+                // BDEX stream in: proleptic Gregorian mode
+
+                bdlt::DelegatingDateImpUtil::enableProlepticGregorianMode();
+
+                const Obj Z(IYEAR, IMONTH, IDAY);
+
+                Obj mT(VC);  const Obj& T = mT;  ASSERT(Z != T);
+
+                In in(out.data(), out.length());
+                mT.bdexStreamIn(in, VERSION);    ASSERT(in);
+
+                LOOP3_ASSERT(LINE, T, Z, Z == T);
+            }
+        }
+
+        if (verbose) cout << "\tproleptic Gregorian --> POSIX." << endl;
+        {
+            static const struct {
+                int d_line;    // source line number
+                int d_oYear;   // output year
+                int d_oMonth;  // output month
+                int d_oDay;    // output day
+                int d_iYear;   // input year
+                int d_iMonth;  // input month
+                int d_iDay;    // input day
+            } DATA[] = {
+                //LINE  OYEAR  OMONTH  ODAY  IYEAR  IMONTH  IDAY
+                //----  -----  ------  ----  -----  ------  ----
+                { L_,       1,      1,    1,     1,      1,    1,  },
+                { L_,       1,      1,    2,     1,      1,    4,  },  // **
+                { L_,       1,      1,    3,     1,      1,    5,  },  // **
+                { L_,       1,      1,    4,     1,      1,    6,  },  // **
+
+                { L_,     101,      4,    1,   101,      4,    2,  },  // **
+                { L_,     202,      5,    1,   202,      5,    1,  },
+                { L_,     303,      6,    1,   303,      5,   31,  },  // **
+
+                { L_,    1752,      9,    2,  1752,      8,   22,  },  // **
+
+                { L_,    1752,      9,   14,  1752,      9,   14,  },
+                { L_,    1899,     12,   26,  1899,     12,   26,  },
+                { L_,    2015,      3,   15,  2015,      3,   15,  },
+
+                { L_,    9999,     12,   31,  9999,     12,   31,  },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int LINE   = DATA[ti].d_line;
+                const int OYEAR  = DATA[ti].d_oYear;
+                const int OMONTH = DATA[ti].d_oMonth;
+                const int ODAY   = DATA[ti].d_oDay;
+                const int IYEAR  = DATA[ti].d_iYear;
+                const int IMONTH = DATA[ti].d_iMonth;
+                const int IDAY   = DATA[ti].d_iDay;
+
+                if (veryVerbose) {
+                    T_ P_(LINE)
+                    P_(OYEAR) P_(OMONTH) P_(ODAY)
+                    P_(IYEAR) P_(IMONTH) P(IDAY)
+                }
+
+                // BDEX stream out: proleptic Gregorian mode
+
+                bdlt::DelegatingDateImpUtil::enableProlepticGregorianMode();
+
+                const Obj X(OYEAR, OMONTH, ODAY);
+
+                // Note that 'X' is created in proleptic Gregorian mode, but
+                // destroyed in POSIX mode.  However, it is not an issue as it
+                // was for testing "POSIX --> proleptic Gregorian" (above).
+
+                Out out(VERSION_SELECTOR, &allocator);
+                X.bdexStreamOut(out, VERSION);
+
+                // BDEX stream in: POSIX mode
+
+                bdlt::DelegatingDateImpUtil::disableProlepticGregorianMode();
+
+                const Obj Z(IYEAR, IMONTH, IDAY);
+
+                Obj mT(VC);  const Obj& T = mT;  ASSERT(Z != T);
+
+                In in(out.data(), out.length());
+                mT.bdexStreamIn(in, VERSION);    ASSERT(in);
+
+                LOOP3_ASSERT(LINE, T, Z, Z == T);
+            }
+        }
+
+        // Restore the calendar mode to what it was on entry to the test case,
+        // so that 'VG' (defined near the beginning of case 10) can be safely
+        // destroyed.
+
+        if (isPGModeOnEntry) {
+            bdlt::DelegatingDateImpUtil::enableProlepticGregorianMode();
+        }
+        else {
+            bdlt::DelegatingDateImpUtil::disableProlepticGregorianMode();
+        }
+
+#endif
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
