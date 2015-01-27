@@ -591,11 +591,26 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(DOUBLE_ALIGNMENT,
                     sameType(bsls::AlignmentToType<DOUBLE_ALIGNMENT>::Type(),
                              long()));
+        #if defined(BSLS_PLATFORM_CPU_POWERPC) \
+         && defined(BSLS_PLATFORM_OS_LINUX)
+        LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
+                 sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
+                          long()));
+        #else
         LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
                  sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
                            LD));
+        #endif
     #else
         #if defined(BSLS_PLATFORM_CPU_ARM)
+        LOOP_ASSERT(INT64_ALIGNMENT,
+                    sameType(bsls::AlignmentToType<INT64_ALIGNMENT>::Type(),
+                             LL));
+        LOOP_ASSERT(DOUBLE_ALIGNMENT,
+                    sameType(bsls::AlignmentToType<DOUBLE_ALIGNMENT>::Type(),
+                             LL));
+        #elif defined(BSLS_PLATFORM_CPU_POWERPC) \
+           && defined(BSLS_PLATFORM_OS_LINUX)
         LOOP_ASSERT(INT64_ALIGNMENT,
                     sameType(bsls::AlignmentToType<INT64_ALIGNMENT>::Type(),
                              LL));
@@ -613,6 +628,10 @@ int main(int argc, char *argv[])
 
         #if defined(BSLS_PLATFORM_OS_LINUX)
         #if defined(BSLS_PLATFORM_CPU_ARM)
+        LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
+                 sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
+                          LL));
+        #elif defined(BSLS_PLATFORM_CPU_POWERPC)
         LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
                  sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
                           LL));

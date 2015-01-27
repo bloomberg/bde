@@ -813,7 +813,9 @@ int main(int argc, char *argv[])
                 | (offsetof(Int64Align, d_int64)           - 1)
                 | (offsetof(FloatAlign, d_float)           - 1)
                 | (offsetof(DoubleAlign, d_double)         - 1)
+#if ! (defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_OS_LINUX))
                 | (offsetof(LongDoubleAlign, d_longDouble) - 1)
+#endif
                 | (offsetof(VoidPtrAlign, d_voidPtr)       - 1)
 #if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
                 | (offsetof(Test8bytesAlign,
