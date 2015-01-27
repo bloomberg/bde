@@ -1,6 +1,6 @@
-// bsls_atomicoperations_powerpc_aix_gcc.cpp                          -*-C++-*-
+// bsls_atomicoperations_powerpc_all_gcc.cpp                          -*-C++-*-
 
-#include <bsls_atomicoperations_powerpc_aix_gcc.h>
+#include <bsls_atomicoperations_powerpc_all_gcc.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")

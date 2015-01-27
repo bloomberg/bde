@@ -1,6 +1,6 @@
-// bsls_atomicoperations_powerpc_aix_gcc.t.cpp                        -*-C++-*-
+// bsls_atomicoperations_powerpc_all_gcc.t.cpp                        -*-C++-*-
 
-#include <bsls_atomicoperations_powerpc_aix_gcc.h>
+#include <bsls_atomicoperations_powerpc_all_gcc.h>
 
 #include <cstdlib>
 

@@ -239,7 +239,9 @@ struct AlignmentUtil {
         FuncPtr      d_funcPointer;
         float        d_float;
         double       d_double;
+#if ! (defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_OS_LINUX))
         long double  d_longDouble;
+#endif
 #if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
         AlignmentImp8ByteAlignedType
                      d_8bytesAlignedType;

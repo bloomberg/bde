@@ -720,7 +720,7 @@ BSLS_IDENT("$Id: $")
 #           include <bsls_atomicoperations_powerpc32_aix_xlc.h>
 #       endif
 #   elif defined(BSLS_PLATFORM_CMP_GNU)
-#       include <bsls_atomicoperations_powerpc_aix_gcc.h>
+#       include <bsls_atomicoperations_powerpc_all_gcc.h>
 #   else
 #       define BSLS_ATOMICOPERATIONS_ERROR
 #   endif
