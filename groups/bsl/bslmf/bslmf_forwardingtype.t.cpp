@@ -1,6 +1,7 @@
 // bslmf_forwardingtype.t.cpp                                         -*-C++-*-
 #include <bslmf_forwardingtype.h>
 
+#include <bslmf_addlvaluereference.h>
 #include <bslmf_isarray.h>
 #include <bslmf_issame.h>          // for testing only
 
@@ -531,7 +532,9 @@ void testForwardToTargetArray(TYPE obj)
     typedef typename bslmf::ForwardingType<TYPE>::Type FwdType;
     typedef typename bslmf::ForwardingTypeUtil<TYPE>::TargetType TargetType;
 
-    ASSERT_SAME(TYPE&, TargetType);
+    typedef typename bsl::add_lvalue_reference<TYPE>::Type RefType;
+                            // gcc 4.1.2 does not support reference collapsing.
+    ASSERT_SAME(RefType, TargetType);
 
     FwdType fwdObj = obj;
 
