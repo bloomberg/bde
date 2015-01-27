@@ -18,19 +18,22 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component implements a value-semantic type,
 // 'bdlt::Datetime', that represents the composition of the values of a
-// 'bdlt::Date' object and a 'bdlt::Time' object.  In addition to the usual
-// value-semantic complement of methods for getting and setting value, the
-// class provides methods and operators for making relative adjustments to the
-// value.  In particular, relative adjustments to the 'bdlt::Time' part of a
-// 'bdlt::Datetime' object (e.g., as made by the 'addHours' method) can carry
-// over to changes in the 'bdlt::Date' part of the object.
-//
-///Valid 'bdlt::Datetime' Values and Their Representations
-///-------------------------------------------------------
-// A combined "date+time" value can be expressed textually as
+// 'bdlt::Date' object and a 'bdlt::Time' object.  The combined "date+time"
+// value of a 'bdlt::Datetime' object is expressed textually as
 // "yyyy/mm/dd_hh:mm:ss.sss", where "yyyy/mm/dd" represents the "date" part of
 // the value and "hh:mm:ss.sss" represents the "time" part.
 //
+// In addition to the usual value-semantic complement of methods for getting
+// and setting value, the 'bdlt::Datetime' class provides methods and operators
+// for making relative adjustments to value ('addDays', 'addTime', 'addHours',
+// etc.).  In particular, note that adding units of time to a 'bdlt::Datetime'
+// object can affect the values of both the 'bdlt::Time' and 'bdlt::Date' parts
+// of the object.  For example, invoking 'addHours(2)' on a 'bdlt::Datetime'
+// object whose value is "1987/10/03_22:30:00.000" updates the value to
+// "1987/10/04_00:30:00.000".
+//
+///Valid 'bdlt::Datetime' Values and Their Representations
+///-------------------------------------------------------
 // The "date" part of a 'bdlt::Datetime' value has a range of validity
 // identical to a 'bdlt::Date' object -- i.e., valid dates (according to the
 // proleptic Gregorian calendar) having years in the range '[1 .. 9999]'.  The
@@ -367,9 +370,9 @@ class Datetime {
 
     Datetime(const Date& date, const Time& time);
         // Create a 'Datetime' object whose "date" and "time" parts have the
-        // values of the specified 'date' and 'time', respectively, except that
-        // if 'time == Time()' but 'date != Date()', the "time" part has the
-        // value "00:00:00.000".
+        // values of the specified 'date' and 'time', respectively.  If
+        // 'time == Time()' (i.e., 24:00) but 'date != Date()' (i.e., 1/1/1),
+        // the "time" part has the value "00:00:00.000".
 
     Datetime(int year,
              int month,
@@ -381,12 +384,13 @@ class Datetime {
         // Create a 'Datetime' object whose "date" part has the value
         // represented by the specified 'year', 'month', and 'day' attributes,
         // and whose "time" part has the value represented by the optionally
-        // specified 'hour', 'minute', 'second', and 'millisecond' attributes,
-        // except that if 'Time(hour, minute, second, millisecond) == Time()'
-        // but 'Date(year, month, day) != Date()', the "time" part has the
-        // value "00:00:00.000".  Unspecified trailing optional parameters
-        // default to 0.  The behavior is undefined unless the seven attributes
-        // (collectively) represent a valid 'Datetime' value (see 'isValid').
+        // specified 'hour', 'minute', 'second', and 'millisecond' attributes.
+        // Unspecified trailing optional parameters default to 0.  If
+        // 'Time(hour, minute, second, millisecond) == Time()' (i.e., 24:00)
+        // but 'Date(year, month, day) != Date()' (i.e., 1/1/1), the "time"
+        // part has the value "00:00:00.000".  The behavior is undefined unless
+        // the seven attributes (collectively) represent a valid 'Datetime'
+        // value (see 'isValid').
 
     Datetime(const Datetime& original);
         // Create a 'Datetime' object having the value of the specified
@@ -424,12 +428,13 @@ class Datetime {
         // Set the "date" part of this object to have the value represented by
         // the specified 'year', 'month', and 'day' attributes, and set the
         // "time" part to have the value represented by the optionally
-        // specified 'hour', 'minute', 'second', and 'millisecond' attributes,
-        // except that if 'Time(hour, minute, second, millisecond) == Time()'
-        // but 'Date(year, month, day) != Date()', set the "time" part to the
-        // value "00:00:00.000".  Unspecified trailing optional parameters
-        // default to 0.  The behavior is undefined unless the seven attributes
-        // (collectively) represent a valid 'Datetime' value (see 'isValid').
+        // specified 'hour', 'minute', 'second', and 'millisecond' attributes.
+        // Unspecified trailing optional parameters default to 0.  If
+        // 'Time(hour, minute, second, millisecond) == Time()' (i.e., 24:00)
+        // but 'Date(year, month, day) != Date()' (i.e., 1/1/1), set the "time"
+        // part to the value "00:00:00.000".  The behavior is undefined unless
+        // the seven attributes (collectively) represent a valid 'Datetime'
+        // value (see 'isValid').
 
     int setDatetimeIfValid(int year,
                            int month,
@@ -443,25 +448,26 @@ class Datetime {
         // "time" part to have the value represented by the optionally
         // specified 'hour', 'minute', 'second', and 'millisecond' attributes,
         // *if* the seven attribute values (collectively) represent a valid
-        // 'Datetime' value (see 'isValid'), except that if
-        // 'Time(hour, minute, second, millisecond) == Time()' but
-        // 'Date(year, month, day) != Date()', set the "time" part to the value
-        // "00:00:00.000".  Unspecified trailing optional parameters default to
-        // 0.  Return 0 on success, and a non-zero value (with no effect)
-        // otherwise.
+        // 'Datetime' value (see 'isValid').  Unspecified trailing optional
+        // parameters default to 0.  Return 0 on success, and a non-zero value
+        // (with no effect) otherwise.  If
+        // 'Time(hour, minute, second, millisecond) == Time()' (i.e., 24:00)
+        // but 'Date(year, month, day) != Date()' (i.e., 1/1/1), set the "time"
+        // part to the value "00:00:00.000".
 
     void setDate(const Date& date);
         // Set the "date" part of this object to have the value of the
-        // specified 'date'.  If '24 == hour()' on entry but 'date != Date()',
-        // set the 'hour' attribute to 0.  Note that this method has no effect
-        // on the "time" part of this object unless '24 == hour()' on entry.
+        // specified 'date'.  If '24 == hour()' on entry but 'date != Date()'
+        // (i.e., 1/1/1), set the 'hour' attribute to 0.  Note that this method
+        // has no effect on the "time" part of this object unless
+        // '24 == hour()' on entry.
 
     void setYearDay(int year, int dayOfYear);
         // Set the "date" part of this object to have the value represented by
         // the specified 'year' and 'dayOfYear' attribute values.  If
-        // '24 == hour()' on entry but 'Date(year, dayOfYear) != Date()', set
-        // the 'hour' attribute to 0.  The behavior is undefined unless 'year'
-        // and 'dayOfYear' represent a valid 'Date' value (i.e.,
+        // '24 == hour()' on entry but 'Date(year, dayOfYear) != Date()' (i.e.,
+        // 1/1/1), set the 'hour' attribute to 0.  The behavior is undefined
+        // unless 'year' and 'dayOfYear' represent a valid 'Date' value (i.e.,
         // 'true == Date::isValidYearDay(year, dayOfYear)').  Note that this
         // method has no effect on the "time" part of this object unless
         // '24 == hour()' on entry.
@@ -469,19 +475,19 @@ class Datetime {
     void setYearMonthDay(int year, int month, int day);
         // Set the "date" part of this object to have the value represented by
         // the specified 'year', 'month', and 'day' attribute values.  If
-        // '24 == hour()' on entry but 'Date(year, month, day) != Date()', set
-        // the 'hour' attribute to 0.  The behavior is undefined unless 'year',
-        // 'month', and 'day' represent a valid 'Date' value (i.e.,
-        // 'true == Date::isValidYearMonthDay(year, month, day)').  Note that
-        // this method has no effect on the "time" part of this object unless
-        // '24 == hour()' on entry.
+        // '24 == hour()' on entry but 'Date(year, month, day) != Date()'
+        // (i.e., 1/1/1), set the 'hour' attribute to 0.  The behavior is
+        // undefined unless 'year', 'month', and 'day' represent a valid 'Date'
+        // value (i.e., 'true == Date::isValidYearMonthDay(year, month, day)').
+        // Note that this method has no effect on the "time" part of this
+        // object unless '24 == hour()' on entry.
 
     void setTime(const Time& time);
         // Set the "time" part of this object to have the value of the
-        // specified 'time', except that if 'time == Time()' but
-        // 'date() != Date()', set the "time" part to the value "00:00:00.000".
-        // Note that this method has no effect on the "date" part of this
-        // object.
+        // specified 'time'.  If 'time == Time()' (i.e., 24:00) but
+        // 'date() != Date()' (i.e., 1/1/1), set the "time" part to the value
+        // "00:00:00.000".  Note that this method has no effect on the "date"
+        // part of this object.
 
     void setTime(int hour,
                  int minute      = 0,
@@ -489,22 +495,23 @@ class Datetime {
                  int millisecond = 0);
         // Set the "time" part of this object to have the value represented by
         // the specified 'hour' attribute value and the optionally specified
-        // 'minute', 'second', and 'millisecond' attribute values, except that
-        // if 'Time(hour, minute, second, millisecond) == Time()' but
-        // 'date() != Date()', set the "time" part to the value "00:00:00.000".
-        // Unspecified trailing optional parameters default to 0.  The behavior
-        // is undefined unless 'hour', 'minute', 'second', and 'millisecond'
-        // represent a valid 'Time' value (i.e.,
-        // 'true == Time::isValid(hour, minute, second, millisecond)').  Note
-        // that this method has no effect on the "date" part of this object.
+        // 'minute', 'second', and 'millisecond' attribute values.  Unspecified
+        // trailing optional parameters default to 0.  If
+        // 'Time(hour, minute, second, millisecond) == Time()' (i.e., 24:00)
+        // but 'date() != Date()' (i.e., 1/1/1), set the "time" part to the
+        // value "00:00:00.000".  The behavior is undefined unless 'hour',
+        // 'minute', 'second', and 'millisecond' represent a valid 'Time' value
+        // (i.e., 'true == Time::isValid(hour, minute, second, millisecond)').
+        // Note that this method has no effect on the "date" part of this
+        // object.
 
     void setHour(int hour);
         // Set the 'hour' attribute of this object to the specified 'hour'
-        // value, except that if '24 == hour' but 'date() != Date()', set the
-        // 'hour' attribute to 0.  If '24 == hour', set the 'minute', 'second',
-        // and 'millisecond' attributes to 0.  The behavior is undefined unless
-        // '0 <= hour <= 24'.  Note that this method has no effect on the
-        // "date" part of this object.
+        // value.  If '24 == hour', set the 'minute', 'second', and
+        // 'millisecond' attributes to 0, and if 'date() != Date()' (i.e.,
+        // 1/1/1), set the 'hour' attribute to 0.  The behavior is undefined
+        // unless '0 <= hour <= 24'.  Note that this method has no effect on
+        // the "date" part of this object.
 
     void setMinute(int minute);
         // Set the 'minute' attribute of this object to the specified 'minute'
@@ -730,7 +737,7 @@ Datetime operator+(const DatetimeInterval& lhs,
                    const Datetime&         rhs);
     // Return a 'Datetime' object having a value that is the sum of the
     // specified 'lhs' ('DatetimeInterval') and the specified 'rhs'
-    // ('Datetime'). If '24 == rhs.hour()', the result is the same as if the
+    // ('Datetime').  If '24 == rhs.hour()', the result is the same as if the
     // 'hour' attribute of 'rhs' is 0.  The behavior is undefined unless the
     // resulting value is in the valid range for a 'Datetime' object.
 

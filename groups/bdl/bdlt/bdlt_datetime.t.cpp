@@ -279,7 +279,8 @@ static const DefaultDataRow DEFAULT_DATA[] =
     {  L_, 9999, 12, 31, 23, 59, 59, 999 },  // end of epoch
     {  L_,    1,  1,  2, 24,  0,  0,   0 }   // 24 on 1/1/2
 };
-const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
+const int DEFAULT_NUM_DATA =
+                  static_cast<int>(sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA);
 
 // ============================================================================
 //                              MAIN PROGRAM
@@ -530,7 +531,7 @@ if (veryVerbose)
                         RDT,                                // arbitrary value
                         Obj(9999, 12, 31, 23, 59, 59, 999)  // end of epoch
                       };
-        const int NUM_ARRAY = sizeof ARRAY / sizeof *ARRAY;
+        const int NUM_ARRAY = static_cast<int>(sizeof ARRAY / sizeof *ARRAY);
 
         for (int i = 0; i < NUM_ARRAY; ++i) {
             const Obj OBJ = ARRAY[i];
@@ -591,7 +592,7 @@ if (veryVerbose)
                 { L_,  2002,   2,  29,   14,    2,  48,   976,    0   },
 
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int LINE     = DATA[i].d_line;
@@ -758,7 +759,8 @@ if (veryVerbose)
             { 2004,  9,  3, 24,  0,  0,   0 },
             { 9999, 12, 31, 24,  0,  0,   0 },
         };
-        const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+        const int NUM_VALUES =
+                              static_cast<int>(sizeof VALUES / sizeof *VALUES);
 
         const int DAYS[] = { -10000,
                               -1000,
@@ -770,7 +772,7 @@ if (veryVerbose)
                                1000,
                               10000
                             };
-        const int NUM_DAYS = sizeof DAYS / sizeof *DAYS;
+        const int NUM_DAYS = static_cast<int>(sizeof DAYS / sizeof *DAYS);
 
         const Obj startOfEpoch(   1,  1,  1,   0,  0,  0,   0);
         const Obj   endOfEpoch(9999, 12, 31,  23, 59, 59, 999);
@@ -915,7 +917,8 @@ if (veryVerbose)
             { 2004,  9,  3, 24,  0,  0,   0 },
             { 9999, 12, 31, 24,  0,  0,   0 },
         };
-        const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+        const int NUM_VALUES =
+                              static_cast<int>(sizeof VALUES / sizeof *VALUES);
 
         if (verbose) cout << "\nTesting 'setDate' and 'setTime'" << endl;
 
@@ -1061,7 +1064,7 @@ if (veryVerbose)
                         Obj(9999, 12, 31, 23, 59, 59, 999), // end of epoch
                         Obj(   1,  1,  2, 24,  0,  0,   0)  // 24 on 1/1/2
                       };
-        const int NUM_ARRAY = sizeof ARRAY / sizeof *ARRAY;
+        const int NUM_ARRAY = static_cast<int>(sizeof ARRAY / sizeof *ARRAY);
 
         for (int i = 0; i < NUM_ARRAY; ++i) {
             const Obj OBJ = ARRAY[i];
@@ -1093,7 +1096,7 @@ if (veryVerbose)
                 { L_,       9999,      32,          2,         1 },
                 { L_,       9999,     365,         12,        31 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int di = 0; di < NUM_DATA; ++di) {
                 const int LINE        = DATA[di].d_line;
@@ -1198,7 +1201,7 @@ if (veryVerbose)
                         Obj(9999, 12, 31, 23, 59, 59, 999), // end of epoch
                         Obj(   1,  1,  2, 24,  0,  0,   0)  // 24 on 1/1/2
                       };
-        const int NUM_ARRAY = sizeof ARRAY / sizeof *ARRAY;
+        const int NUM_ARRAY = static_cast<int>(sizeof ARRAY / sizeof *ARRAY);
 
         for (int i = 0; i < NUM_ARRAY; ++i) {
             const Obj OBJ = ARRAY[i];
@@ -1259,7 +1262,7 @@ if (veryVerbose)
                 { L_,  2002,   2,  29,   14,    2,  48,   976,    0   },
 
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int LINE     = DATA[i].d_line;
@@ -1426,7 +1429,7 @@ if (veryVerbose)
             { L_,  1401,   2,  29,    7,   31,   2,    22,    0   }, // ad hoc
             { L_,  2002,   2,  29,   14,    2,  48,    976,   0   }, // ad hoc
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int LINE     = DATA[i].d_line;
@@ -1582,7 +1585,8 @@ if (veryVerbose)
             { L_,       2002,     2,    28,  -1096,   1999,     2,    28 },
 
         };
-        const int NUM_DATE_DATA = sizeof DATE_DATA / sizeof *DATE_DATA;
+        const int NUM_DATE_DATA =
+                        static_cast<int>(sizeof DATE_DATA / sizeof *DATE_DATA);
 
         if (verbose) cout << "\nCreate table of time-value pairs." << endl;
 
@@ -1617,7 +1621,8 @@ if (veryVerbose)
             { L_,      0,  0,  0,   0,   1,  0,  0,   0,      -3600000  },
 
         };
-        const int NUM_TIME_DATA = sizeof TIME_DATA / sizeof *TIME_DATA;
+        const int NUM_TIME_DATA =
+                        static_cast<int>(sizeof TIME_DATA / sizeof *TIME_DATA);
 
         if (verbose) cout
                  << "\nTest operators on combined date and time value pairs."
@@ -1870,7 +1875,7 @@ if (veryVerbose)
             { 9990, 12, 31,  23, 59, 59, 999 },
          };
         const int NUM_INIT_VALUES =
-                                sizeof INITIAL_VALUES / sizeof *INITIAL_VALUES;
+              static_cast<int>(sizeof INITIAL_VALUES / sizeof *INITIAL_VALUES);
 
         if (verbose) cout
                      << "\nCreate table of 'DatetimeInterval' values." << endl;
@@ -1903,7 +1908,7 @@ if (veryVerbose)
             {  1001,    0,   0,   0,    0 },
          };
         const int NUM_INTERVAL_VALUES =
-                              sizeof INTERVAL_VALUES / sizeof *INTERVAL_VALUES;
+            static_cast<int>(sizeof INTERVAL_VALUES / sizeof *INTERVAL_VALUES);
 
         const Obj startOfEpoch(   1,  1,  1,   0,  0,  0,   0);
         const Obj   endOfEpoch(9999, 12, 31,  23, 59, 59, 999);
@@ -2198,7 +2203,7 @@ if (veryVerbose)
 
     //----------v
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             if (verbose) cout << "\nTesting: 'addTime'" << endl;
 
@@ -2605,7 +2610,8 @@ if (veryVerbose)
             { 2004,  9,  4,  23, 22, 21, 211 },
             { 9999, 12, 31,  23, 59, 59, 999 }   // end of epoch
          };
-        const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+        const int NUM_VALUES =
+                              static_cast<int>(sizeof VALUES / sizeof *VALUES);
 
         if (verbose) cout << "\nCompare every value with every value." << endl;
 
@@ -2784,7 +2790,8 @@ if (veryVerbose)
                          RDT,                                // arbitrary value
                          Obj(9999, 12, 31, 23, 59, 59, 999)  // end of epoch
                       };
-        const int NUM_ARRAY1 = sizeof ARRAY1 / sizeof *ARRAY1;
+        const int NUM_ARRAY1 =
+                              static_cast<int>(sizeof ARRAY1 / sizeof *ARRAY1);
 
         if (verbose) cout << "\nTesting time-'set' methods." << endl;
         if (verbose) cout << "\tFor ordinary computational values." << endl;
@@ -2809,7 +2816,8 @@ if (veryVerbose)
                 { 23, 59, 59, 999  },  // 24:00:00.000 NOT tested here
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const int NUM_VALUES =
+                              static_cast<int>(sizeof VALUES / sizeof *VALUES);
 
             for (int j = 0; i < NUM_VALUES; ++i) {
                 const int HOUR   = VALUES[j].d_hour;
@@ -2943,7 +2951,8 @@ if (veryVerbose)
                          RDT,                                // arbitrary value
                          Obj(9999, 12, 31, 23, 59, 59, 999)  // end of epoch
                       };
-        const int NUM_ARRAY2 = sizeof ARRAY2 / sizeof *ARRAY2;
+        const int NUM_ARRAY2 =
+                              static_cast<int>(sizeof ARRAY2 / sizeof *ARRAY2);
 
         for (int i = 0; i < NUM_ARRAY2; ++i) {
             const Obj OBJ = ARRAY2[i];
@@ -2972,7 +2981,8 @@ if (veryVerbose)
                 { 2400, 12, 31,  23, 22, 21, 211 },
                 { 9999, 12, 31,  23, 59, 59, 999 },  // end of epoch
             };
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const int NUM_VALUES =
+                              static_cast<int>(sizeof VALUES / sizeof *VALUES);
 
             for (int i = 0; i < NUM_VALUES ; ++i) {
                 const int YEAR   = VALUES[i].d_year;
@@ -3402,8 +3412,8 @@ if (veryVerbose)
 
         // Array object used in various stream tests.
         const Obj VALUES[]   = { VA, VB, VC, VD, VE, VF, VG };
-        const int NUM_VALUES = static_cast<int>(sizeof VALUES
-                                                / sizeof *VALUES);
+        const int NUM_VALUES =
+                              static_cast<int>(sizeof VALUES / sizeof *VALUES);
 
         if (verbose) {
             cout << "\nTesting 'maxSupportedBdexVersion'." << endl;
@@ -4405,7 +4415,7 @@ if (veryVerbose)
             { L_, 9999    , 12 - 1, 31 - 1,  23    , 59    , 59    , 999     },
             { L_, 9999 - 1, 12    , 31    ,  23    , 59    , 59    , 999     },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) cout << "\nCompare every value with every value." << endl;
 
@@ -4651,7 +4661,7 @@ if (veryVerbose)
 
 #undef NL
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) cout << "\nTesting with various print specifications."
                           << endl;
@@ -4748,7 +4758,7 @@ if (veryVerbose)
       { L_, 9999, 12, 31,  23, 59, 59, 999,    24,  "31DEC9999_23:59:59.999" },
       //--------v
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             const int  BUF_SIZE = 1000;               // Over-sized for output.
             const char XX       = static_cast<char>(0xFF);
@@ -4800,7 +4810,9 @@ if (veryVerbose)
                                                    // format is fixed.
 
 
-                const int LENGTH = (0 == LIMIT) ? 0 : strlen(p) + 1;
+                const int LENGTH = 0 == LIMIT
+                                   ? 0
+                                   : static_cast<int>(strlen(p) + 1);
                 LOOP_ASSERT(LINE, LENGTH <= LIMIT);
 
                 if (veryVerbose) cout
@@ -4913,7 +4925,8 @@ if (veryVerbose)
                 {    1,  1,  1,    24,  0,  0,   0  },
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const int NUM_VALUES =
+                              static_cast<int>(sizeof VALUES / sizeof *VALUES);
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const int YEAR   = VALUES[i].d_year;
@@ -5064,7 +5077,8 @@ if (veryVerbose)
 
                 { 24,  0,  0,   0  },
             };
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const int NUM_VALUES =
+                              static_cast<int>(sizeof VALUES / sizeof *VALUES);
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const int HOUR   = VALUES[i].d_hour;
@@ -5153,7 +5167,8 @@ if (veryVerbose)
                 { 9999, 12, 31 },
             };
 
-            const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+            const int NUM_VALUES =
+                              static_cast<int>(sizeof VALUES / sizeof *VALUES);
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const int YEAR  = VALUES[i].d_year;
