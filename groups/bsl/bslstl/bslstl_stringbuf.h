@@ -28,8 +28,8 @@ BSLS_IDENT("$Id: $")
 // respectively.  As with any stream buffer class, 'bsl::basic_stringbuf' is
 // rarely used directly.  Stream buffers provide low-level unformatted
 // input/output.  They are usually plugged into 'std::basic_stream' classes to
-// provide higher-level formatted input and output via 'operator<<' and
-// 'operator>>'.  'bsl::basic_stringbuf' is used in the
+// provide higher-level formatted input and output via 'operator>>' and
+// 'operator<<'.  'bsl::basic_stringbuf' is used in the
 // 'bsl::basic_stringstream' family of classes and users should prefer those
 // classes over direct use of 'bsl::basic_stringbuf'.
 //
@@ -231,11 +231,11 @@ class basic_stringbuf
     // DATA
     StringType         d_str;   // internal character sequence buffer
 
-    off_type           d_lastWrittenChar;
-                                // offset to last available written character
-                                // in 'd_str'  (Note that to enable efficient
-                                // buffering, 'd_str' may be resized beyond
-                                // the last written character, so
+    off_type           d_endHint;
+                                // offset to one past the last known good
+                                // character in 'd_str'  (Note that to enable
+                                // efficient buffering, 'd_str' may be resized
+                                // beyond the last written character, so
                                 // 'd_str.size()' may not accurately report
                                 // the current length of the character
                                 // sequence available for input.  Extending
@@ -244,10 +244,9 @@ class basic_stringbuf
                                 // parent stream type to write additional
                                 // characters without 'overflow'.  However,
                                 // care must be taken to refresh the cached
-                                // 'd_lastWrittenChar' value as the parent
-                                // stream will update the current output
-                                // position 'pptr', without calling a method
-                                // on this type.)
+                                // 'd_endHint' value as the parent stream will
+                                // update the current output postion 'pptr',
+                                // without calling a method on this type.)
 
     ios_base::openmode d_mode;  // 'stringbuf' open mode ('in', 'out', or both)
 
@@ -260,25 +259,25 @@ class basic_stringbuf
     // PRIVATE MANIPULATORS
     pos_type updateInputPointers(char_type *currentInputPosition);
         // Update the input pointers ('eback', 'gptr', 'egptr') of this string
-        // buffer, assigning the beginning of the input sequence, 'eback', to
-        // the address of the first character of the internal string
+        // buffer, setting the beginning of the input sequence, 'eback', to the
+        // address of the first character of the internal string
         // representation, 'd_str', the current position of the input sequence,
         // 'gptr', to the specified 'currentInputPosition', and the address
         // past the end of the accessible sequence, 'egptr', to the last
-        // character in 'd_ptr' ('&d_ptr[0] + d_lastWrittenChar').  Return the
-        // offset of the current position of the input sequence from the start
-        // of the sequence.  The behavior is undefined unless this buffer is in
-        // input mode and 'currentInputPosition' is within the range of
-        // accessible characters in 'd_ptr'.
+        // character in 'd_ptr' ('&d_ptr[0] + d_endHint').  Return the offset
+        // of the current position of the input sequence from the start of the
+        // sequence.  The behavior is undefined unless this buffer is in input
+        // mode and 'currentInputPosition' is within the range of accessible
+        // characters in 'd_ptr'.
 
     pos_type updateOutputPointers(char_type *currentOutputPosition);
         // Update the output pointers ('pback', 'pptr', 'epptr') of this string
-        // buffer, assigning the beginning of the output sequence, 'pback', to
+        // buffer, setting the beginning of the output sequence, 'pback', to
         // the address of the first character of the internal string
         // representation, 'd_str', the current position of the output
         // sequence, 'pptr', to the specified 'currentOutputPosition', and the
-        // address past the end of the accessible sequence, 'pptr', to the
-        // last accessible character in 'd_ptr' ('&d_ptr[0] + d_ptr.size()').
+        // address past the end of the accessible sequence, 'epptr', to one
+        // past the last character in 'd_ptr' ('&d_ptr[0] + d_ptr.size()').
         // Return the offset of the current position of the output sequence
         // from the start of the sequence.  The behavior is undefined unless
         // this buffer is in output mode, and 'currentOutputPosition' is within
@@ -292,16 +291,16 @@ class basic_stringbuf
         // input position's offset from the beginning of the sequence.
         // Optionally specify an 'outputOffset' indicating the current output
         // position's offset from the beginning of the sequence.  If this
-        // buffer is in input mode, assign the beginning of the input sequence,
-        // 'eback', to the address of the first character of 'd_ptr', the
-        // current input position, 'gptr', to 'eback + inputOffset', and the
-        // end of the input sequence to the last written character in 'd_str'
-        // ('&d_ptr[0] + d_lastWrittenChar').  If this buffer is in output
-        // mode, assign the beginning of the output sequence, 'pback', to the
-        // address of the first character of 'd_ptr', the current output
-        // position, 'pptr', to 'pback + outputOffset', and the end of the
-        // output sequence to the last accessible character in 'd_str'
-        // ('&d_ptr[0] + d_ptr.size()').
+        // buffer is in output mode, set the beginning of the output sequence,
+        // 'pback', to the address of the first character of 'd_ptr', the
+        // current output position, 'pptr', to 'pback + outputOffset', and the
+        // end of the output sequence, 'epptr', to one past the last character
+        // in 'd_str' ('&d_ptr[0] + d_ptr.size()').  If this buffer is in input
+        // mode, set the beginning of the input sequence, 'eback', to the
+        // address of the first character of 'd_ptr', the current input
+        // position, 'gptr', to 'eback + inputOffset', and the end of the input
+        // sequence, 'egptr', to the last written character in 'd_str'
+        // ('&d_ptr[0] + d_endHint').
 
     bool extendInputArea();
         // Attempt to expand the sequence of characters available for input
@@ -320,10 +319,10 @@ class basic_stringbuf
         // Return the number of characters currently in the buffer.  Note this
         // may not be 'd_str.size()', as this implementation resizes 'd_str'
         // beyond the number of written characters to provide more efficient
-        // buffering, and it also may not be 'd_lastWrittenChar', as that
-        // value may currently be stale (as writes may have been performed
-        // through the parent 'basic_streambuf' type without calling a method
-        // on this object).
+        // buffering, and it also may not be 'd_endHint', as that value may
+        // currently be stale (as writes may have been performed through the
+        // parent 'basic_streambuf' type without calling a method on this
+        // object).
 
   protected:
     // PROTECTED MANIPULATORS
@@ -363,8 +362,8 @@ class basic_stringbuf
         // number of characters loaded into 'result'.  Note that if fewer than
         // 'numCharacters' characters are available in the buffer, all
         // available characters are loaded into 'result'.  The behavior is
-        // undefined unless 'result' refers to a contiguous sequence of
-        // characters of at least 'numCharacters'.
+        // undefined unless 'result' refers to a contiguous sequence of at
+        // least 'numCharacters' characters.
 
     virtual int_type underflow();
         // Return the character at the current input position, if a character
@@ -407,8 +406,8 @@ class basic_stringbuf
         // position ('pptr').  Update the current output position of this
         // string buffer to refer to the last appended character.  Return the
         // number of characters that were appended.  The behavior is undefined
-        // unless 'inputString' refers to a contiguous sequence of characters
-        // of at least 'numCharacters'.
+        // unless 'inputString' refers to a contiguous sequence of at least
+        // 'numCharacters' characters.
 
     virtual int_type overflow(int_type character = traits_type::eof());
         // Append the specified 'character' to the output sequence of this
@@ -597,14 +596,6 @@ void basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
     d_str.resize(d_str.capacity());
     char_type *dataPtr = &d_str[0];
 
-    if (d_mode & ios_base::in) {
-        // Update the input position.
-
-        this->setg(dataPtr,
-                   dataPtr + inputOffset,
-                   dataPtr + static_cast<std::ptrdiff_t>(streamSize()));
-    }
-
     if (d_mode & ios_base::out) {
         // Update the output position.
 
@@ -614,6 +605,14 @@ void basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
             this->pbump(int(outputOffset));
         }
     }
+
+    if (d_mode & ios_base::in) {
+        // Update the input position.
+
+        this->setg(dataPtr,
+                   dataPtr + inputOffset,
+                   dataPtr + static_cast<std::ptrdiff_t>(streamSize()));
+    }
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -622,7 +621,7 @@ bool basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::extendInputArea()
     // Try to extend into written buffer.
 
     if (d_mode & ios_base::out && this->pptr() > this->egptr()) {
-        d_lastWrittenChar = streamSize();
+        d_endHint = streamSize();
         updateInputPointers(this->gptr());
         return true;                                                  // RETURN
     }
@@ -635,7 +634,7 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::pos_type
     basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::streamSize() const
 {
-    pos_type size = native_std::max<off_type>(d_lastWrittenChar,
+    pos_type size = native_std::max<off_type>(d_endHint,
                                               this->pptr() - this->pbase());
 
     BSLS_ASSERT(size <= off_type(d_str.size()));
@@ -886,8 +885,8 @@ native_std::streamsize
         // If all of 'inputString' has been written, just update the stream
         // positions.
 
-        off_type newHigh  = numCharacters + this->pptr() - this->pbase();
-        d_lastWrittenChar = native_std::max(d_lastWrittenChar, newHigh);
+        off_type newHigh = numCharacters + this->pptr() - this->pbase();
+        d_endHint        = native_std::max(d_endHint, newHigh);
 
         updateStreamPositions(inputOffset, newHigh);
     }
@@ -900,8 +899,8 @@ native_std::streamsize
         // Update the last written character cache, and the input stream
         // positions.
 
-        d_lastWrittenChar = d_str.size();
-        updateStreamPositions(inputOffset, d_lastWrittenChar);
+        d_endHint = d_str.size();
+        updateStreamPositions(inputOffset, d_endHint);
     }
 
     return numCharacters;
@@ -930,7 +929,7 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::int_type
         *this->pptr() = c;
         this->pbump(1);
 
-        d_lastWrittenChar = streamSize();
+        d_endHint = streamSize();
     }
     else {
         // Store the input offset so it can be used to restore the input and
@@ -946,8 +945,8 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::int_type
         // from 'inputOffset', and updating the output sequence to reflect the
         // newly resized buffer.
 
-        d_lastWrittenChar = d_str.size();
-        updateStreamPositions(inputOffset, d_lastWrittenChar);
+        d_endHint = d_str.size();
+        updateStreamPositions(inputOffset, d_endHint);
     }
 
     return character;
@@ -959,7 +958,7 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
     basic_stringbuf(const allocator_type& basicAllocator)
 : BaseType()
 , d_str(basicAllocator)
-, d_lastWrittenChar(0)
+, d_endHint(0)
 , d_mode(ios_base::in | ios_base::out)
 {
     updateStreamPositions();
@@ -971,7 +970,7 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
                     const allocator_type& basicAllocator)
 : BaseType()
 , d_str(basicAllocator)
-, d_lastWrittenChar(0)
+, d_endHint(0)
 , d_mode(modeBitMask)
 {
     updateStreamPositions();
@@ -983,7 +982,7 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
                     const allocator_type& basicAllocator)
 : BaseType()
 , d_str(initialString, basicAllocator)
-, d_lastWrittenChar(initialString.size())
+, d_endHint(initialString.size())
 , d_mode(ios_base::in | ios_base::out)
 {
     updateStreamPositions();
@@ -997,10 +996,10 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
                     const allocator_type& basicAllocator)
 : BaseType()
 , d_str(initialString, basicAllocator)
-, d_lastWrittenChar(initialString.size())
+, d_endHint(initialString.size())
 , d_mode(modeBitMask)
 {
-    updateStreamPositions(0, d_mode & ios_base::ate ? d_lastWrittenChar : 0);
+    updateStreamPositions(0, d_mode & ios_base::ate ? d_endHint : 0);
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -1027,9 +1026,9 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 void basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str(
                                                        const StringType& value)
 {
-    d_str             = value;
-    d_lastWrittenChar = d_str.size();
-    updateStreamPositions(0, d_mode & ios_base::ate ? d_lastWrittenChar : 0);
+    d_str     = value;
+    d_endHint = d_str.size();
+    updateStreamPositions(0, d_mode & ios_base::ate ? d_endHint : 0);
 }
 
 // ACCESSORS

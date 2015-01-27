@@ -46,7 +46,8 @@
 //-----------------------------------------------------------------------------
 // [11] OUTPUT TO STRINGBUF VIA PUBLIC INTERFACE
 // [12] INPUT FROM STRINGBUF VIA PUBLIC INTERFACE
-// [13] USAGE EXAMPLE
+// [13] INPUT/OUTPUT FROM/TO STRINGBUF VIA PUBLIC INTERFACE
+// [14] USAGE EXAMPLE
 // [ 1] BREATHING TEST
 
 //==========================================================================
@@ -735,7 +736,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -759,6 +760,52 @@ int main(int argc, char *argv[])
     ASSERT(orig == result);
 //..
 
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // TESTING INPUT/OUTPUT FROM/TO STRINGBUF VIA PUBLIC INTERFACE
+        //
+        // Concerns:
+        //: 1 'str' setter correctly updates both the input and output stream
+        //    positions.
+        //
+        // Plan:
+        //: 1 Ensure that successive calls to 'sbumpc' returns the expected
+        //:   characters, based on an initial string provided at construction.
+        //: 2 Seek the output position to the end of the string, and then
+        //:   replace the old string with a new, shorter string.
+        //: 3 Ensure that successive calls to 'sbumpc' now returns the expected
+        //:   characters, based on the new string.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING INPUT/OUTPUT FROM/TO STRINGBUF"
+                            "\n======================================\n");
+
+        if (veryVerbose) printf("\ttesting sbumpc after seekoff and str\n");
+        {
+            bsl::stringbuf buf("abc");
+
+            int res = buf.sbumpc();
+            ASSERT(res == 'a');
+
+            res = buf.sbumpc();
+            ASSERT(res == 'b');
+
+            res = buf.sbumpc();
+            ASSERT(res == 'c');
+
+            res = buf.sbumpc();
+            ASSERT(res == EOF);
+
+            buf.pubseekoff(0, bsl::ios_base::end, bsl::ios_base::out);
+            buf.str("1");
+
+            res = buf.sbumpc();
+            ASSERT(res == '1');
+
+            res = buf.sbumpc();
+            ASSERT(res == EOF);
+        }
       } break;
       case 12: {
         // --------------------------------------------------------------------
