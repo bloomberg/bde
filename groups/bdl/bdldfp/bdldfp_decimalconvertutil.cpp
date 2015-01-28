@@ -140,7 +140,8 @@ const unsigned char *decimalFromNetworkT(DECIMAL_TYPE        *decimal,
     // byte read from 'buffer'.
 {
     bsl::memcpy(decimal, buffer, sizeof(DECIMAL_TYPE));
-    unsigned char *result = memReverseIfNeeded(decimal, sizeof(DECIMAL_TYPE));
+    
+    memReverseIfNeeded(decimal, sizeof(DECIMAL_TYPE));
 
     DecimalConvertUtil::decimalFromDPD(
                                    decimal,

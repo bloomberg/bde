@@ -61,6 +61,8 @@ void *allocateFromBufferImp(int                               *cursor,
     BSLS_ASSERT(alignment <= bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
     BSLS_ASSERT_SAFE(isPowerOfTwo(alignment));
 
+    (void)isPowerOfTwo; // Suppress unused function warning.
+
     int offset = bsls::AlignmentUtil::calculateAlignmentOffset(
                                                               buffer + *cursor,
                                                               alignment);
