@@ -306,7 +306,6 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_CSTDDEF
 #endif
 
-
 namespace BloombergLP {
 
 
@@ -415,14 +414,14 @@ struct ForwardingTypeUtil {
                         // class ConstForwardingType
                         // =========================
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_DEPRECATED
 
 template <class TYPE>
 struct ConstForwardingType : public ForwardingType<TYPE> {
     //!DEPRECATED!: Use 'ForwardingType' instead.
 };
 
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OMIT_DEPRECATED
 
 // ============================================================================
 //                              INLINE DEFINITIONS
