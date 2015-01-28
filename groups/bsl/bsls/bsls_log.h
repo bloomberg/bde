@@ -169,8 +169,7 @@ BSLS_IDENT("$Id: $")
     // Write the specified 'msg' to the currently installed log message
     // handler, with the file name and line number of the point of expansion of
     // the macro automatically used as the file name and line number of the
-    // log.  The behavior is undefined unless 'msg' is a null-terminated
-    // string.
+    // log.
 
 namespace BloombergLP {
 namespace bsls {
