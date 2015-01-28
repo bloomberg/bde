@@ -687,7 +687,9 @@ int main(int argc, char *argv[])
         Pmf     mf_p = &Class::value;
 
         char a[5]    = { '5', '4', '3', '2', '1' };
+#if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
         char (&au)[] = reinterpret_cast<AU&>(a);
+#endif
 
 // Volatile rvalue types are not useful and have strange rules.  Do not test
 // them.  Attempting to test volatile rvalues will not only complicated the
@@ -791,17 +793,15 @@ int main(int argc, char *argv[])
 
 #if !defined(BSLS_PLATFORM_CMP_SUN) // TBD Fix Sun and arrays
         TEST_ENDTOEND_ARRAY(char[5], a,    5);
-#if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
-        TEST_ENDTOEND_ARRAY(char[], au,    0);
-#endif
         TEST_ENDTOEND_ARRAY(char(&)[5], a, 5);
 #if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
+        TEST_ENDTOEND_ARRAY(char[], au,    0);
         TEST_ENDTOEND_ARRAY(char(&)[], au, 0);
 #endif
+#endif  // Sun does not support arrays
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
         TEST_ENDTOEND_ARRAY(char *&&, au,  0);
 #endif
-#endif  // Sun does not support arrays
 
         if (veryVerbose) printf("function types\n");
         FuncMatch<F> fm;
@@ -903,7 +903,9 @@ int main(int argc, char *argv[])
         double  d = 1.23;
         double *p = &d;
         char    a[5] = { '5', '4', '3', '2', '1' };
+#if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
         char  (&au)[] = reinterpret_cast<AU&>(a);
+#endif
         F      *f_p = func;
         Pm      m_p  = &Struct::d_data;
         Pmf     mf_p = &Class::value;
@@ -1021,15 +1023,15 @@ int main(int argc, char *argv[])
         testForwardToTargetRef<Pm      &&>(native_std::move(m_p));
         testForwardToTargetRef<Pmf     &&>(native_std::move(mf_p));
 
-        testForwardToTargetRef<Enum     const&&>(std::native_move(e));
-        testForwardToTargetRef<Struct   const&&>(std::native_move(s));
-        testForwardToTargetRef<Union    const&&>(std::native_move(u));
-        testForwardToTargetRef<Class    const&&>(std::native_move(c));
-        testForwardToTargetRef<double   const&&>(std::native_move(d));
-        testForwardToTargetRef<double * const&&>(std::native_move(p));
-        testForwardToTargetRef<PF       const&&>(std::native_move(f_p));
-        testForwardToTargetRef<Pm       const&&>(std::native_move(m_p));
-        testForwardToTargetRef<Pmf      const&&>(std::native_move(mf_p));
+        testForwardToTargetRef<Enum     const&&>(native_std::move(e));
+        testForwardToTargetRef<Struct   const&&>(native_std::move(s));
+        testForwardToTargetRef<Union    const&&>(native_std::move(u));
+        testForwardToTargetRef<Class    const&&>(native_std::move(c));
+        testForwardToTargetRef<double   const&&>(native_std::move(d));
+        testForwardToTargetRef<double * const&&>(native_std::move(p));
+        testForwardToTargetRef<PF       const&&>(native_std::move(f_p));
+        testForwardToTargetRef<Pm       const&&>(native_std::move(m_p));
+        testForwardToTargetRef<Pmf      const&&>(native_std::move(mf_p));
 
         // Do not test volatile rvalue references.  They have no real uses and
         // would require distortions in the test that could result in missing
@@ -1393,10 +1395,10 @@ int main(int argc, char *argv[])
         ASSERT(k_VOLATILE_LVALUE         == crm( vi));
         ASSERT(k_CONST_VOLATILE_LVALUE   == crm(cvi));
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-        ASSERT(k_RVALUE                  == crm(std::native_move(  i)));
-        ASSERT(k_CONST_RVALUE            == crm(std::native_move( ci)));
-        ASSERT(k_VOLATILE_RVALUE         == crm(std::native_move( vi)));
-        ASSERT(k_CONST_VOLATILE_RVALUE   == crm(std::native_move(cvi)));
+        ASSERT(k_RVALUE                  == crm(native_std::move(  i)));
+        ASSERT(k_CONST_RVALUE            == crm(native_std::move( ci)));
+        ASSERT(k_VOLATILE_RVALUE         == crm(native_std::move( vi)));
+        ASSERT(k_CONST_VOLATILE_RVALUE   == crm(native_std::move(cvi)));
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
