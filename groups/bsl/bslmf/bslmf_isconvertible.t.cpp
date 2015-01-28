@@ -1412,6 +1412,18 @@ int main(int argc, char *argv[])
          (bsl::is_convertible<const    int (*)[], volatile int (*)[]>::value));
         ASSERT(false ==
          (bsl::is_convertible<volatile int (*)[], const    int (*)[]>::value));
+
+        
+        // C-13: Test function references decay to function pointers
+
+        ASSERT(true  == (bslmf::IsConvertible<void    (), void    ()>::value));
+        ASSERT(true  == (bslmf::IsConvertible<void    (), void (&)()>::value));
+        ASSERT(true  == (bslmf::IsConvertible<void    (), void (*)()>::value));
+        ASSERT(true  == (bslmf::IsConvertible<void (&)(), void (&)()>::value));
+        ASSERT(true  == (bslmf::IsConvertible<void (&)(), void (*)()>::value));
+        ASSERT(false == (bslmf::IsConvertible<void (*)(), void    ()>::value));
+        ASSERT(false == (bslmf::IsConvertible<void (*)(), void (&)()>::value));
+        ASSERT(true  == (bslmf::IsConvertible<void (&)(), void    ()>::value));
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

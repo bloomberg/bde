@@ -5,8 +5,11 @@
 #include <bslmf_isarray.h>
 #include <bslmf_issame.h>          // for testing only
 
-#include <bsls_platform.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_nativestd.h>
+#include <bsls_platform.h>
+
+#include <utility>     // native_std::move for C++11
 
 #include <stdio.h>     // atoi()
 #include <stdlib.h>    // atoi()
@@ -88,6 +91,13 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 #define ASSERT_SAME(X, Y) ASSERT((bsl::is_same<X, Y>::value))
+
+#if defined(BSLS_PLATFORM_CMP_SUN)  // version check may follow
+# define BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND
+    // This macro signifies that this compiler rejects 'type[]' as incomplete,
+    // even in contexts where it should be valid, as it will pass by reference
+    // or pointer.
+#endif
 
 //=============================================================================
 //                  GLOBAL TYPES/OBJECTS FOR TESTING
@@ -728,8 +738,8 @@ int main(int argc, char *argv[])
             typedef volatile T VT;                                            \
             typedef const volatile T CVT;                                     \
             CvRefMatch<T> target;                                             \
-            ASSERT(testEndToEnd<T&&>(std::move(v), target) ==                 \
-                   target(std::move(v)));                                     \
+            ASSERT(testEndToEnd<T&&>(native_std::move(v), target) ==                 \
+                   target(native_std::move(v)));                                     \
             ASSERT(testEndToEnd<CT&&>(static_cast<CT&&>(v), target) ==        \
                    target(static_cast<CT&&>(v)));                             \
             ASSERT(testEndToEnd<VT&&>(static_cast<VT&&>(v), target) ==        \
@@ -767,7 +777,9 @@ int main(int argc, char *argv[])
         }
 
         TEST_ENDTOEND_ARRAY(char[5], a,    5);
+#if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
         TEST_ENDTOEND_ARRAY(char[], au,    0);
+#endif
         TEST_ENDTOEND_ARRAY(char(&)[5], a, 5);
         TEST_ENDTOEND_ARRAY(char(&)[], au, 0);
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
@@ -907,7 +919,9 @@ int main(int argc, char *argv[])
         testForwardToTargetVal<double  volatile>(d);
         testForwardToTargetVal<double *volatile>(p);
         testForwardToTargetVal<A       volatile>(a);
+#if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
         testForwardToTargetVal<AU      volatile>(au);
+#endif
         testForwardToTargetVal<PF      volatile>(f_p);
         testForwardToTargetVal<Pm      volatile>(m_p);
         testForwardToTargetVal<Pmf     volatile>(mf_p);
@@ -917,16 +931,18 @@ int main(int argc, char *argv[])
         testForwardToTargetArray<A          &>(a);
         testForwardToTargetArray<A  const   &>(a);
         testForwardToTargetArray<A  volatile&>(a);
+#if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
         testForwardToTargetArray<AU          >(au);
         testForwardToTargetArray<AU const    >(au);
+#endif
         testForwardToTargetArray<AU         &>(au);
         testForwardToTargetArray<AU const   &>(au);
         testForwardToTargetArray<AU volatile&>(au);
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-        testForwardToTargetArray<A          &&>(std::move(a));
-        testForwardToTargetArray<A  const   &&>(std::move(a));
-        testForwardToTargetArray<AU         &&>(std::move(au));
-        testForwardToTargetArray<AU const   &&>(std::move(au));
+        testForwardToTargetArray<A          &&>(native_std::move(a));
+        testForwardToTargetArray<A  const   &&>(native_std::move(a));
+        testForwardToTargetArray<AU         &&>(native_std::move(au));
+        testForwardToTargetArray<AU const   &&>(native_std::move(au));
 #endif
 
         testForwardToTargetRef<Enum    &>(e);
@@ -973,25 +989,25 @@ int main(int argc, char *argv[])
         testForwardToTargetRef<Pmf     const volatile&>(mf_p);
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-        testForwardToTargetRef<Enum    &&>(std::move(e));
-        testForwardToTargetRef<Struct  &&>(std::move(s));
-        testForwardToTargetRef<Union   &&>(std::move(u));
-        testForwardToTargetRef<Class   &&>(std::move(c));
-        testForwardToTargetRef<double  &&>(std::move(d));
-        testForwardToTargetRef<double *&&>(std::move(p));
-        testForwardToTargetRef<PF      &&>(std::move(f_p));
-        testForwardToTargetRef<Pm      &&>(std::move(m_p));
-        testForwardToTargetRef<Pmf     &&>(std::move(mf_p));
+        testForwardToTargetRef<Enum    &&>(native_std::move(e));
+        testForwardToTargetRef<Struct  &&>(native_std::move(s));
+        testForwardToTargetRef<Union   &&>(native_std::move(u));
+        testForwardToTargetRef<Class   &&>(native_std::move(c));
+        testForwardToTargetRef<double  &&>(native_std::move(d));
+        testForwardToTargetRef<double *&&>(native_std::move(p));
+        testForwardToTargetRef<PF      &&>(native_std::move(f_p));
+        testForwardToTargetRef<Pm      &&>(native_std::move(m_p));
+        testForwardToTargetRef<Pmf     &&>(native_std::move(mf_p));
 
-        testForwardToTargetRef<Enum     const&&>(std::move(e));
-        testForwardToTargetRef<Struct   const&&>(std::move(s));
-        testForwardToTargetRef<Union    const&&>(std::move(u));
-        testForwardToTargetRef<Class    const&&>(std::move(c));
-        testForwardToTargetRef<double   const&&>(std::move(d));
-        testForwardToTargetRef<double * const&&>(std::move(p));
-        testForwardToTargetRef<PF       const&&>(std::move(f_p));
-        testForwardToTargetRef<Pm       const&&>(std::move(m_p));
-        testForwardToTargetRef<Pmf      const&&>(std::move(mf_p));
+        testForwardToTargetRef<Enum     const&&>(std::native_move(e));
+        testForwardToTargetRef<Struct   const&&>(std::native_move(s));
+        testForwardToTargetRef<Union    const&&>(std::native_move(u));
+        testForwardToTargetRef<Class    const&&>(std::native_move(c));
+        testForwardToTargetRef<double   const&&>(std::native_move(d));
+        testForwardToTargetRef<double * const&&>(std::native_move(p));
+        testForwardToTargetRef<PF       const&&>(std::native_move(f_p));
+        testForwardToTargetRef<Pm       const&&>(std::native_move(m_p));
+        testForwardToTargetRef<Pmf      const&&>(std::native_move(mf_p));
 
         // Do not test volatile rvalue references.  They have no real uses and
         // would require distortions in the test that could result in missing
@@ -1346,10 +1362,10 @@ int main(int argc, char *argv[])
         ASSERT(k_VOLATILE_LVALUE         == crm( vi));
         ASSERT(k_CONST_VOLATILE_LVALUE   == crm(cvi));
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-        ASSERT(k_RVALUE                  == crm(std::move(  i)));
-        ASSERT(k_CONST_RVALUE            == crm(std::move( ci)));
-        ASSERT(k_VOLATILE_RVALUE         == crm(std::move( vi)));
-        ASSERT(k_CONST_VOLATILE_RVALUE   == crm(std::move(cvi)));
+        ASSERT(k_RVALUE                  == crm(std::native_move(  i)));
+        ASSERT(k_CONST_RVALUE            == crm(std::native_move( ci)));
+        ASSERT(k_VOLATILE_RVALUE         == crm(std::native_move( vi)));
+        ASSERT(k_CONST_VOLATILE_RVALUE   == crm(std::native_move(cvi)));
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)

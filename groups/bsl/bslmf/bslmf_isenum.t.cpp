@@ -337,6 +337,11 @@ int main(int argc, char *argv[])
         //:   cv-qualified) user-defined type having conversions to integral or
         //:   enumerated type, or a reference to such a user-defined type.
         //
+        //: 6 'is_enum::value' is 'false' when 'TYPE' is a function type.
+        //
+        //: 7 'is_enum::value' is 'false' when 'TYPE' is a (possibly
+        //:   cv-qualified) void type.
+        //
         // Plan:
         //   Verify that 'bsl::is_enum::value' has the correct value for
         //   each (template parameter) 'TYPE' in the concerns.  (C-1..5)
@@ -407,6 +412,17 @@ int main(int argc, char *argv[])
         ASSERT(! bsl::is_enum<ConvertToAnyType const>::value);
         ASSERT(! bsl::is_enum<ConvertToAnyType &>::value);
         ASSERT(! bsl::is_enum<ConvertToAnyType const &>::value);
+
+        // C-6
+        ASSERT(! bsl::is_enum<int(int)>::value);
+        ASSERT(! bsl::is_enum<void(...)>::value);
+
+        // C-7
+        ASSERT(! bsl::is_enum<void>::value);
+        ASSERT(! bsl::is_enum<const void>::value);
+        ASSERT(! bsl::is_enum<volatile void>::value);
+        ASSERT(! bsl::is_enum<const volatile void>::value);
+
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
