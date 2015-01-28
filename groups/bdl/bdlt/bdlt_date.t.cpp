@@ -26,14 +26,8 @@
 
 #ifndef BDE_OMIT_TRANSITIONAL
 // TBD Extra inclusions needed temporarily for testing 'logIfProblematicDate*'.
-#include <bsls_platform.h>
-#include <bsl_cstdio.h>
-#include <bsl_c_stdio.h>     // 'tempnam'
-#ifndef BSLS_PLATFORM_OS_WINDOWS
-#include <sys/stat.h>        // 'struct stat64'
-#include <sys/types.h>       // 'off64_t'
-#include <unistd.h>          // 'stat64'
-#endif
+#include <bsls_log.h>
+#include <bsl_string.h>
 #endif
 
 using namespace BloombergLP;
@@ -231,31 +225,26 @@ typedef bslx::TestOutStream Out;
 
 // TBD stuff needed temporarily for testing 'logIfProblematicDate*'
 
-// Since the logging functions are temporary, all of their test cases need not
-// run on all supported platforms.
+namespace {
 
-#if defined(BSLS_PLATFORM_OS_UNIX)           \
-    && (!defined(BSLS_PLATFORM_OS_CYGWIN)    \
-     && !defined(BSLS_PLATFORM_OS_DARWIN)    \
-     && !defined(BSLS_PLATFORM_OS_FREEBSD))
+ostringstream *globalLogPtr;  // set in case 21
 
-typedef off64_t Offset;
-
-static
-Offset getFileSize(const char *path)
+void logMessageHandler(const char *file, int line, const char *message)
+    // Write the specified 'file', 'line', and 'message' to '*globalLogPtr' in
+    // a single-line format.  The behavior is undefined unless 'line >= 0'.
+    // Note that this function need not be thread-safe since it is only called
+    // in case 21, which is single-threaded.
 {
-    struct stat64 fileStats;
+    BSLS_ASSERT(file);
+    BSLS_ASSERT(line >= 0);
+    BSLS_ASSERT(message);
+    BSLS_ASSERT(globalLogPtr);
 
-    fflush(stderr);  // We *know* that 'stderr' is being redirected to 'path'.
-
-    if (0 != stat64(path, &fileStats)) {
-        return -1;
-    }
-
-    return fileStats.st_size;
+    *globalLogPtr << file << ':' << line << ' ' << message << '\n';
 }
 
-#endif
+}  // close unnamed namespace
+
 #endif
 
 // ============================================================================
@@ -310,7 +299,8 @@ const DefaultDataRow DEFAULT_DATA[] =
     { L_,    9999,     12,   30 },
     { L_,    9999,     12,   31 },
 };
-const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
+const int DEFAULT_NUM_DATA =
+                  static_cast<int>(sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA);
 
 // Define ALTernate DATA for test cases that use two year/day-of-year
 // representations for dates per test vector, and the difference (in days)
@@ -368,7 +358,7 @@ const AltDataRow ALT_DATA[] =
     { L_,       1,    1,   9999,  365,   3652058 },
 #endif
 };
-const int ALT_NUM_DATA = sizeof ALT_DATA / sizeof *ALT_DATA;
+const int ALT_NUM_DATA = static_cast<int>(sizeof ALT_DATA / sizeof *ALT_DATA);
 
 // ============================================================================
 //                              MAIN PROGRAM
@@ -398,10 +388,6 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:
 #ifndef BDE_OMIT_TRANSITIONAL
-#if defined(BSLS_PLATFORM_OS_UNIX)           \
-    && (!defined(BSLS_PLATFORM_OS_CYGWIN)    \
-     && !defined(BSLS_PLATFORM_OS_DARWIN)    \
-     && !defined(BSLS_PLATFORM_OS_FREEBSD))
       case 21: {
         // --------------------------------------------------------------------
         // TESTING 'logIfProblematicDate*'
@@ -418,14 +404,16 @@ int main(int argc, char *argv[])
         //:   'stderr'.
         //
         // Plan:
-        //: 1 Create a temporary file and redirect 'stderr' to that file.  For
-        //:   each instrumented method, perform an action that should *not*
-        //:   incur a log message to the file ('stderr') followed by an action
-        //:   that *should*.  Verify the expected behavior by examining the
-        //:   size of the file at each step.  (Note that the actual contents of
-        //:   the log messages should be inspected manually using test case
-        //:   -1.)  Edge cases are tested via the 'setYearMonthDay' manipulator
-        //:   and the two free 'operator-' functions.  (C-1..2)
+        //: 1 Using 'bsls::Log::setLogMessageHandler', install a log message
+        //:   handler that writes to an 'ostringstream' named 'log'.  For each
+        //:   instrumented method, perform an action that should *not* incur a
+        //:   log message to 'log' followed by an action that *should*.  Verify
+        //:   the expected behavior by examining whether or not 'log' is empty.
+        //:   (Note that the actual contents of the log messages should be
+        //:   inspected manually using test case -1, or by running this test
+        //:   case in 'veryVerbose' mode.)  Edge cases are tested via the
+        //:   'setYearMonthDay' manipulator and the two free 'operator-'
+        //:   functions.  (C-1..2)
         //:
         //: 2 Test throttling on each of the three logging functions
         //:   separately.  (C-3)
@@ -437,78 +425,93 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTESTING 'logIfProblematicDate*'"
                           << "\n===============================" << endl;
 
-        // Create a temporary file and redirect 'stderr' to it.
+        bslma::TestAllocator da("case21", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
 
-        char *filename = tempnam(0, "bdlt");  ASSERT(filename);
-        {
-            const FILE *err = stderr;
-            ASSERT(err == freopen(filename, "w", stderr));
-            ASSERT(0   == getFileSize(filename));
-        }
+        ostringstream log;  // 'log' to which 'logMessageHandler' writes
+        globalLogPtr = &log;
+
+        bsls::Log::setLogMessageHandler(&logMessageHandler);
+
+        const string EMPTY;
 
         if (verbose) cout << "\n'Obj(y, d)'." << endl;
         {
-            const Offset n = getFileSize(filename);
+            log.str(EMPTY);
 
             const Obj X(1800, 98);
-            ASSERT(n == getFileSize(filename));  // nothing logged
+            ASSERT(EMPTY == log.str());  // nothing logged
 
             const Obj Y(1700, 98);
-            ASSERT(n < getFileSize(filename));   // something logged
+            ASSERT(EMPTY != log.str());  // something logged
+
+            if (veryVerbose) cout << log.str();
         }
 
         if (verbose) cout << "\n'Obj(y, m, d)'." << endl;
         {
-            const Offset n = getFileSize(filename);
+            log.str(EMPTY);
 
             const Obj X(1800, 10, 31);
-            ASSERT(n == getFileSize(filename));  // nothing logged
+            ASSERT(EMPTY == log.str());  // nothing logged
 
             const Obj Y(1700, 10, 31);
-            ASSERT(n < getFileSize(filename));   // something logged
+            ASSERT(EMPTY != log.str());  // something logged
+
+            if (veryVerbose) cout << log.str();
         }
 
         if (verbose) cout << "\n'setYearDay(y, d)'." << endl;
         {
-            const Offset n = getFileSize(filename);
+            log.str(EMPTY);
 
             Obj mX;
 
             mX.setYearDay(1800, 98);
-            ASSERT(n == getFileSize(filename));  // nothing logged
+            ASSERT(EMPTY == log.str());  // nothing logged
 
             mX.setYearDay(1700, 98);
-            ASSERT(n < getFileSize(filename));   // something logged
+            ASSERT(EMPTY != log.str());  // something logged
+
+            if (veryVerbose) cout << log.str();
         }
 
         if (verbose) cout << "\n'setYearMonthDay(y, m, d)'." << endl;
         if (verbose) cout << "\tTest edge cases." << endl;
         {
-            Offset n = getFileSize(filename);
+            log.str(EMPTY);
 
             Obj mX(1800, 11, 11);
 
             mX.setYearMonthDay(1, 1, 1);
-            ASSERT(n == getFileSize(filename));  // nothing logged
+            ASSERT(EMPTY == log.str());  // nothing logged
 
             mX.setYearMonthDay(1, 1, 2);
-            ASSERT(n < getFileSize(filename));   // something logged
+            ASSERT(EMPTY != log.str());  // something logged
 
-            n = getFileSize(filename);
+            if (veryVerbose) cout << log.str();
 
             if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
+                log.str(EMPTY);
+
                 mX.setYearMonthDay(1752, 9, 16);
-                ASSERT(n == getFileSize(filename));  // nothing logged
+                ASSERT(EMPTY == log.str());  // nothing logged
 
                 mX.setYearMonthDay(1752, 9, 15);
-                ASSERT(n < getFileSize(filename));   // something logged
+                ASSERT(EMPTY != log.str());  // something logged
+
+                if (veryVerbose) cout << log.str();
             }
             else {
+                log.str(EMPTY);
+
                 mX.setYearMonthDay(1752, 9, 14);
-                ASSERT(n == getFileSize(filename));  // nothing logged
+                ASSERT(EMPTY == log.str());  // nothing logged
 
                 mX.setYearMonthDay(1752, 9,  2);
-                ASSERT(n < getFileSize(filename));   // something logged
+                ASSERT(EMPTY != log.str());  // something logged
+
+                if (veryVerbose) cout << log.str();
             }
         }
 
@@ -523,7 +526,7 @@ int main(int argc, char *argv[])
             using bslx::InStreamFunctions::bdexStreamIn;
 
             {
-                const Offset n = getFileSize(filename);
+                log.str(EMPTY);
 
                 Out out(VERSION_SELECTOR, &ta);
                 bdexStreamOut(out, Obj(1800, 200), VERSION);
@@ -534,23 +537,26 @@ int main(int argc, char *argv[])
 
                 bdexStreamIn(in, mX, VERSION);
 
-                ASSERT(n == getFileSize(filename));  // nothing logged
+                ASSERT(EMPTY == log.str());  // nothing logged
             }
 
             {
-                Offset n = getFileSize(filename);
+                log.str(EMPTY);
 
                 Out out(VERSION_SELECTOR, &ta);
                 bdexStreamOut(out, Obj(1700, 200), VERSION);
-                ASSERT(n < getFileSize(filename));   // something logged
+                ASSERT(EMPTY != log.str());  // something logged
 
-                n = getFileSize(filename);
+                if (veryVerbose) cout << log.str();
 
                 In in(out.data(), out.length());
 
                 Obj mX;
+                log.str(EMPTY);
                 bdexStreamIn(in, mX, VERSION);
-                ASSERT(n < getFileSize(filename));   // something logged
+                ASSERT(EMPTY != log.str());  // something logged
+
+                if (veryVerbose) cout << log.str();
             }
         }
 
@@ -559,193 +565,226 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\n'operator+=(n)'." << endl;
         {
-            const Offset n = getFileSize(filename);
+            log.str(EMPTY);
 
             Obj mX(1800, 10, 31);
             mX += 1000;
-            ASSERT(n == getFileSize(filename));  // nothing logged
+            ASSERT(EMPTY == log.str());  // nothing logged
 
             Obj mY;
             mY += 700000;
-            ASSERT(n < getFileSize(filename));   // something logged
+            ASSERT(EMPTY != log.str());  // something logged
+
+            if (veryVerbose) cout << log.str();
         }
 
         if (verbose) cout << "\n'operator-=(n)'." << endl;
         {
-            const Offset n = getFileSize(filename);
+            log.str(EMPTY);
 
             Obj mX(1800, 10, 31);
 
             mX -= 1000;
-            ASSERT(n == getFileSize(filename));  // nothing logged
+            ASSERT(EMPTY == log.str());  // nothing logged
 
             mX -= 500000;
-            ASSERT(n < getFileSize(filename));   // something logged
+            ASSERT(EMPTY != log.str());  // something logged
+
+            if (veryVerbose) cout << log.str();
         }
 
         if (verbose) cout << "\nMember 'operator++'." << endl;
         {
-            Offset n = getFileSize(filename);
+            log.str(EMPTY);
 
             Obj mX(1800, 200);
             ++mX;
-            ASSERT(n == getFileSize(filename));  // nothing logged
+            ASSERT(EMPTY == log.str());  // nothing logged
 
             Obj mY(1700, 200);
-            n = getFileSize(filename);
+            log.str(EMPTY);
             ++mY;
-            ASSERT(n < getFileSize(filename));   // something logged
+            ASSERT(EMPTY != log.str());  // something logged
+
+            if (veryVerbose) cout << log.str();
         }
 
         if (verbose) cout << "\nMember 'operator--'." << endl;
         {
-            Offset n = getFileSize(filename);
+            log.str(EMPTY);
 
             Obj mX(1800, 200);
             --mX;
-            ASSERT(n == getFileSize(filename));  // nothing logged
+            ASSERT(EMPTY == log.str());  // nothing logged
 
             Obj mY(1700, 200);
-            n = getFileSize(filename);
+            log.str(EMPTY);
             --mY;
-            ASSERT(n < getFileSize(filename));   // something logged
+            ASSERT(EMPTY != log.str());  // something logged
+
+            if (veryVerbose) cout << log.str();
         }
 
         if (verbose) cout << "\n'addDaysIfValid(n)'." << endl;
         {
-            const Offset n = getFileSize(filename);
+            log.str(EMPTY);
 
             Obj mX(1800, 10, 31);
             mX.addDaysIfValid(1000);
-            ASSERT(n == getFileSize(filename));  // nothing logged
+            ASSERT(EMPTY == log.str());  // nothing logged
 
             Obj mY;
+            log.str(EMPTY);
             mY.addDaysIfValid(700000);
-            ASSERT(n < getFileSize(filename));   // something logged
+            ASSERT(EMPTY != log.str());  // something logged
+
+            if (veryVerbose) cout << log.str();
         }
 
         if (verbose) cout << "\nFree 'operator++'." << endl;
         {
-            Offset n = getFileSize(filename);
+            log.str(EMPTY);
 
             Obj mX(1800, 200);
             mX++;
-            ASSERT(n == getFileSize(filename));  // nothing logged
+            ASSERT(EMPTY == log.str());  // nothing logged
 
             Obj mY(1700, 200);
-            n = getFileSize(filename);
+            log.str(EMPTY);
             mY++;
-            ASSERT(n < getFileSize(filename));   // something logged
+            ASSERT(EMPTY != log.str());  // something logged
+
+            if (veryVerbose) cout << log.str();
         }
 
         if (verbose) cout << "\nFree 'operator--'." << endl;
         {
-            Offset n = getFileSize(filename);
+            log.str(EMPTY);
 
             Obj mX(1800, 200);
             mX--;
-            ASSERT(n == getFileSize(filename));  // nothing logged
+            ASSERT(EMPTY == log.str());  // nothing logged
 
             Obj mY(1700, 200);
-            n = getFileSize(filename);
+            log.str(EMPTY);
             mY--;
-            ASSERT(n < getFileSize(filename));   // something logged
+            ASSERT(EMPTY != log.str());  // something logged
+
+            if (veryVerbose) cout << log.str();
         }
 
         if (verbose) cout << "\n'operator+(Date, n)'." << endl;
         {
-            const Offset n = getFileSize(filename);
+            log.str(EMPTY);
 
             const Obj X(1800, 10, 31);
             X + 1000;
-            ASSERT(n == getFileSize(filename));  // nothing logged
+            ASSERT(EMPTY == log.str());  // nothing logged
 
             const Obj Y;
             Y + 700000;
-            ASSERT(n < getFileSize(filename));   // something logged
+            ASSERT(EMPTY != log.str());  // something logged
+
+            if (veryVerbose) cout << log.str();
         }
 
         if (verbose) cout << "\n'operator+(n, Date)'." << endl;
         {
-            const Offset n = getFileSize(filename);
+            log.str(EMPTY);
 
             const Obj X(1800, 10, 31);
             1000 + X;
-            ASSERT(n == getFileSize(filename));  // nothing logged
+            ASSERT(EMPTY == log.str());  // nothing logged
 
             Obj Y;
             700000 + Y;
-            ASSERT(n < getFileSize(filename));   // something logged
+            ASSERT(EMPTY != log.str());  // something logged
+
+            if (veryVerbose) cout << log.str();
         }
 
         if (verbose) cout << "\n'operator-(Date, n)'." << endl;
         if (verbose) cout << "\tTest edge cases." << endl;
         {
-            Offset n = getFileSize(filename);
+            log.str(EMPTY);
 
             const Obj X(1800, 10, 31);
 
             X - 1000;
-            ASSERT(n == getFileSize(filename));  // nothing logged
+            ASSERT(EMPTY == log.str());  // nothing logged
 
             X - 500000;
-            ASSERT(n < getFileSize(filename));   // something logged
+            ASSERT(EMPTY != log.str());  // something logged
 
-            n = getFileSize(filename);
+            if (veryVerbose) cout << log.str();
 
             if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
+                log.str(EMPTY);
+
                 Obj mX(1752, 9, 17);
 
                 mX - 1;
-                ASSERT(n == getFileSize(filename));  // nothing logged
+                ASSERT(EMPTY == log.str());  // nothing logged
 
                 mX - 2;
-                ASSERT(n < getFileSize(filename));   // something logged
+                ASSERT(EMPTY != log.str());  // something logged
 
-                n = getFileSize(filename);
+                if (veryVerbose) cout << log.str();
+
+                log.str(EMPTY);
 
                 mX.setYearMonthDay(1752, 9, 16);
                 mX - 0;
                 mX - 0;
-                ASSERT(n == getFileSize(filename));  // nothing logged
+                ASSERT(EMPTY == log.str());  // nothing logged
 
                 mX.setYearMonthDay(1752, 9, 15);
 
-                n = getFileSize(filename);
+                log.str(EMPTY);
 
                 // Nothing is logged for the first 'mX - 0', but the count is
                 // incremented.
 
                 mX - 0;
+                ASSERT(EMPTY == log.str());  // nothing logged
                 mX - 0;
-                ASSERT(n < getFileSize(filename));   // something logged
+                ASSERT(EMPTY != log.str());  // something logged
+
+                if (veryVerbose) cout << log.str();
             }
             else {
+                log.str(EMPTY);
+
                 Obj mX(1752, 9, 15);
 
                 mX - 1;
-                ASSERT(n == getFileSize(filename));  // nothing logged
+                ASSERT(EMPTY == log.str());  // nothing logged
 
                 mX - 2;
-                ASSERT(n < getFileSize(filename));   // something logged
+                ASSERT(EMPTY != log.str());  // something logged
 
-                n = getFileSize(filename);
+                if (veryVerbose) cout << log.str();
+
+                log.str(EMPTY);
 
                 mX.setYearMonthDay(1752, 9, 14);
                 mX - 0;
                 mX - 0;
-                ASSERT(n == getFileSize(filename));  // nothing logged
+                ASSERT(EMPTY == log.str());  // nothing logged
 
                 mX.setYearMonthDay(1752, 9,  2);
 
-                n = getFileSize(filename);
+                log.str(EMPTY);
 
                 // Nothing is logged for the first 'mX - 0', but the count is
                 // incremented.
 
                 mX - 0;
+                ASSERT(EMPTY == log.str());  // nothing logged
                 mX - 0;
-                ASSERT(n < getFileSize(filename));   // something logged
+                ASSERT(EMPTY != log.str());  // something logged
+
+                if (veryVerbose) cout << log.str();
             }
         }
 
@@ -755,66 +794,80 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n'operator-(Date, Date)'." << endl;
         if (verbose) cout << "\tTest edge cases." << endl;
         {
-            Offset n = getFileSize(filename);
+            log.str(EMPTY);
 
             const Obj X(1800, 200);
             const Obj Y(1900, 200);
 
             Y - X;
-            ASSERT(n == getFileSize(filename));  // nothing logged
+            ASSERT(EMPTY == log.str());  // nothing logged
 
             const Obj Z(1700, 200);
-            n = getFileSize(filename);
+            log.str(EMPTY);
             Y - Z;
-            ASSERT(n < getFileSize(filename));   // something logged
+            ASSERT(EMPTY != log.str());  // something logged
 
-            n = getFileSize(filename);
+            if (veryVerbose) cout << log.str();
 
             if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
+                log.str(EMPTY);
+
                 const Obj X(1752, 9, 16);
 
                 X - X;
-                ASSERT(n == getFileSize(filename));  // nothing logged
+                ASSERT(EMPTY == log.str());  // nothing logged
 
                 Obj mY;  const Obj &Y = mY;
                 mY.setYearMonthDay(1752, 9, 15);
 
-                n = getFileSize(filename);
+                log.str(EMPTY);
 
                 X - Y;
-                ASSERT(n < getFileSize(filename));   // something logged
+                ASSERT(EMPTY != log.str());  // something logged
 
-                n = getFileSize(filename);
+                if (veryVerbose) cout << log.str();
+
+                log.str(EMPTY);
 
                 // Nothing is logged for the first 'Y - X', but the count is
                 // incremented.
 
                 Y - X;
+                ASSERT(EMPTY == log.str());  // nothing logged
                 Y - X;
-                ASSERT(n < getFileSize(filename));   // something logged
+                ASSERT(EMPTY != log.str());  // something logged
+
+                if (veryVerbose) cout << log.str();
             }
             else {
+                log.str(EMPTY);
+
                 const Obj X(1752, 9, 14);
 
                 X - X;
-                ASSERT(n == getFileSize(filename));  // nothing logged
+                ASSERT(EMPTY == log.str());  // nothing logged
 
                 Obj mY;  const Obj &Y = mY;
                 mY.setYearMonthDay(1752, 9,  2);
 
-                n = getFileSize(filename);
+                log.str(EMPTY);
 
                 X - Y;
-                ASSERT(n < getFileSize(filename));   // something logged
+                ASSERT(EMPTY != log.str());  // something logged
 
-                n = getFileSize(filename);
+                if (veryVerbose) cout << log.str();
+
+                log.str(EMPTY);
 
                 // Nothing is logged for the first 'Y - X', but the count is
                 // incremented.
 
                 Y - X;
+                ASSERT(EMPTY == log.str());  // nothing logged
                 Y - X;
-                ASSERT(n < getFileSize(filename));   // something logged
+                ASSERT(EMPTY != log.str());  // something logged
+
+                if (veryVerbose) cout << log.str();
             }
         }
 
@@ -827,47 +880,55 @@ int main(int argc, char *argv[])
 
             // log the 2nd occurrence
             {
-               const Offset n = getFileSize(filename);
+                log.str(EMPTY);
 
-               const Obj X(1700, 10, 31);
-               ASSERT(n < getFileSize(filename));   // something logged
+                const Obj X(1700, 10, 31);
+                ASSERT(EMPTY != log.str());  // something logged
+
+                if (veryVerbose) cout << log.str();
             }
 
             // log the 4th occurrence, but not the 3rd
             {
-               const Offset n = getFileSize(filename);
+                log.str(EMPTY);
 
-               const Obj X(1700, 10, 31);
-               ASSERT(n == getFileSize(filename));  // nothing logged
+                const Obj X(1700, 10, 31);
+                ASSERT(EMPTY == log.str());  // nothing logged
 
-               const Obj Y(1700, 10, 31);
-               ASSERT(n < getFileSize(filename));   // something logged
+                const Obj Y(1700, 10, 31);
+                ASSERT(EMPTY != log.str());  // something logged
+
+                if (veryVerbose) cout << log.str();
             }
 
             // log the 8th occurrence, but not the 5th through 7th
             {
-               const Offset n = getFileSize(filename);
+                log.str(EMPTY);
 
-               for (int i = 0; i < 3; ++i) {
-                  const Obj X(1700, 10, 31);
-                  ASSERT(n == getFileSize(filename));  // nothing logged
-               }
+                for (int i = 0; i < 3; ++i) {
+                    const Obj X(1700, 10, 31);
+                    ASSERT(EMPTY == log.str());  // nothing logged
+                }
 
-               const Obj Y(1700, 10, 31);
-               ASSERT(n < getFileSize(filename));      // something logged
+                const Obj Y(1700, 10, 31);
+                ASSERT(EMPTY != log.str());      // something logged
+
+                if (veryVerbose) cout << log.str();
             }
 
             // next to be logged is the 16th occurrence
             {
-               const Offset n = getFileSize(filename);
+                log.str(EMPTY);
 
-               for (int i = 0; i < 7; ++i) {
-                  const Obj X(1700, 10, 31);
-                  ASSERT(n == getFileSize(filename));  // nothing logged
-               }
+                for (int i = 0; i < 7; ++i) {
+                    const Obj X(1700, 10, 31);
+                    ASSERT(EMPTY == log.str());  // nothing logged
+                }
 
-               const Obj Y(1700, 10, 31);
-               ASSERT(n < getFileSize(filename));      // something logged
+                const Obj Y(1700, 10, 31);
+                ASSERT(EMPTY != log.str());      // something logged
+
+                if (veryVerbose) cout << log.str();
             }
         }
 
@@ -880,47 +941,55 @@ int main(int argc, char *argv[])
 
             // log the 2nd occurrence
             {
-               const Offset n = getFileSize(filename);
+                log.str(EMPTY);
 
-               X + 700000;
-               ASSERT(n < getFileSize(filename));   // something logged
+                X + 700000;
+                ASSERT(EMPTY != log.str());  // something logged
+
+                if (veryVerbose) cout << log.str();
             }
 
             // log the 4th occurrence, but not the 3rd
             {
-               const Offset n = getFileSize(filename);
+                log.str(EMPTY);
 
-               X + 700000;
-               ASSERT(n == getFileSize(filename));  // nothing logged
+                X + 700000;
+                ASSERT(EMPTY == log.str());  // nothing logged
 
-               X + 700000;
-               ASSERT(n < getFileSize(filename));   // something logged
+                X + 700000;
+                ASSERT(EMPTY != log.str());  // something logged
+
+                if (veryVerbose) cout << log.str();
             }
 
             // log the 8th occurrence, but not the 5th through 7th
             {
-               const Offset n = getFileSize(filename);
+                log.str(EMPTY);
 
-               for (int i = 0; i < 3; ++i) {
-                  X + 700000;
-                  ASSERT(n == getFileSize(filename));  // nothing logged
-               }
+                for (int i = 0; i < 3; ++i) {
+                    X + 700000;
+                    ASSERT(EMPTY == log.str());  // nothing logged
+                }
 
-               X + 700000;
-               ASSERT(n < getFileSize(filename));      // something logged
+                X + 700000;
+                ASSERT(EMPTY != log.str());      // something logged
+
+                if (veryVerbose) cout << log.str();
             }
 
             // next to be logged is the 16th occurrence
             {
-               const Offset n = getFileSize(filename);
+                log.str(EMPTY);
 
-               for (int i = 0; i < 7; ++i) {
-                  X + 700000;
-                  ASSERT(n == getFileSize(filename));  // nothing logged
-               }
+                for (int i = 0; i < 7; ++i) {
+                    X + 700000;
+                    ASSERT(EMPTY == log.str());  // nothing logged
+                }
 
-               X + 700000;
-               ASSERT(n < getFileSize(filename));      // something logged
+                X + 700000;
+                ASSERT(EMPTY != log.str());      // something logged
+
+                if (veryVerbose) cout << log.str();
             }
         }
 
@@ -934,39 +1003,36 @@ int main(int argc, char *argv[])
 
             // log the 8th occurrence, but not the 5th through 7th
             {
-               const Offset n = getFileSize(filename);
+                log.str(EMPTY);
 
-               for (int i = 0; i < 3; ++i) {
-                  X - Y;
-                  ASSERT(n == getFileSize(filename));  // nothing logged
-               }
+                for (int i = 0; i < 3; ++i) {
+                    X - Y;
+                    ASSERT(EMPTY == log.str());  // nothing logged
+                }
 
-               X - Y;
-               ASSERT(n < getFileSize(filename));      // something logged
+                X - Y;
+                ASSERT(EMPTY != log.str());      // something logged
+
+                if (veryVerbose) cout << log.str();
             }
 
             // next to be logged is the 16th occurrence
             {
-               const Offset n = getFileSize(filename);
+                log.str(EMPTY);
 
-               for (int i = 0; i < 7; ++i) {
-                  X - Y;
-                  ASSERT(n == getFileSize(filename));  // nothing logged
-               }
+                for (int i = 0; i < 7; ++i) {
+                    X - Y;
+                    ASSERT(EMPTY == log.str());  // nothing logged
+                }
 
-               X - Y;
-               ASSERT(n < getFileSize(filename));      // something logged
+                X - Y;
+                ASSERT(EMPTY != log.str());      // something logged
+
+                if (veryVerbose) cout << log.str();
             }
         }
 
-        // Remove temporary file.
-
-        fclose(stderr);
-        remove(filename);
-        free(filename);
-
       } break;
-#endif
 #endif
       case 20: {
         // --------------------------------------------------------------------
@@ -1221,7 +1287,7 @@ if (verbose)
                 { L_,       1,     1,    INT_MAX },
                 { L_,    9999,   365,    INT_MAX },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE     = DATA[ti].d_line;
@@ -1341,7 +1407,7 @@ if (verbose)
             { L_,    2014,     11,    1,   DOW::e_SAT,           MOY::e_NOV },
             { L_,    2014,     12,    1,   DOW::e_MON,           MOY::e_DEC },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int       LINE    = DATA[ti].d_line;
@@ -1528,7 +1594,7 @@ if (verbose)
             { L_,    9999,  364 },
             { L_,    9999,  365 },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) cout << "\nCompare every value with every value." << endl;
 
@@ -2455,7 +2521,7 @@ if (verbose)
                 { L_,    9998,  365,   9999,    1 },
                 { L_,    9999,  364,   9999,  365 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             if (verbose) cout << "\nTesting member 'operator++'." << endl;
 
@@ -2816,7 +2882,7 @@ if (verbose)
                 { L_,    INT_MAX,        1,     0 },
                 { L_,    INT_MAX,  INT_MAX,     0 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE = DATA[ti].d_line;
@@ -2993,7 +3059,7 @@ if (verbose)
                 { L_,      10000,        1,        1,     0 },
                 { L_,    INT_MAX,        1,        1,     0 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE  = DATA[ti].d_line;
@@ -3210,7 +3276,7 @@ if (verbose)
                 { L_,    9999,  364,     12,       30 },
                 { L_,    9999,  365,     12,       31 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int ILINE       = DATA[ti].d_line;
@@ -3299,7 +3365,7 @@ if (verbose)
                 { L_,    9999,  364 },
                 { L_,    9999,  365 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE = DATA[ti].d_line;
@@ -3747,8 +3813,8 @@ if (verbose)
 
         // Array object used in various stream tests.
         const Obj VALUES[]   = { VA, VB, VC, VD, VE, VF, VG };
-        const int NUM_VALUES = static_cast<int>(sizeof VALUES
-                                                / sizeof *VALUES);
+        const int NUM_VALUES =
+                              static_cast<int>(sizeof VALUES / sizeof *VALUES);
 
         if (verbose) {
             cout << "\nTesting 'maxSupportedBdexVersion'." << endl;
@@ -4342,7 +4408,7 @@ if (verbose)
 
                 { L_,    9999,     12,   31,  9999,     12,   31,  },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE   = DATA[ti].d_line;
@@ -4414,7 +4480,7 @@ if (verbose)
 
                 { L_,    9999,     12,   31,  9999,     12,   31,  },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE   = DATA[ti].d_line;
@@ -4502,7 +4568,7 @@ if (verbose)
 
                 { L_,    9999,     12,   29,  9999,     12,   29,  },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE   = DATA[ti].d_line;
@@ -4578,7 +4644,7 @@ if (verbose)
 
                 { L_,    9999,     12,   31,  9999,     12,   31,  },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE   = DATA[ti].d_line;
@@ -5011,7 +5077,7 @@ if (verbose)
             { L_,    9999,     12,   30 },
             { L_,    9999,     12,   31 },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) cout << "\nCompare every value with every value." << endl;
 
@@ -5257,7 +5323,7 @@ if (verbose)
 #undef NL
 
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) cout << "\nTesting with various print specifications."
                           << endl;

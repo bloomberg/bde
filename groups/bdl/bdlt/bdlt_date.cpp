@@ -6,7 +6,6 @@ BSLS_IDENT_RCSID(bdlt_date_cpp,"$Id$ $CSID$")
 
 #include <bslim_printer.h>
 
-#include <bsls_log.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 
@@ -16,6 +15,7 @@ BSLS_IDENT_RCSID(bdlt_date_cpp,"$Id$ $CSID$")
 
 #ifndef BDE_OMIT_TRANSITIONAL
 #include <bdlb_bitutil.h>
+#include <bsls_log.h>
 #endif
 
 namespace BloombergLP {
@@ -213,15 +213,15 @@ bsl::ostream& Date::print(bsl::ostream& stream,
 
         const char *const month = months[m];
 
-        buffer[0] = d / 10 + '0';
-        buffer[1] = d % 10 + '0';
+        buffer[0] = static_cast<char>(d / 10 + '0');
+        buffer[1] = static_cast<char>(d % 10 + '0');
         buffer[2] = month[0];
         buffer[3] = month[1];
         buffer[4] = month[2];
-        buffer[5] =   y / 1000         + '0';
-        buffer[6] = ((y % 1000) / 100) + '0';
-        buffer[7] = ((y %  100) /  10) + '0';
-        buffer[8] =   y %   10         + '0';
+        buffer[5] = static_cast<char>(  y / 1000         + '0');
+        buffer[6] = static_cast<char>(((y % 1000) / 100) + '0');
+        buffer[7] = static_cast<char>(((y %  100) /  10) + '0');
+        buffer[8] = static_cast<char>(  y %   10         + '0');
         buffer[9] = 0;
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
