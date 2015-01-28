@@ -48,9 +48,6 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_platform.h>
 
-#include <bslmf_assert.h>
-
-#include <limits.h> // for 'UINT_MAX'
 #include <string.h> // for 'memcpy' and 'memset'
 
 #if defined(BSLS_PLATFORM_OS_SOLARIS)
