@@ -92,7 +92,10 @@ void aSsErT(bool condition, const char *message, int line)
 
 #define ASSERT_SAME(X, Y) ASSERT((bsl::is_same<X, Y>::value))
 
-#if defined(BSLS_PLATFORM_CMP_SUN)  // version check may follow
+#if defined(BSLS_PLATFORM_CMP_SUN)                                        \
+ || defined(BSLS_PLATFORM_CMP_IBM)                                        \
+ ||(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700)
+
 # define BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND
     // This macro signifies that this compiler rejects 'type[]' as incomplete,
     // even in contexts where it should be valid, as it will pass by reference
@@ -514,6 +517,16 @@ bool sameAddress(const TYPE& a, const TYPE& b)
 }
 
 template <class TYPE>
+bool sameAddress(TYPE& a, TYPE& b)
+    // Return true if address of the specified 'a' entity (of parameterized
+    // 'TYPE')) matches the address of the specified 'b' entity.  Note that
+    // this second overload is necessary only for compilers like IBM xlC that
+    // will not deduce a match for 'const &' for function types and references.
+{
+    return &a == &b;
+}
+
+template <class TYPE>
 void testForwardToTargetVal(TYPE obj)
     // Test 'forwardToTarget' when the specified 'obj' is an rvalue.
 {
@@ -776,21 +789,24 @@ int main(int argc, char *argv[])
             ASSERT(testEndToEnd<const volatile TP>(a, acvm) == exp);          \
         }
 
+#if !defined(BSLS_PLATFORM_CMP_SUN) // TBD Fix Sun and arrays
         TEST_ENDTOEND_ARRAY(char[5], a,    5);
 #if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
         TEST_ENDTOEND_ARRAY(char[], au,    0);
 #endif
         TEST_ENDTOEND_ARRAY(char(&)[5], a, 5);
+#if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
         TEST_ENDTOEND_ARRAY(char(&)[], au, 0);
+#endif
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
         TEST_ENDTOEND_ARRAY(char *&&, au,  0);
 #endif
+#endif  // Sun does not support arrays
 
         if (veryVerbose) printf("function types\n");
         FuncMatch<F> fm;
         ASSERT(testEndToEnd<F*>(f_p,  fm) == k_FUNC_POINTER);
         ASSERT(testEndToEnd<F&>(func, fm) == k_FUNC_REFERENCE);
-
       } break;
 
       case 3: {
@@ -918,7 +934,9 @@ int main(int argc, char *argv[])
         testForwardToTargetVal<Enum    volatile>(e);
         testForwardToTargetVal<double  volatile>(d);
         testForwardToTargetVal<double *volatile>(p);
+#if !defined(BSLS_PLATFORM_CMP_SUN) // TBD Fix Sun and arrays
         testForwardToTargetVal<A       volatile>(a);
+#endif  // Sun does not support arrays
 #if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
         testForwardToTargetVal<AU      volatile>(au);
 #endif
@@ -926,6 +944,7 @@ int main(int argc, char *argv[])
         testForwardToTargetVal<Pm      volatile>(m_p);
         testForwardToTargetVal<Pmf     volatile>(mf_p);
 
+#if !defined(BSLS_PLATFORM_CMP_SUN) // TBD Fix Sun and arrays
         testForwardToTargetArray<A           >(a);
         testForwardToTargetArray<A  const    >(a);
         testForwardToTargetArray<A          &>(a);
@@ -934,16 +953,19 @@ int main(int argc, char *argv[])
 #if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
         testForwardToTargetArray<AU          >(au);
         testForwardToTargetArray<AU const    >(au);
-#endif
         testForwardToTargetArray<AU         &>(au);
         testForwardToTargetArray<AU const   &>(au);
         testForwardToTargetArray<AU volatile&>(au);
+#endif
+
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
         testForwardToTargetArray<A          &&>(native_std::move(a));
         testForwardToTargetArray<A  const   &&>(native_std::move(a));
         testForwardToTargetArray<AU         &&>(native_std::move(au));
         testForwardToTargetArray<AU const   &&>(native_std::move(au));
 #endif
+
+#endif  // Sun does not support arrays
 
         testForwardToTargetRef<Enum    &>(e);
         testForwardToTargetRef<Struct  &>(s);
@@ -1025,7 +1047,6 @@ int main(int argc, char *argv[])
             ASSERT(&func ==
                    bslmf::ForwardingTypeUtil<F>::forwardToTarget(fwdRef));
         }
-
       } break;
 
       case 2: {
@@ -1169,27 +1190,37 @@ int main(int argc, char *argv[])
         TEST_FWD_TYPE(int[5]                   , int*                    );
         TEST_FWD_TYPE(int*[5]                  , int**                   );
         TEST_FWD_TYPE(int[5][6]                , int(*)[6]               );
+#if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
         TEST_FWD_TYPE(Class[]                  , Class*                  );
         TEST_FWD_TYPE(Struct[][6]              , Struct(*)[6]            );
+#endif
         TEST_FWD_TYPE(int(&)[5]                , int*                    );
         TEST_FWD_TYPE(int *const(&)[5]         , int *const *            );
         TEST_FWD_TYPE(int(&)[5][6]             , int(*)[6]               );
+#if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
         TEST_FWD_TYPE(Class(&)[]               , Class*                  );
         TEST_FWD_TYPE(Struct(&)[][6]           , Struct(*)[6]            );
+#endif
         TEST_FWD_TYPE(int *const[5]            , int *const *            );
         TEST_FWD_TYPE(const int[5][6]          , const int(*)[6]         );
+#if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
         TEST_FWD_TYPE(const int[]              , const int*              );
         TEST_FWD_TYPE(const int[][6]           , const int(*)[6]         );
+#endif
         TEST_FWD_TYPE(const int(&)[5]          , const int*              );
         TEST_FWD_TYPE(volatile int[5]          , volatile int*           );
         TEST_FWD_TYPE(volatile int[5][6]       , volatile int(*)[6]      );
+#if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
         TEST_FWD_TYPE(volatile int[]           , volatile int*           );
         TEST_FWD_TYPE(volatile int[][6]        , volatile int(*)[6]      );
+#endif
         TEST_FWD_TYPE(volatile int(&)[5]       , volatile int*           );
         TEST_FWD_TYPE(const volatile int[5]    , const volatile int*     );
         TEST_FWD_TYPE(const volatile int[5][6] , const volatile int(*)[6]);
+#if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
         TEST_FWD_TYPE(const volatile int[]     , const volatile int*     );
         TEST_FWD_TYPE(const volatile int[][6]  , const volatile int(*)[6]);
+#endif
         TEST_FWD_TYPE(const volatile int(&)[5] , const volatile int*     );
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
         TEST_FWD_TYPE(int *const(&&)[5]        , int *const *            );
@@ -1399,10 +1430,13 @@ int main(int argc, char *argv[])
         ASSERT(2 == camc ( ca));
         ASSERT(3 == camv ( va));
         ASSERT(4 == camcv(cva));
+#if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
         ASSERT(0 == cam  (*  pa));
         ASSERT(0 == camc (* cpa));
         ASSERT(0 == camv (* vpa));
         ASSERT(0 == camcv(*cvpa));
+#endif
+
         ASSERT(0 == cam  (  p));
         ASSERT(0 == camc ( cp));
         ASSERT(0 == camv ( vp));

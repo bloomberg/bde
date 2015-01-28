@@ -306,6 +306,7 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_CSTDDEF
 #endif
 
+
 namespace BloombergLP {
 
 
