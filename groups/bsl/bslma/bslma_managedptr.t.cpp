@@ -1383,8 +1383,11 @@ void validateManagedState(unsigned int                     LINE,
         TYPE *arrow = obj.operator->();
         LOOP3_ASSERT(LINE, ptr, arrow, ptr == arrow);
 
-        TYPE * objPtr = obj.get();
+        TYPE * objPtr = obj.ptr();
         LOOP3_ASSERT(LINE, ptr, objPtr, ptr == objPtr);
+        
+        TYPE * objPtr2 = obj.get();
+        LOOP3_ASSERT(LINE, ptr, objPtr2, ptr == objPtr2);
 
         TYPE &target = *obj;
         LOOP3_ASSERT(LINE, &target, ptr, &target == ptr);
@@ -1442,9 +1445,12 @@ void validateManagedState(unsigned int                     LINE,
         void *arrow = obj.operator->();
         LOOP3_ASSERT(LINE, ptr, arrow, ptr == arrow);
 
-        void * objPtr = obj.get();
+        void * objPtr = obj.ptr();
         LOOP3_ASSERT(LINE, ptr, objPtr, ptr == objPtr);
 
+        void * objPtr2 = obj.get();
+        LOOP3_ASSERT(LINE, ptr, objPtr2, ptr == objPtr2);
+        
         const bslma::ManagedPtrDeleter& objDel = obj.deleter();
         LOOP3_ASSERT(LINE, del, objDel, del == objDel);
 
@@ -1502,8 +1508,11 @@ void validateManagedState(unsigned int                          LINE,
         const void *arrow = obj.operator->();
         LOOP3_ASSERT(LINE, ptr, arrow, ptr == arrow);
 
-        const void * objPtr = obj.get();
+        const void * objPtr = obj.ptr();
         LOOP3_ASSERT(LINE, ptr, objPtr, ptr == objPtr);
+        
+        const void * objPtr2 = obj.get();
+        LOOP3_ASSERT(LINE, ptr, objPtr2, ptr == objPtr2);
 
         const bslma::ManagedPtrDeleter& objDel = obj.deleter();
         LOOP3_ASSERT(LINE, del, objDel, del == objDel);
