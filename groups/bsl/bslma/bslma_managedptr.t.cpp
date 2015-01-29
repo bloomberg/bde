@@ -99,18 +99,18 @@ using namespace BloombergLP;
 // [ 5] void load(TYPE *ptr, bsl::nullptr_t, void (*del)(BASE *, void *));
 // [ 5] void load(TYPE *, FACTORY *, void(*)(TYPE_BASE *, FACTORY_BASE *))
 // [ 6] void loadAlias(ManagedPtr<OTHER>& alias, TYPE *ptr);
+// [13] void reset();
 // [11] void swap(ManagedPtr& rhs);
 // [12] ManagedPtr& operator=(ManagedPtr& rhs);
 // [12] ManagedPtr& operator=(ManagedPtr_Ref<ELEMENT_TYPE> ref);
 // [13] void clear();
-// [13] void reset();
 // [13] bsl::pair<TYPE*, ManagedPtrDeleter> release();
 // [  ] TARGET_TYPE *release(ManagedPtrDeleter *deleter);
 // [ 7] operator BoolType() const;
 // [ 7] TYPE& operator*() const;
 // [ 7] TYPE *operator->() const;
-// [ 7] TYPE *ptr() const;
 // [ 7] TYPE *get() const;
+// [ 7] TYPE *ptr() const;
 // [ 7] const ManagedPtrDeleter& deleter() const;
 //-----------------------------------------------------------------------------
 // [ 4] ManagedPtr();
@@ -1362,6 +1362,7 @@ void validateManagedState(unsigned int                     LINE,
         LOOP_ASSERT(LINE, !obj);
         LOOP_ASSERT(LINE, 0 == obj.operator->());
         LOOP_ASSERT(LINE, 0 == obj.get());
+        LOOP_ASSERT(LINE, 0 == obj.ptr());
 
 #ifdef BDE_BUILD_TARGET_EXC
         if (g_veryVerbose) printf("\tNegative testing\n");
@@ -1422,6 +1423,7 @@ void validateManagedState(unsigned int                     LINE,
         LOOP_ASSERT(LINE, !obj);
         LOOP_ASSERT(LINE, 0 == obj.operator->());
         LOOP_ASSERT(LINE, 0 == obj.get());
+        LOOP_ASSERT(LINE, 0 == obj.ptr());
 #ifdef BDE_BUILD_TARGET_EXC
         if (g_veryVerbose) printf("\tNegative testing\n");
 
@@ -1481,6 +1483,7 @@ void validateManagedState(unsigned int                          LINE,
         LOOP_ASSERT(LINE, !obj);
         LOOP_ASSERT(LINE, 0 == obj.operator->());
         LOOP_ASSERT(LINE, 0 == obj.get());
+        LOOP_ASSERT(LINE, 0 == obj.ptr());
 #ifdef BDE_BUILD_TARGET_EXC
         if (g_veryVerbose) printf("\tNegative testing\n");
 
@@ -6949,7 +6952,8 @@ int main(int argc, char *argv[])
         //:   the managed pointer to an unset state.
         //:
         //: 2 'reset' destroys any managed object using the stored 'deleter'.
-        //: 3 same conserns as 1 and 2 but with cear
+        //:
+        //: 3 same conserns as 1 and 2 but with 'clear'.
         //
         //   That release works properly.
         //   Release gives up ownership of resources without running deleters
@@ -8132,6 +8136,7 @@ int main(int argc, char *argv[])
         //   TYPE& operator*() const;
         //   TYPE *operator->() const;
         //   TYPE *ptr() const;
+        //   TYPE *get() const;
         //   const ManagedPtrDeleter& deleter() const;
         //   (implicit) bool operator!() const;  // via operator BoolType()
         // --------------------------------------------------------------------

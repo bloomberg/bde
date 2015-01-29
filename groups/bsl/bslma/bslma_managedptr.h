@@ -1107,10 +1107,6 @@ class ManagedPtr {
         // Destroy the current managed object (if any) and reset this managed
         // pointer as empty.
 
-    void reset();
-        // Destroy the current managed object (if any) and reset this managed
-        // pointer as empty.
-
     template <class MANAGED_TYPE>
     void load(MANAGED_TYPE *ptr);
         // Destroy the currently managed object, if any.  Then, set the target
@@ -1235,6 +1231,10 @@ class ManagedPtr {
         // behavior to run the returned deleter unless the returned pointer to
         // target object is not null.
 
+    void reset();
+        // Destroy the current managed object (if any) and reset this managed
+        // pointer as empty.
+
     void swap(ManagedPtr& other);
         // Exchange the value and ownership of this managed pointer with the
         // specified 'other' managed pointer.
@@ -1264,13 +1264,13 @@ class ManagedPtr {
         // associated with this managed pointer.  Behavior is undefined if this
         // managed pointer is empty.
 
-    TARGET_TYPE *ptr() const;
-        // [!DEPRECATED!]: Use 'get' instead.
-    	//
+    TARGET_TYPE *get() const;
         // Return the address of the target object, or 0 if this managed
         // pointer is empty.
 
-    TARGET_TYPE *get() const;
+    TARGET_TYPE *ptr() const;
+        // [!DEPRECATED!]: Use 'get' instead.
+    	//
         // Return the address of the target object, or 0 if this managed
         // pointer is empty.
 
@@ -1619,15 +1619,6 @@ void ManagedPtr<TARGET_TYPE>::clear()
 }
 
 template <class TARGET_TYPE>
-inline
-void ManagedPtr<TARGET_TYPE>::reset()
-{
-    d_members.runDeleter();
-    d_members.clear();
-}
-
-
-template <class TARGET_TYPE>
 template <class MANAGED_TYPE>
 inline
 void ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr,
@@ -1780,6 +1771,14 @@ TARGET_TYPE *ManagedPtr<TARGET_TYPE>::release(ManagedPtrDeleter *deleter)
 
 template <class TARGET_TYPE>
 inline
+void ManagedPtr<TARGET_TYPE>::reset()
+{
+    d_members.runDeleter();
+    d_members.clear();
+}
+
+template <class TARGET_TYPE>
+inline
 void ManagedPtr<TARGET_TYPE>::swap(ManagedPtr& other)
 {
     d_members.swap(other.d_members);
@@ -1868,16 +1867,16 @@ const ManagedPtrDeleter& ManagedPtr<TARGET_TYPE>::deleter() const
 
 template <class TARGET_TYPE>
 inline
-TARGET_TYPE *ManagedPtr<TARGET_TYPE>::ptr() const
+TARGET_TYPE *ManagedPtr<TARGET_TYPE>::get() const
 {
-    return get();
+    return static_cast<TARGET_TYPE*>(d_members.pointer());
 }
 
 template <class TARGET_TYPE>
 inline
-TARGET_TYPE *ManagedPtr<TARGET_TYPE>::get() const
+TARGET_TYPE *ManagedPtr<TARGET_TYPE>::ptr() const
 {
-    return static_cast<TARGET_TYPE*>(d_members.pointer());
+    return get();
 }
 
 
