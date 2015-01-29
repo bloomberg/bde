@@ -24,6 +24,7 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
+
 using namespace BloombergLP;
 using namespace bsl;
 
@@ -205,6 +206,7 @@ typedef bslx::TestOutStream Out;
 
 #define VERSION_SELECTOR 20140601
 
+
 // ============================================================================
 //                                 TYPE TRAITS
 // ----------------------------------------------------------------------------
@@ -257,7 +259,8 @@ const DefaultDataRow DEFAULT_DATA[] =
     { L_,    9999,     12,   30 },
     { L_,    9999,     12,   31 },
 };
-const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
+const int DEFAULT_NUM_DATA =
+                  static_cast<int>(sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA);
 
 // Define ALTernate DATA for test cases that use two year/day-of-year
 // representations for dates per test vector, and the difference (in days)
@@ -311,7 +314,7 @@ const AltDataRow ALT_DATA[] =
 
     { L_,       1,    1,   9999,  365,   3652058 },
 };
-const int ALT_NUM_DATA = sizeof ALT_DATA / sizeof *ALT_DATA;
+const int ALT_NUM_DATA = static_cast<int>(sizeof ALT_DATA / sizeof *ALT_DATA);
 
 // ============================================================================
 //                              MAIN PROGRAM
@@ -589,7 +592,7 @@ if (verbose)
                 { L_,       1,     1,    INT_MAX },
                 { L_,    9999,   365,    INT_MAX },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE     = DATA[ti].d_line;
@@ -709,7 +712,7 @@ if (verbose)
             { L_,    2014,     11,    1,   DOW::e_SAT,           MOY::e_NOV },
             { L_,    2014,     12,    1,   DOW::e_MON,           MOY::e_DEC },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int       LINE    = DATA[ti].d_line;
@@ -890,7 +893,7 @@ if (verbose)
             { L_,    9999,  364 },
             { L_,    9999,  365 },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) cout << "\nCompare every value with every value." << endl;
 
@@ -1701,7 +1704,7 @@ if (verbose)
                 { L_,    9998,  365,   9999,    1 },
                 { L_,    9999,  364,   9999,  365 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             if (verbose) cout << "\nTesting member 'operator++'." << endl;
 
@@ -2052,7 +2055,7 @@ if (verbose)
                 { L_,    INT_MAX,        1,     0 },
                 { L_,    INT_MAX,  INT_MAX,     0 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE = DATA[ti].d_line;
@@ -2197,7 +2200,7 @@ if (verbose)
                 { L_,      10000,        1,        1,     0 },
                 { L_,    INT_MAX,        1,        1,     0 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE  = DATA[ti].d_line;
@@ -2376,7 +2379,7 @@ if (verbose)
                 { L_,    9999,  364,     12,       30 },
                 { L_,    9999,  365,     12,       31 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int ILINE       = DATA[ti].d_line;
@@ -2465,7 +2468,7 @@ if (verbose)
                 { L_,    9999,  364 },
                 { L_,    9999,  365 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE = DATA[ti].d_line;
@@ -2897,8 +2900,8 @@ if (verbose)
 
         // Array object used in various stream tests.
         const Obj VALUES[]   = { VA, VB, VC, VD, VE, VF, VG };
-        const int NUM_VALUES = static_cast<int>(sizeof VALUES
-                                                / sizeof *VALUES);
+        const int NUM_VALUES =
+                              static_cast<int>(sizeof VALUES / sizeof *VALUES);
 
         if (verbose) {
             cout << "\nTesting 'maxSupportedBdexVersion'." << endl;
@@ -3787,7 +3790,7 @@ if (verbose)
             { L_,    9999,     12,   30 },
             { L_,    9999,     12,   31 },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) cout << "\nCompare every value with every value." << endl;
 
@@ -4030,7 +4033,7 @@ if (verbose)
 #undef NL
 
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) cout << "\nTesting with various print specifications."
                           << endl;

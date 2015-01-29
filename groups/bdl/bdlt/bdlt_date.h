@@ -267,6 +267,7 @@ class Date {
         // 1 greater than that of the previous day.  See {Valid Date Values and
         // Their Representations} for details.
 
+
     // PRIVATE CREATORS
     explicit Date(int serialDate);
         // Create a date initialized with the value indicated by the specified
@@ -591,6 +592,7 @@ Date::Date(int year, int dayOfYear)
 : d_serialDate(SerialDateImpUtil::ydToSerial(year, dayOfYear))
 {
     BSLS_ASSERT_SAFE(isValidYearDay(year, dayOfYear));
+
 }
 
 inline
@@ -598,6 +600,7 @@ Date::Date(int year, int month, int day)
 : d_serialDate(SerialDateImpUtil::ymdToSerial(year, month, day))
 {
     BSLS_ASSERT_SAFE(isValidYearMonthDay(year, month, day));
+
 }
 
 inline
@@ -625,6 +628,7 @@ Date& Date::operator+=(int numDays)
 {
     BSLS_ASSERT_SAFE(Date::isValidSerial(d_serialDate + numDays));
 
+
     d_serialDate += numDays;
     return *this;
 }
@@ -633,6 +637,7 @@ inline
 Date& Date::operator-=(int numDays)
 {
     BSLS_ASSERT_SAFE(Date::isValidSerial(d_serialDate - numDays));
+
 
     d_serialDate -= numDays;
     return *this;
@@ -643,6 +648,7 @@ Date& Date::operator++()
 {
     BSLS_ASSERT_SAFE(*this != Date(9999, 12, 31));
 
+
     ++d_serialDate;
     return *this;
 }
@@ -651,6 +657,7 @@ inline
 Date& Date::operator--()
 {
     BSLS_ASSERT_SAFE(*this != Date(1, 1, 1));
+
 
     --d_serialDate;
     return *this;
@@ -723,6 +730,7 @@ STREAM& Date::bdexStreamIn(STREAM& stream, int version)
 
             if (stream && Date::isValidSerial(tmpSerialDate)) {
                 d_serialDate = tmpSerialDate;
+
             }
             else {
                 stream.invalidate();
@@ -895,6 +903,7 @@ bdlt::Date bdlt::operator+(const Date& date, int numDays)
 {
     BSLS_ASSERT_SAFE(Date::isValidSerial(date.d_serialDate + numDays));
 
+
     return Date(date.d_serialDate + numDays);
 }
 
@@ -902,6 +911,7 @@ inline
 bdlt::Date bdlt::operator+(int numDays, const Date& date)
 {
     BSLS_ASSERT_SAFE(Date::isValidSerial(numDays + date.d_serialDate));
+
 
     return Date(numDays + date.d_serialDate);
 }
@@ -911,12 +921,14 @@ bdlt::Date bdlt::operator-(const Date& date, int numDays)
 {
     BSLS_ASSERT_SAFE(Date::isValidSerial(date.d_serialDate - numDays));
 
+
     return Date(date.d_serialDate - numDays);
 }
 
 inline
 int bdlt::operator-(const Date& lhs, const Date& rhs)
 {
+
     return lhs.d_serialDate - rhs.d_serialDate;
 }
 

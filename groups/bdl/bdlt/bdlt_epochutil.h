@@ -418,6 +418,7 @@ Datetime EpochUtil::convertFromTimeT64(TimeT64 time)
     Datetime datetime(epoch());
     datetime.addSeconds(time);
 
+
     return datetime;
 }
 
@@ -433,6 +434,7 @@ int EpochUtil::convertFromTimeT64(Datetime *result, TimeT64 time)
 
     *result = epoch();
     result->addSeconds(time);
+
 
     return 0;
 }

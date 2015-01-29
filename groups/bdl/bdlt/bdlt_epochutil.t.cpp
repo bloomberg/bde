@@ -21,6 +21,7 @@
 #include <bsl_string.h>
 #include <bsl_ctime.h>
 
+
 using namespace BloombergLP;
 using namespace bsl;
 
@@ -174,6 +175,7 @@ const bdlt::Datetime &EarlyEpochCopier::copiedValue()
 #endif
 
 EarlyEpochCopier earlyEpochCopier INITATTR;
+
 
 //=============================================================================
 //                              MAIN PROGRAM
