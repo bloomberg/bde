@@ -140,6 +140,10 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_BDLT_DELEGATINGDATEIMPUTIL
 #include <bdlt_delegatingdateimputil.h>
 #endif
+
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
+#include <bsls_atomicoperations.h>
+#endif
 #endif
 
 #ifndef INCLUDED_BDLT_TIME
@@ -183,6 +187,20 @@ struct EpochUtil {
 #ifndef BDE_OMIT_TRANSITIONAL
     static const Datetime *s_posixEpoch_p;
                                        // pointer to POSIX epoch time value
+
+    // PRIVATE CLASS METHODS
+    static void logIfProblematicDateValue(
+                       const char                               *fileName,
+                       int                                       lineNumber,
+                       const Date&                               date,
+                       bsls::AtomicOperations::AtomicTypes::Int *count);
+        // Log a message to 'stderr' that includes the specified 'fileName' and
+        // 'lineNumber', and increment the specified 'count', if the specified
+        // 'date' is deemed to represent a problematic date value.  A date
+        // value is problematic if it is prior to 1752/09/14 when in POSIX mode
+        // (1752/09/16 when in proleptic Gregorian mode).  Note that actual
+        // generation of log messages may be throttled to limit spew to
+        // 'stderr', but the count is always incremented.
 #endif
 
   public:
@@ -444,6 +462,13 @@ Datetime EpochUtil::convertFromTimeT64(TimeT64 time)
     Datetime datetime(epoch());
     datetime.addSeconds(time);
 
+#ifndef BDE_OMIT_TRANSITIONAL
+    static bsls::AtomicOperations::AtomicTypes::Int count = { 0 };
+
+    EpochUtil::logIfProblematicDateValue(__FILE__, __LINE__,
+                                         datetime.date(), &count);
+#endif
+
     return datetime;
 }
 
@@ -467,6 +492,13 @@ int EpochUtil::convertFromTimeT64(Datetime *result, TimeT64 time)
     *result = epoch();
     result->addSeconds(time);
 
+#ifndef BDE_OMIT_TRANSITIONAL
+    static bsls::AtomicOperations::AtomicTypes::Int count = { 0 };
+
+    EpochUtil::logIfProblematicDateValue(__FILE__, __LINE__,
+                                         result->date(), &count);
+#endif
+
     return 0;
 }
 
@@ -474,6 +506,12 @@ inline
 EpochUtil::TimeT64
 EpochUtil::convertToTimeT64(const Datetime& datetime)
 {
+#ifndef BDE_OMIT_TRANSITIONAL
+    static bsls::AtomicOperations::AtomicTypes::Int count = { 0 };
+
+    EpochUtil::logIfProblematicDateValue(__FILE__, __LINE__,
+                                         datetime.date(), &count);
+#endif
     return TimeT64(((datetime - epoch()).totalMilliseconds()
                                              - datetime.millisecond()) / 1000);
 }

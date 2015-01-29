@@ -24,6 +24,12 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
+#ifndef BDE_OMIT_TRANSITIONAL
+// TBD Extra inclusions needed temporarily for testing 'logIfProblematicDate*'.
+#include <bsls_log.h>
+#include <bsl_string.h>
+#endif
+
 using namespace BloombergLP;
 using namespace bsl;
 
@@ -215,6 +221,32 @@ typedef bslx::TestOutStream Out;
 
 #define VERSION_SELECTOR 20140601
 
+#ifndef BDE_OMIT_TRANSITIONAL
+
+// TBD stuff needed temporarily for testing 'logIfProblematicDate*'
+
+namespace {
+
+ostringstream *globalLogPtr;  // set in case 21
+
+void logMessageHandler(const char *file, int line, const char *message)
+    // Write the specified 'file', 'line', and 'message' to '*globalLogPtr' in
+    // a single-line format.  The behavior is undefined unless 'line >= 0'.
+    // Note that this function need not be thread-safe since it is only called
+    // in case 21, which is single-threaded.
+{
+    BSLS_ASSERT(file);
+    BSLS_ASSERT(line >= 0);
+    BSLS_ASSERT(message);
+    BSLS_ASSERT(globalLogPtr);
+
+    *globalLogPtr << file << ':' << line << ' ' << message << '\n';
+}
+
+}  // close unnamed namespace
+
+#endif
+
 // ============================================================================
 //                                 TYPE TRAITS
 // ----------------------------------------------------------------------------
@@ -267,7 +299,8 @@ const DefaultDataRow DEFAULT_DATA[] =
     { L_,    9999,     12,   30 },
     { L_,    9999,     12,   31 },
 };
-const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
+const int DEFAULT_NUM_DATA =
+                  static_cast<int>(sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA);
 
 // Define ALTernate DATA for test cases that use two year/day-of-year
 // representations for dates per test vector, and the difference (in days)
@@ -325,7 +358,7 @@ const AltDataRow ALT_DATA[] =
     { L_,       1,    1,   9999,  365,   3652058 },
 #endif
 };
-const int ALT_NUM_DATA = sizeof ALT_DATA / sizeof *ALT_DATA;
+const int ALT_NUM_DATA = static_cast<int>(sizeof ALT_DATA / sizeof *ALT_DATA);
 
 // ============================================================================
 //                              MAIN PROGRAM
@@ -354,6 +387,653 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
 
     switch (test) { case 0:
+#ifndef BDE_OMIT_TRANSITIONAL
+      case 21: {
+        // --------------------------------------------------------------------
+        // TESTING 'logIfProblematicDate*'
+        //
+        // Concerns:
+        //: 1 Each 'Date' method or free operator that is expected to be
+        //:   instrumented with an appropriate 'logIfProblematicDate*' function
+        //:   is so instrumented.
+        //:
+        //: 2 Edge cases at which logging to 'stderr' should or should not
+        //:   occur are handled as expected.
+        //:
+        //: 3 Log message throttling works as expected to prevent spew to
+        //:   'stderr'.
+        //
+        // Plan:
+        //: 1 Using 'bsls::Log::setLogMessageHandler', install a log message
+        //:   handler that writes to an 'ostringstream' named 'log'.  For each
+        //:   instrumented method, perform an action that should *not* incur a
+        //:   log message to 'log' followed by an action that *should*.  Verify
+        //:   the expected behavior by examining whether or not 'log' is empty.
+        //:   (Note that the actual contents of the log messages should be
+        //:   inspected manually using test case -1, or by running this test
+        //:   case in 'veryVerbose' mode.)  Edge cases are tested via the
+        //:   'setYearMonthDay' manipulator and the two free 'operator-'
+        //:   functions.  (C-1..2)
+        //:
+        //: 2 Test throttling on each of the three logging functions
+        //:   separately.  (C-3)
+        //
+        // Testing:
+        //   void logIfProblematicDate*(args); (indirectly)
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'logIfProblematicDate*'"
+                          << "\n===============================" << endl;
+
+        bslma::TestAllocator da("case21", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        ostringstream log;  // 'log' to which 'logMessageHandler' writes
+        globalLogPtr = &log;
+
+        bsls::Log::setLogMessageHandler(&logMessageHandler);
+
+        const string EMPTY;
+
+        if (verbose) cout << "\n'Obj(y, d)'." << endl;
+        {
+            log.str(EMPTY);
+
+            const Obj X(1800, 98);
+            ASSERT(EMPTY == log.str());  // nothing logged
+
+            const Obj Y(1700, 98);
+            ASSERT(EMPTY != log.str());  // something logged
+
+            if (veryVerbose) cout << log.str();
+        }
+
+        if (verbose) cout << "\n'Obj(y, m, d)'." << endl;
+        {
+            log.str(EMPTY);
+
+            const Obj X(1800, 10, 31);
+            ASSERT(EMPTY == log.str());  // nothing logged
+
+            const Obj Y(1700, 10, 31);
+            ASSERT(EMPTY != log.str());  // something logged
+
+            if (veryVerbose) cout << log.str();
+        }
+
+        if (verbose) cout << "\n'setYearDay(y, d)'." << endl;
+        {
+            log.str(EMPTY);
+
+            Obj mX;
+
+            mX.setYearDay(1800, 98);
+            ASSERT(EMPTY == log.str());  // nothing logged
+
+            mX.setYearDay(1700, 98);
+            ASSERT(EMPTY != log.str());  // something logged
+
+            if (veryVerbose) cout << log.str();
+        }
+
+        if (verbose) cout << "\n'setYearMonthDay(y, m, d)'." << endl;
+        if (verbose) cout << "\tTest edge cases." << endl;
+        {
+            log.str(EMPTY);
+
+            Obj mX(1800, 11, 11);
+
+            mX.setYearMonthDay(1, 1, 1);
+            ASSERT(EMPTY == log.str());  // nothing logged
+
+            mX.setYearMonthDay(1, 1, 2);
+            ASSERT(EMPTY != log.str());  // something logged
+
+            if (veryVerbose) cout << log.str();
+
+            if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
+                log.str(EMPTY);
+
+                mX.setYearMonthDay(1752, 9, 16);
+                ASSERT(EMPTY == log.str());  // nothing logged
+
+                mX.setYearMonthDay(1752, 9, 15);
+                ASSERT(EMPTY != log.str());  // something logged
+
+                if (veryVerbose) cout << log.str();
+            }
+            else {
+                log.str(EMPTY);
+
+                mX.setYearMonthDay(1752, 9, 14);
+                ASSERT(EMPTY == log.str());  // nothing logged
+
+                mX.setYearMonthDay(1752, 9,  2);
+                ASSERT(EMPTY != log.str());  // something logged
+
+                if (veryVerbose) cout << log.str();
+            }
+        }
+
+        if (verbose) cout << "\n'bdexStreamIn' and 'bdexStreamOut'." << endl;
+        {
+            // Allocator to use instead of the default allocator.
+            bslma::TestAllocator ta("bslx", veryVeryVeryVerbose);
+
+            const int VERSION = Obj::maxSupportedBdexVersion(0);
+
+            using bslx::OutStreamFunctions::bdexStreamOut;
+            using bslx::InStreamFunctions::bdexStreamIn;
+
+            {
+                log.str(EMPTY);
+
+                Out out(VERSION_SELECTOR, &ta);
+                bdexStreamOut(out, Obj(1800, 200), VERSION);
+
+                In in(out.data(), out.length());
+
+                Obj mX;
+
+                bdexStreamIn(in, mX, VERSION);
+
+                ASSERT(EMPTY == log.str());  // nothing logged
+            }
+
+            {
+                log.str(EMPTY);
+
+                Out out(VERSION_SELECTOR, &ta);
+                bdexStreamOut(out, Obj(1700, 200), VERSION);
+                ASSERT(EMPTY != log.str());  // something logged
+
+                if (veryVerbose) cout << log.str();
+
+                In in(out.data(), out.length());
+
+                Obj mX;
+                log.str(EMPTY);
+                bdexStreamIn(in, mX, VERSION);
+                ASSERT(EMPTY != log.str());  // something logged
+
+                if (veryVerbose) cout << log.str();
+            }
+        }
+
+        if (verbose) cout << "\n*** 'logIfProblematicDateAddition' ***"
+                          << endl;
+
+        if (verbose) cout << "\n'operator+=(n)'." << endl;
+        {
+            log.str(EMPTY);
+
+            Obj mX(1800, 10, 31);
+            mX += 1000;
+            ASSERT(EMPTY == log.str());  // nothing logged
+
+            Obj mY;
+            mY += 700000;
+            ASSERT(EMPTY != log.str());  // something logged
+
+            if (veryVerbose) cout << log.str();
+        }
+
+        if (verbose) cout << "\n'operator-=(n)'." << endl;
+        {
+            log.str(EMPTY);
+
+            Obj mX(1800, 10, 31);
+
+            mX -= 1000;
+            ASSERT(EMPTY == log.str());  // nothing logged
+
+            mX -= 500000;
+            ASSERT(EMPTY != log.str());  // something logged
+
+            if (veryVerbose) cout << log.str();
+        }
+
+        if (verbose) cout << "\nMember 'operator++'." << endl;
+        {
+            log.str(EMPTY);
+
+            Obj mX(1800, 200);
+            ++mX;
+            ASSERT(EMPTY == log.str());  // nothing logged
+
+            Obj mY(1700, 200);
+            log.str(EMPTY);
+            ++mY;
+            ASSERT(EMPTY != log.str());  // something logged
+
+            if (veryVerbose) cout << log.str();
+        }
+
+        if (verbose) cout << "\nMember 'operator--'." << endl;
+        {
+            log.str(EMPTY);
+
+            Obj mX(1800, 200);
+            --mX;
+            ASSERT(EMPTY == log.str());  // nothing logged
+
+            Obj mY(1700, 200);
+            log.str(EMPTY);
+            --mY;
+            ASSERT(EMPTY != log.str());  // something logged
+
+            if (veryVerbose) cout << log.str();
+        }
+
+        if (verbose) cout << "\n'addDaysIfValid(n)'." << endl;
+        {
+            log.str(EMPTY);
+
+            Obj mX(1800, 10, 31);
+            mX.addDaysIfValid(1000);
+            ASSERT(EMPTY == log.str());  // nothing logged
+
+            Obj mY;
+            log.str(EMPTY);
+            mY.addDaysIfValid(700000);
+            ASSERT(EMPTY != log.str());  // something logged
+
+            if (veryVerbose) cout << log.str();
+        }
+
+        if (verbose) cout << "\nFree 'operator++'." << endl;
+        {
+            log.str(EMPTY);
+
+            Obj mX(1800, 200);
+            mX++;
+            ASSERT(EMPTY == log.str());  // nothing logged
+
+            Obj mY(1700, 200);
+            log.str(EMPTY);
+            mY++;
+            ASSERT(EMPTY != log.str());  // something logged
+
+            if (veryVerbose) cout << log.str();
+        }
+
+        if (verbose) cout << "\nFree 'operator--'." << endl;
+        {
+            log.str(EMPTY);
+
+            Obj mX(1800, 200);
+            mX--;
+            ASSERT(EMPTY == log.str());  // nothing logged
+
+            Obj mY(1700, 200);
+            log.str(EMPTY);
+            mY--;
+            ASSERT(EMPTY != log.str());  // something logged
+
+            if (veryVerbose) cout << log.str();
+        }
+
+        if (verbose) cout << "\n'operator+(Date, n)'." << endl;
+        {
+            log.str(EMPTY);
+
+            const Obj X(1800, 10, 31);
+            X + 1000;
+            ASSERT(EMPTY == log.str());  // nothing logged
+
+            const Obj Y;
+            Y + 700000;
+            ASSERT(EMPTY != log.str());  // something logged
+
+            if (veryVerbose) cout << log.str();
+        }
+
+        if (verbose) cout << "\n'operator+(n, Date)'." << endl;
+        {
+            log.str(EMPTY);
+
+            const Obj X(1800, 10, 31);
+            1000 + X;
+            ASSERT(EMPTY == log.str());  // nothing logged
+
+            Obj Y;
+            700000 + Y;
+            ASSERT(EMPTY != log.str());  // something logged
+
+            if (veryVerbose) cout << log.str();
+        }
+
+        if (verbose) cout << "\n'operator-(Date, n)'." << endl;
+        if (verbose) cout << "\tTest edge cases." << endl;
+        {
+            log.str(EMPTY);
+
+            const Obj X(1800, 10, 31);
+
+            X - 1000;
+            ASSERT(EMPTY == log.str());  // nothing logged
+
+            X - 500000;
+            ASSERT(EMPTY != log.str());  // something logged
+
+            if (veryVerbose) cout << log.str();
+
+            if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
+                log.str(EMPTY);
+
+                Obj mX(1752, 9, 17);
+
+                mX - 1;
+                ASSERT(EMPTY == log.str());  // nothing logged
+
+                mX - 2;
+                ASSERT(EMPTY != log.str());  // something logged
+
+                if (veryVerbose) cout << log.str();
+
+                log.str(EMPTY);
+
+                mX.setYearMonthDay(1752, 9, 16);
+                mX - 0;
+                mX - 0;
+                ASSERT(EMPTY == log.str());  // nothing logged
+
+                mX.setYearMonthDay(1752, 9, 15);
+
+                log.str(EMPTY);
+
+                // Nothing is logged for the first 'mX - 0', but the count is
+                // incremented.
+
+                mX - 0;
+                ASSERT(EMPTY == log.str());  // nothing logged
+                mX - 0;
+                ASSERT(EMPTY != log.str());  // something logged
+
+                if (veryVerbose) cout << log.str();
+            }
+            else {
+                log.str(EMPTY);
+
+                Obj mX(1752, 9, 15);
+
+                mX - 1;
+                ASSERT(EMPTY == log.str());  // nothing logged
+
+                mX - 2;
+                ASSERT(EMPTY != log.str());  // something logged
+
+                if (veryVerbose) cout << log.str();
+
+                log.str(EMPTY);
+
+                mX.setYearMonthDay(1752, 9, 14);
+                mX - 0;
+                mX - 0;
+                ASSERT(EMPTY == log.str());  // nothing logged
+
+                mX.setYearMonthDay(1752, 9,  2);
+
+                log.str(EMPTY);
+
+                // Nothing is logged for the first 'mX - 0', but the count is
+                // incremented.
+
+                mX - 0;
+                ASSERT(EMPTY == log.str());  // nothing logged
+                mX - 0;
+                ASSERT(EMPTY != log.str());  // something logged
+
+                if (veryVerbose) cout << log.str();
+            }
+        }
+
+        if (verbose) cout << "\n*** 'logIfProblematicDateDifference' ***"
+                          << endl;
+
+        if (verbose) cout << "\n'operator-(Date, Date)'." << endl;
+        if (verbose) cout << "\tTest edge cases." << endl;
+        {
+            log.str(EMPTY);
+
+            const Obj X(1800, 200);
+            const Obj Y(1900, 200);
+
+            Y - X;
+            ASSERT(EMPTY == log.str());  // nothing logged
+
+            const Obj Z(1700, 200);
+            log.str(EMPTY);
+            Y - Z;
+            ASSERT(EMPTY != log.str());  // something logged
+
+            if (veryVerbose) cout << log.str();
+
+            if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
+                log.str(EMPTY);
+
+                const Obj X(1752, 9, 16);
+
+                X - X;
+                ASSERT(EMPTY == log.str());  // nothing logged
+
+                Obj mY;  const Obj &Y = mY;
+                mY.setYearMonthDay(1752, 9, 15);
+
+                log.str(EMPTY);
+
+                X - Y;
+                ASSERT(EMPTY != log.str());  // something logged
+
+                if (veryVerbose) cout << log.str();
+
+                log.str(EMPTY);
+
+                // Nothing is logged for the first 'Y - X', but the count is
+                // incremented.
+
+                Y - X;
+                ASSERT(EMPTY == log.str());  // nothing logged
+                Y - X;
+                ASSERT(EMPTY != log.str());  // something logged
+
+                if (veryVerbose) cout << log.str();
+            }
+            else {
+                log.str(EMPTY);
+
+                const Obj X(1752, 9, 14);
+
+                X - X;
+                ASSERT(EMPTY == log.str());  // nothing logged
+
+                Obj mY;  const Obj &Y = mY;
+                mY.setYearMonthDay(1752, 9,  2);
+
+                log.str(EMPTY);
+
+                X - Y;
+                ASSERT(EMPTY != log.str());  // something logged
+
+                if (veryVerbose) cout << log.str();
+
+                log.str(EMPTY);
+
+                // Nothing is logged for the first 'Y - X', but the count is
+                // incremented.
+
+                Y - X;
+                ASSERT(EMPTY == log.str());  // nothing logged
+                Y - X;
+                ASSERT(EMPTY != log.str());  // something logged
+
+                if (veryVerbose) cout << log.str();
+            }
+        }
+
+        if (verbose) cout << "\nTest log throttling." << endl;
+
+        if (verbose) cout << "\t'logIfProblematicDateValue'." << endl;
+        {
+            // Test throttling using 'Obj(y, m, d)'.  Note that the first
+            // occurrence was logged earlier in this test case.
+
+            // log the 2nd occurrence
+            {
+                log.str(EMPTY);
+
+                const Obj X(1700, 10, 31);
+                ASSERT(EMPTY != log.str());  // something logged
+
+                if (veryVerbose) cout << log.str();
+            }
+
+            // log the 4th occurrence, but not the 3rd
+            {
+                log.str(EMPTY);
+
+                const Obj X(1700, 10, 31);
+                ASSERT(EMPTY == log.str());  // nothing logged
+
+                const Obj Y(1700, 10, 31);
+                ASSERT(EMPTY != log.str());  // something logged
+
+                if (veryVerbose) cout << log.str();
+            }
+
+            // log the 8th occurrence, but not the 5th through 7th
+            {
+                log.str(EMPTY);
+
+                for (int i = 0; i < 3; ++i) {
+                    const Obj X(1700, 10, 31);
+                    ASSERT(EMPTY == log.str());  // nothing logged
+                }
+
+                const Obj Y(1700, 10, 31);
+                ASSERT(EMPTY != log.str());      // something logged
+
+                if (veryVerbose) cout << log.str();
+            }
+
+            // next to be logged is the 16th occurrence
+            {
+                log.str(EMPTY);
+
+                for (int i = 0; i < 7; ++i) {
+                    const Obj X(1700, 10, 31);
+                    ASSERT(EMPTY == log.str());  // nothing logged
+                }
+
+                const Obj Y(1700, 10, 31);
+                ASSERT(EMPTY != log.str());      // something logged
+
+                if (veryVerbose) cout << log.str();
+            }
+        }
+
+        if (verbose) cout << "\t'logIfProblematicDateAddition'." << endl;
+        {
+            // Test throttling using 'operator+(Date, n)'.  Note that the first
+            // occurrence was logged earlier in this test case.
+
+            const Obj X;
+
+            // log the 2nd occurrence
+            {
+                log.str(EMPTY);
+
+                X + 700000;
+                ASSERT(EMPTY != log.str());  // something logged
+
+                if (veryVerbose) cout << log.str();
+            }
+
+            // log the 4th occurrence, but not the 3rd
+            {
+                log.str(EMPTY);
+
+                X + 700000;
+                ASSERT(EMPTY == log.str());  // nothing logged
+
+                X + 700000;
+                ASSERT(EMPTY != log.str());  // something logged
+
+                if (veryVerbose) cout << log.str();
+            }
+
+            // log the 8th occurrence, but not the 5th through 7th
+            {
+                log.str(EMPTY);
+
+                for (int i = 0; i < 3; ++i) {
+                    X + 700000;
+                    ASSERT(EMPTY == log.str());  // nothing logged
+                }
+
+                X + 700000;
+                ASSERT(EMPTY != log.str());      // something logged
+
+                if (veryVerbose) cout << log.str();
+            }
+
+            // next to be logged is the 16th occurrence
+            {
+                log.str(EMPTY);
+
+                for (int i = 0; i < 7; ++i) {
+                    X + 700000;
+                    ASSERT(EMPTY == log.str());  // nothing logged
+                }
+
+                X + 700000;
+                ASSERT(EMPTY != log.str());      // something logged
+
+                if (veryVerbose) cout << log.str();
+            }
+        }
+
+        if (verbose) cout << "\t'logIfProblematicDateDifference'." << endl;
+        {
+            // Test throttling using 'operator-(Date, Date)'.  Note that the
+            // first four occurrences were logged earlier in this test case.
+
+            const Obj X(2015, 1, 1);
+            const Obj Y;
+
+            // log the 8th occurrence, but not the 5th through 7th
+            {
+                log.str(EMPTY);
+
+                for (int i = 0; i < 3; ++i) {
+                    X - Y;
+                    ASSERT(EMPTY == log.str());  // nothing logged
+                }
+
+                X - Y;
+                ASSERT(EMPTY != log.str());      // something logged
+
+                if (veryVerbose) cout << log.str();
+            }
+
+            // next to be logged is the 16th occurrence
+            {
+                log.str(EMPTY);
+
+                for (int i = 0; i < 7; ++i) {
+                    X - Y;
+                    ASSERT(EMPTY == log.str());  // nothing logged
+                }
+
+                X - Y;
+                ASSERT(EMPTY != log.str());      // something logged
+
+                if (veryVerbose) cout << log.str();
+            }
+        }
+
+      } break;
+#endif
       case 20: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
@@ -607,7 +1287,7 @@ if (verbose)
                 { L_,       1,     1,    INT_MAX },
                 { L_,    9999,   365,    INT_MAX },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE     = DATA[ti].d_line;
@@ -727,7 +1407,7 @@ if (verbose)
             { L_,    2014,     11,    1,   DOW::e_SAT,           MOY::e_NOV },
             { L_,    2014,     12,    1,   DOW::e_MON,           MOY::e_DEC },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int       LINE    = DATA[ti].d_line;
@@ -914,7 +1594,7 @@ if (verbose)
             { L_,    9999,  364 },
             { L_,    9999,  365 },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) cout << "\nCompare every value with every value." << endl;
 
@@ -1841,7 +2521,7 @@ if (verbose)
                 { L_,    9998,  365,   9999,    1 },
                 { L_,    9999,  364,   9999,  365 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             if (verbose) cout << "\nTesting member 'operator++'." << endl;
 
@@ -2202,7 +2882,7 @@ if (verbose)
                 { L_,    INT_MAX,        1,     0 },
                 { L_,    INT_MAX,  INT_MAX,     0 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE = DATA[ti].d_line;
@@ -2379,7 +3059,7 @@ if (verbose)
                 { L_,      10000,        1,        1,     0 },
                 { L_,    INT_MAX,        1,        1,     0 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE  = DATA[ti].d_line;
@@ -2596,7 +3276,7 @@ if (verbose)
                 { L_,    9999,  364,     12,       30 },
                 { L_,    9999,  365,     12,       31 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int ILINE       = DATA[ti].d_line;
@@ -2685,7 +3365,7 @@ if (verbose)
                 { L_,    9999,  364 },
                 { L_,    9999,  365 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE = DATA[ti].d_line;
@@ -3133,8 +3813,8 @@ if (verbose)
 
         // Array object used in various stream tests.
         const Obj VALUES[]   = { VA, VB, VC, VD, VE, VF, VG };
-        const int NUM_VALUES = static_cast<int>(sizeof VALUES
-                                                / sizeof *VALUES);
+        const int NUM_VALUES =
+                              static_cast<int>(sizeof VALUES / sizeof *VALUES);
 
         if (verbose) {
             cout << "\nTesting 'maxSupportedBdexVersion'." << endl;
@@ -3728,7 +4408,7 @@ if (verbose)
 
                 { L_,    9999,     12,   31,  9999,     12,   31,  },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE   = DATA[ti].d_line;
@@ -3800,7 +4480,7 @@ if (verbose)
 
                 { L_,    9999,     12,   31,  9999,     12,   31,  },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE   = DATA[ti].d_line;
@@ -3888,7 +4568,7 @@ if (verbose)
 
                 { L_,    9999,     12,   29,  9999,     12,   29,  },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE   = DATA[ti].d_line;
@@ -3964,7 +4644,7 @@ if (verbose)
 
                 { L_,    9999,     12,   31,  9999,     12,   31,  },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE   = DATA[ti].d_line;
@@ -4397,7 +5077,7 @@ if (verbose)
             { L_,    9999,     12,   30 },
             { L_,    9999,     12,   31 },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) cout << "\nCompare every value with every value." << endl;
 
@@ -4643,7 +5323,7 @@ if (verbose)
 #undef NL
 
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) cout << "\nTesting with various print specifications."
                           << endl;
@@ -5162,6 +5842,300 @@ if (verbose)
         ASSERT(0 == (X == Z));        ASSERT(1 == (X != Z));
 
       } break;
+#ifndef BDE_OMIT_TRANSITIONAL
+      case -1: {
+        // --------------------------------------------------------------------
+        // 'logIfProblematicDate*' Log Messages
+        //
+        // Testing:
+        //   Manual inspection of log message content.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\n'logIfProblematicDate*' Log Messages"
+                          << "\n====================================" << endl;
+
+        if (verbose) cout << "\n*** 'logIfProblematicDateValue' ***" << endl;
+
+        if (verbose) cout << "\n'Obj(y, d)'." << endl;
+        {
+            const Obj X(1800, 98);
+            const Obj Y(1700, 98);
+        }
+
+        if (verbose) cout << "\n'Obj(y, m, d)'." << endl;
+        {
+            const Obj X(1800, 10, 31);
+            const Obj Y(1700, 10, 31);
+        }
+
+        if (verbose) cout << "\n'setYearDay(y, d)'." << endl;
+        {
+            Obj mX;
+
+            mX.setYearDay(1800, 98);
+            mX.setYearDay(1700, 98);
+        }
+
+        if (verbose) cout << "\n'setYearMonthDay(y, m, d)'." << endl;
+        {
+            Obj mX;
+
+            mX.setYearMonthDay(1800, 11, 11);
+            mX.setYearMonthDay(1700, 11, 11);
+        }
+
+        if (verbose) cout << "\n'bdexStreamIn' and 'bdexStreamOut'." << endl;
+        {
+            // Allocator to use instead of the default allocator.
+            bslma::TestAllocator ta("bslx", veryVeryVeryVerbose);
+
+            const int VERSION = Obj::maxSupportedBdexVersion(0);
+
+            using bslx::OutStreamFunctions::bdexStreamOut;
+            using bslx::InStreamFunctions::bdexStreamIn;
+
+            {
+                Out out(VERSION_SELECTOR, &ta);
+                bdexStreamOut(out, Obj(1800, 200), VERSION);
+
+                In in(out.data(), out.length());
+
+                Obj mX;
+
+                bdexStreamIn(in, mX, VERSION);
+            }
+
+            {
+                Out out(VERSION_SELECTOR, &ta);
+                bdexStreamOut(out, Obj(1700, 200), VERSION);
+
+                In in(out.data(), out.length());
+
+                Obj mX;
+
+                bdexStreamIn(in, mX, VERSION);
+            }
+        }
+
+        if (verbose) cout << "\n*** 'logIfProblematicDateAddition' ***"
+                          << endl;
+
+        if (verbose) cout << "\n'operator+=(n)'." << endl;
+        {
+            Obj mX(1800, 10, 31);
+            mX += 1000;
+
+            Obj mY;
+            mY += 700000;
+        }
+
+        if (verbose) cout << "\n'operator-=(n)'." << endl;
+        {
+            Obj mX(1800, 10, 31);
+
+            mX -= 1000;
+            mX -= 500000;
+        }
+
+        if (verbose) cout << "\nMember 'operator++'." << endl;
+        {
+            Obj mX(1800, 200);
+            ++mX;
+
+            Obj mY(1700, 200);
+            ++mY;
+        }
+
+        if (verbose) cout << "\nMember 'operator--'." << endl;
+        {
+            Obj mX(1800, 200);
+            --mX;
+
+            Obj mY(1700, 200);
+            --mY;
+        }
+
+        if (verbose) cout << "\n'addDaysIfValid(n)'." << endl;
+        {
+            Obj mX(1800, 10, 31);
+            mX.addDaysIfValid(1000);
+
+            Obj mY;
+            mY.addDaysIfValid(700000);
+        }
+
+        if (verbose) cout << "\nFree 'operator++'." << endl;
+        {
+            Obj mX(1800, 200);
+            mX++;
+
+            Obj mY(1700, 200);
+            mY++;
+        }
+
+        if (verbose) cout << "\nFree 'operator--'." << endl;
+        {
+            Obj mX(1800, 200);
+            mX--;
+
+            Obj mY(1700, 200);
+            mY--;
+        }
+
+        if (verbose) cout << "\n'operator+(Date, n)'." << endl;
+        {
+            const Obj X(1800, 10, 31);
+            X + 1000;
+
+            const Obj Y;
+            Y + 700000;
+        }
+
+        if (verbose) cout << "\n'operator+(n, Date)'." << endl;
+        {
+            const Obj X(1800, 10, 31);
+            1000 + X;
+
+            Obj Y;
+            700000 + Y;
+        }
+
+        if (verbose) cout << "\n'operator-(Date, n)'." << endl;
+        {
+            const Obj X(1800, 10, 31);
+
+            X - 1000;
+            X - 500000;
+        }
+
+        if (verbose) cout << "\n*** 'logIfProblematicDateDifference' ***"
+                          << endl;
+
+        if (verbose) cout << "\n'operator-(Date, Date)'." << endl;
+        {
+            const Obj X(1800, 200);
+            const Obj Y(1900, 200);
+
+            Y - X;
+
+            const Obj Z(1700, 200);
+            Y - Z;
+        }
+
+        if (verbose) cout << "\nTest log throttling." << endl;
+
+        if (verbose) cout << "\t'logIfProblematicDateValue'." << endl;
+        {
+            // Test throttling using 'Obj(y, m, d)'.  Note that the first
+            // occurrence was logged earlier in this test case.
+
+            // log the 2nd occurrence
+            {
+                const Obj X(1700, 10, 31);
+            }
+
+            // log the 4th occurrence, but not the 3rd
+            {
+                const Obj X(1700, 10, 31);
+                const Obj Y(1700, 10, 31);
+            }
+
+            // log the 8th occurrence, but not the 5th through 7th
+            {
+                for (int i = 0; i < 3; ++i) {
+                    const Obj X(1700, 10, 31);
+                }
+
+                const Obj Y(1700, 10, 31);
+            }
+
+            // next to be logged is the 16th occurrence
+            {
+                for (int i = 0; i < 7; ++i) {
+                    const Obj X(1700, 10, 31);
+                }
+
+                const Obj Y(1700, 10, 31);
+            }
+        }
+
+        if (verbose) cout << "\t'logIfProblematicDateAddition'." << endl;
+        {
+            // Test throttling using 'operator+(Date, n)'.  Note that the first
+            // occurrence was logged earlier in this test case.
+
+            const Obj X;
+
+            // log the 2nd occurrence
+            {
+               X + 700000;
+            }
+
+            // log the 4th occurrence, but not the 3rd
+            {
+               X + 700000;
+               X + 700000;
+            }
+
+            // log the 8th occurrence, but not the 5th through 7th
+            {
+               for (int i = 0; i < 3; ++i) {
+                  X + 700000;
+               }
+
+               X + 700000;
+            }
+
+            // next to be logged is the 16th occurrence
+            {
+               for (int i = 0; i < 7; ++i) {
+                  X + 700000;
+               }
+
+               X + 700000;
+            }
+        }
+
+        if (verbose) cout << "\t'logIfProblematicDateDifference'." << endl;
+        {
+            // Test throttling using 'operator-(Date, Date)'.  Note that the
+            // first occurrence was logged earlier in this test case.
+
+            const Obj X(2015, 1, 1);
+            const Obj Y;
+
+            // log the 2nd occurrence
+            {
+               X - Y;
+            }
+
+            // log the 4th occurrence, but not the 3rd
+            {
+               X - Y;
+               X - Y;
+            }
+
+            // log the 8th occurrence, but not the 5th through 7th
+            {
+               for (int i = 0; i < 3; ++i) {
+                  X - Y;
+               }
+
+               X - Y;
+            }
+
+            // next to be logged is the 16th occurrence
+            {
+               for (int i = 0; i < 7; ++i) {
+                  X - Y;
+               }
+
+               X - Y;
+            }
+        }
+
+      } break;
+#endif
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;
