@@ -978,7 +978,6 @@ void hashAppend(HASHALG& hashAlg, const pair<T1, T2>&  input)
     using ::BloombergLP::bslh::hashAppend;
     hashAppend(hashAlg, input.first);
     hashAppend(hashAlg, input.second);
-    hashAppend(hashAlg, std::size_t(2));
 }
 
 }  // close namespace bsl

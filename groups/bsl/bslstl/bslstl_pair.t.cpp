@@ -14,11 +14,11 @@
 
 #include <bslmf_issame.h>
 
-#include <bsl/bsl_algorithm.h>
-
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+
+#include <algorithm>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -512,7 +512,7 @@ namespace TypeWithSwapNamespace {
         }
 
         void swap(TypeWithSwap& other) {
-            bsl::swap(data, other.data);
+            std::swap(data, other.data);
 
             // set the flag indicating that this function has been called
             other.swapCalled = swapCalled = true;
