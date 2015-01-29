@@ -6953,7 +6953,7 @@ int main(int argc, char *argv[])
         //:
         //: 2 'reset' destroys any managed object using the stored 'deleter'.
         //:
-        //: 3 same conserns as 1 and 2 but with 'clear'.
+        //: 3 same concerns as 1 and 2 but with 'clear'.
         //
         //   That release works properly.
         //   Release gives up ownership of resources without running deleters
