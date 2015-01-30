@@ -4,7 +4,7 @@
 
 @DEPRECATED: Do not use.
 
-@MNEMONIC: Basic Standard Library System forwarding declarations (bslfwd)
+@MNEMONIC: Basic Standard Library System ForWarding Declarations (bslfwd)
 
 @AUTHOR: Steven Breitstein (sbreitstein)
 
