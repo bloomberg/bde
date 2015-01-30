@@ -491,10 +491,11 @@ unsigned short Guid::timeHiAndVersion() const
 
 inline
 unsigned long Guid::timeLow() const {
-    return d_buffer[0] << 24 |
-           d_buffer[1] << 16 |
-           d_buffer[2] <<  8 |
-           d_buffer[3];
+    typedef unsigned long ul;
+    return ul(d_buffer[0]) << 24 |
+              d_buffer[1]  << 16 |
+              d_buffer[2]  <<  8 |
+              d_buffer[3];
 }
 
 inline
