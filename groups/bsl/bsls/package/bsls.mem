@@ -10,6 +10,7 @@ bsls_asserttest
 bsls_asserttestexception
 bsls_atomic
 bsls_atomicoperations
+bsls_atomicoperations_all_all_clangintrinsics
 bsls_atomicoperations_all_all_gccintrinsics
 bsls_atomicoperations_arm_all_gcc
 bsls_atomicoperations_default
