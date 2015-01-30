@@ -2,6 +2,8 @@
 
 @PURPOSE: Provide third-party decimal floating point library (Intel DFP).
 
+@MNEMONIC: Basic Development Library INTEL DFP (bdl+inteldfp)
+
 @SEE_ALSO: bdldfp_decimal
 
 @DESCRIPTION: The 'bdl+inteldfp' non-standard package contains the open-source
