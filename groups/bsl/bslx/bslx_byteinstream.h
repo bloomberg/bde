@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 // methods ("unexternalization") on values, and arrays of values, of
 // fundamental types, and on 'bsl::string'.
 //
-// This 'bslx::ByteInStream' type reads from a user-supplied buffer directly,
+// The 'bslx::ByteInStream' type reads from a user-supplied buffer directly,
 // with no data copying or assumption of ownership.  The user must therefore
 // make sure that the lifetime and visibility of the buffer is sufficient to
 // satisfy the needs of the input stream.

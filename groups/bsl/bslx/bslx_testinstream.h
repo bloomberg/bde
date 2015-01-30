@@ -21,9 +21,10 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component implements a byte-array-based input stream
 // class, 'bslx::TestInStream', that provides platform-independent input
 // methods ("unexternalization") on values, and arrays of values, of
-// fundamental types, and on 'bsl::string'.  This component also verifies, for
-// these types, that the type of data requested from the stream matches what
-// was written to the stream.  'bslx::TestInStream' is meant for testing only.
+// fundamental types, and on 'bsl::string'.  'bslx::TestInStream' also
+// verifies, for these types, that the type of data requested from the stream
+// matches what was written to the stream.  'bslx::TestInStream' is meant for
+// testing only.
 //
 // The 'bslx::TestInStream' type reads from a user-supplied buffer directly,
 // with no data copying or assumption of ownership.  The user must therefore

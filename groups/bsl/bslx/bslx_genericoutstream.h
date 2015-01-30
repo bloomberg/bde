@@ -165,7 +165,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 2: Sample 'STREAMBUF' Implementation
 ///- - - - - - - - - - - - - - - - - - - - - -
-// For this example, we will implement 'MyOutStreamBuf'; a minimal 'STREAMBUF'
+// For this example, we will implement 'MyOutStreamBuf', a minimal 'STREAMBUF'
 // to be used with 'bslx::GenericOutStream'.  The implementation will consist
 // of only what is required of the type and two accessors to verify correct
 // functionality ('data' and 'length').
