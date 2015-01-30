@@ -35,8 +35,10 @@ def build(bld):
 
     if 'BDE_THIRD_PARTY_CFLAGS' in bld.env:
         bde_cflags = bld.env['BDE_THIRD_PARTY_CFLAGS']
+        is_bde = True
     else:
         bde_cflags = []
+        is_bde = False
 
     if sys.byteorder == 'big':
         cflags = ["-DDECLITEND=0"]
@@ -67,9 +69,15 @@ def build(bld):
         install_path = os.path.join(prefix, lib_dir, 'pkgconfig')
     )
 
-    bld.install_files(os.path.join(prefix, 'include', 'decNumber'),
+    if is_bde:
+        from bdewafbuild import install_files
+        install_files(bld, 'decNumber_inst',
+                      os.path.join(prefix, 'include', 'decNumber'),
                       bld.path.ant_glob('*.h'))
 
+    else:
+        bld.install_files(os.path.join(prefix, 'include', 'decNumber'),
+                          bld.path.ant_glob('*.h'))
 
 
 # ----------------------------------------------------------------------------
