@@ -18,27 +18,6 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 
-// STATIC HELPER FUNCTIONS
-static
-bool isPowerOfTwo(int alignment)
-    // Return 'true' if the specified 'alignment' is a power of 2 no greater
-    // than 256, and 'false' otherwise.  Note that this implementation is
-    // limited to small powers of 2 as its purpose is to detect valid memory
-    // alignment values.
-{
-    static const int VALUES[]   = { 1, 2, 4, 8, 16, 32, 64, 128, 256 };
-           const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
-
-    BSLMF_ASSERT((256 >= bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT));
-
-    for (int i = 0; i != NUM_VALUES; ++i) {
-        if (VALUES[i] == alignment) {
-            return true;
-        }
-    }
-    return false;
-}
-
 static
 void *allocateFromBufferImp(int                               *cursor,
                             char                              *buffer,
@@ -59,9 +38,7 @@ void *allocateFromBufferImp(int                               *cursor,
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < alignment);
     BSLS_ASSERT(alignment <= bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
-    BSLS_ASSERT_SAFE(isPowerOfTwo(alignment));
-
-    (void)isPowerOfTwo; // Suppress unused function warning.
+    BSLS_ASSERT(0 == alignment & (alignment - 1));  // alignment is power of 2
 
     int offset = bsls::AlignmentUtil::calculateAlignmentOffset(
                                                               buffer + *cursor,
@@ -127,7 +104,8 @@ void *BufferAllocator::allocateFromBuffer(int       *cursor,
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < alignment);
     BSLS_ASSERT(alignment <= bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
-    BSLS_ASSERT_SAFE(isPowerOfTwo(alignment));
+    BSLS_ASSERT(0 == alignment & (alignment - 1));  // alignment is power of 2
+
 
     return 0 >= size
            ? static_cast<void *>(0)

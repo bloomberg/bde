@@ -264,13 +264,13 @@ class SpookyHashAlgorithmImp {
 
   private:
     // DATA
-    static const Uint8 k_NUM_VARS = 12;
+    enum { k_NUM_VARS = 12 };
         // Number of 64-bit integers used in the internal state.
 
-    static const Uint8 k_BLOCK_SIZE = k_NUM_VARS * 8;
+    enum { k_BLOCK_SIZE = k_NUM_VARS * 8 };
         // Size of the internal state, in bytes.
 
-    static const Uint8 k_BUFFER_SIZE = k_BLOCK_SIZE * 2;
+    enum { k_BUFFER_SIZE = k_BLOCK_SIZE * 2 };
         // Size of buffer of unhashed data, in bytes.
 
     static const Uint64 sc_const = 0xdeadbeefdeadbeefLL;
