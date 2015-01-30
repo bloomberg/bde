@@ -1,4 +1,4 @@
-// bslx_streambufinstream.t.cpp                                   -*-C++-*-
+// bslx_streambufinstream.t.cpp                                       -*-C++-*-
 
 #include <bslx_streambufinstream.h>
 #include <bslx_streambufoutstream.h>  // for testing only

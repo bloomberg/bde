@@ -111,8 +111,8 @@ BSLS_IDENT("$Id: $")
 // stream to the expected value, and then writes the contents of this stream's
 // buffer to 'stdout'.
 //
-// First, we create a 'bslx::GenericOutStream' with an arbitrary value for its
-// 'versionSelector' and externalize some values:
+// First, we create a 'bslx::GenericOutStream', with an arbitrary value for its
+// 'versionSelector', and externalize some values:
 //..
 //  bsl::stringbuf                         buffer1;
 //  bslx::GenericOutStream<bsl::stringbuf> outStream1(&buffer1, 20131127);
@@ -163,14 +163,15 @@ BSLS_IDENT("$Id: $")
 // See the 'bslx_genericinstream' component usage example for a more practical
 // example of using 'bslx' streams.
 //
-///Example 2: Sample STREAMBUF Implementation
-///- - - - - - - - - - - - - - - - - - - - -
+///Example 2: Sample 'STREAMBUF' Implementation
+///- - - - - - - - - - - - - - - - - - - - - -
 // For this example, we will implement 'MyOutStreamBuf'; a minimal 'STREAMBUF'
 // to be used with 'bslx::GenericOutStream'.  The implementation will consist
 // of only what is required of the type and two accessors to verify correct
 // functionality ('data' and 'length').
 //
-// First, we implement 'MyOutStreamBuf':
+// First, we implement 'MyOutStreamBuf' (which, for brevity, simply uses the
+// default allocator):
 //..
 //  class MyOutStreamBuf {
 //      // This class implements a very basic stream buffer suitable for use in
@@ -179,10 +180,15 @@ BSLS_IDENT("$Id: $")
 //      // DATA
 //      bsl::string d_buffer;  // output buffer
 //
+//    private:
+//      // NOT IMPLEMENTED
+//      MyOutStreamBuf(const MyOutStreamBuf&);
+//      MyOutStreamBuf& operator=(const MyOutStreamBuf&);
+//
 //    public:
 //      // TYPES
 //      struct traits_type {
-//          static int eof() {  return -1;  }
+//          static int eof() { return -1; }
 //      };
 //
 //      // CREATORS
@@ -197,12 +203,12 @@ BSLS_IDENT("$Id: $")
 //          // Return 0.
 //
 //      int sputc(char c);
-//          // Write the specified character 'c' to this buffer.  If the write
-//          // is successful, return the value 'c'; otherwise, 'EOF'.
+//          // Write the specified character 'c' to this buffer.  Return 'c' on
+//          // success, and 'traits_type::eof()' otherwise.
 //
 //      bsl::streamsize sputn(const char *s, bsl::streamsize length);
 //          // Write the specified 'length' characters at the specified address
-//          // 's' to this buffer and return the number of characters written.
+//          // 's' to this buffer, and return the number of characters written.
 //
 //      // ACCESSORS
 //      const char *data() const;
@@ -261,9 +267,9 @@ BSLS_IDENT("$Id: $")
 //      return d_buffer.size();
 //  }
 //..
-// Then, we create 'buffer', an instance of 'MyOutStreamBuffer', and a
-// 'bslx::GenericOutStream' using 'buffer' with an arbitrary value for its
-// 'versionSelector' and externalize some values:
+// Then, we create 'buffer2', an instance of 'MyOutStreamBuf', and a
+// 'bslx::GenericOutStream' using 'buffer2', with an arbitrary value for its
+// 'versionSelector', and externalize some values:
 //..
 //  MyOutStreamBuf                         buffer2;
 //  bslx::GenericOutStream<MyOutStreamBuf> outStream2(&buffer2, 20131127);
@@ -1553,8 +1559,8 @@ inline
 GenericOutStream<STREAMBUF>&
 GenericOutStream<STREAMBUF>::putArrayInt8(const char *values, int numValues)
 {
-    BSLS_ASSERT(values);
-    BSLS_ASSERT(0 <= numValues);
+    BSLS_ASSERT_SAFE(values);
+    BSLS_ASSERT_SAFE(0 <= numValues);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1576,8 +1582,8 @@ GenericOutStream<STREAMBUF>&
 GenericOutStream<STREAMBUF>::putArrayInt8(const signed char *values,
                                           int                numValues)
 {
-    BSLS_ASSERT(values);
-    BSLS_ASSERT(0 <= numValues);
+    BSLS_ASSERT_SAFE(values);
+    BSLS_ASSERT_SAFE(0 <= numValues);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1599,8 +1605,8 @@ inline
 GenericOutStream<STREAMBUF>&
 GenericOutStream<STREAMBUF>::putArrayUint8(const char *values, int numValues)
 {
-    BSLS_ASSERT(values);
-    BSLS_ASSERT(0 <= numValues);
+    BSLS_ASSERT_SAFE(values);
+    BSLS_ASSERT_SAFE(0 <= numValues);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1622,8 +1628,8 @@ GenericOutStream<STREAMBUF>&
 GenericOutStream<STREAMBUF>::putArrayUint8(const unsigned char *values,
                                            int                  numValues)
 {
-    BSLS_ASSERT(values);
-    BSLS_ASSERT(0 <= numValues);
+    BSLS_ASSERT_SAFE(values);
+    BSLS_ASSERT_SAFE(0 <= numValues);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;

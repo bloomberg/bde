@@ -351,10 +351,15 @@ const int SIZEOF_FLOAT32 = 4;
         // DATA
         bsl::string d_buffer;  // output buffer
 
+      private:
+        // NOT IMPLEMENTED
+        MyOutStreamBuf(const MyOutStreamBuf&);
+        MyOutStreamBuf& operator=(const MyOutStreamBuf&);
+
       public:
         // TYPES
         struct traits_type {
-            static int eof() {  return -1;  }
+            static int eof() { return -1; }
         };
 
         // CREATORS
@@ -369,12 +374,12 @@ const int SIZEOF_FLOAT32 = 4;
             // Return 0.
 
         int sputc(char c);
-            // Write the specified character 'c' to this buffer.  If the write
-            // is successful, return the value 'c'; otherwise, 'EOF'.
+            // Write the specified character 'c' to this buffer.  Return 'c' on
+            // success, and 'traits_type::eof()' otherwise.
 
         bsl::streamsize sputn(const char *s, bsl::streamsize length);
             // Write the specified 'length' characters at the specified address
-            // 's' to this buffer and return the number of characters written.
+            // 's' to this buffer, and return the number of characters written.
 
         // ACCESSORS
         const char *data() const;
@@ -492,8 +497,8 @@ int main(int argc, char *argv[])
 // stream to the expected value, and then writes the contents of this stream's
 // buffer to 'stdout'.
 //
-// First, we create a 'bslx::GenericOutStream' with an arbitrary value for its
-// 'versionSelector' and externalize some values:
+// First, we create a 'bslx::GenericOutStream', with an arbitrary value for its
+// 'versionSelector', and externalize some values:
 //..
     bsl::stringbuf                         buffer1;
     bslx::GenericOutStream<bsl::stringbuf> outStream1(&buffer1, 20131127);
@@ -546,19 +551,20 @@ int main(int argc, char *argv[])
 // example of using 'bslx' streams.
 // example of using 'bslx' streams.
 //
-///Example 2: Sample STREAMBUF Implementation
-///- - - - - - - - - - - - - - - - - - - - -
-// For this example, we will implement 'MyOutStreamBuf'; a minimal 'STREAMBUF'
+///Example 2: Sample 'STREAMBUF' Implementation
+///- - - - - - - - - - - - - - - - - - - - - -
+// For this example, we will implement 'MyOutStreamBuf', a minimal 'STREAMBUF'
 // to be used with 'bslx::GenericOutStream'.  The implementation will consist
 // of only what is required of the type and two accessors to verify correct
 // functionality ('data' and 'length').
 //
-// First, we implement 'MyOutStreamBuf':
+// First, we implement 'MyOutStreamBuf' (which, for brevity, simply uses the
+// default allocator):
 //..
 //..
-// Then, we create 'buffer2', an instance of 'MyOutStreamBuffer', and a
-// 'bslx::GenericOutStream' using 'buffer2' with an arbitrary value for its
-// 'versionSelector' and externalize some values:
+// Then, we create 'buffer2', an instance of 'MyOutStreamBuf', and a
+// 'bslx::GenericOutStream' using 'buffer2', with an arbitrary value for its
+// 'versionSelector', and externalize some values:
 //..
     MyOutStreamBuf                         buffer2;
     bslx::GenericOutStream<MyOutStreamBuf> outStream2(&buffer2, 20131127);
@@ -2927,10 +2933,10 @@ int main(int argc, char *argv[])
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
-            ASSERT_FAIL(mX.putArrayInt8((char *)0, 0));
-            ASSERT_FAIL(mX.putArrayInt8(DATA, -1));
-            ASSERT_PASS(mX.putArrayInt8(DATA, 0));
-            ASSERT_PASS(mX.putArrayInt8(DATA, 1));
+            ASSERT_SAFE_FAIL(mX.putArrayInt8((char *)0, 0));
+            ASSERT_SAFE_FAIL(mX.putArrayInt8(DATA, -1));
+            ASSERT_SAFE_PASS(mX.putArrayInt8(DATA, 0));
+            ASSERT_SAFE_PASS(mX.putArrayInt8(DATA, 1));
         }
         {
             const signed char DATA[] = {1, 2, 3};
@@ -2940,10 +2946,10 @@ int main(int argc, char *argv[])
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
-            ASSERT_FAIL(mX.putArrayInt8((signed char *)0, 0));
-            ASSERT_FAIL(mX.putArrayInt8(DATA, -1));
-            ASSERT_PASS(mX.putArrayInt8(DATA, 0));
-            ASSERT_PASS(mX.putArrayInt8(DATA, 1));
+            ASSERT_SAFE_FAIL(mX.putArrayInt8((signed char *)0, 0));
+            ASSERT_SAFE_FAIL(mX.putArrayInt8(DATA, -1));
+            ASSERT_SAFE_PASS(mX.putArrayInt8(DATA, 0));
+            ASSERT_SAFE_PASS(mX.putArrayInt8(DATA, 1));
         }
         {
             const char DATA[] = {1, 2, 3};
@@ -2953,10 +2959,10 @@ int main(int argc, char *argv[])
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
-            ASSERT_FAIL(mX.putArrayUint8((char *)0, 0));
-            ASSERT_FAIL(mX.putArrayUint8(DATA, -1));
-            ASSERT_PASS(mX.putArrayUint8(DATA, 0));
-            ASSERT_PASS(mX.putArrayUint8(DATA, 1));
+            ASSERT_SAFE_FAIL(mX.putArrayUint8((char *)0, 0));
+            ASSERT_SAFE_FAIL(mX.putArrayUint8(DATA, -1));
+            ASSERT_SAFE_PASS(mX.putArrayUint8(DATA, 0));
+            ASSERT_SAFE_PASS(mX.putArrayUint8(DATA, 1));
         }
         {
             const unsigned char DATA[] = {1, 2, 3};
@@ -2966,10 +2972,10 @@ int main(int argc, char *argv[])
 
             Buf mB;
             Obj mX(&mB, VERSION_SELECTOR);
-            ASSERT_FAIL(mX.putArrayUint8((unsigned char *)0, 0));
-            ASSERT_FAIL(mX.putArrayUint8(DATA, -1));
-            ASSERT_PASS(mX.putArrayUint8(DATA, 0));
-            ASSERT_PASS(mX.putArrayUint8(DATA, 1));
+            ASSERT_SAFE_FAIL(mX.putArrayUint8((unsigned char *)0, 0));
+            ASSERT_SAFE_FAIL(mX.putArrayUint8(DATA, -1));
+            ASSERT_SAFE_PASS(mX.putArrayUint8(DATA, 0));
+            ASSERT_SAFE_PASS(mX.putArrayUint8(DATA, 1));
         }
       } break;
       case 13: {

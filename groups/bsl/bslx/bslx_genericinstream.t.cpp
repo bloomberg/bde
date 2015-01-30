@@ -170,27 +170,27 @@ class TestStreamBuf {
         // Increments the flush count.
 
     int sbumpc();
-        // Read the next character in this buffer.  If the read is successful,
-        // return the value of the character; otherwise, 'EOF'.
+        // Read the next character in this buffer.  Return the value of the
+        // character on success, and 'traits_type::eof()' otherwise.
 
     void setLimit(int limit);
         // Set the input limit to the specified 'limit'.
 
     int sgetc();
-        // Peek at the next character in this buffer.  If the peek is
-        // successful, return the value of the character; otherwise, 'EOF'.
+        // Peek at the next character in this buffer.  Return the value of
+        // the character on success, and 'traits_type::eof()' otherwise.
 
     bsl::streamsize sgetn(char *s, bsl::streamsize length);
         // Load the specified 'length' characters into the specified address
-        // 's' and return the number of characters read.
+        // 's', and return the number of characters read.
 
     int sputc(char c);
-        // Write the specified character 'c' to this buffer.  If the write is
-        // successful, return the value 'c'; otherwise, 'EOF'.
+        // Write the specified character 'c' to this buffer.  Return 'c' on
+        // success, and 'traits_type::eof()' otherwise.
 
     bsl::streamsize sputn(const char *s, bsl::streamsize length);
         // Write the specified 'length' characters at the specified address 's'
-        // to this buffer and return the number of characters written.
+        // to this buffer, and return the number of characters written.
 };
 
 // FREE OPERATORS
@@ -653,10 +653,6 @@ int maxSupportedBdexVersion(const MyStruct::EnumValue *,
         return !(lhs == rhs);
     }
 
-// ============================================================================
-//                                 USAGE EXAMPLE
-// ----------------------------------------------------------------------------
-
     class MyStreamBuf {
         // This class implements a very basic stream buffer suitable for use in
         // 'bslx::GenericOutStream' and 'bslx::GenericInStream'.
@@ -664,10 +660,15 @@ int maxSupportedBdexVersion(const MyStruct::EnumValue *,
         // DATA
         bsl::deque<char> d_buffer;  // the input and output buffer
 
+      private:
+        // NOT IMPLEMENTED
+        MyStreamBuf(const MyStreamBuf&);
+        MyStreamBuf& operator=(const MyStreamBuf&);
+
       public:
         // TYPES
         struct traits_type {
-            static int eof() {  return -1;  }
+            static int eof() { return -1; }
         };
 
         // CREATORS
@@ -682,24 +683,24 @@ int maxSupportedBdexVersion(const MyStruct::EnumValue *,
             // Return 0.
 
         int sbumpc();
-            // Read the next character in this buffer.  If the read is
-            // successful, return the value of the character; otherwise, 'EOF'.
+            // Read the next character in this buffer.  Return the value of the
+            // character on success, and 'traits_type::eof()' otherwise.
 
         int sgetc();
-            // Peek at the next character in this buffer.  If the peek is
-            // successful, return the value of the character; otherwise, 'EOF'.
+            // Peek at the next character in this buffer.  Return the value of
+            // the character on success, and 'traits_type::eof()' otherwise.
 
         bsl::streamsize sgetn(char *s, bsl::streamsize length);
             // Load the specified 'length' characters into the specified
-            // address 's' and return the number of characters read.
+            // address 's', and return the number of characters read.
 
         int sputc(char c);
-            // Write the specified character 'c' to this buffer.  If the write
-            // is successful, return the value 'c'; otherwise, 'EOF'.
+            // Write the specified character 'c' to this buffer.  Return 'c' on
+            // success, and 'traits_type::eof()' otherwise.
 
         bsl::streamsize sputn(const char *s, bsl::streamsize length);
             // Write the specified 'length' characters at the specified address
-            // 's' to this buffer and return the number of characters written.
+            // 's' to this buffer, and return the number of characters written.
     };
 
     // ========================================================================
@@ -728,7 +729,7 @@ int maxSupportedBdexVersion(const MyStruct::EnumValue *,
     int MyStreamBuf::sbumpc()
     {
         if (!d_buffer.empty()) {
-            int rv = static_cast<int>(d_buffer.front());
+            const int rv = static_cast<int>(d_buffer.front());
             d_buffer.pop_front();
             return rv;                                                // RETURN
         }
@@ -822,8 +823,8 @@ int main(int argc, char *argv[])
     MyPerson janeCopy1;
     ASSERT(janeCopy1 != janeSmith1);
 //..
-// Then, create a 'bslx::GenericInStream' 'inStream' initialized with the
-// buffer from the 'bslx::GenericOutStream' object 'outStream' and
+// Then, create a 'bslx::GenericInStream' 'inStream1' initialized with the
+// buffer from the 'bslx::GenericOutStream' object 'outStream1' and
 // unexternalize this data into 'janeCopy1':
 //..
     bslx::GenericInStream<bsl::stringbuf> inStream1(&buffer1);
@@ -854,15 +855,16 @@ if (veryVerbose) {
 } // if (veryVerbose)
 //..
 //
-///Example 2: Sample STREAMBUF Implementation
-///- - - - - - - - - - - - - - - - - - - - -
-// For this example, we will implement 'MyStreamBuf'; a minimal 'STREAMBUF' to
+///Example 2: Sample 'STREAMBUF' Implementation
+///- - - - - - - - - - - - - - - - - - - - - -
+// For this example, we will implement 'MyStreamBuf', a minimal 'STREAMBUF' to
 // to be used with 'bslx::GenericInStream' and 'bslx::GenericOutStream'.  The
 // implementation will consist of only what is required of the type.  For
 // comparison, we will reuse 'MyPerson' and repeat part of {Example 1} to
 // demonstrate how to use 'bslx::GenericInStream'.
 //
-// First, we implement 'MyStreamBuf':
+// First, we implement 'MyStreamBuf' (which, for brevity, simply uses the
+// default allocator):
 //..
 //..
 // Then, we create a 'MyPerson' 'janeSmith2' and a 'bslx::GenericOutStream'
@@ -882,8 +884,8 @@ if (veryVerbose) {
     MyPerson janeCopy2;
     ASSERT(janeCopy2 != janeSmith2);
 //..
-// Then, create a 'bslx::GenericInStream' 'inStream' initialized with the
-// buffer from the 'bslx::GenericOutStream' object 'outStream' and
+// Then, create a 'bslx::GenericInStream' 'inStream2' initialized with the
+// buffer from the 'bslx::GenericOutStream' object 'outStream2' and
 // unexternalize this data into 'janeCopy2':
 //..
     bslx::GenericInStream<MyStreamBuf>    inStream2(&buffer2);
@@ -4130,20 +4132,20 @@ if (veryVerbose) {
 
             {
                 Obj mX(&b);
-                ASSERT_FAIL(mX.getArrayInt8(
+                ASSERT_SAFE_FAIL(mX.getArrayInt8(
                                             static_cast<signed char *>(0), 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_FAIL(mX.getArrayInt8(DATA, -1));
+                ASSERT_SAFE_FAIL(mX.getArrayInt8(DATA, -1));
             }
             {
                 Obj mX(&b);
-                ASSERT_PASS(mX.getArrayInt8(DATA, 0));
+                ASSERT_SAFE_PASS(mX.getArrayInt8(DATA, 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_PASS(mX.getArrayInt8(DATA, 1));
+                ASSERT_SAFE_PASS(mX.getArrayInt8(DATA, 1));
             }
         }
         {
@@ -4159,19 +4161,19 @@ if (veryVerbose) {
 
             {
                 Obj mX(&b);
-                ASSERT_FAIL(mX.getArrayUint8(static_cast<char *>(0), 0));
+                ASSERT_SAFE_FAIL(mX.getArrayUint8(static_cast<char *>(0), 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_FAIL(mX.getArrayUint8(DATA, -1));
+                ASSERT_SAFE_FAIL(mX.getArrayUint8(DATA, -1));
             }
             {
                 Obj mX(&b);
-                ASSERT_PASS(mX.getArrayUint8(DATA, 0));
+                ASSERT_SAFE_PASS(mX.getArrayUint8(DATA, 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_PASS(mX.getArrayUint8(DATA, 1));
+                ASSERT_SAFE_PASS(mX.getArrayUint8(DATA, 1));
             }
         }
         {
@@ -4187,20 +4189,20 @@ if (veryVerbose) {
 
             {
                 Obj mX(&b);
-                ASSERT_FAIL(mX.getArrayUint8(
+                ASSERT_SAFE_FAIL(mX.getArrayUint8(
                                           static_cast<unsigned char *>(0), 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_FAIL(mX.getArrayUint8(DATA, -1));
+                ASSERT_SAFE_FAIL(mX.getArrayUint8(DATA, -1));
             }
             {
                 Obj mX(&b);
-                ASSERT_PASS(mX.getArrayUint8(DATA, 0));
+                ASSERT_SAFE_PASS(mX.getArrayUint8(DATA, 0));
             }
             {
                 Obj mX(&b);
-                ASSERT_PASS(mX.getArrayUint8(DATA, 1));
+                ASSERT_SAFE_PASS(mX.getArrayUint8(DATA, 1));
             }
         }
       } break;

@@ -971,10 +971,6 @@ void MarshallingUtil::putFloat32(char *buffer, float value)
     buffer[3] = bytes[sizeof value - 4];
 #else
     bsl::memcpy(buffer, bytes, k_SIZEOF_FLOAT32);
-    buffer[0] = bytes[0];
-    buffer[1] = bytes[1];
-    buffer[2] = bytes[2];
-    buffer[3] = bytes[3];
 #endif
 }
 

@@ -23,12 +23,12 @@ BSLS_IDENT("$Id: $")
 // methods ("unexternalization") on values, and arrays of values, of
 // fundamental types, and on 'bsl::string'.  This component also verifies, for
 // these types, that the type of data requested from the stream matches what
-// was written to the stream.  This component is meant for testing only.
+// was written to the stream.  'bslx::TestInStream' is meant for testing only.
 //
-// This type reads from a user-supplied buffer directly, with no data copying
-// or assumption of ownership.  The user must therefore make sure that the
-// lifetime and visibility of the buffer is sufficient to satisfy the needs of
-// the input stream.
+// The 'bslx::TestInStream' type reads from a user-supplied buffer directly,
+// with no data copying or assumption of ownership.  The user must therefore
+// make sure that the lifetime and visibility of the buffer is sufficient to
+// satisfy the needs of the input stream.
 //
 // This component is intended to be used in conjunction with the
 // 'bslx_testoutstream' externalization component.  Each input method of
