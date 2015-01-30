@@ -10,14 +10,14 @@
 
 #include <bsls_platform.h>
 
-#ifdef BSLS_PLATFORM_CMP_GNU
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdelete-non-virtual-dtor"
 #endif
 
 #include <bsls_protocoltest.h>
 
-#ifdef BSLS_PLATFORM_CMP_GNU
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic pop
 #endif
 

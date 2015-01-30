@@ -2654,7 +2654,8 @@ if (veryVerbose)
             const double DBL_SECS =
                     static_cast<double>(TOTAL_MSECS) / (1.0 * k_MSECS_PER_SEC);
 
-#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86)                                            \
+ && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
     // This is necessary because on Linux, for some inexplicable reason, even
     // 'X.totalSecondsAsDouble() == X.totalSecondsAsDouble()' returns 'false'.
     // Under gcc 4.3.5, it is even necessary to declare 'SECONDS' as

@@ -56,7 +56,8 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-#if  (defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_GNU)) \
+#if  (defined(BSLS_PLATFORM_OS_LINUX)                                         \
+      && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)))\
   || defined(BSLS_PLATFORM_OS_DARWIN)
 #define BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(type,             \
                                                   refName,          \

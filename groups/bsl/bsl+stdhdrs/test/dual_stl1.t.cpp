@@ -8,7 +8,7 @@
 // include guard.
 
 #if defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_LINUX)
-#if defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
 #define _BACKWARD_BACKWARD_WARNING_H 1
 #endif
 #endif

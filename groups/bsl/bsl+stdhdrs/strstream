@@ -60,7 +60,7 @@ BSLS_IDENT("$Id: $")
 // include guard.  We only want to suppress this warning locally, so we
 // undefine the guard below if we define it here.
 #if defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_LINUX)
-#if defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
 #ifndef _BACKWARD_BACKWARD_WARNING_H
 #define BSL_STRSTREAM__UNDEF_BACKWARD_GUARD
 #define _BACKWARD_BACKWARD_WARNING_H 1

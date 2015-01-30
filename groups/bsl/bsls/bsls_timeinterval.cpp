@@ -57,7 +57,8 @@ TimeInterval::TimeInterval(double seconds)
         // The use of a volatile storage classifier is necessary on x86 builds
         // with gcc.
 
-#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86)                                            \
+ && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
         const volatile double nanoseconds =
 #else
         const double nanoseconds =
@@ -75,7 +76,8 @@ TimeInterval::TimeInterval(double seconds)
         // The use of a volatile storage classifier is necessary on x86 builds
         // with gcc.
 
-#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86)                                            \
+ && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
         const volatile double nanoseconds =
 #else
         const double nanoseconds =

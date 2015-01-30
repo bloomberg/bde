@@ -191,7 +191,7 @@ struct IsConvertible_Match {
                          // ========================
 
 template <class FROM_TYPE, class TO_TYPE
-#if defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
          , int IS_FROM_FUNDAMENTAL = IsFundamental<FROM_TYPE>::value
          , int IS_TO_FUNDAMENTAL   = IsFundamental<TO_TYPE>::value
 #endif
@@ -240,7 +240,7 @@ struct IsConvertible_Imp {
         // convertible to 'TO_TYPE', and 'bsl::false_type' otherwise.
 };
 
-#if defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
 
 #define BSLMF_ISCONVERTIBLE_SAMETYPEVALUE(VALUE, FROM, TO, FROM_FUND, TO_FUND)\
 template <class TYPE>                                                         \
