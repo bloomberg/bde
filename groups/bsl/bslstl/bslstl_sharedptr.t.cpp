@@ -235,9 +235,9 @@ using namespace BloombergLP;
 // reference-counted shared objects (managed by 'bsl::shared_ptr'.  The
 // functions supported by 'bsl::weak_ptr' include creating weak references (via
 // multiple constructors), changing the weak pointer object being referenced
-// (via the assignment operators), getting a shared pointer (via the
-// 'acquireSharedPtr' and 'lock' functions), resetting the weak pointer (via
-// 'reset'), and destroying the weak pointer.
+// (via the assignment operators), getting a shared pointer (via the 'lock'
+// function), resetting the weak pointer (via 'reset'), and destroying the weak
+// pointer.
 //
 // All the functions in this component are reasonably straight-forward and
 // typically increment or decrement the number of strong or weak references as
@@ -4485,7 +4485,7 @@ int main(int argc, char *argv[])
       // TESTING 'lock'
       //
       // Concerns:
-      //   Test that the 'acquireSharedPtr' and 'lock' work as expected.
+      //   Test that 'lock' works as expected.
       //
       // Plan:
       //

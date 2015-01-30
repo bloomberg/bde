@@ -54,10 +54,10 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 // A weak pointer can be constructed from another weak pointer or a
 // 'bsl::shared_ptr'.  To access the shared object referenced by a weak pointer
-// clients must first obtain a shared pointer to that object using the
-// 'acquireSharedPtr' method.  If the shared object has been destroyed (as
-// indicated by the 'expired' method), then 'acquireSharedPtr' returns a shared
-// pointer in the default constructed (empty) state.
+// clients must first obtain a shared pointer to that object using the 'lock'
+// method.  If the shared object has been destroyed (as indicated by the
+// 'expired' method), then 'lock' returns a shared pointer in the default
+// constructed (empty) state.
 //
 // This component also provides a functor, 'bslstl::SharedPtrNilDeleter', which
 // may used to create a shared pointer that takes no action when the last
@@ -794,7 +794,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // referenced.  To access and manipulate the 'int' from the weak pointer, we
 // have to obtain a shared pointer from it:
 //..
-//  bsl::shared_ptr<int> intPtr2 = intWeakPtr.acquireSharedPtr();
+//  bsl::shared_ptr<int> intPtr2 = intWeakPtr.lock();
 //  assert(intPtr2);
 //  assert(10 == *intPtr2);
 //
@@ -827,7 +827,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //  intPtr.reset();
 //  intPtr2.reset();
 //  assert(intWeakPtr2.expired());
-//  assert(!intWeakPtr2.acquireSharedPtr());
+//  assert(!intWeakPtr2.lock());
 //..
 // Example 4 - Breaking cyclical dependencies
 //- - - - - - - - - - - - - - - - - - - - - -
@@ -1060,7 +1060,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // to the peer.  If the acquire operation succeeds then we can send the peer a
 // request to send back the file best matching the specified keywords:
 //..
-//          bsl::shared_ptr<Peer> peerSharedPtr = iter->acquireSharedPtr();
+//          bsl::shared_ptr<Peer> peerSharedPtr = iter->lock();
 //          if (peerSharedPtr) {
 //
 //              // Search the peer for file best matching the specified
@@ -1076,7 +1076,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //..
 //  void download(const SearchResult& result)
 //  {
-//      bsl::shared_ptr<Peer> peerSharedPtr = result.peer().acquireSharedPtr();
+//      bsl::shared_ptr<Peer> peerSharedPtr = result.peer().lock();
 //      if (peerSharedPtr) {
 //          // Download the result.filename() file from peer knowing that
 //          // the peer is still connected.
