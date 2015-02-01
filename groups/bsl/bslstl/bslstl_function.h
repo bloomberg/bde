@@ -175,6 +175,113 @@ public:
 
 #endif // BDE_BUILD_TARGET_EXC
 
+                        // ======================================
+                        // class Function_SmallObjectOptimization
+                        // ======================================
+
+class Function_SmallObjectOptimization {
+    // Namespace for several definitions related to use of the small object
+    // optimization.
+
+    class Dummy;  // Declared but not defined
+
+    // Short aliases for type with maximum platform alignment
+    typedef bsls::AlignmentUtil::MaxAlignedType MaxAlignedType;
+
+public:
+    union InplaceBuffer {
+        // This 'struct' defines the storage area for a functor
+        // representation.  The design uses the "small-object optimization" in
+        // an attempt to avoid allocations for objects that are no larger than
+        // 'InplaceBuffer'.  When using the in-place representation, the
+        // invocable, whether a function pointer or function object (if it
+        // should fit in the size of 'InplaceBuffer') is stored directly in
+        // the 'InplaceBuffer'.  Anything bigger than 'sizeof(InplaceBuffer)'
+        // will be stored out-of-place and its address will be stored in
+        // 'd_object_p'.  Discriminating between the two representations can
+        // be done by the manager with the opcode 'e_GET_SIZE'.
+        //
+        // Note that union members other than 'd_object_p' are just fillers to
+        // make sure that a function or member function pointer can fit
+        // without allocation and that alignment is respected.  The 'd_minbuf'
+        // member ensures that 'InplaceBuffer' is at least large enough so that
+        // modestly-complex functors (e.g., functors that own embedded
+        // arguments, such as 'bdef_Bind' objects) to be constructed in-place
+        // without triggering further allocation.  The benefit of avoiding
+        // allocation for those function objects is balanced against the waste
+        // of space when used with smaller function objects.
+
+        void                *d_object_p;     // pointer to external rep
+        void               (*d_func_p)();    // pointer to function
+        void        (Dummy::*d_memFunc_p)(); // pointer to member function
+        MaxAlignedType       d_align;        // force align
+        void                *d_minbuf[4];    // force minimum size
+    };
+
+    static const std::size_t k_NON_SOO_SMALL_SIZE = ~sizeof(InplaceBuffer);
+        // This value is added to the size of a small stateful functor to
+        // indicate that, despite being small, it should not be allocated
+        // inplace using the small object optimization (SOO), e.g., because it
+        // does not have a nothrow move constructor and cannot, therefore, be
+        // swapped safely.  When a size larger than this constant is seen, the
+        // actual object size can be determined by subtracting this constant.
+        // A useful quality of this encoding is that if 'SZ <=
+        // sizeof(InplaceBuffer)' for some object size 'SZ', then 'SZ +
+        // k_NON_SOO_SMALL_SIZE > sizeof(InplaceBuffer)', so the 'SooFuncSize'
+        // (below) for any object that should not be allocated inplace is
+        // larger than 'sizeof(InplaceBuffer)', and the 'SooFuncSize' for any
+        // object that *should* be allocated inplace is smaller than or equal
+        // to 'sizeof(InplaceBuffer)', making the test for "is inplace
+        // function" simple.
+
+    BSLMF_ASSERT(k_NON_SOO_SMALL_SIZE > 0);  // Assert unsigned size_t
+
+    template <class TP>
+    struct SooFuncSize
+    {
+        // Metafunction to determine the size of an object for the purposes of
+        // the small object optimization (SOO).  The 'VALUE' member is encoded
+        // as follows:
+        //
+        //:  o If 'TP' is not larger than 'InplaceBuffer' but has a throwing
+        //:    destructive move operation (and therefore should not be
+        //:    allocated inplace), then 'VALUE == sizeof(TP) +
+        //:    k_NON_SOO_SMALL_SIZE'.
+        //:  o Otherwise, 'VALUE == sizeof(TP)'.
+        //
+        // Note that the 'Soo' prefix is used to indicate that an identifier
+        // uses the above protocol.  Thus a variable called 'SooSize' is
+        // assumed to be encoded as above, whereas a variable called 'size'
+        // can generally be assumed not to be encoded that way.
+
+        static const std::size_t VALUE =
+            sizeof(TP) > sizeof(InplaceBuffer)                ? sizeof(TP) :
+            bslmf::IsBitwiseMoveable<TP>::value               ? sizeof(TP) :
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+            // Check if nothrow move constructible.  The use of '::new' lets
+            // us check the constructor without also checking the destructor.
+            // This is especially important in gcc 4.7 and before because
+            // destructors are not implicitly noexcept in those compilers.
+            noexcept(::new((void*) 0) TP(std::declval<TP>())) ? sizeof(TP) :
+#endif
+            // If not nonthrow or bitwise moveable, then ad add
+            // 'k_NON_SOO_SMALL_SIZE' to the size indicate that we should not
+            // use the small object optimization for this type.
+            sizeof(TP) + k_NON_SOO_SMALL_SIZE;
+    };
+
+    template <class FN>
+    struct IsInplaceFunc :
+        integral_constant<bool,SooFuncSize<FN>::VALUE <= sizeof(InplaceBuffer)>
+    {
+        // Metafunction to determine whether the specified 'FN' template
+        // parameter should be allocated within the 'InplaceBuffer'.
+
+        // TBD: 'InplaceFunc' should also take alignment into account, but
+        // since we don't (yet) have the ability to specify alignment when
+        // allocating memory, there's nothing we can do at this point.
+    };
+};
 
                         // ================================
                         // class template Function_ArgTypes
@@ -235,9 +342,6 @@ class Function_Rep {
     // template code even though it does not instantiate template).
 
     // TYPES
-
-    // Short aliases for type with maximum platform alignment
-    typedef bsls::AlignmentUtil::MaxAlignedType MaxAlignedType;
 
     union PtrOrSize_t {
         // This union stores either a pointer to const void or a size_t.  It
@@ -337,104 +441,14 @@ class Function_Rep {
         // over the C++ virtual-function mechanism, especially when the number
         // of different instantiations of 'bsl::function' is large.
 
-    union InplaceBuffer {
-        // This 'struct' defines the storage area for a functor
-        // representation.  The design uses the "small-object optimization" in
-        // an attempt to avoid allocations for objects that are no larger than
-        // 'InplaceBuffer'.  When using the in-place representation, the
-        // invocable, whether a function pointer or function object (if it
-        // should fit in the size of 'InplaceBuffer') is stored directly in
-        // the 'InplaceBuffer'.  Anything bigger than 'sizeof(InplaceBuffer)'
-        // will be stored out-of-place and its address will be stored in
-        // 'd_object_p'.  Discriminating between the two representations can
-        // be done by the manager with the opcode 'e_GET_SIZE'.
-        //
-        // Note that union members other than 'd_object_p' are just fillers to
-        // make sure that a function or member function pointer can fit
-        // without allocation and that alignment is respected.  The 'd_minbuf'
-        // member ensures that 'InplaceBuffer' is at least large enough so that
-        // modestly-complex functors (e.g., functors that own embedded
-        // arguments, such as 'bdef_Bind' objects) to be constructed in-place
-        // without triggering further allocation.  The benefit of avoiding
-        // allocation for those function objects is balanced against the waste
-        // of space when used with smaller function objects.
+    typedef Function_SmallObjectOptimization Soo;
+        // Type alias for convenience.
 
-        void                *d_object_p;     // pointer to external rep
-        void               (*d_func_p)();    // pointer to function
-        void (Function_Rep::*d_memFunc_p)(); // pointer to member function
-        MaxAlignedType       d_align;        // force align
-        void                *d_minbuf[4];    // force minimum size
-    };
+    typedef Soo::InplaceBuffer InplaceBuffer;
+        // Type alias for convenience.
 
-    static const std::size_t k_NON_SOO_SMALL_SIZE = ~sizeof(InplaceBuffer);
-        // This value is added to the size of a small stateful functor to
-        // indicate that, despite being small, it should not be allocated
-        // inplace using the small object optimization (SOO), e.g., because it
-        // does not have a nothrow move constructor and cannot, therefore, be
-        // swapped safely.  When a size larger than this constant is seen, the
-        // actual object size can be determined by subtracting this constant.
-        // A useful quality of this encoding is that if 'SZ <=
-        // sizeof(InplaceBuffer)' for some object size 'SZ', then 'SZ +
-        // k_NON_SOO_SMALL_SIZE > sizeof(InplaceBuffer)', so the 'SooFuncSize'
-        // (below) for any object that should not be allocated inplace is
-        // larger than 'sizeof(InplaceBuffer)', and the 'SooFuncSize' for any
-        // object that *should* be allocated inplace is smaller than or equal
-        // to 'sizeof(InplaceBuffer)', making the test for "is inplace
-        // function" simple.
-
-    BSLMF_ASSERT(k_NON_SOO_SMALL_SIZE > 0);  // Assert unsigned size_t
-
-    template <class TP>
-    struct SooFuncSize
-    {
-        // Metafunction to determine the size of an object for the purposes of
-        // the small object optimization (SOO).  The 'VALUE' member is encoded
-        // as follows:
-        //
-        //:  o If 'TP' is not larger than 'InplaceBuffer' but has a throwing
-        //:    destructive move operation (and therefore should not be
-        //:    allocated inplace), then 'VALUE == sizeof(TP) +
-        //:    k_NON_SOO_SMALL_SIZE'.
-        //:  o Otherwise, 'VALUE == sizeof(TP)'.
-        //
-        // Note that the 'Soo' prefix is used to indicate that an identifier
-        // uses the above protocol.  Thus a variable called 'SooSize' is
-        // assumed to be encoded as above, whereas a variable called 'size'
-        // can generally be assumed not to be encoded that way.
-
-    private:
-        // The actual memory footprint used of the object.
-        static const std::size_t FOOTPRINT = sizeof(TP);
-
-    public:
-        static const std::size_t VALUE =
-            FOOTPRINT > sizeof(InplaceBuffer)                 ? FOOTPRINT :
-            bslmf::IsBitwiseMoveable<TP>::value               ? FOOTPRINT :
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
-            // Check if nothrow move constructible.  The use of '::new' lets
-            // us check the constructor without also checking the destructor.
-            // This is especially important in gcc 4.7 and before because
-            // destructors are not implicitly noexcept in those compilers.
-            noexcept(::new((void*) 0) TP(std::declval<TP>())) ? FOOTPRINT :
-#endif
-            // If not nonthrow or bitwise moveable, then use the real size
-            // (as computed by sizeof), not the adjusted size in 'FOOTPRINT',
-            // and add 'k_NON_SOO_SMALL_SIZE' to indicate that we should not
-            // use the small object optimization for this type.
-            sizeof(TP) + k_NON_SOO_SMALL_SIZE;
-    };
-
-    template <class FN>
-    struct InplaceFunc :
-        integral_constant<bool,SooFuncSize<FN>::VALUE <= sizeof(InplaceBuffer)>
-    {
-        // Metafunction to determine whether the specified 'FN' template
-        // parameter should be allocated within the 'InplaceBuffer'.
-
-        // TBD: 'InplaceFunc' should also take alignment into account, but
-        // since we don't (yet) have the ability to specify alignment when
-        // allocating memory, there's nothing we can do at this point.
-    };
+    static const std::size_t k_NON_SOO_SMALL_SIZE = Soo::k_NON_SOO_SMALL_SIZE;
+        // Constant alias for convenience.
 
     template <class FUNC>
     friend class bsl::function;
@@ -549,6 +563,18 @@ class Function_Rep {
                                      // INVARIANT: Must be NULL unless
                                      // 'd_allocator_p' has been set to a
                                      // fully-constructed allocator.
+
+    // The 'isInplace function is public in BDE legacy mode and private
+    // otherwise.
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+public:
+#else
+private:
+#endif
+
+    bool isInplace() const BSLS_NOTHROW_SPEC;
+        // Return true if the wrapped functor is allocated in place within the
+        // footprint of this 'function' object; otherwise return false.
 
 public:
     // CREATORS
@@ -685,7 +711,7 @@ class function<RET(ARGS...)> :
 
     template <class FUNC>
     static Invoker *getInvoker(const FUNC&,
-                               bslmf::SelectTraitCase<InplaceFunc>);
+                               bslmf::SelectTraitCase<Soo::IsInplaceFunc>);
         // Return the invoker for an in-place functor.
 
     template <class FUNC>
@@ -787,7 +813,6 @@ public:
     // Simulation of explicit converstion to bool
     operator UnspecifiedBool() const BSLS_NOTHROW_SPEC;
 #endif
-
 };
 
 // FREE FUNCTIONS
@@ -987,15 +1012,18 @@ inline void const *bsl::Function_PairBufDesc::second(void const *buffer) const
     return d_secondOffset + static_cast<const char*>(buffer);
 }
 
+                        // --------------------------------------
+                        // class Function_SmallObjectOptimization
+                        // --------------------------------------
+
+template <class TP>
+const std::size_t
+bsl::Function_SmallObjectOptimization::SooFuncSize<TP>::VALUE;
+
+
                         // -----------------------
                         // class bsl::Function_Rep
                         // -----------------------
-
-template <class TP>
-const std::size_t bsl::Function_Rep::SooFuncSize<TP>::FOOTPRINT;
-
-template <class TP>
-const std::size_t bsl::Function_Rep::SooFuncSize<TP>::VALUE;
 
 template <class ALLOC>
 void bsl::Function_Rep::copyInit(const ALLOC& alloc, const Function_Rep& other)
@@ -1023,7 +1051,7 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
                                    Function_Rep  *rep,
                                    PtrOrSize_t    input)
 {
-    static const std::size_t k_SOO_FUNC_SIZE = SooFuncSize<FUNC>::VALUE;
+    static const std::size_t k_SOO_FUNC_SIZE = Soo::SooFuncSize<FUNC>::VALUE;
     static const std::size_t k_IS_INPLACE =
         k_SOO_FUNC_SIZE <= sizeof(InplaceBuffer);
 
@@ -1493,7 +1521,7 @@ template <class RET, class... ARGS>
 template <class FUNC>
 typename bsl::function<RET(ARGS...)>::Invoker *
 bsl::function<RET(ARGS...)>::getInvoker(const FUNC&,
-                                        bslmf::SelectTraitCase<InplaceFunc>)
+                                    bslmf::SelectTraitCase<Soo::IsInplaceFunc>)
 {
     return &inplaceFunctorInvoker<FUNC>;
 }
@@ -1536,13 +1564,13 @@ template<class FUNC>
 bsl::function<RET(ARGS...)>::function(FUNC func)
 {
     typedef typename bslmf::SelectTrait<FUNC,
-                                        bslmf::IsFunctionPointer,
-                                        bslmf::IsMemberFunctionPointer,
-                                        InplaceFunc>::Type FuncSelection;
+                                       bslmf::IsFunctionPointer,
+                                       bslmf::IsMemberFunctionPointer,
+                                       Soo::IsInplaceFunc>::Type FuncSelection;
 
     d_invoker_p = getInvoker(func, FuncSelection());
 
-    std::size_t sooFuncSize = d_invoker_p ? SooFuncSize<FUNC>::VALUE : 0;
+    std::size_t sooFuncSize = d_invoker_p ? Soo::SooFuncSize<FUNC>::VALUE : 0;
 
     initRep(sooFuncSize, bslma::Default::defaultAllocator(),
             integral_constant<AllocCategory, e_BSLMA_ALLOC_PTR>());
@@ -1593,13 +1621,13 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t,
 {
     typedef Function_AllocTraits<ALLOC> AllocTraits;
     typedef typename bslmf::SelectTrait<FUNC,
-                                        bslmf::IsFunctionPointer,
-                                        bslmf::IsMemberFunctionPointer,
-                                        InplaceFunc>::Type FuncSelection;
+                                       bslmf::IsFunctionPointer,
+                                       bslmf::IsMemberFunctionPointer,
+                                       Soo::IsInplaceFunc>::Type FuncSelection;
 
     d_invoker_p = getInvoker(func, FuncSelection());
 
-    std::size_t sooFuncSize = d_invoker_p ? SooFuncSize<FUNC>::VALUE : 0;
+    std::size_t sooFuncSize = d_invoker_p ? Soo::SooFuncSize<FUNC>::VALUE : 0;
     initRep(sooFuncSize, typename AllocTraits::Type(alloc),
             typename AllocTraits::Category());
 
@@ -1713,9 +1741,9 @@ bsl::function<RET(ARGS...)>::operator=(FUNC&& func)
 
     // Select the invoker and manager for 'tempRep'
     typedef typename bslmf::SelectTrait<FuncType,
-                                        bslmf::IsFunctionPointer,
-                                        bslmf::IsMemberFunctionPointer,
-                                        InplaceFunc>::Type FuncSelection;
+                                       bslmf::IsFunctionPointer,
+                                       bslmf::IsMemberFunctionPointer,
+                                       Soo::IsInplaceFunc>::Type FuncSelection;
 
     Invoker *invoker_p = getInvoker(func, FuncSelection());
     tempRep.d_funcManager_p = invoker_p ? &functionManager<FuncType> : NULL;
@@ -1865,23 +1893,17 @@ void bsl::swap(bsl::function<RET(ARGS...)>& a, bsl::function<RET(ARGS...)>& b)
 #endif // ! defined(INCLUDED_BSLSTL_FUNCTION)
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright 2014 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

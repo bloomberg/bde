@@ -14,6 +14,10 @@ const char* bsl::bad_function_call::what() const BSLS_NOTHROW_SPEC
 
 #endif
 
+const std::size_t bsl::Function_SmallObjectOptimization::k_NON_SOO_SMALL_SIZE;
+
+const std::size_t bsl::Function_Rep::k_NON_SOO_SMALL_SIZE;
+
 void *bsl::Function_Rep::initRep(std::size_t       sooFuncSize,
                                  bslma::Allocator *alloc,
                                  integral_constant<AllocCategory,
@@ -184,14 +188,10 @@ void bsl::Function_Rep::destructiveMove(Function_Rep *to,
     to->d_allocManager_p = allocManager_p;
     to->d_allocator_p    = from->d_allocator_p;
 
-    std::size_t sooFuncSize = 0;
-
     if (funcManager_p) {
         // '*from' is not empty.
         // Move the wrapped functor.
-        sooFuncSize = funcManager_p(e_GET_SIZE, from,
-                                    PtrOrSize_t()).asSize_t();
-        if (sooFuncSize <= sizeof(InplaceBuffer)) {
+        if (from->isInplace()) {
             // '*from' uses the small-object optimization.
             // Destructively move inplace wrapped functor.
             funcManager_p(e_DESTRUCTIVE_MOVE, to, &from->d_objbuf);
@@ -253,24 +253,32 @@ bsl::Function_Rep::target_type() const BSLS_NOTHROW_SPEC
     return *static_cast<const std::type_info*>(ret.asPtr());
 }
 
+bool bsl::Function_Rep::isInplace() const BSLS_NOTHROW_SPEC
+{
+    if (d_funcManager_p) {
+        std::size_t sooFuncSize =
+            d_funcManager_p(e_GET_SIZE, const_cast<Function_Rep*>(this),
+                            PtrOrSize_t()).asSize_t();
+        return sooFuncSize <= sizeof(InplaceBuffer);
+    }
+    else {
+        // Always return true when invoked on an empty object.
+        return true;
+    }
+}
+
 // ----------------------------------------------------------------------------
-// Copyright (C) 2014 Bloomberg L.P.
+// Copyright 2014 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
