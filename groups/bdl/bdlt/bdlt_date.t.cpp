@@ -103,6 +103,7 @@ using namespace bsl;
 // [18] bdlt::DayOfWeek::Enum dayOfWeek() const;
 // [12] void getYearDay(int *year, int *dayOfYear) const;
 // [11] void getYearMonthDay(int *year, int *month, int *day) const;
+// [18] bdlt::MonthOfYear::Enum monthOfYear() const;
 // [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
 // [ 5] ostream& print(ostream& s, int level = 0, int sPL = 4) const;
 //
@@ -622,92 +623,124 @@ if (verbose)
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // 'dayOfWeek' METHOD
-        //   Ensure that the correct day of the week is returned for any date.
+        // 'dayOfWeek' AND 'monthOfYear' METHODS
+        //   Ensure that the correct day of the week and month of the year are
+        //   returned for any date.
         //
         // Concerns:
-        //: 1 The correct day of the week is returned for any date value.
+        //: 1 For any date, the correct day of the week is returned by
+        //:   'dayOfWeek'.
         //:
-        //: 2 The method is declared 'const'.
+        //: 2 For any date, the correct month of the year is returned by
+        //:   'monthOfYear'.
+        //:
+        //: 3 The methods are declared 'const'.
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a set of distinct
         //:   object values (one per row) in terms of their year/month/day
-        //:   representation, and the 'bdlt::DayOfWeek::Enum' value expected
-        //:   from 'dayOfWeek' when applied to those tabulated dates.
+        //:   representation, and the 'bdlt::DayOfWeek::Enum' and
+        //:   'bdlt::MonthOfYear::Enum' values expected from the methods
+        //:   'dayOfWeek' and 'monthOfYear' when applied to those tabulated
+        //:   dates.
         //:
-        //: 2 For each row 'R' in the table of P-1:  (C-1..2)
+        //: 2 For each row 'R' in the table of P-1:  (C-1..3)
         //:
         //:   1 Create a 'const' object 'X' using the 3-argument value
         //:     constructor.
         //:
         //:   2 Verify that 'dayOfWeek', invoked on 'X', returns the expected
-        //:     value.  (C-1..2)
+        //:     value.  (C-1)
+        //:
+        //:   3 Verify that 'monthOfYear', invoked on 'X', returns the expected
+        //:     value.  (C-2..3)
         //
         // Testing:
         //   bdlt::DayOfWeek::Enum dayOfWeek() const;
+        //   bdlt::MonthOfYear::Enum monthOfYear() const;
         //   CONCERN: All accessor methods are declared 'const'.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "'dayOfWeek' METHOD" << endl
-                          << "==================" << endl;
+                          << "'dayOfWeek' AND 'monthOfYear' METHODS" << endl
+                          << "=====================================" << endl;
 
-        typedef bdlt::DayOfWeek DOW;
+        typedef bdlt::DayOfWeek   DOW;
+        typedef bdlt::MonthOfYear MOY;
 
         static const struct {
-            int       d_line;   // source line number
-            int       d_year;   // year under test
-            int       d_month;  // month under test
-            int       d_day;    // day under test
-            DOW::Enum d_exp;    // expected day of week
+            int       d_line;    // source line number
+            int       d_year;    // year under test
+            int       d_month;   // month under test
+            int       d_day;     // day under test
+            DOW::Enum d_expDOW;  // expected day of week
+            MOY::Enum d_expMOY;  // expected month of year
         } DATA[] = {
-            //LINE   YEAR   MONTH   DAY    EXPECTED
-            //----   ----   -----   ---    ----------
-            { L_,       1,      1,    1,   DOW::e_MON },
-            { L_,       1,      1,    2,   DOW::e_TUE },
-            { L_,       1,      1,    3,   DOW::e_WED },
-            { L_,       1,      1,    4,   DOW::e_THU },
-            { L_,       1,      1,    5,   DOW::e_FRI },
-            { L_,       1,      1,    6,   DOW::e_SAT },
-            { L_,       1,      1,    7,   DOW::e_SUN },
-            { L_,       1,      1,    8,   DOW::e_MON },
+            //LINE   YEAR   MONTH   DAY    EXPECTED DAY OF WEEK  EXPECTED MONTH
+            //----   ----   -----   ---    --------------------  --------------
+            { L_,       1,      1,    1,   DOW::e_MON,           MOY::e_JAN },
+            { L_,       1,      1,    2,   DOW::e_TUE,           MOY::e_JAN },
+            { L_,       1,      1,    3,   DOW::e_WED,           MOY::e_JAN },
+            { L_,       1,      1,    4,   DOW::e_THU,           MOY::e_JAN },
+            { L_,       1,      1,    5,   DOW::e_FRI,           MOY::e_JAN },
+            { L_,       1,      1,    6,   DOW::e_SAT,           MOY::e_JAN },
+            { L_,       1,      1,    7,   DOW::e_SUN,           MOY::e_JAN },
+            { L_,       1,      1,    8,   DOW::e_MON,           MOY::e_JAN },
 
-            { L_,       1,      2,    1,   DOW::e_THU },
-            { L_,       2,      1,    1,   DOW::e_TUE },
+            { L_,       1,      2,    1,   DOW::e_THU,           MOY::e_FEB },
+            { L_,       2,      1,    1,   DOW::e_TUE,           MOY::e_JAN },
 
-            { L_,    1600,     12,   31,   DOW::e_SUN },
+            { L_,    1600,     12,   31,   DOW::e_SUN,           MOY::e_DEC },
 
-            { L_,    1752,      9,    2,   DOW::e_SAT },
-            { L_,    1752,      9,    3,   DOW::e_SUN },
-            { L_,    1752,      9,    8,   DOW::e_FRI },
-            { L_,    1752,      9,   13,   DOW::e_WED },
-            { L_,    1752,      9,   14,   DOW::e_THU },
+            { L_,    1752,      9,    2,   DOW::e_SAT,           MOY::e_SEP },
+            { L_,    1752,      9,    3,   DOW::e_SUN,           MOY::e_SEP },
+            { L_,    1752,      9,    8,   DOW::e_FRI,           MOY::e_SEP },
+            { L_,    1752,      9,   13,   DOW::e_WED,           MOY::e_SEP },
+            { L_,    1752,      9,   14,   DOW::e_THU,           MOY::e_SEP },
 
-            { L_,    1999,     12,   31,   DOW::e_FRI },
+            { L_,    1999,     12,   31,   DOW::e_FRI,           MOY::e_DEC },
 
-            { L_,    2000,      1,    1,   DOW::e_SAT },
-            { L_,    2000,      2,   28,   DOW::e_MON },
-            { L_,    2000,      2,   29,   DOW::e_TUE },
+            { L_,    2000,      1,    1,   DOW::e_SAT,           MOY::e_JAN },
+            { L_,    2000,      2,   28,   DOW::e_MON,           MOY::e_FEB },
+            { L_,    2000,      2,   29,   DOW::e_TUE,           MOY::e_FEB },
 
-            { L_,    9999,     12,   31,   DOW::e_FRI },
+            { L_,    9999,     12,   31,   DOW::e_FRI,           MOY::e_DEC },
+
+            { L_,    2014,      1,    1,   DOW::e_WED,           MOY::e_JAN },
+            { L_,    2014,      2,    1,   DOW::e_SAT,           MOY::e_FEB },
+            { L_,    2014,      3,    1,   DOW::e_SAT,           MOY::e_MAR },
+            { L_,    2014,      4,    1,   DOW::e_TUE,           MOY::e_APR },
+            { L_,    2014,      5,    1,   DOW::e_THU,           MOY::e_MAY },
+            { L_,    2014,      6,    1,   DOW::e_SUN,           MOY::e_JUN },
+            { L_,    2014,      7,    1,   DOW::e_TUE,           MOY::e_JUL },
+            { L_,    2014,      8,    1,   DOW::e_FRI,           MOY::e_AUG },
+            { L_,    2014,      9,    1,   DOW::e_MON,           MOY::e_SEP },
+            { L_,    2014,     10,    1,   DOW::e_WED,           MOY::e_OCT },
+            { L_,    2014,     11,    1,   DOW::e_SAT,           MOY::e_NOV },
+            { L_,    2014,     12,    1,   DOW::e_MON,           MOY::e_DEC },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int       LINE  = DATA[ti].d_line;
-            const int       YEAR  = DATA[ti].d_year;
-            const int       MONTH = DATA[ti].d_month;
-            const int       DAY   = DATA[ti].d_day;
-            const DOW::Enum EXP   = DATA[ti].d_exp;
+            const int       LINE    = DATA[ti].d_line;
+            const int       YEAR    = DATA[ti].d_year;
+            const int       MONTH   = DATA[ti].d_month;
+            const int       DAY     = DATA[ti].d_day;
+            const DOW::Enum EXP_DOW = DATA[ti].d_expDOW;
+            const MOY::Enum EXP_MOY = DATA[ti].d_expMOY;
 
-            if (veryVerbose) { T_ P_(LINE) P_(YEAR) P_(MONTH) P_(DAY) P(EXP) }
+            if (veryVerbose) {
+                T_ P_(LINE) P_(YEAR) P_(MONTH) P_(DAY) P_(EXP_DOW) P(EXP_MOY)
+            }
 
             const Obj X(YEAR, MONTH, DAY);
 
-            if (veryVeryVerbose) { T_ T_ P_(X) P(X.dayOfWeek()) }
+            if (veryVeryVerbose) {
+                T_ T_ P_(X) P_(X.dayOfWeek()) P(X.monthOfYear())
+            }
 
-            LOOP_ASSERT(LINE, EXP == X.dayOfWeek());
+            LOOP_ASSERT(LINE, EXP_DOW == X.dayOfWeek());
+            LOOP_ASSERT(LINE, EXP_MOY == X.monthOfYear());
         }
 
       } break;

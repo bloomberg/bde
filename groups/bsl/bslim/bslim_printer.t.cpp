@@ -6,6 +6,7 @@
 #include <bsls_platform.h>
 
 #include <bsl_cstdio.h>
+#include <bsl_iomanip.h>
 #include <bsl_iostream.h>
 #include <bsl_deque.h>
 #include <bsl_list.h>
@@ -70,10 +71,11 @@ using namespace bslim;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [16] 'printValue' ALL STL SEQUENCE AND ASSOCIATIVE CONTAINERS
-// [17] USAGE EXAMPLE 1
-// [18] USAGE EXAMPLE 2
-// [19] USAGE EXAMPLE 3
-// [20] USAGE EXAMPLE 4
+// [17] CONCERN: Printer(stream, 0, -1) can be formatted with 'setw'
+// [18] USAGE EXAMPLE 1
+// [19] USAGE EXAMPLE 2
+// [20] USAGE EXAMPLE 3
+// [21] USAGE EXAMPLE 4
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -594,7 +596,7 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
     switch (test) { case 0:  // Zero is always the leading case.
-      case 20: {
+      case 21: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 4
         //
@@ -634,7 +636,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << oss.str() << endl;
         }
       } break;
-      case 19: {
+      case 20: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 3
         //
@@ -721,7 +723,7 @@ int main(int argc, char *argv[])
 
         LOOP2_ASSERT(EXP, oss.str(), EXP == oss.str());
       } break;
-      case 18: {
+      case 19: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -797,7 +799,7 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(out.str(), buf, !bsl::strcmp(EXP, buf));
         }
       } break;
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -834,6 +836,81 @@ int main(int argc, char *argv[])
                               "]\n";
             LOOP_ASSERT(out.str(), EXP == out.str());
         }
+      } break;
+      case 17: {
+        // --------------------------------------------------------------------
+        // INTERACTION WITH SETW
+        //   'operator<<' is commonly implemented for BDE types using a
+        //   'bslim::Printer' object constructed with the arguments
+        //   'Printer(stream, 0, -1)'.  The concern is that such
+        //   implementations of 'operator<<' correctly respect 'bsl::setw' on
+        //   'stream'.
+        //
+        // Concerns:
+        //: 1 That an 'operator<<' implemented with 'bslim::Printer' will
+        //:   respect the use of 'setw' by the user.
+        //
+        // Plan:
+        //: 1 Create a table of test data varying in the use of 'setw' and
+        //:   left/right, justification.  For each element, execute a
+        //:   simulated 'operator<<' implementation using
+        //:   'Printer(stream, 0 -1)', and verify the resulting output matches
+        //:   the expected output.
+        //
+        // Testing:
+        //   CONCERN: Printer(stream, 0, -1) can be formatted with 'setw'
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "INTERACTION WITH SETW" << endl
+                          << "=====================" << endl;
+
+        struct {
+            int         d_line;
+            const char *d_text;
+            int         d_setw;         // negative values = left-justified
+            const char *d_expected;
+        } DATA[] = {
+            { L_, "FOO",  0, "FOO"     },
+            { L_, "FOO",  3, "FOO"     },
+            { L_, "FOO",  4, " FOO"    },
+            { L_, "FOO",  7, "    FOO" },
+            { L_, "FOO", -3, "FOO"     },
+            { L_, "FOO", -4, "FOO "    },
+            { L_, "FOO", -7, "FOO    " },
+
+        };
+        const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int   LINE     = DATA[i].d_line;
+            const char *INPUT    = DATA[i].d_text;
+            const int   SETW     = DATA[i].d_setw;
+            const char *EXPECTED = DATA[i].d_expected;
+
+            if (veryVerbose) {
+                P_(LINE); P_(INPUT); P(EXPECTED);
+            }
+
+            bsl::ostringstream stream;
+
+            if (SETW < 0) {
+                stream << bsl::setiosflags(ios::left) << bsl::setw(-SETW);
+            }
+            else {
+                stream << bsl::setw(SETW);
+            }
+
+            // A simply hypothetical BDE 'print' implementation.
+
+            Obj printer(&stream, 0, -1);
+            printer.start(true);
+            stream << INPUT;
+            printer.end(true);
+
+            LOOP3_ASSERT(INPUT, SETW, EXPECTED, stream.str() == EXPECTED);
+        }
+
       } break;
       case 16: {
         // --------------------------------------------------------------------
@@ -895,6 +972,26 @@ int main(int argc, char *argv[])
                               "        3\n"
                               "        22\n"
                               "        1\n"
+                              "      ]\n";
+            LOOP2_ASSERT(EXP, out.str(), EXP == out.str());
+        }
+
+        {
+            bsl::vector<char> v(&uniqKeys[0], uniqKeys + NUM_DATA);
+            const bsl::vector<char>& V = v;
+            bsl::ostringstream out;
+            bslim::Printer p(&out, 2, 2);
+            p.printAttribute("vector", V);
+
+            const char *EXP = "      vector = [\n"
+                              "        0xfd\n"
+                              "        0x2\n"
+                              "        0x7\n"
+                              "        0x5\n"
+                              "        '\\t'\n"
+                              "        0x3\n"
+                              "        0x16\n"
+                              "        0x1\n"
                               "      ]\n";
             LOOP2_ASSERT(EXP, out.str(), EXP == out.str());
         }

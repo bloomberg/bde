@@ -14,9 +14,31 @@ namespace BloombergLP {
 
 namespace {
 
+static
+void putSpaces(bsl::ostream& stream, int numSpaces)
+    // Efficiently insert the specified 'numSpaces' spaces into the specified
+    // 'stream'.  This function has no effect on 'stream' if 'numSpaces < 0'.
+{
+    // Algorithm: Write spaces in chunks.  The chunk size is large enough so
+    // that most times only a single call to the 'write' method is needed.
+
+    // Define the largest chunk of spaces:
+    static const char k_SPACES[]    = "                                      ";
+           const int  k_SPACES_SIZE = sizeof(k_SPACES) - 1;
+
+    while (k_SPACES_SIZE < numSpaces) {
+        stream.write(k_SPACES, k_SPACES_SIZE);
+        numSpaces -= k_SPACES_SIZE;
+    }
+
+    if (0 < numSpaces) {
+        stream.write(k_SPACES, numSpaces);
+    }
+}
+
 class FormatGuard {
-    // Class that saves the format flags from a stream.  Note 'ios_base' is
-    // a base class that both 'ostream' and 'istream' inherit from.
+    // Class that saves the format flags from a stream.  Note 'ios_base' is a
+    // base class that both 'ostream' and 'istream' inherit from.
 
     // DATA
     bsl::ios_base           *d_stream;
@@ -60,24 +82,17 @@ namespace bslim {
 // PRIVATE ACCESSORS
 void Printer::printEndIndentation() const
 {
-    if (d_spacesPerLevel < 0) {
-        *d_stream_p << ' ';
-    }
-    else {
-        *d_stream_p << bsl::setw(d_spacesPerLevel * d_level) << "";
-    }
+    putSpaces(*d_stream_p, d_spacesPerLevel < 0
+                           ? 1
+                           : d_spacesPerLevel * d_level);
 }
 
 void Printer::printIndentation() const
 {
-    if (d_spacesPerLevel < 0) {
-        *d_stream_p << ' ';
-    }
-    else {
-        *d_stream_p << bsl::setw(d_spacesPerLevel * d_levelPlusOne) << "";
-    }
+    putSpaces(*d_stream_p, d_spacesPerLevel < 0
+                           ? 1
+                           : d_spacesPerLevel * d_levelPlusOne);
 }
-
 // CREATORS
 Printer::Printer(bsl::ostream *stream, int level, int spacesPerLevel)
 : d_stream_p(stream)
@@ -137,7 +152,7 @@ void Printer::start(bool suppressBracket) const
         const int absSpacesPerLevel = d_spacesPerLevel < 0
                                       ? -d_spacesPerLevel
                                       :  d_spacesPerLevel;
-        *d_stream_p << bsl::setw(absSpacesPerLevel * d_level) << "";
+        putSpaces(*d_stream_p, absSpacesPerLevel * d_level);
     }
 
     if (!suppressBracket) {
@@ -165,7 +180,7 @@ void Printer_Helper::printRaw(bsl::ostream&                  stream,
                               bslmf::SelectTraitCase<bsl::is_fundamental>)
 {
 #define HANDLE_CONTROL_CHAR(value) case value: stream << #value; break;
-    if (bsl::isprint(data)) {
+    if (bsl::isprint(static_cast<unsigned char>(data))) {
         // print within quotes
 
         stream << "'" << data << "'";
@@ -182,7 +197,8 @@ void Printer_Helper::printRaw(bsl::ostream&                  stream,
             FormatGuard guard(&stream);
             stream << bsl::hex
                    << bsl::showbase
-                   << static_cast<bsls::Types::UintPtr>(data);
+                   << static_cast<bsls::Types::UintPtr>(
+                                             static_cast<unsigned char>(data));
           }
         }
     }
