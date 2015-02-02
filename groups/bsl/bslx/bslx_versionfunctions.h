@@ -63,7 +63,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally, verify the value returned by 'maxSupportedBdexVersion' for some
 // fundamental types, 'my_Enum', and 'my_Class' with an arbitrary
-// 'serializationVersion':
+// 'versionSelector':
 //..
 //  using bslx::VersionFunctions::maxSupportedBdexVersion;
 //  using bslx::VersionFunctions::k_NO_VERSION;
@@ -150,18 +150,32 @@ struct VersionFunctions_NonFundamentalImpl {
     // 'TYPE::maxSupportedBdexVersion' method as per the BDEX protocol (see the
     // 'bslx' package-level documentation).
 
-    static int maxSupportedBdexVersion(int serializationVersion);
-        // Return the BDEX-compliant version information for the (template
-        // parameter) type 'TYPE' given the specified 'serializationVersion'
-        // (see the 'bslx' package-level documentation).
+    static int maxSupportedBdexVersion(int versionSelector);
+        // Return the maximum valid BDEX format version, as indicated by the
+        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
+        // method while streaming an object of the (template parameter) type
+        // 'TYPE'.  Note that it is highly recommended that 'versionSelector'
+        // be formatted as "YYYYMMDD", a date representation.  Also note that
+        // 'versionSelector' should be a *compile*-time-chosen value that
+        // selects a format version supported by both externalizer and
+        // unexternalizer.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
 };
 
 template <class TYPE, class ALLOC>
 struct VersionFunctions_NonFundamentalImpl<bsl::vector<TYPE, ALLOC> > {
-    static int maxSupportedBdexVersion(int serializationVersion);
-        // Return the BDEX-compliant version information for the (template
-        // parameter) type 'bsl::vector<TYPE, ALLOC>' given the specified
-        // 'serializationVersion' (see the 'bslx' package-level documentation).
+    static int maxSupportedBdexVersion(int versionSelector);
+        // Return the maximum valid BDEX format version, as indicated by the
+        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
+        // method while streaming an object of the (template parameter) type
+        // 'bsl::vector<TYPE, ALLOC>'.  Note that it is highly recommended that
+        // 'versionSelector' be formatted as "YYYYMMDD", a date representation.
+        // Also note that 'versionSelector' should be a *compile*-time-chosen
+        // value that selects a format version supported by both externalizer
+        // and unexternalizer.  See the 'bslx' package-level documentation for
+        // more information on BDEX streaming of value-semantic types and
+        // containers.
 };
 
                          // ===============================
@@ -186,24 +200,38 @@ namespace VersionFunctions_Impl {
 
     template <class TYPE>
     int maxSupportedBdexVersion(
-                   int                                    serializationVersion,
-                   const VersionFunctions_HasBdexVersion&);
-        // Return the version to use while streaming an object of the (template
-        // parameter) type 'TYPE' with the specified 'serializationVersion' as
-        // per the BDEX protocol (see the 'bslx' package-level documentation).
-        // Note that this function assumes the 'TYPE' is neither 'const' nor
-        // 'volatile' and that this function is called only for types which are
-        // not enumerations, not fundamental types, and not 'bsl::string'
-        // (vectors and other BDEX-compliant types will use this function).
+                        int                                    versionSelector,
+                        const VersionFunctions_HasBdexVersion&);
+        // Return the maximum valid BDEX format version, as indicated by the
+        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
+        // method while streaming an object of the (template parameter) type
+        // 'TYPE'.  Note that it is highly recommended that 'versionSelector'
+        // be formatted as "YYYYMMDD", a date representation.  Also note that
+        // 'versionSelector' should be a *compile*-time-chosen value that
+        // selects a format version supported by both externalizer and
+        // unexternalizer.  Also note that this function assumes the 'TYPE' is
+        // neither 'const' nor 'volatile' and that this function is called only
+        // for types which are not enumerations, not fundamental types, and not
+        // 'bsl::string' (vectors and other BDEX-compliant types will use this
+        // function).  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
 
     template <class TYPE>
-    int maxSupportedBdexVersion(int serializationVersion);
-        // Return the version to use while streaming an object of the (template
-        // parameter) type 'TYPE' with the specified 'serializationVersion' as
-        // per the BDEX protocol (see the 'bslx' package-level documentation).
-        // Note that this function assumes the 'TYPE' is neither 'const' nor
-        // 'volatile'.
-};
+    int maxSupportedBdexVersion(int versionSelector);
+        // Return the maximum valid BDEX format version, as indicated by the
+        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
+        // method while streaming an object of the (template parameter) type
+        // 'TYPE'.  Note that it is highly recommended that 'versionSelector'
+        // be formatted as "YYYYMMDD", a date representation.  Also note that
+        // 'versionSelector' should be a *compile*-time-chosen value that
+        // selects a format version supported by both externalizer and
+        // unexternalizer.  Also note that this function assumes the 'TYPE' is
+        // neither 'const' nor 'volatile'.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
+
+}  // close VersionFunctions_Impl namespace
 
                          // ==========================
                          // namespace VersionFunctions
@@ -220,16 +248,23 @@ namespace VersionFunctions {
 
     // CLASS METHODS
     template <class TYPE>
-    int maxSupportedBdexVersion(const TYPE *, int serializationVersion);
-        // Return the version to use while streaming an object of the (template
-        // parameter) type 'TYPE' with the specified 'serializationVersion' as
-        // per the BDEX protocol (see the 'bslx' package-level documentation).
-        // Note that this function ignores any 'const' and 'volatile'
-        // qualifiers on the 'TYPE'.
-};
+    int maxSupportedBdexVersion(const TYPE *, int versionSelector);
+        // Return the maximum valid BDEX format version, as indicated by the
+        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
+        // method while streaming an object of the (template parameter) type
+        // 'TYPE'.  Note that it is highly recommended that 'versionSelector'
+        // be formatted as "YYYYMMDD", a date representation.  Also note that
+        // 'versionSelector' should be a *compile*-time-chosen value that
+        // selects a format version supported by both externalizer and
+        // unexternalizer.  Also note that this function ignores any 'const'
+        // and 'volatile' qualifiers on the 'TYPE'.  See the 'bslx'
+        // package-level documentation for more information on BDEX streaming
+        // of value-semantic types and containers.
+
+}  // close VersionFunctions namespace
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
                  // ------------------------------------------
@@ -240,23 +275,23 @@ namespace VersionFunctions {
 template <class TYPE>
 inline
 int VersionFunctions_NonFundamentalImpl<TYPE>::
-                              maxSupportedBdexVersion(int serializationVersion)
+                                   maxSupportedBdexVersion(int versionSelector)
 {
     // A compilation error indicating the next line of code implies the class
     // of 'TYPE' does not support the 'maxSupportedBdexVersion' method.
 
-    return TYPE::maxSupportedBdexVersion(serializationVersion);
+    return TYPE::maxSupportedBdexVersion(versionSelector);
 }
 
 template <class TYPE, class ALLOC>
 inline
 int VersionFunctions_NonFundamentalImpl<bsl::vector<TYPE, ALLOC> >::
-                              maxSupportedBdexVersion(int serializationVersion)
+                                   maxSupportedBdexVersion(int versionSelector)
 {
     using VersionFunctions::maxSupportedBdexVersion;
 
     const int version = maxSupportedBdexVersion(reinterpret_cast<TYPE *>(0),
-                                                serializationVersion);
+                                                versionSelector);
 
     return version != VersionFunctions::k_NO_VERSION ? version : 1;
 }
@@ -277,16 +312,16 @@ int VersionFunctions_Impl::maxSupportedBdexVersion(
 template <class TYPE>
 inline
 int VersionFunctions_Impl::maxSupportedBdexVersion(
-                   int                                    serializationVersion,
-                   const VersionFunctions_HasBdexVersion&)
+                        int                                    versionSelector,
+                        const VersionFunctions_HasBdexVersion&)
 {
     return VersionFunctions_NonFundamentalImpl<TYPE>::
-                                 maxSupportedBdexVersion(serializationVersion);
+                                      maxSupportedBdexVersion(versionSelector);
 }
 
 template <class TYPE>
 inline
-int VersionFunctions_Impl::maxSupportedBdexVersion(int serializationVersion)
+int VersionFunctions_Impl::maxSupportedBdexVersion(int versionSelector)
 {
     typedef typename bslmf::If<bslmf::IsFundamental<TYPE>::value
                                || bslmf::IsEnum<TYPE>::value
@@ -296,7 +331,7 @@ int VersionFunctions_Impl::maxSupportedBdexVersion(int serializationVersion)
                                                                      dummyType;
 
     return VersionFunctions_Impl::
-              maxSupportedBdexVersion<TYPE>(serializationVersion, dummyType());
+                   maxSupportedBdexVersion<TYPE>(versionSelector, dummyType());
 }
 
                         // --------------------------
@@ -306,11 +341,11 @@ int VersionFunctions_Impl::maxSupportedBdexVersion(int serializationVersion)
 template <class TYPE>
 inline
 int VersionFunctions::maxSupportedBdexVersion(const TYPE *,
-                                              int         serializationVersion)
+                                              int         versionSelector)
 {
     return VersionFunctions_Impl::
                   maxSupportedBdexVersion<typename bsl::remove_cv<TYPE>::type>(
-                                                         serializationVersion);
+                                                              versionSelector);
 }
 
 }  // close package namespace
