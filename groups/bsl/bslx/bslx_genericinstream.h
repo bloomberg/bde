@@ -1,49 +1,76 @@
-// bslx_byteinstream.h                                                -*-C++-*-
-#ifndef INCLUDED_BSLX_BYTEINSTREAM
-#define INCLUDED_BSLX_BYTEINSTREAM
+// bslx_genericinstream.h                                             -*-C++-*-
+#ifndef INCLUDED_BSLX_GENERICINSTREAM
+#define INCLUDED_BSLX_GENERICINSTREAM
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a stream class for unexternalization of fundamental types.
+//@PURPOSE: Unexternalization of fundamental types from a parameterized stream.
 //
 //@CLASSES:
-//  bslx::ByteInStream: byte-array-based input stream for fundamental types
+//  bslx::GenericInStream: parameterized input stream for fundamental types
 //
-//@SEE_ALSO: bslx_byteoutstream
+//@SEE_ALSO: bslx_streambufinstream, bslx_genericoutstream
 //
-//@DESCRIPTION: This component implements a byte-array-based input stream
-// class, 'bslx::ByteInStream', that provides platform-independent input
+//@DESCRIPTION: This component implements a parameterized input stream
+// class, 'bslx::GenericInStream', that provides platform-independent input
 // methods ("unexternalization") on values, and arrays of values, of
 // fundamental types, and on 'bsl::string'.
 //
-// The 'bslx::ByteInStream' type reads from a user-supplied buffer directly,
-// with no data copying or assumption of ownership.  The user must therefore
-// make sure that the lifetime and visibility of the buffer is sufficient to
-// satisfy the needs of the input stream.
+// The 'bslx::GenericInStream' type reads from a compliant user-supplied buffer
+// (see {Generic Byte-Format Parser}) directly, with no data copying or
+// assumption of ownership.  The user must therefore make sure that the
+// lifetime and visibility of the buffer is sufficient to satisfy the needs of
+// the input stream.
 //
 // This component is intended to be used in conjunction with the
-// 'bslx_byteoutstream' "externalization" component.  Each input method of
-// 'bslx::ByteInStream' reads either a value or a homogeneous array of values
-// of a fundamental type, in a format that was written by the corresponding
-// 'bslx::ByteOutStream' method.  In general, the user of this component cannot
-// rely on being able to read data that was written by any mechanism other than
-// 'bslx::ByteOutStream'.
+// 'bslx_genericoutstream' "externalization" component.  Each input method of
+// 'bslx::GenericInStream' reads either a value or a homogeneous array of
+// values of a fundamental type, in a format that was written by the
+// corresponding 'bslx::GenericOutStream' method.  In general, the user of
+// this component cannot rely on being able to read data that was written by
+// any mechanism other than 'bslx::GenericOutStream'.
 //
 // The supported types and required content are listed in the 'bslx'
 // package-level documentation under "Supported Types".
 //
 // Note that input streams can be *invalidated* explicitly and queried for
-// *validity* and *emptiness*.  Reading from an initially invalid stream has no
-// effect.  Attempting to read beyond the end of a stream will automatically
-// invalidate the stream.  Whenever an inconsistent value is detected, the
-// stream should be invalidated explicitly.
+// *validity*.  Reading from an initially invalid stream has no effect.
+// Attempting to read beyond the end of a stream will automatically invalidate
+// the stream.  Whenever an inconsistent value is detected, the stream should
+// be invalidated explicitly.
+//
+///Generic Byte-Format Parser
+///--------------------------
+// The class 'bslx::GenericInStream' is parameterized by a buffered stream
+// class, 'STREAMBUF', which, given the declarations:
+//..
+//  char        c;
+//  int         len;
+//  const char *s;
+//  STREAMBUF  *sb;
+//..
+// must make the following expressions syntactically valid, with the assert
+// statements highlighting the expected return values:
+//..
+//  STREAMBUF::traits_type::int_type eof = STREAMBUF::traits_type::eof();
+//  assert(eof != sb->sbumpc());
+//  assert(eof != sb->sgetc());
+//  assert(len == sb->sgetn(s, len));
+//..
+// Suitable choices for 'STREAMBUF' include any class that implements the
+// 'bsl::basic_streambuf' protocol.
+//
+// The class 'bslx::StreambufInStream' is a 'typedef' for
+// 'bslx::GenericInStream<bsl::streambuf>'.
 //
 ///Usage
 ///-----
-// This section illustrates intended use of this component.
+// This section illustrates intended use of this component.  The first example
+// depicts usage with a 'bsl::stringbuf'.  The second example replaces the
+// 'bsl::stringbuf' with a user-defined 'STREAMBUF'.
 //
 ///Example 1: Basic Unexternalization
 ///- - - - - - - - - - - - - - - - -
@@ -271,49 +298,212 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, we can exercise the new 'MyPerson' value-semantic class by
 // externalizing and reconstituting an object.  First, create a 'MyPerson'
-// 'janeSmith' and a 'bslx::ByteOutStream' 'outStream':
+// 'janeSmith1' and a 'bslx::GenericOutStream' 'outStream1':
 //..
-//  MyPerson            janeSmith("Jane", "Smith", 42);
-//  bslx::ByteOutStream outStream(20131127);
-//  const int           VERSION = 1;
-//  outStream.putVersion(VERSION);
-//  janeSmith.bdexStreamOut(outStream, VERSION);
-//  assert(outStream.isValid());
+//  MyPerson                               janeSmith1("Jane", "Smith", 42);
+//  bsl::stringbuf                         buffer1;
+//  bslx::GenericOutStream<bsl::stringbuf> outStream1(&buffer1, 20131127);
+//  const int                              VERSION1 = 1;
+//  outStream1.putVersion(VERSION1);
+//  janeSmith1.bdexStreamOut(outStream1, VERSION1);
+//  assert(outStream1.isValid());
 //..
-// Next, create a 'MyPerson' 'janeCopy' initialized to the default value, and
-// assert that 'janeCopy' is different from 'janeSmith':
+// Next, create a 'MyPerson' 'janeCopy1' initialized to the default value, and
+// assert that 'janeCopy1' is different from 'janeSmith1':
 //..
-//  MyPerson janeCopy;
-//  assert(janeCopy != janeSmith);
+//  MyPerson janeCopy1;
+//  assert(janeCopy1 != janeSmith1);
 //..
-// Then, create a 'bslx::ByteInStream' 'inStream' initialized with the buffer
-// from the 'bslx::ByteOutStream' object 'outStream' and unexternalize this
-// data into 'janeCopy':
+// Then, create a 'bslx::GenericInStream' 'inStream1' initialized with the
+// buffer from the 'bslx::GenericOutStream' object 'outStream1' and
+// unexternalize this data into 'janeCopy1':
 //..
-//  bslx::ByteInStream inStream(outStream.data(), outStream.length());
-//  int                version;
-//  inStream.getVersion(version);
-//  janeCopy.bdexStreamIn(inStream, version);
-//  assert(inStream.isValid());
+//  bslx::GenericInStream<bsl::stringbuf> inStream1(&buffer1);
+//  int                                   version1;
+//  inStream1.getVersion(version1);
+//  janeCopy1.bdexStreamIn(inStream1, version1);
+//  assert(inStream1.isValid());
 //..
 // Finally, 'assert' the obtained values are as expected and display the
 // results to 'bsl::stdout':
 //..
-//  assert(version  == VERSION);
-//  assert(janeCopy == janeSmith);
+//  assert(version1  == VERSION1);
+//  assert(janeCopy1 == janeSmith1);
 //
-//  if (janeCopy == janeSmith) {
+//  if (janeCopy1 == janeSmith1) {
 //      bsl::cout << "Successfully serialized and de-serialized Jane Smith:"
-//                << "\n\tFirstName: " << janeCopy.firstName()
-//                << "\n\tLastName : " << janeCopy.lastName()
-//                << "\n\tAge      : " << janeCopy.age() << bsl::endl;
+//                << "\n\tFirstName: " << janeCopy1.firstName()
+//                << "\n\tLastName : " << janeCopy1.lastName()
+//                << "\n\tAge      : " << janeCopy1.age() << bsl::endl;
 //  }
 //  else {
-//      bsl::cout << "Serialization unsuccessful.  'janeCopy' holds:"
-//                << "\n\tFirstName: " << janeCopy.firstName()
-//                << "\n\tLastName : " << janeCopy.lastName()
-//                << "\n\tAge      : " << janeCopy.age() << bsl::endl;
+//      bsl::cout << "Serialization unsuccessful.  'janeCopy1' holds:"
+//                << "\n\tFirstName: " << janeCopy1.firstName()
+//                << "\n\tLastName : " << janeCopy1.lastName()
+//                << "\n\tAge      : " << janeCopy1.age() << bsl::endl;
 //  }
+//..
+//
+///Example 2: Sample 'STREAMBUF' Implementation
+///- - - - - - - - - - - - - - - - - - - - - -
+// For this example, we will implement 'MyStreamBuf', a minimal 'STREAMBUF' to
+// to be used with 'bslx::GenericInStream' and 'bslx::GenericOutStream'.  The
+// implementation will consist of only what is required of the type.  For
+// comparison, we will reuse 'MyPerson' and repeat part of {Example 1} to
+// demonstrate how to use 'bslx::GenericInStream'.
+//
+// First, we implement 'MyStreamBuf' (which, for brevity, simply uses the
+// default allocator):
+//..
+//  class MyStreamBuf {
+//      // This class implements a very basic stream buffer suitable for use in
+//      // 'bslx::GenericOutStream' and 'bslx::GenericInStream'.
+//
+//      // DATA
+//      bsl::deque<char> d_buffer;  // the input and output buffer
+//
+//    private:
+//      // NOT IMPLEMENTED
+//      MyStreamBuf(const MyStreamBuf&);
+//      MyStreamBuf& operator=(const MyStreamBuf&);
+//
+//    public:
+//      // TYPES
+//      struct traits_type {
+//          static int eof() { return -1; }
+//      };
+//
+//      // CREATORS
+//      MyStreamBuf();
+//          // Create an empty stream buffer.
+//
+//      ~MyStreamBuf();
+//          // Destroy this stream buffer.
+//
+//      // MANIPULATORS
+//      int pubsync();
+//          // Return 0.
+//
+//      int sbumpc();
+//          // Read the next character in this buffer.  Return the value of the
+//          // character on success, and 'traits_type::eof()' otherwise.
+//
+//      int sgetc();
+//          // Peek at the next character in this buffer.  Return the value of
+//          // the character on success, and 'traits_type::eof()' otherwise.
+//
+//      bsl::streamsize sgetn(char *s, bsl::streamsize length);
+//          // Load the specified 'length' characters into the specified
+//          // address 's', and return the number of characters read.
+//
+//      int sputc(char c);
+//          // Write the specified character 'c' to this buffer.  Return 'c' on
+//          // success, and 'traits_type::eof()' otherwise.
+//
+//      bsl::streamsize sputn(const char *s, bsl::streamsize length);
+//          // Write the specified 'length' characters at the specified address
+//          // 's' to this buffer, and return the number of characters written.
+//  };
+//
+//  // ========================================================================
+//  //                  INLINE FUNCTION DEFINITIONS
+//  // ========================================================================
+//
+//  // CREATORS
+//  MyStreamBuf::MyStreamBuf()
+//  : d_buffer()
+//  {
+//  }
+//
+//  MyStreamBuf::~MyStreamBuf()
+//  {
+//  }
+//
+//  // MANIPULATORS
+//  int MyStreamBuf::pubsync()
+//  {
+//      // In this implementation, there is nothing to be done except return
+//      // success.
+//
+//      return 0;
+//  }
+//
+//  int MyStreamBuf::sbumpc()
+//  {
+//      if (!d_buffer.empty()) {
+//          const int rv = static_cast<int>(d_buffer.front());
+//          d_buffer.pop_front();
+//          return rv;                                                // RETURN
+//      }
+//      return traits_type::eof();
+//  }
+//
+//  int MyStreamBuf::sgetc()
+//  {
+//      if (!d_buffer.empty()) {
+//          return static_cast<int>(d_buffer.front());                // RETURN
+//      }
+//      return traits_type::eof();
+//  }
+//
+//  bsl::streamsize MyStreamBuf::sgetn(char *s, bsl::streamsize length)
+//  {
+//      for (bsl::streamsize i = 0; i < length; ++i) {
+//          if (d_buffer.empty()) {
+//              return i;                                             // RETURN
+//          }
+//          s[i] = d_buffer.front();
+//          d_buffer.pop_front();
+//      }
+//      return length;
+//  }
+//
+//  int MyStreamBuf::sputc(char c)
+//  {
+//      d_buffer.push_back(c);
+//      return static_cast<int>(c);
+//  }
+//
+//  bsl::streamsize MyStreamBuf::sputn(const char      *s,
+//                                     bsl::streamsize  length)
+//  {
+//      for (bsl::streamsize i = 0; i < length; ++i) {
+//          d_buffer.push_back(s[i]);
+//      }
+//      return length;
+//  }
+//..
+// Then, we create a 'MyPerson' 'janeSmith2' and a 'bslx::GenericOutStream'
+// 'outStream2':
+//..
+//  MyPerson                               janeSmith2("Jane", "Smith", 42);
+//  MyStreamBuf                            buffer2;
+//  bslx::GenericOutStream<MyStreamBuf>    outStream2(&buffer2, 20131127);
+//  const int                              VERSION2 = 1;
+//  outStream2.putVersion(VERSION2);
+//  janeSmith2.bdexStreamOut(outStream2, VERSION2);
+//  assert(outStream2.isValid());
+//..
+// Next, create a 'MyPerson' 'janeCopy2' initialized to the default value, and
+// assert that 'janeCopy2' is different from 'janeSmith2':
+//..
+//  MyPerson janeCopy2;
+//  assert(janeCopy2 != janeSmith2);
+//..
+// Then, create a 'bslx::GenericInStream' 'inStream2' initialized with the
+// buffer from the 'bslx::GenericOutStream' object 'outStream2' and
+// unexternalize this data into 'janeCopy2':
+//..
+//  bslx::GenericInStream<MyStreamBuf>    inStream2(&buffer2);
+//  int                                   version2;
+//  inStream2.getVersion(version2);
+//  janeCopy2.bdexStreamIn(inStream2, version2);
+//  assert(inStream2.isValid());
+//..
+// Finally, 'assert' the obtained values are as expected:
+//..
+//  assert(version2  == VERSION2);
+//  assert(janeCopy2 == janeSmith2);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -324,10 +514,6 @@ BSLS_IDENT("$Id: $")
 #include <bslx_instreamfunctions.h>
 #endif
 
-#ifndef INCLUDED_BSLX_MARSHALLINGUTIL
-#include <bslx_marshallingutil.h>
-#endif
-
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -336,16 +522,16 @@ BSLS_IDENT("$Id: $")
 #include <bsls_performancehint.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
-#include <bsl_iosfwd.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING
@@ -359,60 +545,67 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslx {
 
-                         // ==================
-                         // class ByteInStream
-                         // ==================
+                        // =====================
+                        // class GenericInStream
+                        // =====================
 
-class ByteInStream {
+template <class STREAMBUF>
+class GenericInStream {
     // This class provides input methods to unexternalize values, and C-style
     // arrays of values, of the fundamental integral and floating-point types,
     // as well as 'bsl::string' values, using a byte format documented in the
     // 'bslx_byteoutstream' component.  In particular, each 'get' method of
     // this class is guaranteed to read stream data written by the
-    // corresponding 'put' method of 'bslx::ByteOutStream'.  Note that
+    // corresponding 'put' method of 'bslx::GenericOutStream'.  Note that
     // attempting to read beyond the end of a stream will automatically
     // invalidate the stream.  See the 'bslx' package-level documentation for
     // the definition of the BDEX 'InStream' protocol.
 
+    // PRIVATE TYPES
+    enum {
+        // Enumerate the platform-independent sizes (in bytes) of data types in
+        // wire format.  Note that the wire format size may differ from the
+        // size in memory.
+
+        k_SIZEOF_INT64   = 8,
+        k_SIZEOF_INT56   = 7,
+        k_SIZEOF_INT48   = 6,
+        k_SIZEOF_INT40   = 5,
+        k_SIZEOF_INT32   = 4,
+        k_SIZEOF_INT24   = 3,
+        k_SIZEOF_INT16   = 2,
+        k_SIZEOF_INT8    = 1,
+        k_SIZEOF_FLOAT64 = 8,
+        k_SIZEOF_FLOAT32 = 4
+    };
+
     // DATA
-    const char  *d_buffer;     // bytes to be unexternalized
+    STREAMBUF *d_streamBuf;  // held stream to read from
 
-    bsl::size_t  d_numBytes;   // number of bytes in 'd_buffer'
+    bool       d_validFlag;  // stream validity flag; 'true' if stream is in
+                             // valid state, 'false' otherwise
 
-    bool         d_validFlag;  // stream validity flag; 'true' if stream is in
-                               // valid state, 'false' otherwise
-
-    bsl::size_t  d_cursor;     // index of the next byte to be extracted from
-                               // this stream
-
-    // FRIENDS
-    friend bsl::ostream& operator<<(bsl::ostream&       stream,
-                                    const ByteInStream& object);
+    // NOT IMPLEMENTED
+    GenericInStream(const GenericInStream&);
+    GenericInStream& operator=(const GenericInStream&);
 
   private:
-    // NOT IMPLEMENTED
-    ByteInStream(const ByteInStream&);
-    ByteInStream& operator=(const ByteInStream&);
+    // PRIVATE MANIPULATORS
+    void validate();
+        // Put this output stream into a valid state.  This function has no
+        // effect if this stream is already valid.
 
   public:
     // CREATORS
-    explicit ByteInStream();
-        // Create an empty input byte stream.  Note that the constructed object
-        // is useless until a buffer is set with the 'reset' method.
+    GenericInStream(STREAMBUF *streamBuf);
+        // Create an input byte stream that reads its input from the specified
+        // 'streamBuf'.
 
-    ByteInStream(const char *buffer, bsl::size_t numBytes);
-        // Create an input byte stream containing the specified initial
-        // 'numBytes' from the specified 'buffer'.  The behavior is undefined
-        // unless '0 == numBytes' if '0 == buffer'.
-
-    explicit ByteInStream(const bslstl::StringRef& srcData);
-        // Create an input byte stream containing the specified 'srcData'.
-
-    ~ByteInStream();
+    ~GenericInStream();
         // Destroy this object.
 
     // MANIPULATORS
-    ByteInStream& getLength(int& length);
+    GenericInStream& getLength(int& length);
         // If the most-significant bit of the one byte of this stream at the
         // current cursor location is set, assign to the specified 'length' the
         // four-byte, two's complement integer (in host byte order) comprised
@@ -426,7 +619,7 @@ class ByteInStream {
         // stream is marked invalid and the value of 'length' is undefined.
         // Note that the value will be zero-extended.
 
-    ByteInStream& getVersion(int& version);
+    GenericInStream& getVersion(int& version);
         // Assign to the specified 'version' the one-byte, two's complement
         // unsigned integer comprised of the one byte of this stream at the
         // current cursor location, update the cursor location, and return a
@@ -442,26 +635,9 @@ class ByteInStream {
         // should be called whenever a value extracted from this stream is
         // determined to be invalid, inconsistent, or otherwise incorrect.
 
-    void reset();
-        // Set the index of the next byte to be extracted from this stream to 0
-        // (i.e., the beginning of the stream) and validate this stream if it
-        // is currently invalid.
-
-    void reset(const char *buffer, bsl::size_t numBytes);
-        // Reset this stream to extract from the specified 'buffer' containing
-        // the specified 'numBytes', set the index of the next byte to be
-        // extracted to 0 (i.e., the beginning of the stream), and validate
-        // this stream if it is currently invalid.  The behavior is undefined
-        // unless '0 == numBytes' if '0 == buffer'.
-
-    void reset(const bslstl::StringRef& srcData);
-        // Reset this stream to extract from the specified 'srcData', set the
-        // index of the next byte to be extracted to 0 (i.e., the beginning of
-        // the stream), and validate this stream if it is currently invalid.
-
                       // *** scalar integer values ***
 
-    ByteInStream& getInt64(bsls::Types::Int64& variable);
+    GenericInStream& getInt64(bsls::Types::Int64& variable);
         // Assign to the specified 'variable' the eight-byte, two's complement
         // integer (in host byte order) comprised of the eight bytes of this
         // stream at the current cursor location (in network byte order),
@@ -471,7 +647,7 @@ class ByteInStream {
         // stream is marked invalid and the value of 'variable' is undefined.
         // Note that the value will be sign-extended.
 
-    ByteInStream& getUint64(bsls::Types::Uint64& variable);
+    GenericInStream& getUint64(bsls::Types::Uint64& variable);
         // Assign to the specified 'variable' the eight-byte, two's complement
         // unsigned integer (in host byte order) comprised of the eight bytes
         // of this stream at the current cursor location (in network byte
@@ -481,7 +657,7 @@ class ByteInStream {
         // this stream is marked invalid and the value of 'variable' is
         // undefined.  Note that the value will be zero-extended.
 
-    ByteInStream& getInt56(bsls::Types::Int64& variable);
+    GenericInStream& getInt56(bsls::Types::Int64& variable);
         // Assign to the specified 'variable' the seven-byte, two's complement
         // integer (in host byte order) comprised of the seven bytes of this
         // stream at the current cursor location (in network byte order),
@@ -491,7 +667,7 @@ class ByteInStream {
         // stream is marked invalid and the value of 'variable' is undefined.
         // Note that the value will be sign-extended.
 
-    ByteInStream& getUint56(bsls::Types::Uint64& variable);
+    GenericInStream& getUint56(bsls::Types::Uint64& variable);
         // Assign to the specified 'variable' the seven-byte, two's complement
         // unsigned integer (in host byte order) comprised of the seven bytes
         // of this stream at the current cursor location (in network byte
@@ -501,7 +677,7 @@ class ByteInStream {
         // this stream is marked invalid and the value of 'variable' is
         // undefined.  Note that the value will be zero-extended.
 
-    ByteInStream& getInt48(bsls::Types::Int64& variable);
+    GenericInStream& getInt48(bsls::Types::Int64& variable);
         // Assign to the specified 'variable' the six-byte, two's complement
         // integer (in host byte order) comprised of the six bytes of this
         // stream at the current cursor location (in network byte order),
@@ -511,7 +687,7 @@ class ByteInStream {
         // stream is marked invalid and the value of 'variable' is undefined.
         // Note that the value will be sign-extended.
 
-    ByteInStream& getUint48(bsls::Types::Uint64& variable);
+    GenericInStream& getUint48(bsls::Types::Uint64& variable);
         // Assign to the specified 'variable' the six-byte, two's complement
         // unsigned integer (in host byte order) comprised of the six bytes of
         // this stream at the current cursor location (in network byte order),
@@ -521,7 +697,7 @@ class ByteInStream {
         // stream is marked invalid and the value of 'variable' is undefined.
         // Note that the value will be zero-extended.
 
-    ByteInStream& getInt40(bsls::Types::Int64& variable);
+    GenericInStream& getInt40(bsls::Types::Int64& variable);
         // Assign to the specified 'variable' the five-byte, two's complement
         // integer (in host byte order) comprised of the five bytes of this
         // stream at the current cursor location (in network byte order),
@@ -531,7 +707,7 @@ class ByteInStream {
         // stream is marked invalid and the value of 'variable' is undefined.
         // Note that the value will be sign-extended.
 
-    ByteInStream& getUint40(bsls::Types::Uint64& variable);
+    GenericInStream& getUint40(bsls::Types::Uint64& variable);
         // Assign to the specified 'variable' the five-byte, two's complement
         // unsigned integer (in host byte order) comprised of the five bytes of
         // this stream at the current cursor location (in network byte order),
@@ -541,7 +717,7 @@ class ByteInStream {
         // stream is marked invalid and the value of 'variable' is undefined.
         // Note that the value will be zero-extended.
 
-    ByteInStream& getInt32(int& variable);
+    GenericInStream& getInt32(int& variable);
         // Assign to the specified 'variable' the four-byte, two's complement
         // integer (in host byte order) comprised of the four bytes of this
         // stream at the current cursor location (in network byte order),
@@ -551,7 +727,7 @@ class ByteInStream {
         // stream is marked invalid and the value of 'variable' is undefined.
         // Note that the value will be sign-extended.
 
-    ByteInStream& getUint32(unsigned int& variable);
+    GenericInStream& getUint32(unsigned int& variable);
         // Assign to the specified 'variable' the four-byte, two's complement
         // unsigned integer (in host byte order) comprised of the four bytes of
         // this stream at the current cursor location (in network byte order),
@@ -561,7 +737,7 @@ class ByteInStream {
         // stream is marked invalid and the value of 'variable' is undefined.
         // Note that the value will be zero-extended.
 
-    ByteInStream& getInt24(int& variable);
+    GenericInStream& getInt24(int& variable);
         // Assign to the specified 'variable' the three-byte, two's complement
         // integer (in host byte order) comprised of the three bytes of this
         // stream at the current cursor location (in network byte order),
@@ -571,7 +747,7 @@ class ByteInStream {
         // stream is marked invalid and the value of 'variable' is undefined.
         // Note that the value will be sign-extended.
 
-    ByteInStream& getUint24(unsigned int& variable);
+    GenericInStream& getUint24(unsigned int& variable);
         // Assign to the specified 'variable' the three-byte, two's complement
         // unsigned integer (in host byte order) comprised of the three bytes
         // of this stream at the current cursor location (in network byte
@@ -581,7 +757,7 @@ class ByteInStream {
         // this stream is marked invalid and the value of 'variable' is
         // undefined.  Note that the value will be zero-extended.
 
-    ByteInStream& getInt16(short& variable);
+    GenericInStream& getInt16(short& variable);
         // Assign to the specified 'variable' the two-byte, two's complement
         // integer (in host byte order) comprised of the two bytes of this
         // stream at the current cursor location (in network byte order),
@@ -591,7 +767,7 @@ class ByteInStream {
         // stream is marked invalid and the value of 'variable' is undefined.
         // Note that the value will be sign-extended.
 
-    ByteInStream& getUint16(unsigned short& variable);
+    GenericInStream& getUint16(unsigned short& variable);
         // Assign to the specified 'variable' the two-byte, two's complement
         // unsigned integer (in host byte order) comprised of the two bytes of
         // this stream at the current cursor location (in network byte order),
@@ -601,8 +777,8 @@ class ByteInStream {
         // stream is marked invalid and the value of 'variable' is undefined.
         // Note that the value will be zero-extended.
 
-    ByteInStream& getInt8(char&        variable);
-    ByteInStream& getInt8(signed char& variable);
+    GenericInStream& getInt8(char&        variable);
+    GenericInStream& getInt8(signed char& variable);
         // Assign to the specified 'variable' the one-byte, two's complement
         // integer comprised of the one byte of this stream at the current
         // cursor location, update the cursor location, and return a reference
@@ -611,8 +787,8 @@ class ByteInStream {
         // value, this stream is marked invalid and the value of 'variable' is
         // undefined.  Note that the value will be sign-extended.
 
-    ByteInStream& getUint8(char&          variable);
-    ByteInStream& getUint8(unsigned char& variable);
+    GenericInStream& getUint8(char&          variable);
+    GenericInStream& getUint8(unsigned char& variable);
         // Assign to the specified 'variable' the one-byte, two's complement
         // unsigned integer comprised of the one byte of this stream at the
         // current cursor location, update the cursor location, and return a
@@ -624,7 +800,7 @@ class ByteInStream {
 
                       // *** scalar floating-point values ***
 
-    ByteInStream& getFloat64(double& variable);
+    GenericInStream& getFloat64(double& variable);
         // Assign to the specified 'variable' the eight-byte IEEE
         // double-precision floating-point number (in host byte order)
         // comprised of the eight bytes of this stream at the current cursor
@@ -634,7 +810,7 @@ class ByteInStream {
         // fails to extract a valid value, this stream is marked invalid and
         // the value of 'variable' is undefined.
 
-    ByteInStream& getFloat32(float& variable);
+    GenericInStream& getFloat32(float& variable);
         // Assign to the specified 'variable' the four-byte IEEE
         // single-precision floating-point number (in host byte order)
         // comprised of the four bytes of this stream at the current cursor
@@ -646,7 +822,7 @@ class ByteInStream {
 
                       // *** string values ***
 
-    ByteInStream& getString(bsl::string& variable);
+    GenericInStream& getString(bsl::string& variable);
         // Assign to the specified 'variable' the string comprised of the
         // length of the string (see 'getLength') and the string data (see
         // 'getUint8'), update the cursor location, and return a reference to
@@ -657,8 +833,8 @@ class ByteInStream {
 
                       // *** arrays of integer values ***
 
-    ByteInStream& getArrayInt64(bsls::Types::Int64 *variables,
-                                int                 numVariables);
+    GenericInStream& getArrayInt64(bsls::Types::Int64 *variables,
+                                   int                 numVariables);
         // Assign to the specified 'variables' the consecutive eight-byte,
         // two's complement integers (in host byte order) comprised of each of
         // the specified 'numVariables' eight-byte sequences of this stream at
@@ -671,8 +847,8 @@ class ByteInStream {
         // sufficient capacity.  Note that each of the values will be
         // sign-extended.
 
-    ByteInStream& getArrayUint64(bsls::Types::Uint64 *variables,
-                                 int                  numVariables);
+    GenericInStream& getArrayUint64(bsls::Types::Uint64 *variables,
+                                    int                  numVariables);
         // Assign to the specified 'variables' the consecutive eight-byte,
         // two's complement unsigned integers (in host byte order) comprised of
         // each of the specified 'numVariables' eight-byte sequences of this
@@ -685,8 +861,8 @@ class ByteInStream {
         // has sufficient capacity.  Note that each of the values will be
         // zero-extended.
 
-    ByteInStream& getArrayInt56(bsls::Types::Int64 *variables,
-                                int                 numVariables);
+    GenericInStream& getArrayInt56(bsls::Types::Int64 *variables,
+                                   int                 numVariables);
         // Assign to the specified 'variables' the consecutive seven-byte,
         // two's complement integers (in host byte order) comprised of each of
         // the specified 'numVariables' seven-byte sequences of this stream at
@@ -699,8 +875,8 @@ class ByteInStream {
         // sufficient capacity.  Note that each of the values will be
         // sign-extended.
 
-    ByteInStream& getArrayUint56(bsls::Types::Uint64 *variables,
-                                 int                  numVariables);
+    GenericInStream& getArrayUint56(bsls::Types::Uint64 *variables,
+                                    int                  numVariables);
         // Assign to the specified 'variables' the consecutive seven-byte,
         // two's complement unsigned integers (in host byte order) comprised of
         // each of the specified 'numVariables' seven-byte sequences of this
@@ -713,8 +889,8 @@ class ByteInStream {
         // has sufficient capacity.  Note that each of the values will be
         // zero-extended.
 
-    ByteInStream& getArrayInt48(bsls::Types::Int64 *variables,
-                                int                 numVariables);
+    GenericInStream& getArrayInt48(bsls::Types::Int64 *variables,
+                                   int                 numVariables);
         // Assign to the specified 'variables' the consecutive six-byte, two's
         // complement integers (in host byte order) comprised of each of the
         // specified 'numVariables' six-byte sequences of this stream at the
@@ -726,8 +902,8 @@ class ByteInStream {
         // undefined unless '0 <= numVariables' and 'variables' has sufficient
         // capacity.  Note that each of the values will be sign-extended.
 
-    ByteInStream& getArrayUint48(bsls::Types::Uint64 *variables,
-                                 int                  numVariables);
+    GenericInStream& getArrayUint48(bsls::Types::Uint64 *variables,
+                                    int                  numVariables);
         // Assign to the specified 'variables' the consecutive six-byte, two's
         // complement unsigned integers (in host byte order) comprised of each
         // of the specified 'numVariables' six-byte sequences of this stream at
@@ -740,8 +916,8 @@ class ByteInStream {
         // sufficient capacity.  Note that each of the values will be
         // zero-extended.
 
-    ByteInStream& getArrayInt40(bsls::Types::Int64 *variables,
-                                int                 numVariables);
+    GenericInStream& getArrayInt40(bsls::Types::Int64 *variables,
+                                   int                 numVariables);
         // Assign to the specified 'variables' the consecutive five-byte, two's
         // complement integers (in host byte order) comprised of each of the
         // specified 'numVariables' five-byte sequences of this stream at the
@@ -753,8 +929,8 @@ class ByteInStream {
         // undefined unless '0 <= numVariables' and 'variables' has sufficient
         // capacity.  Note that each of the values will be sign-extended.
 
-    ByteInStream& getArrayUint40(bsls::Types::Uint64 *variables,
-                                 int                  numVariables);
+    GenericInStream& getArrayUint40(bsls::Types::Uint64 *variables,
+                                    int                  numVariables);
         // Assign to the specified 'variables' the consecutive five-byte, two's
         // complement unsigned integers (in host byte order) comprised of each
         // of the specified 'numVariables' five-byte sequences of this stream
@@ -767,7 +943,7 @@ class ByteInStream {
         // sufficient capacity.  Note that each of the values will be
         // zero-extended.
 
-    ByteInStream& getArrayInt32(int *variables, int numVariables);
+    GenericInStream& getArrayInt32(int *variables, int numVariables);
         // Assign to the specified 'variables' the consecutive four-byte, two's
         // complement integers (in host byte order) comprised of each of the
         // specified 'numVariables' four-byte sequences of this stream at the
@@ -779,7 +955,7 @@ class ByteInStream {
         // undefined unless '0 <= numVariables' and 'variables' has sufficient
         // capacity.  Note that each of the values will be sign-extended.
 
-    ByteInStream& getArrayUint32(unsigned int *variables, int numVariables);
+    GenericInStream& getArrayUint32(unsigned int *variables, int numVariables);
         // Assign to the specified 'variables' the consecutive four-byte, two's
         // complement unsigned integers (in host byte order) comprised of each
         // of the specified 'numVariables' four-byte sequences of this stream
@@ -792,7 +968,7 @@ class ByteInStream {
         // sufficient capacity.  Note that each of the values will be
         // zero-extended.
 
-    ByteInStream& getArrayInt24(int *variables, int numVariables);
+    GenericInStream& getArrayInt24(int *variables, int numVariables);
         // Assign to the specified 'variables' the consecutive three-byte,
         // two's complement integers (in host byte order) comprised of each of
         // the specified 'numVariables' three-byte sequences of this stream at
@@ -805,7 +981,7 @@ class ByteInStream {
         // sufficient capacity.  Note that each of the values will be
         // sign-extended.
 
-    ByteInStream& getArrayUint24(unsigned int *variables, int numVariables);
+    GenericInStream& getArrayUint24(unsigned int *variables, int numVariables);
         // Assign to the specified 'variables' the consecutive three-byte,
         // two's complement unsigned integers (in host byte order) comprised of
         // each of the specified 'numVariables' three-byte sequences of this
@@ -818,7 +994,7 @@ class ByteInStream {
         // has sufficient capacity.  Note that each of the values will be
         // zero-extended.
 
-    ByteInStream& getArrayInt16(short *variables, int numVariables);
+    GenericInStream& getArrayInt16(short *variables, int numVariables);
         // Assign to the specified 'variables' the consecutive two-byte, two's
         // complement integers (in host byte order) comprised of each of the
         // specified 'numVariables' two-byte sequences of this stream at the
@@ -830,7 +1006,8 @@ class ByteInStream {
         // undefined unless '0 <= numVariables' and 'variables' has sufficient
         // capacity.  Note that each of the values will be sign-extended.
 
-    ByteInStream& getArrayUint16(unsigned short *variables, int numVariables);
+    GenericInStream& getArrayUint16(unsigned short *variables,
+                                    int             numVariables);
         // Assign to the specified 'variables' the consecutive two-byte, two's
         // complement unsigned integers (in host byte order) comprised of each
         // of the specified 'numVariables' two-byte sequences of this stream at
@@ -843,8 +1020,8 @@ class ByteInStream {
         // sufficient capacity.  Note that each of the values will be
         // zero-extended.
 
-    ByteInStream& getArrayInt8(char *variables,        int numVariables);
-    ByteInStream& getArrayInt8(signed char *variables, int numVariables);
+    GenericInStream& getArrayInt8(char *variables, int numVariables);
+    GenericInStream& getArrayInt8(signed char *variables, int numVariables);
         // Assign to the specified 'variables' the consecutive one-byte, two's
         // complement integers comprised of each of the specified
         // 'numVariables' one-byte sequences of this stream at the current
@@ -856,8 +1033,8 @@ class ByteInStream {
         // 'variables' has sufficient capacity.  Note that each of the values
         // will be sign-extended.
 
-    ByteInStream& getArrayUint8(char *variables,          int numVariables);
-    ByteInStream& getArrayUint8(unsigned char *variables, int numVariables);
+    GenericInStream& getArrayUint8(char *variables, int numVariables);
+    GenericInStream& getArrayUint8(unsigned char *variables, int numVariables);
         // Assign to the specified 'variables' the consecutive one-byte, two's
         // complement unsigned integers comprised of each of the specified
         // 'numVariables' one-byte sequences of this stream at the current
@@ -871,7 +1048,7 @@ class ByteInStream {
 
                       // *** arrays of floating-point values ***
 
-    ByteInStream& getArrayFloat64(double *variables, int numVariables);
+    GenericInStream& getArrayFloat64(double *variables, int numVariables);
         // Assign to the specified 'variables' the consecutive eight-byte IEEE
         // double-precision floating-point numbers (in host byte order)
         // comprised of each of the specified 'numVariables' eight-byte
@@ -883,7 +1060,7 @@ class ByteInStream {
         // undefined.  The behavior is undefined unless '0 <= numVariables' and
         // 'variables' has sufficient capacity.
 
-    ByteInStream& getArrayFloat32(float *variables, int numVariables);
+    GenericInStream& getArrayFloat32(float *variables, int numVariables);
         // Assign to the specified 'variables' the consecutive four-byte IEEE
         // single-precision floating-point numbers (in host byte order)
         // comprised of each of the specified 'numVariables' four-byte
@@ -898,21 +1075,10 @@ class ByteInStream {
     // ACCESSORS
     operator const void *() const;
         // Return a non-zero value if this stream is valid, and 0 otherwise.
-        // An invalid stream is a stream for which an input operation was
-        // detected to have failed.
-
-    bsl::size_t cursor() const;
-        // Return the index of the next byte to be extracted from this stream.
-
-    const char *data() const;
-        // Return the address of the contiguous, non-modifiable external memory
-        // buffer of this stream.  The behavior of accessing elements outside
-        // the range '[ data() .. data() + (length() - 1) ]' is undefined.
-
-    bool isEmpty() const;
-        // Return 'true' if this stream is empty, and 'false' otherwise.  Note
-        // that this function enables higher-level types to verify that, after
-        // successfully reading all expected data, no data remains.
+        // An invalid stream is a stream in which insufficient or invalid data
+        // was detected during an extraction operation.  Note that an empty
+        // stream will be valid unless an extraction attempt or explicit
+        // invalidation causes it to be otherwise.
 
     bool isValid() const;
         // Return 'true' if this stream is valid, and 'false' otherwise.  An
@@ -920,78 +1086,65 @@ class ByteInStream {
         // detected during an extraction operation.  Note that an empty stream
         // will be valid unless an extraction attempt or explicit invalidation
         // causes it to be otherwise.
-
-    bsl::size_t length() const;
-        // Return the total number of bytes stored in the external memory
-        // buffer.
 };
 
 // FREE OPERATORS
-bsl::ostream& operator<<(bsl::ostream&       stream,
-                         const ByteInStream& object);
-    // Write the specified 'object' to the specified output 'stream' in some
-    // reasonable (multi-line) format, and return a reference to 'stream'.
-
-template <class TYPE>
-ByteInStream& operator>>(ByteInStream& stream, TYPE& value);
+template <class STREAMBUF, class TYPE>
+GenericInStream<STREAMBUF>&
+                   operator>>(GenericInStream<STREAMBUF>& stream, TYPE& value);
     // Read the specified 'value' from the specified input 'stream' following
     // the requirements of the BDEX protocol (see the 'bslx' package-level
-    // documentation), and return a reference to  'stream'.  The behavior is
+    // documentation), and return a reference to 'stream'.  The behavior is
     // undefined unless 'TYPE' is BDEX-compliant.
 
 // ============================================================================
 //                           INLINE DEFINITIONS
 // ============================================================================
 
-                         // ------------------
-                         // class ByteInStream
-                         // ------------------
+                        // ---------------------
+                        // class GenericInStream
+                        // ---------------------
+
+// PRIVATE MANIPULATORS
+template <class STREAMBUF>
+inline
+void GenericInStream<STREAMBUF>::validate()
+{
+    d_validFlag = true;
+}
 
 // CREATORS
+template <class STREAMBUF>
 inline
-ByteInStream::ByteInStream()
-: d_buffer(0)
-, d_numBytes(0)
+GenericInStream<STREAMBUF>::GenericInStream(STREAMBUF *streamBuf)
+: d_streamBuf(streamBuf)
 , d_validFlag(true)
-, d_cursor(0)
 {
+    BSLS_ASSERT_SAFE(streamBuf);
 }
 
+template <class STREAMBUF>
 inline
-ByteInStream::ByteInStream(const char *buffer, bsl::size_t numBytes)
-: d_buffer(buffer)
-, d_numBytes(numBytes)
-, d_validFlag(true)
-, d_cursor(0)
-{
-    BSLS_ASSERT_SAFE(buffer || 0 == numBytes);
-}
-
-inline
-ByteInStream::ByteInStream(const bslstl::StringRef& srcData)
-: d_buffer(srcData.data())
-, d_numBytes(static_cast<int>(srcData.length()))
-, d_validFlag(true)
-, d_cursor(0)
-{
-}
-
-inline
-ByteInStream::~ByteInStream()
+GenericInStream<STREAMBUF>::~GenericInStream()
 {
 }
 
 // MANIPULATORS
+template <class STREAMBUF>
 inline
-ByteInStream& ByteInStream::getLength(int& length)
+GenericInStream<STREAMBUF>& GenericInStream<STREAMBUF>::getLength(int& length)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    if (cursor() + MarshallingUtil::k_SIZEOF_INT8 <= ByteInStream::length()) {
-        if (127 < static_cast<unsigned char>(d_buffer[cursor()])) {
+    invalidate();
+
+    const int current = d_streamBuf->sgetc();
+    if (STREAMBUF::traits_type::eof() != current) {
+        validate();
+        if (127 < current) {
             // If 'length > 127', 'length' is stored as 4 bytes with top bit
             // set.
 
@@ -1002,20 +1155,18 @@ ByteInStream& ByteInStream::getLength(int& length)
             // If 'length <= 127', 'length' is stored as one byte.
 
             char tmp;
-            MarshallingUtil::getInt8(&tmp, data() + cursor());
-            d_cursor += MarshallingUtil::k_SIZEOF_INT8;
+            getInt8(tmp);
             length = tmp;
         }
-    }
-    else {
-        invalidate();
     }
 
     return *this;
 }
 
+template <class STREAMBUF>
 inline
-ByteInStream& ByteInStream::getVersion(int& version)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getVersion(int& version)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1029,388 +1180,701 @@ ByteInStream& ByteInStream::getVersion(int& version)
     return *this;
 }
 
+template <class STREAMBUF>
 inline
-void ByteInStream::invalidate()
+void GenericInStream<STREAMBUF>::invalidate()
 {
     d_validFlag = false;
 }
 
-inline
-void ByteInStream::reset()
-{
-    d_validFlag = true;
-    d_cursor    = 0;
-}
-
-inline
-void ByteInStream::reset(const char *buffer, bsl::size_t numBytes)
-{
-    BSLS_ASSERT_SAFE(buffer || 0 == numBytes);
-
-    d_buffer    = buffer;
-    d_numBytes  = numBytes;
-    d_validFlag = true;
-    d_cursor    = 0;
-}
-
-inline
-void ByteInStream::reset(const bslstl::StringRef& srcData)
-{
-    d_buffer    = srcData.data();
-    d_numBytes  = srcData.length();
-    d_validFlag = true;
-    d_cursor    = 0;
-}
-
                       // *** scalar integer values ***
 
+template <class STREAMBUF>
 inline
-ByteInStream& ByteInStream::getInt64(bsls::Types::Int64& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getInt64(bsls::Types::Int64& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    if (cursor() + MarshallingUtil::k_SIZEOF_INT64 <= length()) {
-        MarshallingUtil::getInt64(&variable, d_buffer + cursor());
-        d_cursor += MarshallingUtil::k_SIZEOF_INT64;
+    invalidate();
+
+    if (sizeof variable > k_SIZEOF_INT64) {
+        const int current = d_streamBuf->sgetc();
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                   STREAMBUF::traits_type::eof() == current)) {
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+            return *this;                                             // RETURN
+        }
+        variable = 0x80 & current ? -1 : 0;  // sign extend
     }
-    else {
-        invalidate();
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    char *bytes = reinterpret_cast<char *>(&variable);
+    char  rawBytes[k_SIZEOF_INT64];
+    if (k_SIZEOF_INT64 == d_streamBuf->sgetn(rawBytes, k_SIZEOF_INT64)) {
+        validate();
+        bytes[7] = rawBytes[0];
+        bytes[6] = rawBytes[1];
+        bytes[5] = rawBytes[2];
+        bytes[4] = rawBytes[3];
+        bytes[3] = rawBytes[4];
+        bytes[2] = rawBytes[5];
+        bytes[1] = rawBytes[6];
+        bytes[0] = rawBytes[7];
     }
+#else
+    char *bytes =
+        reinterpret_cast<char *>(&variable) + sizeof variable - k_SIZEOF_INT64;
+    if (k_SIZEOF_INT64 == d_streamBuf->sgetn(bytes, k_SIZEOF_INT64)) {
+        validate();
+    }
+#endif
 
     return *this;
 }
 
+template <class STREAMBUF>
 inline
-ByteInStream& ByteInStream::getUint64(bsls::Types::Uint64& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getUint64(bsls::Types::Uint64& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    if (cursor() + MarshallingUtil::k_SIZEOF_INT64 <= length()) {
-        MarshallingUtil::getUint64(&variable, d_buffer + cursor());
-        d_cursor += MarshallingUtil::k_SIZEOF_INT64;
+    invalidate();
+
+    if (sizeof variable > k_SIZEOF_INT64) {
+        variable = 0;  // zero-extend
     }
-    else {
-        invalidate();
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    char *bytes = reinterpret_cast<char *>(&variable);
+    char  rawBytes[k_SIZEOF_INT64];
+    if (k_SIZEOF_INT64 == d_streamBuf->sgetn(rawBytes, k_SIZEOF_INT64)) {
+        validate();
+        bytes[7] = rawBytes[0];
+        bytes[6] = rawBytes[1];
+        bytes[5] = rawBytes[2];
+        bytes[4] = rawBytes[3];
+        bytes[3] = rawBytes[4];
+        bytes[2] = rawBytes[5];
+        bytes[1] = rawBytes[6];
+        bytes[0] = rawBytes[7];
     }
+#else
+    char *bytes =
+        reinterpret_cast<char *>(&variable) + sizeof variable - k_SIZEOF_INT64;
+    if (k_SIZEOF_INT64 == d_streamBuf->sgetn(bytes, k_SIZEOF_INT64)) {
+        validate();
+    }
+#endif
 
     return *this;
 }
 
+template <class STREAMBUF>
 inline
-ByteInStream& ByteInStream::getInt56(bsls::Types::Int64& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getInt56(bsls::Types::Int64& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    if (cursor() + MarshallingUtil::k_SIZEOF_INT56 <= length()) {
-        MarshallingUtil::getInt56(&variable, d_buffer + cursor());
-        d_cursor += MarshallingUtil::k_SIZEOF_INT56;
+    invalidate();
+
+    const int current = d_streamBuf->sgetc();
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                   STREAMBUF::traits_type::eof() == current)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
     }
-    else {
-        invalidate();
+    variable = 0x80 & current ? -1 : 0;  // sign extend
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    char *bytes = reinterpret_cast<char *>(&variable);
+    char  rawBytes[k_SIZEOF_INT56];
+    if (k_SIZEOF_INT56 == d_streamBuf->sgetn(rawBytes, k_SIZEOF_INT56)) {
+        validate();
+        bytes[6] = rawBytes[0];
+        bytes[5] = rawBytes[1];
+        bytes[4] = rawBytes[2];
+        bytes[3] = rawBytes[3];
+        bytes[2] = rawBytes[4];
+        bytes[1] = rawBytes[5];
+        bytes[0] = rawBytes[6];
     }
+#else
+    char *bytes =
+        reinterpret_cast<char *>(&variable) + sizeof variable - k_SIZEOF_INT56;
+    if (k_SIZEOF_INT56 == d_streamBuf->sgetn(bytes, k_SIZEOF_INT56)) {
+        validate();
+    }
+#endif
 
     return *this;
 }
 
+template <class STREAMBUF>
 inline
-ByteInStream& ByteInStream::getUint56(bsls::Types::Uint64& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getUint56(bsls::Types::Uint64& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    if (cursor() + MarshallingUtil::k_SIZEOF_INT56 <= length()) {
-        MarshallingUtil::getUint56(&variable, d_buffer + cursor());
-        d_cursor += MarshallingUtil::k_SIZEOF_INT56;
+    invalidate();
+
+    variable = 0;  // zero-extend
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    char *bytes = reinterpret_cast<char *>(&variable);
+    char  rawBytes[k_SIZEOF_INT56];
+    if (k_SIZEOF_INT56 == d_streamBuf->sgetn(rawBytes, k_SIZEOF_INT56)) {
+        validate();
+        bytes[6] = rawBytes[0];
+        bytes[5] = rawBytes[1];
+        bytes[4] = rawBytes[2];
+        bytes[3] = rawBytes[3];
+        bytes[2] = rawBytes[4];
+        bytes[1] = rawBytes[5];
+        bytes[0] = rawBytes[6];
     }
-    else {
-        invalidate();
+#else
+    char *bytes =
+        reinterpret_cast<char *>(&variable) + sizeof variable - k_SIZEOF_INT56;
+    if (k_SIZEOF_INT56 == d_streamBuf->sgetn(bytes, k_SIZEOF_INT56)) {
+        validate();
     }
+#endif
 
     return *this;
 }
 
+template <class STREAMBUF>
 inline
-ByteInStream& ByteInStream::getInt48(bsls::Types::Int64& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getInt48(bsls::Types::Int64& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    if (cursor() + MarshallingUtil::k_SIZEOF_INT48 <= length()) {
-        MarshallingUtil::getInt48(&variable, d_buffer + cursor());
-        d_cursor += MarshallingUtil::k_SIZEOF_INT48;
+    invalidate();
+
+    const int current = d_streamBuf->sgetc();
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                   STREAMBUF::traits_type::eof() == current)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
     }
-    else {
-        invalidate();
+    variable = 0x80 & current ? -1 : 0;  // sign extend
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    char *bytes = reinterpret_cast<char *>(&variable);
+    char  rawBytes[k_SIZEOF_INT48];
+    if (k_SIZEOF_INT48 == d_streamBuf->sgetn(rawBytes, k_SIZEOF_INT48)) {
+        validate();
+        bytes[5] = rawBytes[0];
+        bytes[4] = rawBytes[1];
+        bytes[3] = rawBytes[2];
+        bytes[2] = rawBytes[3];
+        bytes[1] = rawBytes[4];
+        bytes[0] = rawBytes[5];
     }
+#else
+    char *bytes =
+        reinterpret_cast<char *>(&variable) + sizeof variable - k_SIZEOF_INT48;
+    if (k_SIZEOF_INT48 == d_streamBuf->sgetn(bytes, k_SIZEOF_INT48)) {
+        validate();
+    }
+#endif
 
     return *this;
 }
 
+template <class STREAMBUF>
 inline
-ByteInStream& ByteInStream::getUint48(bsls::Types::Uint64& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getUint48(bsls::Types::Uint64& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    if (cursor() + MarshallingUtil::k_SIZEOF_INT48 <= length()) {
-        MarshallingUtil::getUint48(&variable, d_buffer + cursor());
-        d_cursor += MarshallingUtil::k_SIZEOF_INT48;
+    invalidate();
+
+    variable = 0;  // zero-extend
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    char *bytes = reinterpret_cast<char *>(&variable);
+    char  rawBytes[k_SIZEOF_INT48];
+    if (k_SIZEOF_INT48 == d_streamBuf->sgetn(rawBytes, k_SIZEOF_INT48)) {
+        validate();
+        bytes[5] = rawBytes[0];
+        bytes[4] = rawBytes[1];
+        bytes[3] = rawBytes[2];
+        bytes[2] = rawBytes[3];
+        bytes[1] = rawBytes[4];
+        bytes[0] = rawBytes[5];
     }
-    else {
-        invalidate();
+#else
+    char *bytes =
+        reinterpret_cast<char *>(&variable) + sizeof variable - k_SIZEOF_INT48;
+    if (k_SIZEOF_INT48 == d_streamBuf->sgetn(bytes, k_SIZEOF_INT48)) {
+        validate();
     }
+#endif
 
     return *this;
 }
 
+template <class STREAMBUF>
 inline
-ByteInStream& ByteInStream::getInt40(bsls::Types::Int64& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getInt40(bsls::Types::Int64& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    if (cursor() + MarshallingUtil::k_SIZEOF_INT40 <= length()) {
-        MarshallingUtil::getInt40(&variable, d_buffer + cursor());
-        d_cursor += MarshallingUtil::k_SIZEOF_INT40;
+    invalidate();
+
+    const int current = d_streamBuf->sgetc();
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                   STREAMBUF::traits_type::eof() == current)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
     }
-    else {
-        invalidate();
+    variable = 0x80 & current ? -1 : 0;  // sign extend
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    char *bytes = reinterpret_cast<char *>(&variable);
+    char  rawBytes[k_SIZEOF_INT40];
+    if (k_SIZEOF_INT40 == d_streamBuf->sgetn(rawBytes, k_SIZEOF_INT40)) {
+        validate();
+        bytes[4] = rawBytes[0];
+        bytes[3] = rawBytes[1];
+        bytes[2] = rawBytes[2];
+        bytes[1] = rawBytes[3];
+        bytes[0] = rawBytes[4];
     }
+#else
+    char *bytes =
+        reinterpret_cast<char *>(&variable) + sizeof variable - k_SIZEOF_INT40;
+    if (k_SIZEOF_INT40 == d_streamBuf->sgetn(bytes, k_SIZEOF_INT40)) {
+        validate();
+    }
+#endif
 
     return *this;
 }
 
+template <class STREAMBUF>
 inline
-ByteInStream& ByteInStream::getUint40(bsls::Types::Uint64& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getUint40(bsls::Types::Uint64& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    if (cursor() + MarshallingUtil::k_SIZEOF_INT40 <= length()) {
-        MarshallingUtil::getUint40(&variable, d_buffer + cursor());
-        d_cursor += MarshallingUtil::k_SIZEOF_INT40;
+    invalidate();
+
+    variable = 0;  // zero-extend
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    char *bytes = reinterpret_cast<char *>(&variable);
+    char  rawBytes[k_SIZEOF_INT40];
+    if (k_SIZEOF_INT40 == d_streamBuf->sgetn(rawBytes, k_SIZEOF_INT40)) {
+        validate();
+        bytes[4] = rawBytes[0];
+        bytes[3] = rawBytes[1];
+        bytes[2] = rawBytes[2];
+        bytes[1] = rawBytes[3];
+        bytes[0] = rawBytes[4];
     }
-    else {
-        invalidate();
+#else
+    char *bytes =
+        reinterpret_cast<char *>(&variable) + sizeof variable - k_SIZEOF_INT40;
+    if (k_SIZEOF_INT40 == d_streamBuf->sgetn(bytes, k_SIZEOF_INT40)) {
+        validate();
     }
+#endif
 
     return *this;
 }
 
+template <class STREAMBUF>
 inline
-ByteInStream& ByteInStream::getInt32(int& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getInt32(int& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    if (cursor() + MarshallingUtil::k_SIZEOF_INT32 <= length()) {
-        MarshallingUtil::getInt32(&variable, d_buffer + cursor());
-        d_cursor += MarshallingUtil::k_SIZEOF_INT32;
+    invalidate();
+
+    if (sizeof variable > k_SIZEOF_INT32) {
+        const int current = d_streamBuf->sgetc();
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                   STREAMBUF::traits_type::eof() == current)) {
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+            return *this;                                             // RETURN
+        }
+        variable = 0x80 & current ? -1 : 0;  // sign extend
     }
-    else {
-        invalidate();
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    char *bytes = reinterpret_cast<char *>(&variable);
+    char  rawBytes[k_SIZEOF_INT32];
+    if (k_SIZEOF_INT32 == d_streamBuf->sgetn(rawBytes, k_SIZEOF_INT32)) {
+        validate();
+        bytes[3] = rawBytes[0];
+        bytes[2] = rawBytes[1];
+        bytes[1] = rawBytes[2];
+        bytes[0] = rawBytes[3];
     }
+#else
+    char *bytes =
+        reinterpret_cast<char *>(&variable) + sizeof variable - k_SIZEOF_INT32;
+    if (k_SIZEOF_INT32 == d_streamBuf->sgetn(bytes, k_SIZEOF_INT32)) {
+        validate();
+    }
+#endif
 
     return *this;
 }
 
+template <class STREAMBUF>
 inline
-ByteInStream& ByteInStream::getUint32(unsigned int& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getUint32(unsigned int& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    if (cursor() + MarshallingUtil::k_SIZEOF_INT32 <= length()) {
-        MarshallingUtil::getUint32(&variable, d_buffer + cursor());
-        d_cursor += MarshallingUtil::k_SIZEOF_INT32;
+    invalidate();
+
+    if (sizeof variable > k_SIZEOF_INT32) {
+        variable = 0;  // zero-extend
     }
-    else {
-        invalidate();
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    char *bytes = reinterpret_cast<char *>(&variable);
+    char  rawBytes[k_SIZEOF_INT32];
+    if (k_SIZEOF_INT32 == d_streamBuf->sgetn(rawBytes, k_SIZEOF_INT32)) {
+        validate();
+        bytes[3] = rawBytes[0];
+        bytes[2] = rawBytes[1];
+        bytes[1] = rawBytes[2];
+        bytes[0] = rawBytes[3];
     }
+#else
+    char *bytes =
+        reinterpret_cast<char *>(&variable) + sizeof variable - k_SIZEOF_INT32;
+    if (k_SIZEOF_INT32 == d_streamBuf->sgetn(bytes, k_SIZEOF_INT32)) {
+        validate();
+    }
+#endif
 
     return *this;
 }
 
+template <class STREAMBUF>
 inline
-ByteInStream& ByteInStream::getInt24(int& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getInt24(int& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    if (cursor() + MarshallingUtil::k_SIZEOF_INT24 <= length()) {
-        MarshallingUtil::getInt24(&variable, d_buffer + cursor());
-        d_cursor += MarshallingUtil::k_SIZEOF_INT24;
+    invalidate();
+
+    const int current = d_streamBuf->sgetc();
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                   STREAMBUF::traits_type::eof() == current)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
     }
-    else {
-        invalidate();
+    variable = 0x80 & current ? -1 : 0;  // sign extend
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    char *bytes = reinterpret_cast<char *>(&variable);
+    char  rawBytes[k_SIZEOF_INT24];
+    if (k_SIZEOF_INT24 == d_streamBuf->sgetn(rawBytes, k_SIZEOF_INT24)) {
+        validate();
+        bytes[2] = rawBytes[0];
+        bytes[1] = rawBytes[1];
+        bytes[0] = rawBytes[2];
     }
+#else
+    char *bytes =
+        reinterpret_cast<char *>(&variable) + sizeof variable - k_SIZEOF_INT24;
+    if (k_SIZEOF_INT24 == d_streamBuf->sgetn(bytes, k_SIZEOF_INT24)) {
+        validate();
+    }
+#endif
 
     return *this;
 }
 
+template <class STREAMBUF>
 inline
-ByteInStream& ByteInStream::getUint24(unsigned int& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getUint24(unsigned int& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    if (cursor() + MarshallingUtil::k_SIZEOF_INT24 <= length()) {
-        MarshallingUtil::getUint24(&variable, d_buffer + cursor());
-        d_cursor += MarshallingUtil::k_SIZEOF_INT24;
+    invalidate();
+
+    variable = 0;  // zero-extend
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    char *bytes = reinterpret_cast<char *>(&variable);
+    char  rawBytes[k_SIZEOF_INT24];
+    if (k_SIZEOF_INT24 == d_streamBuf->sgetn(rawBytes, k_SIZEOF_INT24)) {
+        validate();
+        bytes[2] = rawBytes[0];
+        bytes[1] = rawBytes[1];
+        bytes[0] = rawBytes[2];
     }
-    else {
-        invalidate();
+#else
+    char *bytes =
+        reinterpret_cast<char *>(&variable) + sizeof variable - k_SIZEOF_INT24;
+    if (k_SIZEOF_INT24 == d_streamBuf->sgetn(bytes, k_SIZEOF_INT24)) {
+        validate();
     }
+#endif
 
     return *this;
 }
 
+template <class STREAMBUF>
 inline
-ByteInStream& ByteInStream::getInt16(short& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getInt16(short& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    if (cursor() + MarshallingUtil::k_SIZEOF_INT16 <= length()) {
-        MarshallingUtil::getInt16(&variable, d_buffer + cursor());
-        d_cursor += MarshallingUtil::k_SIZEOF_INT16;
+    invalidate();
+
+    if (sizeof variable > k_SIZEOF_INT16) {
+        const int current = d_streamBuf->sgetc();
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                   STREAMBUF::traits_type::eof() == current)) {
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+            return *this;                                             // RETURN
+        }
+        variable = 0x80 & current ? -1 : 0;  // sign extend
     }
-    else {
-        invalidate();
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    char *bytes = reinterpret_cast<char *>(&variable);
+    char  rawBytes[k_SIZEOF_INT16];
+    if (k_SIZEOF_INT16 == d_streamBuf->sgetn(rawBytes, k_SIZEOF_INT16)) {
+        validate();
+        bytes[1] = rawBytes[0];
+        bytes[0] = rawBytes[1];
     }
+#else
+    char *bytes =
+        reinterpret_cast<char *>(&variable) + sizeof variable - k_SIZEOF_INT16;
+    if (k_SIZEOF_INT16 == d_streamBuf->sgetn(bytes, k_SIZEOF_INT16)) {
+        validate();
+    }
+#endif
 
     return *this;
 }
 
+template <class STREAMBUF>
 inline
-ByteInStream& ByteInStream::getUint16(unsigned short& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getUint16(unsigned short& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    if (cursor() + MarshallingUtil::k_SIZEOF_INT16 <= length()) {
-        MarshallingUtil::getUint16(&variable, d_buffer + cursor());
-        d_cursor += MarshallingUtil::k_SIZEOF_INT16;
+    invalidate();
+
+    if (sizeof variable > k_SIZEOF_INT16) {
+        variable = 0;  // zero-extend
     }
-    else {
-        invalidate();
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    char *bytes = reinterpret_cast<char *>(&variable);
+    char  rawBytes[k_SIZEOF_INT16];
+    if (k_SIZEOF_INT16 == d_streamBuf->sgetn(rawBytes, k_SIZEOF_INT16)) {
+        validate();
+        bytes[1] = rawBytes[0];
+        bytes[0] = rawBytes[1];
     }
+#else
+    char *bytes =
+        reinterpret_cast<char *>(&variable) + sizeof variable - k_SIZEOF_INT16;
+    if (k_SIZEOF_INT16 == d_streamBuf->sgetn(bytes, k_SIZEOF_INT16)) {
+        validate();
+    }
+#endif
 
     return *this;
 }
 
+template <class STREAMBUF>
 inline
-ByteInStream& ByteInStream::getInt8(char& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getInt8(char& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    if (cursor() + MarshallingUtil::k_SIZEOF_INT8 <= length()) {
-        MarshallingUtil::getInt8(&variable, data() + cursor());
-        d_cursor += MarshallingUtil::k_SIZEOF_INT8;
-    }
-    else {
-        invalidate();
+    invalidate();
+
+    const int current = d_streamBuf->sbumpc();
+    if (STREAMBUF::traits_type::eof() != current) {
+        validate();
+        variable = static_cast<char>(current);
     }
 
     return *this;
 }
 
+template <class STREAMBUF>
 inline
-ByteInStream& ByteInStream::getInt8(signed char& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getInt8(signed char& variable)
 {
     return getInt8(reinterpret_cast<char&>(variable));
 }
 
+template <class STREAMBUF>
 inline
-ByteInStream& ByteInStream::getUint8(char& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getUint8(char& variable)
 {
     return getInt8(variable);
 }
 
+template <class STREAMBUF>
 inline
-ByteInStream& ByteInStream::getUint8(unsigned char& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getUint8(unsigned char& variable)
 {
     return getInt8(reinterpret_cast<char&>(variable));
 }
 
                       // *** scalar floating-point values ***
 
+template <class STREAMBUF>
 inline
-ByteInStream& ByteInStream::getFloat64(double& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getFloat64(double& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    if (cursor() + MarshallingUtil::k_SIZEOF_FLOAT64 <= length()) {
-        MarshallingUtil::getFloat64(&variable, d_buffer + cursor());
-        d_cursor += MarshallingUtil::k_SIZEOF_FLOAT64;
+    invalidate();
+
+    if (sizeof variable > k_SIZEOF_FLOAT64) {
+        variable = 0;  // zero-fill mantissa
     }
-    else {
-        invalidate();
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    char *bytes = reinterpret_cast<char *>(&variable);
+    char  rawBytes[k_SIZEOF_FLOAT64];
+    if (k_SIZEOF_FLOAT64 == d_streamBuf->sgetn(rawBytes, k_SIZEOF_FLOAT64)) {
+        validate();
+        bytes[sizeof variable - 1] = rawBytes[0];
+        bytes[sizeof variable - 2] = rawBytes[1];
+        bytes[sizeof variable - 3] = rawBytes[2];
+        bytes[sizeof variable - 4] = rawBytes[3];
+        bytes[sizeof variable - 5] = rawBytes[4];
+        bytes[sizeof variable - 6] = rawBytes[5];
+        bytes[sizeof variable - 7] = rawBytes[6];
+        bytes[sizeof variable - 8] = rawBytes[7];
     }
+#else
+    char *bytes = reinterpret_cast<char *>(&variable);
+    if (k_SIZEOF_FLOAT64 == d_streamBuf->sgetn(bytes, k_SIZEOF_FLOAT64)) {
+        validate();
+    }
+#endif
 
     return *this;
 }
 
+template <class STREAMBUF>
 inline
-ByteInStream& ByteInStream::getFloat32(float& variable)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getFloat32(float& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    if (cursor() + MarshallingUtil::k_SIZEOF_FLOAT32 <= length()) {
-        MarshallingUtil::getFloat32(&variable, d_buffer + cursor());
-        d_cursor += MarshallingUtil::k_SIZEOF_FLOAT32;
+    invalidate();
+
+    if (sizeof variable > k_SIZEOF_FLOAT32) {
+        variable = 0;  // zero-fill mantissa
     }
-    else {
-        invalidate();
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    char *bytes = reinterpret_cast<char *>(&variable);
+    char  rawBytes[k_SIZEOF_FLOAT32];
+    if (k_SIZEOF_FLOAT32 == d_streamBuf->sgetn(rawBytes, k_SIZEOF_FLOAT32)) {
+        validate();
+        bytes[sizeof variable - 1] = rawBytes[0];
+        bytes[sizeof variable - 2] = rawBytes[1];
+        bytes[sizeof variable - 3] = rawBytes[2];
+        bytes[sizeof variable - 4] = rawBytes[3];
     }
+#else
+    char *bytes = reinterpret_cast<char *>(&variable);
+    if (k_SIZEOF_FLOAT32 == d_streamBuf->sgetn(bytes, k_SIZEOF_FLOAT32)) {
+        validate();
+    }
+#endif
 
     return *this;
 }
 
                       // *** string values ***
 
-inline
-ByteInStream& ByteInStream::getString(bsl::string& variable)
+template <class STREAMBUF>
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getString(bsl::string& variable)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1453,394 +1917,338 @@ ByteInStream& ByteInStream::getString(bsl::string& variable)
 
                       // *** arrays of integer values ***
 
-inline
-ByteInStream& ByteInStream::getArrayInt64(bsls::Types::Int64 *variables,
+template <class STREAMBUF>
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayInt64(bsls::Types::Int64 *variables,
                                           int                 numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_INT64 * numVariables;
-    if (cursor() + len  <= length()) {
-        MarshallingUtil::getArrayInt64(variables,
-                                       d_buffer + cursor(),
-                                       numVariables);
-        d_cursor += len;
-    }
-    else {
-        invalidate();
+    const bsls::Types::Int64 *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getInt64(*variables);
     }
 
     return *this;
 }
 
-inline
-ByteInStream& ByteInStream::getArrayUint64(bsls::Types::Uint64 *variables,
+template <class STREAMBUF>
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayUint64(bsls::Types::Uint64 *variables,
                                            int                  numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_INT64 * numVariables;
-    if (cursor() + len  <= length()) {
-        MarshallingUtil::getArrayUint64(variables,
-                                        d_buffer + cursor(),
-                                        numVariables);
-        d_cursor += len;
-    }
-    else {
-        invalidate();
+    const bsls::Types::Uint64 *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getUint64(*variables);
     }
 
     return *this;
 }
 
-inline
-ByteInStream& ByteInStream::getArrayInt56(bsls::Types::Int64 *variables,
+template <class STREAMBUF>
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayInt56(bsls::Types::Int64 *variables,
                                           int                 numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_INT56 * numVariables;
-    if (cursor() + len  <= length()) {
-        MarshallingUtil::getArrayInt56(variables,
-                                       d_buffer + cursor(),
-                                       numVariables);
-        d_cursor += len;
-    }
-    else {
-        invalidate();
+    const bsls::Types::Int64 *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getInt56(*variables);
     }
 
     return *this;
 }
 
-inline
-ByteInStream& ByteInStream::getArrayUint56(bsls::Types::Uint64 *variables,
+template <class STREAMBUF>
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayUint56(bsls::Types::Uint64 *variables,
                                            int                  numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_INT56 * numVariables;
-    if (cursor() + len  <= length()) {
-        MarshallingUtil::getArrayUint56(variables,
-                                        d_buffer + cursor(),
-                                        numVariables);
-        d_cursor += len;
-    }
-    else {
-        invalidate();
+    const bsls::Types::Uint64 *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getUint56(*variables);
     }
 
     return *this;
 }
 
-inline
-ByteInStream& ByteInStream::getArrayInt48(bsls::Types::Int64 *variables,
+template <class STREAMBUF>
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayInt48(bsls::Types::Int64 *variables,
                                           int                 numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_INT48 * numVariables;
-    if (cursor() + len  <= length()) {
-        MarshallingUtil::getArrayInt48(variables,
-                                       d_buffer + cursor(),
-                                       numVariables);
-        d_cursor += len;
-    }
-    else {
-        invalidate();
+    const bsls::Types::Int64 *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getInt48(*variables);
     }
 
     return *this;
 }
 
-inline
-ByteInStream& ByteInStream::getArrayUint48(bsls::Types::Uint64 *variables,
+template <class STREAMBUF>
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayUint48(bsls::Types::Uint64 *variables,
                                            int                  numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_INT48 * numVariables;
-    if (cursor() + len  <= length()) {
-        MarshallingUtil::getArrayUint48(variables,
-                                        d_buffer + cursor(),
-                                        numVariables);
-        d_cursor += len;
-    }
-    else {
-        invalidate();
+    const bsls::Types::Uint64 *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getUint48(*variables);
     }
 
     return *this;
 }
 
-inline
-ByteInStream& ByteInStream::getArrayInt40(bsls::Types::Int64 *variables,
+template <class STREAMBUF>
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayInt40(bsls::Types::Int64 *variables,
                                           int                 numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_INT40 * numVariables;
-    if (cursor() + len  <= length()) {
-        MarshallingUtil::getArrayInt40(variables,
-                                       d_buffer + cursor(),
-                                       numVariables);
-        d_cursor += len;
-    }
-    else {
-        invalidate();
+    const bsls::Types::Int64 *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getInt40(*variables);
     }
 
     return *this;
 }
 
-inline
-ByteInStream& ByteInStream::getArrayUint40(bsls::Types::Uint64 *variables,
+template <class STREAMBUF>
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayUint40(bsls::Types::Uint64 *variables,
                                            int                  numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_INT40 * numVariables;
-    if (cursor() + len  <= length()) {
-        MarshallingUtil::getArrayUint40(variables,
-                                        d_buffer + cursor(),
-                                        numVariables);
-        d_cursor += len;
-    }
-    else {
-        invalidate();
+    const bsls::Types::Uint64 *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getUint40(*variables);
     }
 
     return *this;
 }
 
-inline
-ByteInStream& ByteInStream::getArrayInt32(int *variables, int numVariables)
+template <class STREAMBUF>
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayInt32(int *variables, int numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_INT32 * numVariables;
-    if (cursor() + len  <= length()) {
-        MarshallingUtil::getArrayInt32(variables,
-                                       d_buffer + cursor(),
-                                       numVariables);
-        d_cursor += len;
-    }
-    else {
-        invalidate();
+    const int *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getInt32(*variables);
     }
 
     return *this;
 }
 
-inline
-ByteInStream& ByteInStream::getArrayUint32(unsigned int *variables,
+template <class STREAMBUF>
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayUint32(unsigned int *variables,
                                            int           numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_INT32 * numVariables;
-    if (cursor() + len  <= length()) {
-        MarshallingUtil::getArrayUint32(variables,
-                                        d_buffer + cursor(),
-                                        numVariables);
-        d_cursor += len;
-    }
-    else {
-        invalidate();
+    const unsigned int *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getUint32(*variables);
     }
 
     return *this;
 }
 
-inline
-ByteInStream& ByteInStream::getArrayInt24(int *variables, int numVariables)
+template <class STREAMBUF>
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayInt24(int *variables, int numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_INT24 * numVariables;
-    if (cursor() + len  <= length()) {
-        MarshallingUtil::getArrayInt24(variables,
-                                       d_buffer + cursor(),
-                                       numVariables);
-        d_cursor += len;
-    }
-    else {
-        invalidate();
+    const int *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getInt24(*variables);
     }
 
     return *this;
 }
 
-inline
-ByteInStream& ByteInStream::getArrayUint24(unsigned int *variables,
+template <class STREAMBUF>
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayUint24(unsigned int *variables,
                                            int           numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_INT24 * numVariables;
-    if (cursor() + len  <= length()) {
-        MarshallingUtil::getArrayUint24(variables,
-                                        d_buffer + cursor(),
-                                        numVariables);
-        d_cursor += len;
-    }
-    else {
-        invalidate();
+    const unsigned int *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getUint24(*variables);
     }
 
     return *this;
 }
 
-inline
-ByteInStream& ByteInStream::getArrayInt16(short *variables, int numVariables)
+template <class STREAMBUF>
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayInt16(short *variables,
+                                          int    numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_INT16 * numVariables;
-    if (cursor() + len  <= length()) {
-        MarshallingUtil::getArrayInt16(variables,
-                                       d_buffer + cursor(),
-                                       numVariables);
-        d_cursor += len;
-    }
-    else {
-        invalidate();
+    const short *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getInt16(*variables);
     }
 
     return *this;
 }
 
-inline
-ByteInStream& ByteInStream::getArrayUint16(unsigned short *variables,
+template <class STREAMBUF>
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayUint16(unsigned short *variables,
                                            int             numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_INT16 * numVariables;
-    if (cursor() + len  <= length()) {
-        MarshallingUtil::getArrayUint16(variables,
-                                        d_buffer + cursor(),
-                                        numVariables);
-        d_cursor += len;
-    }
-    else {
-        invalidate();
+    const unsigned short *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getUint16(*variables);
     }
 
     return *this;
 }
 
-inline
-ByteInStream& ByteInStream::getArrayInt8(char *variables, int numVariables)
+template <class STREAMBUF>
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayInt8(char *variables,
+                                         int   numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_INT8 * numVariables;
-    if (cursor() + len  <= length()) {
-        MarshallingUtil::getArrayInt8(variables,
-                                      d_buffer + cursor(),
-                                      numVariables);
-        d_cursor += len;
-    }
-    else {
-        invalidate();
+    const char *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getInt8(*variables);
     }
 
     return *this;
 }
 
+template <class STREAMBUF>
 inline
-ByteInStream& ByteInStream::getArrayInt8(signed char *variables,
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayInt8(signed char *variables,
                                          int          numVariables)
 {
     BSLS_ASSERT_SAFE(variables);
@@ -1849,8 +2257,11 @@ ByteInStream& ByteInStream::getArrayInt8(signed char *variables,
     return getArrayInt8(reinterpret_cast<char *>(variables), numVariables);
 }
 
+template <class STREAMBUF>
 inline
-ByteInStream& ByteInStream::getArrayUint8(char *variables, int numVariables)
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayUint8(char *variables,
+                                          int   numVariables)
 {
     BSLS_ASSERT_SAFE(variables);
     BSLS_ASSERT_SAFE(0 <= numVariables);
@@ -1858,8 +2269,10 @@ ByteInStream& ByteInStream::getArrayUint8(char *variables, int numVariables)
     return getArrayInt8(variables, numVariables);
 }
 
+template <class STREAMBUF>
 inline
-ByteInStream& ByteInStream::getArrayUint8(unsigned char *variables,
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayUint8(unsigned char *variables,
                                           int            numVariables)
 {
     BSLS_ASSERT_SAFE(variables);
@@ -1870,97 +2283,69 @@ ByteInStream& ByteInStream::getArrayUint8(unsigned char *variables,
 
                       // *** arrays of floating-point values ***
 
-inline
-ByteInStream& ByteInStream::getArrayFloat64(double *variables,
+template <class STREAMBUF>
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayFloat64(double *variables,
                                             int     numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_FLOAT64 * numVariables;
-    if (cursor() + len  <= length()) {
-        MarshallingUtil::getArrayFloat64(variables,
-                                         d_buffer + cursor(),
-                                         numVariables);
-        d_cursor += len;
-    }
-    else {
-        invalidate();
+    const double *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getFloat64(*variables);
     }
 
     return *this;
 }
 
-inline
-ByteInStream& ByteInStream::getArrayFloat32(float *variables, int numVariables)
+template <class STREAMBUF>
+GenericInStream<STREAMBUF>&
+GenericInStream<STREAMBUF>::getArrayFloat32(float *variables,
+                                            int    numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
-    BSLS_ASSERT_SAFE(0 <= numVariables);
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 <= numVariables);
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return *this;                                                 // RETURN
     }
 
-    const int len = MarshallingUtil::k_SIZEOF_FLOAT32 * numVariables;
-    if (cursor() + len  <= length()) {
-        MarshallingUtil::getArrayFloat32(variables,
-                                         d_buffer + cursor(),
-                                         numVariables);
-        d_cursor += len;
-    }
-    else {
-        invalidate();
+    const float *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getFloat32(*variables);
     }
 
     return *this;
 }
 
 // ACCESSORS
+template <class STREAMBUF>
 inline
-ByteInStream::operator const void *() const
+GenericInStream<STREAMBUF>::operator const void *() const
 {
     return isValid() ? this : 0;
 }
 
+template <class STREAMBUF>
 inline
-bsl::size_t ByteInStream::cursor() const
-{
-    return d_cursor;
-}
-
-inline
-const char *ByteInStream::data() const
-{
-    return d_numBytes ? d_buffer : 0;
-}
-
-inline
-bool ByteInStream::isEmpty() const
-{
-    return cursor() == length();
-}
-
-inline
-bool ByteInStream::isValid() const
+bool GenericInStream<STREAMBUF>::isValid() const
 {
     return d_validFlag;
 }
 
+template <class STREAMBUF, class TYPE>
 inline
-bsl::size_t ByteInStream::length() const
-{
-    return d_numBytes;
-}
-
-template <class TYPE>
-inline
-ByteInStream& operator>>(ByteInStream& stream, TYPE& value)
+GenericInStream<STREAMBUF>&
+                operator>>(GenericInStream<STREAMBUF>& stream, TYPE& value)
 {
     return InStreamFunctions::bdexStreamIn(stream, value);
 }
@@ -1971,17 +2356,23 @@ ByteInStream& operator>>(ByteInStream& stream, TYPE& value)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright (C) 2014 Bloomberg L.P.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
 // ----------------------------- END-OF-FILE ----------------------------------
