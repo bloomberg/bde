@@ -104,8 +104,8 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_LIMITS_H
 #endif
 
-#pragma bde_verify push
-#pragma bde_verify -FABC01  // 'add*' operations are ordered by time unit
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -FABC01  // 'add*' operations are ordered by time unit
 
 namespace BloombergLP {
 namespace bsls {
@@ -1156,16 +1156,16 @@ STREAM& bsls::operator<<(STREAM&             stream,
     return timeInterval.print(stream, 0, -1);
 }
 
-#pragma bde_verify pop
+// BDE_VERIFY pragma: pop
 
 }  // close enterprise namespace
 
-#pragma bde_verify push
-#pragma bde_verify -UC01
-#pragma bde_verify -CD01
-#pragma bde_verify -CB01
-#pragma bde_verify -CP01
-#pragma bde_verify -TR04
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -UC01
+// BDE_VERIFY pragma: -CD01
+// BDE_VERIFY pragma: -CB01
+// BDE_VERIFY pragma: -CP01
+// BDE_VERIFY pragma: -TR04
 
 namespace bsl {
 
@@ -1200,7 +1200,7 @@ struct is_trivially_copyable<BloombergLP::bsls::TimeInterval>  {
     // COMPATIBILITY MEMBERS
     static const bool VALUE = value;
 };
-#pragma bde_verify pop
+// BDE_VERIFY pragma: pop
 
 }  // close namespace bsl
 
