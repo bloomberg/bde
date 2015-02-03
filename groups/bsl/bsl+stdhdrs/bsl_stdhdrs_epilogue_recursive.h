@@ -239,6 +239,10 @@
 #   include <bslstl_hash.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
+# ifndef INCLUDED_BSLSTL_REFERENCEWRAPPER
+#   include <bslstl_referencewrapper.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
 #endif
 
 // If '<memory>' was included, then include our implementation of allocators,
