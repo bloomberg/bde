@@ -506,9 +506,47 @@ struct bsls_Platform_Assert;
         #if defined(__clang__)
             // Clang is GCC compatible, but sometimes we need to know about it
             #define BSLS_PLATFORM_CMP_CLANG 1
-            // We treat Clang as if it was GCC 4.4.0
-            #define BSLS_PLATFORM_CMP_VERSION (4 * 10000 \
-                            + 4 * 100)
+            // Clang presents itself as GCC compatible, but sets the pre-defined
+            // GCC version macros ('__GNUC__', '__GNUC_MINOR__', and
+            // '__GNUC_PATCHLEVEL__') to version 4.2.1 no matter the version of
+            // Clang being used.  This presents problems for any parts of the
+            // code that attempt to conditionally enable newer GCC functionality
+            // that Clang also supplies in a corresponding version.  To combat
+            // this, internally BDE will treat specific releases of Clang as
+            // certain releases of GCC that have feature parity for the pieces
+            // that BDE internally cares about.  Internally, this will manifest
+            // as anywhere `BSLS_PLATFORM_CMP_VERSION` is being checked in
+            // conjunction with `BSLS_PLATFORM_CMP_GNU`.
+            #if defined(__APPLE_CC__)
+                // Apple Xcode is based upon LLVM (Clang), but Apple changes
+                // the reported Clang versioning ('__clang_major__',
+                // '__clang_minor__', '__clang_patchlevel__') to report the
+                // Xcode version rather than the actual version of Clang
+                // the Xcode release includes.  A table of Xcode/Clang version
+                // information is maintained here:
+                // https://trac.macports.org/wiki/XcodeVersionInfo
+                #if __APPLE_CC__ >= 5000
+                    // Treat >= Xcode 5.0 (LLVM 3.3svn) as GCC 4.8.1, as both
+                    // LLVM 3.3 and GCC 4.8.1 are C++11 compliant in terms of
+                    // compiler features.  Importantly, the atomic intrinsics
+                    // added in GCC 4.7 are also present as of this release.
+                    #define BSLS_PLATFORM_CMP_VERSION (4 * 10000 + 8 * 100 + 1)
+                #else
+                    // Treat Clang as a minimum of GCC 4.4.0
+                    #define BSLS_PLATFORM_CMP_VERSION (4 * 10000 + 4 * 100)
+                #endif
+            #else
+                // Standard upstream LLVM (Clang)
+                #if (__clang_major__ * 10000 + \
+                     __clang_minor__ * 100 +   \
+                     __clang_patchlevel__) >= 30300
+                    // See comment above regarding LLVM 3.3.
+                    #define BSLS_PLATFORM_CMP_VERSION (4 * 10000 + 8 * 100 + 1)
+                #else
+                    // Treat Clang as a minimum of GCC 4.4.0
+                    #define BSLS_PLATFORM_CMP_VERSION (4 * 10000 + 4 * 100)
+                #endif
+            #endif
         #else
             #if defined(__GNUC_PATCHLEVEL__)
                 #define BSLS_PLATFORM_CMP_VERSION (__GNUC__ * 10000 \
