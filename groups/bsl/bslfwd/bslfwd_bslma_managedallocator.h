@@ -8,6 +8,8 @@
 
 //@PURPOSE: Provide a forward-declaration for the corresponding BDE type.
 //
+//@DEPRECATED: Do not use.
+//
 //@SEE_ALSO: bslfwd_buildtarget
 //
 //@AUTHOR: Alexei Zakharov (azakharov7)

@@ -276,6 +276,32 @@ struct AlignmentImpCalc {
         // Alias for the unique type for each alignment value.
 };
 
+#if defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_OS_LINUX)
+template <>
+struct AlignmentImpCalc <long double> {
+    // This 'struct' provides an enumerator 'VALUE' that is initialized to the
+    // required alignment for long double on Linux on POWER.  This template
+    // specialization is for long double on Linux on POWER where default malloc
+    // in glibc returns memory aligned to 8-bytes, not 16-bytes.  8-byte
+    // alignment is sufficient for proper long double operation on POWER even
+    // though 16-byte alignment is more optimal (and is required for vector
+    // instructions).  
+    //
+    // Note: the optional tcmalloc library returns memory aligned to 16-bytes.
+
+  public:
+    // TYPES
+    enum {
+        // Define the alignment value for long double on Linux on POWER.
+
+        VALUE = 8
+    };
+
+    typedef AlignmentImpTag<VALUE> Tag;
+        // Alias for the unique type for each alignment value.
+};
+#endif
+
                 // ===================================
                 // struct AlignmentImp8ByteAlignedType
                 // ===================================

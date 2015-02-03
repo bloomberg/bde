@@ -1,11 +1,13 @@
-// bslstl_sstream.cpp                                                 -*-C++-*-
-#include <bslstl_sstream.h>
+// bsls_atomicoperations_powerpc_all_gcc.cpp                          -*-C++-*-
+
+#include <bsls_atomicoperations_powerpc_all_gcc.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-namespace bsl {
-}  // close namespace bsl
+namespace BloombergLP {
+
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.

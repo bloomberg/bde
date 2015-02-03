@@ -2,6 +2,8 @@
 
 @PURPOSE: Provide a compatibility layer to enable BDE-STL mode in Bloomberg.
 
+@MNEMONIC: Basic Standard Library STD HeaDerS (bsl+stdhdrs)
+
 @AUTHOR: Arthur Chiu (achiu21)
 
 @LAST_MODIFIED: Mar 1, 2010

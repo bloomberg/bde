@@ -596,7 +596,7 @@ int main(int argc, char *argv[])
 
                 { L_,    9999,     12,   31,       FRI },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE  = DATA[ti].d_line;
@@ -862,7 +862,7 @@ int main(int argc, char *argv[])
                 { L_,      3651695,   9999,      1,    1 },
                 { L_, k_MAX_SERIAL,   9999,     12,   31 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE     = DATA[ti].d_line;
@@ -1213,7 +1213,7 @@ int main(int argc, char *argv[])
                 { L_,       3651695,   9999,           1 },
                 { L_,  k_MAX_SERIAL,   9999,         365 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE         = DATA[ti].d_line;
@@ -1424,7 +1424,7 @@ int main(int argc, char *argv[])
                 { L_,    9997,            1,       3650965 },
                 { L_,    9999,          365,  k_MAX_SERIAL },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE      = DATA[ti].d_line;
@@ -1596,7 +1596,7 @@ int main(int argc, char *argv[])
                 { L_,    2002,          365,     12,    31 },
                 { L_,    2003,          365,     12,    31 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE      = DATA[ti].d_line;
@@ -1922,7 +1922,7 @@ int main(int argc, char *argv[])
                 { L_,    9998,     12,    31,       365 },
                 { L_,    9999,     12,    31,       365 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE  = DATA[ti].d_line;
@@ -2165,7 +2165,7 @@ int main(int argc, char *argv[])
                 { L_,    9999,      1,     1,       3651695 },
                 { L_,    9999,     12,    31,  k_MAX_SERIAL },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE  = DATA[ti].d_line;
@@ -2554,7 +2554,7 @@ int main(int argc, char *argv[])
                 { L_,        1,  INT_MAX,        1,         0 },
                 { L_,        1,        1,  INT_MAX,         0 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE  = DATA[ti].d_line;
@@ -2692,7 +2692,7 @@ int main(int argc, char *argv[])
                 { L_,    10000,          366,         0 },
                 { L_,  INT_MAX,          365,         0 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE       = DATA[ti].d_line;
@@ -2778,7 +2778,7 @@ int main(int argc, char *argv[])
                 { L_,         INT_MAX-1,         0 },
                 { L_,         INT_MAX  ,         0 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE   = DATA[ti].d_line;
@@ -2920,7 +2920,7 @@ int main(int argc, char *argv[])
                 { L_,    2096,     12,        31 },
                 { L_,    2100,     12,        31 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE  = DATA[ti].d_line;
@@ -3128,7 +3128,7 @@ int main(int argc, char *argv[])
                 { L_,        4,   9996,      2424 },
                 { L_,        4,   9999,      2424 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE  = DATA[ti].d_line;
@@ -3299,7 +3299,7 @@ int main(int argc, char *argv[])
                 { L_,    9998,         0 },
                 { L_,    9999,         0 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE = DATA[ti].d_line;

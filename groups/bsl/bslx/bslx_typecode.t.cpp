@@ -48,28 +48,24 @@ using namespace bslx;
 // [ 4] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 
-namespace {
+static int testStatus = 0;
 
-int testStatus = 0;
-
-void aSsErT(int c, const char *s, int i)
+static void aSsErT(int c, const char *s, int i)
 {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
 
-}  // close unnamed namespace
-
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
@@ -99,24 +95,24 @@ void aSsErT(int c, const char *s, int i)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
-// =========================================================================
+// ============================================================================
 //                        GLOBAL TYPEDEFS FOR TESTING
-// -------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 typedef TypeCode::Enum Enum;
 typedef TypeCode       Obj;
 
-// =========================================================================
+// ============================================================================
 //                       GLOBAL CONSTANTS FOR TESTING
-// -------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 const int NUM_ENUMERATORS = 19;
 
 #define UNKNOWN_FORMAT "(* UNKNOWN *)"
 
-// =========================================================================
+// ============================================================================
 //                               MAIN PROGRAM
-// -------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -270,10 +266,10 @@ if (veryVerbose)
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         const int   SIZE = 128;         // big enough to hold output string
-        const char  XX   = (char)0xFF;  // value of an unset 'char'
-              char  buf[SIZE];          // output buffer
+        const char  XX   = static_cast<char>(0xFF); // value of an unset 'char'
+        char        buf[SIZE];          // output buffer
 
-              char  mCtrl[SIZE];  memset(mCtrl, XX, SIZE);
+        char        mCtrl[SIZE];  memset(mCtrl, XX, SIZE);
         const char *CTRL = mCtrl;
 
         if (verbose) cout << "\nTesting 'print'." << endl;
@@ -425,10 +421,10 @@ if (veryVerbose)
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         const int   SIZE = 128;         // big enough to hold output string
-        const char  XX   = (char)0xFF;  // value of an unset 'char'
-              char  buf[SIZE];          // output buffer
+        const char  XX   = static_cast<char>(0xFF); // value of an unset 'char'
+        char        buf[SIZE];          // output buffer
 
-              char  mCtrl[SIZE];  memset(mCtrl, XX, SIZE);
+        char        mCtrl[SIZE];  memset(mCtrl, XX, SIZE);
         const char *CTRL = mCtrl;
 
         if (verbose) cout << "\nTesting '<<' operator." << endl;

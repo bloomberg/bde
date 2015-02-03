@@ -27,11 +27,6 @@ BSLMF_ASSERT(bsl::is_trivially_copyable<Time>::value);
                         // class Datetime
                         // --------------
 
-// CLASS DATA
-const Date Datetime::s_defaultDate;           // "0001/01/01"
-const Time Datetime::s_defaultTime;           // "24:00:00.000"
-const Time Datetime::s_zeroTime(0, 0, 0, 0);  // "00:00:00.000"
-
 // ACCESSORS
 bsl::ostream& Datetime::print(bsl::ostream& stream,
                               int           level,

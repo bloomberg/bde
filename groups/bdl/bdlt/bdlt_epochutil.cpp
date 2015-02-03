@@ -4,6 +4,11 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlt_epochutil_cpp,"$Id$ $CSID$")
 
+#ifndef BDE_OMIT_TRANSITIONAL
+#include <bsl_cstdio.h>    // 'fprintf'
+#include <bdlb_bitutil.h>
+#endif
+
 namespace BloombergLP {
 namespace bdlt {
 
@@ -24,6 +29,11 @@ namespace bdlt {
 
 static const int epochData[2] = { 719163, 0 };
                                  // 719163 is 1970/01/01 in Proleptic Gregorian
+#ifndef BDE_OMIT_TRANSITIONAL
+static const int posixEpochData[2]
+                              = { 719165, 0 };
+                                 // 719165 is 1970/01/01 in POSIX
+#endif
 
                             // ----------------
                             // struct EpochUtil
@@ -33,6 +43,47 @@ static const int epochData[2] = { 719163, 0 };
 
 const bdlt::Datetime *EpochUtil::s_epoch_p =
                            reinterpret_cast<const bdlt::Datetime *>(epochData);
+#ifndef BDE_OMIT_TRANSITIONAL
+const bdlt::Datetime *EpochUtil::s_posixEpoch_p =
+                      reinterpret_cast<const bdlt::Datetime *>(posixEpochData);
+
+// In the POSIX calendar, the first day after 1752/09/02 is 1752/09/14.  With
+// 639798 for the "magic" serial date value, '>' is the appropriate comparison
+// operator to use in the 'logIfProblematicDateValue' function.
+
+static const int MAGIC_SERIAL = 639798;  // 1752/09/02 POSIX
+                                         // 1752/09/15 proleptic Gregorian
+
+// PRIVATE CLASS METHODS
+void EpochUtil::logIfProblematicDateValue(
+                       const char                               *fileName,
+                       int                                       lineNumber,
+                       const Date&                               date,
+                       bsls::AtomicOperations::AtomicTypes::Int *count)
+{
+    if (date > *reinterpret_cast<const Date *>(&MAGIC_SERIAL)) {
+        return;                                                       // RETURN
+    }
+
+    const int tmpCount = bsls::AtomicOperations::addIntNvRelaxed(count, 1);
+
+    // To limit spewing to 'stderr', log an occurrence of a problematic date
+    // value only if its associated count is a power of 2.
+
+    if (1 == bdlb::BitUtil::numBitsSet(
+                             static_cast<bdlb::BitUtil::uint32_t>(tmpCount))) {
+
+        bsl::fprintf(stderr,
+                     "%s:%d WARNING: problematic date value detected: "
+                     "%d/%d/%d [%d times].  "
+                     "Please contact BDE (DRQS Group 101).\n",
+                     fileName, lineNumber,
+                     date.year(), date.month(), date.day(),
+                     tmpCount);
+    }
+}
+
+#endif
 
 }  // close package namespace
 }  // close enterprise namespace

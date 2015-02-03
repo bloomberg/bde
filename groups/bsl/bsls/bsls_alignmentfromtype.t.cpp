@@ -639,7 +639,11 @@ int main(int argc, char *argv[])
             EXP_PTR_ALIGNMENT             = 8;
             EXP_FUNC_PTR_ALIGNMENT        = 8;
             EXP_U1_ALIGNMENT              = 8;
+#if defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_OS_LINUX)
+            EXP_LONG_DOUBLE_ALIGNMENT     = 8;
+#else
             EXP_LONG_DOUBLE_ALIGNMENT     = 16;
+#endif
 #endif
 
 #if defined(BSLS_PLATFORM_OS_AIX)
@@ -737,7 +741,13 @@ int main(int argc, char *argv[])
             ASSERT(sameType(bsls::AlignmentFromType<long long>::Type(),
                             long()));
             ASSERT(sameType(bsls::AlignmentFromType<double>::Type(), long()));
+            #if (defined(BSLS_PLATFORM_CPU_POWERPC) \
+              && defined(BSLS_PLATFORM_OS_LINUX))
+            ASSERT(sameType(bsls::AlignmentFromType<long double>::Type(),
+                            long()));
+            #else
             ASSERT(sameType(bsls::AlignmentFromType<long double>::Type(), LD));
+            #endif
     #else
         #if defined(BSLS_PLATFORM_CPU_ARM)
             ASSERT(sameType(bsls::AlignmentFromType<long long>::Type(),
@@ -749,6 +759,12 @@ int main(int argc, char *argv[])
                             _8BAT));
             ASSERT(sameType(bsls::AlignmentFromType<double>::Type(),
                             _8BAT));
+        #elif (defined(BSLS_PLATFORM_CPU_POWERPC) \
+            && defined(BSLS_PLATFORM_OS_LINUX))
+            ASSERT(sameType(bsls::AlignmentFromType<long long>::Type(),
+                            LL));
+            ASSERT(sameType(bsls::AlignmentFromType<double>::Type(),
+                            LL));
         #else
             ASSERT(sameType(bsls::AlignmentFromType<long long>::Type(),
                             int()));
@@ -757,6 +773,11 @@ int main(int argc, char *argv[])
         #endif
         #if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
             #if defined(BSLS_PLATFORM_CPU_ARM)
+            ASSERT(
+                  sameType(bsls::AlignmentFromType<long double>::Type(),
+                           LL));
+            #elif (defined(BSLS_PLATFORM_CPU_POWERPC) \
+                && defined(BSLS_PLATFORM_OS_LINUX))
             ASSERT(
                   sameType(bsls::AlignmentFromType<long double>::Type(),
                            LL));

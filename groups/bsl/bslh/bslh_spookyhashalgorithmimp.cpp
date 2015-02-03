@@ -93,8 +93,8 @@ void SpookyHashAlgorithmImp::finalize(Uint64 *hash1, Uint64 *hash2)
     {
         // 'm_data' can contain two blocks; handle any whole first block.
         mix(data, h0,h1,h2,h3,h4,h5,h6,h7,h8,h9,h10,h11);
-        data += k_NUM_VARS;
-        remainder -= k_BLOCK_SIZE;
+        data      += k_NUM_VARS;
+        remainder = static_cast<Uint8>(remainder - k_BLOCK_SIZE);
     }
 
     // Mix in the last partial block as well as the length mod 'k_BLOCK_SIZE'.
@@ -169,7 +169,10 @@ void SpookyHashAlgorithmImp::hash128(
     memcpy(buf, endPtr, remainder);
     memset((reinterpret_cast<Uint8 *>(buf)) + remainder, 0,
                                                        k_BLOCK_SIZE-remainder);
-    (reinterpret_cast<Uint8 *>(buf))[k_BLOCK_SIZE-1] = remainder;
+
+    BSLS_ASSERT(remainder <= 255);
+    (reinterpret_cast<Uint8 *>(buf))[k_BLOCK_SIZE-1] = 
+                                                 static_cast<Uint8>(remainder);
 
     // do some final mixing
     end(buf, h0,h1,h2,h3,h4,h5,h6,h7,h8,h9,h10,h11);
@@ -334,7 +337,9 @@ void SpookyHashAlgorithmImp::update(const void *message, size_t length)
     // If we have any message fragments stored for later use, handle them now.
     if (m_remainder)
     {
-        Uint8 prefix = k_BUFFER_SIZE-m_remainder;
+        BSLS_ASSERT(m_remainder < k_BUFFER_SIZE);
+
+        Uint8 prefix = static_cast<Uint8>(k_BUFFER_SIZE - m_remainder);
         memcpy(&((reinterpret_cast<Uint8 *>(m_data))[m_remainder]), message,
                                                                        prefix);
         u.p64 = m_data;

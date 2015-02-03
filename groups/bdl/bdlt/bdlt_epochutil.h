@@ -136,6 +136,16 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_datetimeinterval.h>
 #endif
 
+#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef INCLUDED_BDLT_DELEGATINGDATEIMPUTIL
+#include <bdlt_delegatingdateimputil.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
+#include <bsls_atomicoperations.h>
+#endif
+#endif
+
 #ifndef INCLUDED_BDLT_TIME
 #include <bdlt_time.h>
 #endif
@@ -174,6 +184,24 @@ struct EpochUtil {
   private:
     // CLASS DATA
     static const Datetime *s_epoch_p;  // pointer to epoch time value
+#ifndef BDE_OMIT_TRANSITIONAL
+    static const Datetime *s_posixEpoch_p;
+                                       // pointer to POSIX epoch time value
+
+    // PRIVATE CLASS METHODS
+    static void logIfProblematicDateValue(
+                       const char                               *fileName,
+                       int                                       lineNumber,
+                       const Date&                               date,
+                       bsls::AtomicOperations::AtomicTypes::Int *count);
+        // Log a message to 'stderr' that includes the specified 'fileName' and
+        // 'lineNumber', and increment the specified 'count', if the specified
+        // 'date' is deemed to represent a problematic date value.  A date
+        // value is problematic if it is prior to 1752/09/14 when in POSIX mode
+        // (1752/09/16 when in proleptic Gregorian mode).  Note that actual
+        // generation of log messages may be throttled to limit spew to
+        // 'stderr', but the count is always incremented.
+#endif
 
   public:
     // TYPES
@@ -350,7 +378,13 @@ struct EpochUtil {
 inline
 const Datetime& EpochUtil::epoch()
 {
+#ifdef BDE_OMIT_TRANSITIONAL
     return *s_epoch_p;
+#else
+    return DelegatingDateImpUtil::isProlepticGregorianMode()
+           ? *s_epoch_p
+           : *s_posixEpoch_p;
+#endif
 }
 
                            // 'time_t'-Based Methods
@@ -413,11 +447,27 @@ int EpochUtil::convertToTimeT(bsl::time_t     *result,
 inline
 Datetime EpochUtil::convertFromTimeT64(TimeT64 time)
 {
+#ifdef BDE_OMIT_TRANSITIONAL
     BSLS_ASSERT_SAFE(-62135596800LL <= time);  // January    1, 0001 00:00:00
+#else
+    if (DelegatingDateImpUtil::isProlepticGregorianMode()) {
+    BSLS_ASSERT_SAFE(-62135596800LL <= time);  // January    1, 0001 00:00:00
+    }
+    else {
+    BSLS_ASSERT_SAFE(-62135769600LL <= time);  // January    1, 0001 00:00:00
+    }
+#endif
     BSLS_ASSERT_SAFE(253402300799LL >= time);  // December  31, 9999 23:59:59
 
     Datetime datetime(epoch());
     datetime.addSeconds(time);
+
+#ifndef BDE_OMIT_TRANSITIONAL
+    static bsls::AtomicOperations::AtomicTypes::Int count = { 0 };
+
+    EpochUtil::logIfProblematicDateValue(__FILE__, __LINE__,
+                                         datetime.date(), &count);
+#endif
 
     return datetime;
 }
@@ -427,13 +477,27 @@ int EpochUtil::convertFromTimeT64(Datetime *result, TimeT64 time)
 {
     BSLS_ASSERT_SAFE(result);
 
+#ifndef BDE_OMIT_TRANSITIONAL
+    if (( DelegatingDateImpUtil::isProlepticGregorianMode() &&
+                                                      -62135596800LL > time)
+     || (!DelegatingDateImpUtil::isProlepticGregorianMode() &&
+                                                      -62135769600LL > time) ||
+#else
     if (-62135596800LL > time ||  // January    1, 0001 00:00:00
+#endif
         253402300799LL < time) {  // December  31, 9999 23:59:59
         return 1;                                                     // RETURN
     }
 
     *result = epoch();
     result->addSeconds(time);
+
+#ifndef BDE_OMIT_TRANSITIONAL
+    static bsls::AtomicOperations::AtomicTypes::Int count = { 0 };
+
+    EpochUtil::logIfProblematicDateValue(__FILE__, __LINE__,
+                                         result->date(), &count);
+#endif
 
     return 0;
 }
@@ -442,6 +506,12 @@ inline
 EpochUtil::TimeT64
 EpochUtil::convertToTimeT64(const Datetime& datetime)
 {
+#ifndef BDE_OMIT_TRANSITIONAL
+    static bsls::AtomicOperations::AtomicTypes::Int count = { 0 };
+
+    EpochUtil::logIfProblematicDateValue(__FILE__, __LINE__,
+                                         datetime.date(), &count);
+#endif
     return TimeT64(((datetime - epoch()).totalMilliseconds()
                                              - datetime.millisecond()) / 1000);
 }

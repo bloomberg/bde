@@ -21,6 +21,18 @@
 #include <bsl_string.h>
 #include <bsl_ctime.h>
 
+#ifndef BDE_OMIT_TRANSITIONAL
+// TBD Extra inclusions needed temporarily for testing
+// 'logIfProblematicDateValue'.
+#include <bsl_cstdio.h>
+#include <bsl_c_stdio.h>     // 'tempnam'
+#ifndef BSLS_PLATFORM_OS_WINDOWS
+#include <sys/stat.h>        // 'struct stat64'
+#include <sys/types.h>       // 'off64_t'
+#include <unistd.h>          // 'stat64'
+#endif
+#endif
+
 using namespace BloombergLP;
 using namespace bsl;
 
@@ -175,6 +187,37 @@ const bdlt::Datetime &EarlyEpochCopier::copiedValue()
 
 EarlyEpochCopier earlyEpochCopier INITATTR;
 
+#ifndef BDE_OMIT_TRANSITIONAL
+
+// TBD stuff needed temporarily for testing 'logIfProblematicDateValue'
+
+// Since the logging function is temporary, all of its test cases need not run
+// on all supported platforms.
+
+#if defined(BSLS_PLATFORM_OS_UNIX)           \
+    && (!defined(BSLS_PLATFORM_OS_CYGWIN)    \
+     && !defined(BSLS_PLATFORM_OS_DARWIN)    \
+     && !defined(BSLS_PLATFORM_OS_FREEBSD))
+
+typedef off64_t Offset;
+
+static
+Offset getFileSize(const char *path)
+{
+    struct stat64 fileStats;
+
+    fflush(stderr);  // We *know* that 'stderr' is being redirected to 'path'.
+
+    if (0 != stat64(path, &fileStats)) {
+        return -1;
+    }
+
+    return fileStats.st_size;
+}
+
+#endif
+#endif
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -192,6 +235,183 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
+#ifndef BDE_OMIT_TRANSITIONAL
+#if defined(BSLS_PLATFORM_OS_UNIX)           \
+    && (!defined(BSLS_PLATFORM_OS_CYGWIN)    \
+     && !defined(BSLS_PLATFORM_OS_DARWIN)    \
+     && !defined(BSLS_PLATFORM_OS_FREEBSD))
+      case 7: {
+        // --------------------------------------------------------------------
+        // TESTING 'logIfProblematicDateValue'
+        //
+        // Concerns:
+        //: 1 Each 'EpochUtil' method that is expected to be instrumented with
+        //:   'logIfProblematicDateValue' is so instrumented.
+        //:
+        //: 2 Edge cases at which logging to 'stderr' should or should not
+        //:   occur are handled as expected.
+        //:
+        //: 3 Log message throttling works as expected to prevent spew to
+        //:   'stderr'.
+        //
+        // Plan:
+        //: 1 Create a temporary file and redirect 'stderr' to that file.  For
+        //:   each instrumented method, perform an action that should *not*
+        //:   incur a log message to the file ('stderr') followed by an action
+        //:   that *should*.  Verify the expected behavior by examining the
+        //:   size of the file at each step.  (Note that the actual contents of
+        //:   the log messages should be inspected manually using test case
+        //:   -1.)  Edge cases are tested via the 1-argument 'convertToTimeT64'
+        //:   method.  (C-1..2)
+        //:
+        //: 2 Test throttling separately.  (C-3)
+        //
+        // Testing:
+        //   void logIfProblematicDateValue(args); (indirectly)
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'logIfProblematicDateValue'"
+                          << "\n===================================" << endl;
+
+        // Create a temporary file and redirect 'stderr' to it.
+
+        char *filename = tempnam(0, "bdlt");  ASSERT(filename);
+        {
+            const FILE *err = stderr;
+            ASSERT(err == freopen(filename, "w", stderr));
+            ASSERT(0   == getFileSize(filename));
+        }
+
+        // The "GOOD" 'TimeT64' value was taken from case 2 and corresponds to
+        // 'Datetime(1869, 12, 31, 23, 59, 59, 999)',
+
+        const bsls::Types::Int64 GOOD = -3155673601LL;  // good in either mode
+        const bsls::Types::Int64 BAD  =
+                                    3 * -3155673601LL;  // bad in either mode
+
+        if (verbose) cout << "\n'convertFromTimeT64(TimeT64)'." << endl;
+        {
+            const Offset n = getFileSize(filename);
+
+            Util::convertFromTimeT64(GOOD);
+            ASSERT(n == getFileSize(filename));  // nothing logged
+
+            Util::convertFromTimeT64(BAD);
+            ASSERT(n < getFileSize(filename));   // something logged
+        }
+
+        if (verbose) cout << "\n'convertFromTimeT64(Datetime *, TimeT64)'."
+                          << endl;
+        {
+            bdlt::Datetime result;
+
+            const Offset n = getFileSize(filename);
+
+            ASSERT(0 == Util::convertFromTimeT64(&result, GOOD));
+            ASSERT(n == getFileSize(filename));  // nothing logged
+
+            ASSERT(0 == Util::convertFromTimeT64(&result, BAD));
+            ASSERT(n < getFileSize(filename));   // something logged
+        }
+
+        if (verbose) cout << "\n'convertToTimeT64(Datetime)'." << endl;
+        if (verbose) cout << "\tTest edge cases." << endl;
+        {
+            Offset n = getFileSize(filename);
+
+            if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
+                const bdlt::Datetime X(1752, 9, 16);
+                Util::convertToTimeT64(X);
+                ASSERT(n == getFileSize(filename));  // nothing logged
+
+                const bdlt::Datetime Y(1752, 9, 15);
+                n = getFileSize(filename);
+                Util::convertToTimeT64(Y);
+                ASSERT(n < getFileSize(filename));   // something logged
+            }
+            else {
+                const bdlt::Datetime X(1752, 9, 14);
+                Util::convertToTimeT64(X);
+                ASSERT(n == getFileSize(filename));  // nothing logged
+
+                const bdlt::Datetime Y(1752, 9,  2);
+                n = getFileSize(filename);
+                Util::convertToTimeT64(Y);
+                ASSERT(n < getFileSize(filename));   // something logged
+            }
+        }
+
+        if (verbose) cout << "\n'convertToTimeT64(TimeT64 *, Datetime)'."
+                          << endl;
+        {
+            const bdlt::Datetime X(1800, 10, 31);  // good in either mode
+            const bdlt::Datetime Y(1700, 10, 31);  // bad in either mode
+
+            const Offset n = getFileSize(filename);
+
+            bsls::Types::Int64 result;
+
+            Util::convertToTimeT64(&result, X);
+            ASSERT(n == getFileSize(filename));  // nothing logged
+
+            Util::convertToTimeT64(&result, Y);
+            ASSERT(n < getFileSize(filename));   // something logged
+        }
+
+        if (verbose) cout << "\nTest log throttling." << endl;
+        {
+            // Test throttling using 'convertToTimeT64(Datetime)'.  Note that
+            // the first two occurrences were logged earlier in this test case.
+
+            const bdlt::Datetime X(1700, 10, 31);  // bad in either mode
+
+            // log the 4th occurrence, but not the 3rd
+            {
+               const Offset n = getFileSize(filename);
+
+               Util::convertToTimeT64(X);
+               ASSERT(n == getFileSize(filename));  // nothing logged
+
+               Util::convertToTimeT64(X);
+               ASSERT(n < getFileSize(filename));   // something logged
+            }
+
+            // log the 8th occurrence, but not the 5th through 7th
+            {
+               const Offset n = getFileSize(filename);
+
+               for (int i = 0; i < 3; ++i) {
+                  Util::convertToTimeT64(X);
+                  ASSERT(n == getFileSize(filename));  // nothing logged
+               }
+
+               Util::convertToTimeT64(X);
+               ASSERT(n < getFileSize(filename));      // something logged
+            }
+
+            // next to be logged is the 16th occurrence
+            {
+               const Offset n = getFileSize(filename);
+
+               for (int i = 0; i < 7; ++i) {
+                  Util::convertToTimeT64(X);
+                  ASSERT(n == getFileSize(filename));  // nothing logged
+               }
+
+               Util::convertToTimeT64(X);
+               ASSERT(n < getFileSize(filename));      // something logged
+            }
+        }
+
+        // Remove temporary file.
+
+        fclose(stderr);
+        remove(filename);
+        free(filename);
+
+      } break;
+#endif
+#endif
       case 6: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
@@ -2202,6 +2422,21 @@ int main(int argc, char *argv[])
                           << "==============================================="
                           << endl;
 
+#ifndef BDE_OMIT_TRANSITIONAL
+        // Prior to the Unix epoch there are two more days in the POSIX
+        // calendar as compared to the proleptic Gregorian calendar.
+
+        const int SECONDS_IN_TWO_DAYS = 2 * (24 * 60 * 60);
+        int adjust;
+
+        if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
+            adjust = 0;
+        }
+        else {
+            adjust = SECONDS_IN_TWO_DAYS;
+        }
+#endif
+
         enum { FAILURE = 1 };
 
         if (verbose) {
@@ -2226,7 +2461,12 @@ int main(int argc, char *argv[])
 
                 //lin year mon day hou min sec msec           result   ld =
                 //--- ---- --- --- --- --- --- ----  --------------    Leap Day
+#ifdef BDE_OMIT_TRANSITIONAL
                 { L_,    1,  1,  1,  0,  0,  0,   0,   -62135596800LL },
+#else
+                { L_,    1,  1,  1,  0,  0,  0,   0,   -62135596800LL
+                                                             - adjust },
+#endif
                 { L_, 1869, 12, 31, 23, 59, 59, 999,    -3155673601LL },
                 { L_, 1879, 12, 31, 23, 59, 59, 999,    -2840140801LL },
                 { L_, 1883, 10, 20, 12, 49, 20, 123,    -2720171440LL },
@@ -2316,7 +2556,12 @@ int main(int argc, char *argv[])
                     // *** Time = 24:00:00:000 converts to 00:00:00 ***
                 //lin year mon day hou min sec msec          result
                 //--- ---- --- --- --- --- --- ----  --------------
+#ifdef BDE_OMIT_TRANSITIONAL
                 { L_,    1,  1,  1, 24,  0,  0,   0,   -62135596800LL },
+#else
+                { L_,    1,  1,  1, 24,  0,  0,   0,   -62135596800LL
+                                                             - adjust },
+#endif
             };
 
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -2445,11 +2690,24 @@ int main(int argc, char *argv[])
                 { L_,  LLONG_LIMITS.min(),
                                       FAILURE,0,  0,  0,  0,  0,  0 },
                 { L_,  LLONG_MIN + 1, FAILURE,0,  0,  0,  0,  0,  0 },
+#ifdef BDE_OMIT_TRANSITIONAL
                 { L_, -62135596802LL, FAILURE,0,  0,  0,  0,  0,  0 },
                 { L_, -62135596801LL, FAILURE,0,  0,  0,  0,  0,  0 },
                 { L_, -62135596800LL, 0,      1,  1,  1,  0,  0,  0 },
                 { L_, -62135596799LL, 0,      1,  1,  1,  0,  0,  1 },
                 { L_, -62135596798LL, 0,      1,  1,  1,  0,  0,  2 },
+#else
+                { L_, -62135596802LL - adjust,
+                                      FAILURE,0,  0,  0,  0,  0,  0 },
+                { L_, -62135596801LL - adjust,
+                                      FAILURE,0,  0,  0,  0,  0,  0 },
+                { L_, -62135596800LL - adjust,
+                                      0,      1,  1,  1,  0,  0,  0 },
+                { L_, -62135596799LL - adjust,
+                                      0,      1,  1,  1,  0,  0,  1 },
+                { L_, -62135596798LL - adjust,
+                                      0,      1,  1,  1,  0,  0,  2 },
+#endif
                 { L_,  -3155673601LL, 0,   1869, 12, 31, 23, 59, 59 },
                 { L_,  -2840140801LL, 0,   1879, 12, 31, 23, 59, 59 },
                 { L_,  -2720171440LL, 0,   1883, 10, 20, 12, 49, 20 },
@@ -2741,6 +2999,92 @@ int main(int argc, char *argv[])
         ASSERT(epochAddressIsNotZero);
         ASSERT(EPOCH == EarlyEpochCopier::copiedValue());
       } break;
+#ifndef BDE_OMIT_TRANSITIONAL
+      case -1: {
+        // --------------------------------------------------------------------
+        // 'logIfProblematicDateValue' Log Messages
+        //
+        // Testing:
+        //   Manual inspection of log message content.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\n'logIfProblematicDateValue' Log Messages"
+                          << "\n========================================"
+                          << endl;
+
+        // The "GOOD" 'TimeT64' value was taken from case 2 and corresponds to
+        // 'Datetime(1869, 12, 31, 23, 59, 59, 999)',
+
+        const bsls::Types::Int64 GOOD = -3155673601LL;  // good in either mode
+        const bsls::Types::Int64 BAD  =
+                                    3 * -3155673601LL;  // bad in either mode
+
+        if (verbose) cout << "\n'convertFromTimeT64(TimeT64)'." << endl;
+        {
+            Util::convertFromTimeT64(GOOD);
+            Util::convertFromTimeT64(BAD);
+        }
+
+        if (verbose) cout << "\n'convertFromTimeT64(Datetime *, TimeT64)'."
+                          << endl;
+        {
+            bdlt::Datetime result;
+
+            ASSERT(0 == Util::convertFromTimeT64(&result, GOOD));
+            ASSERT(0 == Util::convertFromTimeT64(&result, BAD));
+        }
+
+        const bdlt::Datetime X(1800, 10, 31);  // good in either mode
+        const bdlt::Datetime Y(1700, 10, 31);  // bad in either mode
+
+        if (verbose) cout << "\n'convertToTimeT64(Datetime)'." << endl;
+        if (verbose) cout << "\tTest edge cases." << endl;
+        {
+            Util::convertToTimeT64(X);
+            Util::convertToTimeT64(Y);
+        }
+
+        if (verbose) cout << "\n'convertToTimeT64(TimeT64 *, Datetime)'."
+                          << endl;
+        {
+            bsls::Types::Int64 result;
+
+            Util::convertToTimeT64(&result, X);
+            Util::convertToTimeT64(&result, Y);
+        }
+
+        if (verbose) cout << "\nTest log throttling." << endl;
+        {
+            // Test throttling using 'convertToTimeT64(Datetime)'.  Note that
+            // the first two occurrences were logged earlier in this test case.
+
+            // log the 4th occurrence, but not the 3rd
+            {
+               Util::convertToTimeT64(Y);
+               Util::convertToTimeT64(Y);
+            }
+
+            // log the 8th occurrence, but not the 5th through 7th
+            {
+               for (int i = 0; i < 3; ++i) {
+                  Util::convertToTimeT64(Y);
+               }
+
+               Util::convertToTimeT64(Y);
+            }
+
+            // next to be logged is the 16th occurrence
+            {
+               for (int i = 0; i < 7; ++i) {
+                  Util::convertToTimeT64(Y);
+               }
+
+               Util::convertToTimeT64(Y);
+            }
+        }
+
+      } break;
+#endif
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;
