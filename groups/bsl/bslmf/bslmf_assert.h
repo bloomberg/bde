@@ -204,7 +204,7 @@ typedef BloombergLP::bslmf::AssertTest< \
 #elif defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR > 40800
 
 // gcc 4.8.1 introduces a new warning for unused typedefs, which we cannot
-// silence with _Pragam("GCC disagnostic ignored \"-Wwarning\""), so we switch
+// silence with _Pragam("GCC diagnostic ignored \"-Wwarning\""), so we switch
 // to an implementation declaring a function instead.  As with the typedef
 // based implementations, we must include '__LINE__' in the name of the
 // decalared function to allow multiple uses in the same class definition.

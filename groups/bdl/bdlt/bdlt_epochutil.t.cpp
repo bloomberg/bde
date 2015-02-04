@@ -167,7 +167,12 @@ const bdlt::Datetime &EarlyEpochCopier::copiedValue()
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #pragma init_seg(compiler)
-#elif defined(BSLS_PLATFORM_CMP_GNU) && defined(BSLS_PLATFORM_OS_LINUX)
+#elif defined(BSLS_PLATFORM_CMP_CLANG)
+#if __has_attribute(init_priority)
+#undef INITATTR
+#define INITATTR __attribute__((init_priority(101)))
+#endif
+#elif defined(BSLS_PLATFORM_CMP_GNU)
 #undef INITATTR
 #define INITATTR __attribute__((init_priority(101)))
 #elif defined(BSLS_PLATFORM_CMP_IBM)

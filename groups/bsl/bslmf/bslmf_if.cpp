@@ -6,7 +6,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_platform.h>
 
-#if defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
 // For g++ 4.3.2 builds on Sun, a completely empty archive causes
 //      ld: elf error: file ./libbslmf.dbg_exc_mt.a: elf_getarsym
 // errors.  The presence of any "real" symbol in the archive suffices to avoid

@@ -128,7 +128,7 @@ struct ArithmeticConveribility
 // These warnings are suppressed with a pragma.  Note that some versions of gcc
 // do not allow pragmas inside a function body.
 
-#ifdef BSLS_PLATFORM_CMP_GNU
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
 #endif
@@ -169,7 +169,7 @@ void ArithmeticConveribility<TYPE>::implicitlyConvert()
     acceptObj(cvObjRef);
 }
 
-#ifdef BSLS_PLATFORM_CMP_GNU
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic pop
 #endif
 
