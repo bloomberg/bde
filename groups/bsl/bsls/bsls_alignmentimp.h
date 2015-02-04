@@ -473,7 +473,8 @@ struct AlignmentImpMatch {
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
-#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86)                                            \
+ && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
 typedef bsls::AlignmentImp8ByteAlignedType bsls_AlignmentImp8ByteAlignedType;
     // This alias is defined for backward compatibility.
 #endif
