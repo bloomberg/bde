@@ -49,24 +49,35 @@ def build(bld):
     prefix  = bld.env['PREFIX']
     if 'install_lib_dir' in bld.env:
         lib_dir = bld.env['install_lib_dir']
+        lib_suffix = bld.env['lib_suffix']
     else:
         lib_dir = 'lib'
+        lib_suffix = ''
+
+    if 'decNumber' in bld.targets.split(','):
+        lib_install_path = os.path.join(prefix, lib_dir)
+        pc_install_path = os.path.join(prefix, lib_dir, 'pkgconfig')
+    else:
+        lib_install_path = None
+        pc_install_path = None
 
     bld.stlib(source=source_files,
-              target='decNumber',
+              target='decNumber' + lib_suffix,
               export_includes='.',
               name='decNumber_lib',
               cflags=bde_cflags + cflags,
-              install_path = os.path.join(prefix, lib_dir))
+              install_path = lib_install_path
+              )
 
     bld(name = "decNumber_pc",
+        target = 'decNumber' + lib_suffix + '.pc',
         source = 'decNumber.pc.in',
-        target = 'decNumber.pc',
+        features = ['subst'],
         prefix = prefix,
         lib_dir = lib_dir,
-        libs = '-ldecNumber',
+        libs = '-ldecNumber' + lib_suffix,
         cflags = ' '.join(cflags),
-        install_path = os.path.join(prefix, lib_dir, 'pkgconfig')
+        install_path = pc_install_path
     )
 
     if is_bde:
@@ -74,6 +85,13 @@ def build(bld):
         install_files(bld, 'decNumber_inst',
                       os.path.join(prefix, 'include', 'decNumber'),
                       bld.path.ant_glob('*.h'))
+
+        depends_on = ['decNumber_lib', 'decNumber_pc']
+        if bld.cmd == 'install':
+            depends_on += ['decNumber_inst']
+
+        bld(name       = 'decNumber',
+            depends_on = depends_on)
 
     else:
         bld.install_files(os.path.join(prefix, 'include', 'decNumber'),

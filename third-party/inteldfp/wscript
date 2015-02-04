@@ -297,35 +297,51 @@ def build(bld):
     prefix  = bld.env['PREFIX']
     if 'install_lib_dir' in bld.env:
         lib_dir = bld.env['install_lib_dir']
+        lib_suffix = bld.env['lib_suffix']
     else:
         lib_dir = 'lib'
+        lib_suffix = ''
+
+    if 'inteldfp' in bld.targets.split(','):
+        lib_install_path = os.path.join(prefix, lib_dir)
+        pc_install_path = os.path.join(prefix, lib_dir, 'pkgconfig')
+    else:
+        lib_install_path = None
+        pc_install_path = None
 
     bld(name = 'inteldfp_lib',
-        target = 'inteldfp',
+        target = 'inteldfp' + lib_suffix,
         source = source_files,
         features = ['c', 'cstlib'],
         export_includes = 'LIBRARY/src',
         libs = '-linteldfp',
         cflags = bde_cflags + cflags,
-        install_path = os.path.join(prefix, lib_dir)
+        install_path = lib_install_path
     )
 
-    bld(name = "inteldfp_inst_pc",
+    bld(name = 'inteldfp_pc',
+        target = 'inteldfp' + lib_suffix + '.pc',
         source = 'inteldfp.pc.in',
-        target = 'inteldfp.pc',
+        features = ['subst'],
         prefix = prefix,
         lib_dir = lib_dir,
-        libs = '-linteldfp',
+        libs = '-linteldfp' + lib_suffix,
         cflags = ' '.join(cflags),
-        install_path = os.path.join(prefix, lib_dir, 'pkgconfig'),
+        install_path = pc_install_path
     )
 
     if is_bde:
         from bdewafbuild import install_files
         install_files(bld, 'inteldfp_inst',
                       os.path.join(prefix, 'include', 'inteldfp'),
-                      bld.path.ant_glob('*.h'))
+                      bld.path.ant_glob('LIBRARY/src/*.h'))
 
+        depends_on = ['inteldfp_lib', 'inteldfp_pc']
+        if bld.cmd == 'install':
+            depends_on += ['inteldfp_inst']
+
+        bld(name       = 'inteldfp',
+            depends_on = depends_on)
     else:
         bld.install_files(os.path.join(prefix, 'include', 'inteldfp'),
                           bld.path.ant_glob('LIBRARY/src/*.h'))
