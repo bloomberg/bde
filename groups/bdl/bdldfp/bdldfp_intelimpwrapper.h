@@ -68,10 +68,11 @@ BSLS_IDENT("$Id$")
 // it is disabled in the wrapper-package for that compiler as well.  Also, to
 // prevent redefinition of the 'fexcept_t' type, we signal that we behave like
 // '__QNX__' so that the intel library includes '<fenv.h>'.  As a result, if
-// we're not using GCC on linux, we pretend to be "QNX", since the Intel
-// library has the right options chosen for that.
+// we're not using GCC or Clang on Linux, we pretend to be "QNX", since the
+// Intel library has the right options chosen for that.
 
-#    if !(defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_GCC)) \
+#    if !(defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_GNU))  \
+     && !(defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_CLANG))\
      && !defined(BSLS_PLATFORM_OS_WINDOWS)
 #      define __thread
 #      define __QNX__
@@ -86,7 +87,7 @@ BSLS_IDENT("$Id$")
 #      define _WCHAR_T_DEFINED
 #    endif
 
-#    ifdef BSLS_PLATFORM_CMP_GNU
+#    ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #      pragma GCC diagnostic push
 #      pragma GCC diagnostic ignored "-Wconversion"
 #    endif
@@ -97,7 +98,7 @@ BSLS_IDENT("$Id$")
 #     include <bid_internal.h>
      }
 
-#    ifdef BSLS_PLATFORM_CMP_GNU
+#    ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #      pragma GCC diagnostic pop
 #    endif
 

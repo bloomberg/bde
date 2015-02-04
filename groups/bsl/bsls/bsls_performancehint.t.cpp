@@ -112,8 +112,7 @@ const int TESTSIZE = 10;
 const int TESTSIZE = 100;
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40600      \
- && !defined(BSLS_PLATFORM_CMP_CLANG)
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wlarger-than="
 #endif
@@ -124,8 +123,7 @@ volatile int array2[SIZE]; // for 'addWithPrefetch'
 volatile int array3[SIZE]; // for 'addWithoutPrefetch
 volatile int array4[SIZE]; // for 'addWithoutPrefetch
 
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40600      \
- && !defined(BSLS_PLATFORM_CMP_CLANG)
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic pop
 #endif
 
@@ -359,8 +357,10 @@ void testUsageExample1(int argc, bool assert)
 #if defined(BDE_BUILD_TARGET_OPT)
     // Only check under optimized build.
 
-#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_SUN) ||     \
-   (defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0900)\
+#if defined(BSLS_PLATFORM_CMP_CLANG)                                          \
+ || defined(BSLS_PLATFORM_CMP_GNU)                                            \
+ || defined(BSLS_PLATFORM_CMP_SUN)                                            \
+ || (defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VERSION >= 0x0900)
     // Only check when 'BSLS_PERFORMANCEHINT_PREDICT_LIKELY' and
     // 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY' expands into something
     // meaningful.
@@ -383,7 +383,7 @@ namespace TestCase3 {
 
 void init(volatile int *arrayA, volatile int *arrayB)
 {
-#if defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0900
+#if defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VERSION >= 0x0900
     // Only available under xlc 10.
 
     for (int i = 0; i < SIZE; ++i){
@@ -509,8 +509,11 @@ void testUsageExample3(int argc, bool assert)
 #if defined(BDE_BUILD_TARGET_OPT)
     // Only check under optimized build.
 
-#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_IBM) ||     \
-    defined(BSLS_PLATFORM_CMP_SUN) || defined(BSLS_PLATFORM_OS_WINDOWS)
+#if defined(BSLS_PLATFORM_CMP_CLANG)                                          \
+ || defined(BSLS_PLATFORM_CMP_GNU)                                            \
+ || defined(BSLS_PLATFORM_CMP_SUN)                                            \
+ || defined(BSLS_PLATFORM_CMP_IBM)                                            \
+ || defined(BSLS_PLATFORM_OS_WINDOWS)
     // Only check when 'prefetchForReading' or 'prefetchForWriting' expands
     // expands into something meaningful.
 

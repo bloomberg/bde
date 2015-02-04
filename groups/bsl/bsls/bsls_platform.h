@@ -504,30 +504,38 @@ struct bsls_Platform_Assert;
     #pragma warning(disable : 4365)  // signed/unsigned size_t/bsls::SizeType
     #endif // BDE_HIDE_COMMON_WINDOWS_WARNINGS
 // ---------------------------------------------------------------------------
-#elif defined(__GNUC__) || defined(__EDG__)
+#elif defined(__clang__) || defined(__GNUC__) || defined(__EDG__)
 
-    #if defined (__GNUC__)
+    #if defined(__clang__)
+        // Clang presents itself as GCC compatible, but sets the pre-defined
+        // GCC version macros ('__GNUC__', '__GNUC_MINOR__', and
+        // '__GNUC_PATCHLEVEL__') to version 4.2.1 no matter the version of
+        // Clang being used.  In order to differentiate between Clang and GCC,
+        // the compilers are identified by independent 'BSLS_PLATFORM' macros.
+        // Apple Xcode is based upon LLVM (Clang), but Apple changes the
+        // reported Clang versioning ('__clang_major__', '__clang_minor__',
+        // '__clang_patchlevel__') to report the Xcode version rather than the
+        // actual version of Clang the Xcode release includes.  A table of
+        // Xcode/Clang version information is maintained here:
+        // https://trac.macports.org/wiki/XcodeVersionInfo
+        // To avoid this extra dimension, the Clang intrinsics '__has_builtin',
+        // '__has_feature', and '__has_extension' should be used in preference
+        // to 'BSLS_PLATFORM_CMP_VERSION' when checking for compiler features.
+        // If 'BSLS_PLATFORM_CMP_VERSION' must be used, then '__APPLE_CC__'
+        // can be tested to determine if 'BSLS_PLATFORM_CMP_VERSION' represents
+        // Clang LLVM or Apple Xcode version.
+        #define BSLS_PLATFORM_CMP_CLANG 1
+        #define BSLS_PLATFORM_CMP_VERSION ( __clang_major__ * 10000           \
+                                          + __clang_minor__ * 100             \
+                                          + __clang_patchlevel__ )
+    #elif defined (__GNUC__)
         #define BSLS_PLATFORM_CMP_GNU 1
-
-        #if defined(__clang__)
-            // Clang is GCC compatible, but sometimes we need to know about it.
-            #define BSLS_PLATFORM_CMP_CLANG 1
-
-            #if defined(__CLANG_GNUC_PATCHLEVEL__)
-                #define BSLS_PLATFORM_CMP_VERSION (__CLANG_GNUC__ * 10000 \
-                      + __CLANG_GNUC_MINOR__ * 100 + __CLANG_GNUC_PATCHLEVEL__)
-            #else
-                #define BSLS_PLATFORM_CMP_VERSION (__CLANG_GNUC__ * 10000 \
-                            + __CLANG_GNUC_MINOR__ * 100)
-            #endif
+        #if defined(__GNUC_PATCHLEVEL__)
+            #define BSLS_PLATFORM_CMP_VERSION (__GNUC__ * 10000 \
+                        + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
         #else
-            #if defined(__GNUC_PATCHLEVEL__)
-                #define BSLS_PLATFORM_CMP_VERSION (__GNUC__ * 10000 \
-                            + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
-            #else
-                #define BSLS_PLATFORM_CMP_VERSION (__GNUC__ * 10000 \
-                            + __GNUC_MINOR__ * 100)
-            #endif
+            #define BSLS_PLATFORM_CMP_VERSION (__GNUC__ * 10000 \
+                        + __GNUC_MINOR__ * 100)
         #endif
     #else
         #define BSLS_PLATFORM_CMP_EDG 1
@@ -558,7 +566,7 @@ struct bsls_Platform_Assert;
         #define BSLS_PLATFORM_OS_DARWIN 1
     #else
         #if defined(__GNUC__)
-            #error "Unable to determine on which OS GNU compiler is running."
+            #error "Unable to determine on which OS the compiler is running."
         #else
             #error "Unable to determine on which OS EDG compiler is running."
         #endif
@@ -625,7 +633,7 @@ struct bsls_Platform_Assert;
         #endif
     #else
         #if defined(__GNUC__)
-            #error "Unable to determine on which CPU GNU compiler is running."
+            #error "Unable to determine on which CPU the compiler is running."
         #else
             #error "Unable to determine on which CPU EDG compiler is running."
         #endif
@@ -814,12 +822,17 @@ struct bsls_Platform_Assert;
 
                         // Miscellaneous Platform Macros
 
-#if defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
     #define BSLS_PLATFORM_NO_64_BIT_LITERALS 1
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CPU_64_BIT)
     #define BSLS_PLATFORM_NO_64_BIT_LITERALS 1
+#endif
+
+#if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40600)  \
+ || defined(BSLS_PLATFORM_CMP_CLANG)
+    #define BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC 1
 #endif
 // ----------------------------------------------------------------------------
 
@@ -835,11 +848,12 @@ struct bsls_Platform_Assert;
 #endif
 
 // Exactly one CMP type.
-#if BSLS_PLATFORM_CMP_EDG  \
-  + BSLS_PLATFORM_CMP_GNU  \
-  + BSLS_PLATFORM_CMP_HP   \
-  + BSLS_PLATFORM_CMP_IBM  \
-  + BSLS_PLATFORM_CMP_MSVC \
+#if BSLS_PLATFORM_CMP_EDG   \
+  + BSLS_PLATFORM_CMP_CLANG \
+  + BSLS_PLATFORM_CMP_GNU   \
+  + BSLS_PLATFORM_CMP_HP    \
+  + BSLS_PLATFORM_CMP_IBM   \
+  + BSLS_PLATFORM_CMP_MSVC  \
   + BSLS_PLATFORM_CMP_SUN != 1
     #error "Exactly one compiler must be set."
     BSLS_PLATFORM_COMPILER_ERROR;
