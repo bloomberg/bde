@@ -54,7 +54,7 @@ def build(bld):
         lib_dir = 'lib'
         lib_suffix = ''
 
-    if 'decNumber' in bld.targets.split(','):
+    if 'decnumber' in bld.targets.split(','):
         lib_install_path = os.path.join(prefix, lib_dir)
         pc_install_path = os.path.join(prefix, lib_dir, 'pkgconfig')
     else:
@@ -62,39 +62,39 @@ def build(bld):
         pc_install_path = None
 
     bld.stlib(source=source_files,
-              target='decNumber' + lib_suffix,
+              target='decnumber' + lib_suffix,
               export_includes='.',
-              name='decNumber_lib',
+              name='decnumber_lib',
               cflags=bde_cflags + cflags,
               install_path = lib_install_path
               )
 
-    bld(name = "decNumber_pc",
-        target = 'decNumber' + lib_suffix + '.pc',
-        source = 'decNumber.pc.in',
+    bld(name = "decnumber_pc",
+        target = 'decnumber' + lib_suffix + '.pc',
+        source = 'decnumber.pc.in',
         features = ['subst'],
         prefix = prefix,
         lib_dir = lib_dir,
-        libs = '-ldecNumber' + lib_suffix,
+        libs = '-ldecnumber' + lib_suffix,
         cflags = ' '.join(cflags),
         install_path = pc_install_path
     )
 
     if is_bde:
         from bdewafbuild import install_files
-        install_files(bld, 'decNumber_inst',
-                      os.path.join(prefix, 'include', 'decNumber'),
+        install_files(bld, 'decnumber_inst',
+                      os.path.join(prefix, 'include', 'decnumber'),
                       bld.path.ant_glob('*.h'))
 
-        depends_on = ['decNumber_lib', 'decNumber_pc']
+        depends_on = ['decnumber_lib', 'decnumber_pc']
         if bld.cmd == 'install':
-            depends_on += ['decNumber_inst']
+            depends_on += ['decnumber_inst']
 
-        bld(name       = 'decNumber',
+        bld(name       = 'decnumber',
             depends_on = depends_on)
 
     else:
-        bld.install_files(os.path.join(prefix, 'include', 'decNumber'),
+        bld.install_files(os.path.join(prefix, 'include', 'decnumber'),
                           bld.path.ant_glob('*.h'))
 
 
