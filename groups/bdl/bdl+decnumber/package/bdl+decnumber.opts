@@ -2,6 +2,14 @@
 
 *        _    DEF_CFLAGS   = -I$(BDL_DECNUMBER_LOCN)/common -I$(BDL_DECNUMBER_LOCN)/
 
+# Clang fix for building C files due to Clang bug when handling GNU C89 style
+# inlines in C99 mode (default).  The inlines are mis-handled and wind up
+# causing duplicate symbols that causing the link to fail.  This bug is
+# documented here: http://llvm.org/bugs/show_bug.cgi?id=5960
+
+!!  unix-*-*-*-gcc-clang    _   USER_CFLAGS   = -std=gnu89
+!!  unix-*-*-*-clang        _   USER_CFLAGS   = -std=gnu89
+
 # Install the following header files.
 
 *        _    INSTALL_INC  = decContext.h  decDouble.h  decNumberLocal.h  decQuad.h  decSingle.h
