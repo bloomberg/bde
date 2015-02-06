@@ -54,7 +54,7 @@ def build(bld):
         lib_dir = 'lib'
         lib_suffix = ''
 
-    if 'decnumber' in bld.targets.split(','):
+    if not bld.targets or 'decnumber' in bld.targets.split(','):
         lib_install_path = os.path.join(prefix, lib_dir)
         pc_install_path = os.path.join(prefix, lib_dir, 'pkgconfig')
     else:
