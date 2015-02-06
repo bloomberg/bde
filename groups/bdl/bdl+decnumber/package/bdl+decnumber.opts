@@ -1,9 +1,0 @@
-*        _    OPTS_FILE    = bdl+decnumber.opts
-
-*        _    DEF_CFLAGS   = -I$(BDL_DECNUMBER_LOCN)/common -I$(BDL_DECNUMBER_LOCN)/
-
-# Install the following header files.
-
-*        _    INSTALL_INC  = decContext.h  decDouble.h  decNumberLocal.h  decQuad.h  decSingle.h
-
-#==============================================================================
