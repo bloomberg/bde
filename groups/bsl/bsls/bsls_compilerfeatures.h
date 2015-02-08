@@ -117,6 +117,9 @@ BSLS_IDENT("$Id: $")
 #include <bsls_macrorepeat.h>
 #endif
 
+// All of the following features and simulated features apply to C++, not C.
+#ifdef __cplusplus
+
              // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 // GCC 4.7 has support with '-std=c++0x'.
@@ -294,10 +297,12 @@ namespace bsls {
 #   define BSLS_COMPILERFEATURES_FORWARD(T,V)   native_std::forward<T>(V)
 #endif
 
+#endif //  __cplusplus
+
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2013-2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
