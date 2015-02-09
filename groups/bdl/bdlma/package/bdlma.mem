@@ -7,6 +7,7 @@ bdlma_bufferedsequentialpool
 bdlma_countingallocator
 bdlma_guardingallocator
 bdlma_infrequentdeleteblocklist
+bdlma_localsequentialallocator
 bdlma_managedallocator
 bdlma_multipoolallocator
 bdlma_multipool
