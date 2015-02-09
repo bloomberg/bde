@@ -497,6 +497,12 @@ int main(int argc, char *argv[])
                 mX.setYearMonthDay(1752, 9, 16);
                 ASSERT(EMPTY == log.str());  // nothing logged
 
+                // account for log throttling
+                for (int i = 0; i < 6; ++i) {
+                    mX.setYearMonthDay(1752, 9, 15);
+                    ASSERT(EMPTY == log.str());
+                }
+
                 mX.setYearMonthDay(1752, 9, 15);
                 ASSERT(EMPTY != log.str());  // something logged
 
@@ -507,6 +513,12 @@ int main(int argc, char *argv[])
 
                 mX.setYearMonthDay(1752, 9, 14);
                 ASSERT(EMPTY == log.str());  // nothing logged
+
+                // account for log throttling
+                for (int i = 0; i < 6; ++i) {
+                    mX.setYearMonthDay(1752, 9,  2);
+                    ASSERT(EMPTY == log.str());
+                }
 
                 mX.setYearMonthDay(1752, 9,  2);
                 ASSERT(EMPTY != log.str());  // something logged
@@ -651,6 +663,13 @@ int main(int argc, char *argv[])
 
             Obj mY(1700, 200);
             log.str(EMPTY);
+
+            // account for log throttling
+            for (int i = 0; i < 6; ++i) {
+                mY++;
+                ASSERT(EMPTY == log.str());
+            }
+
             mY++;
             ASSERT(EMPTY != log.str());  // something logged
 
@@ -667,6 +686,13 @@ int main(int argc, char *argv[])
 
             Obj mY(1700, 200);
             log.str(EMPTY);
+
+            // account for log throttling
+            for (int i = 0; i < 6; ++i) {
+                mY--;
+                ASSERT(EMPTY == log.str());
+            }
+
             mY--;
             ASSERT(EMPTY != log.str());  // something logged
 
@@ -726,6 +752,12 @@ int main(int argc, char *argv[])
                 mX - 1;
                 ASSERT(EMPTY == log.str());  // nothing logged
 
+                // account for log throttling
+                for (int i = 0; i < 6; ++i) {
+                    mX - 2;
+                    ASSERT(EMPTY == log.str());
+                }
+
                 mX - 2;
                 ASSERT(EMPTY != log.str());  // something logged
 
@@ -742,11 +774,12 @@ int main(int argc, char *argv[])
 
                 log.str(EMPTY);
 
-                // Nothing is logged for the first 'mX - 0', but the count is
-                // incremented.
+                // account for log throttling
+                for (int i = 0; i < 247; ++i) {
+                    mX - 0;
+                    ASSERT(EMPTY == log.str());
+                }
 
-                mX - 0;
-                ASSERT(EMPTY == log.str());  // nothing logged
                 mX - 0;
                 ASSERT(EMPTY != log.str());  // something logged
 
@@ -759,6 +792,12 @@ int main(int argc, char *argv[])
 
                 mX - 1;
                 ASSERT(EMPTY == log.str());  // nothing logged
+
+                // account for log throttling
+                for (int i = 0; i < 6; ++i) {
+                    mX - 2;
+                    ASSERT(EMPTY == log.str());
+                }
 
                 mX - 2;
                 ASSERT(EMPTY != log.str());  // something logged
@@ -776,11 +815,12 @@ int main(int argc, char *argv[])
 
                 log.str(EMPTY);
 
-                // Nothing is logged for the first 'mX - 0', but the count is
-                // incremented.
+                // account for log throttling
+                for (int i = 0; i < 247; ++i) {
+                    mX - 0;
+                    ASSERT(EMPTY == log.str());
+                }
 
-                mX - 0;
-                ASSERT(EMPTY == log.str());  // nothing logged
                 mX - 0;
                 ASSERT(EMPTY != log.str());  // something logged
 
@@ -822,6 +862,12 @@ int main(int argc, char *argv[])
 
                 log.str(EMPTY);
 
+                // account for log throttling
+                for (int i = 0; i < 6; ++i) {
+                    X - Y;
+                    ASSERT(EMPTY == log.str());
+                }
+
                 X - Y;
                 ASSERT(EMPTY != log.str());  // something logged
 
@@ -829,11 +875,12 @@ int main(int argc, char *argv[])
 
                 log.str(EMPTY);
 
-                // Nothing is logged for the first 'Y - X', but the count is
-                // incremented.
+                // account for log throttling
+                for (int i = 0; i < 247; ++i) {
+                    Y - X;
+                    ASSERT(EMPTY == log.str());
+                }
 
-                Y - X;
-                ASSERT(EMPTY == log.str());  // nothing logged
                 Y - X;
                 ASSERT(EMPTY != log.str());  // something logged
 
@@ -852,6 +899,12 @@ int main(int argc, char *argv[])
 
                 log.str(EMPTY);
 
+                // account for log throttling
+                for (int i = 0; i < 6; ++i) {
+                    X - Y;
+                    ASSERT(EMPTY == log.str());
+                }
+
                 X - Y;
                 ASSERT(EMPTY != log.str());  // something logged
 
@@ -859,11 +912,12 @@ int main(int argc, char *argv[])
 
                 log.str(EMPTY);
 
-                // Nothing is logged for the first 'Y - X', but the count is
-                // incremented.
+                // account for log throttling
+                for (int i = 0; i < 247; ++i) {
+                    Y - X;
+                    ASSERT(EMPTY == log.str());
+                }
 
-                Y - X;
-                ASSERT(EMPTY == log.str());  // nothing logged
                 Y - X;
                 ASSERT(EMPTY != log.str());  // something logged
 
@@ -878,34 +932,11 @@ int main(int argc, char *argv[])
             // Test throttling using 'Obj(y, m, d)'.  Note that the first
             // occurrence was logged earlier in this test case.
 
-            // log the 2nd occurrence
+            // log the 8th occurrence, but not the 2nd through 7th
             {
                 log.str(EMPTY);
 
-                const Obj X(1700, 10, 31);
-                ASSERT(EMPTY != log.str());  // something logged
-
-                if (veryVerbose) cout << log.str();
-            }
-
-            // log the 4th occurrence, but not the 3rd
-            {
-                log.str(EMPTY);
-
-                const Obj X(1700, 10, 31);
-                ASSERT(EMPTY == log.str());  // nothing logged
-
-                const Obj Y(1700, 10, 31);
-                ASSERT(EMPTY != log.str());  // something logged
-
-                if (veryVerbose) cout << log.str();
-            }
-
-            // log the 8th occurrence, but not the 5th through 7th
-            {
-                log.str(EMPTY);
-
-                for (int i = 0; i < 3; ++i) {
+                for (int i = 0; i < 6; ++i) {
                     const Obj X(1700, 10, 31);
                     ASSERT(EMPTY == log.str());  // nothing logged
                 }
@@ -916,11 +947,11 @@ int main(int argc, char *argv[])
                 if (veryVerbose) cout << log.str();
             }
 
-            // next to be logged is the 16th occurrence
+            // next (and last) to be logged is the 256th occurrence
             {
                 log.str(EMPTY);
 
-                for (int i = 0; i < 7; ++i) {
+                for (int i = 0; i < 247; ++i) {
                     const Obj X(1700, 10, 31);
                     ASSERT(EMPTY == log.str());  // nothing logged
                 }
@@ -929,6 +960,13 @@ int main(int argc, char *argv[])
                 ASSERT(EMPTY != log.str());      // something logged
 
                 if (veryVerbose) cout << log.str();
+
+                log.str(EMPTY);
+
+                for (int i = 0; i < 20000; ++i) {
+                    const Obj X(1700, 10, 31);
+                    ASSERT(EMPTY == log.str());  // nothing logged
+                }
             }
         }
 
@@ -939,34 +977,11 @@ int main(int argc, char *argv[])
 
             const Obj X;
 
-            // log the 2nd occurrence
+            // log the 8th occurrence, but not the 2nd through 7th
             {
                 log.str(EMPTY);
 
-                X + 700000;
-                ASSERT(EMPTY != log.str());  // something logged
-
-                if (veryVerbose) cout << log.str();
-            }
-
-            // log the 4th occurrence, but not the 3rd
-            {
-                log.str(EMPTY);
-
-                X + 700000;
-                ASSERT(EMPTY == log.str());  // nothing logged
-
-                X + 700000;
-                ASSERT(EMPTY != log.str());  // something logged
-
-                if (veryVerbose) cout << log.str();
-            }
-
-            // log the 8th occurrence, but not the 5th through 7th
-            {
-                log.str(EMPTY);
-
-                for (int i = 0; i < 3; ++i) {
+                for (int i = 0; i < 6; ++i) {
                     X + 700000;
                     ASSERT(EMPTY == log.str());  // nothing logged
                 }
@@ -977,11 +992,11 @@ int main(int argc, char *argv[])
                 if (veryVerbose) cout << log.str();
             }
 
-            // next to be logged is the 16th occurrence
+            // next (and last) to be logged is the 256th occurrence
             {
                 log.str(EMPTY);
 
-                for (int i = 0; i < 7; ++i) {
+                for (int i = 0; i < 247; ++i) {
                     X + 700000;
                     ASSERT(EMPTY == log.str());  // nothing logged
                 }
@@ -990,45 +1005,32 @@ int main(int argc, char *argv[])
                 ASSERT(EMPTY != log.str());      // something logged
 
                 if (veryVerbose) cout << log.str();
+
+                log.str(EMPTY);
+
+                for (int i = 0; i < 20000; ++i) {
+                    X + 700000;
+                    ASSERT(EMPTY == log.str());  // nothing logged
+                }
             }
         }
 
         if (verbose) cout << "\t'logIfProblematicDateDifference'." << endl;
         {
             // Test throttling using 'operator-(Date, Date)'.  Note that the
-            // first four occurrences were logged earlier in this test case.
+            // first three occurrences were logged earlier in this test case.
 
             const Obj X(2015, 1, 1);
             const Obj Y;
 
-            // log the 8th occurrence, but not the 5th through 7th
+            // nothing further should be logged
             {
                 log.str(EMPTY);
 
-                for (int i = 0; i < 3; ++i) {
+                for (int i = 0; i < 20000; ++i) {
                     X - Y;
                     ASSERT(EMPTY == log.str());  // nothing logged
                 }
-
-                X - Y;
-                ASSERT(EMPTY != log.str());      // something logged
-
-                if (veryVerbose) cout << log.str();
-            }
-
-            // next to be logged is the 16th occurrence
-            {
-                log.str(EMPTY);
-
-                for (int i = 0; i < 7; ++i) {
-                    X - Y;
-                    ASSERT(EMPTY == log.str());  // nothing logged
-                }
-
-                X - Y;
-                ASSERT(EMPTY != log.str());      // something logged
-
-                if (veryVerbose) cout << log.str();
             }
         }
 
@@ -3845,7 +3847,7 @@ if (verbose)
             ASSERT(&out == &rvOut);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             In in(OD, LOD);
             ASSERT(in);
@@ -3886,7 +3888,7 @@ if (verbose)
                 Out& rvOut = bdexStreamOut(out, X, VERSION);
                 LOOP_ASSERT(i, &out == &rvOut);
                 const char *const OD  = out.data();
-                const int         LOD = out.length();
+                const int         LOD = static_cast<int>(out.length());
 
                 // Verify that each new value overwrites every old value and
                 // that the input stream is emptied, but remains valid.
@@ -3922,7 +3924,7 @@ if (verbose)
         {
             Out               out(VERSION_SELECTOR, &allocator);
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
             ASSERT(0 == LOD);
 
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -3968,7 +3970,7 @@ if (verbose)
             ASSERT(&out == &rvOut);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
             ASSERT(0 < LOD);
 
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -4017,15 +4019,15 @@ if (verbose)
 
             Out& rvOut1 = bdexStreamOut(out, X1, VERSION);
             ASSERT(&out == &rvOut1);
-            const int         LOD1 = out.length();
+            const int         LOD1 = static_cast<int>(out.length());
 
             Out& rvOut2 = bdexStreamOut(out, X2, VERSION);
             ASSERT(&out == &rvOut2);
-            const int         LOD2 = out.length();
+            const int         LOD2 = static_cast<int>(out.length());
 
             Out& rvOut3 = bdexStreamOut(out, X3, VERSION);
             ASSERT(&out == &rvOut3);
-            const int         LOD3 = out.length();
+            const int         LOD3 = static_cast<int>(out.length());
             const char *const OD3  = out.data();
 
             for (int i = 0; i < LOD3; ++i) {
@@ -4129,7 +4131,7 @@ if (verbose)
             Out out(VERSION_SELECTOR, &allocator);
             out.putInt24(SERIAL_Y);  // Stream out "new" value.
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -4155,7 +4157,7 @@ if (verbose)
             out.putInt24(SERIAL_Y);  // Stream out "new" value.
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -4178,7 +4180,7 @@ if (verbose)
             out.putInt24(SERIAL_Y);  // Stream out "new" value.
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -4203,7 +4205,7 @@ if (verbose)
             out.putInt24(0);  // Stream out "new" value.
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -4228,7 +4230,7 @@ if (verbose)
             out.putInt24(3652062);  // Stream out "new" value.
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -4285,13 +4287,14 @@ if (verbose)
                     bslx::ByteOutStream& rvOut = X.bdexStreamOut(out, VERSION);
                     LOOP_ASSERT(LINE, &out == &rvOut);
 
-                    LOOP_ASSERT(LINE, LEN == out.length());
+                    LOOP_ASSERT(LINE, LEN == static_cast<int>(out.length()));
                     LOOP_ASSERT(LINE, 0 == memcmp(out.data(), FMT, LEN));
 
                     if (verbose && memcmp(out.data(), FMT, LEN)) {
                         const char *hex = "0123456789abcdef";
                         P_(LINE);
-                        for (int j = 0; j < out.length(); ++j) {
+                        for (int j = 0; j < static_cast<int>(out.length());
+                                                                         ++j) {
                             cout << "\\x"
                                  << hex[static_cast<unsigned char>
                                             ((*(out.data() + j) >> 4) & 0x0f)]
@@ -4323,13 +4326,14 @@ if (verbose)
                                                                VERSION);
                     LOOP_ASSERT(LINE, &out == &rvOut);
 
-                    LOOP_ASSERT(LINE, LEN == out.length());
+                    LOOP_ASSERT(LINE, LEN == static_cast<int>(out.length()));
                     LOOP_ASSERT(LINE, 0 == memcmp(out.data(), FMT, LEN));
 
                     if (verbose && memcmp(out.data(), FMT, LEN)) {
                         const char *hex = "0123456789abcdef";
                         P_(LINE);
-                        for (int j = 0; j < out.length(); ++j) {
+                        for (int j = 0; j < static_cast<int>(out.length());
+                                                                         ++j) {
                             cout << "\\x"
                                  << hex[static_cast<unsigned char>
                                             ((*(out.data() + j) >> 4) & 0x0f)]
@@ -5858,21 +5862,18 @@ if (verbose)
 
         if (verbose) cout << "\n'Obj(y, d)'." << endl;
         {
-            const Obj X(1800, 98);
-            const Obj Y(1700, 98);
+            const Obj X(1700, 98);
         }
 
         if (verbose) cout << "\n'Obj(y, m, d)'." << endl;
         {
-            const Obj X(1800, 10, 31);
-            const Obj Y(1700, 10, 31);
+            const Obj X(1700, 10, 31);
         }
 
         if (verbose) cout << "\n'setYearDay(y, d)'." << endl;
         {
             Obj mX;
 
-            mX.setYearDay(1800, 98);
             mX.setYearDay(1700, 98);
         }
 
@@ -5880,7 +5881,6 @@ if (verbose)
         {
             Obj mX;
 
-            mX.setYearMonthDay(1800, 11, 11);
             mX.setYearMonthDay(1700, 11, 11);
         }
 
@@ -5893,17 +5893,6 @@ if (verbose)
 
             using bslx::OutStreamFunctions::bdexStreamOut;
             using bslx::InStreamFunctions::bdexStreamIn;
-
-            {
-                Out out(VERSION_SELECTOR, &ta);
-                bdexStreamOut(out, Obj(1800, 200), VERSION);
-
-                In in(out.data(), out.length());
-
-                Obj mX;
-
-                bdexStreamIn(in, mX, VERSION);
-            }
 
             {
                 Out out(VERSION_SELECTOR, &ta);
@@ -5922,89 +5911,81 @@ if (verbose)
 
         if (verbose) cout << "\n'operator+=(n)'." << endl;
         {
-            Obj mX(1800, 10, 31);
-            mX += 1000;
+            Obj mX;
 
-            Obj mY;
-            mY += 700000;
+            mX += 700000;
         }
 
         if (verbose) cout << "\n'operator-=(n)'." << endl;
         {
             Obj mX(1800, 10, 31);
 
-            mX -= 1000;
             mX -= 500000;
         }
 
         if (verbose) cout << "\nMember 'operator++'." << endl;
         {
-            Obj mX(1800, 200);
-            ++mX;
+            Obj mX(1700, 200);
 
-            Obj mY(1700, 200);
-            ++mY;
+            ++mX;
         }
 
         if (verbose) cout << "\nMember 'operator--'." << endl;
         {
-            Obj mX(1800, 200);
-            --mX;
+            Obj mX(1700, 200);
 
-            Obj mY(1700, 200);
-            --mY;
+            --mX;
         }
 
         if (verbose) cout << "\n'addDaysIfValid(n)'." << endl;
         {
-            Obj mX(1800, 10, 31);
-            mX.addDaysIfValid(1000);
+            Obj mX;
 
-            Obj mY;
-            mY.addDaysIfValid(700000);
+            mX.addDaysIfValid(700000);
         }
 
         if (verbose) cout << "\nFree 'operator++'." << endl;
         {
-            Obj mX(1800, 200);
-            mX++;
+            Obj mX(1700, 200);
 
-            Obj mY(1700, 200);
-            mY++;
+            // account for log throttling
+            for (int i = 0; i < 6; ++i) {
+                mX++;  // nothing logged
+            }
+
+            mX++;
         }
 
         if (verbose) cout << "\nFree 'operator--'." << endl;
         {
-            Obj mX(1800, 200);
-            mX--;
+            Obj mX(1700, 200);
 
-            Obj mY(1700, 200);
-            mY--;
+            // account for log throttling
+            for (int i = 0; i < 6; ++i) {
+                mX--;  // nothing logged
+            }
+
+            mX--;
         }
 
         if (verbose) cout << "\n'operator+(Date, n)'." << endl;
         {
-            const Obj X(1800, 10, 31);
-            X + 1000;
+            const Obj X;
 
-            const Obj Y;
-            Y + 700000;
+            X + 700000;
         }
 
         if (verbose) cout << "\n'operator+(n, Date)'." << endl;
         {
-            const Obj X(1800, 10, 31);
-            1000 + X;
+            Obj X;
 
-            Obj Y;
-            700000 + Y;
+            700000 + X;
         }
 
         if (verbose) cout << "\n'operator-(Date, n)'." << endl;
         {
             const Obj X(1800, 10, 31);
 
-            X - 1000;
             X - 500000;
         }
 
@@ -6013,13 +5994,10 @@ if (verbose)
 
         if (verbose) cout << "\n'operator-(Date, Date)'." << endl;
         {
-            const Obj X(1800, 200);
-            const Obj Y(1900, 200);
+            const Obj X(1900, 200);
+            const Obj Y(1700, 200);
 
-            Y - X;
-
-            const Obj Z(1700, 200);
-            Y - Z;
+            X - Y;
         }
 
         if (verbose) cout << "\nTest log throttling." << endl;
@@ -6029,33 +6007,22 @@ if (verbose)
             // Test throttling using 'Obj(y, m, d)'.  Note that the first
             // occurrence was logged earlier in this test case.
 
-            // log the 2nd occurrence
+            // log the 8th occurrence, but not the 2nd through 7th
             {
+                for (int i = 0; i < 6; ++i) {
+                    const Obj X(1700, 10, 31);  // nothing logged
+                }
+
                 const Obj X(1700, 10, 31);
             }
 
-            // log the 4th occurrence, but not the 3rd
+            // next (and last) to be logged is the 256th occurrence
             {
+                for (int i = 0; i < 247; ++i) {
+                    const Obj X(1700, 10, 31);  // nothing logged
+                }
+
                 const Obj X(1700, 10, 31);
-                const Obj Y(1700, 10, 31);
-            }
-
-            // log the 8th occurrence, but not the 5th through 7th
-            {
-                for (int i = 0; i < 3; ++i) {
-                    const Obj X(1700, 10, 31);
-                }
-
-                const Obj Y(1700, 10, 31);
-            }
-
-            // next to be logged is the 16th occurrence
-            {
-                for (int i = 0; i < 7; ++i) {
-                    const Obj X(1700, 10, 31);
-                }
-
-                const Obj Y(1700, 10, 31);
             }
         }
 
@@ -6066,30 +6033,19 @@ if (verbose)
 
             const Obj X;
 
-            // log the 2nd occurrence
+            // log the 8th occurrence, but not the 2nd through 7th
             {
-               X + 700000;
-            }
-
-            // log the 4th occurrence, but not the 3rd
-            {
-               X + 700000;
-               X + 700000;
-            }
-
-            // log the 8th occurrence, but not the 5th through 7th
-            {
-               for (int i = 0; i < 3; ++i) {
-                  X + 700000;
+               for (int i = 0; i < 6; ++i) {
+                  X + 700000;  // nothing logged
                }
 
                X + 700000;
             }
 
-            // next to be logged is the 16th occurrence
+            // next (and last) to be logged is the 256th occurrence
             {
-               for (int i = 0; i < 7; ++i) {
-                  X + 700000;
+               for (int i = 0; i < 247; ++i) {
+                  X + 700000;  // nothing logged
                }
 
                X + 700000;
@@ -6104,30 +6060,19 @@ if (verbose)
             const Obj X(2015, 1, 1);
             const Obj Y;
 
-            // log the 2nd occurrence
+            // log the 8th occurrence, but not the 2nd through 7th
             {
-               X - Y;
-            }
-
-            // log the 4th occurrence, but not the 3rd
-            {
-               X - Y;
-               X - Y;
-            }
-
-            // log the 8th occurrence, but not the 5th through 7th
-            {
-               for (int i = 0; i < 3; ++i) {
-                  X - Y;
+               for (int i = 0; i < 6; ++i) {
+                  X - Y;  // nothing logged
                }
 
                X - Y;
             }
 
-            // next to be logged is the 16th occurrence
+            // next (and last) to be logged is the 256th occurrence
             {
-               for (int i = 0; i < 7; ++i) {
-                  X - Y;
+               for (int i = 0; i < 247; ++i) {
+                  X - Y;  // nothing logged
                }
 
                X - Y;

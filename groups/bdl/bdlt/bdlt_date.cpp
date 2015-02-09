@@ -37,8 +37,13 @@ static const char *const months[] = {
 // 639798 for the "magic" serial date value, '>' is the appropriate comparison
 // operator to use in the various 'logIfProblematicDate*' functions.
 
-static const int MAGIC_SERIAL = 639798;  // 1752/09/02 POSIX
-                                         // 1752/09/15 proleptic Gregorian
+const int MAGIC_SERIAL = 639798;  // 1752/09/02 POSIX
+                                  // 1752/09/15 proleptic Gregorian
+
+// To limit spewing to 'stderr', log an occurrence of a problematic date value
+// or operation only if the associated logging context count is 1, 8, or 256.
+
+const int LOG_THROTTLE_MASK = 1 + 8 + 256;
 
 // PRIVATE CLASS METHODS
 void Date::logIfProblematicDateAddition(
@@ -54,20 +59,18 @@ void Date::logIfProblematicDateAddition(
 
     const int tmpCount = bsls::AtomicOperations::addIntNvRelaxed(count, 1);
 
-    // To limit spewing to 'stderr', log an occurrence of a problematic date
-    // addition only if its associated count is a power of 2.
-
     if (1 == bdlb::BitUtil::numBitsSet(
-                             static_cast<bdlb::BitUtil::uint32_t>(tmpCount))) {
+                             static_cast<bdlb::BitUtil::uint32_t>(tmpCount))
+     && (LOG_THROTTLE_MASK & tmpCount)) {
 
         int year, month, day;
         DelegatingDateImpUtil::serialToYmd(&year, &month, &day, serialDate);
 
         bsls::Log::logFormattedMessage(
                               fileName, lineNumber,
-                              "WARNING: problematic 'Date' addition detected: "
-                              "%d/%d/%d + %d [%d times].  "
-                              "Please contact BDE (DRQS Group 101).",
+                              "WARNING: bad 'Date' addition: "
+                              "%d/%d/%d + %d [%d] "
+                              "(see {TEAM 481627583<GO>})",
                               year, month, day, numDays,
                               tmpCount);
     }
@@ -86,11 +89,9 @@ void Date::logIfProblematicDateDifference(
 
     const int tmpCount = bsls::AtomicOperations::addIntNvRelaxed(count, 1);
 
-    // To limit spewing to 'stderr', log an occurrence of a problematic date
-    // difference only if its associated count is a power of 2.
-
     if (1 == bdlb::BitUtil::numBitsSet(
-                             static_cast<bdlb::BitUtil::uint32_t>(tmpCount))) {
+                             static_cast<bdlb::BitUtil::uint32_t>(tmpCount))
+     && (LOG_THROTTLE_MASK & tmpCount)) {
 
         int lhsYear, lhsMonth, lhsDay;
         DelegatingDateImpUtil::serialToYmd(&lhsYear, &lhsMonth, &lhsDay,
@@ -102,9 +103,9 @@ void Date::logIfProblematicDateDifference(
 
         bsls::Log::logFormattedMessage(
                             fileName, lineNumber,
-                            "WARNING: problematic 'Date' difference detected: "
-                            "%d/%d/%d - %d/%d/%d [%d times].  "
-                            "Please contact BDE (DRQS Group 101).",
+                            "WARNING: bad 'Date' difference: "
+                            "%d/%d/%d - %d/%d/%d [%d] "
+                            "(see {TEAM 481627583<GO>})",
                             lhsYear, lhsMonth, lhsDay,
                             rhsYear, rhsMonth, rhsDay,
                             tmpCount);
@@ -123,20 +124,18 @@ void Date::logIfProblematicDateValue(
 
     const int tmpCount = bsls::AtomicOperations::addIntNvRelaxed(count, 1);
 
-    // To limit spewing to 'stderr', log an occurrence of a problematic date
-    // value only if its associated count is a power of 2.
-
     if (1 == bdlb::BitUtil::numBitsSet(
-                             static_cast<bdlb::BitUtil::uint32_t>(tmpCount))) {
+                             static_cast<bdlb::BitUtil::uint32_t>(tmpCount))
+     && (LOG_THROTTLE_MASK & tmpCount)) {
 
         int year, month, day;
         DelegatingDateImpUtil::serialToYmd(&year, &month, &day, serialDate);
 
         bsls::Log::logFormattedMessage(
                                  fileName, lineNumber,
-                                 "WARNING: problematic 'Date' value detected: "
-                                 "%d/%d/%d [%d times].  "
-                                 "Please contact BDE (DRQS Group 101).",
+                                 "WARNING: bad 'Date' value: "
+                                 "%d/%d/%d [%d] "
+                                 "(see {TEAM 481627583<GO>})",
                                  year, month, day,
                                  tmpCount);
     }
