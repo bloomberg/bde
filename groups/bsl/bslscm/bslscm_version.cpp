@@ -8,6 +8,8 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 
+#define BSL_VERSION_PATCH BSLSCM_PATCHVERSION_PATCH
+
 #define STRINGIFY2(a) #a
 #define STRINGIFY(a) STRINGIFY2(a)
 
