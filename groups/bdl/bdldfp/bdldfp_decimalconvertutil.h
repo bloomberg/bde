@@ -241,6 +241,10 @@ BSLS_IDENT("$Id$")
 #include <bsls_platform.h>
 #endif
 
+#ifndef INCLUDED_BSL_CSTRING
+#include <bsl_cstring.h>
+#endif
+
 namespace BloombergLP {
 namespace bdldfp {
 
@@ -1202,7 +1206,7 @@ void DecimalConvertUtil::decimal32ToBID(unsigned char *buffer,
 
     result = DecimalImpUtil::convertToBID(*decimal.data());
 
-    memcpy(buffer, &result, sizeof(result));
+    bsl::memcpy(buffer, &result, sizeof(result));
 }
 
 inline
@@ -1213,7 +1217,7 @@ void DecimalConvertUtil::decimal64ToBID(unsigned char *buffer,
 
     result = DecimalImpUtil::convertToBID(*decimal.data());
 
-    memcpy(buffer, &result, sizeof(result));
+    bsl::memcpy(buffer, &result, sizeof(result));
 }
 
 inline
@@ -1224,7 +1228,7 @@ void DecimalConvertUtil::decimal128ToBID(unsigned char *buffer,
 
     result = DecimalImpUtil::convertToBID(*decimal.data());
 
-    memcpy(buffer, &result, sizeof(result));
+    bsl::memcpy(buffer, &result, sizeof(result));
 }
 
 inline
@@ -1235,7 +1239,7 @@ void DecimalConvertUtil::decimalToBID(unsigned char *buffer,
 
     result = DecimalImpUtil::convertToBID(*decimal.data());
 
-    memcpy(buffer, &result, sizeof(result));
+    bsl::memcpy(buffer, &result, sizeof(result));
 }
 
 inline
@@ -1246,7 +1250,7 @@ void DecimalConvertUtil::decimalToBID(unsigned char *buffer,
 
     result = DecimalImpUtil::convertToBID(*decimal.data());
 
-    memcpy(buffer, &result, sizeof(result));
+    bsl::memcpy(buffer, &result, sizeof(result));
 }
 
 inline
@@ -1257,7 +1261,7 @@ void DecimalConvertUtil::decimalToBID(unsigned char *buffer,
 
     result = DecimalImpUtil::convertToBID(*decimal.data());
 
-    memcpy(buffer, &result, sizeof(result));
+    bsl::memcpy(buffer, &result, sizeof(result));
 }
 
                         // decimalFromBID functions
@@ -1268,7 +1272,7 @@ DecimalConvertUtil::decimal32FromBID(const unsigned char *buffer)
 {
     BinaryIntegralDecimalImpUtil::StorageType32 bid;
 
-    memcpy(&bid, buffer, sizeof(bid));
+    bsl::memcpy(&bid, buffer, sizeof(bid));
 
     return Decimal32(DecimalImpUtil::convertFromBID(bid));
 }
@@ -1279,7 +1283,7 @@ DecimalConvertUtil::decimal64FromBID(const unsigned char *buffer)
 {
     BinaryIntegralDecimalImpUtil::StorageType64 bid;
 
-    memcpy(&bid, buffer, sizeof(bid));
+    bsl::memcpy(&bid, buffer, sizeof(bid));
 
     return Decimal64(DecimalImpUtil::convertFromBID(bid));
 }
@@ -1290,7 +1294,7 @@ DecimalConvertUtil::decimal128FromBID(const unsigned char *buffer)
 {
     BinaryIntegralDecimalImpUtil::StorageType128 bid;
 
-    memcpy(&bid, buffer, sizeof(bid));
+    bsl::memcpy(&bid, buffer, sizeof(bid));
 
     return Decimal128(DecimalImpUtil::convertFromBID(bid));
 }
@@ -1302,7 +1306,7 @@ DecimalConvertUtil::decimalFromBID(Decimal32           *decimal,
 {
     BinaryIntegralDecimalImpUtil::StorageType32 bid;
 
-    memcpy(&bid, buffer, sizeof(bid));
+    bsl::memcpy(&bid, buffer, sizeof(bid));
 
     *decimal = Decimal32(DecimalImpUtil::convertFromBID(bid));
 }
@@ -1314,7 +1318,7 @@ DecimalConvertUtil::decimalFromBID(Decimal64           *decimal,
 {
     BinaryIntegralDecimalImpUtil::StorageType64 bid;
 
-    memcpy(&bid, buffer, sizeof(bid));
+    bsl::memcpy(&bid, buffer, sizeof(bid));
 
     *decimal = Decimal64(DecimalImpUtil::convertFromBID(bid));
 }
@@ -1326,7 +1330,7 @@ DecimalConvertUtil::decimalFromBID(Decimal128          *decimal,
 {
     BinaryIntegralDecimalImpUtil::StorageType128 bid;
 
-    memcpy(&bid, buffer, sizeof(bid));
+    bsl::memcpy(&bid, buffer, sizeof(bid));
 
     *decimal = Decimal128(DecimalImpUtil::convertFromBID(bid));
 }
@@ -1338,7 +1342,7 @@ DecimalConvertUtil::decimal32FromBID(Decimal32           *decimal,
 {
     BinaryIntegralDecimalImpUtil::StorageType32 bid;
 
-    memcpy(&bid, buffer, sizeof(bid));
+    bsl::memcpy(&bid, buffer, sizeof(bid));
 
     *decimal = Decimal32(DecimalImpUtil::convertFromBID(bid));
 }
@@ -1350,7 +1354,7 @@ DecimalConvertUtil::decimal64FromBID(Decimal64           *decimal,
 {
     BinaryIntegralDecimalImpUtil::StorageType64 bid;
 
-    memcpy(&bid, buffer, sizeof(bid));
+    bsl::memcpy(&bid, buffer, sizeof(bid));
 
     *decimal = Decimal64(DecimalImpUtil::convertFromBID(bid));
 }
@@ -1362,7 +1366,7 @@ DecimalConvertUtil::decimal128FromBID(Decimal128          *decimal,
 {
     BinaryIntegralDecimalImpUtil::StorageType128 bid;
 
-    memcpy(&bid, buffer, sizeof(bid));
+    bsl::memcpy(&bid, buffer, sizeof(bid));
 
     *decimal = Decimal128(DecimalImpUtil::convertFromBID(bid));
 }
