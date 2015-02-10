@@ -4,9 +4,9 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-namespace BloombergLP {
+#include <bslscm_patchversion.h> // BSLSCM_PATCHVERSION_PATCH
 
-#define BSL_VERSION_PATCH 0
+namespace BloombergLP {
 
 #define STRINGIFY2(a) #a
 #define STRINGIFY(a) STRINGIFY2(a)
