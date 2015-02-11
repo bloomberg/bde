@@ -185,7 +185,9 @@ struct S2 { char d_buff[8]; int d_int; S2(); private: S2(const S2&); };
 struct S3 { S1 d_s1; double d_double; short d_short; };
 struct S4 { short d_shorts[5]; char d_c;  S4(int); private: S4(const S4&); };
 #if (defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)  \
-                                      || defined(BSLS_PLATFORM_OS_CYGWIN)) \
+                                     || defined(BSLS_PLATFORM_OS_CYGWIN)  \
+                                     || defined(BSLS_PLATFORM_OS_SOLARIS) \
+    ) \
  && defined(BSLS_PLATFORM_CPU_X86)
 struct S5 { long long d_longLong __attribute__((__aligned__(8))); };
 #endif
@@ -356,7 +358,9 @@ int main(int argc, char *argv[])
             S3_ALIGNMENT          = bsls::AlignmentImpCalc<S3>::VALUE,
             S4_ALIGNMENT          = bsls::AlignmentImpCalc<S4>::VALUE,
 #if (defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)  \
-                                      || defined(BSLS_PLATFORM_OS_CYGWIN)) \
+                                     || defined(BSLS_PLATFORM_OS_CYGWIN)  \
+                                     || defined(BSLS_PLATFORM_OS_SOLARIS) \
+    ) \
  && defined(BSLS_PLATFORM_CPU_X86)
             S5_ALIGNMENT          = bsls::AlignmentImpCalc<S5>::VALUE,
 #endif
@@ -388,11 +392,14 @@ int main(int argc, char *argv[])
             int EXP_U1_ALIGNMENT          = 4;
 
 // Specializations for different architectures
-#if (defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)) \
+#if    (defined(BSLS_PLATFORM_OS_LINUX)    \
+     || defined(BSLS_PLATFORM_OS_DARWIN)   \
+     || defined(BSLS_PLATFORM_OS_SOLARIS)  \
+        ) \
  && defined(BSLS_PLATFORM_CPU_X86)
             EXP_INT64_ALIGNMENT           = 4;
             EXP_DOUBLE_ALIGNMENT          = 4;
-#if defined(BSLS_PLATFORM_OS_LINUX)
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_SOLARIS)
             EXP_LONG_DOUBLE_ALIGNMENT     = 4;
 #else
             EXP_LONG_DOUBLE_ALIGNMENT     = 16;

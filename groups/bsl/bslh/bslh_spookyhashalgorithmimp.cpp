@@ -50,11 +50,12 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <string.h> // for 'memcpy' and 'memset'
 
-#if defined(BSLS_PLATFORM_OS_SOLARIS)
-#define ALLOW_UNALIGNED_READS 0
-#else
+#if defined(BSLS_PLATFORM_CPU_X86_64) || defined(BSLS_PLATFORM_CPU_X86)
 #define ALLOW_UNALIGNED_READS 1
+#else
+#define ALLOW_UNALIGNED_READS 0
 #endif
+
 namespace BloombergLP {
 
 namespace bslh {
