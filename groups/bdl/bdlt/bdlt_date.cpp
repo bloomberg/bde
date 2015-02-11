@@ -6,6 +6,7 @@ BSLS_IDENT_RCSID(bdlt_date_cpp,"$Id$ $CSID$")
 
 #include <bslim_printer.h>
 
+#include <bsls_log.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 
@@ -15,7 +16,6 @@ BSLS_IDENT_RCSID(bdlt_date_cpp,"$Id$ $CSID$")
 
 #ifndef BDE_OMIT_TRANSITIONAL
 #include <bdlb_bitutil.h>
-#include <bsls_log.h>
 #endif
 
 namespace BloombergLP {
