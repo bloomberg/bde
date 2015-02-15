@@ -60,8 +60,8 @@
 // triggers in type traits dealing with function references that means we
 // should disable the same set of tests.
 
-#if (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1700)  \
- || (defined(BSLS_PLATFORM_CMP_GNU)  && BSLS_PLATFORM_CMP_VER_MAJOR < 40300) \
+#if (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700)     \
+ || (defined(BSLS_PLATFORM_CMP_GNU)  && BSLS_PLATFORM_CMP_VERSION < 40300)    \
  ||  defined(BSLS_PLATFORM_CMP_SUN)
 #  define BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING
 #endif
@@ -75,14 +75,13 @@
 // XLC                    (CMP_IBM)
 // Sun Studio & Sun gcc   (OS_SOLARIS)
 // clang gcc              (OS_DARWIN)
-// Linux gcc 4.8+         (OS_LINUX, CMP_GNU, CMP_VER_MAJOR >= 40800)
+// Linux gcc 4.8+         (OS_LINUX, CMP_GNU, CMP_VERSION >= 40800)
 
 #if !(defined(BSLS_PLATFORM_CMP_IBM)    ||  \
       defined(BSLS_PLATFORM_OS_SOLARIS) ||  \
       defined(BSLS_PLATFORM_OS_DARWIN)  ||  \
-        (defined(BSLS_PLATFORM_OS_LINUX) && \
-         defined(BSLS_PLATFORM_CMP_GNU)  && \
-         BSLS_PLATFORM_CMP_VER_MAJOR >= 40800))
+      defined(BSLS_PLATFORM_CMP_CLANG)  ||  \
+      (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40800))
 #  define BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
 #endif
 
@@ -2107,7 +2106,7 @@ int TemplateTestFacility::getIdentifier<TestTypes::MostEvilTestType>(
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-#if !defined(BSLS_PLATFORM_CMP_CLANG)
+#ifndef BSLS_PLATFORM_CMP_CLANG
 namespace TestMachinery
 #else
 namespace

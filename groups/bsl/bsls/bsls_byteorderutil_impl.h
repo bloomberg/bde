@@ -153,7 +153,8 @@ struct ByteOrderUtil_Impl<TYPE, 8> {
 #define BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS 1
 #endif
 
-#if  defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40300
+#if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40300)    \
+ || defined(BSLS_PLATFORM_CMP_CLANG)
 
 // ----------------------------------------------------------------------------
 // Advanced GNU
@@ -291,7 +292,7 @@ unsigned long long bsls_byteOrderUtil_Impl_powerpc_swap_p64(
 // ----------------------------------------------------------------------------
 // Sparc
 
-#if defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
 
 #if !defined(BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS) ||     \
     !defined(BDE_BUILD_TARGET_OPT)
@@ -390,7 +391,7 @@ unsigned long long bsls_byteOrderUtil_Impl_powerpc_swap_p64(
 
 #endif  // 64 bit not defined
 
-#else  // BSLS_PLATFORM_CMP_GNU else
+#else  // BSLS_PLATFORM_CMP_GNU || BSLS_PLATFORM_CMP_CLANG else
 
 #if !defined(BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS) ||     \
     !defined(BDE_BUILD_TARGET_OPT)
@@ -416,10 +417,10 @@ unsigned long long bsls_byteOrderUtil_Impl_sparc_CC_swap_p64(
 
 #endif  // !disabled || !opt
 
-#endif  // BSLS_PLATFORM_CMP_GNU else
+#endif  // BSLS_PLATFORM_CMP_GNU || BSLS_PLATFORM_CMP_CLANG else
 
 #elif  (defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64))  \
-    &&  defined(BSLS_PLATFORM_CMP_GNU)
+    && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
 
 #if    !defined(BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS)
 
@@ -491,7 +492,7 @@ unsigned long long bsls_byteOrderUtil_Impl_sparc_CC_swap_p64(
 
 #endif  // 32 & 64 not previously defined
 #endif  // BSLS_PLATFORM_CPU_32_BIT else
-#endif  // BSLS_PLATFORM_CMP_GNU && X86
+#endif  // (BSLS_PLATFORM_CMP_GNU || BSLS_PLATFORM_CMP_CLANG) && X86
 
 #define BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(dstType, x)                    \
     {                                                                         \

@@ -1856,7 +1856,7 @@ int main(int argc, char* argv[])
 
         if (veryVeryVerbose) bsl::cout << "makeDecimal64" << bsl::endl;
 
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR > 40700
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverflow"
 #endif
@@ -1871,7 +1871,7 @@ int main(int argc, char* argv[])
         ASSERT(Util::makeDecimal64(1234567890123456ull, -382-16+1) ==
                BDLDFP_DECIMAL_DD(1.234567890123456e-382));
 
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR > 40700
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic pop
 #endif
 
@@ -1941,7 +1941,7 @@ int main(int argc, char* argv[])
         ASSERT(Util::fabs(BDLDFP_DECIMAL_DF(-1.234567e-94))
                == BDLDFP_DECIMAL_DF(1.234567e-94));
 
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR > 40700
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverflow"
 #endif
@@ -1957,7 +1957,7 @@ int main(int argc, char* argv[])
         ASSERT(Util::fabs(BDLDFP_DECIMAL_DL(-1.234567890123456e-382))
                == BDLDFP_DECIMAL_DL(1.234567890123456e-382));
 
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR > 40700
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic pop
 #endif
 

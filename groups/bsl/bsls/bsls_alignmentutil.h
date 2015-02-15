@@ -244,7 +244,9 @@ struct AlignmentUtil {
 #if ! (defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_OS_LINUX))
         long double  d_longDouble;
 #endif
-#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86)                                            \
+ && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))      \
+ && !defined(BSLS_PLATFORM_OS_SOLARIS)
         AlignmentImp8ByteAlignedType
                      d_8bytesAlignedType;
 #endif

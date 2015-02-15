@@ -539,6 +539,9 @@ int main(int argc, char *argv[])
         #if defined(BSLS_PLATFORM_CMP_BLP)
             MACRO_TESTGT(BSLS_PLATFORM_CMP_BLP, 0);
         #endif
+        #if defined(BSLS_PLATFORM_CMP_CLANG)
+            MACRO_TESTGT(BSLS_PLATFORM_CMP_CLANG, 0);
+        #endif
         #if defined(BSLS_PLATFORM_CMP_GNU)
             MACRO_TESTGT(BSLS_PLATFORM_CMP_GNU, 0);
         #endif

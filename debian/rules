@@ -25,8 +25,11 @@ WAF=$(BDE_OSS_TOOLS_LIBEXEC)/waf
 
 GROUPS_RSSUITE:=bsl
 GROUPS_STATIC_ONLY:=bdl
+THIRD_PARTY:=inteldfp decnumber
 
 GROUPS_STATIC:=$(GROUPS_RSSUITE) $(GROUPS_STATIC_ONLY)
+LIBS_STATIC:=$(GROUPS_STATIC) $(THIRD_PARTY)
+
 GROUPS_DYNAMIC:=$(GROUPS_RSSUITE)
 GROUPS:=$(GROUPS_RSSUITE) $(GROUPS_STATIC_ONLY)
 
@@ -87,9 +90,9 @@ define flavor-template-static-32
 
 .PHONY: $(1)-build-static-32
 $(1)-build-static-32: etc/default.opts
-ifneq ($(GROUPS_STATIC),)
+ifneq ($(LIBS_STATIC),)
 	eval `PATH=$(PATH) HOME=/ BDE_ROOT=. $(BDE_SETWAFENV) -t $(1) --force_uplid $(UPLID)`;	\
-	PATH=$(PATH) HOME=/ PREFIX=$(DISTRIBUTION_REFROOT)/$(PREFIX) BDE_ROOT=. PC_EXTRA_INCLUDE_DIRS=$(DISTRIBUTION_REFROOT)/$(PREFIX)/include/stlport $(WAF) configure build --lib-suffix .$(1) --install-flat-include --target $(call join-with,$(comma),$(GROUPS_STATIC))
+	PATH=$(PATH) HOME=/ PREFIX=$(DISTRIBUTION_REFROOT)/$(PREFIX) BDE_ROOT=. PC_EXTRA_INCLUDE_DIRS=$(DISTRIBUTION_REFROOT)/$(PREFIX)/include/stlport $(WAF) configure build --lib-suffix .$(1) --install-flat-include --target $(call join-with,$(comma),$(LIBS_STATIC))
 endif
 
 endef
@@ -99,13 +102,12 @@ define flavor-template-static-64
 
 .PHONY: $(1)-build-static-64
 $(1)-build-static-64: etc/default.opts
-ifneq ($(GROUPS_STATIC),)
+ifneq ($(LIBS_STATIC),)
 	eval `PATH=$(PATH) HOME=/ BDE_ROOT=. $(BDE_SETWAFENV) -t $(1) --force_uplid $(UPLID)`;	\
-	PATH=$(PATH) HOME=/ PREFIX=$(DISTRIBUTION_REFROOT)/$(PREFIX) BDE_ROOT=. PC_EXTRA_INCLUDE_DIRS=$(DISTRIBUTION_REFROOT)/$(PREFIX)/include/stlport $(WAF) configure build --lib-suffix .$(1) --install-flat-include --install-lib-dir lib64 --target $(call join-with,$(comma),$(GROUPS_STATIC))
+	PATH=$(PATH) HOME=/ PREFIX=$(DISTRIBUTION_REFROOT)/$(PREFIX) BDE_ROOT=. PC_EXTRA_INCLUDE_DIRS=$(DISTRIBUTION_REFROOT)/$(PREFIX)/include/stlport $(WAF) configure build --lib-suffix .$(1) --install-flat-include --install-lib-dir lib64 --target $(call join-with,$(comma),$(LIBS_STATIC))
 endif
 
 endef
-
 
 $(foreach flavor,$(DYNAMIC_FLAVOR_32bit),$(eval $(call flavor-template-dynamic-32,$(flavor))))
 $(foreach flavor,$(DYNAMIC_FLAVOR_64bit),$(eval $(call flavor-template-dynamic-64,$(flavor))))
@@ -148,6 +150,9 @@ GROUP_$(1)_INSTALL_HEADERS:=$$(foreach package,$$(GROUP_$(1)_INSTALL_PACKAGES),$
 endef
 
 $(foreach group,$(GROUPS),$(eval $(call GROUP_template,$(group))))
+
+GROUP_inteldfp_INSTALL_HEADERS:=$(shell find third-party/inteldfp/LIBRARY/src/ -name '*.h')
+GROUP_decnumber_INSTALL_HEADERS:=$(shell find third-party/decnumber/ -name '*.h')
 
 # This was taken from $cstools/build/build_prebuild. Comment in there was:
 ## the non-conformant bde and bsl directories are not deployed
@@ -202,9 +207,40 @@ lib$(1)-dev-binary: lib$(1)-dev
 
 endef
 
-$(foreach group,$(GROUPS_STATIC),$(eval $(call group-dev-template,$(group))))
+define third-party-dev-template
 
-libs-dev: $(foreach group,$(GROUPS_STATIC), lib$(group)-dev-binary)
+lib$(1)-dev: $(foreach flavor,$(STATIC_FLAVORS_32bit),$(flavor)-build-static-32) $(foreach flavor,$(STATIC_FLAVORS_64bit),$(flavor)-build-static-64)
+	mkdir -p debian/lib$(1)-dev/$(PREFIX)/lib debian/lib$(1)-dev/$(PREFIX)/lib64
+	mkdir -p debian/lib$(1)-dev/$(PREFIX)/lib/pkgconfig debian/lib$(1)-dev/$(PREFIX)/lib64/pkgconfig
+	mkdir -p debian/lib$(1)-dev/DEBIAN
+ifneq ($(STATIC_FLAVORS),)
+	$(foreach flavor,$(STATIC_FLAVORS_32bit),cp $(uplid)-$(flavor)/third-party/$(1)/lib$(1).$(flavor).a debian/lib$(1)-dev/$(PREFIX)/lib/
+	)
+	$(foreach flavor,$(STATIC_FLAVORS_32bit),cp $(uplid)-$(flavor)/third-party/$(1)/$(1).$(flavor).pc debian/lib$(1)-dev/$(PREFIX)/lib/pkgconfig/
+	)
+	$(foreach flavor,$(STATIC_FLAVORS_64bit),cp $(uplid)-$(flavor)/third-party/$(1)/lib$(1).$(flavor).a debian/lib$(1)-dev/$(PREFIX)/lib64/
+	)
+	$(foreach flavor,$(STATIC_FLAVORS_64bit),cp $(uplid)-$(flavor)/third-party/$(1)/$(1).$(flavor).pc debian/lib$(1)-dev/$(PREFIX)/lib64/pkgconfig/
+	)
+	ln -sf lib$(1).$(DEFAULT_STATIC_FLAVOR_32bit).a debian/lib$(1)-dev/$(PREFIX)/lib/lib$(1).a
+	ln -sf lib$(1).$(DEFAULT_STATIC_FLAVOR_64bit).a debian/lib$(1)-dev/$(PREFIX)/lib64/lib$(1).a
+	ln -sf $(1).$(DEFAULT_STATIC_FLAVOR_32bit).pc debian/lib$(1)-dev/$(PREFIX)/lib/pkgconfig/$(1).pc
+	ln -sf $(1).$(DEFAULT_STATIC_FLAVOR_64bit).pc debian/lib$(1)-dev/$(PREFIX)/lib64/pkgconfig/$(1).pc
+	mkdir -p debian/lib$(1)-dev/$(PREFIX)/include
+	cp $$(GROUP_$(1)_INSTALL_HEADERS) debian/lib$(1)-dev/$(PREFIX)/include/
+endif
+
+lib$(1)-dev-binary: lib$(1)-dev
+	dpkg-gencontrol -plib$(1)-dev -V"shlib:RSSUITE=$(RSSUITE)" \
+	     -Pdebian/lib$(1)-dev
+	dpkg-deb -b debian/lib$(1)-dev ../
+
+endef
+
+$(foreach group,$(GROUPS_STATIC),$(eval $(call group-dev-template,$(group))))
+$(foreach group,$(THIRD_PARTY),$(eval $(call third-party-dev-template,$(group))))
+
+libs-dev: $(foreach group,$(LIBS_STATIC), lib$(group)-dev-binary)
 
 # ============================================================================
 # bde meta target

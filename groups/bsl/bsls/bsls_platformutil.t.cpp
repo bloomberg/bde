@@ -123,7 +123,8 @@ void printBits(bsls::PlatformUtil::Uint64 value)
 
 #undef INT64_FMT_STR
 
-#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86)                                            \
+ && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
 // On Linux x86, no natural type is aligned on a 64-bit boundary, but we need
 // such a type to implement low-level constructs (e.g 64-bit atomic types).
 
@@ -683,7 +684,8 @@ if (verbose)
         struct DoubleAlign      { char c; double d_double;          };
         struct LongDoubleAlign  { char c; long double d_longDouble; };
         struct VoidPtrAlign     { char c; void  *d_voidPtr;         };
-#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86)                                            \
+ && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
         struct Test8bytesAlign  { char c; Test8BytesAlignedType
                                                d_8BytesAlignedType; };
 #endif
@@ -700,7 +702,8 @@ if (verbose)
                 | (offsetof(DoubleAlign, d_double)         - 1)
                 | (offsetof(LongDoubleAlign, d_longDouble) - 1)
                 | (offsetof(VoidPtrAlign, d_voidPtr)       - 1)
-#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86)                                            \
+ && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
                 | (offsetof(Test8bytesAlign,
                             d_8BytesAlignedType)           - 1)
 #endif

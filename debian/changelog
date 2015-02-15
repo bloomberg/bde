@@ -1,3 +1,358 @@
+bsl-internal (2.23.0.0) unstable; urgency=low
+
+  * d8df3fc [APPROVAL] OSS pending/master/add-missing-header-decimalconvertutil-drqs-61853981 to master
+  * f8eee0d [APPROVAL] pending/master/add-missing-header-decimalconvertutil-drqs-61853981 to master
+  * 1b18981 [APPROVAL] OSS pending/master/remove-bdl-inteldfp-drqs-53510269 to master
+  * 7666654 [APPROVAL] pending/master/remove-bdl-inteldfp-drqs-53510269 to master
+  * 61b5a2d [APPROVAL] OSS bslscm_versionpatch to master
+  * 29d7605 [APPROVAL] bslscm_versionpatch to master
+  * c455b92 Fix bdlscm_versiontag.t.cpp
+  * 381e0ff Add bslscm_patchversion
+  * ed2f972 [APPROVAL] OSS master to master
+  * a9b8904 set patch version to 0
+  * b749640 [APPROVAL] OSS master to master
+  * 9038914 Update bsl version from 2.2 -> 2.23
+  * ad73b10 [APPROVAL] OSS pending/master/add-bdlma-localsequentialallocator-drqs60395113 to master
+  * 787a203 [APPROVAL] pending/master/add-bdlma-localsequentialallocator-drqs60395113 to master
+  * 4f2d035 [APPROVAL] INTERNAL pending/master/change_prt_and_clear_methods_in_ManagedPrt_to_get_and_reset_to_be_more_consistent_with_std-drqs-57020570 to master
+  * 4d44e20 [APPROVAL] INTERNAL pending/master/bdlt_date-adjust-proleptic-logging-drqs-61871651 to master
+  * 5169220 [APPROVAL] pending/master/bdlt_date-adjust-proleptic-logging-drqs-61871651 to master
+  * 6f66fc2 [APPROVAL] OSS make-bdl-version-dependent-on-bsl to master
+  * e3d27f6 [APPROVAL] make-bdl-version-dependent-on-bsl to master
+  * 804a7a8 Update bdlscm_versiontag to make it use bsl's version number
+  * e137794 [APPROVAL] OSS pending/master/re-add-BID_THREAD-flag to master
+  * 55bd332 [APPROVAL] pending/master/re-add-BID_THREAD-flag to master
+  * c7224d2 [APPROVAL] OSS pending/master/fix-third-party-install-drqs-53510269 to master
+  * c5f5d6d [APPROVAL] pending/master/fix-third-party-install-drqs-53510269 to master
+  * cd0af1d [APPROVAL] INTERNAL pending/master/safer-SAFE_drqs-57689838 to master
+  * 9b25343 [APPROVAL] pending/master/safer-SAFE_drqs-57689838 to master
+  * 3ee853c [APPROVAL] pending/master/dpkg-support-support-drqs-53510269 to master
+  * 2086436 [APPROVAL] OSS pending/master/third-party-support-drqs-53510269 to master
+  * 68bd935 [APPROVAL] pending/master/third-party-support-drqs-53510269 to master
+  * d71cb0a [APPROVAL] INTERNAL pending/master/osx-clang-fix-drqs-61789785 to master
+  * 4cb91f9 [APPROVAL] pending/master/osx-clang-fix-drqs-61789785 to master
+  * 2cca0b2 [APPROVAL] pending/master/BSLS_PLATFORM_CMP_CLANG to master
+  * 850be03 [APPROVAL] OSS issue-169-BSLS_PLATFORM_CMP_CLANG-drqs-61789785 to master
+  * 2d60737 [APPROVAL] issue-169-BSLS_PLATFORM_CMP_CLANG-drqs-61789785 to master
+  * 2044a99 [APPROVAL] OSS pending/master/hash-pair-drqs-58482323 to master
+  * afa98b3 [APPROVAL] pending/master/hash-pair-drqs-58482323 to master
+  * 622a340 [APPROVAL] INTERNAL pending/master/fix_pointer_warnings_in_vector_tests_drqs57594095 to master
+  * 5447bb3 [APPROVAL] pending/master/fix_pointer_warnings_in_vector_tests_drqs57594095 to master
+  * 713b04e [APPROVAL] OSS pending/master/bsls_platform-doc-drqs54261204 to master
+  * 3e35a32 [APPROVAL] pending/master/bsls_platform-doc-drqs54261204 to master
+  * 496eca1 [APPROVAL] OSS pending/master/reference-wrapper-preview-drqs-59866539 to master
+  * 77a00cb [APPROVAL] pending/master/reference-wrapper-preview-drqs-59866539 to master
+  * 077cb69 [APPROVAL] update-windows-options-for-bdlt to master
+  * bb30ae8 [APPROVAL] OSS fix-timeinterval-pragmas-drqs-61775067 to master
+  * 7205200 [APPROVAL] fix-timeinterval-pragmas-drqs-61775067 to master
+  * 91b7fa4 [APPROVAL] INTERNAL pending/master/bslx-drqs-51152497 to master
+  * 3813b40 [APPROVAL] pending/master/bslx-drqs-51152497 to master
+  * 5584ba6 [APPROVAL] INTERNAL pending/master/remove-gcc-4.8.1-warnings to master
+  * 9ea63f4 [APPROVAL] pending/master/remove-gcc-4.8.1-warnings to master
+  * 060bb76 [APPROVAL] OSS review/fix-zero-gt-INDEX-comment-drqs-53024045 to master
+  * 0d1ca10 [APPROVAL] review/fix-zero-gt-INDEX-comment-drqs-53024045 to master
+  * da28020 [APPROVAL] INTERNAL pending/master/missing_mnemonics-drqs-46107404 to master
+  * 421fd3f [APPROVAL] pending/master/missing_mnemonics-drqs-46107404 to master
+  * 028d386 [APPROVAL] pending/master/deprecate_bslfwd_components-drqs-42333075 to master
+  * 90e4d3c [APPROVAL] OSS pending/master/bslalg_typepair-fix-component-doc-drqs-45781012 to master
+  * bde89d3 [APPROVAL] pending/master/bslalg_typepair-fix-component-doc-drqs-45781012 to master
+  * b476bc1 [APPROVAL] INTERNAL pending/master/bslstl_stringref_contract_broken-drqs-52353577 to master
+  * 29e6600 [APPROVAL] pending/master/bslstl_stringref_contract_broken-drqs-52353577 to master
+  * be82d24 [APPROVAL] INTERNAL pending/master/change_prt_and_clear_methods_in_ManagedPrt_to_get_and_reset_to_be_more_consistent_with_std-drqs-57020570 to master
+  * 9b75a99 [APPROVAL] pending/master/change_prt_and_clear_methods_in_ManagedPrt_to_get_and_reset_to_be_more_consistent_with_std-drqs-57020570 to master
+  * ce80fa2 [APPROVAL] OSS pending/master/bslscm_versiontag-MACROS-typo-drqs-57458684 to master
+  * 420af99 [APPROVAL] pending/master/bslscm_versiontag-MACROS-typo-drqs-57458684 to master
+  * 9687527 [APPROVAL] OSS pending/master/drqs-57901086-bslstl_sharedptr-deprecated-doc to master
+  * d111821 [APPROVAL] pending/master/drqs-57901086-bslstl_sharedptr-deprecated-doc to master
+  * 4c4e7ca [APPROVAL] INTERNAL bdlb_guid-OSX-fix to master
+  * 2d8bdc5 [APPROVAL] bdlb_guid-OSX-fix to master
+  * 45c7a30 [APPROVAL] OSS pending/master/bdldfp_decimal-banner-comment-drqs-58817582 to master
+  * 69b5040 [APPROVAL] pending/master/bdldfp_decimal-banner-comment-drqs-58817582 to master
+  * fbcdd43 [APPROVAL] pending/master/enable_hash_const_char_star_drqs59061791 to master
+  * af208d9 [APPROVAL] OSS pending/master/remove-gyp-remnants-drqs-59265638 to master
+  * 81767c7 [APPROVAL] pending/master/remove-gyp-remnants-drqs-59265638 to master
+  * ba9ac03 [APPROVAL] OSS bsls_log-typos-drqs-60947360 to master
+  * 26ea036 [APPROVAL] bsls_log-typos-drqs-60947360 to master
+  * 41f6a34 [APPROVAL] INTERNAL pending/master/bdlt_date-proleptic-instrumentation-drqs-59817558 to master
+  * ca55772 [APPROVAL] pending/master/bdlt_date-proleptic-instrumentation-drqs-59817558 to master
+  * c5d468a [APPROVAL] INTERNAL pending/master/bdlt_datetime-prepare-for-Robo-drqs-61264543 to master
+  * 60d821b [APPROVAL] pending/master/bdlt_datetime-prepare-for-Robo-drqs-61264543 to master
+  * 78e6157 [APPROVAL] INTERNAL pending/master/add_missing_inline_for_string_drqs57574865 to master
+  * af69621 [APPROVAL] pending/master/add_missing_inline_for_string_drqs57574865 to master
+  * 69c9b0f [APPROVAL] OSS pending/master/bslma_sharedptrrep_warning_on_dtor_drqs55575225 to master
+  * 6261561 [APPROVAL] pending/master/bslma_sharedptrrep_warning_on_dtor_drqs55575225 to master
+  * a4d515b [APPROVAL] OSS fix-stringbuf-str-assignment-drqs-60134509 to master
+  * 813375f [APPROVAL] fix-stringbuf-str-assignment-drqs-60134509 to master
+  * c001f25 [APPROVAL] OSS pending/master/linux-on-power-drqs-47141664 to master
+  * 2e9a9d7 [APPROVAL] pending/master/linux-on-power-drqs-47141664 to master
+  * 9d54feb [APPROVAL] INTERNAL pending/master/missing_headers_from_recursive_epilog_drqs59410829 to master
+  * 2972397 [APPROVAL] pending/master/missing_headers_from_recursive_epilog_drqs59410829 to master
+  * 203ec38 [APPROVAL] INTERNAL pending/master/bdlt-dateimputil-toggle-drqs-59151205 to master
+  * f371aed [APPROVAL] pending/master/bdlt-dateimputil-toggle-drqs-59151205 to master
+  * c2ee889 [APPROVAL] INTERNAL pending/master/remove-setw-bslim_printer-drqs-60396589 to master
+  * 604d930 [APPROVAL] pending/master/remove-setw-bslim_printer-drqs-60396589 to master
+  * 932d593 [APPROVAL] INTERNAL pending/master/bdlb_guid to master
+  * 219f46f [APPROVAL] pending/master/bdlb_guid to master
+  * 57233b1 [APPROVAL] INTERNAL pending/master/bdlb_guid to master
+  * c1b0dcc [APPROVAL] pending/master/bdlb_guid to master
+  * dbf5e43 Avoid integer conversion warnings.
+  * 9e9566d [APPROVAL] OSS review/github-issue-43-remove-bad-tests-drqs-60718872 to master
+  * 3676477 [APPROVAL] review/github-issue-43-remove-bad-tests-drqs-60718872 to master
+  * fb99fd5 [APPROVAL] OSS dev/cwilson9/bslstl_string-test-driver-warnings-drqs-43238040 to master
+  * d2771c6 [APPROVAL] dev/cwilson9/bslstl_string-test-driver-warnings-drqs-43238040 to master
+  * d5eced1 [APPROVAL] OSS bsls-performancehint-unlikely-hint-github-162-drqs-60427214 to master
+  * 4b5b9b3 [APPROVAL] bsls-performancehint-unlikely-hint-github-162-drqs-60427214 to master
+  * 4f18537 [APPROVAL] OSS non-ascii-bslim-char-fix-drqs-57352206 to master
+  * 0cce8a3 [APPROVAL] non-ascii-bslim-char-fix-drqs-57352206 to master
+  * 72addaa address latest review feedback from Mike V BDEX streaming version 1 is now identical between oss and internal
+  * e02775d [APPROVAL] OSS fix-bsls_timeinterval-bigendian-testdriver to master
+  * 2a99345 [APPROVAL] fix-bsls_timeinterval-bigendian-testdriver to master
+  * 1ce9b5c [APPROVAL] OSS pullrequest-165-monthofyear-accessor-drqs-60493524 to master
+  * 3e31b81 [APPROVAL] pullrequest-165-monthofyear-accessor-drqs-60493524 to master
+  * 0f91124 [APPROVAL] INTERNAL pending/master/stdint-include-on-vs2008-drqs-60431942 to master
+  * c740c52 [APPROVAL] pending/master/stdint-include-on-vs2008-drqs-60431942 to master
+  * cd355f6 [APPROVAL] OSS pending/master/correct-bsls_bslonce-licenses-drqs-60433838 to master
+  * 4de5071 [APPROVAL] pending/master/correct-bsls_bslonce-licenses-drqs-60433838 to master
+  * 0d5e6c7 [APPROVAL] OSS pending/master/bsls_byteorderutil-less-shallow-template-drqs-55901965 to master
+  * c647bfc [APPROVAL] pending/master/bsls_byteorderutil-less-shallow-template-drqs-55901965 to master
+  * d879b6a [APPROVAL] INTERNAL pending/master/bsls_timeinterval-drqs-59107238 to master
+  * 37c8b62 [APPROVAL] OSS pending/master/add-setIntervalRaw-to-TimeInterval-drqs59091164 to master
+  * 7ed4a55 [APPROVAL] pending/master/add-setIntervalRaw-to-TimeInterval-drqs59091164 to master
+  * 9c1f165 [APPROVAL] INTERNAL pending/master/add_hashAppend_for_shared_ptr_drqs59275550 to master
+  * 589ea74 [APPROVAL] pending/master/add_hashAppend_for_shared_ptr_drqs59275550 to master
+  * ee6f6bb [APPROVAL] OSS pending/master/issue-155-bslstl_sharedptr-docs-wrong-drqs-59827278 to master
+  * 7695c26 [APPROVAL] pending/master/issue-155-bslstl_sharedptr-docs-wrong-drqs-59827278 to master
+  * 97a2699 [APPROVAL] OSS pending/master/bslmf-nested-trait-doc-drqs-43473682 to master
+  * cfe9326 [APPROVAL] pending/master/bslmf-nested-trait-doc-drqs-43473682 to master
+  * 1818502 [APPROVAL] OSS pending/master/fix-deprecation-message-github-159-drqs-60427310 to master
+  * 4f6a776 [APPROVAL] pending/master/fix-deprecation-message-github-159-drqs-60427310 to master
+  * 2766c07 [APPROVAL] OSS pending/master/bdlb_randomdevice-license to master
+  * e79b6ff [APPROVAL] pending/master/bdlb_randomdevice-license to master
+  * 8b34315 [APPROVAL] OSS pending/master/reference-wrapper-preview-drqs-59866539 to master
+  * 5cc0d3b [APPROVAL] pending/master/reference-wrapper-preview-drqs-59866539 to master
+  * b1eeed7 check test apparatus, check improper conversions not provided
+  * b698ef8 [APPROVAL] OSS ssysrandom_to_randomdevice-drqs-50471211 to master
+  * c40a730 [APPROVAL] ssysrandom_to_randomdevice-drqs-50471211 to master
+  * 4473dd3 [APPROVAL] INTERNAL rebased-drqs-59774381-bslma_managedptr-release to master
+  * ac400c9 [APPROVAL] rebased-drqs-59774381-bslma_managedptr-release to master
+  * 7fc76ce Return initialized result from release.
+  * dddcdb5 [APPROVAL] OSS pr-156-fix-gcc-on-windwos-drqs-59840853 to master
+  * 0d959a1 [APPROVAL] pr-156-fix-gcc-on-windwos-drqs-59840853 to master
+  * b56225c [APPROVAL] OSS pending/master/mach-monotonic-clock-drqs-47763030-rebase to master
+  * 5cf9394 [APPROVAL] pending/master/mach-monotonic-clock-drqs-47763030-rebase to master
+  * a01d4f6 [APPROVAL] OSS pending/master/fix-decimalfromnetwork-drqs-59157247 to master
+  * c711210 [APPROVAL] pending/master/fix-decimalfromnetwork-drqs-59157247 to master
+  * 27c1390 [APPROVAL] OSS pending/master/bslim-printer-stringref-drqs-58996420 to master
+  * 6ce2f78 [APPROVAL] pending/master/bslim-printer-stringref-drqs-58996420 to master
+  * cebfb3f [APPROVAL] OSS pending/master/decimal-errata-fixes to master
+  * 03577e9 [APPROVAL] pending/master/decimal-errata-fixes to master
+  * b912f93 Add tests to ImpUtil for BinaryIntegral conversion
+  * bcc49f8 [APPROVAL] OSS review/add-MSVC-to-BSLS_IDENT_PRAGMA_ONCE-drqs-59136351 to master
+  * a67bd67 [APPROVAL] review/add-MSVC-to-BSLS_IDENT_PRAGMA_ONCE-drqs-59136351 to master
+  * c586329 [APPROVAL] INTERNAL review/bslh_hash_osx_failure-merge-base-drqs-58605182 to master
+  * 3995e35 [APPROVAL] review/bslh_hash_osx_failure-merge-base-drqs-58605182 to master
+  * 37abb39 [APPROVAL] OSS review/remove-bsl-overrides-std-from-oss-drqs-56739751 to master
+  * 067e064 [APPROVAL] review/remove-bsl-overrides-std-from-oss-drqs-56739751 to master
+  * f5e0ea4 [APPROVAL] OSS bslstl-sharedptr-cpp11-fix-REBASED-drqs-58999996 to master
+  * 5eac936 [APPROVAL] bslstl-sharedptr-cpp11-fix-REBASED-drqs-58999996 to master
+  * 93f5c48 [APPROVAL] symlink-default-pc-dpkg-REBASED-drqs-57062208 to master
+  * 086ab42 [APPROVAL] OSS review/missing_headers_in_bsl_memory_drqs59127285 to master
+  * 3a8fa1d [APPROVAL] review/missing_headers_in_bsl_memory_drqs59127285 to master
+  * 3a12d43 [APPROVAL] OSS fix-aix-build-drqs59066645 to master
+  * c03532a [APPROVAL] fix-aix-build-drqs59066645 to master
+  * d5aacd7 [APPROVAL] OSS review/bdlt-datetime-trailing-comma-drqs-59008288 to master
+  * 562bf35 [APPROVAL] review/bdlt-datetime-trailing-comma-drqs-59008288 to master
+  * 2147d29 [APPROVAL] OSS sunos-cxx-rt-fixes-drqs-59054153 to master
+  * 73680df [APPROVAL] sunos-cxx-rt-fixes-drqs-59054153 to master
+  * 0b83d49 [APPROVAL] OSS pending/master/bsls_bslonce-drqs-57443582 to master
+  * 90b4d8f [APPROVAL] pending/master/bsls_bslonce-drqs-57443582 to master
+  * 66a120d [APPROVAL] OSS fix-wstring-docs-drqs-59008588 to master
+  * c1553f5 [APPROVAL] fix-wstring-docs-drqs-59008588 to master
+  * 52ae06c [APPROVAL] OSS fix-bslh-typos-drqs-58725135 to master
+  * 1a4bf9e [APPROVAL] fix-bslh-typos-drqs-58725135 to master
+  * 7a10226 [APPROVAL] INTERNAL review/fix-bsls_log-license-text-drqs-11454401 to master
+  * 3f43d70 [APPROVAL] review/fix-bsls_log-license-text-drqs-11454401 to master
+  * 6d0fc31 [APPROVAL] OSS bslh-and-bdlt-doc-fixes-drqs-58683714 to master
+  * c5d5739 [APPROVAL] bslh-and-bdlt-doc-fixes-drqs-58683714 to master
+  * dc555f9 [APPROVAL] OSS review/decimal-encode-drqs-42817882 to master
+  * 9cebc35 [APPROVAL] review/decimal-encode-drqs-42817882 to master
+  * 9c3d502 [APPROVAL] review/decimal-encode-drqs-42817882 to releases/2.22.x
+  * 55e4da3 [APPROVAL] update-LICENSE-with-Apache-2.0-text-drqs-54684594 to releases/2.22.x
+  * 30ebda4 [APPROVAL] OSS update-LICENSE-with-Apache-2.0-text-drqs-54684594 to master
+  * 20d45cc [APPROVAL] update-LICENSE-with-Apache-2.0-text-drqs-54684594 to master
+  * a74694b [APPROVAL] INTERNAL bump-version-patch-to-2.22.1 to releases/2.22.x
+  * 832000f [APPROVAL] fix-windows-build-2.22 to releases/2.22.x
+  * b80e7fd [APPROVAL] OSS pending/master/fix-windows-build-failures to master
+  * 9cd5d34 [APPROVAL] pending/master/fix-windows-build-failures to master
+  * 493f1d1 [APPROVAL] OSS bdlt-landing to master
+  * ba18103 [APPROVAL] bdlt-landing to master
+  * 812b7c2 [APPROVAL] OSS bdlt-landing to master
+  * f56b5c3 [APPROVAL] bdlt-landing to master
+  * d141b2a [APPROVAL] OSS bdlt-landing to master
+  * 3456ebe [APPROVAL] bdlt-landing to master
+  * 829147a [APPROVAL] INTERNAL bdlt-landing to master
+  * d793b43 [APPROVAL] bdlt-landing to master
+  * d3465fe [APPROVAL] review/fix-inteldfp-qnx-define-drqs-58577854 to releases/2.22.x
+  * d86076e [APPROVAL] OSS review/fix-inteldfp-qnx-define-drqs-58577854 to master
+  * 984b9bb [APPROVAL] review/fix-inteldfp-qnx-define-drqs-58577854 to master
+  * 6afa061 [APPROVAL] OSS review/improve-bsls-levilization-drqs57356904 to master
+  * 1288c84 [APPROVAL] review/improve-bsls-levilization-drqs57356904 to master
+  * 6c17a97 [APPROVAL] INTERNAL review/merge-base-rebase-bdldfp-missing-include-drqs57022994 to releases/2.22.x
+  * b176909 [APPROVAL] INTERNAL review/bdldfp-missing-include-drqs57022994 to master
+  * aa59f50 [APPROVAL] review/bdldfp-missing-include-drqs57022994 to master
+  * 4dcb9fa [APPROVAL] INTERNAL review/make_shared_should_not_default_construct_drqs58210637 to releases/2.22.x
+  * 4e4e393 [APPROVAL] INTERNAL review/make_shared_should_not_default_construct_drqs58210637 to master
+  * ca5f610 [APPROVAL] review/make_shared_should_not_default_construct_drqs58210637 to master
+  * a2c4be4 [APPROVAL] INTERNAL review/synopses-and-doxygen-2.22-drqs-57987951 to releases/2.22.x
+  * 1cb6d59 [APPROVAL] INTERNAL master-synopses-and-doxygen-2.22-drqs-57987951 to master
+  * 1def020 [APPROVAL] master-synopses-and-doxygen-2.22-drqs-57987951 to master
+  * f05cdf7 Merge branch 'decimal-conversion-work' into decimal-omnibus-merge
+  * 690ada5 Added BID conversion functions to ConvertUtil.
+  * 275a667 [APPROVAL] INTERNAL review/doc_bug_in_managed_ptr_drqs55675623 to releases/2.22.x
+  * 3e3ce87 [APPROVAL] INTERNAL review/doc_bug_in_managed_ptr_drqs55675623 to master
+  * f0e62b5 [APPROVAL] review/doc_bug_in_managed_ptr_drqs55675623 to master
+  * e589186 Add BID conversion functions to DecimalImplUtil.
+  * 4f75c60 [APPROVAL] rebased-hashtable_find-drqs-58301418 to master
+  * 911a68f [APPROVAL] INTERNAL rebased-string_patches_for_windows_2_22_kit_drqs58247801 to releases/2.22.x
+  * d8a5b75 [APPROVAL] INTERNAL rebased-string_patches_for_windows_2_22_kit_drqs58247801 to master
+  * 4f16c47 [APPROVAL] rebased-string_patches_for_windows_2_22_kit_drqs58247801 to master
+  * 6b4db4b [APPROVAL] OSS bsls_log-primary-drqs-11454401 to master
+  * 280d4a2 [APPROVAL] bsls_log-primary-drqs-11454401 to master
+  * ba1f376 [APPROVAL] missing-bdl-include-drqs58266540 to releases/2.22.x
+  * b31ccc0 [APPROVAL] OSS missing-bdl-include-drqs58266540 to master
+  * ed77f5e [APPROVAL] missing-bdl-include-drqs58266540 to master
+  * adad8c2 [APPROVAL] pending/master/decimal-omnibus-merge to releases/2.22.x
+  * 0aa409d [APPROVAL] OSS pending/master/decimal-omnibus-merge to master
+  * 562a992 [APPROVAL] pending/master/decimal-omnibus-merge to master
+  * 8b5de1a [APPROVAL] pending/master/fix-osx-build-bdeut_stringref-drqs58086499 to releases/2.22.x
+  * be4e309 [APPROVAL] OSS pending/master/fix-osx-build-bdeut_stringref-drqs58086499 to master
+  * 9e7c1e4 [APPROVAL] pending/master/fix-osx-build-bdeut_stringref-drqs58086499 to master
+  * df8e4a5 [APPROVAL] OSS remove-want-decfp-drqs-55534214 to master
+  * a679e1f [APPROVAL] remove-want-decfp-drqs-55534214 to master
+  * c5a2a85 [APPROVAL] remove-want-decfp-drqs-55534214 to releases/2.22.x
+  * 796e15b [APPROVAL] review/decimal-omnibus-merge to releases/2.22.x
+  * c24ccbf [APPROVAL] OSS review/decimal-omnibus-merge to master
+  * 2ee5ac8 [APPROVAL] review/decimal-omnibus-merge to master
+  * 75a3188 [APPROVAL] INTERNAL add-inline-to-assign-stringref-drqs-57553745 to releases/2.22.x
+  * 2409beb [APPROVAL] INTERNAL remove-binary-status-flag-drqs-57413426 to releases/2.22.x
+  * 67fb736 [APPROVAL] INTERNAL remove-binary-status-flag-drqs-57413426 to master
+  * aa8a8d0 [APPROVAL] remove-binary-status-flag-drqs-57413426 to master
+  * ab111b5 [APPROVAL] INTERNAL pending/master/resolve_ambiguous_assign_drqs57251422 to master
+  * 5245736 [APPROVAL] INTERNAL undef-P7-in-bdldfp-drqs-57209949 to master
+  * 4cfd149 [APPROVAL] INTERNAL pending/master/resolve_ambiguous_assign_drqs57251422 to master
+  * d1e6a5d [APPROVAL] pending/master/resolve_ambiguous_assign_drqs57251422 to master
+  * e9cc3b8 [APPROVAL] INTERNAL undef-P7-in-bdldfp-drqs-57209949 to master
+  * 179bd32 [APPROVAL] undef-P7-in-bdldfp-drqs-57209949 to master
+  * 4cb746e [APPROVAL] origin/review/limit-header-copies-for-inteldfp-drqs-57002187 to master
+  * 9c70541 [APPROVAL] OSS bump-version-to-2.22 to master
+  * 0f470a3 [APPROVAL] bump-version-to-2.22 to master
+  * 5bf6354 bump version to 2.22.0
+  * ab5ce02 [APPROVAL] OSS Fix_bdldfp_build to master
+  * 17ab9ba [APPROVAL] Fix_bdldfp_build to master
+  * 63f3332 [APPROVAL] INTERNAL review/shared_ptr_merge_patches_drqs56891899 to master
+  * b549d8f [APPROVAL] review/shared_ptr_merge_patches_drqs56891899 to master
+  * 67a3606 [APPROVAL] INTERNAL review/fix-bslstl_stringbuf.h-warnings-drqs-56877438 to review/bde2.22-master-audit
+  * 4f2ae0d [APPROVAL] review/fix-bslstl_stringbuf.h-warnings-drqs-56877438 to review/bde2.22-master-audit
+  * ba0d0b5 [APPROVAL] INTERNAL review/fix-bdlb_bitutil-trailing-comma-drqs-56875824 to review/bde2.22-master-audit
+  * e7dc81f [APPROVAL] review/fix-bdlb_bitutil-trailing-comma-drqs-56875824 to review/bde2.22-master-audit
+  * 46ef3d1 [APPROVAL] INTERNAL review/bslstl_sharedptr-merge to bde2.22-master-fix
+  * 8ae7154 [APPROVAL] review/bslstl_sharedptr-merge to bde2.22-master-fix
+  * 57ce7f8 [APPROVAL] OSS review/decimal-ready-for-release to bde2.22-master-fix
+  * cbf7657 [APPROVAL] review/decimal-ready-for-release to bde2.22-master-fix
+  * 7b0de9e [APPROVAL] INTERNAL bdlma_guardingallocator-bus-error-drqs_52306644 to bde2.22-master-fix
+  * ff063e1 [APPROVAL] bdlma_guardingallocator-bus-error-drqs_52306644 to bde2.22-master-fix
+  * 20f10a6 converted 'serializationVersion' to 'versionSelector'
+  * 5812b70 [APPROVAL] pending/master/decimal-ready-for-release to master
+  * a055170 Merge branches 'continuing-work' and 'fix-bdldfp-errata' into decimal-ready-for-release
+  * 657fefb Add DPD conversion functions to 'DecimalImpUtil'.
+  * 8e5b001 [APPROVAL] OSS pending/master/issue-134-remove-extraneoussemicolon-drqs-56528451 to master
+  * c4db970 [APPROVAL] pending/master/issue-134-remove-extraneoussemicolon-drqs-56528451 to master
+  * 30a6085 [APPROVAL] INTERNAL bslstl_list-uninit-drqs-56266333 to master
+  * a032504 [APPROVAL] bslstl_list-uninit-drqs-56266333 to master
+  * af6b3f6 Merge branch 'intel-dfp-on-all-platforms' into decimal-ready-for-release
+  * c8fb93f Added missing 'ASSERT's to binary conversion tests
+  * c07d290 Merge branch 'decimal-new-impl-design-cleanups' into decimal-ready-for-release
+  * 99e2028 Merge branch 'intelimpwrapper-test-fix' into decimal-ready-for-release
+  * fb575ec [APPROVAL] pending/master/bdlma_guardingallocator-bus-error-drqs_52306644 to master
+  * 2306d4f [APPROVAL] OSS pending/master/fix_warning_in_array_primitives_drqs56269537 to master
+  * 897906d [APPROVAL] pending/master/fix_warning_in_array_primitives_drqs56269537 to master
+  * aa69e66 [APPROVAL] OSS pending/master/fixing-hash-table-reserve-memory-usage-DRQS55344338 to master
+  * b37172e [APPROVAL] pending/master/fixing-hash-table-reserve-memory-usage-DRQS55344338 to master
+  * 30dfd6d [APPROVAL] pending/master/fix-mavericks-internal-build-drqs54913937 to master
+  * 5ba65f3 [APPROVAL] OSS update-sample-examples-drqs-47805313 to master
+  * 2a42f4c [APPROVAL] update-sample-examples-drqs-47805313 to master
+  * 88bcc9e [APPROVAL] OSS pending/master/universal-hashing to master
+  * 67a71f0 [APPROVAL] pending/master/universal-hashing to master
+  * 8dee998 [APPROVAL] OSS fix-bsl.txt to master
+  * 5c106a2 [APPROVAL] fix-bsl.txt to master
+  * 2e151d7 [APPROVAL] OSS pending/master/improve-StringRef-concatenation-DRQS42510806 to master
+  * 4ad4619 [APPROVAL] pending/master/improve-StringRef-concatenation-DRQS42510806 to master
+  * 109c4b4 [APPROVAL] OSS pending/master/fix-bslstl_hashtable.t.cpp-compilation-drqs46397298 to master
+  * 2260a23 [APPROVAL] pending/master/fix-bslstl_hashtable.t.cpp-compilation-drqs46397298 to master
+  * 20e7ad7 [APPROVAL] OSS pending/master/bsls_atomic-doc-error-drqs38766934 to master
+  * 71ca294 [APPROVAL] pending/master/bsls_atomic-doc-error-drqs38766934 to master
+  * 5faa571 [APPROVAL] INTERNAL bslstl_vector_remove_list-typename-fix-drqs-55388039 to master
+  * 0515576 [APPROVAL] bslstl_vector_remove_list-typename-fix-drqs-55388039 to master
+  * f58d7ef [APPROVAL] OSS pending/master/bslma_testallocator-warnings-drqs55622083 to master
+  * ed18144 [APPROVAL] pending/master/bslma_testallocator-warnings-drqs55622083 to master
+  * 6fb8ee5 [APPROVAL] INTERNAL bslx_testinstream-drqs-55178884 to master
+  * c8f3fad [APPROVAL] bslx_testinstream-drqs-55178884 to master
+  * 56413b2 [APPROVAL] INTERNAL bslstl_vector_remove_list-drqs-55388039 to master
+  * 86baabf [APPROVAL] bslstl_vector_remove_list-drqs-55388039 to master
+  * c668633 [APPROVAL] OSS bsl-bslhdrs-typos-drqs52620308 to master
+  * 7e9e5a9 [APPROVAL] bsl-bslhdrs-typos-drqs52620308 to master
+  * fc9c38b [APPROVAL] OSS issue-119-bsls_annotation-drqs-53249537 to master
+  * de21a57 [APPROVAL] issue-119-bsls_annotation-drqs-53249537 to master
+  * 06014f7 [APPROVAL] OSS re-enable-bslstl_list-case-14-alloc-drqs-35672799 to master
+  * bc66cf5 [APPROVAL] re-enable-bslstl_list-case-14-alloc-drqs-35672799 to master
+  * 9d9aa1d [APPROVAL] OSS add-missing-bsls_assert-include-to-bslma_testallocatormonitor-drqs-40876073 to master
+  * 2dc6f16 [APPROVAL] add-missing-bsls_assert-include-to-bslma_testallocatormonitor-drqs-40876073 to master
+  * 6d3832c [APPROVAL] OSS bsls_byteorderutil-drqs-53046228 to master
+  * df4b98b [APPROVAL] bsls_byteorderutil-drqs-53046228 to master
+  * bd2d623 [APPROVAL] OSS added-explicit-to-DefaultAllocatorGuard-constructor-DRQS-53657670 to master
+  * b3c3d69 [APPROVAL] added-explicit-to-DefaultAllocatorGuard-constructor-DRQS-53657670 to master
+  * f13b338 [APPROVAL] INTERNAL fix_deprecated_macro_in_pair_drqs54946578 to master
+  * 94812f2 [APPROVAL] fix_deprecated_macro_in_pair_drqs54946578 to master
+  * 51ad7e2 [APPROVAL] OSS issue-118-mingw32-support-drqs-53452038 to master
+  * 3f4f65f [APPROVAL] issue-118-mingw32-support-drqs-53452038 to master
+  * 8653c2b [APPROVAL] INTERNAL bslx_build_issue-20140714 to master
+  * 92ad8ef [APPROVAL] bslx_build_issue-20140714 to master
+  * eb009cd Conversion changes.
+  * 743f361 [APPROVAL] OSS vector_of_function_ptrs_drqs34693876 to master
+  * 0182100 [APPROVAL] vector_of_function_ptrs_drqs34693876 to master
+  * 24a9765 [APPROVAL] OSS pending/master/ericvw-waf-configure-doc-update to master
+  * 9e7b316 [APPROVAL] pending/master/ericvw-waf-configure-doc-update to master
+  * 0a5697d [APPROVAL] INTERNAL merge-fix-bdldfp-stlport-build-drqs-54236699 to master
+  * 01fe50c [APPROVAL] merge-fix-bdldfp-stlport-build-drqs-54236699 to master
+  * ff524a0 [APPROVAL] OSS pending/master/bitutil_should_not_use_stdint_on_windows_drqs53201213 to master
+  * 4b3df94 [APPROVAL] pending/master/bitutil_should_not_use_stdint_on_windows_drqs53201213 to master
+  * 9ce850d [APPROVAL] OSS remove-waf-drqs-53466599 to master
+  * b22c00d [APPROVAL] remove-waf-drqs-53466599 to master
+  * 502ccc1 [APPROVAL] OSS pending/master/bdldfp-decimal-HW-drqs51600288 to master
+  * 5cb5eb7 [APPROVAL] pending/master/bdldfp-decimal-HW-drqs51600288 to master
+  * 85610d3 [APPROVAL] INTERNAL extend_allocator_traits_construct_args_drqs52310310 to master
+  * cfb4e82 [APPROVAL] extend_allocator_traits_construct_args_drqs52310310 to master
+  * e90e182 [APPROVAL] OSS array_primives_meets_bde_verify_phase2_drqs53218187 to master
+  * 52afdc9 [APPROVAL] array_primives_meets_bde_verify_phase2_drqs53218187 to master
+  * 4f94aea [APPROVAL] OSS bde_verify_cleanup_for_bdlma_pool_drqs52985227 to master
+  * ab33676 [APPROVAL] bde_verify_cleanup_for_bdlma_pool_drqs52985227 to master
+  * e0953fe [APPROVAL] OSS bde_verify_bslstl_allocator_pt1_drqs51837018 to master
+  * 8738a29 [APPROVAL] bde_verify_bslstl_allocator_pt1_drqs51837018 to master
+  * e2d840e [APPROVAL] OSS bdeverify_bslstl_hashtable_drqs50725364 to master
+  * 99153b4 [APPROVAL] bdeverify_bslstl_hashtable_drqs50725364 to master
+  * f1cedff [APPROVAL] OSS adding-vector-emplace-back-documentation-dqrs-48706670 to master
+  * 6a33451 [APPROVAL] adding-vector-emplace-back-documentation-dqrs-48706670 to master
+  * f58a6d3 [APPROVAL] OSS traits-docs-fixes-drqs-35886336 to master
+  * 8fb66d0 [APPROVAL] traits-docs-fixes-drqs-35886336 to master
+  * e8200eb [APPROVAL] OSS pending/master/bdlb_bitutil to master
+  * c9a58b6 [APPROVAL] pending/master/bdlb_bitutil to master
+  * 0798a38 [APPROVAL] pending/master/correct_array_primitives_compiler_check_drqs51229610 to master
+  * 94e8c30 Use BDLDFP_DECIMAL_DF to avoid conflicts with how hardware handles numeric conversions.
+  * 91d767d Conversions to call getQuantum and getExponent in hardware mode.
+  * 912caf1 Fix IBM version check
+
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Tue, 10 Feb 2015 17:21:51 -0500
+
 bsl-internal (2.20.2.2) unstable; urgency=low
 
   * 9a2dddd [APPROVAL] origin/review/fix-debian-sed-command to master

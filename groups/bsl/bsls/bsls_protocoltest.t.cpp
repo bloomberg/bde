@@ -10,14 +10,14 @@
 
 #include <bsls_platform.h>
 
-#ifdef BSLS_PLATFORM_CMP_GNU
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdelete-non-virtual-dtor"
 #endif
 
 #include <bsls_protocoltest.h>
 
-#ifdef BSLS_PLATFORM_CMP_GNU
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic pop
 #endif
 
@@ -797,7 +797,7 @@ int main(int argc, char *argv[])
                 ASSERT(status.failures() == 0);
                 ASSERT(status.last());
 
-#if !defined(BSLS_PLATFORM_CMP_CLANG)
+#ifndef BSLS_PLATFORM_CMP_CLANG
                 // this test is broken on Clang
 
                 if (veryVerbose) printf("\t\tfailure case\n");

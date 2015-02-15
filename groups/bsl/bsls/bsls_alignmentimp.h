@@ -306,11 +306,12 @@ struct AlignmentImpCalc <long double> {
                 // struct AlignmentImp8ByteAlignedType
                 // ===================================
 
-#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86)                                            \
+ && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
 struct AlignmentImp8ByteAlignedType {
-    // On Linux x86, no natural type is aligned on an 8-byte boundary, but we
-    // need such a type to implement low-level constructs (e.g., 64-bit atomic
-    // types).
+    // On Linux or Solaris x86, no natural type is aligned on an 8-byte
+    // boundary, but we need such a type to implement low-level constructs
+    // (e.g., 64-bit atomic types).
 
     long long d_dummy __attribute__((__aligned__(8)));
 };
@@ -386,7 +387,8 @@ struct AlignmentImpPriorityToType<12> {
     typedef char        Type;
 };
 
-#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86)                                            \
+ && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
 template <>
 struct AlignmentImpPriorityToType<13> {
     typedef AlignmentImp8ByteAlignedType Type;
@@ -455,7 +457,8 @@ struct AlignmentImpMatch {
         // of the type of the first macro argument, and return an object whose
         // size is the 2nd argument of the macro.
 
-# if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86)                                            \
+ && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
         // This type exists, and is needed, only on Linux
 
     static BSLS_ALIGNMENTIMP_MATCH_FUNC(AlignmentImp8ByteAlignedType,      13);
@@ -473,7 +476,8 @@ struct AlignmentImpMatch {
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
-#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86)                                            \
+ && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
 typedef bsls::AlignmentImp8ByteAlignedType bsls_AlignmentImp8ByteAlignedType;
     // This alias is defined for backward compatibility.
 #endif

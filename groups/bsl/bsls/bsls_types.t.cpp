@@ -93,7 +93,8 @@ char *hex64(char *buffer, bsls::Types::Uint64 value)
 
 #undef INT64_FMT_STR
 
-#if defined(BSLS_PLATFORM_CPU_X86) && defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CPU_X86)                                            \
+ && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
 // On Linux x86, no natural type is aligned on a 64-bit boundary, but we need
 // such a type to implement low-level constructs (e.g 64-bit atomic types).
 
