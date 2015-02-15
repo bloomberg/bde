@@ -266,18 +266,28 @@
 
 // If '<functional>' was included, then include extensions to functional.
 #ifdef INCLUDED_NATIVE_FUNCTIONAL
-#ifndef BDE_OMIT_TRANSITIONAL // STP
-# ifndef INCLUDED_BSLSTP_EXFUNCTIONAL
-#   include <bslstp_exfunctional.h>
-#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
-# endif
-#endif  // BDE_OMIT_TRANSITIONAL -- STP
+# ifndef BDE_OMIT_TRANSITIONAL // STP
+#   ifndef INCLUDED_BSLSTP_EXFUNCTIONAL
+#     include <bslstp_exfunctional.h>
+#     define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+#   endif
+# endif  // BDE_OMIT_TRANSITIONAL -- STP
+#endif
+#ifdef BSL_INCLUDE_BSL_FUNCTIONAL
 # ifndef INCLUDED_BSLSTL_EQUALTO
 #   include <bslstl_equalto.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
+# ifndef INCLUDED_BSLSTL_FUNCTION
+#   include <bslstl_function.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
 # ifndef INCLUDED_BSLSTL_HASH
 #   include <bslstl_hash.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+# ifndef INCLUDED_BSLSTL_REFERENCEWRAPPER
+#   include <bslstl_referencewrapper.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 #endif
