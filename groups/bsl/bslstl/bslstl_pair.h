@@ -298,13 +298,11 @@ BSL_OVERRIDES_STD mode"
 #include <bslh_hash.h>
 #endif
 
-#ifndef INCLUDED_ALGORITHM
-#include <algorithm>       // 'std::swap'
-#define INCLUDED_ALGORITHM
-#endif
-
 #ifndef INCLUDED_UTILITY
-#include <utility>         // 'std::pair'
+#include <utility> // 'std::pair' and 'std::swap'
+                   // Even in C++03 mode, <utility> includes enough of 'swap'
+                   // for 'std::pair' to work.  No need to include
+                   // <algorithm>, which is big and causes cycles.
 #define INCLUDED_UTILITY
 #endif
 
