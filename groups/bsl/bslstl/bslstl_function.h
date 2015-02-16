@@ -591,7 +591,7 @@ public:
     bslma::Allocator *allocator() const;
 };
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=14
 
                     // =====================================
                     // class template Function_MemFuncInvoke
@@ -786,9 +786,9 @@ public:
         // Copy constructor.  Needed to overload in preference to
         // 'operator=(FUNC&&)'.
     function& operator=(function&&);
+#endif
     template<class FUNC>
     function& operator=(FUNC&&);
-#endif
     function& operator=(nullptr_t);
 
     // TBD: Need to implement reference_wrapper.
@@ -1727,6 +1727,8 @@ bsl::function<RET(ARGS...)>::operator=(function&& rhs)
     return *this;
 }
 
+#endif
+
 template <class RET, class... ARGS>
 template<class FUNC>
 bsl::function<RET(ARGS...)>&
@@ -1777,8 +1779,6 @@ bsl::function<RET(ARGS...)>::operator=(FUNC&& func)
 
     return *this;
 }
-
-#endif
 
 template <class RET, class... ARGS>
 bsl::function<RET(ARGS...)>&
