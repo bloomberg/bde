@@ -739,11 +739,6 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_STRING
 #endif
 
-#ifndef INCLUDED_LIMITS_H
-#include <limits.h> 
-#define INCLUDED_LIMITS_H
-#endif
-
 #endif
 
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
@@ -2416,14 +2411,14 @@ getline(std::basic_istream<CHAR_TYPE, CHAR_TRAITS>&     is,
     // 'is.fail()' will become true.
 
 //TODO
-int stoi(const string& str, std::size_t* pos = 0, int base 10);
-int stoi(const wstring& str, std::size_t* pos = 0, int base 10);
+int stoi(const string& str, std::size_t* pos = 0, int base = 10);
+int stoi(const wstring& str, std::size_t* pos = 0, int base = 10);
 
-long stol(const string& str, std::size_t* pos = 0, int base 10);
-long stol(const wstring& str, std::size_t* pos = 0, int base 10);
+long stol(const string& str, std::size_t* pos = 0, int base = 10);
+long stol(const wstring& str, std::size_t* pos = 0, int base = 10);
 
-long long stoll(const string& str, std::size_t* pos = 0, int base 10);
-long long stoll(const wstring& str, std::size_t* pos = 0, int base 10);
+long long stoll(const string& str, std::size_t* pos = 0, int base = 10);
+long long stoll(const wstring& str, std::size_t* pos = 0, int base = 10);
 
 // HASH SPECIALIZATIONS
 template <class HASHALG, class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -5123,15 +5118,15 @@ void bsl::swap(basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& lhs,
 
 //TODO
 int stoi(const string& str, std::size_t* pos = 0, int base = 10){
-    
     int result =0;
     bool positive = true;
     bool isValidArg = false;
-    
+
     if (base > 37 || base < 0)
         return 0;
     
-    for (int i = 0; str[i]; ++i){
+    //for (int i = 0; str[i]; ++i){
+    for (int i = 0; str; ++i){
         if (std::isspace(str[i])) continue;
         
         if (str[i] == '-') {
@@ -5140,7 +5135,7 @@ int stoi(const string& str, std::size_t* pos = 0, int base = 10){
         }
 
         if (base == 0 || base == 16){
-            if (str[i] == '0' && (str[i] =='x' || str[i] =='X')){
+            if (str[i] == '0' && (str[i+1] =='x' || str[i+1] =='X')){
                 ++i;
                 base = 16;
                 continue;
@@ -5152,11 +5147,19 @@ int stoi(const string& str, std::size_t* pos = 0, int base = 10){
                     
         }
         
-        if(std::isdigit(str)){
+        int charValue;
+        if (std::isdigit(str[i])){
+            charValue = (int)str[i] - 48;
+        }
+        else if (str[i] <= 'Z' && str[i] >='A'){
+            charValue = str[i]-('Z'-'z') - 87; //value of 'a' is 10
+        }
+        
+        //if(std::isdigit(str)){
+        if(charValue <= base){
             isValueArg = true;
-            if (result*base + (int)str[i] < std::numeric_limits<int>::max()){
-                //check the cast to int for A vs a
-                result = result*base + (int)str[i];
+            if (result*base + charValue < std::numeric_limits<int>::max()){
+                result = result*base + charValue;
             }
             else throw std::out_of_range;
         }

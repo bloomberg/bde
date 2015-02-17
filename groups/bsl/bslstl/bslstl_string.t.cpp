@@ -33,6 +33,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <typeinfo>
+#include <limits>
 
 #if defined(std)
 // This is a workaround for the way test drivers are built in an IDE-friendly
@@ -244,6 +245,7 @@ using namespace std;
 // [24] bool operator>=(const C *, const string&);
 // [24] bool operator>=(const string&, const C *);
 // [21] void swap(string&, string&);
+// [30] int stoi(const string& str, std::size_t* pos = 0, int base 10);
 // [ 5] basic_ostream<C,CT>& operator<<(basic_ostream<C,CT>& stream,
 //                                      const string& str);
 // [ 5] basic_istream<C,CT>& operator>>(basic_istream<C,CT>& stream,
@@ -921,6 +923,9 @@ struct TestDriver {
         // specifications, and check that the specified 'result' agrees.
 
     // TEST CASES
+    static void testCase30();
+        // Test stoi
+    
     static void testCase29();
         // Test the hash append specialization.
 
@@ -1206,6 +1211,25 @@ void TestDriver<TYPE,TRAITS,ALLOC>::checkCompare(const Obj& X,
                                  // ----------
                                  // TEST CASES
                                  // ----------
+template <class TYPE, class TRAITS, class ALLOC>
+void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
+    static const struct {
+        int         d_lineNum;          // source line number
+        const char *d_input;            // input
+        int         d_base;             // base of input
+        int         d_spec;             // specifications
+    } DATA[] = {
+        //line  input           base    spec
+        //----  -----           ----    ----
+        { L_,   '0',            10,     0 },
+        { L_,   '-0',           10,     0}, 
+        { L_,   '10101',        10,     10101}, 
+        { L_,   '-10101',       10,     -10101}, 
+        { L_,   '32767',        10,     32767}, 
+        { L_,   '-32767',       10,     -32767}, 
+    };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+}
 template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
 {
@@ -14091,7 +14115,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 30: {
+      case 31: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -14303,6 +14327,12 @@ int main(int argc, char *argv[])
             }
         }
       } break;
+      case 30: {
+        if (verbose) printf("\nTESTING 'stoi'"
+                            "\n====================\n");
+        TestDriver<char>::testCase30();
+        TestDriver<wchar_t>::testCase30();
+      }
       case 29: {
         // --------------------------------------------------------------------
         // TESTING 'hashAppend'
