@@ -1221,14 +1221,24 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
     } DATA[] = {
         //line  input           base    spec
         //----  -----           ----    ----
-        { L_,   '0',            10,     0 },
-        { L_,   '-0',           10,     0}, 
-        { L_,   '10101',        10,     10101}, 
-        { L_,   '-10101',       10,     -10101}, 
-        { L_,   '32767',        10,     32767}, 
-        { L_,   '-32767',       10,     -32767}, 
+        { L_,   "0",            10,     0 },
+        { L_,   "-0",           10,     0}, 
+        { L_,   "10101",        10,     10101}, 
+        { L_,   "-10101",       10,     -10101}, 
+        { L_,   "32767",        10,     32767}, 
+        { L_,   "-32767",       10,     -32767}, 
     };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+    
+    for (int ti = 0; ti < NUM_DATA; ++ti) {
+        const int    LINE   = DATA[ti].d_lineNum;
+        const char  *INPUT  = DATA[ti].d_input;
+        const int    BASE   = DATA[ti].d_base;
+        const int    SPEC   = DATA[ti].d_spec;
+        string inV(INPUT);
+        
+        int value = bsl::stoi(inV);
+    }
 }
 template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()

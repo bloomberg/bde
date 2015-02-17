@@ -2412,13 +2412,13 @@ getline(std::basic_istream<CHAR_TYPE, CHAR_TRAITS>&     is,
 
 //TODO
 int stoi(const string& str, std::size_t* pos = 0, int base = 10);
-int stoi(const wstring& str, std::size_t* pos = 0, int base = 10);
+//int stoi(const wstring& str, std::size_t* pos = 0, int base = 10);
 
-long stol(const string& str, std::size_t* pos = 0, int base = 10);
-long stol(const wstring& str, std::size_t* pos = 0, int base = 10);
+//long stol(const string& str, std::size_t* pos = 0, int base = 10);
+//long stol(const wstring& str, std::size_t* pos = 0, int base = 10);
 
-long long stoll(const string& str, std::size_t* pos = 0, int base = 10);
-long long stoll(const wstring& str, std::size_t* pos = 0, int base = 10);
+//long long stoll(const string& str, std::size_t* pos = 0, int base = 10);
+//long long stoll(const wstring& str, std::size_t* pos = 0, int base = 10);
 
 // HASH SPECIALIZATIONS
 template <class HASHALG, class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -5117,7 +5117,7 @@ void bsl::swap(basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& lhs,
 }
 
 //TODO
-int stoi(const string& str, std::size_t* pos = 0, int base = 10){
+int bsl::stoi(const string& str, std::size_t* pos, int base){
     int result =0;
     bool positive = true;
     bool isValidArg = false;
@@ -5125,8 +5125,8 @@ int stoi(const string& str, std::size_t* pos = 0, int base = 10){
     if (base > 37 || base < 0)
         return 0;
     
-    //for (int i = 0; str[i]; ++i){
-    for (int i = 0; str; ++i){
+    for (int i = 0; str[i]; ++i){
+    //for (int i = 0; str; ++i){
         if (std::isspace(str[i])) continue;
         
         if (str[i] == '-') {
@@ -5157,16 +5157,19 @@ int stoi(const string& str, std::size_t* pos = 0, int base = 10){
         
         //if(std::isdigit(str)){
         if(charValue <= base){
-            isValueArg = true;
+            isValidArg = true;
             if (result*base + charValue < std::numeric_limits<int>::max()){
                 result = result*base + charValue;
             }
-            else throw std::out_of_range;
+            else {
+                BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("");
+                //throw std::out_of_range();
+            }
         }
         else if (!isValidArg)
         {
-            //check with alisdair
-            throw std::invalid_argument;
+            BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("");
+            //throw std::invalid_argument;
         }
         if (!positive) result *= -1;
     }
