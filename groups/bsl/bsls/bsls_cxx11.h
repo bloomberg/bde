@@ -7,14 +7,14 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide macrors for C++11 forward compatibility
+//@PURPOSE: Provide macrors for C++11 forward compatibility.
 //
 //@CLASSES:
 //
 //@MACROS:
 //  BSLS_CXX11_EXPLICIT: C++11 'explicit' for conversion operators
 //  BSLS_CXX11_FINAL: C++11 'final' keyword
-//  BSLS_CXX11_OVERRIDE: C++11 'override' keyword 
+//  BSLS_CXX11_OVERRIDE: C++11 'override' keyword
 //
 //@DESCRIPTION: This component provides definitions to use C++11 features in
 // both C++03 and C++11 without using conditional compilation where the
@@ -30,15 +30,15 @@ BSLS_IDENT("$Id: $")
 //  'BSLS_CXX11_EXPLICIT'
 //    This macro inserts the keyword 'explicit' when compiling with C++11 mode
 //    and inserts nothing when compiling with C++03 mode.
-// 
+//
 //  'BSLS_CXX11_FINAL'
 //    This macro inserts the keyword 'final' when compiling with C++11 mode
 //    and inserts nothing when compiling with C++03 mode.
-// 
+//
 //  'BSLS_CXX11_OVERRIDE'
 //    This macro inserts the keyword 'override' when compiling with C++11 mode
 //    and inserts nothing when compiling with C++03 mode.
-// 
+//
 ///USAGE
 ///-----
 // To use these macros, simply insert them where the corresponding C++11
@@ -59,31 +59,31 @@ BSLS_IDENT("$Id: $")
 // conversion to 'bool' to indicate that the value is set (note the conversion
 // operator):
 //..
-// template <typename TYPE>
+// template <class TYPE>
 // class Optional
 // {
 //     TYPE* d_value;
 // public:
 //     Optional(): d_value() {}
-//     Optional(const TYPE& value): d_value(new TYPE(value)) {}
+//     explicit Optional(const TYPE& value): d_value(new TYPE(value)) {}
 //     ~Optional() { delete d_value; }
 //     // ...
 //
 //     BSLS_CXX11_EXPLICIT operator bool() const { return d_value; }
 // };
 //..
-// When using an object of the 'Optional' class in a condition it is desirable 
+// When using an object of the 'Optional' class in a condition it is desirable
 // that it converts to a 'bool':
-// ..
+//..
 // Optional<int> value;
 // if (value) { /*... */ }
-// ..
+//..
 // In places where an implicit conversion takes place it is not desirable that
 // the conversion is used.  When compiling with C++11 mode the conversion
 // operator will not be used, e.g., the following code will result in an error:
-// ..
+//..
 // bool flag = value;
-// ..
+//..
 // When defining conversion operators to 'bool' for code which needs to compile
 // with C++03 mode the conversion operator should convert to a member pointer
 // type instead: doing so has a similar effect to making the conversion
@@ -101,7 +101,7 @@ BSLS_IDENT("$Id: $")
 // {
 //     int d_value;
 // public:
-//     FinalClass(int value = 0): d_value(value) {}
+//     explicit FinalClass(int value = 0): d_value(value) {}
 //     int value() const { return d_value; }
 // };
 //..
@@ -111,7 +111,7 @@ BSLS_IDENT("$Id: $")
 // class FinalClassDerived
 //     int d_anotherValue;
 // public:
-//     FinalClassDerived(int value)
+//     explicit FinalClassDerived(int value)
 //         : d_anotherValue(2 * value) {
 //     }
 //     int anotherValue() const { return d_anotherValue; }
@@ -167,7 +167,7 @@ BSLS_IDENT("$Id: $")
 // {
 //     virtual int f() const { return 0; }
 // };
-//.. 
+//..
 // When overriding 'OverrideBase::f' in a derived class the
 // 'BSLS_CXX11_OVERRIDE' macro should be used to ascertain that the function in
 // the derived class is indeed overriding a 'virtual' function:
@@ -175,7 +175,7 @@ BSLS_IDENT("$Id: $")
 // struct OverrideSuccess: OverrideBase
 // {
 //     int f() const BSLS_CXX11_OVERRIDE { return 1; }
-// }; 
+// };
 //..
 // The above code compiles successfully with both C++03 mode and C++11.  When
 // the function meant to be an override actually isn't overriding any function
