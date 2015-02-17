@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide macrors for C++11 forward compatibility.
+//@PURPOSE: Provide macros for C++11 forward compatibility.
 //
 //@CLASSES:
 //
@@ -49,7 +49,7 @@ BSLS_IDENT("$Id: $")
 //
 // C++ uses the 'explicit' keyword to indicate that constructors taking just
 // one argument are not considered for implicit conversions.  Instead, they can
-// only be used for implicit conversions.  C++ also provides the ability to
+// only be used for explicit conversions.  C++ also provides the ability to
 // define conversion operators but prior to C++11 these conversion operators
 // are considered for implicit conversion.  C++11 allows the use of the
 // 'explicit' keyword with conversion operators to avoid its use for implicit
@@ -108,7 +108,7 @@ BSLS_IDENT("$Id: $")
 // An attempt to derive from this class will fail when compiling with C++11
 // mode:
 //..
-// class FinalClassDerived
+// class FinalClassDerived: public FinalClass {
 //     int d_anotherValue;
 // public:
 //     explicit FinalClassDerived(int value)
