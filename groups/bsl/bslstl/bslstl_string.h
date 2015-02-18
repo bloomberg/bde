@@ -2422,7 +2422,9 @@ long stol(const string& str, std::size_t* pos = 0, int base = 10);
 long stol(const wstring& str, std::size_t* pos = 0, int base = 10);
 unsigned long stoul(const string& str, std::size_t* pos = 0, int base = 10);
 unsigned long stoul(const wstring& str, std::size_t* pos = 0, int base = 10);
+
 #if __cplusplus >= 201103L
+
 long long stoll(const string& str, std::size_t* pos = 0, int base = 10);
 long long stoll(const wstring& str, std::size_t* pos = 0, int base = 10);
 unsigned long long stoull(const string& str, std::size_t* pos = 0, 
@@ -2447,9 +2449,12 @@ float stof(const string& str, std::size_t* pos =0);
 float stof(const wstring& str, std::size_t* pos =0);
 double stod(const string& str, std::size_t* pos =0);
 double stod(const wstring& str, std::size_t* pos =0);
+
 #if __cplusplus >= 201103L
+
 long double stold(const string& str, std::size_t* pos =0);
 long double stold(const wstring& str, std::size_t* pos =0);
+
 #endif
     // Parses 'str' interpreting its contents as a floating point number. If 
     // the number in the str is prefixed with '0x' or '0X' the string will be 
@@ -2462,6 +2467,88 @@ long double stold(const wstring& str, std::size_t* pos =0);
     // performed, then an invalid_argument exception is thrown. If the value
     // read is out of range of the return type, then an out_of_range exception
     // is thrown.
+
+string to_string(int value);
+    // Constructs a string with contents equal to the specified 'value'. The 
+    // contents of the string will be the same as what 
+    // std::sprintf(buf,"%d", value) would produce with a sufficiently large 
+    // buffer;
+string to_string(long value);
+    // Constructs a string with contents equal to the specified 'value'. The 
+    // contents of the string will be the same as what 
+    // std::sprintf(buf,"%ld", value) would produce with a sufficiently large 
+    // buffer;
+string to_string(long long value);
+    // Constructs a string with contents equal to the specified 'value'. The 
+    // contents of the string will be the same as what 
+    // std::sprintf(buf,"%lld", value) would produce with a sufficiently large 
+    // buffer;
+string to_string(unsigned value);
+    // Constructs a string with contents equal to the specified 'value'. The 
+    // contents of the string will be the same as what 
+    // std::sprintf(buf,"%u", value) would produce with a sufficiently large 
+    // buffer;
+string to_string(unsigned long value);
+    // Constructs a string with contents equal to the specified 'value'. The 
+    // contents of the string will be the same as what 
+    // std::sprintf(buf,"%lu", value) would produce with a sufficiently large 
+    // buffer;
+string to_string(unsigned long long value);
+    // Constructs a string with contents equal to the specified 'value'. The 
+    // contents of the string will be the same as what 
+    // std::sprintf(buf,"%llu", value) would produce with a sufficiently large 
+    // buffer;
+string to_string(float val);
+string to_string(double val);
+    // converts a floating point value to a string with the same contents as 
+    // what std::sprintf(buf, "%f", value) would produce for a suficiently 
+    // large buffer.
+string to_string(long double val);
+    // converts a floating point value to a string with the same contents as 
+    // what std::sprintf(buf, "%Lf", value) would produce for a suficiently 
+    // large buffer.
+
+wstring to_wstring(int val);
+    // Constructs a string with contents equal to the specified 'value'. The 
+    // contents of the string will be the same as what 
+    // std::swprintf(buf,L"%d", value) would produce with a sufficiently large 
+    // buffer;
+wstring to_wstring(long val);
+    // Constructs a string with contents equal to the specified 'value'. The 
+    // contents of the string will be the same as what 
+    // std::swprintf(buf,L"%ld", value) would produce with a sufficiently large 
+    // buffer;
+wstring to_wstring(long long val);
+    // Constructs a string with contents equal to the specified 'value'. The 
+    // contents of the string will be the same as what 
+    // std::swprintf(buf,L"%lld", value) would produce with a sufficiently large 
+    // buffer;
+wstring to_wstring(unsigned val);
+    // Constructs a string with contents equal to the specified 'value'. The 
+    // contents of the string will be the same as what 
+    // std::swprintf(buf,L"%u", value) would produce with a sufficiently large 
+    // buffer;
+wstring to_wstring(unsigned long val);
+    // Constructs a string with contents equal to the specified 'value'. The 
+    // contents of the string will be the same as what 
+    // std::swprintf(buf,L"%lu", value) would produce with a sufficiently large 
+    // buffer;
+wstring to_wstring(unsigned long long val);
+    // Constructs a string with contents equal to the specified 'value'. The 
+    // contents of the string will be the same as what 
+    // std::swprintf(buf,L"%llu", value) would produce with a sufficiently large 
+    // buffer;
+wstring to_wstring(float val);
+wstring to_wstring(double val);
+    // converts a floating point value to a string with the same contents as 
+    // what std::sprintf(buf, sz, L"%f", value) would produce for a suficiently 
+    // large buffer.
+wstring to_wstring(long double val);
+    // converts a floating point value to a string with the same contents as 
+    // what std::sprintf(buf, sz, L"%Lf", value) would produce for a 
+    // suficiently large buffer.
+
+
 
 // HASH SPECIALIZATIONS
 template <class HASHALG, class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -5160,85 +5247,6 @@ void bsl::swap(basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& lhs,
 }
 
 //TODO
-template <class STRING_TYPE, class INTEGRAL_TYPE>
-INTEGRAL_TYPE stoInts(const STRING_TYPE& str, std::size_t* pos, int base){
-    int result =0;
-    bool positive = true;
-    bool isValidArgSection = false;
-
-    if (base > 37 || base < 0)
-        return 0;
-    
-    int i = 0;
-    for (; str[i]; ++i){   
-        // skip white space and set base
-        if (!isValidArgSection){
-
-            if (std::isspace(str[i])) continue;
-            
-            if (str[i] == '-') {
-                positive = false;
-                continue;
-            }
-    
-            if (base == 0 || base == 16){
-                if (str[i] == '0' && (str[i+1] =='x' || str[i+1] =='X')){
-                    ++i;
-                    base = 16;
-                    continue;
-                }
-                else if (str[i] == '0'){
-                    base = 8; 
-                    continue;
-                }
-                        
-            }
-            
-            if (base == 0){
-                base = 10;
-            }
-        }
-        //parse valid characters
-        int charValue = -1;
-        if (std::isdigit(str[i])){
-            charValue = (int)str[i] - 48;
-        }
-        else if(std::isalpha(str[i])){
-            if (str[i] <= 'Z' && str[i] >='A'){
-                charValue = str[i]-('Z'-'z') - 87; //value of 'a' is 10
-            }
-            else {
-                charValue = str[i] - 87; //value of 'a' is 10
-            }
-        }
-        
-        if(charValue < base && charValue >= 0){
-            isValidArgSection = true;
-            if (result*base + charValue <=
-                    std::numeric_limits<INTEGRAL_TYPE>::max()){
-                result = result*base + charValue;
-            }
-            else {
-                BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("");
-            }
-        }
-        else{
-            break;
-        }
-    }
-    
-    if (pos != 0){
-        *pos = i;
-    }
-    
-    if (!positive) result *= -1;
-    if (!isValidArgSection) {
-        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("");
-    }
-    
-    return result;
-}
-
 inline int bsl::stoi(const string& str, std::size_t* pos, int base){
     char* ptr;
     long value = std::strtol(str.c_str(), &ptr, base);
@@ -5346,6 +5354,153 @@ inline long double bsl::stold(const wstring& str, std::size_t* pos){
     return value;
 }
 #endif
+
+inline string to_string(int value)
+{
+    char tempBuf[BSLSTL_MAX_INT_STRLEN10];
+    std::sprintf(tempBuf, "%f", value);
+    string str(tempBuf);
+    return str;
+}
+
+inline string to_string(unsigned value)
+{
+    char tempBuf[BSLSTL_MAX_INT_STRLEN10];
+    std::sprintf(tempBuf, "%u", value);
+    string str(tempBuf);
+    return str;
+}
+
+inline string to_string(long value)
+{
+    char tempBuf[BSLSTL_MAX_INT64_STRLEN10];
+    std::sprintf(tempBuf, "%l", value);
+    string str(tempBuf);
+    return str;
+}
+
+inline string to_string(unsigned long value)
+{
+    char tempBuf[BSLSTL_MAX_INT64_STRLEN10];
+    std::sprintf(tempBuf, "%ul", value);
+    string str(tempBuf);
+    return str;
+}
+//TODO NEED TO FIGURE OUT BUFF LENG FOR THIS
+inline string to_string(long long value)
+{
+    char tempBuf[BSLSTL_MAX_INT64_STRLEN10];
+    std::sprintf(tempBuf, "%ll", value);
+    string str(tempBuf);
+    return str;
+}
+
+inline string to_string(unsigned long long value)
+{
+    char tempBuf[BSLSTL_MAX_INT64_STRLEN10];
+    std::sprintf(tempBuf, "%ull", value);
+    string str(tempBuf);
+    return str;
+}
+
+
+inline string to_string(float value)
+{
+    char tempBuf[BSLSTL_MAX_DOUBLE_STRLEN10];
+    std::sprintf(tempBuf, "%f", value);
+    string str(tempBuf);
+    return str;
+}
+
+inline string to_string(double value)
+{
+    char tempBuf[BSLSTL_MAX_DOUBLE_STRLEN10];
+    std::sprintf(tempBuf, "%f", value);
+    string str(tempBuf);
+    return str;
+}
+
+inline string to_string(long double value)
+{
+    char tempBuf[BSLSTL_MAX_LONGDOUBLE_STRLEN10];
+    std::sprintf(tempBuf, "%Lf", value);
+    string str(tempBuf);
+    return str;
+}
+
+inline wstring to_wstring(int value)
+{
+    wchar_t tempBuf[BSLSTL_MAX_INT_STRLEN10];
+    std::swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%d", value);
+    wstring str(tempBuf);
+    return str;
+}
+
+inline wstring to_wstring(long value)
+{
+    wchar_t tempBuf[BSLSTL_MAX_INT64_STRLEN10];
+    std::swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%l", value);
+    wstring str(tempBuf);
+    return str;
+}
+//TODO buffer size for long long unknown
+inline wstring to_wstring(long long value)
+{
+    wchar_t tempBuf[BSLSTL_MAX_INT64_STRLEN10];
+    std::swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%ll", value);
+    wstring str(tempBuf);
+    return str;
+}
+
+inline wstring to_wstring(unsigned value)
+{
+    wchar_t tempBuf[BSLSTL_MAX_INT_STRLEN10];
+    std::swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%u", value);
+    wstring str(tempBuf);
+    return str;
+}
+
+inline wstring to_wstring(unsigned long value)
+{
+    wchar_t tempBuf[BSLSTL_MAX_INT64_STRLEN10];
+    std::swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%lu", value);
+    wstring str(tempBuf);
+    return str;
+}
+
+inline wstring to_wstring(unsigned long long value)
+{
+    wchar_t tempBuf[BSLSTL_MAX_INT64_STRLEN10];
+    std::swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%llu", value);
+    wstring str(tempBuf);
+    return str;
+}
+
+inline wstring to_wstring(float value)
+{
+    wchar_t tempBuf[BSLSTL_MAX_DOUBLE_STRLEN10];
+    std::swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%f", value);
+    wstring wstr(tempBuf);
+    return wstr;
+}
+
+inline wstring to_wstring(double value)
+{
+    wchar_t tempBuf[BSLSTL_MAX_DOUBLE_STRLEN10];
+    std::swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%f", value);
+    wstring wstr(tempBuf);
+    return wstr;
+}
+
+inline wstring to_wstring(long double value)
+{
+    wchar_t tempBuf[BSLSTL_MAX_LONGDOUBLE_STRLEN10];
+    std::swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%Lf", value);
+    wstring wstr(tempBuf);
+    return wstr;
+}
+
+
 // FREE OPERATORS
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 inline
