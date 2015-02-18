@@ -642,7 +642,7 @@ int main(int argc, char *argv[])
                         "\n====================");
 
         typedef ::BloombergLP::bslh::Hash<> Hasher;
-        typedef typename Hasher::result_type HashType;
+        typedef Hasher::result_type         HashType;
 
         bsl::pair<int,const char*> p1(1, "hello");  // P-1
         bsl::pair<int,const char*> p2(1, "hello");
