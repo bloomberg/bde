@@ -73,14 +73,19 @@ BSLS_IDENT("$Id$")
 
 #    define _WCHAR_T_DEFINED
 
-// There are SWAP macros exported from both calcrt2.h and bid_internal.h.
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+// calcrt2.h exports a SWAP macro which we want to preserve.
 
 #ifdef SWAP
     #if SWAP == 99
         #define BDLDFP_INTELIMPWRAPPER_SWAP_WAS_99 1
     #endif
-    #undef SWAP
 #endif
+
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
+
+// bid_internal.h exports a SWAP macro.
+#undef SWAP
 
 extern "C" {
     #include <bid_conf.h>
@@ -89,10 +94,16 @@ extern "C" {
 }
 
 #undef SWAP
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+// Restore SWAP macro from calcrt2.h.
+
 #if BDLDFP_INTELIMPWRAPPER_SWAP_WAS_99
     #define SWAP 99
     #undef BDLDFP_INTELIMPWRAPPER_SWAP_WAS_99
 #endif
+
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 #    undef DECIMAL_CALL_BY_REFERENCE
 #    undef DECIMAL_GLOBAL_ROUNDING
