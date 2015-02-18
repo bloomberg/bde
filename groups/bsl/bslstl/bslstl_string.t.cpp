@@ -1357,8 +1357,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
     //:   produce equal hashes. (C-4)
     //
     // Testing:
-    //   hashAppend(HASHALG& hashAlg, const basic_string& str);
-    //   hashAppend(HASHALG& hashAlg, const native_std::basic_string& str);
+    //   int stoi(const string& str, std::size_t* pos = 0, int base = 10);
+    //   int stoi(const wstring& str, std::size_t* pos = 0, int base = 10);
+    //   long stol(const string& str, std::size_t* pos = 0, int base = 10);
+    //   long stol(const wstring& str, std::size_t* pos = 0, int base = 10);
+    //   long long stoll(const string& str, std::size_t* pos = 0, int base=10);
+    //   long long stoll(const wstring& str, std::size_t* pos= 0, int base=10);
     // --------------------------------------------------------------------
     typedef ::BloombergLP::bslh::Hash<> Hasher;
     typedef typename Hasher::result_type HashType;

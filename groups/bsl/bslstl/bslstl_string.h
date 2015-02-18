@@ -5128,7 +5128,7 @@ void bsl::swap(basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& lhs,
 
 //TODO
 template <class STRING_TYPE, class INTEGRAL_TYPE>
-INTEGRAL_TYPE stoAll(const STRING_TYPE& str, std::size_t* pos, int base){
+INTEGRAL_TYPE stoInts(const STRING_TYPE& str, std::size_t* pos, int base){
     int result =0;
     bool positive = true;
     bool isValidArgSection = false;
@@ -5206,25 +5206,25 @@ INTEGRAL_TYPE stoAll(const STRING_TYPE& str, std::size_t* pos, int base){
     return result;
 }
 
-int bsl::stoi(const string& str, std::size_t* pos, int base){
-    return stoAll<string, int>(str, pos, base);
+inline int bsl::stoi(const string& str, std::size_t* pos, int base){
+    return stoInts<string, int>(str, pos, base);
 }
-int bsl::stoi(const wstring& str, std::size_t* pos, int base){
-    return stoAll<wstring, int>(str, pos, base);
-}
-
-long bsl::stol(const string& str, std::size_t* pos, int base){
-    return stoAll<string, long>(str, pos, base);
-}
-long bsl::stol(const wstring& str, std::size_t* pos, int base){
-    return stoAll<wstring, long>(str, pos, base);
+inline int bsl::stoi(const wstring& str, std::size_t* pos, int base){
+    return stoInts<wstring, int>(str, pos, base);
 }
 
-long long bsl::stoll(const string& str, std::size_t* pos, int base){
-    return stoAll<string, long long>(str, pos, base);
+inline long bsl::stol(const string& str, std::size_t* pos, int base){
+    return stoInts<string, long>(str, pos, base);
 }
-long long bsl::stoll(const wstring& str, std::size_t* pos, int base){
-    return stoAll<wstring, long long>(str, pos, base);
+inline long bsl::stol(const wstring& str, std::size_t* pos, int base){
+    return stoInts<wstring, long>(str, pos, base);
+}
+
+inline long long bsl::stoll(const string& str, std::size_t* pos, int base){
+    return stoInts<string, long long>(str, pos, base);
+}
+inline long long bsl::stoll(const wstring& str, std::size_t* pos, int base){
+    return stoInts<wstring, long long>(str, pos, base);
 }
 
 
