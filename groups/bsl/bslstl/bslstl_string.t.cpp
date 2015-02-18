@@ -246,6 +246,11 @@ using namespace std;
 // [24] bool operator>=(const string&, const C *);
 // [21] void swap(string&, string&);
 // [30] int stoi(const string& str, std::size_t* pos = 0, int base 10);
+// [30] int stoi(const wstring& str, std::size_t* pos = 0, int base 10);
+// [30] int stol(const string& str, std::size_t* pos = 0, int base 10);
+// [30] int stol(const wstring& str, std::size_t* pos = 0, int base 10);
+// [30] int stoll(const string& str, std::size_t* pos = 0, int base 10);
+// [30] int stoll(const wstring& str, std::size_t* pos = 0, int base 10);
 // [ 5] basic_ostream<C,CT>& operator<<(basic_ostream<C,CT>& stream,
 //                                      const string& str);
 // [ 5] basic_istream<C,CT>& operator>>(basic_istream<C,CT>& stream,
@@ -924,7 +929,7 @@ struct TestDriver {
 
     // TEST CASES
     static void testCase30();
-        // Test stoi
+        // Test stoi, stol and stoll free methods.
     
     static void testCase29();
         // Test the hash append specialization.
@@ -1213,20 +1218,83 @@ void TestDriver<TYPE,TRAITS,ALLOC>::checkCompare(const Obj& X,
                                  // ----------
 template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
+    // ------------------------------------------------------------------------
+    // TESTING 'stoi', 'stol', 'stoll'
+    //
+    // Concerns:
+    //: 1 stoi, stol, stoll parse the string properly in to proper interger
+    //:
+    //: 2 The methods discard leading white space characters and create largest
+    //:   valid integral number
+    //:
+    //: 3 Detects the correct base if the base is 0
+    //
+    // Plan:
+    //: 1 Use stoi, stol, and stoll on a variety of valid value to ensure
+    //:   that the methods parse correctly (C-1)
+    //:
+    //: 2 Try to convert partially valid strings, ie strings that contain
+    //:   characters that are not valid in the base of the number.
+    //:
+    //: 3 Test a varity of numbers in base 0 to check if they detect the 
+    //:   correct base
+    //
+    // Testing:
+    //   hashAppend(HASHALG& hashAlg, const basic_string& str);
+    //   hashAppend(HASHALG& hashAlg, const native_std::basic_string& str);
+    // ------------------------------------------------------------------------
     static const struct {
         int         d_lineNum;          // source line number
         const char *d_input;            // input
         int         d_base;             // base of input
-        int         d_spec;             // specifications
+        size_t      d_pos;              // position of character after the 
+                                        // numeric value
+        long long   d_spec;             // specifications
     } DATA[] = {
-        //line  input           base    spec
-        //----  -----           ----    ----
-        { L_,   "0",            10,     0 },
-        { L_,   "-0",           10,     0}, 
-        { L_,   "10101",        10,     10101}, 
-        { L_,   "-10101",       10,     -10101}, 
-        { L_,   "32767",        10,     32767}, 
-        { L_,   "-32767",       10,     -32767}, 
+        //line  input                   base   pos      spec    
+        //----  -----                   ----   ---      ----
+        { L_,   "0",                    10,    1,       0 },
+        { L_,   "-0",                   10,    2,       0}, 
+        { L_,   "10101",                10,    5,       10101}, 
+        { L_,   "-10101",               10,    6,      -10101}, 
+        { L_,   "32767",                10,    5,       32767}, 
+        { L_,   "-32767",               10,    6,      -32767}, 
+        { L_,   "000032767",            10,    9,       32767}, 
+        { L_,   "2147483647",           10,    10,      2147483647}, 
+        { L_,   "-2147483647",          10,    11,     -2147483647}, 
+        { L_,   "4294967295",           10,    10,      4294967295}, 
+        //{ L_,   "-9223372036854775807", 10,  20,     -9223372036854775807}, 
+        //{ L_,   "9223372036854775807", 10,   21,      9223372036854775807}, 
+        
+        //test usage of spaces, and non valid characters with in the string
+        { L_,   "  515",                10,    5,       515}, 
+        { L_,   "  515  505050",        10,    5,       515}, 
+        { L_,   " 99abc99",             10,    3,       99}, 
+        { L_,   " 3.14159",             10,    2,       3}, 
+        { L_,   "0x555",                10,    1,       0}, 
+        
+        //test different bases  
+        { L_,   "111",                  2,     3,       7}, 
+        { L_,   "101",                  2,     3,       5}, 
+        { L_,   "100",                  2,     3,       4}, 
+        { L_,   "101010101010 ",        2,     12,      2730}, 
+        { L_,   "1010101010102 ",       2,     12,      2730}, 
+        { L_,   "111111111111111",      2,     15,      32767}, 
+        { L_,   "-111111111111111",     2,     16,     -32767}, 
+        { L_,   "77777",                8,     5,       32767},
+        { L_,   "-77777",               8,     6,      -32767}, 
+        { L_,   "7FFF",                 16,    4,       32767}, 
+        { L_,   "0x7FfF",               16,    6,       32767}, 
+        { L_,   "-00000x7FFf",          16,    6,      -0}, 
+        { L_,   "ZZZZ",                 36,    4,       1679615 }, 
+        
+        // base zero
+        { L_,   "79FFZZZf",             0,     2,       79}, 
+        { L_,   "0xFfAb",               0,     6,       65451}, 
+        { L_,   "05471",                0,     5,       2873}, 
+        { L_,   "0X5471",               0,     6,       21617}, 
+        { L_,   "5471",                 0,     4,       5471}, 
+        
     };
     const int NUM_DATA = sizeof DATA / sizeof *DATA;
     
@@ -1234,10 +1302,31 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
         const int    LINE   = DATA[ti].d_lineNum;
         const char  *INPUT  = DATA[ti].d_input;
         const int    BASE   = DATA[ti].d_base;
+        const int    POS    = DATA[ti].d_pos;
         const int    SPEC   = DATA[ti].d_spec;
         string inV(INPUT);
         
-        int value = bsl::stoi(inV);
+        std::string::size_type sz;
+        int value;
+        if (SPEC <= std::numeric_limits<int>::max()){
+            value = bsl::stoi(inV, &sz, BASE);
+            ASSERT (value == SPEC);
+            ASSERT (sz == POS);
+            P_(INPUT);P_(value);P(SPEC);
+        }
+        if (SPEC <= std::numeric_limits<long>::max()){
+            value = bsl::stol(inV, &sz, BASE);
+            ASSERT (value == SPEC);
+            ASSERT (sz == POS);
+            P_(INPUT);P_(value);P(SPEC);
+        }
+        if (SPEC <= std::numeric_limits<long long>::max()){
+            value = bsl::stoll(inV, &sz, BASE);
+            ASSERT (value == SPEC)
+            ASSERT (sz == POS);
+            P_(INPUT);P_(value);P(SPEC);
+        }
+        
     }
 }
 template <class TYPE, class TRAITS, class ALLOC>

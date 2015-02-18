@@ -2412,13 +2412,23 @@ getline(std::basic_istream<CHAR_TYPE, CHAR_TRAITS>&     is,
 
 //TODO
 int stoi(const string& str, std::size_t* pos = 0, int base = 10);
-//int stoi(const wstring& str, std::size_t* pos = 0, int base = 10);
-
-//long stol(const string& str, std::size_t* pos = 0, int base = 10);
-//long stol(const wstring& str, std::size_t* pos = 0, int base = 10);
-
-//long long stoll(const string& str, std::size_t* pos = 0, int base = 10);
-//long long stoll(const wstring& str, std::size_t* pos = 0, int base = 10);
+int stoi(const wstring& str, std::size_t* pos = 0, int base = 10);
+long stol(const string& str, std::size_t* pos = 0, int base = 10);
+long stol(const wstring& str, std::size_t* pos = 0, int base = 10);
+long long stoll(const string& str, std::size_t* pos = 0, int base = 10);
+long long stoll(const wstring& str, std::size_t* pos = 0, int base = 10);
+    // Parses 'str' interpreting its content as an integral number of the 
+    // specified 'base'. Valid bases are in the range of [0,36] where base 0
+    // automatically determines the base of the string. The base will be 16 if
+    // the number is prefixed with '0x' or '0X', base 8 if the number is 
+    // prefixed with a '0' and base 10 otherwise. If 'pos' is not a null 
+    // pointer the functions will set the 'pos' to the position of the first 
+    // character in the 'str' after the number. The function ignores leading
+    // white space characters and interprets as many characters possible to 
+    // form a valid base n integral number. If no conversion could be 
+    // performed, then an invalid_argument exception is thrown. If the value
+    // read is out of range of the return type, then an out_of_range exception
+    // is thrown.
 
 // HASH SPECIALIZATIONS
 template <class HASHALG, class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -5117,73 +5127,106 @@ void bsl::swap(basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& lhs,
 }
 
 //TODO
-int bsl::stoi(const string& str, std::size_t* pos, int base){
+template <class STRING_TYPE, class INTEGRAL_TYPE>
+INTEGRAL_TYPE stoAll(const STRING_TYPE& str, std::size_t* pos, int base){
     int result =0;
     bool positive = true;
-    bool isValidArg = false;
+    bool isValidArgSection = false;
 
     if (base > 37 || base < 0)
         return 0;
     
-    for (int i = 0; str[i]; ++i){
-    //for (int i = 0; str; ++i){
-        if (std::isspace(str[i])) continue;
-        
-        if (str[i] == '-') {
-            positive = false;
-            continue;
-        }
+    int i = 0;
+    for (; str[i]; ++i){   
+        // skip white space and set base
+        if (!isValidArgSection){
 
-        if (base == 0 || base == 16){
-            if (str[i] == '0' && (str[i+1] =='x' || str[i+1] =='X')){
-                ++i;
-                base = 16;
+            if (std::isspace(str[i])) continue;
+            
+            if (str[i] == '-') {
+                positive = false;
                 continue;
             }
-            else if (str[i] == '0'){
-                base = 8; 
-                continue;
+    
+            if (base == 0 || base == 16){
+                if (str[i] == '0' && (str[i+1] =='x' || str[i+1] =='X')){
+                    ++i;
+                    base = 16;
+                    continue;
+                }
+                else if (str[i] == '0'){
+                    base = 8; 
+                    continue;
+                }
+                        
             }
-                    
+            
+            if (base == 0){
+                base = 10;
+            }
         }
-        
-        int charValue;
+        //parse valid characters
+        int charValue = -1;
         if (std::isdigit(str[i])){
             charValue = (int)str[i] - 48;
         }
-        else if (str[i] <= 'Z' && str[i] >='A'){
-            charValue = str[i]-('Z'-'z') - 87; //value of 'a' is 10
+        else if(std::isalpha(str[i])){
+            if (str[i] <= 'Z' && str[i] >='A'){
+                charValue = str[i]-('Z'-'z') - 87; //value of 'a' is 10
+            }
+            else {
+                charValue = str[i] - 87; //value of 'a' is 10
+            }
         }
         
-        //if(std::isdigit(str)){
-        if(charValue <= base){
-            isValidArg = true;
-            if (result*base + charValue < std::numeric_limits<int>::max()){
+        if(charValue < base && charValue >= 0){
+            isValidArgSection = true;
+            if (result*base + charValue <=
+                    std::numeric_limits<INTEGRAL_TYPE>::max()){
                 result = result*base + charValue;
             }
             else {
                 BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("");
-                //throw std::out_of_range();
             }
         }
-        else if (!isValidArg)
-        {
-            BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("");
-            //throw std::invalid_argument;
+        else{
+            break;
         }
-        if (!positive) result *= -1;
     }
+    
+    if (pos != 0){
+        *pos = i;
+    }
+    
+    if (!positive) result *= -1;
+    if (!isValidArgSection) {
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("");
+    }
+    
     return result;
 }
-/*
-int stoi(const wstring& str, std::size_t* pos = 0, int base 10);
 
-long stol(const string& str, std::size_t* pos = 0, int base 10);
-long stol(const wstring& str, std::size_t* pos = 0, int base 10);
+int bsl::stoi(const string& str, std::size_t* pos, int base){
+    return stoAll<string, int>(str, pos, base);
+}
+int bsl::stoi(const wstring& str, std::size_t* pos, int base){
+    return stoAll<wstring, int>(str, pos, base);
+}
 
-long long stoll(const string& str, std::size_t* pos = 0, int base 10);
-long long stoll(const wstring& str, std::size_t* pos = 0, int base 10);
-*/
+long bsl::stol(const string& str, std::size_t* pos, int base){
+    return stoAll<string, long>(str, pos, base);
+}
+long bsl::stol(const wstring& str, std::size_t* pos, int base){
+    return stoAll<wstring, long>(str, pos, base);
+}
+
+long long bsl::stoll(const string& str, std::size_t* pos, int base){
+    return stoAll<string, long long>(str, pos, base);
+}
+long long bsl::stoll(const wstring& str, std::size_t* pos, int base){
+    return stoAll<wstring, long long>(str, pos, base);
+}
+
 
 // FREE OPERATORS
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
