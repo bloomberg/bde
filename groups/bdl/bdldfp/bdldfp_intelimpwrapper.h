@@ -68,16 +68,31 @@ BSLS_IDENT("$Id$")
 #      define __thread
 #    endif
 
-// in C++, there's always a 'wchar_t' type, so we need to tell Intel's library
+// In C++, there's always a 'wchar_t' type, so we need to tell Intel's library
 // about this.
 
 #    define _WCHAR_T_DEFINED
 
-     extern "C" {
-#     include <bid_conf.h>
-#     include <bid_functions.h>
-#     include <bid_internal.h>
-     }
+// There are SWAP macros exported from both calcrt2.h and bid_internal.h.
+
+#ifdef SWAP
+    #if SWAP == 99
+        #define BDLDFP_INTELIMPWRAPPER_SWAP_WAS_99 1
+    #endif
+    #undef SWAP
+#endif
+
+extern "C" {
+    #include <bid_conf.h>
+    #include <bid_functions.h>
+    #include <bid_internal.h>
+}
+
+#undef SWAP
+#if BDLDFP_INTELIMPWRAPPER_SWAP_WAS_99
+    #define SWAP 99
+    #undef BDLDFP_INTELIMPWRAPPER_SWAP_WAS_99
+#endif
 
 #    undef DECIMAL_CALL_BY_REFERENCE
 #    undef DECIMAL_GLOBAL_ROUNDING
