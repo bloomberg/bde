@@ -322,9 +322,9 @@ struct NonAllocCont {
     ~NonAllocCont() {}
 
     // MANIPULATORS
-    NonAllocCont& operator=(const NonAllocCont& other)
+    NonAllocCont& operator=(const NonAllocCont& rhs)
     {
-        d_vector = other.d_vector;
+        d_vector = rhs.d_vector;
         return *this;
     }
 
@@ -378,7 +378,7 @@ void swap(NonAllocCont<VALUE>& lhs, NonAllocCont<VALUE>& rhs)
 {
     lhs.contents().swap(rhs.contents());
 }
-}  // close namespace std
+}  // close std namespace
 
 template <class VALUE>
 struct ValueName {
@@ -507,7 +507,7 @@ void emptyNVerifyStack(stack<typename CONTAINER::value_type,
     ASSERTV(cont, val, LINE, expectedSize, pmX->size(),
                                                   expectedSize == pmX->size());
 
-    if(expectedSize != pmX->size()) {
+    if (expectedSize != pmX->size()) {
         return;                                                       // RETURN
     }
 
@@ -2704,7 +2704,7 @@ void TestDriver<CONTAINER>::testCase2()
               } break;
               default: {
                 ASSERTV(CONFIG, !"Bad allocator config.");
-                return;
+                return;                                               // RETURN
               } break;
             }
 
@@ -2792,7 +2792,7 @@ void TestDriver<CONTAINER>::testCase2()
                   } break;
                   default: {
                     ASSERTV(CONFIG, !"Bad allocator config.");
-                    return;
+                    return;                                           // RETURN
                   } break;
                 }
 
@@ -2833,7 +2833,7 @@ void TestDriver<CONTAINER>::testCase2()
                   } break;
                   default: {
                     ASSERTV(CONFIG, !"Bad allocator config.");
-                    return;
+                    return;                                           // RETURN
                   } break;
                 }
 
