@@ -249,8 +249,18 @@ using namespace std;
 // [30] int stoi(const wstring& str, std::size_t* pos = 0, int base 10);
 // [30] int stol(const string& str, std::size_t* pos = 0, int base 10);
 // [30] int stol(const wstring& str, std::size_t* pos = 0, int base 10);
+// [30] int stoul(const string& str, std::size_t* pos = 0, int base 10);
+// [30] int stoul(const wstring& str, std::size_t* pos = 0, int base 10);
 // [30] int stoll(const string& str, std::size_t* pos = 0, int base 10);
 // [30] int stoll(const wstring& str, std::size_t* pos = 0, int base 10);
+// [30] int stoull(const string& str, std::size_t* pos = 0, int base 10);
+// [30] int stoull(const wstring& str, std::size_t* pos = 0, int base 10);
+// [31] float stof(const string& str, std::size_t* pos =0);
+// [31] float stof(const wstring& str, std::size_t* pos =0);
+// [31] double stod(const string& str, std::size_t* pos =0);
+// [31] double stod(const wstring& str, std::size_t* pos =0);
+// [31] long double stold(const string& str, std::size_t* pos =0);
+// [31] long double stold(const wstring& str, std::size_t* pos =0);
 // [ 5] basic_ostream<C,CT>& operator<<(basic_ostream<C,CT>& stream,
 //                                      const string& str);
 // [ 5] basic_istream<C,CT>& operator>>(basic_istream<C,CT>& stream,
@@ -928,6 +938,9 @@ struct TestDriver {
         // specifications, and check that the specified 'result' agrees.
 
     // TEST CASES
+    static void testCase31();
+        // Test stof, stod and stold free methods.
+    
     static void testCase30();
         // Test stoi, stol and stoll free methods.
     
@@ -1217,6 +1230,102 @@ void TestDriver<TYPE,TRAITS,ALLOC>::checkCompare(const Obj& X,
                                  // TEST CASES
                                  // ----------
 template <class TYPE, class TRAITS, class ALLOC>
+void TestDriver<TYPE,TRAITS,ALLOC>::testCase31(){
+    // ------------------------------------------------------------------------
+    // TESTING 'stod', 'stof', 'stold'
+    //
+    // Concerns:
+    //: 1 stof, stod, stold parse the string properly into proper floating 
+    //:   point number
+    //:
+    //: 2 The methods discard leading white space characters and create largest
+    //:   valid floating point number
+    //:
+    //: 3 Detects the correct base with leading 0X or 0x
+    //:
+    //: 4 The methods detect exponents correctly 
+    //:
+    //: 5 The methods correcly identifies INF/INFINITY and NAN and converts 
+    //:   them appropriately 
+    //
+    // Plan:
+    //: 1 Use stof, stod, and stold on a variety of valid value to ensure
+    //:   that the methods parse correctly (C-1)
+    //:
+    //: 2 Try to convert partially valid strings, ie strings that contain
+    //:   characters that are not valid in the base of the number.
+    //:
+    //: 3 Test a varity of numbers in base 0 to check if they detect the 
+    //:   correct base
+    //
+    // Testing:
+    //   float stof(const string& str, std::size_t* pos =0);
+    //   float stof(const wstring& str, std::size_t* pos =0);
+    //   double stod(const string& str, std::size_t* pos =0);
+    //   double stod(const wstring& str, std::size_t* pos =0);
+    //   long double stold(const string& str, std::size_t* pos =0);
+    //   long double stold(const wstring& str, std::size_t* pos =0);
+    // ------------------------------------------------------------------------
+    static const struct {
+        int         d_lineNum;          // source line number
+        const char *d_input;            // input
+        size_t      d_pos;              // position of character after the 
+                                        // numeric value
+        double d_spec;             // specifications
+    } DATA[] = {
+        //line  input                      pos      spec    
+        //----  -----                      ---      ----
+        { L_,   "0",                       1,       0},
+        { L_,   "-0",                      2,       0}, 
+        { L_,   "3.145gg",                 5,       3.145}, 
+        { L_,   "    5.9991",              10,      5.9991}, 
+        { L_,   "0x0.f",                   5,       0.9375}, 
+        { L_,   "15e3",                   5,       1.5e+4},
+        { L_,   "0x1afp-2",                8,      -107.75},
+#if __cplusplus >= 201103L
+        { L_,   "inF",                     3,      std::numeric_limits
+                                                        <double>::infinity()},
+        { L_,   "nan",                     3,      std::nan(NULL)},
+#endif
+        
+    };
+    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+    
+    for (int ti = 0; ti < NUM_DATA; ++ti) {
+        const int    LINE   = DATA[ti].d_lineNum;
+        const char  *INPUT  = DATA[ti].d_input;
+        const int    POS    = DATA[ti].d_pos;
+        const double SPEC   = DATA[ti].d_spec;
+        string inV(INPUT);
+        
+        std::string::size_type sz;
+        double dV;
+        float fV;
+        
+        fV = bsl::stof(inV, &sz);
+        ASSERT (fV == SPEC);
+        ASSERT (sz == POS);
+        P_(INPUT);P_(fV );P(SPEC);
+        P_(sz);P(POS);
+        
+        dV = bsl::stod(inV, &sz);
+        ASSERT (dV == SPEC);
+        ASSERT (sz == POS);
+        P_(INPUT);P_(dV);P(SPEC);
+        P_(sz);P(POS);
+        
+#if __cplusplus >= 201103L
+        double ldV;
+        ldV = bsl::stold(inV, &sz);
+        ASSERT (ldV == SPEC);
+        ASSERT (sz == POS);
+        P_(INPUT);P_(ldV);P(SPEC);
+        P_(sz);P(POS);
+#endif
+            
+    }
+}
+template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
     // ------------------------------------------------------------------------
     // TESTING 'stoi', 'stol', 'stoll'
@@ -1240,8 +1349,17 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
     //:   correct base
     //
     // Testing:
-    //   hashAppend(HASHALG& hashAlg, const basic_string& str);
-    //   hashAppend(HASHALG& hashAlg, const native_std::basic_string& str);
+    //   int stoi(const string& str, std::size_t* pos = 0, int base = 10);
+    //   int stoi(const wstring& str, std::size_t* pos = 0, int base = 10);
+    //   long stol(const string& str, std::size_t* pos = 0, int base = 10);
+    //   long stol(const wstring& str, std::size_t* pos = 0, int base = 10);
+    //   long stoul(const string& str, std::size_t* pos = 0, int base = 10);
+    //   long stoul(const wstring& str, std::size_t* pos = 0, int base = 10);
+    //   long long stoll(const string& str, std::size_t* pos = 0, int base=10);
+    //   long long stoll(const wstring& str, std::size_t* pos= 0, int base=10);
+    //   long long stoull(const string& str,std::size_t* pos = 0, int base=10);
+    //   long long stoull(const wstring& str,std::size_t* pos= 0, int base=10);
+    
     // ------------------------------------------------------------------------
     static const struct {
         int         d_lineNum;          // source line number
@@ -1262,7 +1380,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
         { L_,   "000032767",            10,    9,       32767}, 
         { L_,   "2147483647",           10,    10,      2147483647}, 
         { L_,   "-2147483647",          10,    11,     -2147483647}, 
-        { L_,   "4294967295",           10,    10,      4294967295}, 
+        //{ L_,   "4294967295",           10,    10,      4294967295}, 
         //{ L_,   "-9223372036854775807", 10,  20,     -9223372036854775807}, 
         //{ L_,   "9223372036854775807", 10,   21,      9223372036854775807}, 
         
@@ -1313,6 +1431,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
             ASSERT (value == SPEC);
             ASSERT (sz == POS);
             P_(INPUT);P_(value);P(SPEC);
+            P_(sz);P(POS);
+            
         }
         if (SPEC <= std::numeric_limits<long>::max()){
             value = bsl::stol(inV, &sz, BASE);
@@ -1320,12 +1440,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
             ASSERT (sz == POS);
             P_(INPUT);P_(value);P(SPEC);
         }
+#if __cplusplus >= 201103L
         if (SPEC <= std::numeric_limits<long long>::max()){
             value = bsl::stoll(inV, &sz, BASE);
             ASSERT (value == SPEC)
             ASSERT (sz == POS);
             P_(INPUT);P_(value);P(SPEC);
         }
+#endif
         
     }
 }
@@ -1357,12 +1479,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
     //:   produce equal hashes. (C-4)
     //
     // Testing:
-    //   int stoi(const string& str, std::size_t* pos = 0, int base = 10);
-    //   int stoi(const wstring& str, std::size_t* pos = 0, int base = 10);
-    //   long stol(const string& str, std::size_t* pos = 0, int base = 10);
-    //   long stol(const wstring& str, std::size_t* pos = 0, int base = 10);
-    //   long long stoll(const string& str, std::size_t* pos = 0, int base=10);
-    //   long long stoll(const wstring& str, std::size_t* pos= 0, int base=10);
+    //   hashAppend(HASHALG& hashAlg, const basic_string& str);
+    //   hashAppend(HASHALG& hashAlg, const native_std::basic_string& str);
     // --------------------------------------------------------------------
     typedef ::BloombergLP::bslh::Hash<> Hasher;
     typedef typename Hasher::result_type HashType;
@@ -14218,7 +14336,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 31: {
+      case 32: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -14430,12 +14548,57 @@ int main(int argc, char *argv[])
             }
         }
       } break;
+      case 31: {
+        // --------------------------------------------------------------------
+        // TESTING 'stof', 'stod','stold'
+        //
+        // Testing 
+        //   float stof(const string& str, std::size_t* pos =0);
+        //   float stof(const wstring& str, std::size_t* pos =0);
+        //   double stod(const string& str, std::size_t* pos =0);
+        //   double stod(const wstring& str, std::size_t* pos =0);
+        //   long double stold(const string& str, std::size_t* pos =0);
+        //   long double stold(const wstring& str, std::size_t* pos =0);
+        // --------------------------------------------------------------------
+        if (verbose) printf("\nTESTING 'stof', 'stod','stold'"
+                              "\n==============================\n");
+        if (verbose) printf("\n... with 'char'.\n");
+            TestDriver<char>::testCase31();
+            
+        if (verbose) printf("\n... with 'wchar_t'.\n");
+            TestDriver<wchar_t>::testCase31();
+      }break;
       case 30: {
-        if (verbose) printf("\nTESTING 'stoi'"
-                            "\n====================\n");
+        // --------------------------------------------------------------------
+        // TESTING 'stoi', 'stol','stoul', 'stoll', 'stoull'
+        //
+        // Testing 
+        //   int stoi(const string& str, std::size_t* pos = 0, int base = 10);
+        //   int stoi(const wstring& str, std::size_t* pos = 0, int base = 10);
+        //   long stol(const string& str, std::size_t* pos = 0, int base = 10);
+        //   long stol(const wstring& str, std::size_t* pos = 0, 
+        //                                                      int base = 10);
+        //   unsigned long stoul(const string& str, std::size_t* pos = 0, 
+        //                                                      int base = 10);
+        //   unsigned long stoul(const wstring& str, std::size_t* pos = 0, 
+        //                                                      int base = 10);
+        //   long long stoll(const string& str, std::size_t* pos = 0, 
+        //                                                      int base = 10);
+        //   long long stoll(const wstring& str, std::size_t* pos = 0, 
+        //                                                      int base = 10);
+        //   unsigned long long stoull(const string& str, 
+        //                                std::size_t* pos = 0, int base = 10);
+        //   unsigned long long stoull(const wstring& str, 
+        //                                std::size_t* pos = 0, int base = 10);
+        // --------------------------------------------------------------------
+        if (verbose) printf("\nTESTING 'stoi', 'stol','stoul', 'stoll', "
+                "'stoull'\n=============================================\n");
+        if (verbose) printf("\n... with 'char'.\n");
         TestDriver<char>::testCase30();
+        
+        if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase30();
-      }
+      }break;
       case 29: {
         // --------------------------------------------------------------------
         // TESTING 'hashAppend'

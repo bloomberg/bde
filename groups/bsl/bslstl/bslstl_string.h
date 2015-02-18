@@ -739,6 +739,11 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_STRING
 #endif
 
+#ifndef INCLUDED_CSTDLIB
+#include <bsl_cstdlib.h>
+#define INCLUDED_CSTDLIB
+#endif
+
 #endif
 
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
@@ -2415,8 +2420,16 @@ int stoi(const string& str, std::size_t* pos = 0, int base = 10);
 int stoi(const wstring& str, std::size_t* pos = 0, int base = 10);
 long stol(const string& str, std::size_t* pos = 0, int base = 10);
 long stol(const wstring& str, std::size_t* pos = 0, int base = 10);
+unsigned long stoul(const string& str, std::size_t* pos = 0, int base = 10);
+unsigned long stoul(const wstring& str, std::size_t* pos = 0, int base = 10);
+#if __cplusplus >= 201103L
 long long stoll(const string& str, std::size_t* pos = 0, int base = 10);
 long long stoll(const wstring& str, std::size_t* pos = 0, int base = 10);
+unsigned long long stoull(const string& str, std::size_t* pos = 0, 
+                                                                int base = 10);
+unsigned long long stoull(const wstring& str, std::size_t* pos = 0, 
+                                                                int base = 10);
+#endif
     // Parses 'str' interpreting its content as an integral number of the 
     // specified 'base'. Valid bases are in the range of [0,36] where base 0
     // automatically determines the base of the string. The base will be 16 if
@@ -2429,6 +2442,15 @@ long long stoll(const wstring& str, std::size_t* pos = 0, int base = 10);
     // performed, then an invalid_argument exception is thrown. If the value
     // read is out of range of the return type, then an out_of_range exception
     // is thrown.
+
+float stof(const string& str, std::size_t* pos =0);
+float stof(const wstring& str, std::size_t* pos =0);
+double stod(const string& str, std::size_t* pos =0);
+double stod(const wstring& str, std::size_t* pos =0);
+#if __cplusplus >= 201103L
+long double stold(const string& str, std::size_t* pos =0);
+long double stold(const wstring& str, std::size_t* pos =0);
+#endif
 
 // HASH SPECIALIZATIONS
 template <class HASHALG, class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -5207,27 +5229,112 @@ INTEGRAL_TYPE stoInts(const STRING_TYPE& str, std::size_t* pos, int base){
 }
 
 inline int bsl::stoi(const string& str, std::size_t* pos, int base){
-    return stoInts<string, int>(str, pos, base);
+    char* ptr;
+    long value = std::strtol(str.c_str(), &ptr, base);
+    *pos = ptr - str.c_str();
+    return value;
+    
 }
 inline int bsl::stoi(const wstring& str, std::size_t* pos, int base){
-    return stoInts<wstring, int>(str, pos, base);
+    wchar_t* ptr;
+    long value = std::wcstol(str.c_str(), &ptr, base);
+    *pos = ptr - str.c_str();
+    return value;
 }
 
 inline long bsl::stol(const string& str, std::size_t* pos, int base){
-    return stoInts<string, long>(str, pos, base);
+    char* ptr;
+    long value = std::strtol(str.c_str(), &ptr, base);
+    *pos = ptr - str.c_str();
+    return value;
 }
 inline long bsl::stol(const wstring& str, std::size_t* pos, int base){
-    return stoInts<wstring, long>(str, pos, base);
+    wchar_t* ptr;
+    long value = std::wcstol(str.c_str(), &ptr, base);
+    *pos = ptr - str.c_str();
+    return value;
 }
-
+inline unsigned long bsl::stoul(const string& str, std::size_t* pos, int base){
+    char* ptr;
+    unsigned long value = std::strtoul(str.c_str(), &ptr, base);
+    *pos = ptr - str.c_str();
+    return value;
+}
+inline unsigned long bsl::stoul(const wstring& str, 
+                                                   std::size_t* pos, int base){
+    wchar_t* ptr;
+    unsigned long value = std::wcstoul(str.c_str(), &ptr, base);
+    *pos = ptr - str.c_str();
+    return value;
+}
+#if __cplusplus >= 201103L
 inline long long bsl::stoll(const string& str, std::size_t* pos, int base){
-    return stoInts<string, long long>(str, pos, base);
+    char* ptr;
+    long long value = std::strtoll(str.c_str(), &ptr, base);
+    *pos = ptr - str.c_str();
+    return value;
 }
 inline long long bsl::stoll(const wstring& str, std::size_t* pos, int base){
     return stoInts<wstring, long long>(str, pos, base);
+    wchar_t* ptr;
+    long long value = std::wcstoll(str.c_str(), &ptr, base);
+    *pos = ptr - str.c_str();
+    return value;
 }
+inline unsigned long long bsl::stoull(const string& str, std::size_t* pos, 
+                                                                     int base){
+    char* ptr;
+    unsigned long long value = std::strtoull(str.c_str(), &ptr, base);
+    *pos = ptr - str.c_str();
+    return value;
+}
+inline unsigned long long bsl::stoull(const wstring& str, std::size_t* pos, 
+                                                                     int base){
+    wchar_t* ptr;
+    unsigned long long value = std::wcstoull(str.c_str(), &ptr, base);
+    *pos = ptr - str.c_str();
+    return value;
+}
+#endif
 
-
+inline float bsl::stof(const string& str, std::size_t* pos){
+    char* ptr;
+    float value = std::strtod(str.c_str(), &ptr);
+    *pos = ptr - str.c_str();
+    return value;
+}
+inline float bsl::stof(const wstring& str, std::size_t* pos){
+    wchar_t* ptr;
+    float value = std::wcstod(str.c_str(), &ptr);
+    *pos = ptr - str.c_str();
+    return value;
+}
+inline double bsl::stod(const string& str, std::size_t* pos){
+    char* ptr;
+    double value = std::strtod(str.c_str(), &ptr);
+    *pos = ptr - str.c_str();
+    return value;
+}
+inline double bsl::stod(const wstring& str, std::size_t* pos){
+    wchar_t* ptr;
+    double value = std::wcstod(str.c_str(), &ptr);
+    *pos = ptr - str.c_str();
+    return value;
+}
+#if __cplusplus >= 201103L
+inline long double bsl::stold(const string& str, std::size_t* pos){
+    char* ptr;
+    long double value = std::strtold(str.c_str(), &ptr);
+    *pos = ptr - str.c_str();
+    return value;
+}
+inline long double bsl::stold(const wstring& str, std::size_t* pos){
+    wchar_t* ptr;
+    long double value = std::wcstold(str.c_str(), &ptr);
+    *pos = ptr - str.c_str();
+    return value;
+}
+#endif
 // FREE OPERATORS
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 inline
