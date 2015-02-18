@@ -378,7 +378,7 @@ void swap(NonAllocCont<VALUE>& lhs, NonAllocCont<VALUE>& rhs)
 {
     lhs.contents().swap(rhs.contents());
 }
-}  // close std namespace
+}  // close namespace std
 
 template <class VALUE>
 struct ValueName {

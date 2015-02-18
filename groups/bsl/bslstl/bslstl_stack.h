@@ -946,7 +946,7 @@ void swap(stack<VALUE, CONTAINER>& lhs,
     lhs.swap(rhs);
 }
 
-}  // close bsl namespace
+}  // close namespace bsl
 
 #endif
 
