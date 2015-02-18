@@ -188,18 +188,26 @@ BSLS_IDENT("$Id: $")
 // };
 //..
 
-#if __cplusplus < 201103
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
 
-#define BSLS_CPP11_EXPLICIT
-#define BSLS_CPP11_FINAL
-#define BSLS_CPP11_OVERRIDE
-
-#else /* !(__cplusplus < 201103) */
-
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 #define BSLS_CPP11_EXPLICIT   explicit
-#define BSLS_CPP11_FINAL      final
-#define BSLS_CPP11_OVERRIDE   override
+#else
+#define BSLS_CPP11_EXPLICIT
+#endif
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_FINAL
+#define BSLS_CPP11_FINAL      final
+#else
+#define BSLS_CPP11_FINAL
+#endif
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
+#define BSLS_CPP11_OVERRIDE   override
+#else
+#define BSLS_CPP11_OVERRIDE
 #endif
 
 // ----------------------------------------------------------------------------
