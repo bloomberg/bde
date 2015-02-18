@@ -106,7 +106,8 @@ int main(int argc, char *argv[])
         Optional<int> value;
         ASSERT(bool(value) == false);
         if (value) { /*... */ }
-#if __cplusplus < 201103 || defined(FAIL_USAGE_EXPLICIT)
+#if !defined(BSLS_COMPILERFEATURS_SUPPORT_OPERATOR_EXPLICIT) \
+ || defined(FAIL_USAGE_EXPLICIT)
         bool flag = value;
         ASSERT(flag == false);
 #endif
@@ -122,7 +123,7 @@ int main(int argc, char *argv[])
                 // Returns the object's value.
         };
         class FinalClassDerived
-#if __cplusplus < 201103 || defined(FAIL_USAGE_FINAL_CLASS)
+#if !BSLS_COMPILERFEATURES_SUPPORT_FINAL || defined(FAIL_USAGE_FINAL_CLASS)
             : public FinalClass
 #endif
         {
@@ -148,18 +149,17 @@ int main(int argc, char *argv[])
         };
         struct FinalFunctionDerived: FinalFunctionBase
         {
-            int f()
+            int f() BSLS_CPP11_FINAL
                 // Returns a value associated with the the class's type.
-#if __cplusplus < 201103 || defined(FAIL_USAGE_FINAL_FUNCTION)
-                BSLS_CPP11_FINAL
-#endif
             { return 1; }
         };
         struct FinalFunctionFailure: FinalFunctionDerived
         {
+#if !BSLS_COMPILERFEATURES_SUPPORT_FINAL || defined(FAIL_USAGE_FINAL_FUNCTION)
             int f()
                 // Returns a value associated with the the class's type.
             { return 2; }
+#endif
         };
 
         FinalFunctionBase finalFunctionBase;
@@ -185,7 +185,8 @@ int main(int argc, char *argv[])
         {
             int f()
                 // Returns a value associated with the type.
-#if __cplusplus < 201103 || defined(FAIL_USAGE_OVERRIDE)
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE) \
+ || defined(FAIL_USAGE_OVERRIDE)
                 BSLS_CPP11_OVERRIDE
 #endif
             { return 2; }
@@ -303,7 +304,7 @@ int main(int argc, char *argv[])
         {
             int f()
                 // Returns a value specific to this type.
-#if __cplusplus < 201103 || defined(FAIL_OVERRIDE)
+#if !defined(BSLS_COMPILER_FEATURES_OVERRIDE) || defined(FAIL_OVERRIDE)
                 BSLS_CPP11_OVERRIDE
 #endif
             {
@@ -352,16 +353,17 @@ int main(int argc, char *argv[])
         {
             int f()
                 // Returns a value for the specific type.
-#if __cplusplus < 201103 || defined(FAIL_FINAL_FUNCTION)
                 BSLS_CPP11_FINAL
-#endif
             { return 1; }
         };
         struct FinalFunctionFailure: FinalFunctionDerived
         {
+#if !defined(BSLS_COMPILER_FEATURES_SUPPORT_FINAL) \
+ || defined(FAIL_FINAL_FUNCTION)
             int f()
                 // Returns a value for the specific type.
             { return 2; }
+#endif
         };
 
         FinalFunctionBase finalFunctionBase;
@@ -407,7 +409,7 @@ int main(int argc, char *argv[])
             { return d_value; }
         };
         class FinalClassDerived
-#if __cplusplus < 201103 || defined(FAIL_FINAL_CLASS)
+#if !defined(BSLS_COMPILER_FEATURES_SUPPORT_FINAL) || defined(FAIL_FINAL_CLASS)
             : public FinalClass
 #endif
         {
@@ -464,7 +466,8 @@ int main(int argc, char *argv[])
 
         int explicitResult(explicitObject);
         ASSERT(explicitResult == 3);
-#if __cplusplus < 201103 || defined(FAIL_EXPLICIT)
+#if !defined(BSLS_COMPILER_FEATURES_SUPPORT_OPERATOR_EXPLICIT) \
+ || defined(FAIL_EXPLICIT)
         int implicitResult = explicitObject;
         ASSERT(implicitResult == 3);
 #endif
