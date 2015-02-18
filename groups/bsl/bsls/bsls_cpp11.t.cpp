@@ -1,6 +1,6 @@
-// bsls_cxx11.t.cpp                                                   -*-C++-*-
+// bsls_cpp11.t.cpp                                                   -*-C++-*-
 
-#include <bsls_cxx11.h>
+#include <bsls_cpp11.h>
 
 #include <stdlib.h>
 #include <iostream>
@@ -16,10 +16,10 @@
 //                                  Overview
 //                                  --------
 //-----------------------------------------------------------------------------
-// [ 1] BSLS_CXX11_EXPLICIT
-// [ 2] BSLS_CXX11_FINAL (class)
-// [ 3] BSLS_CXX11_FINAL (function)
-// [ 4] BSLS_CXX11_OVERRIDE
+// [ 1] BSLS_CPP11_EXPLICIT
+// [ 2] BSLS_CPP11_FINAL (class)
+// [ 3] BSLS_CPP11_FINAL (function)
+// [ 4] BSLS_CPP11_OVERRIDE
 //-----------------------------------------------------------------------------
 // [ 5] MACRO SAFETY
 // [ 6] USAGE EXAMPLE
@@ -66,7 +66,7 @@ namespace
 
         // ...
 
-        BSLS_CXX11_EXPLICIT
+        BSLS_CPP11_EXPLICIT
         operator bool() const { return d_value; }
             // The conversion operators returns the object's value.
     };
@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
         ASSERT(flag == false);
 #endif
 
-        class FinalClass BSLS_CXX11_FINAL
+        class FinalClass BSLS_CPP11_FINAL
         {
             int d_value;
         public:
@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
             int f()
                 // Returns a value associated with the the class's type.
 #if __cplusplus < 201103 || defined(FAIL_USAGE_FINAL_FUNCTION)
-                BSLS_CXX11_FINAL
+                BSLS_CPP11_FINAL
 #endif
             { return 1; }
         };
@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
         };
         struct OverrideSuccess: OverrideBase
         {
-            int f() const BSLS_CXX11_OVERRIDE
+            int f() const BSLS_CPP11_OVERRIDE
                 // Returns a value associated with the type.
             { return 1; }
         };
@@ -186,7 +186,7 @@ int main(int argc, char *argv[])
             int f()
                 // Returns a value associated with the type.
 #if __cplusplus < 201103 || defined(FAIL_USAGE_OVERRIDE)
-                BSLS_CXX11_OVERRIDE
+                BSLS_CPP11_OVERRIDE
 #endif
             { return 2; }
         };
@@ -230,19 +230,19 @@ int main(int argc, char *argv[])
         };
         struct TestIntermediate
             : TestBase {
-            void f() BSLS_CXX11_OVERRIDE BSLS_CXX11_FINAL
+            void f() BSLS_CPP11_OVERRIDE BSLS_CPP11_FINAL
                 // Override the abstraction function.
             {}
-            void g() BSLS_CXX11_FINAL BSLS_CXX11_OVERRIDE
+            void g() BSLS_CPP11_FINAL BSLS_CPP11_OVERRIDE
                 // Override the abstraction function.
             {}
         };
-        struct TestDerived BSLS_CXX11_FINAL
+        struct TestDerived BSLS_CPP11_FINAL
             : TestIntermediate {
             bool test()
                 // Returns 'true'.
             { return true; }
-            BSLS_CXX11_EXPLICIT
+            BSLS_CPP11_EXPLICIT
             operator bool() const
                 // The conversion operator always returns 'true'.
             { return true; }
@@ -254,15 +254,15 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING: BSLS_CXX11_OVERRIDE
+        // TESTING: BSLS_CPP11_OVERRIDE
         //
         // Concerns:
         //   1) Marking an overriding function as 'override' using
-        //      'BSLS_CXX11_OVERRIDE' shall compile OK both with C++03 and
+        //      'BSLS_CPP11_OVERRIDE' shall compile OK both with C++03 and
         //      C++11 mode.
         //
         //   2) Marking a function which isn't overriding a 'virtual' function
-        //      as 'override' using 'BSLS_CXX11_OVERRIDE' shall fail to
+        //      as 'override' using 'BSLS_CPP11_OVERRIDE' shall fail to
         //      compile when compiling using C++11 mode.  It may fail when
         //      using C++03 mode due to a warning about an overload hiding
         //      base class functions.
@@ -270,7 +270,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Define a base class with a 'virtual' function and two derived
         //   classes which override the function correclty and incorrectly.  In
-        //   both cases use the 'BSLS_CXX11_OVERRIDE' macro and determine if
+        //   both cases use the 'BSLS_CPP11_OVERRIDE' macro and determine if
         //   the compilation is successful.  The incorrect use is guarded by a
         //   the macro 'FAIL_OVERRIDE' to restrict compilation failure to
         //   compilations with this macro defined.
@@ -278,7 +278,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             std::cout << std::endl
-                      << "TESTING: BSLS_CXX11_OVERRIDE" << std::endl
+                      << "TESTING: BSLS_CPP11_OVERRIDE" << std::endl
                       << "============================" << std::endl;
 
         struct Base
@@ -292,7 +292,7 @@ int main(int argc, char *argv[])
         struct OverrideOK
             : Base
         {
-            int f() const BSLS_CXX11_OVERRIDE
+            int f() const BSLS_CPP11_OVERRIDE
                 // Returns a value specific to this type.
             {
                 return 1;
@@ -304,7 +304,7 @@ int main(int argc, char *argv[])
             int f()
                 // Returns a value specific to this type.
 #if __cplusplus < 201103 || defined(FAIL_OVERRIDE)
-                BSLS_CXX11_OVERRIDE
+                BSLS_CPP11_OVERRIDE
 #endif
             {
                 return 2;
@@ -320,26 +320,26 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING BSLS_CXX11_FINAL (function)
+        // TESTING BSLS_CPP11_FINAL (function)
         //
         // Concerns:
         //   1) Marking a 'virtual' function as 'final' should compile.
         //
         //   2) Trying to override a function marked as 'final' shall fail to
         //      to compile when compiling with C++11 mode.  Since
-        //      'BSLS_CXX11_FINAL' is replaced by nothing when compiling with
+        //      'BSLS_CPP11_FINAL' is replaced by nothing when compiling with
         //      C++03 mode the could should compile in this case.
         //
         // Plan:
         //   Define a base class with a 'virtual' function and mark it 'final'
-        //   using 'BSLS_CXX11_FINAL' in a derived class.  Creating a further
+        //   using 'BSLS_CPP11_FINAL' in a derived class.  Creating a further
         //   derived class which also overrides the function marked as 'final'
         //   should fail compilation when compiling with C++11 mode.
         // --------------------------------------------------------------------
 
         if (verbose)
             std::cout << std::endl
-                      << "TESTING: BSLS_CXX11_FINAL (function)" << std::endl
+                      << "TESTING: BSLS_CPP11_FINAL (function)" << std::endl
                       << "====================================" << std::endl;
 
         struct FinalFunctionBase
@@ -353,7 +353,7 @@ int main(int argc, char *argv[])
             int f()
                 // Returns a value for the specific type.
 #if __cplusplus < 201103 || defined(FAIL_FINAL_FUNCTION)
-                BSLS_CXX11_FINAL
+                BSLS_CPP11_FINAL
 #endif
             { return 1; }
         };
@@ -373,29 +373,29 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING: BSLS_CXX11_FINAL (class)
+        // TESTING: BSLS_CPP11_FINAL (class)
         //
         // Concerns:
-        //   1) Marking a class 'final' using 'BSLS_CXX11_FINAL' should result
+        //   1) Marking a class 'final' using 'BSLS_CPP11_FINAL' should result
         //      in a successful compilation.
         //
         //   2) Trying to further derive from a function marked as 'final'
         //      shall fail to compile when compiling with C++11 mode.  Since
-        //      'BSLS_CXX11_FINAL' is replaced by nothing when compiling with
+        //      'BSLS_CPP11_FINAL' is replaced by nothing when compiling with
         //      C++03 mode the could should compile in this case.
         //
         // Plan:
-        //   Define a class marking it 'final' using 'BSLS_CXX11_FINAL'.
+        //   Define a class marking it 'final' using 'BSLS_CPP11_FINAL'.
         //   Creating a derived class from the 'final' class should fail
         //   compilation when compiling with C++11 mode.
         // --------------------------------------------------------------------
 
         if (verbose)
             std::cout << std::endl
-                      << "TESTING: BSLS_CXX11_FINAL (class)" << std::endl
+                      << "TESTING: BSLS_CPP11_FINAL (class)" << std::endl
                       << "=================================" << std::endl;
 
-        class FinalClass BSLS_CXX11_FINAL
+        class FinalClass BSLS_CPP11_FINAL
         {
             int d_value;
         public:
@@ -429,14 +429,14 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING: BSLS_CXX11_EXPLICIT
+        // TESTING: BSLS_CPP11_EXPLICIT
         //
         // Concerns:
         //   1) Marking a conversion operator 'explicit' using
-        //      'BSLS_CXX_EXPLICIT' needs to allow explicit conversions.
+        //      'BSLS_CPP11_EXPLICIT' needs to allow explicit conversions.
         //
         //   2) Marking a conersion operator 'explicit' using
-        //      'BSLS_CXX_EXPLICIT' should prevent attempts of implicit
+        //      'BSLS_CPP11_EXPLICIT' should prevent attempts of implicit
         //      conversion when compiling with C++11 mode. When compiling with
         //      C++03 mode compilation will succeed.
         //
@@ -449,12 +449,12 @@ int main(int argc, char *argv[])
 
         if (verbose)
             std::cout << std::endl
-                      << "TESTING: BSLS_CXX11_EXPLICIT" << std::endl
+                      << "TESTING: BSLS_CPP11_EXPLICIT" << std::endl
                       << "============================" << std::endl;
 
         struct Explicit
         {
-            BSLS_CXX11_EXPLICIT
+            BSLS_CPP11_EXPLICIT
             operator int() const
                 // Returns a value for the object.
             { return 3; }

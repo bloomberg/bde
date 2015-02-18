@@ -1,5 +1,5 @@
-// bsls_cxx11.cpp                                                     -*-C++-*-
-#include <bsls_cxx11.h>
+// bsls_cpp11.cpp                                                     -*-C++-*-
+#include <bsls_cpp11.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")

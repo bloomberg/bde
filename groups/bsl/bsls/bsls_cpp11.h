@@ -1,6 +1,6 @@
-// bsls_cxx11.h                                                       -*-C++-*-
-#ifndef INCLUDED_BSLS_CXX11
-#define INCLUDED_BSLS_CXX11
+// bsls_cpp11.h                                                       -*-C++-*-
+#ifndef INCLUDED_BSLS_CPP11
+#define INCLUDED_BSLS_CPP11
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -12,9 +12,9 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //
 //@MACROS:
-//  BSLS_CXX11_EXPLICIT: C++11 'explicit' for conversion operators
-//  BSLS_CXX11_FINAL: C++11 'final' keyword
-//  BSLS_CXX11_OVERRIDE: C++11 'override' keyword
+//  BSLS_CPP11_EXPLICIT: C++11 'explicit' for conversion operators
+//  BSLS_CPP11_FINAL: C++11 'final' keyword
+//  BSLS_CPP11_OVERRIDE: C++11 'override' keyword
 //
 //@DESCRIPTION: This component provides definitions to use C++11 features in
 // both C++03 and C++11 without using conditional compilation where the
@@ -27,15 +27,15 @@ BSLS_IDENT("$Id: $")
 ///-------------
 // The following are the macros provided by this component.
 //
-//  'BSLS_CXX11_EXPLICIT'
+//  'BSLS_CPP11_EXPLICIT'
 //    This macro inserts the keyword 'explicit' when compiling with C++11 mode
 //    and inserts nothing when compiling with C++03 mode.
 //
-//  'BSLS_CXX11_FINAL'
+//  'BSLS_CPP11_FINAL'
 //    This macro inserts the keyword 'final' when compiling with C++11 mode
 //    and inserts nothing when compiling with C++03 mode.
 //
-//  'BSLS_CXX11_OVERRIDE'
+//  'BSLS_CPP11_OVERRIDE'
 //    This macro inserts the keyword 'override' when compiling with C++11 mode
 //    and inserts nothing when compiling with C++03 mode.
 //
@@ -53,7 +53,7 @@ BSLS_IDENT("$Id: $")
 // define conversion operators but prior to C++11 these conversion operators
 // are considered for implicit conversion.  C++11 allows the use of the
 // 'explicit' keyword with conversion operators to avoid its use for implicit
-// conversions.  The macro 'BSLS_CXX11_EXPLICIT' can be used to mark
+// conversions.  The macro 'BSLS_CPP11_EXPLICIT' can be used to mark
 // conversions as explicit conversions which will be checked when compiling
 // with C++11 mode. For example, an 'Optional' type may have an explicit
 // conversion to 'bool' to indicate that the value is set (note the conversion
@@ -69,7 +69,7 @@ BSLS_IDENT("$Id: $")
 //     ~Optional() { delete d_value; }
 //     // ...
 //
-//     BSLS_CXX11_EXPLICIT operator bool() const { return d_value; }
+//     BSLS_CPP11_EXPLICIT operator bool() const { return d_value; }
 // };
 //..
 // When using an object of the 'Optional' class in a condition it is desirable
@@ -93,11 +93,11 @@ BSLS_IDENT("$Id: $")
 // these classes and enforce that they can't be derived from C++11 allows using
 // the 'final' keyword after the class name in the class definition to label
 // classes which are not intended to be derived from. The macro
-// 'BSLS_CXX11_FINAL' is replaced by 'final' when compiling with C++11 causing
+// 'BSLS_CPP11_FINAL' is replaced by 'final' when compiling with C++11 causing
 // the compiler to enforce that a class can't be further derived. The code
 // below defines a class which can't be derived from:
 //..
-// class FinalClass BSLS_CXX11_FINAL
+// class FinalClass BSLS_CPP11_FINAL
 // {
 //     int d_value;
 // public:
@@ -125,7 +125,7 @@ BSLS_IDENT("$Id: $")
 // compiler that it won't need to use virtual dispatch when calling this
 // function on a pointer or a reference of the corresponding type.  C++11
 // allows marking functions as the final overrider using the keyword 'final'.
-// The macro 'BSLS_CXX11_FINAL' can also be used for this purpose.  To
+// The macro 'BSLS_CPP11_FINAL' can also be used for this purpose.  To
 // demonstrate the use of this keyword first a base class with a 'virtual'
 // function is defined:
 //..
@@ -135,11 +135,11 @@ BSLS_IDENT("$Id: $")
 // };
 //..
 // When defining a derived class this function 'f' can be marked as the final
-// overrider using 'BSLS_CXX11_FINAL':
+// overrider using 'BSLS_CPP11_FINAL':
 //..
 // struct FinalFunctionDerived: FinalFunctionBase
 // {
-//     int f() BSLS_CXX11_FINAL { return 1; }
+//     int f() BSLS_CPP11_FINAL { return 1; }
 // };
 //..
 // The semantics of the overriding fucntion aren't changed but a further
@@ -156,11 +156,11 @@ BSLS_IDENT("$Id: $")
 // The C++11 keyword 'override' is used to identify functions overriding a
 // 'virtual' function from a base class.  If a function identified as
 // 'override' does not override a 'virtual' function from a base class the
-// compilation results in an error.  The macro 'BSLS_CXX11_OVERRIDE' is used to
+// compilation results in an error.  The macro 'BSLS_CPP11_OVERRIDE' is used to
 // insert the 'override' keyword when compiling with C++11 mode.  When
 // compiling with C++03 mode it has no effect but it both cases it documents
 // that a function is overriding a 'virtual' function from a base class.  To
-// demonstrate the use of the 'BSLS_CXX11_OVERRIDE' macro first a base class
+// demonstrate the use of the 'BSLS_CPP11_OVERRIDE' macro first a base class
 // is defined:
 //..
 // struct OverrideBase
@@ -169,12 +169,12 @@ BSLS_IDENT("$Id: $")
 // };
 //..
 // When overriding 'OverrideBase::f' in a derived class the
-// 'BSLS_CXX11_OVERRIDE' macro should be used to ascertain that the function in
+// 'BSLS_CPP11_OVERRIDE' macro should be used to ascertain that the function in
 // the derived class is indeed overriding a 'virtual' function:
 //..
 // struct OverrideSuccess: OverrideBase
 // {
-//     int f() const BSLS_CXX11_OVERRIDE { return 1; }
+//     int f() const BSLS_CPP11_OVERRIDE { return 1; }
 // };
 //..
 // The above code compiles successfully with both C++03 mode and C++11.  When
@@ -184,21 +184,21 @@ BSLS_IDENT("$Id: $")
 //..
 // struct OverrideFailure: OverrideBase
 // {
-//     int f() BSLS_CXX11_OVERRIDE { return 2; }
+//     int f() BSLS_CPP11_OVERRIDE { return 2; }
 // };
 //..
 
 #if __cplusplus < 201103
 
-#define BSLS_CXX11_EXPLICIT
-#define BSLS_CXX11_FINAL
-#define BSLS_CXX11_OVERRIDE
+#define BSLS_CPP11_EXPLICIT
+#define BSLS_CPP11_FINAL
+#define BSLS_CPP11_OVERRIDE
 
 #else /* !(__cplusplus < 201103) */
 
-#define BSLS_CXX11_EXPLICIT   explicit
-#define BSLS_CXX11_FINAL      final
-#define BSLS_CXX11_OVERRIDE   override
+#define BSLS_CPP11_EXPLICIT   explicit
+#define BSLS_CPP11_FINAL      final
+#define BSLS_CPP11_OVERRIDE   override
 
 #endif
 
