@@ -1278,14 +1278,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase31(){
         { L_,   "0",                       1,       0},
         { L_,   "-0",                      2,       0}, 
         { L_,   "3.145gg",                 5,       3.145}, 
-        { L_,   "    5.9991",              10,      5.9991},
+        { L_,   "    -5.9991",             11,     -5.9991},
+        { L_,   "10e1",                    4,       1e2},
+        { L_,   "10p2",                    2,       10},
+        { L_,   "0xf.f",                   5,       15.937500},
         
-        // The following three test cases have been tested. However becasue of
-        // rouding issues past the 6th decimal place, the ASSERT (fV == SPEC) 
-        // is false. 
-        //{ L_,   "0x0.f",                  5,       0.9375}, 
-        //{ L_,   "15e3",                   5,       1.5e+4},
-        //{ L_,   "0x1afp-2",               8,      -107.75},
 #if __cplusplus >= 201103L
         { L_,   "inF",                     3,      std::numeric_limits
                                                         <double>::infinity()},
