@@ -1259,7 +1259,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
         //{L_, "18446744073709551615",    18446744073709551615},
     };
     const int NUM_DATA = sizeof DATA / sizeof *DATA;
-    
+        
     Obj spec(AllocType(&testAllocator));
     if (verbose) printf("\nTesting 'to_string(int).\n");
     for (int ti = 0; ti < NUM_DATA; ++ti){
@@ -1283,52 +1283,29 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
         if (VALUE <= std::numeric_limits<int>::max()){
             string str = bsl::to_string(static_cast<int>(VALUE));
             ASSERT(str == spec);
-            std::cout<< "int str: "<<str<< ", spec: "<<spec <<'\n';
         }
         
         if (VALUE <= std::numeric_limits<unsigned int>::max() && VALUE >=0){
             string str = bsl::to_string(static_cast<unsigned int>(VALUE));
             ASSERT(str == spec);
-            std::cout<< "uint str: "<<str<< ", spec: "<<spec <<'\n';
         }
         if (VALUE <= std::numeric_limits<long>::max()){
             string str = bsl::to_string(static_cast<long>(VALUE));
             ASSERT(str == spec);
-            std::cout<< "long str: "<<str<< ", spec: "<<spec <<'\n';
         }
         if (VALUE <= std::numeric_limits<unsigned long>::max() && VALUE >=0){
             string str = bsl::to_string(static_cast<unsigned long>(VALUE));
             ASSERT(str == spec);
-            std::cout<< "ulong str: "<<str<< ", spec: "<<spec <<'\n';
         }
         if (VALUE <= std::numeric_limits<long long>::max()){
             string str = bsl::to_string(static_cast<long long>(VALUE));
             ASSERT(str == spec);
-            std::cout<< "long long str: "<<str<< ", spec: "<<spec <<'\n';
         }
         if (VALUE <= std::numeric_limits<unsigned long long>::max()&&VALUE>=0){
             string str = bsl::to_string(static_cast
                                         <unsigned long long>(VALUE));
             ASSERT(str == spec);
-            std::cout<< "ull str: "<<str<< ", spec: "<<spec <<'\n';
         }
-        /*
-        if (VALUE <= std::numeric_limits<float>::max()){
-            string str = bsl::to_string(static_cast<float>(VALUE));
-            ASSERT(str == spec);
-            std::cout<< "float str: "<<str<< ", spec: "<<spec <<'\n';
-        }
-        if (VALUE <= std::numeric_limits<double>::max()){
-            string str = bsl::to_string(static_cast<double>(VALUE));
-            ASSERT(str == spec);
-            std::cout<< "double str: "<<str<< ", spec: "<<spec <<'\n';
-        }
-        if (VALUE <= std::numeric_limits<float>::max()){
-            string str = bsl::to_string(static_cast<long double>(VALUE));
-            ASSERT(str == spec);
-            std::cout<< "long double str: "<<str<< ", spec: "<<spec <<'\n';
-        }
-        */
         const Int64 AA = testAllocator.numBlocksTotal();
         const Int64  A = testAllocator.numBlocksInUse();
         
@@ -1338,7 +1315,215 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
         }
     }
     ASSERT(0 == testAllocator.numMismatches());
-    ASSERT(0 == testAllocator.numBlocksInUse());    
+    ASSERT(0 == testAllocator.numBlocksInUse());   
+    
+    static const struct {
+        int         d_lineNum;
+        const char *d_spec;
+        long double   d_value;
+    } DOUBLE_DATA[] = {
+        //   spec                       value
+        {L_, "1.000000",                1.0},
+        {L_, "1.010000",                1.01},
+        {L_, "1.010000",                1.010},
+        {L_, "1.010100",                1.0101},
+        {L_, "1.010100",                1.01010},
+        {L_, "1.010101",                1.010101},
+        {L_, "1.010101",                1.01010101},
+        {L_, "1.010102",                1.0101019},
+        {L_, "3.141593",                3.1415926},
+        {L_, "5.156000",                005.156},
+        {L_, "24.000000",               24.0},
+        {L_, "24.111111",               24.1111111111111111111},
+    };
+    const int NUM_DOUBLE_DATA = sizeof DOUBLE_DATA / sizeof *DOUBLE_DATA;
+    
+    for (int ti = 0; ti < NUM_DOUBLE_DATA; ++ti){
+        const int                LINE  = DOUBLE_DATA[ti].d_lineNum;
+        const char*              SPEC  = DOUBLE_DATA[ti].d_spec;
+        const long double             VALUE = DOUBLE_DATA[ti].d_value;
+        
+        if (veryVerbose){
+            printf("\tConverting ");P_(SPEC);
+            printf("to a string.\n");
+        }
+        
+        const Int64 BB = testAllocator.numBlocksTotal();
+        const Int64  B = testAllocator.numBlocksInUse();
+            
+        if (veryVerbose)
+        {
+            printf("\t\tBefore: ");P_(BB);P(B);
+        }
+        string spec(SPEC);
+
+        if (VALUE <= std::numeric_limits<float>::max()){
+            string str = bsl::to_string(static_cast<float>(VALUE));
+            ASSERT(str == spec);
+        }
+        if (VALUE <= std::numeric_limits<double>::max()){
+            string str = bsl::to_string(static_cast<double>(VALUE));
+            ASSERT(str == spec);
+        }
+        if (VALUE <= std::numeric_limits<float>::max()){
+            string str = bsl::to_string(static_cast<long double>(VALUE));
+            ASSERT(str == spec);
+        }
+        
+        const Int64 AA = testAllocator.numBlocksTotal();
+        const Int64  A = testAllocator.numBlocksInUse();
+            
+        if (veryVerbose)
+        {
+            printf("\t\tAfter: ");P_(AA);P(A);
+        }
+    }
+    ASSERT(0 == testAllocator.numMismatches());
+    ASSERT(0 == testAllocator.numBlocksInUse());   
+    
+    static const struct {
+        int            d_lineNum;
+        const wchar_t *d_spec;
+        long long      d_value;
+    } WDATA[] = {
+        //   spec                      value
+        {L_, L"0",                       0},
+        {L_, L"1",                       1},
+        {L_, L"-1",                     -1},
+        {L_, L"10101",                   10101},
+        {L_, L"-10101",                 -10101},
+        {L_, L"32767",                   32767},
+        {L_, L"-32767",                 -32767},
+        {L_, L"11001100" ,               11001100},
+        {L_, L"-11001100",              -11001100},
+        {L_, L"2147483647",              2147483647},
+        {L_, L"-2147483647",            -2147483647},
+        //{L_, L"9223372036854775807",     9223372036854775807},
+        //{L_, L"-9223372036854775807",  -9223372036854775807},
+    };
+    const int NUM_WDATA = sizeof WDATA / sizeof *WDATA;
+        
+    Obj spec(AllocType(&testAllocator));
+    if (verbose) printf("\nTesting 'to_string(int).\n");
+    for (int ti = 0; ti < NUM_WDATA; ++ti){
+        const int                LINE  = WDATA[ti].d_lineNum;
+        const wchar_t*           SPEC  = WDATA[ti].d_spec;
+        const long long          VALUE = WDATA[ti].d_value;
+        
+        if (veryVerbose){
+            printf("\tConverting ");P_(SPEC);
+            printf("to a string.\n");
+        }
+        
+        const Int64 BB = testAllocator.numBlocksTotal();
+        const Int64  B = testAllocator.numBlocksInUse();
+        
+        if (veryVerbose)
+        {
+            printf("\t\tBefore: ");P_(BB);P(B);
+        }
+        wstring spec(SPEC);
+        if (VALUE <= std::numeric_limits<int>::max()){
+            wstring str = bsl::to_wstring(static_cast<int>(VALUE));
+            ASSERT(str == spec);
+        }
+        
+        if (VALUE <= std::numeric_limits<unsigned int>::max() && VALUE >=0){
+            wstring str = bsl::to_wstring(static_cast<unsigned int>(VALUE));
+            ASSERT(str == spec);
+        }
+        if (VALUE <= std::numeric_limits<long>::max()){
+            wstring str = bsl::to_wstring(static_cast<long>(VALUE));
+            ASSERT(str == spec);
+        }
+        if (VALUE <= std::numeric_limits<unsigned long>::max() && VALUE >=0){
+            wstring str = bsl::to_wstring(static_cast<unsigned long>(VALUE));
+            ASSERT(str == spec);
+        }
+        if (VALUE <= std::numeric_limits<long long>::max()){
+            wstring str = bsl::to_wstring(static_cast<long long>(VALUE));
+            ASSERT(str == spec);
+        }
+        if (VALUE <= std::numeric_limits<unsigned long long>::max()&&VALUE>=0){
+            wstring str = bsl::to_wstring(static_cast
+                                        <unsigned long long>(VALUE));
+            ASSERT(str == spec);
+        }
+        const Int64 AA = testAllocator.numBlocksTotal();
+        const Int64  A = testAllocator.numBlocksInUse();
+        
+        if (veryVerbose)
+        {
+            printf("\t\tAfter: ");P_(AA);P(A);
+        }
+    }
+    ASSERT(0 == testAllocator.numMismatches());
+    ASSERT(0 == testAllocator.numBlocksInUse());   
+    
+    static const struct {
+        int            d_lineNum;
+        const wchar_t *d_spec;
+        long double    d_value;
+    } DOUBLE_WDATA[] = {
+        //   spec                       value
+        {L_, L"1.000000",                1.0},
+        {L_, L"1.010000",                1.01},
+        {L_, L"1.010000",                1.010},
+        {L_, L"1.010100",                1.0101},
+        {L_, L"1.010100",                1.01010},
+        {L_, L"1.010101",                1.010101},
+        {L_, L"1.010101",                1.01010101},
+        {L_, L"1.010102",                1.0101019},
+        {L_, L"3.141593",                3.1415926},
+        {L_, L"5.156000",                005.156},
+        {L_, L"24.000000",               24.0},
+        {L_, L"24.111111",               24.1111111111111111111},
+    };
+    const int NUM_DOUBLE_WDATA = sizeof DOUBLE_WDATA / sizeof *DOUBLE_WDATA;
+    
+    for (int ti = 0; ti < NUM_DOUBLE_WDATA; ++ti){
+        const int                LINE  = DOUBLE_WDATA[ti].d_lineNum;
+        const wchar_t            SPEC  = DOUBLE_WDATA[ti].d_spec;
+        const long double        VALUE = DOUBLE_WDATA[ti].d_value;
+        
+        if (veryVerbose){
+            printf("\tConverting ");P_(SPEC);
+            printf("to a string.\n");
+        }
+            
+        const Int64 BB = testAllocator.numBlocksTotal();
+        const Int64  B = testAllocator.numBlocksInUse();
+                
+        if (veryVerbose)
+        {
+            printf("\t\tBefore: ");P_(BB);P(B);
+        }
+        wstring spec(SPEC);
+        
+        if (VALUE <= std::numeric_limits<float>::max()){
+            wstring str = bsl::to_wstring(static_cast<float>(VALUE));
+            ASSERT(str == spec);
+        }
+        if (VALUE <= std::numeric_limits<double>::max()){
+            wstring str = bsl::to_wstring(static_cast<double>(VALUE));
+            ASSERT(str == spec);
+        }
+        if (VALUE <= std::numeric_limits<float>::max()){
+            wstring str = bsl::to_wstring(static_cast<long double>(VALUE));
+            ASSERT(str == spec);
+        }
+            
+        const Int64 AA = testAllocator.numBlocksTotal();
+        const Int64  A = testAllocator.numBlocksInUse();
+                
+        if (veryVerbose)
+        {
+            printf("\t\tAfter: ");P_(AA);P(A);
+        }
+    }
+    ASSERT(0 == testAllocator.numMismatches());
+    ASSERT(0 == testAllocator.numBlocksInUse());  
+    
 }
 template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase31(){
