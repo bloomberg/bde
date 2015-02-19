@@ -3715,12 +3715,18 @@ class enable_shared_from_this {
     // Note that there must be a shared_ptr that owns the object before 
     // 'shared_from_this' is called.
 
+    private:
+        // DATA
+        bsl::weak_ptr<T> weak_this_;
+
     protected:
 
         // CREATORS
-        constexpr enable_shared_from_this() noexcept;
+        //constexpr enable_shared_from_this() noexcept;
+        enable_shared_from_this();// noexcept;
             // Constructs new enable_shared_from_this object. 
-        enable_shared_from_this(enable_shared_from_this const& original) noexcept;
+        enable_shared_from_this(
+                            enable_shared_from_this const& original);// noexcept;
             // Constructs new enable_shared_from_this object. 
 
         ~enable_shared_from_this();
@@ -3728,7 +3734,7 @@ class enable_shared_from_this {
 
         // MANIPULATORS
         enable_shared_from_this& operator=(
-                                enable_shared_from_this const& rhs)noexcept;
+                                enable_shared_from_this const& rhs);//noexcept;
             // Returns *this.
 
     public:
@@ -3740,10 +3746,6 @@ class enable_shared_from_this {
         bsl::shared_ptr<T const> shared_from_this() const;
             // Returns a 'shared_ptr<T>' that shares ownership *this with all 
             // existing 'shared_ptr<T>' that refer to *this
-
-    private:
-        // DATA
-        mutable bsl::weak_ptr<T> weak_this_;
 };
 
 
@@ -3944,38 +3946,39 @@ namespace bsl {
 // CREATORS
 template<class T>
 inline
-constexpr enable_shared_from_this<T>::enable_shared_from_this() noexcept {}
+   //constexpr enable_shared_from_this<T>::enable_shared_from_this(): weak_this_()// noexcept {}
+bsl::enable_shared_from_this<T>::enable_shared_from_this(): weak_this_(){}// noexcept {}
 
 template<class T>
 inline 
-enable_shared_from_this<T>::enable_shared_from_this(
-                        enable_shared_from_this const& original)noexcept{}
+bsl::enable_shared_from_this<T>::enable_shared_from_this(
+                   enable_shared_from_this const& original) {}//noexcept{}
 
 template<class T>
 inline 
-    enable_shared_from_this<T>::~enable_shared_from_this(){}
+    bsl::enable_shared_from_this<T>::~enable_shared_from_this(){}
 
 // MANIPULATORS
 template<class T>
 inline 
-enable_shared_from_this<T>& enable_shared_from_this<T>::operator=(
-                            enable_shared_from_this const& rhs) noexcept{    
+bsl::enable_shared_from_this<T>& bsl::enable_shared_from_this<T>::operator=(
+                           enable_shared_from_this const& rhs) {//noexcept{    
     return *this;
 }
 
 
 template<class T>
 inline 
-shared_ptr<T> enable_shared_from_this<T>::shared_from_this(){
-    shared_ptr<T> p(enable_shared_from_this<T>::weak_this_);
+bsl::shared_ptr<T> bsl::enable_shared_from_this<T>::shared_from_this() {
+    bsl::shared_ptr<T> p(bsl::enable_shared_from_this<T>::weak_this_);
     BSLS_ASSERT_SAFE( p.get() == this);
     return p;
 }
 
 template<class T>
 inline
-shared_ptr<T const> enable_shared_from_this<T>::shared_from_this() const{
-    shared_ptr<T const> p(bsl::enable_shared_from_this<T>::weak_this_);
+bsl::shared_ptr<T const> bsl::enable_shared_from_this<T>::shared_from_this() const{
+    bsl::shared_ptr<T const> p(bsl::enable_shared_from_this<T>::weak_this_);
     BSLS_ASSERT_SAFE( p.get() == this);
     return p;
 }

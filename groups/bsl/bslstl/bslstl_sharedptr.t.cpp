@@ -78,6 +78,20 @@ using namespace BloombergLP;
 //   'main'.  This should be addressed as part of resolving DRQS 27411521.
 //-----------------------------------------------------------------------------
 //
+// bsl::enable_shared_from_this
+//-----------------------------
+// CREATORS
+// [35] enable_shared_from_this();// noexcept;
+// [35] enable_shared_from_this(
+//                        enable_shared_from_this const& original);// noexcept;
+// [35] ~enable_shared_from_this();
+//
+// MANIPULATORS
+// [36] enable_shared_from_this& operator=(
+//                              enable_shared_from_this const& rhs);//noexcept;
+// [36] bsl::shared_ptr<T> shared_from_this();
+// [36] bsl::shared_ptr<T const> shared_from_this() const;
+//
 // bsl::shared_ptr
 //----------------
 // CREATORS
@@ -2139,6 +2153,14 @@ struct PerformanceTester
         // the level of feedback on allocator operations.
 };
 
+//todo
+struct shareThis: bsl::enable_shared_from_this<shareThis>
+{
+    bsl::shared_ptr<shareThis> getptr() {
+        return shared_from_this();
+    }
+};
+
 
 // Traits for test types:
 namespace BloombergLP {
@@ -3317,7 +3339,7 @@ int main(int argc, char *argv[])
     bsls::Types::Int64 numDefaultAllocations =
                                              defaultAllocator.numAllocations();
     switch (test) { case 0:  // Zero is always the leading case.
-      case 37: {
+      case 39: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 3: 'weak_ptr'
         //   The usage example provided in the component header file must
@@ -3352,7 +3374,7 @@ int main(int argc, char *argv[])
             search(&result, peerCache, keywords);
         }
       } break;
-      case 36: {
+      case 38: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2: 'weak_ptr'
         //   We know this example demonstrates a memory leak, so put the
@@ -3422,7 +3444,7 @@ int main(int argc, char *argv[])
 
         // No memory leak now
       } break;
-      case 35: {
+      case 37: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 1: 'weak_ptr'
         //   The usage example provided in the component header file must
@@ -3501,6 +3523,16 @@ int main(int argc, char *argv[])
     ASSERT(intWeakPtr2.expired());
     ASSERT(!intWeakPtr2.lock());
         }
+      } break;
+      case 36: {
+          
+      } break;
+      case 35:{//todo
+          bsl::shared_ptr<shareThis> gp1(new shareThis);
+          bsl::shared_ptr<shareThis> gp2 (gp1); 
+          ASSERT(gp1.use_count() == 2);
+          bsl::shared_ptr<shareThis> gp3 = gp1 -> getptr();
+          
       } break;
       case 34: {
         // --------------------------------------------------------------------
