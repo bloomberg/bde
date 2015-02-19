@@ -123,7 +123,8 @@ int main(int argc, char *argv[])
                 // Returns the object's value.
         };
         class FinalClassDerived
-#if !BSLS_COMPILERFEATURES_SUPPORT_FINAL || defined(FAIL_USAGE_FINAL_CLASS)
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_FINAL) \
+ || defined(FAIL_USAGE_FINAL_CLASS)
             : public FinalClass
 #endif
         {
@@ -155,7 +156,8 @@ int main(int argc, char *argv[])
         };
         struct FinalFunctionFailure: FinalFunctionDerived
         {
-#if !BSLS_COMPILERFEATURES_SUPPORT_FINAL || defined(FAIL_USAGE_FINAL_FUNCTION)
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_FINAL) \
+ || defined(FAIL_USAGE_FINAL_FUNCTION)
             int f()
                 // Returns a value associated with the the class's type.
             { return 2; }
