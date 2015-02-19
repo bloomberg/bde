@@ -1483,7 +1483,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
     
     for (int ti = 0; ti < NUM_DOUBLE_WDATA; ++ti){
         const int                LINE  = DOUBLE_WDATA[ti].d_lineNum;
-        const wchar_t            SPEC  = DOUBLE_WDATA[ti].d_spec;
+        const wchar_t*           SPEC  = DOUBLE_WDATA[ti].d_spec;
         const long double        VALUE = DOUBLE_WDATA[ti].d_value;
         
         if (veryVerbose){
@@ -1576,7 +1576,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase31(){
         { L_,   "    -5.9991",             11,     -5.9991},
         { L_,   "10e1",                    4,       1e2},
         { L_,   "10p2",                    2,       10},
+#if __cplusplus >= 201103L
         { L_,   "0xf.f",                   5,       15.937500},
+#else
+        { L_,   "0xf.f",                   1,       0},
+#endif
         
 #if __cplusplus >= 201103L
         { L_,   "inF",                     3,      std::numeric_limits
@@ -1711,6 +1715,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
     };
     const int NUM_DATA = sizeof DATA / sizeof *DATA;
     
+    if (verbose) printf("Testing stoi, stol, stoll, stoul and stoull.\n");
+    
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const int    LINE   = DATA[ti].d_lineNum;
         const char  *INPUT  = DATA[ti].d_input;
@@ -1735,9 +1741,22 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
             ASSERT (sz == POS);
             P_(INPUT);P_(value);P(SPEC);
         }
+        if (SPEC <= std::numeric_limits<unsigned long>::max() && SPEC >= 0){
+            value = bsl::stoul(inV, &sz, BASE);
+            ASSERT (value == SPEC);
+            ASSERT (sz == POS);
+            P_(INPUT);P_(value);P(SPEC);
+        }
 #if __cplusplus >= 201103L
         if (SPEC <= std::numeric_limits<long long>::max()){
             value = bsl::stoll(inV, &sz, BASE);
+            ASSERT (value == SPEC)
+            ASSERT (sz == POS);
+            P_(INPUT);P_(value);P(SPEC);
+        }
+        if (SPEC <= std::numeric_limits<unsigned long long>::max() 
+                                                                && SPEC >= 0){
+            value = bsl::stoull(inV, &sz, BASE);
             ASSERT (value == SPEC)
             ASSERT (sz == POS);
             P_(INPUT);P_(value);P(SPEC);
@@ -14877,8 +14896,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'char'.\n");
             TestDriver<char>::testCase31();
           //TODO TEST WITH WCHAR_T
-        if (verbose) printf("\n... with 'wchar_t'.\n");
-            TestDriver<wchar_t>::testCase31();
       }break;
       case 30: {
         // --------------------------------------------------------------------
@@ -14908,8 +14925,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'char'.\n");
         TestDriver<char>::testCase30();
         
-        if (verbose) printf("\n... with 'wchar_t'.\n");
-        TestDriver<wchar_t>::testCase30();
       }break;
       case 29: {
         // --------------------------------------------------------------------

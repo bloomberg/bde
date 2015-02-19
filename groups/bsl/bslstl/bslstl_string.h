@@ -2456,10 +2456,10 @@ long double stold(const string& str, std::size_t* pos =0);
 long double stold(const wstring& str, std::size_t* pos =0);
 
 #endif
-    // Parses 'str' interpreting its contents as a floating point number. If 
-    // the number in the str is prefixed with '0x' or '0X' the string will be 
-    // interpreted as a hex number. If there is no leading 0x or 0X the string
-    // will be interpreted as a decimal number. If 'pos' is not a null 
+    // Parses 'str' interpreting its contents as a floating point number. In 
+    // C++11 if the number in the str is prefixed with '0x' or '0X' the string 
+    // will be interpreted as a hex number. If there is no leading 0x or 0X the 
+    // string will be interpreted as a decimal number. If 'pos' is not a null 
     // pointer the functions will set the 'pos' to the position of the first 
     // character in the 'str' after the number. The function ignores leading
     // white space characters and interprets as many characters possible to 
