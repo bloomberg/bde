@@ -3970,15 +3970,16 @@ bsl::enable_shared_from_this<T>& bsl::enable_shared_from_this<T>::operator=(
 template<class T>
 inline 
 bsl::shared_ptr<T> bsl::enable_shared_from_this<T>::shared_from_this() {
-    bsl::shared_ptr<T> p(bsl::enable_shared_from_this<T>::weak_this_);
+    bsl::shared_ptr<T> p(bsl::enable_shared_from_this<T>::weak_this_());
     BSLS_ASSERT_SAFE( p.get() == this);
     return p;
 }
 
 template<class T>
 inline
-bsl::shared_ptr<T const> bsl::enable_shared_from_this<T>::shared_from_this() const{
-    bsl::shared_ptr<T const> p(bsl::enable_shared_from_this<T>::weak_this_);
+bsl::shared_ptr<T const> 
+                     bsl::enable_shared_from_this<T>::shared_from_this() const{
+    bsl::shared_ptr<T const> p(bsl::enable_shared_from_this<T>::weak_this_());
     BSLS_ASSERT_SAFE( p.get() == this);
     return p;
 }
