@@ -172,7 +172,7 @@ const bdlt::Datetime &EarlyEpochCopier::copiedValue()
 #undef INITATTR
 #define INITATTR __attribute__((init_priority(101)))
 #endif
-#elif defined(BSLS_PLATFORM_CMP_GNU)
+#elif defined(BSLS_PLATFORM_CMP_GNU) && !defined(BSLS_PLATFORM_OS_DARWIN)
 #undef INITATTR
 #define INITATTR __attribute__((init_priority(101)))
 #elif defined(BSLS_PLATFORM_CMP_IBM)
