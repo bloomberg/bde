@@ -1265,7 +1265,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
     for (int ti = 0; ti < NUM_DATA; ++ti){
         const int                LINE  = DATA[ti].d_lineNum;
         const char*              SPEC  = DATA[ti].d_spec;
-        const unsigned long long VALUE = DATA[ti].d_value;
+        const long long          VALUE = DATA[ti].d_value;
         
         if (veryVerbose){
             printf("\tConverting ");P_(SPEC);
