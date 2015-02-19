@@ -3697,6 +3697,67 @@ class weak_ptr {
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
+//------------------------------
+// class enable_shared_from_this
+//------------------------------
+
+//TODO
+template<class T>
+class enable_shared_from_this {
+    // This class allows an object that is currently managed by an shared_ptr 
+    // to safely generate additional shared_ptr instances that all share 
+    // ownership of the object. 
+    // Inheariting from 'enable_shared_from_this<T>' provides the type T with a 
+    // member function 'share_from_this'. If an object of type T is managed by
+    // a shared_ptr<T> then calling 'shared_from_this' will return a new 
+    // shared_ptr that shared ownership of that object. 
+    //
+    // Note that there must be a shared_ptr that owns the object before 
+    // 'shared_from_this' is called.
+
+    protected:
+
+        // CREATORS
+        constexpr enable_shared_from_this() noexcept{}
+            // Constructs new enable_shared_from_this object. 
+        enable_shared_from_this(
+                            enable_shared_from_this const& original) noexcept{}
+            // Constructs new enable_shared_from_this object. 
+
+        ~enable_shared_from_this(){}
+            // Destroys this enable_shared_form_this.
+
+        // MANIPULATORS
+        enable_shared_from_this& operator=(
+                                   enable_shared_from_this const& rhs)noexcept{
+            return *this;
+        }
+        // Returns *this.
+
+    public:
+        // MANIPULATORS
+        bsl::shared_ptr<T> shared_from_this(){
+            shared_ptr<T> p(weak_this_);
+            BSLS_ASSERT_SAFE( p.get() == this);
+            return p;
+        }
+        // Returns a 'shared_ptr<T>' that shares ownership *this with all 
+        // existing 'shared_ptr<T>' that refer to *this
+
+        bsl::shared_ptr<T const> shared_from_this() const{
+            shared_ptr<T const> p(weak_this_);
+            BSLS_ASSERT_SAFE( p.get() == this);
+            return p;
+        }
+        // Returns a 'shared_ptr<T>' that shares ownership *this with all 
+        // existing 'shared_ptr<T>' that refer to *this
+
+    private:
+        // DATA
+        mutable bsl::weak_ptr<T> weak_this_;
+};
+
+
 // ASPECTS
 template <class ELEMENT_TYPE>
 void swap(weak_ptr<ELEMENT_TYPE>& a, weak_ptr<ELEMENT_TYPE>& b);
