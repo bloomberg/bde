@@ -50,6 +50,15 @@ template <typename T> using alias_template2 = alias_base<char, T>;
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
+
+int x; // not constant
+struct A {
+    constexpr A(bool b) : m(b?42:x) { }
+    int m;
+};
+#endif // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
 
 namespace {
@@ -66,6 +75,16 @@ auto my_max(T t, U u) -> decltype(t > u ? t : u)
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS)
+struct moveonly {
+    moveonly() = default;
+    moveonly(const moveonly&) = delete;
+    moveonly(moveonly&&) = default;
+    moveonly& operator=(const moveonly&) = delete;
+    moveonly& operator=(moveonly&&) = default;
+    ~moveonly() = default;
+};
+#endif  //BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE)
 
 namespace {
@@ -89,6 +108,13 @@ template class ExternTemplateClass<char>;
 #include_next<cstdio>
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+
+void noexceptTest() noexcept{
+}
+
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
 
@@ -190,13 +216,16 @@ struct PackSize<T> {
 // supported.
 //-----------------------------------------------------------------------------
 // [ 1] BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-// [ 2] BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-// [ 3] BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
-// [ 4] BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
-// [ 5] BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
-// [ 6] BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-// [ 7] BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
-// [ 8] BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+// [ 2] BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+// [ 3] BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+// [ 4] BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+// [ 5] BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
+// [ 6] BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+// [ 7] BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+// [ 8] BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+// [ 9] BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+// [10] BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+// [11] BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 //=============================================================================
 
 int main(int argc, char *argv[])
@@ -209,7 +238,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 8: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
         //
@@ -237,7 +266,7 @@ int main(int argc, char *argv[])
         ASSERT((PackSize<int, char, double, void>::VALUE == 4));
 #endif
       } break;
-      case 7: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
         //
@@ -264,7 +293,7 @@ int main(int argc, char *argv[])
         static_assert(1,    "static_assert with int");
 #endif
       } break;
-      case 6: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         //
@@ -291,7 +320,7 @@ int main(int argc, char *argv[])
         RvalueTest obj(my_factory<RvalueTest>(RvalueArg()));
 #endif
       } break;
-      case 5: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
         //
@@ -319,7 +348,32 @@ int main(int argc, char *argv[])
         OverloadForNullptr(nullptr);
 #endif
       } break;
-      case 4: {
+      case 7:{
+        // --------------------------------------------------------------------
+        // TESTING BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+        //
+        // Concerns:
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT' is defined only when 
+        //:    the compiler is able to compile code with 'noexcept'.
+        //
+        // Plan:
+        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT' is defined then
+        //:   compile code that uses 'noexcpt' in various contexts.
+        //
+        // Testing:
+        //   BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+        // --------------------------------------------------------------------
+#if !defined (BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+          if (verbose) printf("Testing noexcept skipped\n"
+                              "========================\n");
+#else
+          if (verbose) printf("Testing noexcept\n"
+                              "================\n");
+          noexceptTest();
+          
+#endif
+      } break;
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
         //
@@ -345,7 +399,7 @@ int main(int argc, char *argv[])
 #endif
 
       } break;
-      case 3: {
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
         //
@@ -374,7 +428,34 @@ int main(int argc, char *argv[])
 #endif
 
       } break;
-      case 2: {
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+        //
+        // Concerns:
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS' is defined only
+        //:   when the compiler is actually able to compile code with deleted
+        //:   functions.
+        //
+        // Plan:
+        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS' is defined
+        //:   then compile code that uses this feature to delete functions in
+        //:   classes.
+        //
+        // Testing:
+        //   BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+        // --------------------------------------------------------------------
+          
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS)
+        if (verbose) printf("Testing deleted functions skipped\n"
+                            "=================================\n");
+#else
+        if (verbose) printf("Testing deleted functions template\n"
+                            "==================================\n");
+        moveonly* p;
+#endif
+      }break;
+      case 3: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
         //
@@ -407,6 +488,33 @@ int main(int argc, char *argv[])
         ASSERT(maxVal == 'a');
 #endif
 
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+        //
+        // Concerns:
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR' is defined only when
+        //    the compiler is actually able to compile code with constexpr.
+        //
+        // Plan:
+        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR' is defined then
+        //:   compile code that uses this feature to define constant 
+        //:   expressions functions.
+        //
+        // Testing:
+        //   BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+        // --------------------------------------------------------------------
+          
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
+        if (verbose) printf("Testing constexpr skipped\n"
+                            "=========================\n");
+#else
+        if (verbose) printf("Testing constexpr\n"
+                            "=================\n");
+        constexpr int v = A(true).m;
+#endif
+        
       } break;
       case 1: {
         // --------------------------------------------------------------------
