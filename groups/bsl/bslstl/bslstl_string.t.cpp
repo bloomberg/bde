@@ -15035,22 +15035,24 @@ int main(int argc, char *argv[])
         }
       } break;
       case 32: {
-              // --------------------------------------------------------------------
-              // TESTING 'stof', 'stod','stold'
-              //
-              // Testing 
-              //   float stof(const string& str, std::size_t* pos =0);
-              //   float stof(const wstring& str, std::size_t* pos =0);
-              //   double stod(const string& str, std::size_t* pos =0);
-              //   double stod(const wstring& str, std::size_t* pos =0);
-              //   long double stold(const string& str, std::size_t* pos =0);
-              //   long double stold(const wstring& str, std::size_t* pos =0);
-              // --------------------------------------------------------------------
-              if (verbose) printf("\nTESTING 'stof', 'stod','stold'"
-                                    "\n==============================\n");
-              if (verbose) printf("\n... with 'char'.\n");
-                  TestDriver<char>::testCase32();
-            }break;
+          // --------------------------------------------------------------------
+          // TESTING to_string and to_wstring
+          //
+          // Testing 
+          //   string to_string(int value);
+          //   string to_string(long value);
+          //   string to_string(long long value);
+          //   string to_string(unsigned value);
+          //   string to_string(unsigned long value);
+          //   string to_string(unsigned long long value);
+          //   string to_string(float value);
+          //   string to_string(double value);
+          //   string to_string(long double value);
+          // --------------------------------------------------------------------
+          if (verbose) printf("\nTESTING 'to_string' and 'to_wstring'"
+                  "\n====================================\n");
+          TestDriver<char>::testCase32();
+      }break;
       case 31: {
         // --------------------------------------------------------------------
         // TESTING 'stof', 'stod','stold'
