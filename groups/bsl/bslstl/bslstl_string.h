@@ -2498,56 +2498,81 @@ string to_string(unsigned long long value);
     // contents of the string will be the same as what 
     // std::sprintf(buf,"%llu", value) would produce with a sufficiently large 
     // buffer;
-string to_string(float val);
-string to_string(double val);
+string to_string(float value);
+string to_string(double value);
     // converts a floating point value to a string with the same contents as 
     // what std::sprintf(buf, "%f", value) would produce for a suficiently 
     // large buffer.
-string to_string(long double val);
+string to_string(long double value);
     // converts a floating point value to a string with the same contents as 
     // what std::sprintf(buf, "%Lf", value) would produce for a suficiently 
     // large buffer.
 
-wstring to_wstring(int val);
+wstring to_wstring(int value);
     // Constructs a string with contents equal to the specified 'value'. The 
     // contents of the string will be the same as what 
     // std::swprintf(buf,L"%d", value) would produce with a sufficiently large 
     // buffer;
-wstring to_wstring(long val);
+wstring to_wstring(long value);
     // Constructs a string with contents equal to the specified 'value'. The 
     // contents of the string will be the same as what 
     // std::swprintf(buf,L"%ld", value) would produce with a sufficiently large 
     // buffer;
-wstring to_wstring(long long val);
+wstring to_wstring(long long value);
     // Constructs a string with contents equal to the specified 'value'. The 
     // contents of the string will be the same as what 
     // std::swprintf(buf,L"%lld", value) would produce with a sufficiently large 
     // buffer;
-wstring to_wstring(unsigned val);
+wstring to_wstring(unsigned value);
     // Constructs a string with contents equal to the specified 'value'. The 
     // contents of the string will be the same as what 
     // std::swprintf(buf,L"%u", value) would produce with a sufficiently large 
     // buffer;
-wstring to_wstring(unsigned long val);
+wstring to_wstring(unsigned long value);
     // Constructs a string with contents equal to the specified 'value'. The 
     // contents of the string will be the same as what 
     // std::swprintf(buf,L"%lu", value) would produce with a sufficiently large 
     // buffer;
-wstring to_wstring(unsigned long long val);
+wstring to_wstring(unsigned long long value);
     // Constructs a string with contents equal to the specified 'value'. The 
     // contents of the string will be the same as what 
     // std::swprintf(buf,L"%llu", value) would produce with a sufficiently large 
     // buffer;
-wstring to_wstring(float val);
-wstring to_wstring(double val);
+wstring to_wstring(float value);
+wstring to_wstring(double value);
     // converts a floating point value to a string with the same contents as 
     // what std::sprintf(buf, sz, L"%f", value) would produce for a suficiently 
     // large buffer.
-wstring to_wstring(long double val);
+wstring to_wstring(long double value);
     // converts a floating point value to a string with the same contents as 
     // what std::sprintf(buf, sz, L"%Lf", value) would produce for a 
     // suficiently large buffer.
+enum MaxDecimalStringLengths{
+    // This 'enum' give upper bounds on the maximum string lengths storing
+    // each scalar numerical type.  It is safe to use stack-allocated
+    // buffers of these sizes for generating decimal representations of the
+    // corresponding type, including sign and terminating null character,
+    // using the default precision of 6 significant digits for floating
+    // point types.
 
+    BSLSTL_MAX_SHORT_STRLEN10      = 2 + sizeof(short) * 3,
+    BSLSTL_MAX_INT_STRLEN10        = 2 + sizeof(int) * 3,
+    BSLSTL_MAX_INT64_STRLEN10      = 26,
+    BSLSTL_MAX_FLOAT_STRLEN10      = 14,// sx.xxxxxxEsxx\0, s=+/-, x=[0-9]
+    BSLSTL_MAX_DOUBLE_STRLEN10     = 15,// sx.xxxxxxEsxxx\0, s=+/-, x=[0-9]
+    BSLSTL_MAX_LONGDOUBLE_STRLEN10 = 16,// sx.xxxxxxEsxxxx\0, s=+/-, x=[0-9]
+    BSLSTL_MAX_SCALAR_STRLEN10     = BSLSTL_MAX_INT64_STRLEN10
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    , MAX_SHORT_STRLEN10      = BSLSTL_MAX_SHORT_STRLEN10
+    , MAX_INT_STRLEN10        = BSLSTL_MAX_INT_STRLEN10
+    , MAX_INT64_STRLEN10      = BSLSTL_MAX_INT64_STRLEN10
+    , MAX_FLOAT_STRLEN10      = BSLSTL_MAX_FLOAT_STRLEN10
+    , MAX_DOUBLE_STRLEN10     = BSLSTL_MAX_DOUBLE_STRLEN10
+    , MAX_LONGDOUBLE_STRLEN10 = BSLSTL_MAX_LONGDOUBLE_STRLEN10
+    , MAX_SCALAR_STRLEN10     = BSLSTL_MAX_SCALAR_STRLEN10
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
+};
 
 
 // HASH SPECIALIZATIONS
@@ -5294,7 +5319,6 @@ inline long long bsl::stoll(const string& str, std::size_t* pos, int base){
     return value;
 }
 inline long long bsl::stoll(const wstring& str, std::size_t* pos, int base){
-    return stoInts<wstring, long long>(str, pos, base);
     wchar_t* ptr;
     long long value = std::wcstoll(str.c_str(), &ptr, base);
     *pos = ptr - str.c_str();
@@ -5355,56 +5379,54 @@ inline long double bsl::stold(const wstring& str, std::size_t* pos){
 }
 #endif
 
-inline string to_string(int value)
-{
+inline bsl::string bsl::to_string(int value) {
     char tempBuf[BSLSTL_MAX_INT_STRLEN10];
-    std::sprintf(tempBuf, "%f", value);
+    std::sprintf(tempBuf, "%d", value);
     string str(tempBuf);
     return str;
 }
 
-inline string to_string(unsigned value)
-{
+inline bsl::string bsl::to_string(unsigned value) {
     char tempBuf[BSLSTL_MAX_INT_STRLEN10];
     std::sprintf(tempBuf, "%u", value);
     string str(tempBuf);
     return str;
 }
 
-inline string to_string(long value)
+inline bsl::string bsl::to_string(long value)
 {
     char tempBuf[BSLSTL_MAX_INT64_STRLEN10];
-    std::sprintf(tempBuf, "%l", value);
+    std::sprintf(tempBuf, "%ld", value);
     string str(tempBuf);
     return str;
 }
 
-inline string to_string(unsigned long value)
+inline bsl::string bsl::to_string(unsigned long value)
 {
     char tempBuf[BSLSTL_MAX_INT64_STRLEN10];
-    std::sprintf(tempBuf, "%ul", value);
+    std::sprintf(tempBuf, "%lu", value);
     string str(tempBuf);
     return str;
 }
 //TODO NEED TO FIGURE OUT BUFF LENG FOR THIS
-inline string to_string(long long value)
+inline bsl::string bsl::to_string(long long value)
 {
     char tempBuf[BSLSTL_MAX_INT64_STRLEN10];
-    std::sprintf(tempBuf, "%ll", value);
+    std::sprintf(tempBuf, "%lld", value);
     string str(tempBuf);
     return str;
 }
 
-inline string to_string(unsigned long long value)
+inline bsl::string bsl::to_string(unsigned long long value)
 {
     char tempBuf[BSLSTL_MAX_INT64_STRLEN10];
-    std::sprintf(tempBuf, "%ull", value);
+    std::sprintf(tempBuf, "%llu", value);
     string str(tempBuf);
     return str;
 }
 
 
-inline string to_string(float value)
+inline bsl::string bsl::to_string(float value)
 {
     char tempBuf[BSLSTL_MAX_DOUBLE_STRLEN10];
     std::sprintf(tempBuf, "%f", value);
@@ -5412,7 +5434,7 @@ inline string to_string(float value)
     return str;
 }
 
-inline string to_string(double value)
+inline bsl::string bsl::to_string(double value)
 {
     char tempBuf[BSLSTL_MAX_DOUBLE_STRLEN10];
     std::sprintf(tempBuf, "%f", value);
@@ -5420,7 +5442,7 @@ inline string to_string(double value)
     return str;
 }
 
-inline string to_string(long double value)
+inline bsl::string bsl::to_string(long double value)
 {
     char tempBuf[BSLSTL_MAX_LONGDOUBLE_STRLEN10];
     std::sprintf(tempBuf, "%Lf", value);
@@ -5428,7 +5450,7 @@ inline string to_string(long double value)
     return str;
 }
 
-inline wstring to_wstring(int value)
+inline bsl::wstring bsl::to_wstring(int value)
 {
     wchar_t tempBuf[BSLSTL_MAX_INT_STRLEN10];
     std::swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%d", value);
@@ -5436,23 +5458,23 @@ inline wstring to_wstring(int value)
     return str;
 }
 
-inline wstring to_wstring(long value)
+inline bsl::wstring bsl::to_wstring(long value)
 {
     wchar_t tempBuf[BSLSTL_MAX_INT64_STRLEN10];
-    std::swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%l", value);
+    std::swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%ld", value);
     wstring str(tempBuf);
     return str;
 }
 //TODO buffer size for long long unknown
-inline wstring to_wstring(long long value)
+inline bsl::wstring bsl::to_wstring(long long value)
 {
     wchar_t tempBuf[BSLSTL_MAX_INT64_STRLEN10];
-    std::swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%ll", value);
+    std::swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%lld", value);
     wstring str(tempBuf);
     return str;
 }
 
-inline wstring to_wstring(unsigned value)
+inline bsl::wstring bsl::to_wstring(unsigned value)
 {
     wchar_t tempBuf[BSLSTL_MAX_INT_STRLEN10];
     std::swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%u", value);
@@ -5460,7 +5482,7 @@ inline wstring to_wstring(unsigned value)
     return str;
 }
 
-inline wstring to_wstring(unsigned long value)
+inline bsl::wstring bsl::to_wstring(unsigned long value)
 {
     wchar_t tempBuf[BSLSTL_MAX_INT64_STRLEN10];
     std::swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%lu", value);
@@ -5468,7 +5490,7 @@ inline wstring to_wstring(unsigned long value)
     return str;
 }
 
-inline wstring to_wstring(unsigned long long value)
+inline bsl::wstring bsl::to_wstring(unsigned long long value)
 {
     wchar_t tempBuf[BSLSTL_MAX_INT64_STRLEN10];
     std::swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%llu", value);
@@ -5476,7 +5498,7 @@ inline wstring to_wstring(unsigned long long value)
     return str;
 }
 
-inline wstring to_wstring(float value)
+inline bsl::wstring bsl::to_wstring(float value)
 {
     wchar_t tempBuf[BSLSTL_MAX_DOUBLE_STRLEN10];
     std::swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%f", value);
@@ -5484,7 +5506,7 @@ inline wstring to_wstring(float value)
     return wstr;
 }
 
-inline wstring to_wstring(double value)
+inline bsl::wstring bsl::to_wstring(double value)
 {
     wchar_t tempBuf[BSLSTL_MAX_DOUBLE_STRLEN10];
     std::swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%f", value);
@@ -5492,7 +5514,7 @@ inline wstring to_wstring(double value)
     return wstr;
 }
 
-inline wstring to_wstring(long double value)
+inline bsl::wstring bsl::to_wstring(long double value)
 {
     wchar_t tempBuf[BSLSTL_MAX_LONGDOUBLE_STRLEN10];
     std::swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%Lf", value);

@@ -34,8 +34,7 @@
 #include <stdexcept>
 #include <typeinfo>
 #include <limits>
-#include <cmath> //truncating
-
+#include <iostream>
 #if defined(std)
 // This is a workaround for the way test drivers are built in an IDE-friendly
 // manner in Visual Studio.  A "normal" test driver built from the command line
@@ -262,6 +261,7 @@ using namespace std;
 // [31] double stod(const wstring& str, std::size_t* pos =0);
 // [31] long double stold(const string& str, std::size_t* pos =0);
 // [31] long double stold(const wstring& str, std::size_t* pos =0);
+// [32] to_string
 // [ 5] basic_ostream<C,CT>& operator<<(basic_ostream<C,CT>& stream,
 //                                      const string& str);
 // [ 5] basic_istream<C,CT>& operator>>(basic_istream<C,CT>& stream,
@@ -939,6 +939,9 @@ struct TestDriver {
         // specifications, and check that the specified 'result' agrees.
 
     // TEST CASES
+    static void testCase32(); 
+        // Test to_string and to_wstring free methods.
+    
     static void testCase31();
         // Test stof, stod and stold free methods.
     
@@ -1230,6 +1233,113 @@ void TestDriver<TYPE,TRAITS,ALLOC>::checkCompare(const Obj& X,
                                  // ----------
                                  // TEST CASES
                                  // ----------
+template <class TYPE, class TRAITS, class ALLOC>
+void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
+    Allocator Z(&testAllocator);
+    static const struct {
+        int         d_lineNum;
+        const char *d_spec;
+        long long   d_value;
+    } DATA[] = {
+        //   spec                      value
+        {L_, "0",                       0},
+        {L_, "1",                       1},
+        {L_, "-1",                     -1},
+        {L_, "10101",                   10101},
+        {L_, "-10101",                 -10101},
+        {L_, "32767",                   32767},
+        {L_, "-32767",                 -32767},
+        {L_, "11001100" ,               11001100},
+        {L_, "-11001100",              -11001100},
+        {L_, "2147483647",              2147483647},
+        {L_, "-2147483647",            -2147483647},
+        //{L_, "9223372036854775807",     9223372036854775807},
+        //{L_, "-9223372036854775807",   -9223372036854775807},
+        //{L_, "18446744073709551615",    18446744073709551615},
+    };
+    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+    
+    Obj spec(AllocType(&testAllocator));
+    if (verbose) printf("\nTesting 'to_string(int).\n");
+    for (int ti = 0; ti < NUM_DATA; ++ti){
+        const int                LINE  = DATA[ti].d_lineNum;
+        const char*              SPEC  = DATA[ti].d_spec;
+        const unsigned long long VALUE = DATA[ti].d_value;
+        
+        if (veryVerbose){
+            printf("\tConverting ");P_(SPEC);
+            printf("to a string.\n");
+        }
+        
+        const Int64 BB = testAllocator.numBlocksTotal();
+        const Int64  B = testAllocator.numBlocksInUse();
+        
+        if (veryVerbose)
+        {
+            printf("\t\tBefore: ");P_(BB);P(B);
+        }
+        string spec(SPEC);
+        if (VALUE <= std::numeric_limits<int>::max()){
+            string str = bsl::to_string(static_cast<int>(VALUE));
+            ASSERT(str == spec);
+            std::cout<< "int str: "<<str<< ", spec: "<<spec <<'\n';
+        }
+        
+        if (VALUE <= std::numeric_limits<unsigned int>::max() && VALUE >=0){
+            string str = bsl::to_string(static_cast<unsigned int>(VALUE));
+            ASSERT(str == spec);
+            std::cout<< "uint str: "<<str<< ", spec: "<<spec <<'\n';
+        }
+        if (VALUE <= std::numeric_limits<long>::max()){
+            string str = bsl::to_string(static_cast<long>(VALUE));
+            ASSERT(str == spec);
+            std::cout<< "long str: "<<str<< ", spec: "<<spec <<'\n';
+        }
+        if (VALUE <= std::numeric_limits<unsigned long>::max() && VALUE >=0){
+            string str = bsl::to_string(static_cast<unsigned long>(VALUE));
+            ASSERT(str == spec);
+            std::cout<< "ulong str: "<<str<< ", spec: "<<spec <<'\n';
+        }
+        if (VALUE <= std::numeric_limits<long long>::max()){
+            string str = bsl::to_string(static_cast<long long>(VALUE));
+            ASSERT(str == spec);
+            std::cout<< "long long str: "<<str<< ", spec: "<<spec <<'\n';
+        }
+        if (VALUE <= std::numeric_limits<unsigned long long>::max()&&VALUE>=0){
+            string str = bsl::to_string(static_cast
+                                        <unsigned long long>(VALUE));
+            ASSERT(str == spec);
+            std::cout<< "ull str: "<<str<< ", spec: "<<spec <<'\n';
+        }
+        /*
+        if (VALUE <= std::numeric_limits<float>::max()){
+            string str = bsl::to_string(static_cast<float>(VALUE));
+            ASSERT(str == spec);
+            std::cout<< "float str: "<<str<< ", spec: "<<spec <<'\n';
+        }
+        if (VALUE <= std::numeric_limits<double>::max()){
+            string str = bsl::to_string(static_cast<double>(VALUE));
+            ASSERT(str == spec);
+            std::cout<< "double str: "<<str<< ", spec: "<<spec <<'\n';
+        }
+        if (VALUE <= std::numeric_limits<float>::max()){
+            string str = bsl::to_string(static_cast<long double>(VALUE));
+            ASSERT(str == spec);
+            std::cout<< "long double str: "<<str<< ", spec: "<<spec <<'\n';
+        }
+        */
+        const Int64 AA = testAllocator.numBlocksTotal();
+        const Int64  A = testAllocator.numBlocksInUse();
+        
+        if (veryVerbose)
+        {
+            printf("\t\tAfter: ");P_(AA);P(A);
+        }
+    }
+    ASSERT(0 == testAllocator.numMismatches());
+    ASSERT(0 == testAllocator.numBlocksInUse());    
+}
 template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase31(){
     // ------------------------------------------------------------------------
@@ -14336,7 +14446,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 32: {
+      case 33: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -14548,6 +14658,23 @@ int main(int argc, char *argv[])
             }
         }
       } break;
+      case 32: {
+              // --------------------------------------------------------------------
+              // TESTING 'stof', 'stod','stold'
+              //
+              // Testing 
+              //   float stof(const string& str, std::size_t* pos =0);
+              //   float stof(const wstring& str, std::size_t* pos =0);
+              //   double stod(const string& str, std::size_t* pos =0);
+              //   double stod(const wstring& str, std::size_t* pos =0);
+              //   long double stold(const string& str, std::size_t* pos =0);
+              //   long double stold(const wstring& str, std::size_t* pos =0);
+              // --------------------------------------------------------------------
+              if (verbose) printf("\nTESTING 'stof', 'stod','stold'"
+                                    "\n==============================\n");
+              if (verbose) printf("\n... with 'char'.\n");
+                  TestDriver<char>::testCase32();
+            }break;
       case 31: {
         // --------------------------------------------------------------------
         // TESTING 'stof', 'stod','stold'
@@ -14564,7 +14691,7 @@ int main(int argc, char *argv[])
                               "\n==============================\n");
         if (verbose) printf("\n... with 'char'.\n");
             TestDriver<char>::testCase31();
-            
+          //TODO TEST WITH WCHAR_T
         if (verbose) printf("\n... with 'wchar_t'.\n");
             TestDriver<wchar_t>::testCase31();
       }break;
