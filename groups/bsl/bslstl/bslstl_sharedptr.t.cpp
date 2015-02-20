@@ -3526,6 +3526,20 @@ int main(int argc, char *argv[])
         }
       } break;
       case 36: {
+        // --------------------------------------------------------------------
+        // TESTING 'enable_shared_from_this'
+        //
+        // Concerns:
+        //   All constructor is able to initialize the object correctly.
+        //
+        // Plan:
+        //   Call the enable shared from this functions and test the use_count
+        //   of the smart pointer to see if has the corret number of references 
+        //
+        // Testing:
+        // bsl::shared_ptr<ELEMENT_TYPE const> shared_from_this() const;
+        // bsl::shared_ptr<ELEMENT_TYPE> shared_from_this() ;
+        // --------------------------------------------------------------------
           bsl::shared_ptr<shareThis> gp1(new shareThis);
                      
           //gp1->weak_this_ = gp1;
@@ -3538,6 +3552,22 @@ int main(int argc, char *argv[])
           
       } break;
       case 35:{//todo
+        // --------------------------------------------------------------------
+        // TESTING 'enable_shared_from_this constructors'
+        //
+        // Concerns:
+        //   All constructor is able to initialize the object correctly.
+        //
+        // Plan:
+        //   Call the 2 different constructors and supply it with the
+        //   appropriate arguments.  Then verify that the object created inside
+        //   the representation is initialized using the arguments supplied.
+        //
+        // Testing:
+        // constexpr enable_shared_from_this() noexcept;
+        // enable_shared_from_this(
+                            enable_shared_from_this const& original) noexcept;
+        // --------------------------------------------------------------------
           bsl::shared_ptr<shareThis> gp1(new shareThis);
           bsl::shared_ptr<shareThis> gp2 (gp1); 
           
