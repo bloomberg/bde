@@ -3339,6 +3339,7 @@ int main(int argc, char *argv[])
     bsls::Types::Int64 numDefaultAllocations =
                                              defaultAllocator.numAllocations();
     switch (test) { case 0:  // Zero is always the leading case.
+      /*
       case 39: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 3: 'weak_ptr'
@@ -9741,6 +9742,18 @@ int main(int argc, char *argv[])
             ASSERT(1 == A.use_count());
         }
       } break;
+      */
+      case 1: {
+          bsl::shared_ptr<shareThis> gp1(new shareThis);
+
+          //gp1->weak_this_ = gp1;
+
+          bsl::shared_ptr<shareThis> gp2 (gp1); 
+          bsl::shared_ptr<shareThis> gp3 = gp1 -> getptr();
+          //bsl::shared_ptr<shareThis> gp4 = gp1 -> getptr();
+          //bsl::shared_ptr<shareThis> gp5 = gp1 -> getptr();
+          ASSERT(gp1.use_count() == 3);
+      }
       case -1: {
         // --------------------------------------------------------------------
         // PERFORMANCE TEST
