@@ -1601,6 +1601,10 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_STDDEF_H
 #endif
 
+#ifndef INCLUDE_TYPE_TRAITS
+#include <type_traits.h>          // 'std::is_base_of'    
+#endif
+
 namespace bsl {
 
 template <class ELEMENT_TYPE>
@@ -3703,7 +3707,7 @@ class weak_ptr {
 
 //TODO
 template<class T>
-class enable_shared_from_this {
+class enable_shared_from_this{
     // This class allows an object that is currently managed by an shared_ptr 
     // to safely generate additional shared_ptr instances that all share 
     // ownership of the object. 
@@ -3715,7 +3719,9 @@ class enable_shared_from_this {
     // Note that there must be a shared_ptr that owns the object before 
     // 'shared_from_this' is called.
 
-    private:
+    // make private after test
+    //private:
+    public:
         // DATA
         bsl::weak_ptr<T> weak_this_;
 
@@ -3947,7 +3953,7 @@ namespace bsl {
 template<class T>
 inline
    //constexpr enable_shared_from_this<T>::enable_shared_from_this(): weak_this_()// noexcept {}
-bsl::enable_shared_from_this<T>::enable_shared_from_this(): weak_this_(){}// noexcept {}
+bsl::enable_shared_from_this<T>::enable_shared_from_this() :weak_this_(){}// noexcept {}
 
 template<class T>
 inline 
@@ -4032,6 +4038,9 @@ shared_ptr<ELEMENT_TYPE>::makeInternalRep(COMPATIBLE_TYPE *ptr,
 }
 
 // CREATORS
+//todo The shared_ptr constructors that create unique pointers can detect the 
+//presence of an enable_shared_from_this base and assign the newly created 
+//shared_ptr to its __weak_this member.
 template <class ELEMENT_TYPE>
 inline
 shared_ptr<ELEMENT_TYPE>::shared_ptr()
@@ -4069,6 +4078,9 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(COMPATIBLE_TYPE *ptr)
                                                        Deleter>       RepMaker;
 
     d_rep_p = RepMaker::makeOutofplaceRep(ptr, Deleter(), 0);
+    if (std::is_base_of<bsl::enable_shared_from_this, COMPATIBLE_TYPE>::value){
+        ptr->weak_this_ = this;
+    }
 }
 
 template <class ELEMENT_TYPE>

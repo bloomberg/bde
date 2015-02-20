@@ -3525,13 +3525,20 @@ int main(int argc, char *argv[])
         }
       } break;
       case 36: {
+          bsl::shared_ptr<shareThis> gp1(new shareThis);
+                     
+          gp1->weak_this_ = gp1;
+          
+          bsl::shared_ptr<shareThis> gp2 (gp1); 
+          bsl::shared_ptr<shareThis> gp3 = gp1 -> getptr();
+          bsl::shared_ptr<shareThis> gp4 = gp1 -> getptr();
+          bsl::shared_ptr<shareThis> gp5 = gp1 -> getptr();
+          ASSERT(gp1.use_count() == 5);
           
       } break;
       case 35:{//todo
           bsl::shared_ptr<shareThis> gp1(new shareThis);
           bsl::shared_ptr<shareThis> gp2 (gp1); 
-          ASSERT(gp1.use_count() == 2);
-          bsl::shared_ptr<shareThis> gp3 = gp1 -> getptr();
           
       } break;
       case 34: {
