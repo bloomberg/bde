@@ -3706,7 +3706,7 @@ class weak_ptr {
                     //------------------------------
 
 //TODO
-template<class T>
+template<class ELEMENT_TYPE>
 class enable_shared_from_this{
     // This class allows an object that is currently managed by an shared_ptr 
     // to safely generate additional shared_ptr instances that all share 
@@ -3718,12 +3718,15 @@ class enable_shared_from_this{
     //
     // Note that there must be a shared_ptr that owns the object before 
     // 'shared_from_this' is called.
-
-    // make private after test
-    //private:
-    public:
+    
+    // allows shared_ptr to initalize weak_this_ when it detects an 
+    // enabled_shared_from_this base class
+    template <class COMPATIBLE_TYPE>
+    friend class shared_ptr;
+    
+    private:
         // DATA
-        bsl::weak_ptr<T> weak_this_;
+        bsl::weak_ptr<ELEMENT_TYPE> weak_this_;
 
     protected:
 
@@ -3745,11 +3748,11 @@ class enable_shared_from_this{
 
     public:
         // MANIPULATORS
-        bsl::shared_ptr<T> shared_from_this();
+        bsl::shared_ptr<ELEMENT_TYPE> shared_from_this();
             // Returns a 'shared_ptr<T>' that shares ownership *this with all 
             // existing 'shared_ptr<T>' that refer to *this
 
-        bsl::shared_ptr<T const> shared_from_this() const;
+        bsl::shared_ptr<ELEMENT_TYPE const> shared_from_this() const;
             // Returns a 'shared_ptr<T>' that shares ownership *this with all 
             // existing 'shared_ptr<T>' that refer to *this
 };
@@ -3950,42 +3953,47 @@ namespace bsl {
                     //------------------------------
 // TODO
 // CREATORS
-template<class T>
+template<class ELEMENT_TYPE>
 inline
    //constexpr enable_shared_from_this<T>::enable_shared_from_this(): weak_this_()// noexcept {}
-bsl::enable_shared_from_this<T>::enable_shared_from_this() :weak_this_(){}// noexcept {}
+bsl::enable_shared_from_this<ELEMENT_TYPE>::enable_shared_from_this() 
+                                                                :weak_this_(){}// noexcept {}
 
-template<class T>
+template<class ELEMENT_TYPE>
 inline 
-bsl::enable_shared_from_this<T>::enable_shared_from_this(
+bsl::enable_shared_from_this<ELEMENT_TYPE>::enable_shared_from_this(
                    enable_shared_from_this const& original) {}//noexcept{}
 
-template<class T>
+template<class ELEMENT_TYPE>
 inline 
-    bsl::enable_shared_from_this<T>::~enable_shared_from_this(){}
+    bsl::enable_shared_from_this<ELEMENT_TYPE>::~enable_shared_from_this(){}
 
 // MANIPULATORS
-template<class T>
+template<class ELEMENT_TYPE>
 inline 
-bsl::enable_shared_from_this<T>& bsl::enable_shared_from_this<T>::operator=(
-                           enable_shared_from_this const& rhs) {//noexcept{    
+bsl::enable_shared_from_this<ELEMENT_TYPE>& bsl::enable_shared_from_this
+                <ELEMENT_TYPE>::operator=(enable_shared_from_this const& rhs) {//noexcept{    
     return *this;
 }
 
 
-template<class T>
+template<class ELEMENT_TYPE>
 inline 
-bsl::shared_ptr<T> bsl::enable_shared_from_this<T>::shared_from_this() {
-    bsl::shared_ptr<T> p(bsl::enable_shared_from_this<T>::weak_this_);
+bsl::shared_ptr<ELEMENT_TYPE> bsl::enable_shared_from_this<ELEMENT_TYPE>::
+                                                           shared_from_this() {
+    bsl::shared_ptr<ELEMENT_TYPE> p(bsl::enable_shared_from_this
+                                                   <ELEMENT_TYPE>::weak_this_);
     BSLS_ASSERT_SAFE( p.get() == this);
     return p;
 }
 
-template<class T>
+template<class ELEMENT_TYPE>
 inline
-bsl::shared_ptr<T const> 
-                     bsl::enable_shared_from_this<T>::shared_from_this() const{
-    bsl::shared_ptr<T const> p(bsl::enable_shared_from_this<T>::weak_this_);
+bsl::shared_ptr<ELEMENT_TYPE const> 
+                     bsl::enable_shared_from_this<ELEMENT_TYPE>::
+                                                      shared_from_this() const{
+    bsl::shared_ptr<ELEMENT_TYPE const> p(bsl::enable_shared_from_this
+                                                   <ELEMENT_TYPE>::weak_this_);
     BSLS_ASSERT_SAFE( p.get() == this);
     return p;
 }
