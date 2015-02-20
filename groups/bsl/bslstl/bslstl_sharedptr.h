@@ -4078,7 +4078,7 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(COMPATIBLE_TYPE *ptr)
                                                        Deleter>       RepMaker;
 
     d_rep_p = RepMaker::makeOutofplaceRep(ptr, Deleter(), 0);
-    if (std::is_base_of<bsl::enable_shared_from_this, COMPATIBLE_TYPE>::value){
+    if (std::is_base_of<bsl::enable_shared_from_this, ELEMENT_TYPE>::value){
         ptr->weak_this_ = this;
     }
 }
