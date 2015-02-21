@@ -35,6 +35,7 @@ bsls_byteorder
 bsls_byteorderutil
 bsls_byteorderutil_impl
 bsls_compilerfeatures
+bsls_cpp11
 bsls_exceptionutil
 bsls_ident
 bsls_linkcoercion
