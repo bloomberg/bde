@@ -91,11 +91,37 @@ BSLS_IDENT("$Id$")
 #      pragma GCC diagnostic ignored "-Wconversion"
 #    endif
 
-     extern "C" {
-#     include <bid_conf.h>
-#     include <bid_functions.h>
-#     include <bid_internal.h>
-     }
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+// calcrt2.h exports a SWAP macro which we want to preserve.
+
+#ifdef SWAP
+    #if SWAP == 99
+        #define BDLDFP_INTELIMPWRAPPER_SWAP_WAS_99 1
+    #endif
+#endif
+
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
+
+// bid_internal.h exports a SWAP macro.
+#undef SWAP
+
+extern "C" {
+    #include <bid_conf.h>
+    #include <bid_functions.h>
+    #include <bid_internal.h>
+}
+
+#undef SWAP
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+// Restore SWAP macro from calcrt2.h.
+
+#if BDLDFP_INTELIMPWRAPPER_SWAP_WAS_99
+    #define SWAP 99
+    #undef BDLDFP_INTELIMPWRAPPER_SWAP_WAS_99
+#endif
+
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 #    ifdef BSLS_PLATFORM_CMP_GNU
 #      pragma GCC diagnostic pop
