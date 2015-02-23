@@ -142,6 +142,8 @@ BSLS_IDENT("$Id: $")
 //               it = values.begin(), end = values.end();
 //           it != end;
 //           ++it) {
+//          lsa.release();
+//
 //          bsl::stringbuf stringBuf(&lsa);
 //          bsl::ostream   ostr(&stringBuf);
 //
@@ -149,8 +151,6 @@ BSLS_IDENT("$Id: $")
 //                  "myKey = '" << it->second << "'";
 //
 //          // execute query using 'stringBuf.str()'
-//
-//          lsa.release();
 //      }
 //  }
 //..
