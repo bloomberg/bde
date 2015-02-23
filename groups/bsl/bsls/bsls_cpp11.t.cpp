@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
         Optional<int> value;
         ASSERT(bool(value) == false);
         if (value) { /*... */ }
-        /*
+
 #if !defined(BSLS_COMPILERFEATURS_SUPPORT_OPERATOR_EXPLICIT) \
  || defined(FAIL_USAGE_EXPLICIT)
         //todo
@@ -222,8 +222,7 @@ int main(int argc, char *argv[])
         OverrideFailure overrideFailure;
         ASSERT(overrideFailure.f() == 2);
         ASSERT(static_cast<const OverrideBase&>(overrideFailure).f() == 0);
-        
-        */
+
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -299,9 +298,7 @@ int main(int argc, char *argv[])
         //   the macro 'FAIL_OVERRIDE' to restrict compilation failure to
         //   compilations with this macro defined.
         // --------------------------------------------------------------------
-          
-          //todo
-          /*
+
         if (verbose)
             std::cout << std::endl
                       << "TESTING: BSLS_CPP11_OVERRIDE" << std::endl
@@ -327,7 +324,6 @@ int main(int argc, char *argv[])
         struct OverrideFail
             : Base
         {
-            todo
             int f()
                 // Returns a value specific to this type.
 #if !defined(BSLS_COMPILER_FEATURES_OVERRIDE) || defined(FAIL_OVERRIDE)
@@ -344,7 +340,7 @@ int main(int argc, char *argv[])
         OverrideFail fail;
         ASSERT(fail.f() == 2);
         ASSERT(static_cast<const Base&>(fail).f() == 0);
-        */
+
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -400,7 +396,7 @@ int main(int argc, char *argv[])
         //   derived class which also overrides the function marked as 'final'
         //   should fail compilation when compiling with C++11 mode.
         // --------------------------------------------------------------------
-        /*
+
         if (verbose)
             std::cout << std::endl
                       << "TESTING: BSLS_CPP11_FINAL (function)" << std::endl
@@ -435,7 +431,7 @@ int main(int argc, char *argv[])
         ASSERT(finalFunctionDerived.f() == 1);
         FinalFunctionFailure finalFunctionFailure;
         ASSERT(finalFunctionFailure.f() == 2);
-        */
+
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -455,7 +451,7 @@ int main(int argc, char *argv[])
         //   Creating a derived class from the 'final' class should fail
         //   compilation when compiling with C++11 mode.
         // --------------------------------------------------------------------
-        /*
+
         if (verbose)
             std::cout << std::endl
                       << "TESTING: BSLS_CPP11_FINAL (class)" << std::endl
@@ -492,7 +488,7 @@ int main(int argc, char *argv[])
         ASSERT(finalValue.value() == 1);
         FinalClassDerived derivedValue(2);
         ASSERT(derivedValue.anotherValue() == 4);
-        */
+
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -513,7 +509,7 @@ int main(int argc, char *argv[])
         //   C++03 mode. When compiling with C++11 mode the implicit conversion
         //   should fail.
         // --------------------------------------------------------------------
-          /*
+
         if (verbose)
             std::cout << std::endl
                       << "TESTING: BSLS_CPP11_EXPLICIT" << std::endl
@@ -536,7 +532,6 @@ int main(int argc, char *argv[])
         int implicitResult = explicitObject;
         ASSERT(implicitResult == 3);
 #endif
-        */
       } break;
       case 1:{
         // --------------------------------------------------------------------
