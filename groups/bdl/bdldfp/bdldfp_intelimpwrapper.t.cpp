@@ -207,7 +207,9 @@ int main(int argc, char* argv[])
                        && "BID_BIG_ENDIAN was not set to the correct setting");
         #endif
 
-
+        #ifdef SWAP
+        ASSERT(false && "SWAP still declared");
+        #endif
       } break;
       case 3: {
         // --------------------------------------------------------------------

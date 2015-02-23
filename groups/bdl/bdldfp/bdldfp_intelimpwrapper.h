@@ -92,11 +92,18 @@ BSLS_IDENT("$Id$")
 #      pragma GCC diagnostic ignored "-Wconversion"
 #    endif
 
-     extern "C" {
-#     include <bid_conf.h>
-#     include <bid_functions.h>
-#     include <bid_internal.h>
-     }
+
+// bid_internal.h exports a SWAP macro.
+#undef SWAP
+
+extern "C" {
+    #include <bid_conf.h>
+    #include <bid_functions.h>
+    #include <bid_internal.h>
+}
+
+#undef SWAP
+
 
 #    ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #      pragma GCC diagnostic pop
