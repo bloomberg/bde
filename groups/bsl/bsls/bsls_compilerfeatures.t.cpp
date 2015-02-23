@@ -76,13 +76,13 @@ auto my_max(T t, U u) -> decltype(t > u ? t : u)
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS)
-struct deletedFunctionClass {
-	deletedFunctionClass() = default;
-	deletedFunctionClass(const deletedFunctionClass&) = delete;
-	deletedFunctionClass(deletedFunctionClass&&) = default;
-	deletedFunctionClass& operator=(const deletedFunctionClass&) = delete;
-	deletedFunctionClass& operator=(deletedFunctionClass&&) = default;
-    ~deletedFunctionClass() = default;
+struct deletedFunction {
+    deletedFunction() = default;
+    deletedFunction(const deletedFunction&) = delete;
+    deletedFunction(deletedFunction&&) = default;
+    deletedFunction& operator=(const deletedFunction&) = delete;
+    deletedFunction& operator=(deletedFunction&&) = default;
+    ~deletedFunction() = default;
 };
 #endif  //BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE)
@@ -556,7 +556,7 @@ int main(int argc, char *argv[])
 #else
         if (verbose) printf("Testing deleted functions template\n"
                             "==================================\n");
-        deletedFunctionClass* p;
+        deletedFunction* p;
 #endif
       }break;
       case 3: {
