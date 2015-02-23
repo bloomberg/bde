@@ -178,6 +178,8 @@ void updateRecords_3(const bsl::map<DatabaseKey, DatabaseValue>& values)
              it = values.begin(), end = values.end();
          it != end;
          ++it) {
+        lsa.release();
+
         bsl::stringbuf stringBuf(&lsa);
         bsl::ostream   ostr(&stringBuf);
 
@@ -185,8 +187,6 @@ void updateRecords_3(const bsl::map<DatabaseKey, DatabaseValue>& values)
                 "myKey = '" << it->second << "'";
 
         // execute query using 'stringBuf.str()'
-
-        lsa.release();
     }
 }
 
