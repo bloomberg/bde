@@ -348,17 +348,21 @@ int main(int argc, char *argv[])
     	// BSLS_CPP11_NOEXCEPT_OPERATION(expr)
         //
         // Concerns:
-        //   1) Marking a function 'noexcept' using 'BSLS_CPP11_NOEXCEPT' 
-        //      should result in a successful compilation.
+        //   1) Marking a function 'noexcept' using 'BSLS_CPP11_NOEXCEPT' or
+        //      BSLS_CPP11_NOEXCEPT_OPERATION(expr) or
+        //      BSLS_CPP11_NOEXCEPT_SPECIFICATION should result in a successful 
+        //      compilation in C++03 mode.
     	//
-        //   2) Marking a function'noexcet' using 'BSLS_CPP11_NOEXCEPT'
-        //      should make the program terminate if the function throws an
-        //      exception.
+        //   2) Marking a function'noexcet' using 'BSLS_CPP11_NOEXCEPT' or 
+        //      BSLS_CPP11_NOEXCEPT_OPERATION(expr) or
+        //      BSLS_CPP11_NOEXCEPT_SPECIFICATION should make the program 
+        //      terminate if the function throws an exception in cpp11 mode.
     	//
         // Plan:
-        //   Define a function marking it 'noexcept' using 
-    	//   'BSLS_CPP11_NOEXCEPT'. If the function should throw an exception
-    	//   the test driver terminate.
+        //   Define a function marking it 'noexcept' using the various forms of
+        //   the macro. Test these functions ensuring that the test driver 
+        //   terminates if noexcept(function()) is true and the function throws
+        //   an exception.
         // --------------------------------------------------------------------
         if (verbose){
             std::cout << std::endl
@@ -546,9 +550,9 @@ int main(int argc, char *argv[])
         //      resulting constexpr function is used illegally.
         //
         // Plan:
-        //   Define a function marking it 'noexcept' using 
-        //   'BSLS_CPP11_NOEXCEPT'. If the function should throw an exception
-        //   the test driver terminate.
+        //   Define a struct marking its various member functions as constexprs
+        //   functions. Verify that if the constexpr member functions are not 
+        //   used appropriately the program will fail to compile in cpp11 mode. 
         // --------------------------------------------------------------------
           struct testStruct {
               BSLS_CPP11_CONSTEXPR testStruct (int i) : value(i){}
@@ -560,6 +564,7 @@ int main(int argc, char *argv[])
           
           BSLS_CPP11_CONSTEXPR testStruct B (15);
           BSLS_CPP11_CONSTEXPR int X (B);
+          //int X (B);
       } break;
       default: {
         std::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << std::endl;
