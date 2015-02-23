@@ -15,12 +15,9 @@ BSLS_IDENT_RCSID(bdldfp_decimalconvertutil_cpp,"$Id$ $CSID$")
 #  endif
 #endif
 
-#include <math.h>
-
-#include <bsl_cstring.h>
-
 #include <bsl_algorithm.h>
-#include <bsl_iostream.h>  // TODO TBD - remove this, it is just for debugging
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 
 namespace BloombergLP {
 namespace bdldfp {
@@ -253,7 +250,7 @@ void restoreDecimalFromBinary(DECIMAL_TYPE *dfp, BINARY_TYPE bfp)
     }
     if (*it == 'e' || *it == 'E') {
         ++it;
-        exponent += atoi(it);
+        exponent += bsl::atoi(it);
     }
 
     *dfp = DecimalTraits<DECIMAL_TYPE>::make(significand, exponent);
