@@ -220,12 +220,15 @@ struct PackSize<T> {
 // [ 3] BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 // [ 4] BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
 // [ 5] BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
-// [ 6] BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
-// [ 7] BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
-// [ 8] BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
-// [ 9] BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-// [10] BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
-// [11] BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+// [ 6] BSLS_COMPILERFEATURES_SUPPORT_FINAL
+// [ 7] BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+// [ 8] BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+// [ 9] BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+// [10] BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+// [11] BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
+// [12] BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+// [13] BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+// [14] BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 //=============================================================================
 
 int main(int argc, char *argv[])
@@ -238,7 +241,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 11: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
         //
@@ -266,7 +269,7 @@ int main(int argc, char *argv[])
         ASSERT((PackSize<int, char, double, void>::VALUE == 4));
 #endif
       } break;
-      case 10: {
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
         //
@@ -293,7 +296,7 @@ int main(int argc, char *argv[])
         static_assert(1,    "static_assert with int");
 #endif
       } break;
-      case 9: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         //
@@ -320,7 +323,76 @@ int main(int argc, char *argv[])
         RvalueTest obj(my_factory<RvalueTest>(RvalueArg()));
 #endif
       } break;
-      case 8: {
+      case 11: {
+        // --------------------------------------------------------------------
+        // TESTING BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
+        //
+        // Concerns:
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE' is defined only when the
+        //:    compiler supports using the 'override' keyword when overriding a
+        //:    'virtual' function.
+        //
+        // Plan:
+        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE' is defined then
+        //:   compile code using the 'override' keyword when overriding a
+        //:   'virtual' function. To really test the feature works a function
+        //:   that isn't an override needs to use the 'override' keyword to
+        //:   produce a compile-time error.
+        //
+        // Testing:
+        //   BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
+        // --------------------------------------------------------------------
+
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE)
+        if (verbose) printf("Testing override skipped\n"
+                            "========================\n");
+#else
+        if (verbose) printf("Testing override\n"
+                            "================\n");
+
+        struct OverrideBase { virtual void f() const {} };
+        struct Override: OverrideBase { void f() const override {} };
+#endif
+      } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // TESTING BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+        //
+        // Concerns:
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT' is defined only
+        //:    when the compiler supports 'explicit' conversion operators.
+        //
+        // Plan:
+        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT' is defined
+        //:   compile code that uses an 'explicit' conversion operator for a
+        //:   class with another conversion operator and use an object in a
+        //:   context where an ambiguity is caused if 'explicit' is absent
+        //
+        // Testing:
+        //   BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+        // --------------------------------------------------------------------
+
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT)
+        if (verbose) printf("Testing operator explicit skipped\n"
+                            "=================================\n");
+#else
+        if (verbose) printf("Testing operator explicit\n"
+                            "=========================\n");
+
+        struct Explicit {
+            static bool match(int)  { return false; }
+            static bool match(char) { return true; }
+
+            explicit operator int() const { return 0; }
+            operator char() const { return 0; }
+        };
+
+        Explicit ex;
+        bool result = Explicit::match(ex);
+        ASSERT(result);
+#endif
+      } break;
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
         //
@@ -348,7 +420,7 @@ int main(int argc, char *argv[])
         OverloadForNullptr(nullptr);
 #endif
       } break;
-      case 7:{
+      case 8:{
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
         //
@@ -373,7 +445,7 @@ int main(int argc, char *argv[])
           
 #endif
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
         //
@@ -396,6 +468,38 @@ int main(int argc, char *argv[])
 #else
         if (verbose) printf("Testing include_next\n"
                             "====================\n");
+#endif
+
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING BSLS_COMPILERFEATURES_SUPPORT_FINAL
+        //
+        // Concerns:
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_FINAL' is defined only when the
+        //:   compiler is actually able to compile code using final classes and
+        //:   final member functions.
+        //
+        // Plan:
+        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_FINAL' is defined then compile
+        //:   code that uses this feature to a final class and class with a
+        //:   final function (to really verify the 'final' keyword work it is
+        //:   necessary to try refining a class or a function declared
+        //:   'final').
+        //
+        // Testing:
+        //   BSLS_COMPILERFEATURES_SUPPORT_FINAL
+        // --------------------------------------------------------------------
+
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_FINAL)
+        if (verbose) printf("Testing final skipped\n"
+                            "=====================\n");
+#else
+        if (verbose) printf("Testing final\n"
+                            "=============\n");
+
+        struct Final final {};
+        struct FinalMember { void f() final {} };
 #endif
 
       } break;

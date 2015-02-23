@@ -63,6 +63,10 @@ BSLS_IDENT("$Id: $")
 //:     This macro is defined if 'extern template' is supported by the current
 //:     compiler settings for this platform.
 //:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_FINAL'
+//:     This macro is defined if 'final' is supported for classes and member
+//:     functions by the current compiler settings for this platform.
+//:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT'
 //:    This macro is defined if 'include_next' is supported by the current
 //:    compiler settings for this platform.
@@ -74,6 +78,15 @@ BSLS_IDENT("$Id: $")
 //: 'BSLS_COMPILERFEATURES_SUPPORT_NULLPTR'
 //:    This macro is defined if 'nullptr' is supported by the current compiler
 //:    settings for this platform.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT'
+//:    This macro is defined if the 'explicit' keyword applied to conversion
+//:    operators is supported by the current compiler settings for this
+//:    platform.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE'
+//:    This macro is defined if the 'override' keyword is supported by the
+//:    current compiler settings for this platform.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES'
 //:    This macro is defined if rvalue references are supported by the current
@@ -187,6 +200,20 @@ BSLS_IDENT("$Id: $")
 //:   xlC 11.1
 //:   Oracle CC 12.4
 //
+///BSLS_COMPILERFEATURES_SUPPORT_FINAL
+///- - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports both finalizing a class using
+// the 'final' keyword after the class name as well as preventing further
+// derived classes from overriding a 'virtual' function by using 'final' after
+// its signature.
+//
+//: Compiler support:
+//:   gcc 4.7
+//:   clang 3.0
+//:   MSVC 2012
+//:   xlC 11.1
+//:   Oracle CC 12.4
+//
 ///BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
 /// - - - - - - - - - - - - - - - - - - - - -
 // This macro is defined if the compiler supports #include_next semantics
@@ -217,6 +244,32 @@ BSLS_IDENT("$Id: $")
 //:   clang 3.0
 //:   MSVC 2010
 //:   xlC 13.1
+//:   Oracle CC 12.4
+//
+///BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports use of the 'explicit' keyword
+// to indicate that a conversion operator only available for explicit
+// conversions.
+//
+//: Compiler support:
+//:   gcc 4.5
+//:   clang 3.0
+//:   MSVC 2013
+//:   xlC 11.1
+//:   Oracle CC 12.4
+//
+///BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
+/// - - - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports use of the 'override' keyword
+// to indicate that a member function is meant to override a 'virtual'
+// function (and cause a failure if that is not the case).
+//
+//: Compiler support:
+//:   gcc 4.7
+//:   clang 3.0
+//:   MSVC 2012
+//:   xlC 11.1
 //:   Oracle CC 12.4
 //
 ///BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
@@ -283,6 +336,7 @@ BSLS_IDENT("$Id: $")
 #define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
 #endif
 #if BSLS_PLATFORM_CMP_VERSION >= 40500
+#define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 #define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 // r-value references v1.0 in gcc 4.3, v2.1 in gcc 4.5, v3.0 in gcc 4.6
 #endif
@@ -293,6 +347,8 @@ BSLS_IDENT("$Id: $")
 #endif
 #if BSLS_PLATFORM_CMP_VERSION >= 40700
 #define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+#define BSLS_COMPILERFEATURES_SUPPORT_FINAL
+#define BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
 #endif
 #if BSLS_PLATFORM_CMP_VERSION >= 40800
 #define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
@@ -333,6 +389,13 @@ BSLS_IDENT("$Id: $")
 #if __has_feature(cxx_constexpr)
 #define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
 #endif
+#if __has_feature(cxx_explicit_conversions)
+#define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+#endif
+#if __has_feature(cxx_override_control)
+#define BSLS_COMPILERFEATURES_SUPPORT_FINAL
+#define BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
+#endif
 #if __has_feature(cxx_nullptr)
 #define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
 #endif
@@ -351,17 +414,22 @@ BSLS_IDENT("$Id: $")
 // http://msdn.microsoft.com/en-us/library/hh567368.aspx
 // http://blogs.msdn.com/b/vcblog/archive/2014/06/11/c-11-14-feature-tables-for-visual-studio-14-ctp1.aspx
 // MSVC enables C++11 features automatically in versions that provide the
-// feature.  Features can not be disabled.
+// feature.  Features can not be disabled. 
+//
+//: * extern template is not supported. It is documented as being 
+//:   "supported" but behaves in a non-conforming manner.
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #if BSLS_PLATFORM_CMP_VERSION >= 1600  // Microsoft Visual Studio 2010
 #define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-#define BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
 #define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
 #define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 #define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
 #endif
 #if BSLS_PLATFORM_CMP_VERSION >= 1800  // Microsoft Visual Studio 2013
 #define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+#define BSLS_COMPILERFEATURES_SUPPORT_FINAL
+#define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+#define BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
 #define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 #define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
 #endif
@@ -388,6 +456,9 @@ BSLS_IDENT("$Id: $")
 #if defined(__IBMCPP_DEFAULTED_AND_DELETED_FUNCTIONS)
 #define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
 #endif
+#if defined(__IBMCPP_EXPLICIT)
+#define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+#endif
 #if defined(__IBMCPP_EXTERN_TEMPLATE)
 #define BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
 #endif
@@ -396,6 +467,10 @@ BSLS_IDENT("$Id: $")
 #endif
 #if defined(__IBMCPP_NULLPTR)
 #define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+#endif
+#if defined(__IBMCPP_OVERRIDE)
+#define BSLS_COMPILERFEATURES_SUPPORT_FINAL
+#define BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
 #endif
 #if defined(__IBMCPP_RVALUE_REFERENCES)
 #define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
@@ -429,9 +504,12 @@ BSLS_IDENT("$Id: $")
 #define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 #define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
 #define BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
+#define BSLS_COMPILERFEATURES_SUPPORT_FINAL
 #define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
 #define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
 #define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+#define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+#define BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
 #define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 #define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
 #define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
