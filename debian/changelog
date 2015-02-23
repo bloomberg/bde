@@ -1,3 +1,15 @@
+bsl-internal (2.22.7.0) unstable; urgency=low
+
+  * 1c3da92 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.22.x
+  * ac76ba6 [APPROVAL] INTERNAL bump-patch-to-2.22.7 to releases/2.22.x
+  * ef62fbb [APPROVAL] bump-patch-to-2.22.7 to releases/2.22.x
+  * c197820 Bump patch version to 2.22.7
+  * a83cc16 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.22.x
+  * 11c67db [APPROVAL] INTERNAL pending/master/hide-bid-SWAP_drqs-61884335 to releases/2.22.x
+  * 0b930bf [APPROVAL] pending/master/hide-bid-SWAP_drqs-61884335 to releases/2.22.x
+
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Mon, 23 Feb 2015 10:37:08 -0500
+
 bsl-internal (2.22.3.1) unstable; urgency=low
 
   * 13411f7 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.22.x
