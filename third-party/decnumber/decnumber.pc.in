@@ -1,6 +1,6 @@
 prefix=@prefix@
 libdir=${prefix}/@lib_dir@
-includedir=${prefix}/include/decNumber
+includedir=${prefix}/include/decnumber
 
 Name: DecNumber Library
 Description:
