@@ -9773,17 +9773,33 @@ int main(int argc, char *argv[])
         }
       } break;
       */
+      ///*
       case 1: {
           bsl::shared_ptr<shareThis> gp1(new shareThis);
 
           //gp1->weak_this_ = gp1;
 
           bsl::shared_ptr<shareThis> gp2 (gp1); 
-          bsl::shared_ptr<shareThis> gp3 = gp1 -> getptr();
-          //bsl::shared_ptr<shareThis> gp4 = gp1 -> getptr();
-          //bsl::shared_ptr<shareThis> gp5 = gp1 -> getptr();
-          ASSERT(gp1.use_count() == 3);
+          bsl::shared_ptr<shareThis> gp3 = gp2 -> getptr();
+          bsl::shared_ptr<shareThis> gp4 = gp3 -> getptr();
+          bsl::shared_ptr<shareThis> gp5 = gp4 -> getptr();
+          bsl::shared_ptr<shareThis> gp6 = gp1 -> getptr();
+          bsl::shared_ptr<shareThis> gp7 = gp1 -> getptr();
+          bsl::shared_ptr<shareThis> gp8 = gp1 -> getptr();
+          bsl::shared_ptr<shareThis> gp9 = gp1 -> getptr();
+          ASSERT(gp1.use_count() == 9);
+          
+          bsls::Types::Int64 numDeletes1 = 0;
+          MyTestObject *p1 = new MyTestObject(&numDeletes1);
+          //bsl::shared_ptr<MyTestObject> Obj;
+          //Obj x(p1); const Obj &X = x;
+          bsl::shared_ptr<MyTestObject> x(p1);
+          
+          bool k =std::is_base_of<bsl::enable_shared_from_this<MyTestObject>,
+                  MyTestObject>::value;
+          //ASSERT(k);
       }
+      //*/
       case -1: {
         // --------------------------------------------------------------------
         // PERFORMANCE TEST

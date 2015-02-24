@@ -1581,6 +1581,13 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_util.h>
 #endif
 
+#if defined(__cplusplus) && __cplusplus >=201103L 
+#ifndef INCLUDE_TYPE_TRAITS
+#include <type_traits>          // std:: is_base_of
+#define INCLUDE_TYPE_TRAITS
+#endif
+#endif
+
 #ifndef INCLUDED_FUNCTIONAL
 #include <functional>            // to specialize 'std::less'
 #define INCLUDED_FUNCTIONAL
@@ -1600,10 +1607,6 @@ BSL_OVERRIDES_STD mode"
 #include <stddef.h>               // 'size_t', 'ptrdiff_t'
 #define INCLUDED_STDDEF_H
 #endif
-
-//#ifndef INCLUDE_TYPE_TRAITS
-//#include <type_traits.h>          // 'std::is_base_of'    
-//#endif
 
 namespace bsl {
 
@@ -4086,9 +4089,12 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(COMPATIBLE_TYPE *ptr)
                                                        Deleter>       RepMaker;
 
     d_rep_p = RepMaker::makeOutofplaceRep(ptr, Deleter(), 0);
-    //if (std::is_base_of<bsl::enable_shared_from_this, ELEMENT_TYPE>::value){
+#if defined(__cplusplus) && __cplusplus >=201103L 
+    if (std::is_base_of<bsl::enable_shared_from_this<ELEMENT_TYPE>, 
+                                                   COMPATIBLE_TYPE>::value){
         ptr->weak_this_ = *this;
-    //}
+    }
+#endif
 }
 
 template <class ELEMENT_TYPE>
