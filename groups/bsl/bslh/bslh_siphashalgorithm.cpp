@@ -156,7 +156,7 @@ SipHashAlgorithm::SipHashAlgorithm(const char *seed)
     const u64 *aligned = reinterpret_cast<const u64 *>(seed);
 #else
     u64 aligned[2];
-    memcpy(&aligned, seed, sizeof(aligned)/sizeof(*aligned));
+    memcpy(&aligned, seed, sizeof(aligned));
 #endif
     d_v2 ^= aligned[0];
     d_v0 ^= aligned[0];
