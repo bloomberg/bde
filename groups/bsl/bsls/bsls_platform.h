@@ -610,7 +610,17 @@ struct bsls_Platform_Assert;
         #endif
     #elif defined(__arm__)
         #define BSLS_PLATFORM_CPU_ARM 1
-        #if defined(__ARM_ARCH_5T__)        \
+        #if defined(__ARM_ARCH)
+            #if __ARM_ARCH == 6
+                #define BSLS_PLATFORM_CPU_ARM_V6
+            #elif __ARM_ARCH == 7
+                #define BSLS_PLATFORM_CPU_ARM_V7
+            #elif __ARM_ARCH == 8
+                #define BSLS_PLATFORM_CPU_ARM_V8
+            #elif __ARM_ARCH == 9
+                #define BSLS_PLATFORM_CPU_ARM_V9
+            #endif
+        #elif defined(__ARM_ARCH_5T__)        \
             || defined(__ARM_ARCH_5TE__)    \
             || defined(__ARM_ARCH_5TEJ__)
             #define BSLS_PLATFORM_CPU_ARM_V5
