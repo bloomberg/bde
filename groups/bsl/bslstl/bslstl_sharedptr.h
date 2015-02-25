@@ -3704,9 +3704,9 @@ class weak_ptr {
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
-                    //------------------------------
+                    //==============================
                     // class enable_shared_from_this
-                    //------------------------------
+                    //==============================
 
 //TODO
 template<class ELEMENT_TYPE>
@@ -3727,7 +3727,8 @@ class enable_shared_from_this{
     template <class COMPATIBLE_TYPE>
     friend class shared_ptr;
     
-    private:
+    //todo make private again
+    public:
         // DATA
         bsl::weak_ptr<ELEMENT_TYPE> weak_this_;
 
@@ -3760,7 +3761,13 @@ class enable_shared_from_this{
             // existing 'shared_ptr<T>' that refer to *this
 };
 
-
+                    //=================================
+                    // _enable_shared_from_this_support
+                    //=================================
+template<class X, class Y, class Z>
+void _enable_shared_from_this_support(shared_ptr<X>* sp, Y* rp, 
+                                        enable_shared_from_this<Z>* shareable);
+void _enable_shared_from_this_support(...);
 
 // ASPECTS
 template <class ELEMENT_TYPE>
@@ -4000,6 +4007,18 @@ bsl::shared_ptr<ELEMENT_TYPE const>
     BSLS_ASSERT_SAFE( p.get() == this);
     return p;
 }
+
+                    //---------------------------------------
+                    // class _enable_shared_from_this_support
+                    //---------------------------------------
+template<class X, class Y, class Z>
+inline void _enable_shared_from_this_support(shared_ptr<X>* sp, Y* rp, 
+                                        enable_shared_from_this<Z>* shareable){
+    shareable->weak_this_ = *sp;
+}
+inline void _enable_shared_from_this_support(...){
+}
+
                             // ----------------
                             // class shared_ptr
                             // ----------------
@@ -4089,11 +4108,14 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(COMPATIBLE_TYPE *ptr)
                                                        Deleter>       RepMaker;
 
     d_rep_p = RepMaker::makeOutofplaceRep(ptr, Deleter(), 0);
-#if defined(__cplusplus) && __cplusplus >=201103L 
-    if (std::is_base_of<bsl::enable_shared_from_this<ELEMENT_TYPE>, 
-                                                   COMPATIBLE_TYPE>::value){
-        ptr->weak_this_ = *this;
-    }
+#if defined(__cplusplus) && __cplusplus >=201103L
+    
+    _enable_shared_from_this_support(this,ptr,ptr);
+    
+    //if (std::is_base_of<bsl::enable_shared_from_this<ELEMENT_TYPE>, 
+    //                                               COMPATIBLE_TYPE>::value){
+    //    ptr->weak_this_ = *this;
+    //}
 #endif
 }
 

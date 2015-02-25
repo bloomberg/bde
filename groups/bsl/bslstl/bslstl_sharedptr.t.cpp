@@ -9792,8 +9792,8 @@ int main(int argc, char *argv[])
           bsls::Types::Int64 numDeletes1 = 0;
           MyTestObject *p1 = new MyTestObject(&numDeletes1);
           //bsl::shared_ptr<MyTestObject> Obj;
-          //Obj x(p1); const Obj &X = x;
-          bsl::shared_ptr<MyTestObject> x(p1);
+          Obj x(p1); const Obj &X = x;
+          //bsl::shared_ptr<MyTestObject> x(p1);
           
           bool k =std::is_base_of<bsl::enable_shared_from_this<MyTestObject>,
                   MyTestObject>::value;
