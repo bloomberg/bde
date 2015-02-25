@@ -445,7 +445,7 @@ int main(int argc, char *argv[])
                             "=============\n");
 
         struct Final final {};
-        struct FinalMember { void f() final {} };
+        struct FinalMember { virtual void f() final {} };
 #endif
 
       } break;
