@@ -4061,9 +4061,6 @@ shared_ptr<ELEMENT_TYPE>::makeInternalRep(COMPATIBLE_TYPE *ptr,
 }
 
 // CREATORS
-//todo The shared_ptr constructors that create unique pointers can detect the 
-//presence of an enable_shared_from_this base and assign the newly created 
-//shared_ptr to its __weak_this member.
 template <class ELEMENT_TYPE>
 inline
 shared_ptr<ELEMENT_TYPE>::shared_ptr()
@@ -4128,6 +4125,7 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(ELEMENT_TYPE                     *ptr,
 : d_ptr_p(ptr)
 , d_rep_p(rep)
 {
+    _enable_shared_from_this_support(this,ptr,ptr);
 }
 
 template <class ELEMENT_TYPE>
@@ -4138,6 +4136,7 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(COMPATIBLE_TYPE *ptr,
 : d_ptr_p(ptr)
 , d_rep_p(makeInternalRep(ptr, dispatch, dispatch))
 {
+    _enable_shared_from_this_support(this,ptr,ptr);
 }
 
 template <class ELEMENT_TYPE>
