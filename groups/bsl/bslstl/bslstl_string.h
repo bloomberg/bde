@@ -714,6 +714,12 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_STDEXCEPT
 #endif
 
+//todo
+#ifndef INCLUDED_MATH
+#include <math.h>                 //fmod
+#define INCLUDED_MATH
+#endif
+
 // For transitive includes.  This is not placed in 'bsl+stdhdrs' because it
 // causes a cycle within the native standard headers.
 #ifndef INCLUDED_ALGORITHM
@@ -5380,14 +5386,18 @@ inline long double bsl::stold(const wstring& str, std::size_t* pos){
 #endif
 
 inline bsl::string bsl::to_string(int value) {
-    char tempBuf[BSLSTL_MAX_INT_STRLEN10];
+    int bufferSize = std::snprintf(NULL,0,"%d", value);
+    char tempBuf[bufferSize + 1]; 
+    //char tempBuf[BSLSTL_MAX_INT_STRLEN10];
     std::sprintf(tempBuf, "%d", value);
     string str(tempBuf);
     return str;
 }
 
 inline bsl::string bsl::to_string(unsigned value) {
-    char tempBuf[BSLSTL_MAX_INT_STRLEN10];
+    int bufferSize = std::snprintf(NULL,0,"%u", value);
+    char tempBuf[bufferSize + 1]; 
+    //char tempBuf[BSLSTL_MAX_INT_STRLEN10];
     std::sprintf(tempBuf, "%u", value);
     string str(tempBuf);
     return str;
@@ -5395,7 +5405,9 @@ inline bsl::string bsl::to_string(unsigned value) {
 
 inline bsl::string bsl::to_string(long value)
 {
-    char tempBuf[BSLSTL_MAX_INT64_STRLEN10];
+    int bufferSize = std::snprintf(NULL, 0, "%ld", value);
+    char tempBuf[bufferSize + 1]; 
+    //char tempBuf[BSLSTL_MAX_INT64_STRLEN10];
     std::sprintf(tempBuf, "%ld", value);
     string str(tempBuf);
     return str;
@@ -5403,15 +5415,19 @@ inline bsl::string bsl::to_string(long value)
 
 inline bsl::string bsl::to_string(unsigned long value)
 {
-    char tempBuf[BSLSTL_MAX_INT64_STRLEN10];
+    int bufferSize = std::snprintf(NULL, 0, "%lu", value);
+    char tempBuf[bufferSize + 1]; 
+    //char tempBuf[BSLSTL_MAX_INT64_STRLEN10];
     std::sprintf(tempBuf, "%lu", value);
     string str(tempBuf);
     return str;
 }
-//TODO NEED TO FIGURE OUT BUFF LENG FOR THIS
+
 inline bsl::string bsl::to_string(long long value)
 {
-    char tempBuf[BSLSTL_MAX_INT64_STRLEN10];
+    int bufferSize = std::snprintf(NULL, 0, "%lld", value);
+    char tempBuf[bufferSize + 1]; 
+    //char tempBuf[BSLSTL_MAX_INT64_STRLEN10];
     std::sprintf(tempBuf, "%lld", value);
     string str(tempBuf);
     return str;
@@ -5419,24 +5435,30 @@ inline bsl::string bsl::to_string(long long value)
 
 inline bsl::string bsl::to_string(unsigned long long value)
 {
-    char tempBuf[BSLSTL_MAX_INT64_STRLEN10];
+    int bufferSize = std::snprintf(NULL, 0, "%llu", value);
+    char tempBuf[bufferSize + 1]; 
+    //char tempBuf[BSLSTL_MAX_INT64_STRLEN10];
     std::sprintf(tempBuf, "%llu", value);
     string str(tempBuf);
     return str;
 }
 
-
 inline bsl::string bsl::to_string(float value)
 {
-    char tempBuf[BSLSTL_MAX_DOUBLE_STRLEN10];
+    int bufferSize = std::snprintf(NULL,0,"%f", value);
+    char tempBuf[bufferSize + 1]; 
+    //char tempBuf[BSLSTL_MAX_DOUBLE_STRLEN10];
     std::sprintf(tempBuf, "%f", value);
     string str(tempBuf);
     return str;
+
 }
 
 inline bsl::string bsl::to_string(double value)
 {
-    char tempBuf[BSLSTL_MAX_DOUBLE_STRLEN10];
+    int bufferSize = std::snprintf(NULL,0,"%f", value);
+    char tempBuf[bufferSize + 1]; 
+    //char tempBuf[BSLSTL_MAX_DOUBLE_STRLEN10];
     std::sprintf(tempBuf, "%f", value);
     string str(tempBuf);
     return str;
@@ -5444,7 +5466,9 @@ inline bsl::string bsl::to_string(double value)
 
 inline bsl::string bsl::to_string(long double value)
 {
-    char tempBuf[BSLSTL_MAX_LONGDOUBLE_STRLEN10];
+    int bufferSize = std::snprintf(NULL,0,"%Lf", value);
+    char tempBuf[bufferSize + 1]; 
+    //char tempBuf[BSLSTL_MAX_LONGDOUBLE_STRLEN10];
     std::sprintf(tempBuf, "%Lf", value);
     string str(tempBuf);
     return str;
@@ -5452,7 +5476,9 @@ inline bsl::string bsl::to_string(long double value)
 
 inline bsl::wstring bsl::to_wstring(int value)
 {
-    wchar_t tempBuf[BSLSTL_MAX_INT_STRLEN10];
+    int bufferSize = std::snprintf(NULL,0,"%d", value);
+    wchar_t tempBuf[bufferSize + 1]; 
+    //wchar_t tempBuf[BSLSTL_MAX_INT_STRLEN10];
     std::swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%d", value);
     wstring str(tempBuf);
     return str;
@@ -5460,15 +5486,18 @@ inline bsl::wstring bsl::to_wstring(int value)
 
 inline bsl::wstring bsl::to_wstring(long value)
 {
-    wchar_t tempBuf[BSLSTL_MAX_INT64_STRLEN10];
+    int bufferSize = std::snprintf(NULL,0,"%ld", value);
+    wchar_t tempBuf[bufferSize + 1]; 
+    //wchar_t tempBuf[BSLSTL_MAX_INT64_STRLEN10];
     std::swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%ld", value);
     wstring str(tempBuf);
     return str;
 }
-//TODO buffer size for long long unknown
 inline bsl::wstring bsl::to_wstring(long long value)
 {
-    wchar_t tempBuf[BSLSTL_MAX_INT64_STRLEN10];
+    int bufferSize = std::snprintf(NULL,0,"%lld", value);
+    wchar_t tempBuf[bufferSize + 1]; 
+    //wchar_t tempBuf[BSLSTL_MAX_INT64_STRLEN10];
     std::swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%lld", value);
     wstring str(tempBuf);
     return str;
@@ -5476,7 +5505,9 @@ inline bsl::wstring bsl::to_wstring(long long value)
 
 inline bsl::wstring bsl::to_wstring(unsigned value)
 {
-    wchar_t tempBuf[BSLSTL_MAX_INT_STRLEN10];
+    int bufferSize = std::snprintf(NULL,0,"%u", value);
+    wchar_t tempBuf[bufferSize + 1]; 
+    //wchar_t tempBuf[BSLSTL_MAX_INT_STRLEN10];
     std::swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%u", value);
     wstring str(tempBuf);
     return str;
@@ -5484,7 +5515,9 @@ inline bsl::wstring bsl::to_wstring(unsigned value)
 
 inline bsl::wstring bsl::to_wstring(unsigned long value)
 {
-    wchar_t tempBuf[BSLSTL_MAX_INT64_STRLEN10];
+    int bufferSize = std::snprintf(NULL,0,"%lu", value);
+    wchar_t tempBuf[bufferSize + 1]; 
+    //wchar_t tempBuf[BSLSTL_MAX_INT64_STRLEN10];
     std::swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%lu", value);
     wstring str(tempBuf);
     return str;
@@ -5492,7 +5525,9 @@ inline bsl::wstring bsl::to_wstring(unsigned long value)
 
 inline bsl::wstring bsl::to_wstring(unsigned long long value)
 {
-    wchar_t tempBuf[BSLSTL_MAX_INT64_STRLEN10];
+    int bufferSize = std::snprintf(NULL,0,"%llu", value);
+    wchar_t tempBuf[bufferSize + 1]; 
+    //wchar_t tempBuf[BSLSTL_MAX_INT64_STRLEN10];
     std::swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%llu", value);
     wstring str(tempBuf);
     return str;
@@ -5500,7 +5535,9 @@ inline bsl::wstring bsl::to_wstring(unsigned long long value)
 
 inline bsl::wstring bsl::to_wstring(float value)
 {
-    wchar_t tempBuf[BSLSTL_MAX_DOUBLE_STRLEN10];
+    int bufferSize = std::snprintf(NULL,0,"%f", value);
+    wchar_t tempBuf[bufferSize + 1]; 
+    //wchar_t tempBuf[BSLSTL_MAX_DOUBLE_STRLEN10];
     std::swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%f", value);
     wstring wstr(tempBuf);
     return wstr;
@@ -5508,7 +5545,9 @@ inline bsl::wstring bsl::to_wstring(float value)
 
 inline bsl::wstring bsl::to_wstring(double value)
 {
-    wchar_t tempBuf[BSLSTL_MAX_DOUBLE_STRLEN10];
+    int bufferSize = std::snprintf(NULL,0,"%f", value);
+    wchar_t tempBuf[bufferSize + 1]; 
+    //wchar_t tempBuf[BSLSTL_MAX_DOUBLE_STRLEN10];
     std::swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%f", value);
     wstring wstr(tempBuf);
     return wstr;
@@ -5516,7 +5555,9 @@ inline bsl::wstring bsl::to_wstring(double value)
 
 inline bsl::wstring bsl::to_wstring(long double value)
 {
-    wchar_t tempBuf[BSLSTL_MAX_LONGDOUBLE_STRLEN10];
+    int bufferSize = std::snprintf(NULL,0,"%Lf", value);
+    wchar_t tempBuf[bufferSize + 1]; 
+    //wchar_t tempBuf[BSLSTL_MAX_LONGDOUBLE_STRLEN10];
     std::swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%Lf", value);
     wstring wstr(tempBuf);
     return wstr;
