@@ -714,12 +714,6 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_STDEXCEPT
 #endif
 
-//todo
-#ifndef INCLUDED_MATH
-#include <math.h>                 //fmod
-#define INCLUDED_MATH
-#endif
-
 // For transitive includes.  This is not placed in 'bsl+stdhdrs' because it
 // causes a cycle within the native standard headers.
 #ifndef INCLUDED_ALGORITHM
