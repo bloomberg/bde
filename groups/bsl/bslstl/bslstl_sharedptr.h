@@ -3728,7 +3728,7 @@ class enable_shared_from_this{
     friend class shared_ptr;
     
     //todo make private again
-    public:
+    private:
         // DATA
         bsl::weak_ptr<ELEMENT_TYPE> weak_this_;
 
