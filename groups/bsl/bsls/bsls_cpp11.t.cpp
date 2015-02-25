@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
         Optional<int> value;
         ASSERT(bool(value) == false);
         if (value) { /*... */ }
-#if !defined(BSLS_COMPILERFEATURS_SUPPORT_OPERATOR_EXPLICIT) \
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT) \
  || defined(FAIL_USAGE_EXPLICIT)
         bool flag = value;
         ASSERT(flag == false);
@@ -165,11 +165,17 @@ int main(int argc, char *argv[])
         };
 
         FinalFunctionBase finalFunctionBase;
-        ASSERT(finalFunctionBase.f() == 0);
+        ASSERT(finalFunctionBase.f()    == 0);
+
         FinalFunctionDerived finalFunctionDerived;
         ASSERT(finalFunctionDerived.f() == 1);
+
         FinalFunctionFailure finalFunctionFailure;
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_FINAL)
+        ASSERT(finalFunctionFailure.f() == 1);
+#else
         ASSERT(finalFunctionFailure.f() == 2);
+#endif
 
         struct OverrideBase
         {
@@ -306,7 +312,7 @@ int main(int argc, char *argv[])
         {
             int f()
                 // Returns a value specific to this type.
-#if !defined(BSLS_COMPILER_FEATURES_OVERRIDE) || defined(FAIL_OVERRIDE)
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE) || defined(FAIL_OVERRIDE)
                 BSLS_CPP11_OVERRIDE
 #endif
             {
@@ -360,7 +366,7 @@ int main(int argc, char *argv[])
         };
         struct FinalFunctionFailure: FinalFunctionDerived
         {
-#if !defined(BSLS_COMPILER_FEATURES_SUPPORT_FINAL) \
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_FINAL) \
  || defined(FAIL_FINAL_FUNCTION)
             int f()
                 // Returns a value for the specific type.
@@ -370,10 +376,16 @@ int main(int argc, char *argv[])
 
         FinalFunctionBase finalFunctionBase;
         ASSERT(finalFunctionBase.f() == 0);
+
         FinalFunctionDerived finalFunctionDerived;
         ASSERT(finalFunctionDerived.f() == 1);
+
         FinalFunctionFailure finalFunctionFailure;
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_FINAL)
+        ASSERT(finalFunctionFailure.f() == 1);
+#else
         ASSERT(finalFunctionFailure.f() == 2);
+#endif
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -411,7 +423,7 @@ int main(int argc, char *argv[])
             { return d_value; }
         };
         class FinalClassDerived
-#if !defined(BSLS_COMPILER_FEATURES_SUPPORT_FINAL) || defined(FAIL_FINAL_CLASS)
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_FINAL) || defined(FAIL_FINAL_CLASS)
             : public FinalClass
 #endif
         {
@@ -468,7 +480,7 @@ int main(int argc, char *argv[])
 
         int explicitResult(explicitObject);
         ASSERT(explicitResult == 3);
-#if !defined(BSLS_COMPILER_FEATURES_SUPPORT_OPERATOR_EXPLICIT) \
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT) \
  || defined(FAIL_EXPLICIT)
         int implicitResult = explicitObject;
         ASSERT(implicitResult == 3);
