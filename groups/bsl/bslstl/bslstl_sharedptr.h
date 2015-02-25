@@ -1581,13 +1581,6 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_util.h>
 #endif
 
-#if defined(__cplusplus) && __cplusplus >=201103L 
-#ifndef INCLUDE_TYPE_TRAITS
-#include <type_traits>          // std:: is_base_of
-#define INCLUDE_TYPE_TRAITS
-#endif
-#endif
-
 #ifndef INCLUDED_FUNCTIONAL
 #include <functional>            // to specialize 'std::less'
 #define INCLUDED_FUNCTIONAL
@@ -3724,10 +3717,10 @@ class enable_shared_from_this{
     
     // allows shared_ptr to initalize weak_this_ when it detects an 
     // enabled_shared_from_this base class
-    template <class COMPATIBLE_TYPE>
-    friend class shared_ptr;
+    template <class X, class Y, class Z>
+    friend void _enable_shared_from_this_support(shared_ptr<X>* sp, Y* rp, 
+            enable_shared_from_this<Z>* shareable);
     
-    //todo make private again
     private:
         // DATA
         bsl::weak_ptr<ELEMENT_TYPE> weak_this_;
@@ -4338,7 +4331,6 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(const shared_ptr<ANY_TYPE>&  source,
     if (d_rep_p) {
         d_rep_p->acquireRef();
     }
-    _enable_shared_from_this_support(this,ptr,ptr);
 }
 
 template <class ELEMENT_TYPE>
@@ -4387,7 +4379,6 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(const weak_ptr<COMPATIBLE_TYPE>& other)
     }
 
     swap(value);
-    _enable_shared_from_this_support(this,ptr,ptr);
 }
 
 template <class ELEMENT_TYPE>
