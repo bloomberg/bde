@@ -4008,9 +4008,9 @@ bsl::shared_ptr<ELEMENT_TYPE const>
     return p;
 }
 
-                    //---------------------------------------
-                    // class _enable_shared_from_this_support
-                    //---------------------------------------
+                    // --------------------------------
+                    // _enable_shared_from_this_support
+                    // --------------------------------
 template<class X, class Y, class Z>
 inline void _enable_shared_from_this_support(shared_ptr<X>* sp, Y* rp, 
                                         enable_shared_from_this<Z>* shareable){
@@ -4108,15 +4108,7 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(COMPATIBLE_TYPE *ptr)
                                                        Deleter>       RepMaker;
 
     d_rep_p = RepMaker::makeOutofplaceRep(ptr, Deleter(), 0);
-#if defined(__cplusplus) && __cplusplus >=201103L
-    
     _enable_shared_from_this_support(this,ptr,ptr);
-    
-    //if (std::is_base_of<bsl::enable_shared_from_this<ELEMENT_TYPE>, 
-    //                                               COMPATIBLE_TYPE>::value){
-    //    ptr->weak_this_ = *this;
-    //}
-#endif
 }
 
 template <class ELEMENT_TYPE>
@@ -4133,6 +4125,7 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(
                                                                       RepMaker;
 
     d_rep_p = RepMaker::makeOutofplaceRep(ptr, basicAllocator, basicAllocator);
+    _enable_shared_from_this_support(this,ptr,ptr);
 }
 
 template <class ELEMENT_TYPE>
@@ -4167,6 +4160,7 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(
                                                        DELETER> RepMaker;
 
     d_rep_p = RepMaker::makeOutofplaceRep(ptr, deleter, basicAllocator);
+    _enable_shared_from_this_support(this,ptr,ptr);
 }
 
 template <class ELEMENT_TYPE>
@@ -4197,6 +4191,7 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(COMPATIBLE_TYPE *ptr,
                                                         ALLOCATOR> RepMaker;
 
     d_rep_p = RepMaker::makeOutofplaceRep(ptr, deleter, basicAllocator);
+    _enable_shared_from_this_support(this,ptr,ptr);
 }
 
 template <class ELEMENT_TYPE>
@@ -4288,6 +4283,7 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(
             (*rep->ptr()) = managedPtr;
             d_rep_p = rep;
         }
+        _enable_shared_from_this_support(this,ptr,ptr);
     }
 }
 
@@ -4342,6 +4338,7 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(const shared_ptr<ANY_TYPE>&  source,
     if (d_rep_p) {
         d_rep_p->acquireRef();
     }
+    _enable_shared_from_this_support(this,ptr,ptr);
 }
 
 template <class ELEMENT_TYPE>
@@ -4390,6 +4387,7 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(const weak_ptr<COMPATIBLE_TYPE>& other)
     }
 
     swap(value);
+    _enable_shared_from_this_support(this,ptr,ptr);
 }
 
 template <class ELEMENT_TYPE>
