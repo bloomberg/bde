@@ -4275,6 +4275,7 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(
             (*rep->ptr()) = managedPtr;
             d_rep_p = rep;
         }
+        _enable_shared_from_this_support(this, d_ptr_p, d_ptr_p);
     }
 }
 
@@ -4295,6 +4296,7 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(
         Rep *rep = new (*basicAllocator) Rep(basicAllocator);
         (*rep->ptr()) = autoPtr;
         d_rep_p = rep;
+        _enable_shared_from_this_support(this,d_ptr_p,d_ptr_p);
     }
 }
 

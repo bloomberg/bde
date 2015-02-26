@@ -84,13 +84,14 @@ using namespace BloombergLP;
 // [35] enable_shared_from_this();// noexcept;
 // [35] enable_shared_from_this(
 //                        enable_shared_from_this const& original);// noexcept;
-// [35] ~enable_shared_from_this();
-//
 // MANIPULATORS
-// [36] enable_shared_from_this& operator=(
+// [35] ~enable_shared_from_this();
+// [35] enable_shared_from_this& operator=(
 //                              enable_shared_from_this const& rhs);//noexcept;
-// [36] bsl::shared_ptr<T> shared_from_this();
-// [36] bsl::shared_ptr<T const> shared_from_this() const;
+//
+// ACCESSORS
+// [35] bsl::shared_ptr<T> shared_from_this();
+// [35] bsl::shared_ptr<T const> shared_from_this() const;
 //
 // bsl::shared_ptr
 //----------------
@@ -115,7 +116,6 @@ using namespace BloombergLP;
 // [  ] shared_ptr(const weak_ptr<OTHER>& alias)
 // [ 2] ~shared_ptr()
 //
-// MANIPULATORS
 // [ 9] bsl::shared_ptr& operator=(const bsl::shared_ptr& rhs)
 // [ 9] bsl::shared_ptr& operator=(const bsl::shared_ptr<OTHER>& rhs)
 // [ 9] bsl::shared_ptr& operator=(std::auto_ptr<OTHER> rhs)
@@ -2159,6 +2159,10 @@ struct shareThis: bsl::enable_shared_from_this<shareThis>
     bsl::shared_ptr<shareThis> getptr() {
         return shared_from_this();
     }
+#if defined(__cplusplus) && __cplusplus >= 201103L
+    shareThis& operator=(const shareThis&) = default;
+    shareThis& operator=(shareThis&&) = default;
+#endif
 };
 
 
@@ -3340,7 +3344,7 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
     switch (test) { case 0:  // Zero is always the leading case.
       /*
-      case 39: {
+      case 38: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 3: 'weak_ptr'
         //   The usage example provided in the component header file must
@@ -3375,7 +3379,7 @@ int main(int argc, char *argv[])
             search(&result, peerCache, keywords);
         }
       } break;
-      case 38: {
+      case 37: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2: 'weak_ptr'
         //   We know this example demonstrates a memory leak, so put the
@@ -3445,7 +3449,7 @@ int main(int argc, char *argv[])
 
         // No memory leak now
       } break;
-      case 37: {
+      case 36: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 1: 'weak_ptr'
         //   The usage example provided in the component header file must
@@ -3556,20 +3560,58 @@ int main(int argc, char *argv[])
         // TESTING 'enable_shared_from_this constructors'
         //
         // Concerns:
-        //   All constructor is able to initialize the object correctly.
+        //   1) Shared_ptr constructors are able to identify correctly the 
+        //      enable_shared_from_this base class and initalize the weak_this_
+        //      weak ptr. 
+        //   2) Converting from a managedPtr or auto_ptr to a shared_ptr will 
+        //      initalize weak_this_ weak_ptr correctly. 
+        //   3) Calling shared_from_this() will create a new reference to the
+        //      shared_ptr.
         //
         // Plan:
-        //   Call the 2 different constructors and supply it with the
-        //   appropriate arguments.  Then verify that the object created inside
-        //   the representation is initialized using the arguments supplied.
+        //   Create a shared_ptrs from a class with enable_shared_from_this as 
+        //   the base class. From this shared pointer call share_from_this and 
+        //   ensure that the use_count() of the shared_pointer has incermented.
         //
         // Testing:
-        // constexpr enable_shared_from_this() noexcept;
-        // enable_shared_from_this(
+        //   constexpr enable_shared_from_this() noexcept;
+        //   enable_shared_from_this(
                             enable_shared_from_this const& original) noexcept;
+        //   bsl::shared_ptr<ELEMENT_TYPE> shared_from_this();
+        //   bsl::shared_ptr<ELEMENT_TYPE const> shared_from_this() const;
+        //   enable_shared_from_this& operator=
         // --------------------------------------------------------------------
+          
+          if (verbose) printf("\nTESTING 'enable_share_from_this<T>()'"
+                            "\n======================================\n");
+          
+          if (verbose) printf("\nTesting shared_ptr detection of "
+                                          "enable_shared_from_this base class"
+          "\n=============================================================\n");
           bsl::shared_ptr<shareThis> gp1(new shareThis);
+
           bsl::shared_ptr<shareThis> gp2 (gp1); 
+          bsl::shared_ptr<shareThis> gp3 = gp2 -> getptr();
+          bsl::shared_ptr<shareThis> gp4 = gp3 -> getptr();
+          ASSERT(gp1.use_count() == 4);
+          
+          bslma::TestAllocator ta;
+          std::auto_ptr<shareThis> autoToShared(new shareThis);
+          bsl::shared_ptr<shareThis> auto_sp1 (autoToShared, &ta);
+          bsl::shared_ptr<shareThis> auto_sp2 = auto_sp1 -> getptr();
+          ASSERT(auto_sp1.use_count() == 2);
+          ASSERT(auto_sp2.use_count() == 2);
+          
+          
+          bslma::ManagedPtr<shareThis> managedToShared(new shareThis);
+          bsl::shared_ptr<shareThis> managed_sp1 (managedToShared);
+          bsl::shared_ptr<shareThis> managed_sp2 = managed_sp1 -> getptr();
+          ASSERT(managed_sp2.use_count() == 2);
+          ASSERT(managed_sp1.use_count() == 2);
+          
+
+          
+          
           
       } break;
       case 34: {
@@ -9775,9 +9817,23 @@ int main(int argc, char *argv[])
       */
       ///*
       case 1: {
+                      
+          bslma::TestAllocator ta;
+          std::auto_ptr<shareThis> autoToShared(new shareThis);
+          bsl::shared_ptr<shareThis> auto_sp1 (autoToShared, &ta);
+          bsl::shared_ptr<shareThis> auto_sp2 = auto_sp1 -> getptr();
+          ASSERT(auto_sp1.use_count() == 2);
+          ASSERT(auto_sp2.use_count() == 2);
+          
+          
+          bslma::ManagedPtr<shareThis> managedToShared(new shareThis);
+          bsl::shared_ptr<shareThis> managed_sp1 (managedToShared);
+          bsl::shared_ptr<shareThis> managed_sp2 = managed_sp1 -> getptr();
+          ASSERT(managed_sp2.use_count() == 2);
+          ASSERT(managed_sp1.use_count() == 2);
+          
           bsl::shared_ptr<shareThis> gp1(new shareThis);
 
-          //gp1->weak_this_ = gp1;
 
           bsl::shared_ptr<shareThis> gp2 (gp1); 
           bsl::shared_ptr<shareThis> gp3 = gp2 -> getptr();
@@ -9789,15 +9845,7 @@ int main(int argc, char *argv[])
           bsl::shared_ptr<shareThis> gp9 = gp1 -> getptr();
           ASSERT(gp1.use_count() == 9);
           
-          bsls::Types::Int64 numDeletes1 = 0;
-          MyTestObject *p1 = new MyTestObject(&numDeletes1);
-          //bsl::shared_ptr<MyTestObject> Obj;
-          Obj x(p1); const Obj &X = x;
-          //bsl::shared_ptr<MyTestObject> x(p1);
           
-          bool k =std::is_base_of<bsl::enable_shared_from_this<MyTestObject>,
-                  MyTestObject>::value;
-          //ASSERT(k);
       }
       //*/
       case -1: {
