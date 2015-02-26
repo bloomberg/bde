@@ -7,6 +7,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_types.h>
 #include <bsls_platform.h>
+#include <bsls_byteorder.h>
 
 #include <algorithm>
 #include <stddef.h>  // for 'size_t'
@@ -117,28 +118,13 @@ static u64 u8to64_le(const u8* p)
 {
     BSLS_ASSERT(p);
 
-    u64 ret;
 #if defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64)
-    ret = *reinterpret_cast<const u64 *>(p);  // Ignore alignment.
-#elif defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
-    memcpy(reinterpret_cast<char *>(&ret), p, sizeof(ret));
-#elif defined(BSLS_PLATFORM_CMP_SUN)  // SUNPRO optimizes better this way?
-    char *retPtr = reinterpret_cast<char *>(&ret);
-    retPtr[0] = p[7];
-    retPtr[1] = p[6];
-    retPtr[2] = p[5];
-    retPtr[3] = p[4];
-    retPtr[4] = p[3];
-    retPtr[5] = p[2];
-    retPtr[6] = p[1];
-    retPtr[7] = p[0];
+    return *reinterpret_cast<const u64 *>(p);  // Ignore alignment.
 #else
-    ret = u64(p[7]) << 56 | u64(p[6]) << 48 |
-          u64(p[5]) << 40 | u64(p[4]) << 32 |
-          u64(p[3]) << 24 | u64(p[2]) << 16 |
-          u64(p[1]) <<  8 | u64(p[0]);
+    u64 ret;
+    memcpy(&ret, p, sizeof(ret));
+    return BSLS_BYTEORDER_LE_U64_TO_HOST(ret);
 #endif
-    return ret;
 }
 
 
@@ -156,12 +142,12 @@ SipHashAlgorithm::SipHashAlgorithm(const char *seed)
     const u64 *aligned = reinterpret_cast<const u64 *>(seed);
 #else
     u64 aligned[2];
-    memcpy(&aligned, seed, sizeof(aligned)/sizeof(*aligned));
+    memcpy(&aligned, seed, sizeof(aligned));
 #endif
-    d_v2 ^= aligned[0];
     d_v0 ^= aligned[0];
-    d_v3 ^= aligned[1];
     d_v1 ^= aligned[1];
+    d_v2 ^= aligned[0];
+    d_v3 ^= aligned[1];
 }
 
 void
