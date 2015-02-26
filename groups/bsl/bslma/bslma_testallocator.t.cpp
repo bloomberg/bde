@@ -472,7 +472,7 @@ static int verifyPrint(const bslma::TestAllocator& ta,
 
     // Because bslma is a low-level utility, bslma::TestAllocator does not
     // have a function to print to ostream, and thus cannot print to a
-    // strstream.  The print() member function always prints to stdout.
+    // stringstream.  The print() member function always prints to stdout.
     // The code below forks a process and captures stdout to a memory
     // buffer.
     int pipes[2];

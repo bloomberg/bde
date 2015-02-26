@@ -3,6 +3,7 @@
 #include <bslx_byteoutstream.h>
 
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
 #include <bsls_assert.h>
@@ -14,8 +15,8 @@
 #include <bsl_cstring.h>
 #include <bsl_cctype.h>
 #include <bsl_iostream.h>
+#include <bsl_sstream.h>
 #include <bsl_string.h>
-#include <bsl_strstream.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -2721,7 +2722,7 @@ int main(int argc, char *argv[])
         //: 1 The method produces the expected output format.
         //
         // Plan:
-        //: 1 For a small set of objects, use 'ostrstream' to write the
+        //: 1 For a small set of objects, use 'ostringstream' to write the
         //:   object's value to a string buffer and then compare to expected
         //:   output format.  (C-1)
         //
@@ -2746,16 +2747,25 @@ int main(int argc, char *argv[])
 
             const char *EXPECTED = "";
 
-            char buf[SIZE];
-            memcpy(buf, CTRL, SIZE);
+            bslma::TestAllocator allocator;
 
-            ostrstream out(buf, SIZE);    out << X << ends;
-            const int  LEN = static_cast<int>(strlen(EXPECTED)) + 1;
+            ostringstream out(bsl::string(CTRL, SIZE, &allocator), &allocator);
+            out << X << ends;
+
+            bsl::string buffer(&allocator);
+            {
+                bslma::DefaultAllocatorGuard allocatorGuard(&allocator);
+
+                buffer = out.str();
+            }
+            const char *RESULT = buffer.c_str();
+
+            const int LEN = static_cast<int>(strlen(EXPECTED)) + 1;
             if (veryVerbose) cout << "\tEXPECTED : " << EXPECTED << endl
-                                  << "\tACTUAL : "   << buf << endl;
-            ASSERT(XX == buf[SIZE-1]); // check for overrun
-            ASSERT(0 == memcmp(buf, EXPECTED, LEN));
-            ASSERT(0 == memcmp(buf + LEN, CTRL + LEN, SIZE - LEN));
+                                  << "\tACTUAL : "   << RESULT   << endl;
+            ASSERT(XX == RESULT[SIZE-1]); // check for overrun
+            ASSERT(0 == memcmp(RESULT, EXPECTED, LEN));
+            ASSERT(0 == memcmp(RESULT + LEN, CTRL + LEN, SIZE - LEN));
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -2764,16 +2774,25 @@ int main(int argc, char *argv[])
             const char *EXPECTED =
                 "\n0000\t00 01 02 03";
 
-            char buf[SIZE];
-            memcpy(buf, CTRL, SIZE);
+            bslma::TestAllocator allocator;
 
-            ostrstream out(buf, SIZE);    out << X << ends;
-            const int  LEN = static_cast<int>(strlen(EXPECTED)) + 1;
+            ostringstream out(bsl::string(CTRL, SIZE, &allocator), &allocator);
+            out << X << ends;
+
+            bsl::string buffer(&allocator);
+            {
+                bslma::DefaultAllocatorGuard allocatorGuard(&allocator);
+
+                buffer = out.str();
+            }
+            const char *RESULT = buffer.c_str();
+
+            const int LEN = static_cast<int>(strlen(EXPECTED)) + 1;
             if (veryVerbose) cout << "\tEXPECTED : " << EXPECTED << endl
-                                  << "\tACTUAL : "   << buf << endl;
-            ASSERT(XX == buf[SIZE-1]); // check for overrun
-            ASSERT(0 == memcmp(buf, EXPECTED, LEN));
-            ASSERT(0 == memcmp(buf + LEN, CTRL + LEN, SIZE - LEN));
+                                  << "\tACTUAL : "   << RESULT   << endl;
+            ASSERT(XX == RESULT[SIZE-1]); // check for overrun
+            ASSERT(0 == memcmp(RESULT, EXPECTED, LEN));
+            ASSERT(0 == memcmp(RESULT + LEN, CTRL + LEN, SIZE - LEN));
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -2785,16 +2804,25 @@ int main(int argc, char *argv[])
                 "\n0000\t00 01 02 03 04 05 06 07"
                 "\n0008\t08 09 0a 0b";
 
-            char buf[SIZE];
-            memcpy(buf, CTRL, SIZE);
+            bslma::TestAllocator allocator;
 
-            ostrstream out(buf, SIZE);    out << X << ends;
-            const int  LEN = static_cast<int>(strlen(EXPECTED)) + 1;
+            ostringstream out(bsl::string(CTRL, SIZE, &allocator), &allocator);
+            out << X << ends;
+
+            bsl::string buffer(&allocator);
+            {
+                bslma::DefaultAllocatorGuard allocatorGuard(&allocator);
+
+                buffer = out.str();
+            }
+            const char *RESULT = buffer.c_str();
+
+            const int LEN = static_cast<int>(strlen(EXPECTED)) + 1;
             if (veryVerbose) cout << "\tEXPECTED : " << EXPECTED << endl
-                                  << "\tACTUAL : "   << buf << endl;
-            ASSERT(XX == buf[SIZE-1]); // check for overrun
-            ASSERT(0 == memcmp(buf, EXPECTED, LEN));
-            ASSERT(0 == memcmp(buf + LEN, CTRL + LEN, SIZE - LEN));
+                                  << "\tACTUAL : "   << RESULT   << endl;
+            ASSERT(XX == RESULT[SIZE-1]); // check for overrun
+            ASSERT(0 == memcmp(RESULT, EXPECTED, LEN));
+            ASSERT(0 == memcmp(RESULT + LEN, CTRL + LEN, SIZE - LEN));
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -2807,16 +2835,25 @@ int main(int argc, char *argv[])
                 "\n0000\t00 01 02 03 04 05 06 07"
                 "\n0008\t08 09 0a 0b 7f ff fe fd";
 
-            char buf[SIZE];
-            memcpy(buf, CTRL, SIZE);
+            bslma::TestAllocator allocator;
 
-            ostrstream out(buf, SIZE);    out << X << ends;
-            const int  LEN = static_cast<int>(strlen(EXPECTED)) + 1;
+            ostringstream out(bsl::string(CTRL, SIZE, &allocator), &allocator);
+            out << X << ends;
+
+            bsl::string buffer(&allocator);
+            {
+                bslma::DefaultAllocatorGuard allocatorGuard(&allocator);
+
+                buffer = out.str();
+            }
+            const char *RESULT = buffer.c_str();
+
+            const int LEN = static_cast<int>(strlen(EXPECTED)) + 1;
             if (veryVerbose) cout << "\tEXPECTED : " << EXPECTED << endl
-                                  << "\tACTUAL : "   << buf << endl;
-            ASSERT(XX == buf[SIZE-1]); // check for overrun
-            ASSERT(0 == memcmp(buf, EXPECTED, LEN));
-            ASSERT(0 == memcmp(buf + LEN, CTRL + LEN, SIZE - LEN));
+                                  << "\tACTUAL : "   << RESULT   << endl;
+            ASSERT(XX == RESULT[SIZE-1]); // check for overrun
+            ASSERT(0 == memcmp(RESULT, EXPECTED, LEN));
+            ASSERT(0 == memcmp(RESULT + LEN, CTRL + LEN, SIZE - LEN));
         }
       } break;
       case 4: {

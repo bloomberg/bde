@@ -3,6 +3,7 @@
 #include <bslx_typecode.h>
 
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
 #include <bsls_assert.h>
@@ -12,7 +13,7 @@
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
-#include <bsl_strstream.h>
+#include <bsl_sstream.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -267,7 +268,6 @@ if (veryVerbose)
 
         const int   SIZE = 128;         // big enough to hold output string
         const char  XX   = static_cast<char>(0xFF); // value of an unset 'char'
-        char        buf[SIZE];          // output buffer
 
         char        mCtrl[SIZE];  memset(mCtrl, XX, SIZE);
         const char *CTRL = mCtrl;
@@ -281,41 +281,59 @@ if (veryVerbose)
             const Enum  VALUE = DATA[ti].d_value;
             const char *EXP   = DATA[ti].d_exp;
 
-            memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char' values.
-
             if (veryVerbose) { T_; P_(ti); P(VALUE); }
             if (veryVerbose) cout << "EXPECTED FORMAT: " << EXP << endl;
 
-            ostrstream out(buf, sizeof buf);
+            bslma::TestAllocator allocator;
+
+            ostringstream out(bsl::string(CTRL, SIZE, &allocator), &allocator);
             Obj::print(out, VALUE, LEVEL, SPL) << ends;
 
-            if (veryVerbose) cout << "  ACTUAL FORMAT: " << buf << endl;
+            bsl::string buffer(&allocator);
+            {
+                bslma::DefaultAllocatorGuard allocatorGuard(&allocator);
+
+                buffer = out.str();
+            }
+            const char *RESULT = buffer.c_str();
+
+            if (veryVerbose) cout << "  ACTUAL FORMAT: " << RESULT << endl;
 
             const int SZ = static_cast<int>(strlen(EXP)) + 1;
-            LOOP2_ASSERT(LINE, ti, SZ  < SIZE);           // Buffer is large
-                                                          // enough.
-            LOOP2_ASSERT(LINE, ti, XX == buf[SIZE - 1]);  // Check for overrun.
-            LOOP2_ASSERT(LINE, ti,  0 == memcmp(buf, EXP, SZ));
-            LOOP2_ASSERT(LINE, ti,  0 == memcmp(buf + SZ,
-                                                CTRL + SZ, SIZE - SZ));
+            LOOP2_ASSERT(LINE, ti, XX == RESULT[SIZE - 1]);
+                                                          // Check for overrun.
+            LOOP2_ASSERT(LINE, ti,  0 == memcmp(RESULT, EXP, SZ));
+            LOOP2_ASSERT(LINE, ti,  0 == memcmp(RESULT + SZ,
+                                                CTRL + SZ,
+                                                SIZE - SZ));
 
             if (0 == LEVEL && 4 == SPL) {
                 if (veryVerbose)
                     cout << "\tRepeat for 'print' default arguments." << endl;
 
-                memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char'
-                                          // values.
+                bslma::TestAllocator allocator;
 
-                ostrstream out(buf, sizeof buf);
+                ostringstream out(bsl::string(CTRL, SIZE, &allocator),
+                                  &allocator);
                 Obj::print(out, VALUE) << ends;
 
-                if (veryVerbose) cout << "  ACTUAL FORMAT: " << buf << endl;
+                bsl::string buffer(&allocator);
+                {
+                    bslma::DefaultAllocatorGuard allocatorGuard(&allocator);
 
-                LOOP2_ASSERT(LINE, ti, XX == buf[SIZE - 1]);  // Check for
-                                                              // overrun.
-                LOOP2_ASSERT(LINE, ti,  0 == memcmp(buf, EXP, SZ));
-                LOOP2_ASSERT(LINE, ti,  0 == memcmp(buf + SZ,
-                                                    CTRL + SZ, SIZE - SZ));
+                    buffer = out.str();
+                }
+                const char *RESULT = buffer.c_str();
+
+                if (veryVerbose) cout << "  ACTUAL FORMAT: " << RESULT << endl;
+
+                const int SZ = static_cast<int>(strlen(EXP)) + 1;
+                LOOP2_ASSERT(LINE, ti, XX == RESULT[SIZE - 1]);
+                                                          // Check for overrun.
+                LOOP2_ASSERT(LINE, ti,  0 == memcmp(RESULT, EXP, SZ));
+                LOOP2_ASSERT(LINE, ti,  0 == memcmp(RESULT + SZ,
+                                                    CTRL + SZ,
+                                                    SIZE - SZ));
             }
         }
 
@@ -327,14 +345,23 @@ if (veryVerbose)
             const int   SPL   = DATA[ti].d_spl;
             const Enum  VALUE = DATA[ti].d_value;
 
-            memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char' values.
-
             if (veryVerbose) { T_; P_(ti); P(VALUE); }
 
-            ostrstream out(buf, sizeof buf);  out.setstate(ios::badbit);
+            bslma::TestAllocator allocator;
+
+            ostringstream out(bsl::string(CTRL, SIZE, &allocator), &allocator);
+            out.setstate(ios::badbit);
             Obj::print(out, VALUE, LEVEL, SPL);
 
-            LOOP2_ASSERT(LINE, ti, 0 == memcmp(buf, CTRL, SIZE));
+            bsl::string buffer(&allocator);
+            {
+                bslma::DefaultAllocatorGuard allocatorGuard(&allocator);
+
+                buffer = out.str();
+            }
+            const char *RESULT = buffer.c_str();
+
+            LOOP2_ASSERT(LINE, ti, 0 == memcmp(RESULT, CTRL, SIZE));
         }
 
         if (verbose) cout << "\nVerify 'print' signature." << endl;
@@ -422,7 +449,6 @@ if (veryVerbose)
 
         const int   SIZE = 128;         // big enough to hold output string
         const char  XX   = static_cast<char>(0xFF); // value of an unset 'char'
-        char        buf[SIZE];          // output buffer
 
         char        mCtrl[SIZE];  memset(mCtrl, XX, SIZE);
         const char *CTRL = mCtrl;
@@ -434,23 +460,33 @@ if (veryVerbose)
             const Enum  VALUE = DATA[ti].d_value;
             const char *EXP   = DATA[ti].d_exp;
 
-            memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char' values.
-
             if (veryVerbose) { T_; P_(ti); P(VALUE); }
             if (veryVerbose) cout << "EXPECTED FORMAT: " << EXP << endl;
 
-            ostrstream out(buf, sizeof buf);
+            bslma::TestAllocator allocator;
+
+            ostringstream out(bsl::string(CTRL, SIZE, &allocator), &allocator);
             out << VALUE << ends;
 
-            if (veryVerbose) cout << "  ACTUAL FORMAT: " << buf << endl;
+            bsl::string buffer(&allocator);
+            {
+                bslma::DefaultAllocatorGuard allocatorGuard(&allocator);
+
+                buffer = out.str();
+            }
+            const char *RESULT = buffer.c_str();
+
+            if (veryVerbose) cout << "  ACTUAL FORMAT: " << RESULT << endl;
 
             const int SZ = static_cast<int>(strlen(EXP)) + 1;
             LOOP2_ASSERT(LINE, ti, SZ  < SIZE);           // Buffer is large
                                                           // enough.
-            LOOP2_ASSERT(LINE, ti, XX == buf[SIZE - 1]);  // Check for overrun.
-            LOOP2_ASSERT(LINE, ti,  0 == memcmp(buf, EXP, SZ));
-            LOOP2_ASSERT(LINE, ti,  0 == memcmp(buf + SZ,
-                                                CTRL + SZ, SIZE - SZ));
+            LOOP2_ASSERT(LINE, ti, XX == RESULT[SIZE - 1]);
+                                                          // Check for overrun.
+            LOOP2_ASSERT(LINE, ti,  0 == memcmp(RESULT, EXP, SZ));
+            LOOP2_ASSERT(LINE, ti,  0 == memcmp(RESULT + SZ,
+                                                CTRL + SZ,
+                                                SIZE - SZ));
         }
 
         if (verbose) cout << "\tNothing is written to a bad stream." << endl;
@@ -459,14 +495,23 @@ if (veryVerbose)
             const int   LINE  = DATA[ti].d_lineNum;
             const Enum  VALUE = DATA[ti].d_value;
 
-            memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char' values.
-
             if (veryVerbose) { T_; P_(ti); P(VALUE); }
 
-            ostrstream out(buf, sizeof buf);  out.setstate(ios::badbit);
-            out << VALUE;
+            bslma::TestAllocator allocator;
 
-            LOOP2_ASSERT(LINE, ti, 0 == memcmp(buf, CTRL, SIZE));
+            ostringstream out(bsl::string(CTRL, SIZE, &allocator), &allocator);
+            out.setstate(ios::badbit);
+            out << VALUE << ends;
+
+            bsl::string buffer(&allocator);
+            {
+                bslma::DefaultAllocatorGuard allocatorGuard(&allocator);
+
+                buffer = out.str();
+            }
+            const char *RESULT = buffer.c_str();
+
+            LOOP2_ASSERT(LINE, ti, 0 == memcmp(RESULT, CTRL, SIZE));
         }
 
         if (verbose) cout << "\nVerify '<<' operator signature." << endl;
