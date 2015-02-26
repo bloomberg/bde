@@ -36,7 +36,6 @@
 #include <limits>
 #include <iostream>
 #include <ctime>
-#include <chrono>
 #if defined(std)
 // This is a workaround for the way test drivers are built in an IDE-friendly
 // manner in Visual Studio.  A "normal" test driver built from the command line
@@ -1287,16 +1286,19 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
         {L_, -11001100},
         {L_, 2147483647},
         {L_, -2147483647},
-        {L_, 9223372036854775807},
-        {L_,-9223372036854775807},
-        {L_, 18446744073709551615},
+        //{L_, 9223372036854775807},
+        //{L_,-9223372036854775807},
+        //{L_, 18446744073709551615},
     };
     const int NUM_DATA = sizeof DATA / sizeof *DATA;
     
     Obj spec(AllocType(&testAllocator));
+    Obj wspec(AllocType(&testAllocator));
     char tempBuf[500]; // very large char buffer
-    
-    if (verbose) printf("\nTesting 'to_string() with integrals.\n");
+    wchar_t wTempBuf[500];
+    if (verbose) {
+        printf("\nTesting 'to_string() and to_string with integrals.\n");
+    }
     for (int ti = 0; ti < NUM_DATA; ++ti){
         const int                LINE  = DATA[ti].d_lineNum;
         const long long          VALUE = DATA[ti].d_value;
@@ -1318,6 +1320,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
             string spec(tempBuf);
             string str = bsl::to_string(static_cast<int>(VALUE));
             ASSERT(str == spec);
+            
+            swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, 
+                                               L"%d", static_cast<int>(VALUE));
+            wstring wspec(wTempBuf);
+            wstring wstr = bsl::to_wstring(static_cast<int>(VALUE));
+            ASSERT(wstr == wspec);
         }
         
         if (VALUE <= std::numeric_limits<unsigned int>::max() && VALUE >=0){
@@ -1325,24 +1333,48 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
             string spec(tempBuf);
             string str = bsl::to_string(static_cast<unsigned int>(VALUE));
             ASSERT(str == spec);
+
+            swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, 
+                                      L"%u", static_cast<unsigned int>(VALUE));
+            wstring wspec(wTempBuf);
+            wstring wstr = bsl::to_wstring(static_cast<unsigned int>(VALUE));
+            ASSERT(wstr == wspec);
         }
         if (VALUE <= std::numeric_limits<long>::max()){
             std::sprintf(tempBuf, "%ld", static_cast<long>(VALUE));
             string spec(tempBuf);
             string str = bsl::to_string(static_cast<long>(VALUE));
             ASSERT(str == spec);
+
+            swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, 
+                                             L"%ld", static_cast<long>(VALUE));
+            wstring wspec(wTempBuf);
+            wstring wstr = bsl::to_wstring(static_cast<long>(VALUE));
+            ASSERT(wstr == wspec);
         }
         if (VALUE <= std::numeric_limits<unsigned long>::max() && VALUE >=0){
             std::sprintf(tempBuf, "%lu", static_cast<unsigned long>(VALUE));
             string spec(tempBuf);
             string str = bsl::to_string(static_cast<unsigned long>(VALUE));
             ASSERT(str == spec);
+
+            swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, 
+                                    L"%lu", static_cast<unsigned long>(VALUE));
+            wstring wspec(wTempBuf);
+            wstring wstr = bsl::to_wstring(static_cast<unsigned long>(VALUE));
+            ASSERT(wstr == wspec);
         }
         if (VALUE <= std::numeric_limits<long long>::max()){
             std::sprintf(tempBuf, "%lld", static_cast<long long>(VALUE));
             string spec(tempBuf);
             string str = bsl::to_string(static_cast<long long>(VALUE));
             ASSERT(str == spec);
+
+            swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, 
+                                    L"%lld", static_cast<long long>(VALUE));
+            wstring wspec(wTempBuf);
+            wstring wstr = bsl::to_wstring(static_cast<long long>(VALUE));
+            ASSERT(wstr == wspec);
         }
         if (VALUE <= std::numeric_limits<unsigned long long>::max()&&VALUE>=0){
             std::sprintf(tempBuf, "%llu", 
@@ -1351,6 +1383,13 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
             string str = bsl::to_string(static_cast
                                         <unsigned long long>(VALUE));
             ASSERT(str == spec);
+
+            swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, 
+                              L"%lld", static_cast<unsigned long long>(VALUE));
+            wstring wspec(wTempBuf);
+            wstring wstr = bsl::to_wstring(static_cast
+                                                  <unsigned long long>(VALUE));
+            ASSERT(wstr == wspec);
         }
         const Int64 AA = testAllocator.numBlocksTotal();
         const Int64  A = testAllocator.numBlocksInUse();
@@ -1385,6 +1424,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
         {L_, 123456789.123456789},
         {L_, 123456789012345.123456},
         {L_, 1234567890123456789.123456789},
+        {L_, std::numeric_limits<float>::max()},
+        {L_, std::numeric_limits<float>::min()},
+        {L_, 1.79769e+308},
+        {L_,-1.79769e+308},
     };
     const int NUM_DOUBLE_DATA = sizeof DOUBLE_DATA / sizeof *DOUBLE_DATA;
     
@@ -1411,6 +1454,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
             string str = bsl::to_string(static_cast<float>(VALUE));
             ASSERT(str == spec);
             //std::cout <<str<< '\n';
+            
+            std::swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, L"%f",
+                                                    static_cast<float>(VALUE));
+            wstring wspec(wTempBuf);
+            wstring wstr = bsl::to_wstring(static_cast<float>(VALUE));
+            ASSERT(wstr == wspec);
         }
         if (VALUE <= std::numeric_limits<double>::max()){
             std::sprintf(tempBuf, "%f", static_cast<double>(VALUE));
@@ -1418,6 +1467,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
             string str = bsl::to_string(static_cast<double>(VALUE));
             ASSERT(str == spec);
             //std::cout <<str<< '\n';
+            
+            std::swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, L"%f",
+                                                   static_cast<double>(VALUE));
+            wstring wspec(wTempBuf);
+            wstring wstr = bsl::to_wstring(static_cast<double>(VALUE));
+            ASSERT(wstr == wspec);
         }
         if (VALUE <= std::numeric_limits<float>::max()){
             std::sprintf(tempBuf, "%Lf", static_cast<long double>(VALUE));
@@ -1425,190 +1480,25 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
             string str = bsl::to_string(static_cast<long double>(VALUE));
             ASSERT(str == spec);
             //std::cout <<str<< '\n';
-        }
-        
-        const Int64 AA = testAllocator.numBlocksTotal();
-        const Int64  A = testAllocator.numBlocksInUse();
             
-        if (veryVerbose)
-        {
-            printf("\t\tAfter: ");P_(AA);P(A);
-        }
-    }
-    ASSERT(0 == testAllocator.numMismatches());
-    ASSERT(0 == testAllocator.numBlocksInUse());   
-    
-    if (verbose) printf("\nTesting 'to_wstring() with integrals.\n");
-    static const struct {
-        int            d_lineNum;
-        long long      d_value;
-    } WDATA[] = {
-        //   value
-        {L_, 0},
-        {L_, 1},
-        {L_,-1},
-        {L_, 10101},
-        {L_,-10101},
-        {L_, 32767},
-        {L_,-32767},
-        {L_, 11001100},
-        {L_,-11001100},
-        {L_, 2147483647},
-        {L_,-2147483647},
-        {L_, 9223372036854775807},
-        {L_,-9223372036854775807},
-    };
-    const int NUM_WDATA = sizeof WDATA / sizeof *WDATA;
-    
-    wchar_t wTempBuf[500];
-    Obj spec(AllocType(&testAllocator));
-    if (verbose) printf("\nTesting 'to_string(int).\n");
-    for (int ti = 0; ti < NUM_WDATA; ++ti){
-        const int                LINE  = WDATA[ti].d_lineNum;
-        const long long          VALUE = WDATA[ti].d_value;
-        
-        if (veryVerbose){
-            printf("\tConverting ");P_(VALUE);
-            printf("to a string.\n");
-        }
-        
-        const Int64 BB = testAllocator.numBlocksTotal();
-        const Int64  B = testAllocator.numBlocksInUse();
-        
-        if (veryVerbose)
-        {
-            printf("\t\tBefore: ");P_(BB);P(B);
-        }
-        if (VALUE <= std::numeric_limits<int>::max()){
-            std::swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, 
-                                                                L"%d", VALUE);
-            wstring spec(wTempBuf);
-            wstring str = bsl::to_wstring(static_cast<int>(VALUE));
-            ASSERT(str == spec);
-        }
-        
-        if (VALUE <= std::numeric_limits<unsigned int>::max() && VALUE >=0){
-            std::swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, 
-                                                                L"%u", VALUE);
-            wstring spec(wTempBuf);
-            wstring str = bsl::to_wstring(static_cast<unsigned int>(VALUE));
-            ASSERT(str == spec);
-        }
-        if (VALUE <= std::numeric_limits<long>::max()){
-            std::swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, 
-                                                                L"%ld", VALUE);
-            wstring spec(wTempBuf);
-            wstring str = bsl::to_wstring(static_cast<long>(VALUE));
-            ASSERT(str == spec);
-        }
-        if (VALUE <= std::numeric_limits<unsigned long>::max() && VALUE >=0){
-            std::swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, 
-                                                                L"%lu", VALUE);
-            wstring spec(wTempBuf);
-            wstring str = bsl::to_wstring(static_cast<unsigned long>(VALUE));
-            ASSERT(str == spec);
-        }
-        if (VALUE <= std::numeric_limits<long long>::max()){
-            std::swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, 
-                                                               L"%lld", VALUE);
-            wstring spec(wTempBuf);
-            wstring str = bsl::to_wstring(static_cast<long long>(VALUE));
-            ASSERT(str == spec);
-        }
-        if (VALUE <= std::numeric_limits<unsigned long long>::max()&&VALUE>=0){
-            std::swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, 
-                                                               L"%llu", VALUE);
-            wstring spec(wTempBuf);
-            wstring str = bsl::to_wstring(static_cast
-                                        <unsigned long long>(VALUE));
-            ASSERT(str == spec);
-        }
-        const Int64 AA = testAllocator.numBlocksTotal();
-        const Int64  A = testAllocator.numBlocksInUse();
-        
-        if (veryVerbose)
-        {
-            printf("\t\tAfter: ");P_(AA);P(A);
-        }
-    }
-    ASSERT(0 == testAllocator.numMismatches());
-    ASSERT(0 == testAllocator.numBlocksInUse());   
-    
-    if (verbose) printf("\nTesting 'to_wstring() with floating points.\n");
-    static const struct {
-        int     d_lineNum;
-        double  d_value;
-    } DOUBLE_WDATA[] = {
-        //   value
-        {L_, 1.0},
-        {L_, 1.01},
-        {L_, 1.010},
-        {L_, 1.0101},
-        {L_, 1.01010},
-        {L_, 1.010101},
-        {L_, 1.01010101},
-        {L_, 1.0101019},
-        {L_, 3.1415926},
-        {L_, 005.156},
-        {L_, 24.0},
-        {L_, 24.1111111111111111111},
-        {L_, 12345.12345678},
-        {L_, 123456789.123456789},
-        {L_, 123456789012345.123456},
-        {L_, 1234567890123456789.123456789},
-    };
-    const int NUM_DOUBLE_WDATA = sizeof DOUBLE_WDATA / sizeof *DOUBLE_WDATA;
-    
-    for (int ti = 0; ti < NUM_DOUBLE_WDATA; ++ti){
-        const int                LINE  = DOUBLE_WDATA[ti].d_lineNum;
-        const double             VALUE = DOUBLE_WDATA[ti].d_value;
-        
-        if (veryVerbose){
-            printf("\tConverting ");P_(VALUE);
-            printf("to a string.\n");
-        }
-            
-        const Int64 BB = testAllocator.numBlocksTotal();
-        const Int64  B = testAllocator.numBlocksInUse();
-                
-        if (veryVerbose)
-        {
-            printf("\t\tBefore: ");P_(BB);P(B);
-        }
-        
-        if (VALUE <= std::numeric_limits<float>::max()){
-            std::swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, L"%f",
-                                                    static_cast<float>(VALUE));
-            wstring spec(wTempBuf);
-            wstring str = bsl::to_wstring(static_cast<float>(VALUE));
-            ASSERT(str == spec);
-            std::wcout <<"str: "<< str<<", spec: "<<spec<< '\n';
-        }
-        if (VALUE <= std::numeric_limits<double>::max()){
-            std::swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, L"%f",
-                                                   static_cast<double>(VALUE));
-            wstring spec(wTempBuf);
-            wstring str = bsl::to_wstring(static_cast<double>(VALUE));
-            ASSERT(str == spec);
-        }
-        if (VALUE <= std::numeric_limits<float>::max()){
             std::swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, L"%Lf",
                                               static_cast<long double>(VALUE));
-            wstring spec(wTempBuf);
-            wstring str = bsl::to_wstring(static_cast<long double>(VALUE));
-            ASSERT(str == spec);
+            wstring wspec(wTempBuf);
+            wstring wstr = bsl::to_wstring(static_cast<long double>(VALUE));
+            ASSERT(wstr == wspec);
         }
-            
+        
         const Int64 AA = testAllocator.numBlocksTotal();
         const Int64  A = testAllocator.numBlocksInUse();
-                
+            
         if (veryVerbose)
         {
             printf("\t\tAfter: ");P_(AA);P(A);
         }
     }
     ASSERT(0 == testAllocator.numMismatches());
-    ASSERT(0 == testAllocator.numBlocksInUse());  
+    ASSERT(0 == testAllocator.numBlocksInUse());   
+
     
 }
 template <class TYPE, class TRAITS, class ALLOC>
