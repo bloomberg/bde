@@ -116,6 +116,7 @@ using namespace BloombergLP;
 // [  ] shared_ptr(const weak_ptr<OTHER>& alias)
 // [ 2] ~shared_ptr()
 //
+// MANIPULATORS
 // [ 9] bsl::shared_ptr& operator=(const bsl::shared_ptr& rhs)
 // [ 9] bsl::shared_ptr& operator=(const bsl::shared_ptr<OTHER>& rhs)
 // [ 9] bsl::shared_ptr& operator=(std::auto_ptr<OTHER> rhs)
