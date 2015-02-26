@@ -3704,23 +3704,23 @@ class weak_ptr {
 //TODO
 template<class ELEMENT_TYPE>
 class enable_shared_from_this{
-    // This class allows an object that is currently managed by an shared_ptr 
-    // to safely generate additional shared_ptr instances that all share 
-    // ownership of the object. 
-    // Inheariting from 'enable_shared_from_this<T>' provides the type T with a 
+    // This class allows an object that is currently managed by an shared_ptr
+    // to safely generate additional shared_ptr instances that all share
+    // ownership of the object.
+    // Inheariting from 'enable_shared_from_this<T>' provides the type T with a
     // member function 'share_from_this'. If an object of type T is managed by
-    // a shared_ptr<T> then calling 'shared_from_this' will return a new 
-    // shared_ptr that shared ownership of that object. 
+    // a shared_ptr<T> then calling 'shared_from_this' will return a new
+    // shared_ptr that shared ownership of that object.
     //
-    // Note that there must be a shared_ptr that owns the object before 
+    // Note that there must be a shared_ptr that owns the object before
     // 'shared_from_this' is called.
-    
-    // allows shared_ptr to initalize weak_this_ when it detects an 
+
+    // allows shared_ptr to initalize weak_this_ when it detects an
     // enabled_shared_from_this base class
     template <class X, class Y, class Z>
-    friend void _enable_shared_from_this_support(shared_ptr<X>* sp, Y* rp, 
+    friend void _enable_shared_from_this_support(shared_ptr<X>* sp, Y* rp,
             enable_shared_from_this<Z>* shareable);
-    
+
     private:
         // DATA
         bsl::weak_ptr<ELEMENT_TYPE> weak_this_;
@@ -3730,10 +3730,10 @@ class enable_shared_from_this{
         // CREATORS
         //constexpr enable_shared_from_this() noexcept;
         enable_shared_from_this();// noexcept;
-            // Constructs new enable_shared_from_this object. 
+            // Constructs new enable_shared_from_this object.
         enable_shared_from_this(
-                            enable_shared_from_this const& original);// noexcept;
-            // Constructs new enable_shared_from_this object. 
+                          enable_shared_from_this const& original);// noexcept;
+            // Constructs new enable_shared_from_this object.
 
         ~enable_shared_from_this();
             // Destroys this enable_shared_form_this.
@@ -3746,21 +3746,25 @@ class enable_shared_from_this{
     public:
         // MANIPULATORS
         bsl::shared_ptr<ELEMENT_TYPE> shared_from_this();
-            // Returns a 'shared_ptr<T>' that shares ownership *this with all 
-            // existing 'shared_ptr<T>' that refer to *this
+            // Returns a 'shared_ptr<T>' that shares ownership *this with all
+            // existing 'shared_ptr<T>' that refer to *this.
 
         bsl::shared_ptr<ELEMENT_TYPE const> shared_from_this() const;
-            // Returns a 'shared_ptr<T>' that shares ownership *this with all 
-            // existing 'shared_ptr<T>' that refer to *this
+            // Returns a 'shared_ptr<T>' that shares ownership *this with all
+            // existing 'shared_ptr<T>' that refer to *this.
 };
 
                     //=================================
                     // _enable_shared_from_this_support
                     //=================================
 template<class X, class Y, class Z>
-void _enable_shared_from_this_support(shared_ptr<X>* sp, Y* rp, 
+void _enable_shared_from_this_support(shared_ptr<X>* sp, Y* rp,
                                         enable_shared_from_this<Z>* shareable);
+    // This functions shoudl only be called by shared_ptr constructors to
+    // determine id the object has an enable_shared_from_this base class.
 void _enable_shared_from_this_support(...);
+    // This function should only be called by shared_ptr constructors. This
+    // function does nothing.
 
 // ASPECTS
 template <class ELEMENT_TYPE>
@@ -3958,30 +3962,30 @@ namespace bsl {
 // CREATORS
 template<class ELEMENT_TYPE>
 inline
-   //constexpr enable_shared_from_this<T>::enable_shared_from_this(): weak_this_()// noexcept {}
-bsl::enable_shared_from_this<ELEMENT_TYPE>::enable_shared_from_this() 
-                                                                :weak_this_(){}// noexcept {}
+   //constexpr enable_shared_from_this<T>::enable_shared_from_this():
+                                                   //weak_this_()// noexcept {}
+bsl::enable_shared_from_this<ELEMENT_TYPE>::enable_shared_from_this()
+                                                  :weak_this_(){}// noexcept {}
 
 template<class ELEMENT_TYPE>
-inline 
+inline
 bsl::enable_shared_from_this<ELEMENT_TYPE>::enable_shared_from_this(
                    enable_shared_from_this const& original) {}//noexcept{}
 
 template<class ELEMENT_TYPE>
-inline 
+inline
     bsl::enable_shared_from_this<ELEMENT_TYPE>::~enable_shared_from_this(){}
 
 // MANIPULATORS
 template<class ELEMENT_TYPE>
-inline 
+inline
 bsl::enable_shared_from_this<ELEMENT_TYPE>& bsl::enable_shared_from_this
-                <ELEMENT_TYPE>::operator=(enable_shared_from_this const& rhs) {//noexcept{    
+     <ELEMENT_TYPE>::operator=(enable_shared_from_this const& rhs) {//noexcept{
     return *this;
 }
 
-
 template<class ELEMENT_TYPE>
-inline 
+inline
 bsl::shared_ptr<ELEMENT_TYPE> bsl::enable_shared_from_this<ELEMENT_TYPE>::
                                                            shared_from_this() {
     bsl::shared_ptr<ELEMENT_TYPE> p(bsl::enable_shared_from_this
@@ -3992,7 +3996,7 @@ bsl::shared_ptr<ELEMENT_TYPE> bsl::enable_shared_from_this<ELEMENT_TYPE>::
 
 template<class ELEMENT_TYPE>
 inline
-bsl::shared_ptr<ELEMENT_TYPE const> 
+bsl::shared_ptr<ELEMENT_TYPE const>
                      bsl::enable_shared_from_this<ELEMENT_TYPE>::
                                                       shared_from_this() const{
     bsl::shared_ptr<ELEMENT_TYPE const> p(bsl::enable_shared_from_this
@@ -4005,7 +4009,7 @@ bsl::shared_ptr<ELEMENT_TYPE const>
                     // _enable_shared_from_this_support
                     // --------------------------------
 template<class X, class Y, class Z>
-inline void _enable_shared_from_this_support(shared_ptr<X>* sp, Y* rp, 
+inline void _enable_shared_from_this_support(shared_ptr<X>* sp, Y* rp,
                                         enable_shared_from_this<Z>* shareable){
     shareable->weak_this_ = *sp;
 }
