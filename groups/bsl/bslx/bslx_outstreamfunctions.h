@@ -893,7 +893,7 @@ STREAM& OutStreamFunctions::bdexStreamOutImp(STREAM&           stream,
                                              const IsEnumType&)
 {
     // A compilation error indicating the next line of code implies the 'TYPE'
-    // can not be represented as a 32-bit 'int' and an overload for the
+    // cannot be represented as a 32-bit 'int' and an overload for the
     // 'OutStreamFunctions::bdexStreamOut' function, in the enumeration's
     // namespace, should be provided.
 
