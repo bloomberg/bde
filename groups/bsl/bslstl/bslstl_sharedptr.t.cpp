@@ -3346,7 +3346,6 @@ int main(int argc, char *argv[])
     bsls::Types::Int64 numDefaultAllocations =
                                              defaultAllocator.numAllocations();
     switch (test) { case 0:  // Zero is always the leading case.
-      ///*
       case 38: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 3: 'weak_ptr'
@@ -9804,40 +9803,7 @@ int main(int argc, char *argv[])
             ASSERT(1 == A.use_count());
         }
       } break;
-      //*/
-      /*
-      case 1: {
-                      
-          bslma::TestAllocator ta;
-          std::auto_ptr<shareThis> autoToShared(new shareThis);
-          bsl::shared_ptr<shareThis> auto_sp1 (autoToShared, &ta);
-          bsl::shared_ptr<shareThis> auto_sp2 = auto_sp1 -> getptr();
-          ASSERT(auto_sp1.use_count() == 2);
-          ASSERT(auto_sp2.use_count() == 2);
-          
-          
-          bslma::ManagedPtr<shareThis> managedToShared(new shareThis);
-          bsl::shared_ptr<shareThis> managed_sp1 (managedToShared);
-          bsl::shared_ptr<shareThis> managed_sp2 = managed_sp1 -> getptr();
-          ASSERT(managed_sp2.use_count() == 2);
-          ASSERT(managed_sp1.use_count() == 2);
-          
-          bsl::shared_ptr<shareThis> gp1(new shareThis);
 
-
-          bsl::shared_ptr<shareThis> gp2 (gp1); 
-          bsl::shared_ptr<shareThis> gp3 = gp2 -> getptr();
-          bsl::shared_ptr<shareThis> gp4 = gp3 -> getptr();
-          bsl::shared_ptr<shareThis> gp5 = gp4 -> getptr();
-          bsl::shared_ptr<shareThis> gp6 = gp1 -> getptr();
-          bsl::shared_ptr<shareThis> gp7 = gp1 -> getptr();
-          bsl::shared_ptr<shareThis> gp8 = gp1 -> getptr();
-          bsl::shared_ptr<shareThis> gp9 = gp1 -> getptr();
-          ASSERT(gp1.use_count() == 9);
-          
-          
-      }
-      */
       case -1: {
         // --------------------------------------------------------------------
         // PERFORMANCE TEST
