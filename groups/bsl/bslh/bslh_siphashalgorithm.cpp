@@ -123,7 +123,7 @@ static u64 u8to64_le(const u8* p)
 #else
     u64 ret;
     memcpy(&ret, p, sizeof(ret));
-    return(BSLS_BYTEORDER_LE_U64_TO_HOST(ret));
+    return BSLS_BYTEORDER_LE_U64_TO_HOST(ret);
 #endif
 }
 
