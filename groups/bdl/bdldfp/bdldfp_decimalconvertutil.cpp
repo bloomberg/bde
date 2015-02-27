@@ -83,11 +83,11 @@ unsigned char *decimalToNetworkT(unsigned char *buffer, DECIMAL_TYPE decimal)
                         // class StdioFormat
                         // =================
 
-template <typename> struct StdioFormat;
+template <class FORMATTED_TYPE> struct StdioFormat;
     // This 'struct' template provides a method, 'format', that returns a
     // 'printf'-style format string to format values of the template parameter
-    // type that can be used to store a decimal value that was previously
-    // converted to this type.
+    // type 'FORMATTED_TYPE' that can be used to restore a decimal value that
+    // was previously converted to this type.
 
 template <>
 struct StdioFormat<float> {
@@ -131,14 +131,14 @@ const char* StdioFormat<double>::format()
                         // class DecimalTraits
                         // ===================
 
-template <typename> struct DecimalTraits;
-    // This 'struct' template provides a way to make a decimal of the template
-    // parameter type though a consistent interface.
+template <class DECIMAL_TYPE> struct DecimalTraits;
+    // This 'struct' template provides a way to create an object of the
+    // template parameter type 'DECIMAL_TYPE' though a consistent interface.
 
 
 template <>
 struct DecimalTraits<Decimal32> {
-    // This template specialization of 'DecimalTraits' provides utilities to
+    // This template specialization of 'DecimalTraits' provides functions to
     // create 'Decimal32' values.
 
     typedef int SignificandType;
