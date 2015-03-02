@@ -3717,51 +3717,53 @@ class enable_shared_from_this{
 
     // allows shared_ptr to initalize weak_this_ when it detects an
     // enabled_shared_from_this base class
-    template <class X, class Y, class Z>
-    friend void _enable_shared_from_this_support(shared_ptr<X>* sp, Y* rp,
-            enable_shared_from_this<Z>* shareable);
+    template <class SP_TYPE, class SP, class ENABLE_SHARED_TYPE>
+    friend void _enable_shared_from_this_support(shared_ptr<SP_TYPE>* sp,
+                                                 SP* rp,
+                       enable_shared_from_this<ENABLE_SHARED_TYPE>* shareable);
 
-    private:
-        // DATA
-        bsl::weak_ptr<ELEMENT_TYPE> weak_this_;
+  private:
+    // DATA
+    bsl::weak_ptr<ELEMENT_TYPE> weak_this_;
 
-    protected:
+  protected:
 
-        // CREATORS
-        //constexpr enable_shared_from_this() noexcept;
-        enable_shared_from_this();// noexcept;
-            // Constructs new enable_shared_from_this object.
-        enable_shared_from_this(
+    // CREATORS
+    //constexpr enable_shared_from_this() noexcept;
+    enable_shared_from_this();// noexcept;
+        // Constructs new enable_shared_from_this object.
+    enable_shared_from_this(
                           enable_shared_from_this const& original);// noexcept;
-            // Constructs new enable_shared_from_this object.
+        // Constructs new enable_shared_from_this object.
 
-        ~enable_shared_from_this();
-            // Destroys this enable_shared_form_this.
+    ~enable_shared_from_this();
+        // Destroys this enable_shared_form_this.
 
-        // MANIPULATORS
-        enable_shared_from_this& operator=(
+    // MANIPULATORS
+    enable_shared_from_this& operator=(
                                 enable_shared_from_this const& rhs);//noexcept;
-            // Returns *this.
+        // Returns *this.
 
-    public:
-        // MANIPULATORS
-        bsl::shared_ptr<ELEMENT_TYPE> shared_from_this();
-            // Returns a 'shared_ptr<T>' that shares ownership *this with all
-            // existing 'shared_ptr<T>' that refer to *this.
+  public:
+    // MANIPULATORS
+    bsl::shared_ptr<ELEMENT_TYPE> shared_from_this();
+        // Returns a 'shared_ptr<T>' that shares ownership *this with all
+        // existing 'shared_ptr<T>' that refer to *this.
 
-        bsl::shared_ptr<ELEMENT_TYPE const> shared_from_this() const;
-            // Returns a 'shared_ptr<T>' that shares ownership *this with all
-            // existing 'shared_ptr<T>' that refer to *this.
+    bsl::shared_ptr<ELEMENT_TYPE const> shared_from_this() const;
+        // Returns a 'shared_ptr<T>' that shares ownership *this with all
+        //  existing  'shared_ptr<T>' that refer to *this.
 };
 
                     //=================================
                     // _enable_shared_from_this_support
                     //=================================
-template<class X, class Y, class Z>
-void _enable_shared_from_this_support(shared_ptr<X>* sp, Y* rp,
-                                        enable_shared_from_this<Z>* shareable);
+template<class SP_TYPE, class SP, class ENABLE_SHARED_TYPE>
+void _enable_shared_from_this_support(shared_ptr<SP_TYPE>* sp,
+                                      SP* rp,
+                       enable_shared_from_this<ENABLE_SHARED_TYPE>* shareable);
     // This functions shoudl only be called by shared_ptr constructors to
-    // determine id the object has an enable_shared_from_this base class.
+    // determine if the object has an enable_shared_from_this base class.
 void _enable_shared_from_this_support(...);
     // This function should only be called by shared_ptr constructors. This
     // function does nothing.
@@ -3780,7 +3782,7 @@ void swap(weak_ptr<ELEMENT_TYPE>& a, weak_ptr<ELEMENT_TYPE>& b);
 // A partial specialization of 'bsl::hash' is no longer necessary, as the
 // primary template has the correct behavior once 'hashAppend' is defined.
 
-}  // close 'bsl' namespace
+}  // close namespace bsl
 
 namespace BloombergLP {
 namespace bslstl {
@@ -5303,7 +5305,7 @@ int weak_ptr<ELEMENT_TYPE>::numReferences() const
 }
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
-}  // close 'bsl' namespace
+}  // close namespace bsl
 
 namespace BloombergLP {
 namespace bslstl {
@@ -6716,7 +6718,7 @@ struct UsesBslmaAllocator< ::bsl::shared_ptr<ELEMENT_TYPE> >
     : bsl::false_type
 {};
 
-}  // close traits namespace
+}  // close namesapce bslma
 
 namespace bslmf {
 
@@ -6735,7 +6737,7 @@ struct IsBitwiseMoveable< ::bsl::weak_ptr<ELEMENT_TYPE> >
     : bsl::true_type
 {};
 
-}  // close traits namespace
+}  // close namespace bslmf
 
 }  // close enterprise namespace
 
