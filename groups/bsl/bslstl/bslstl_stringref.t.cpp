@@ -2660,7 +2660,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   Object created from the ty string, non-empty string and substring
-        //   stream correctly.
+        //   stream correctly.  Width reset after output.
         //
         // Plan:
         //   For an empty string, non-empty string and substring, use
@@ -2785,6 +2785,22 @@ int main(int argc, char *argv[])
                  << std::setw(static_cast<int>(NES.length() + 10))
                  << NES;
           ASSERT(fmtOut.str() == bsl::string(10, '?') + NES);
+
+          fmtOut.str(bsl::string());
+          fmtOut << std::left
+                 << std::setfill('?')
+                 << std::setw(static_cast<int>(NES.length() + 10))
+                 << NES
+                 << NES;
+          ASSERT(fmtOut.str() == NES + bsl::string(10, '?') + NES);
+
+          fmtOut.str(bsl::string());
+          fmtOut << std::right
+                 << std::setfill('?')
+                 << std::setw(static_cast<int>(NES.length() + 10))
+                 << NES
+                 << NES;
+          ASSERT(fmtOut.str() == bsl::string(10, '?') + NES + NES);
         }
       } break;
       case 3: {
