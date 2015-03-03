@@ -46,6 +46,9 @@ def build(bld):
         assert(sys.byteorder == 'little')
         cflags = ["-DDECLITEND=1"]
 
+    if (-1 != bld.env['CXX'][0].find('clang')):
+        cflags += ['-std=gnu89']
+
     prefix  = bld.env['PREFIX']
     if 'install_lib_dir' in bld.env:
         lib_dir = bld.env['install_lib_dir']
@@ -76,7 +79,7 @@ def build(bld):
         prefix = prefix,
         lib_dir = lib_dir,
         libs = '-ldecnumber' + lib_suffix,
-        cflags = ' '.join(cflags),
+        cflags = '',
         install_path = pc_install_path
     )
 
