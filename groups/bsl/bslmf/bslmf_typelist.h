@@ -1782,9 +1782,9 @@ struct TypeListTypeOf<20,LIST,DEFAULTTYPE,1> {
 }  // close package namespace
 
 #ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 typedef bslmf::TypeList0 bslmf_TypeList0;
     // This alias is defined for backward compatibility.

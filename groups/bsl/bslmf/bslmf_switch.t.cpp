@@ -236,16 +236,6 @@ void aSsErT(bool condition, const char *message, int line)
 #pragma bde_verify pop  // end of usage example-example relaxed rules
 
 //=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
-
-enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
-
-static bool verbose = false;
-static bool veryVerbose = false;
-static bool veryVeryVerbose = false;
-
-//=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
@@ -278,10 +268,10 @@ char f(bslmf::Nil) { return '0'; }
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
+    int             test = argc > 1 ? atoi(argv[1]) : 0;
+    bool         verbose = argc > 2;
+    bool     veryVerbose = argc > 3;
+    bool veryVeryVerbose = argc > 4;
 
     setbuf(stdout, 0);    // Use unbuffered output
 
