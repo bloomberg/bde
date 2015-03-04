@@ -981,6 +981,8 @@ class String_Imp {
         // buffer or the externally allocated memory depending on the type of
         // the string defined by the return value of 'isShortString'.
 };
+template<class INTEGRAL_TYPE, class COMPATIBLE_CHAR>
+class convert_number;
 
                         // =======================
                         // class bsl::basic_string
@@ -1046,6 +1048,8 @@ class basic_string
     typedef bsl::reverse_iterator<const_iterator>  const_reverse_iterator;
         // These types satisfy the 'ReversibleSequence' requirements.
 
+  template<class INTEGRAL_TYPE, class COMPATIBLE_CHAR>
+  friend class convert_number;
   private:
     // PRIVATE TYPES
     typedef String_Imp<CHAR_TYPE, typename ALLOCATOR::size_type> Imp;
@@ -1402,6 +1406,10 @@ class basic_string
         // characters as 'strRef'.  Optionally specify the 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is not specified, then a
         // default-constructed allocator is used.
+
+    //template<class INTEGRAL_TYPE>
+    basic_string(int value,
+                 const ALLOCATOR& basicAllocator = ALLOCATOR());    // IMPLICIT
 
     ~basic_string();
         // Destroy this string object.
@@ -2182,6 +2190,29 @@ class basic_string
         // "Lexicographical Comparisons" for definitions.
 };
 
+template<class INTEGRAL_TYPE, class COMPATIBLE_CHAR>
+class convert_number{
+  private:
+    basic_string<COMPATIBLE_CHAR> str;
+    COMPATIBLE_CHAR* buf;
+    COMPATIBLE_CHAR* fmt;
+    INTEGRAL_TYPE value;
+  public:
+    convert_number(INTEGRAL_TYPE value, COMPATIBLE_CHAR* fmt)
+    :str()
+    {
+        this-> buf = str.dataPtr();
+        this-> fmt = fmt;
+        this-> value = value;
+    }
+
+    basic_string<COMPATIBLE_CHAR>getStr(){
+        sprintf(this->buf,this->fmt,this->value);
+        str.d_length = strlen(buf);
+        return str;
+
+    }
+};
 // TYPEDEFS
 typedef basic_string<char>    string;
 typedef basic_string<wchar_t> wstring;
@@ -3603,6 +3634,21 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 {
     assign(strRef.begin(), strRef.end());
 }
+
+
+//template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+//inline
+//basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
+/*basic_string<char>::basic_string(
+                            int value,
+                            const ALLOCATOR& basicAllocator)
+: Imp()
+, BloombergLP::bslalg::ContainerBase<allocator_type>(basicAllocator)
+{
+    sprintf(this->dataPtr(),"%d", value);
+    this->d_length = strlen(this->dataPtr());
+}
+*/
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
@@ -5364,89 +5410,42 @@ inline long double bsl::stold(const wstring& str, std::size_t* pos){
 #endif
 
 inline bsl::string bsl::to_string(int value) {
-#ifdef BSLS_PLATFORM_CMP_SUN
-    char tempBuf[e_MAX_INT_STRLEN10];
-#else
-    int bufferSize = snprintf(NULL,0,"%d", value);
-    char tempBuf[bufferSize + 1];
-#endif
-    sprintf(tempBuf, "%d", value);
-    string str(tempBuf);
-    return str;
+    convert_number<int, char> cn(value, "%d");
+    return cn.getStr();
 }
 
 inline bsl::string bsl::to_string(unsigned value) {
-#ifdef BSLS_PLATFORM_CMP_SUN
-    char tempBuf[e_MAX_INT_STRLEN10];
-#else
-    int bufferSize = snprintf(NULL,0,"%u", value);
-    char tempBuf[bufferSize + 1];
-#endif
-    sprintf(tempBuf, "%u", value);
-    string str(tempBuf);
-    return str;
+    convert_number<unsigned, char> cn(value, "%u");
+    return cn.getStr();
 }
 
 inline bsl::string bsl::to_string(long value)
 {
-#ifdef BSLS_PLATFORM_CMP_SUN
-    char tempBuf[e_MAX_INT64_STRLEN10];
-#else
-    int bufferSize = snprintf(NULL, 0, "%ld", value);
-    char tempBuf[bufferSize + 1];
-#endif
-    sprintf(tempBuf, "%ld", value);
-    string str(tempBuf);
-    return str;
+    convert_number<long, char> cn(value, "%ld");
+    return cn.getStr();
 }
 
 inline bsl::string bsl::to_string(unsigned long value)
 {
-#ifdef BSLS_PLATFORM_CMP_SUN
-    char tempBuf[e_MAX_INT64_STRLEN10];
-#else
-    int bufferSize = snprintf(NULL, 0, "%lu", value);
-    char tempBuf[bufferSize + 1];
-#endif
-    sprintf(tempBuf, "%lu", value);
-    string str(tempBuf);
-    return str;
+    convert_number<unsigned long, char> cn(value, "%lu");
+    return cn.getStr();
 }
 
 inline bsl::string bsl::to_string(long long value)
 {
-#ifdef BSLS_PLATFORM_CMP_SUN
-    char tempBuf[e_MAX_INT64_STRLEN10];
-#else
-    int bufferSize = snprintf(NULL, 0, "%lld", value);
-    char tempBuf[bufferSize + 1];
-#endif
-    sprintf(tempBuf, "%lld", value);
-    string str(tempBuf);
-    return str;
+    convert_number<long long, char> cn(value, "%lld");
+    return cn.getStr();
 }
 
 inline bsl::string bsl::to_string(unsigned long long value)
 {
-#ifdef BSLS_PLATFORM_CMP_SUN
-    char tempBuf[e_MAX_INT64_STRLEN10];
-#else
-    int bufferSize = snprintf(NULL, 0, "%llu", value);
-    char tempBuf[bufferSize + 1];
-#endif
-    sprintf(tempBuf, "%llu", value);
-    string str(tempBuf);
-    return str;
+    convert_number<unsigned long long, char> cn(value, "%llu");
+    return cn.getStr();
 }
 
 inline bsl::string bsl::to_string(float value)
 {
-#ifdef BSLS_PLATFORM_CMP_SUN
     char tempBuf[e_MAX_FLOAT_STRLEN10];
-#else
-    int bufferSize = snprintf(NULL,0,"%f", value);
-    char tempBuf[bufferSize + 1];
-#endif
     sprintf(tempBuf, "%f", value);
     string str(tempBuf);
     return str;
@@ -5455,12 +5454,7 @@ inline bsl::string bsl::to_string(float value)
 
 inline bsl::string bsl::to_string(double value)
 {
-#ifdef BSLS_PLATFORM_CMP_SUN
     char tempBuf[e_MAX_DOUBLE_STRLEN10];
-#else
-    int bufferSize = snprintf(NULL,0,"%f", value);
-    char tempBuf[bufferSize + 1];
-#endif
     sprintf(tempBuf, "%f", value);
     string str(tempBuf);
     return str;
@@ -5468,12 +5462,7 @@ inline bsl::string bsl::to_string(double value)
 
 inline bsl::string bsl::to_string(long double value)
 {
-#ifdef BSLS_PLATFORM_CMP_SUN
     char tempBuf[e_MAX_LONGDOUBLE_STRLEN10];
-#else
-    int bufferSize = snprintf(NULL,0,"%Lf", value);
-    char tempBuf[bufferSize + 1];
-#endif
     sprintf(tempBuf, "%Lf", value);
     string str(tempBuf);
     return str;
@@ -5481,12 +5470,7 @@ inline bsl::string bsl::to_string(long double value)
 
 inline bsl::wstring bsl::to_wstring(int value)
 {
-#ifdef BSLS_PLATFORM_CMP_SUN
     wchar_t tempBuf[e_MAX_INT_STRLEN10];
-#else
-    int bufferSize = snprintf(NULL,0,"%d", value);
-    wchar_t tempBuf[bufferSize + 1];
-#endif
     swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%d", value);
     wstring str(tempBuf);
     return str;
@@ -5494,24 +5478,14 @@ inline bsl::wstring bsl::to_wstring(int value)
 
 inline bsl::wstring bsl::to_wstring(long value)
 {
-#ifdef BSLS_PLATFORM_CMP_SUN
     wchar_t tempBuf[e_MAX_INT64_STRLEN10];
-#else
-    int bufferSize = snprintf(NULL,0,"%ld", value);
-    wchar_t tempBuf[bufferSize + 1];
-#endif
     swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%ld", value);
     wstring str(tempBuf);
     return str;
 }
 inline bsl::wstring bsl::to_wstring(long long value)
 {
-#ifdef BSLS_PLATFORM_CMP_SUN
     wchar_t tempBuf[e_MAX_INT64_STRLEN10];
-#else
-    int bufferSize = snprintf(NULL,0,"%lld", value);
-    wchar_t tempBuf[bufferSize + 1];
-#endif
     swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%lld", value);
     wstring str(tempBuf);
     return str;
@@ -5519,12 +5493,7 @@ inline bsl::wstring bsl::to_wstring(long long value)
 
 inline bsl::wstring bsl::to_wstring(unsigned value)
 {
-#ifdef BSLS_PLATFORM_CMP_SUN
     wchar_t tempBuf[e_MAX_INT_STRLEN10];
-#else
-    int bufferSize = snprintf(NULL,0,"%u", value);
-    wchar_t tempBuf[bufferSize + 1];
-#endif
     swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%u", value);
     wstring str(tempBuf);
     return str;
@@ -5532,12 +5501,7 @@ inline bsl::wstring bsl::to_wstring(unsigned value)
 
 inline bsl::wstring bsl::to_wstring(unsigned long value)
 {
-#ifdef BSLS_PLATFORM_CMP_SUN
     wchar_t tempBuf[e_MAX_INT64_STRLEN10];
-#else
-    int bufferSize = snprintf(NULL,0,"%lu", value);
-    wchar_t tempBuf[bufferSize + 1];
-#endif
     swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%lu", value);
     wstring str(tempBuf);
     return str;
@@ -5545,12 +5509,7 @@ inline bsl::wstring bsl::to_wstring(unsigned long value)
 
 inline bsl::wstring bsl::to_wstring(unsigned long long value)
 {
-#ifdef BSLS_PLATFORM_CMP_SUN
     wchar_t tempBuf[e_MAX_INT64_STRLEN10];
-#else
-    int bufferSize = snprintf(NULL,0,"%llu", value);
-    wchar_t tempBuf[bufferSize + 1];
-#endif
     swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%llu", value);
     wstring str(tempBuf);
     return str;
@@ -5558,12 +5517,7 @@ inline bsl::wstring bsl::to_wstring(unsigned long long value)
 
 inline bsl::wstring bsl::to_wstring(float value)
 {
-#ifdef BSLS_PLATFORM_CMP_SUN
     wchar_t tempBuf[e_MAX_FLOAT_STRLEN10];
-#else
-    int bufferSize = snprintf(NULL,0,"%f", value);
-    wchar_t tempBuf[bufferSize + 1];
-#endif
     swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%f", value);
     wstring wstr(tempBuf);
     return wstr;
@@ -5571,12 +5525,7 @@ inline bsl::wstring bsl::to_wstring(float value)
 
 inline bsl::wstring bsl::to_wstring(double value)
 {
-#ifdef BSLS_PLATFORM_CMP_SUN
     wchar_t tempBuf[e_MAX_DOUBLE_STRLEN10];
-#else
-    int bufferSize = snprintf(NULL,0,"%f", value);
-    wchar_t tempBuf[bufferSize + 1];
-#endif
     swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%f", value);
     wstring wstr(tempBuf);
     return wstr;
@@ -5584,12 +5533,7 @@ inline bsl::wstring bsl::to_wstring(double value)
 
 inline bsl::wstring bsl::to_wstring(long double value)
 {
-#ifdef BSLS_PLATFORM_CMP_SUN
     wchar_t tempBuf[e_MAX_LONGDOUBLE_STRLEN10];
-#else
-    int bufferSize = snprintf(NULL,0,"%Lf", value);
-    wchar_t tempBuf[bufferSize + 1];
-#endif
     swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%Lf", value);
     wstring wstr(tempBuf);
     return wstr;
