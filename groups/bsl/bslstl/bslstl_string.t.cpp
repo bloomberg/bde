@@ -262,7 +262,24 @@ using namespace std;
 // [31] double stod(const wstring& str, std::size_t* pos =0);
 // [31] long double stold(const string& str, std::size_t* pos =0);
 // [31] long double stold(const wstring& str, std::size_t* pos =0);
-// [32] to_string
+// [32] string to_string(int value);
+// [32] string to_string(long value);
+// [32] string to_string(long long value);
+// [32] string to_string(unsigned value);
+// [32] string to_string(unsigned long value);
+// [32] string to_string(unsigned long long value);
+// [32] string to_string(float value);
+// [32] string to_string(double value);
+// [32] string to_string(long double value);
+// [32] wstring to_wstring(int value);
+// [32] wstring to_wstring(long value);
+// [32] wstring to_wstring(long long value);
+// [32] wstring to_wstring(unsigned value);
+// [32] wstring to_wstring(unsigned long value);
+// [32] wstring to_wstring(unsigned long long value);
+// [32] wstring to_wstring(float value);
+// [32] wstring to_wstring(double value);
+// [32] wstring to_wstring(long double value);
 // [ 5] basic_ostream<C,CT>& operator<<(basic_ostream<C,CT>& stream,
 //                                      const string& str);
 // [ 5] basic_istream<C,CT>& operator>>(basic_istream<C,CT>& stream,
@@ -940,7 +957,7 @@ struct TestDriver {
         // specifications, and check that the specified 'result' agrees.
 
     // TEST CASES
-    static void testCase32(); 
+    static void testCase32();
         // Test to_string and to_wstring free methods.
     
     static void testCase31();
@@ -1291,7 +1308,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
        // {L_, 18446744073709551615},
     };
     const int NUM_DATA = sizeof DATA / sizeof *DATA;
-    
+
     Obj spec(AllocType(&testAllocator));
     Obj wspec(AllocType(&testAllocator));
     char tempBuf[500]; // very large char buffer
@@ -1302,15 +1319,15 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
     for (int ti = 0; ti < NUM_DATA; ++ti){
         const int                LINE  = DATA[ti].d_lineNum;
         const long long          VALUE = DATA[ti].d_value;
-        
+
         if (veryVerbose){
             printf("\tConverting ");P_(VALUE);
             printf("to a string.\n");
         }
-        
+
         const Int64 BB = testAllocator.numBlocksTotal();
         const Int64  B = testAllocator.numBlocksInUse();
-        
+
         if (veryVerbose)
         {
             printf("\t\tBefore: ");P_(BB);P(B);
@@ -1326,9 +1343,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
             wstring wspec(wTempBuf);
             wstring wstr = bsl::to_wstring(static_cast<int>(VALUE));
             ASSERT(wstr == wspec);
-            std::wcout <<wstr<< "="<< wspec<< '\n';
         }
-        
+
         if (VALUE <= std::numeric_limits<unsigned int>::max() && VALUE >=0){
             std::sprintf(tempBuf, "%u", static_cast<unsigned int>(VALUE));
             string spec(tempBuf);
@@ -1394,7 +1410,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
         }
         const Int64 AA = testAllocator.numBlocksTotal();
         const Int64  A = testAllocator.numBlocksInUse();
-        
+
         if (veryVerbose)
         {
             printf("\t\tAfter: ");P_(AA);P(A);
@@ -1402,7 +1418,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
     }
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBlocksInUse());   
-    
+
     if (verbose) printf("\nTesting 'to_string() with floating points.\n");
     static const struct {
         int         d_lineNum;
@@ -1431,31 +1447,31 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
         {L_,-1.79769e+308},
     };
     const int NUM_DOUBLE_DATA = sizeof DOUBLE_DATA / sizeof *DOUBLE_DATA;
-    
+
     for (int ti = 0; ti < NUM_DOUBLE_DATA; ++ti){
         const int                LINE  = DOUBLE_DATA[ti].d_lineNum;
         const double             VALUE = DOUBLE_DATA[ti].d_value;
-        
+
         if (veryVerbose){
             printf("\tConverting ");P_(VALUE);
             printf("to a string.\n");
         }
-        
+
         const Int64 BB = testAllocator.numBlocksTotal();
         const Int64  B = testAllocator.numBlocksInUse();
-            
+
         if (veryVerbose)
         {
             printf("\t\tBefore: ");P_(BB);P(B);
         }
-        
+
         if (VALUE <= std::numeric_limits<float>::max()){
             std::sprintf(tempBuf, "%f", static_cast<float>(VALUE));
             string spec(tempBuf);
             string str = bsl::to_string(static_cast<float>(VALUE));
             ASSERT(str == spec);
             //std::cout <<str<< "="<< spec<< '\n';
-            
+
             std::swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, L"%f",
                                                     static_cast<float>(VALUE));
             wstring wspec(wTempBuf);
@@ -1467,8 +1483,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
             string spec(tempBuf);
             string str = bsl::to_string(static_cast<double>(VALUE));
             ASSERT(str == spec);
-            //std::cout <<str<< '\n';
-            
+
             std::swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, L"%f",
                                                    static_cast<double>(VALUE));
             wstring wspec(wTempBuf);
@@ -1480,27 +1495,24 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
             string spec(tempBuf);
             string str = bsl::to_string(static_cast<long double>(VALUE));
             ASSERT(str == spec);
-            //std::cout <<str<< '\n';
-            
+
             std::swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, L"%Lf",
                                               static_cast<long double>(VALUE));
             wstring wspec(wTempBuf);
             wstring wstr = bsl::to_wstring(static_cast<long double>(VALUE));
             ASSERT(wstr == wspec);
         }
-        
+
         const Int64 AA = testAllocator.numBlocksTotal();
         const Int64  A = testAllocator.numBlocksInUse();
-            
+
         if (veryVerbose)
         {
             printf("\t\tAfter: ");P_(AA);P(A);
         }
     }
     ASSERT(0 == testAllocator.numMismatches());
-    ASSERT(0 == testAllocator.numBlocksInUse());   
-
-    
+    ASSERT(0 == testAllocator.numBlocksInUse());
 }
 template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase31(){
