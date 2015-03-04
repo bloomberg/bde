@@ -1407,10 +1407,6 @@ class basic_string
         // used to supply memory.  If 'basicAllocator' is not specified, then a
         // default-constructed allocator is used.
 
-    //template<class INTEGRAL_TYPE>
-    basic_string(int value,
-                 const ALLOCATOR& basicAllocator = ALLOCATOR());    // IMPLICIT
-
     ~basic_string();
         // Destroy this string object.
 
@@ -2190,28 +2186,29 @@ class basic_string
         // "Lexicographical Comparisons" for definitions.
 };
 
+                        // =========================
+                        // class bsl::convert_number
+                        // ========================
+
 template<class INTEGRAL_TYPE, class COMPATIBLE_CHAR>
 class convert_number{
+    // This class is used to convert a interger number to a string using it
+    // internal short string buffer.
   private:
-    basic_string<COMPATIBLE_CHAR> str;
-    COMPATIBLE_CHAR* buf;
-    COMPATIBLE_CHAR* fmt;
-    INTEGRAL_TYPE value;
+    basic_string<COMPATIBLE_CHAR> d_str;
+    COMPATIBLE_CHAR* d_buf;
+    COMPATIBLE_CHAR* d_fmt;
+    INTEGRAL_TYPE d_value;
   public:
-    convert_number(INTEGRAL_TYPE value, COMPATIBLE_CHAR* fmt)
-    :str()
-    {
-        this-> buf = str.dataPtr();
-        this-> fmt = fmt;
-        this-> value = value;
-    }
+    convert_number(INTEGRAL_TYPE value, COMPATIBLE_CHAR* fmt);
+    // Creates a 'convert_number' object and 'd_value' and 'd_fmt' attributes
+    // with the specified 'value' and 'fmt' respectively. 'd_str' is
+    // initailized to be an empty basic_string, then 'd_buf' is set to point to
+    // d_str internal short buffer.
 
-    basic_string<COMPATIBLE_CHAR>getStr(){
-        sprintf(this->buf,this->fmt,this->value);
-        str.d_length = strlen(buf);
-        return str;
-
-    }
+    basic_string<COMPATIBLE_CHAR>getStr();
+    // Ueses sprintf to fill 'd_buf' with a string repersentation of 'd_value',
+    // then sets d_str internal length field to the length of string created.
 };
 // TYPEDEFS
 typedef basic_string<char>    string;
@@ -3634,21 +3631,6 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 {
     assign(strRef.begin(), strRef.end());
 }
-
-
-//template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-//inline
-//basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
-/*basic_string<char>::basic_string(
-                            int value,
-                            const ALLOCATOR& basicAllocator)
-: Imp()
-, BloombergLP::bslalg::ContainerBase<allocator_type>(basicAllocator)
-{
-    sprintf(this->dataPtr(),"%d", value);
-    this->d_length = strlen(this->dataPtr());
-}
-*/
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
@@ -5287,6 +5269,28 @@ int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
                    lhsNumChars,
                    other,
                    CHAR_TRAITS::length(other));
+}
+
+                    // -------------------------
+                    // class bsl::convert_number
+                    // -------------------------
+
+template<class INTEGRAL_TYPE, class COMPATIBLE_CHAR>
+inline convert_number<INTEGRAL_TYPE, COMPATIBLE_CHAR>::
+convert_number(INTEGRAL_TYPE value, COMPATIBLE_CHAR* fmt)
+:d_str()
+{
+    this-> d_buf = d_str.dataPtr();
+    this-> d_fmt = fmt;
+    this-> d_value = value;
+}
+template<class INTEGRAL_TYPE, class COMPATIBLE_CHAR>
+inline basic_string<COMPATIBLE_CHAR>
+convert_number<INTEGRAL_TYPE, COMPATIBLE_CHAR>::getStr()
+{
+    sprintf(this->d_buf,this->d_fmt,this->d_value);
+    d_str.d_length = strlen(this->d_buf);
+    return d_str;
 }
 
 }  // close namespace bsl
