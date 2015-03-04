@@ -15034,6 +15034,15 @@ int main(int argc, char *argv[])
           //   string to_string(float value);
           //   string to_string(double value);
           //   string to_string(long double value);
+          //   string to_wstring(int value);
+          //   string to_wstring(long value);
+          //   string to_wstring(long long value);
+          //   string to_wstring(unsigned value);
+          //   string to_wstring(unsigned long value);
+          //   string to_wstring(unsigned long long value);
+          //   string to_wstring(float value);
+          //   string to_wstring(double value);
+          //   string to_wstring(long double value);
           // --------------------------------------------------------------------
           if (verbose) printf("\nTESTING 'to_string' and 'to_wstring'"
                   "\n====================================\n");
