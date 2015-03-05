@@ -998,8 +998,7 @@ class String_Imp {
         // buffer or the externally allocated memory depending on the type of
         // the string defined by the return value of 'isShortString'.
 };
-template<class INTEGRAL_TYPE>
-class convert_number;
+
                         // =======================
                         // class bsl::basic_string
                         // =======================
@@ -1058,8 +1057,6 @@ class basic_string
     typedef bsl::reverse_iterator<const_iterator>  const_reverse_iterator;
         // These types satisfy the 'ReversibleSequence' requirements.
 
-  template<class INTEGRAL_TYPE>
-  friend class convert_number;
   friend string to_string(int);
   friend string to_string(long);
   friend string to_string(long long);
@@ -2201,27 +2198,6 @@ class basic_string
         // of equality.  Throw 'out_of_range' if 'lhsPosition > length()'.  See
         // "Lexicographical Comparisons" for definitions.
 };
-
-                        // =========================
-                        // class bsl::convert_number
-                        // ========================
-
-template<class INTEGRAL_TYPE>
-class convert_number{
-    // This class is used to convert a interger number to a string using it
-    // internal short string buffer.
-  private:
-    char* d_fmt;
-    INTEGRAL_TYPE d_value;
-  public:
-    convert_number();
-
-    void sprint_like(string* str, char* fmt, INTEGRAL_TYPE value);
-    // Ueses sprintf wtih 'str' buffer, 'fmt' as the format
-};
-// TYPEDEFS
-//typedef basic_string<char>    string;
-//typedef basic_string<wchar_t> wstring;
 
 // FREE OPERATORS
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
@@ -5279,24 +5255,6 @@ int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
                    CHAR_TRAITS::length(other));
 }
 
-                    // -------------------------
-                    // class bsl::convert_number
-                    // -------------------------
-
-template<class INTEGRAL_TYPE>
-inline convert_number<INTEGRAL_TYPE>::
-convert_number()
-{
-}
-
-template<class INTEGRAL_TYPE>
-inline void
-convert_number<INTEGRAL_TYPE>::sprint_like(string* str, char* fmt, INTEGRAL_TYPE value)
-{
-    sprintf(str->dataPtr(), fmt, value );
-    str->d_length = strlen(str->dataPtr());
-}
-
 }  // close namespace bsl
 
 // FREE FUNCTIONS
@@ -5311,58 +5269,49 @@ void bsl::swap(basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& lhs,
 }
 
 inline bsl::string bsl::to_string(int value) {
-    string actStr;
-    string *str=  &actStr;
-    convert_number<int> cn;
-    cn.sprint_like(str, "%d", value);
-    return *str;
-    //bsl::string str;
-    //sprintf(str.dataPtr(), "%d", value);
-    //str.d_length = strlen(str.dataPtr());
+    bsl::string str;
+    sprintf(str.dataPtr(), "%d", value);
+    str.d_length = strlen(str.dataPtr());
+    return str;
 }
 
 inline bsl::string bsl::to_string(unsigned value) {
-    string actStr;
-    string *str=  &actStr;
-    convert_number<unsigned> cn;
-    cn.sprint_like(str, "%u", value);
-    return *str;
+    bsl::string str;
+    sprintf(str.dataPtr(), "%u", value);
+    str.d_length = strlen(str.dataPtr());
+    return str;
 }
 
 inline bsl::string bsl::to_string(long value)
 {
-    string actStr;
-    string *str=  &actStr;
-    convert_number<long> cn;
-    cn.sprint_like(str, "%ld", value);
-    return *str;
+    bsl::string str;
+    sprintf(str.dataPtr(), "%ld", value);
+    str.d_length = strlen(str.dataPtr());
+    return str;
 }
 
 inline bsl::string bsl::to_string(unsigned long value)
 {
-    string actStr;
-    string *str=  &actStr;
-    convert_number<unsigned long> cn;
-    cn.sprint_like(str, "%lu", value);
-    return *str;
+    bsl::string str;
+    sprintf(str.dataPtr(), "%lu", value);
+    str.d_length = strlen(str.dataPtr());
+    return str;
 }
 
 inline bsl::string bsl::to_string(long long value)
 {
-    string actStr;
-    string *str=  &actStr;
-    convert_number<long long> cn;
-    cn.sprint_like(str, "%lld", value);
-    return *str;
+    bsl::string str;
+    sprintf(str.dataPtr(), "%lld", value);
+    str.d_length = strlen(str.dataPtr());
+    return str;
 }
 
 inline bsl::string bsl::to_string(unsigned long long value)
 {
-    string actStr;
-    string *str=  &actStr;
-    convert_number<unsigned long long> cn;
-    cn.sprint_like(str, "%llu", value);
-    return *str;
+    bsl::string str;
+    sprintf(str.dataPtr(), "%llu", value);
+    str.d_length = strlen(str.dataPtr());
+    return str;
 }
 
 inline bsl::string bsl::to_string(float value)

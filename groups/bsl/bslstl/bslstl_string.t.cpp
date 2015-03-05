@@ -1303,9 +1303,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
         {L_, -11001100},
         {L_, 2147483647},
         {L_, -2147483647},
-       // {L_, 9223372036854775807},
-       // {L_,-9223372036854775807},
-       // {L_, 18446744073709551615},
+        {L_, 9223372036854775807},
+        {L_,-9223372036854775807},
+        {L_, 18446744073709551615},
     };
     const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1336,14 +1336,13 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
             std::sprintf(tempBuf, "%d", static_cast<int>(VALUE));
             string spec(tempBuf);
             string str = bsl::to_string(static_cast<int>(VALUE));
-            std::cout <<str<< "="<< spec<< '\n';
             ASSERT(str == spec);
-            
             swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, 
                                                L"%d", static_cast<int>(VALUE));
             wstring wspec(wTempBuf);
             wstring wstr = bsl::to_wstring(static_cast<int>(VALUE));
             ASSERT(wstr == wspec);
+            std::wcout <<wstr<< "="<< wspec<< '\n';
         }
         
         if (VALUE <= std::numeric_limits<unsigned int>::max() && VALUE >=0){
