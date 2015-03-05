@@ -1,4 +1,4 @@
-// mutex                                                             -*-C++-*-
+// mutex                                                              -*-C++-*-
 #ifndef INCLUDED_NATIVE_MUTEX
 #define INCLUDED_NATIVE_MUTEX
 
@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
 //
 //@SEE_ALSO: package bsl+stdhdrs
-//
-//@AUTHOR: Pablo Halpern (phalpern), Arthur Chiu (achiu21)
 //
 //@DESCRIPTION: Provide functionality of the corresponding C++ standard
 // header.  This file includes the compiler provided native standard header.
