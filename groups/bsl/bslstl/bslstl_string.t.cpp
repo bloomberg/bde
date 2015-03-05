@@ -1336,15 +1336,16 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
             std::sprintf(tempBuf, "%d", static_cast<int>(VALUE));
             string spec(tempBuf);
             string str = bsl::to_string(static_cast<int>(VALUE));
+            std::cout <<str<< "="<< spec<< '\n';
             ASSERT(str == spec);
+            
             swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, 
-            //std::cout <<wstr<< "="<< wspec<< '\n';
                                                L"%d", static_cast<int>(VALUE));
             wstring wspec(wTempBuf);
             wstring wstr = bsl::to_wstring(static_cast<int>(VALUE));
             ASSERT(wstr == wspec);
         }
-
+        
         if (VALUE <= std::numeric_limits<unsigned int>::max() && VALUE >=0){
             std::sprintf(tempBuf, "%u", static_cast<unsigned int>(VALUE));
             string spec(tempBuf);
@@ -1408,6 +1409,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
                                                   <unsigned long long>(VALUE));
             ASSERT(wstr == wspec);
         }
+
         const Int64 AA = testAllocator.numBlocksTotal();
         const Int64  A = testAllocator.numBlocksInUse();
 

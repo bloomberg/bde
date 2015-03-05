@@ -746,8 +746,21 @@ BSL_OVERRIDES_STD mode"
 
 namespace bsl {
 
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+//template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+//class basic_string;
+
+    // Import 'char_traits' into the 'bsl' namespace so that 'basic_string' and
+// 'char_traits' are always in the same namespace.
+using native_std::char_traits;
+
+template <class CHAR_TYPE,
+          class CHAR_TRAITS = char_traits<CHAR_TYPE>,
+          class ALLOCATOR = allocator<CHAR_TYPE> >
 class basic_string;
+
+// TYPEDEFS
+typedef basic_string<char>    string;
+typedef basic_string<wchar_t> wstring;
 
 #if defined(BSLS_PLATFORM_CMP_SUN) || defined(BSLS_PLATFORM_CMP_HP)
 template <class ORIGINAL_TRAITS>
@@ -981,20 +994,13 @@ class String_Imp {
         // buffer or the externally allocated memory depending on the type of
         // the string defined by the return value of 'isShortString'.
 };
-template<class INTEGRAL_TYPE, class COMPATIBLE_CHAR>
+template<class INTEGRAL_TYPE>
 class convert_number;
-
                         // =======================
                         // class bsl::basic_string
                         // =======================
 
-// Import 'char_traits' into the 'bsl' namespace so that 'basic_string' and
-// 'char_traits' are always in the same namespace.
-using native_std::char_traits;
-
-template <class CHAR_TYPE,
-          class CHAR_TRAITS = char_traits<CHAR_TYPE>,
-          class ALLOCATOR = allocator<CHAR_TYPE> >
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 class basic_string
     : private String_Imp<CHAR_TYPE, typename ALLOCATOR::size_type>
     , public BloombergLP::bslalg::ContainerBase<ALLOCATOR>
@@ -1048,8 +1054,14 @@ class basic_string
     typedef bsl::reverse_iterator<const_iterator>  const_reverse_iterator;
         // These types satisfy the 'ReversibleSequence' requirements.
 
-  template<class INTEGRAL_TYPE, class COMPATIBLE_CHAR>
+  template<class INTEGRAL_TYPE>
   friend class convert_number;
+  friend string to_string(int);
+  friend string to_string(long);
+  friend string to_string(long long);
+  friend string to_string(unsigned );
+  friend string to_string(unsigned long);
+  friend string to_string(unsigned long long);
   private:
     // PRIVATE TYPES
     typedef String_Imp<CHAR_TYPE, typename ALLOCATOR::size_type> Imp;
@@ -2190,29 +2202,22 @@ class basic_string
                         // class bsl::convert_number
                         // ========================
 
-template<class INTEGRAL_TYPE, class COMPATIBLE_CHAR>
+template<class INTEGRAL_TYPE>
 class convert_number{
     // This class is used to convert a interger number to a string using it
     // internal short string buffer.
   private:
-    basic_string<COMPATIBLE_CHAR> d_str;
-    COMPATIBLE_CHAR* d_buf;
-    COMPATIBLE_CHAR* d_fmt;
+    char* d_fmt;
     INTEGRAL_TYPE d_value;
   public:
-    convert_number(INTEGRAL_TYPE value, COMPATIBLE_CHAR* fmt);
-    // Creates a 'convert_number' object and 'd_value' and 'd_fmt' attributes
-    // with the specified 'value' and 'fmt' respectively. 'd_str' is
-    // initailized to be an empty basic_string, then 'd_buf' is set to point to
-    // d_str internal short buffer.
+    convert_number();
 
-    basic_string<COMPATIBLE_CHAR>getStr();
-    // Ueses sprintf to fill 'd_buf' with a string repersentation of 'd_value',
-    // then sets d_str internal length field to the length of string created.
+    void sprint_like(string* str, char* fmt, INTEGRAL_TYPE value);
+    // Ueses sprintf wtih 'str' buffer, 'fmt' as the format
 };
 // TYPEDEFS
-typedef basic_string<char>    string;
-typedef basic_string<wchar_t> wstring;
+//typedef basic_string<char>    string;
+//typedef basic_string<wchar_t> wstring;
 
 // FREE OPERATORS
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
@@ -5275,22 +5280,18 @@ int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
                     // class bsl::convert_number
                     // -------------------------
 
-template<class INTEGRAL_TYPE, class COMPATIBLE_CHAR>
-inline convert_number<INTEGRAL_TYPE, COMPATIBLE_CHAR>::
-convert_number(INTEGRAL_TYPE value, COMPATIBLE_CHAR* fmt)
-:d_str()
+template<class INTEGRAL_TYPE>
+inline convert_number<INTEGRAL_TYPE>::
+convert_number()
 {
-    this-> d_buf = d_str.dataPtr();
-    this-> d_fmt = fmt;
-    this-> d_value = value;
 }
-template<class INTEGRAL_TYPE, class COMPATIBLE_CHAR>
-inline basic_string<COMPATIBLE_CHAR>
-convert_number<INTEGRAL_TYPE, COMPATIBLE_CHAR>::getStr()
+
+template<class INTEGRAL_TYPE>
+inline void
+convert_number<INTEGRAL_TYPE>::sprint_like(string* str, char* fmt, INTEGRAL_TYPE value)
 {
-    sprintf(this->d_buf,this->d_fmt,this->d_value);
-    d_str.d_length = strlen(this->d_buf);
-    return d_str;
+    sprintf(str->dataPtr(), fmt, value );
+    str->d_length = strlen(str->dataPtr());
 }
 
 }  // close namespace bsl
@@ -5414,37 +5415,58 @@ inline long double bsl::stold(const wstring& str, std::size_t* pos){
 #endif
 
 inline bsl::string bsl::to_string(int value) {
-    convert_number<int, char> cn(value, "%d");
-    return cn.getStr();
+    string actStr;
+    string *str=  &actStr;
+    convert_number<int> cn;
+    cn.sprint_like(str, "%d", value);
+    return *str;
+    //bsl::string str;
+    //sprintf(str.dataPtr(), "%d", value);
+    //str.d_length = strlen(str.dataPtr());
 }
 
 inline bsl::string bsl::to_string(unsigned value) {
-    convert_number<unsigned, char> cn(value, "%u");
-    return cn.getStr();
+    string actStr;
+    string *str=  &actStr;
+    convert_number<unsigned> cn;
+    cn.sprint_like(str, "%u", value);
+    return *str;
 }
 
 inline bsl::string bsl::to_string(long value)
 {
-    convert_number<long, char> cn(value, "%ld");
-    return cn.getStr();
+    string actStr;
+    string *str=  &actStr;
+    convert_number<long> cn;
+    cn.sprint_like(str, "%ld", value);
+    return *str;
 }
 
 inline bsl::string bsl::to_string(unsigned long value)
 {
-    convert_number<unsigned long, char> cn(value, "%lu");
-    return cn.getStr();
+    string actStr;
+    string *str=  &actStr;
+    convert_number<unsigned long> cn;
+    cn.sprint_like(str, "%lu", value);
+    return *str;
 }
 
 inline bsl::string bsl::to_string(long long value)
 {
-    convert_number<long long, char> cn(value, "%lld");
-    return cn.getStr();
+    string actStr;
+    string *str=  &actStr;
+    convert_number<long long> cn;
+    cn.sprint_like(str, "%lld", value);
+    return *str;
 }
 
 inline bsl::string bsl::to_string(unsigned long long value)
 {
-    convert_number<unsigned long long, char> cn(value, "%llu");
-    return cn.getStr();
+    string actStr;
+    string *str=  &actStr;
+    convert_number<unsigned long long> cn;
+    cn.sprint_like(str, "%llu", value);
+    return *str;
 }
 
 inline bsl::string bsl::to_string(float value)
