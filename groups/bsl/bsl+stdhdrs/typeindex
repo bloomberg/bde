@@ -65,7 +65,7 @@ BSLS_IDENT("$Id: $")
 
 #endif  // BSL_OVERRIDES_STD
 
-#endif  // INCLUDED_NATIVE_CMATH
+#endif  // INCLUDED_NATIVE_TYPEINDEX
 
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.
