@@ -57,7 +57,7 @@ const int MAGIC_SERIAL = 639798;  // 1752/09/02 POSIX
 // To limit spewing to 'stderr', log an occurrence of a problematic date value
 // only if the associated logging context count is 1, 8, or 256.
 
-const int LOG_THROTTLE_MASK = 1 + 8 + 256;
+const int LOG_THROTTLE_MASK = 1 | 8 | 256;
 
 // PRIVATE CLASS METHODS
 void EpochUtil::logIfProblematicDateValue(
@@ -72,9 +72,9 @@ void EpochUtil::logIfProblematicDateValue(
 
     const int tmpCount = bsls::AtomicOperations::addIntNvRelaxed(count, 1);
 
-    if (1 == bdlb::BitUtil::numBitsSet(
-                             static_cast<bdlb::BitUtil::uint32_t>(tmpCount))
-     && (LOG_THROTTLE_MASK & tmpCount)) {
+    if ((LOG_THROTTLE_MASK & tmpCount)
+     && 1 == bdlb::BitUtil::numBitsSet(
+                             static_cast<bdlb::BitUtil::uint32_t>(tmpCount))) {
 
         bsls::Log::logFormattedMessage(fileName, lineNumber,
                                        "WARNING: bad 'Date' value: "
