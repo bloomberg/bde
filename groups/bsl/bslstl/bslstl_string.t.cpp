@@ -35,7 +35,7 @@
 #include <typeinfo>
 #include <limits>
 #include <iostream>
-#include <ctime>
+
 #if defined(std)
 // This is a workaround for the way test drivers are built in an IDE-friendly
 // manner in Visual Studio.  A "normal" test driver built from the command line
@@ -1342,7 +1342,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
             wstring wspec(wTempBuf);
             wstring wstr = bsl::to_wstring(static_cast<int>(VALUE));
             ASSERT(wstr == wspec);
-            std::wcout <<wstr<< "="<< wspec<< '\n';
         }
         
         if (VALUE <= std::numeric_limits<unsigned int>::max() && VALUE >=0){
@@ -1471,7 +1470,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
             string spec(tempBuf);
             string str = bsl::to_string(static_cast<float>(VALUE));
             ASSERT(str == spec);
-            //std::cout <<str<< "="<< spec<< '\n';
 
             std::swprintf(wTempBuf, sizeof wTempBuf / sizeof *wTempBuf, L"%f",
                                                     static_cast<float>(VALUE));

@@ -1057,6 +1057,8 @@ class basic_string
     typedef bsl::reverse_iterator<const_iterator>  const_reverse_iterator;
         // These types satisfy the 'ReversibleSequence' requirements.
 
+  // to_string functions are made friends to allow access to internal short
+  // string buffer.
   friend string to_string(int);
   friend string to_string(long);
   friend string to_string(long long);
