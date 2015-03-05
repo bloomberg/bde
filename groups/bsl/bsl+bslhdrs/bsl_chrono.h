@@ -1,0 +1,73 @@
+// bsl_chrono.h                                                       -*-C++-*-
+#ifndef INCLUDED_BSL_CHRONO
+#define INCLUDED_BSL_CHRONO
+
+#ifndef INCLUDED_BSLS_IDENT
+#include <bsls_ident.h>
+#endif
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Provide functionality of the corresponding C++ Standard header.
+//
+//@SEE_ALSO: package bsl+stdhdrs
+//
+//@DESCRIPTION: Provide types, in the 'bsl' namespace, equivalent to those
+// defined in the corresponding C++ standard header.  Include the native
+// compiler-provided standard header, and also directly include Bloomberg's
+// implementation of the C++ standard type (if one exists).  Finally, place the
+// included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
+
+#ifndef INCLUDED_BSLS_NATIVESTD
+#include <bsls_nativestd.h>
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
+#include <chrono>
+
+namespace bsl {
+
+    using native_std::duration;
+    using native_std::time_point;
+    using native_std::system_clock;
+    using native_std::steady_clock;
+    using native_std::high_resolution_clock;
+    using native_std::treat_as_floating_point;
+    using native_std::duration_values;
+    using native_std::common_type;
+    using native_std::duration_cast;
+    using native_std::time_point_cast;
+    using native_std::hours;
+    using native_std::minutes;
+    using native_std::seconds;
+    using native_std::miliseconds;
+    using native_std::microseconds;
+    using native_std::nanoseconds;
+
+}  // close namespace bsl
+
+
+// Include Bloomberg's implementation, unless compilation is configured to
+// override native types in the 'std' namespace with Bloomberg's
+// implementation, in which case the implementation file will be included by
+// the Bloomberg supplied standard header file.
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2013 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
