@@ -34,11 +34,10 @@ BSLS_IDENT("$Id: $")
 // random access iterators as specified in the [basic.string] section of the
 // C++ standard [21.4].  The 'basic_string' implemented here adheres to the
 // C++11 standard, except that it does not have interfaces that take rvalue
-// references or 'initializer_lists', the 'shrink_to_fit' method, functions
-// that support numeric conversions, such as 'stoi', 'to_string', and
-// 'to_wstring', and template specializations 'std::u16string' and
-// 'std::u32string'.  Note that excluded C++11 features are those that require
-// (or are greatly simplified by) C++11 compiler support.
+// references or 'initializer_lists', the 'shrink_to_fit' method,and template
+// specializations 'std::u16string' and 'std::u32string'. Note that excluded
+// C++11 features are those that require (or are greatly simplified by) C++11
+// compiler support.
 //
 ///Memory Allocation
 ///-----------------
@@ -669,6 +668,11 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
+#endif
+
+#ifndef INCLUDED_ERRNO
+#include <errno.h>
+#define INCLUDED_ERRNO
 #endif
 
 #ifndef INCLUDED_ISTREAM
@@ -2443,7 +2447,6 @@ getline(std::basic_istream<CHAR_TYPE, CHAR_TRAITS>&     is,
     // because because the stream is at eof), 'str' will become empty and
     // 'is.fail()' will become true.
 
-//TODO
 int stoi(const string& str, std::size_t* pos = 0, int base = 10);
 int stoi(const wstring& str, std::size_t* pos = 0, int base = 10);
 long stol(const string& str, std::size_t* pos = 0, int base = 10);
@@ -5306,113 +5309,6 @@ void bsl::swap(basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& lhs,
 
     lhs.swap(rhs);
 }
-
-//TODO
-inline int bsl::stoi(const string& str, std::size_t* pos, int base){
-    char* ptr;
-    long value = std::strtol(str.c_str(), &ptr, base);
-    *pos = ptr - str.c_str();
-    return value;
-}
-inline int bsl::stoi(const wstring& str, std::size_t* pos, int base){
-    wchar_t* ptr;
-    long value = std::wcstol(str.c_str(), &ptr, base);
-    *pos = ptr - str.c_str();
-    return value;
-}
-
-inline long bsl::stol(const string& str, std::size_t* pos, int base){
-    char* ptr;
-    long value = std::strtol(str.c_str(), &ptr, base);
-    *pos = ptr - str.c_str();
-    return value;
-}
-inline long bsl::stol(const wstring& str, std::size_t* pos, int base){
-    wchar_t* ptr;
-    long value = std::wcstol(str.c_str(), &ptr, base);
-    *pos = ptr - str.c_str();
-    return value;
-}
-inline unsigned long bsl::stoul(const string& str, std::size_t* pos, int base){
-    char* ptr;
-    unsigned long value = std::strtoul(str.c_str(), &ptr, base);
-    *pos = ptr - str.c_str();
-    return value;
-}
-inline unsigned long bsl::stoul(const wstring& str,
-                                                   std::size_t* pos, int base){
-    wchar_t* ptr;
-    unsigned long value = std::wcstoul(str.c_str(), &ptr, base);
-    *pos = ptr - str.c_str();
-    return value;
-}
-#if __cplusplus >= 201103L
-inline long long bsl::stoll(const string& str, std::size_t* pos, int base){
-    char* ptr;
-    long long value = std::strtoll(str.c_str(), &ptr, base);
-    *pos = ptr - str.c_str();
-    return value;
-}
-inline long long bsl::stoll(const wstring& str, std::size_t* pos, int base){
-    wchar_t* ptr;
-    long long value = std::wcstoll(str.c_str(), &ptr, base);
-    *pos = ptr - str.c_str();
-    return value;
-}
-inline unsigned long long bsl::stoull(const string& str, std::size_t* pos,
-                                                                     int base){
-    char* ptr;
-    unsigned long long value = std::strtoull(str.c_str(), &ptr, base);
-    *pos = ptr - str.c_str();
-    return value;
-}
-inline unsigned long long bsl::stoull(const wstring& str, std::size_t* pos,
-                                                                     int base){
-    wchar_t* ptr;
-    unsigned long long value = std::wcstoull(str.c_str(), &ptr, base);
-    *pos = ptr - str.c_str();
-    return value;
-}
-#endif
-
-inline float bsl::stof(const string& str, std::size_t* pos){
-    char* ptr;
-    float value = std::strtod(str.c_str(), &ptr);
-    *pos = ptr - str.c_str();
-    return value;
-}
-inline float bsl::stof(const wstring& str, std::size_t* pos){
-    wchar_t* ptr;
-    float value = std::wcstod(str.c_str(), &ptr);
-    *pos = ptr - str.c_str();
-    return value;
-}
-inline double bsl::stod(const string& str, std::size_t* pos){
-    char* ptr;
-    double value = std::strtod(str.c_str(), &ptr);
-    *pos = ptr - str.c_str();
-    return value;
-}
-inline double bsl::stod(const wstring& str, std::size_t* pos){
-    wchar_t* ptr;
-    double value = std::wcstod(str.c_str(), &ptr);
-    *pos = ptr - str.c_str();
-    return value;
-}
-#if __cplusplus >= 201103L
-inline long double bsl::stold(const string& str, std::size_t* pos){
-    char* ptr;
-    long double value = std::strtold(str.c_str(), &ptr);
-    *pos = ptr - str.c_str();
-    return value;
-}
-inline long double bsl::stold(const wstring& str, std::size_t* pos){
-    wchar_t* ptr;
-    long double value = std::wcstold(str.c_str(), &ptr);
-    *pos = ptr - str.c_str();
-    return value;
-}
-#endif
 
 inline bsl::string bsl::to_string(int value) {
     string actStr;

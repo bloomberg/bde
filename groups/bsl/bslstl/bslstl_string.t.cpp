@@ -1659,7 +1659,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase31(){
         ASSERT (sz == POS);
         P_(INPUT);P_(fV );P(SPEC);
         P_(sz);P(POS);
-        
+         
         dV = bsl::stod(inV, &sz);
         ASSERT (dV == SPEC);
         ASSERT (sz == POS);
@@ -1781,6 +1781,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
         
         std::string::size_type sz;
         int value;
+        
         if (SPEC <= std::numeric_limits<int>::max()){
             value = bsl::stoi(inV, &sz, BASE);
             ASSERT (value == SPEC);

@@ -42,6 +42,257 @@ std::size_t bsl::hashBasicString(const wstring& str)
                                                                           str);
 }
 
+int bsl::stoi(const string& str, std::size_t* pos, int base){
+    char* ptr;
+    long value = std::strtol(str.c_str(), &ptr, base);
+    if (errno == ERANGE){
+        errno = 0;
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoi");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoi");
+    }
+    *pos = ptr - str.c_str();
+    return value;
+}
+
+int bsl::stoi(const wstring& str, std::size_t* pos, int base){
+    wchar_t* ptr;
+    long value = std::wcstol(str.c_str(), &ptr, base);
+
+    if (errno == ERANGE){
+        errno = 0;
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoi");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoi");
+    }
+
+    *pos = ptr - str.c_str();
+    return value;
+}
+
+long bsl::stol(const string& str, std::size_t* pos, int base){
+    char* ptr;
+    long value = std::strtol(str.c_str(), &ptr, base);
+
+    if (errno == ERANGE){
+        errno = 0;
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stol");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stol");
+    }
+
+    *pos = ptr - str.c_str();
+    return value;
+}
+
+long bsl::stol(const wstring& str, std::size_t* pos, int base){
+    wchar_t* ptr;
+    long value = std::wcstol(str.c_str(), &ptr, base);
+
+    if (errno == ERANGE){
+        errno = 0;
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stol");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stol");
+    }
+
+    *pos = ptr - str.c_str();
+    return value;
+}
+
+unsigned long bsl::stoul(const string& str, std::size_t* pos, int base){
+    char* ptr;
+    unsigned long value = std::strtoul(str.c_str(), &ptr, base);
+
+    if (errno == ERANGE){
+        errno = 0;
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoul");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoul");
+    }
+
+    *pos = ptr - str.c_str();
+    return value;
+}
+
+unsigned long bsl::stoul(const wstring& str,
+                                                   std::size_t* pos, int base){
+    wchar_t* ptr;
+    unsigned long value = std::wcstoul(str.c_str(), &ptr, base);
+
+    if (errno == ERANGE){
+        errno = 0;
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoul");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoul");
+    }
+
+    *pos = ptr - str.c_str();
+    return value;
+}
+#if __cplusplus >= 201103L
+long long bsl::stoll(const string& str, std::size_t* pos, int base){
+    char* ptr;
+    long long value = std::strtoll(str.c_str(), &ptr, base);
+
+    if (errno == ERANGE){
+        errno = 0;
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoll");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoll");
+    }
+
+    *pos = ptr - str.c_str();
+    return value;
+}
+long long bsl::stoll(const wstring& str, std::size_t* pos, int base){
+    wchar_t* ptr;
+    long long value = std::wcstoll(str.c_str(), &ptr, base);
+
+    if (errno == ERANGE){
+        errno = 0;
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoll");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoll");
+    }
+
+    *pos = ptr - str.c_str();
+    return value;
+}
+unsigned long long bsl::stoull(const string& str, std::size_t* pos,
+                                                                     int base){
+    char* ptr;
+    unsigned long long value = std::strtoull(str.c_str(), &ptr, base);
+
+    if (errno == ERANGE){
+        errno = 0;
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoull");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoull");
+    }
+
+    *pos = ptr - str.c_str();
+    return value;
+}
+unsigned long long bsl::stoull(const wstring& str, std::size_t* pos,
+                                                                     int base){
+    wchar_t* ptr;
+    unsigned long long value = std::wcstoull(str.c_str(), &ptr, base);
+
+    if (errno == ERANGE){
+        errno = 0;
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoull");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoull");
+    }
+
+    *pos = ptr - str.c_str();
+    return value;
+}
+#endif
+
+float bsl::stof(const string& str, std::size_t* pos){
+    char* ptr;
+    float value = std::strtod(str.c_str(), &ptr);
+
+    if (errno == ERANGE){
+        errno = 0;
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stof");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stof");
+    }
+
+    *pos = ptr - str.c_str();
+    return value;
+}
+float bsl::stof(const wstring& str, std::size_t* pos){
+    wchar_t* ptr;
+    float value = std::wcstod(str.c_str(), &ptr);
+
+    if (errno == ERANGE){
+        errno = 0;
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stof");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stof");
+    }
+
+    *pos = ptr - str.c_str();
+    return value;
+}
+double bsl::stod(const string& str, std::size_t* pos){
+    char* ptr;
+    double value = std::strtod(str.c_str(), &ptr);
+
+    if (errno == ERANGE){
+        errno = 0;
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stod");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stod");
+    }
+
+    *pos = ptr - str.c_str();
+    return value;
+}
+double bsl::stod(const wstring& str, std::size_t* pos){
+    wchar_t* ptr;
+    double value = std::wcstod(str.c_str(), &ptr);
+
+    if (errno == ERANGE){
+        errno = 0;
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stod");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stod");
+    }
+
+    *pos = ptr - str.c_str();
+    return value;
+}
+#if __cplusplus >= 201103L
+long double bsl::stold(const string& str, std::size_t* pos){
+    char* ptr;
+    long double value = std::strtold(str.c_str(), &ptr);
+
+    if (errno == ERANGE){
+        errno = 0;
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stold");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stold");
+    }
+
+    *pos = ptr - str.c_str();
+    return value;
+}
+long double bsl::stold(const wstring& str, std::size_t* pos){
+    wchar_t* ptr;
+    long double value = std::wcstold(str.c_str(), &ptr);
+
+    if (errno == ERANGE){
+        errno = 0;
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stold");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stold");
+    }
+
+    *pos = ptr - str.c_str();
+    return value;
+}
+#endif
 #endif
 
 // ----------------------------------------------------------------------------
