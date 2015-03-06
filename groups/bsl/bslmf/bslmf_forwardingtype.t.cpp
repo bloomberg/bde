@@ -21,6 +21,10 @@ using namespace BloombergLP;
 
 // BDE_VERIFY pragma: -UC01
 
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#pragma warning(disable: 4521) // test classes offer multiple copy constructors
+#endif
+
 // ============================================================================
 //                                TEST PLAN
 // ----------------------------------------------------------------------------

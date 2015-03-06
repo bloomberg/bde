@@ -408,15 +408,6 @@ struct ForwardingTypeUtil {
         // for use with 'TYPE' parameters of 'volatile'-qualifed rvalue type,
         // which are effectively unheard of in real code and have strange and
         // hard-to-understand rules.
-#if 0 // workaround did not work
-    {
-        // Note that this function is implemented inline to work around an
-        // internal compiler error on the IBM xlC when making an optimized
-        // build.
-
-        return ForwardingType<TYPE>::Imp::forwardToTarget(v);
-    }
-#endif
 };
 
                         // =========================
@@ -439,7 +430,6 @@ struct ConstForwardingType : public ForwardingType<TYPE> {
 // BDE_VERIFY pragma: push  // Relax some bdeverify rules in the imp section
 // BDE_VERIFY pragma: -CD01 // Allow member function defind in class definition
 
-#if 1
 template <class TYPE>
 #ifndef BSLS_PLATFORM_CMP_IBM
 inline  // Trips an ICE or infinite compile loop with xlC optimized builds.
@@ -450,7 +440,6 @@ ForwardingTypeUtil<TYPE>::forwardToTarget(
 {
     return ForwardingType<TYPE>::Imp::forwardToTarget(v);
 }
-#endif
 
                         // ========================
                         // class ForwardingType_Imp
