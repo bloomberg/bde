@@ -32,7 +32,7 @@ BSLS_IDENT("$Id: $")
 #   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
 #     include_next <chrono>
 #   else
-#     include BSL_NATIVE_CPP_RUNTIME_HEADER(chrono)
+#     include BSL_NATIVE_CPP_LIB_HEADER(chrono)
 #   endif
 
 #else // defined(BSL_OVERRIDES_STD)
@@ -53,7 +53,7 @@ BSLS_IDENT("$Id: $")
 #   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
 #     include_next <chrono>
 #   else
-#     include BSL_NATIVE_CPP_RUNTIME_HEADER(chrono)
+#     include BSL_NATIVE_CPP_LIB_HEADER(chrono)
 #   endif
 
 #   include <bsl_chrono.h>
