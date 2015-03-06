@@ -524,7 +524,7 @@ int main(int argc, char *argv[])
                 { L_,    1,  1,  1, 24,  0,  0,   0,  FAILURE, 0 },
             };
 
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             // PERTURBATION: Arbitrary initial time values in order to verify
             //               "No Change" to 'result' on FAILURE.
@@ -535,7 +535,7 @@ int main(int argc, char *argv[])
             };
 
             const int NUM_INITIAL_VALUES =
-                sizeof INITIAL_VALUES / sizeof *INITIAL_VALUES;
+              static_cast<int>(sizeof INITIAL_VALUES / sizeof *INITIAL_VALUES);
 
             // MAIN TEST-TABLE LOOP
 
@@ -569,7 +569,7 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, !!STATUS == STATUS); // double check
 
                 for (int vi = 0; vi < NUM_INITIAL_VALUES; ++vi) {
-                    const int CONTROL = INITIAL_VALUES[vi];
+                    const int CONTROL = static_cast<int>(INITIAL_VALUES[vi]);
                     if (veryVeryVerbose) { P(CONTROL) }
                     bdlt::DatetimeInterval       result(0, 0, 0, 0, CONTROL);
                     const bdlt::DatetimeInterval ORIGINAL(0, 0, 0, 0, CONTROL);
@@ -753,7 +753,7 @@ int main(int argc, char *argv[])
                 { L_,    63072000999LL, 1972,  1,  1,  0,  0,  0, 999 },
              };
 
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             // MAIN TEST-TABLE LOOP
 
@@ -1150,7 +1150,7 @@ int main(int argc, char *argv[])
                 { L_,    1,  1,  1, 24,  0,  0,   0, FAILURE, 0,    0 },
             };
 
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             // PERTURBATION: Arbitrary initial time values in order to verify
             //               "No Change" to 'result' on FAILURE.
@@ -1161,7 +1161,7 @@ int main(int argc, char *argv[])
             };
 
             const int NUM_INITIAL_VALUES =
-                sizeof INITIAL_VALUES / sizeof *INITIAL_VALUES;
+              static_cast<int>(sizeof INITIAL_VALUES / sizeof *INITIAL_VALUES);
 
             // MAIN TEST-TABLE LOOP
 
@@ -1194,7 +1194,7 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, !!STATUS == STATUS); // double check
 
                 for (int vi = 0; vi < NUM_INITIAL_VALUES; ++vi) {
-                    const int CONTROL = INITIAL_VALUES[vi];
+                    const int CONTROL = static_cast<int>(INITIAL_VALUES[vi]);
                     if (veryVeryVerbose) { P(CONTROL) }
                     bsls::TimeInterval       result(CONTROL, 0);
                     const bsls::TimeInterval ORIGINAL(CONTROL, 0);
@@ -1395,7 +1395,7 @@ int main(int argc, char *argv[])
                                          1972,  1,  1,  0,  0,  0, 999 },
              };
 
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             // MAIN TEST-TABLE LOOP
 
@@ -1765,7 +1765,7 @@ int main(int argc, char *argv[])
                 { L_,    1,  1,  1, 24,  0,  0,   0,  FAILURE,    0 },
             };
 
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             // PERTURBATION: Arbitrary initial time values in order to verify
             //               "No Change" to 'result' on FAILURE.
@@ -1776,7 +1776,7 @@ int main(int argc, char *argv[])
             };
 
             const int NUM_INITIAL_VALUES =
-                sizeof INITIAL_VALUES / sizeof *INITIAL_VALUES;
+              static_cast<int>(sizeof INITIAL_VALUES / sizeof *INITIAL_VALUES);
 
             // MAIN TEST-TABLE LOOP
 
@@ -1793,7 +1793,7 @@ int main(int argc, char *argv[])
 
                 const int STATUS = DATA[ti].d_status;
 
-                const int TIME   = DATA[ti].d_time;
+                const int TIME   = static_cast<int>(DATA[ti].d_time);
 
                 if (veryVerbose) {
                     cout << "\n--------------------------------------" << endl;
@@ -1968,7 +1968,7 @@ int main(int argc, char *argv[])
                 { L_,       INT_MAX,  2038,  1, 19,  3, 14,  7 },
              };
 
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             // MAIN TEST-TABLE LOOP
 
@@ -2327,7 +2327,7 @@ int main(int argc, char *argv[])
                 { L_,    1,  1,  1, 24,  0,  0,   0,   -62135596800LL },
             };
 
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             // PERTURBATION: Arbitrary initial time values in order to verify
             //               "No Change" to 'result' on FAILURE.
@@ -2338,7 +2338,7 @@ int main(int argc, char *argv[])
             };
 
             const int NUM_INITIAL_VALUES =
-                sizeof INITIAL_VALUES / sizeof *INITIAL_VALUES;
+              static_cast<int>(sizeof INITIAL_VALUES / sizeof *INITIAL_VALUES);
 
             // MAIN TEST-TABLE LOOP
 
@@ -2529,7 +2529,7 @@ int main(int argc, char *argv[])
                 { L_,      LLONG_MAX, FAILURE,0,  0,  0,  0,  0,  0 },
              };
 
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             // MAIN TEST-TABLE LOOP
 
