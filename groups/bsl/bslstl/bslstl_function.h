@@ -155,6 +155,12 @@ struct Function_MemFuncInvoke; // Primary template declared but not defined.
 template <class ALLOC>
 struct Function_AllocTraits;
 
+template <class FUNC>
+class Function_InplaceWrapper;
+
+template <class FUNC>
+class Function_InplaceWrapperUtil;
+
                         // =======================
                         // class bad_function_call
                         // =======================
@@ -257,6 +263,7 @@ public:
         static const std::size_t VALUE =
             sizeof(TP) > sizeof(InplaceBuffer)                ? sizeof(TP) :
             bslmf::IsBitwiseMoveable<TP>::value               ? sizeof(TP) :
+            Function_InplaceWrapperUtil<TP>::IS_WRAPPED       ? sizeof(TP) :
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
             // Check if nothrow move constructible.  The use of '::new' lets
             // us check the constructor without also checking the destructor.
@@ -586,7 +593,7 @@ public:
 
     // ACCESSORS
     const std::type_info& target_type() const BSLS_NOTHROW_SPEC;
-    template<class TP> TP* target() BSLS_NOTHROW_SPEC;
+    template<class TP> TP*       target()       BSLS_NOTHROW_SPEC;
     template<class TP> const TP* target() const BSLS_NOTHROW_SPEC;
     bslma::Allocator *allocator() const;
 };
@@ -719,6 +726,10 @@ class function<RET(ARGS...)> :
         // Return the invoker for an out-of-place functor.
 
     template <class FUNC>
+    static Invoker *getInvoker(const FUNC&);
+        // Return the invoker for the specified 'FUNC' type.
+
+    template <class FUNC>
     static RET functionPtrInvoker(const Function_Rep *rep, 
                                 typename bslmf::ForwardingType<ARGS>::Type...);
 
@@ -832,6 +843,66 @@ template <class RET, class... ARGS>
 void swap(function<RET(ARGS...)>& a, function<RET(ARGS...)>& b);
 
 #endif
+
+template <class FUNC>
+class Function_InplaceWrapper
+{
+    // If a functor can throw on move, 'bsl::function' will always allocate it
+    // out-of-place so that move and swap will always be nothrow operations,
+    // as is required by the standard.  Thus, many small functors will fail to
+    // take advantage of the small-object optimization because they might
+    // throw on move, no matter how unlikely that may be. A function object
+    // wrapped in 'Function_InplaceWrapper', however, will be treated by
+    // 'bsl::function' as though it were a function object with a 'noexcept'
+    // move constructor (even though it does not have the interface of a
+    // function object). This wrapper is especially useful in C++03 mode,
+    // where 'noexcept' does not exist, it that even non-throwing operations
+    // are assumed to throw unless they delcare the bitwise movable trait.
+    // Note that, in the unlikely event that moving the wrapped object does
+    // throw at runtime, the result will likely be a call to 'terminate()'.
+
+    FUNC d_func;
+
+public:
+    typedef FUNC UnwrappedType;
+
+    Function_InplaceWrapper(const FUNC& other) : d_func(other) { }
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    Function_InplaceWrapper(FUNC&& other) : d_func(std::move(other)) { }
+#endif
+
+    FUNC&       unwrap()       { return d_func; }
+    FUNC const& unwrap() const { return d_func; }
+};
+
+template <class FUNC>
+struct Function_InplaceWrapperUtil {
+    // Namesapce for 'Function_InplaceWrapper' traits and uitilities.
+
+    typedef FUNC UnwrappedType;
+
+    enum { IS_WRAPPED = false };
+         // True for specializations of 'Function_InplaceWrapper', else false.
+
+    static FUNC&       unwrap(FUNC&       f) { return f; }
+    static FUNC const& unwrap(FUNC const& f) { return f; }
+};
+    
+template <class FUNC>
+struct Function_InplaceWrapperUtil<Function_InplaceWrapper<FUNC> > {
+    // Namesapce for 'Function_InplaceWrapper' traits and uitilities,
+    // specialized for instantiations of 'Function_InplaceWrapper<FUNC>'.
+
+    typedef FUNC UnwrappedType;
+
+    enum { IS_WRAPPED = true };
+         // True for specializations of 'Function_InplaceWrapper', else false.
+
+    static FUNC&       unwrap(FUNC&       f) { return f.unwrap(); }
+    static FUNC const& unwrap(FUNC const& f) { return f.unwrap(); }
+};
+
 
 }  // close namespace bsl
 
@@ -1121,7 +1192,10 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
       case e_GET_SIZE:     return k_SOO_FUNC_SIZE;
       case e_GET_TARGET:   return wrappedFunc_p;
       case e_GET_TYPE_ID:
-          return const_cast<std::type_info*>(&typeid(FUNC));
+          // If 'FUNC' is a specialization of 'Function_InplaceWrapper',
+          // return type typeid of the wrapped type.
+          typedef typename Function_InplaceWrapperUtil<FUNC>::UnwrappedType Ut;
+          return const_cast<std::type_info*>(&typeid(Ut));
 
       case e_IS_EQUAL:
       case e_INIT_REP: {
@@ -1534,6 +1608,25 @@ bsl::function<RET(ARGS...)>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
     return &outofplaceFunctorInvoker<FUNC>;
 }
 
+template <class RET, class... ARGS>
+template <class FUNC>
+typename bsl::function<RET(ARGS...)>::Invoker *
+bsl::function<RET(ARGS...)>::getInvoker(const FUNC& f)
+{
+    // Unwrap FUNC type if it is a specialization of 'Function_InplaceWrapper'.
+    typedef typename Function_InplaceWrapperUtil<FUNC>::UnwrappedType FuncType;
+
+    // Determine dispatch based on the traits of 'FuncType'.
+    typedef typename bslmf::SelectTrait<FuncType,
+                                       bslmf::IsFunctionPointer,
+                                       bslmf::IsMemberFunctionPointer,
+                                       Soo::IsInplaceFunc>::Type FuncSelection;
+
+    // Dispatch to the correct variant of 'getInvoker'
+    return getInvoker(Function_InplaceWrapperUtil<FUNC>::unwrap(f),
+                      FuncSelection());
+}
+
 // CREATORS
 template <class RET, class... ARGS>
 bsl::function<RET(ARGS...)>::function() BSLS_NOTHROW_SPEC
@@ -1563,12 +1656,7 @@ template <class RET, class... ARGS>
 template<class FUNC>
 bsl::function<RET(ARGS...)>::function(FUNC func)
 {
-    typedef typename bslmf::SelectTrait<FUNC,
-                                       bslmf::IsFunctionPointer,
-                                       bslmf::IsMemberFunctionPointer,
-                                       Soo::IsInplaceFunc>::Type FuncSelection;
-
-    d_invoker_p = getInvoker(func, FuncSelection());
+    d_invoker_p = getInvoker(func);
 
     std::size_t sooFuncSize = d_invoker_p ? Soo::SooFuncSize<FUNC>::VALUE : 0;
 
@@ -1620,12 +1708,8 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t,
                                       FUNC         func)
 {
     typedef Function_AllocTraits<ALLOC> AllocTraits;
-    typedef typename bslmf::SelectTrait<FUNC,
-                                       bslmf::IsFunctionPointer,
-                                       bslmf::IsMemberFunctionPointer,
-                                       Soo::IsInplaceFunc>::Type FuncSelection;
 
-    d_invoker_p = getInvoker(func, FuncSelection());
+    d_invoker_p = getInvoker(func);
 
     std::size_t sooFuncSize = d_invoker_p ? Soo::SooFuncSize<FUNC>::VALUE : 0;
     initRep(sooFuncSize, typename AllocTraits::Type(alloc),
@@ -1741,13 +1825,7 @@ bsl::function<RET(ARGS...)>::operator=(FUNC&& func)
             typename bsl::remove_reference<FUNC>::type
         >::type FuncType;
 
-    // Select the invoker and manager for 'tempRep'
-    typedef typename bslmf::SelectTrait<FuncType,
-                                       bslmf::IsFunctionPointer,
-                                       bslmf::IsMemberFunctionPointer,
-                                       Soo::IsInplaceFunc>::Type FuncSelection;
-
-    Invoker *invoker_p = getInvoker(func, FuncSelection());
+    Invoker *invoker_p = getInvoker(func);
     tempRep.d_funcManager_p = invoker_p ? &functionManager<FuncType> : NULL;
 
     // Initialize tempRep using allocator from 'this'
