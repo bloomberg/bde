@@ -156,10 +156,10 @@ template <class ALLOC>
 struct Function_AllocTraits;
 
 template <class FUNC>
-class Function_InplaceWrapper;
+class Function_NothrowWrapper;
 
 template <class FUNC>
-class Function_InplaceWrapperUtil;
+class Function_NothrowWrapperUtil;
 
                         // =======================
                         // class bad_function_call
@@ -263,7 +263,7 @@ public:
         static const std::size_t VALUE =
             sizeof(TP) > sizeof(InplaceBuffer)                ? sizeof(TP) :
             bslmf::IsBitwiseMoveable<TP>::value               ? sizeof(TP) :
-            Function_InplaceWrapperUtil<TP>::IS_WRAPPED       ? sizeof(TP) :
+            Function_NothrowWrapperUtil<TP>::IS_WRAPPED       ? sizeof(TP) :
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
             // Check if nothrow move constructible.  The use of '::new' lets
             // us check the constructor without also checking the destructor.
@@ -845,31 +845,37 @@ void swap(function<RET(ARGS...)>& a, function<RET(ARGS...)>& b);
 #endif
 
 template <class FUNC>
-class Function_InplaceWrapper
+class Function_NothrowWrapper
 {
     // If a functor can throw on move, 'bsl::function' will always allocate it
     // out-of-place so that move and swap will always be nothrow operations,
     // as is required by the standard.  Thus, many small functors will fail to
     // take advantage of the small-object optimization because they might
     // throw on move, no matter how unlikely that may be. A function object
-    // wrapped in 'Function_InplaceWrapper', however, will be treated by
+    // wrapped in 'Function_NothrowWrapper', however, will be treated by
     // 'bsl::function' as though it were a function object with a 'noexcept'
     // move constructor (even though it does not have the interface of a
     // function object). This wrapper is especially useful in C++03 mode,
     // where 'noexcept' does not exist, it that even non-throwing operations
     // are assumed to throw unless they delcare the bitwise movable trait.
-    // Note that, in the unlikely event that moving the wrapped object does
+    // Note that, in the unlikely event that moving the wrapped object *does*
     // throw at runtime, the result will likely be a call to 'terminate()'.
 
     FUNC d_func;
 
+    // Not copiable.
+    // The object contained within this wrapper is manipulated directly.
+    // The wrapper itself is never moved, copied, or invoked.
+    Function_NothrowWrapper(const Function_NothrowWrapper&) /* = delete */;
+    Function_NothrowWrapper& operator=(const Function_NothrowWrapper&);
+
 public:
     typedef FUNC UnwrappedType;
 
-    Function_InplaceWrapper(const FUNC& other) : d_func(other) { }
+    Function_NothrowWrapper(const FUNC& other) : d_func(other) { }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-    Function_InplaceWrapper(FUNC&& other) : d_func(std::move(other)) { }
+    Function_NothrowWrapper(FUNC&& other) : d_func(std::move(other)) { }
 #endif
 
     FUNC&       unwrap()       { return d_func; }
@@ -877,27 +883,27 @@ public:
 };
 
 template <class FUNC>
-struct Function_InplaceWrapperUtil {
-    // Namesapce for 'Function_InplaceWrapper' traits and uitilities.
+struct Function_NothrowWrapperUtil {
+    // Namesapce for 'Function_NothrowWrapper' traits and uitilities.
 
     typedef FUNC UnwrappedType;
 
     enum { IS_WRAPPED = false };
-         // True for specializations of 'Function_InplaceWrapper', else false.
+         // True for specializations of 'Function_NothrowWrapper', else false.
 
     static FUNC&       unwrap(FUNC&       f) { return f; }
     static FUNC const& unwrap(FUNC const& f) { return f; }
 };
     
 template <class FUNC>
-struct Function_InplaceWrapperUtil<Function_InplaceWrapper<FUNC> > {
-    // Namesapce for 'Function_InplaceWrapper' traits and uitilities,
-    // specialized for instantiations of 'Function_InplaceWrapper<FUNC>'.
+struct Function_NothrowWrapperUtil<Function_NothrowWrapper<FUNC> > {
+    // Namesapce for 'Function_NothrowWrapper' traits and uitilities,
+    // specialized for instantiations of 'Function_NothrowWrapper<FUNC>'.
 
     typedef FUNC UnwrappedType;
 
     enum { IS_WRAPPED = true };
-         // True for specializations of 'Function_InplaceWrapper', else false.
+         // True for specializations of 'Function_NothrowWrapper', else false.
 
     static FUNC&       unwrap(FUNC&       f) { return f.unwrap(); }
     static FUNC const& unwrap(FUNC const& f) { return f.unwrap(); }
@@ -1192,9 +1198,9 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
       case e_GET_SIZE:     return k_SOO_FUNC_SIZE;
       case e_GET_TARGET:   return wrappedFunc_p;
       case e_GET_TYPE_ID:
-          // If 'FUNC' is a specialization of 'Function_InplaceWrapper',
+          // If 'FUNC' is a specialization of 'Function_NothrowWrapper',
           // return type typeid of the wrapped type.
-          typedef typename Function_InplaceWrapperUtil<FUNC>::UnwrappedType Ut;
+          typedef typename Function_NothrowWrapperUtil<FUNC>::UnwrappedType Ut;
           return const_cast<std::type_info*>(&typeid(Ut));
 
       case e_IS_EQUAL:
@@ -1613,8 +1619,8 @@ template <class FUNC>
 typename bsl::function<RET(ARGS...)>::Invoker *
 bsl::function<RET(ARGS...)>::getInvoker(const FUNC& f)
 {
-    // Unwrap FUNC type if it is a specialization of 'Function_InplaceWrapper'.
-    typedef typename Function_InplaceWrapperUtil<FUNC>::UnwrappedType FuncType;
+    // Unwrap FUNC type if it is a specialization of 'Function_NothrowWrapper'.
+    typedef typename Function_NothrowWrapperUtil<FUNC>::UnwrappedType FuncType;
 
     // Determine dispatch based on the traits of 'FuncType'.
     typedef typename bslmf::SelectTrait<FuncType,
@@ -1623,7 +1629,7 @@ bsl::function<RET(ARGS...)>::getInvoker(const FUNC& f)
                                        Soo::IsInplaceFunc>::Type FuncSelection;
 
     // Dispatch to the correct variant of 'getInvoker'
-    return getInvoker(Function_InplaceWrapperUtil<FUNC>::unwrap(f),
+    return getInvoker(Function_NothrowWrapperUtil<FUNC>::unwrap(f),
                       FuncSelection());
 }
 
