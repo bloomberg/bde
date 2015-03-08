@@ -2908,7 +2908,7 @@ int main(int argc, char *argv[])
         //:   moved-from state.
         //: 4 After the assignment, the allocator of the lhs is unchanged.
         //: 5 If assignment is from a functor that takes an allocator, the
-        //:   copy of that functor in the lhs use the same allocator.
+        //:   copy of that functor in the lhs uses the same allocator.
         //: 6 The change in memory allocation is the same as if the lhs were
         //:   destroyed then re-constructed with its original allocator and
         //:   with the specified functor.
@@ -5069,6 +5069,10 @@ int main(int argc, char *argv[])
         //:  8 For a non-empty 'function', the 'target' accessor returns a
         //:    cv-qualified pointer to a copy of the invocable specified at
         //:    construction.
+        //:  9 If constructed with an invocable that wrapped in in a
+        //:    'Function_NothrowWrapper', the invocableis always treated as
+        //:    though it had a nothrow move constructor in concern 5.  Concern
+        //:    7 and 8 apply as if the invocable were not wrapped.
         //
         // Plan:
         //:  1 For concern 1, construct 'function' objects using a null
@@ -5099,7 +5103,13 @@ int main(int argc, char *argv[])
         //:    objects, the return value of 'target' is a non-null pointer
         //:    pointing to a copy of the invocable used to construct the
         //:    'function' object.
-        //:  7 Note that the semantics and implementation of the operations
+        //:  7 For concern 9, wrap each invocable in a
+        //:    'Function_NothrowWrapper' and repeat step 4, verifying that the
+        //:    small object optimization applies for any invocable that is
+        //:    small enough to fit into the small object buffer.  Repeat steps
+        //:    5 and 6, verifying that the behavior is the same as if the
+        //:    wrapper were not used.
+        //:  8 Note that the semantics and implementation of the operations
         //:    being tested here are independent of the function prototype.
         //:    It is therefore not necessary to repeat these tests with
         //:    different prototypes. (Different prototypes are tested in the
@@ -5112,6 +5122,7 @@ int main(int argc, char *argv[])
         //      const typeinfo& target_type() const; // For non-empty objects
         //      T      * target<T>();                // For non-empty objects
         //      T const* target<T>() const;          // For non-empty objects
+        //      class Function_NothrowWrapper<FUNC>
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nCONSTRUCTOR function(FUNC)"
@@ -5316,6 +5327,8 @@ int main(int argc, char *argv[])
         //:  4 No memory is allocated by the constructors.
         //:  5 'target_type' returns 'typeid(void)' for empty function objects.
         //:  6 'target' returns a null pointer for empty function objects.
+        //:  7 Wrapping a null pointer in 'Function_NothrowWrapper' yields
+        //:    empty 'function' objects; all of the above concerns apply.
         //
         // Plan:
         //:  1 For concerns 1 and 2, construct 'function' objects using each
@@ -5335,7 +5348,9 @@ int main(int argc, char *argv[])
         //:    that the 'target' accessor returns a null pointer (a
         //:    null-pointer to a const object, in the case of a const
         //:    'function').
-        //:  6 Note that the semantics and implementation of the operations
+        //:  6 For concern 7, repeat all of the above steps, wrapping null
+        //:    pointers in 'Function_NothrowWrapper'.
+        //:  7 Note that the semantics and implementation of the operations
         //:    being tested here are independent of the function prototype.
         //:    It is therefore not necessary to repeat these tests with
         //:    different prototypes. (Different prototypes are tested in the
@@ -5387,6 +5402,37 @@ int main(int argc, char *argv[])
         }
         ASSERT(globalAllocMonitor.isInUseSame());
 
+        if (veryVerbose) printf("Construct with null funcptr argument\n");
+        globalAllocMonitor.reset();
+        {
+            int (*const np)(IntWrapper, int) = NULL;
+            Obj f(np); const Obj& F = f;
+            ASSERT(! F);
+            ASSERT(globalAllocMonitor.isTotalSame());
+            ASSERT(typeid(void) == F.target_type());
+            ASSERT(NULL == F.target<nullptr_t>());
+            ASSERT(NULL == f.target<nullptr_t>());
+            ASSERT(&globalTestAllocator == f.allocator());
+        }
+        ASSERT(globalAllocMonitor.isInUseSame());
+
+        if (veryVerbose)
+            printf("Construct with wrapped null funcptr argument\n");
+        globalAllocMonitor.reset();
+        {
+            int (*const np)(IntWrapper, int) = NULL;
+            bsl::Function_NothrowWrapper<int(*)(IntWrapper, int)> npw(np);
+            Obj f(npw);
+            const Obj& F = f;
+            ASSERT(! F);
+            ASSERT(globalAllocMonitor.isTotalSame());
+            ASSERT(typeid(void) == F.target_type());
+            ASSERT(NULL == F.target<nullptr_t>());
+            ASSERT(NULL == f.target<nullptr_t>());
+            ASSERT(&globalTestAllocator == f.allocator());
+        }
+        ASSERT(globalAllocMonitor.isInUseSame());
+
       } break;
 
       case 1: {
@@ -5395,7 +5441,10 @@ int main(int argc, char *argv[])
         //
         // Concerns: The basic functionality of this component works
         //
-        // Plan: Exercise the basic functionality of this component.
+        // Plan:
+        //   Construct 'function' objects wrapping a small variety of
+        //   functors.  Verify expected emptyness.  Invoke non-empty functors
+        //   and verify expected results.
 	//
         // Testing:
         //   BREATHING TEST

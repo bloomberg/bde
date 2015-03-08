@@ -86,6 +86,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_CONDITIONAL
+#include <bslmf_conditional.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISPOINTER
 #include <bslmf_ispointer.h>
 #endif
@@ -156,10 +160,7 @@ template <class ALLOC>
 struct Function_AllocTraits;
 
 template <class FUNC>
-class Function_NothrowWrapper;
-
-template <class FUNC>
-class Function_NothrowWrapperUtil;
+struct Function_NothrowWrapperUtil;
 
                         // =======================
                         // class bad_function_call
@@ -180,6 +181,47 @@ public:
 };
 
 #endif // BDE_BUILD_TARGET_EXC
+
+                        // ======================================
+                        // class template Function_NothrowWrapper
+                        // ======================================
+
+template <class FUNC>
+class Function_NothrowWrapper
+{
+    // If a functor can throw on move, 'bsl::function' will always allocate it
+    // out-of-place so that move and swap will always be nothrow operations,
+    // as is required by the standard.  Thus, many small functors will fail to
+    // take advantage of the small-object optimization because they might
+    // throw on move, no matter how unlikely that may be. A function object
+    // wrapped in 'Function_NothrowWrapper', however, will be treated by
+    // 'bsl::function' as though it were a function object with a 'noexcept'
+    // move constructor (even though it does not have the interface of a
+    // function object). This wrapper is especially useful in C++03 mode,
+    // where 'noexcept' does not exist, it that even non-throwing operations
+    // are assumed to throw unless they delcare the bitwise movable trait.
+    // Note that, in the unlikely event that moving the wrapped object *does*
+    // throw at runtime, the result will likely be a call to 'terminate()'.
+
+    FUNC d_func;
+
+public:
+    typedef FUNC UnwrappedType;
+
+    Function_NothrowWrapper(const FUNC& other) : d_func(other) { }
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    Function_NothrowWrapper(FUNC&& other) : d_func(std::move(other)) { }
+#endif
+
+    //! Function_NothrowWrapper(const Function_NothrowWrapper&) = default;
+    //! Function_NothrowWrapper& operator=(const Function_NothrowWrapper&)
+    //!    = default;
+    //! ~Function_NothrowWrapper() = default;
+
+    FUNC&       unwrap()       { return d_func; }
+    FUNC const& unwrap() const { return d_func; }
+};
 
                         // ======================================
                         // class Function_SmallObjectOptimization
@@ -271,7 +313,7 @@ public:
             // destructors are not implicitly noexcept in those compilers.
             noexcept(::new((void*) 0) TP(std::declval<TP>())) ? sizeof(TP) :
 #endif
-            // If not nonthrow or bitwise moveable, then ad add
+            // If not nonthrow or bitwise moveable, then add
             // 'k_NON_SOO_SMALL_SIZE' to the size indicate that we should not
             // use the small object optimization for this type.
             sizeof(TP) + k_NON_SOO_SMALL_SIZE;
@@ -842,80 +884,13 @@ bool operator!=(nullptr_t, const function<RET(ARGS...)>&) BSLS_NOTHROW_SPEC;
 template <class RET, class... ARGS>
 void swap(function<RET(ARGS...)>& a, function<RET(ARGS...)>& b);
 
+} // close namespace bsl
+
 #endif
-
-template <class FUNC>
-class Function_NothrowWrapper
-{
-    // If a functor can throw on move, 'bsl::function' will always allocate it
-    // out-of-place so that move and swap will always be nothrow operations,
-    // as is required by the standard.  Thus, many small functors will fail to
-    // take advantage of the small-object optimization because they might
-    // throw on move, no matter how unlikely that may be. A function object
-    // wrapped in 'Function_NothrowWrapper', however, will be treated by
-    // 'bsl::function' as though it were a function object with a 'noexcept'
-    // move constructor (even though it does not have the interface of a
-    // function object). This wrapper is especially useful in C++03 mode,
-    // where 'noexcept' does not exist, it that even non-throwing operations
-    // are assumed to throw unless they delcare the bitwise movable trait.
-    // Note that, in the unlikely event that moving the wrapped object *does*
-    // throw at runtime, the result will likely be a call to 'terminate()'.
-
-    FUNC d_func;
-
-    // Not copiable.
-    // The object contained within this wrapper is manipulated directly.
-    // The wrapper itself is never moved, copied, or invoked.
-    Function_NothrowWrapper(const Function_NothrowWrapper&) /* = delete */;
-    Function_NothrowWrapper& operator=(const Function_NothrowWrapper&);
-
-public:
-    typedef FUNC UnwrappedType;
-
-    Function_NothrowWrapper(const FUNC& other) : d_func(other) { }
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-    Function_NothrowWrapper(FUNC&& other) : d_func(std::move(other)) { }
-#endif
-
-    FUNC&       unwrap()       { return d_func; }
-    FUNC const& unwrap() const { return d_func; }
-};
-
-template <class FUNC>
-struct Function_NothrowWrapperUtil {
-    // Namesapce for 'Function_NothrowWrapper' traits and uitilities.
-
-    typedef FUNC UnwrappedType;
-
-    enum { IS_WRAPPED = false };
-         // True for specializations of 'Function_NothrowWrapper', else false.
-
-    static FUNC&       unwrap(FUNC&       f) { return f; }
-    static FUNC const& unwrap(FUNC const& f) { return f; }
-};
-    
-template <class FUNC>
-struct Function_NothrowWrapperUtil<Function_NothrowWrapper<FUNC> > {
-    // Namesapce for 'Function_NothrowWrapper' traits and uitilities,
-    // specialized for instantiations of 'Function_NothrowWrapper<FUNC>'.
-
-    typedef FUNC UnwrappedType;
-
-    enum { IS_WRAPPED = true };
-         // True for specializations of 'Function_NothrowWrapper', else false.
-
-    static FUNC&       unwrap(FUNC&       f) { return f.unwrap(); }
-    static FUNC const& unwrap(FUNC const& f) { return f.unwrap(); }
-};
-
-
-}  // close namespace bsl
 
 // ===========================================================================
 //                TEMPLATE AND INLINE FUNCTION IMPLEMENTATIONS
 // ===========================================================================
-
 
                         // -----------------------
                         // class bad_function_call
@@ -932,6 +907,38 @@ bsl::bad_function_call::bad_function_call() BSLS_NOTHROW_SPEC
 #endif
 
 namespace bsl {
+
+                        // -------------------------------------------
+                        // struct template Function_NothrowWrapperUtil
+                        // -------------------------------------------
+
+template <class FUNC>
+struct Function_NothrowWrapperUtil {
+    // Namesapce for 'Function_NothrowWrapper' traits and uitilities.
+
+    typedef FUNC UnwrappedType;
+
+    enum { IS_WRAPPED = false };
+         // True for specializations of 'Function_NothrowWrapper', else false.
+
+    static FUNC&       unwrap(FUNC&       f) { return f; }
+    static FUNC const& unwrap(FUNC const& f) { return f; }
+};
+    
+template <class FUNC>
+struct  Function_NothrowWrapperUtil<Function_NothrowWrapper<FUNC> > {
+    // Namesapce for 'Function_NothrowWrapper' traits and uitilities,
+    // specialized for instantiations of 'Function_NothrowWrapper<FUNC>'.
+
+    typedef Function_NothrowWrapper<FUNC> WrappedType;
+    typedef FUNC                          UnwrappedType;
+
+    enum { IS_WRAPPED = true };
+         // True for specializations of 'Function_NothrowWrapper', else false.
+
+    static FUNC&       unwrap(WrappedType&       f) { return f.unwrap(); }
+    static FUNC const& unwrap(WrappedType const& f) { return f.unwrap(); }
+};
 
 class Function_PairBufDesc {
     // Descriptor for a maximally-aligned memory buffer that can hold two
@@ -1619,14 +1626,31 @@ template <class FUNC>
 typename bsl::function<RET(ARGS...)>::Invoker *
 bsl::function<RET(ARGS...)>::getInvoker(const FUNC& f)
 {
+    typedef Function_SmallObjectOptimization Soo;
+
     // Unwrap FUNC type if it is a specialization of 'Function_NothrowWrapper'.
-    typedef typename Function_NothrowWrapperUtil<FUNC>::UnwrappedType FuncType;
+    typedef typename
+        Function_NothrowWrapperUtil<FUNC>::UnwrappedType UwFuncType;
 
     // Determine dispatch based on the traits of 'FuncType'.
-    typedef typename bslmf::SelectTrait<FuncType,
-                                       bslmf::IsFunctionPointer,
-                                       bslmf::IsMemberFunctionPointer,
-                                       Soo::IsInplaceFunc>::Type FuncSelection;
+    typedef typename
+        bslmf::SelectTrait<UwFuncType,
+                           bslmf::IsFunctionPointer,
+                           bslmf::IsMemberFunctionPointer,
+                           Soo::IsInplaceFunc>::Type UwFuncSelection;
+
+    const std::size_t kSOOSIZE           = Soo::SooFuncSize<FUNC>::VALUE;
+    const std::size_t kUNWRAPPED_SOOSIZE = Soo::SooFuncSize<UwFuncType>::VALUE;
+
+    // The only reason that the original and unwrappwed 'FUNC' would result in
+    // different 'SooFuncSize' is if 'FUNC' is wrapping a small object that
+    // would otherwise have a throwing move.  In that case, we force the
+    // dispatch to choose 'Soo::IsInplaceFunc', otherwise we dispatch on the
+    // selection traits of the original 'FUNC' type.
+    typedef typename
+        bsl::conditional<kSOOSIZE != kUNWRAPPED_SOOSIZE,
+                         bslmf::SelectTraitCase<Soo::IsInplaceFunc>,
+                         UwFuncSelection>::type FuncSelection;
 
     // Dispatch to the correct variant of 'getInvoker'
     return getInvoker(Function_NothrowWrapperUtil<FUNC>::unwrap(f),
