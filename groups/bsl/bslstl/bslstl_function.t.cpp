@@ -5144,6 +5144,15 @@ int main(int argc, char *argv[])
             ASSERT(NULL == F.target<SimpleFuncPtr_t>());
             ASSERT(NULL == f.target<SimpleFuncPtr_t>());
             ASSERT(&globalTestAllocator == f.allocator());
+
+            typedef bsl::Function_NothrowWrapper<SimpleFuncPtr_t> NtWrapper;
+            Obj fw(static_cast<NtWrapper>(nullFuncPtr)); const Obj& FW = fw;
+            ASSERT(! FW);
+            ASSERT(globalAllocMonitor.isTotalSame());
+            ASSERT(typeid(void) == FW.target_type());
+            ASSERT(NULL == FW.target<SimpleFuncPtr_t>());
+            ASSERT(NULL == fw.target<SimpleFuncPtr_t>());
+            ASSERT(&globalTestAllocator == fw.allocator());
         }
         ASSERT(globalAllocMonitor.isInUseSame());
 
@@ -5160,6 +5169,15 @@ int main(int argc, char *argv[])
             ASSERT(NULL == F.target<SimpleMemFuncPtr_t>());
             ASSERT(NULL == f.target<SimpleMemFuncPtr_t>());
             ASSERT(&globalTestAllocator == f.allocator());
+
+            typedef bsl::Function_NothrowWrapper<SimpleMemFuncPtr_t> NtWrapper;
+            Obj fw(static_cast<NtWrapper>(nullMemFuncPtr)); const Obj& FW = fw;
+            ASSERT(! FW);
+            ASSERT(globalAllocMonitor.isTotalSame());
+            ASSERT(typeid(void) == FW.target_type());
+            ASSERT(NULL == FW.target<SimpleMemFuncPtr_t>());
+            ASSERT(NULL == fw.target<SimpleMemFuncPtr_t>());
+            ASSERT(&globalTestAllocator == fw.allocator());
         }
         ASSERT(globalAllocMonitor.isInUseSame());
 
@@ -5175,13 +5193,26 @@ int main(int argc, char *argv[])
             ASSERT(f.target<SimpleFuncPtr_t>() &&
                    &simpleFunc == *f.target<SimpleFuncPtr_t>());
             ASSERT(&globalTestAllocator == f.allocator());
+
+            typedef bsl::Function_NothrowWrapper<SimpleFuncPtr_t> NtWrapper;
+            Obj fw(static_cast<NtWrapper>(simpleFunc));
+            const Obj& FW = fw;
+            ASSERT(FW);
+            ASSERT(globalAllocMonitor.isTotalSame());
+            ASSERT(typeid(SimpleFuncPtr_t) == FW.target_type());
+            ASSERT(FW.target<SimpleFuncPtr_t>() &&
+                   &simpleFunc == *FW.target<SimpleFuncPtr_t>());
+            ASSERT(fw.target<SimpleFuncPtr_t>() &&
+                   &simpleFunc == *fw.target<SimpleFuncPtr_t>());
+            ASSERT(&globalTestAllocator == fw.allocator());
         }
         ASSERT(globalAllocMonitor.isInUseSame());
 
         if (veryVerbose) printf("Construct with pointer to member function\n");
         globalAllocMonitor.reset();
         {
-            Obj f(&IntWrapper::add1); const Obj& F = f;
+            Obj f(bsl::Function_NothrowWrapper<SimpleMemFuncPtr_t>(
+                      &IntWrapper::add1)); const Obj& F = f;
             ASSERT(F);
             ASSERT(globalAllocMonitor.isTotalSame());
             ASSERT(typeid(SimpleMemFuncPtr_t) == F.target_type());
@@ -5190,6 +5221,18 @@ int main(int argc, char *argv[])
             ASSERT(f.target<SimpleMemFuncPtr_t>() &&
                    &IntWrapper::add1 == *f.target<SimpleMemFuncPtr_t>());
             ASSERT(&globalTestAllocator == f.allocator());
+
+            typedef bsl::Function_NothrowWrapper<SimpleMemFuncPtr_t> NtWrapper;
+            Obj fw(static_cast<NtWrapper>(&IntWrapper::add1));
+            const Obj& FW = fw;
+            ASSERT(FW);
+            ASSERT(globalAllocMonitor.isTotalSame());
+            ASSERT(typeid(SimpleMemFuncPtr_t) == FW.target_type());
+            ASSERT(FW.target<SimpleMemFuncPtr_t>() &&
+                   &IntWrapper::add1 == *FW.target<SimpleMemFuncPtr_t>());
+            ASSERT(fw.target<SimpleMemFuncPtr_t>() &&
+                   &IntWrapper::add1 == *fw.target<SimpleMemFuncPtr_t>());
+            ASSERT(&globalTestAllocator == fw.allocator());
         }
         ASSERT(globalAllocMonitor.isInUseSame());
 
@@ -5206,6 +5249,17 @@ int main(int argc, char *argv[])
             ASSERT(f.target<EmptyFunctor>() &&
                    ftor == *f.target<EmptyFunctor>());
             ASSERT(&globalTestAllocator == f.allocator());
+
+            typedef bsl::Function_NothrowWrapper<EmptyFunctor> NtWrapper;
+            Obj fw(static_cast<NtWrapper>(ftor)); const Obj& FW = fw;
+            ASSERT(FW);
+            ASSERT(globalAllocMonitor.isTotalSame());
+            ASSERT(typeid(EmptyFunctor) == FW.target_type());
+            ASSERT(FW.target<EmptyFunctor>() &&
+                   ftor == *FW.target<EmptyFunctor>());
+            ASSERT(fw.target<EmptyFunctor>() &&
+                   ftor == *fw.target<EmptyFunctor>());
+            ASSERT(&globalTestAllocator == fw.allocator());
         }
         ASSERT(globalAllocMonitor.isInUseSame());
 
@@ -5222,6 +5276,17 @@ int main(int argc, char *argv[])
             ASSERT(f.target<SmallFunctor>() &&
                    ftor == *f.target<SmallFunctor>());
             ASSERT(&globalTestAllocator == f.allocator());
+
+            typedef bsl::Function_NothrowWrapper<SmallFunctor> NtWrapper;
+            Obj fw(static_cast<NtWrapper>(ftor)); const Obj& FW = fw;
+            ASSERT(FW);
+            ASSERT(globalAllocMonitor.isTotalSame());
+            ASSERT(typeid(SmallFunctor) == FW.target_type());
+            ASSERT(FW.target<SmallFunctor>() &&
+                   ftor == *FW.target<SmallFunctor>());
+            ASSERT(fw.target<SmallFunctor>() &&
+                   ftor == *fw.target<SmallFunctor>());
+            ASSERT(&globalTestAllocator == fw.allocator());
         }
         ASSERT(globalAllocMonitor.isInUseSame());
 
@@ -5255,6 +5320,17 @@ int main(int argc, char *argv[])
             ASSERT(f.target<LargeFunctor>() &&
                    ftor == *f.target<LargeFunctor>());
             ASSERT(&globalTestAllocator == f.allocator());
+
+            typedef bsl::Function_NothrowWrapper<LargeFunctor> NtWrapper;
+            Obj fw(static_cast<NtWrapper>(ftor)); const Obj& FW = fw;
+            ASSERT(FW);
+            ASSERT(preBlocks + 2 == globalTestAllocator.numBlocksInUse());
+            ASSERT(typeid(LargeFunctor) == FW.target_type());
+            ASSERT(FW.target<LargeFunctor>() &&
+                   ftor == *FW.target<LargeFunctor>());
+            ASSERT(fw.target<LargeFunctor>() &&
+                   ftor == *fw.target<LargeFunctor>());
+            ASSERT(&globalTestAllocator == fw.allocator());
         }
         ASSERT(globalAllocMonitor.isInUseSame());
 
@@ -5272,6 +5348,17 @@ int main(int argc, char *argv[])
             ASSERT(f.target<NTSmallFunctor>() &&
                    ftor == *f.target<NTSmallFunctor>());
             ASSERT(&globalTestAllocator == f.allocator());
+
+            typedef bsl::Function_NothrowWrapper<NTSmallFunctor> NtWrapper;
+            Obj fw(static_cast<NtWrapper>(ftor)); const Obj& FW = fw;
+            ASSERT(FW);
+            ASSERT(globalAllocMonitor.isTotalSame());
+            ASSERT(typeid(NTSmallFunctor) == FW.target_type());
+            ASSERT(FW.target<NTSmallFunctor>() &&
+                   ftor == *FW.target<NTSmallFunctor>());
+            ASSERT(fw.target<NTSmallFunctor>() &&
+                   ftor == *fw.target<NTSmallFunctor>());
+            ASSERT(&globalTestAllocator == fw.allocator());
         }
         ASSERT(globalAllocMonitor.isInUseSame());
 
@@ -5293,6 +5380,27 @@ int main(int argc, char *argv[])
         }
         ASSERT(globalAllocMonitor.isInUseSame());
 
+        if (veryVerbose)
+            printf("Construct with wrapped throwing-move functor\n");
+        globalAllocMonitor.reset();
+        {
+            // This functor is NOT eligible for the small-object optimization
+            // but, when wrapped, it IS eligible.
+            ThrowingSmallFunctor ftor(21);
+            typedef
+                bsl::Function_NothrowWrapper<ThrowingSmallFunctor> NtWrapper;
+            Obj fw(static_cast<NtWrapper>(ftor)); const Obj& FW = fw;
+            ASSERT(FW);
+            ASSERT(globalAllocMonitor.isTotalSame());
+            ASSERT(typeid(ThrowingSmallFunctor) == FW.target_type());
+            ASSERT(FW.target<ThrowingSmallFunctor>() &&
+                   ftor == *FW.target<ThrowingSmallFunctor>());
+            ASSERT(fw.target<ThrowingSmallFunctor>() &&
+                   ftor == *fw.target<ThrowingSmallFunctor>());
+            ASSERT(&globalTestAllocator == fw.allocator());
+        }
+        ASSERT(globalAllocMonitor.isInUseSame());
+
         if (veryVerbose) printf("Construct with throwing empty functor\n");
         globalAllocMonitor.reset();
         {
@@ -5308,6 +5416,19 @@ int main(int argc, char *argv[])
             ASSERT(f.target<ThrowingEmptyFunctor>() &&
                    ftor == *f.target<ThrowingEmptyFunctor>());
             ASSERT(&globalTestAllocator == f.allocator());
+
+            typedef
+                bsl::Function_NothrowWrapper<ThrowingEmptyFunctor> NtWrapper;
+            Obj fw(static_cast<NtWrapper>(ftor)); const Obj& FW = fw;
+            ASSERT(FW);
+            // No ADDITIONAL memory is allocated
+            ASSERT(preBlocks + 1 == globalTestAllocator.numBlocksInUse());
+            ASSERT(typeid(ThrowingEmptyFunctor) == FW.target_type());
+            ASSERT(FW.target<ThrowingEmptyFunctor>() &&
+                   ftor == *FW.target<ThrowingEmptyFunctor>());
+            ASSERT(fw.target<ThrowingEmptyFunctor>() &&
+                   ftor == *fw.target<ThrowingEmptyFunctor>());
+            ASSERT(&globalTestAllocator == fw.allocator());
         }
         ASSERT(globalAllocMonitor.isInUseSame());
 
@@ -5318,17 +5439,14 @@ int main(int argc, char *argv[])
         // PRIMARY MANIPULATORS
         //
         // Concerns:
-        //:  1 Default construction, construction using a nullptr_t(), and
-        //:    construction using a null pointer each create an empty
-        //:    'function' object.
+        //:  1 Default construction and construction using a nullptr_t()
+        //:    each create an empty 'function' object.
         //:  2 'operator bool' returns false for empty function objects.
         //:  3 'bslma::Default::defaultAllocator()' is stored as the
         //:    allocator.
         //:  4 No memory is allocated by the constructors.
         //:  5 'target_type' returns 'typeid(void)' for empty function objects.
         //:  6 'target' returns a null pointer for empty function objects.
-        //:  7 Wrapping a null pointer in 'Function_NothrowWrapper' yields
-        //:    empty 'function' objects; all of the above concerns apply.
         //
         // Plan:
         //:  1 For concerns 1 and 2, construct 'function' objects using each
@@ -5348,9 +5466,7 @@ int main(int argc, char *argv[])
         //:    that the 'target' accessor returns a null pointer (a
         //:    null-pointer to a const object, in the case of a const
         //:    'function').
-        //:  6 For concern 7, repeat all of the above steps, wrapping null
-        //:    pointers in 'Function_NothrowWrapper'.
-        //:  7 Note that the semantics and implementation of the operations
+        //:  6 Note that the semantics and implementation of the operations
         //:    being tested here are independent of the function prototype.
         //:    It is therefore not necessary to repeat these tests with
         //:    different prototypes. (Different prototypes are tested in the
@@ -5393,37 +5509,6 @@ int main(int argc, char *argv[])
         {
             const nullptr_t np = nullptr_t();
             Obj f(np); const Obj& F = f;
-            ASSERT(! F);
-            ASSERT(globalAllocMonitor.isTotalSame());
-            ASSERT(typeid(void) == F.target_type());
-            ASSERT(NULL == F.target<nullptr_t>());
-            ASSERT(NULL == f.target<nullptr_t>());
-            ASSERT(&globalTestAllocator == f.allocator());
-        }
-        ASSERT(globalAllocMonitor.isInUseSame());
-
-        if (veryVerbose) printf("Construct with null funcptr argument\n");
-        globalAllocMonitor.reset();
-        {
-            int (*const np)(IntWrapper, int) = NULL;
-            Obj f(np); const Obj& F = f;
-            ASSERT(! F);
-            ASSERT(globalAllocMonitor.isTotalSame());
-            ASSERT(typeid(void) == F.target_type());
-            ASSERT(NULL == F.target<nullptr_t>());
-            ASSERT(NULL == f.target<nullptr_t>());
-            ASSERT(&globalTestAllocator == f.allocator());
-        }
-        ASSERT(globalAllocMonitor.isInUseSame());
-
-        if (veryVerbose)
-            printf("Construct with wrapped null funcptr argument\n");
-        globalAllocMonitor.reset();
-        {
-            int (*const np)(IntWrapper, int) = NULL;
-            bsl::Function_NothrowWrapper<int(*)(IntWrapper, int)> npw(np);
-            Obj f(npw);
-            const Obj& F = f;
             ASSERT(! F);
             ASSERT(globalAllocMonitor.isTotalSame());
             ASSERT(typeid(void) == F.target_type());
