@@ -160,6 +160,9 @@ template <class ALLOC>
 struct Function_AllocTraits;
 
 template <class FUNC>
+struct Function_ArgTypes;
+
+template <class FUNC>
 struct Function_NothrowWrapperUtil;
 
                         // =======================
@@ -330,44 +333,6 @@ public:
         // since we don't (yet) have the ability to specify alignment when
         // allocating memory, there's nothing we can do at this point.
     };
-};
-
-                        // ================================
-                        // class template Function_ArgTypes
-                        // ================================
-
-template <class FUNC>
-class Function_ArgTypes {
-    // This is a component-private class template.  Do not use.
-    //
-    // The standard requires that 'function' define certain typedefs for
-    // compatibility with one- and two-argument legacy functor adaptors. This
-    // template provides the following nested typedefs:
-    //..
-    //  argument_type        -- Only if FUNC takes exactly one argument
-    //  first_argument_type  -- Only if FUNC takes exactly two arguments
-    //  second_argument_type -- Only if FUNC takes exactly two arguments
-    //..
-
-public:
-    // No typedefs for the unspecialized case
-};
-
-template <class R, class ARG>
-class Function_ArgTypes<R(ARG)> {
-    // Specialization for functions that take exactly one argument.
-
-public:
-    typedef ARG argument_type;
-};
-
-template <class R, class ARG1, class ARG2>
-class Function_ArgTypes<R(ARG1, ARG2)> {
-    // Specialization for functions that take exactly two arguments.
-
-public:
-    typedef ARG1 first_argument_type;
-    typedef ARG2 second_argument_type;
 };
 
                         // ==================
@@ -642,86 +607,6 @@ public:
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=14
 
-                    // =====================================
-                    // class template Function_MemFuncInvoke
-                    // =====================================
-
-template <class FUNC, class OBJ_TYPE, class OBJ_ARG_TYPE,
-          class RET, class... ARGS>
-struct Function_MemFuncInvokeImp {
-
-    typedef typename is_convertible<
-            typename remove_reference<OBJ_ARG_TYPE>::type*,
-            OBJ_TYPE*
-        >::type DirectInvoke;
-
-    enum { NUM_ARGS = sizeof...(ARGS) };
-
-    static
-    RET invoke_imp(true_type /* DirectInvoke */, FUNC f,
-                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
-                   typename bslmf::ForwardingType<ARGS>::Type... args) {
-        // If 'OBJ_ARG_TYPE' is a non-const rvalue, then it will have been
-        // forwarded as a const reference, instead.  In order to call a
-        // potentially non-const member function on it, we must cast the
-        // reference back to the original type.  The 'const_cast', below,
-        // will have no effect unless 'OBJ_ARG_TYPE' is a non-const rvalue.
-        typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
-        return (const_cast<ObjTp>(obj).*f)(args...);
-    }
-
-    static
-    RET invoke_imp(false_type /* DirectInvoke */, FUNC f,
-                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
-                   typename bslmf::ForwardingType<ARGS>::Type... args) {
-        // If 'OBJ_ARG_TYPE' is a non-const rvalue, then it will have been
-        // forwarded as a const reference, instead.  In order to call a
-        // potentially non-const member function on it, we must cast the
-        // reference back to a the original type.  The 'const_cast', below,
-        // will have no effect unless 'OBJ_ARG_TYPE' is a non-const rvalue.
-        typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
-        return ((*const_cast<ObjTp>(obj)).*f)(args...);
-    }
-
-public:
-    static
-    RET invoke(FUNC f,
-               typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
-               typename bslmf::ForwardingType<ARGS>::Type... args)
-        { return invoke_imp(DirectInvoke(), f, obj, args...); }
-
-};
-
-template <class RET, class OBJ_TYPE, class... ARGS, class OBJ_ARG_TYPE>
-struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS...), OBJ_ARG_TYPE>
-    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS...), OBJ_TYPE,
-                                OBJ_ARG_TYPE, RET, ARGS...>
-{
-};
-
-template <class RET, class OBJ_TYPE, class... ARGS, class OBJ_ARG_TYPE>
-struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS...) const, OBJ_ARG_TYPE>
-    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS...) const,
-                                const OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS...>
-{
-};
-
-template <class RET, class OBJ_TYPE, class... ARGS, class OBJ_ARG_TYPE>
-struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS...) volatile, OBJ_ARG_TYPE>
-    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS...) volatile,
-                                volatile OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS...>
-{
-};
-
-template <class RET, class OBJ_TYPE, class... ARGS, class OBJ_ARG_TYPE>
-struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS...) const volatile,
-                              OBJ_ARG_TYPE>
-    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS...) const volatile,
-                                const volatile OBJ_TYPE,
-                                OBJ_ARG_TYPE, RET, ARGS...>
-{
-};
-
                     // =======================
                     // class template function
                     // =======================
@@ -892,21 +777,42 @@ void swap(function<RET(ARGS...)>& a, function<RET(ARGS...)>& b);
 //                TEMPLATE AND INLINE FUNCTION IMPLEMENTATIONS
 // ===========================================================================
 
-                        // -----------------------
-                        // class bad_function_call
-                        // -----------------------
-
-#ifdef BDE_BUILD_TARGET_EXC
-
-inline
-bsl::bad_function_call::bad_function_call() BSLS_NOTHROW_SPEC
-    : std::exception()
-{
-}
-
-#endif
-
 namespace bsl {
+
+                        // ---------------------------------
+                        // struct template Function_ArgTypes
+                        // ---------------------------------
+
+template <class FUNC>
+struct Function_ArgTypes {
+    // This is a component-private struct template.  Do not use.
+    //
+    // The standard requires that 'function' define certain typedefs for
+    // compatibility with one- and two-argument legacy functor adaptors. This
+    // template provides the following nested typedefs:
+    //..
+    //  argument_type        -- Only if FUNC takes exactly one argument
+    //  first_argument_type  -- Only if FUNC takes exactly two arguments
+    //  second_argument_type -- Only if FUNC takes exactly two arguments
+    //..
+
+    // No typedefs for the unspecialized case
+};
+
+template <class R, class ARG>
+struct Function_ArgTypes<R(ARG)> {
+    // Specialization for functions that take exactly one argument.
+
+    typedef ARG argument_type;
+};
+
+template <class R, class ARG1, class ARG2>
+struct Function_ArgTypes<R(ARG1, ARG2)> {
+    // Specialization for functions that take exactly two arguments.
+
+    typedef ARG1 first_argument_type;
+    typedef ARG2 second_argument_type;
+};
 
                         // -------------------------------------------
                         // struct template Function_NothrowWrapperUtil
@@ -914,6 +820,8 @@ namespace bsl {
 
 template <class FUNC>
 struct Function_NothrowWrapperUtil {
+    // This is a component-private struct template.  Do not use.
+    //
     // Namesapce for 'Function_NothrowWrapper' traits and uitilities.
 
     typedef FUNC UnwrappedType;
@@ -927,6 +835,8 @@ struct Function_NothrowWrapperUtil {
     
 template <class FUNC>
 struct  Function_NothrowWrapperUtil<Function_NothrowWrapper<FUNC> > {
+    // This is a component-private struct template.  Do not use.
+    //
     // Namesapce for 'Function_NothrowWrapper' traits and uitilities,
     // specialized for instantiations of 'Function_NothrowWrapper<FUNC>'.
 
@@ -940,7 +850,103 @@ struct  Function_NothrowWrapperUtil<Function_NothrowWrapper<FUNC> > {
     static FUNC const& unwrap(WrappedType const& f) { return f.unwrap(); }
 };
 
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+
+                    // -------------------------------------
+                    // class template Function_MemFuncInvoke
+                    // -------------------------------------
+
+template <class FUNC, class OBJ_TYPE, class OBJ_ARG_TYPE,
+          class RET, class... ARGS>
+struct Function_MemFuncInvokeImp {
+    // This is a component-private class template.  Do not use.
+    //
+
+    typedef typename is_convertible<
+            typename remove_reference<OBJ_ARG_TYPE>::type*,
+            OBJ_TYPE*
+        >::type DirectInvoke;
+
+    enum { NUM_ARGS = sizeof...(ARGS) };
+
+    static
+    RET invoke_imp(true_type /* DirectInvoke */, FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS>::Type... args) {
+        // If 'OBJ_ARG_TYPE' is a non-const rvalue, then it will have been
+        // forwarded as a const reference, instead.  In order to call a
+        // potentially non-const member function on it, we must cast the
+        // reference back to the original type.  The 'const_cast', below,
+        // will have no effect unless 'OBJ_ARG_TYPE' is a non-const rvalue.
+        typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
+        return (const_cast<ObjTp>(obj).*f)(args...);
+    }
+
+    static
+    RET invoke_imp(false_type /* DirectInvoke */, FUNC f,
+                   typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+                   typename bslmf::ForwardingType<ARGS>::Type... args) {
+        // If 'OBJ_ARG_TYPE' is a non-const rvalue, then it will have been
+        // forwarded as a const reference, instead.  In order to call a
+        // potentially non-const member function on it, we must cast the
+        // reference back to a the original type.  The 'const_cast', below,
+        // will have no effect unless 'OBJ_ARG_TYPE' is a non-const rvalue.
+        typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
+        return ((*const_cast<ObjTp>(obj)).*f)(args...);
+    }
+
+public:
+    static
+    RET invoke(FUNC f,
+               typename bslmf::ForwardingType<OBJ_ARG_TYPE>::Type obj,
+               typename bslmf::ForwardingType<ARGS>::Type... args)
+        { return invoke_imp(DirectInvoke(), f, obj, args...); }
+
+};
+
+template <class RET, class OBJ_TYPE, class... ARGS, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS...), OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS...), OBJ_TYPE,
+                                OBJ_ARG_TYPE, RET, ARGS...>
+{
+    // This is a component-private struct template.  Do not use.
+    //
+};
+
+template <class RET, class OBJ_TYPE, class... ARGS, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS...) const, OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS...) const,
+                                const OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS...>
+{
+    // This is a component-private struct template.  Do not use.
+    //
+};
+
+template <class RET, class OBJ_TYPE, class... ARGS, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS...) volatile, OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS...) volatile,
+                                volatile OBJ_TYPE, OBJ_ARG_TYPE, RET, ARGS...>
+{
+    // This is a component-private struct template.  Do not use.
+    //
+};
+
+template <class RET, class OBJ_TYPE, class... ARGS, class OBJ_ARG_TYPE>
+struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS...) const volatile,
+                              OBJ_ARG_TYPE>
+    : Function_MemFuncInvokeImp<RET (OBJ_TYPE::*)(ARGS...) const volatile,
+                                const volatile OBJ_TYPE,
+                                OBJ_ARG_TYPE, RET, ARGS...>
+{
+    // This is a component-private struct template.  Do not use.
+    //
+};
+
+#endif // BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+
 class Function_PairBufDesc {
+    // This is a component-private struct template.  Do not use.
+    //
     // Descriptor for a maximally-aligned memory buffer that can hold two
     // objects.  Given a pointer to a maximally-aligned memory buffer, it
     // provides sufficient information to access the first and second objects
@@ -992,6 +998,8 @@ public:
 template <class ALLOC>
 struct Function_AllocTraits
 {
+    // This is a component-private struct template.  Do not use.
+    //
     // Determine the category of an allocator and compute a normalized type
     // for allocators that belong to the same family.
 
@@ -1052,9 +1060,9 @@ const Function_Rep::AllocCategory
 
 } // close namespace bsl
 
-                        // --------------------------------
+                        // --------------------------
                         // class Function_PairBufDesc
-                        // --------------------------------
+                        // --------------------------
 
 // CREATORS
 inline
@@ -1104,6 +1112,19 @@ template <class TP>
 const std::size_t
 bsl::Function_SmallObjectOptimization::SooFuncSize<TP>::VALUE;
 
+                        // -----------------------
+                        // class bad_function_call
+                        // -----------------------
+
+#ifdef BDE_BUILD_TARGET_EXC
+
+inline
+bsl::bad_function_call::bad_function_call() BSLS_NOTHROW_SPEC
+    : std::exception()
+{
+}
+
+#endif
 
                         // -----------------------
                         // class bsl::Function_Rep
