@@ -2184,7 +2184,6 @@ void testEmplaceAttrib5(bool exceptionSafetyFlag,
                     LOOP_ASSERT(LINE, NUM_3     == Attrib5::ctor3Count());
                     LOOP_ASSERT(LINE, NUM_4     == Attrib5::ctor4Count());
                     LOOP_ASSERT(LINE, NUM_5     == Attrib5::ctor5Count());
-                    LOOP4_ASSERT(LINE, NUM_0, N, Attrib5::ctor0Count(), NUM_0 + N == Attrib5::ctor0Count());
                 }
 
                 for (int i = 0; EXP[i]; ++i) {
