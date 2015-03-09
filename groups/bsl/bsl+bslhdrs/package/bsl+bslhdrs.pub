@@ -1,5 +1,6 @@
 # Container headers
 bsl_array.h
+bsl_atomic.h
 bsl_deque.h
 bsl_iterator.h
 bsl_list.h
@@ -43,6 +44,7 @@ bsl_ostream.h
 bsl_random.h
 bsl_ratio.h
 bsl_regex.h
+bsl_scoped_allocator.h
 bsl_stdexcept.h
 bsl_streambuf.h
 bsl_strstream.h

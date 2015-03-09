@@ -20,6 +20,7 @@ hash_map        hash_map.SUNWCCh
 slist           slist.SUNWCCh
 
 # Non-container headers
+atomic          atomic.SUNWCCh
 algorithm       algorithm.SUNWCCh
 bitset          bitset.SUNWCCh
 codecvt         codecvt.SUNWCCh
@@ -45,6 +46,7 @@ ostream         ostream.SUNWCCh
 random          random.SUNWCCh
 ratio           ratio.SUNWCCh
 regex           regex.SUNWCCh
+scoped_allocator    scoped_allocator.SUNWCCh
 stdexcept       stdexcept.SUNWCCh
 streambuf       streambuf.SUNWCCh
 strstream       strstream.SUNWCCh
