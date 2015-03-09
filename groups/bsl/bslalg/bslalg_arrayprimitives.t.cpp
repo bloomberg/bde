@@ -1392,6 +1392,99 @@ struct IsBitwiseMoveable<LargeBitwiseMoveableTestType<FOOTPRINT> >
 }  // close traits namespace
 }  // close enterprise namespace
 
+                       // ==================================
+                       // class LargeBitwiseMoveableTestType
+                       // ==================================
+
+class Attrib5 {
+    // This class accepts from 0 to 5 constructor arguments and counts how
+    // often each constructor is invoked.
+
+    static int d_ctor0Count;  // count of default constructor invocations
+    static int d_ctor1Count;  // count of one argument constructor invocations
+    static int d_ctor2Count;  // count of two argument constructor invocations
+    static int d_ctor3Count;  // count of three arg. constructor invocations
+    static int d_ctor4Count;  // count of four argument constructor invocations
+    static int d_ctor5Count;  // count of five argument constructor invocations
+
+    char d_a;
+    int  d_b;
+    int  d_c;
+    int  d_d;
+    int  d_e;
+    
+  public:
+    static int ctor0Count() { return d_ctor0Count; }
+    static int ctor1Count() { return d_ctor1Count; }
+    static int ctor2Count() { return d_ctor2Count; }
+    static int ctor3Count() { return d_ctor3Count; }
+    static int ctor4Count() { return d_ctor4Count; }
+    static int ctor5Count() { return d_ctor5Count; }
+
+    Attrib5()
+    : d_a('\0'), d_b(0), d_c(0), d_d(0), d_e(0)
+    {
+        ++d_ctor0Count;
+    }
+
+    Attrib5(char a)
+    : d_a(a), d_b(0), d_c(0), d_d(0), d_e(0)
+    {
+        ++d_ctor1Count;
+    }
+
+    Attrib5(char a, int b)
+    : d_a(a), d_b(b), d_c(0), d_d(0), d_e(0)
+    {
+        ++d_ctor2Count;
+    }
+
+    Attrib5(char a, int b, int c)
+    : d_a(a), d_b(b), d_c(c), d_d(0), d_e(0)
+    {
+        ++d_ctor3Count;
+    }
+
+    Attrib5(char a, int b, int c, int d)
+    : d_a(a), d_b(b), d_c(c), d_d(d), d_e(0)
+    {
+        ++d_ctor4Count;
+    }
+
+    Attrib5(char a, int b, int c, int d, int e)
+    : d_a(a), d_b(b), d_c(c), d_d(d), d_e(e)
+    {
+        ++d_ctor5Count;
+    }
+
+    ~Attrib5() {}
+
+    char a() const { return d_a; }
+    int  b() const { return d_b; }
+    int  c() const { return d_c; }
+    int  d() const { return d_d; }
+    int  e() const { return d_e; }
+
+    void setValue(char ch) { d_a = ch; }
+};
+
+int Attrib5::d_ctor0Count = 0;
+int Attrib5::d_ctor1Count = 0;
+int Attrib5::d_ctor2Count = 0;
+int Attrib5::d_ctor3Count = 0;
+int Attrib5::d_ctor4Count = 0;
+int Attrib5::d_ctor5Count = 0;
+
+void setValue(Attrib5 *c, char ch)
+{
+    c->setValue(ch);
+}
+
+char getValue(const Attrib5& c)
+{
+    return c.a();
+}
+
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -1402,10 +1495,10 @@ class CleanupGuard {
     // construction, a sequence according to some specification.  Upon
     // destruction, it destroys elements in that array according to the current
     // specifications.  For '0 <= i < strlen(spec)', 'array[i]' is destroyed if
-    // and only if '1 == isalpha(spec[i])' and in addition, if a reference to
-    // an end pointer is specified at construction, if 'i < *specEnd - spec'.
-    // If a tests succeeds, the specifications can be changed to allow for
-    // different (un)initialized elements.
+    // and only if '1 == isalpha(spec[i]) || spec[i] == '?'' and in addition,
+    // if a reference to an end pointer is specified at construction, if
+    // 'i < *specEnd - spec'.  If a tests succeeds, the specifications can be
+    // changed to allow for different (un)initialized elements.
 
     // DATA
     TYPE        *d_array_p;
@@ -1457,9 +1550,11 @@ class CleanupGuard {
 };
 
 void cleanup(char *array, const char *spec)
-    // Destroy elements in the specified 'array' according to the specified
-    // 'spec'.  For '0 <= i < strlen(spec)', 'array[i]' is destroyed if and
-    // only if '1 == isalpha(spec[i])'.
+    // Verify that elements in the specified 'array' have values according to
+    // the specified 'spec' and destroy elements in the specified 'array'
+    // according to the specified 'spec'.  For '0 <= i < strlen(spec)',
+    // 'array[i]' is destroyed if and only if
+    // '1 == isalpha(spec[i]) || spec[i] == '?''.
 {
     for (int i = 0; spec[i]; ++i) {
         char c = spec[i];
@@ -1467,7 +1562,7 @@ void cleanup(char *array, const char *spec)
             LOOP_ASSERT(i, array[i] == c);
             array[i] = '_';
         }
-        else if (c == '?') {
+        else if ('?' == c) {
             LOOP_ASSERT(i, array[i] == c || array[i] == '\0');
             array[i] = '_';
         }
@@ -1479,9 +1574,11 @@ void cleanup(char *array, const char *spec)
 
 template <class TYPE>
 void cleanup(TYPE *array, const char *spec)
-    // Destroy elements in the specified 'array' according to the specified
-    // 'spec'.  For '0 <= i < strlen(spec)', 'array[i]' is destroyed if and
-    // only if '1 == isalpha(spec[i])'.
+    // Verify that elements in the specified 'array' have values according to
+    // the specified 'spec' and destroy elements in the specified 'array'
+    // according to the specified 'spec'.  For '0 <= i < strlen(spec)',
+    // 'array[i]' is destroyed if and only if
+    // '1 == isalpha(spec[i]) || spec[i] == '?''.
 {
     for (int i = 0; spec[i]; ++i) {
         char c = spec[i];
@@ -1489,7 +1586,7 @@ void cleanup(TYPE *array, const char *spec)
             LOOP_ASSERT(i, getValue(array[i]) == c);
             bslalg::ScalarDestructionPrimitives::destroy(array + i);
         }
-        else if (c == '?') {
+        else if ('?' == c) {
             LOOP_ASSERT(i,    getValue(array[i]) == c
                            || getValue(array[i]) == '\0');
             bslalg::ScalarDestructionPrimitives::destroy(array + i);
@@ -1507,7 +1604,7 @@ void verify(char *array, const char *spec)
     for (int i = 0; spec[i]; ++i) {
         char c = spec[i];
         if (isalpha(c)) {
-            LOOP3_ASSERT(i, array[i], c, array[i] == c || array[i] == '\0');
+            LOOP3_ASSERT(i, array[i], c, array[i] == c);
         }
         else if (c == '?') {
             LOOP3_ASSERT(i, array[i], c, array[i] == c || array[i] == '\0');
@@ -1528,7 +1625,7 @@ void verify(TYPE *array, const char *spec)
         if (isalpha(c)) {
             LOOP3_ASSERT(i, getValue(array[i]), c, getValue(array[i]) == c);
         }
-        else if (c == '?') {
+        else if ('?' == c) {
             LOOP_ASSERT(i,    getValue(array[i]) == c
                            || getValue(array[i]) == '\0');
         }
@@ -1574,7 +1671,7 @@ void fillWithJunk(void *buf, int size)
 //               's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z' |
 //               'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' |
 //               'J' | 'K' | 'L' | 'M' | 'N' | 'O' | 'P' | 'Q' | 'R' |
-//               'S' | 'T' | 'U' | 'V' | 'W' | 'X' | 'Y' | 'Z'
+//               'S' | 'T' | 'U' | 'V' | 'W' | 'X' | 'Y' | 'Z' | '?'
 //
 // <UNSET>  ::=  '_'
 //
@@ -1606,6 +1703,9 @@ int ggg(TYPE *array, const char *spec, int verboseFlag = 1)
         if (isalpha(c)) {
             bslalg::ScalarPrimitives::defaultConstruct(array, Z);
             setValue(array, c);
+        }
+        else if ('?' == c) {
+            bslalg::ScalarPrimitives::defaultConstruct(array, Z);
         }
         else if ('_' == c) {
             continue;
@@ -1763,50 +1863,51 @@ static const struct {
     int         d_dst;       // index of insertion point
     int         d_end;       // end of data
     const char *d_expected;  // expected result array
+    int         d_expNum;    // expected number of constructor invocations
 } DATA_9V[] = {
-    //line spec            ne  dst    end  expected            ordered by ne
-    //---- ----            --  ---    ---  --------            -------------
-    { L_,  "___",          0,  1,     1,   "___"           },  // 0
-    { L_,  "a_c",          0,  1,     1,   "a_c"           },
-    { L_,  "abc",          0,  1,     2,   "abc"           },
+    //line spec            ne  dst    end  expected        eN    ordered by ne
+    //---- ----            --  ---    ---  --------        --    -------------
+    { L_,  "___",          0,  1,     1,   "___",           0 },  // 0
+    { L_,  "a_c",          0,  1,     1,   "a_c",           0 },
+    { L_,  "abc",          0,  1,     2,   "abc",           0 },
 
-    { L_,  "___",          1,  1,     1,   "_V_"           },  // 1
-    { L_,  "a_c",          1,  1,     1,   "aVc"           },
-    { L_,  "ab_d",         1,  1,     2,   "aVbd"          },
-    { L_,  "abc_e",        1,  1,     3,   "aVbce"         },
-    { L_,  "abcd_f",       1,  1,     4,   "aVbcdf"        },
-    { L_,  "abcde_g",      1,  1,     5,   "aVbcdeg"       },
+    { L_,  "___",          1,  1,     1,   "_V_",           1 },  // 1
+    { L_,  "a_c",          1,  1,     1,   "aVc",           1 },
+    { L_,  "ab_d",         1,  1,     2,   "aVbd",          1 },
+    { L_,  "abc_e",        1,  1,     3,   "aVbce",         1 },
+    { L_,  "abcd_f",       1,  1,     4,   "aVbcdf",        1 },
+    { L_,  "abcde_g",      1,  1,     5,   "aVbcdeg",       1 },
 
-    { L_,  "a__d",         2,  1,     1,   "aVVd"          },  // 2
-    { L_,  "ab__e",        2,  1,     2,   "aVVbe"         },
-    { L_,  "abc__f",       2,  1,     3,   "aVVbcf"        },
-    { L_,  "abcd__g",      2,  1,     4,   "aVVbcdg"       },
-    { L_,  "abcde__h",     2,  1,     5,   "aVVbcdeh"      },
-    { L_,  "abcdef__i",    2,  1,     6,   "aVVbcdefi"     },
+    { L_,  "a__d",         2,  1,     1,   "aVVd",          2 },  // 2
+    { L_,  "ab__e",        2,  1,     2,   "aVVbe",         1 },
+    { L_,  "abc__f",       2,  1,     3,   "aVVbcf",        1 },
+    { L_,  "abcd__g",      2,  1,     4,   "aVVbcdg",       1 },
+    { L_,  "abcde__h",     2,  1,     5,   "aVVbcdeh",      1 },
+    { L_,  "abcdef__i",    2,  1,     6,   "aVVbcdefi",     1 },
 
-    { L_,  "a___e",        3,  1,     1,   "aVVVe"         },  // 3
-    { L_,  "ab___f",       3,  1,     2,   "aVVVbf"        },
-    { L_,  "abc___g",      3,  1,     3,   "aVVVbcg"       },
-    { L_,  "abcd___h",     3,  1,     4,   "aVVVbcdh"      },
-    { L_,  "abcde___i",    3,  1,     5,   "aVVVbcdei"     },
-    { L_,  "abcdef___j",   3,  1,     6,   "aVVVbcdefj"    },
-    { L_,  "abcdefg___k",  3,  1,     7,   "aVVVbcdefgk"   },
+    { L_,  "a___e",        3,  1,     1,   "aVVVe",         3 },  // 3
+    { L_,  "ab___f",       3,  1,     2,   "aVVVbf",        2 },
+    { L_,  "abc___g",      3,  1,     3,   "aVVVbcg",       1 },
+    { L_,  "abcd___h",     3,  1,     4,   "aVVVbcdh",      1 },
+    { L_,  "abcde___i",    3,  1,     5,   "aVVVbcdei",     1 },
+    { L_,  "abcdef___j",   3,  1,     6,   "aVVVbcdefj",    1 },
+    { L_,  "abcdefg___k",  3,  1,     7,   "aVVVbcdefgk",   1 },
 
-    { L_,  "a____f",       4,  1,     1,   "aVVVVf"        },  // 4
-    { L_,  "ab____g",      4,  1,     2,   "aVVVVbg"       },
-    { L_,  "abc____h",     4,  1,     3,   "aVVVVbch"      },
-    { L_,  "abcd____i",    4,  1,     4,   "aVVVVbcdi"     },
-    { L_,  "abcde____j",   4,  1,     5,   "aVVVVbcdej"    },
-    { L_,  "abcdef____k",  4,  1,     6,   "aVVVVbcdefk"   },
-    { L_,  "abcdefg____l", 4,  1,     7,   "aVVVVbcdefgl"  },
-    { L_,  "abcdefgh____m",4,  1,     8,   "aVVVVbcdefghm" },
+    { L_,  "a____f",       4,  1,     1,   "aVVVVf",        4 },  // 4
+    { L_,  "ab____g",      4,  1,     2,   "aVVVVbg",       3 },
+    { L_,  "abc____h",     4,  1,     3,   "aVVVVbch",      2 },
+    { L_,  "abcd____i",    4,  1,     4,   "aVVVVbcdi",     1 },
+    { L_,  "abcde____j",   4,  1,     5,   "aVVVVbcdej",    1 },
+    { L_,  "abcdef____k",  4,  1,     6,   "aVVVVbcdefk",   1 },
+    { L_,  "abcdefg____l", 4,  1,     7,   "aVVVVbcdefgl",  1 },
+    { L_,  "abcdefgh____m",4,  1,     8,   "aVVVVbcdefghm", 1 },
 };
 const int NUM_DATA_9V = sizeof DATA_9V / sizeof *DATA_9V;
 
 template <class TYPE>
 void testEmplaceValueN(bool bitwiseMoveableFlag,
-                      bool bitwiseCopyableFlag,
-                      bool exceptionSafetyFlag = false)
+                       bool bitwiseCopyableFlag,
+                       bool exceptionSafetyFlag = false)
     // This test function verifies, for each of the 'NUM_DATA_9V' elements of
     // the 'DATA_9V' array, that inserting the 'd_ne' entries at the 'd_dst'
     // index while shifting the entries between 'd_dst' until the 'd_end'
@@ -1877,6 +1978,276 @@ void testEmplaceValueN(bool bitwiseMoveableFlag,
 
         }
         bslalg::ScalarDestructionPrimitives::destroy(&mV.object());
+    }
+    ASSERT(0 == Z->numMismatches());
+    ASSERT(0 == Z->numBytesInUse());
+}
+
+void testEmplaceAttrib5(bool exceptionSafetyFlag,
+                        char a = 0,
+                        int  b = 0,
+                        int  c = 0,
+                        int  d = 0,
+                        int  e = 0)
+    // This test function verifies, for each of the 'NUM_DATA_9V' elements of
+    // the 'DATA_9V' array, that inserting the 'd_ne' entries at the 'd_dst'
+    // index while shifting the entries between 'd_dst' until the 'd_end'
+    // indices in a buffer built according to the 'd_spec' specifications
+    // results in a buffer built according to the 'd_expected' specifications.
+    // The 'd_lineNum' member is used to report errors.
+{
+    const int MAX_SIZE = 16;
+    static union {
+        char                                d_raw[MAX_SIZE * sizeof(Attrib5)];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
+    } u;
+
+    {
+        for (int ti = 0; ti < NUM_DATA_9V; ++ti) {
+            const int         LINE   = DATA_9V[ti].d_lineNum;
+            const char *const SPEC   = DATA_9V[ti].d_spec;
+            const int         NE     = DATA_9V[ti].d_ne;
+            const int         DST    = DATA_9V[ti].d_dst;
+            const int         END    = DATA_9V[ti].d_end;
+            const char *const EXP    = DATA_9V[ti].d_expected;
+            const int         EXPNUM = DATA_9V[ti].d_expNum;
+            LOOP_ASSERT(ti, MAX_SIZE >= (int)std::strlen(SPEC));
+
+            if (veryVerbose) {
+                printf("LINE = %d, SPEC = %s, NE = %d, "
+                        "DST = %d, END = %d, EXP = %s\n",
+                        LINE, SPEC, NE, DST, END, EXP);
+            }
+
+            Attrib5 *buf = static_cast<Attrib5 *>(
+                                             static_cast<void *>(&u.d_raw[0]));
+
+            if (exceptionSafetyFlag) {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
+                    gg(buf, SPEC);  verify(buf, SPEC);
+                    CleanupGuard<Attrib5> cleanup(buf, SPEC);
+
+                    if (e) {
+                        Obj::emplace(&buf[DST],
+                                     &buf[END],
+                                     NE,
+                                     Z,
+                                     a,
+                                     b,
+                                     c,
+                                     d,
+                                     e);
+                    }
+                    else if (d) {
+                        Obj::emplace(&buf[DST], &buf[END], NE, Z, a, b, c, d);
+                    }
+                    else if (c) {
+                        Obj::emplace(&buf[DST], &buf[END], NE, Z, a, b, c);
+                    }
+                    else if (b) {
+                        Obj::emplace(&buf[DST], &buf[END], NE, Z, a, b);
+                    }
+                    else if (a) {
+                        Obj::emplace(&buf[DST], &buf[END], NE, Z, a);
+                    }
+                    else {
+                        Obj::emplace(&buf[DST], &buf[END], NE, Z);
+                    }
+
+                    for (int i = 0; EXP[i]; ++i) {
+                        char ch = EXP[i];
+                        if ('V' == ch) {
+                            LOOP4_ASSERT(LINE,
+                                         i,
+                                         buf[i].a(),
+                                         a,
+                                         buf[i].a() == a);
+                            LOOP4_ASSERT(LINE,
+                                         i,
+                                         buf[i].b(),
+                                         b,
+                                         buf[i].b() == b);
+                            LOOP4_ASSERT(LINE,
+                                         i,
+                                         buf[i].c(),
+                                         c,
+                                         buf[i].c() == c);
+                            LOOP4_ASSERT(LINE,
+                                         i,
+                                         buf[i].d(),
+                                         d,
+                                         buf[i].d() == d);
+                            LOOP4_ASSERT(LINE,
+                                         i,
+                                         buf[i].e(),
+                                         e,
+                                         buf[i].e() == e);
+                            bslalg::ScalarDestructionPrimitives::destroy(
+                                                                      buf + i);
+                        }
+                        else if (isalpha(ch)) {
+                            LOOP4_ASSERT(LINE,
+                                         i,
+                                         buf[i].a(),
+                                         ch,
+                                         buf[i].a() == ch);
+                            LOOP3_ASSERT(LINE,
+                                         i,
+                                         buf[i].b(),
+                                         0 == buf[i].b());
+                            LOOP3_ASSERT(LINE,
+                                         i,
+                                         buf[i].c(),
+                                         0 == buf[i].c());
+                            LOOP3_ASSERT(LINE,
+                                         i,
+                                         buf[i].d(),
+                                         0 == buf[i].d());
+                            LOOP3_ASSERT(LINE,
+                                         i,
+                                         buf[i].e(),
+                                         0 == buf[i].e());
+                            bslalg::ScalarDestructionPrimitives::destroy(
+                                                                      buf + i);
+                        }
+                        else {
+                            LOOP2_ASSERT(LINE, i, '_' == ch);
+                        }
+                    }
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                if (veryVerbose) printf("\n");
+            } else {
+                gg(buf, SPEC);  verify(buf, SPEC);
+
+                const int NUM_0 = Attrib5::ctor0Count();
+                const int NUM_1 = Attrib5::ctor1Count();
+                const int NUM_2 = Attrib5::ctor2Count();
+                const int NUM_3 = Attrib5::ctor3Count();
+                const int NUM_4 = Attrib5::ctor4Count();
+                const int NUM_5 = Attrib5::ctor5Count();
+
+                // Note that the implementation will make *one* object if
+                // needed and then copy-construct it into place.
+
+                const int N = EXPNUM;
+                
+                if (e) {
+                    Obj::emplace(&buf[DST], &buf[END], NE, Z, a, b, c, d, e);
+                    LOOP_ASSERT(LINE, NUM_0     == Attrib5::ctor0Count());
+                    LOOP_ASSERT(LINE, NUM_1     == Attrib5::ctor1Count());
+                    LOOP_ASSERT(LINE, NUM_2     == Attrib5::ctor2Count());
+                    LOOP_ASSERT(LINE, NUM_3     == Attrib5::ctor3Count());
+                    LOOP_ASSERT(LINE, NUM_4     == Attrib5::ctor4Count());
+                    LOOP_ASSERT(LINE, NUM_5 + N == Attrib5::ctor5Count());
+                }
+                else if (d) {
+                    Obj::emplace(&buf[DST], &buf[END], NE, Z, a, b, c, d);
+                    LOOP_ASSERT(LINE, NUM_0     == Attrib5::ctor0Count());
+                    LOOP_ASSERT(LINE, NUM_1     == Attrib5::ctor1Count());
+                    LOOP_ASSERT(LINE, NUM_2     == Attrib5::ctor2Count());
+                    LOOP_ASSERT(LINE, NUM_3     == Attrib5::ctor3Count());
+                    LOOP_ASSERT(LINE, NUM_4 + N == Attrib5::ctor4Count());
+                    LOOP_ASSERT(LINE, NUM_5     == Attrib5::ctor5Count());
+                }
+                else if (c) {
+                    Obj::emplace(&buf[DST], &buf[END], NE, Z, a, b, c);
+                    LOOP_ASSERT(LINE, NUM_0     == Attrib5::ctor0Count());
+                    LOOP_ASSERT(LINE, NUM_1     == Attrib5::ctor1Count());
+                    LOOP_ASSERT(LINE, NUM_2     == Attrib5::ctor2Count());
+                    LOOP_ASSERT(LINE, NUM_3 + N == Attrib5::ctor3Count());
+                    LOOP_ASSERT(LINE, NUM_4     == Attrib5::ctor4Count());
+                    LOOP_ASSERT(LINE, NUM_5     == Attrib5::ctor5Count());
+                }
+                else if (b) {
+                    Obj::emplace(&buf[DST], &buf[END], NE, Z, a, b);
+                    LOOP_ASSERT(LINE, NUM_0     == Attrib5::ctor0Count());
+                    LOOP_ASSERT(LINE, NUM_1     == Attrib5::ctor1Count());
+                    LOOP_ASSERT(LINE, NUM_2 + N == Attrib5::ctor2Count());
+                    LOOP_ASSERT(LINE, NUM_3     == Attrib5::ctor3Count());
+                    LOOP_ASSERT(LINE, NUM_4     == Attrib5::ctor4Count());
+                    LOOP_ASSERT(LINE, NUM_5     == Attrib5::ctor5Count());
+                }
+                else if (a) {
+                    Obj::emplace(&buf[DST], &buf[END], NE, Z, a);
+                    LOOP_ASSERT(LINE, NUM_0     == Attrib5::ctor0Count());
+                    LOOP_ASSERT(LINE, NUM_1 + N == Attrib5::ctor1Count());
+                    LOOP_ASSERT(LINE, NUM_2     == Attrib5::ctor2Count());
+                    LOOP_ASSERT(LINE, NUM_3     == Attrib5::ctor3Count());
+                    LOOP_ASSERT(LINE, NUM_4     == Attrib5::ctor4Count());
+                    LOOP_ASSERT(LINE, NUM_5     == Attrib5::ctor5Count());
+                }
+                else {
+                    Obj::emplace(&buf[DST], &buf[END], NE, Z);
+                    LOOP_ASSERT(LINE, NUM_0 + N == Attrib5::ctor0Count());
+                    LOOP_ASSERT(LINE, NUM_1     == Attrib5::ctor1Count());
+                    LOOP_ASSERT(LINE, NUM_2     == Attrib5::ctor2Count());
+                    LOOP_ASSERT(LINE, NUM_3     == Attrib5::ctor3Count());
+                    LOOP_ASSERT(LINE, NUM_4     == Attrib5::ctor4Count());
+                    LOOP_ASSERT(LINE, NUM_5     == Attrib5::ctor5Count());
+                    LOOP4_ASSERT(LINE, NUM_0, N, Attrib5::ctor0Count(), NUM_0 + N == Attrib5::ctor0Count());
+                }
+
+                for (int i = 0; EXP[i]; ++i) {
+                    char ch = EXP[i];
+                    if ('V' == ch) {
+                        LOOP4_ASSERT(LINE,
+                                     i,
+                                     buf[i].a(),
+                                     a,
+                                     buf[i].a() == a);
+                        LOOP4_ASSERT(LINE,
+                                     i,
+                                     buf[i].b(),
+                                     b,
+                                     buf[i].b() == b);
+                        LOOP4_ASSERT(LINE,
+                                     i,
+                                     buf[i].c(),
+                                     c,
+                                     buf[i].c() == c);
+                        LOOP4_ASSERT(LINE,
+                                     i,
+                                     buf[i].d(),
+                                     d,
+                                     buf[i].d() == d);
+                        LOOP4_ASSERT(LINE,
+                                     i,
+                                     buf[i].e(),
+                                     e,
+                                     buf[i].e() == e);
+                        bslalg::ScalarDestructionPrimitives::destroy(buf + i);
+                    }
+                    else if (isalpha(ch)) {
+                        LOOP4_ASSERT(LINE,
+                                     i,
+                                     buf[i].a(),
+                                     ch,
+                                     buf[i].a() == ch);
+                        LOOP3_ASSERT(LINE,
+                                     i,
+                                     buf[i].b(),
+                                     0 == buf[i].b());
+                        LOOP3_ASSERT(LINE,
+                                     i,
+                                     buf[i].c(),
+                                     0 == buf[i].c());
+                        LOOP3_ASSERT(LINE,
+                                     i,
+                                     buf[i].d(),
+                                     0 == buf[i].d());
+                        LOOP3_ASSERT(LINE,
+                                     i,
+                                     buf[i].e(),
+                                     0 == buf[i].e());
+                        bslalg::ScalarDestructionPrimitives::destroy(buf + i);
+                    }
+                    else {
+                        LOOP2_ASSERT(LINE, i, '_' == ch);
+                    }
+                }
+            }
+
+        }
     }
     ASSERT(0 == Z->numMismatches());
     ASSERT(0 == Z->numBytesInUse());
@@ -3839,6 +4210,7 @@ bool operator!=(const HI<T, N>& l, const HI<T, N>& r)
     return !(l == r);
 }
 #endif
+
 //=============================================================================
 //                          GAUNTLET MACRO
 // Passed 'func', which should be a template of a function whose single
@@ -3936,6 +4308,19 @@ bool operator!=(const HI<T, N>& l, const HI<T, N>& r)
         if (verbose) printf("\tException test.\n");                           \
         func<T>(false, false, true);                                          \
     } while (false)
+
+//=============================================================================
+//                         DV_GAUNTLET MACRO
+// Passed 'func', which should be a template of a function whose single
+// template parameter is the type to be stored into the array, and which takes
+// 3 boolean arguments telling
+//    - the template parameter is a bitwise moveable type
+//    - the template parameter is a bitwise copyable type
+//    - exception testing is to be done.
+//
+// Run 'func' on a whole gauntlet of different types.  Note that the tested
+// types are a subset of those tested with the 'GAUNTLET' macro.
+//=============================================================================
 
 #define DV_GAUNTLET(func) do {                                                \
         if (verbose) printf("\t...with TestTypeNoAlloc.\n");                  \
@@ -4184,6 +4569,27 @@ int main(int argc, char *argv[])
 
         DV_GAUNTLET(testEmplaceDefaultValueN);
         GAUNTLET(testEmplaceValueN);
+
+        // Verify zero up to five arguments work as expected.
+
+        testEmplaceAttrib5(false);
+        testEmplaceAttrib5(true );
+
+        testEmplaceAttrib5(false, 'X');
+        testEmplaceAttrib5(true,  'X');
+
+        testEmplaceAttrib5(false, 'X', 7);
+        testEmplaceAttrib5(true,  'X', 7);
+
+        testEmplaceAttrib5(false, 'X', 7, -9);
+        testEmplaceAttrib5(true,  'X', 7, -9);
+
+        testEmplaceAttrib5(false, 'X', 7, -9, 14);
+        testEmplaceAttrib5(true,  'X', 7, -9, 14);
+
+        testEmplaceAttrib5(false, 'X', 7, -9, 14, 106);
+        testEmplaceAttrib5(true,  'X', 7, -9, 14, 106);
+
       } break;
       case 8: {
         // --------------------------------------------------------------------
