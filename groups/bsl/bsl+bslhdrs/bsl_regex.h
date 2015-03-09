@@ -86,8 +86,8 @@ namespace bsl {
     using native_std::regex_constants::error_complexity;
     using native_std::regex_constants::error_stack;
     //using native_std::ECMAScript;
-    //using native_std::begin;
-    //using native_std::end;
+    using native_std::begin;
+    using native_std::end;
 
 }  // close namespace bsl
 

@@ -30,8 +30,8 @@ BSLS_IDENT("$Id: $")
 namespace bsl {
 
     using native_std::array;
-    //using native_std::begin;
-    //using native_std::end;
+    using native_std::begin;
+    using native_std::end;
 
 }  // close namespace bsl
 
