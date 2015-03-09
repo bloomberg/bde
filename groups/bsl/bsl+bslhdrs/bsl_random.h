@@ -64,7 +64,6 @@ namespace bsl {
     using native_std::fisher_f_distribution;
     using native_std::student_t_distribution;
     using native_std::discrete_distribution;
-    using native_std::piecewise_distribution;
     using native_std::piecewise_constant_distribution;
     using native_std::piecewise_linear_distribution;
     using native_std::seed_seq;
