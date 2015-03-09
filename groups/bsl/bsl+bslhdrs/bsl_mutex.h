@@ -34,9 +34,8 @@ namespace bsl {
     using native_std::timed_mutex;
     using native_std::recursive_timed_mutex;
     using native_std::lock_guard;
-    using native_std::unique_guard;
+    using native_std::unique_lock;
     using native_std::once_flag;
-    using native_std::adopt_flag;
     using native_std::adopt_lock_t;
     using native_std::defer_lock_t;
     using native_std::try_to_lock_t;

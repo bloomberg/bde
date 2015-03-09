@@ -23,7 +23,6 @@ slist           slist.SUNWCCh
 atomic          atomic.SUNWCCh
 algorithm       algorithm.SUNWCCh
 bitset          bitset.SUNWCCh
-codecvt         codecvt.SUNWCCh
 condition_variable      condition_variable.SUNWCCh
 chrono          chrono.SUNWCCh
 complex         complex.SUNWCCh

@@ -29,22 +29,22 @@ BSLS_IDENT("$Id: $")
 
 namespace bsl {
 
-    using native_std::duration;
-    using native_std::time_point;
-    using native_std::system_clock;
-    using native_std::steady_clock;
-    using native_std::high_resolution_clock;
-    using native_std::treat_as_floating_point;
-    using native_std::duration_values;
+    using native_std::chrono::duration;
+    using native_std::chrono::time_point;
+    using native_std::chrono::system_clock;
+    using native_std::chrono::steady_clock;
+    using native_std::chrono::high_resolution_clock;
+    using native_std::chrono::treat_as_floating_point;
+    using native_std::chrono::duration_values;
     using native_std::common_type;
-    using native_std::duration_cast;
-    using native_std::time_point_cast;
-    using native_std::hours;
-    using native_std::minutes;
-    using native_std::seconds;
-    using native_std::miliseconds;
-    using native_std::microseconds;
-    using native_std::nanoseconds;
+    using native_std::chrono::duration_cast;
+    using native_std::chrono::time_point_cast;
+    using native_std::chrono::hours;
+    using native_std::chrono::minutes;
+    using native_std::chrono::seconds;
+    using native_std::chrono::milliseconds;
+    using native_std::chrono::microseconds;
+    using native_std::chrono::nanoseconds;
 
 }  // close namespace bsl
 

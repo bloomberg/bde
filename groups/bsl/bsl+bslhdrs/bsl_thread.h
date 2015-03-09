@@ -29,7 +29,11 @@ BSLS_IDENT("$Id: $")
 
 namespace bsl {
 
-    using native_std::this_thread;
+    //using native_std::this_thread;
+    using native_std::this_thread::get_id;
+    using native_std::this_thread::yield;
+    using native_std::this_thread::sleep_until;
+    using native_std::this_thread::sleep_for;
     using native_std::thread;
 }  // close namespace bsl
 
