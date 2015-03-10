@@ -1497,7 +1497,7 @@ class CleanupGuard {
     // specifications.  For '0 <= i < strlen(spec)', 'array[i]' is destroyed if
     // and only if '1 == isalpha(spec[i]) || spec[i] == '?'' and in addition,
     // if a reference to an end pointer is specified at construction, if
-    // 'i < *specEnd - spec'.  If a tests succeeds, the specifications can be
+    // 'i < *specEnd - spec'.  If a test succeeds, the specifications can be
     // changed to allow for different (un)initialized elements.
 
     // DATA
@@ -1551,10 +1551,9 @@ class CleanupGuard {
 
 void cleanup(char *array, const char *spec)
     // Verify that elements in the specified 'array' have values according to
-    // the specified 'spec' and destroy elements in the specified 'array'
-    // according to the specified 'spec'.  For '0 <= i < strlen(spec)',
-    // 'array[i]' is destroyed if and only if
-    // '1 == isalpha(spec[i]) || spec[i] == '?''.
+    // the specified 'spec' and destroy elements in the 'array' according to
+    // the 'spec'.  For '0 <= i < strlen(spec)', 'array[i]' is destroyed if
+    // and only if '1 == isalpha(spec[i]) || spec[i] == '?''.
 {
     for (int i = 0; spec[i]; ++i) {
         char c = spec[i];
@@ -1575,10 +1574,9 @@ void cleanup(char *array, const char *spec)
 template <class TYPE>
 void cleanup(TYPE *array, const char *spec)
     // Verify that elements in the specified 'array' have values according to
-    // the specified 'spec' and destroy elements in the specified 'array'
-    // according to the specified 'spec'.  For '0 <= i < strlen(spec)',
-    // 'array[i]' is destroyed if and only if
-    // '1 == isalpha(spec[i]) || spec[i] == '?''.
+    // the specified 'spec' and destroy elements in the 'array' according to
+    // the 'spec'.  For '0 <= i < strlen(spec)', 'array[i]' is destroyed if
+    // and only if '1 == isalpha(spec[i]) || spec[i] == '?''.
 {
     for (int i = 0; spec[i]; ++i) {
         char c = spec[i];
