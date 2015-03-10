@@ -2055,56 +2055,56 @@ void testEmplaceAttrib5(bool exceptionSafetyFlag,
                     for (int i = 0; EXP[i]; ++i) {
                         char ch = EXP[i];
                         if ('V' == ch) {
-                            LOOP4_ASSERT(LINE,
-                                         i,
-                                         buf[i].a(),
-                                         a,
-                                         buf[i].a() == a);
-                            LOOP4_ASSERT(LINE,
-                                         i,
-                                         buf[i].b(),
-                                         b,
-                                         buf[i].b() == b);
-                            LOOP4_ASSERT(LINE,
-                                         i,
-                                         buf[i].c(),
-                                         c,
-                                         buf[i].c() == c);
-                            LOOP4_ASSERT(LINE,
-                                         i,
-                                         buf[i].d(),
-                                         d,
-                                         buf[i].d() == d);
-                            LOOP4_ASSERT(LINE,
-                                         i,
-                                         buf[i].e(),
-                                         e,
-                                         buf[i].e() == e);
+                            ASSERTV(LINE,
+                                    i,
+                                    buf[i].a(),
+                                    a,
+                                    buf[i].a() == a);
+                            ASSERTV(LINE,
+                                    i,
+                                    buf[i].b(),
+                                    b,
+                                    buf[i].b() == b);
+                            ASSERTV(LINE,
+                                    i,
+                                    buf[i].c(),
+                                    c,
+                                    buf[i].c() == c);
+                            ASSERTV(LINE,
+                                    i,
+                                    buf[i].d(),
+                                    d,
+                                    buf[i].d() == d);
+                            ASSERTV(LINE,
+                                    i,
+                                    buf[i].e(),
+                                    e,
+                                    buf[i].e() == e);
                             bslalg::ScalarDestructionPrimitives::destroy(
                                                                       buf + i);
                         }
                         else if (isalpha(ch)) {
-                            LOOP4_ASSERT(LINE,
-                                         i,
-                                         buf[i].a(),
-                                         ch,
-                                         buf[i].a() == ch);
-                            LOOP3_ASSERT(LINE,
-                                         i,
-                                         buf[i].b(),
-                                         0 == buf[i].b());
-                            LOOP3_ASSERT(LINE,
-                                         i,
-                                         buf[i].c(),
-                                         0 == buf[i].c());
-                            LOOP3_ASSERT(LINE,
-                                         i,
-                                         buf[i].d(),
-                                         0 == buf[i].d());
-                            LOOP3_ASSERT(LINE,
-                                         i,
-                                         buf[i].e(),
-                                         0 == buf[i].e());
+                            ASSERTV(LINE,
+                                    i,
+                                    buf[i].a(),
+                                    ch,
+                                    buf[i].a() == ch);
+                            ASSERTV(LINE,
+                                    i,
+                                    buf[i].b(),
+                                    0 == buf[i].b());
+                            ASSERTV(LINE,
+                                    i,
+                                    buf[i].c(),
+                                    0 == buf[i].c());
+                            ASSERTV(LINE,
+                                    i,
+                                    buf[i].d(),
+                                    0 == buf[i].d());
+                            ASSERTV(LINE,
+                                    i,
+                                    buf[i].e(),
+                                    0 == buf[i].e());
                             bslalg::ScalarDestructionPrimitives::destroy(
                                                                       buf + i);
                         }
@@ -2187,55 +2187,55 @@ void testEmplaceAttrib5(bool exceptionSafetyFlag,
                 for (int i = 0; EXP[i]; ++i) {
                     char ch = EXP[i];
                     if ('V' == ch) {
-                        LOOP4_ASSERT(LINE,
-                                     i,
-                                     buf[i].a(),
-                                     a,
-                                     buf[i].a() == a);
-                        LOOP4_ASSERT(LINE,
-                                     i,
-                                     buf[i].b(),
-                                     b,
-                                     buf[i].b() == b);
-                        LOOP4_ASSERT(LINE,
-                                     i,
-                                     buf[i].c(),
-                                     c,
-                                     buf[i].c() == c);
-                        LOOP4_ASSERT(LINE,
-                                     i,
-                                     buf[i].d(),
-                                     d,
-                                     buf[i].d() == d);
-                        LOOP4_ASSERT(LINE,
-                                     i,
-                                     buf[i].e(),
+                        ASSERTV(LINE,
+                                i,
+                                buf[i].a(),
+                                a,
+                                buf[i].a() == a);
+                        ASSERTV(LINE,
+                                i,
+                                buf[i].b(),
+                                b,
+                                buf[i].b() == b);
+                        ASSERTV(LINE,
+                                i,
+                                buf[i].c(),
+                                c,
+                                buf[i].c() == c);
+                        ASSERTV(LINE,
+                                i,
+                                buf[i].d(),
+                                d,
+                                buf[i].d() == d);
+                        ASSERTV(LINE,
+                                i,
+                                buf[i].e(),
                                      e,
-                                     buf[i].e() == e);
+                                buf[i].e() == e);
                         bslalg::ScalarDestructionPrimitives::destroy(buf + i);
                     }
                     else if (isalpha(ch)) {
-                        LOOP4_ASSERT(LINE,
-                                     i,
-                                     buf[i].a(),
-                                     ch,
-                                     buf[i].a() == ch);
-                        LOOP3_ASSERT(LINE,
-                                     i,
-                                     buf[i].b(),
-                                     0 == buf[i].b());
-                        LOOP3_ASSERT(LINE,
-                                     i,
-                                     buf[i].c(),
-                                     0 == buf[i].c());
-                        LOOP3_ASSERT(LINE,
-                                     i,
-                                     buf[i].d(),
-                                     0 == buf[i].d());
-                        LOOP3_ASSERT(LINE,
-                                     i,
-                                     buf[i].e(),
-                                     0 == buf[i].e());
+                        ASSERTV(LINE,
+                                i,
+                                buf[i].a(),
+                                ch,
+                                buf[i].a() == ch);
+                        ASSERTV(LINE,
+                                i,
+                                buf[i].b(),
+                                0 == buf[i].b());
+                        ASSERTV(LINE,
+                                i,
+                                buf[i].c(),
+                                0 == buf[i].c());
+                        ASSERTV(LINE,
+                                i,
+                                buf[i].d(),
+                                0 == buf[i].d());
+                        ASSERTV(LINE,
+                                i,
+                                buf[i].e(),
+                                0 == buf[i].e());
                         bslalg::ScalarDestructionPrimitives::destroy(buf + i);
                     }
                     else {
