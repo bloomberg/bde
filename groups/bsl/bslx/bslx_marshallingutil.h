@@ -132,7 +132,7 @@ BSLS_IDENT("$Id: $")
 // a conversion process to and from this format is performed.  This conversion
 // may (of course) be lossy:
 //..
-//  sign bit    11-bit exponent             52-bit mantissa
+//  sign bit    11-bit exponent             52-bit significand
 //    /        /                           /
 //  +-+-----------+----------------------------------------------------+
 //  |s|e10......e0|m51...............................................m0|
@@ -148,7 +148,7 @@ BSLS_IDENT("$Id: $")
 // a conversion process to and from this format is performed.  This conversion
 // may (of course) be lossy:
 //..
-//  sign bit    8-bit exponent        23-bit mantissa
+//  sign bit    8-bit exponent        23-bit significand
 //     /       /                     /
 //    +-+--------+-----------------------+
 //    |s|e7....e0|m22..................m0|
@@ -1355,7 +1355,7 @@ void MarshallingUtil::getFloat64(double *variable, const char *buffer)
     BSLS_ASSERT_SAFE(buffer);
 
     if (sizeof *variable > k_SIZEOF_FLOAT64) {
-        *variable = 0;  // zero-fill mantissa
+        *variable = 0;  // zero-fill significand
     }
 
     char *bytes = reinterpret_cast<char *>(variable);
@@ -1381,7 +1381,7 @@ void MarshallingUtil::getFloat32(float *variable, const char *buffer)
     BSLS_ASSERT_SAFE(buffer);
 
     if (sizeof *variable > k_SIZEOF_FLOAT32) {
-        *variable = 0;  // zero-fill mantissa
+        *variable = 0;  // zero-fill significand
     }
 
     char *bytes = reinterpret_cast<char *>(variable);

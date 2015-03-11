@@ -69,7 +69,7 @@ BSLS_IDENT("$Id$")
 //  -------------+----------+--------------+  In the Value column you may
 //       1234567 |        0 |   1234567.0  |  observer how the decimal point
 //       1234567 |        1 |  12345670.0  |  is "floating" about the digits
-//       1234567 |        2 | 123456700.0  |  of the significand (mantissa).
+//       1234567 |        2 | 123456700.0  |  of the significand.
 //       1234567 |       -1 |    123456.7  |
 //       1234567 |       -2 |     12345.67 |
 //..
