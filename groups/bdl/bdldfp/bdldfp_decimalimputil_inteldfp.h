@@ -1576,7 +1576,7 @@ DecimalImpUtil_IntelDfp::convertFromBID(
                                 BinaryIntegralDecimalImpUtil::StorageType32 bid)
 {
     ValueType32 result;
-    memcpy(&result, &bid, sizeof(result));
+    bsl::memcpy(&result, &bid, sizeof(result));
 
     return result;
 }
@@ -1587,7 +1587,7 @@ DecimalImpUtil_IntelDfp::convertFromBID(
                                 BinaryIntegralDecimalImpUtil::StorageType64 bid)
 {
     ValueType64 result;
-    memcpy(&result, &bid, sizeof(result));
+    bsl::memcpy(&result, &bid, sizeof(result));
 
     return result;
 }
@@ -1598,7 +1598,7 @@ DecimalImpUtil_IntelDfp::convertFromBID(
                                BinaryIntegralDecimalImpUtil::StorageType128 bid)
 {
     ValueType128 result;
-    memcpy(&result, &bid, sizeof(result));
+    bsl::memcpy(&result, &bid, sizeof(result));
 
     return result;
 }

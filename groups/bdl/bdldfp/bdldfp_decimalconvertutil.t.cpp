@@ -400,7 +400,7 @@ bool strictEqual(DECIMAL_TYPE lhs, DECIMAL_TYPE rhs)
 {
     const void *blhs = &lhs;
     const void *brhs = &rhs;
-    return memcmp(blhs, brhs, sizeof(DECIMAL_TYPE)) == 0;
+    return bsl::memcmp(blhs, brhs, sizeof(DECIMAL_TYPE)) == 0;
 }
 
 void bufferToStream(bsl::ostream           &out,
@@ -495,7 +495,7 @@ int main(int argc, char* argv[])
             unsigned char *next = msgbuffer;
             next = bdldfp::DecimalConvertUtil::decimalToNetwork(next, number);
 
-            ASSERT(memcmp(msgbuffer, expected, sizeof(number)) == 0);
+            ASSERT(bsl::memcmp(msgbuffer, expected, sizeof(number)) == 0);
         }
         //..
         // The receiver/client shall then restore the number from network
@@ -693,14 +693,14 @@ int main(int argc, char* argv[])
 
             ASSERTV(LINE, encodedSize, actualEncodedSize,
                     encodedSize == actualEncodedSize);
-            ASSERTV(LINE, 0 == memcmp(
+            ASSERTV(LINE, 0 == bsl::memcmp(
                                encodedBuffer,
                                actualEncodedBuffer + actualEncodedBufferOffset,
                                encodedSize));
-            ASSERTV(LINE, 0 == memcmp(actualEncodedBuffer,
-                                      actualEncodedBufferOrig,
-                                      actualEncodedBufferOffset));
-            ASSERTV(LINE, 0 == memcmp(
+            ASSERTV(LINE, 0 == bsl::memcmp(actualEncodedBuffer,
+                                           actualEncodedBufferOrig,
+                                           actualEncodedBufferOffset));
+            ASSERTV(LINE, 0 == bsl::memcmp(
              actualEncodedBuffer + actualEncodedBufferOffset + encodedSize,
              actualEncodedBufferOrig + actualEncodedBufferOffset + encodedSize,
              sizeof(actualEncodedBuffer) - encodedSize
@@ -1133,14 +1133,14 @@ int main(int argc, char* argv[])
 
                 ASSERTV(LINE, encodedSize, actualEncodedSize,
                         encodedSize == actualEncodedSize);
-                ASSERTV(LINE, 0 == memcmp(
-                            encodedBuffer,
-                            actualEncodedBuffer + actualEncodedBufferOffset,
-                            encodedSize));
-                ASSERTV(LINE, 0 == memcmp(actualEncodedBuffer,
-                                          actualEncodedBufferOrig,
-                                          actualEncodedBufferOffset));
-                ASSERTV(LINE, 0 == memcmp(
+                ASSERTV(LINE, 0 == bsl::memcmp(
+                               encodedBuffer,
+                               actualEncodedBuffer + actualEncodedBufferOffset,
+                               encodedSize));
+                ASSERTV(LINE, 0 == bsl::memcmp(actualEncodedBuffer,
+                                               actualEncodedBufferOrig,
+                                               actualEncodedBufferOffset));
+                ASSERTV(LINE, 0 == bsl::memcmp(
                                       actualEncodedBuffer +
                                       actualEncodedBufferOffset + encodedSize,
                                       actualEncodedBufferOrig +
@@ -1204,14 +1204,14 @@ int main(int argc, char* argv[])
 
                 ASSERTV(LINE, encodedSize, actualEncodedSize,
                         encodedSize == actualEncodedSize);
-                ASSERTV(LINE, 0 == memcmp(
+                ASSERTV(LINE, 0 == bsl::memcmp(
                             encodedBuffer,
                             actualEncodedBuffer + actualEncodedBufferOffset,
                             encodedSize));
-                ASSERTV(LINE, 0 == memcmp(actualEncodedBuffer,
-                                          actualEncodedBufferOrig,
-                                          actualEncodedBufferOffset));
-                ASSERTV(LINE, 0 == memcmp(
+                ASSERTV(LINE, 0 == bsl::memcmp(actualEncodedBuffer,
+                                               actualEncodedBufferOrig,
+                                               actualEncodedBufferOffset));
+                ASSERTV(LINE, 0 == bsl::memcmp(
                                       actualEncodedBuffer +
                                       actualEncodedBufferOffset + encodedSize,
                                       actualEncodedBufferOrig +
@@ -1294,7 +1294,7 @@ int main(int argc, char* argv[])
             BDEC::Decimal32 d32;
 
             Util::decimalToNetwork(buffer, h_d32);
-            ASSERT(0 == memcmp(n_d32, buffer, sizeof(n_d32)));
+            ASSERT(0 == bsl::memcmp(n_d32, buffer, sizeof(n_d32)));
 
             Util::decimalFromNetwork(&d32, buffer);
             LOOP2_ASSERT(d32, h_d32, d32 == h_d32);
@@ -1302,10 +1302,10 @@ int main(int argc, char* argv[])
             unsigned int rawData = 0x2654D2E7;
 
             Util::decimalToDPD(buffer, h_d32);
-            ASSERT(0 == memcmp(buffer, &rawData, sizeof(rawData)));
+            ASSERT(0 == bsl::memcmp(buffer, &rawData, sizeof(rawData)));
 
             Util::decimal32ToDPD(buffer, h_d32);
-            ASSERT(0 == memcmp(buffer, &rawData, sizeof(rawData)));
+            ASSERT(0 == bsl::memcmp(buffer, &rawData, sizeof(rawData)));
 
             ASSERT(Util::decimal32FromDPD(buffer) == h_d32);
 
@@ -1324,7 +1324,7 @@ int main(int argc, char* argv[])
             BDEC::Decimal64 d64;
 
             Util::decimalToNetwork(buffer, h_d64);
-            ASSERT(0 == memcmp(n_d64, buffer, sizeof(n_d64)));
+            ASSERT(0 == bsl::memcmp(n_d64, buffer, sizeof(n_d64)));
 
             Util::decimalFromNetwork(&d64, buffer);
             LOOP2_ASSERT(d64, h_d64, d64 == h_d64);
@@ -1332,10 +1332,10 @@ int main(int argc, char* argv[])
             unsigned long long rawData = 0x263934B9C1E28E56ULL;
 
             Util::decimalToDPD(buffer, h_d64);
-            ASSERT(0 == memcmp(&rawData, buffer, sizeof(rawData)));
+            ASSERT(0 == bsl::memcmp(&rawData, buffer, sizeof(rawData)));
 
             Util::decimal64ToDPD(buffer, h_d64);
-            ASSERT(0 == memcmp(&rawData, buffer, sizeof(rawData)));
+            ASSERT(0 == bsl::memcmp(&rawData, buffer, sizeof(rawData)));
 
             ASSERT(Util::decimal64FromDPD(buffer) == h_d64);
 
@@ -1357,7 +1357,7 @@ int main(int argc, char* argv[])
             BDEC::Decimal128 d128;
 
             Util::decimalToNetwork(buffer, h_d128);
-            ASSERT(0 == memcmp(n_d128, buffer, sizeof(n_d128)));
+            ASSERT(0 == bsl::memcmp(n_d128, buffer, sizeof(n_d128)));
 
             Util::decimalFromNetwork(&d128, buffer);
             LOOP2_ASSERT(d128, h_d128, d128 == h_d128);
@@ -1366,10 +1366,10 @@ int main(int argc, char* argv[])
                                     0x6F3C127177823534ULL);
 
             Util::decimalToDPD(buffer, h_d128);
-            ASSERT(0 == memcmp(&rawData, buffer, sizeof(rawData)));
+            ASSERT(0 == bsl::memcmp(&rawData, buffer, sizeof(rawData)));
 
             Util::decimal128ToDPD(buffer, h_d128);
-            ASSERT(0 == memcmp(&rawData, buffer, sizeof(rawData)));
+            ASSERT(0 == bsl::memcmp(&rawData, buffer, sizeof(rawData)));
 
             ASSERT(Util::decimal128FromDPD(buffer) == h_d128);
 

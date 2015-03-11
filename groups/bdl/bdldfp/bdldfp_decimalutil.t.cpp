@@ -1683,22 +1683,22 @@ int main(int argc, char* argv[])
             {
                 BDEC::Decimal64 ACTUAL   = makeDecimalRaw64Zero  (42, 5);
                 BDEC::Decimal64 EXPECTED = Util::makeDecimalRaw64(42, 5);
-                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 8));
+                ASSERT(!bsl::memcmp(&ACTUAL, &EXPECTED, 8));
             }
             {
                 BDEC::Decimal64 ACTUAL   = makeDecimalRaw64Zero  (42u, 5);
                 BDEC::Decimal64 EXPECTED = Util::makeDecimalRaw64(42u, 5);
-                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 8));
+                ASSERT(!bsl::memcmp(&ACTUAL, &EXPECTED, 8));
             }
             {
                 BDEC::Decimal64 ACTUAL   = makeDecimalRaw64Zero  (42ll, 5);
                 BDEC::Decimal64 EXPECTED = Util::makeDecimalRaw64(42ll, 5);
-                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 8));
+                ASSERT(!bsl::memcmp(&ACTUAL, &EXPECTED, 8));
             }
             {
                 BDEC::Decimal64 ACTUAL   = makeDecimalRaw64Zero  (42ull, 5);
                 BDEC::Decimal64 EXPECTED = Util::makeDecimalRaw64(42ull, 5);
-                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 8));
+                ASSERT(!bsl::memcmp(&ACTUAL, &EXPECTED, 8));
             }
 
 
@@ -1707,7 +1707,7 @@ int main(int argc, char* argv[])
             {
                 DpdUtil::StorageType64 ACTUAL = DpdUtil::makeDecimalRaw64(0,0);
                 unsigned long long EXPECTED = 0x2238000000000000ull;
-                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 8));
+                ASSERT(!bsl::memcmp(&ACTUAL, &EXPECTED, 8));
 
             }
             {
@@ -1716,7 +1716,7 @@ int main(int argc, char* argv[])
                 DpdUtil::StorageType64 ACTUAL = 
                                 ImpUtil::convertToDPD(*value.data());
                 unsigned long long EXPECTED = 0x2238000000000000ull;
-                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 8));
+                ASSERT(!bsl::memcmp(&ACTUAL, &EXPECTED, 8));
             }
 
             {
@@ -1725,7 +1725,7 @@ int main(int argc, char* argv[])
                 DpdUtil::StorageType64 ACTUAL = 
                                 ImpUtil::convertToDPD(*value.data());
                 unsigned long long EXPECTED = 0x224C000000000000ull;
-                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 8));
+                ASSERT(!bsl::memcmp(&ACTUAL, &EXPECTED, 8));
             }
 
             {
@@ -1734,7 +1734,7 @@ int main(int argc, char* argv[])
                 DpdUtil::StorageType64 ACTUAL = 
                                 ImpUtil::convertToDPD(*value.data());
                 unsigned long long EXPECTED = 0x2224000000000000ull;
-                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 8));
+                ASSERT(!bsl::memcmp(&ACTUAL, &EXPECTED, 8));
             }
 
         }
@@ -1746,22 +1746,22 @@ int main(int argc, char* argv[])
             {
                 BDEC::Decimal128 ACTUAL   = makeDecimalRaw128Zero  (42, 5);
                 BDEC::Decimal128 EXPECTED = Util::makeDecimalRaw128(42, 5);
-                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 16));
+                ASSERT(!bsl::memcmp(&ACTUAL, &EXPECTED, 16));
             }
             {
                 BDEC::Decimal128 ACTUAL   = makeDecimalRaw128Zero  (42u, 5);
                 BDEC::Decimal128 EXPECTED = Util::makeDecimalRaw128(42u, 5);
-                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 16));
+                ASSERT(!bsl::memcmp(&ACTUAL, &EXPECTED, 16));
             }
             {
                 BDEC::Decimal128 ACTUAL   = makeDecimalRaw128Zero  (42ll, 5);
                 BDEC::Decimal128 EXPECTED = Util::makeDecimalRaw128(42ll, 5);
-                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 16));
+                ASSERT(!bsl::memcmp(&ACTUAL, &EXPECTED, 16));
             }
             {
                 BDEC::Decimal128 ACTUAL   = makeDecimalRaw128Zero  (42ull, 5);
                 BDEC::Decimal128 EXPECTED = Util::makeDecimalRaw128(42ull, 5);
-                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 16));
+                ASSERT(!bsl::memcmp(&ACTUAL, &EXPECTED, 16));
             }
 
             // Test against hard coded DPD bit values.
@@ -1774,7 +1774,7 @@ int main(int argc, char* argv[])
                 BloombergLP::bdldfp::Uint128 EXPECTED(
                                  0x2208000000000000ull, 0x0000000000000000ull);
 
-                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 16));
+                ASSERT(!bsl::memcmp(&ACTUAL, &EXPECTED, 16));
             }
 
 
@@ -1786,7 +1786,7 @@ int main(int argc, char* argv[])
                 BloombergLP::bdldfp::Uint128 EXPECTED(
                                  0x2209400000000000ull, 0x0000000000000000ull);
 
-                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 16));
+                ASSERT(!bsl::memcmp(&ACTUAL, &EXPECTED, 16));
             }
 
             {
@@ -1797,7 +1797,7 @@ int main(int argc, char* argv[])
                 BloombergLP::bdldfp::Uint128 EXPECTED(
                                  0x2206C00000000000ull, 0x0000000000000000ull);
 
-                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 16));
+                ASSERT(!bsl::memcmp(&ACTUAL, &EXPECTED, 16));
             }
 
         }
