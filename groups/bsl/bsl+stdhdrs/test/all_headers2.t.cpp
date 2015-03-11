@@ -9,9 +9,6 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <typeinfo>
-#include <typeindex>
-#include <tuple>
-#include <thread>
 #include <strstream>
 #include <string>
 #include <streambuf>
@@ -21,17 +18,11 @@
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #include <slist>
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
-#include <system_error>
 #include <set>
-#include <scoped_allocator>
-#include <regex>
-#include <ratio>
-#include <random>
 #include <queue>
 #include <ostream>
 #include <numeric>
 #include <new>
-#include <mutex>
 #include <memory>
 #include <map>
 #include <locale>
@@ -43,47 +34,62 @@
 #include <iosfwd>
 #include <ios>
 #include <iomanip>
-#include <initializer_list>
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #include <hash_set>
 #include <hash_map>
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
-#include <future>
 #include <functional>
 #include <fstream>
 #include <exception>
 #include <deque>
 #include <cwctype>
 #include <cwchar>
-#include <cuchar>
 #include <ctime>
-#include <ctgmath>
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>
-#include <cstdint>
 #include <cstddef>
-#include <cstdbool>
 #include <cstdarg>
 #include <csignal>
 #include <csetjmp>
-#include <condition_variable>
 //#include <complex>
 #include <cmath>
 #include <clocale>
 #include <climits>
 #include <ciso646>
-#include <cinttypes>
-#include <chrono>
 #include <cfloat>
-#include <cfenv>
 #include <cerrno>
 #include <cctype>
 #include <cassert>
 #include <bitset>
+#include <algorithm>
+
+#ifdef BSL_TEST_CPP11_HEADERS
+
+#include <typeindex>
+#include <tuple>
+#include <thread>
+#include <system_error>
+#include <scoped_allocator>
+#include <regex>
+#include <ratio>
+#include <random>
+#include <mutex>
+#include <initializer_list>
+#include <future>
+#include <cuchar>
+#include <ctgmath>
+#include <cstdint>
+#include <cstdbool>
+#include <condition_variable>
+#include <cinttypes>
+#include <chrono>
+#include <cfenv>
 #include <atomic>
 #include <array>
-#include <algorithm>
+
+#endif
+
 
 #ifndef std
 # error std was expected to be a macro

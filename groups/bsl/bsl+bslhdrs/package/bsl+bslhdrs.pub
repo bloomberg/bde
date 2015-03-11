@@ -1,6 +1,5 @@
 # Container headers
 bsl_array.h
-bsl_atomic.h
 bsl_deque.h
 bsl_iterator.h
 bsl_list.h
@@ -20,6 +19,7 @@ bsl_slist.h
 
 # Non-container headers
 bsl_algorithm.h
+bsl_atomic.h
 bsl_bitset.h
 bsl_chrono.h
 bsl_condition_variable.h

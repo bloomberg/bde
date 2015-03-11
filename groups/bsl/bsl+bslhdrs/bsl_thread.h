@@ -21,27 +21,19 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
-#include <bsls_platform.h>
-#endif
-
 #include <thread>
 
 namespace bsl {
 
     //using native_std::this_thread;
-    using native_std::this_thread::get_id;
-    using native_std::this_thread::yield;
-    using native_std::this_thread::sleep_until;
-    using native_std::this_thread::sleep_for;
+    namespace this_thread{
+        using native_std::this_thread::get_id;
+        using native_std::this_thread::yield;
+        using native_std::this_thread::sleep_until;
+        using native_std::this_thread::sleep_for;
+    }
     using native_std::thread;
 }  // close namespace bsl
-
-
-// Include Bloomberg's implementation, unless compilation is configured to
-// override native types in the 'std' namespace with Bloomberg's
-// implementation, in which case the implementation file will be included by
-// the Bloomberg supplied standard header file.
 
 #endif
 

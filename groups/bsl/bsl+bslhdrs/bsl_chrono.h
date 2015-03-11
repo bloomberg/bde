@@ -21,38 +21,28 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
-#include <bsls_platform.h>
-#endif
-
 #include <chrono>
 
 namespace bsl {
 
-    using native_std::chrono::duration;
-    using native_std::chrono::time_point;
-    using native_std::chrono::system_clock;
-    using native_std::chrono::steady_clock;
-    using native_std::chrono::high_resolution_clock;
-    using native_std::chrono::treat_as_floating_point;
-    using native_std::chrono::duration_values;
-    using native_std::common_type;
-    using native_std::chrono::duration_cast;
-    using native_std::chrono::time_point_cast;
-    using native_std::chrono::hours;
-    using native_std::chrono::minutes;
-    using native_std::chrono::seconds;
-    using native_std::chrono::milliseconds;
-    using native_std::chrono::microseconds;
-    using native_std::chrono::nanoseconds;
-
+    namespace chrono {
+        using native_std::chrono::duration;
+        using native_std::chrono::time_point;
+        using native_std::chrono::system_clock;
+        using native_std::chrono::steady_clock;
+        using native_std::chrono::high_resolution_clock;
+        using native_std::chrono::treat_as_floating_point;
+        using native_std::chrono::duration_values;
+        using native_std::chrono::duration_cast;
+        using native_std::chrono::time_point_cast;
+        using native_std::chrono::hours;
+        using native_std::chrono::minutes;
+        using native_std::chrono::seconds;
+        using native_std::chrono::milliseconds;
+        using native_std::chrono::microseconds;
+        using native_std::chrono::nanoseconds;
+    }
 }  // close namespace bsl
-
-
-// Include Bloomberg's implementation, unless compilation is configured to
-// override native types in the 'std' namespace with Bloomberg's
-// implementation, in which case the implementation file will be included by
-// the Bloomberg supplied standard header file.
 
 #endif
 

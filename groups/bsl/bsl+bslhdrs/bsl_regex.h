@@ -21,10 +21,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
-#include <bsls_platform.h>
-#endif
-
 #include <regex>
 
 namespace bsl {
@@ -49,53 +45,49 @@ namespace bsl {
     using native_std::wcsub_match;
     using native_std::ssub_match;
     using native_std::wssub_match;
-    using native_std::regex_constants::icase;
-    using native_std::regex_constants::nosubs;
-    using native_std::regex_constants::optimize;
-    //using native_std::regex_constants::collate;
-    using native_std::regex_constants::ECMAScript;
-    using native_std::regex_constants::basic;
-    using native_std::regex_constants::extended;
-    using native_std::regex_constants::awk;
-    using native_std::regex_constants::grep;
-    using native_std::regex_constants::egrep;
-    using native_std::regex_constants::match_default;
-    using native_std::regex_constants::match_not_bol;
-    using native_std::regex_constants::match_not_eol;
-    using native_std::regex_constants::match_not_bow;
-    using native_std::regex_constants::match_not_eow;
-    using native_std::regex_constants::match_any;
-    using native_std::regex_constants::match_not_null;
-    using native_std::regex_constants::match_continuous;
-    using native_std::regex_constants::match_prev_avail;
-    using native_std::regex_constants::format_default;
-    using native_std::regex_constants::format_sed;
-    using native_std::regex_constants::format_no_copy;
-    using native_std::regex_constants::format_first_only;
-    using native_std::regex_constants::error_collate;
-    using native_std::regex_constants::error_ctype;
-    using native_std::regex_constants::error_escape;
-    using native_std::regex_constants::error_backref;
-    using native_std::regex_constants::error_brack;
-    using native_std::regex_constants::error_paren;
-    using native_std::regex_constants::error_brace;
-    using native_std::regex_constants::error_badbrace;
-    using native_std::regex_constants::error_range;
-    using native_std::regex_constants::error_space;
-    using native_std::regex_constants::error_badrepeat;
-    using native_std::regex_constants::error_complexity;
-    using native_std::regex_constants::error_stack;
+    namespace regex_constants {
+        using native_std::regex_constants::icase;
+        using native_std::regex_constants::nosubs;
+        using native_std::regex_constants::optimize;
+        using native_std::regex_constants::collate;
+        using native_std::regex_constants::ECMAScript;
+        using native_std::regex_constants::basic;
+        using native_std::regex_constants::extended;
+        using native_std::regex_constants::awk;
+        using native_std::regex_constants::grep;
+        using native_std::regex_constants::egrep;
+        using native_std::regex_constants::match_default;
+        using native_std::regex_constants::match_not_bol;
+        using native_std::regex_constants::match_not_eol;
+        using native_std::regex_constants::match_not_bow;
+        using native_std::regex_constants::match_not_eow;
+        using native_std::regex_constants::match_any;
+        using native_std::regex_constants::match_not_null;
+        using native_std::regex_constants::match_continuous;
+        using native_std::regex_constants::match_prev_avail;
+        using native_std::regex_constants::format_default;
+        using native_std::regex_constants::format_sed;
+        using native_std::regex_constants::format_no_copy;
+        using native_std::regex_constants::format_first_only;
+        using native_std::regex_constants::error_collate;
+        using native_std::regex_constants::error_ctype;
+        using native_std::regex_constants::error_escape;
+        using native_std::regex_constants::error_backref;
+        using native_std::regex_constants::error_brack;
+        using native_std::regex_constants::error_paren;
+        using native_std::regex_constants::error_brace;
+        using native_std::regex_constants::error_badbrace;
+        using native_std::regex_constants::error_range;
+        using native_std::regex_constants::error_space;
+        using native_std::regex_constants::error_badrepeat;
+        using native_std::regex_constants::error_complexity;
+        using native_std::regex_constants::error_stack;
+    }
     //using native_std::ECMAScript;
     using native_std::begin;
     using native_std::end;
 
 }  // close namespace bsl
-
-
-// Include Bloomberg's implementation, unless compilation is configured to
-// override native types in the 'std' namespace with Bloomberg's
-// implementation, in which case the implementation file will be included by
-// the Bloomberg supplied standard header file.
 
 #endif
 

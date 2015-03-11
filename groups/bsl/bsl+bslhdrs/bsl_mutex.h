@@ -21,10 +21,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
-#include <bsls_platform.h>
-#endif
-
 #include <mutex>
 
 namespace bsl {
@@ -39,17 +35,14 @@ namespace bsl {
     using native_std::adopt_lock_t;
     using native_std::defer_lock_t;
     using native_std::try_to_lock_t;
+    using native_std::adopt_lock;
+    using native_std::defer_lock;
+    using native_std::try_to_lock;
     using native_std::try_lock;
     using native_std::lock;
     using native_std::call_once;
 
 }  // close namespace bsl
-
-
-// Include Bloomberg's implementation, unless compilation is configured to
-// override native types in the 'std' namespace with Bloomberg's
-// implementation, in which case the implementation file will be included by
-// the Bloomberg supplied standard header file.
 
 #endif
 
