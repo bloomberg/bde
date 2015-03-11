@@ -28,7 +28,38 @@ BSLS_IDENT("$Id: $")
 #include <cstdint>
 
 namespace bsl {
-//Include Typedefs??
+    using native_std::intmax_t;
+    using native_std::uintmax_t;
+    using native_std::int_least8_t;
+    using native_std::int_least16_t;
+    using native_std::int_least32_t;
+    using native_std::int_least64_t;
+    using native_std::uint_least8_t;
+    using native_std::uint_least16_t;
+    using native_std::uint_least32_t;
+    using native_std::uint_least64_t;
+    using native_std::int_fast8_t;
+    using native_std::int_fast16_t;
+    using native_std::int_fast32_t;
+    using native_std::int_fast64_t;
+    using native_std::uint_fast8_t;
+    using native_std::uint_fast16_t;
+    using native_std::uint_fast32_t;
+    using native_std::uint_fast64_t;
+
+#ifdef optional_cstdint_features
+    using native_std::int8_t;
+    using native_std::int16_t;
+    using native_std::int32_t;
+    using native_std::int64_t;
+    using native_std::uint8_t;
+    using native_std::uint16_t;
+    using native_std::uint32_t;
+    using native_std::uint64_t;
+    using native_std::intptr_t;
+    using native_std::uintptr_t;
+#endif
+
 }  // close namespace bsl
 
 #endif

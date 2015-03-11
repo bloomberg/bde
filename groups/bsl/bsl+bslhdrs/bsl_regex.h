@@ -45,6 +45,8 @@ namespace bsl {
     using native_std::wcsub_match;
     using native_std::ssub_match;
     using native_std::wssub_match;
+    using native_std::begin;
+    using native_std::end;
     namespace regex_constants {
         using native_std::regex_constants::icase;
         using native_std::regex_constants::nosubs;
@@ -83,9 +85,6 @@ namespace bsl {
         using native_std::regex_constants::error_complexity;
         using native_std::regex_constants::error_stack;
     }
-    //using native_std::ECMAScript;
-    using native_std::begin;
-    using native_std::end;
 
 }  // close namespace bsl
 

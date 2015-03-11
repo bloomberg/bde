@@ -30,7 +30,7 @@ namespace bsl {
     using native_std::strtoumax;
     using native_std::wcstoimax;
     using native_std::wcstoumax;
-    //using native_std::imaxdiv_t; ?? is typedef
+    using native_std::imaxdiv_t;
 
 }  // close namespace bsl
 
