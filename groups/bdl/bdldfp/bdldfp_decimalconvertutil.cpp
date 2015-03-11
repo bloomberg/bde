@@ -15,96 +15,14 @@ BSLS_IDENT_RCSID(bdldfp_decimalconvertutil_cpp,"$Id$ $CSID$")
 #  endif
 #endif
 
-#include <math.h>
-
-#include <bsl_cstring.h>
-
 #include <bsl_algorithm.h>
-#include <bsl_iostream.h>  // TODO TBD - remove this, it is just for debugging
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 
 namespace BloombergLP {
 namespace bdldfp {
 
 namespace {
-
-                    // ===============
-                    // class BufferBuf
-                    // ===============
-
-template <int Size>
-class BufferBuf : public bsl::streambuf {
-    // A static (capacity) stream buffer helper
-
-    char d_buf[Size + 1];  // Text plus closing NUL character
-
-  public:
-    // CREATORS
-    BufferBuf();
-        // Create an empty 'BufferBuf'.
-
-    // MANIPULATORS
-    void reset();
-        // Clear this buffer (make it empty).
-
-    const char *str();
-        // Return a pointer to a non-modifiable, NUL-terminated string of
-        // characters that is the content of this buffer.
-};
-
-                    // ---------------
-                    // class BufferBuf
-                    // ---------------
-
-template <int Size>
-inline
-BufferBuf<Size>::BufferBuf()
-{
-    reset();
-}
-
-template <int Size>
-inline
-void BufferBuf<Size>::reset()
-{
-    this->setp(this->d_buf, this->d_buf + Size);
-}
-
-template <int Size>
-inline
-const char *BufferBuf<Size>::str()
-{
-    *this->pptr() = 0;
-    return this->pbase();
-}
-
-                    // =================
-                    // class PtrInputBuf
-                    // =================
-
-struct PtrInputBuf : bsl::streambuf {
-    explicit PtrInputBuf(const char *s);
-        // Create a 'PtrInputBuf' that reads from the specified 's'
-        // NUL-terminated string.
-};
-                    // -----------------
-                    // class PtrInputBuf
-                    // -----------------
-
-PtrInputBuf::PtrInputBuf(const char *s) {
-    char *x = const_cast<char *>(s);
-    this->setg(x, x, x + bsl::strlen(x));
-}
-
-template <class DECIMAL_TYPE, class BINARY_TYPE>
-void makeBinaryFloatingPoint(BINARY_TYPE *bfp, DECIMAL_TYPE dfp)
-    // Construct, in the specified 'bfp', a Binary Floating Point
-    // representation of the value of the specified 'dfp'.
-{
-#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
-    *bfp = dfp.value();
-#endif
-}
-
                         // Reverse Memory
 
 static void memrev(void *buffer, size_t count)
@@ -161,6 +79,126 @@ unsigned char *decimalToNetworkT(unsigned char *buffer, DECIMAL_TYPE decimal)
     return memReverseIfNeeded(buffer, sizeof(DECIMAL_TYPE));
 }
 
+                        // =================
+                        // class StdioFormat
+                        // =================
+
+template <class FORMATTED_TYPE> struct StdioFormat;
+    // This 'struct' template provides a method, 'format', that returns a
+    // 'printf'-style format string to format values of the template parameter
+    // type 'FORMATTED_TYPE' that can be used to restore a decimal value that
+    // was previously converted to this type.
+
+template <>
+struct StdioFormat<float> {
+    // This template specialization of 'StdioFormat' provides a function that
+    // returns a 'printf'-style format string for 'float' values.
+
+    static const char* format();
+        // Return a 'printf'-style format string that can be used to restore a
+        // decimal value that was previously converted to a 'float' value.
+        // Refer to the documentation of 'decimalFromFloat' for the conversion
+        // rules.
+};
+
+template <>
+struct StdioFormat<double> {
+    // This template specialization of 'StdioFormat' provides a function that
+    // returns a 'printf'-style format string for 'double' values.
+
+    static char const* format();
+        // Return a 'printf'-style format string that can be used to restore a
+        // decimal value that was previously converted to a 'double' value.
+        // Refer to the documentation of 'decimalFromDouble' for the conversion
+        // rules.
+};
+
+                        // -----------------
+                        // class StdioFormat
+                        // -----------------
+
+const char* StdioFormat<float>::format()
+{
+    return "%.6g";
+}
+
+const char* StdioFormat<double>::format()
+{
+    return "%.15g";
+}
+
+                        // ===================
+                        // class DecimalTraits
+                        // ===================
+
+template <class DECIMAL_TYPE> struct DecimalTraits;
+    // This 'struct' template provides a way to create an object of the
+    // template parameter type 'DECIMAL_TYPE' though a consistent interface.
+
+
+template <>
+struct DecimalTraits<Decimal32> {
+    // This template specialization of 'DecimalTraits' provides functions to
+    // create 'Decimal32' values.
+
+    typedef int SignificandType;
+        // This 'typedef' defines a type that is large enough to hold the
+        // significant of 'Decimal32'.
+
+    static Decimal32 make(int significand, int exponent);
+        // Return a 'Decimal32' value having the specified 'significand' and
+        // the specified 'exponent'.
+};
+
+template <>
+struct DecimalTraits<Decimal64> {
+    // This template specialization of 'DecimalTraits' provides utilities to
+    // create 'Decimal64' values.
+
+    typedef long long SignificandType;
+        // This 'typedef' defines a type that is large enough to hold the
+        // significant of 'Decimal64'.
+
+    static Decimal64 make(long long significand, int exponent);
+        // Return a 'Decimal64' value having the specified 'significand' and
+        // the specified 'exponent'.
+
+};
+
+template <>
+struct DecimalTraits<bdldfp::Decimal128> {
+    // This template specialization of 'DecimalTraits' provides utilities to
+    // create 'Decimal128' values.
+
+    typedef long long SignificandType;
+        // This 'typedef' defines a type that is large enough to hold the
+        // significant of 'Decimal128' if it's small enough to be convertible
+        // to a double.
+
+    static bdldfp::Decimal128 make(long long significand, int exponent);
+        // Return a 'Decimal128' value having the specified 'significand' and
+        // the specified 'exponent'.
+};
+
+                        // ===================
+                        // class DecimalTraits
+                        // ===================
+
+Decimal32 DecimalTraits<Decimal32>::make(int significand, int exponent)
+{
+    return bdldfp::DecimalUtil::makeDecimalRaw32(significand, exponent);
+}
+
+Decimal64 DecimalTraits<Decimal64>::make(long long significand, int exponent)
+{
+    return bdldfp::DecimalUtil::makeDecimalRaw64(significand, exponent);
+}
+
+Decimal128 DecimalTraits<Decimal128>::make(long long significand, int exponent)
+{
+    return bdldfp::DecimalUtil::makeDecimalRaw128(significand, exponent);
+}
+
                   // Helpers for Restoring Decimal from Binary
 
 template <class DECIMAL_TYPE, class BINARY_TYPE>
@@ -169,10 +207,6 @@ void restoreDecimalFromBinary(DECIMAL_TYPE *dfp, BINARY_TYPE bfp)
     // representation of the value of the binary floating point value specified
     // by 'bfp'.
 {
-    // Handle special values of +/-INF, and NaNs without use of streams
-
-    // TODO TBD - set exception-flags here, but how do to know which one??? (E)
-    // ::decClass fclass(decFloatClass(dfp)); -- to be used for NaNs
 
     if (bfp != bfp) {
         *dfp = bsl::numeric_limits<DECIMAL_TYPE>::quiet_NaN();
@@ -192,26 +226,43 @@ void restoreDecimalFromBinary(DECIMAL_TYPE *dfp, BINARY_TYPE bfp)
         return;                                                       // RETURN
     }
 
-    // TODO: TBD we should not convert through strings - it should be possible
-    // to convert directly
-    BufferBuf<48> bb;
-    bsl::ostream out(&bb);
-    out.imbue(bsl::locale::classic());
-    out.precision(std::numeric_limits<BINARY_TYPE>::digits10);
-    out << bfp;
-    BSLS_ASSERT(out);
+    char buffer[48];
+    snprintf(buffer, sizeof(buffer), StdioFormat<BINARY_TYPE>::format(), bfp);
 
-    PtrInputBuf pb(bb.str());
-    bsl::istream in(&pb);
-    if (!(in >> *dfp)) { // Try to be sensible in case of error
-        if (bfp > 1 || bfp < -1) { // overflow
-            *dfp = bsl::numeric_limits<DECIMAL_TYPE>::infinity();
-        } else { // underflow
-            *dfp = DECIMAL_TYPE(0);
+    typename DecimalTraits<DECIMAL_TYPE>::SignificandType significand(0);
+    int  exponent(0);
+    bool negative(false);
+
+    char const* it(buffer);
+    if (*it == '-') {
+        negative = true;
+        ++it;
+    }
+    for (; bsl::isdigit(static_cast<unsigned char>(*it)); ++it) {
+        significand = significand * 10 + (*it - '0');
+    }
+    if (*it == '.') {
+        ++it;
+        for (; bsl::isdigit(static_cast<unsigned char>(*it)); ++it) {
+            significand = significand * 10 + (*it - '0');
+            --exponent;
         }
-        if (bfp < 0) {
-            *dfp = -*dfp;
-        }
+    }
+    if (*it == 'e' || *it == 'E') {
+        ++it;
+        exponent += bsl::atoi(it);
+    }
+
+    *dfp = DecimalTraits<DECIMAL_TYPE>::make(significand, exponent);
+
+    // Because the significand is a signed integer, it can not represent the
+    // value -0, which distinct from +0 in decimal floating point. So instead
+    // of converting the significand to a signed value, we change the decimal
+    // value based on the sign appropriately after the decimal value is
+    // created.
+
+    if (negative) {
+        *dfp = -(*dfp);
     }
 }
 
