@@ -1357,7 +1357,7 @@ bslstl::operator<<(std::basic_ostream<CHAR_TYPE>& stream,
     typedef typename std::basic_ostream<char_type>::ios_base    ios_base;
     typedef typename bslstl::StringRefImp<char_type>::size_type size_type;
 
-    size_type width = stream.width();
+    size_type width = static_cast<size_type>(stream.width());
     size_type len = stringRef.length();
 
     if (len < width) {
