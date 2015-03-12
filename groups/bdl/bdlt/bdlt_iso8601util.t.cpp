@@ -1504,21 +1504,21 @@ int main(int argc, char *argv[])
 // The following example illustrates how to parse an ISO 8601-compliant string
 // into a 'bdlt::DatetimeTz' object:
 //..
-    bdlt::DatetimeTz dateTime;
+    bdlt::DatetimeTz datetime;
     const char dtStr[] = "2005-01-31T08:59:59.1226-04:00";
     const int ret = bdlt::Iso8601Util::parse(
-                                         &dateTime,
+                                         &datetime,
                                          dtStr,
                                          static_cast<int>(bsl::strlen(dtStr)));
     ASSERT(   0 == ret);
-    ASSERT(2005 == dateTime.localDatetime().year());
-    ASSERT(   1 == dateTime.localDatetime().month());
-    ASSERT(  31 == dateTime.localDatetime().day());
-    ASSERT(   8 == dateTime.localDatetime().hour());
-    ASSERT(  59 == dateTime.localDatetime().minute());
-    ASSERT(  59 == dateTime.localDatetime().second());
-    ASSERT( 123 == dateTime.localDatetime().millisecond());
-    ASSERT(-240 == dateTime.offset());
+    ASSERT(2005 == datetime.localDatetime().year());
+    ASSERT(   1 == datetime.localDatetime().month());
+    ASSERT(  31 == datetime.localDatetime().day());
+    ASSERT(   8 == datetime.localDatetime().hour());
+    ASSERT(  59 == datetime.localDatetime().minute());
+    ASSERT(  59 == datetime.localDatetime().second());
+    ASSERT( 123 == datetime.localDatetime().millisecond());
+    ASSERT(-240 == datetime.offset());
 //..
 // Note that fractions of a second was rounded up to 123 milliseconds and that
 // the offset from UTC was converted to minutes.
@@ -2360,27 +2360,27 @@ int main(int argc, char *argv[])
                           << "==============" << endl;
 
         {
-            bdlt::DatetimeTz dateTime;
+            bdlt::DatetimeTz datetime;
             const char str[] = "2005-01-31T08:59:59.12345678901234-04:00";
-            int ret = Util::parse(&dateTime, str,
+            int ret = Util::parse(&datetime, str,
                                   static_cast<int>(sizeof str) - 1);
             LOOP_ASSERT(ret, 0 == ret);
-            LOOP_ASSERT(dateTime,
-                        dateTime == bdlt::DatetimeTz(bdlt::Datetime(2005,1,31,
+            LOOP_ASSERT(datetime,
+                        datetime == bdlt::DatetimeTz(bdlt::Datetime(2005,1,31,
                                                                   8,59,59,123),
                                                     -240));
-            if (verbose) P(dateTime);
+            if (verbose) P(datetime);
         }
 
         {
-            bdlt::Datetime dateTime;
+            bdlt::Datetime datetime;
             const char str[] = "2005-01-31T08:59:59.1234567890123-04:00";
-            int ret = Util::parse(&dateTime, str,
+            int ret = Util::parse(&datetime, str,
                                   static_cast<int>(sizeof str) - 1);
             LOOP_ASSERT(ret, 0 == ret);
-            LOOP_ASSERT(dateTime,
-                        dateTime == bdlt::Datetime(2005,1,31,12,59,59,123));
-            if (verbose) P(dateTime);
+            LOOP_ASSERT(datetime,
+                        datetime == bdlt::Datetime(2005,1,31,12,59,59,123));
+            if (verbose) P(datetime);
         }
 
         {
@@ -2426,18 +2426,18 @@ int main(int argc, char *argv[])
         }
 
         {
-            bdlt::DatetimeTz dateTime(bdlt::Datetime(2005,1,31,8,59,59,123),
+            bdlt::DatetimeTz datetime(bdlt::Datetime(2005,1,31,8,59,59,123),
                                      -240);
             bsl::stringstream ss;
-            bdlt::Iso8601Util::generate(ss, dateTime);
+            bdlt::Iso8601Util::generate(ss, datetime);
             LOOP_ASSERT(ss.str(), ss.str() == "2005-01-31T08:59:59.123-04:00");
             if (verbose) P(ss.str());
         }
 
         {
-            bdlt::Datetime dateTime(2005,1,31,8,59,59,123);
+            bdlt::Datetime datetime(2005,1,31,8,59,59,123);
             bsl::stringstream ss;
-            bdlt::Iso8601Util::generate(ss, dateTime);
+            bdlt::Iso8601Util::generate(ss, datetime);
             LOOP_ASSERT(ss.str(), ss.str() == "2005-01-31T08:59:59.123");
             if (verbose) P(ss.str());
         }

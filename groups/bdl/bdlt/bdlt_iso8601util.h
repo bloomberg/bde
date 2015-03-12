@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 // containing functions that convert 'bdlt' date and time objects to and from
 // a string representation defined by the ISO 8601 standard.  The string
 // representation generated and parsed by this component adheres to the ISO
-// 8601 standard for dates and time and is suitable for use in XML generation
+// 8601 standard for dates and times and is suitable for use in XML generation
 // or parsing.
 //
 // Each 'generate' function takes a 'bsl::ostream' and a 'bdlt' date or time
@@ -46,31 +46,34 @@ BSLS_IDENT("$Id: $")
 //
 ///Supported Formats
 ///- - - - - - - - -
-// The 'bdlt_iso8601util' supports the the following formats defined in the
-// ISO 8601 standard:
+// This component supports the following formats defined in the ISO 8601
+// standard:
 //
-//: o <FRAC> := .d+
-//: o <TZ>   := ((+|-)hh:mm|Z|z)
-//: o <Date> := YYYY-MM-DD
-//: o <Time> := hh:mm:ss{<FRAC>}
-//: o <Datetime> := <Date>T<Time>
-//: o <DateTz> := <Date>{<TZ>}
-//: o <TimeTz> := <Time>{<TZ>}
+//: o <FRAC>       := .d+
+//: o <TZ>         := ((+|-)hh:mm|Z|z)  // TBD Why 'z'?? (lowercase)
+//: o <Date>       := YYYY-MM-DD
+//: o <Time>       := hh:mm:ss{<FRAC>}
+//: o <Datetime>   := <Date>T<Time>
+//: o <DateTz>     := <Date>{<TZ>}
+//: o <TimeTz>     := <Time>{<TZ>}
 //: o <DatetimeTz> := <Datetime>{<TZ>}
-//
-//: o 'bdlt::Date', 'bdlt::DateTz' both accept input of the form '<DateTz>'.
-//: o 'bdlt::Time', 'bdlt::TimeTz' both accept input of the form '<TimeTz>'.
-//: o 'bdlt::Datetime', 'bdlt::DatetimeTz' both accept input of the form
+//:
+//: o 'bdlt::Date' and 'bdlt::DateTz' both accept input of the form '<DateTz>'.
+//:
+//: o 'bdlt::Time' and 'bdlt::TimeTz' both accept input of the form '<TimeTz>'.
+//:
+//: o 'bdlt::Datetime' and 'bdlt::DatetimeTz' both accept input of the form
 //:   '<DatetimeTz>'.
-//
-//: o Where '<FRAC>' is optional.
+//:
+//: o '<FRAC>' is optional.
 //:   o 'd' in 'FRAC' is any decimal digit.
 //:   o If present, 'FRAC' must consist of a '.' followed by at least one digit
 //:     d, and is interpreted as a fraction of a second.  Digits after the
 //:     first 4 are ignored.  If more than 3 digits, it is rounded to the
 //:     nearest 3 digits, possibly resulting in a value of 1.0, which will
 //:     carry into the higher fields of the time and possibly date.
-//: o '<TZ>' is always optional.
+//:
+//: o '<TZ>' is optional.
 //:   o '<TZ>' is always exactly 1 or 6 characters long.  If it is 6 chars, it
 //:     is either '+hh:mm' or '-hh:mm', if it is 1 char, it is 'Z' or 'z' which
 //:     has the same meaning as '+00:00' (UTC).
@@ -80,27 +83,30 @@ BSLS_IDENT("$Id: $")
 //:   o In 'bdlt::DateTz', 'bdlt::TimeTz', and 'bdlt::DatetimeTz' it sets the
 //:     timezone field.  If absent while parsing an object with a timezone
 //:     field, the timezone field is set to '+00:00' (UTC).
-//:   o In <TZ>, 'hh' is in the range '00 - 23', 'mm' is in the range
-//:     '00 - 59'.  A value of '24' for 'hh' is not allowed.
+//:   o In <TZ>, 'hh' is in the range '[00 .. 23]', 'mm' is in the range
+//:     '[00 .. 59]'.  A value of '24' for 'hh' is not allowed.
+//:
 //: o In types containing '<Date>':
 //:   o 'YYYY' is always 4 digits long, 'MM' and 'DD' are always 2 decimal
 //:     digits long.
-//:   o 'YYYY' is in the range '0001' - '9999'.
-//:   o 'MM' is in the range '01' - '12'
-//:   o 'DD' is in the range '01' - '31', also subject to constraints depending
-//:     on year and month.
+//:   o 'YYYY' is in the range '[0001 .. 9999]'.
+//:   o 'MM' is in the range '[01 .. 12]'
+//:   o 'DD' is in the range '[01 .. 31]', also subject to constraints
+//:     depending on year and month.
 //:   o 'YYYY-MM-DD' must be a valid year, month, day combination according to
 //:     'bdlt::Date'.
+//:
 //: o In types containing '<Time>':
 //:   o 'hh', 'mm', and 'ss' are always two decimal digits long.
-//:   o 'hh' must be in the range '00 - '24'.  If 'hh' is '24', then 'mm', and
-//:     'ss' must be zero, as must '<FRAC>' and '<TZ>' if present.
-//:   o 'mm' must be in the range '00 - '59'.
-//:   o 'ss' must be in the range '00 - '59'.
+//:   o 'hh' must be in the range '[00 .. 24]'.  If 'hh' is 24, then 'mm', and
+//:      'ss' must be zero, as must '<FRAC>' and '<TZ>' if present.
+//:   o 'mm' must be in the range '[00 .. 59]'.
+//:   o 'ss' must be in the range '[00 .. 59]'.
 //:   o 'hh:mm:ss' must be a valid hour, minute, second combination according
 //:     to 'bdlt::Time'.
-//: o Where 'T' in '<Datetime>' literally is the uppercase letter 'T'.  It must
-//:   be present.
+//:
+//: o 'T' in '<Datetime>' literally is the uppercase letter 'T'.  It must be
+//:   present.
 //
 ///Subsets of ISO 8601 Format Not Accepted by 'bdlt::Iso8601Util'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -127,7 +133,7 @@ BSLS_IDENT("$Id: $")
 //:   dates or years are not supported, except that fractions of a second are
 //:   optional.
 //: o Expanded Representation: 2.3.8, 4.1.3.3.  Years outside the range
-//:   '0000 - 9999'.  In fact, only the range '0001 - 9999' is supported.
+//:   '[0000 .. 9999]'.  In fact, only the range '[0001 .. 9999]' is supported.
 //: o Fractions are only permissible using a '.'; commas ',' are not allowed
 //:   4.2.2.4.  Fractions of hours or minutes are not allowed; only fractions
 //:   of seconds are allowed.
@@ -170,21 +176,21 @@ BSLS_IDENT("$Id: $")
 // The following example illustrates how to parse an ISO 8601-compliant string
 // into a 'bdlt::DatetimeTz' object:
 //..
-//  bdlt::DatetimeTz dateTime;
+//  bdlt::DatetimeTz datetime;
 //  const char dtStr[] = "2005-01-31T08:59:59.123+04:00";
 //  const int ret = bdlt::Iso8601Util::parse(
-//                                       &dateTime,
+//                                       &datetime,
 //                                       dtStr,
 //                                       static_cast<int>(bsl::strlen(dtStr)));
 //  assert(0 == ret);
-//  assert(2005 == dateTime.localDatetime().year());
-//  assert(   1 == dateTime.localDatetime().month());
-//  assert(  31 == dateTime.localDatetime().day());
-//  assert(   8 == dateTime.localDatetime().hour());
-//  assert(  59 == dateTime.localDatetime().minute());
-//  assert(  59 == dateTime.localDatetime().second());
-//  assert( 123 == dateTime.localDatetime().millisecond());
-//  assert( 240 == dateTime.offset());
+//  assert(2005 == datetime.localDatetime().year());
+//  assert(   1 == datetime.localDatetime().month());
+//  assert(  31 == datetime.localDatetime().day());
+//  assert(   8 == datetime.localDatetime().hour());
+//  assert(  59 == datetime.localDatetime().minute());
+//  assert(  59 == datetime.localDatetime().second());
+//  assert( 123 == datetime.localDatetime().millisecond());
+//  assert( 240 == datetime.offset());
 //..
 // Note that fractions of a second was rounded up to 123 milliseconds and that
 // the offset from UTC was converted to minutes.
@@ -308,8 +314,8 @@ struct Iso8601Util {
                                   const Datetime& object);
     static bsl::ostream& generate(bsl::ostream&   stream,
                                   const Time&     object);
-        // Write the ISO 8601 representation of the specified 'object' to
-        // specified 'stream'.  Return a reference to the modifiable 'stream'.
+        // Write the ISO 8601 representation of the specified 'object' to the
+        // specified 'stream', and return a reference to 'stream'.
 
     static bsl::ostream& generate(bsl::ostream&     stream,
                                   const DateTz&     object);
@@ -326,7 +332,7 @@ struct Iso8601Util {
     static bsl::ostream& generate(bsl::ostream&     stream,
                                   const TimeTz&     object,
                                   bool              useZAbbreviationForUtc);
-        // Write the ISO 8601 representation of the specified 'object' to
+        // Write the ISO 8601 representation of the specified 'object' to the
         // specified 'stream'.  Optionally specify 'useZAbbreviationForUtc' to
         // indicate whether to abbreviate a time-zone offset of 00:00 (UTC)
         // using the character 'Z' (e.g., if 'useZAbbreviationForUtc' is 'true'
@@ -334,7 +340,7 @@ struct Iso8601Util {
         // as "10:00:00.000+000" otherwise).  If 'useZAbbreviationForUtc' is
         // not supplied, the process-wide default value
         // 'Iso8601UtilConfiguration::useZAbbreviationForUtc' is used.  Return
-        // a reference to the modifiable 'stream'.
+        // a reference to 'stream'.
 
     static int generateRaw(char            *buffer,
                            const Date&      object);
@@ -344,10 +350,10 @@ struct Iso8601Util {
                            const Time&      object);
         // Write the ISO 8601 representation of the specified 'object' to the
         // specified 'buffer' and return the length of the formatted string
-        // (not including a null terminator).  The behavior is undefined unless
-        // 'buffer' has sufficient capacity.  It is unspecified whether the
-        // 'buffer' is null terminated on output or not.  Note that, for each
-        // type of 'object', the return value is always the same (as
+        // (not including a null terminator).  It is unspecified whether the
+        // 'buffer' is null terminated on output or not.  The behavior is
+        // undefined unless 'buffer' has sufficient capacity.  Note that, for
+        // each type of 'object', the return value is always the same (as
         // enumerated in the '_STRLEN' constants).  Also note that a buffer of
         // size 'k_MAX_STRLEN + 1' is large enough to hold any formatted
         // string, including any null terminator.
@@ -391,13 +397,14 @@ struct Iso8601Util {
         // the format "YYYY-MM-DD{((+|-)hh:mm|Z|z)}" where 'YYYY', 'MM', and
         // 'DD' are strings representing positive integers, '-' is literally a
         // dash character, 'YYYY' is 4 chars long, and 'MM' and 'DD' are both 2
-        // chars long.  'YYYY' must be in the range '[ 0001, 9999 ]', 'MM' must
-        // be in the range [ 01, 12 ], and 'DD' must be in the range [ 01, 31
-        // ], such that 'YYYY-MM-DD' represents a valid date.  Optional time
-        // zone information may be provided, in which case it is parsed and
-        // ignored.  Do not modify '*result' on failure.  Return 0 if parsing
-        // is successful, and return a non-zero value (and do not modify
-        // 'result') otherwise.  Note that this function parses *exactly*
+        // chars long.  'YYYY' must be in the range '[0001 .. 9999]', 'MM' must
+        // be in the range '[01 .. 12]', and 'DD' must be in the range
+        // '[01 .. 31]', such that 'YYYY-MM-DD' represents a valid date.
+        // Optional time zone information may be provided, in which case it is
+        // parsed and ignored.  Do not modify '*result' on failure.  Return 0
+        // if parsing is successful, and return a non-zero value (and do not
+        // modify 'result') otherwise.  The behavior is undefined unless
+        // '0 <= inputLength'.  Note that this function parses *exactly*
         // 'inputLength' characters; parsing will fail if a subset of the
         // passed string matches the specified format and is then followed by
         // trailing characters.
@@ -410,16 +417,16 @@ struct Iso8601Util {
         // this function, 'YYYY', 'MM', and 'DD' are strings representing
         // positive integers, '-' is literally a dash character, 'YYYY' is 4
         // chars long, and 'MM' and 'DD' are both 2 chars long.  'YYYY' must be
-        // in the range '[ 0001, 9999 ]', 'MM' must be in the range [ 01, 12 ],
-        // and 'DD' must be in the range [ 01, 31 ], such that 'YYYY-MM-DD'
-        // represents a valid date.  'T' literally represents the 'T'
-        // character.  In the "hh:mm:ss{.d+}" format, 'hh', 'mm', 'ss' are all
-        // 2 digit integers (left padded with 0's if necessary) denoting hours,
-        // minutes, and seconds, ':' is literally a colon character, and {.d+}
-        // is the optional fraction of a second, consisting of a '.' followed
-        // by one or more decimal digits.  'hh' must be in the range
-        // '[ 00, 24 )', 'mm' must be in the range '[ 00, 60 )', and 'ss' must
-        // be in the range '[ 00, 60 ]'.  If 'ss == 60' (a leap-second), then a
+        // in the range '[0001 .. 9999]', 'MM' must be in the range
+        // '[01 .. 12]', and 'DD' must be in the range '[01 .. 31]', such that
+        // 'YYYY-MM-DD' represents a valid date.  'T' literally represents the
+        // 'T' character.  In the "hh:mm:ss{.d+}" format, 'hh', 'mm', 'ss' are
+        // all 2 digit integers (left padded with 0's if necessary) denoting
+        // hours, minutes, and seconds, ':' is literally a colon character, and
+        // {.d+} is the optional fraction of a second, consisting of a '.'
+        // followed by one or more decimal digits.  'hh' must be in the range
+        // '[00 .. 23]', 'mm' must be in the range '[00 .. 59]', and 'ss' must
+        // be in the range '[00 .. 60]'.  If 'ss == 60' (a leap-second), then a
         // value of 59 is loaded into the 'seconds' field, and after all fields
         // are loaded, 1 second is added to '*result'.  If '{.d+}' contains
         // more than 3 digits, the value will be rounded to the nearest value
@@ -429,10 +436,11 @@ struct Iso8601Util {
         // exceptional case is that a time value of '24:00:00' is allowed, but
         // only if the fraction of a second is 0 and the time zone is absent or
         // GMT.  Do not modify '*result' on failure.  Return 0 on success, and
-        // a non-zero value otherwise.  Note that if 'inputLength' is longer
-        // than the length of the parsed data, parsing will fail.  Also note
-        // that the final 'ss' may be rounded up twice if originally 'ss == 60'
-        // and there is rounding up due to the '{.d+}' field.
+        // a non-zero value otherwise.  The behavior is undefined unless
+        // '0 <= inputLength'.  Note that if 'inputLength' is longer than the
+        // length of the parsed data, parsing will fail.  Also note that the
+        // final 'ss' may be rounded up twice if originally 'ss == 60' and
+        // there is rounding up due to the '{.d+}' field.
 
     static int parse(Time *result, const char *input, int inputLength);
         // Parse a time, represented in the "hh:mm:ss{.d+}{((+|-)hh:mm|Z|z)}"
@@ -443,8 +451,8 @@ struct Iso8601Util {
         // minutes, and seconds, ':' is literally a colon character, and {.d+}
         // is the optional fraction of a second, consisting of a '.' followed
         // by one or more decimal digits.  'hh' must be in the range
-        // '[ 00, 24 )', 'mm' must be in the range '[ 00, 60 )', and 'ss' must
-        // be in the range '[ 00, 60 ]'.  If 'ss == 60' (a leap second), then
+        // '[00 .. 23]', 'mm' must be in the range '[00 .. 59]', and 'ss' must
+        // be in the range '[00 .. 60]'.  If 'ss == 60' (a leap second), then
         // a value of 59 is loaded into the 'seconds' field, and after all
         // fields are loaded, 1 second is added to '*result'.  If '{.d+}'
         // contains more than 3 digits, the value will be rounded to the
@@ -454,9 +462,10 @@ struct Iso8601Util {
         // exceptional time value of '24:00:00' may be provided, in which case
         // the fraction of a second must be 0 and the time zone must be absent
         // or GMT.  Do not modify '*result' on failure.  Return 0 on success,
-        // and a non-zero otherwise.  Note that if 'inputLength' is longer than
-        // the length of the parsed data, parsing will fail.  Also note that it
-        // is possible for the resulting 'ss' value to be rounded up twice if
+        // and a non-zero otherwise.  The behavior is undefined unless
+        // '0 <= inputLength'.  Note that if 'inputLength' is longer than the
+        // length of the parsed data, parsing will fail.  Also note that it is
+        // possible for the resulting 'ss' value to be rounded up twice if
         // originally 'ss == 60' and there was rounding up due to the '{.d+}'
         // field.
 
@@ -467,18 +476,19 @@ struct Iso8601Util {
         // format accepted by this function, 'YYYY', 'MM', and 'DD' are strings
         // representing positive integers, '-' is literally a dash character,
         // 'YYYY' is 4 chars long, and 'MM' and 'DD' are both 2 chars long.
-        // 'YYYY' must be in the range '[ 0001, 9999 ]', 'MM' must be in the
-        // range [ 01, 12 ], and 'DD' must be in the range [ 01, 31 ], such
+        // 'YYYY' must be in the range '[0001 .. 9999]', 'MM' must be in the
+        // range '[01 .. 12]', and 'DD' must be in the range '[01 .. 31]', such
         // that 'YYYY-MM-DD' represents a valid date.  Optional time zone
         // information may be provided in the "Shh:mm" format accepted by this
         // function, 'hh' and 'mm' are 2 digit integers (left padded with '0's
-        // if necessary).  'hh' must be in the range '[ 00, 24 )' and 'mm' must
-        // be in the range '[ 00, 60 )'.  An alternate form of the
+        // if necessary).  'hh' must be in the range '[00 .. 23]' and 'mm' must
+        // be in the range '[00 .. 59]'.  An alternate form of the
         // representation for the time zone is 'Z' or 'z', signifying GMT.  If
         // no time zone is provided, GMT is assumed.  Do not modify '*result'
-        // on failure.  Return 0 on success, and a non-zero value otherwise.
-        // Note that if 'inputLength' is longer than the length of the parsed
-        // data, parsing will fail.
+        // on failure.  The behavior is undefined unless '0 <= inputLength'.
+        // Return 0 on success, and a non-zero value otherwise.  Note that if
+        // 'inputLength' is longer than the length of the parsed data, parsing
+        // will fail.
 
     static int parse(DatetimeTz *result, const char *input, int inputLength);
         // Parse a date time, represented in the
@@ -488,33 +498,34 @@ struct Iso8601Util {
         // this function, 'YYYY', 'MM', and 'DD' are strings representing
         // positive integers, '-' is literally a dash character, 'YYYY' is 4
         // chars long, and 'MM' and 'DD' are both 2 chars long.  'YYYY' must be
-        // in the range '[ 0001, 9999 ]', 'MM' must be in the range [ 01, 12 ],
-        // and 'DD' must be in the range [ 01, 31 ], such that 'YYYY-MM-DD'
-        // represents a valid date.  'T' literally represents the 'T'
-        // character.  In the "hh:mm:ss{.d+}" format, 'hh', 'mm', 'ss' are all
-        // 2 digit integers (left padded with 0's if necessary) denoting hours,
-        // minutes, and seconds, ':' is literally a colon character, and {.d+}
-        // is the optional fraction of a second, consisting of a '.' followed
-        // by one or more decimal digits.  If '{.d+}' contains more than 3
-        // digits, the value will be rounded to the nearest value in
+        // in the range '[0001 .. 9999]', 'MM' must be in the range
+        // '[01 .. 12]', and 'DD' must be in the range '[01 .. 31]', such that
+        // 'YYYY-MM-DD' represents a valid date.  'T' literally represents the
+        // 'T' character.  In the "hh:mm:ss{.d+}" format, 'hh', 'mm', 'ss' are
+        // all 2 digit integers (left padded with 0's if necessary) denoting
+        // hours, minutes, and seconds, ':' is literally a colon character, and
+        // {.d+} is the optional fraction of a second, consisting of a '.'
+        // followed by one or more decimal digits.  If '{.d+}' contains more
+        // than 3 digits, the value will be rounded to the nearest value in
         // milliseconds, possibly rounding '*result' up by a full second.  'hh'
-        // must be in the range '[ 00, 24 )', 'mm' must be in the range
-        // '[ 00, 60 )', and 'ss' must be in the range '[ 00, 60 ]'.  If
+        // must be in the range '[00 .. 23]', 'mm' must be in the range
+        // '[00 .. 59]', and 'ss' must be in the range '[00 .. 60]'.  If
         // 'ss == 60' (a leap-second), then a value of 59 is loaded into the
         // 'seconds' field, and after all fields are loaded, 1 second is added
         // to '*result'.  The time zone information is optional but if it is
         // provided then it must be in the "Shh:mm" format, 'hh' and 'mm' are 2
         // digit integers (left padded with '0's if necessary).  'hh' must be
-        // in the range '[ 00, 24 )' and 'mm' must be in the range
-        // '[ 00, 60 )'.  An alternate form of representing the time zone is
+        // in the range '[00 .. 23]' and 'mm' must be in the range
+        // '[00 .. 59]'.  An alternate form of representing the time zone is
         // 'Z' or 'z', signifying GMT.  If the time zone is not provided, GMT
         // is assumed.  Do not modify '*result' on failure.  An exceptional
         // time value of '24:00;00' may be provided, but if so the fraction of
         // a second must be 0 and time zone, if any, must be GMT.  Return 0 on
-        // success, and a non-zero value otherwise.  Note that if 'inputLength'
-        // is longer than the length of the parsed data, parsing will fail.
-        // Also note that the final 'ss' may be rounded up twice if originally
-        // 'ss == 60' and there is rounding up due to the '{.d+}' field.
+        // success, and a non-zero value otherwise.  The behavior is undefined
+        // unless '0 <= inputLength'.  Note that if 'inputLength' is longer
+        // than the length of the parsed data, parsing will fail.  Also note
+        // that the final 'ss' may be rounded up twice if originally 'ss == 60'
+        // and there is rounding up due to the '{.d+}' field.
 
     static int parse(TimeTz *result, const char *input, int inputLength);
         // Parse a time, represented in the "hh:mm:ss{.d+}{((+|-)hh:mm|Z|z)}"
@@ -525,8 +536,8 @@ struct Iso8601Util {
         // minutes, and seconds, ':' is literally a colon character, and {.d+}
         // is the optional fraction of a second, consisting of a '.' followed
         // by one or more decimal digits.  'hh' must be in the range
-        // '[ 00, 24 )', 'mm' must be in the range '[ 00, 60 )', and 'ss' must
-        // be in the range '[ 00, 60 ]'.  If 'ss == 60' (a leap-second), then a
+        // '[00 .. 23]', 'mm' must be in the range '[00 .. 59]', and 'ss' must
+        // be in the range '[00 .. 60]'.  If 'ss == 60' (a leap-second), then a
         // value of 59 is loaded into the 'seconds' field, and after all fields
         // are loaded, 1 second is added to '*result'.  If '{.d+}' contains
         // more than 3 digits, the value will be rounded to the nearest value
@@ -534,17 +545,18 @@ struct Iso8601Util {
         // Optional time zone information may be provided in the "Shh:mm"
         // format accepted by this function, 'hh' and 'mm' are 2 digit integers
         // (left padded with '0's if necessary).  'hh' must be in the range
-        // '[ 00, 24 )' and 'mm' must be in the range '[ 0, 60 )'.  An
+        // '[00 .. 23]' and 'mm' must be in the range '[00 .. 59]'.  An
         // alternate form of the representation for the time zone is 'Z' or
         // 'z', signifying GMT.  If time zone information is not provided, GMT
         // is assumed.  An exceptional time value of '24:00:00' may be
         // provided, in which case the fraction of a second must be 0 and the
         // time zone, if present, must be GMT.  Do not modify '*result' on
-        // failure.  Return 0 on success, and a non-zero value otherwise.  Note
-        // that if 'inputLength' is longer than the length of the parsed data,
-        // parsing will fail.  Also note that the final 'ss' may be rounded up
-        // twice if originally 'ss == 60' and there is rounding up due to the
-        // '{.d+}' field.
+        // failure.  Return 0 on success, and a non-zero value otherwise.  The
+        // behavior is undefined unless '0 <= inputLength'.  Note that if
+        // 'inputLength' is longer than the length of the parsed data, parsing
+        // will fail.  Also note that the final 'ss' may be rounded up twice if
+        // originally 'ss == 60' and there is rounding up due to the '{.d+}'
+        // field.
 };
 
                         // ===============================
