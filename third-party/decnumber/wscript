@@ -46,6 +46,16 @@ def build(bld):
         assert(sys.byteorder == 'little')
         cflags = ["-DDECLITEND=1"]
 
+    # As reported here: https://github.com/bloomberg/bde/pull/148
+    #
+    # The C files in bdl+decnumber must be built in -std=gnu89 mode with
+    # Clang to work around a Clang bug when handling GNU-style C89 inlines
+    # in C99 compilation mode. This bug is documented in the upstream LLVM
+    # bug-tracker here: http://llvm.org/bugs/show_bug.cgi?id=5960
+    #
+    # Without this change clang/linux builds will fail with multiply defined
+    # symbols. 
+    
     if (-1 != bld.env['CXX'][0].find('clang')):
         cflags += ['-std=gnu89']
 
