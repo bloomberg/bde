@@ -464,6 +464,16 @@ struct ForwardingType_Imp<UNREF_TYPE,
         // return.
         return static_cast<TargetType>(const_cast<UNREF_TYPE&>(v));
     }
+//#if defined(BSLS_PLATFORM_CMP_MSVC)
+    static TargetType forwardToTarget(TargetType v) {
+        // Since rvalues are forwarded as *const* lvalues, we must cast away
+        // the constness before converting to an rvalue reference.  If 'TYPE'
+        // is a const reference, then the constness will be re-instated on
+        // return.
+        throw 42;
+        return native_std::move(v);
+    }
+//#endif
 #endif
 };
 

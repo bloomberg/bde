@@ -14,16 +14,18 @@
 #include <stdio.h>     // atoi()
 #include <stdlib.h>    // atoi()
 
+#include <typeinfo>
+
 using namespace BloombergLP;
-
-// Suppress messages about all-uppercase type names.  Test drivers are rife
-// with short names like 'F' or 'PF' or 'T' or 'T1'.
-
-// BDE_VERIFY pragma: -UC01
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #pragma warning(disable: 4521) // test classes offer multiple copy constructors
 #endif
+
+// Suppress bde_verify messages about all-uppercase type names.  Test drivers
+// are rife with short names like 'F' or 'PF' or 'T' or 'T1'.
+
+// BDE_VERIFY pragma: -UC01
 
 // ============================================================================
 //                                TEST PLAN
@@ -104,6 +106,27 @@ void aSsErT(bool condition, const char *message, int line)
     // This macro signifies that this compiler rejects 'type[]' as incomplete,
     // even in contexts where it should be valid, as it will pass by reference
     // or pointer.
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1800
+    // This was last tested with MSVC 2013, but the bug may persist in later
+    // versions, not yet released.  Update the version test accordingly.
+
+# define BSLMF_FORWARDINGTYPE_NO_ARRAY_DECAY_TO_RVALUE_REF
+    // This compiler cannot bind an rvalue array, such as 'char[]', to a
+    // rvalue-reference to a decayed array pointer, which would be 'char *&&'
+    // in this example.
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_SUN)
+# define BSLMF_FORWARDINGTYPE_DISABLE_ARRAY_TESTING
+    // The Sun compiler has problems with any test involving arrays.  This
+    // macro provides an easy way to disable/re-enable testing of array support
+    // with a single comment, as potential workarounds are considered.
+    //
+    // This code has not yet been tested against the Sun CC 12.4 compiler which
+    // has significantly improved standard conformance, including support for
+    // most of C++11.
 #endif
 
 //=============================================================================
@@ -540,7 +563,8 @@ void testForwardToTargetVal(TYPE obj)
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
     ASSERT_SAME(TYPE, typename bsl::remove_reference<TargetType>::type);
 #else
-    ASSERT((bsl::is_same<TYPE,
+    ASSERTV(typeid(TYPE).name(),
+           (bsl::is_same<TYPE,
                     typename bsl::remove_reference<TargetType>::type>::value ||
             bsl::is_same<const TYPE,
                     typename bsl::remove_reference<TargetType>::type>::value));
@@ -549,7 +573,8 @@ void testForwardToTargetVal(TYPE obj)
     FwdType fwdObj = obj;
 
     // For pass-by-value, compare original and final value.
-    ASSERT(obj == bslmf::ForwardingTypeUtil<TYPE>::forwardToTarget(fwdObj));
+    ASSERTV(typeid(TYPE).name(),
+            obj == bslmf::ForwardingTypeUtil<TYPE>::forwardToTarget(fwdObj));
 }
 
 template <class TYPE>
@@ -567,8 +592,9 @@ void testForwardToTargetArray(TYPE obj)
 
     // For arrays, compare address of first element of original and final
     // arrays.
-    ASSERT(&obj[0] ==
-           &bslmf::ForwardingTypeUtil<TYPE>::forwardToTarget(fwdObj)[0]);
+    ASSERTV(typeid(TYPE).name(),
+            &obj[0] ==
+            &bslmf::ForwardingTypeUtil<TYPE>::forwardToTarget(fwdObj)[0]);
 }
 
 template <class TYPE>
@@ -584,7 +610,8 @@ void testForwardToTargetRef(TYPE ref)
 
     // For pass-by-reference, compare addresses of original and final
     // references.
-    ASSERT(sameAddress(ref,
+    ASSERTV(typeid(TYPE).name(),
+            sameAddress(ref,
                     bslmf::ForwardingTypeUtil<TYPE>::forwardToTarget(fwdRef)));
 }
 
@@ -696,8 +723,8 @@ int main(int argc, char *argv[])
 #endif
 
 // Volatile rvalue types are not useful and have strange rules.  Do not test
-// them.  Attempting to test volatile rvalues will not only complicated the
-// test driver unnecessarily, it may actually hide real errors.
+// them.  Attempting to test volatile rvalues will not only complicate the test
+// driver unnecessarily, it may actually hide real errors.
 #define TEST_ENDTOEND_RVALUE(TP, v) {                                         \
             typedef TP T;                                                     \
             typedef const T CT;                                               \
@@ -709,9 +736,13 @@ int main(int argc, char *argv[])
         if (veryVerbose) printf("rvalue types\n");
         TEST_ENDTOEND_RVALUE(int      , i);
         TEST_ENDTOEND_RVALUE(Enum     , e);
+#if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION > 0x1500
+        // Our test harness exposes an MSVC 2008 bug that treats the test code
+        // as ambiguous.
         TEST_ENDTOEND_RVALUE(Struct   , s);
         TEST_ENDTOEND_RVALUE(Union    , u);
         TEST_ENDTOEND_RVALUE(Class    , c);
+#endif
         TEST_ENDTOEND_RVALUE(double   , d);
         TEST_ENDTOEND_RVALUE(double * , p);
         TEST_ENDTOEND_RVALUE(F      * , f_p);
@@ -757,8 +788,8 @@ int main(int argc, char *argv[])
             typedef volatile T VT;                                            \
             typedef const volatile T CVT;                                     \
             CvRefMatch<T> target;                                             \
-            ASSERT(testEndToEnd<T&&>(native_std::move(v), target) ==                 \
-                   target(native_std::move(v)));                                     \
+            ASSERT(testEndToEnd<T&&>(native_std::move(v), target) ==          \
+                   target(native_std::move(v)));                              \
             ASSERT(testEndToEnd<CT&&>(static_cast<CT&&>(v), target) ==        \
                    target(static_cast<CT&&>(v)));                             \
             ASSERT(testEndToEnd<VT&&>(static_cast<VT&&>(v), target) ==        \
@@ -795,15 +826,16 @@ int main(int argc, char *argv[])
             ASSERT(testEndToEnd<const volatile TP>(a, acvm) == exp);          \
         }
 
-#if !defined(BSLS_PLATFORM_CMP_SUN) // TBD Fix Sun and arrays
+#if !defined(BSLMF_FORWARDINGTYPE_DISABLE_ARRAY_TESTING)
         TEST_ENDTOEND_ARRAY(char[5], a,    5);
         TEST_ENDTOEND_ARRAY(char(&)[5], a, 5);
 #if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
         TEST_ENDTOEND_ARRAY(char[], au,    0);
         TEST_ENDTOEND_ARRAY(char(&)[], au, 0);
 #endif
-#endif  // Sun does not support arrays
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#endif  // Disable testing arrays on broken compilers
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)                  \
+ &&!defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_DECAY_TO_RVALUE_REF)
         TEST_ENDTOEND_ARRAY(char *&&, au,  0);
 #endif
 
@@ -940,9 +972,9 @@ int main(int argc, char *argv[])
         testForwardToTargetVal<Enum    volatile>(e);
         testForwardToTargetVal<double  volatile>(d);
         testForwardToTargetVal<double *volatile>(p);
-#if !defined(BSLS_PLATFORM_CMP_SUN) // TBD Fix Sun and arrays
+#if !defined(BSLMF_FORWARDINGTYPE_DISABLE_ARRAY_TESTING)
         testForwardToTargetVal<A       volatile>(a);
-#endif  // Sun does not support arrays
+#endif  // Disable testing arrays on broken compilers
 #if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
         testForwardToTargetVal<AU      volatile>(au);
 #endif
@@ -950,7 +982,7 @@ int main(int argc, char *argv[])
         testForwardToTargetVal<Pm      volatile>(m_p);
         testForwardToTargetVal<Pmf     volatile>(mf_p);
 
-#if !defined(BSLS_PLATFORM_CMP_SUN) // TBD Fix Sun and arrays
+#if !defined(BSLMF_FORWARDINGTYPE_DISABLE_ARRAY_TESTING)
         testForwardToTargetArray<A           >(a);
         testForwardToTargetArray<A  const    >(a);
         testForwardToTargetArray<A          &>(a);
@@ -964,14 +996,15 @@ int main(int argc, char *argv[])
         testForwardToTargetArray<AU volatile&>(au);
 #endif
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)   \
+ &&!defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_DECAY_TO_RVALUE_REF)
         testForwardToTargetArray<A          &&>(native_std::move(a));
         testForwardToTargetArray<A  const   &&>(native_std::move(a));
         testForwardToTargetArray<AU         &&>(native_std::move(au));
         testForwardToTargetArray<AU const   &&>(native_std::move(au));
 #endif
 
-#endif  // Sun does not support arrays
+#endif  // Disable testing arrays on broken compilers
 
         testForwardToTargetRef<Enum    &>(e);
         testForwardToTargetRef<Struct  &>(s);
@@ -1017,15 +1050,20 @@ int main(int argc, char *argv[])
         testForwardToTargetRef<Pmf     const volatile&>(mf_p);
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-        testForwardToTargetRef<Enum    &&>(native_std::move(e));
         testForwardToTargetRef<Struct  &&>(native_std::move(s));
         testForwardToTargetRef<Union   &&>(native_std::move(u));
         testForwardToTargetRef<Class   &&>(native_std::move(c));
+#if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION > 0x1800
+        // The following 6 tests fail for MS Visual C++ (tested up to VC 2013).
+        // Suspect the optimizer is creating a temporary, rather than truly
+        // passing by reference, when given a fundamental/primitive type.
+        testForwardToTargetRef<Enum    &&>(native_std::move(e));
         testForwardToTargetRef<double  &&>(native_std::move(d));
         testForwardToTargetRef<double *&&>(native_std::move(p));
         testForwardToTargetRef<PF      &&>(native_std::move(f_p));
         testForwardToTargetRef<Pm      &&>(native_std::move(m_p));
         testForwardToTargetRef<Pmf     &&>(native_std::move(mf_p));
+#endif
 
         testForwardToTargetRef<Enum     const&&>(native_std::move(e));
         testForwardToTargetRef<Struct   const&&>(native_std::move(s));
@@ -1168,10 +1206,11 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) printf("Function types\n");
 
-#if !defined(BSLS_PLATFORM_CMP_MSVC) && \
-    (!defined(BSLS_PLATFORM_CMP_IBM) || (BSLS_PLATFORM_CMP_VER_MAJOR < 0x0800))
-        // xlc-8 and MSVC 2005 seem to have problems with function types.  Skip
-        // these tests for those compilers.
+#if (!defined(BSLS_PLATFORM_CMP_MSVC) || (BSLS_PLATFORM_CMP_VERSION < 0x1700))\
+ || (!defined(BSLS_PLATFORM_CMP_IBM)  || (BSLS_PLATFORM_CMP_VERSION < 0x0800))
+        // xlc-8 seems to have problems with function types.  Similarly, older
+        // MS Visual C++ compilers have problem binding functions types to
+        // function references, rather than decaying to function pointers.
         TEST_FWD_TYPE(void()        , void(&)());
         TEST_FWD_TYPE(int(int)      , int(&)(int));
         TEST_FWD_TYPE(void(int&)    , void(&)(int&));
