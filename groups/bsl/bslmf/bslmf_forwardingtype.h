@@ -22,7 +22,7 @@ BSLS_IDENT("$Id: $")
 // a given template type 'TYPE'.  The forwarding type is used to pass an
 // argument from the client of a component through a chain of nested function
 // calls to the ultimate consumer of the argument.  This component also
-// provides a utiltiy class template, 'bslmf::ForwardingTypeUtil', supplying
+// provides a utility class template, 'bslmf::ForwardingTypeUtil', supplying
 // functions to most efficiently forward an argument to another function.
 //
 // For instance, basic types (e.g., fundamental types, pointer types, function
@@ -37,7 +37,7 @@ BSLS_IDENT("$Id: $")
 // instantiated on the full array type, intermediate functions are all
 // instantiated on the same pointer type, regardless of array size.  This
 // decay also applies to reference-to-array types.  The user can recover the
-// orignal array type when forwarding to the final consumer by using
+// original array type when forwarding to the final consumer by using
 // 'bslmf::ForwardingTypeUtil<T>::forwardToTarget()' (see below).
 //
 // An argument 'v' of type 'T' can be passed as type 'ForwardingType<T>::Type'
@@ -61,7 +61,7 @@ BSLS_IDENT("$Id: $")
 // wind up with the address of a temporary copy, rather than the address of the
 // original argument.  Thus, the current component forwards references as
 // references in call cases, including for basic types, except in the case of
-// arrays and functions (which decay to pointers).
+// arrays and functions (that decay to pointers).
 //
 ///Usage
 ///-----
@@ -212,7 +212,7 @@ BSLS_IDENT("$Id: $")
 //  public:
 //      explicit ArgType(int v = 0) : d_value(v), d_copies(0) { }
 //          // Create an 'ArgType' object.  Optionally specify 'v' as the
-//          // intial value of this 'ArgType' object, otherwise this object
+//          // initial value of this 'ArgType' object, otherwise this object
 //          // will hold the value 0.
 //
 //      ArgType(const ArgType& original)
@@ -348,7 +348,7 @@ struct ForwardingType {
     // the number of expensive copies while forwarding the arguments as
     // faithfully as possible.
 
-private:
+  private:
     typedef typename bsl::remove_reference<TYPE>::type UnrefType;
 
     enum {
@@ -372,7 +372,7 @@ private:
 
     friend struct ForwardingTypeUtil<TYPE>;
 
-public:
+  public:
 
     typedef typename Imp::Type       Type;
         // The type that should be used to forward 'TYPE' through a chain of
@@ -401,11 +401,11 @@ struct ForwardingTypeUtil {
         // after forwarding through an intermediate call chain.  Specifically,
         // if 'TYPE' is an rvalue type, return an rvalue reference to 'v',
         // otherwise return 'v' unchanged, thus converting an rvalue copy into
-        // an rvalue move when possible.  For compilers that do not supprt
+        // an rvalue move when possible.  For compilers that do not support
         // rvalue references, return 'v' unchanged.  This function is intended
         // to be called to forward an argument to the final target function of
         // a forwarding call chain. Note that this function is not intended
-        // for use with 'TYPE' parameters of 'volatile'-qualifed rvalue type,
+        // for use with 'TYPE' parameters of 'volatile'-qualified rvalue type,
         // which are effectively unheard of in real code and have strange and
         // hard-to-understand rules.
 };
@@ -427,8 +427,8 @@ struct ConstForwardingType : public ForwardingType<TYPE> {
 //                              INLINE DEFINITIONS
 // ============================================================================
 
-// BDE_VERIFY pragma: push  // Relax some bdeverify rules in the imp section
-// BDE_VERIFY pragma: -CD01 // Allow member function defind in class definition
+// BDE_VERIFY pragma: push  // Relax some bde_verify rules in the imp section
+// BDE_VERIFY pragma: -CD01 // Member function defined in class definition
 
 template <class TYPE>
 #ifndef BSLS_PLATFORM_CMP_IBM
@@ -460,20 +460,20 @@ struct ForwardingType_Imp<UNREF_TYPE,
     static TargetType forwardToTarget(Type v) {
         // Since rvalues are forwarded as *const* lvalues, we must cast away
         // the constness before converting to an rvalue reference.  If 'TYPE'
-        // is a const reference, then the constness will be re-instated on
+        // is a const reference, then the constness will be reinstated on
         // return.
+
         return static_cast<TargetType>(const_cast<UNREF_TYPE&>(v));
     }
-//#if defined(BSLS_PLATFORM_CMP_MSVC)
+
     static TargetType forwardToTarget(TargetType v) {
         // Since rvalues are forwarded as *const* lvalues, we must cast away
         // the constness before converting to an rvalue reference.  If 'TYPE'
-        // is a const reference, then the constness will be re-instated on
+        // is a const reference, then the constness will be reinstated on
         // return.
-        throw 42;
+
         return native_std::move(v);
     }
-//#endif
 #endif
 };
 
@@ -500,7 +500,7 @@ struct ForwardingType_Imp<UNREF_TYPE [k_NUM_ELEMENTS],
     typedef UNREF_TYPE  *Type;
     typedef UNREF_TYPE (&TargetType)[k_NUM_ELEMENTS];
     static TargetType forwardToTarget(Type v)
-        // Return the specified 'v', cast to a refererence to array.
+        // Return the specified 'v', cast to a reference to array.
         { return reinterpret_cast<TargetType>(*v); }
 };
 
@@ -560,8 +560,9 @@ struct ForwardingType_Imp<UNREF_TYPE,
     {
         // Since rvalues are forwarded as *const* lvalues, we must cast away
         // the constness before converting to an rvalue reference.  If 'TYPE'
-        // is a const reference, then the constness will be re-instated on
+        // is a const reference, then the constness will be reinstated on
         // return.
+
         return static_cast<TargetType>(const_cast<UNREF_TYPE&>(v));
     }
 #else
@@ -604,7 +605,7 @@ struct ForwardingType_Imp<UNREF_TYPE,
 #define bslmf_ConstForwardingType bslmf::ConstForwardingType
     // This alias is defined for backward compatibility.
 
-// BDE_VERIFY pragma: pop // Restore bdeverify rules
+// BDE_VERIFY pragma: pop // Restore bde_verify rules
 
 #endif
 

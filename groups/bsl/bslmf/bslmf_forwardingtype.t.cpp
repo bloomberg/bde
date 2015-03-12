@@ -148,7 +148,8 @@ struct Struct {
         // Copy-construct from the specified 'other'.
 };
 
-inline bool operator==(Struct a, Struct b)
+inline
+bool operator==(Struct a, Struct b)
     // Return true if the specified 'a' and 'b' objects have same data member
     // value.
 {
@@ -168,7 +169,8 @@ union  Union  {
         // Copy-construct from the specified 'other'.
 };
 
-inline bool operator==(Union a, Union b)
+inline
+bool operator==(Union a, Union b)
     // Return true if the specified 'a' and 'b' objects have the same data
     // member value.
 {
@@ -177,7 +179,7 @@ inline bool operator==(Union a, Union b)
 
 class  Class  {
     int d_data;
-public:
+  public:
     explicit Class(int v) : d_data(v) { }
         // Construct from the specified 'v'.
 
@@ -191,7 +193,8 @@ public:
         // Return the value of this object.
 };
 
-inline bool operator==(Class a, Class b)
+inline
+bool operator==(Class a, Class b)
     // Return true if the specified 'a' and 'b' have the same 'value()'.
 {
     return a.value() == b.value();
@@ -274,7 +277,7 @@ class CvArrayMatch {
     int match(TP [], ...) const { return 0; }
         // Matches an array of unknown size.
 
-public:
+  public:
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
     template <class ANY>
@@ -285,8 +288,6 @@ public:
     int operator()(ANY& a) const { return match(a, 0); }
 #endif
 };
-
-template <class FUNC> struct FuncMatch;
 
 template <class FUNC>
 struct FuncMatch {
@@ -304,13 +305,13 @@ struct FuncMatch {
 
     int operator()(MatchFuncPtr) const { return k_FUNC_POINTER; }
         // Match function pointer.  This overload requires a user-defined
-        // conversion and this is less prefered than the previous one for
+        // conversion and this is less preferred than the previous one for
         // arguments that match both.
 };
 
 template <class TP, class INVOCABLE>
 int endToEndIntermediary(typename bslmf::ForwardingType<TP>::Type arg,
-                         const INVOCABLE& target)
+                         const INVOCABLE&                         target)
     // Forward the specified 'arg' to the specified 'target'.  This function is
     // called in the middle of a chain of function calls that forward to the
     // eventual 'target' invocable object.
@@ -322,7 +323,7 @@ template <class TP, class INVOCABLE>
 int testEndToEnd(TP arg, const INVOCABLE& target)
     // Forward the specified 'arg' to the specified 'target' via an
     // intermediate function.  This function is called at the start of a chain
-    // of function callss that forward to the eventual 'target' invocable
+    // of function calls that forward to the eventual 'target' invocable
     // object.
 {
     return endToEndIntermediary<TP>(arg, target);
@@ -395,7 +396,8 @@ int testEndToEnd(TP arg, const INVOCABLE& target)
 // desired type:
 //..
     // Primary template is never defined
-    template <class PROTOTYPE> class LoggingWrapper;
+    template <class PROTOTYPE>
+    class LoggingWrapper;
 
     template <class RET, class ARG1, class ARG2, class ARG3>
     class LoggingWrapper<RET(ARG1, ARG2, ARG3)> {
@@ -403,7 +405,7 @@ int testEndToEnd(TP arg, const INVOCABLE& target)
 
         RET (*d_function_p)(ARG1, ARG2, ARG3);
 
-    public:
+      public:
         explicit LoggingWrapper(RET (*function_p)(ARG1, ARG2, ARG3))
             // Create a 'LoggingWrapper' object for the specified 'function_p'
             // function.
@@ -421,7 +423,7 @@ int testEndToEnd(TP arg, const INVOCABLE& target)
 // 'ForwardingType' to declare a more efficient intermediate argument type for
 // our private member function:
 //..
-    private:
+      private:
         RET invoke(typename bslmf::ForwardingType<ARG1>::Type a1,
                    typename bslmf::ForwardingType<ARG2>::Type a2,
                    typename bslmf::ForwardingType<ARG3>::Type a3) const;
@@ -478,16 +480,18 @@ int testEndToEnd(TP arg, const INVOCABLE& target)
     class ArgType {
         int d_value;
         int d_copies;
-    public:
+      public:
         explicit ArgType(int v = 0) : d_value(v), d_copies(0) { }
             // Create an 'ArgType' object.  Optionally specify 'v' as the
-            // intial value of this 'ArgType' object, otherwise this object
+            // initial value of this 'ArgType' object, otherwise this object
             // will hold the value 0.
 
         ArgType(const ArgType& original)
-            // Copy-construct from the specified 'original'.
-          : d_value(original.d_value)
-          , d_copies(original.d_copies + 1) { }
+            // Create an 'ArgType' object that is a copy of the specified
+            // 'original'.
+        : d_value(original.d_value)
+        , d_copies(original.d_copies + 1)
+        { }
 
         int copies() const { return d_copies; }
             // Return the number of copies that this object is from the
@@ -538,7 +542,7 @@ template <class TYPE>
 bool sameAddress(const TYPE& a, const TYPE& b)
     // Return true if address of the specified 'a' object matches the address
     // of the specified 'b' object.  Unlike a direct test, this function can be
-    // called even if 'a' or 'b' is an rvalue or rvalue refearence.
+    // called even if 'a' or 'b' is an rvalue or rvalue reference.
 {
     return &a == &b;
 }
@@ -637,7 +641,7 @@ int main(int argc, char *argv[])
         //
         // Plan: Copy the usage example from the component header, replace
         //   'assert' with 'ASSERT' and 'main' with 'usageExampleN' and verify
-        //   that it compiles and runs succesfully.
+        //   that it compiles and runs successfully.
         //
         // Testing:
         //   USAGE EXAMPLES
@@ -881,9 +885,9 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 For concern 1, implement a function template,
         //:   'testForwardToTargetVal' that can be instantiated with a 'TYPE'
-        //:   and which takes an argument 'obj' of 'TYPE'.  Instantiated
-        //:   on a variety of basic and non-basic types,
-        //:   'testForwardToTargetVal' performs the following operations:
+        //:   and that takes an argument 'obj' of 'TYPE'.  Instantiated on a
+        //:   variety of basic and non-basic types, 'testForwardToTargetVal'
+        //:   performs the following operations:
         //:   a Verify that 'TargetType' is the expected transformation of
         //:     'TYPE'.
         //:   b Initialize a temporary variable of type
@@ -892,7 +896,7 @@ int main(int argc, char *argv[])
         //:     that the resulting object compares equal to 'obj'.
         //: 2 For concern 2, implement a function template,
         //    'testForwardToTargetArray', that can be instantiated with an
-        //:   an array 'TYPE' (or reference-to-array 'TYPE') and which takes
+        //:   an array 'TYPE' (or reference-to-array 'TYPE') and that takes
         //:   an argument 'obj' of 'TYPE'.  Instantiated on a variety of array
         //:   types of known and unknown size as well a lvalue and rvalues to
         //:   such types, 'testForwardToTargetArray' performs the following
@@ -905,7 +909,7 @@ int main(int argc, char *argv[])
         //:     that the resulting object has the same address as 'obj'.
         //: 3 For concern 3, implement a function template,
         //:   'testForwardToTargetRef' that can be instantiated with a
-        //:   reference 'TYPE' and which takes an argument 'ref' of 'TYPE'.
+        //:   reference 'TYPE' and that takes an argument 'ref' of 'TYPE'.
         //:   Instantiated on a variety of lvalue and rvalue reference types,
         //:   'testForwardToTargetRef', performs the following operations:
         //:   a Verify that 'TargetType' is the expected transformation of
@@ -919,7 +923,7 @@ int main(int argc, char *argv[])
         //: 5 For concern 5, instantiate the template with a function
         //:   type, 'F' and then:
         //:   a Verify that 'TargetType' is 'F&'.
-        //:   b Initialize a tempoary variable of type
+        //:   b Initialize a temporary variable of type
         //:     'ForwardingType<F>::Type' using 'func'.
         //:   c Call 'forwardToTarget' on the temporary variable and verify
         //:     that the returned reference has the same address as 'func'.
@@ -1131,7 +1135,7 @@ int main(int argc, char *argv[])
         //:   of function, reference-to-function, and pointer-to-function
         //:   parameters and verify that the resulting 'Type' member is the
         //:   expected type.
-        //: 3 For concern 4, instantiate 'ForwadingType' for a small number of
+        //: 3 For concern 4, instantiate 'ForwardingType' for a small number of
         //:   array types, lvalue-reference-to-array types, and
         //:   rvalue-reference-to-array types, both sized and unsized, and
         //:   both cv-qualified and unqualified, and verify that the resulting
@@ -1399,7 +1403,7 @@ int main(int argc, char *argv[])
         //:   'CvRefMatch<int>'. Call 'crm(v)' for variables 'v' of type cvq
         //:   'int' correct lvalue enumeration value is returned.  In C++11 or
         //:   later mode, test with 'std::move(v)' and verify that the correct
-        //:   lvalue enmeration is returned.  Also test with a literal integer
+        //:   lvalue enumeration is returned.  Also test with a literal integer
         //:   and verify that the return value is 'k_RVALUE_REF' in C++11 mode
         //:   or 'k_CONST_LVALUE_REF' in C++03 mode.
         //: 2 For concerns 2 and 3, create a variable, 'cam' of type
