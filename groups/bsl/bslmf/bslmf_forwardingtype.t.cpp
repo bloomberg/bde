@@ -976,17 +976,15 @@ int main(int argc, char *argv[])
         testForwardToTargetVal<Enum    volatile>(e);
         testForwardToTargetVal<double  volatile>(d);
         testForwardToTargetVal<double *volatile>(p);
-#if !defined(BSLMF_FORWARDINGTYPE_DISABLE_ARRAY_TESTING)
-        testForwardToTargetVal<A       volatile>(a);
-#endif  // Disable testing arrays on broken compilers
-#if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
-        testForwardToTargetVal<AU      volatile>(au);
-#endif
         testForwardToTargetVal<PF      volatile>(f_p);
         testForwardToTargetVal<Pm      volatile>(m_p);
         testForwardToTargetVal<Pmf     volatile>(mf_p);
-
 #if !defined(BSLMF_FORWARDINGTYPE_DISABLE_ARRAY_TESTING)
+        testForwardToTargetVal<A       volatile>(a);
+#if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
+        testForwardToTargetVal<AU      volatile>(au);
+#endif
+
         testForwardToTargetArray<A           >(a);
         testForwardToTargetArray<A  const    >(a);
         testForwardToTargetArray<A          &>(a);
