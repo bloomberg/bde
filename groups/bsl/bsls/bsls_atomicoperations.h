@@ -687,7 +687,17 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40700
+#if defined(BSLS_PLATFORM_CMP_CLANG)
+#if __has_extension(c_atomic) || __has_extension(cxx_atomic)  // clang 3.1+
+#define BSLS_ATOMICOPERATIONS_CLANG_ATOMICS
+#endif
+#endif
+
+#if defined(BSLS_ATOMICOPERATIONS_CLANG_ATOMICS)
+    //  clang 3.1+
+#   include <bsls_atomicoperations_all_all_clangintrinsics.h>
+
+#elif defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40700
     //  GCC 4.7+
 #   include <bsls_atomicoperations_all_all_gccintrinsics.h>
 
