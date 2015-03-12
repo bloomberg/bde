@@ -119,10 +119,17 @@ void aSsErT(bool condition, const char *message, int line)
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_SUN)
-# define BSLMF_FORWARDINGTYPE_DISABLE_ARRAY_TESTING
-    // The Sun compiler has problems with any test involving arrays.  This
-    // macro provides an easy way to disable/re-enable testing of array support
-    // with a single comment, as potential workarounds are considered.
+# define BSLMF_FOWARDINGTYPE_WORK_AROUND_SUN_ARRAY_TESTS
+    // The Sun compiler has problems with any test involving arrays, triggering
+    // internal compiler errors with no hint of the line(s) triggering the
+    // problem.  This appears to be an artifact of several function templates
+    // that are called by explicitly specifying the first template parameter to
+    // be an array type.  If the function argument is also an array type, the
+    // internal compiler error is triggered, while transforming that function
+    // parameter type to an array reference appears to solve the problem.  As
+    // the fix is entirely about making the test driver well-formed, and does
+    // not impact the component header, this is deemed an acceptable workaround
+    // to pass the test.
     //
     // This code has not yet been tested against the Sun CC 12.4 compiler which
     // has significantly improved standard conformance, including support for
@@ -329,6 +336,18 @@ int testEndToEnd(TP arg, const INVOCABLE& target)
     return endToEndIntermediary<TP>(arg, target);
 }
 
+#if defined(BSLMF_FOWARDINGTYPE_WORK_AROUND_SUN_ARRAY_TESTS)
+template <class TP, class INVOCABLE>
+int testEndToEndArray(typename bsl::add_lvalue_reference<TP>::type arg,
+                      const INVOCABLE&                             target)
+    // Forward the specified 'arg' to the specified 'target' via an
+    // intermediate function.  This function is called at the start of a chain
+    // of function calls that forward to the eventual 'target' invocable
+    // object.
+{
+    return endToEndIntermediary<TP>(arg, target);
+}
+#endif
 //=============================================================================
 //                           USAGE EXAMPLES
 //-----------------------------------------------------------------------------
@@ -582,7 +601,12 @@ void testForwardToTargetVal(TYPE obj)
 }
 
 template <class TYPE>
+#if defined(BSLMF_FOWARDINGTYPE_WORK_AROUND_SUN_ARRAY_TESTS)
+void testForwardToTargetArray(
+                            typename bsl::add_lvalue_reference<TYPE>::type obj)
+#else
 void testForwardToTargetArray(TYPE obj)
+#endif
     // Test 'forwardToTarget' when the specified 'obj' is an array.
 {
     typedef typename bslmf::ForwardingType<TYPE>::Type FwdType;
@@ -819,6 +843,18 @@ int main(int argc, char *argv[])
 #endif // defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 
         if (veryVerbose) printf("array types\n");
+#if defined(BSLMF_FOWARDINGTYPE_WORK_AROUND_SUN_ARRAY_TESTS)
+#define TEST_ENDTOEND_ARRAY(TP, a, exp) {                                     \
+            CvArrayMatch<char> am;                                            \
+            ASSERT(testEndToEndArray<TP>(a, am)   == exp);                    \
+            CvArrayMatch<const char> acm;                                     \
+            ASSERT(testEndToEndArray<const TP>(a, acm)  == exp);              \
+            CvArrayMatch<volatile char> avm;                                  \
+            ASSERT(testEndToEndArray<volatile TP>(a, avm)  == exp);           \
+            CvArrayMatch<const volatile char> acvm;                           \
+            ASSERT(testEndToEndArray<const volatile TP>(a, acvm) == exp);     \
+        }
+#else
 #define TEST_ENDTOEND_ARRAY(TP, a, exp) {                                     \
             CvArrayMatch<char> am;                                            \
             ASSERT(testEndToEnd<TP>(a, am)   == exp);                         \
@@ -829,15 +865,14 @@ int main(int argc, char *argv[])
             CvArrayMatch<const volatile char> acvm;                           \
             ASSERT(testEndToEnd<const volatile TP>(a, acvm) == exp);          \
         }
+#endif
 
-#if !defined(BSLMF_FORWARDINGTYPE_DISABLE_ARRAY_TESTING)
         TEST_ENDTOEND_ARRAY(char[5], a,    5);
         TEST_ENDTOEND_ARRAY(char(&)[5], a, 5);
 #if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
         TEST_ENDTOEND_ARRAY(char[], au,    0);
         TEST_ENDTOEND_ARRAY(char(&)[], au, 0);
 #endif
-#endif  // Disable testing arrays on broken compilers
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)                  \
  &&!defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_DECAY_TO_RVALUE_REF)
         TEST_ENDTOEND_ARRAY(char *&&, au,  0);
@@ -979,11 +1014,13 @@ int main(int argc, char *argv[])
         testForwardToTargetVal<PF      volatile>(f_p);
         testForwardToTargetVal<Pm      volatile>(m_p);
         testForwardToTargetVal<Pmf     volatile>(mf_p);
-#if !defined(BSLMF_FORWARDINGTYPE_DISABLE_ARRAY_TESTING)
+#if !defined(BSLMF_FOWARDINGTYPE_WORK_AROUND_SUN_ARRAY_TESTS)
         testForwardToTargetVal<A       volatile>(a);
 #if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
         testForwardToTargetVal<AU      volatile>(au);
 #endif
+#endif  // Disable testing arrays on broken compilers
+
 
         testForwardToTargetArray<A           >(a);
         testForwardToTargetArray<A  const    >(a);
@@ -1005,8 +1042,6 @@ int main(int argc, char *argv[])
         testForwardToTargetArray<AU         &&>(native_std::move(au));
         testForwardToTargetArray<AU const   &&>(native_std::move(au));
 #endif
-
-#endif  // Disable testing arrays on broken compilers
 
         testForwardToTargetRef<Enum    &>(e);
         testForwardToTargetRef<Struct  &>(s);
