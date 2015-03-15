@@ -1107,6 +1107,13 @@ bool operator!=(const LargeFunctorWithAlloc& a, const LargeFunctorWithAlloc& b)
     return a.value() != b.value();
 }
 
+template <class FUNC>
+Function_NothrowWrapper<FUNC> nothrowWrapper(const FUNC& f)
+    // Wrap the specified 'f' in a 'Function_NothrowWapper' object.
+{
+    return Function_NothrowWrapper<FUNC>(f);
+}
+
 // Common function type used in most tests
 typedef bsl::function<int(const IntWrapper&, int)> Obj;
 
@@ -4752,6 +4759,9 @@ int main(int argc, char *argv[])
         //:   interface.
         //: 7 Arguments that are supposed to be passed by value are copied
         //:   exactly once when passed through the invocation interface.
+        //: 8 If the pointer-to-function argument is wrapped in a
+        //:   'Function_NothrowWrapper', the invocation behavior is the same
+        //:   as for the unwrapped pointer-to-function.
         //
         // Plan:
         //: 1 Create a set of functions, 'sum0' to 'sum10' taking 0 to 10
@@ -4764,7 +4774,7 @@ int main(int argc, char *argv[])
         //:   Verify that the return from the invocations matches the expected
         //:   results.
         //: 3 For concern 3, repeat step 2 except instantiate the
-        //:   'bsl::function' objects with arguments of type
+        //:   'bsl::function' objects with prototypes with arguments of type
         //:   'ConvertibleToInt' and return type 'IntWrapper'.
         //: 4 For concern 4, create a global function, 'increment' that
         //:   increments its argument (passed by address) and returns void.
@@ -4786,6 +4796,10 @@ int main(int argc, char *argv[])
         //:   returns the number of times it was copied.  Verify that, when
         //:   invoked through a 'bsl::function' wrapper, the argument is
         //:   copied only once.
+        //: 8 For concern 8, repeat a few test cases from the steps 2 through
+        //:   7.  Note that it is not necessary to every combination of 0 to
+        //:   10 arguments in order to have confidence that the constructor
+        //:   argument is being correctly unwrapped.
         //
         // Testing:
         //      RET operator()(ARGS...) const; // For pointer to function
@@ -4919,6 +4933,57 @@ int main(int argc, char *argv[])
 #endif
         ASSERT(0 == cc.numCopies());
 
+        // Test 'Function_NothrowWrapper'
+        if (veryVerbose) printf("Plan step 7\n");
+        {
+            // Test normal function
+            bsl::function<int(int)> f1(nothrowWrapper(&sum1));
+            ASSERT(0x4001 == f1(1));
+
+            // Test function with argument conversion
+            typedef IntWrapper       Ret;
+            typedef ConvertibleToInt Arg;
+
+            const Arg a1(0x0001);
+            const Arg a2(0x0002);
+            
+            bsl::function<Ret(Arg, Arg)> f2(nothrowWrapper(&sum2));
+            ASSERT(0x4003 == f2(a1, a2));
+
+            // Test void return type
+            bsl::function<void(int*)> fvoid(nothrowWrapper(&increment));
+            int v = 1;
+            fvoid(&v);
+            ASSERT(2 == v);
+
+            // Test discarding of return value
+            bsl::function<void(int)> fdiscard(nothrowWrapper(&sum1));
+            fdiscard(3);
+
+            // Test pass-by-reference
+            bsl::function<int*(int&)> ga(nothrowWrapper(&getAddress));
+            ASSERT(&v == ga(v));
+            bsl::function<const int*(const int&)>
+                gca(nothrowWrapper(&getConstAddress));
+            ASSERT(&v == gca(v));
+            gca(v);
+
+            // Test pass-by-value
+            bsl::function<int(CountCopies)> nc(nothrowWrapper(&numCopies));
+            CountCopies cc;
+            ASSERT(1 == numCopies(cc));
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+            ASSERT(1 == nc(cc));
+            ASSERT(0 == numCopies(CountCopies()));
+            ASSERT(0 == nc(CountCopies()));
+#else
+            ASSERT(2 == nc(cc));
+            ASSERT(0 == numCopies(CountCopies()));
+            ASSERT(1 == nc(CountCopies()));
+#endif
+            ASSERT(0 == cc.numCopies());
+        }
+
       } break;
 
       case 4: {
@@ -4993,7 +5058,7 @@ int main(int argc, char *argv[])
                   } break;
 
                   case 5: {
-                      bsl::function<int(int, int, int, int, int)> f5;
+                    bsl::function<int(int, int, int, int, int)> f5;
                     constructed = 5;
                     f5(1, 2, 4, 8, 0x10);
                   } break;
@@ -5194,8 +5259,7 @@ int main(int argc, char *argv[])
                    &simpleFunc == *f.target<SimpleFuncPtr_t>());
             ASSERT(&globalTestAllocator == f.allocator());
 
-            typedef bsl::Function_NothrowWrapper<SimpleFuncPtr_t> NtWrapper;
-            Obj fw(static_cast<NtWrapper>(simpleFunc));
+            Obj fw(nothrowWrapper(&simpleFunc));
             const Obj& FW = fw;
             ASSERT(FW);
             ASSERT(globalAllocMonitor.isTotalSame());
@@ -5222,8 +5286,7 @@ int main(int argc, char *argv[])
                    &IntWrapper::add1 == *f.target<SimpleMemFuncPtr_t>());
             ASSERT(&globalTestAllocator == f.allocator());
 
-            typedef bsl::Function_NothrowWrapper<SimpleMemFuncPtr_t> NtWrapper;
-            Obj fw(static_cast<NtWrapper>(&IntWrapper::add1));
+            Obj fw(nothrowWrapper(&IntWrapper::add1));
             const Obj& FW = fw;
             ASSERT(FW);
             ASSERT(globalAllocMonitor.isTotalSame());
@@ -5250,8 +5313,7 @@ int main(int argc, char *argv[])
                    ftor == *f.target<EmptyFunctor>());
             ASSERT(&globalTestAllocator == f.allocator());
 
-            typedef bsl::Function_NothrowWrapper<EmptyFunctor> NtWrapper;
-            Obj fw(static_cast<NtWrapper>(ftor)); const Obj& FW = fw;
+            Obj fw(nothrowWrapper(ftor)); const Obj& FW = fw;
             ASSERT(FW);
             ASSERT(globalAllocMonitor.isTotalSame());
             ASSERT(typeid(EmptyFunctor) == FW.target_type());
@@ -5277,8 +5339,7 @@ int main(int argc, char *argv[])
                    ftor == *f.target<SmallFunctor>());
             ASSERT(&globalTestAllocator == f.allocator());
 
-            typedef bsl::Function_NothrowWrapper<SmallFunctor> NtWrapper;
-            Obj fw(static_cast<NtWrapper>(ftor)); const Obj& FW = fw;
+            Obj fw(nothrowWrapper(ftor)); const Obj& FW = fw;
             ASSERT(FW);
             ASSERT(globalAllocMonitor.isTotalSame());
             ASSERT(typeid(SmallFunctor) == FW.target_type());
@@ -5321,8 +5382,7 @@ int main(int argc, char *argv[])
                    ftor == *f.target<LargeFunctor>());
             ASSERT(&globalTestAllocator == f.allocator());
 
-            typedef bsl::Function_NothrowWrapper<LargeFunctor> NtWrapper;
-            Obj fw(static_cast<NtWrapper>(ftor)); const Obj& FW = fw;
+            Obj fw(nothrowWrapper(ftor)); const Obj& FW = fw;
             ASSERT(FW);
             ASSERT(preBlocks + 2 == globalTestAllocator.numBlocksInUse());
             ASSERT(typeid(LargeFunctor) == FW.target_type());
@@ -5349,8 +5409,7 @@ int main(int argc, char *argv[])
                    ftor == *f.target<NTSmallFunctor>());
             ASSERT(&globalTestAllocator == f.allocator());
 
-            typedef bsl::Function_NothrowWrapper<NTSmallFunctor> NtWrapper;
-            Obj fw(static_cast<NtWrapper>(ftor)); const Obj& FW = fw;
+            Obj fw(nothrowWrapper(ftor)); const Obj& FW = fw;
             ASSERT(FW);
             ASSERT(globalAllocMonitor.isTotalSame());
             ASSERT(typeid(NTSmallFunctor) == FW.target_type());
@@ -5387,9 +5446,7 @@ int main(int argc, char *argv[])
             // This functor is NOT eligible for the small-object optimization
             // but, when wrapped, it IS eligible.
             ThrowingSmallFunctor ftor(21);
-            typedef
-                bsl::Function_NothrowWrapper<ThrowingSmallFunctor> NtWrapper;
-            Obj fw(static_cast<NtWrapper>(ftor)); const Obj& FW = fw;
+            Obj fw(nothrowWrapper(ftor)); const Obj& FW = fw;
             ASSERT(FW);
             ASSERT(globalAllocMonitor.isTotalSame());
             ASSERT(typeid(ThrowingSmallFunctor) == FW.target_type());
@@ -5417,9 +5474,7 @@ int main(int argc, char *argv[])
                    ftor == *f.target<ThrowingEmptyFunctor>());
             ASSERT(&globalTestAllocator == f.allocator());
 
-            typedef
-                bsl::Function_NothrowWrapper<ThrowingEmptyFunctor> NtWrapper;
-            Obj fw(static_cast<NtWrapper>(ftor)); const Obj& FW = fw;
+            Obj fw(nothrowWrapper(ftor)); const Obj& FW = fw;
             ASSERT(FW);
             // No ADDITIONAL memory is allocated
             ASSERT(preBlocks + 1 == globalTestAllocator.numBlocksInUse());
