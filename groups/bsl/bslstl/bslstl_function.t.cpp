@@ -1446,6 +1446,12 @@ void testPtrToMemFunc(const char *prototypeStr)
                       ARG, ARG, ARG)> f10(&IntWrapper::increment9);
     ASSERT(0x23ff == f10(gen.obj(), a1, a2, a3, a4, a5, a6, a7, a8, a9));
     ASSERT(gen.check(0x23ff));
+
+    // Test using Function_NothrowWrapper
+    bsl::function<RET(T, ARG, ARG)>
+        ntf3(nothrowWrapper(&IntWrapper::increment2));
+    ASSERT(0x2007 == ntf3(gen.obj(), a1, a2));
+    ASSERT(gen.check(0x2007));
 }
 
 template <class T, class RET, class ARG>
@@ -1484,6 +1490,12 @@ void testPtrToConstMemFunc(const char *prototypeStr)
     bsl::function<RET(T, ARG, ARG, ARG, ARG, ARG, ARG,
                       ARG, ARG, ARG)> f10(&IntWrapper::add9);
     ASSERT(0x23ff == f10(gen.obj(), a1, a2, a3, a4, a5, a6, a7, a8, a9));
+    ASSERT(gen.check(0x2001));
+
+    // Test using Function_NothrowWrapper
+    bsl::function<RET(T, ARG, ARG, ARG, ARG, ARG, ARG,
+                      ARG, ARG, ARG)> ntf10(&IntWrapper::add9);
+    ASSERT(0x23ff == ntf10(gen.obj(), a1, a2, a3, a4, a5, a6, a7, a8, a9));
     ASSERT(gen.check(0x2001));
 }
 
@@ -4580,6 +4592,9 @@ int main(int argc, char *argv[])
         //:   pointer to, or smart-pointer to type derived from 'FT'.
         //: 9 If 'RET' is 'void', then the return value of 'pf' is discarded,
         //:   even if 'FRET' is non-void.
+        //: 10 If the pointer-to-member-function argument is wrapped in a
+        //:   'Function_NothrowWrapper', the invocation behavior is the same
+        //:   as for the unwrapped pointer-to-member-function.
         //
         // Plan:
         //: 1 Create a class 'IntWrapper' that holds an 'int' value and has
@@ -4629,6 +4644,12 @@ int main(int argc, char *argv[])
         //:   'IntWrapper::increment1', thus discarding the return value.
         //:   Repeat this test but wrapping 'IntWrapper::voidIncrement1',
         //:   showing that a 'voide' function can be invoked.
+        //: 10 For concern 10, add a tests to 'testPtrToMemFunc' and
+        //:   'testPtrToConstMemFunc' as well as to the variants in step 9
+        //:   whereby the 'function' object is constructed using a
+        //:   pointer-to-member-function wrapped by a
+        //:   'Function_NothrowWrapper' and verify that the behavior does not
+        //:   change.
         //
         // Testing:
         //      RET operator()(ARGS...) const; // For pointer to member func
@@ -4714,23 +4735,33 @@ int main(int argc, char *argv[])
         ftsp(&iw, 8);                  // No return type to test
         ASSERT(0x300f == iw.value());
 
+        bsl::function<void(IntWrapper*, int)>
+            ntftp(nothrowWrapper(&IntWrapper::increment1));
+        ntftp(&iw, 0x10);                   // No return type to test
+        ASSERT(0x301f == iw.value());
+
 
         bsl::function<void(IntWrapper, int)> vt(&IntWrapper::voidIncrement1);
         vt(iw, 0x10);                  // No return type to test
-        ASSERT(0x300f == iw.value());  // Passed by value. Original unchanged. 
+        ASSERT(0x301f == iw.value());  // Passed by value. Original unchanged. 
 
         bsl::function<void(IntWrapper&, int)> vtr(&IntWrapper::voidIncrement1);
         vtr(iw, 0x20);                 // No return type to test
-        ASSERT(0x302f == iw.value());
+        ASSERT(0x303f == iw.value());
 
         bsl::function<void(IntWrapper*, int)> vtp(&IntWrapper::voidIncrement1);
         vtp(&iw, 0x40);                // No return type to test
-        ASSERT(0x306f == iw.value());
+        ASSERT(0x307f == iw.value());
 
         bsl::function<void(SmartPtr<IntWrapper>,
                            int)> vtsp(&IntWrapper::voidIncrement1);
         vtsp(&iw, 0x80);               // No return type to test
-        ASSERT(0x30ef == iw.value());
+        ASSERT(0x30ff == iw.value());
+
+        bsl::function<void(SmartPtr<IntWrapper>, int)>
+            ntvtsp(nothrowWrapper(&IntWrapper::voidIncrement1));
+        vtsp(&iw, 0x100);               // No return type to test
+        ASSERT(0x31ff == iw.value());
 
       } break;
 
