@@ -91,6 +91,10 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ANNOTATION
+#include <bsls_annotation.h>
+#endif
+
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
 #endif
@@ -200,26 +204,12 @@ struct AssertTest {
 typedef BloombergLP::bslmf::AssertTest< \
         sizeof(BloombergLP::BSLMF_COMPILE_TIME_ASSERTION_FAILURE<!!(expr)>)> \
                 bslmf_Assert_MSVC_ZI_BUG
-
-#elif defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR > 40800
-
-// gcc 4.8.1 introduces a new warning for unused typedefs, which we cannot
-// silence with _Pragam("GCC diagnostic ignored \"-Wwarning\""), so we switch
-// to an implementation declaring a function instead.  As with the typedef
-// based implementations, we must include '__LINE__' in the name of the
-// decalared function to allow multiple uses in the same class definition.
-
-#define BSLMF_ASSERT(expr)                                      \
-void BSLMF_ASSERT_CAT(BDE_static_assert_declaration, __LINE__)( \
-     BloombergLP::bslmf::AssertTest<                            \
-         sizeof(BloombergLP::BSLMF_COMPILE_TIME_ASSERTION_FAILURE<!!(expr)>)>*)
-
 #else
 
 #define BSLMF_ASSERT(expr) \
 typedef BloombergLP::bslmf::AssertTest< \
-         sizeof(BloombergLP::BSLMF_COMPILE_TIME_ASSERTION_FAILURE<!!(expr)>)> \
-                BSLMF_ASSERT_CAT(bslmf_Assert_, __LINE__)
+        sizeof(BloombergLP::BSLMF_COMPILE_TIME_ASSERTION_FAILURE<!!(expr)>)> \
+               BSLMF_ASSERT_CAT(bslmf_Assert_, __LINE__) BSLS_ANNOTATION_UNUSED
 
 #endif
 

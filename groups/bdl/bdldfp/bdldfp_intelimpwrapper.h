@@ -90,6 +90,7 @@ BSLS_IDENT("$Id$")
 #    ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #      pragma GCC diagnostic push
 #      pragma GCC diagnostic ignored "-Wconversion"
+#      pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
 #    endif
 
 
