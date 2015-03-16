@@ -28,7 +28,9 @@ namespace bsl {
     using native_std::condition_variable;
     using native_std::condition_variable_any;
     using native_std::cv_status;
+#ifdef BSL_CONDITION_VARIABLE_SUPPORTS_NOTIFY_ALL_AT_THREAD_EXIT
     using native_std::notify_all_at_thread_exit;
+#endif
 
 }  // close namespace bsl
 

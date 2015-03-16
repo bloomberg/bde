@@ -52,7 +52,7 @@ namespace bsl {
     using native_std::tera;
     using native_std::peta;
     using native_std::exa;
-#ifdef extended_ratio_definition
+#ifdef BSL_RATIO_SUPPORTS_EXTENDED_SI_TYPEDEFS
     using native_std::yocto;
     using native_std::zepto;
     using native_std::zetta;

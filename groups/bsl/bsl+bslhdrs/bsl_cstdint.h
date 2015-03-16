@@ -47,7 +47,7 @@ namespace bsl {
     using native_std::uint_fast32_t;
     using native_std::uint_fast64_t;
 
-#ifdef optional_cstdint_features
+#ifdef BSL_CSTDINT_SUPPORTS_OPTIONAL_TYPEDEFS
     using native_std::int8_t;
     using native_std::int16_t;
     using native_std::int32_t;
