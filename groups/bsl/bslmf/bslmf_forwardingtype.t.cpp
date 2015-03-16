@@ -367,27 +367,27 @@ int testEndToEndArray(typename bsl::add_lvalue_reference<TP>::type arg,
     void usageExample1()
         // Usage example.
     {
-        typedef int                    T1;
-        typedef int&                   T2;
-        typedef const volatile double& T3;
-        typedef const double &         T4;
-        typedef const float * &        T5;
-        typedef const float * const &  T6;
-        typedef MyType                 T7;
-        typedef const MyType&          T8;
-        typedef MyType&                T9;
-        typedef MyType                *T10;
+        typedef int                     T1;
+        typedef int&                    T2;
+        typedef const volatile double&  T3;
+        typedef const double &          T4;
+        typedef const float * &         T5;
+        typedef const float * const &   T6;
+        typedef MyType                  T7;
+        typedef const MyType&           T8;
+        typedef MyType&                 T9;
+        typedef MyType                 *T10;
 
-        typedef int                    EXP1;
-        typedef int&                   EXP2;
-        typedef const volatile double& EXP3;
-        typedef const double &         EXP4;
-        typedef const float * &        EXP5;
-        typedef const float * const &  EXP6;
-        typedef const MyType&          EXP7;
-        typedef const MyType&          EXP8;
-        typedef MyType&                EXP9;
-        typedef MyType                *EXP10;
+        typedef int                     EXP1;
+        typedef int&                    EXP2;
+        typedef const volatile double&  EXP3;
+        typedef const double &          EXP4;
+        typedef const float * &         EXP5;
+        typedef const float * const &   EXP6;
+        typedef const MyType&           EXP7;
+        typedef const MyType&           EXP8;
+        typedef MyType&                 EXP9;
+        typedef MyType                 *EXP10;
 
         ASSERT((bsl::is_same<bslmf::ForwardingType<T1>::Type, EXP1>::value));
         ASSERT((bsl::is_same<bslmf::ForwardingType<T2>::Type, EXP2>::value));

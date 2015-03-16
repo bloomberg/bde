@@ -60,7 +60,7 @@ BSLS_IDENT("$Id: $")
 // of the reference (e.g., if it compares it to some known address), it would
 // wind up with the address of a temporary copy, rather than the address of the
 // original argument.  Thus, the current component forwards references as
-// references in call cases, including for basic types, except in the case of
+// references in all cases, including for basic types, except in the case of
 // arrays and functions (that decay to pointers).
 //
 ///Usage
@@ -78,27 +78,27 @@ BSLS_IDENT("$Id: $")
 //  void main()
 //      // Usage example.
 //  {
-//      typedef int                    T1;
-//      typedef int&                   T2;
-//      typedef const volatile double& T3;
-//      typedef const double &         T4;
-//      typedef const float * &        T5;
-//      typedef const float * const &  T6;
-//      typedef MyType                 T7;
-//      typedef const MyType&          T8;
-//      typedef MyType&                T9;
-//      typedef MyType                *T10;
+//      typedef int                     T1;
+//      typedef int&                    T2;
+//      typedef const volatile double&  T3;
+//      typedef const double &          T4;
+//      typedef const float * &         T5;
+//      typedef const float * const &   T6;
+//      typedef MyType                  T7;
+//      typedef const MyType&           T8;
+//      typedef MyType&                 T9;
+//      typedef MyType                 *T10;
 //
-//      typedef int                    EXP1;
-//      typedef int&                   EXP2;
-//      typedef const volatile double& EXP3;
-//      typedef const double &         EXP4;
-//      typedef const float * &        EXP5;
-//      typedef const float * const &  EXP6;
-//      typedef const MyType&          EXP7;
-//      typedef const MyType&          EXP8;
-//      typedef MyType&                EXP9;
-//      typedef MyType                *EXP10;
+//      typedef int                     EXP1;
+//      typedef int&                    EXP2;
+//      typedef const volatile double&  EXP3;
+//      typedef const double &          EXP4;
+//      typedef const float * &         EXP5;
+//      typedef const float * const &   EXP6;
+//      typedef const MyType&           EXP7;
+//      typedef const MyType&           EXP8;
+//      typedef MyType&                 EXP9;
+//      typedef MyType                 *EXP10;
 //
 //      assert((bsl::is_same<bslmf::ForwardingType<T1>::Type, EXP1>::value));
 //      assert((bsl::is_same<bslmf::ForwardingType<T2>::Type, EXP2>::value));
@@ -584,6 +584,10 @@ struct ForwardingType_Imp<UNREF_TYPE,
 template <class UNREF_TYPE>
 struct ForwardingType_Imp<UNREF_TYPE,
                           ForwardingType_Dispatch::e_CLASS, true> {
+    // Lvalue of user type (i.e., class or union) is forwarded as a reference,
+    // where the cv-qualification of the referenced type depends on the
+    // cv-qualification of the Lvalue's type.
+
     typedef UNREF_TYPE& Type;
     typedef UNREF_TYPE& TargetType;
     static TargetType forwardToTarget(Type v)
