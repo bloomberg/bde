@@ -244,7 +244,6 @@ struct TestDriver {
     // the test driver main program.  This class is necessitated by
     // compile-time performance issues on some platforms.
 
-    static void testCase6();
     static void testCase5();
     static void testCase4();
     static void testCase3();
@@ -253,7 +252,7 @@ struct TestDriver {
 
 };
 
-void TestDriver::testCase6()
+void TestDriver::testCase5()
 {
     // ------------------------------------------------------------------------
     // USAGE EXAMPLES
@@ -322,10 +321,11 @@ void TestDriver::testCase6()
     }
 }
 
-void TestDriver::testCase5()
+void TestDriver::testCase4()
 {
     // ------------------------------------------------------------------------
     // TESTING IOSTREAM OPERATORS
+    //
     // Concerns: do_put correctly handles strings of different character
     // types, as well as the formatting flags of justification, width, and
     // capitalization.
@@ -354,8 +354,6 @@ void TestDriver::testCase5()
     } DATA[] = {
         // L   NUMBER    WIDTH JUST    CAPITAL      EXPECTED
         // --- ------    ----- ----    -------      --------
-#ifdef BDLDFP_DECIMALPLATFORM_DECNUMBER
-
         {  L_, DFP(4.25),  0,     'l', false,         "4.25" },
         {  L_, DFP(4.25),  1,     'l', false,         "4.25" },
         {  L_, DFP(4.25),  2,     'l', false,         "4.25" },
@@ -421,42 +419,7 @@ void TestDriver::testCase5()
         {  L_, DFP(-4.25), 7,     'r', false,      "  -4.25" },
         {  L_, DFP(-4.25), 8,     'r', false,     "   -4.25" },
         {  L_, DFP(-4.25), 9,     'r', false,    "    -4.25" },
-#endif
 
-#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
-        {  L_, INF_P,      0,     'l', false,          "inf" },
-        {  L_, INF_P,      1,     'l', false,          "inf" },
-        {  L_, INF_P,      2,     'l', false,          "inf" },
-        {  L_, INF_P,      3,     'l', false,          "inf" },
-        {  L_, INF_P,      4,     'l', false,         "inf " },
-        {  L_, INF_P,      5,     'l', false,        "inf  " },
-
-        {  L_, INF_P,      0,     'l', true,           "INF" },
-
-        {  L_, INF_N,      0,     'l', false,         "-inf" },
-        {  L_, INF_N,      1,     'l', false,         "-inf" },
-        {  L_, INF_N,      2,     'l', false,         "-inf" },
-        {  L_, INF_N,      3,     'l', false,         "-inf" },
-        {  L_, INF_N,      4,     'l', false,         "-inf" },
-        {  L_, INF_N,      5,     'l', false,        "-inf " },
-        {  L_, INF_N,      6,     'l', false,       "-inf  " },
-
-        {  L_, INF_N,      0,     'i', false,         "-inf" },
-        {  L_, INF_N,      1,     'i', false,         "-inf" },
-        {  L_, INF_N,      2,     'i', false,         "-inf" },
-        {  L_, INF_N,      3,     'i', false,         "-inf" },
-        {  L_, INF_N,      4,     'i', false,         "-inf" },
-        {  L_, INF_N,      5,     'i', false,        "- inf" },
-        {  L_, INF_N,      6,     'i', false,       "-  inf" },
-
-        {  L_, INF_N,      0,     'r', false,         "-inf" },
-        {  L_, INF_N,      1,     'r', false,         "-inf" },
-        {  L_, INF_N,      2,     'r', false,         "-inf" },
-        {  L_, INF_N,      3,     'r', false,         "-inf" },
-        {  L_, INF_N,      4,     'r', false,         "-inf" },
-        {  L_, INF_N,      5,     'r', false,        " -inf" },
-        {  L_, INF_N,      6,     'r', false,       "  -inf" },
-#else
         {  L_, INF_P,      0,     'l', false,     "infinity" },
         {  L_, INF_P,      1,     'l', false,     "infinity" },
         {  L_, INF_P,      2,     'l', false,     "infinity" },
@@ -508,32 +471,6 @@ void TestDriver::testCase5()
         {  L_, INF_N,      9,     'r', false,    "-infinity" },
         {  L_, INF_N,     10,     'r', false,   " -infinity" },
 
-#endif
-
-#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
-        {  L_, NAN_Q,      0,     'l', false,         "nanq" },
-        {  L_, NAN_Q,      1,     'l', false,         "nanq" },
-        {  L_, NAN_Q,      2,     'l', false,         "nanq" },
-        {  L_, NAN_Q,      3,     'l', false,         "nanq" },
-
-        {  L_, NAN_Q,      0,     'i', false,         "nanq" },
-        {  L_, NAN_Q,      1,     'i', false,         "nanq" },
-        {  L_, NAN_Q,      2,     'i', false,         "nanq" },
-        {  L_, NAN_Q,      3,     'i', false,         "nanq" },
-
-        {  L_, NAN_Q,      0,     'r', false,         "nanq" },
-        {  L_, NAN_Q,      1,     'r', false,         "nanq" },
-        {  L_, NAN_Q,      2,     'r', false,         "nanq" },
-        {  L_, NAN_Q,      3,     'r', false,         "nanq" },
-
-        {  L_, NAN_Q,      0,     'i', true,          "NANQ" },
-
-// These tests are disabled because formatting is not yet supported
-//          {  L_, NAN_Q,      4,     'l', false,         "nanq " },
-//          {  L_, NAN_Q,      4,     'i', false,         " nanq" },
-//          {  L_, NAN_Q,      4,     'r', false,         " nanq" },
-
-#else
         {  L_, NAN_Q,      0,     'l', false,         "nan" },
         {  L_, NAN_Q,      1,     'l', false,         "nan" },
         {  L_, NAN_Q,      2,     'l', false,         "nan" },
@@ -553,51 +490,86 @@ void TestDriver::testCase5()
         {  L_, NAN_Q,      4,     'r', false,         " nan" },
 
         {  L_, NAN_Q,      0,     'i', true,          "NAN" },
-#endif
     };
     const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
     for (int ti = 0; ti < NUM_DATA; ++ti) {
-        const int             LINE     = DATA[ti].d_line;
-        const BDEC::Decimal32 DECIMAL  = DATA[ti].d_decimalValue;
-        const int             WIDTH    = DATA[ti].d_width;
-        const bool            LEFT     = (DATA[ti].d_justification == 'l');
-        const bool            INTERNAL = (DATA[ti].d_justification == 'i');
-        const bool            RIGHT    = (DATA[ti].d_justification == 'r');
-        const bool            CAPITAL  = DATA[ti].d_capital;
-        const char           *EXPECTED = DATA[ti].d_expected;
+        const int             LINE       = DATA[ti].d_line;
+        const BDEC::Decimal32 DECIMAL32  = DATA[ti].d_decimalValue;
+        const int             WIDTH      = DATA[ti].d_width;
+        const bool            LEFT       = (DATA[ti].d_justification == 'l');
+        const bool            INTERNAL   = (DATA[ti].d_justification == 'i');
+        const bool            RIGHT      = (DATA[ti].d_justification == 'r');
+        const bool            CAPITAL    = DATA[ti].d_capital;
+        const char           *EXPECTED   = DATA[ti].d_expected;
 
+        if (veryVerbose) {
+            P_(LINE); P_(EXPECTED); P(DECIMAL32);
+        }
+
+        // Test with Decimal32.
         {
-            // Test with char strings.
+            const BDEC::Decimal32 VALUE(DECIMAL32);
+
             bsl::stringstream outdec;
 
             outdec.width(WIDTH);
-            if (LEFT) {
-                outdec << bsl::left;
-            }
-            if (INTERNAL) {
-                outdec << bsl::internal;
-            }
-            if (RIGHT) {
-                outdec << bsl::right;
-            }
-            if (CAPITAL) {
-                outdec << bsl::uppercase;
-            }
-            else {
-                outdec << bsl::nouppercase;
-            }
-            outdec << DECIMAL;
+            if (LEFT)     { outdec << bsl::left;        }
+            if (INTERNAL) { outdec << bsl::internal;    }
+            if (RIGHT)    { outdec << bsl::right;       }
+            if (CAPITAL)  { outdec << bsl::uppercase;   }
+            else          { outdec << bsl::nouppercase; }
+            outdec << VALUE;
 
             bsl::string ACTUAL = outdec.str();
 
-            LOOP3_ASSERT(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
+            ASSERTV(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
         }
+
+        // Test with Decimal64.
+        {
+            const BDEC::Decimal64 VALUE(DECIMAL32);
+
+            bsl::stringstream outdec;
+
+            outdec.width(WIDTH);
+            if (LEFT)     { outdec << bsl::left;        }
+            if (INTERNAL) { outdec << bsl::internal;    }
+            if (RIGHT)    { outdec << bsl::right;       }
+            if (CAPITAL)  { outdec << bsl::uppercase;   }
+            else          { outdec << bsl::nouppercase; }
+            outdec << VALUE;
+
+            bsl::string ACTUAL = outdec.str();
+
+            ASSERTV(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
+        }
+
+        // Test with Decimal128.
+        {
+            const BDEC::Decimal128 VALUE(DECIMAL32);
+
+            bsl::stringstream outdec;
+
+            outdec.width(WIDTH);
+            if (LEFT)     { outdec << bsl::left;        }
+            if (INTERNAL) { outdec << bsl::internal;    }
+            if (RIGHT)    { outdec << bsl::right;       }
+            if (CAPITAL)  { outdec << bsl::uppercase;   }
+            else          { outdec << bsl::nouppercase; }
+            outdec << VALUE;
+
+            bsl::string ACTUAL = outdec.str();
+
+            ASSERTV(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
+        }
+
+
     }
 #undef DFP
 }
 
-void TestDriver::testCase4()
+void TestDriver::testCase3()
 {
     // ------------------------------------------------------------------------
     // TESTING 'Decimal128'
@@ -1453,7 +1425,7 @@ void TestDriver::testCase4()
     checkType<bsl::float_round_style>(d128_limits::round_style);
 }
 
-void TestDriver::testCase3()
+void TestDriver::testCase2()
 {
     // ------------------------------------------------------------------------
     // TESTING 'Decimal64'
@@ -2232,7 +2204,7 @@ void TestDriver::testCase3()
     checkType<bsl::float_round_style>(d64_limits::round_style);
 }
 
-void TestDriver::testCase2()
+void TestDriver::testCase1()
 {
     // ------------------------------------------------------------------------
     // TESTING 'Decimal32'
@@ -2507,274 +2479,6 @@ void TestDriver::testCase2()
     checkType<bsl::float_round_style>(d32_limits::round_style);
 }
 
-void TestDriver::testCase1()
-{
-    // ------------------------------------------------------------------------
-    // TESTING IMPLEMENTATION ASSUMPTIONS
-    //
-    // Concerns:
-    //: 1 The implementation is setup properly.
-    //: 2 The endianness of the implementation is correct.
-    //: 3 The number of bits in a char must be 8.
-    //
-    // Plan:
-    //: 1 Individual assertions for each compile-time configuration choice.
-    //
-    // Testing:
-    //   IMPLEMENTATION ASSUMPTIONS
-    // ------------------------------------------------------------------------
-    if (verbose) bsl::cout << bsl::endl
-                           << "IMPLEMENTATION ASSUMPTIONS" << bsl::endl
-                           << "==========================" << bsl::endl;
-    #ifdef BDLDFP_DECIMALPLATFORM_DECNUMBER
-        LOOP_ASSERT(decContextTestEndian(1), 0 == decContextTestEndian(1));
-    #endif
-
-    ASSERT(8 == CHAR_BIT);
-
-    ASSERT(sizeof(BDEC::Decimal32) == (32 / CHAR_BIT));
-    ASSERT(sizeof(BDEC::Decimal64) == (64 / CHAR_BIT));
-    ASSERT(sizeof(BDEC::Decimal128) == (128 / CHAR_BIT));
-
-    // Making sure our buffers are large enough for snprintf
-    {
-
-        // Let's make sure we have the right values.  We have to use
-        // numeric_limits, because IBM does not provide the standard C
-        // xxx_MIN/xxx_MAX macros for long long types.
-
-        ASSERT(bsl::numeric_limits<long long>::is_specialized);
-        ASSERT(bsl::numeric_limits<unsigned long long>::is_specialized);
-
-        NulBuf nb; // Use this to make sure we can print
-        bsl::ostream nul(&nb);
-
-        // Make sure that printing in itself works.
-
-        nul << bsl::numeric_limits<long long>::min();
-        ASSERT(nul);
-        nul << bsl::numeric_limits<long long>::max();
-        ASSERT(nul);
-        nul << bsl::numeric_limits<unsigned long long>::max();
-        ASSERT(nul);
-
-        // And here comes the real testing
-
-        BufferBuf<24> bb;
-        bsl::ostream out(&bb);
-
-        out << bsl::numeric_limits<long long>::min();
-        ASSERT(out && strlen(bb.str()) < (24 - 1));
-        out.clear(); bb.reset();
-
-        out << bsl::numeric_limits<long long>::max();
-        ASSERT(out && strlen(bb.str()) < (24 - 1));
-        out.clear(); bb.reset();
-
-        out << bsl::numeric_limits<unsigned long long>::max();
-        ASSERT(out && strlen(bb.str()) < (24 - 1));
-        out.clear(); bb.reset();
-
-        {
-            bsl::ostringstream out(pa);
-            out << BDEC::Decimal32(4.25);
-            bsl::string s(pa);
-            getStringFromStream(out, &s);
-            LOOP_ASSERT(s, "4.25" == s);
-        }
-
-        {
-            bsl::ostringstream out(pa);
-            out << BDEC::Decimal32(-4.25);
-            bsl::string s(pa);
-            getStringFromStream(out, &s);
-            LOOP_ASSERT(s, "-4.25" == s);
-        }
-
-        {
-            bsl::ostringstream out(pa);
-            out << BDEC::Decimal32(
-                           BDEC::DecimalImpUtil::makeDecimalRaw32(5,  50));
-            bsl::string s(pa);
-            getStringFromStream(out, &s);
-            LOOP_ASSERT(s, "5e+50" == s);
-        }
-
-        {
-            bsl::ostringstream out(pa);
-            out << BDEC::Decimal32(
-                           BDEC::DecimalImpUtil::makeDecimalRaw32(5, -50));
-            bsl::string s(pa);
-            getStringFromStream(out, &s);
-            LOOP_ASSERT(s, "5e-50" == s);
-        }
-
-        {
-            bsl::ostringstream out(pa);
-            out << bsl::uppercase << BDEC::Decimal32(
-                           BDEC::DecimalImpUtil::makeDecimalRaw32(5,  50));
-            bsl::string s(pa);
-            getStringFromStream(out, &s);
-            LOOP_ASSERT(s, "5E+50" == s);
-        }
-
-        {
-            bsl::ostringstream out(pa);
-            out << BDEC::Decimal32(
-                                  bsl::numeric_limits<double>::infinity());
-            bsl::string s(pa);
-            getStringFromStream(out, &s);
-            LOOP_ASSERT(s, "infinity" == s);
-        }
-
-        {
-            bsl::ostringstream out(pa);
-            out << bsl::uppercase << BDEC::Decimal32(
-                                  bsl::numeric_limits<double>::infinity());
-            bsl::string s(pa);
-            getStringFromStream(out, &s);
-            LOOP_ASSERT(s, "INFINITY" == s);
-        }
-
-        {
-            bsl::ostringstream out(pa);
-            out.width(2);
-            out << BDEC::Decimal32(4.25);
-            bsl::string s(pa);
-            getStringFromStream(out, &s);
-            LOOP_ASSERT(s, "4.25" == s);
-        }
-
-        {
-            bsl::ostringstream out(pa);
-            out.width(10);
-            out << BDEC::Decimal32(4.25);
-            bsl::string s(pa);
-            getStringFromStream(out, &s);
-            LOOP_ASSERT(s, "      4.25" == s);
-        }
-
-        {
-            bsl::ostringstream out(pa);
-            out.width(10);
-            out << bsl::internal << BDEC::Decimal32(4.25);
-            bsl::string s(pa);
-            getStringFromStream(out, &s);
-            LOOP_ASSERT(s, "      4.25" == s);
-        }
-
-        {
-            bsl::ostringstream out(pa);
-            out.width(10);
-            out << bsl::left << BDEC::Decimal32(4.25);
-            bsl::string s(pa);
-            getStringFromStream(out, &s);
-            LOOP_ASSERT(s, "4.25      " == s);
-        }
-
-        {
-            bsl::ostringstream out(pa);
-            out.width(10);
-            out << bsl::showpos << BDEC::Decimal32(4.25);
-            bsl::string s(pa);
-            getStringFromStream(out, &s);
-            LOOP_ASSERT(s, "     +4.25" == s);
-        }
-
-        {
-            bsl::ostringstream out(pa);
-            out.width(10);
-            out << bsl::showpos << bsl::internal << BDEC::Decimal32(4.25);
-            bsl::string s(pa);
-            getStringFromStream(out, &s);
-            LOOP_ASSERT(s, "+     4.25" == s);
-        }
-
-        {
-            bsl::ostringstream out(pa);
-            out.width(10);
-            out << bsl::showpos << bsl::left << BDEC::Decimal32(4.25);
-            bsl::string s(pa);
-            getStringFromStream(out, &s);
-            LOOP_ASSERT(s, "+4.25     " == s);
-        }
-
-        {
-            bsl::ostringstream out(pa);
-            out.width(10);
-            out << BDEC::Decimal32(-4.25);
-            bsl::string s(pa);
-            getStringFromStream(out, &s);
-            LOOP_ASSERT(s, "     -4.25" == s);
-        }
-
-        {
-            bsl::ostringstream out(pa);
-            out.width(10);
-            out << bsl::internal << BDEC::Decimal32(-4.25);
-            bsl::string s(pa);
-            getStringFromStream(out, &s);
-            LOOP_ASSERT(s, "-     4.25" == s);
-        }
-
-        {
-            bsl::ostringstream out(pa);
-            out.width(10);
-            out << bsl::left << BDEC::Decimal32(-4.25);
-            bsl::string s(pa);
-            getStringFromStream(out, &s);
-            LOOP_ASSERT(s, "-4.25     " == s);
-        }
-
-        {
-            bsl::ostringstream out(pa);
-            out.width(10);
-            out << bsl::showpos << BDEC::Decimal32(-4.25);
-            bsl::string s(pa);
-            getStringFromStream(out, &s);
-            LOOP_ASSERT(s, "     -4.25" == s);
-        }
-
-        {
-            bsl::ostringstream out(pa);
-            out.width(10);
-            out << bsl::showpos << bsl::internal << BDEC::Decimal32(-4.25);
-            bsl::string s(pa);
-            getStringFromStream(out, &s);
-            LOOP_ASSERT(s, "-     4.25" == s);
-        }
-
-        {
-            bsl::ostringstream out(pa);
-            out.width(10);
-            out << bsl::showpos << bsl::left << BDEC::Decimal32(-4.25);
-            bsl::string s(pa);
-            getStringFromStream(out, &s);
-            LOOP_ASSERT(s, "-4.25     " == s);
-        }
-
-        {
-            bsl::ostringstream out(pa);
-            out.width(12);
-            out << bsl::uppercase << bsl::internal << BDEC::Decimal32(
-                                 -bsl::numeric_limits<double>::infinity());
-            bsl::string s(pa);
-            getStringFromStream(out, &s);
-            LOOP_ASSERT(s, "-   INFINITY" == s);
-        }
-
-        {
-            bsl::wostringstream out(pa);
-            out.width(12);
-            out << bsl::uppercase << bsl::internal << BDEC::Decimal32(
-                                 -bsl::numeric_limits<double>::infinity());
-            bsl::wstring s(pa);
-            getStringFromStream(out, &s);
-            ASSERT(L"-   INFINITY" == s);
-        }
-    }
-}
-
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -2801,9 +2505,6 @@ int main(int argc, char* argv[])
     cout.precision(35);
 
     switch (test) { case 0:
-      case 6: {
-        TestDriver::testCase6();
-      } break;
       case 5: {
         TestDriver::testCase5();
       } break;
