@@ -17,6 +17,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_exceptionutil.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
@@ -1103,9 +1104,9 @@ class MyTestDerivedObject : public MyTestObject2, public MyTestObject {
 
   public:
     // CREATORS
-    explicit MyTestDerivedObject(const MyTestObject& orig);
+    explicit MyTestDerivedObject(const MyTestObject& original);
         // Create a 'MyTestDerivedObject' using the same counters (if any) as
-        // the specified 'orig' object.
+        // the specified 'original' object.
 
     explicit MyTestDerivedObject(bsls::Types::Int64 *counter,
                                  bsls::Types::Int64 *copyCounter = 0);
@@ -1193,9 +1194,9 @@ class MyInstrumentedObject {
         // Create a 'MyInstrumentedObject' using the specified
         // 'constructCounter' to track the number of times a constructor is
         // called, the specified 'destroyCounter' to track the number of times
-        // a destructor is called, and throw a 'ConstructorFailed' exception
-        // after initializing the data members (aborting this constructor) if
-        // 'throwAfterInit' is 'true'.
+        // a destructor is called.  If the optionally specified
+        // 'throwAfterInit' is 'true', throw a 'ConstructorFailed' exception
+        // after initializing the data members (aborting this constructor).
 
     ~MyInstrumentedObject();
         // Destroy this object.
@@ -1873,8 +1874,8 @@ volatile bsls::Types::Int64* MyTestObject::deleteCounter() const
                          // -------------------------
 
 // CREATORS
-MyTestDerivedObject::MyTestDerivedObject(const MyTestObject& orig)
-: MyTestObject(orig)
+MyTestDerivedObject::MyTestDerivedObject(const MyTestObject& original)
+: MyTestObject(original)
 {
 }
 
@@ -2011,7 +2012,7 @@ MyInstrumentedObject::MyInstrumentedObject(int  *constructCounter,
     BSLS_ASSERT(destroyCounter);
 
     if (throwAfterInit) {
-        throw ConstructorFailed();
+        BSLS_THROW( ConstructorFailed() );
     }
 
     ++*d_constructCounter_p;
@@ -3524,7 +3525,8 @@ int main(int argc, char *argv[])
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
 
-        // Test for double-destruction
+#if defined(BDE_BUILD_TARGET_EXC)
+        // Test for no leaks when allocated object's constructor throws..
         int constructCount = 0;
         int destroyCount = 0;
         try {
@@ -3538,6 +3540,7 @@ int main(int argc, char *argv[])
         }
 
         ASSERTV(constructCount, destroyCount, constructCount == destroyCount);
+#endif
       } break;
       case 33: {
         // --------------------------------------------------------------------
@@ -3592,7 +3595,8 @@ int main(int argc, char *argv[])
                        veryVeryVerbose,
                        veryVeryVeryVerbose);
 
-        // Test for double-destruction
+#if defined(BDE_BUILD_TARGET_EXC)
+        // Test for no leaks when allocated object's constructor throws..
         int constructCount = 0;
         int destroyCount = 0;
         try {
@@ -3609,6 +3613,7 @@ int main(int argc, char *argv[])
         }
 
         ASSERTV(constructCount, destroyCount, constructCount == destroyCount);
+#endif
       } break;
       case 32: {
         // --------------------------------------------------------------------
@@ -3962,7 +3967,8 @@ int main(int argc, char *argv[])
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
-        // Test for double-destruction
+#if defined(BDE_BUILD_TARGET_EXC)
+        // Test for no leaks when allocated object's constructor throws..
         int constructCount = 0;
         int destroyCount = 0;
         try {
@@ -3975,7 +3981,8 @@ int main(int argc, char *argv[])
         }
 
         ASSERTV(constructCount, destroyCount, constructCount == destroyCount);
-      } break;
+#endif
+    } break;
     case 31: {
       // --------------------------------------------------------------------
       // TESTING 'hash' FUNCTOR ('shared_ptr')
