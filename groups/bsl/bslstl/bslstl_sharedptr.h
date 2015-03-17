@@ -4641,7 +4641,7 @@ inline
 SharedPtr_RepProctor::~SharedPtr_RepProctor()
 {
     if (d_rep_p) {
-        d_rep_p->releaseRef();
+        d_rep_p->disposeRep();
     }
 }
 

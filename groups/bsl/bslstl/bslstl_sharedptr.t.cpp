@@ -43,7 +43,6 @@
 
 // Warnings that we hope to stop silencing one day:
 // BDEVERIFY pragma: -IND01 // Test blocks not indenting after if (printf(""))
-// BDEVERIFY pragma: -IND02 // Layout of parameters to forwarding functions
 // BDEVERIFY pragma: -IND04 // Many violations of aligning variable declaration
 // BDEVERIFY pragma: -TP03  // Many tests without assigned test case
 // BDEVERIFY pragma: -UC01  // Warning on all-const identifiers is too strict
