@@ -44,7 +44,7 @@ BSLS_IDENT("$Id: $")
 // The behavior of the timer on windows platforms depends on the interaction of
 // operating system, BIOS, and processor, and certain combinations of the three
 // (particularly older ones) are vulnerable to timer inaccuracy.  For example,
-// frequently the 'QueryPerformanceCounter' function that 'TmeUtil' uses on
+// frequently the 'QueryPerformanceCounter' function that 'TimeUtil' uses on
 // Windows will utilize the CPU's timestamp counter (TSC), and CPUs with speed
 // scaling mechanisms such as SpeedStep (frequently used for power management)
 // will generally see the clock speed vary with the CPU frequency.  However,
