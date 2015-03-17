@@ -5752,7 +5752,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
     for (int lfi = 0; lfi < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfi) {
     for (SizeType ti = 0; ti < MAX_LENGTH; ++ti) {
-        const float  MAX_LF = DEFAULT_MAX_LOAD_FACTOR[lfi];
+        const float    MAX_LF = DEFAULT_MAX_LOAD_FACTOR[lfi];
         const SizeType LENGTH = ti;
 
         for (const char *cfg = ALLOC_SPEC; *cfg; ++cfg) {
