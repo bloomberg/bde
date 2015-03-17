@@ -314,6 +314,11 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_CSTDDEF
 #endif
 
+#ifndef INCLUDED_UTILITY
+#include <utility>       // 'std::move'
+#define INCLUDED_UTILITY
+#endif
+
 namespace BloombergLP {
 
 
