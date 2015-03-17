@@ -3316,9 +3316,11 @@ class SharedPtr_RepProctor {
         // specified 'rep' (if non-zero).
 
     ~SharedPtr_RepProctor();
-        // Destroy this 'SharedPtr_RepProctor', and release ownership of the
+        // Destroy this 'SharedPtr_RepProctor', and dispose of (deallocate) the
         // 'bslma::SharedPtrRep' it manages (if any).  If no such object is
-        // currently being managed, this method has no effect.
+        // currently being managed, this method has no effect.  Note that the
+        // destructor of the 'bslma::SharedPtrRep' will not be called as the
+        // reference count will not be decremented.
 
     // MANIPULATORS
     void release();
