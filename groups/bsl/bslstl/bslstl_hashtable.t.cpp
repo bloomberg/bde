@@ -26,6 +26,7 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_exceptionutil.h>
 #include <bsls_platform.h>
 
 #include <bsltf_convertiblevaluewrapper.h>
@@ -36,9 +37,9 @@
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
 
-#include <limits>
 #include <stdexcept>  // to verify correct exceptions are thrown
 
+#include <limits.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -282,7 +283,7 @@ using bslstl::CallableVariable;
 // [  ] CONCERN: The type has the necessary type traits.
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACROS
+//                     STANDARD BSL ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 // NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
 // FUNCTIONS, INCLUDING IOSTREAMS.
@@ -291,21 +292,26 @@ namespace {
 
 int testStatus = 0;
 
-void aSsErT(bool b, const char *s, int i)
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
 }  // close unnamed namespace
 
 // ============================================================================
-//                      STANDARD BDE TEST DRIVER MACROS
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
 #define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
@@ -314,13 +320,12 @@ void aSsErT(bool b, const char *s, int i)
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 #define RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
 
@@ -350,12 +355,12 @@ bool veryVerbose;
 bool veryVeryVerbose;
 bool veryVeryVeryVerbose;
 
-#pragma bde_verify push    // Suppress idiomatic issues with usage examples
-#pragma bde_verify -CC01   // C-style casts are used for readability
-#pragma bde_verify -FABC01 // Functions ordered for expository purpose
-#pragma bde_verify -FD01   // Function contracts may be documented implicitly
+// BDE_VERIFY pragma: push    // Suppress idiomatic issues with usage examples
+// BDE_VERIFY pragma: -CC01   // C-style casts are used for readability
+// BDE_VERIFY pragma: -FABC01 // Functions ordered for expository purpose
+// BDE_VERIFY pragma: -FD01   // Function contract may be documented implicitly
 
-#pragma bde_verify set ok_unquoted allocator hash value
+// BDE_VERIFY pragma: set ok_unquoted allocator hash value
 // ============================================================================
 //                              USAGE EXAMPLES
 // ----------------------------------------------------------------------------
@@ -1780,7 +1785,7 @@ struct UsesBslmaAllocator<UsageExamples::MySalesRecordContainer>
 
 }  // close traits namespace
 }  // close enterprise namespace
-#pragma bde_verify pop  // Suppress idiomatic issues with usage examples
+// BDE_VERIFY pragma: pop  // Suppress idiomatic issues with usage examples
 
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -4329,7 +4334,6 @@ int verifyListContents(Link                                 *containerList,
     // Return 0 if 'container' has the expected values, and a non-zero value
     // otherwise.
 {
-    typedef typename KEY_CONFIG::KeyType   KeyType;
     typedef typename KEY_CONFIG::ValueType ValueType;
 
     enum { SUCCESS          =  0,
@@ -5749,7 +5753,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     for (int lfi = 0; lfi < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfi) {
     for (SizeType ti = 0; ti < MAX_LENGTH; ++ti) {
         const float  MAX_LF = DEFAULT_MAX_LOAD_FACTOR[lfi];
-        const size_t LENGTH = ti;
+        const SizeType LENGTH = ti;
 
         for (const char *cfg = ALLOC_SPEC; *cfg; ++cfg) {
             const char CONFIG = *cfg;  // how we specify the allocator
@@ -5782,13 +5786,13 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
             Obj       *objPtr;
             ALLOCATOR  expAlloc = ObjMaker::makeObject(&objPtr,
-                                                       CONFIG,
+                                                        CONFIG,
                                                        &fa,
                                                        &sa,
-                                                       HASH,
-                                                       COMPARE,
-                                                       NUM_BUCKETS,
-                                                       MAX_LF);
+                                                        HASH,
+                                                        COMPARE,
+                                                        NUM_BUCKETS,
+                                                        MAX_LF);
             bslma::RawDeleterGuard<Obj, bslma::TestAllocator> guardObj(objPtr,
                                                                        &fa);
             Obj& mX = *objPtr;  const Obj& X = mX;
@@ -8462,7 +8466,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
                 ASSERTV(LINE, tk, RESERVE_ELEMENTS, reserve.numBytesTotal() ==
                                                                  RESERVED_MEM);
 
-                for (int tl = 0; tl < ADDITIONAL_ELEMENTS; ++tl) {
+                for (size_t tl = 0; tl < ADDITIONAL_ELEMENTS; ++tl) {
                     mResX.insert( VALUES[tl % 10] );
                     mNoResX.insert( VALUES[tl % 10] );
                 }
@@ -9293,6 +9297,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase16()
 
     typedef typename KEY_CONFIG::KeyType   KeyType;
     typedef typename KEY_CONFIG::ValueType ValueType;
+
+
+    ASSERT((bsl::is_same<typename Obj::KeyType,   KeyType>::value));
+    ASSERT((bsl::is_same<typename Obj::ValueType, ValueType>::value));
 
     // These traits should never be true
 
@@ -11454,35 +11462,35 @@ int main(int argc, char *argv[])
     ASSERT(bsltf::StdTestAllocatorConfiguration::delegateAllocator() ==
                                                            g_bsltfAllocator_p);
 
-#pragma bde_verify push
-#pragma bde_verify -TP05  // Test doc is in delegated functions
-#pragma bde_verify -TP17  // No test-banners in a delegating switch statement
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -TP05 // Test doc is in delegated functions
+// BDE_VERIFY pragma: -TP17 // No test-banners in a delegating switch statement
     switch (test) { case 0:
-      case 17: mainTestCaseUsageExample(); break;
-//      case 18: mainTestCase18(); break;
-//      case 17: mainTestCase17(); break;
-      case 16: mainTestCase16(); break;
-      case 15: mainTestCase15(); break;
-      case 14: mainTestCase14(); break;
-      case 13: mainTestCase13(); break;
-      case 12: mainTestCase12(); break;
-      case 11: mainTestCase11(); break;
-      case 10: mainTestCase10(); break;
-      case  9: mainTestCase9 (); break;
-      case  8: mainTestCase8 (); break;
-      case  7: mainTestCase7 (); break;
-      case  6: mainTestCase6 (); break;
-      case  5: mainTestCase5 (); break;
-      case  4: mainTestCase4 (); break;
-      case  3: mainTestCase3 (); break;
-      case  2: mainTestCase2 (); break;
-      case  1: mainTestCase1 (); break;
+      case 17: { mainTestCaseUsageExample(); } break;
+//      case 18: { mainTestCase18(); } break;
+//      case 17: { mainTestCase17(); } break;
+      case 16: { mainTestCase16(); } break;
+      case 15: { mainTestCase15(); } break;
+      case 14: { mainTestCase14(); } break;
+      case 13: { mainTestCase13(); } break;
+      case 12: { mainTestCase12(); } break;
+      case 11: { mainTestCase11(); } break;
+      case 10: { mainTestCase10(); } break;
+      case  9: { mainTestCase9 (); } break;
+      case  8: { mainTestCase8 (); } break;
+      case  7: { mainTestCase7 (); } break;
+      case  6: { mainTestCase6 (); } break;
+      case  5: { mainTestCase5 (); } break;
+      case  4: { mainTestCase4 (); } break;
+      case  3: { mainTestCase3 (); } break;
+      case  2: { mainTestCase2 (); } break;
+      case  1: { mainTestCase1 (); } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
-#pragma bde_verify pop
+// BDE_VERIFY pragma: pop
 
     // There should be no allocations for the "default STL-test allocator"
     ASSERTV(bsltfAllocator.numBlocksTotal(),

@@ -2308,7 +2308,7 @@ class HashTable {
 
     float loadFactor() const;
         // Return the current load factor for this table.  The load factor is
-        // the statical mean number of elements per bucket.
+        // the statistical mean number of elements per bucket.
 
     float maxLoadFactor() const;
         // Return the maximum load factor permitted by this hash table object,
