@@ -398,6 +398,7 @@ SharedPtrAllocateOutofplaceRep<TYPE, DELETER, ALLOCATOR>::makeOutofplaceRep(
                                                                       deleter);
 
     Allocator alloc(basicAllocator);
+
     SharedPtrAllocateOutofplaceRep *rep = AllocatorTraits::allocate(alloc, 1);
     new (rep) SharedPtrAllocateOutofplaceRep(ptr, deleter, alloc);
 

@@ -875,7 +875,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 // We can break this cyclical dependency we define a modified alert class
 // 'ModifiedAlert' that stores a weak pointer to a 'ModifiedUser' object.
-// Below is the definition for the 'ModifiedUser' class which is identical to
+// Below is the definition for the 'ModifiedUser' class that is identical to
 // the 'User' class, the only difference being that it stores shared pointer to
 // 'ModifiedAlert's instead of 'Alert's:
 //..
@@ -2148,7 +2148,7 @@ class shared_ptr {
 
     BloombergLP::bslma::ManagedPtr<ELEMENT_TYPE> managedPtr() const;
         // Return a managed pointer that refers to the same object as this
-        // shared pointer and which has a deleter that decrements the reference
+        // shared pointer and that has a deleter that decrements the reference
         // count for the shared object.
 
     BloombergLP::bslma::SharedPtrRep *rep() const;
@@ -3160,7 +3160,7 @@ void swap(weak_ptr<ELEMENT_TYPE>& a, weak_ptr<ELEMENT_TYPE>& b);
 // A partial specialization of 'bsl::hash' is no longer necessary, as the
 // primary template has the correct behavior once 'hashAppend' is defined.
 
-}  // close 'bsl' namespace
+}  // close namespace bsl
 
 namespace BloombergLP {
 namespace bslstl {
@@ -4535,7 +4535,7 @@ long weak_ptr<ELEMENT_TYPE>::use_count() const
 }
 
 
-}  // close 'bsl' namespace
+}  // close namespace bsl
 
 namespace BloombergLP {
 namespace bslstl {
