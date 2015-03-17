@@ -326,16 +326,50 @@ void TestDriver::testCase4()
     // ------------------------------------------------------------------------
     // TESTING IOSTREAM OPERATORS
     //
-    // Concerns: do_put correctly handles strings of different character
-    // types, as well as the formatting flags of justification, width, and
-    // capitalization.
+    // Concerns: 
+    //: 1 Calling 'operator<<' on a 'Decimal32', 'Decimal64', 'Decimal128' type
+    //:   renders the decimals value to the appropriate stream.
+    //:
+    //: 2 That 'operator<<' renders a simple decimal value in a fixed point
+    //:   format using the correct digits of precisions.
+    //:
+    //: 3 That 'operator<<' correctly renders infinity, and negative infinity.
+    //:
+    //: 4 That 'operator<<' correctly renders NaN.
+    //:
+    //: 5 That 'operator<<' correctly handles a set width.
+    //:
+    //: 6 That 'operator<<' correctly handles a set width with either a left,
+    //:   internal, or right justification.
+    //:
+    //: 7 That 'operator<<' correctly handles 'bsl::uppercase'.
+    //
+    // Note that this is not (yet) a complete set of concerns (or test) for
+    // this function.
+    //
     // Plan:
+    //  1 Create a test table, where each element contains a decimal value, a
+    //    set of formatting flags, and an expected output.  Iterate over the
+    //    test table for 'Decimal32', 'Decimal64', and 'Decimal128' types, and
+    //    ensure the streamed output matches the expected value
+    //
     // Testing:
+    //   bsl::basic_ostream& operator<<(bsl::basic_ostream& , Decimal32 );
+    //   bsl::basic_ostream& operator<<(bsl::basic_ostream& , Decimal64 );
+    //   bsl::basic_ostream& operator<<(bsl::basic_ostream& , Decimal64 );
     // ------------------------------------------------------------------------
 
-    if (verbose) bsl::cout << "\nTesting do_put"
-                           << "\n==============" << bsl::endl;
+    if (verbose) bsl::cout << "\nTesting operator<<"
+                           << "\n==================" << bsl::endl;
 
+    // Note that this test is not yet complete.  Possible improvements:
+    //
+    //: o Providing expected values more precisely (significant, exponent)
+    //:   rather than using 'BDLDFP_DECIMAL_DF'
+    //:
+    //: o Testing a wider array of numbers, including values rendered in
+    //:   scientific notation.
+    
 #define DFP(X) BDLDFP_DECIMAL_DF(X)
 
     BDEC::Decimal32 INF_P = BDEC::Decimal32(
