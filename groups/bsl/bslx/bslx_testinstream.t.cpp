@@ -1,7 +1,9 @@
 // bslx_testinstream.t.cpp                                            -*-C++-*-
 #include <bslx_testinstream.h>
-
 #include <bslx_testoutstream.h>                 // for testing only
+
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -12,8 +14,8 @@
 #include <bsl_cstdio.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
+#include <bsl_sstream.h>
 #include <bsl_string.h>
-#include <bsl_strstream.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -1681,8 +1683,8 @@ int main(int argc, char *argv[]) {
             ASSERT(0 != X.cursor());
             ASSERT(false == X.isValid());
 
-            const char *buffer = "abc";
-            const int LEN = 3;
+            const char        *buffer = "abc";
+            const bsl::size_t  LEN = 3;
             mX.reset(buffer, LEN);
             ASSERT(buffer == X.data());
             ASSERT(0 == X.cursor());
@@ -1704,8 +1706,8 @@ int main(int argc, char *argv[]) {
             ASSERT(0 != X.cursor());
             ASSERT(false == X.isValid());
 
-            const char *buffer = "abc";
-            const int LEN = 3;
+            const char        *buffer = "abc";
+            const bsl::size_t  LEN = 3;
             bslstl::StringRef stringRef(buffer, LEN);
             mX.reset(stringRef);
             ASSERT(buffer == X.data());
@@ -4400,7 +4402,7 @@ int main(int argc, char *argv[]) {
         //: 1 Method produces expected output format.
         //
         // Plan:
-        //: 1 For a small set of objects, use 'ostrstream' to write the
+        //: 1 For a small set of objects, use 'ostringstream' to write the
         //:   object's value to a string buffer and then compare to expected
         //:   output format.  (C-1)
         //
@@ -4421,15 +4423,26 @@ int main(int argc, char *argv[]) {
         {
             Obj mX;  const Obj& X = mX;
             const char *EXPECTED = "";
-            char buf[SIZE];
-            memcpy(buf, CTRL, SIZE);
-            ostrstream out(buf, SIZE);    out << X << ends;
+
+            bslma::TestAllocator allocator;
+
+            ostringstream out(bsl::string(CTRL, SIZE, &allocator), &allocator);
+            out << X << ends;
+
+            bsl::string buffer(&allocator);
+            {
+                bslma::DefaultAllocatorGuard allocatorGuard(&allocator);
+
+                buffer = out.str();
+            }
+            const char *RESULT = buffer.c_str();
+
             const int LEN = static_cast<int>(strlen(EXPECTED)) + 1;
             if (veryVerbose) cout << "\tEXPECTED : " << EXPECTED << endl
-                                  << "\tACTUAL : "   << buf << endl;
-            ASSERT(XX == buf[SIZE-1]); // check for overrun
-            ASSERT(0 == memcmp(buf, EXPECTED, LEN));
-            ASSERT(0 == memcmp(buf + LEN, CTRL + LEN, SIZE - LEN));
+                                  << "\tACTUAL : "   << RESULT   << endl;
+            ASSERT(XX == RESULT[SIZE-1]); // check for overrun
+            ASSERT(0 == memcmp(RESULT, EXPECTED, LEN));
+            ASSERT(0 == memcmp(RESULT + LEN, CTRL + LEN, SIZE - LEN));
         }
         {
             Out o(VERSION_SELECTOR);
@@ -4438,15 +4451,26 @@ int main(int argc, char *argv[]) {
             const char *EXPECTED =
                 "\n0000\t" INT8_BYTE " 00 " INT8_BYTE " 01"
                        " " INT8_BYTE " 02 " INT8_BYTE " 03";
-            char buf[SIZE];
-            memcpy(buf, CTRL, SIZE);
-            ostrstream out(buf, SIZE);    out << X << ends;
+
+            bslma::TestAllocator allocator;
+
+            ostringstream out(bsl::string(CTRL, SIZE, &allocator), &allocator);
+            out << X << ends;
+
+            bsl::string buffer(&allocator);
+            {
+                bslma::DefaultAllocatorGuard allocatorGuard(&allocator);
+
+                buffer = out.str();
+            }
+            const char *RESULT = buffer.c_str();
+
             const int LEN = static_cast<int>(strlen(EXPECTED)) + 1;
             if (veryVerbose) cout << "\tEXPECTED : " << EXPECTED << endl
-                                  << "\tACTUAL : "   << buf << endl;
-            ASSERT(XX == buf[SIZE-1]); // check for overrun
-            ASSERT(0 == memcmp(buf, EXPECTED, LEN));
-            ASSERT(0 == memcmp(buf + LEN, CTRL + LEN, SIZE - LEN));
+                                  << "\tACTUAL : "   << RESULT   << endl;
+            ASSERT(XX == RESULT[SIZE-1]); // check for overrun
+            ASSERT(0 == memcmp(RESULT, EXPECTED, LEN));
+            ASSERT(0 == memcmp(RESULT + LEN, CTRL + LEN, SIZE - LEN));
         }
         {
             Out o(VERSION_SELECTOR);
@@ -4461,15 +4485,26 @@ int main(int argc, char *argv[]) {
                        " " INT8_BYTE " 06 " INT8_BYTE " 07"
                 "\n0010\t" INT8_BYTE " 08 " INT8_BYTE " 09"
                        " " INT8_BYTE " 0a " INT8_BYTE " 0b";
-            char buf[SIZE];
-            memcpy(buf, CTRL, SIZE);
-            ostrstream out(buf, SIZE);    out << X << ends;
+
+            bslma::TestAllocator allocator;
+
+            ostringstream out(bsl::string(CTRL, SIZE, &allocator), &allocator);
+            out << X << ends;
+
+            bsl::string buffer(&allocator);
+            {
+                bslma::DefaultAllocatorGuard allocatorGuard(&allocator);
+
+                buffer = out.str();
+            }
+            const char *RESULT = buffer.c_str();
+
             const int LEN = static_cast<int>(strlen(EXPECTED)) + 1;
             if (veryVerbose) cout << "\tEXPECTED : " << EXPECTED << endl
-                                  << "\tACTUAL : "   << buf << endl;
-            ASSERT(XX == buf[SIZE-1]); // check for overrun
-            ASSERT(0 == memcmp(buf, EXPECTED, LEN));
-            ASSERT(0 == memcmp(buf + LEN, CTRL + LEN, SIZE - LEN));
+                                  << "\tACTUAL : "   << RESULT   << endl;
+            ASSERT(XX == RESULT[SIZE-1]); // check for overrun
+            ASSERT(0 == memcmp(RESULT, EXPECTED, LEN));
+            ASSERT(0 == memcmp(RESULT + LEN, CTRL + LEN, SIZE - LEN));
         }
       } break;
       case 4: {
