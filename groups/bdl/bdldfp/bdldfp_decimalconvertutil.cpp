@@ -18,6 +18,7 @@ BSLS_IDENT_RCSID(bdldfp_decimalconvertutil_cpp,"$Id$ $CSID$")
 #include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <ctype.h>
 
 namespace BloombergLP {
 namespace bdldfp {
@@ -226,9 +227,14 @@ void restoreDecimalFromBinary(DECIMAL_TYPE *dfp, BINARY_TYPE bfp)
         return;                                                       // RETURN
     }
 
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+#   define snprintf _snprintf
+#endif
     char buffer[48];
-    snprintf(buffer, sizeof(buffer), StdioFormat<BINARY_TYPE>::format(), bfp);
-
+    int rc = snprintf(buffer, sizeof(buffer), StdioFormat<BINARY_TYPE>::format(), bfp);
+    (void)rc;
+    BSLS_ASSERT(0 <= rc && rc < sizeof(buffer));   
+    
     typename DecimalTraits<DECIMAL_TYPE>::SignificandType significand(0);
     int  exponent(0);
     bool negative(false);
@@ -238,12 +244,12 @@ void restoreDecimalFromBinary(DECIMAL_TYPE *dfp, BINARY_TYPE bfp)
         negative = true;
         ++it;
     }
-    for (; bsl::isdigit(static_cast<unsigned char>(*it)); ++it) {
+    for (; isdigit(static_cast<unsigned char>(*it)); ++it) {
         significand = significand * 10 + (*it - '0');
     }
     if (*it == '.') {
         ++it;
-        for (; bsl::isdigit(static_cast<unsigned char>(*it)); ++it) {
+        for (; isdigit(static_cast<unsigned char>(*it)); ++it) {
             significand = significand * 10 + (*it - '0');
             --exponent;
         }
