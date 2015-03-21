@@ -1579,6 +1579,18 @@ void testFunctor(const char *prototypeStr)
     ASSERT(initState + 0x03ff == f10(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9));
     ASSERT(checkValue<FUNCTOR>(f10, initState + 0x03ff));
 
+    // Test invocation of const 'bsl::function' & verify side-effects
+    const bsl::function<RET(ARG, ARG, ARG, ARG, ARG, ARG, ARG,
+                            ARG, ARG, ARG)> cf10(ftor);
+    ASSERT(initState + 0x03ff == cf10(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9));
+    ASSERT(checkValue<FUNCTOR>(cf10, initState + 0x03ff));
+
+    // Test 'Function_NothrowWrapper'
+    bsl::function<RET(ARG, ARG, ARG, ARG, ARG, ARG, ARG,
+                      ARG, ARG)> ntf9(ntWrap(ftor));
+    ASSERT(initState + 0x01ff == ntf9(a0, a1, a2, a3, a4, a5, a6, a7, a8));
+    ASSERT(checkValue<FUNCTOR>(ntf9, initState + 0x01ff));
+
     // None of the above invocations should have changed the original of
     // 'ftor'
     ASSERT(initState == ftor.value());
@@ -4491,6 +4503,9 @@ int main(int argc, char *argv[])
         //:   function. Moreover, type erasure means that, at compile time, it
         //:   is not possible to determine whether the invocable object 
         //:   even cares whether or not it is const.
+        //: 8 When the constructor's functor argument is wrapped using
+        //:   'Function_NothrowWrapper', invocation procedes as though the
+        //:   wrapper were not present.
         //
         // Plan:
         //: 1 Create a set of functor class with ten overloads of
@@ -4523,6 +4538,12 @@ int main(int argc, char *argv[])
         //:   with 'EmptyFunctor', 'SmallFunctor', and 'LargeFunctor'.  It is
         //:   not necessary to test with 'MediumFunctor' as that does not test
         //:   anything not already tested by 'SmallFunctor'.
+        //: 7 For concern 7, augment step 2 with a const 'bsl::function'
+        //:   object. It is necessary to test only one set of arguments in
+        //:   order to have confidence in the result.
+        //: 8 For concern 8, augment step 2, wrapping the constructor argument
+        //:   in a 'Function_NothrowWrapper'.  It is necessary to test only
+        //:   one set of arguments in order to have confidence in the result.
         //
         // Testing:
         //      RET operator()(ARGS...) const; // For functors
@@ -4591,8 +4612,8 @@ int main(int argc, char *argv[])
         //:   pointer to, or smart-pointer to type derived from 'FT'.
         //: 9 If 'RET' is 'void', then the return value of 'pf' is discarded,
         //:   even if 'FRET' is non-void.
-        //: 10 When the 'fp' is wrapped using Function_NothrowWrapper',
-        //:    invocation procedes as though the wrapper were not present.
+        //: 10 When the 'fp' is wrapped using 'Function_NothrowWrapper',
+        //:   invocation procedes as though the wrapper were not present.
         //
         // Plan:
         //: 1 Create a class 'IntWrapper' that holds an 'int' value and has

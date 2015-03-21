@@ -942,7 +942,7 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS...) const volatile,
     //
 };
 
-#endif // BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+#endif
 
 class Function_PairBufDesc {
     // This is a component-private struct template.  Do not use.
