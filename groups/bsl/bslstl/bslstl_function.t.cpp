@@ -345,6 +345,13 @@ void operator delete(void *address)
     globalTestAllocator.deallocate(address);
 }
 
+template <class FUNC>
+bsl::Function_NothrowWrapper<FUNC> ntWrap(const FUNC& f)
+    // Wrap the specified functor, 'f' in a nothrow wrapper.
+{
+    return f;
+}
+
 template <class TYPE>
 class SmartPtr
 {
@@ -1322,7 +1329,7 @@ inline bool isNullPtr(const T& p) {
 
 template <class T>
 class ValueGeneratorBase {
-    // Generates and values for test driver
+    // Generates values ot type 'T' for test driver
     typedef typename bsl::remove_const<T>::type MutableT;
     MutableT d_value;
 
@@ -1350,7 +1357,7 @@ struct ValueGenerator : ValueGeneratorBase<T> {
 
 template <class T>
 struct ValueGenerator<T&> : ValueGeneratorBase<T> {
-    // Specialization for lvalues of type 'T'
+    // Specialization for lvalues of type 'T&'
     T& obj() { return this->reset(); }
     bool check(int exp) const { return this->value() == exp; }
 };
@@ -4573,6 +4580,8 @@ int main(int argc, char *argv[])
         //:   pointer to, or smart-pointer to type derived from 'FT'.
         //: 9 If 'RET' is 'void', then the return value of 'pf' is discarded,
         //:   even if 'FRET' is non-void.
+        //: 10 When the 'fp' is wrapped using : 'Function_NothrowWrapper',
+        //:    invocation procedes as though the : wrapper were not present.
         //
         // Plan:
         //: 1 Create a class 'IntWrapper' that holds an 'int' value and has
@@ -4622,6 +4631,8 @@ int main(int argc, char *argv[])
         //:   'IntWrapper::increment1', thus discarding the return value.
         //:   Repeat this test but wrapping 'IntWrapper::voidIncrement1',
         //:   showing that a 'voide' function can be invoked.
+        //: 10 For concern 10, repeat steps 3, 4, and 5 wrapping the
+        //:   member-function-pointer argument in a 'Function_NothrowWrapper'.
         //
         // Testing:
         //      RET operator()(ARGS...) const; // For pointer to member func
@@ -4725,6 +4736,20 @@ int main(int argc, char *argv[])
         vtsp(&iw, 0x80);               // No return type to test
         ASSERT(0x30ef == iw.value());
 
+        if (veryVerbose) std::printf("Plan step 10\n");
+        bsl::function<int(IntWrapper&)> wf1(ntWrap(&IntWrapper::increment0));
+        ASSERT(0x30ef == wf1(iw));
+        ASSERT(iw.value() == 0x30ef);
+
+        bsl::function<int(IntWrapper, int)>
+            wf2(ntWrap(&IntWrapper::increment1));
+        ASSERT(0x2003 == wf2(IntWrapper(0x2001), 2));
+          
+        bsl::function<int(IntWrapper*, int, int)>
+            wf3(ntWrap(&IntWrapper::increment2));
+        ASSERT(0x30f4 == wf3(&iw, 2, 3));
+        ASSERT(iw.value() == 0x30f4);
+
       } break;
 
       case 5: {
@@ -4752,6 +4777,9 @@ int main(int argc, char *argv[])
         //:   interface.
         //: 7 Arguments that are supposed to be passed by value are copied
         //:   exactly once when passed through the invocation interface.
+        //: 8 When the function pointer argument is wrapped using
+        //:   'Function_NothrowWrapper', invocation procedes as though the
+        //:   wrapper were not present.
         //
         // Plan:
         //: 1 Create a set of functions, 'sum0' to 'sum10' taking 0 to 10
@@ -4786,6 +4814,9 @@ int main(int argc, char *argv[])
         //:   returns the number of times it was copied.  Verify that, when
         //:   invoked through a 'bsl::function' wrapper, the argument is
         //:   copied only once.
+        //: 8 For concern 8, repeat step 3 (but only for one set of
+        //:   arguments), wrapping the function-pointer argument in a
+        //:   'Function_NothrowWrapper'.
         //
         // Testing:
         //      RET operator()(ARGS...) const; // For pointer to function
@@ -4918,6 +4949,20 @@ int main(int argc, char *argv[])
         ASSERT(1 == nc(CountCopies()));
 #endif
         ASSERT(0 == cc.numCopies());
+
+        // Test 'Function_NothrowWrapper'
+        if (veryVerbose) printf("Plan step 8\n");
+        {
+            typedef IntWrapper       Ret;
+            typedef ConvertibleToInt Arg;
+
+            const Arg a1(0x0001);
+            const Arg a2(0x0002);
+
+            Function_NothrowWrapper<int(*)(int, int)> ntsum2(&sum2);
+            bsl::function<Ret(Arg, Arg)> f2(ntsum2);
+            ASSERT(0x4003 == f2(a1, a2));
+        }
 
       } break;
 
