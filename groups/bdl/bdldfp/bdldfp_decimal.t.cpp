@@ -386,8 +386,8 @@ void TestDriver::testCase4()
         bool             d_capital;
         const char      *d_expected;
     } DATA[] = {
-        // L   NUMBER    WIDTH JUST    CAPITAL      EXPECTED
-        // --- ------    ----- ----    -------      --------
+        // L   NUMBER    WIDTH   JUST  CAPITAL      EXPECTED
+        // --- ------    -----   ----  -------      --------
         {  L_, DFP(4.25),  0,     'l', false,         "4.25" },
         {  L_, DFP(4.25),  1,     'l', false,         "4.25" },
         {  L_, DFP(4.25),  2,     'l', false,         "4.25" },
