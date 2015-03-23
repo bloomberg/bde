@@ -351,8 +351,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #endif
 
-#ifndef INCLUDED_BSLS_REMOVEREFERENCE
-#include <bsls_removereference.h>
+#ifndef INCLUDED_BSLS_BSLREMOVEREFERENCE
+#include <bsls_bslremovereference.h>
 #endif
 
 namespace BloombergLP {
@@ -382,7 +382,7 @@ struct RvalueUtil {
         // objects and a C++11 rvalue reference 'TYPE&&' a member function
         // cannot be used.
     template <class TYPE>
-    static typename bsls::RemoveReference<TYPE>::type&& move(TYPE&& lvalue);
+    static typename bsls::BslRemoveReference<TYPE>::type&& move(TYPE&& lvalue);
         // Get an rvalue reference of type 'Rvalue<TYPE>' from the specified
         // 'lvalue'. For a C++03 implementation this function behaves like a
         // factory for 'Rvalue<TYPE> objects. For a C++11 implementation this
@@ -398,8 +398,10 @@ inline TYPE& RvalueUtil::access(TYPE& rvalue) {
 
 template <class TYPE>
 inline
-typename bsls::RemoveReference<TYPE>::type&& RvalueUtil::move(TYPE&& lvalue) {
-    return static_cast<typename bsls::RemoveReference<TYPE>::type&&>(lvalue);
+typename bsls::BslRemoveReference<TYPE>::type&& RvalueUtil::move(TYPE&& lvalue)
+{
+    return static_cast<typename bsls::BslRemoveReference<TYPE>::type&&>(
+                                                                       lvalue);
 }
 
 // ----------------------------------------------------------------------------

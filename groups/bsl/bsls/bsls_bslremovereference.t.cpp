@@ -1,5 +1,5 @@
-// bsls_removereference.t.cpp                                         -*-C++-*-
-#include <bsls_removereference.h>
+// bsls_bslremovereference.t.cpp                                      -*-C++-*-
+#include <bsls_bslremovereference.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
 
@@ -17,11 +17,11 @@ using namespace BloombergLP;
 // This component provides a type conversion, i.e., it doesn't really have any
 // run-time behavior. The component is tested by defining (and testing) an
 // auxiliary class template 'SameType' which is then utilitized to verify that
-// the 'RemoveReference' type conversion behaves as expected.
+// the 'BslRemoveReference' type conversion behaves as expected.
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] SAMETYPE
-// [ 3] REMOVEREFERENCE
+// [ 3] BSLREMOVEREFERENCE
 // [ 4] USAGE EXAMPLE
 
 // ============================================================================
@@ -74,13 +74,13 @@ void aSsErT(bool condition, const char *message, int line)
 namespace {
 
 template <class TYPE>
-typename bsls::RemoveReference<TYPE>::type read(std::istream& in)
+typename bsls::BslRemoveReference<TYPE>::type read(std::istream& in)
     // Read an object of template argument type from the specified stream
     // 'in' and return the read value. To determine if the reading the
     // value was successful check the status of 'in' (i.e., either the
     // conversion to 'bool' or '!in.fail()'.
 {
-    typedef typename bsls::RemoveReference<TYPE>::type type;
+    typedef typename bsls::BslRemoveReference<TYPE>::type type;
     type value = type();
     in >> value;
     return value;
@@ -144,37 +144,37 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // REMOVEREFERENCE
+        // BSLREMOVEREFERENCE
         //
         // Concerns:
         //   Test that the type conversions behave as expected.
         //
         // Plan:
         //   Use all relevant combinations of references and constness for a
-        //   type and verify that RemoveReference<TYPE>::type yields a
+        //   type and verify that BslRemoveReference<TYPE>::type yields a
         //   non-reference type.
         //
         // Testing:
-        //    REMOVEREFERENCE
+        //    BSLREMOVEREFERENCE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nREMOVEREFERENCE"
-                            "\n===============\n");
+        if (verbose) printf("\nBSLREMOVEREFERENCE"
+                            "\n==================\n");
 
-        ASSERT((SameType<bsls::RemoveReference<TestType>::type,
+        ASSERT((SameType<bsls::BslRemoveReference<TestType>::type,
                                                             TestType>::value));
-        ASSERT((SameType<bsls::RemoveReference<TestType&>::type,
+        ASSERT((SameType<bsls::BslRemoveReference<TestType&>::type,
                                                             TestType>::value));
 
-        ASSERT((SameType<bsls::RemoveReference<const TestType>::type,
+        ASSERT((SameType<bsls::BslRemoveReference<const TestType>::type,
                                                       const TestType>::value));
-        ASSERT((SameType<bsls::RemoveReference<const TestType&>::type,
+        ASSERT((SameType<bsls::BslRemoveReference<const TestType&>::type,
                                                       const TestType>::value));
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-        ASSERT((SameType<bsls::RemoveReference<TestType&&>::type,
+        ASSERT((SameType<bsls::BslRemoveReference<TestType&&>::type,
                                                            TestType >::value));
-        ASSERT((SameType<bsls::RemoveReference<const TestType&&>::type,
+        ASSERT((SameType<bsls::BslRemoveReference<const TestType&&>::type,
                                                       const TestType>::value));
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         } break;
@@ -253,11 +253,12 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 Verify that 'RemoveReference<TYPE>' has a nested 'type' member
+        //: 1 Verify that 'BslRemoveReference<TYPE>' has a nested 'type' member
         //:   for all variations of specifying a reference.
         //
         // Plan:
-        //: 1 Use 'typedef's for all variations of reference types.
+        //: 1 Use 'typedef's for all variations of reference types. Use the
+        //:   to define values and use them.
         //
         // Testing:
         //     BREATHING TEST
@@ -266,13 +267,25 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        typedef  bsls::RemoveReference<int>::type type0;
-        typedef  bsls::RemoveReference<int&>::type type1;
-        typedef  bsls::RemoveReference<const int>::type type2;
-        typedef  bsls::RemoveReference<const int&>::type type3;
+        typedef  bsls::BslRemoveReference<int>::type type0;
+        type0 value0 = 0;
+        ASSERT(value0 == 0);
+        typedef  bsls::BslRemoveReference<int&>::type type1;
+        type1 value1 = 1;
+        ASSERT(value1 == 1);
+        typedef  bsls::BslRemoveReference<const int>::type type2;
+        type2 value2 = 2;
+        ASSERT(value2 == 2);
+        typedef  bsls::BslRemoveReference<const int&>::type type3;
+        type3 value3 = 3;
+        ASSERT(value3 == 3);
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-        typedef  bsls::RemoveReference<int&&>::type type4;
-        typedef  bsls::RemoveReference<const int&&>::type type5;
+        typedef  bsls::BslRemoveReference<int&&>::type type4;
+        type4 value4 = 4;
+        ASSERT(value4 == 4);
+        typedef  bsls::BslRemoveReference<const int&&>::type type5;
+        type5 value5 = 5;
+        ASSERT(value5 == 5);
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
       } break;
       default: {

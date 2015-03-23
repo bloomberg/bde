@@ -1,5 +1,5 @@
-// bsls_removereference.cpp                                           -*-C++-*-
-#include <bsls_removereference.h>
+// bsls_bslremovereference.cpp                                        -*-C++-*-
+#include <bsls_bslremovereference.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")

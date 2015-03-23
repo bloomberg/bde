@@ -1,6 +1,6 @@
-// bsls_removereference.h                                             -*-C++-*-
-#ifndef INCLUDED_BSLS_REMOVEREFERENCE
-#define INCLUDED_BSLS_REMOVEREFERENCE
+// bsls_bslremovereference.h                                          -*-C++-*-
+#ifndef INCLUDED_BSLS_BSLREMOVEREFERENCE
+#define INCLUDED_BSLS_BSLREMOVEREFERENCE
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,28 +10,28 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a type transformation trait removing reference qualifiers.
 //
 //@CLASSES:
-//  bsls::RemoveReference: type traits to remove reference qualifiers
+//  bsls::BslRemoveReference: type traits to remove reference qualifiers
 //
 //@SEE_ALSO: bslmf::RemoveReference
 //
 //@DESCRIPTION: This component provides the class template
-//  'bsls::RemoveReference' implementing a type transformation removing any
+//  'bsls::BslRemoveReference' implementing a type transformation removing any
 //  reference qualification from a type. The argument type is left unchanged
 //  otherwise.
 //
 ///Usage
 ///-----
-//  'bsls::RemoveReference' can be used when a template argument may be
+//  'bsls::BslRemoveReference' can be used when a template argument may be
 //  reference type but an object type is required:
 //..
 //  template <class TYPE>
-//  typename bsls::RemoveReference<TYPE>::type read(std::istream& in)
+//  typename bsls::BslRemoveReference<TYPE>::type read(std::istream& in)
 //      // Read an object of template argument type from the specified stream
 //      // 'in' and return the read value. To determine if the reading the
 //      // value was successful check the status of 'in' (i.e., either the
 //      // conversion to 'bool' or '!in.fail()'.
 //  {
-//      typedef typename bsls::RemoveReference<TYPE>::type type;
+//      typedef typename bsls::BslRemoveReference<TYPE>::type type;
 //      type value = type();
 //      in >> value;
 //      return value;
@@ -44,8 +44,8 @@ BSLS_IDENT("$Id: $")
 //  assert(in);
 //  assert(value == 13);
 //..
-//  Typically the template argument 'TYPE' to 'RemoveReference<TYPE>' is itself
-//  a template argument or a type obtained from a template argument.
+//  Typically the template argument 'TYPE' to 'BslRemoveReference<TYPE>' is
+//  itself a template argument or a type obtained from a template argument.
 
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
@@ -56,7 +56,7 @@ namespace BloombergLP {
 namespace bsls {
 
 template <class TYPE>
-struct RemoveReference {
+struct BslRemoveReference {
     // This class template provides a type transformation removing reference
     // qualification, if any, from the type 'TYPE'.
     typedef TYPE type;
@@ -65,7 +65,7 @@ struct RemoveReference {
 };
 
 template <class TYPE>
-struct RemoveReference<TYPE&> {
+struct BslRemoveReference<TYPE&> {
     typedef TYPE type;
         // The specialization for lvalue references defines the nested type
         // 'type' to be the template argument with the lvalue reference
@@ -75,7 +75,7 @@ struct RemoveReference<TYPE&> {
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 
 template <class TYPE>
-struct RemoveReference<TYPE&&> {
+struct BslRemoveReference<TYPE&&> {
     typedef TYPE type;
         // The specialization for rvalue references defines the nested type
         // 'type' to be the template argument with the rvalue reference
