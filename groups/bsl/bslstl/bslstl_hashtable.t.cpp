@@ -110,6 +110,23 @@
 # define BSLSTL_HASHTABLE_TRIM_TEST_CASE9_COMPLEXITY
 #endif
 
+#if (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1800)
+// Earlier Microsoft libraries did not have an attribute to indicate that the
+// 'abort' function does not return.  We actively get warings for unreachable
+// code with the VC 2013 compiler if the workaround is enabled, so should limit
+// the usage based on a version check.  This code has not yet been explicitly
+// tested with VC2010 or VC2012, as the actively supported platforms for
+// development are VC2008, and VC2013.
+# define BSLSTL_HASHTABLE_MSVC_WARNS_ON_RETURN_FROM_ABORT
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_IBM)
+// Similar to the Microsoft workaround above, but we have not yet had reports
+// of test drivers warning about unreachable code, so no version check is
+// applied.
+# define BSLSTL_HASHTABLE_IBM_WARNS_ON_RETURN_FROM_ABORT
+#endif
+
 using namespace BloombergLP;
 using bslstl::CallableVariable;
 
@@ -3798,13 +3815,13 @@ makeObject(Obj                  **objPtr,
 
     ASSERTV(config, !"Bad allocator config.");
     abort();
-#if defined (BSLS_PLATFORM_CMP_MSVC)
+#if defined (BSLSTL_HASHTABLE_MSVC_WARNS_ON_RETURN_FROM_ABORT)
     // Microsoft 'abort' is not decorated with a no-return annotation, so
     // static analysis still reports that the function has control paths that
     // do not return a value.  This 'exit' should never be called, but will
     // resolve warnings that are often configured to act as hard errors.
     exit(-99);
-#elif defined(BSLS_PLATFORM_CMP_IBM)
+#elif defined(BSLSTL_HASHTABLE_IBM_WARNS_ON_RETURN_FROM_ABORT)
     throw 0; // This will never be reached, but satisfied compiler warnings.
 #endif
 }
@@ -3861,13 +3878,13 @@ makeObject(Obj                  **objPtr,
 
     ASSERTV(config, !"Bad allocator config.");
     abort();
-#if defined (BSLS_PLATFORM_CMP_MSVC)
+#if defined (BSLSTL_HASHTABLE_MSVC_WARNS_ON_RETURN_FROM_ABORT)
     // Microsoft 'abort' is not decorated with a no-return annotation, so
     // static analysis still reports that the function has control paths that
     // do not return a value.  This 'exit' should never be called, but will
     // resolve warnings that are often configured to act as hard errors.
     exit(-99);
-#elif defined(BSLS_PLATFORM_CMP_IBM)
+#elif defined(BSLSTL_HASHTABLE_IBM_WARNS_ON_RETURN_FROM_ABORT)
     throw 0; // This will never be reached, but satisfied compiler warnings.
 #endif
 }
@@ -3908,13 +3925,13 @@ makeObject(Obj                  **objPtr,
 
     ASSERTV(config, !"Bad allocator config.");
     abort();
-#if defined (BSLS_PLATFORM_CMP_MSVC)
+#if defined (BSLSTL_HASHTABLE_MSVC_WARNS_ON_RETURN_FROM_ABORT)
     // Microsoft 'abort' is not decorated with a no-return annotation, so
     // static analysis still reports that the function has control paths that
     // do not return a value.  This 'exit' should never be called, but will
     // resolve warnings that are often configured to act as hard errors.
     exit(-99);
-#elif defined(BSLS_PLATFORM_CMP_IBM)
+#elif defined(BSLSTL_HASHTABLE_IBM_WARNS_ON_RETURN_FROM_ABORT)
     throw 0; // This will never be reached, but satisfied compiler warnings.
 #endif
 }
@@ -3974,13 +3991,13 @@ makeObject(Obj                  **objPtr,
 
     ASSERTV(config, !"Bad allocator config.");
     abort();
-#if defined (BSLS_PLATFORM_CMP_MSVC)
+#if defined (BSLSTL_HASHTABLE_MSVC_WARNS_ON_RETURN_FROM_ABORT)
     // Microsoft 'abort' is not decorated with a no-return annotation, so
     // static analysis still reports that the function has control paths that
     // do not return a value.  This 'exit' should never be called, but will
     // resolve warnings that are often configured to act as hard errors.
     exit(-99);
-#elif defined(BSLS_PLATFORM_CMP_IBM)
+#elif defined(BSLSTL_HASHTABLE_IBM_WARNS_ON_RETURN_FROM_ABORT)
     throw 0; // This will never be reached, but satisfied compiler warnings.
 #endif
 }
