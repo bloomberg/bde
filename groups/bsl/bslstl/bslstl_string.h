@@ -750,10 +750,7 @@ BSL_OVERRIDES_STD mode"
 
 namespace bsl {
 
-//template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-//class basic_string;
-
-    // Import 'char_traits' into the 'bsl' namespace so that 'basic_string' and
+// Import 'char_traits' into the 'bsl' namespace so that 'basic_string' and
 // 'char_traits' are always in the same namespace.
 using native_std::char_traits;
 
@@ -1065,6 +1062,7 @@ class basic_string
   friend string to_string(unsigned );
   friend string to_string(unsigned long);
   friend string to_string(unsigned long long);
+
   private:
     // PRIVATE TYPES
     typedef String_Imp<CHAR_TYPE, typename ALLOCATOR::size_type> Imp;
@@ -2443,7 +2441,7 @@ unsigned long long stoull(const wstring& str, std::size_t* pos = 0,
 #endif
     // Parses 'str' interpreting its content as an integral number of the
     // specified 'base'. Valid bases are in the range of [0,36] where base 0
-    // automatically determines the base of the string. The base will be 16 if
+    // automatically determines the base of the string; The base will be 16 if
     // the number is prefixed with '0x' or '0X', base 8 if the number is
     // prefixed with a '0' and base 10 otherwise. If 'pos' is not a null
     // pointer the functions will set the 'pos' to the position of the first
@@ -2556,6 +2554,7 @@ wstring to_wstring(long double value);
     // converts a floating point value to a string with the same contents as
     // what std::sprintf(buf, sz, L"%Lf", value) would produce for a
     // suficiently large buffer.
+
 enum MaxDecimalStringLengths{
     // This 'enum' give upper bounds on the maximum string lengths storing
     // each scalar numerical type.  It is safe to use stack-allocated
@@ -2592,7 +2591,7 @@ std::size_t hashBasicString(const string& str);
 std::size_t hashBasicString(const wstring& str);
     // Return a hash value for the specified 'str'.
 
-}  // close standard namespace
+}  // close namespace bsl
 
 namespace BloombergLP {
 namespace bslh {

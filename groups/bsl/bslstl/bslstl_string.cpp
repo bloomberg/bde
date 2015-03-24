@@ -44,7 +44,9 @@ std::size_t bsl::hashBasicString(const wstring& str)
 
 int bsl::stoi(const string& str, std::size_t* pos, int base){
     char* ptr;
+    errno = 0;
     long value = std::strtol(str.c_str(), &ptr, base);
+
     if (errno == ERANGE){
         errno = 0;
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoi");
@@ -52,12 +54,14 @@ int bsl::stoi(const string& str, std::size_t* pos, int base){
     else if (ptr == str.c_str()){
         BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoi");
     }
+
     *pos = ptr - str.c_str();
     return value;
 }
 
 int bsl::stoi(const wstring& str, std::size_t* pos, int base){
     wchar_t* ptr;
+    errno = 0;
     long value = std::wcstol(str.c_str(), &ptr, base);
 
     if (errno == ERANGE){
@@ -74,6 +78,7 @@ int bsl::stoi(const wstring& str, std::size_t* pos, int base){
 
 long bsl::stol(const string& str, std::size_t* pos, int base){
     char* ptr;
+    errno = 0;
     long value = std::strtol(str.c_str(), &ptr, base);
 
     if (errno == ERANGE){
@@ -90,6 +95,7 @@ long bsl::stol(const string& str, std::size_t* pos, int base){
 
 long bsl::stol(const wstring& str, std::size_t* pos, int base){
     wchar_t* ptr;
+    errno = 0;
     long value = std::wcstol(str.c_str(), &ptr, base);
 
     if (errno == ERANGE){
@@ -106,6 +112,7 @@ long bsl::stol(const wstring& str, std::size_t* pos, int base){
 
 unsigned long bsl::stoul(const string& str, std::size_t* pos, int base){
     char* ptr;
+    errno = 0;
     unsigned long value = std::strtoul(str.c_str(), &ptr, base);
 
     if (errno == ERANGE){
@@ -123,6 +130,7 @@ unsigned long bsl::stoul(const string& str, std::size_t* pos, int base){
 unsigned long bsl::stoul(const wstring& str,
                                                    std::size_t* pos, int base){
     wchar_t* ptr;
+    errno = 0;
     unsigned long value = std::wcstoul(str.c_str(), &ptr, base);
 
     if (errno == ERANGE){
@@ -136,9 +144,11 @@ unsigned long bsl::stoul(const wstring& str,
     *pos = ptr - str.c_str();
     return value;
 }
+
 #if __cplusplus >= 201103L
 long long bsl::stoll(const string& str, std::size_t* pos, int base){
     char* ptr;
+    errno = 0;
     long long value = std::strtoll(str.c_str(), &ptr, base);
 
     if (errno == ERANGE){
@@ -152,8 +162,10 @@ long long bsl::stoll(const string& str, std::size_t* pos, int base){
     *pos = ptr - str.c_str();
     return value;
 }
+
 long long bsl::stoll(const wstring& str, std::size_t* pos, int base){
     wchar_t* ptr;
+    errno = 0;
     long long value = std::wcstoll(str.c_str(), &ptr, base);
 
     if (errno == ERANGE){
@@ -167,9 +179,11 @@ long long bsl::stoll(const wstring& str, std::size_t* pos, int base){
     *pos = ptr - str.c_str();
     return value;
 }
+
 unsigned long long bsl::stoull(const string& str, std::size_t* pos,
                                                                      int base){
     char* ptr;
+    errno = 0;
     unsigned long long value = std::strtoull(str.c_str(), &ptr, base);
 
     if (errno == ERANGE){
@@ -183,9 +197,11 @@ unsigned long long bsl::stoull(const string& str, std::size_t* pos,
     *pos = ptr - str.c_str();
     return value;
 }
+
 unsigned long long bsl::stoull(const wstring& str, std::size_t* pos,
                                                                      int base){
     wchar_t* ptr;
+    errno = 0;
     unsigned long long value = std::wcstoull(str.c_str(), &ptr, base);
 
     if (errno == ERANGE){
@@ -203,6 +219,7 @@ unsigned long long bsl::stoull(const wstring& str, std::size_t* pos,
 
 float bsl::stof(const string& str, std::size_t* pos){
     char* ptr;
+    errno = 0;
     float value = std::strtod(str.c_str(), &ptr);
 
     if (errno == ERANGE){
@@ -216,8 +233,10 @@ float bsl::stof(const string& str, std::size_t* pos){
     *pos = ptr - str.c_str();
     return value;
 }
+
 float bsl::stof(const wstring& str, std::size_t* pos){
     wchar_t* ptr;
+    errno = 0;
     float value = std::wcstod(str.c_str(), &ptr);
 
     if (errno == ERANGE){
@@ -231,8 +250,10 @@ float bsl::stof(const wstring& str, std::size_t* pos){
     *pos = ptr - str.c_str();
     return value;
 }
+
 double bsl::stod(const string& str, std::size_t* pos){
     char* ptr;
+    errno = 0;
     double value = std::strtod(str.c_str(), &ptr);
 
     if (errno == ERANGE){
@@ -246,6 +267,7 @@ double bsl::stod(const string& str, std::size_t* pos){
     *pos = ptr - str.c_str();
     return value;
 }
+
 double bsl::stod(const wstring& str, std::size_t* pos){
     wchar_t* ptr;
     double value = std::wcstod(str.c_str(), &ptr);
@@ -261,9 +283,11 @@ double bsl::stod(const wstring& str, std::size_t* pos){
     *pos = ptr - str.c_str();
     return value;
 }
+
 #if __cplusplus >= 201103L
 long double bsl::stold(const string& str, std::size_t* pos){
     char* ptr;
+    errno = 0;
     long double value = std::strtold(str.c_str(), &ptr);
 
     if (errno == ERANGE){
@@ -277,8 +301,10 @@ long double bsl::stold(const string& str, std::size_t* pos){
     *pos = ptr - str.c_str();
     return value;
 }
+
 long double bsl::stold(const wstring& str, std::size_t* pos){
     wchar_t* ptr;
+    errno = 0;
     long double value = std::wcstold(str.c_str(), &ptr);
 
     if (errno == ERANGE){
@@ -346,7 +372,6 @@ bsl::string bsl::to_string(float value)
     sprintf(tempBuf, "%f", value);
     string str(tempBuf);
     return str;
-
 }
 
 bsl::string bsl::to_string(double value)
@@ -380,6 +405,7 @@ bsl::wstring bsl::to_wstring(long value)
     wstring str(tempBuf);
     return str;
 }
+
 bsl::wstring bsl::to_wstring(long long value)
 {
     wchar_t tempBuf[e_MAX_INT64_STRLEN10];
@@ -435,8 +461,6 @@ bsl::wstring bsl::to_wstring(long double value)
     wstring wstr(tempBuf);
     return wstr;
 }
-
-
 
 #endif
 
