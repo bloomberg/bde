@@ -430,8 +430,8 @@ bsl::string bsl::to_string(long long value) {
         return str;
     }
     else {
-        // becasue of the extra '-' sign, negative long long values can exceed
-        // the short string buffer capacity.
+        // Becasue of the negative sign, long long values can exceed the short
+        // buffer capacity.
         char tempBuf[e_MAX_INT64_STRLEN10];
         sprintf(tempBuf, "%lld", value);
         string str(tempBuf);

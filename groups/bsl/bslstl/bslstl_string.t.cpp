@@ -1285,6 +1285,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase32(){
     //   string to_wstring(double value);
     //   string to_wstring(long double value);
     // ------------------------------------------------------------------------
+
     bslma::TestAllocator testAllocator(veryVeryVerbose);
     Allocator Z(&testAllocator);
     static const struct {

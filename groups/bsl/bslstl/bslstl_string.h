@@ -2571,7 +2571,6 @@ enum MaxDecimalStringLengths{
     e_MAX_SCALAR_STRLEN10     = e_MAX_INT64_STRLEN10
 };
 
-
 // HASH SPECIALIZATIONS
 template <class HASHALG, class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 void hashAppend(HASHALG& hashAlg,
