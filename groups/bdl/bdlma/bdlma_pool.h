@@ -552,6 +552,8 @@ void Pool::release()
 {
     d_blockList.release();
     d_freeList_p = 0;
+    d_begin_p = 0;
+    d_end_p = 0;
 }
 
 // ACCESSORS
