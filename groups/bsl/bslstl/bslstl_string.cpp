@@ -425,11 +425,20 @@ bsl::string bsl::to_string(unsigned long value) {
 
 bsl::string bsl::to_string(long long value) {
     BSLS_ASSERT_SAFE(value <= std::numeric_limits<long long>::max());
-
-    bsl::string str;
-    sprintf(str.dataPtr(), "%lld", value);
-    str.d_length = strlen(str.dataPtr());
-    return str;
+    if (value >=0) {
+        bsl::string str;
+        sprintf(str.dataPtr(), "%lld", value);
+        str.d_length = strlen(str.dataPtr());
+        return str;
+    }
+    else {
+        // becasue of the extra '-' sign, negative long long values can exceed
+        // the short string buffer capacity.
+        char tempBuf[e_MAX_INT64_STRLEN10];
+        sprintf(tempBuf, "%lld", value);
+        string str(tempBuf);
+        return str;
+    }
 }
 
 bsl::string bsl::to_string(unsigned long long value) {
