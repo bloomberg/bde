@@ -402,6 +402,10 @@ long double bsl::stold(const wstring& str, std::size_t* pos){
 #endif
 
 bsl::string bsl::to_string(int value) {
+    BSLS_ASSERT(bsl::numeric_limits<int>::digits * 100/322 +
+                bsl::numeric_limits<int>::is_signed + 1 <
+                bsl::string::SHORT_BUFFER_LENGTH);
+
     bsl::string str;
     sprintf(str.dataPtr(), "%d", value);
 
@@ -413,6 +417,10 @@ bsl::string bsl::to_string(int value) {
 }
 
 bsl::string bsl::to_string(unsigned value) {
+    BSLS_ASSERT(bsl::numeric_limits<unsigned>::digits * 100/322 +
+                bsl::numeric_limits<unsigned>::is_signed + 1 <
+                bsl::string::SHORT_BUFFER_LENGTH);
+
     bsl::string str;
     sprintf(str.dataPtr(), "%u", value);
 
@@ -424,29 +432,32 @@ bsl::string bsl::to_string(unsigned value) {
 }
 
 bsl::string bsl::to_string(long value) {
+    BSLS_ASSERT(bsl::numeric_limits<long>::digits * 100/322 +
+                bsl::numeric_limits<long>::is_signed + 1 <
+                bsl::string::SHORT_BUFFER_LENGTH);
+
     bsl::string str;
     sprintf(str.dataPtr(), "%ld", value);
-
-    BSLS_ASSERT_SAFE(strlen(str.dataPtr()) + 1 <=
-                                             bsl::string::SHORT_BUFFER_LENGTH);
-
     str.d_length = strlen(str.dataPtr());
     return str;
 }
 
 bsl::string bsl::to_string(unsigned long value) {
+    BSLS_ASSERT(bsl::numeric_limits<unsigned long >::digits * 100/322 +
+                bsl::numeric_limits<unsigned long >::is_signed + 1 <
+                bsl::string::SHORT_BUFFER_LENGTH);
+
     bsl::string str;
     sprintf(str.dataPtr(), "%lu", value);
-
-    BSLS_ASSERT_SAFE(strlen(str.dataPtr()) + 1 <=
-                                             bsl::string::SHORT_BUFFER_LENGTH);
-
     str.d_length = strlen(str.dataPtr());
     return str;
 }
 
 bsl::string bsl::to_string(long long value) {
     if (value >=0) {
+        BSLS_ASSERT(bsl::numeric_limits<unsigned long >::digits * 100/322 + 1 <
+                bsl::string::SHORT_BUFFER_LENGTH);
+
         bsl::string str;
         sprintf(str.dataPtr(), "%lld", value);
 
