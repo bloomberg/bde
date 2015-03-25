@@ -1059,7 +1059,7 @@ class basic_string
   friend string to_string(int);
   friend string to_string(long);
   friend string to_string(long long);
-  friend string to_string(unsigned );
+  friend string to_string(unsigned);
   friend string to_string(unsigned long);
   friend string to_string(unsigned long long);
 
@@ -2439,7 +2439,7 @@ unsigned long long stoull(const string& str, std::size_t* pos = 0,
 unsigned long long stoull(const wstring& str, std::size_t* pos = 0,
                                                                 int base = 10);
 #endif
-    // Parses 'str' interpreting its content as an integral number of the
+    // Parses 'str' interpreting its content as an integral written in the
     // specified 'base'. Valid bases are in the range of [0,36] where base 0
     // automatically determines the base of the string; The base will be 16 if
     // the number is prefixed with '0x' or '0X', base 8 if the number is
