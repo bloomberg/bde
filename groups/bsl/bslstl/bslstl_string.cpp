@@ -1,7 +1,5 @@
 // bslstl_string.cpp                                                  -*-C++-*-
 #include <bslstl_string.h>
-//REMOVE!
-#include <iostream>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")

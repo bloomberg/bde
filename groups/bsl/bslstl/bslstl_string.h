@@ -2439,13 +2439,14 @@ unsigned long long stoull(const string& str, std::size_t* pos = 0,
 unsigned long long stoull(const wstring& str, std::size_t* pos = 0,
                                                                 int base = 10);
 #endif
-    // Parses 'str' interpreting its content as an integral written in the
-    // specified 'base'. Valid bases are in the range of [0,36] where base 0
+    // Parses 'str' interpreting its content as an integral number. Optionally
+    // specify 'pos' whose value is set to the position of the next character
+    // after the numerical value. Optionally specify 'base' used to change the
+    // interpretation of 'str' to a integral number written in the specified
+    // 'base'. Valid bases are in the range of [0,35] where base 0 
     // automatically determines the base of the string; The base will be 16 if
-    // the number is prefixed with '0x' or '0X', base 8 if the number is
-    // prefixed with a '0' and base 10 otherwise. If 'pos' is not a null
-    // pointer the functions will set the 'pos' to the position of the first
-    // character in the 'str' after the number. The function ignores leading
+    // the number is prefixed with '0x' or '0X', base 8 if the number is 
+    // prefixed with a '0' and base 10 otherwise. The function ignores leading
     // white space characters and interprets as many characters possible to
     // form a valid base n integral number. If no conversion could be
     // performed, then an invalid_argument exception is thrown. If the value
@@ -2461,19 +2462,17 @@ double stod(const wstring& str, std::size_t* pos =0);
 
 long double stold(const string& str, std::size_t* pos =0);
 long double stold(const wstring& str, std::size_t* pos =0);
-
-#endif
     // Parses 'str' interpreting its contents as a floating point number. In
     // C++11 if the number in the str is prefixed with '0x' or '0X' the string
     // will be interpreted as a hex number. If there is no leading 0x or 0X the
-    // string will be interpreted as a decimal number. If 'pos' is not a null
-    // pointer the functions will set the 'pos' to the position of the first
-    // character in the 'str' after the number. The function ignores leading
-    // white space characters and interprets as many characters possible to
-    // form a valid floating point number. If no conversion could be
-    // performed, then an invalid_argument exception is thrown. If the value
-    // read is out of range of the return type, then an out_of_range exception
-    // is thrown.
+    // string will be interpreted as a decimal number. Optionally specify 'pos'
+    // whoes value is set to the position of the next character after the
+    // numerical value. The function ignores leading white space characters and
+    // interprets as many characters possible to form a valid floating point
+    // number. If no conversion could be performed, then an invalid_argument
+    // exception is thrown. If the value read is out of range of the return
+    // type, then an out_of_range exception is thrown.
+#endif
 
 string to_string(int value);
     // Constructs a string with contents equal to the specified 'value'. The
