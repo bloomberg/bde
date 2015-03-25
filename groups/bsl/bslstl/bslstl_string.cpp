@@ -1,6 +1,9 @@
 // bslstl_string.cpp                                                  -*-C++-*-
 #include <bslstl_string.h>
 
+//REMOVE todo
+#include <iostream>
+
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
@@ -50,7 +53,6 @@ int bsl::stoi(const string& str, std::size_t* pos, int base){
     long value = std::strtol(str.c_str(), &ptr, base);
 
     if (errno == ERANGE) {
-        errno = original_errno;
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoi");
     }
     else if (ptr == str.c_str()){
@@ -60,6 +62,8 @@ int bsl::stoi(const string& str, std::size_t* pos, int base){
     if (pos){
         *pos = static_cast<size_t>(ptr - str.c_str());
     }
+
+    errno = original_errno;
     return value;
 }
 
@@ -71,7 +75,6 @@ int bsl::stoi(const wstring& str, std::size_t* pos, int base){
     long value = std::wcstol(str.c_str(), &ptr, base);
 
     if (errno == ERANGE){
-        errno = original_errno;
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoi");
     }
     else if (ptr == str.c_str()){
@@ -79,8 +82,10 @@ int bsl::stoi(const wstring& str, std::size_t* pos, int base){
     }
 
     if (pos) {
-        *pos = ptr - str.c_str();
+        *pos = static_cast<size_t>(ptr - str.c_str());
     }
+
+    errno = original_errno;
     return value;
 }
 
@@ -92,7 +97,6 @@ long bsl::stol(const string& str, std::size_t* pos, int base){
     long value = std::strtol(str.c_str(), &ptr, base);
 
     if (errno == ERANGE){
-        errno = original_errno;
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stol");
     }
     else if (ptr == str.c_str()){
@@ -102,6 +106,8 @@ long bsl::stol(const string& str, std::size_t* pos, int base){
     if (pos){
         *pos = static_cast<size_t>(ptr - str.c_str());
     }
+
+    errno = original_errno;
     return value;
 }
 
@@ -113,7 +119,6 @@ long bsl::stol(const wstring& str, std::size_t* pos, int base){
     long value = std::wcstol(str.c_str(), &ptr, base);
 
     if (errno == ERANGE){
-        errno = original_errno;
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stol");
     }
     else if (ptr == str.c_str()){
@@ -123,6 +128,8 @@ long bsl::stol(const wstring& str, std::size_t* pos, int base){
     if (pos) {
         *pos = static_cast<size_t>(ptr - str.c_str());
     }
+
+    errno = original_errno;
     return value;
 }
 
@@ -134,7 +141,6 @@ unsigned long bsl::stoul(const string& str, std::size_t* pos, int base){
     unsigned long value = std::strtoul(str.c_str(), &ptr, base);
 
     if (errno == ERANGE){
-        errno = original_errno;
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoul");
     }
     else if (ptr == str.c_str()){
@@ -144,6 +150,8 @@ unsigned long bsl::stoul(const string& str, std::size_t* pos, int base){
     if (pos){
         *pos = ptr - str.c_str();
     }
+
+    errno = original_errno;
     return value;
 }
 
@@ -156,7 +164,6 @@ unsigned long bsl::stoul(const wstring& str,
     unsigned long value = std::wcstoul(str.c_str(), &ptr, base);
 
     if (errno == ERANGE){
-        errno = original_errno;
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoul");
     }
     else if (ptr == str.c_str()){
@@ -166,6 +173,8 @@ unsigned long bsl::stoul(const wstring& str,
     if (pos) {
         *pos = ptr - str.c_str();
     }
+
+    errno = original_errno;
     return value;
 }
 
@@ -178,7 +187,6 @@ long long bsl::stoll(const string& str, std::size_t* pos, int base){
     long long value = std::strtoll(str.c_str(), &ptr, base);
 
     if (errno == ERANGE){
-        errno = original_errno;
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoll");
     }
     else if (ptr == str.c_str()){
@@ -188,6 +196,8 @@ long long bsl::stoll(const string& str, std::size_t* pos, int base){
     if (pos) {
         *pos = ptr - str.c_str();
     }
+
+    errno = original_errno;
     return value;
 }
 
@@ -199,7 +209,6 @@ long long bsl::stoll(const wstring& str, std::size_t* pos, int base){
     long long value = std::wcstoll(str.c_str(), &ptr, base);
 
     if (errno == ERANGE){
-        errno = original_errno;
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoll");
     }
     else if (ptr == str.c_str()){
@@ -209,6 +218,8 @@ long long bsl::stoll(const wstring& str, std::size_t* pos, int base){
     if (pos) {
         *pos = ptr - str.c_str();
     }
+
+    errno = original_errno;
     return value;
 }
 
@@ -221,7 +232,6 @@ unsigned long long bsl::stoull(const string& str, std::size_t* pos,
     unsigned long long value = std::strtoull(str.c_str(), &ptr, base);
 
     if (errno == ERANGE){
-        errno = original_errno;
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoull");
     }
     else if (ptr == str.c_str()){
@@ -231,6 +241,8 @@ unsigned long long bsl::stoull(const string& str, std::size_t* pos,
     if (pos) {
         *pos = ptr - str.c_str();
     }
+
+    errno = original_errno;
     return value;
 }
 
@@ -243,7 +255,6 @@ unsigned long long bsl::stoull(const wstring& str, std::size_t* pos,
     unsigned long long value = std::wcstoull(str.c_str(), &ptr, base);
 
     if (errno == ERANGE){
-        errno = original_errno;
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoull");
     }
     else if (ptr == str.c_str()){
@@ -253,6 +264,8 @@ unsigned long long bsl::stoull(const wstring& str, std::size_t* pos,
     if (pos) {
         *pos = ptr - str.c_str();
     }
+
+    errno = original_errno;
     return value;
 }
 #endif
@@ -265,7 +278,6 @@ float bsl::stof(const string& str, std::size_t* pos){
     float value = std::strtod(str.c_str(), &ptr);
 
     if (errno == ERANGE){
-        errno = original_errno;
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stof");
     }
     else if (ptr == str.c_str()){
@@ -275,6 +287,8 @@ float bsl::stof(const string& str, std::size_t* pos){
     if (pos) {
         *pos = ptr - str.c_str();
     }
+
+    errno = original_errno;
     return value;
 }
 
@@ -286,7 +300,6 @@ float bsl::stof(const wstring& str, std::size_t* pos){
     float value = std::wcstod(str.c_str(), &ptr);
 
     if (errno == ERANGE){
-        errno = original_errno;
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stof");
     }
     else if (ptr == str.c_str()){
@@ -296,6 +309,8 @@ float bsl::stof(const wstring& str, std::size_t* pos){
     if (pos) {
         *pos = ptr - str.c_str();
     }
+
+    errno = original_errno;
     return value;
 }
 
@@ -307,7 +322,6 @@ double bsl::stod(const string& str, std::size_t* pos){
     double value = std::strtod(str.c_str(), &ptr);
 
     if (errno == ERANGE){
-        errno = original_errno;
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stod");
     }
     else if (ptr == str.c_str()){
@@ -317,6 +331,8 @@ double bsl::stod(const string& str, std::size_t* pos){
     if (pos) {
         *pos = ptr - str.c_str();
     }
+
+    errno = original_errno;
     return value;
 }
 
@@ -328,7 +344,6 @@ double bsl::stod(const wstring& str, std::size_t* pos){
     double value = std::wcstod(str.c_str(), &ptr);
 
     if (errno == ERANGE){
-        errno = original_errno;
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stod");
     }
     else if (ptr == str.c_str()){
@@ -338,6 +353,8 @@ double bsl::stod(const wstring& str, std::size_t* pos){
     if (pos) {
         *pos = ptr - str.c_str();
     }
+
+    errno = original_errno;
     return value;
 }
 
@@ -350,7 +367,6 @@ long double bsl::stold(const string& str, std::size_t* pos){
     long double value = std::strtold(str.c_str(), &ptr);
 
     if (errno == ERANGE){
-        errno = original_errno;
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stold");
     }
     else if (ptr == str.c_str()){
@@ -360,6 +376,8 @@ long double bsl::stold(const string& str, std::size_t* pos){
     if (pos) {
         *pos = ptr - str.c_str();
     }
+
+    errno = original_errno;
     return value;
 }
 
@@ -371,7 +389,6 @@ long double bsl::stold(const wstring& str, std::size_t* pos){
     long double value = std::wcstold(str.c_str(), &ptr);
 
     if (errno == ERANGE){
-        errno = original_errno;
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stold");
     }
     else if (ptr == str.c_str()){
@@ -381,51 +398,64 @@ long double bsl::stold(const wstring& str, std::size_t* pos){
     if (pos) {
         *pos = ptr - str.c_str();
     }
+
+    errno = original_errno;
     return value;
 }
 #endif
 
 bsl::string bsl::to_string(int value) {
-    BSLS_ASSERT_SAFE(value <= std::numeric_limits<int>::max());
-
     bsl::string str;
     sprintf(str.dataPtr(), "%d", value);
+
+    BSLS_ASSERT_SAFE(strlen(str.dataPtr()) + 1 <=
+                                             bsl::string::SHORT_BUFFER_LENGTH);
+
     str.d_length = strlen(str.dataPtr());
     return str;
 }
 
 bsl::string bsl::to_string(unsigned value) {
-    BSLS_ASSERT_SAFE(value <= std::numeric_limits<unsigned int>::max());
-
     bsl::string str;
     sprintf(str.dataPtr(), "%u", value);
+
+    BSLS_ASSERT_SAFE(strlen(str.dataPtr()) + 1 <=
+                                             bsl::string::SHORT_BUFFER_LENGTH);
+
     str.d_length = strlen(str.dataPtr());
     return str;
 }
 
 bsl::string bsl::to_string(long value) {
-    BSLS_ASSERT_SAFE(value <= std::numeric_limits<long>::max());
-
     bsl::string str;
     sprintf(str.dataPtr(), "%ld", value);
+
+    BSLS_ASSERT_SAFE(strlen(str.dataPtr()) + 1 <=
+                                             bsl::string::SHORT_BUFFER_LENGTH);
+
     str.d_length = strlen(str.dataPtr());
     return str;
 }
 
 bsl::string bsl::to_string(unsigned long value) {
-    BSLS_ASSERT_SAFE(value <= std::numeric_limits<unsigned long>::max());
-
     bsl::string str;
     sprintf(str.dataPtr(), "%lu", value);
+
+    BSLS_ASSERT_SAFE(strlen(str.dataPtr()) + 1 <=
+                                             bsl::string::SHORT_BUFFER_LENGTH);
+
     str.d_length = strlen(str.dataPtr());
     return str;
 }
 
 bsl::string bsl::to_string(long long value) {
-    BSLS_ASSERT_SAFE(value <= std::numeric_limits<long long>::max());
     if (value >=0) {
         bsl::string str;
         sprintf(str.dataPtr(), "%lld", value);
+
+        BSLS_ASSERT_SAFE(strlen(str.dataPtr()) + 1 <=
+                                             bsl::string::SHORT_BUFFER_LENGTH);
+
         str.d_length = strlen(str.dataPtr());
         return str;
     }
