@@ -3429,7 +3429,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::copyDataStructure(
                                                        newNode,
                                                        hashCode);
     }
-    while ((cursor = cursor->nextLink()));
+    while (0 != (cursor = cursor->nextLink()));
 
     // release the proctor
 
@@ -3591,7 +3591,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::removeAllImp()
             d_parameters.nodeFactory().deleteNode(
                                                 static_cast<NodeType *>(root));
         }
-        while((root = next));
+        while(0 != (root = next));
     }
 }
 
@@ -4093,7 +4093,7 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::findEndOfRange(
                                                                         KeyRef;
     KeyRef k = ImpUtil::extractKey<KEY_CONFIG>(first);
 
-    while ((first = first->nextLink()) &&
+    while (0 != (first = first->nextLink()) &&
            d_parameters.comparator()(k,ImpUtil::extractKey<KEY_CONFIG>(first)))
     {
         // This loop body is intentionally left blank.
