@@ -1718,9 +1718,9 @@ void TestDriver::testCase2()
 
         BDEC::Decimal64  dd =  BDLDFP_DECIMAL_DD(0.0);
         BDEC::Decimal64 ndd = -BDLDFP_DECIMAL_DD(0.0);
-        LOOP2_ASSERT( dd, ndd,  memcmp(&ndd, &dd, sizeof(dd)));
+        LOOP2_ASSERT( dd, ndd,  bsl::memcmp(&ndd, &dd, sizeof(dd)));
         dd= -dd;
-        LOOP2_ASSERT(dd, ndd, !memcmp(&ndd, &dd, sizeof(dd)));
+        LOOP2_ASSERT(dd, ndd, !bsl::memcmp(&ndd, &dd, sizeof(dd)));
     }
 
     if (veryVerbose) bsl::cout << "Unary+" << bsl::endl;
