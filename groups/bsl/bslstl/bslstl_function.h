@@ -537,7 +537,7 @@ class Function_Rep {
         // the move, 'from' points to uninitialized storage.  The move
         // is performed using only non-throwing operations.
 
-    template <class FUNC>
+    template <class FUNC, bool IS_INPLACE>
     static PtrOrSize_t functionManager(ManagerOpCode  opCode,
                                        Function_Rep  *rep,
                                        PtrOrSize_t    input);
@@ -552,6 +552,9 @@ class Function_Rep {
     static PtrOrSize_t ownedAllocManager(ManagerOpCode  opCode,
                                          Function_Rep  *rep,
                                          PtrOrSize_t    input);
+
+    template <class FUNC>
+    static Manager getFunctionManager();
 
   private:
     // DATA
@@ -1150,15 +1153,15 @@ void bsl::Function_Rep::copyInit(const ALLOC& alloc, const Function_Rep& other)
     }
 }
 
-template <class FUNC>
+template <class FUNC, bool IS_INPLACE>
 bsl::Function_Rep::PtrOrSize_t
 bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
                                    Function_Rep  *rep,
                                    PtrOrSize_t    input)
 {
-    static const std::size_t k_SOO_FUNC_SIZE = Soo::SooFuncSize<FUNC>::VALUE;
-    static const std::size_t k_IS_INPLACE =
-        k_SOO_FUNC_SIZE <= sizeof(InplaceBuffer);
+    static const std::size_t k_SOO_FUNC_SIZE =
+        IS_INPLACE ? sizeof(FUNC) : Soo::SooFuncSize<FUNC>::VALUE;
+    static const bool k_IS_INPLACE = IS_INPLACE;
 
     // If a function manager exists, then functor must have non-zero size.
     BSLMF_ASSERT(0 != k_SOO_FUNC_SIZE);
@@ -1226,10 +1229,7 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
       case e_GET_SIZE:     return k_SOO_FUNC_SIZE;
       case e_GET_TARGET:   return wrappedFunc_p;
       case e_GET_TYPE_ID:
-          // If 'FUNC' is a specialization of 'Function_NothrowWrapper',
-          // return type typeid of the wrapped type.
-          typedef typename Function_NothrowWrapperUtil<FUNC>::UnwrappedType Ut;
-          return const_cast<std::type_info*>(&typeid(Ut));
+          return const_cast<std::type_info*>(&typeid(FUNC));
 
       case e_IS_EQUAL:
       case e_INIT_REP: {
@@ -1349,6 +1349,16 @@ bsl::Function_Rep::ownedAllocManager(ManagerOpCode  opCode,
     } // end switch
 
     return PtrOrSize_t();
+}
+
+template <class FUNC>
+inline
+bsl::Function_Rep::Manager bsl::Function_Rep::getFunctionManager()
+{
+    static const bool k_IS_INPLACE = Soo::IsInplaceFunc<FUNC>::value;
+    typedef typename
+        Function_NothrowWrapperUtil<FUNC>::UnwrappedType UnwrappedFunc;
+    return &functionManager<UnwrappedFunc, k_IS_INPLACE>;
 }
 
 template <class TP>
@@ -1715,7 +1725,7 @@ bsl::function<RET(ARGS...)>::function(FUNC func)
             integral_constant<AllocCategory, e_BSLMA_ALLOC_PTR>());
 
     if (d_invoker_p) {
-        d_funcManager_p = &functionManager<FUNC>;
+        d_funcManager_p = getFunctionManager<FUNC>();
         d_funcManager_p(e_MOVE_CONSTRUCT, this, &func);
     }
 }
@@ -1763,11 +1773,12 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t,
     d_invoker_p = getInvoker(func);
 
     std::size_t sooFuncSize = d_invoker_p ? Soo::SooFuncSize<FUNC>::VALUE : 0;
+
     initRep(sooFuncSize, typename AllocTraits::Type(alloc),
             typename AllocTraits::Category());
 
     if (d_invoker_p) {
-        d_funcManager_p = &functionManager<FUNC>;
+        d_funcManager_p = getFunctionManager<FUNC>();
         d_funcManager_p(e_MOVE_CONSTRUCT, this, &func);
     }
    else {
@@ -1877,7 +1888,7 @@ bsl::function<RET(ARGS...)>::operator=(FUNC&& func)
         >::type FuncType;
 
     Invoker *invoker_p = getInvoker(func);
-    tempRep.d_funcManager_p = invoker_p ? &functionManager<FuncType> : NULL;
+    tempRep.d_funcManager_p = invoker_p ? getFunctionManager<FuncType>() :NULL;
 
     // Initialize tempRep using allocator from 'this'
     this->d_allocManager_p(e_INIT_REP, &tempRep, this->d_allocator_p);

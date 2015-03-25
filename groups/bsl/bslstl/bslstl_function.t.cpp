@@ -352,6 +352,24 @@ bsl::Function_NothrowWrapper<FUNC> ntWrap(const FUNC& f)
     return f;
 }
 
+#define NTUNWRAP(FUNC) bsl::Function_NothrowWrapperUtil<FUNC>::UnwrappedType
+
+template <class FUNC>
+typename NTUNWRAP(FUNC) const& ntUnwrap(const FUNC& f)
+    // If the specified 'f' is a nothrow wrapper, then return the invokable
+    // object wrapped in 'f'; otherwise return 'f' unchanged.
+{
+    return bsl::Function_NothrowWrapperUtil<FUNC>::unwrap(f);
+}
+
+// template <class FUNC>
+// typename NTUNWRAP(FUNC)& ntUnwrap(FUNC& f)
+//     // If the specified 'f' is a nothrow wrapper, then return the invokable
+//     // object wrapped in 'f'; otherwise return 'f' unchanged.
+// {
+//     return bsl::Function_NothrowWrapperUtil<FUNC>::unwrap(f);
+// }
+
 template <class TYPE>
 class SmartPtr
 {
@@ -1327,6 +1345,10 @@ inline bool isNullPtr(const T& p) {
     return isNullPtrImp(p, bsl::integral_constant<bool, IS_POINTER>());
 }
 
+inline bool isNullPtr(const bsl::nullptr_t&) {
+    return true;
+}
+
 template <class T>
 class ValueGeneratorBase {
     // Generates values ot type 'T' for test driver
@@ -1747,9 +1769,12 @@ enum WhatIsInplace {
     e_OUTOFPLACE_BOTH    // Both function and allocator are out of place
 };
 
-template <class ALLOC, class FUNC>
-void testFuncWithAlloc(int line, FUNC func, WhatIsInplace inplace)
+template <class ALLOC, class FUNC_ARG>
+void testFuncWithAlloc(int line, FUNC_ARG func_arg, WhatIsInplace inplace)
 {
+    typedef typename NTUNWRAP(FUNC_ARG) FUNC;
+    const FUNC& func = ntUnwrap(func_arg);
+
     const std::size_t inplaceFuncSize = (bsl::is_empty<FUNC>::value ? 0 :
                                          isNullPtr(func)            ? 0 :
                                          sizeof(FUNC));
@@ -1791,7 +1816,7 @@ void testFuncWithAlloc(int line, FUNC func, WhatIsInplace inplace)
         EXCEPTION_TEST_TRY {
             funcMonitor.reset(L_);
             ALLOC alloc(&ta);
-            Obj f(bsl::allocator_arg, alloc, func);
+            Obj f(bsl::allocator_arg, alloc, func_arg);
             LOOP_ASSERT(line, isNullPtr(func) == !f);
             LOOP_ASSERT(line,
                         CheckAlloc<ALLOC>::areEqualAlloc(alloc,f.allocator()));
@@ -2053,7 +2078,7 @@ void testMoveCtorWithSameAlloc(FUNC func, bool extended, const char *allocName)
         if (dest) {
 
             // Check for faithful move of functor
-            ASSERT(dest.target_type() == typeid(func));
+            ASSERT(dest.target_type() == typeid(ntUnwrap(func)));
             ASSERT(*dest.target<FUNC>() == func);
 
             // Invoke
@@ -2140,7 +2165,7 @@ void testMoveCtorWithDifferentAlloc(FUNC        func,
                 if (dest) {
 
                     // Check for faithful move of functor
-                    ASSERT(dest.target_type() == typeid(func));
+                    ASSERT(dest.target_type() == typeid(ntUnwrap(func)));
                     ASSERT(*dest.target<FUNC>() == func);
 
                     // Invoke
@@ -4151,6 +4176,13 @@ int main(int argc, char *argv[])
     if (veryVeryVerbose) printf("\tALLOC is %s\n", #A);         \
     testFuncWithAlloc<A>(L_, f, E)
 
+        if (veryVerbose) std::printf("FUNC is nullptr\n");
+        TEST(bslma::TestAllocator *  , bsl::nullptr_t() , e_INPLACE_BOTH);
+        TEST(bsl::allocator<char>    , bsl::nullptr_t() , e_INPLACE_BOTH);
+        TEST(EmptySTLAllocator<char> , bsl::nullptr_t() , e_INPLACE_BOTH);
+        TEST(StatefulAllocator<char> , bsl::nullptr_t() , e_INPLACE_FUNC_ONLY);
+        TEST(StatefulAllocator2<char>, bsl::nullptr_t() , e_INPLACE_FUNC_ONLY);
+
         if (veryVerbose) std::printf("FUNC is nullFuncPtr\n");
         TEST(bslma::TestAllocator *  , nullFuncPtr      , e_INPLACE_BOTH);
         TEST(bsl::allocator<char>    , nullFuncPtr      , e_INPLACE_BOTH);
@@ -4241,7 +4273,6 @@ int main(int argc, char *argv[])
         TEST(EmptySTLAllocator<char> , SmFnAlloc(0, &xa), e_INPLACE_BOTH);
         TEST(StatefulAllocator<char> , SmFnAlloc(0, &xa), e_INPLACE_FUNC_ONLY);
         TEST(StatefulAllocator2<char>, SmFnAlloc(0, &xa), e_INPLACE_FUNC_ONLY);
-#undef SmFnAlloc
 
         if (veryVerbose) std::printf("FUNC is NTSmallFunctorWithAlloc(0)\n");
 #define NTSmFnAlc NTSmallFunctorWithAlloc
@@ -4250,7 +4281,6 @@ int main(int argc, char *argv[])
         TEST(EmptySTLAllocator<char> , NTSmFnAlc(0, &xa), e_INPLACE_BOTH);
         TEST(StatefulAllocator<char> , NTSmFnAlc(0, &xa), e_INPLACE_FUNC_ONLY);
         TEST(StatefulAllocator2<char>, NTSmFnAlc(0, &xa), e_INPLACE_FUNC_ONLY);
-#undef SmFnAlloc
 
         if (veryVerbose) std::printf("FUNC is LargeFunctorWithAlloc(0)\n");
 #define LgFnAlloc LargeFunctorWithAlloc
@@ -4259,10 +4289,45 @@ int main(int argc, char *argv[])
         TEST(EmptySTLAllocator<char> , LgFnAlloc(0, &xa)  , e_OUTOFPLACE_BOTH);
         TEST(StatefulAllocator<char> , LgFnAlloc(0, &xa)  , e_OUTOFPLACE_BOTH);
         TEST(StatefulAllocator2<char>, LgFnAlloc(0, &xa)  , e_OUTOFPLACE_BOTH);
-#undef LgFnAlloc
-
 
 #undef TEST
+
+// Repeat selected tests, wrapping functor in 'Function_NothrowWrapper'
+#define WTST(A, f, E)                                           \
+    if (veryVeryVerbose) printf("\tALLOC is %s, FUNC is ntWrap(%s)\n",#A,#f); \
+    testFuncWithAlloc<A>(L_, ntWrap(f), E)
+
+        if (veryVerbose) std::printf("Wrap FUNC in nothrow wrapper\n");
+        WTST(bslma::TestAllocator *  , nullFuncPtr      , e_INPLACE_BOTH);
+        WTST(StatefulAllocator<char> , nullFuncPtr      , e_INPLACE_FUNC_ONLY);
+        WTST(bsl::allocator<char>    , &simpleFunc      , e_INPLACE_BOTH);
+        WTST(StatefulAllocator2<char>, &simpleFunc      , e_INPLACE_FUNC_ONLY);
+        WTST(EmptySTLAllocator<char> , &IntWrapper::add1, e_INPLACE_BOTH);
+        WTST(StatefulAllocator<char> , &IntWrapper::add1, e_INPLACE_FUNC_ONLY);
+        WTST(bslma::TestAllocator *  , EmptyFunctor()   , e_INPLACE_BOTH);
+        WTST(StatefulAllocator2<char>, EmptyFunctor()   , e_INPLACE_FUNC_ONLY);
+        WTST(bsl::allocator<char>    , SmallFunctor(0)  , e_INPLACE_BOTH);
+        WTST(StatefulAllocator<char> , SmallFunctor(0)  , e_INPLACE_FUNC_ONLY);
+        WTST(StatefulAllocator2<char>, MediumFunctor(0) , e_INPLACE_FUNC_ONLY);
+        WTST(bslma::TestAllocator *  , LargeFunctor(0)  , e_OUTOFPLACE_BOTH);
+        WTST(bslma::TestAllocator *  , NTSmallFunctor(0), e_INPLACE_BOTH);
+        WTST(bsl::allocator<char>    , ThrowingSmallFunctor(0)
+                                                        , e_INPLACE_BOTH);
+        WTST(StatefulAllocator<char> , ThrowingSmallFunctor(0)
+                                                        , e_INPLACE_FUNC_ONLY);
+        WTST(bslma::TestAllocator *  , ThrowingEmptyFunctor(0)
+                                                        , e_INPLACE_BOTH);
+        WTST(StatefulAllocator2<char>, ThrowingEmptyFunctor(0)
+                                                        , e_INPLACE_FUNC_ONLY);
+        WTST(bslma::TestAllocator *  , SmFnAlloc(0, &xa), e_INPLACE_BOTH);
+        WTST(bslma::TestAllocator *  , LgFnAlloc(0, &xa), e_OUTOFPLACE_BOTH);
+        WTST(StatefulAllocator2<char>, LgFnAlloc(0, &xa), e_OUTOFPLACE_BOTH);
+
+#undef WTST
+
+#undef SmFnAlloc
+#undef NTSmFnAlloc
+#undef LgFnAlloc
 
       } break;
 
