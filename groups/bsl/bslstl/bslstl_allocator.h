@@ -465,7 +465,7 @@ class allocator {
 
     // CREATORS
     allocator();
-        // Construct a proxy object which will forward allocation calls to the
+        // Create a proxy object which will forward allocation calls to the
         // object pointed to by 'bslma::Default::defaultAllocator()'.
         // Postcondition:
         //..
@@ -484,8 +484,8 @@ class allocator {
         // 'original'.  Postcondition: 'this->mechanism() == rhs.mechanism()'.
 
     template <class ANY_TYPE>
-    allocator(const allocator<ANY_TYPE>& rhs);
-        // Construct a proxy object sharing the same mechanism object as the
+    allocator(const allocator<ANY_TYPE>& rhs);                  
+        // Create a proxy object sharing the same mechanism object as the
         // specified 'rhs'.  The newly constructed allocator will compare equal
         // to 'rhs', even though they are instantiated on different types.
         // Postcondition: 'this->mechanism() == rhs.mechanism()'.
