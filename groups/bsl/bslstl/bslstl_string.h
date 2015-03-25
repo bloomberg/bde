@@ -2466,7 +2466,7 @@ long double stold(const wstring& str, std::size_t* pos =0);
     // C++11 if the number in the str is prefixed with '0x' or '0X' the string
     // will be interpreted as a hex number. If there is no leading 0x or 0X the
     // string will be interpreted as a decimal number. Optionally specify 'pos'
-    // whoes value is set to the position of the next character after the
+    // whose value is set to the position of the next character after the
     // numerical value. The function ignores leading white space characters and
     // interprets as many characters possible to form a valid floating point
     // number. If no conversion could be performed, then an invalid_argument
