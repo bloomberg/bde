@@ -56,5 +56,3 @@ bsls_timeutil
 bsls_types
 bsls_unspecifiedbool
 bsls_util
-bsls_bslremovereference
-bsls_rvalue

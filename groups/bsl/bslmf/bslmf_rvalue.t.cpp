@@ -1,5 +1,5 @@
-// bsls_rvalue.t.cpp                                                  -*-C++-*-
-#include <bsls_rvalue.h>
+// bslmf_rvalue.t.cpp                                                 -*-C++-*-
+#include <bslmf_rvalue.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
 
@@ -68,11 +68,11 @@ void aSsErT(bool condition, const char *message, int line)
 
 namespace {
 
-bool testFunctionCall(int *pointer, bsls::Rvalue<int> rvalue)
+bool testFunctionCall(int *pointer, bslmf::Rvalue<int> rvalue)
     // This function returns 'true' if the specified 'pointer' and the
     // specified 'rvalue' refer to the same object.
 {
-    return pointer == &bsls::RvalueUtil::access(rvalue);
+    return pointer == &bslmf::RvalueUtil::access(rvalue);
 }
 
 template <class TYPE>
@@ -92,7 +92,7 @@ class vector
   public:
     vector();
         // Create an empty vector.
-    explicit vector(bsls::Rvalue<vector<TYPE> > other);
+    explicit vector(bslmf::Rvalue<vector<TYPE> > other);
         // Create a vector by transfering the content of the specified
         // 'other'.
     vector(const vector<TYPE>& other);
@@ -120,7 +120,7 @@ class vector
 
     void push_back(const TYPE& value);
         // Append a copy of the specified 'value' to the vector.
-    void push_back(bsls::Rvalue<TYPE> value);
+    void push_back(bslmf::Rvalue<TYPE> value);
         // Append an object moving the specified 'value' to the new
         // location.
     void reserve(int newCapacity);
@@ -173,10 +173,10 @@ vector<TYPE>& vector<TYPE>::operator= (vector<TYPE> other) {
 }
 
 template <class TYPE>
-vector<TYPE>::vector(bsls::Rvalue<vector<TYPE> > other)
-    : d_begin(bsls::RvalueUtil::access(other).d_begin)
-    , d_end(bsls::RvalueUtil::access(other).d_end)
-    , d_capacity(bsls::RvalueUtil::access(other).d_capacity) {
+vector<TYPE>::vector(bslmf::Rvalue<vector<TYPE> > other)
+    : d_begin(bslmf::RvalueUtil::access(other).d_begin)
+    , d_end(bslmf::RvalueUtil::access(other).d_end)
+    , d_capacity(bslmf::RvalueUtil::access(other).d_capacity) {
     vector<TYPE>& reference(other);
     reference.d_begin = 0;
     reference.d_end = 0;
@@ -193,11 +193,11 @@ void vector<TYPE>::push_back(const TYPE& value) {
 }
 
 template <class TYPE>
-void vector<TYPE>::push_back(bsls::Rvalue<TYPE> value) {
+void vector<TYPE>::push_back(bslmf::Rvalue<TYPE> value) {
     if (this->d_end == this->d_capacity) {
         this->reserve(this->size()? int(1.5 * this->size()): 4);
     }
-    new(this->d_end++) TYPE(bsls::RvalueUtil::move(value));
+    new(this->d_end++) TYPE(bslmf::RvalueUtil::move(value));
 }
 
 template <class TYPE>
@@ -280,7 +280,7 @@ int main(int argc, char *argv[])
         }
 
         const int   *first = vector0.begin();
-        vector<int>  vector2(bsls::RvalueUtil::move(vector0));
+        vector<int>  vector2(bslmf::RvalueUtil::move(vector0));
         ASSERT(first == vector2.begin());
 
         vector<vector<int> > vvector;
@@ -292,7 +292,7 @@ int main(int argc, char *argv[])
             ASSERT(vvector[0][i] == i);
         }
 
-        vvector.push_back(bsls::RvalueUtil::move(vector2)); // move
+        vvector.push_back(bslmf::RvalueUtil::move(vector2)); // move
         ASSERT(vvector.size() == 2);
         ASSERT(vvector[1].begin() == first);
       } break;
@@ -334,15 +334,15 @@ int main(int argc, char *argv[])
                             "\n========================================\n");
 
         int                value(0);
-        bsls::Rvalue<int>  rvalue0(bsls::RvalueUtil::move(value));
+        bslmf::Rvalue<int> rvalue0(bslmf::RvalueUtil::move(value));
         int&               reference(rvalue0);
         ASSERT(&value == &reference);
-        ASSERT(&value == &bsls::RvalueUtil::access(rvalue0));
+        ASSERT(&value == &bslmf::RvalueUtil::access(rvalue0));
 
-        bsls::Rvalue<int> rvalue1(bsls::RvalueUtil::move(rvalue0));
-        ASSERT(&value == &bsls::RvalueUtil::access(rvalue1));
+        bslmf::Rvalue<int> rvalue1(bslmf::RvalueUtil::move(rvalue0));
+        ASSERT(&value == &bslmf::RvalueUtil::access(rvalue1));
 
-        ASSERT(testFunctionCall(&value, bsls::RvalueUtil::move(value)));
+        ASSERT(testFunctionCall(&value, bslmf::RvalueUtil::move(value)));
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -364,10 +364,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        int               value(0);
-        bsls::Rvalue<int> rvalue(bsls::RvalueUtil::move(value));
-        int&              reference(rvalue);
-        int&              lvalue(bsls::RvalueUtil::access(rvalue));
+        int                value(0);
+        bslmf::Rvalue<int> rvalue(bslmf::RvalueUtil::move(value));
+        int&               reference(rvalue);
+        int&               lvalue(bslmf::RvalueUtil::access(rvalue));
         ASSERT(&reference == &lvalue);
       } break;
       default: {

@@ -1,5 +1,5 @@
-// bsls_rvalue.cpp                                                    -*-C++-*-
-#include <bsls_rvalue.h>
+// bslmf_rvalue.cpp                                                   -*-C++-*-
+#include <bslmf_rvalue.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")

@@ -1,46 +1,51 @@
-// bsls_rvalue.h                                                      -*-C++-*-
-#ifndef INCLUDED_BSLS_RVALUE
-#define INCLUDED_BSLS_RVALUE
+// bslmf_rvalue.h                                                     -*-C++-*-
+#ifndef INCLUDED_BSLMF_RVALUE
+#define INCLUDED_BSLMF_RVALUE
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
+
 //@PURPOSE: Provide a vocabulary type to enable move semantics.
 //
 //@CLASSES:
-//  bsls::Rvalue: a template indicating that an object can be moved from
-//  bsls::RvalueUtil: a namespace to hold utility functions for r-values
+//  bslmf::Rvalue: a template indicating that an object can be moved from
+//  bslmf::RvalueUtil: a namespace to hold utility functions for r-values
 //
 //@SEE_ALSO:
 //
-//@DESCRIPTION: This component provides a template, 'bsls::Rvalue' used to
+//@DESCRIPTION: This component provides a template, 'bslmf::Rvalue' used to
 // convey the information that an object will not be used anymore and its
 // representation can be transferred elsewhere and a utilities struct
-// 'bsls::RvalueUtil'. In C++11 terminology an object represented by a
-// 'bsl::Rvalue<T>' can be moved from. With a C++11 implementation
-// 'bsls::Rvalue<T>' is an alias template for 'T&&'. With a C++03
-// implementation 'bsls::Rvalue<T>' is a class template providing lvalue access
-// to an object whose representation can be transferred. The objective of this
-// component is to provide a name for the concept of a movable object. Using a
-// common name enables use of manual move semantics when using C++03. With
-// C++11 automatic move semantics is enabled when moving objects known to the
-// compiler to go out of scope.
+// 'bslmf::RvalueUtil'. In C++11 terminology an object represented by a
+// 'bslmf::Rvalue<T>' can be moved from. With a C++11 implementation
+// 'bslmf::Rvalue<T>' is an alias template for 'T&&'. With a C++03
+// implementation 'bslmf::Rvalue<T>' is a class template providing lvalue
+// access to an object whose representation can be transferred. The objective
+// of this component is to provide a name for the concept of a movable object.
+// Using a common name enables use of manual move semantics when using C++03.
+// With C++11 automatic move semantics is enabled when moving objects known to
+// the compiler to go out of scope.
 //
-// Using 'bsls::Rvalue<T>' to support movable type allows implementation of
+// Using 'bslmf::Rvalue<T>' to support movable type allows implementation of
 // move semantics working with both C++03 and C++11 without conditional
 // compilation of the user code. Only the implementation of the component
-// bsls_rvalue uses conditional compilation to enable the appropriate
+// bslmf_rvalue uses conditional compilation to enable the appropriate
 // implementation choice.
 //
 // For a consistent use across different versions of the C++ standard a few
-// utility functions are provided in the utility class 'bsls::RvalueUtil'. This
-// class contains functions for moving and forwarding objects. To use an
-// identical notation to access an object with C++11 where 'bsls::Rvalue<T>' is
-// just an lvalue of type 'T' and with C++03 where 'bsls::Rvalue<T>' is a class
-// type referencing to an lvalue of type 'T', a function template
-// 'bsls::RvalueUtil<T>::access(r)' is provided.
+// utility functions are provided in the utility class 'bslmf::RvalueUtil'.
+// This class contains functions for moving and forwarding objects. To use an
+// identical notation to access an object with C++11 where 'bslmf::Rvalue<T>'
+// is just an lvalue of type 'T' and with C++03 where 'bslmf::Rvalue<T>' is a
+// class type referencing to an lvalue of type 'T', a function template
+// 'bslmf::RvalueUtil<T>::access(r)' is provided.
 //
 ///Usage
 ///-----
@@ -58,7 +63,7 @@ BSLS_IDENT("$Id: $")
 //
 // The usage example below demonstrate both use cases using a simplified
 // version of 'std::vector<T>'. The class template is simplified to concentrate
-// on the aspects relevant to 'bsls::Rvalue<T>'. Most of the operations are
+// on the aspects relevant to 'bslmf::Rvalue<T>'. Most of the operations are
 // just normal implementations to create a container. The last two operations
 // described are using move operations.
 //
@@ -83,7 +88,7 @@ BSLS_IDENT("$Id: $")
 //    public:
 //      vector();
 //          // Create an empty vector.
-//      explicit vector(bsls::Rvalue<vector<TYPE> > other);
+//      explicit vector(bslmf::Rvalue<vector<TYPE> > other);
 //          // Create a vector by transfering the content of the specified
 //          // 'other'.
 //      vector(const vector<TYPE>& other);
@@ -111,7 +116,7 @@ BSLS_IDENT("$Id: $")
 //
 //      void push_back(const TYPE& value);
 //          // Append a copy of the specified 'value' to the vector.
-//      void push_back(bsls::Rvalue<TYPE> value);
+//      void push_back(bslmf::Rvalue<TYPE> value);
 //          // Append an object moving the specified 'value' to the new
 //          // location.
 //      void reserve(int newCapacity);
@@ -255,10 +260,10 @@ BSLS_IDENT("$Id: $")
 // move constructor:
 //..
 //  template <class TYPE>
-//  vector<TYPE>::vector(bsls::Rvalue<vector<TYPE> > other)
-//      : d_begin(bsls::RvalueUtil::access(other).d_begin)
-//      , d_end(bsls::RvalueUtil::access(other).d_end)
-//      , d_capacity(bsls::RvalueUtil::access(other).d_capacity) {
+//  vector<TYPE>::vector(bslmf::Rvalue<vector<TYPE> > other)
+//      : d_begin(bslmf::RvalueUtil::access(other).d_begin)
+//      , d_end(bslmf::RvalueUtil::access(other).d_end)
+//      , d_capacity(bslmf::RvalueUtil::access(other).d_capacity) {
 //      vector<TYPE>& reference(other);
 //      reference.d_begin = 0;
 //      reference.d_end = 0;
@@ -286,11 +291,11 @@ BSLS_IDENT("$Id: $")
 // 'd_end':
 //..
 //  template <class TYPE>
-//  void vector<TYPE>::push_back(bsls::Rvalue<TYPE> value) {
+//  void vector<TYPE>::push_back(bslmf::Rvalue<TYPE> value) {
 //      if (this->d_end == this->d_capacity) {
 //          this->reserve(this->size()? int(1.5 * this->size()): 4);
 //      }
-//      new(this->d_end++) TYPE(bsls::RvalueUtil::move(value));
+//      new(this->d_end++) TYPE(bslmf::RvalueUtil::move(value));
 //  }
 //..
 // To demonstrate the newly created 'vector<TYPE>' class in action, first a
@@ -316,7 +321,7 @@ BSLS_IDENT("$Id: $")
 // new object should use the orginal 'begin()':
 //..
 //  const int *first = vector0.begin();
-//  vector<int> vector1(bsls::RvalueUtil::move(vector0));
+//  vector<int> vector1(bslmf::RvalueUtil::move(vector0));
 //  assert(first == vector1.begin());
 //..
 // When create a 'vector<vector<int> >' and using 'push_back()' on this object
@@ -335,7 +340,7 @@ BSLS_IDENT("$Id: $")
 // inserted element will be the same as 'first', i.e., the representation is
 // transferred:
 //..
-//  vvector.push_back(bsls::RvalueUtil::move(vector2)); // move
+//  vvector.push_back(bslmf::RvalueUtil::move(vector2)); // move
 //  assert(vvector.size() == 2);
 //  assert(vvector[1].begin() == first);
 //..
@@ -351,13 +356,13 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #endif
 
-#ifndef INCLUDED_BSLS_BSLREMOVEREFERENCE
-#include <bsls_bslremovereference.h>
+#ifndef INCLUDED_BSLMF_REMOVEREFERENCE
+#include <bslmf_removereference.h>
 #endif
 
 namespace BloombergLP {
 
-namespace bsls {
+namespace bslmf {
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
     && defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
@@ -382,7 +387,7 @@ struct RvalueUtil {
         // objects and a C++11 rvalue reference 'TYPE&&' a member function
         // cannot be used.
     template <class TYPE>
-    static typename bsls::BslRemoveReference<TYPE>::type&& move(TYPE&& lvalue);
+    static typename bslmf::RemoveReference<TYPE>::Type&& move(TYPE&& lvalue);
         // Get an rvalue reference of type 'Rvalue<TYPE>' from the specified
         // 'lvalue'. For a C++03 implementation this function behaves like a
         // factory for 'Rvalue<TYPE> objects. For a C++11 implementation this
@@ -398,10 +403,9 @@ inline TYPE& RvalueUtil::access(TYPE& rvalue) {
 
 template <class TYPE>
 inline
-typename bsls::BslRemoveReference<TYPE>::type&& RvalueUtil::move(TYPE&& lvalue)
+typename bslmf::RemoveReference<TYPE>::Type&& RvalueUtil::move(TYPE&& lvalue)
 {
-    return static_cast<typename bsls::BslRemoveReference<TYPE>::type&&>(
-                                                                       lvalue);
+    return static_cast<typename bslmf::RemoveReference<TYPE>::Type&&>(lvalue);
 }
 
 // ----------------------------------------------------------------------------
