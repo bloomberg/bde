@@ -640,19 +640,22 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         verbose && puts("\nTESTING 'hashAppend'"
                         "\n====================");
-
+                    
         typedef ::BloombergLP::bslh::Hash<> Hasher;
         typedef Hasher::result_type         HashType;
 
-        bsl::pair<int,const char*> p1(1, "hello");  // P-1
-        bsl::pair<int,const char*> p2(1, "hello");
-        bsl::pair<int,const char*> p3(100, "hello");
-        bsl::pair<int,const char*> p4(1, "goodbye");
-        bsl::pair<int,const char*> p5(1, "goodbye");
-        bsl::pair<int,const char*> p6(100, "goodbye");
+        const char *ptr1 = "hello";
+        const char *ptr2 = "goodbye";
+        
+        bsl::pair<int,const char*> p1(1,   ptr1);  // P-1
+        bsl::pair<int,const char*> p2(1,   ptr1);
+        bsl::pair<int,const char*> p3(100, ptr1);
+        bsl::pair<int,const char*> p4(1,   ptr2);
+        bsl::pair<int,const char*> p5(1,   ptr2);
+        bsl::pair<int,const char*> p6(100, ptr2);
 
-        bsl::pair<const int, const char *> p7(1, "hello");  // P-4
-        const bsl::pair<int,const char * const> p8(1, "hello");
+        bsl::pair<const int, const char *>      p7(1, ptr1);  // P-4
+        const bsl::pair<int,const char * const> p8(1, ptr1);
 
         Hasher hasher;  // P-2
         HashType a1 = hasher(p1), a2 = hasher(p2), a3 = hasher(p3),
