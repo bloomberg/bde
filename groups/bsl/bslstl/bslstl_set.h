@@ -651,7 +651,7 @@ class set {
   public:
     // CREATORS
     explicit set(const COMPARATOR& comparator     = COMPARATOR(),
-                 const ALLOCATOR&  basicAllocator = ALLOCATOR());
+                 const ALLOCATOR&  basicAllocator = ALLOCATOR())
         // Construct an empty set.  Optionally specify a 'comparator' used to
         // order keys contained in this object.  If 'comparator' is not
         // supplied, a default-constructed object of the (template parameter)
@@ -664,6 +664,15 @@ class set {
         // argument is of type 'bsl::allocator' and 'basicAllocator' is not
         // supplied, the currently installed default allocator will be used to
         // supply memory.
+    : d_compAndAlloc(comparator, basicAllocator)
+    , d_tree()
+    {
+        // The implementation is placed here in the class definition to
+        // workaround an AIX compiler bug, where the constructor can fail to
+        // compile because it is unable to find the definition of the default
+        // argument.  This occurs when a templatized class wraps around the
+        // container and the comparator is defined after the new class.
+    }
 
     explicit set(const ALLOCATOR& basicAllocator);
         // Construct an empty set that will use the specified 'basicAllocator'
@@ -1164,15 +1173,6 @@ set<KEY, COMPARATOR, ALLOCATOR>::comparator() const
 }
 
 // CREATORS
-template <class KEY, class COMPARATOR, class ALLOCATOR>
-inline
-set<KEY, COMPARATOR, ALLOCATOR>::set(const COMPARATOR& comparator,
-                                     const ALLOCATOR&  basicAllocator)
-: d_compAndAlloc(comparator, basicAllocator)
-, d_tree()
-{
-}
-
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 template <class INPUT_ITERATOR>
 inline
