@@ -29,23 +29,6 @@ BSLS_IDENT("$Id$ $CSID$")
 // for the type trait 'bslmf::IsPolymorphic'.  See the 'bslmf_ispolymporphic'
 // component for more details.
 //
-///Deleters
-///--------
-// When a managed pointer is destroyed, the managed object is destroyed using
-// the user supplied "deleter".  A deleter is simply a function that is invoked
-// with two arguments, a pointer to the object to be destroyed, and a pointer
-// to a 'cookie' that is supplied at the same time as the 'deleter' and managed
-// object.  The meaning of the 'cookie' depends on the deleter.  Typically a
-// deleter function will accept two 'void *' pointers and internally cast them
-// to the appropriate types for pointers to the 'cookie' and managed object.
-// This component still supports (deprecated) legacy deleters that expect to be
-// passed pointers to the specific 'cookie' and managed object types in use.
-// This latter form of deleter is now deprecated as it relies on undefined
-// behavior, casting such function pointers to the correct form (taking two
-// 'void *' arguments) and invoking the function with two 'void *' pointer
-// arguments.  While this is undefined behavior, it is known to have the
-// desired effect on all platforms currently in use.
-//
 ///Factories
 ///---------
 // An object that will be managed by a 'ManagedPtr' object is typically
@@ -54,8 +37,26 @@ BSLS_IDENT("$Id$ $CSID$")
 // taking a single argument of the (pointer) type of the managed pointer.
 // E.g., 'bslma::Allocator' is a commonly used factory, and the currently
 // installed default allocator is the factory that is assumed to be used if
-// neither a factory nor deleter are specified when supplying a pointer to be
-// managed.
+// neither a factory nor deleter (see below) are specified when supplying a
+// pointer to be managed.
+//
+///Deleters
+///--------
+// When a managed pointer is destroyed, the managed object is destroyed using
+// the user supplied "deleter".  A deleter is simply a function that is invoked
+// with two 'void *' arguments: a pointer to the object to be destroyed, and a
+// pointer to a 'cookie' that is supplied at the same time as the 'deleter' and
+// managed object.
+//..
+//  typedef void (*DeleterFunc)(void *managedObject, void *cookie);
+//..
+// The meaning of the 'cookie' depends on the specific deleter.  Typically a
+// deleter function will accept the two 'void *' pointers and internally cast
+// them to the appropriate types for pointers to the managed object and
+// 'cookie'.  Note that there are no methods taking just a deleter, as the user
+// must always supply a 'cookie' to be passed when the deleter is actually
+// invoked.
+//
 //
 ///Aliasing
 ///--------
@@ -82,18 +83,38 @@ BSLS_IDENT("$Id$ $CSID$")
 // 'ManagedPtr' objects can be implicitly and explicitly cast to different
 // types in the same way that native pointers can.
 //
+///Explicit Casting
+/// - - - - - - - -
+// Through "aliasing", a managed pointer of any type can be explicitly cast to
+// a managed pointer of any other type using any legal cast expression.  See
+// example 4 on 'type casting' below for more details.
+//
 ///Implicit Casting
 /// - - - - - - - -
 // As with native pointers, a managed pointer of the type 'B' that is derived
 // from the type 'A', can be directly assigned to a 'ManagedPtr' of 'A'.
 // Likewise a managed pointer of type 'B' can be directly assigned to a
-// 'ManagedPtr' of 'const B'.
+// 'ManagedPtr' of 'const B'.  However, the rules for construction are a little
+// more subtle, and apply when passing a 'bslma::ManagedPtr' by value into a
+// function, or returning as the result of a function.
+//..
+//  class A {};
 //
-///Explicit Casting
-/// - - - - - - - -
-// Through "aliasing", a managed pointer of any type can be explicitly cast to
-// a managed pointer of any other type using any legal cast expression.  See
-// the 'casting' example below for more details.
+//  class B : public A {};
+//
+//  void test()
+//  {
+//      B *b_p = 0;
+//      A *a_p = b_p;
+//
+//      bslma::ManagedPtr<B> b_mp1;
+//      bslma::ManagedPtr<A> a_mp1(b_mp1);   // direct-initialization is valid
+//      bslma::ManagedPtr<A> a_mp2 = b_mp1;  // copy-initialization should fail
+//}
+//..
+// Note that 'std::auto_ptr' has the same restriction, and this failure will
+// occur only on compilers that strictly conform to the C++ standard, such as
+// recent gcc compilers or (in this case) IBM xlC.
 //
 ///Usage
 ///-----
@@ -1040,7 +1061,7 @@ class ManagedPtr {
 
     void clear();
         // [!DEPRECATED!] Use 'reset' instead.
-    	//
+        //
         // Destroy the current managed object (if any) and reset this managed
         // pointer as empty.
 
@@ -1170,7 +1191,7 @@ class ManagedPtr {
 
     TARGET_TYPE *ptr() const;
         // [!DEPRECATED!]: Use 'get' instead.
-    	//
+        //
         // Return the address of the target object, or 0 if this managed
         // pointer is empty.
 
