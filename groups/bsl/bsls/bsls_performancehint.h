@@ -17,6 +17,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(X): 'X' probably evaluates to zero
 //  BSLS_PERFORMANCEHINT_PREDICT_EXPECT(X, Y): 'X' probably evaluates to 'Y'
 //  BSLS_PERFORMANCEHINT_UNLIKELY_HINT: annotate block unlikely to be taken
+//  BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE: prevent compiler optimizations
 //
 //@AUTHOR: Arthur Chiu (achiu21)
 //
@@ -121,6 +122,7 @@ BSLS_IDENT("$Id: $")
 //  prefetchForWriting(address)      Prefetches one cache line worth of data at
 //                                   the specified 'address' for writing.
 //..
+//
 ///Warning
 ///- - - -
 // These functions must be used *with* *caution*.  Inappropriate use of these
@@ -130,6 +132,22 @@ BSLS_IDENT("$Id: $")
 // used to understand the program's behavior before attempting to optimize with
 // these functions.
 //
+///Optimization Fence
+///------------------
+// The macro 'BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE' prevents some compiler
+// optimizations, particularly compiler instruction reordering.  This fence
+// does *not* map to a CPU instruction and has no impact on processor
+// instruction re-ordering, and therefore should not be used to synchronize
+// memory between threads.  The fence may be useful in unusual contexts, like
+// performing benchmarks, or working around bugs identified in the compiler's
+// optimizer.
+//
+///Warning
+///- - - -
+// This macro should be used *with* *caution*.  The macro will generally
+// decrease the performance of code on which it is applied, and is not
+// implemented on all platforms.
+// 
 ///Usage
 ///-----
 // The following series of examples illustrates use of the macros and functions
@@ -349,14 +367,25 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_MACHINE_SYS_BUILTINS
 #endif
 
+#ifndef INCLUDED_MACHINE_SYS_INLINE
+#include <machine/sys/inline.h>
+#define INCLUDED_MACHINE_SYS_INLINE
+#endif
+
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_SUN)
 
 #ifndef INCLUDED_SUN_PREFETCH
-#include <sun_prefetch.h>  // for 'sparc_prefetch_write_many',
-                           // 'sparc_prefetch_read_many'
+#include <sun_prefetch.h>  // for 'sparc_prefetch_write|read_many'
 #define INCLUDED_SUN_PREFETCH
+#endif
+
+#if BSLS_PLATFORM_CMP_VERSION >= 0x5110
+#ifndef INCLUDED_SUN_MBARRIER
+#include <mbarrier.h>
+#define INCLUDED_SUN_MBARRIER
+#endif
 #endif
 
 #endif
@@ -366,6 +395,11 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_XMMINTRIN
 #include <xmmintrin.h>     // for '_mm_prefetch', '_MM_HINT_T0'
 #define INCLUDED_XMMINTRIN
+#endif
+
+#ifndef INCLUDED_INTRIN
+#include <intrin.h>
+#define INCLUDED_INTRIN
 #endif
 
 #endif
@@ -427,6 +461,39 @@ namespace BloombergLP {
                              BloombergLP::bsls::PerformanceHint::lowFrequency()
 #else
     #define BSLS_PERFORMANCEHINT_UNLIKELY_HINT
+#endif
+
+                        // =======================================
+                        // BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE
+                        // =======================================
+
+
+#if defined(BSLS_PLATFORM_CMP_IBM)
+
+    #define BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE __fence()
+
+#elif defined(BSLS_PLATFORM_CMP_MSVC)
+
+    #pragma intrinsic(_ReadWriteBarrier)
+    #define BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE _ReadWriteBarrier()
+
+#elif defined(BSLS_PLATFORM_CMP_HP)
+
+    #define BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE                           \
+                             _Asm_sched_fence(_UP_MEM_FENCE|_DOWN_MEM_FENCE)
+
+#elif (defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION >= 0x5110)
+
+    #define BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE __compiler_barrier()
+
+#elif defined(BSLS_PLATFORM_CMP_GNU)                                          \
+   || defined(BSLS_PLATFORM_CMP_CLANG)                                        \
+   || (defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION >= 0x5100)
+
+    #define BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE asm volatile("":::"memory")
+
+#else
+    #error "BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE not implemented"
 #endif
 
 namespace bsls {

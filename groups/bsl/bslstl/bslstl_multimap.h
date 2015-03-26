@@ -711,7 +711,7 @@ class multimap {
   public:
     // CREATORS
     explicit multimap(const COMPARATOR& comparator     = COMPARATOR(),
-                      const ALLOCATOR&  basicAllocator = ALLOCATOR());
+                      const ALLOCATOR&  basicAllocator = ALLOCATOR())
         // Construct an empty multimap.  Optionally specify a 'comparator' used
         // to order key-value pairs contained in this object.  If 'comparator'
         // is not supplied, a default-constructed object of the (template
@@ -724,6 +724,15 @@ class multimap {
         // argument is of type 'bsl::allocator' and 'basicAllocator' is not
         // supplied, the currently installed default allocator will be used to
         // supply memory.
+    : d_compAndAlloc(comparator, basicAllocator)
+    , d_tree()
+    {
+        // The implementation is placed here in the class definition to
+        // workaround an AIX compiler bug, where the constructor can fail to
+        // compile because it is unable to find the definition of the default
+        // argument.  This occurs when a templatized class wraps around the
+        // container and the comparator is defined after the new class
+    }
 
     explicit multimap(const ALLOCATOR& basicAllocator);
         // Construct an empty multimap that will use the specified
@@ -1258,16 +1267,6 @@ multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::comparator() const
 }
 
 // CREATORS
-template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
-inline
-multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(
-                                              const COMPARATOR& comparator,
-                                              const ALLOCATOR&  basicAllocator)
-: d_compAndAlloc(comparator, basicAllocator)
-, d_tree()
-{
-}
-
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 template <class INPUT_ITERATOR>
 inline
