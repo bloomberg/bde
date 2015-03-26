@@ -17,6 +17,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(X): 'X' probably evaluates to zero
 //  BSLS_PERFORMANCEHINT_PREDICT_EXPECT(X, Y): 'X' probably evaluates to 'Y'
 //  BSLS_PERFORMANCEHINT_UNLIKELY_HINT: annotate block unlikely to be taken
+//  BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE: prevent compiler optimizations
 //
 //@DESCRIPTION: This component provides performance hints for the compiler or
 // hardware.  There are currently two types of hints that are supported:
@@ -119,6 +120,7 @@ BSLS_IDENT("$Id: $")
 //  prefetchForWriting(address)      Prefetches one cache line worth of data at
 //                                   the specified 'address' for writing.
 //..
+//
 ///Warning
 ///- - - -
 // These functions must be used *with* *caution*.  Inappropriate use of these
@@ -128,6 +130,22 @@ BSLS_IDENT("$Id: $")
 // used to understand the program's behavior before attempting to optimize with
 // these functions.
 //
+///Optimization Fence
+///------------------
+// The macro 'BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE' prevents some compiler
+// optimizations, particularly compiler instruction reordering.  This fence
+// does *not* map to a CPU instruction and has no impact on processor
+// instruction re-ordering, and therefore should not be used to synchronize
+// memory between threads.  The fence may be useful in unusual contexts, like
+// performing benchmarks, or working around bugs identified in the compiler's
+// optimizer.
+//
+///Warning
+///- - - -
+// This macro should be used *with* *caution*.  The macro will generally
+// decrease the performance of code on which it is applied, and is not
+// implemented on all platforms.
+// 
 ///Usage
 ///-----
 // The following series of examples illustrates use of the macros and functions
@@ -347,14 +365,25 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_MACHINE_SYS_BUILTINS
 #endif
 
+#ifndef INCLUDED_MACHINE_SYS_INLINE
+#include <machine/sys/inline.h>
+#define INCLUDED_MACHINE_SYS_INLINE
+#endif
+
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_SUN)
 
 #ifndef INCLUDED_SUN_PREFETCH
-#include <sun_prefetch.h>  // for 'sparc_prefetch_write_many',
-                           // 'sparc_prefetch_read_many'
+#include <sun_prefetch.h>  // for 'sparc_prefetch_write|read_many'
 #define INCLUDED_SUN_PREFETCH
+#endif
+
+#if BSLS_PLATFORM_CMP_VERSION >= 0x5110
+#ifndef INCLUDED_SUN_MBARRIER
+#include <mbarrier.h>
+#define INCLUDED_SUN_MBARRIER
+#endif
 #endif
 
 #endif
@@ -364,6 +393,11 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_XMMINTRIN
 #include <xmmintrin.h>     // for '_mm_prefetch', '_MM_HINT_T0'
 #define INCLUDED_XMMINTRIN
+#endif
+
+#ifndef INCLUDED_INTRIN
+#include <intrin.h>
+#define INCLUDED_INTRIN
 #endif
 
 #endif
@@ -405,49 +439,37 @@ namespace BloombergLP {
     #define BSLS_PERFORMANCEHINT_UNLIKELY_HINT
 #endif
 
-// Disable compiler optimizations reaching across designated fence locations.
+                        // =======================================
+                        // BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE
+                        // =======================================
+
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
-    #ifdef __cplusplus
-    #include <builtins.h>
-    #endif
-    #define BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE                           \
-                             __fence()
+
+    #define BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE __fence()
+
 #elif defined(BSLS_PLATFORM_CMP_MSVC)
-    #include <intrin.h>
+
     #pragma intrinsic(_ReadWriteBarrier)
-    #define BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE                           \
-                             _ReadWriteBarrier()
+    #define BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE _ReadWriteBarrier()
+
 #elif defined(BSLS_PLATFORM_CMP_HP)
-    #include <machine/sys/inline.h>
+
     #define BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE                           \
                              _Asm_sched_fence(_UP_MEM_FENCE|_DOWN_MEM_FENCE)
+
 #elif (defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION >= 0x5110)
-    #include <mbarrier.h>
-    #define BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE                           \
-                             __compiler_barrier()
+
+    #define BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE __compiler_barrier()
+
 #elif defined(BSLS_PLATFORM_CMP_GNU)                                          \
    || defined(BSLS_PLATFORM_CMP_CLANG)                                        \
    || (defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION >= 0x5100)
-    #define BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE                           \
-                             asm volatile ("":::"memory")
+
+    #define BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE asm volatile("":::"memory")
+
 #else
     #error "BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE not implemented"
-#endif
-
-// Workaround for optimization issue in xlC that mishandles pointer aliasing.
-//   IV56864: ALIASING BEHAVIOUR FOR PLACEMENT NEW
-//   http://www-01.ibm.com/support/docview.wss?uid=swg1IV56864
-// Place this macro following each use of placment new.  Alternatively,
-// compile with xlC_r -qalias=noansi, which reduces optimization opportunities
-// across entire translation unit instead of simply across optimization fence.
-// Update: issue is fixed in xlC 13.1 (__xlC__ >= 0x0d01).
-
-#if defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VERSION < 0x0d01
-    #define BSLS_PERFORMANCEHINT_PLACEMENT_NEW_FENCE                          \
-                             BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE
-#else
-    #define BSLS_PERFORMANCEHINT_PLACEMENT_NEW_FENCE
 #endif
 
 namespace bsls {

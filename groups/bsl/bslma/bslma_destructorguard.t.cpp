@@ -116,6 +116,22 @@ int veryVerbose;
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
+// Workaround for optimization issue in xlC that mishandles pointer aliasing.
+//   IV56864: ALIASING BEHAVIOUR FOR PLACEMENT NEW
+//   http://www-01.ibm.com/support/docview.wss?uid=swg1IV56864
+// Place this macro following each use of placment new.  Alternatively,
+// compile with xlC_r -qalias=noansi, which reduces optimization opportunities
+// across entire translation unit instead of simply across optimization fence.
+// Update: issue is fixed in xlC 13.1 (__xlC__ >= 0x0d01).
+
+#if defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VERSION < 0x0d01
+    #define BSLMA_DESTRUCTORGUARD_XLC_PLACEMENT_NEW_FIX                       \
+                             BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE
+#else
+    #define BSLMA_DESTRUCTORGUARD_XLC_PLACEMENT_NEW_FIX
+#endif
+
+
 // Suppose we have a situation where one of the two constructors will be
 // called to create an object on the stack for performance reasons.  The
 // construction thus occurs within either of the branches of an 'if'
@@ -137,7 +153,7 @@ double usageExample(double startValue)
     else {
         new (&myVec) std::vector<double>();
     }
-    BSLS_PERFORMANCEHINT_PLACEMENT_NEW_FENCE;
+    BSLMA_DESTRUCTORGUARD_XLC_PLACEMENT_NEW_FIX;
 
     //***********************************************************
     // Note the use of the destructor guard on 'myVec' (below). *
