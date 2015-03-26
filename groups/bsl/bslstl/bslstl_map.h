@@ -643,7 +643,7 @@ class map {
   public:
     // CREATORS
     explicit map(const COMPARATOR& comparator     = COMPARATOR(),
-                 const ALLOCATOR&  basicAllocator = ALLOCATOR());
+                 const ALLOCATOR&  basicAllocator = ALLOCATOR())
         // Construct an empty map.  Optionally specify a 'comparator' used to
         // order key-value pairs contained in this object.  If 'comparator' is
         // not supplied, a default-constructed object of the (template
@@ -655,6 +655,15 @@ class map {
         // convertible to 'bslma::Allocator *'.  If the 'ALLOCATOR' is
         // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
         // installed default allocator will be used to supply memory.
+    : d_compAndAlloc(comparator, basicAllocator)
+    , d_tree()
+    {
+        // The implementation is placed here in the class definition to
+        // workaround an AIX compiler bug, where the constructor can fail to
+        // compile because it is unable to find the definition of the default
+        // argument.  This occurs when a templatized class wraps around the
+        // container and the comparator is defined after the new class.
+    }
 
     explicit map(const ALLOCATOR& basicAllocator);
         // Construct an empty map that will use the specified 'basicAllocator'
@@ -1230,15 +1239,6 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::comparator() const
 }
 
 // CREATORS
-template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
-inline
-map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(const COMPARATOR& comparator,
-                                            const ALLOCATOR&  basicAllocator)
-: d_compAndAlloc(comparator, basicAllocator)
-, d_tree()
-{
-}
-
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(const ALLOCATOR& basicAllocator)
