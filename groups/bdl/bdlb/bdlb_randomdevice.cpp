@@ -54,7 +54,7 @@ class HCRYPTPROV_Adapter {
     // CREATORS
   public:
     explicit HCRYPTPROV_Adapter(LPCTSTR container     = NULL,
-                                LPCTSTR provider      = MS_DEV_PROV,
+                                LPCTSTR provider      = MS_DEF_PROV,
                                 DWORD   provider_type = PROV_RSA_FULL,
                                 DWORD   flag          = CRYPT_VERIFYCONTEXT);
         // Create a 'HCRYPTPROV_Adapter'object passing each of its
