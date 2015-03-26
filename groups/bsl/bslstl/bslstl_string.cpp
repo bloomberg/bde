@@ -402,169 +402,229 @@ long double bsl::stold(const wstring& str, std::size_t* pos){
 #endif
 
 bsl::string bsl::to_string(int value) {
-    BSLS_ASSERT(std::numeric_limits<int>::digits * 100/322 +
+    BSLS_ASSERT(std::numeric_limits<int>::digits * 100/332 +
                 std::numeric_limits<int>::is_signed + 1 <
                 bsl::string::SHORT_BUFFER_LENGTH);
 
     bsl::string str;
-    sprintf(str.dataPtr(), "%d", value);
+    int len = sprintf(str.dataPtr(), "%d", value);
 
     BSLS_ASSERT_SAFE(strlen(str.dataPtr()) + 1 <=
                                              bsl::string::SHORT_BUFFER_LENGTH);
 
-    str.d_length = strlen(str.dataPtr());
+    str.d_length = len;
     return str;
 }
 
 bsl::string bsl::to_string(unsigned value) {
-    BSLS_ASSERT(std::numeric_limits<unsigned>::digits * 100/322 +
+    BSLS_ASSERT(std::numeric_limits<unsigned>::digits * 100/332 +
                 std::numeric_limits<unsigned>::is_signed + 1 <
                 bsl::string::SHORT_BUFFER_LENGTH);
 
     bsl::string str;
-    sprintf(str.dataPtr(), "%u", value);
+    int len = sprintf(str.dataPtr(), "%u", value);
 
     BSLS_ASSERT_SAFE(strlen(str.dataPtr()) + 1 <=
                                              bsl::string::SHORT_BUFFER_LENGTH);
 
-    str.d_length = strlen(str.dataPtr());
+    str.d_length = len;
     return str;
 }
 
 bsl::string bsl::to_string(long value) {
-    BSLS_ASSERT(std::numeric_limits<long>::digits * 100/322 +
+    BSLS_ASSERT(std::numeric_limits<long>::digits * 100/332 +
                 std::numeric_limits<long>::is_signed + 1 <
                 bsl::string::SHORT_BUFFER_LENGTH);
 
     bsl::string str;
-    sprintf(str.dataPtr(), "%ld", value);
-    str.d_length = strlen(str.dataPtr());
+    int len = sprintf(str.dataPtr(), "%ld", value);
+    str.d_length = len;
     return str;
 }
 
 bsl::string bsl::to_string(unsigned long value) {
-    BSLS_ASSERT(std::numeric_limits<unsigned long >::digits * 100/322 +
+    BSLS_ASSERT(std::numeric_limits<unsigned long >::digits * 100/332 +
                 std::numeric_limits<unsigned long >::is_signed + 1 <
                 bsl::string::SHORT_BUFFER_LENGTH);
 
     bsl::string str;
-    sprintf(str.dataPtr(), "%lu", value);
-    str.d_length = strlen(str.dataPtr());
+    int len = sprintf(str.dataPtr(), "%lu", value);
+    str.d_length = len;
     return str;
 }
 
 bsl::string bsl::to_string(long long value) {
     if (value >=0) {
-        BSLS_ASSERT(std::numeric_limits<unsigned long>::digits * 100/322 + 1 <
+        BSLS_ASSERT(std::numeric_limits<unsigned long>::digits * 100/332 + 1 <
                     bsl::string::SHORT_BUFFER_LENGTH);
 
         bsl::string str;
-        sprintf(str.dataPtr(), "%lld", value);
+        int len = sprintf(str.dataPtr(), "%lld", value);
 
         BSLS_ASSERT_SAFE(strlen(str.dataPtr()) + 1 <=
                                              bsl::string::SHORT_BUFFER_LENGTH);
 
-        str.d_length = strlen(str.dataPtr());
+        str.d_length = len;
         return str;
     }
     else {
         // Becasue of the negative sign, long long values can exceed the short
         // buffer capacity.
         char tempBuf[e_MAX_INT64_STRLEN10];
-        sprintf(tempBuf, "%lld", value);
-        string str(tempBuf);
+        int len = sprintf(tempBuf, "%lld", value);
+
+        BSLS_ASSERT_SAFE(len<e_MAX_INT64_STRLEN10);
+
+        string str(tempBuf, len);
         return str;
     }
 }
 
 bsl::string bsl::to_string(unsigned long long value) {
     char tempBuf[e_MAX_INT64_STRLEN10];
-    sprintf(tempBuf, "%llu", value);
-    string str(tempBuf);
+    int len = sprintf(tempBuf, "%llu", value);
+
+    BSLS_ASSERT_SAFE(len<e_MAX_INT64_STRLEN10);
+
+    string str(tempBuf, len);
     return str;
 }
 
 bsl::string bsl::to_string(float value) {
     char tempBuf[e_MAX_FLOAT_STRLEN10];
-    sprintf(tempBuf, "%f", value);
-    string str(tempBuf);
+    int len = sprintf(tempBuf, "%f", value);
+
+    BSLS_ASSERT_SAFE(len<e_MAX_FLOAT_STRLEN10);
+
+    string str(tempBuf, len);
     return str;
 }
 
 bsl::string bsl::to_string(double value) {
     char tempBuf[e_MAX_DOUBLE_STRLEN10];
-    sprintf(tempBuf, "%f", value);
-    string str(tempBuf);
+    int len = sprintf(tempBuf, "%f", value);
+
+    BSLS_ASSERT_SAFE(len<e_MAX_DOUBLE_STRLEN10);
+
+    string str(tempBuf, len);
     return str;
 }
 
 bsl::string bsl::to_string(long double value) {
     char tempBuf[e_MAX_LONGDOUBLE_STRLEN10];
-    sprintf(tempBuf, "%Lf", value);
-    string str(tempBuf);
+    int len = sprintf(tempBuf, "%Lf", value);
+
+    BSLS_ASSERT_SAFE(len<e_MAX_LONGDOUBLE_STRLEN10);
+
+    string str(tempBuf, len);
     return str;
 }
 
 bsl::wstring bsl::to_wstring(int value) {
     wchar_t tempBuf[e_MAX_INT_STRLEN10];
-    swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%d", value);
-    wstring str(tempBuf);
+    int len = swprintf(tempBuf,
+                       sizeof tempBuf / sizeof *tempBuf,
+                       L"%d", value);
+
+    BSLS_ASSERT_SAFE(len<e_MAX_INT_STRLEN10);
+
+    wstring str(tempBuf, len);
     return str;
 }
 
 bsl::wstring bsl::to_wstring(long value) {
     wchar_t tempBuf[e_MAX_INT64_STRLEN10];
-    swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%ld", value);
-    wstring str(tempBuf);
+    int len = swprintf(tempBuf,
+                       sizeof tempBuf / sizeof *tempBuf,
+                       L"%ld", value);
+
+    BSLS_ASSERT_SAFE(len<e_MAX_INT64_STRLEN10);
+
+    wstring str(tempBuf, len);
     return str;
 }
 
 bsl::wstring bsl::to_wstring(long long value) {
     wchar_t tempBuf[e_MAX_INT64_STRLEN10];
-    swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%lld", value);
-    wstring str(tempBuf);
+    int len = swprintf(tempBuf,
+                       sizeof tempBuf / sizeof *tempBuf,
+                       L"%lld", value);
+
+    BSLS_ASSERT_SAFE(len<e_MAX_INT64_STRLEN10);
+
+    wstring str(tempBuf, len);
     return str;
 }
 
 bsl::wstring bsl::to_wstring(unsigned value) {
     wchar_t tempBuf[e_MAX_INT_STRLEN10];
-    swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%u", value);
-    wstring str(tempBuf);
+    int len = swprintf(tempBuf,
+                       sizeof tempBuf / sizeof *tempBuf,
+                       L"%u", value);
+
+    BSLS_ASSERT_SAFE(len<e_MAX_INT_STRLEN10);
+
+    wstring str(tempBuf, len);
     return str;
 }
 
 bsl::wstring bsl::to_wstring(unsigned long value) {
     wchar_t tempBuf[e_MAX_INT64_STRLEN10];
-    swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%lu", value);
-    wstring str(tempBuf);
+    int len = swprintf(tempBuf,
+                       sizeof tempBuf / sizeof *tempBuf,
+                       L"%lu", value);
+
+    BSLS_ASSERT_SAFE(len<e_MAX_INT64_STRLEN10);
+
+    wstring str(tempBuf, len);
     return str;
 }
 
 bsl::wstring bsl::to_wstring(unsigned long long value) {
     wchar_t tempBuf[e_MAX_INT64_STRLEN10];
-    swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%llu", value);
-    wstring str(tempBuf);
+    int len = swprintf(tempBuf,
+                       sizeof tempBuf / sizeof *tempBuf,
+                       L"%llu", value);
+
+    BSLS_ASSERT_SAFE(len<e_MAX_INT64_STRLEN10);
+
+    wstring str(tempBuf, len);
     return str;
 }
 
 bsl::wstring bsl::to_wstring(float value) {
     wchar_t tempBuf[e_MAX_FLOAT_STRLEN10];
-    swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%f", value);
-    wstring wstr(tempBuf);
+    int len = swprintf(tempBuf,
+                       sizeof tempBuf / sizeof *tempBuf,
+                       L"%f", value);
+
+    BSLS_ASSERT_SAFE(len<e_MAX_FLOAT_STRLEN10);
+
+    wstring wstr(tempBuf, len);
     return wstr;
 }
 
 bsl::wstring bsl::to_wstring(double value) {
     wchar_t tempBuf[e_MAX_DOUBLE_STRLEN10];
-    swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%f", value);
-    wstring wstr(tempBuf);
+    int len = swprintf(tempBuf,
+                       sizeof tempBuf / sizeof *tempBuf,
+                       L"%f", value);
+
+    BSLS_ASSERT_SAFE(len<e_MAX_DOUBLE_STRLEN10);
+
+    wstring wstr(tempBuf, len);
     return wstr;
 }
 
 bsl::wstring bsl::to_wstring(long double value) {
     wchar_t tempBuf[e_MAX_LONGDOUBLE_STRLEN10];
-    swprintf(tempBuf, sizeof tempBuf / sizeof *tempBuf, L"%Lf", value);
-    wstring wstr(tempBuf);
+    int len = swprintf(tempBuf,
+                       sizeof tempBuf / sizeof *tempBuf,
+                       L"%Lf", value);
+
+    BSLS_ASSERT_SAFE(len<e_MAX_LONGDOUBLE_STRLEN10);
+
+    wstring wstr(tempBuf, len);
     return wstr;
 }
 
