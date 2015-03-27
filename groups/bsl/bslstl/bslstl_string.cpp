@@ -407,8 +407,7 @@ bsl::string bsl::to_string(int value) {
     bsl::string str;
     int len = sprintf(str.dataPtr(), "%d", value);
 
-    BSLS_ASSERT_SAFE(strlen(str.dataPtr()) + 1 <=
-                                             bsl::string::SHORT_BUFFER_LENGTH);
+    BSLS_ASSERT_SAFE(len < bsl::string::SHORT_BUFFER_LENGTH);
 
     str.d_length = len;
     return str;
@@ -422,8 +421,7 @@ bsl::string bsl::to_string(unsigned value) {
     bsl::string str;
     int len = sprintf(str.dataPtr(), "%u", value);
 
-    BSLS_ASSERT_SAFE(strlen(str.dataPtr()) + 1 <=
-                                             bsl::string::SHORT_BUFFER_LENGTH);
+    BSLS_ASSERT_SAFE(len < bsl::string::SHORT_BUFFER_LENGTH);
 
     str.d_length = len;
     return str;
@@ -436,6 +434,9 @@ bsl::string bsl::to_string(long value) {
 
     bsl::string str;
     int len = sprintf(str.dataPtr(), "%ld", value);
+
+    BSLS_ASSERT_SAFE(len < bsl::string::SHORT_BUFFER_LENGTH);
+
     str.d_length = len;
     return str;
 }
@@ -447,6 +448,9 @@ bsl::string bsl::to_string(unsigned long value) {
 
     bsl::string str;
     int len = sprintf(str.dataPtr(), "%lu", value);
+
+    BSLS_ASSERT_SAFE(len < bsl::string::SHORT_BUFFER_LENGTH);
+
     str.d_length = len;
     return str;
 }
@@ -455,50 +459,40 @@ bsl::string bsl::to_string(long long value) {
     char tempBuf[e_MAX_INT64_STRLEN10];
     int len = sprintf(tempBuf, "%lld", value);
 
-    BSLS_ASSERT_SAFE(len<e_MAX_INT64_STRLEN10);
-
-    string str(tempBuf, len);
-    return str;
+    BSLS_ASSERT_SAFE(len < e_MAX_INT64_STRLEN10);
+    return string (tempBuf, len);
 }
 
 bsl::string bsl::to_string(unsigned long long value) {
     char tempBuf[e_MAX_INT64_STRLEN10];
     int len = sprintf(tempBuf, "%llu", value);
 
-    BSLS_ASSERT_SAFE(len<e_MAX_INT64_STRLEN10);
-
-    string str(tempBuf, len);
-    return str;
+    BSLS_ASSERT_SAFE(len < e_MAX_INT64_STRLEN10);
+    return string (tempBuf, len);
 }
 
 bsl::string bsl::to_string(float value) {
     char tempBuf[e_MAX_FLOAT_STRLEN10];
     int len = sprintf(tempBuf, "%f", value);
 
-    BSLS_ASSERT_SAFE(len<e_MAX_FLOAT_STRLEN10);
-
-    string str(tempBuf, len);
-    return str;
+    BSLS_ASSERT_SAFE(len < e_MAX_FLOAT_STRLEN10);
+    return string (tempBuf, len);
 }
 
 bsl::string bsl::to_string(double value) {
     char tempBuf[e_MAX_DOUBLE_STRLEN10];
     int len = sprintf(tempBuf, "%f", value);
 
-    BSLS_ASSERT_SAFE(len<e_MAX_DOUBLE_STRLEN10);
-
-    string str(tempBuf, len);
-    return str;
+    BSLS_ASSERT_SAFE(len < e_MAX_DOUBLE_STRLEN10);
+    return string (tempBuf, len);
 }
 
 bsl::string bsl::to_string(long double value) {
     char tempBuf[e_MAX_LONGDOUBLE_STRLEN10];
     int len = sprintf(tempBuf, "%Lf", value);
 
-    BSLS_ASSERT_SAFE(len<e_MAX_LONGDOUBLE_STRLEN10);
-
-    string str(tempBuf, len);
-    return str;
+    BSLS_ASSERT_SAFE(len < e_MAX_LONGDOUBLE_STRLEN10);
+    return string (tempBuf, len);
 }
 
 bsl::wstring bsl::to_wstring(int value) {
@@ -507,10 +501,8 @@ bsl::wstring bsl::to_wstring(int value) {
                        sizeof tempBuf / sizeof *tempBuf,
                        L"%d", value);
 
-    BSLS_ASSERT_SAFE(len<e_MAX_INT_STRLEN10);
-
-    wstring str(tempBuf, len);
-    return str;
+    BSLS_ASSERT_SAFE(len < e_MAX_INT_STRLEN10);
+    return wstring (tempBuf, len);
 }
 
 bsl::wstring bsl::to_wstring(long value) {
@@ -519,10 +511,8 @@ bsl::wstring bsl::to_wstring(long value) {
                        sizeof tempBuf / sizeof *tempBuf,
                        L"%ld", value);
 
-    BSLS_ASSERT_SAFE(len<e_MAX_INT64_STRLEN10);
-
-    wstring str(tempBuf, len);
-    return str;
+    BSLS_ASSERT_SAFE(len < e_MAX_INT64_STRLEN10);
+    return wstring (tempBuf, len);
 }
 
 bsl::wstring bsl::to_wstring(long long value) {
@@ -531,10 +521,8 @@ bsl::wstring bsl::to_wstring(long long value) {
                        sizeof tempBuf / sizeof *tempBuf,
                        L"%lld", value);
 
-    BSLS_ASSERT_SAFE(len<e_MAX_INT64_STRLEN10);
-
-    wstring str(tempBuf, len);
-    return str;
+    BSLS_ASSERT_SAFE(len < e_MAX_INT64_STRLEN10);
+    return wstring (tempBuf, len);
 }
 
 bsl::wstring bsl::to_wstring(unsigned value) {
@@ -543,10 +531,8 @@ bsl::wstring bsl::to_wstring(unsigned value) {
                        sizeof tempBuf / sizeof *tempBuf,
                        L"%u", value);
 
-    BSLS_ASSERT_SAFE(len<e_MAX_INT_STRLEN10);
-
-    wstring str(tempBuf, len);
-    return str;
+    BSLS_ASSERT_SAFE(len < e_MAX_INT_STRLEN10);
+    return wstring (tempBuf, len);
 }
 
 bsl::wstring bsl::to_wstring(unsigned long value) {
@@ -555,10 +541,8 @@ bsl::wstring bsl::to_wstring(unsigned long value) {
                        sizeof tempBuf / sizeof *tempBuf,
                        L"%lu", value);
 
-    BSLS_ASSERT_SAFE(len<e_MAX_INT64_STRLEN10);
-
-    wstring str(tempBuf, len);
-    return str;
+    BSLS_ASSERT_SAFE(len < e_MAX_INT64_STRLEN10);
+    return wstring (tempBuf, len);
 }
 
 bsl::wstring bsl::to_wstring(unsigned long long value) {
@@ -567,10 +551,8 @@ bsl::wstring bsl::to_wstring(unsigned long long value) {
                        sizeof tempBuf / sizeof *tempBuf,
                        L"%llu", value);
 
-    BSLS_ASSERT_SAFE(len<e_MAX_INT64_STRLEN10);
-
-    wstring str(tempBuf, len);
-    return str;
+    BSLS_ASSERT_SAFE(len < e_MAX_INT64_STRLEN10);
+    return wstring (tempBuf, len);
 }
 
 bsl::wstring bsl::to_wstring(float value) {
@@ -579,10 +561,8 @@ bsl::wstring bsl::to_wstring(float value) {
                        sizeof tempBuf / sizeof *tempBuf,
                        L"%f", value);
 
-    BSLS_ASSERT_SAFE(len<e_MAX_FLOAT_STRLEN10);
-
-    wstring wstr(tempBuf, len);
-    return wstr;
+    BSLS_ASSERT_SAFE(len < e_MAX_FLOAT_STRLEN10);
+    return wstring (tempBuf, len);
 }
 
 bsl::wstring bsl::to_wstring(double value) {
@@ -591,10 +571,8 @@ bsl::wstring bsl::to_wstring(double value) {
                        sizeof tempBuf / sizeof *tempBuf,
                        L"%f", value);
 
-    BSLS_ASSERT_SAFE(len<e_MAX_DOUBLE_STRLEN10);
-
-    wstring wstr(tempBuf, len);
-    return wstr;
+    BSLS_ASSERT_SAFE(len < e_MAX_DOUBLE_STRLEN10);
+    return wstring (tempBuf, len);
 }
 
 bsl::wstring bsl::to_wstring(long double value) {
@@ -603,10 +581,8 @@ bsl::wstring bsl::to_wstring(long double value) {
                        sizeof tempBuf / sizeof *tempBuf,
                        L"%Lf", value);
 
-    BSLS_ASSERT_SAFE(len<e_MAX_LONGDOUBLE_STRLEN10);
-
-    wstring wstr(tempBuf, len);
-    return wstr;
+    BSLS_ASSERT_SAFE(len < e_MAX_LONGDOUBLE_STRLEN10);
+    return wstring (tempBuf, len);
 }
 
 #endif
