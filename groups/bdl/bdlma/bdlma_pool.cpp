@@ -35,35 +35,6 @@ enum {
 };
 
 // LOCAL FUNCTIONS
-static
-void *replenishImp(BloombergLP::bdlma::InfrequentDeleteBlockList *blockList,
-                   int                                            blockSize,
-                   int                                            numBlocks,
-                   void                                          *nextList)
-    // Return the address of a linked list of modifiable free memory blocks
-    // having the specified 'numBlocks', with each memory block having the
-    // specified 'blockSize' (in bytes).  Append the specified 'nextList' to
-    // the newly-created linked list.  Allocate memory using the specified
-    // 'blockList'.  The behavior is undefined unless '1 <= blockSize' and
-    // '1 <= numBlocks'.
-{
-    BSLS_ASSERT(blockList);
-    BSLS_ASSERT(1 <= blockSize);
-    BSLS_ASSERT(1 <= numBlocks);
-
-    char *begin = static_cast<char *>(
-                                   blockList->allocate(numBlocks * blockSize));
-    char *end   = begin + (numBlocks - 1) * blockSize;
-
-    for (char *p = begin; p < end; p += blockSize) {
-        reinterpret_cast<Link *>(p)->d_next_p =
-                                       reinterpret_cast<Link *>(p + blockSize);
-    }
-    reinterpret_cast<Link *>(end)->d_next_p = static_cast<Link *>(nextList);
-
-    return begin;
-}
-
 static inline
 int roundUp(int x, int y)
     // Round up the specified 'x' to the nearest whole integer multiple of the
@@ -191,10 +162,20 @@ void Pool::reserveCapacity(int numBlocks)
     numBlocks -= (d_end_p - d_begin_p) / d_internalBlockSize;
 
     if (numBlocks > 0) {
-        d_freeList_p = static_cast<Link *>(replenishImp(&d_blockList,
-                                                        d_internalBlockSize,
-                                                        numBlocks,
-                                                        d_freeList_p));
+
+        // Allocate memory and add its blocks to the free list.
+
+        char *begin = static_cast<char *>(
+                        d_blockList.allocate(numBlocks * d_internalBlockSize));
+        char *end   = begin + (numBlocks - 1) * d_internalBlockSize;
+
+        for (char *p = begin; p < end; p += d_internalBlockSize) {
+            reinterpret_cast<Link *>(p)->d_next_p =
+                             reinterpret_cast<Link *>(p + d_internalBlockSize);
+        }
+
+        reinterpret_cast<Link *>(end)->d_next_p = d_freeList_p;
+        d_freeList_p = reinterpret_cast<Link *>(begin);
     }
 }
 
