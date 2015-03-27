@@ -220,8 +220,7 @@ long long bsl::stoll(const wstring& str, std::size_t* pos, int base){
     return value;
 }
 
-unsigned long long bsl::stoull(const string& str, std::size_t* pos,
-                                                                     int base){
+unsigned long long bsl::stoull(const string& str, std::size_t* pos, int base){
     char* ptr;
     int original_errno = errno;
 
@@ -243,8 +242,7 @@ unsigned long long bsl::stoull(const string& str, std::size_t* pos,
     return value;
 }
 
-unsigned long long bsl::stoull(const wstring& str, std::size_t* pos,
-                                                                     int base){
+unsigned long long bsl::stoull(const wstring& str, std::size_t* pos, int base){
     wchar_t* ptr;
     int original_errno = errno;
 
@@ -454,30 +452,13 @@ bsl::string bsl::to_string(unsigned long value) {
 }
 
 bsl::string bsl::to_string(long long value) {
-    if (value >=0) {
-        BSLS_ASSERT(std::numeric_limits<unsigned long>::digits * 100/332 + 1 <
-                    bsl::string::SHORT_BUFFER_LENGTH);
+    char tempBuf[e_MAX_INT64_STRLEN10];
+    int len = sprintf(tempBuf, "%lld", value);
 
-        bsl::string str;
-        int len = sprintf(str.dataPtr(), "%lld", value);
+    BSLS_ASSERT_SAFE(len<e_MAX_INT64_STRLEN10);
 
-        BSLS_ASSERT_SAFE(strlen(str.dataPtr()) + 1 <=
-                                             bsl::string::SHORT_BUFFER_LENGTH);
-
-        str.d_length = len;
-        return str;
-    }
-    else {
-        // Becasue of the negative sign, long long values can exceed the short
-        // buffer capacity.
-        char tempBuf[e_MAX_INT64_STRLEN10];
-        int len = sprintf(tempBuf, "%lld", value);
-
-        BSLS_ASSERT_SAFE(len<e_MAX_INT64_STRLEN10);
-
-        string str(tempBuf, len);
-        return str;
-    }
+    string str(tempBuf, len);
+    return str;
 }
 
 bsl::string bsl::to_string(unsigned long long value) {
