@@ -75,9 +75,9 @@ void aSsErT(bool condition, const char *message, int line)
 //                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 
-#pragma bde_verify push    // Usage examples relax rules for expository clarity
-#pragma bde_verify -FABC01 // Functions ordered for expository purpose
-#pragma bde_verify -FD01   // Function contracts replaced by expository text
+// BDE_VERIFY pragma: push // Usage examples relax rules for expository clarity
+// BDE_VERIFY pragma: -FABC01 // Functions ordered for expository purpose
+// BDE_VERIFY pragma: -FD01 // Function contracts replaced by expository text
 
 // Assume an external server API for storing and retrieving data:
 //..
@@ -233,7 +233,7 @@ void aSsErT(bool condition, const char *message, int line)
     }
 //..
 
-#pragma bde_verify pop  // end of usage example-example relaxed rules
+//BDE_VERIFY pragma: pop // end of usage example-example relaxed rules
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
