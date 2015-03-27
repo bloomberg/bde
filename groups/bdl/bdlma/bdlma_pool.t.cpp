@@ -1162,7 +1162,7 @@ int main(int argc, char *argv[])
         const int NUM_REQUESTS = 100;
 
         // Note that after the NUM_REQUESTS allocations are performed, there
-        // will be unallocated blocks that will be used before the free-list;
+        // will be unallocated blocks that will be used before the free list;
         // 'd_availBlocks' provides the expected number of these unallocated
         // blocks.
 

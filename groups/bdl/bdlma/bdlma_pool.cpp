@@ -175,13 +175,20 @@ void Pool::reserveCapacity(int numBlocks)
 {
     BSLS_ASSERT(0 <= numBlocks);
 
-    numBlocks -= (d_end_p - d_begin_p) / d_internalBlockSize;
-
     Link *p = d_freeList_p;
     while (p && numBlocks > 0) {
         p = p->d_next_p;
         --numBlocks;
     }
+
+    if (numBlocks > 0 && d_end_p == d_begin_p) {
+        d_begin_p = static_cast<char *>(d_blockList.allocate(numBlocks
+                                                       * d_internalBlockSize));
+        d_end_p = d_begin_p + numBlocks * d_internalBlockSize;
+        return;                                                       // RETURN
+    }
+
+    numBlocks -= (d_end_p - d_begin_p) / d_internalBlockSize;
 
     if (numBlocks > 0) {
         d_freeList_p = static_cast<Link *>(replenishImp(&d_blockList,
