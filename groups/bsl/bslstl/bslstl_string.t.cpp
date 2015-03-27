@@ -1810,49 +1810,49 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
                                         // numeric value
         long long   d_spec;             // specifications
     } DATA[] = {
-        //line  input                   base   pos      spec    
+        //line  input                   base   pos      spec
         //----  -----                   ----   ---      ----
         { L_,   "0",                    10,    1,       0 },
-        { L_,   "-0",                   10,    2,       0}, 
-        { L_,   "10101",                10,    5,       10101}, 
-        { L_,   "-10101",               10,    6,      -10101}, 
-        { L_,   "32767",                10,    5,       32767}, 
-        { L_,   "-32767",               10,    6,      -32767}, 
-        { L_,   "000032767",            10,    9,       32767}, 
-        { L_,   "2147483647",           10,    10,      2147483647}, 
-        { L_,   "-2147483647",          10,    11,     -2147483647}, 
-        //{ L_,   "4294967295",           10,    10,      4294967295}, 
-        //{ L_,   "-9223372036854775807", 10,  20,     -9223372036854775807}, 
-        //{ L_,   "9223372036854775807", 10,   21,      9223372036854775807}, 
+        { L_,   "-0",                   10,    2,       0},
+        { L_,   "10101",                10,    5,       10101},
+        { L_,   "-10101",               10,    6,      -10101},
+        { L_,   "32767",                10,    5,       32767},
+        { L_,   "-32767",               10,    6,      -32767},
+        { L_,   "000032767",            10,    9,       32767},
+        { L_,   "2147483647",           10,    10,      2147483647},
+        { L_,   "-2147483647",          10,    11,     -2147483647},
+        { L_,   "4294967295",           10,    10,      4294967295},
+        { L_,   "9223372036854775807",  10,    19,      9223372036854775807},
+        { L_,   "-9223372036854775807", 10,    20,     -9223372036854775807},
 
         //test usage of spaces, and non valid characters with in the string
-        { L_,   "  515",                10,    5,       515}, 
-        { L_,   "  515  505050",        10,    5,       515}, 
-        { L_,   " 99abc99",             10,    3,       99}, 
-        { L_,   " 3.14159",             10,    2,       3}, 
-        { L_,   "0x555",                10,    1,       0}, 
+        { L_,   "  515",                10,    5,       515},
+        { L_,   "  515  505050",        10,    5,       515},
+        { L_,   " 99abc99",             10,    3,       99},
+        { L_,   " 3.14159",             10,    2,       3},
+        { L_,   "0x555",                10,    1,       0},
 
         //test different bases  
-        { L_,   "111",                  2,     3,       7}, 
-        { L_,   "101",                  2,     3,       5}, 
-        { L_,   "100",                  2,     3,       4}, 
-        { L_,   "101010101010 ",        2,     12,      2730}, 
-        { L_,   "1010101010102 ",       2,     12,      2730}, 
-        { L_,   "111111111111111",      2,     15,      32767}, 
-        { L_,   "-111111111111111",     2,     16,     -32767}, 
+        { L_,   "111",                  2,     3,       7},
+        { L_,   "101",                  2,     3,       5},
+        { L_,   "100",                  2,     3,       4},
+        { L_,   "101010101010 ",        2,     12,      2730},
+        { L_,   "1010101010102 ",       2,     12,      2730},
+        { L_,   "111111111111111",      2,     15,      32767},
+        { L_,   "-111111111111111",     2,     16,     -32767},
         { L_,   "77777",                8,     5,       32767},
-        { L_,   "-77777",               8,     6,      -32767}, 
-        { L_,   "7FFF",                 16,    4,       32767}, 
+        { L_,   "-77777",               8,     6,      -32767},
+        { L_,   "7FFF",                 16,    4,       32767},
         { L_,   "0x7FfF",               16,    6,       32767}, 
-        { L_,   "-00000x7FFf",          16,    6,      -0}, 
-        { L_,   "ZZZZ",                 36,    4,       1679615 }, 
+        { L_,   "-00000x7FFf",          16,    6,      -0},
+        { L_,   "ZZZZ",                 36,    4,       1679615 },
 
         // base zero
-        { L_,   "79FFZZZf",             0,     2,       79}, 
-        { L_,   "0xFfAb",               0,     6,       65451}, 
-        { L_,   "05471",                0,     5,       2873}, 
-        { L_,   "0X5471",               0,     6,       21617}, 
-        { L_,   "5471",                 0,     4,       5471}, 
+        { L_,   "79FFZZZf",             0,     2,       79},
+        { L_,   "0xFfAb",               0,     6,       65451},
+        { L_,   "05471",                0,     5,       2873},
+        { L_,   "0X5471",               0,     6,       21617},
+        { L_,   "5471",                 0,     4,       5471},
 
     };
     const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1861,14 +1861,15 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
             "strings.\n");
 
     for (int ti = 0; ti < NUM_DATA; ++ti) {
-        const int    LINE   = DATA[ti].d_lineNum;
-        const char  *INPUT  = DATA[ti].d_input;
-        const int    BASE   = DATA[ti].d_base;
-        const int    POS    = DATA[ti].d_pos;
-        const int    SPEC   = DATA[ti].d_spec;
+        const int       LINE   = DATA[ti].d_lineNum;
+        const char     *INPUT  = DATA[ti].d_input;
+        const int       BASE   = DATA[ti].d_base;
+        const int       POS    = DATA[ti].d_pos;
+        const long long SPEC   = DATA[ti].d_spec;
         string inV(INPUT);
 
-        if (SPEC <= std::numeric_limits<int>::max()){
+        if (SPEC <= std::numeric_limits<int>::max() &&
+            SPEC >= std::numeric_limits<int>::min()){
             int value;
             std::string::size_type *sz_null = NULL;
             std::string::size_type *sz_valid_ptr =new std::string::size_type();
@@ -1889,7 +1890,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
             delete sz_valid_ptr;
         }
 
-        if (SPEC <= std::numeric_limits<long>::max()){
+        if (SPEC <= std::numeric_limits<long>::max() &&
+            SPEC >= std::numeric_limits<long>::min()){
             long value;
             std::string::size_type *sz_null = NULL;
             std::string::size_type *sz_valid_ptr =new std::string::size_type();
@@ -1996,9 +1998,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
         { L_,   L"000032767",            10,    9,       32767},
         { L_,   L"2147483647",           10,    10,      2147483647},
         { L_,   L"-2147483647",          10,    11,     -2147483647},
-        //{ L_,   L"4294967295",           10,    10,      4294967295},
-        //{ L_,   L"-9223372036854775807", 10,  20,     -9223372036854775807},
-        //{ L_,   L"9223372036854775807", 10,   21,      9223372036854775807},
+        { L_,   L"4294967295",           10,    10,      4294967295},
+        { L_,   L"9223372036854775807",  10,    19,      9223372036854775807},
+        { L_,   L"-9223372036854775807", 10,    20,     -9223372036854775807},
 
         //test usage of spaces, and non valid characters with in the string
         { L_,   L"  515",                10,    5,       515},
@@ -2040,10 +2042,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
         const wchar_t  *INPUT  = WDATA[ti].d_input;
         const int       BASE   = WDATA[ti].d_base;
         const int       POS    = WDATA[ti].d_pos;
-        const int       SPEC   = WDATA[ti].d_spec;
+        const long long SPEC   = WDATA[ti].d_spec;
         wstring inV(INPUT);
 
-        if (SPEC <= std::numeric_limits<int>::max()){
+        if (SPEC <= std::numeric_limits<int>::max() &&
+            SPEC >= std::numeric_limits<int>::min()){
             int value;
             std::wstring::size_type *sz_null = NULL;
             std::wstring::size_type *sz_valid_ptr =
@@ -2065,7 +2068,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
             delete sz_valid_ptr;
         }
 
-        if (SPEC <= std::numeric_limits<long>::max()){
+        if (SPEC <= std::numeric_limits<long>::max() &&
+            SPEC >= std::numeric_limits<long>::min()){
             long value;
             std::wstring::size_type *sz_null = NULL;
             std::wstring::size_type *sz_valid_ptr = 
@@ -2112,6 +2116,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
 #if __cplusplus >= 201103L
         if (SPEC <= std::numeric_limits<long long>::max()){
             long long value;
+            std::cout<< "spec "<< SPEC <<std::endl;
             std::wstring::size_type *sz_null = NULL;
             std::wstring::size_type *sz_valid_ptr =
                                                  new std::wstring::size_type();
@@ -2124,15 +2129,17 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
             value = bsl::stoll(inV, sz_valid_ptr, BASE);
             ASSERT (value == SPEC);
             ASSERT (*sz_valid_ptr == POS);
+            P_(*sz_valid_ptr); P(POS);
 
             value = bsl::stoll(inV, &sz_valid_nonptr, BASE);
             ASSERT (value == SPEC);
             ASSERT (sz_valid_nonptr == POS);
+            P_(sz_valid_nonptr); P(POS);
 
             delete sz_valid_ptr;
         }
 
-        if (SPEC <= std::numeric_limits<unsigned long long>::max() 
+        if (SPEC <= std::numeric_limits<unsigned long long>::max()
                                                                 && SPEC >= 0){
             unsigned long long value;
             std::wstring::size_type *sz_null = NULL;
