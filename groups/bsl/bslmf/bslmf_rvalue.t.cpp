@@ -118,6 +118,11 @@ class vector
     const TYPE *end() const { return this->d_end; }
         // Return a pointer to the end of the range.
 
+    void insert(TYPE* position, bslmf::Rvalue<TYPE> value);
+        // Insert the specified 'value' by moving it into the specified
+        // 'position'. The behavior is undefined unless 'position' is a
+        // pointer the range from 'begin()' to 'end()' (both ends are
+        // inclusive).
     void push_back(const TYPE& value);
         // Append a copy of the specified 'value' to the vector.
     void push_back(bslmf::Rvalue<TYPE> value);
@@ -181,6 +186,23 @@ vector<TYPE>::vector(bslmf::Rvalue<vector<TYPE> > other)
     reference.d_begin = 0;
     reference.d_end = 0;
     reference.d_capacity = 0;
+}
+
+template <class TYPE>
+void vector<TYPE>::insert(TYPE* position, bslmf::Rvalue<TYPE> value) {
+    if (this->d_end == this->d_capacity) {
+        ptrdiff_t offset(position - this->begin());
+        this->reserve(this->size()? int(1.5 * this->size()): 4);
+        position = this->begin() + offset;
+    }
+    ASSERT(this->d_end != this->d_capacity);
+    TYPE* it(this->d_end++);
+    while (it != position) {
+        new(it) TYPE(bslmf::RvalueUtil::moveIfNoexcept(it[-1]));
+        --it;
+        it->~TYPE();
+    }
+    new(it) TYPE(bslmf::RvalueUtil::move(value));
 }
 
 template <class TYPE>
@@ -295,6 +317,18 @@ int main(int argc, char *argv[])
         vvector.push_back(bslmf::RvalueUtil::move(vector2)); // move
         ASSERT(vvector.size() == 2);
         ASSERT(vvector[1].begin() == first);
+
+        vector<vector<int> > reverse;
+        for (int i = 0; i != 5; ++i) {
+            vector<int> tmp;
+            tmp.push_back(i);
+            reverse.insert(reverse.begin(), bslmf::RvalueUtil::move(tmp));
+        }
+        ASSERT(reverse.size() == 5);
+        for (int i = 0; i != 5; ++i) {
+            ASSERT(reverse[reverse.size() - 1 - i].size() == 1);
+            ASSERT(reverse[reverse.size() - 1 - i][0] == i);
+        }
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -369,6 +403,8 @@ int main(int argc, char *argv[])
         int&               reference(rvalue);
         int&               lvalue(bslmf::RvalueUtil::access(rvalue));
         ASSERT(&reference == &lvalue);
+        int const&         cvalue(bslmf::RvalueUtil::moveIfNoexcept(value));
+        ASSERT(&cvalue == &lvalue);
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

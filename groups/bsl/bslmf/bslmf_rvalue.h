@@ -114,6 +114,11 @@ BSLS_IDENT("$Id: $")
 //      const TYPE *end() const { return this->d_end; }
 //          // Return a pointer to the end of the range.
 //
+//      void insert(TYPE* position, bslmf::Rvalue<TYPE> value);
+//          // Insert the specified 'value' by moving it into the specified
+//          // 'position'. The behavior is undefined unless 'position' is a
+//          // pointer the range from 'begin()' to 'end()' (both ends are
+//          // inclusive).
 //      void push_back(const TYPE& value);
 //          // Append a copy of the specified 'value' to the vector.
 //      void push_back(bslmf::Rvalue<TYPE> value);
@@ -344,6 +349,52 @@ BSLS_IDENT("$Id: $")
 //  assert(vvector.size() == 2);
 //  assert(vvector[1].begin() == first);
 //..
+// The methods implemented so far were mostly concerned with paramters
+// supporting operations where the type used in the interface clearly indicated
+// that is desirable to move the value. It can be useful to move elements
+// internal to a container either as a performance improvement or due to the
+// elements not being copyable. Since moving an element changes the source a
+// container may not secretly move elements if moves could possibly throw an
+// exception: once one object was moved and an exception is thrown it may not
+// be possible to restore the original content of objects. Containers should
+// move objects only if the move cannot throw an exception. To make this
+// decision managable an utility function 'bslmf::RvalueUtil::moveIfNoexcept()'
+// is provided which returns an rvalue reference only if no exception can be
+// thrown from the move operation or if the objects cannot be moved.
+//
+// The 'insert()' member function shows the use of 'moveIfNoexcept()'. Since
+// the element is possibly inserted into the middle of the 'vector<TYPE>' all
+// elements starting at 'position' need to be moved one element on. To do so
+// the elements are individually relocated by one elements starting with the
+// last element until the element at 'position' was relocated. The objects are
+// relocated by constructing a new element from the result of
+// 'moveIfNoexcept()' and destroying the original object. Once the space of the
+// new element is empty, the argument 'value' is constructed into this
+// location.
+//..
+//  template <class TYPE>
+//  void vector<TYPE>::insert(TYPE* position, bslmf::Rvalue<TYPE> value) {
+//      if (this->d_end == this->d_capacity) {
+//          ptrdiff_t offset(position - this->begin());
+//          this->reserve(this->size()? int(1.5 * this->size()): 4);
+//          position = this->begin() + offset;
+//      }
+//      ASSERT(this->d_end != this->d_capacity);
+//      TYPE* it(this->d_end++);
+//      while (it != position) {
+//          new(it) TYPE(bslmf::RvalueUtil::moveIfNoexcept(it[-1]));
+//          --it;
+//          it->~TYPE();
+//      }
+//      new(it) TYPE(bslmf::RvalueUtil::move(value));
+//  }
+//..
+// NOTE: the 'push_back()' and 'insert()' functions above are not properly
+// exception-safe: if the construction of the new last element fails with an
+// exception, the 'end()' will still be adjusted. Although it is easy to avoid
+// this problem it would complicate the code without showing the use of the
+// 'Rvalue<T>' class template.
+//
 // Compiling this code with both C++03 and C++11 compilers shows that there is
 // no need for conditional compilation in when using 'Rvalue<TYPE>' while move
 // semantics is enabled in both modes.
@@ -392,6 +443,20 @@ struct RvalueUtil {
         // 'lvalue'. For a C++03 implementation this function behaves like a
         // factory for 'Rvalue<TYPE> objects. For a C++11 implementation this
         // function behaves exactly like 'std::move(lvalue)'.
+    template <class TYPE>
+    static const TYPE& moveIfNoexcept(TYPE& lvalue);
+        // Get an rvalue reference from the specified 'lvalue' if it can be
+        // determined at compile-time that moving object of type 'TYPE' cannot
+        // throw an exception otherwise get an lvalue reference to 'lvalue'.
+        // For a C++03 implementation this function always returns a 'const'
+        // reference to 'lvalue'.
+        //
+        // NOTE: the correct C++11 implementation of this function requires a
+        //   number of type traits that are currently not, yet, implemented
+        //   (it needs 'is_nothrow_move_constructible<TYPE>' and
+        //   'is_copy_constructible<TYPE>' which in turn are build upon other
+        //   type traits). Until these necessary traits are implemented this
+        //   function will always return an lvalue reference.
 };
 
 // ----------------------------------------------------------------------------
@@ -467,6 +532,20 @@ struct RvalueUtil {
         // 'lvalue'. For a C++03 implementation this function behaves like a
         // factory for 'Rvalue<TYPE> objects. For a C++11 implementation this
         // function behaves exactly like 'std::move(value)'.
+    template <class TYPE>
+    static const TYPE& moveIfNoexcept(TYPE& lvalue);
+        // Get an rvalue reference from the specified 'lvalue' if it can be
+        // determined at compile-time that moving object of type 'TYPE' cannot
+        // throw an exception otherwise get an lvalue reference to 'lvalue'.
+        // For a C++03 implementation this function always returns a 'const'
+        // reference to 'lvalue'.
+        //
+        // NOTE: the correct C++11 implementation of this function requires a
+        //   number of type traits which are currently not, yet, implemented
+        //   (it needs 'is_nothrow_move_constructible<TYPE>' and
+        //   'is_copy_constructible<TYPE>' which in turn are build upon other
+        //   type traits). Until these necessary traits are implemented this
+        //   function will always return an lvalue reference.
 };
 
 // ============================================================================
@@ -498,6 +577,14 @@ inline Rvalue<TYPE> RvalueUtil::move(TYPE& lvalue) {
 
 #endif // support rvalue references and alias templates
 
+// ----------------------------------------------------------------------------
+
+template <class TYPE>
+inline const TYPE& RvalueUtil::moveIfNoexcept(TYPE& lvalue) {
+    return lvalue;
+}
+
+// ----------------------------------------------------------------------------
 
 }  // close package namespace
 
