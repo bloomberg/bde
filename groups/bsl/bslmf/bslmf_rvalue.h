@@ -50,22 +50,23 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 // There are two sides of move semantics:
-//  1. Classes or class templates that are _move-enabled_, i.e., which can
-//     transfer their internal representation to another object in some
-//     situations. To become move-enabled a class needs to implement, at
-//     least, a move constructor. It should probably also implement a move
-//     assignment.
-//  2. Users of a potentially move-enabled class may take advantage of moving
-//     objects by explicitly indicating that ownership of resources may be
-//     transferred. When using C++11 the compiler can automatically detect
-//     some situations where it is safe to move objects but this features is
-//     not available with C++03.
+//: 1 Classes or class templates that are _move-enabled_, i.e., which can
+//:   transfer their internal representation to another object in some
+//:   situations. To become move-enabled a class needs to implement, at
+//:   least, a move constructor. It should probably also implement a move
+//:   assignment.
+//: 2 Users of a potentially move-enabled class may take advantage of moving
+//:   objects by explicitly indicating that ownership of resources may be
+//:   transferred. When using C++11 the compiler can automatically detect
+//:   some situations where it is safe to move objects but this features is
+//:   not available with C++03.
 //
 // The usage example below demonstrate both use cases using a simplified
 // version of 'std::vector<T>'. The class template is simplified to concentrate
 // on the aspects relevant to 'bslmf::Rvalue<T>'. Most of the operations are
 // just normal implementations to create a container. The last two operations
-// described are using move operations.
+// described are using move operations and the 'reserve()' function uses
+// 'moveIfNoexcept()'.
 //
 // The definition of the 'vector<TYPE>' class template is rather straight
 // forward. For simplicity a few trivial operations are implemented directly
@@ -76,26 +77,24 @@ BSLS_IDENT("$Id: $")
 //  {
 //      TYPE *d_begin;
 //      TYPE *d_end;
-//      TYPE *d_capacity;
+//      TYPE *d_endBuffer;
 //
-//      static void copy(const TYPE *it, const TYPE *end, vector<TYPE> *to);
-//          // This auxiliary function copies the range specified by 'it' and
-//          // 'end' to vector specified by 'to'. The capacity of 'to' has to
-//          // be at least 'end - it'.
 //      static void swap(TYPE*& a, TYPE*& b);
-//          // This auxiliary function swaps the specified pointers 'a' and
-//          // 'b'.
+//          // This function swaps the specified pointers 'a' and 'b'.
 //    public:
 //      vector();
 //          // Create an empty vector.
-//      explicit vector(bslmf::Rvalue<vector<TYPE> > other);
+//      vector(bslmf::Rvalue<vector> other);
 //          // Create a vector by transfering the content of the specified
 //          // 'other'.
-//      vector(const vector<TYPE>& other);
+//      vector(const vector& other);
 //          // Create a vector by copying the content of the specified 'other'.
-//      vector& operator= (vector<TYPE> other);
+//      vector& operator= (vector other);
 //          // Assign a vector by copying the content of the specified 'other'.
-//          // The function returns a reference to the object.
+//          // The function returns a reference to the object. Note that
+//          // 'other' is passed by value to have the copy or move already be
+//          // done or even elided. Within the body of the assignment operator
+//          // the content of 'this' and 'other' are simply swapped.
 //      ~vector();
 //          // Destroy the vector's elements and release any allocated memory.
 //
@@ -107,18 +106,15 @@ BSLS_IDENT("$Id: $")
 //          // Return a pointer to the first element.
 //      const TYPE *begin() const { return this->d_begin; }
 //          // Return a pointer to the first element.
-//      int capacity() const { return int(this->d_capacity - this->d_begin); }
+//      int capacity() const { return int(this->d_endBuffer - this->d_begin); }
 //          // Return the capacity of the vector.
+//      bool empty() const { return this->d_begin == this->d_end; }
+//          // Return 'true' if the vector is empty and 'false' otherwise.
 //      TYPE       *end()       { return this->d_end; }
 //          // Return a pointer to the end of the range.
 //      const TYPE *end() const { return this->d_end; }
 //          // Return a pointer to the end of the range.
 //
-//      void insert(TYPE* position, bslmf::Rvalue<TYPE> value);
-//          // Insert the specified 'value' by moving it into the specified
-//          // 'position'. The behavior is undefined unless 'position' is a
-//          // pointer the range from 'begin()' to 'end()' (both ends are
-//          // inclusive).
 //      void push_back(const TYPE& value);
 //          // Append a copy of the specified 'value' to the vector.
 //      void push_back(bslmf::Rvalue<TYPE> value);
@@ -129,14 +125,14 @@ BSLS_IDENT("$Id: $")
 //          // specified by 'newCapacity'.
 //      int size() const { return int(this->d_end - this->d_begin); }
 //          // Return the size of the object.
-//      void swap(vector<TYPE>& other);
+//      void swap(vector& other);
 //          // Swap the content of the vector with the specified 'other'.
 //  };
 //..
 // The class stores pointers to the begin and the end of the elements as well
-// as a pointer to the current capacity. If there are no elements, null
-// pointers are stored. There a number of accessors similar to the accessors
-// used by 'std::vector<TYPE>'.
+// as a pointer to the end of the allocated buffer. If there are no elements,
+// null pointers are stored. There a number of accessors similar to the
+// accessors used by 'std::vector<TYPE>'.
 //
 // The default constructor creates an empty 'vector<TYPE>' by simply
 // initializing all member pointers to be null pointers:
@@ -145,7 +141,7 @@ BSLS_IDENT("$Id: $")
 //  vector<TYPE>::vector()
 //      : d_begin()
 //      , d_end()
-//      , d_capacity() {
+//      , d_endBuffer() {
 //  }
 //..
 // To leverage already implemented functionality some of the member functions
@@ -161,89 +157,95 @@ BSLS_IDENT("$Id: $")
 //      b = tmp;
 //  }
 //  template <class TYPE>
-//  void vector<TYPE>::swap(vector<TYPE>& other) {
+//  void vector<TYPE>::swap(vector& other) {
 //      this->swap(this->d_begin, other.d_begin);
 //      this->swap(this->d_end, other.d_end);
-//      this->swap(this->d_capacity, other.d_capacity);
+//      this->swap(this->d_endBuffer, other.d_endBuffer);
 //  }
 //..
-// The copy constructor and the 'reserve()' function need to copy the elements
-// in the 'vector<TYPE>'. They do so using the auxiliary function 'copy()'
-// which should really use 'std::copy()' and 'std::back_inserter()' but doesn't
-// to avoid issues with levelization:
-//..
-//  template <class TYPE>
-//  void vector<TYPE>::copy(const TYPE *it, const TYPE *end, vector<TYPE> *to)
-//  {
-//      for (; it != end; ++it) {
-//          new (to->d_end++) TYPE(*it);
-//      }
-//  }
-//..
-// This function template simply iterates over the range specified by 'it' and
-// 'end' and constructs a copyt of the specified element at the 'd_end' of the
-// destination 'to'. The 'copy()' function requires that 'to' has enough
-// capacity to store the elements in the range from 'it' to 'end'.
-//
 // The member function 'reserve()' arranges for the 'vector<TYPE>' to have
-// enough capacity for the number of elements specified as argument. If the
-// 'vector<TYPE>' is empty all it needs to do is to allocate enough memory and
-// set up the pointers 'd_begin', 'd_end', and 'd_capacity'. If the vector is
-// not empty, it first creates an empty 'vector<TYPE>' and uses 'reserve()' on
-// this temporary 'vector<TYPE>'. The function then uses 'copy()' to copy
-// elements followed by 'swap()' to put the result into place:
+// enough capacity for the number of elements specified as argument.
+// The function first creates an empty 'vector<TYPE>' called 'tmp' and sets
+// 'tmp' up to have enough capacity by allocating sufficient memory and
+// assigning the different members to point to the allocated buffer. The
+// function then iterates over the elements of 'this' and for each element
+// it constructs a new element in 'tmp'. It does so using placement new with
+// a constructor argument of 'bslmf::RvalueUtil::moveIfNoexcept(*it)'. Since
+// a successful execution of 'reserve()' will release the buffer held by 'this'
+// all elements can be moved to their new location if there is no potential of
+// failure by a later move throwing an exception. If it is possibly that moving
+// the elements might throw, the elements need to copied instead. Once all
+// elements are in place in 'tmp' the content of 'tmp' and 'this' is swapped:
 //..
 //  template <class TYPE>
 //  void vector<TYPE>::reserve(int newCapacity) {
 //      if (this->capacity() < newCapacity) {
-//          if (this->d_begin) {
-//              vector<TYPE> tmp;
-//              tmp.reserve(newCapacity);
-//              this->copy(this->begin(), this->end(), &tmp);
-//              this->swap(tmp);
+//          vector tmp;
+//          int size = int(sizeof(TYPE) * newCapacity);
+//          tmp.d_begin = static_cast<TYPE*>(operator new(size));
+//          tmp.d_end = tmp.d_begin;
+//          tmp.d_endBuffer = tmp.d_begin + newCapacity;
+//
+//          for (TYPE* it = this->d_begin; it != this->d_end; ++it) {
+//              new (tmp.d_end) TYPE(bslmf::RvalueUtil::moveIfNoexcept(*it));
+//              ++tmp.d_end;
 //          }
-//          else {
-//              int size = int(sizeof(TYPE) * newCapacity);
-//              this->d_begin = static_cast<TYPE*>(operator new[](size));
-//              this->d_end = this->d_begin;
-//              this->d_capacity = this->d_begin + newCapacity;
-//          }
+//          this->swap(tmp);
 //      }
 //  }
 //..
-// Any allocated data and construct elements need to be release in the
-// destructor that works its way from back to front:
+// Any allocated data and constructed elements need to be release in the
+// destructor. The destructor does so by calling the destructor of the elements
+// in the buffer from back to front. Once the elements are destroyed the buffer
+// is released:
 //..
 //  template <class TYPE>
 //  vector<TYPE>::~vector() {
 //      if (this->d_begin) {
-//          while (this->d_begin != this->d_end--) {
+//          while (this->d_begin != this->d_end) {
+//              --this->d_end;
 //              this->d_end->~TYPE();
 //          }
-//          operator delete[](this->d_begin);
+//          operator delete(this->d_begin);
 //      }
 //  }
 //..
-// Using 'reserve()' and 'copy()' it is straight forward to implement the copy
-// constructor: initialize the member pointers to null, call 'reserve()' to
-// create sufficient capacity, and finally call 'copy()' with the source range
-// and the object under construction:
+// Using 'reserve()' and constructing the elements it is straight forward to
+// implement the copy constructor. First the member pointers are initialed to
+// null. If 'other' is empty there is nothing further to do as it is desirable
+// to not allocate a buffer for an empty 'vector'. If there are elements to
+// copy the buffer is set up by calling 'reserve()' to create sufficient
+// capacity. Once that is done elements are copied by iterating over the
+// elements of 'other' and constructing elements using placement new in the
+// appropriate location.
 //..
 //  template <class TYPE>
-//  vector<TYPE>::vector(const vector<TYPE>& other)
+//  vector<TYPE>::vector(const vector& other)
 //      : d_begin()
 //      , d_end()
-//      , d_capacity() {
-//      this->reserve(4 < other.size()? other.size(): 4);
-//      this->copy(other.begin(), other.end(), this);
+//      , d_endBuffer() {
+//      if (!other.empty()) {
+//          this->reserve(4 < other.size()? other.size(): 4);
+//
+//          ASSERT(other.size() <= this->capacity());
+//          for (TYPE* it = other.d_begin; it != other.d_end; ++it) {
+//              new (this->d_end) TYPE(*it);
+//              ++this->d_end;
+//          }
+//      }
 //  }
 //..
-// A simple copy assignment operator can be implemented in terms of copy
-// constructor, 'swap()', and destructor (in a real implementaiton the copy
-// assignment would probably try to use already allocated objects):
+// A simple copy assignment operator can be implemented in terms of copy/move
+// constructors, 'swap()', and destructor (in a real implementaiton the copy
+// assignment would probably try to use already allocated objects). In this
+// implementation that argument is taken by value, i.e., the argument is
+// already constructed using copy or move construction (which may have been
+// elided), the content of 'this' is swapped with the content of 'other'
+// leaving this in the desired state, and the destructor will release the
+// former representation of 'this' when 'other' is destroyed':
 //..
 //  template <class TYPE>
-//  vector<TYPE>& vector<TYPE>::operator= (vector<TYPE> other) {
+//  vector<TYPE>& vector<TYPE>::operator= (vector other) {
 //      this->swap(other);
 //      return *this;
 //  }
@@ -255,32 +257,34 @@ BSLS_IDENT("$Id: $")
 //..
 //  template <class TYPE>
 //  void vector<TYPE>::push_back(const TYPE& value) {
-//      if (this->d_end == this->d_capacity) {
+//      if (this->d_end == this->d_endBuffer) {
 //          this->reserve(this->size()? int(1.5 * this->size()): 4);
 //      }
-//      new(this->d_end++) TYPE(value);
+//      assert(this->d_end != this->d_endBuffer);
+//      new(this->d_end) TYPE(value);
+//      ++this->d_end;
 //  }
 //..
 // The first operation actually demonstrating the use of 'Rvalue<TYPE>' is the
 // move constructor:
 //..
 //  template <class TYPE>
-//  vector<TYPE>::vector(bslmf::Rvalue<vector<TYPE> > other)
+//  vector<TYPE>::vector(bslmf::Rvalue<vector> other)
 //      : d_begin(bslmf::RvalueUtil::access(other).d_begin)
 //      , d_end(bslmf::RvalueUtil::access(other).d_end)
-//      , d_capacity(bslmf::RvalueUtil::access(other).d_capacity) {
-//      vector<TYPE>& reference(other);
+//      , d_endBuffer(bslmf::RvalueUtil::access(other).d_endBuffer) {
+//      vector& reference(other);
 //      reference.d_begin = 0;
 //      reference.d_end = 0;
-//      reference.d_capacity = 0;
+//      reference.d_endBuffer = 0;
 //  }
 //..
 // This constructor gets an 'Rvalue<vector<TYPE> >' passed as argument that
 // indicates that the referenced objects can be modified as long as it is left
-// in state meeting the class invariants. The implementation of this
-// constructor copies the 'd_begin', 'd_end', and 'd_capacity' members of
+// in a state meeting the class invariants. The implementation of this
+// constructor first copies the 'd_begin', 'd_end', and 'd_capacity' members of
 // 'other'. Since 'other' is either an object of type 'Rvalue<vector<TYPE> >'
-// (when compiling using a C++03 compiler) or an rvalue referene
+// (when compiling using a C++03 compiler) or an rvalue reference
 // 'vector<TYPE>&&' the members are accessed using 'RvalueUtil::access(other)'
 // to get a reference to a 'vector<TYPE>'. Within the body of the constructor
 // an lvalue reference is obtained either via the conversion operator of
@@ -297,10 +301,12 @@ BSLS_IDENT("$Id: $")
 //..
 //  template <class TYPE>
 //  void vector<TYPE>::push_back(bslmf::Rvalue<TYPE> value) {
-//      if (this->d_end == this->d_capacity) {
+//      if (this->d_end == this->d_endBuffer) {
 //          this->reserve(this->size()? int(1.5 * this->size()): 4);
 //      }
-//      new(this->d_end++) TYPE(bslmf::RvalueUtil::move(value));
+//      assert(this->d_end != this->d_endBuffer);
+//      new(this->d_end) TYPE(bslmf::RvalueUtil::move(value));
+//      ++this->d_end;
 //  }
 //..
 // To demonstrate the newly created 'vector<TYPE>' class in action, first a
@@ -317,8 +323,10 @@ BSLS_IDENT("$Id: $")
 // To verify that copying of 'vector<TYPE>' objects works, a copy is created:
 //..
 //  vector<int> vector1(vector0);
+//  assert(vector1.size() == 5);
 //  assert(vector1.size() == vector0.size());
 //  for (int i = 0; i != vector1.size(); ++i) {
+//      assert(vector1[i] == i);
 //      assert(vector1[i] == vector0[i]);
 //  }
 //..
@@ -326,19 +334,21 @@ BSLS_IDENT("$Id: $")
 // new object should use the orginal 'begin()':
 //..
 //  const int *first = vector0.begin();
-//  vector<int> vector1(bslmf::RvalueUtil::move(vector0));
-//  assert(first == vector1.begin());
+//  vector<int> vector2(bslmf::RvalueUtil::move(vector0));
+//  assert(first == vector2.begin());
 //..
 // When create a 'vector<vector<int> >' and using 'push_back()' on this object
 // with 'vector2' a copy should be inserted:
 //..
 //  vector<vector<int> > vvector;
 //  vvector.push_back(vector2);                          // copy
+//  assert(vector2.size() == 5);
 //  assert(vvector.size() == 1);
 //  assert(vvector[0].size() == vector2.size());
 //  assert(vvector[0].begin() != first);
 //  for (int i = 0; i != 5; ++i) {
 //      assert(vvector[0][i] == i);
+//      assert(vector2[i] == i);
 //  }
 //..
 // When adding another element by moving 'vector2' the 'begin()' of the newly
@@ -348,53 +358,8 @@ BSLS_IDENT("$Id: $")
 //  vvector.push_back(bslmf::RvalueUtil::move(vector2)); // move
 //  assert(vvector.size() == 2);
 //  assert(vvector[1].begin() == first);
+//  assert(vvector[1].size() == 5);
 //..
-// The methods implemented so far were mostly concerned with paramters
-// supporting operations where the type used in the interface clearly indicated
-// that is desirable to move the value. It can be useful to move elements
-// internal to a container either as a performance improvement or due to the
-// elements not being copyable. Since moving an element changes the source a
-// container may not secretly move elements if moves could possibly throw an
-// exception: once one object was moved and an exception is thrown it may not
-// be possible to restore the original content of objects. Containers should
-// move objects only if the move cannot throw an exception. To make this
-// decision managable an utility function 'bslmf::RvalueUtil::moveIfNoexcept()'
-// is provided which returns an rvalue reference only if no exception can be
-// thrown from the move operation or if the objects cannot be moved.
-//
-// The 'insert()' member function shows the use of 'moveIfNoexcept()'. Since
-// the element is possibly inserted into the middle of the 'vector<TYPE>' all
-// elements starting at 'position' need to be moved one element on. To do so
-// the elements are individually relocated by one elements starting with the
-// last element until the element at 'position' was relocated. The objects are
-// relocated by constructing a new element from the result of
-// 'moveIfNoexcept()' and destroying the original object. Once the space of the
-// new element is empty, the argument 'value' is constructed into this
-// location.
-//..
-//  template <class TYPE>
-//  void vector<TYPE>::insert(TYPE* position, bslmf::Rvalue<TYPE> value) {
-//      if (this->d_end == this->d_capacity) {
-//          ptrdiff_t offset(position - this->begin());
-//          this->reserve(this->size()? int(1.5 * this->size()): 4);
-//          position = this->begin() + offset;
-//      }
-//      ASSERT(this->d_end != this->d_capacity);
-//      TYPE* it(this->d_end++);
-//      while (it != position) {
-//          new(it) TYPE(bslmf::RvalueUtil::moveIfNoexcept(it[-1]));
-//          --it;
-//          it->~TYPE();
-//      }
-//      new(it) TYPE(bslmf::RvalueUtil::move(value));
-//  }
-//..
-// NOTE: the 'push_back()' and 'insert()' functions above are not properly
-// exception-safe: if the construction of the new last element fails with an
-// exception, the 'end()' will still be adjusted. Although it is easy to avoid
-// this problem it would complicate the code without showing the use of the
-// 'Rvalue<T>' class template.
-//
 // Compiling this code with both C++03 and C++11 compilers shows that there is
 // no need for conditional compilation in when using 'Rvalue<TYPE>' while move
 // semantics is enabled in both modes.
@@ -533,6 +498,11 @@ struct RvalueUtil {
         // factory for 'Rvalue<TYPE> objects. For a C++11 implementation this
         // function behaves exactly like 'std::move(value)'.
     template <class TYPE>
+    static Rvalue<TYPE> move(Rvalue<TYPE> rvalue);
+        // Forward the specified 'rvalue' as an rvalue reference. The rvalue
+        // reference stays an rvalue reference to an object of type 'TYPE' and
+        // doesn't become an rvalue reference to an rvalue reference.
+    template <class TYPE>
     static const TYPE& moveIfNoexcept(TYPE& lvalue);
         // Get an rvalue reference from the specified 'lvalue' if it can be
         // determined at compile-time that moving object of type 'TYPE' cannot
@@ -571,6 +541,11 @@ inline TYPE& RvalueUtil::access(Rvalue<TYPE> rvalue) {
 template <class TYPE>
 inline Rvalue<TYPE> RvalueUtil::move(TYPE& lvalue) {
     return Rvalue<TYPE>(&lvalue);
+}
+
+template <class TYPE>
+inline Rvalue<TYPE> RvalueUtil::move(Rvalue<TYPE> rvalue) {
+    return rvalue;
 }
 
 // ----------------------------------------------------------------------------

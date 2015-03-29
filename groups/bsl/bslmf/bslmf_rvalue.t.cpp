@@ -80,26 +80,24 @@ class vector
 {
     TYPE *d_begin;
     TYPE *d_end;
-    TYPE *d_capacity;
+    TYPE *d_endBuffer;
 
-    static void copy(const TYPE *it, const TYPE *end, vector<TYPE> *to);
-        // This auxiliary function copies the range specified by 'it' and
-        // 'end' to vector specified by 'to'. The capacity of 'to' has to
-        // be at least 'end - it'.
     static void swap(TYPE*& a, TYPE*& b);
-        // This auxiliary function swaps the specified pointers 'a' and
-        // 'b'.
+        // This function swaps the specified pointers 'a' and 'b'.
   public:
     vector();
         // Create an empty vector.
-    explicit vector(bslmf::Rvalue<vector<TYPE> > other);
+    vector(bslmf::Rvalue<vector> other);
         // Create a vector by transfering the content of the specified
         // 'other'.
-    vector(const vector<TYPE>& other);
+    vector(const vector& other);
         // Create a vector by copying the content of the specified 'other'.
-    vector& operator= (vector<TYPE> other);
+    vector& operator= (vector other);
         // Assign a vector by copying the content of the specified 'other'.
-        // The function returns a reference to the object.
+        // The function returns a reference to the object. Note that
+        // 'other' is passed by value to have the copy or move already be
+        // done or even elided. Within the body of the assignment operator
+        // the content of 'this' and 'other' are simply swapped.
     ~vector();
         // Destroy the vector's elements and release any allocated memory.
 
@@ -111,18 +109,15 @@ class vector
         // Return a pointer to the first element.
     const TYPE *begin() const { return this->d_begin; }
         // Return a pointer to the first element.
-    int capacity() const { return int(this->d_capacity - this->d_begin); }
+    int capacity() const { return int(this->d_endBuffer - this->d_begin); }
         // Return the capacity of the vector.
+    bool empty() const { return this->d_begin == this->d_end; }
+        // Return 'true' if the vector is empty and 'false' otherwise.
     TYPE       *end()       { return this->d_end; }
         // Return a pointer to the end of the range.
     const TYPE *end() const { return this->d_end; }
         // Return a pointer to the end of the range.
 
-    void insert(TYPE* position, bslmf::Rvalue<TYPE> value);
-        // Insert the specified 'value' by moving it into the specified
-        // 'position'. The behavior is undefined unless 'position' is a
-        // pointer the range from 'begin()' to 'end()' (both ends are
-        // inclusive).
     void push_back(const TYPE& value);
         // Append a copy of the specified 'value' to the vector.
     void push_back(bslmf::Rvalue<TYPE> value);
@@ -133,7 +128,7 @@ class vector
         // specified by 'newCapacity'.
     int size() const { return int(this->d_end - this->d_begin); }
         // Return the size of the object.
-    void swap(vector<TYPE>& other);
+    void swap(vector& other);
         // Swap the content of the vector with the specified 'other'.
 };
 
@@ -141,102 +136,87 @@ template <class TYPE>
 vector<TYPE>::vector()
     : d_begin()
     , d_end()
-    , d_capacity() {
+    , d_endBuffer() {
 }
 
 template <class TYPE>
-void vector<TYPE>::copy(const TYPE *it, const TYPE *end, vector<TYPE> *to)
-{
-    for (; it != end; ++it) {
-        new (to->d_end++) TYPE(*it);
+vector<TYPE>::vector(const vector& other)
+    : d_begin()
+    , d_end()
+    , d_endBuffer() {
+    if (!other.empty()) {
+        this->reserve(4 < other.size()? other.size(): 4);
+
+        ASSERT(other.size() <= this->capacity());
+        for (TYPE* it = other.d_begin; it != other.d_end; ++it) {
+            new (this->d_end) TYPE(*it);
+            ++this->d_end;
+        }
     }
+}
+
+template <class TYPE>
+vector<TYPE>::vector(bslmf::Rvalue<vector> other)
+    : d_begin(bslmf::RvalueUtil::access(other).d_begin)
+    , d_end(bslmf::RvalueUtil::access(other).d_end)
+    , d_endBuffer(bslmf::RvalueUtil::access(other).d_endBuffer) {
+    vector& reference(other);
+    reference.d_begin = 0;
+    reference.d_end = 0;
+    reference.d_endBuffer = 0;
 }
 
 template <class TYPE>
 vector<TYPE>::~vector() {
     if (this->d_begin) {
-        while (this->d_begin != this->d_end--) {
+        while (this->d_begin != this->d_end) {
+            --this->d_end;
             this->d_end->~TYPE();
         }
-        operator delete[](this->d_begin);
+        operator delete(this->d_begin);
     }
 }
 
 template <class TYPE>
-vector<TYPE>::vector(const vector<TYPE>& other)
-    : d_begin()
-    , d_end()
-    , d_capacity() {
-    this->reserve(4 < other.size()? other.size(): 4);
-    this->copy(other.begin(), other.end(), this);
-}
-
-template <class TYPE>
-vector<TYPE>& vector<TYPE>::operator= (vector<TYPE> other) {
+vector<TYPE>& vector<TYPE>::operator= (vector other) {
     this->swap(other);
     return *this;
 }
 
 template <class TYPE>
-vector<TYPE>::vector(bslmf::Rvalue<vector<TYPE> > other)
-    : d_begin(bslmf::RvalueUtil::access(other).d_begin)
-    , d_end(bslmf::RvalueUtil::access(other).d_end)
-    , d_capacity(bslmf::RvalueUtil::access(other).d_capacity) {
-    vector<TYPE>& reference(other);
-    reference.d_begin = 0;
-    reference.d_end = 0;
-    reference.d_capacity = 0;
-}
-
-template <class TYPE>
-void vector<TYPE>::insert(TYPE* position, bslmf::Rvalue<TYPE> value) {
-    if (this->d_end == this->d_capacity) {
-        ptrdiff_t offset(position - this->begin());
-        this->reserve(this->size()? int(1.5 * this->size()): 4);
-        position = this->begin() + offset;
-    }
-    ASSERT(this->d_end != this->d_capacity);
-    TYPE* it(this->d_end++);
-    while (it != position) {
-        new(it) TYPE(bslmf::RvalueUtil::moveIfNoexcept(it[-1]));
-        --it;
-        it->~TYPE();
-    }
-    new(it) TYPE(bslmf::RvalueUtil::move(value));
-}
-
-template <class TYPE>
 void vector<TYPE>::push_back(const TYPE& value) {
-    if (this->d_end == this->d_capacity) {
+    if (this->d_end == this->d_endBuffer) {
         this->reserve(this->size()? int(1.5 * this->size()): 4);
     }
-    ASSERT(this->d_end != this->d_capacity);
-    new(this->d_end++) TYPE(value);
+    ASSERT(this->d_end != this->d_endBuffer);
+    new(this->d_end) TYPE(value);
+    ++this->d_end;
 }
 
 template <class TYPE>
 void vector<TYPE>::push_back(bslmf::Rvalue<TYPE> value) {
-    if (this->d_end == this->d_capacity) {
+    if (this->d_end == this->d_endBuffer) {
         this->reserve(this->size()? int(1.5 * this->size()): 4);
     }
-    new(this->d_end++) TYPE(bslmf::RvalueUtil::move(value));
+    ASSERT(this->d_end != this->d_endBuffer);
+    new(this->d_end) TYPE(bslmf::RvalueUtil::move(value));
+    ++this->d_end;
 }
 
 template <class TYPE>
 void vector<TYPE>::reserve(int newCapacity) {
     if (this->capacity() < newCapacity) {
-        if (this->d_begin) {
-            vector<TYPE> tmp;
-            tmp.reserve(newCapacity);
-            this->copy(this->begin(), this->end(), &tmp);
-            this->swap(tmp);
+        vector tmp;
+        int size = int(sizeof(TYPE) * newCapacity);
+        tmp.d_begin = static_cast<TYPE*>(operator new(size));
+        tmp.d_end = tmp.d_begin;
+        tmp.d_endBuffer = tmp.d_begin + newCapacity;
+
+        for (TYPE* it = this->d_begin; it != this->d_end; ++it) {
+            new (tmp.d_end) TYPE(bslmf::RvalueUtil::moveIfNoexcept(*it));
+            ++tmp.d_end;
         }
-        else {
-            int size = int(sizeof(TYPE) * newCapacity);
-            this->d_begin = static_cast<TYPE*>(operator new[](size));
-            this->d_end = this->d_begin;
-            this->d_capacity = this->d_begin + newCapacity;
-        }
+        this->swap(tmp);
     }
 }
 
@@ -248,10 +228,10 @@ void vector<TYPE>::swap(TYPE*& a, TYPE*& b) {
 }
 
 template <class TYPE>
-void vector<TYPE>::swap(vector<TYPE>& other) {
+void vector<TYPE>::swap(vector& other) {
     this->swap(this->d_begin, other.d_begin);
     this->swap(this->d_end, other.d_end);
-    this->swap(this->d_capacity, other.d_capacity);
+    this->swap(this->d_endBuffer, other.d_endBuffer);
 }
 
 }  // close unnamed namespace
@@ -288,6 +268,8 @@ int main(int argc, char *argv[])
                             "\n=============\n");
 
         vector<int> vector0;
+        ASSERT(vector0.empty());
+        ASSERT(vector0.size() == 0);
         for (int i = 0; i != 5; ++i) {
             vector0.push_back(i);
         }
@@ -296,8 +278,10 @@ int main(int argc, char *argv[])
         }
 
         vector<int> vector1(vector0);
+        ASSERT(vector1.size() == 5);
         ASSERT(vector1.size() == vector0.size());
         for (int i = 0; i != vector1.size(); ++i) {
+            ASSERT(vector1[i] == i);
             ASSERT(vector1[i] == vector0[i]);
         }
 
@@ -307,28 +291,19 @@ int main(int argc, char *argv[])
 
         vector<vector<int> > vvector;
         vvector.push_back(vector2);                          // copy
+        ASSERT(vector2.size() == 5);
         ASSERT(vvector.size() == 1);
         ASSERT(vvector[0].size() == vector2.size());
         ASSERT(vvector[0].begin() != first);
         for (int i = 0; i != 5; ++i) {
             ASSERT(vvector[0][i] == i);
+            ASSERT(vector2[i] == i);
         }
 
         vvector.push_back(bslmf::RvalueUtil::move(vector2)); // move
         ASSERT(vvector.size() == 2);
         ASSERT(vvector[1].begin() == first);
-
-        vector<vector<int> > reverse;
-        for (int i = 0; i != 5; ++i) {
-            vector<int> tmp;
-            tmp.push_back(i);
-            reverse.insert(reverse.begin(), bslmf::RvalueUtil::move(tmp));
-        }
-        ASSERT(reverse.size() == 5);
-        for (int i = 0; i != 5; ++i) {
-            ASSERT(reverse[reverse.size() - 1 - i].size() == 1);
-            ASSERT(reverse[reverse.size() - 1 - i][0] == i);
-        }
+        ASSERT(vvector[1].size() == 5);
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -373,7 +348,8 @@ int main(int argc, char *argv[])
         ASSERT(&value == &reference);
         ASSERT(&value == &bslmf::RvalueUtil::access(rvalue0));
 
-        bslmf::Rvalue<int> rvalue1(bslmf::RvalueUtil::move(rvalue0));
+        bslmf::Rvalue<int> rvalue1(bslmf::RvalueUtil::move(
+                                              bslmf::RvalueUtil::move(value)));
         ASSERT(&value == &bslmf::RvalueUtil::access(rvalue1));
 
         ASSERT(testFunctionCall(&value, bslmf::RvalueUtil::move(value)));
