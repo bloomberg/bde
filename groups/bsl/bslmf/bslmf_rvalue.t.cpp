@@ -16,7 +16,7 @@ using namespace BloombergLP;
 //                                   --------
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] RVALUE<TYPE> AND RVALUEUTIL FUNCTIONALITY
+// [ 2] RVALUEREF<TYPE> AND RVALUEUTIL FUNCTIONALITY
 // [ 3] USAGE EXAMPLE
 
 // ============================================================================
@@ -68,7 +68,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 namespace {
 
-bool testFunctionCall(int *pointer, bslmf::Rvalue<int> rvalue)
+bool testFunctionCall(int *pointer, bslmf::RvalueRef<int> rvalue)
     // This function returns 'true' if the specified 'pointer' and the
     // specified 'rvalue' refer to the same object.
 {
@@ -87,7 +87,7 @@ class vector
   public:
     vector();
         // Create an empty vector.
-    vector(bslmf::Rvalue<vector> other);
+    vector(bslmf::RvalueRef<vector> other);
         // Create a vector by transfering the content of the specified
         // 'other'.
     vector(const vector& other);
@@ -120,7 +120,7 @@ class vector
 
     void push_back(const TYPE& value);
         // Append a copy of the specified 'value' to the vector.
-    void push_back(bslmf::Rvalue<TYPE> value);
+    void push_back(bslmf::RvalueRef<TYPE> value);
         // Append an object moving the specified 'value' to the new
         // location.
     void reserve(int newCapacity);
@@ -156,7 +156,7 @@ vector<TYPE>::vector(const vector& other)
 }
 
 template <class TYPE>
-vector<TYPE>::vector(bslmf::Rvalue<vector> other)
+vector<TYPE>::vector(bslmf::RvalueRef<vector> other)
     : d_begin(bslmf::RvalueUtil::access(other).d_begin)
     , d_end(bslmf::RvalueUtil::access(other).d_end)
     , d_endBuffer(bslmf::RvalueUtil::access(other).d_endBuffer) {
@@ -194,7 +194,7 @@ void vector<TYPE>::push_back(const TYPE& value) {
 }
 
 template <class TYPE>
-void vector<TYPE>::push_back(bslmf::Rvalue<TYPE> value) {
+void vector<TYPE>::push_back(bslmf::RvalueRef<TYPE> value) {
     if (this->d_end == this->d_endBuffer) {
         this->reserve(this->size()? int(1.5 * this->size()): 4);
     }
@@ -307,26 +307,27 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // RVALUE<TYPE> AND RVALUEUTIL FUNCTIONALITY
+        // RVALUEREF<TYPE> AND RVALUEUTIL FUNCTIONALITY
         //
         // Concerns:
-        //: 1 Verify that an 'Rvalue<int>' can be created from an 'int' using
-        //:   'RvalueUtil::move()' and that references obtained using the
+        //: 1 Verify that an 'RvalueRef<int>' can be created from an 'int'
+        //:   using 'RvalueUtil::move()' and that references obtained using the
         //:   implicit conversion to 'int&' or using 'RvalueUtil::access()'
         //:   refer to the original object.
-        //: 2 Verify that an 'Rvalue<int>' can be moved using
-        //:   'RvalueUtil::move()' and that the newly created 'Rvalue<int>'
+        //: 2 Verify that an 'RvalueRef<int>' can be moved using
+        //:   'RvalueUtil::move()' and that the newly created 'RvalueRef<int>'
         //:   references the original object.
-        //: 3 Verify that a function can be called with an 'Rvalue<int>' and
+        //: 3 Verify that a function can be called with an 'RvalueRef<int>' and
         //:   that the argument stores a reference to the original object.
         //
         // Plan:
-        //: 1 Define an 'int' object 'value' and obtain an 'Rvalue<int>' named
-        //:   'rvalue0' using 'RvalueUtil::move(value)'. Then use an implicit
-        //:   conversion from 'rvalue0' to 'int&' to initialize 'reference'
-        //:   verify that '&value' and '&reference' are identical. Also verify
-        //:   that '&value' and '&RvalueUtil::access(rvalue0)' are identical.
-        //: 2 Create a new 'Rvalue<int>' named 'rvalue1' using
+        //: 1 Define an 'int' object 'value' and obtain an 'RvalueRef<int>'
+        //:   named 'rvalue0' using 'RvalueUtil::move(value)'. Then use an
+        //:   implicit conversion from 'rvalue0' to 'int&' to initialize
+        //:   'reference' verify that '&value' and '&reference' are identical.
+        //:   Also verify that '&value' and '&RvalueUtil::access(rvalue0)' are
+        //:   identical.
+        //: 2 Create a new 'RvalueRef<int>' named 'rvalue1' using
         //:   'RvalueUtil::move(rvalue0)' and verify that it references the
         //:   original object by comparing the address of 'value' and the
         //:   address of the result of 'RvalueUtil::access(rvalue1).
@@ -336,19 +337,19 @@ int main(int argc, char *argv[])
         //:   'RvalueUtil::access()' called on the second argument.
         //
         // Testing:
-        //     RVALUE<TYPE> AND RVALUEUTIL FUNCTIONALITY
+        //     RVALUEREF<TYPE> AND RVALUEUTIL FUNCTIONALITY
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nRVALUE<TYPE> AND RVALUEUTIL FUNCTIONALITY"
-                            "\n========================================\n");
+        if (verbose) printf("\nRVALUEREF<TYPE> AND RVALUEUTIL FUNCTIONALITY"
+                           "\n============================================\n");
 
-        int                value(0);
-        bslmf::Rvalue<int> rvalue0(bslmf::RvalueUtil::move(value));
-        int&               reference(rvalue0);
+        int                   value(0);
+        bslmf::RvalueRef<int> rvalue0(bslmf::RvalueUtil::move(value));
+        int&                  reference(rvalue0);
         ASSERT(&value == &reference);
         ASSERT(&value == &bslmf::RvalueUtil::access(rvalue0));
 
-        bslmf::Rvalue<int> rvalue1(bslmf::RvalueUtil::move(
+        bslmf::RvalueRef<int> rvalue1(bslmf::RvalueUtil::move(
                                               bslmf::RvalueUtil::move(value)));
         ASSERT(&value == &bslmf::RvalueUtil::access(rvalue1));
 
@@ -359,12 +360,12 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 Verify that all operations of 'Rvalue<TYPE>' and 'RvalueUtil' can
-        //:   be used.
+        //: 1 Verify that all operations of 'RvalueRef<TYPE>' and 'RvalueUtil'
+        //:   can be used.
         //
         // Plan:
-        //: 1 Use 'RvalueUtil::move()' to create an 'Rvalue<int>' and use the
-        //:   the implicate conversion to 'int&' and 'RvalueUtil::access()' to
+        //: 1 Use 'RvalueUtil::move()' to create an 'RvalueRef<int>' and use
+        //:   the implicite conversion to 'int&' and 'RvalueUtil::access()' to
         //:   to obtain a reference to the original value.
         //
         // Testing:
@@ -374,12 +375,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        int                value(0);
-        bslmf::Rvalue<int> rvalue(bslmf::RvalueUtil::move(value));
-        int&               reference(rvalue);
-        int&               lvalue(bslmf::RvalueUtil::access(rvalue));
+        int                   value(0);
+        bslmf::RvalueRef<int> rvalue(bslmf::RvalueUtil::move(value));
+        int&                  reference(rvalue);
+        int&                  lvalue(bslmf::RvalueUtil::access(rvalue));
         ASSERT(&reference == &lvalue);
-        int const&         cvalue(bslmf::RvalueUtil::moveIfNoexcept(value));
+        int const& cvalue(bslmf::RvalueUtil::moveIfNoexcept(value));
         ASSERT(&cvalue == &lvalue);
       } break;
       default: {
