@@ -35,6 +35,7 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
+// TBD
 // This component can be thoroughly tested by generating a representative set
 // of input values for each function and comparing the result with an expected
 // result.
@@ -44,48 +45,83 @@ using namespace bsl;
 //: o No memory is ever allocated from the default allocator.
 //: o Precondition violations are detected in appropriate build modes.
 //-----------------------------------------------------------------------------
-// Iso8601Util
-// [ 1] int generate(char *, const Date&, int);
-// [ 2] int generate(char *, const Time&, int);
-// [ 3] int generate(char *, const Datetime&, int);
-// [ 4] int generate(char *, const DateTz&, int);
-// [ 4] int generate(char *, const DateTz&, int, bool);
-// [ 5] int generate(char *, const TimeTz&, int);
-// [ 5] int generate(char *, const TimeTz&, int, bool);
-// [ 6] int generate(char *, const DatetimeTz&, int);
-// [ 6] int generate(char *, const DatetimeTz&, int, bool);
-// [ 1] ostream generate(ostream&, const Date&);
-// [ 2] ostream generate(ostream&, const Time&);
-// [ 3] ostream generate(ostream&, const Datetime&);
-// [ 4] ostream generate(ostream&, const DateTz&);
-// [ 4] ostream generate(ostream&, const DateTz&, bool);
-// [ 5] ostream generate(ostream&, const TimeTz&);
-// [ 5] ostream generate(ostream&, const TimeTz&, bool);
-// [ 6] ostream generate(ostream&, const DatetimeTz&);
-// [ 6] ostream generate(ostream&, const DatetimeTz&, bool);
-// [ 1] int generateRaw(char *, const Date&);
-// [ 2] int generateRaw(char *, const Time&);
-// [ 3] int generateRaw(char *, const Datetime&);
-// [ 4] int generateRaw(char *, const DateTz&);
-// [ 4] int generateRaw(char *, const DateTz&, bool);
-// [ 5] int generateRaw(char *, const TimeTz&);
-// [ 5] int generateRaw(char *, const TimeTz&, bool);
-// [ 6] int generateRaw(char *, const DatetimeTz&);
-// [ 6] int generateRaw(char *, const DatetimeTz&, bool);
-// [ 7] int parse(Date *, const char *, int);
-// [ 8] int parse(Time *, const char *, int);
-// [ 9] int parse(Datetime *, const char *, int);
-// [ 7] int parse(DateTz *, const char *, int);
-// [ 8] int parse(TimeTz *, const char *, int);
-// [ 9] int parse(DatetimeTz *, const char *, int);
+//                         ==================
+//                         struct Iso8601Util
+//                         ==================
+// CLASS METHODS
+// [ 2] int generate(char *, const Date&, int);
+// [ 2] int generate(char *, const Date&, int, const Config&);
+// [ 3] int generate(char *, const Time&, int);
+// [ 3] int generate(char *, const Time&, int, const Config&);
+// [ 4] int generate(char *, const Datetime&, int);
+// [ 4] int generate(char *, const Datetime&, int, const Config&);
+// [ 5] int generate(char *, const DateTz&, int);
+// [ 5] int generate(char *, const DateTz&, int, const Config&);
+// [ 6] int generate(char *, const TimeTz&, int);
+// [ 6] int generate(char *, const TimeTz&, int, const Config&);
+// [ 7] int generate(char *, const DatetimeTz&, int);
+// [ 7] int generate(char *, const DatetimeTz&, int, const Config&);
+// [ 2] ostream generate(ostream&, const Date&);
+// [ 2] ostream generate(ostream&, const Date&, const Config&);
+// [ 3] ostream generate(ostream&, const Time&);
+// [ 3] ostream generate(ostream&, const Time&, const Config&);
+// [ 4] ostream generate(ostream&, const Datetime&);
+// [ 4] ostream generate(ostream&, const Datetime&, const Config&);
+// [ 5] ostream generate(ostream&, const DateTz&);
+// [ 5] ostream generate(ostream&, const DateTz&, const Config&);
+// [ 6] ostream generate(ostream&, const TimeTz&);
+// [ 6] ostream generate(ostream&, const TimeTz&, const Config&);
+// [ 7] ostream generate(ostream&, const DatetimeTz&);
+// [ 7] ostream generate(ostream&, const DatetimeTz&, const Config&);
+// [ 2] int generateRaw(char *, const Date&);
+// [ 2] int generateRaw(char *, const Date&, const Config&);
+// [ 3] int generateRaw(char *, const Time&);
+// [ 3] int generateRaw(char *, const Time&, const Config&);
+// [ 4] int generateRaw(char *, const Datetime&);
+// [ 4] int generateRaw(char *, const Datetime&, const Config&);
+// [ 5] int generateRaw(char *, const DateTz&);
+// [ 5] int generateRaw(char *, const DateTz&, const Config&);
+// [ 6] int generateRaw(char *, const TimeTz&);
+// [ 6] int generateRaw(char *, const TimeTz&, const Config&);
+// [ 7] int generateRaw(char *, const DatetimeTz&);
+// [ 7] int generateRaw(char *, const DatetimeTz&, const Config&);
+// [ 8] int parse(Date *, const char *, int);
+// [ 9] int parse(Time *, const char *, int);
+// [10] int parse(Datetime *, const char *, int);
+// [ 8] int parse(DateTz *, const char *, int);
+// [ 9] int parse(TimeTz *, const char *, int);
+// [10] int parse(DatetimeTz *, const char *, int);
 //
-// Iso8601UtilConfiguration
-// [13] void setUseZAbbreviationForUtc(bool);
-// [13] bool useZAbbreviationForUtc();
+//                         ==============================
+//                         class Iso8601UtilConfiguration
+//                         ==============================
+// CLASS METHODS
+// [ 1] static void setDefaultConfiguration(const Config& config);
+// [ 1] static Config defaultConfiguration();
+//
+// CREATORS
+// [ 1] Iso8601UtilConfiguration();
+// [ 1] Iso8601UtilConfiguration(const Config& original);
+// [ 1] ~Iso8601UtilConfiguration();
+//
+// MANIPULATORS
+// [ 1] Config& operator=(const Config& rhs);
+// [ 1] void setOmitColonInZoneDesignator(bool value);
+// [ 1] void setUseCommaForDecimalSign(bool value);
+// [ 1] void setUseZAbbreviationForUtc(bool value);
+//
+// ACCESSORS
+// [ 1] bool omitColonInZoneDesignator() const;
+// [ 1] bool useCommaForDecimalSign() const;
+// [ 1] bool useZAbbreviationForUtc() const;
+//
+// FREE OPERATORS
+// [ 1] bool operator==(const Config& lhs, const Config& rhs);
+// [ 1] bool operator!=(const Config& lhs, const Config& rhs);
 //-----------------------------------------------------------------------------
 // [14] USAGE EXAMPLE
-// [11] CONCERN: Unusual timezone offsets
-// [12] CONCERN: parsing leap-seconds
+// [12] CONCERN: Unusual timezone offsets
+// [13] CONCERN: parsing leap-seconds
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -225,20 +261,130 @@ const DefaultZoneDataRow DEFAULT_ZONE_DATA[] =
 {
     //LINE   OFFSET   ISO8601
     //----   ------   --------
-    { L_,     -1439,   "-23:59" },
-    { L_,     - 120,   "-02:00" },
-    { L_,     -  30,   "-00:30" },
-    { L_,         0,   "+00:00" },
-    // TBD more
-    { L_,       240,   "+04:00" },
-    { L_,      1439,   "+23:59" },
+    { L_,     -1439,  "-23:59" },
+    { L_,     - 120,  "-02:00" },
+    { L_,     -  30,  "-00:30" },
+    { L_,         0,  "+00:00" },
+    { L_,        90,  "+01:30" },
+    { L_,       240,  "+04:00" },
+    { L_,      1439,  "+23:59" },
 };
 const int DEFAULT_NUM_ZONE_DATA =
         static_cast<int>(sizeof DEFAULT_ZONE_DATA / sizeof *DEFAULT_ZONE_DATA);
 
+// *** Configuration Data ***
+
+struct DefaultCnfgDataRow {
+    int  d_line;       // source line number
+    bool d_omitColon;  // 'omitColonInZoneDesignator' attribute
+    bool d_useComma;   // 'useCommaForDecimalSign'        "
+    bool d_useZ;       // 'useZAbbreviationForUtc'        "
+};
+
+static
+const DefaultCnfgDataRow DEFAULT_CNFG_DATA[] =
+{
+    //LINE   omit ':'   use ','   use 'Z'
+    //----   --------   -------   -------
+    { L_,      false,    false,    false  },
+    { L_,      false,    false,     true  },
+    { L_,      false,     true,    false  },
+    { L_,      false,     true,     true  },
+    { L_,       true,    false,    false  },
+    { L_,       true,    false,     true  },
+    { L_,       true,     true,    false  },
+    { L_,       true,     true,     true  },
+};
+const int DEFAULT_NUM_CNFG_DATA =
+        static_cast<int>(sizeof DEFAULT_CNFG_DATA / sizeof *DEFAULT_CNFG_DATA);
+
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
+
+Config& gg(Config *object,
+           bool    omitColonInZoneDesignatorFlag,
+           bool    useCommaForDecimalSignFlag,
+           bool    useZAbbreviationForUtcFlag)
+    // Return, by reference, the specified '*object' with its value adjusted
+    // according to the specified 'omitColonInZoneDesignatorFlag',
+    // 'useCommaForDecimalSignFlag', and 'useZAbbreviationForUtcFlag'.
+{
+    object->setOmitColonInZoneDesignator(omitColonInZoneDesignatorFlag);
+    object->setUseCommaForDecimalSign(useCommaForDecimalSignFlag);
+    object->setUseZAbbreviationForUtc(useZAbbreviationForUtcFlag);
+
+    return *object;
+}
+
+static
+void updateExpectedPerConfig(bsl::string   *expected,
+                             const Config&  configuration)
+    // Update the specified 'expected' ISO 8601 string as if it were generated
+    // using the specified 'configuration'.  The behavior is undefined unless
+    // the zone designator within 'expected' (if any) is of the form
+    // "(+|-)dd:dd".
+{
+    ASSERT(expected);
+
+    if (configuration.useCommaForDecimalSign()) {
+        const bsl::string::size_type index = expected->find('.');
+
+        if (index != bsl::string::npos) {
+            (*expected)[index] = ',';
+        }
+    }
+
+    // If there aren't enough characters in 'expected', don't bother with the
+    // other configuration options.
+
+    const int ZONELEN = static_cast<int>(sizeof "+dd:dd") - 1;
+
+    if (expected->length() < ZONELEN
+     || (!configuration.useZAbbreviationForUtc()
+      && !configuration.omitColonInZoneDesignator())) {
+        return;                                                       // RETURN
+    }
+
+    // See if the tail of 'expected' has the pattern of a zone designator.
+
+    const bsl::string::size_type zdx = expected->length() - ZONELEN;
+
+    if (('+' != (*expected)[zdx] && '-' != (*expected)[zdx])
+      || !isdigit((*expected)[zdx + 1])
+      || !isdigit((*expected)[zdx + 2])
+      || ':' !=   (*expected)[zdx + 3]
+      || !isdigit((*expected)[zdx + 4])
+      || !isdigit((*expected)[zdx + 5])) {
+        return;                                                       // RETURN
+    }
+
+    if (configuration.useZAbbreviationForUtc()) {
+        const bsl::string zone = expected->substr(
+                                                 expected->length() - ZONELEN);
+
+        if (0 == zone.compare("+00:00")) {
+            expected->erase(expected->length() - ZONELEN);
+            expected->push_back('Z');
+
+            return;                                                   // RETURN
+        }
+    }
+
+    if (configuration.omitColonInZoneDesignator()) {
+        const bsl::string::size_type index = expected->find_last_of(':');
+
+        if (index != bsl::string::npos) {
+            expected->erase(index, 1);
+        }
+    }
+}
+
+template <class TYPE>
+int myParse(TYPE *dst, const char *str)
+{
+    return Util::parse(dst, str, static_cast<int>(bsl::strlen(str)));
+}
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 void noopLogMessageHandler(const char *, int, const char *)
@@ -246,12 +392,6 @@ void noopLogMessageHandler(const char *, int, const char *)
 {
 }
 #endif
-
-template <class TYPE>
-int myParse(TYPE *dst, const char *str)
-{
-    return Util::parse(dst, str, static_cast<int>(bsl::strlen(str)));
-}
 
 //=============================================================================
 //                      HELPER FUNCTIONS FOR TESTING
@@ -420,11 +560,10 @@ void testFormerCase3TestingParse()
 
     const int UTC_EMPTY_OFFSET = 0x70000000;
     const int UTC_UCZ_OFFSET   = UTC_EMPTY_OFFSET + 'Z';
-    const int UTC_LCZ_OFFSET   = UTC_EMPTY_OFFSET + 'z';
 
     const int UTC_OFFSETS[] = {
         0, -90, -240, -720, -1439, 90, 240, 720, 1439,
-        UTC_EMPTY_OFFSET, UTC_UCZ_OFFSET, UTC_LCZ_OFFSET
+        UTC_EMPTY_OFFSET, UTC_UCZ_OFFSET
     };
     const int NUM_UTC_OFFSETS =
                     static_cast<int>(sizeof UTC_OFFSETS / sizeof *UTC_OFFSETS);
@@ -525,7 +664,7 @@ void testFormerCase3TestingParse()
                 bsl::sprintf(timeStr, "%02d:%02d:%02d%s",
                              HOUR, MINUTE, SECOND, FRAC_SECOND);
                 if (UTC_OFFSETS[j] >= UTC_EMPTY_OFFSET) {
-                    // Create empty string, "Z", or "z"
+                    // Create empty string or "Z"
                     offsetStr[0] = static_cast<char>(UTC_OFFSETS[j] -
                                                      UTC_EMPTY_OFFSET);
                     offsetStr[1] = '\0';
@@ -929,45 +1068,6 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'Iso8601UtilConfiguration'
-        //
-        // Concerns:
-        //: 1 The default value for 'useZAbbreviationForUtc' is 'false'.
-        //:
-        //: 2 Calling 'setUseZAbbreviationForUtc' sets
-        //:   'useZAbbreviationForUtc'  to the indicated status.
-        //
-        // Plan:
-        //: 1 Verify that if 'setUseZAbbreviationForUtc' is not called,
-        //:   'useZAbbreviationForUtc' returns 'false'. (C-1)
-        //:
-        //: 2 Call 'setUseZAbbreviationForUtc' with both 'true' and 'false'
-        //:   and verify that 'useZAbbreviationForUtc' returns the
-        //:   corresponding state. (C-2)
-        //
-        // Testing:
-        //   void setUseZAbbreviationForUtc(bool);
-        //   bool useZAbbreviationForUtc();
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "TESTING 'Iso8601UtilConfiguration'" << endl
-                          << "==================================" << endl;
-
-        ASSERT(false == Config::useZAbbreviationForUtc());
-
-        Config::setUseZAbbreviationForUtc(false);
-        ASSERT(false == Config::useZAbbreviationForUtc());
-
-        Config::setUseZAbbreviationForUtc(true);
-        ASSERT(true == Config::useZAbbreviationForUtc());
-
-        Config::setUseZAbbreviationForUtc(false);
-        ASSERT(false == Config::useZAbbreviationForUtc());
-
-      } break;
-      case 12: {
-        // --------------------------------------------------------------------
         // CONCERN: parsing leap-seconds
         //
         // Concerns:
@@ -1110,7 +1210,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(parsedTz, expectedTz == parsedTz);
         }
       } break;
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // CONCERN: Unusual timezone offsets
         //
@@ -1160,7 +1260,6 @@ int main(int argc, char *argv[])
                 { "+123:123",     0,      0 },
                 { "+12:12",       1,    732 },
                 { "-12:12",       1,   -732 },
-                { "z",            1,      0 },
                 { "Z",            1,      0 },
                 { "",             1,      0 },
                 { "+123:23",      0,      0 },
@@ -1170,7 +1269,7 @@ int main(int argc, char *argv[])
                 { "+1:12",        0,      0 },
                 { "+12:1",        0,      0 },
                 { "+a1:12",       0,      0 },
-                { "z0",           0,      0 },
+                { "Z0",           0,      0 },
                 { "0",            0,      0 },
                 { "T",            0,      0 },
                 { "+",            0,      0 },
@@ -1195,7 +1294,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING PARSE
         //   Note that the testing for 'parse' for 'Datetime' and 'DatetimeTz'
@@ -1235,7 +1334,7 @@ int main(int argc, char *argv[])
         //   - Compose date, time, and datetime strings from each test vector.
         //   - Apply the following orthogonal perturbations:
         //     + A set of timezone offsets, including an empty offset and the
-        //       characters "z" and "Z", which are equivalent to "+00:00".
+        //       character "Z", which is equivalent to "+00:00".
         //     + A superfluous "X" after the end of the parsed string.
         //   - Construct each of the six date, time, and datetime types from
         //     the appropriate input strings.
@@ -1256,7 +1355,7 @@ int main(int argc, char *argv[])
         testFormerCase3TestingParse();
 
       } break;
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // PARSE: DATETIME & DATETIMETZ
         //
@@ -1671,15 +1770,15 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // PARSE: TIME & TIMETZ
         //
         // Concerns:
-        //   TBD
+        //: 1 TBD
         //
         // Plan:
-        //   TBD
+        //: 1 TBD
         //
         // Testing:
         //   int parse(Time *, const char *, int);
@@ -1693,15 +1792,15 @@ int main(int argc, char *argv[])
         // TBD
 
       } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // PARSE: DATE & DATETZ
         //
         // Concerns:
-        //   TBD
+        //: 1 TBD
         //
         // Plan:
-        //   TBD
+        //: 1 TBD
         //
         // Testing:
         //   int parse(Date *, const char *, int);
@@ -1715,7 +1814,7 @@ int main(int argc, char *argv[])
         // TBD
 
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // GENERATE 'DatetimeTz'
         //
@@ -1731,9 +1830,10 @@ int main(int argc, char *argv[])
         //:
         //: 4 The value of the supplied object is unchanged.
         //:
-        //: ? TBD Configuration
+        //: 5 The configuration that is in effect, whether user-supplied or the
+        //:   process-wide default, has the desired affect on the output.
         //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        //: 6 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a set of distinct
@@ -1747,31 +1847,30 @@ int main(int argc, char *argv[])
         //:   per row) and their corresponding ISO 8601 string representations.
         //:
         //: 4 For each element 'R' in the cross product of the tables from P-1,
-        //:   P-2, and P-3:  (C-1..4)
+        //:   P-2, and P-3:  (C-1..5)
         //:
         //:   1 Create a 'const' 'DatetimeTz' object, 'X', from 'R'.
         //:
-        //:   2 Invoke the three methods under test on 'X', in turn, exercising
-        //:     the method taking 'bufferLength' for all buffer lengths in the
-        //:     range '[0 .. L]', where 'L' provides sufficient capacity for a
-        //:     null terminator and a few extra characters.  For each call,
-        //:     verify that the generated output matches the string from 'R', a
-        //:     null terminator is appended when expected, and the return value
-        //:     is correct.  (Note that it is unspecified whether 'generateRaw'
-        //:     outputs a null terminator; here we test the implementation,
-        //:     i.e., that a null terminator is *not* produced.)  (C-1..4)
+        //:   2 Invoke the six methods under test on 'X' for all possible
+        //:     configurations.  Also exercise the method taking 'bufferLength'
+        //:     for all buffer lengths in the range '[0 .. L]', where 'L'
+        //:     provides sufficient capacity for a null terminator and a few
+        //:     extra characters.  For each call, verify that the generated
+        //:     output matches the string from 'R' (taking the affect of the
+        //:     configuration into account), a null terminator is appended when
+        //:     expected, and the return value is correct.  (C-1..5)
         //:
         //: 3 Verify that, in appropriate build modes, defensive checks are
         //:   triggered for invalid arguments, but not triggered for adjacent
-        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-5)
+        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
         //
         // Testing:
         //   int generate(char *, const DatetimeTz&, int);
-        //   int generate(char *, const DatetimeTz&, int, bool);
+        //   int generate(char *, const DatetimeTz&, int, const Config&);
         //   ostream generate(ostream&, const DatetimeTz&);
-        //   ostream generate(ostream&, const DatetimeTz&, bool);
+        //   ostream generate(ostream&, const DatetimeTz&, const Config&);
         //   int generateRaw(char *, const DatetimeTz&);
-        //   int generateRaw(char *, const DatetimeTz&, bool);
+        //   int generateRaw(char *, const DatetimeTz&, const Config&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1783,8 +1882,8 @@ int main(int argc, char *argv[])
         const int OBJLEN = Util::k_DATETIMETZ_STRLEN;
         const int BUFLEN = OBJLEN + 4;
 
-        char chaste[BUFLEN];
-        bsl::memset(chaste, '?', BUFLEN);
+        char buffer[BUFLEN];
+        char chaste[BUFLEN];  bsl::memset(chaste, '?', BUFLEN);
 
         const int NUM_DATE_DATA                        = DEFAULT_NUM_DATE_DATA;
         const DefaultDateDataRow (&DATE_DATA)[NUM_DATE_DATA] =
@@ -1797,6 +1896,10 @@ int main(int argc, char *argv[])
         const int NUM_ZONE_DATA                        = DEFAULT_NUM_ZONE_DATA;
         const DefaultZoneDataRow (&ZONE_DATA)[NUM_ZONE_DATA] =
                                                              DEFAULT_ZONE_DATA;
+
+        const int NUM_CNFG_DATA                        = DEFAULT_NUM_CNFG_DATA;
+        const DefaultCnfgDataRow (&CNFG_DATA)[NUM_CNFG_DATA] =
+                                                             DEFAULT_CNFG_DATA;
 
         for (int ti = 0; ti < NUM_DATE_DATA; ++ti) {
             const int   ILINE   = DATE_DATA[ti].d_line;
@@ -1832,80 +1935,183 @@ int main(int argc, char *argv[])
             }
 
             const TYPE        X(bdlt::Datetime(DATE, TIME), OFFSET);
-            const bsl::string EXPECTED(
+            const bsl::string BASE_EXPECTED(
                           EXPECTED_DATE + 'T' + EXPECTED_TIME + EXPECTED_ZONE);
 
             if (veryVerbose) {
-                T_ P_(ILINE) P_(JLINE) P_(KLINE) P_(X) P(EXPECTED)
+                T_ P_(ILINE) P_(JLINE) P_(KLINE) P_(X) P(BASE_EXPECTED)
             }
 
-            char buffer[BUFLEN];
+            for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
+                const int  CLINE     = CNFG_DATA[tc].d_line;
+                const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
+                const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
-            // 'generate' taking 'bufferLength'
-
-            for (int k = 0; k < BUFLEN; ++k) {
-                bsl::memset(buffer, '?', BUFLEN);
-
-                ASSERTV(ILINE, JLINE, KLINE, k, OBJLEN,
-                        OBJLEN == Util::generate(buffer, X, k));
-
-                ASSERTV(ILINE, JLINE, KLINE, EXPECTED, buffer,
-                        0 == bsl::memcmp(EXPECTED.c_str(),
-                                         buffer,
-                                         k < OBJLEN ? k : OBJLEN));
-
-                if (k <= OBJLEN) {
-                    ASSERTV(ILINE, JLINE, KLINE, EXPECTED, buffer,
-                            0 == bsl::memcmp(chaste, buffer + k, BUFLEN - k));
+                if (veryVerbose) {
+                    T_ P_(CLINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
                 }
-                else {
-                    ASSERTV(ILINE, JLINE, KLINE, k, OBJLEN,
-                            '\0' == buffer[OBJLEN]);
+
+                Config mC;  const Config& C = mC;
+                gg(&mC, OMITCOLON, USECOMMA, USEZ);
+
+                Config::setDefaultConfiguration(C);
+
+                bsl::string EXPECTED(BASE_EXPECTED);
+                updateExpectedPerConfig(&EXPECTED, C);
+
+                const int OUTLEN = static_cast<int>(EXPECTED.length());
+
+                // 'generate' taking 'bufferLength'
+
+                for (int k = 0; k < BUFLEN; ++k) {
+                    bsl::memset(buffer, '?', BUFLEN);
+
+                    ASSERTV(ILINE, JLINE, KLINE, k, OUTLEN,
+                            OUTLEN == Util::generate(buffer, X, k));
+
+                    ASSERTV(ILINE, JLINE, KLINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(EXPECTED.c_str(),
+                                             buffer,
+                                             k < OUTLEN ? k : OUTLEN));
+
+                    if (k <= OUTLEN) {
+                        ASSERTV(ILINE, JLINE, KLINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(chaste,
+                                                 buffer + k,
+                                                 BUFLEN - k));
+                    }
+                    else {
+                        ASSERTV(ILINE, JLINE, KLINE, k, OUTLEN,
+                                '\0' == buffer[OUTLEN]);
+
+                        ASSERTV(ILINE, JLINE, KLINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(chaste,
+                                                 buffer + k + 1,
+                                                 BUFLEN - k - 1));
+                    }
+                }
+
+                // 'generate' to an 'ostream'
+                {
+                    bsl::ostringstream os;
+
+                    ASSERTV(ILINE, JLINE, KLINE,
+                            &os == &Util::generate(os, X));
+
+                    ASSERTV(ILINE, JLINE, KLINE, EXPECTED, os.str(),
+                            EXPECTED == os.str());
+
+                    if (veryVerbose) { P_(EXPECTED) P(os.str()); }
+                }
+
+                // 'generateRaw'
+                {
+                    bsl::memset(buffer, '?', BUFLEN);
+
+                    ASSERTV(ILINE, JLINE, KLINE, OUTLEN,
+                            OUTLEN == Util::generateRaw(buffer, X));
+
+                    ASSERTV(ILINE, JLINE, KLINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(EXPECTED.c_str(),
+                                             buffer,
+                                             OUTLEN));
 
                     ASSERTV(ILINE, JLINE, KLINE, EXPECTED, buffer,
                             0 == bsl::memcmp(chaste,
-                                             buffer + k + 1,
-                                             BUFLEN - k - 1));
+                                             buffer + OUTLEN,
+                                             BUFLEN - OUTLEN));
                 }
-            }
+            }  // loop over 'CNFG_DATA'
 
-            // 'generate' to an 'ostream'
-            {
-                bsl::ostringstream os;
+            Config::setDefaultConfiguration(Config());
 
-                ASSERTV(ILINE, JLINE, KLINE, &os == &Util::generate(os, X));
+            for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
+                const int  CLINE     = CNFG_DATA[tc].d_line;
+                const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
+                const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
-                ASSERTV(ILINE, JLINE, KLINE, EXPECTED, os.str(),
-                        EXPECTED == os.str());
+                if (veryVerbose) {
+                    T_ P_(CLINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
+                }
 
-                if (veryVerbose) { P_(EXPECTED) P(os.str()); }
-            }
+                Config mC;  const Config& C = mC;
+                gg(&mC, OMITCOLON, USECOMMA, USEZ);
 
-            // 'generateRaw'
-            {
-                bsl::memset(buffer, '?', BUFLEN);
+                bsl::string EXPECTED(BASE_EXPECTED);
+                updateExpectedPerConfig(&EXPECTED, C);
 
-                ASSERTV(ILINE, JLINE, KLINE, OBJLEN,
-                        OBJLEN == Util::generateRaw(buffer, X));
+                const int OUTLEN = static_cast<int>(EXPECTED.length());
 
-                ASSERTV(ILINE, JLINE, KLINE, EXPECTED, buffer,
-                        0 == bsl::memcmp(EXPECTED.c_str(), buffer, OBJLEN));
+                // 'generate' taking 'bufferLength'
 
-                ASSERTV(ILINE, JLINE, KLINE, EXPECTED, buffer,
-                        0 == bsl::memcmp(chaste,
-                                         buffer + OBJLEN,
-                                         BUFLEN - OBJLEN));
-            }
+                for (int k = 0; k < BUFLEN; ++k) {
+                    bsl::memset(buffer, '?', BUFLEN);
+
+                    ASSERTV(ILINE, k, OUTLEN,
+                            OUTLEN == Util::generate(buffer, X, k, C));
+
+                    ASSERTV(ILINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(EXPECTED.c_str(),
+                                             buffer,
+                                             k < OUTLEN ? k : OUTLEN));
+
+                    if (k <= OUTLEN) {
+                        ASSERTV(ILINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(chaste,
+                                                 buffer + k,
+                                                 BUFLEN - k));
+                    }
+                    else {
+                        ASSERTV(ILINE, k, OUTLEN, '\0' == buffer[OUTLEN]);
+
+                        ASSERTV(ILINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(chaste,
+                                                 buffer + k + 1,
+                                                 BUFLEN - k - 1));
+                    }
+                }
+
+                // 'generate' to an 'ostream'
+                {
+                    bsl::ostringstream os;
+
+                    ASSERTV(ILINE, &os == &Util::generate(os, X, C));
+
+                    ASSERTV(ILINE, EXPECTED, os.str(), EXPECTED == os.str());
+
+                    if (veryVerbose) { P_(EXPECTED) P(os.str()); }
+                }
+
+                // 'generateRaw'
+                {
+                    bsl::memset(buffer, '?', BUFLEN);
+
+                    ASSERTV(ILINE, OUTLEN,
+                            OUTLEN == Util::generateRaw(buffer, X, C));
+
+                    ASSERTV(ILINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(EXPECTED.c_str(),
+                                             buffer,
+                                             OUTLEN));
+
+                    ASSERTV(ILINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(chaste,
+                                             buffer + OUTLEN,
+                                             BUFLEN - OUTLEN));
+                }
+            }  // loop over 'CNFG_DATA'
         }  // loop over 'ZONE_DATA'
         }  // loop over 'TIME_DATA'
         }  // loop over 'DATE_DATA'
-
-        // TBD test Configuration
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
             bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
+
+            const Config C;
 
             if (verbose) cout << "\t'generate'" << endl;
             {
@@ -1917,6 +2123,12 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_PASS(Util::generate(buffer, X,      0));
                 ASSERT_SAFE_FAIL(Util::generate(buffer, X,     -1));
+
+                ASSERT_SAFE_PASS(Util::generate(buffer, X, OBJLEN, C));
+                ASSERT_SAFE_FAIL(Util::generate(     0, X, OBJLEN, C));
+
+                ASSERT_SAFE_PASS(Util::generate(buffer, X,      0, C));
+                ASSERT_SAFE_FAIL(Util::generate(buffer, X,     -1, C));
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -1926,11 +2138,14 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_PASS(Util::generateRaw(buffer, X));
                 ASSERT_SAFE_FAIL(Util::generateRaw(     0, X));
+
+                ASSERT_SAFE_PASS(Util::generateRaw(buffer, X, C));
+                ASSERT_SAFE_FAIL(Util::generateRaw(     0, X, C));
             }
         }
 
       } break;
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // GENERATE 'TimeTz'
         //
@@ -1946,9 +2161,10 @@ int main(int argc, char *argv[])
         //:
         //: 4 The value of the supplied object is unchanged.
         //:
-        //: ? TBD Configuration
+        //: 5 The configuration that is in effect, whether user-supplied or the
+        //:   process-wide default, has the desired affect on the output.
         //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        //: 6 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a set of distinct
@@ -1959,31 +2175,30 @@ int main(int argc, char *argv[])
         //:   per row) and their corresponding ISO 8601 string representations.
         //:
         //: 3 For each element 'R' in the cross product of the tables from P-1
-        //:   and P-2:  (C-1..4)
+        //:   and P-2:  (C-1..5)
         //:
         //:   1 Create a 'const' 'TimeTz' object, 'X', from 'R'.
         //:
-        //:   2 Invoke the three methods under test on 'X', in turn, exercising
-        //:     the method taking 'bufferLength' for all buffer lengths in the
-        //:     range '[0 .. L]', where 'L' provides sufficient capacity for a
-        //:     null terminator and a few extra characters.  For each call,
-        //:     verify that the generated output matches the string from 'R', a
-        //:     null terminator is appended when expected, and the return value
-        //:     is correct.  (Note that it is unspecified whether 'generateRaw'
-        //:     outputs a null terminator; here we test the implementation,
-        //:     i.e., that a null terminator is *not* produced.)  (C-1..4)
+        //:   2 Invoke the six methods under test on 'X' for all possible
+        //:     configurations.  Also exercise the method taking 'bufferLength'
+        //:     for all buffer lengths in the range '[0 .. L]', where 'L'
+        //:     provides sufficient capacity for a null terminator and a few
+        //:     extra characters.  For each call, verify that the generated
+        //:     output matches the string from 'R' (taking the affect of the
+        //:     configuration into account), a null terminator is appended when
+        //:     expected, and the return value is correct.  (C-1..5)
         //:
         //: 3 Verify that, in appropriate build modes, defensive checks are
         //:   triggered for invalid arguments, but not triggered for adjacent
-        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-5)
+        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
         //
         // Testing:
         //   int generate(char *, const TimeTz&, int);
-        //   int generate(char *, const TimeTz&, int, bool);
+        //   int generate(char *, const TimeTz&, int, const Config&);
         //   ostream generate(ostream&, const TimeTz&);
-        //   ostream generate(ostream&, const TimeTz&, bool);
+        //   ostream generate(ostream&, const TimeTz&, const Config&);
         //   int generateRaw(char *, const TimeTz&);
-        //   int generateRaw(char *, const TimeTz&, bool);
+        //   int generateRaw(char *, const TimeTz&, const Config&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1995,8 +2210,8 @@ int main(int argc, char *argv[])
         const int OBJLEN = Util::k_TIMETZ_STRLEN;
         const int BUFLEN = OBJLEN + 4;
 
-        char chaste[BUFLEN];
-        bsl::memset(chaste, '?', BUFLEN);
+        char buffer[BUFLEN];
+        char chaste[BUFLEN];  bsl::memset(chaste, '?', BUFLEN);
 
         const int NUM_TIME_DATA                        = DEFAULT_NUM_TIME_DATA;
         const DefaultTimeDataRow (&TIME_DATA)[NUM_TIME_DATA] =
@@ -2005,6 +2220,10 @@ int main(int argc, char *argv[])
         const int NUM_ZONE_DATA                        = DEFAULT_NUM_ZONE_DATA;
         const DefaultZoneDataRow (&ZONE_DATA)[NUM_ZONE_DATA] =
                                                              DEFAULT_ZONE_DATA;
+
+        const int NUM_CNFG_DATA                        = DEFAULT_NUM_CNFG_DATA;
+        const DefaultCnfgDataRow (&CNFG_DATA)[NUM_CNFG_DATA] =
+                                                             DEFAULT_CNFG_DATA;
 
         for (int ti = 0; ti < NUM_TIME_DATA; ++ti) {
             const int   ILINE   = TIME_DATA[ti].d_line;
@@ -2029,75 +2248,178 @@ int main(int argc, char *argv[])
             }
 
             const TYPE        X(TIME, OFFSET);
-            const bsl::string EXPECTED(EXPECTED_TIME + EXPECTED_ZONE);
+            const bsl::string BASE_EXPECTED(EXPECTED_TIME + EXPECTED_ZONE);
 
-            if (veryVerbose) { T_ P_(ILINE) P_(JLINE) P_(X) P(EXPECTED) }
+            if (veryVerbose) { T_ P_(ILINE) P_(JLINE) P_(X) P(BASE_EXPECTED) }
 
-            char buffer[BUFLEN];
+            for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
+                const int  CLINE     = CNFG_DATA[tc].d_line;
+                const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
+                const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
-            // 'generate' taking 'bufferLength'
-
-            for (int k = 0; k < BUFLEN; ++k) {
-                bsl::memset(buffer, '?', BUFLEN);
-
-                ASSERTV(ILINE, JLINE, k, OBJLEN,
-                        OBJLEN == Util::generate(buffer, X, k));
-
-                ASSERTV(ILINE, JLINE, EXPECTED, buffer,
-                        0 == bsl::memcmp(EXPECTED.c_str(),
-                                         buffer,
-                                         k < OBJLEN ? k : OBJLEN));
-
-                if (k <= OBJLEN) {
-                    ASSERTV(ILINE, JLINE, EXPECTED, buffer,
-                            0 == bsl::memcmp(chaste, buffer + k, BUFLEN - k));
+                if (veryVerbose) {
+                    T_ P_(CLINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
                 }
-                else {
-                    ASSERTV(ILINE, JLINE, k, OBJLEN, '\0' == buffer[OBJLEN]);
+
+                Config mC;  const Config& C = mC;
+                gg(&mC, OMITCOLON, USECOMMA, USEZ);
+
+                Config::setDefaultConfiguration(C);
+
+                bsl::string EXPECTED(BASE_EXPECTED);
+                updateExpectedPerConfig(&EXPECTED, C);
+
+                const int OUTLEN = static_cast<int>(EXPECTED.length());
+
+                // 'generate' taking 'bufferLength'
+
+                for (int k = 0; k < BUFLEN; ++k) {
+                    bsl::memset(buffer, '?', BUFLEN);
+
+                    ASSERTV(ILINE, JLINE, k, OUTLEN,
+                            OUTLEN == Util::generate(buffer, X, k));
+
+                    ASSERTV(ILINE, JLINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(EXPECTED.c_str(),
+                                             buffer,
+                                             k < OUTLEN ? k : OUTLEN));
+
+                    if (k <= OUTLEN) {
+                        ASSERTV(ILINE, JLINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(chaste,
+                                                 buffer + k,
+                                                 BUFLEN - k));
+                    }
+                    else {
+                        ASSERTV(ILINE, JLINE, k, OUTLEN,
+                                '\0' == buffer[OUTLEN]);
+
+                        ASSERTV(ILINE, JLINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(chaste,
+                                                 buffer + k + 1,
+                                                 BUFLEN - k - 1));
+                    }
+                }
+
+                // 'generate' to an 'ostream'
+                {
+                    bsl::ostringstream os;
+
+                    ASSERTV(ILINE, JLINE, &os == &Util::generate(os, X));
+
+                    ASSERTV(ILINE, JLINE, EXPECTED, os.str(),
+                            EXPECTED == os.str());
+
+                    if (veryVerbose) { P_(EXPECTED) P(os.str()); }
+                }
+
+                // 'generateRaw'
+                {
+                    bsl::memset(buffer, '?', BUFLEN);
+
+                    ASSERTV(ILINE, JLINE, OUTLEN,
+                            OUTLEN == Util::generateRaw(buffer, X));
+
+                    ASSERTV(ILINE, JLINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(EXPECTED.c_str(),
+                                             buffer,
+                                             OUTLEN));
 
                     ASSERTV(ILINE, JLINE, EXPECTED, buffer,
                             0 == bsl::memcmp(chaste,
-                                             buffer + k + 1,
-                                             BUFLEN - k - 1));
+                                             buffer + OUTLEN,
+                                             BUFLEN - OUTLEN));
                 }
-            }
+            }  // loop over 'CNFG_DATA'
 
-            // 'generate' to an 'ostream'
-            {
-                bsl::ostringstream os;
+            Config::setDefaultConfiguration(Config());
 
-                ASSERTV(ILINE, JLINE, &os == &Util::generate(os, X));
+            for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
+                const int  CLINE     = CNFG_DATA[tc].d_line;
+                const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
+                const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
-                ASSERTV(ILINE, JLINE, EXPECTED, os.str(),
-                        EXPECTED == os.str());
+                if (veryVerbose) {
+                    T_ P_(CLINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
+                }
 
-                if (veryVerbose) { P_(EXPECTED) P(os.str()); }
-            }
+                Config mC;  const Config& C = mC;
+                gg(&mC, OMITCOLON, USECOMMA, USEZ);
 
-            // 'generateRaw'
-            {
-                bsl::memset(buffer, '?', BUFLEN);
+                bsl::string EXPECTED(BASE_EXPECTED);
+                updateExpectedPerConfig(&EXPECTED, C);
 
-                ASSERTV(ILINE, JLINE, OBJLEN,
-                        OBJLEN == Util::generateRaw(buffer, X));
+                const int OUTLEN = static_cast<int>(EXPECTED.length());
 
-                ASSERTV(ILINE, JLINE, EXPECTED, buffer,
-                        0 == bsl::memcmp(EXPECTED.c_str(), buffer, OBJLEN));
+                // 'generate' taking 'bufferLength'
 
-                ASSERTV(ILINE, JLINE, EXPECTED, buffer,
-                        0 == bsl::memcmp(chaste,
-                                         buffer + OBJLEN,
-                                         BUFLEN - OBJLEN));
-            }
+                for (int k = 0; k < BUFLEN; ++k) {
+                    bsl::memset(buffer, '?', BUFLEN);
+
+                    ASSERTV(ILINE, k, OUTLEN,
+                            OUTLEN == Util::generate(buffer, X, k, C));
+
+                    ASSERTV(ILINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(EXPECTED.c_str(),
+                                             buffer,
+                                             k < OUTLEN ? k : OUTLEN));
+
+                    if (k <= OUTLEN) {
+                        ASSERTV(ILINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(chaste,
+                                                 buffer + k,
+                                                 BUFLEN - k));
+                    }
+                    else {
+                        ASSERTV(ILINE, k, OUTLEN, '\0' == buffer[OUTLEN]);
+
+                        ASSERTV(ILINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(chaste,
+                                                 buffer + k + 1,
+                                                 BUFLEN - k - 1));
+                    }
+                }
+
+                // 'generate' to an 'ostream'
+                {
+                    bsl::ostringstream os;
+
+                    ASSERTV(ILINE, &os == &Util::generate(os, X, C));
+
+                    ASSERTV(ILINE, EXPECTED, os.str(), EXPECTED == os.str());
+
+                    if (veryVerbose) { P_(EXPECTED) P(os.str()); }
+                }
+
+                // 'generateRaw'
+                {
+                    bsl::memset(buffer, '?', BUFLEN);
+
+                    ASSERTV(ILINE, OUTLEN,
+                            OUTLEN == Util::generateRaw(buffer, X, C));
+
+                    ASSERTV(ILINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(EXPECTED.c_str(),
+                                             buffer,
+                                             OUTLEN));
+
+                    ASSERTV(ILINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(chaste,
+                                             buffer + OUTLEN,
+                                             BUFLEN - OUTLEN));
+                }
+            }  // loop over 'CNFG_DATA'
         }  // loop over 'ZONE_DATA'
         }  // loop over 'TIME_DATA'
-
-        // TBD test Configuration
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
             bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
+
+            const Config C;
 
             if (verbose) cout << "\t'generate'" << endl;
             {
@@ -2109,6 +2431,12 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_PASS(Util::generate(buffer, X,      0));
                 ASSERT_SAFE_FAIL(Util::generate(buffer, X,     -1));
+
+                ASSERT_SAFE_PASS(Util::generate(buffer, X, OBJLEN, C));
+                ASSERT_SAFE_FAIL(Util::generate(     0, X, OBJLEN, C));
+
+                ASSERT_SAFE_PASS(Util::generate(buffer, X,      0, C));
+                ASSERT_SAFE_FAIL(Util::generate(buffer, X,     -1, C));
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -2118,11 +2446,14 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_PASS(Util::generateRaw(buffer, X));
                 ASSERT_SAFE_FAIL(Util::generateRaw(     0, X));
+
+                ASSERT_SAFE_PASS(Util::generateRaw(buffer, X, C));
+                ASSERT_SAFE_FAIL(Util::generateRaw(     0, X, C));
             }
         }
 
       } break;
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // GENERATE 'DateTz'
         //
@@ -2138,9 +2469,10 @@ int main(int argc, char *argv[])
         //:
         //: 4 The value of the supplied object is unchanged.
         //:
-        //: ? TBD Configuration
+        //: 5 The configuration that is in effect, whether user-supplied or the
+        //:   process-wide default, has the desired affect on the output.
         //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        //: 6 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a set of distinct
@@ -2151,31 +2483,30 @@ int main(int argc, char *argv[])
         //:   per row) and their corresponding ISO 8601 string representations.
         //:
         //: 3 For each element 'R' in the cross product of the tables from P-1
-        //:   and P-2:  (C-1..4)
+        //:   and P-2:  (C-1..5)
         //:
         //:   1 Create a 'const' 'DateTz' object, 'X', from 'R'.
         //:
-        //:   2 Invoke the three methods under test on 'X', in turn, exercising
-        //:     the method taking 'bufferLength' for all buffer lengths in the
-        //:     range '[0 .. L]', where 'L' provides sufficient capacity for a
-        //:     null terminator and a few extra characters.  For each call,
-        //:     verify that the generated output matches the string from 'R', a
-        //:     null terminator is appended when expected, and the return value
-        //:     is correct.  (Note that it is unspecified whether 'generateRaw'
-        //:     outputs a null terminator; here we test the implementation,
-        //:     i.e., that a null terminator is *not* produced.)  (C-1..4)
+        //:   2 Invoke the six methods under test on 'X' for all possible
+        //:     configurations.  Also exercise the method taking 'bufferLength'
+        //:     for all buffer lengths in the range '[0 .. L]', where 'L'
+        //:     provides sufficient capacity for a null terminator and a few
+        //:     extra characters.  For each call, verify that the generated
+        //:     output matches the string from 'R' (taking the affect of the
+        //:     configuration into account), a null terminator is appended when
+        //:     expected, and the return value is correct.  (C-1..5)
         //:
         //: 3 Verify that, in appropriate build modes, defensive checks are
         //:   triggered for invalid arguments, but not triggered for adjacent
-        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-5)
+        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
         //
         // Testing:
         //   int generate(char *, const DateTz&, int);
-        //   int generate(char *, const DateTz&, int, bool);
+        //   int generate(char *, const DateTz&, int, const Config&);
         //   ostream generate(ostream&, const DateTz&);
-        //   ostream generate(ostream&, const DateTz&, bool);
+        //   ostream generate(ostream&, const DateTz&, const Config&);
         //   int generateRaw(char *, const DateTz&);
-        //   int generateRaw(char *, const DateTz&, bool);
+        //   int generateRaw(char *, const DateTz&, const Config&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2187,8 +2518,8 @@ int main(int argc, char *argv[])
         const int OBJLEN = Util::k_DATETZ_STRLEN;
         const int BUFLEN = OBJLEN + 4;
 
-        char chaste[BUFLEN];
-        bsl::memset(chaste, '?', BUFLEN);
+        char buffer[BUFLEN];
+        char chaste[BUFLEN];  bsl::memset(chaste, '?', BUFLEN);
 
         const int NUM_DATE_DATA                        = DEFAULT_NUM_DATE_DATA;
         const DefaultDateDataRow (&DATE_DATA)[NUM_DATE_DATA] =
@@ -2197,6 +2528,10 @@ int main(int argc, char *argv[])
         const int NUM_ZONE_DATA                        = DEFAULT_NUM_ZONE_DATA;
         const DefaultZoneDataRow (&ZONE_DATA)[NUM_ZONE_DATA] =
                                                              DEFAULT_ZONE_DATA;
+
+        const int NUM_CNFG_DATA                        = DEFAULT_NUM_CNFG_DATA;
+        const DefaultCnfgDataRow (&CNFG_DATA)[NUM_CNFG_DATA] =
+                                                             DEFAULT_CNFG_DATA;
 
         for (int ti = 0; ti < NUM_DATE_DATA; ++ti) {
             const int   ILINE   = DATE_DATA[ti].d_line;
@@ -2216,75 +2551,178 @@ int main(int argc, char *argv[])
             const bsl::string EXPECTED_ZONE(ISO8601);
 
             const TYPE        X(DATE, OFFSET);
-            const bsl::string EXPECTED(EXPECTED_DATE + EXPECTED_ZONE);
+            const bsl::string BASE_EXPECTED(EXPECTED_DATE + EXPECTED_ZONE);
 
-            if (veryVerbose) { T_ P_(ILINE) P_(JLINE) P_(X) P(EXPECTED) }
+            if (veryVerbose) { T_ P_(ILINE) P_(JLINE) P_(X) P(BASE_EXPECTED) }
 
-            char buffer[BUFLEN];
+            for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
+                const int  CLINE     = CNFG_DATA[tc].d_line;
+                const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
+                const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
-            // 'generate' taking 'bufferLength'
-
-            for (int k = 0; k < BUFLEN; ++k) {
-                bsl::memset(buffer, '?', BUFLEN);
-
-                ASSERTV(ILINE, JLINE, k, OBJLEN,
-                        OBJLEN == Util::generate(buffer, X, k));
-
-                ASSERTV(ILINE, JLINE, EXPECTED, buffer,
-                        0 == bsl::memcmp(EXPECTED.c_str(),
-                                         buffer,
-                                         k < OBJLEN ? k : OBJLEN));
-
-                if (k <= OBJLEN) {
-                    ASSERTV(ILINE, JLINE, EXPECTED, buffer,
-                            0 == bsl::memcmp(chaste, buffer + k, BUFLEN - k));
+                if (veryVerbose) {
+                    T_ P_(CLINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
                 }
-                else {
-                    ASSERTV(ILINE, JLINE, k, OBJLEN, '\0' == buffer[OBJLEN]);
+
+                Config mC;  const Config& C = mC;
+                gg(&mC, OMITCOLON, USECOMMA, USEZ);
+
+                Config::setDefaultConfiguration(C);
+
+                bsl::string EXPECTED(BASE_EXPECTED);
+                updateExpectedPerConfig(&EXPECTED, C);
+
+                const int OUTLEN = static_cast<int>(EXPECTED.length());
+
+                // 'generate' taking 'bufferLength'
+
+                for (int k = 0; k < BUFLEN; ++k) {
+                    bsl::memset(buffer, '?', BUFLEN);
+
+                    ASSERTV(ILINE, JLINE, k, OUTLEN,
+                            OUTLEN == Util::generate(buffer, X, k));
+
+                    ASSERTV(ILINE, JLINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(EXPECTED.c_str(),
+                                             buffer,
+                                             k < OUTLEN ? k : OUTLEN));
+
+                    if (k <= OUTLEN) {
+                        ASSERTV(ILINE, JLINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(chaste,
+                                                 buffer + k,
+                                                 BUFLEN - k));
+                    }
+                    else {
+                        ASSERTV(ILINE, JLINE, k, OUTLEN,
+                                '\0' == buffer[OUTLEN]);
+
+                        ASSERTV(ILINE, JLINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(chaste,
+                                                 buffer + k + 1,
+                                                 BUFLEN - k - 1));
+                    }
+                }
+
+                // 'generate' to an 'ostream'
+                {
+                    bsl::ostringstream os;
+
+                    ASSERTV(ILINE, JLINE, &os == &Util::generate(os, X));
+
+                    ASSERTV(ILINE, JLINE, EXPECTED, os.str(),
+                            EXPECTED == os.str());
+
+                    if (veryVerbose) { P_(EXPECTED) P(os.str()); }
+                }
+
+                // 'generateRaw'
+                {
+                    bsl::memset(buffer, '?', BUFLEN);
+
+                    ASSERTV(ILINE, JLINE, OUTLEN,
+                            OUTLEN == Util::generateRaw(buffer, X));
+
+                    ASSERTV(ILINE, JLINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(EXPECTED.c_str(),
+                                             buffer,
+                                             OUTLEN));
 
                     ASSERTV(ILINE, JLINE, EXPECTED, buffer,
                             0 == bsl::memcmp(chaste,
-                                             buffer + k + 1,
-                                             BUFLEN - k - 1));
+                                             buffer + OUTLEN,
+                                             BUFLEN - OUTLEN));
                 }
-            }
+            }  // loop over 'CNFG_DATA'
 
-            // 'generate' to an 'ostream'
-            {
-                bsl::ostringstream os;
+            Config::setDefaultConfiguration(Config());
 
-                ASSERTV(ILINE, JLINE, &os == &Util::generate(os, X));
+            for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
+                const int  CLINE     = CNFG_DATA[tc].d_line;
+                const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
+                const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
-                ASSERTV(ILINE, JLINE, EXPECTED, os.str(),
-                        EXPECTED == os.str());
+                if (veryVerbose) {
+                    T_ P_(CLINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
+                }
 
-                if (veryVerbose) { P_(EXPECTED) P(os.str()); }
-            }
+                Config mC;  const Config& C = mC;
+                gg(&mC, OMITCOLON, USECOMMA, USEZ);
 
-            // 'generateRaw'
-            {
-                bsl::memset(buffer, '?', BUFLEN);
+                bsl::string EXPECTED(BASE_EXPECTED);
+                updateExpectedPerConfig(&EXPECTED, C);
 
-                ASSERTV(ILINE, JLINE, OBJLEN,
-                        OBJLEN == Util::generateRaw(buffer, X));
+                const int OUTLEN = static_cast<int>(EXPECTED.length());
 
-                ASSERTV(ILINE, JLINE, EXPECTED, buffer,
-                        0 == bsl::memcmp(EXPECTED.c_str(), buffer, OBJLEN));
+                // 'generate' taking 'bufferLength'
 
-                ASSERTV(ILINE, JLINE, EXPECTED, buffer,
-                        0 == bsl::memcmp(chaste,
-                                         buffer + OBJLEN,
-                                         BUFLEN - OBJLEN));
-            }
+                for (int k = 0; k < BUFLEN; ++k) {
+                    bsl::memset(buffer, '?', BUFLEN);
+
+                    ASSERTV(ILINE, k, OUTLEN,
+                            OUTLEN == Util::generate(buffer, X, k, C));
+
+                    ASSERTV(ILINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(EXPECTED.c_str(),
+                                             buffer,
+                                             k < OUTLEN ? k : OUTLEN));
+
+                    if (k <= OUTLEN) {
+                        ASSERTV(ILINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(chaste,
+                                                 buffer + k,
+                                                 BUFLEN - k));
+                    }
+                    else {
+                        ASSERTV(ILINE, k, OUTLEN, '\0' == buffer[OUTLEN]);
+
+                        ASSERTV(ILINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(chaste,
+                                                 buffer + k + 1,
+                                                 BUFLEN - k - 1));
+                    }
+                }
+
+                // 'generate' to an 'ostream'
+                {
+                    bsl::ostringstream os;
+
+                    ASSERTV(ILINE, &os == &Util::generate(os, X, C));
+
+                    ASSERTV(ILINE, EXPECTED, os.str(), EXPECTED == os.str());
+
+                    if (veryVerbose) { P_(EXPECTED) P(os.str()); }
+                }
+
+                // 'generateRaw'
+                {
+                    bsl::memset(buffer, '?', BUFLEN);
+
+                    ASSERTV(ILINE, OUTLEN,
+                            OUTLEN == Util::generateRaw(buffer, X, C));
+
+                    ASSERTV(ILINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(EXPECTED.c_str(),
+                                             buffer,
+                                             OUTLEN));
+
+                    ASSERTV(ILINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(chaste,
+                                             buffer + OUTLEN,
+                                             BUFLEN - OUTLEN));
+                }
+            }  // loop over 'CNFG_DATA'
         }  // loop over 'ZONE_DATA'
         }  // loop over 'DATE_DATA'
-
-        // TBD test Configuration
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
             bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
+
+            const Config C;
 
             if (verbose) cout << "\t'generate'" << endl;
             {
@@ -2296,6 +2734,12 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_PASS(Util::generate(buffer, X,      0));
                 ASSERT_SAFE_FAIL(Util::generate(buffer, X,     -1));
+
+                ASSERT_SAFE_PASS(Util::generate(buffer, X, OBJLEN, C));
+                ASSERT_SAFE_FAIL(Util::generate(     0, X, OBJLEN, C));
+
+                ASSERT_SAFE_PASS(Util::generate(buffer, X,      0, C));
+                ASSERT_SAFE_FAIL(Util::generate(buffer, X,     -1, C));
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -2305,11 +2749,14 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_PASS(Util::generateRaw(buffer, X));
                 ASSERT_SAFE_FAIL(Util::generateRaw(     0, X));
+
+                ASSERT_SAFE_PASS(Util::generateRaw(buffer, X, C));
+                ASSERT_SAFE_FAIL(Util::generateRaw(     0, X, C));
             }
         }
 
       } break;
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // GENERATE 'Datetime'
         //
@@ -2325,7 +2772,10 @@ int main(int argc, char *argv[])
         //:
         //: 4 The value of the supplied object is unchanged.
         //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        //: 5 The configuration that is in effect, whether user-supplied or the
+        //:   process-wide default, has the desired affect on the output.
+        //:
+        //: 6 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a set of distinct
@@ -2336,28 +2786,30 @@ int main(int argc, char *argv[])
         //:   per row) and their corresponding ISO 8601 string representations.
         //:
         //: 3 For each element 'R' in the cross product of the tables from P-1
-        //:   and P-2:  (C-1..4)
+        //:   and P-2:  (C-1..5)
         //:
         //:   1 Create a 'const' 'Datetime' object, 'X', from 'R'.
         //:
-        //:   2 Invoke the three methods under test on 'X', in turn, exercising
-        //:     the method taking 'bufferLength' for all buffer lengths in the
-        //:     range '[0 .. L]', where 'L' provides sufficient capacity for a
-        //:     null terminator and a few extra characters.  For each call,
-        //:     verify that the generated output matches the string from 'R', a
-        //:     null terminator is appended when expected, and the return value
-        //:     is correct.  (Note that it is unspecified whether 'generateRaw'
-        //:     outputs a null terminator; here we test the implementation,
-        //:     i.e., that a null terminator is *not* produced.)  (C-1..4)
+        //:   2 Invoke the six methods under test on 'X' for all possible
+        //:     configurations.  Also exercise the method taking 'bufferLength'
+        //:     for all buffer lengths in the range '[0 .. L]', where 'L'
+        //:     provides sufficient capacity for a null terminator and a few
+        //:     extra characters.  For each call, verify that the generated
+        //:     output matches the string from 'R' (taking the affect of the
+        //:     configuration into account), a null terminator is appended when
+        //:     expected, and the return value is correct.  (C-1..5)
         //:
         //: 3 Verify that, in appropriate build modes, defensive checks are
         //:   triggered for invalid arguments, but not triggered for adjacent
-        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-5)
+        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
         //
         // Testing:
         //   int generate(char *, const Datetime&, int);
+        //   int generate(char *, const Datetime&, int, const Config&);
         //   ostream generate(ostream&, const Datetime&);
+        //   ostream generate(ostream&, const Datetime&, const Config&);
         //   int generateRaw(char *, const Datetime&);
+        //   int generateRaw(char *, const Datetime&, const Config&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2369,8 +2821,8 @@ int main(int argc, char *argv[])
         const int OBJLEN = Util::k_DATETIME_STRLEN;
         const int BUFLEN = OBJLEN + 4;
 
-        char chaste[BUFLEN];
-        bsl::memset(chaste, '?', BUFLEN);
+        char buffer[BUFLEN];
+        char chaste[BUFLEN];  bsl::memset(chaste, '?', BUFLEN);
 
         const int NUM_DATE_DATA                        = DEFAULT_NUM_DATE_DATA;
         const DefaultDateDataRow (&DATE_DATA)[NUM_DATE_DATA] =
@@ -2379,6 +2831,10 @@ int main(int argc, char *argv[])
         const int NUM_TIME_DATA                        = DEFAULT_NUM_TIME_DATA;
         const DefaultTimeDataRow (&TIME_DATA)[NUM_TIME_DATA] =
                                                              DEFAULT_TIME_DATA;
+
+        const int NUM_CNFG_DATA                        = DEFAULT_NUM_CNFG_DATA;
+        const DefaultCnfgDataRow (&CNFG_DATA)[NUM_CNFG_DATA] =
+                                                             DEFAULT_CNFG_DATA;
 
         for (int ti = 0; ti < NUM_DATE_DATA; ++ti) {
             const int   ILINE   = DATE_DATA[ti].d_line;
@@ -2406,66 +2862,170 @@ int main(int argc, char *argv[])
             }
 
             const TYPE        X(DATE, TIME);
-            const bsl::string EXPECTED(EXPECTED_DATE + 'T' + EXPECTED_TIME);
+            const bsl::string BASE_EXPECTED(
+                                          EXPECTED_DATE + 'T' + EXPECTED_TIME);
 
-            if (veryVerbose) { T_ P_(ILINE) P_(JLINE) P_(X) P(EXPECTED) }
+            if (veryVerbose) { T_ P_(ILINE) P_(JLINE) P_(X) P(BASE_EXPECTED) }
 
-            char buffer[BUFLEN];
+            for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
+                const int  CLINE     = CNFG_DATA[tc].d_line;
+                const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
+                const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
-            // 'generate' taking 'bufferLength'
-
-            for (int k = 0; k < BUFLEN; ++k) {
-                bsl::memset(buffer, '?', BUFLEN);
-
-                ASSERTV(ILINE, JLINE, k, OBJLEN,
-                        OBJLEN == Util::generate(buffer, X, k));
-
-                ASSERTV(ILINE, JLINE, EXPECTED, buffer,
-                        0 == bsl::memcmp(EXPECTED.c_str(),
-                                         buffer,
-                                         k < OBJLEN ? k : OBJLEN));
-
-                if (k <= OBJLEN) {
-                    ASSERTV(ILINE, JLINE, EXPECTED, buffer,
-                            0 == bsl::memcmp(chaste, buffer + k, BUFLEN - k));
+                if (veryVerbose) {
+                    T_ P_(CLINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
                 }
-                else {
-                    ASSERTV(ILINE, JLINE, k, OBJLEN, '\0' == buffer[OBJLEN]);
+
+                Config mC;  const Config& C = mC;
+                gg(&mC, OMITCOLON, USECOMMA, USEZ);
+
+                Config::setDefaultConfiguration(C);
+
+                bsl::string EXPECTED(BASE_EXPECTED);
+                updateExpectedPerConfig(&EXPECTED, C);
+
+                const int OUTLEN = static_cast<int>(EXPECTED.length());
+
+                // 'generate' taking 'bufferLength'
+
+                for (int k = 0; k < BUFLEN; ++k) {
+                    bsl::memset(buffer, '?', BUFLEN);
+
+                    ASSERTV(ILINE, JLINE, k, OUTLEN,
+                            OUTLEN == Util::generate(buffer, X, k));
+
+                    ASSERTV(ILINE, JLINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(EXPECTED.c_str(),
+                                             buffer,
+                                             k < OUTLEN ? k : OUTLEN));
+
+                    if (k <= OUTLEN) {
+                        ASSERTV(ILINE, JLINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(chaste,
+                                                 buffer + k,
+                                                 BUFLEN - k));
+                    }
+                    else {
+                        ASSERTV(ILINE, JLINE, k, OUTLEN,
+                                '\0' == buffer[OUTLEN]);
+
+                        ASSERTV(ILINE, JLINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(chaste,
+                                                 buffer + k + 1,
+                                                 BUFLEN - k - 1));
+                    }
+                }
+
+                // 'generate' to an 'ostream'
+                {
+                    bsl::ostringstream os;
+
+                    ASSERTV(ILINE, JLINE, &os == &Util::generate(os, X));
+
+                    ASSERTV(ILINE, JLINE, EXPECTED, os.str(),
+                            EXPECTED == os.str());
+
+                    if (veryVerbose) { P_(EXPECTED) P(os.str()); }
+                }
+
+                // 'generateRaw'
+                {
+                    bsl::memset(buffer, '?', BUFLEN);
+
+                    ASSERTV(ILINE, JLINE, OUTLEN,
+                            OUTLEN == Util::generateRaw(buffer, X));
+
+                    ASSERTV(ILINE, JLINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(EXPECTED.c_str(),
+                                             buffer,
+                                             OUTLEN));
 
                     ASSERTV(ILINE, JLINE, EXPECTED, buffer,
                             0 == bsl::memcmp(chaste,
-                                             buffer + k + 1,
-                                             BUFLEN - k - 1));
+                                             buffer + OUTLEN,
+                                             BUFLEN - OUTLEN));
                 }
-            }
+            }  // loop over 'CNFG_DATA'
 
-            // 'generate' to an 'ostream'
-            {
-                bsl::ostringstream os;
+            Config::setDefaultConfiguration(Config());
 
-                ASSERTV(ILINE, JLINE, &os == &Util::generate(os, X));
+            for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
+                const int  CLINE     = CNFG_DATA[tc].d_line;
+                const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
+                const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
-                ASSERTV(ILINE, JLINE, EXPECTED, os.str(),
-                        EXPECTED == os.str());
+                if (veryVerbose) {
+                    T_ P_(CLINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
+                }
 
-                if (veryVerbose) { P_(EXPECTED) P(os.str()); }
-            }
+                Config mC;  const Config& C = mC;
+                gg(&mC, OMITCOLON, USECOMMA, USEZ);
 
-            // 'generateRaw'
-            {
-                bsl::memset(buffer, '?', BUFLEN);
+                bsl::string EXPECTED(BASE_EXPECTED);
+                updateExpectedPerConfig(&EXPECTED, C);
 
-                ASSERTV(ILINE, JLINE, OBJLEN,
-                        OBJLEN == Util::generateRaw(buffer, X));
+                const int OUTLEN = static_cast<int>(EXPECTED.length());
 
-                ASSERTV(ILINE, JLINE, EXPECTED, buffer,
-                        0 == bsl::memcmp(EXPECTED.c_str(), buffer, OBJLEN));
+                // 'generate' taking 'bufferLength'
 
-                ASSERTV(ILINE, JLINE, EXPECTED, buffer,
-                        0 == bsl::memcmp(chaste,
-                                         buffer + OBJLEN,
-                                         BUFLEN - OBJLEN));
-            }
+                for (int k = 0; k < BUFLEN; ++k) {
+                    bsl::memset(buffer, '?', BUFLEN);
+
+                    ASSERTV(ILINE, k, OUTLEN,
+                            OUTLEN == Util::generate(buffer, X, k, C));
+
+                    ASSERTV(ILINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(EXPECTED.c_str(),
+                                             buffer,
+                                             k < OUTLEN ? k : OUTLEN));
+
+                    if (k <= OUTLEN) {
+                        ASSERTV(ILINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(chaste,
+                                                 buffer + k,
+                                                 BUFLEN - k));
+                    }
+                    else {
+                        ASSERTV(ILINE, k, OUTLEN, '\0' == buffer[OUTLEN]);
+
+                        ASSERTV(ILINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(chaste,
+                                                 buffer + k + 1,
+                                                 BUFLEN - k - 1));
+                    }
+                }
+
+                // 'generate' to an 'ostream'
+                {
+                    bsl::ostringstream os;
+
+                    ASSERTV(ILINE, &os == &Util::generate(os, X, C));
+
+                    ASSERTV(ILINE, EXPECTED, os.str(), EXPECTED == os.str());
+
+                    if (veryVerbose) { P_(EXPECTED) P(os.str()); }
+                }
+
+                // 'generateRaw'
+                {
+                    bsl::memset(buffer, '?', BUFLEN);
+
+                    ASSERTV(ILINE, OUTLEN,
+                            OUTLEN == Util::generateRaw(buffer, X, C));
+
+                    ASSERTV(ILINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(EXPECTED.c_str(),
+                                             buffer,
+                                             OUTLEN));
+
+                    ASSERTV(ILINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(chaste,
+                                             buffer + OUTLEN,
+                                             BUFLEN - OUTLEN));
+                }
+            }  // loop over 'CNFG_DATA'
         }  // loop over 'TIME_DATA'
         }  // loop over 'DATE_DATA'
 
@@ -2473,6 +3033,8 @@ int main(int argc, char *argv[])
         {
             bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
+
+            const Config C;
 
             if (verbose) cout << "\t'generate'" << endl;
             {
@@ -2484,6 +3046,12 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_PASS(Util::generate(buffer, X,      0));
                 ASSERT_SAFE_FAIL(Util::generate(buffer, X,     -1));
+
+                ASSERT_SAFE_PASS(Util::generate(buffer, X, OBJLEN, C));
+                ASSERT_SAFE_FAIL(Util::generate(     0, X, OBJLEN, C));
+
+                ASSERT_SAFE_PASS(Util::generate(buffer, X,      0, C));
+                ASSERT_SAFE_FAIL(Util::generate(buffer, X,     -1, C));
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -2493,11 +3061,14 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_PASS(Util::generateRaw(buffer, X));
                 ASSERT_SAFE_FAIL(Util::generateRaw(     0, X));
+
+                ASSERT_SAFE_PASS(Util::generateRaw(buffer, X, C));
+                ASSERT_SAFE_FAIL(Util::generateRaw(     0, X, C));
             }
         }
 
       } break;
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // GENERATE 'Time'
         //
@@ -2513,35 +3084,40 @@ int main(int argc, char *argv[])
         //:
         //: 4 The value of the supplied object is unchanged.
         //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        //: 5 The configuration that is in effect, whether user-supplied or the
+        //:   process-wide default, has the desired affect on the output.
+        //:
+        //: 6 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a set of distinct
         //:   'Time' values (one per row) and their corresponding ISO 8601
         //:   string representations.
         //:
-        //: 2 For each row 'R' in the table from P-1:  (C-1..4)
+        //: 2 For each row 'R' in the table from P-1:  (C-1..5)
         //:
         //:   1 Create a 'const' 'Time' object, 'X', from 'R'.
         //:
-        //:   2 Invoke the three methods under test on 'X', in turn, exercising
-        //:     the method taking 'bufferLength' for all buffer lengths in the
-        //:     range '[0 .. L]', where 'L' provides sufficient capacity for a
-        //:     null terminator and a few extra characters.  For each call,
-        //:     verify that the generated output matches the string from 'R', a
-        //:     null terminator is appended when expected, and the return value
-        //:     is correct.  (Note that it is unspecified whether 'generateRaw'
-        //:     outputs a null terminator; here we test the implementation,
-        //:     i.e., that a null terminator is *not* produced.)  (C-1..4)
+        //:   2 Invoke the six methods under test on 'X' for all possible
+        //:     configurations.  Also exercise the method taking 'bufferLength'
+        //:     for all buffer lengths in the range '[0 .. L]', where 'L'
+        //:     provides sufficient capacity for a null terminator and a few
+        //:     extra characters.  For each call, verify that the generated
+        //:     output matches the string from 'R' (taking the affect of the
+        //:     configuration into account), a null terminator is appended when
+        //:     expected, and the return value is correct.  (C-1..5)
         //:
         //: 3 Verify that, in appropriate build modes, defensive checks are
         //:   triggered for invalid arguments, but not triggered for adjacent
-        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-5)
+        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
         //
         // Testing:
         //   int generate(char *, const Time&, int);
+        //   int generate(char *, const Time&, int, const Config&);
         //   ostream generate(ostream&, const Time&);
+        //   ostream generate(ostream&, const Time&, const Config&);
         //   int generateRaw(char *, const Time&);
+        //   int generateRaw(char *, const Time&, const Config&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2553,85 +3129,195 @@ int main(int argc, char *argv[])
         const int OBJLEN = Util::k_TIME_STRLEN;
         const int BUFLEN = OBJLEN + 4;
 
-        char chaste[BUFLEN];
-        bsl::memset(chaste, '?', BUFLEN);
+        char buffer[BUFLEN];
+        char chaste[BUFLEN];  bsl::memset(chaste, '?', BUFLEN);
 
-        const int NUM_DATA                         = DEFAULT_NUM_TIME_DATA;
-        const DefaultTimeDataRow (&DATA)[NUM_DATA] = DEFAULT_TIME_DATA;
+        const int NUM_TIME_DATA                        = DEFAULT_NUM_TIME_DATA;
+        const DefaultTimeDataRow (&TIME_DATA)[NUM_TIME_DATA] =
+                                                             DEFAULT_TIME_DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int   LINE    = DATA[ti].d_line;
-            const int   HOUR    = DATA[ti].d_hour;
-            const int   MIN     = DATA[ti].d_min;
-            const int   SEC     = DATA[ti].d_sec;
-            const int   MSEC    = DATA[ti].d_msec;
-            const char *ISO8601 = DATA[ti].d_iso8601;
+        const int NUM_CNFG_DATA                        = DEFAULT_NUM_CNFG_DATA;
+        const DefaultCnfgDataRow (&CNFG_DATA)[NUM_CNFG_DATA] =
+                                                             DEFAULT_CNFG_DATA;
+
+        for (int ti = 0; ti < NUM_TIME_DATA; ++ti) {
+            const int   ILINE   = TIME_DATA[ti].d_line;
+            const int   HOUR    = TIME_DATA[ti].d_hour;
+            const int   MIN     = TIME_DATA[ti].d_min;
+            const int   SEC     = TIME_DATA[ti].d_sec;
+            const int   MSEC    = TIME_DATA[ti].d_msec;
+            const char *ISO8601 = TIME_DATA[ti].d_iso8601;
 
             const TYPE        X(HOUR, MIN, SEC, MSEC);
-            const bsl::string EXPECTED(ISO8601);
+            const bsl::string BASE_EXPECTED(ISO8601);
 
-            if (veryVerbose) { T_ P_(LINE) P_(X) P(EXPECTED) }
+            if (veryVerbose) { T_ P_(ILINE) P_(X) P(BASE_EXPECTED) }
 
-            char buffer[BUFLEN];
+            for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
+                const int  CLINE     = CNFG_DATA[tc].d_line;
+                const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
+                const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
-            // 'generate' taking 'bufferLength'
-
-            for (int k = 0; k < BUFLEN; ++k) {
-                bsl::memset(buffer, '?', BUFLEN);
-
-                ASSERTV(LINE, k, OBJLEN,
-                        OBJLEN == Util::generate(buffer, X, k));
-
-                ASSERTV(LINE, EXPECTED, buffer,
-                        0 == bsl::memcmp(EXPECTED.c_str(),
-                                         buffer,
-                                         k < OBJLEN ? k : OBJLEN));
-
-                if (k <= OBJLEN) {
-                    ASSERTV(LINE, EXPECTED, buffer,
-                            0 == bsl::memcmp(chaste, buffer + k, BUFLEN - k));
+                if (veryVerbose) {
+                    T_ P_(CLINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
                 }
-                else {
-                    ASSERTV(LINE, k, OBJLEN, '\0' == buffer[OBJLEN]);
 
-                    ASSERTV(LINE, EXPECTED, buffer,
+                Config mC;  const Config& C = mC;
+                gg(&mC, OMITCOLON, USECOMMA, USEZ);
+
+                Config::setDefaultConfiguration(C);
+
+                bsl::string EXPECTED(BASE_EXPECTED);
+                updateExpectedPerConfig(&EXPECTED, C);
+
+                const int OUTLEN = static_cast<int>(EXPECTED.length());
+
+                // 'generate' taking 'bufferLength'
+
+                for (int k = 0; k < BUFLEN; ++k) {
+                    bsl::memset(buffer, '?', BUFLEN);
+
+                    ASSERTV(ILINE, k, OUTLEN,
+                            OUTLEN == Util::generate(buffer, X, k));
+
+                    ASSERTV(ILINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(EXPECTED.c_str(),
+                                             buffer,
+                                             k < OUTLEN ? k : OUTLEN));
+
+                    if (k <= OUTLEN) {
+                        ASSERTV(ILINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(chaste,
+                                                 buffer + k,
+                                                 BUFLEN - k));
+                    }
+                    else {
+                        ASSERTV(ILINE, k, OUTLEN, '\0' == buffer[OUTLEN]);
+
+                        ASSERTV(ILINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(chaste,
+                                                 buffer + k + 1,
+                                                 BUFLEN - k - 1));
+                    }
+                }
+
+                // 'generate' to an 'ostream'
+                {
+                    bsl::ostringstream os;
+
+                    ASSERTV(ILINE, &os == &Util::generate(os, X));
+
+                    ASSERTV(ILINE, EXPECTED, os.str(), EXPECTED == os.str());
+
+                    if (veryVerbose) { P_(EXPECTED) P(os.str()); }
+                }
+
+                // 'generateRaw'
+                {
+                    bsl::memset(buffer, '?', BUFLEN);
+
+                    ASSERTV(ILINE, OUTLEN,
+                            OUTLEN == Util::generateRaw(buffer, X));
+
+                    ASSERTV(ILINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(EXPECTED.c_str(),
+                                             buffer,
+                                             OUTLEN));
+
+                    ASSERTV(ILINE, EXPECTED, buffer,
                             0 == bsl::memcmp(chaste,
-                                             buffer + k + 1,
-                                             BUFLEN - k - 1));
+                                             buffer + OUTLEN,
+                                             BUFLEN - OUTLEN));
                 }
-            }
+            }  // loop over 'CNFG_DATA'
 
-            // 'generate' to an 'ostream'
-            {
-                bsl::ostringstream os;
+            Config::setDefaultConfiguration(Config());
 
-                ASSERTV(LINE, &os == &Util::generate(os, X));
+            for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
+                const int  CLINE     = CNFG_DATA[tc].d_line;
+                const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
+                const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
-                ASSERTV(LINE, EXPECTED, os.str(), EXPECTED == os.str());
+                if (veryVerbose) {
+                    T_ P_(CLINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
+                }
 
-                if (veryVerbose) { P_(EXPECTED) P(os.str()); }
-            }
+                Config mC;  const Config& C = mC;
+                gg(&mC, OMITCOLON, USECOMMA, USEZ);
 
-            // 'generateRaw'
-            {
-                bsl::memset(buffer, '?', BUFLEN);
+                bsl::string EXPECTED(BASE_EXPECTED);
+                updateExpectedPerConfig(&EXPECTED, C);
 
-                ASSERTV(LINE, OBJLEN, OBJLEN == Util::generateRaw(buffer, X));
+                const int OUTLEN = static_cast<int>(EXPECTED.length());
 
-                ASSERTV(LINE, EXPECTED, buffer,
-                        0 == bsl::memcmp(EXPECTED.c_str(), buffer, OBJLEN));
+                // 'generate' taking 'bufferLength'
 
-                ASSERTV(LINE, EXPECTED, buffer,
-                        0 == bsl::memcmp(chaste,
-                                         buffer + OBJLEN,
-                                         BUFLEN - OBJLEN));
-            }
-        }
+                for (int k = 0; k < BUFLEN; ++k) {
+                    bsl::memset(buffer, '?', BUFLEN);
+
+                    ASSERTV(ILINE, k, OUTLEN,
+                            OUTLEN == Util::generate(buffer, X, k, C));
+
+                    ASSERTV(ILINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(EXPECTED.c_str(),
+                                             buffer,
+                                             k < OUTLEN ? k : OUTLEN));
+
+                    if (k <= OUTLEN) {
+                        ASSERTV(ILINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(chaste,
+                                                 buffer + k,
+                                                 BUFLEN - k));
+                    }
+                    else {
+                        ASSERTV(ILINE, k, OUTLEN, '\0' == buffer[OUTLEN]);
+
+                        ASSERTV(ILINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(chaste,
+                                                 buffer + k + 1,
+                                                 BUFLEN - k - 1));
+                    }
+                }
+
+                // 'generate' to an 'ostream'
+                {
+                    bsl::ostringstream os;
+
+                    ASSERTV(ILINE, &os == &Util::generate(os, X, C));
+
+                    ASSERTV(ILINE, EXPECTED, os.str(), EXPECTED == os.str());
+
+                    if (veryVerbose) { P_(EXPECTED) P(os.str()); }
+                }
+
+                // 'generateRaw'
+                {
+                    bsl::memset(buffer, '?', BUFLEN);
+
+                    ASSERTV(ILINE, OUTLEN,
+                            OUTLEN == Util::generateRaw(buffer, X, C));
+
+                    ASSERTV(ILINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(EXPECTED.c_str(),
+                                             buffer,
+                                             OUTLEN));
+
+                    ASSERTV(ILINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(chaste,
+                                             buffer + OUTLEN,
+                                             BUFLEN - OUTLEN));
+                }
+            }  // loop over 'CNFG_DATA'
+        }  // loop over 'TIME_DATA'
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
             bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
+
+            const Config C;
 
             if (verbose) cout << "\t'generate'" << endl;
             {
@@ -2643,6 +3329,12 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_PASS(Util::generate(buffer, X,      0));
                 ASSERT_SAFE_FAIL(Util::generate(buffer, X,     -1));
+
+                ASSERT_SAFE_PASS(Util::generate(buffer, X, OBJLEN, C));
+                ASSERT_SAFE_FAIL(Util::generate(     0, X, OBJLEN, C));
+
+                ASSERT_SAFE_PASS(Util::generate(buffer, X,      0, C));
+                ASSERT_SAFE_FAIL(Util::generate(buffer, X,     -1, C));
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -2652,11 +3344,14 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_PASS(Util::generateRaw(buffer, X));
                 ASSERT_SAFE_FAIL(Util::generateRaw(     0, X));
+
+                ASSERT_SAFE_PASS(Util::generateRaw(buffer, X, C));
+                ASSERT_SAFE_FAIL(Util::generateRaw(     0, X, C));
             }
         }
 
       } break;
-      case 1: {
+      case 2: {
         // --------------------------------------------------------------------
         // GENERATE 'Date'
         //
@@ -2672,35 +3367,40 @@ int main(int argc, char *argv[])
         //:
         //: 4 The value of the supplied object is unchanged.
         //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        //: 5 The configuration that is in effect, whether user-supplied or the
+        //:   process-wide default, has the desired affect on the output.
+        //:
+        //: 6 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a set of distinct
         //:   'Date' values (one per row) and their corresponding ISO 8601
         //:   string representations.
         //:
-        //: 2 For each row 'R' in the table from P-1:  (C-1..4)
+        //: 2 For each row 'R' in the table from P-1:  (C-1..5)
         //:
         //:   1 Create a 'const' 'Date' object, 'X', from 'R'.
         //:
-        //:   2 Invoke the three methods under test on 'X', in turn, exercising
-        //:     the method taking 'bufferLength' for all buffer lengths in the
-        //:     range '[0 .. L]', where 'L' provides sufficient capacity for a
-        //:     null terminator and a few extra characters.  For each call,
-        //:     verify that the generated output matches the string from 'R', a
-        //:     null terminator is appended when expected, and the return value
-        //:     is correct.  (Note that it is unspecified whether 'generateRaw'
-        //:     outputs a null terminator; here we test the implementation,
-        //:     i.e., that a null terminator is *not* produced.)  (C-1..4)
+        //:   2 Invoke the six methods under test on 'X' for all possible
+        //:     configurations.  Also exercise the method taking 'bufferLength'
+        //:     for all buffer lengths in the range '[0 .. L]', where 'L'
+        //:     provides sufficient capacity for a null terminator and a few
+        //:     extra characters.  For each call, verify that the generated
+        //:     output matches the string from 'R' (taking the affect of the
+        //:     configuration into account), a null terminator is appended when
+        //:     expected, and the return value is correct.  (C-1..5)
         //:
         //: 3 Verify that, in appropriate build modes, defensive checks are
         //:   triggered for invalid arguments, but not triggered for adjacent
-        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-5)
+        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
         //
         // Testing:
         //   int generate(char *, const Date&, int);
+        //   int generate(char *, const Date&, int, const Config&);
         //   ostream generate(ostream&, const Date&);
+        //   ostream generate(ostream&, const Date&, const Config&);
         //   int generateRaw(char *, const Date&);
+        //   int generateRaw(char *, const Date&, const Config&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2712,84 +3412,194 @@ int main(int argc, char *argv[])
         const int OBJLEN = Util::k_DATE_STRLEN;
         const int BUFLEN = OBJLEN + 4;
 
-        char chaste[BUFLEN];
-        bsl::memset(chaste, '?', BUFLEN);
+        char buffer[BUFLEN];
+        char chaste[BUFLEN];  bsl::memset(chaste, '?', BUFLEN);
 
-        const int NUM_DATA                         = DEFAULT_NUM_DATE_DATA;
-        const DefaultDateDataRow (&DATA)[NUM_DATA] = DEFAULT_DATE_DATA;
+        const int NUM_DATE_DATA                        = DEFAULT_NUM_DATE_DATA;
+        const DefaultDateDataRow (&DATE_DATA)[NUM_DATE_DATA] =
+                                                             DEFAULT_DATE_DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int   LINE    = DATA[ti].d_line;
-            const int   YEAR    = DATA[ti].d_year;
-            const int   MONTH   = DATA[ti].d_month;
-            const int   DAY     = DATA[ti].d_day;
-            const char *ISO8601 = DATA[ti].d_iso8601;
+        const int NUM_CNFG_DATA                        = DEFAULT_NUM_CNFG_DATA;
+        const DefaultCnfgDataRow (&CNFG_DATA)[NUM_CNFG_DATA] =
+                                                             DEFAULT_CNFG_DATA;
+
+        for (int ti = 0; ti < NUM_DATE_DATA; ++ti) {
+            const int   ILINE   = DATE_DATA[ti].d_line;
+            const int   YEAR    = DATE_DATA[ti].d_year;
+            const int   MONTH   = DATE_DATA[ti].d_month;
+            const int   DAY     = DATE_DATA[ti].d_day;
+            const char *ISO8601 = DATE_DATA[ti].d_iso8601;
 
             const TYPE        X(YEAR, MONTH, DAY);
-            const bsl::string EXPECTED(ISO8601);
+            const bsl::string BASE_EXPECTED(ISO8601);
 
-            if (veryVerbose) { T_ P_(LINE) P_(X) P(EXPECTED) }
+            if (veryVerbose) { T_ P_(ILINE) P_(X) P(BASE_EXPECTED) }
 
-            char buffer[BUFLEN];
+            for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
+                const int  CLINE     = CNFG_DATA[tc].d_line;
+                const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
+                const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
-            // 'generate' taking 'bufferLength'
-
-            for (int k = 0; k < BUFLEN; ++k) {
-                bsl::memset(buffer, '?', BUFLEN);
-
-                ASSERTV(LINE, k, OBJLEN,
-                        OBJLEN == Util::generate(buffer, X, k));
-
-                ASSERTV(LINE, EXPECTED, buffer,
-                        0 == bsl::memcmp(EXPECTED.c_str(),
-                                         buffer,
-                                         k < OBJLEN ? k : OBJLEN));
-
-                if (k <= OBJLEN) {
-                    ASSERTV(LINE, EXPECTED, buffer,
-                            0 == bsl::memcmp(chaste, buffer + k, BUFLEN - k));
+                if (veryVerbose) {
+                    T_ P_(CLINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
                 }
-                else {
-                    ASSERTV(LINE, k, OBJLEN, '\0' == buffer[OBJLEN]);
 
-                    ASSERTV(LINE, EXPECTED, buffer,
+                Config mC;  const Config& C = mC;
+                gg(&mC, OMITCOLON, USECOMMA, USEZ);
+
+                Config::setDefaultConfiguration(C);
+
+                bsl::string EXPECTED(BASE_EXPECTED);
+                updateExpectedPerConfig(&EXPECTED, C);
+
+                const int OUTLEN = static_cast<int>(EXPECTED.length());
+
+                // 'generate' taking 'bufferLength'
+
+                for (int k = 0; k < BUFLEN; ++k) {
+                    bsl::memset(buffer, '?', BUFLEN);
+
+                    ASSERTV(ILINE, k, OUTLEN,
+                            OUTLEN == Util::generate(buffer, X, k));
+
+                    ASSERTV(ILINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(EXPECTED.c_str(),
+                                             buffer,
+                                             k < OUTLEN ? k : OUTLEN));
+
+                    if (k <= OUTLEN) {
+                        ASSERTV(ILINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(chaste,
+                                                 buffer + k,
+                                                 BUFLEN - k));
+                    }
+                    else {
+                        ASSERTV(ILINE, k, OUTLEN, '\0' == buffer[OUTLEN]);
+
+                        ASSERTV(ILINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(chaste,
+                                                 buffer + k + 1,
+                                                 BUFLEN - k - 1));
+                    }
+                }
+
+                // 'generate' to an 'ostream'
+                {
+                    bsl::ostringstream os;
+
+                    ASSERTV(ILINE, &os == &Util::generate(os, X));
+
+                    ASSERTV(ILINE, EXPECTED, os.str(), EXPECTED == os.str());
+
+                    if (veryVerbose) { P_(EXPECTED) P(os.str()); }
+                }
+
+                // 'generateRaw'
+                {
+                    bsl::memset(buffer, '?', BUFLEN);
+
+                    ASSERTV(ILINE, OUTLEN,
+                            OUTLEN == Util::generateRaw(buffer, X));
+
+                    ASSERTV(ILINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(EXPECTED.c_str(),
+                                             buffer,
+                                             OUTLEN));
+
+                    ASSERTV(ILINE, EXPECTED, buffer,
                             0 == bsl::memcmp(chaste,
-                                             buffer + k + 1,
-                                             BUFLEN - k - 1));
+                                             buffer + OUTLEN,
+                                             BUFLEN - OUTLEN));
                 }
-            }
+            }  // loop over 'CNFG_DATA'
 
-            // 'generate' to an 'ostream'
-            {
-                bsl::ostringstream os;
+            Config::setDefaultConfiguration(Config());
 
-                ASSERTV(LINE, &os == &Util::generate(os, X));
+            for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
+                const int  CLINE     = CNFG_DATA[tc].d_line;
+                const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
+                const bool USEZ      = CNFG_DATA[tc].d_useZ;
 
-                ASSERTV(LINE, EXPECTED, os.str(), EXPECTED == os.str());
+                if (veryVerbose) {
+                    T_ P_(CLINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
+                }
 
-                if (veryVerbose) { P_(EXPECTED) P(os.str()); }
-            }
+                Config mC;  const Config& C = mC;
+                gg(&mC, OMITCOLON, USECOMMA, USEZ);
 
-            // 'generateRaw'
-            {
-                bsl::memset(buffer, '?', BUFLEN);
+                bsl::string EXPECTED(BASE_EXPECTED);
+                updateExpectedPerConfig(&EXPECTED, C);
 
-                ASSERTV(LINE, OBJLEN, OBJLEN == Util::generateRaw(buffer, X));
+                const int OUTLEN = static_cast<int>(EXPECTED.length());
 
-                ASSERTV(LINE, EXPECTED, buffer,
-                        0 == bsl::memcmp(EXPECTED.c_str(), buffer, OBJLEN));
+                // 'generate' taking 'bufferLength'
 
-                ASSERTV(LINE, EXPECTED, buffer,
-                        0 == bsl::memcmp(chaste,
-                                         buffer + OBJLEN,
-                                         BUFLEN - OBJLEN));
-            }
-        }
+                for (int k = 0; k < BUFLEN; ++k) {
+                    bsl::memset(buffer, '?', BUFLEN);
+
+                    ASSERTV(ILINE, k, OUTLEN,
+                            OUTLEN == Util::generate(buffer, X, k, C));
+
+                    ASSERTV(ILINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(EXPECTED.c_str(),
+                                             buffer,
+                                             k < OUTLEN ? k : OUTLEN));
+
+                    if (k <= OUTLEN) {
+                        ASSERTV(ILINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(chaste,
+                                                 buffer + k,
+                                                 BUFLEN - k));
+                    }
+                    else {
+                        ASSERTV(ILINE, k, OUTLEN, '\0' == buffer[OUTLEN]);
+
+                        ASSERTV(ILINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(chaste,
+                                                 buffer + k + 1,
+                                                 BUFLEN - k - 1));
+                    }
+                }
+
+                // 'generate' to an 'ostream'
+                {
+                    bsl::ostringstream os;
+
+                    ASSERTV(ILINE, &os == &Util::generate(os, X, C));
+
+                    ASSERTV(ILINE, EXPECTED, os.str(), EXPECTED == os.str());
+
+                    if (veryVerbose) { P_(EXPECTED) P(os.str()); }
+                }
+
+                // 'generateRaw'
+                {
+                    bsl::memset(buffer, '?', BUFLEN);
+
+                    ASSERTV(ILINE, OUTLEN,
+                            OUTLEN == Util::generateRaw(buffer, X, C));
+
+                    ASSERTV(ILINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(EXPECTED.c_str(),
+                                             buffer,
+                                             OUTLEN));
+
+                    ASSERTV(ILINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(chaste,
+                                             buffer + OUTLEN,
+                                             BUFLEN - OUTLEN));
+                }
+            }  // loop over 'CNFG_DATA'
+        }  // loop over 'DATE_DATA'
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
             bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
+
+            const Config C;
 
             if (verbose) cout << "\t'generate'" << endl;
             {
@@ -2801,6 +3611,12 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_PASS(Util::generate(buffer, X,      0));
                 ASSERT_SAFE_FAIL(Util::generate(buffer, X,     -1));
+
+                ASSERT_SAFE_PASS(Util::generate(buffer, X, OBJLEN, C));
+                ASSERT_SAFE_FAIL(Util::generate(     0, X, OBJLEN, C));
+
+                ASSERT_SAFE_PASS(Util::generate(buffer, X,      0, C));
+                ASSERT_SAFE_FAIL(Util::generate(buffer, X,     -1, C));
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -2810,6 +3626,275 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_PASS(Util::generateRaw(buffer, X));
                 ASSERT_SAFE_FAIL(Util::generateRaw(     0, X));
+
+                ASSERT_SAFE_PASS(Util::generateRaw(buffer, X, C));
+                ASSERT_SAFE_FAIL(Util::generateRaw(     0, X, C));
+            }
+        }
+
+      } break;
+      case 1: {
+        // --------------------------------------------------------------------
+        // TESTING 'Iso8601UtilConfiguration'
+        //
+        // Concerns:
+        //: 1 Our concerns include those that apply to unconstrained attribute
+        //:   types, with the simplification that the class under test lacks a
+        //:   'print' method and free 'operator<<'.
+        //:
+        //: 2 The two class methods that manage the process-wide configuration
+        //:   work correctly.
+        //
+        // Plan:
+        //: 1 Follow the standard regimen for testing an unconstrained
+        //:   attribute type.  (C-1)
+        //:
+        //: 2 Exercise the class methods on all possible configurations and
+        //:   verify that the behavior is as expected.  (C-2)
+        //
+        // Testing:
+        //   static void setDefaultConfiguration(const Config& config);
+        //   static Config defaultConfiguration();
+        //   Iso8601UtilConfiguration();
+        //   Iso8601UtilConfiguration(const Config& original);
+        //   ~Iso8601UtilConfiguration();
+        //   Config& operator=(const Config& rhs);
+        //   void setOmitColonInZoneDesignator(bool value);
+        //   void setUseCommaForDecimalSign(bool value);
+        //   void setUseZAbbreviationForUtc(bool value);
+        //   bool omitColonInZoneDesignator() const;
+        //   bool useCommaForDecimalSign() const;
+        //   bool useZAbbreviationForUtc() const;
+        //   bool operator==(const Config& lhs, const Config& rhs);
+        //   bool operator!=(const Config& lhs, const Config& rhs);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'Iso8601UtilConfiguration'" << endl
+                          << "==================================" << endl;
+
+        const int NUM_DATA                         = DEFAULT_NUM_CNFG_DATA;
+        const DefaultCnfgDataRow (&DATA)[NUM_DATA] = DEFAULT_CNFG_DATA;
+
+        // Testing:
+        //   Iso8601UtilConfiguration();
+        //   ~Iso8601UtilConfiguration();
+        {
+            const Config X;
+
+            ASSERT(!X.omitColonInZoneDesignator());
+            ASSERT(!X.useCommaForDecimalSign());
+            ASSERT(!X.useZAbbreviationForUtc());
+        }
+
+        // Testing:
+        //   void setOmitColonInZoneDesignator(bool value);
+        //   void setUseCommaForDecimalSign(bool value);
+        //   void setUseZAbbreviationForUtc(bool value);
+        //   bool omitColonInZoneDesignator() const;
+        //   bool useCommaForDecimalSign() const;
+        //   bool useZAbbreviationForUtc() const;
+        {
+            {
+                Config mX;  const Config& X = mX;
+
+                mX.setOmitColonInZoneDesignator(true);
+
+                ASSERT( X.omitColonInZoneDesignator());
+                ASSERT(!X.useCommaForDecimalSign());
+                ASSERT(!X.useZAbbreviationForUtc());
+            }
+
+            {
+                Config mX;  const Config& X = mX;
+
+                mX.setUseCommaForDecimalSign(true);
+
+                ASSERT(!X.omitColonInZoneDesignator());
+                ASSERT( X.useCommaForDecimalSign());
+                ASSERT(!X.useZAbbreviationForUtc());
+            }
+
+            {
+                Config mX;  const Config& X = mX;
+
+                mX.setUseZAbbreviationForUtc(true);
+
+                ASSERT(!X.omitColonInZoneDesignator());
+                ASSERT(!X.useCommaForDecimalSign());
+                ASSERT( X.useZAbbreviationForUtc());
+            }
+
+            Config mX;  const Config& X = mX;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE      = DATA[ti].d_line;
+                const bool OMITCOLON = DATA[ti].d_omitColon;
+                const bool USECOMMA  = DATA[ti].d_useComma;
+                const bool USEZ      = DATA[ti].d_useZ;
+
+                if (veryVerbose) {
+                    T_ P_(LINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
+                }
+
+                mX.setOmitColonInZoneDesignator(OMITCOLON);
+                mX.setUseCommaForDecimalSign(USECOMMA);
+                mX.setUseZAbbreviationForUtc(USEZ);
+
+                ASSERTV(LINE, OMITCOLON == X.omitColonInZoneDesignator());
+                ASSERTV(LINE, USECOMMA  == X.useCommaForDecimalSign());
+                ASSERTV(LINE, USEZ      == X.useZAbbreviationForUtc());
+            }
+        }
+
+        // Testing:
+        //   bool operator==(const Config& lhs, const Config& rhs);
+        //   bool operator!=(const Config& lhs, const Config& rhs);
+        {
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  ILINE      = DATA[ti].d_line;
+                const bool IOMITCOLON = DATA[ti].d_omitColon;
+                const bool IUSECOMMA  = DATA[ti].d_useComma;
+                const bool IUSEZ      = DATA[ti].d_useZ;
+
+                if (veryVerbose) {
+                    T_ P_(ILINE) P_(IOMITCOLON) P_(IUSECOMMA) P(IUSEZ)
+                }
+
+                for (int tj = 0; tj < NUM_DATA; ++tj) {
+                    const int  JLINE      = DATA[tj].d_line;
+                    const bool JOMITCOLON = DATA[tj].d_omitColon;
+                    const bool JUSECOMMA  = DATA[tj].d_useComma;
+                    const bool JUSEZ      = DATA[tj].d_useZ;
+
+                    if (veryVerbose) {
+                        T_ P_(JLINE) P_(JOMITCOLON) P_(JUSECOMMA) P(JUSEZ)
+                    }
+
+                    Config mX;  const Config& X = mX;
+                    gg(&mX, IOMITCOLON, IUSECOMMA, IUSEZ);
+
+                    Config mY;  const Config& Y = mY;
+                    gg(&mY, JOMITCOLON, JUSECOMMA, JUSEZ);
+
+                    const bool EXP = ti == tj;  // expected for '==' comparison
+
+                    ASSERTV(ILINE, JLINE,  EXP == (X == Y));
+                    ASSERTV(ILINE, JLINE,  EXP == (Y == X));
+
+                    ASSERTV(ILINE, JLINE, !EXP == (X != Y));
+                    ASSERTV(ILINE, JLINE, !EXP == (Y != X));
+                }
+            }
+        }
+
+        // Testing:
+        //   Iso8601UtilConfiguration(const Config& original);
+        {
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE      = DATA[ti].d_line;
+                const bool OMITCOLON = DATA[ti].d_omitColon;
+                const bool USECOMMA  = DATA[ti].d_useComma;
+                const bool USEZ      = DATA[ti].d_useZ;
+
+                if (veryVerbose) {
+                    T_ P_(LINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
+                }
+
+                Config mX;  const Config& X = mX;
+                gg(&mX, OMITCOLON, USECOMMA, USEZ);
+
+                const Config Y(X);
+
+                ASSERTV(LINE, X == Y);
+            }
+        }
+
+        // Testing:
+        //   Config& operator=(const Config& rhs);
+        {
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  ILINE      = DATA[ti].d_line;
+                const bool IOMITCOLON = DATA[ti].d_omitColon;
+                const bool IUSECOMMA  = DATA[ti].d_useComma;
+                const bool IUSEZ      = DATA[ti].d_useZ;
+
+                if (veryVerbose) {
+                    T_ P_(ILINE) P_(IOMITCOLON) P_(IUSECOMMA) P(IUSEZ)
+                }
+
+                Config mZ;  const Config& Z = mZ;
+                gg(&mZ, IOMITCOLON, IUSECOMMA, IUSEZ);
+
+                for (int tj = 0; tj < NUM_DATA; ++tj) {
+                    const int  JLINE      = DATA[tj].d_line;
+                    const bool JOMITCOLON = DATA[tj].d_omitColon;
+                    const bool JUSECOMMA  = DATA[tj].d_useComma;
+                    const bool JUSEZ      = DATA[tj].d_useZ;
+
+                    if (veryVerbose) {
+                        T_ P_(JLINE) P_(JOMITCOLON) P_(JUSECOMMA) P(JUSEZ)
+                    }
+
+                    Config mX;  const Config& X = mX;
+                    gg(&mX, JOMITCOLON, JUSECOMMA, JUSEZ);
+
+                    ASSERTV(ILINE, JLINE, (Z == X) == (ILINE == JLINE));
+
+                    Config *mR = &(mX = Z);
+
+                    ASSERTV(ILINE, JLINE,  Z == X);
+                    ASSERTV(ILINE, JLINE, mR == &mX);
+                }
+
+                // self-assignment
+
+                {
+                    Config mX;
+                    gg(&mX, IOMITCOLON, IUSECOMMA, IUSEZ);
+
+                    Config mZZ;  const Config& ZZ = mZZ;
+                    gg(&mZZ, IOMITCOLON, IUSECOMMA, IUSEZ);
+
+                    const Config& Z = mX;
+
+                    ASSERTV(ILINE, ZZ == Z);
+
+                    Config *mR = &(mX = Z);
+
+                    ASSERTV(ILINE, mR == &mX);
+                    ASSERTV(ILINE, ZZ == Z);
+                }
+            }
+        }
+
+        // Testing:
+        //   static void setDefaultConfiguration(const Config& config);
+        //   static Config defaultConfiguration();
+        {
+            ASSERT(Config() == Config::defaultConfiguration());
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE      = DATA[ti].d_line;
+                const bool OMITCOLON = DATA[ti].d_omitColon;
+                const bool USECOMMA  = DATA[ti].d_useComma;
+                const bool USEZ      = DATA[ti].d_useZ;
+
+                if (veryVerbose) {
+                    T_ P_(LINE) P_(OMITCOLON) P_(USECOMMA) P(USEZ)
+                }
+
+                Config mX;  const Config& X = mX;
+                gg(&mX, OMITCOLON, USECOMMA, USEZ);
+
+                {
+                    Config mY;  const Config& Y = mY;
+                    gg(&mY, OMITCOLON, USECOMMA, USEZ);
+
+                    Config::setDefaultConfiguration(Y);
+                }
+
+                ASSERTV(LINE, X == Config::defaultConfiguration());
             }
         }
 

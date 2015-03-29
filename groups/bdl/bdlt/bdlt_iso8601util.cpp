@@ -239,10 +239,10 @@ int parseTime(const char **nextPos,
 
     // 4. Parse (optional) fractional second, in milliseconds.
 
-    if (p < end && '.' == *p) {
+    if (p < end && ('.' == *p || ',' == *p)) {
         // We have a fraction of a second.
 
-        ++p;  // skip '.'
+        ++p;  // skip '.' or ','
 
         if (0 != parseFractionalSecond(&p, millisecond, p, end)) {
             return -1;                                                // RETURN
@@ -272,7 +272,7 @@ int parseZoneDesignator(const char **nextPos,
                         int         *minuteOffset,
                         const char  *begin,
                         const char  *end)
-    // Parse the zone designator, represented in the "[Zz]|(+|-])hh:mm" ISO
+    // Parse the zone designator, represented in the "Z|(+|-])hh:mm" ISO
     // 8601 extended format, from the string starting at the specified 'begin'
     // and ending before the specified 'end', load into the specified
     // 'minuteOffset' the indicated offset (in minutes) from GMT, and set the
@@ -294,34 +294,37 @@ int parseZoneDesignator(const char **nextPos,
         return -1;                                                    // RETURN
     }
 
-    const char sign = *p++;  // store and skip '(+|-|Z|z)'
+    const char sign = *p++;  // store and skip '(+|-|Z)'
 
-    // TBD the ISO 8601 spec. does not mention 'z'; why do we accept it??
-
-    if ('Z' == sign || 'z' == sign) {
+    if ('Z' == sign) {
         *minuteOffset = 0;
         *nextPos      = p;
 
         return 0;                                                     // RETURN
     }
 
-    enum { k_MINIMUM_LENGTH = sizeof "hh:mm" - 1 };
+    enum { k_MINIMUM_LENGTH = sizeof "hhmm" - 1 };
 
     if (('+' != sign && '-' != sign) || end - p < k_MINIMUM_LENGTH) {
         return -1;                                                    // RETURN
     }
 
     // We have parsed a '+' or '-' and established that there are sufficient
-    // characters to represent "hh:mm".
+    // characters to represent "hhmm" (but not necessarily "hh:mm").
 
     // Parse hour.
 
     int hour;
 
-    if (0 != asciiToInt(&p, &hour, p, p + 2) || ':' != *p || hour >= 24) {
+    if (0 != asciiToInt(&p, &hour, p, p + 2) || hour >= 24) {
         return -1;                                                    // RETURN
     }
-    ++p;  // skip ':'
+    if (':' == *p) {
+        ++p;  // skip optional ':'
+        if (end - p < 2) {
+            return -1;                                                // RETURN
+        }
+    }
 
     // Parse minute.
 
@@ -386,22 +389,21 @@ int generateInt(char *buffer, int value, int paddedLen, char separator)
 }
 
 static
-int generateZoneDesignator(char *buffer,
-                           int   tzOffset,
-                           bool  useZAbbreviationForUtc)
+int generateZoneDesignator(char                            *buffer,
+                           int                              tzOffset,
+                           const Iso8601UtilConfiguration&  configuration)
     // Write, to the specified 'buffer', the formatted zone designator
-    // indicated by the specified 'tzOffset' and 'useZAbbreviationForUtc' flag,
-    // and return the number of bytes written.  The formatted zone designator
-    // is the character 'Z' if '0 == tzOffset && useZAbbreviationForUtc', and
-    // is of the form "(+|-)hh:mm" otherwise.  The behavior is undefined unless
-    // 'buffer' has sufficient capacity and 'tzOffset < 24 * 60'.
+    // indicated by the specified 'tzOffset' and 'configuration', and return
+    // the number of bytes written.  The behavior is undefined unless 'buffer'
+    // has sufficient capacity and '-(24 * 60) < tzOffset < 24 * 60'.
 {
     BSLS_ASSERT(buffer);
-    BSLS_ASSERT(tzOffset < 24 * 60);
+    BSLS_ASSERT(-(24 * 60) < tzOffset);
+    BSLS_ASSERT(             tzOffset < 24 * 60);
 
     char *p = buffer;
 
-    if (0 == tzOffset && useZAbbreviationForUtc) {
+    if (0 == tzOffset && configuration.useZAbbreviationForUtc()) {
         *p++ = 'Z';
     }
     else {
@@ -415,17 +417,50 @@ int generateZoneDesignator(char *buffer,
             tzSign   = '+';
         }
 
-        // Timezone offset (in minutes) must be less than 24 hours.
-
-        BSLS_ASSERT(tzOffset < 24 * 60);
-
         *p++ = tzSign;
-        p += generateInt(p, tzOffset / 60, 2, ':');
-        p += generateInt(p, tzOffset % 60, 2     );
+
+        if (configuration.omitColonInZoneDesignator()) {
+            p += generateInt(p, tzOffset / 60, 2);
+        }
+        else {
+            p += generateInt(p, tzOffset / 60, 2, ':');
+        }
+
+        p += generateInt(p, tzOffset % 60, 2);
     }
 
     return static_cast<int>(p - buffer);
 }
+
+#if defined(BDE_BUILD_TARGET_SAFE)
+static
+int generatedLengthForTzObject(int                             defaultLength,
+                               int                             tzOffset,
+                               const Iso8601UtilConfiguration& configuration)
+    // Return the number of bytes generated, when the specified 'configuration'
+    // is used, for a "Tz" 'bdlt' object having the specified 'tzOffset' whose
+    // ISO 8601 representation has the specified 'defaultLength' (in bytes).
+    // The behavior is undefined unless '0 <= defaultLength' and
+    // '-(24 * 60) < tzOffset < 24 * 60'.
+{
+    BSLS_ASSERT_SAFE(0 <= defaultLength);
+    BSLS_ASSERT_SAFE(-(24 * 60) < tzOffset);
+    BSLS_ASSERT_SAFE(             tzOffset < 24 * 60);
+
+    // Consider only those 'configuration' options that can affect the length
+    // of the output.
+
+    if (0 == tzOffset && configuration.useZAbbreviationForUtc()) {
+        return defaultLength - static_cast<int>(sizeof "00:00") + 1;  // RETURN
+    }
+
+    if (configuration.omitColonInZoneDesignator()) {
+        return defaultLength - 1;                                     // RETURN
+    }
+
+    return defaultLength;
+}
+#endif
 
 static
 void copyBuf(char *dst, int dstLen, const char *src, int srcLen)
@@ -456,13 +491,16 @@ void copyBuf(char *dst, int dstLen, const char *src, int srcLen)
                             // ------------------
 
 // CLASS METHODS
-int Iso8601Util::generate(char *buffer, const Date& object, int bufferLength)
+int Iso8601Util::generate(char                            *buffer,
+                          const Date&                      object,
+                          int                              bufferLength,
+                          const Iso8601UtilConfiguration&  configuration)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= bufferLength);
 
     char outBuf[k_DATE_STRLEN];
-    const int outLen = generateRaw(outBuf, object);
+    const int outLen = generateRaw(outBuf, object, configuration);
     BSLS_ASSERT(outLen == sizeof outBuf);
 
     copyBuf(buffer, bufferLength, outBuf, outLen);
@@ -470,13 +508,16 @@ int Iso8601Util::generate(char *buffer, const Date& object, int bufferLength)
     return outLen;
 }
 
-int Iso8601Util::generate(char *buffer, const Time& object, int bufferLength)
+int Iso8601Util::generate(char                            *buffer,
+                          const Time&                      object,
+                          int                              bufferLength,
+                          const Iso8601UtilConfiguration&  configuration)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= bufferLength);
 
     char outBuf[k_TIME_STRLEN];
-    const int outLen = generateRaw(outBuf, object);
+    const int outLen = generateRaw(outBuf, object, configuration);
     BSLS_ASSERT(outLen == sizeof outBuf);
 
     copyBuf(buffer, bufferLength, outBuf, outLen);
@@ -484,14 +525,16 @@ int Iso8601Util::generate(char *buffer, const Time& object, int bufferLength)
     return outLen;
 }
 
-int
-Iso8601Util::generate(char *buffer, const Datetime& object, int bufferLength)
+int Iso8601Util::generate(char                            *buffer,
+                          const Datetime&                  object,
+                          int                              bufferLength,
+                          const Iso8601UtilConfiguration&  configuration)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= bufferLength);
 
     char outBuf[k_DATETIME_STRLEN];
-    const int outLen = generateRaw(outBuf, object);
+    const int outLen = generateRaw(outBuf, object, configuration);
     BSLS_ASSERT(outLen == sizeof outBuf);
 
     copyBuf(buffer, bufferLength, outBuf, outLen);
@@ -499,64 +542,70 @@ Iso8601Util::generate(char *buffer, const Datetime& object, int bufferLength)
     return outLen;
 }
 
-int Iso8601Util::generate(char          *buffer,
-                          const DateTz&  object,
-                          int            bufferLength,
-                          bool           useZAbbreviationForUtc)
+int Iso8601Util::generate(char                            *buffer,
+                          const DateTz&                    object,
+                          int                              bufferLength,
+                          const Iso8601UtilConfiguration&  configuration)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= bufferLength);
 
     char outBuf[k_DATETZ_STRLEN];
-    const int outLen = generateRaw(outBuf, object, useZAbbreviationForUtc);
-    BSLS_ASSERT(outLen == sizeof outBuf
-             || (0 == object.offset() && useZAbbreviationForUtc
-                 && outLen <= static_cast<int>(sizeof outBuf)));
+    const int outLen = generateRaw(outBuf, object, configuration);
+    BSLS_ASSERT(outLen <= static_cast<int>(sizeof outBuf));
+    BSLS_ASSERT_SAFE(outLen == generatedLengthForTzObject(k_DATETZ_STRLEN,
+                                                          object.offset(),
+                                                          configuration));
 
     copyBuf(buffer, bufferLength, outBuf, outLen);
 
     return outLen;
 }
 
-int Iso8601Util::generate(char          *buffer,
-                          const TimeTz&  object,
-                          int            bufferLength,
-                          bool           useZAbbreviationForUtc)
+int Iso8601Util::generate(char                            *buffer,
+                          const TimeTz&                    object,
+                          int                              bufferLength,
+                          const Iso8601UtilConfiguration&  configuration)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= bufferLength);
 
     char outBuf[k_TIMETZ_STRLEN];
-    const int outLen = generateRaw(outBuf, object, useZAbbreviationForUtc);
-    BSLS_ASSERT(outLen == sizeof outBuf
-             || (0 == object.offset() && useZAbbreviationForUtc
-                 && outLen <= static_cast<int>(sizeof outBuf)));
+    const int outLen = generateRaw(outBuf, object, configuration);
+    BSLS_ASSERT(outLen <= static_cast<int>(sizeof outBuf));
+    BSLS_ASSERT_SAFE(outLen == generatedLengthForTzObject(k_TIMETZ_STRLEN,
+                                                          object.offset(),
+                                                          configuration));
 
     copyBuf(buffer, bufferLength, outBuf, outLen);
 
     return outLen;
 }
 
-int Iso8601Util::generate(char              *buffer,
-                          const DatetimeTz&  object,
-                          int                bufferLength,
-                          bool               useZAbbreviationForUtc)
+int Iso8601Util::generate(char                            *buffer,
+                          const DatetimeTz&                object,
+                          int                              bufferLength,
+                          const Iso8601UtilConfiguration&  configuration)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= bufferLength);
 
     char outBuf[k_DATETIMETZ_STRLEN];
-    const int outLen = generateRaw(outBuf, object, useZAbbreviationForUtc);
-    BSLS_ASSERT(outLen == sizeof outBuf
-             || (0 == object.offset() && useZAbbreviationForUtc
-                 && outLen <= static_cast<int>(sizeof outBuf)));
+    const int outLen = generateRaw(outBuf, object, configuration);
+    BSLS_ASSERT(outLen <= static_cast<int>(sizeof outBuf));
+    BSLS_ASSERT_SAFE(outLen == generatedLengthForTzObject(k_DATETIMETZ_STRLEN,
+                                                          object.offset(),
+                                                          configuration));
 
     copyBuf(buffer, bufferLength, outBuf, outLen);
 
     return outLen;
 }
 
-int Iso8601Util::generateRaw(char *buffer, const Date& object)
+int Iso8601Util::generateRaw(
+                          char                            *buffer,
+                          const Date&                      object,
+                          const Iso8601UtilConfiguration&  /* configuration */)
 {
     BSLS_ASSERT(buffer);
 
@@ -569,7 +618,9 @@ int Iso8601Util::generateRaw(char *buffer, const Date& object)
     return static_cast<int>(p - buffer);
 }
 
-int Iso8601Util::generateRaw(char *buffer, const Time& object)
+int Iso8601Util::generateRaw(char                            *buffer,
+                             const Time&                      object,
+                             const Iso8601UtilConfiguration&  configuration)
 {
     BSLS_ASSERT(buffer);
 
@@ -577,61 +628,79 @@ int Iso8601Util::generateRaw(char *buffer, const Time& object)
 
     p += generateInt(p, object.hour()       , 2, ':');
     p += generateInt(p, object.minute()     , 2, ':');
-    p += generateInt(p, object.second()     , 2, '.');
-    p += generateInt(p, object.millisecond(), 3     );
+
+    const char decimalSign = configuration.useCommaForDecimalSign()
+                             ? ','
+                             : '.';
+
+    p += generateInt(p, object.second()     , 2, decimalSign);
+    p += generateInt(p, object.millisecond(), 3);
 
     return static_cast<int>(p - buffer);
 }
 
-int Iso8601Util::generateRaw(char *buffer, const Datetime& object)
+int Iso8601Util::generateRaw(char                            *buffer,
+                             const Datetime&                  object,
+                             const Iso8601UtilConfiguration&  configuration)
 {
     BSLS_ASSERT(buffer);
 
-    const int dateLen = generateRaw(buffer, object.date());
+    const int dateLen = generateRaw(buffer, object.date(), configuration);
     *(buffer + dateLen) = 'T';
-    const int timeLen = generateRaw(buffer + dateLen + 1, object.time());
+    const int timeLen = generateRaw(buffer + dateLen + 1,
+                                    object.time(),
+                                    configuration);
 
     return dateLen + timeLen + 1;
 }
 
-int Iso8601Util::generateRaw(char          *buffer,
-                             const DateTz&  object,
-                             bool           useZAbbreviationForUtc)
+int Iso8601Util::generateRaw(char                            *buffer,
+                             const DateTz&                    object,
+                             const Iso8601UtilConfiguration&  configuration)
 {
     BSLS_ASSERT(buffer);
 
-    const int dateLen = generateRaw(buffer, object.localDate());
+    const int dateLen = generateRaw(buffer,
+                                    object.localDate(),
+                                    configuration);
+
     const int zoneLen = generateZoneDesignator(buffer + dateLen,
                                                object.offset(),
-                                               useZAbbreviationForUtc);
+                                               configuration);
 
     return dateLen + zoneLen;
 }
 
-int Iso8601Util::generateRaw(char          *buffer,
-                             const TimeTz&  object,
-                             bool           useZAbbreviationForUtc)
+int Iso8601Util::generateRaw(char                            *buffer,
+                             const TimeTz&                    object,
+                             const Iso8601UtilConfiguration&  configuration)
 {
     BSLS_ASSERT(buffer);
 
-    const int timeLen = generateRaw(buffer, object.localTime());
+    const int timeLen = generateRaw(buffer,
+                                    object.localTime(),
+                                    configuration);
+
     const int zoneLen = generateZoneDesignator(buffer + timeLen,
                                                object.offset(),
-                                               useZAbbreviationForUtc);
+                                               configuration);
 
     return timeLen + zoneLen;
 }
 
-int Iso8601Util::generateRaw(char              *buffer,
-                             const DatetimeTz&  object,
-                             bool               useZAbbreviationForUtc)
+int Iso8601Util::generateRaw(char                            *buffer,
+                             const DatetimeTz&                object,
+                             const Iso8601UtilConfiguration&  configuration)
 {
     BSLS_ASSERT(buffer);
 
-    const int datetimeLen = generateRaw(buffer, object.localDatetime());
+    const int datetimeLen = generateRaw(buffer,
+                                        object.localDatetime(),
+                                        configuration);
+
     const int zoneLen     = generateZoneDesignator(buffer + datetimeLen,
                                                    object.offset(),
-                                                   useZAbbreviationForUtc);
+                                                   configuration);
 
     return datetimeLen + zoneLen;
 }
@@ -1040,23 +1109,43 @@ int Iso8601Util::parse(DatetimeTz *result, const char *input, int inputLength)
     return 0;
 }
 
-                        // -------------------------------
-                        // struct Iso8601UtilConfiguration
-                        // -------------------------------
+                        // ------------------------------
+                        // class Iso8601UtilConfiguration
+                        // ------------------------------
 
 // CLASS DATA
-bool Iso8601UtilConfiguration::s_useZAbbreviationForUtc = false;
+bsls::AtomicOperations::AtomicTypes::Int
+Iso8601UtilConfiguration::s_defaultConfiguration = { 0 };
 
-// CLASS METHODS
-void Iso8601UtilConfiguration::setUseZAbbreviationForUtc(
-                                               bool useZAbbreviationForUtcFlag)
+// MANIPULATORS
+void Iso8601UtilConfiguration::setOmitColonInZoneDesignator(bool value)
 {
-    s_useZAbbreviationForUtc = useZAbbreviationForUtcFlag;
+    if (value) {
+        d_configurationMask |= k_omitColonInZoneDesignatorBit;
+    }
+    else {
+        d_configurationMask &= ~k_omitColonInZoneDesignatorBit;
+    }
 }
 
-bool Iso8601UtilConfiguration::useZAbbreviationForUtc()
+void Iso8601UtilConfiguration::setUseCommaForDecimalSign(bool value)
 {
-    return s_useZAbbreviationForUtc;
+    if (value) {
+        d_configurationMask |= k_useCommaForDecimalSignBit;
+    }
+    else {
+        d_configurationMask &= ~k_useCommaForDecimalSignBit;
+    }
+}
+
+void Iso8601UtilConfiguration::setUseZAbbreviationForUtc(bool value)
+{
+    if (value) {
+        d_configurationMask |= k_useZAbbreviationForUtcBit;
+    }
+    else {
+        d_configurationMask &= ~k_useZAbbreviationForUtcBit;
+    }
 }
 
 }  // close package namespace
