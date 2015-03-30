@@ -320,8 +320,10 @@ class SharedPtrRep {
 
   protected:
     // PROTECTED CREATORS
-    ~SharedPtrRep();
-        // Destroy this representation object.
+    virtual ~SharedPtrRep();
+        // Destroy this representation object.  Note that this destructor is
+        // not intended to be invoked polymorphically, and is marked 'virtual'
+        // only to silence frequent warnings on popular compilers.
 
   public:
     // CLASS METHODS

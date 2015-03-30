@@ -1885,7 +1885,7 @@ void TestDriver::testCase3(OutputRedirector                   *output,
 // (i.e. inside 'main'), so the test has been factored out into a separate
 // function.
 
-#ifdef BSLS_PLATFORM_CMP_GNU
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat"
 #endif
@@ -1946,7 +1946,7 @@ void checkStackCorruptionTest()
     ASSERT(data.sentinel != SENTINEL_ONES);
 }
 
-#ifdef BSLS_PLATFORM_CMP_GNU
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic pop
 #endif
 

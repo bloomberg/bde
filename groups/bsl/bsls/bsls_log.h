@@ -12,6 +12,10 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsls::Log: namespace for low-level logging functions
 //
+//@MACROS:
+// BSLS_LOG: write log message using 'printf'-style format specification
+// BSLS_LOG_SIMPLE: write log message as an unformatted string
+//
 //@DESCRIPTION: This component provides a set of macros, along with a
 // namespace, 'bsls::Log', which contains a suite of utility functions for
 // logging in low-level code.  The macros and functions in this component
@@ -68,7 +72,7 @@ BSLS_IDENT("$Id: $")
 // There are four ways to invoke the currently installed log message handler,
 // depending on the specific behavior required: The macro 'BSLS_LOG' allows a
 // formatted message to be written using a 'printf'-style format string.  The
-// macro 'BSLS_LOG_SIMPLE' allows a simple, non-formatted string to be written.
+// macro 'BSLS_LOG_SIMPLE' allows a simple, unformatted string to be written.
 // Both of the macros automatically use the file name and line number of the
 // point that the macro was invoked.  The 'static' methods
 // 'bsls::Log::logFormattedMessage' and 'bsls::Log::logMessage' provide the
@@ -79,9 +83,9 @@ BSLS_IDENT("$Id: $")
 //  .=========================================================================.
 //  |      Mechanism                 |  Formatted   |  Automatic File & Line  |
 //  |=========================================================================|
-//  | BAEL_LOG                       |     YES      |          YES            |
+//  | BSLS_LOG                       |     YES      |          YES            |
 //  |--------------------------------|--------------|-------------------------|
-//  | BAEL_LOG_SIMPLE                |     NO       |          YES            |
+//  | BSLS_LOG_SIMPLE                |     NO       |          YES            |
 //  |--------------------------------|--------------|-------------------------|
 //  | bsls::Log::logFormattedMessage |     YES      |          NO             |
 //  |--------------------------------|--------------|-------------------------|
@@ -136,7 +140,6 @@ BSLS_IDENT("$Id: $")
 // specifiers but the expected substitutions are not present, it will lead to
 // undefined behavior.
 
-
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -148,6 +151,7 @@ BSLS_IDENT("$Id: $")
                          // ==========================
                          // BSLS_LOG Macro Definitions
                          // ==========================
+
 #define BSLS_LOG(...)                                                         \
  (BloombergLP::bsls::Log::logFormattedMessage(__FILE__, __LINE__, __VA_ARGS__))
     // Write, to the currently installed log message handler, the formatted
@@ -165,8 +169,7 @@ BSLS_IDENT("$Id: $")
     // Write the specified 'msg' to the currently installed log message
     // handler, with the file name and line number of the point of expansion of
     // the macro automatically used as the file name and line number of the
-    // log.  The behavior is undefined unless 'msg' is a null-terminated
-    // string.
+    // log.
 
 namespace BloombergLP {
 namespace bsls {
@@ -212,7 +215,7 @@ class Log {
         // specified 'file', the specified 'line', and a message string
         // created by calling 'sprintf' on the specified 'format' with the
         // specified variadic arguments.  The behavior is undefined unless
-        // '0 <= line' and 'format' is a valid 'sprint' format specification
+        // '0 <= line' and 'format' is a valid 'sprintf' format specification
         // for the supplied variadic arguments.
 
     static void logMessage(const char *file, int line, const char *message);
@@ -267,9 +270,9 @@ class Log {
 inline
 void Log::logMessage(const char *file, int line, const char *message)
 {
-    BSLS_ASSERT_OPT(file);
-    BSLS_ASSERT(line >= 0);
-    BSLS_ASSERT_OPT(message);
+    BSLS_ASSERT_SAFE(file);
+    BSLS_ASSERT_SAFE(line >= 0);
+    BSLS_ASSERT_SAFE(message);
 
     return (logMessageHandler()) (file, line, message);
 }
@@ -284,7 +287,7 @@ Log::LogMessageHandler Log::logMessageHandler()
 inline
 void Log::setLogMessageHandler(Log::LogMessageHandler handler)
 {
-    BSLS_ASSERT_OPT(handler);
+    BSLS_ASSERT_SAFE(handler);
 
     bsls::AtomicOperations::setPtrRelease(&s_logMessageHandler,
                                           reinterpret_cast<void*>(handler));

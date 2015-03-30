@@ -47,9 +47,9 @@
  dispatching.  See the 'bslmf_issame' component-level documentation for a more
  thorough usage example.
 
- Other meta-functions don't have a 'VALUE', but apply some type transformation
- (e.g., removing top-level 'const' qualifiers, decaying array and function
- types to pointer types).  Those usually have a nested 'Type'.
+ Other meta-functions don't have a 'VALUE', but apply some type of
+ transformation (e.g., removing top-level 'const' qualifiers, decaying array
+ and function types to pointer types).  Those usually have a nested 'Type'.
 
 /Hierarchical Synopsis
 /---------------------
@@ -58,76 +58,76 @@
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  10. bslmf_isbitwisemoveable
+10. bslmf_isbitwisemoveable
 
-   9. bslmf_addcv
-      bslmf_forwardingtype
-      bslmf_haspointersemantics
-      bslmf_isbitwiseequalitycomparable
-      bslmf_istriviallycopyable
-      bslmf_istriviallydefaultconstructible
+ 9. bslmf_addcv
+    bslmf_forwardingtype
+    bslmf_haspointersemantics
+    bslmf_isbitwiseequalitycomparable
+    bslmf_istriviallycopyable
+    bslmf_istriviallydefaultconstructible
 
-   8. bslmf_addconst
-      bslmf_addvolatile
-      bslmf_detectnestedtrait
-      bslmf_isenum
+ 8. bslmf_addconst
+    bslmf_addvolatile
+    bslmf_detectnestedtrait
+    bslmf_isenum
 
-   7. bslmf_enableif
-      bslmf_isconvertibletoany
-      bslmf_isfunction
-      bslmf_ispointertomember
-      bslmf_matcharithmetictype
-      bslmf_memberfunctionpointertraits
-      bslmf_removepointer
+ 7. bslmf_enableif
+    bslmf_isconvertibletoany
+    bslmf_isfunction
+    bslmf_ispointertomember
+    bslmf_matcharithmetictype
+    bslmf_memberfunctionpointertraits
+    bslmf_nestedtraitdeclaration
+    bslmf_removepointer
 
-   6. bslmf_addpointer
-      bslmf_addreference
-      bslmf_functionpointertraits
-      bslmf_if
-      bslmf_isconvertible
-      bslmf_ismemberpointer
+ 6. bslmf_addpointer
+    bslmf_addreference
+    bslmf_functionpointertraits
+    bslmf_if
+    bslmf_isconvertible
+    bslmf_ismemberpointer
 
-   5. bslmf_addlvaluereference
-      bslmf_addrvaluereference
-      bslmf_arraytopointer
-      bslmf_conditional
-      bslmf_isfundamental
-      bslmf_ismemberobjectpointer
-      bslmf_removereference
-      bslmf_typelist
+ 5. bslmf_addlvaluereference
+    bslmf_addrvaluereference
+    bslmf_arraytopointer
+    bslmf_conditional
+    bslmf_isfundamental
+    bslmf_ismemberobjectpointer
+    bslmf_removereference
+    bslmf_typelist
 
-   4. bslmf_isarithmetic
-      bslmf_ismemberfunctionpointer
-      bslmf_ispolymorphic
-      bslmf_issame
-      bslmf_isvoid
-      bslmf_selecttrait
+ 4. bslmf_isarithmetic
+    bslmf_ismemberfunctionpointer
+    bslmf_ispolymorphic
+    bslmf_issame
+    bslmf_isvoid
+    bslmf_selecttrait
 
-   3. bslmf_isclass
-      bslmf_isfloatingpoint
-      bslmf_isintegral
-      bslmf_ispointer
-      bslmf_isreference
-      bslmf_metaint
-      bslmf_removecvq
-      bslmf_switch
+ 3. bslmf_isclass
+    bslmf_isfloatingpoint
+    bslmf_isintegral
+    bslmf_ispointer
+    bslmf_isreference
+    bslmf_metaint
+    bslmf_removecvq
+    bslmf_switch
 
-   2. bslmf_isarray
-      bslmf_isconst
-      bslmf_islvaluereference
-      bslmf_ispair
-      bslmf_isrvaluereference
-      bslmf_isvolatile
-      bslmf_nil
-      bslmf_removecv
-      bslmf_tag
+ 2. bslmf_isarray
+    bslmf_isconst
+    bslmf_islvaluereference
+    bslmf_ispair
+    bslmf_isrvaluereference
+    bslmf_isvolatile
+    bslmf_nil
+    bslmf_removecv
+    bslmf_tag
 
-   1. bslmf_assert
-      bslmf_integralconstant
-      bslmf_matchanytype
-      bslmf_nestedtraitdeclaration
-      bslmf_removeconst
-      bslmf_removevolatile
+ 1. bslmf_assert
+    bslmf_integralconstant
+    bslmf_matchanytype
+    bslmf_removeconst
+    bslmf_removevolatile
 ..
 
 /Component Synopsis

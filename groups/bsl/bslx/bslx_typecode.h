@@ -207,7 +207,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, TypeCode::Enum value);
     //..
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                        INLINE DEFINITIONS
 // ============================================================================
 
                         // ---------------

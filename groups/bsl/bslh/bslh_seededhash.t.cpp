@@ -107,6 +107,7 @@ void aSsErT(bool b, const char *s, int i)
 // ----------------------------------------------------------------------------
 
 #define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
+#define U64 BSLS_BSLTESTUTIL_FORMAT_U64
 
 //=============================================================================
 //                             USAGE EXAMPLE
@@ -312,7 +313,7 @@ class TypeChecker {
 };
 
 template<class EXPECTED_TYPE>
-bool TypeChecker<EXPECTED_TYPE>::isCorrectType(EXPECTED_TYPE type) {
+bool TypeChecker<EXPECTED_TYPE>::isCorrectType(EXPECTED_TYPE) {
     return true;
 }
 
@@ -327,6 +328,8 @@ typedef MockRNG CryptographicallySecureRNG;
 
 typedef bslh::SeedGenerator<MockRNG> SeedGen;
 typedef bslh::SeededHash<SeedGen, DefaultSeededHashAlgorithm> Obj;
+
+typedef bsls::Types::Uint64 u64;
 
 // ============================================================================
 //                            MAIN PROGRAM
@@ -502,9 +505,9 @@ int main(int argc, char *argv[])
                             "\n====================\n");
 
         static const struct {
-            int                  d_line;
-            const int            d_value;
-            bsls::Types::Uint64  d_expectedHash;
+            int d_line;
+            int d_value;
+            u64 d_expectedHash;
         } DATA[] = {
         // LINE    DATA              HASH
          {  L_,        1,  9778072230994240314ULL,},
@@ -523,7 +526,7 @@ int main(int argc, char *argv[])
          {  L_,  1594323,  3005240762459740192ULL,},
          {  L_,  4782969,  3383268391725748969ULL,},
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) printf("Create 'const' strings and hash them.  Compare"
                             " the results against known good values."
@@ -532,18 +535,20 @@ int main(int argc, char *argv[])
             for (int i = 0; i != NUM_DATA; ++i) {
                 const int     LINE  = DATA[i].d_line;
                 const int     VALUE = DATA[i].d_value;
-                const size_t  HASH  =
-                                   static_cast<size_t>(DATA[i].d_expectedHash);
-
-                if (veryVerbose) printf("Hashing: %i, Expecting: " ZU "\n",
-                                        VALUE,
-                                        HASH);
+                const u64 HASH  = DATA[i].d_expectedHash;
 
                 Obj hash = Obj();
-                LOOP_ASSERT(LINE, hash(VALUE) == HASH);
+                const u64 result = hash(VALUE);
+                size_t truncResult = size_t(result);
+                size_t truncExpect = size_t(HASH);
+                if (veryVerbose) printf(
+                                 "Hashing: %i, Expecting: "U64", Got: "U64"\n",
+                                 VALUE, u64(truncExpect), u64(truncResult));
+                LOOP_ASSERT(LINE, truncResult == truncExpect);
 
                 const Obj constHash = Obj();
-                LOOP_ASSERT(LINE, constHash(VALUE) == HASH);
+                size_t constTruncResult = size_t(constHash(VALUE));
+                LOOP_ASSERT(LINE, constTruncResult == truncExpect);
             }
         }
 
@@ -606,6 +611,7 @@ int main(int argc, char *argv[])
                             " (C-1,7)\n");
         {
             Obj alg1 = Obj();
+            (void) alg1;
         }
 
         if (verbose) printf("Construct a 'SeededHash' using the parameterized"
@@ -613,6 +619,7 @@ int main(int argc, char *argv[])
         {
             SeedGen seedGen;
             Obj alg1(seedGen);
+            (void) alg1;
         }
 
         if (verbose) printf("Use the copy-initialization syntax to create a"
@@ -621,6 +628,7 @@ int main(int argc, char *argv[])
         {
             Obj alg1;
             Obj alg2 = alg1;
+            (void) alg2;
         }
 
         if (verbose) printf("Assign the value of the one (const) instance of"
@@ -628,6 +636,7 @@ int main(int argc, char *argv[])
         {
             const Obj alg1 = Obj();
             Obj alg2 = alg1;
+            (void) alg2;
         }
 
         if (verbose) printf("Chain the assignment of the value of the one"
@@ -638,6 +647,7 @@ int main(int argc, char *argv[])
             Obj alg1;
             Obj alg2 = alg1;
             alg2 = alg2 = alg1;
+            (void) alg2;
         }
 
       } break;

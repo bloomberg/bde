@@ -32,7 +32,7 @@ ByteOutStream& ByteOutStream::putString(const bsl::string& value)
     const bsl::size_t n = d_buffer.size();
     invalidate();
     if (value.size() > 127) {
-        const int length = static_cast<int>(value.size());
+        const int         length = static_cast<int>(value.size());
         const bsl::size_t nPlusLength =  n + MarshallingUtil::k_SIZEOF_INT32;
         d_buffer.resize(nPlusLength + length * MarshallingUtil::k_SIZEOF_INT8);
         validate();
@@ -43,7 +43,7 @@ ByteOutStream& ByteOutStream::putString(const bsl::string& value)
                                       length);
     }
     else {
-        const int length = static_cast<int>(value.size());
+        const int         length = static_cast<int>(value.size());
         const bsl::size_t nPlusLength =  n + MarshallingUtil::k_SIZEOF_INT8;
         d_buffer.resize(nPlusLength + length * MarshallingUtil::k_SIZEOF_INT8);
         validate();

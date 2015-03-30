@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
 // compilation.  The '#if' directive compares 'BDL_VERSION' to a specified
 // major, minor, and patch version 4 composed using 'BDL_MAKE_VERSION':
 //..
-    #if BDL_VERSION > BDL_MAKE_VERSION(1, 2)
+    #if BDL_VERSION > BSL_MAKE_VERSION(1, 2)
         // Call 'newFunction' for BDL version 1.2 and later:
         int result = newFunction();
     #else
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
         if (verbose) bsl::printf("\nTEST BDL_MAKE_VERSION MACRO"
                                  "\n===========================\n");
 
-        static const char COMPILE_ASSERT[BDL_MAKE_VERSION(0,1)] = { 0 };
+        static const char COMPILE_ASSERT[BSL_MAKE_VERSION(0,1)] = { 0 };
         ASSERT(sizeof(COMPILE_ASSERT) == 100);
 
         static struct {
@@ -161,7 +161,7 @@ int main(int argc, char *argv[])
             const int MINOR = DATA[i].d_minor;
             const int EXP   = DATA[i].d_version;
 
-            LOOP_ASSERT(LINE, EXP == BDL_MAKE_VERSION(MAJOR, MINOR));
+            LOOP_ASSERT(LINE, EXP == BSL_MAKE_VERSION(MAJOR, MINOR));
         }
 
       } break;

@@ -15,8 +15,8 @@ BSLS_IDENT("$Id: $")
 //@MACROS:
 //  BSL_VERSION_MAJOR: current release major version number
 //  BSL_VERSION_MINOR: current release minor version number
-//  BLS_MAKE_VERSION(MA, MI): create combined, 6-digit version number (MAMI00)
-//  BLS_VERSION: combined, 6-digit version number for current release
+//  BSL_MAKE_VERSION(MA, MI): create combined, 6-digit version number (MAMI00)
+//  BSL_VERSION: combined, 6-digit version number for current release
 //
 //@SEE_ALSO: bslscm_version
 //
@@ -49,12 +49,12 @@ BSLS_IDENT("$Id: $")
 #define BSL_VERSION_MAJOR    2
     // Provide the major version number of the current (latest) BSL release.
 
-#define BSL_VERSION_MINOR    22
+#define BSL_VERSION_MINOR    23
     // Provide the minor version number of the current (latest) BSL release.
 
 #define BSL_MAKE_VERSION(major, minor) ((major) * 10000 \
                                       + (minor) *   100)
-    // Construct a composite version number in the range [ 0 .. 999900 ] from
+    // Construct a composite version number in the range '[0 .. 999900]' from
     // the specified 'major' and 'minor' version numbers.  The resulting value,
     // when expressed as a 6-digit decimal string, has "00" as the two
     // lowest-order decimal digits, 'minor' as the next two digits, and 'major'
@@ -66,11 +66,11 @@ BSLS_IDENT("$Id: $")
     // integral constants, then the resulting expression is also a compile-time
     // integral constant.  Also note that the patch version number is
     // intentionally not included.  The behavior is undefined unless 'major'
-    // and 'minor' are integral values in the range [ 0 .. 99 ].
+    // and 'minor' are integral values in the range '[0 .. 99]'.
 
 #define BSL_VERSION BSL_MAKE_VERSION(BSL_VERSION_MAJOR, \
                                      BSL_VERSION_MINOR)
-    // Construct a composite version number in the range [ 0 .. 999900 ] from
+    // Construct a composite version number in the range '[0 .. 999900]' from
     // the specified 'BSL_VERSION_MAJOR' and 'BSL_VERSION_MINOR' numbers
     // corresponding to the major and minor version numbers, respectively, of
     // the current (latest) BSL release.  Note that the patch version number is

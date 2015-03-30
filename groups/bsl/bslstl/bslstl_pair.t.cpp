@@ -14,13 +14,14 @@
 
 #include <bslmf_issame.h>
 
-#include <algorithm>
-
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 
+#include <algorithm>
+
 using namespace BloombergLP;
+using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN
@@ -68,6 +69,7 @@ using namespace BloombergLP;
 // [5] void pair::swap(pair& rhs);
 // [5] void swap(pair& lhs, pair& rhs);
 // [7] Pointer to member test
+// [8] hashAppend(HASHALG& hashAlg, const pair<T1,T2>&  input);
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
 // [6] USAGE EXAMPLE
@@ -87,7 +89,7 @@ namespace {
 
 void aSsErT(int c, const char *s, int i) {
     if (c) {
-        std::printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
@@ -101,10 +103,10 @@ void aSsErT(int c, const char *s, int i) {
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
 // #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) std::printf("<| " #X " |>\n");  // Quote identifier literally.
+#define Q(X) printf("<| " #X " |>\n");  // Quote identifier literally.
 //#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
 #define L_ __LINE__                           // current Line number
-#define T_ std::printf("\t");             // Print a tab (w/o newline)
+#define T_ printf("\t");             // Print a tab (w/o newline)
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -341,12 +343,12 @@ class my_NoAllocString
 
 bool operator==(const my_NoAllocString& lhs, const my_NoAllocString& rhs)
 {
-    return 0 == std::strcmp(lhs.c_str(), rhs.c_str());
+    return 0 == strcmp(lhs.c_str(), rhs.c_str());
 }
 
 bool operator==(const my_NoAllocString& lhs, const char *rhs)
 {
-    return 0 == std::strcmp(rhs, lhs.c_str());
+    return 0 == strcmp(rhs, lhs.c_str());
 }
 
 bool operator==(const char *lhs, const my_NoAllocString& rhs)
@@ -371,7 +373,7 @@ bool operator!=(const char *lhs, const my_NoAllocString& rhs)
 
 bool operator<(const my_NoAllocString& lhs, const my_NoAllocString& rhs)
 {
-    return std::strcmp(lhs.c_str(), rhs.c_str()) < 0;
+    return strcmp(lhs.c_str(), rhs.c_str()) < 0;
 }
 
 bslma::TestAllocator *my_NoAllocString::allocator()
@@ -591,6 +593,19 @@ void swapTestHelper()
     p2.second.assertSwapCalled();
 }
 
+
+                           // =================================
+                           // Hash<my_String> (hashAppend test)
+                           // =================================
+
+// HASH SPECIALIZATIONS
+template <class HASHALG>
+void hashAppend(HASHALG& hashAlg, const my_String& input)
+{
+    using bslh::hashAppend;
+    hashAlg(input.c_str(), std::strlen(input.c_str()));
+}
+
 //=============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
@@ -601,16 +616,176 @@ void swapTestHelper()
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? std::atoi(argv[1]) : 0;
+    int test = argc > 1 ? atoi(argv[1]) : 0;
     verbose = argc > 2;
     veryVerbose = argc > 3;
     // veryVeryVerbose = argc > 4;
 
-    std::setbuf(stdout, 0);    // Use unbuffered output
+    setbuf(stdout, 0);    // Use unbuffered output
 
-    std::printf("TEST " __FILE__ " CASE %d\n", test);
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 8: {
+        // --------------------------------------------------------------------
+        // hashAppend
+        //
+        // Concerns:
+        //: 1 Hashes different inputs differently
+        //:
+        //: 2 Hashes equal inputs identically
+        //:
+        //: 3 Works for const and non-const pairs, members
+        //:
+        //: 4 'hashAppend' for 'pair' correctly uses 'hashAppend' implemented
+        //:   for the pair's template parameter types.
+        //
+        // Plan:
+        //: 1 Create pairs, some equal and some not, some const, some not.
+        //:   Hash them all. Compare hashes, identifying those that should be
+        //:   equal and those that should not.  Call with different mixes of
+        //:   constness, to verify that all compile. (C-1..3)
+        //:
+        //: 2 Create a 'hashAppend' for 'my_String', create a set of pairs
+        //:   using 'my_String' values, and verify that pairs having the same
+        //:   'my_String' value produce the same hash code. (C-4)
+        //
+        // Testing:
+        //     hashAppend(HASHALG& hashAlg, const pair<T1,T2>&  input);
+        // --------------------------------------------------------------------
+        verbose && puts("\nTESTING 'hashAppend'"
+                        "\n====================");
+
+        typedef ::BloombergLP::bslh::Hash<> Hasher;
+        typedef Hasher::result_type         HashType;
+
+        {
+            const char *ptr1 = "hello";
+            const char *ptr2 = "goodbye";
+
+            bsl::pair<int,const char*> p1(1,   ptr1);  // P-1
+            bsl::pair<int,const char*> p2(1,   ptr1);
+            bsl::pair<int,const char*> p3(100, ptr1);
+            bsl::pair<int,const char*> p4(1,   ptr2);
+            bsl::pair<int,const char*> p5(1,   ptr2);
+            bsl::pair<int,const char*> p6(100, ptr2);
+
+            bsl::pair<const int, const char *>      p7(1, ptr1);  // P-4
+            const bsl::pair<int,const char * const> p8(1, ptr1);
+
+            Hasher hasher;  // P-2
+            HashType a1 = hasher(p1), a2 = hasher(p2), a3 = hasher(p3),
+                     a4 = hasher(p4), a5 = hasher(p5), a6 = hasher(p6),
+                     a7 = hasher(p7), a8 = hasher(p8);
+
+            if (veryVerbose) {
+                printf("\tHash of (%d,\"%s\") is %llx\n",
+                       p1.first, p1.second, (unsigned long long) a1);
+                printf("\tHash of (%d,\"%s\") is %llx\n",
+                       p2.first, p2.second, (unsigned long long) a2);
+                printf("\tHash of (%d,\"%s\") is %llx\n",
+                       p3.first, p3.second, (unsigned long long) a3);
+                printf("\tHash of (%d,\"%s\") is %llx\n",
+                       p4.first, p4.second, (unsigned long long) a4);
+                printf("\tHash of (%d,\"%s\") is %llx\n",
+                       p5.first, p5.second, (unsigned long long) a5);
+                printf("\tHash of (%d,\"%s\") is %llx\n",
+                       p6.first, p6.second, (unsigned long long) a6);
+                printf("\tHash of (%d,\"%s\") is %llx\n",
+                       p7.first, p7.second, (unsigned long long) a7);
+                printf("\tHash of (%d,\"%s\") is %llx\n",
+                       p8.first, p8.second, (unsigned long long) a8);
+            }
+
+            // P-3
+
+            ASSERT(a1 == a2);
+            ASSERT(a1 != a3);
+            ASSERT(a1 != a4);
+            ASSERT(a1 != a5);
+            ASSERT(a1 != a6);
+            if (veryVerbose) {
+                printf(
+                  "\tp1=p2: %d, p1/p3: %d, p1/p4: %d, p1/p5: %d, p1/p6: %d\n",
+                  int(a1 == a2), int(a1 != a3), int(a1 != a4),
+                  int(a1 != a5), int(a1 != a6));
+            }
+            ASSERT(a2 != a3);
+            ASSERT(a2 != a4);
+            ASSERT(a2 != a5);
+            ASSERT(a2 != a6);
+            if (veryVerbose) {
+                printf(
+                   "\tp2/p3: %d, p2/p4: %d, p2/p5: %d, p2/p6: %d\n",
+                   int(a2 != a3), int(a2 != a4), int(a2 != a5), int(a2 != a6));
+            }
+            ASSERT(a3 != a4);
+            ASSERT(a3 != a5);
+            ASSERT(a3 != a6);
+            if (veryVerbose) {
+                printf(
+                   "\tp3/p4: %d, p3/p5: %d, p3/p6: %d\n",
+                   int(a3 != a4), int(a3 != a5), int(a3 != a6));
+            }
+            ASSERT(a4 == a5);
+            ASSERT(a4 != a6);
+            if (veryVerbose) {
+                printf(
+                   "\tp4=p5: %d, p4/p6: %d\n",
+                   int(a4 == a5), int(a4 != a6));
+            }
+            ASSERT(a5 != a6);
+            if (veryVerbose) {
+                printf(
+                    "\tp5/p6: %d\n",
+                    int(a5 != a6));
+            }
+
+            ASSERT(a7 == a8);
+            ASSERT(a1 == a8);
+            if (veryVerbose) {
+                printf(
+                    "\tp7=p8: %d, p1=p8: %d\n",
+                    int(a7 == a8), int(a1 == a8));
+            }
+        }
+        if (verbose) {
+            printf("\tTesting hash on a pair with a user-defined type");
+        }
+        {
+            bsl::pair<int, my_String> p1(1,   "stringA");  // P-1
+            bsl::pair<int, my_String> p2(1,   "stringA");
+            bsl::pair<int, my_String> p3(100, "stringA");
+            bsl::pair<int, my_String> p4(1,   "stringB");
+            bsl::pair<int, my_String> p5(1,   "stringB");
+            bsl::pair<int, my_String> p6(100, "stringB");
+
+            Hasher hasher;  // P-2
+            HashType a1 = hasher(p1), a2 = hasher(p2), a3 = hasher(p3),
+                     a4 = hasher(p4), a5 = hasher(p5), a6 = hasher(p6);
+
+            ASSERT(a1 == a2);
+            ASSERT(a1 != a3);
+            ASSERT(a1 != a4);
+            ASSERT(a1 != a5);
+            ASSERT(a1 != a6);
+
+            ASSERT(a2 != a3);
+            ASSERT(a2 != a4);
+            ASSERT(a2 != a5);
+            ASSERT(a2 != a6);
+
+            ASSERT(a3 != a4);
+            ASSERT(a3 != a5);
+            ASSERT(a3 != a6);
+
+            ASSERT(a4 == a5);
+            ASSERT(a4 != a6);
+
+            ASSERT(a5 != a6);
+        }
+
+      } break;
       case 7: {
         // --------------------------------------------------------------------
         // Pointer to member
@@ -623,10 +798,10 @@ int main(int argc, char *argv[])
         //   that the behavior is as expected
         //
         // Testing:
-        //     Usage Example
+        //     Pointer to member
         // --------------------------------------------------------------------
-        if (verbose) std::printf("\nPOINTER TO MEMBER TEST"
-                                 "\n======================\n");
+        if (verbose) printf("\nPOINTER TO MEMBER TEST"
+                            "\n======================\n");
 
         int bsl::pair<int,const char*>::*pfirst
                                         = &bsl::pair<int,const char*>::first;
@@ -651,8 +826,8 @@ int main(int argc, char *argv[])
         //     Usage Example
         // --------------------------------------------------------------------
 
-        if (verbose) std::printf("\nUSAGE EXAMPLE"
-                                 "\n=============\n");
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
 
         usageExample();
 
@@ -690,8 +865,8 @@ int main(int argc, char *argv[])
         //     void pair<T1, T2>::swap(pair& rhs);
         // --------------------------------------------------------------------
 
-        if (verbose) std::printf("\nSWAP TEST"
-                                 "\n=========\n");
+        if (verbose) printf("\nSWAP TEST"
+                            "\n=========\n");
 
         swapTestHelper<TypeWithSwapNamespace::TypeWithSwap, TypeWithoutSwap>();
         swapTestHelper<TypeWithoutSwap, TypeWithSwapNamespace::TypeWithSwap>();
@@ -729,8 +904,8 @@ int main(int argc, char *argv[])
         //          bslma::Allocator    *alloc);
         // --------------------------------------------------------------------
 
-        if (verbose) std::printf("\nCONVERSION CONSTRUCTOR TEST"
-                                 "\n===========================\n");
+        if (verbose) printf("\nCONVERSION CONSTRUCTOR TEST"
+                            "\n===========================\n");
 
         bslma::TestAllocator ta1(veryVerbose);
         bslma::TestAllocator ta2(veryVerbose);
@@ -822,11 +997,11 @@ int main(int argc, char *argv[])
         //     Type Traits
         // --------------------------------------------------------------------
 
-        if (verbose) std::printf("\nTRAITS TEST"
-                                 "\n===========\n");
+        if (verbose) printf("\nTRAITS TEST"
+                            "\n===========\n");
 
         if (verbose) {
-            std::printf("Testing traits of "
+            printf("Testing traits of "
                         "bsl::pair<my_NoTraits, my_NoTraits>\n");
         }
         typedef bsl::pair<my_NoTraits, my_NoTraits> Pair0;
@@ -838,7 +1013,7 @@ int main(int argc, char *argv[])
         ASSERT(  (bslmf::IsPair<                          Pair0>::value));
 
         if (verbose) {
-            std::printf("Testing traits of "
+            printf("Testing traits of "
                         "bsl::pair<my_MoveAbandonBslma,"
                         "             my_MoveAbandonBslma>\n");
         }
@@ -851,7 +1026,7 @@ int main(int argc, char *argv[])
         ASSERT(  (bslmf::IsPair<                          Pair1>::value));
 
         if (verbose) {
-            std::printf("Testing traits of "
+            printf("Testing traits of "
                         "bsl::pair<my_CopyTrivial, my_CopyTrivial>\n");
         }
         typedef bsl::pair<my_CopyTrivial, my_CopyTrivial> Pair2;
@@ -863,7 +1038,7 @@ int main(int argc, char *argv[])
         ASSERT(  (bslmf::IsPair<                          Pair2>::value));
 
         if (verbose) {
-            std::printf("Testing traits of "
+            printf("Testing traits of "
                         "bsl::pair<my_CopyTrivial, my_MoveAbandonBslma>\n");
         }
         typedef bsl::pair<my_CopyTrivial, my_MoveAbandonBslma> Pair3;
@@ -875,7 +1050,7 @@ int main(int argc, char *argv[])
         ASSERT(  (bslmf::IsPair<                          Pair3>::value));
 
         if (verbose) {
-            std::printf("Testing traits of "
+            printf("Testing traits of "
                         "bsl::pair<my_MoveAbandonBslma, my_CopyTrivial>\n");
         }
         typedef bsl::pair<my_MoveAbandonBslma, my_CopyTrivial> Pair4;
@@ -887,7 +1062,7 @@ int main(int argc, char *argv[])
         ASSERT(  (bslmf::IsPair<                          Pair4>::value));
 
         if (verbose) {
-            std::printf("Testing traits of "
+            printf("Testing traits of "
                         "bsl::pair<my_MoveAbandonBslma, my_NoTraits>\n");
         }
         typedef bsl::pair<my_MoveAbandonBslma, my_NoTraits> Pair5;
@@ -899,7 +1074,7 @@ int main(int argc, char *argv[])
         ASSERT(  (bslmf::IsPair<                          Pair5>::value));
 
         if (verbose) {
-            std::printf("Testing traits of "
+            printf("Testing traits of "
                         "bsl::pair<my_CopyTrivial, my_NoTraits>\n");
         }
         typedef bsl::pair<my_CopyTrivial, my_NoTraits> Pair6;
@@ -911,7 +1086,7 @@ int main(int argc, char *argv[])
         ASSERT(  (bslmf::IsPair<                          Pair6>::value));
 
         if (verbose) {
-            std::printf("Testing traits of "
+            printf("Testing traits of "
                         "bsl::pair<my_String, my_NoTraits>\n");
         }
         typedef bsl::pair<my_String, my_NoTraits> Pair7;
@@ -923,7 +1098,7 @@ int main(int argc, char *argv[])
         ASSERT(  (bslmf::IsPair<                          Pair7>::value));
 
         if (verbose) {
-            std::printf("Testing traits of "
+            printf("Testing traits of "
                         "bsl::pair<my_MoveAbandonBslma, int>\n");
         }
         typedef bsl::pair<my_MoveAbandonBslma, int> Pair8;
@@ -935,7 +1110,7 @@ int main(int argc, char *argv[])
         ASSERT(  (bslmf::IsPair<                          Pair8>::value));
 
         if (verbose) {
-            std::printf("Testing traits of "
+            printf("Testing traits of "
                         "bsl::pair<int, my_CopyTrivial>\n");
         }
         typedef bsl::pair<int, my_CopyTrivial> Pair9;
@@ -947,7 +1122,7 @@ int main(int argc, char *argv[])
         ASSERT(  (bslmf::IsPair<                          Pair9>::value));
 
         if (verbose) {
-            std::printf("Testing traits of "
+            printf("Testing traits of "
                         "bsl::pair<my_String, my_MoveAbandonBslma>\n");
         }
         typedef bsl::pair<my_String, my_MoveAbandonBslma> Pair10;
@@ -959,7 +1134,7 @@ int main(int argc, char *argv[])
         ASSERT(  (bslmf::IsPair<                          Pair10>::value));
 
         if (verbose) {
-            std::printf("Testing traits of "
+            printf("Testing traits of "
                         "bsl::pair<char, int>\n");
         }
         typedef bsl::pair<char, int> Pair11;
@@ -971,7 +1146,7 @@ int main(int argc, char *argv[])
         ASSERT(  (bslmf::IsPair<                          Pair11>::value));
 
         if (verbose) {
-            std::printf("Testing traits of "
+            printf("Testing traits of "
                         "bsl::pair<int, char>\n");
         }
         typedef bsl::pair<int, char> Pair12;
@@ -983,7 +1158,7 @@ int main(int argc, char *argv[])
         ASSERT(  (bslmf::IsPair<                          Pair12>::value));
 
         if (verbose) {
-            std::printf("Testing traits of "
+            printf("Testing traits of "
                         "bsl::pair<int, int>\n");
         }
         typedef bsl::pair<int, int> Pair13;
@@ -1062,8 +1237,8 @@ int main(int argc, char *argv[])
         //     bool operator>=(const pair& x, const pair& y);
         // --------------------------------------------------------------------
 
-        if (verbose) std::printf("\nFUNCTIONALITY TEST"
-                                 "\n==================\n");
+        if (verbose) printf("\nFUNCTIONALITY TEST"
+                            "\n==================\n");
 
         bslma::TestAllocator ta1(veryVerbose);
         bslma::TestAllocator ta2(veryVerbose);
@@ -1075,7 +1250,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta2.numBlocksInUse());
         ASSERT(0 == ta3.numBlocksInUse());
 
-        if (verbose) std::printf("testing bsl::pair<short, short>\n");
+        if (verbose) printf("testing bsl::pair<short, short>\n");
         {
             typedef bsl::pair<short, short> Obj;
             ASSERT((bsl::is_same<short, Obj::first_type>::value));
@@ -1125,7 +1300,7 @@ int main(int argc, char *argv[])
         }
         // End test bslstl::Pair<short, short>
 
-        if (verbose) std::printf("testing bsl::pair<short, my_String>\n");
+        if (verbose) printf("testing bsl::pair<short, my_String>\n");
         {
             typedef bsl::pair<short, my_String> Obj;
             ASSERT((bsl::is_same<short, Obj::first_type>::value));
@@ -1200,7 +1375,7 @@ int main(int argc, char *argv[])
         // End test bsl::pair<short, my_String>
 
         if (verbose) {
-            std::printf("testing bsl::pair<short, my_NoAllocString>\n");
+            printf("testing bsl::pair<short, my_NoAllocString>\n");
         }
         {
             typedef bsl::pair<short, my_NoAllocString> Obj;
@@ -1255,7 +1430,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta3.numBlocksInUse());
         // end test bsl::pair<short, my_NoAllocString>
 
-        if (verbose) std::printf("testing bsl::pair<my_String, short>\n");
+        if (verbose) printf("testing bsl::pair<my_String, short>\n");
         {
             typedef bsl::pair<my_String, short> Obj;
             ASSERT((bsl::is_same<my_String, Obj::first_type>::value));
@@ -1330,7 +1505,7 @@ int main(int argc, char *argv[])
         // End testing bsl::pair<my_String, short>
 
         if (verbose) {
-            std::printf("testing bsl::pair<my_String, my_String>\n");
+            printf("testing bsl::pair<my_String, my_String>\n");
         }
         {
             typedef bsl::pair<my_String, my_String> Obj;
@@ -1412,7 +1587,7 @@ int main(int argc, char *argv[])
         // End testing bsl::pair<my_String, my_String>
 
         if (verbose) {
-            std::printf("testing bsl::pair<my_String, my_NoAllocString>\n");
+            printf("testing bsl::pair<my_String, my_NoAllocString>\n");
         }
         {
             typedef bsl::pair<my_String, my_NoAllocString> Obj;
@@ -1488,7 +1663,7 @@ int main(int argc, char *argv[])
         // End testing bslstl::Pair<my_String, my_NoAllocString>
 
         if (verbose) {
-            std::printf("testing bsl::pair<my_NoAllocString, short>\n");
+            printf("testing bsl::pair<my_NoAllocString, short>\n");
         }
         {
             typedef bsl::pair<my_NoAllocString, short> Obj;
@@ -1544,7 +1719,7 @@ int main(int argc, char *argv[])
         // End testing bsl::pair<my_NoAllocString, short>
 
         if (verbose) {
-            std::printf("testing bsl::pair<my_NoAllocString, my_String>\n");
+            printf("testing bsl::pair<my_NoAllocString, my_String>\n");
         }
         {
             typedef bsl::pair<my_NoAllocString, my_String> Obj;
@@ -1620,7 +1795,7 @@ int main(int argc, char *argv[])
         // End testing bsl::pair<my_NoAllocString, my_String>
 
         if (verbose) {
-            std::printf("testing bsl::pair<my_NoAllocString, "
+            printf("testing bsl::pair<my_NoAllocString, "
                         "my_NoAllocString>\n");
         }
         {
@@ -1696,8 +1871,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   Breathing test only.  Exercises basic functionality.
         // --------------------------------------------------------------------
-        if (verbose) std::printf("\nBREATHING TEST"
-                                 "\n==============\n");
+        if (verbose) printf("\nBREATHING TEST"
+                            "\n==============\n");
 
         bslma::TestAllocator ta1(veryVerbose);
         bslma::TestAllocator ta2(veryVerbose);
@@ -1740,13 +1915,13 @@ int main(int argc, char *argv[])
       } break;
 
       default: {
-        std::fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        std::fprintf(stderr, "Error, non-zero test status = %d.\n",
+        fprintf(stderr, "Error, non-zero test status = %d.\n",
                      testStatus);
     }
 

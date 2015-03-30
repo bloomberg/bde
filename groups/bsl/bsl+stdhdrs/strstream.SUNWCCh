@@ -51,10 +51,12 @@ BSLS_IDENT("$Id: $")
 // backward/backward_warning.h header, so we block its effect by defining its
 // include guard.  We only want to suppress this warning locally, so we
 // undefine the guard below if we define it here.
-#if defined(BSLS_PLATFORM_OS_SOLARIS) && defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_LINUX)
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
 #ifndef _BACKWARD_BACKWARD_WARNING_H
 #define BSL_STRSTREAM_UNDEF_BACKWARD_GUARD
 #define _BACKWARD_BACKWARD_WARNING_H 1
+#endif
 #endif
 #endif
 

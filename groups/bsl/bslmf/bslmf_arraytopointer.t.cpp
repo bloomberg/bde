@@ -327,7 +327,10 @@ int main(int argc, char *argv[])
         ASSERT_SAME(bslmf::ArrayToPointer<const char [6]>::Type, const char*);
         if (verbose) {
             //P(bslmf::ArrayToPointer<const char [6]>::ID);
-#if !defined(BSLS_PLATFORM_CMP_CLANG)
+#if !(defined(BSLS_PLATFORM_CMP_CLANG) &&                                     \
+      (BSLS_PLATFORM_CMP_VER_MAJOR < 3 ||                                     \
+        (BSLS_PLATFORM_CMP_VER_MAJOR == 3 && BSLS_PLATFORM_CMP_VER_MINOR < 5)))
+
             // Note that there is a bug in the Clang 3.1 compiler that causes
             // the front end to assert on the following 'typeid' expression:
             P(typeid(const char [6]).name());

@@ -1,43 +1,46 @@
 // bslx_byteinstream.t.cpp                                            -*-C++-*-
-
 #include <bslx_byteinstream.h>
 #include <bslx_byteoutstream.h>                 // for testing only
+
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
+#include <bsl_sstream.h>
 #include <bsl_string.h>
-#include <bsl_strstream.h>
 
 using namespace BloombergLP;
 using namespace bsl;
 using namespace bslx;
 
-//=============================================================================
+// ============================================================================
 //                              TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// For all input methods in 'ByteInStream', the "unexternalization" from
-// byte representation to the correct fundamental-type value is delegated to
-// another component.  We assume that this process has been rigorously tested
-// and verified.  Therefore, we are concerned only with the placement of the
+// For all input methods in 'ByteInStream', the "unexternalization" from byte
+// representation to the correct fundamental-type value is delegated to another
+// component.  We assume that this process has been rigorously tested and
+// verified.  Therefore, we are concerned only with the placement of the
 // next-byte-position cursor and the alignment of bytes in the input stream.
 // For each input method, we verify these properties by first creating a
-// 'ByteOutStream' object 'oX' containing some arbitrarily chosen values.
-// The values are interleaved with chosen "marker" bytes to check for alignment
-// issues.  We then create a 'ByteInStream' object 'iX' initialized with
-// the content of 'oX', and consecutively call the input method on 'iX' to
-// verify that the extracted values and marker bytes equal to their respective
-// chosen values.  After all values are extracted, we verify that the stream is
-// valid, empty, and the cursor is properly placed.
-//-----------------------------------------------------------------------------
+// 'ByteOutStream' object 'oX' containing some arbitrarily chosen values.  The
+// values are interleaved with chosen "marker" bytes to check for alignment
+// issues.  We then create a 'ByteInStream' object 'iX' initialized with the
+// content of 'oX', and consecutively call the input method on 'iX' to verify
+// that the extracted values and marker bytes equal to their respective chosen
+// values.  After all values are extracted, we verify that the stream is valid,
+// empty, and the cursor is properly placed.
+// ----------------------------------------------------------------------------
 // [ 2] ByteInStream();
-// [ 2] ByteInStream(const char *buffer, int numBytes);
+// [ 2] ByteInStream(const char *buffer, bsl::size_t numBytes);
 // [ 2] ByteInStream(const bslstl::StringRef& srcData);
 // [ 2] ~ByteInStream();
 // [25] getLength(int& variable);
@@ -85,45 +88,41 @@ using namespace bslx;
 // [23] getArrayFloat32(float *variables, int numVariables);
 // [ 2] void invalidate();
 // [27] void reset();
-// [27] void reset(const char *buffer, int numBytes);
+// [27] void reset(const char *buffer, bsl::size_t numBytes);
 // [27] void reset(const bslstl::StringRef& srcData);
 // [ 3] operator const void *() const;
-// [ 3] bool isValid() const;
+// [ 3] bsl::size_t cursor() const;
 // [ 3] const char *data() const;
 // [ 3] bool isEmpty() const;
-// [ 3] int length() const;
-// [ 3] int cursor() const;
+// [ 3] bool isValid() const;
+// [ 3] bsl::size_t length() const;
 //
 // [ 4] ostream& operator<<(ostream& stream, const ByteInStream& obj);
 // [28] ByteInStream& operator>>(ByteInStream&, TYPE& value);
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [29] THIRD-PARTY EXTERNALIZATION TEST
+// [29] THIRD-PARTY EXTERNALIZATION
 // [30] USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 
-namespace {
+static int testStatus = 0;
 
-int testStatus = 0;
-
-void aSsErT(int c, const char *s, int i)
+static void aSsErT(int c, const char *s, int i)
 {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
 
-}  // close unnamed namespace
-
-//=============================================================================
+// ============================================================================
 //                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
@@ -153,14 +152,29 @@ void aSsErT(int c, const char *s, int i)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
-//=============================================================================
+// ============================================================================
+//                      HELPER CLASSES AND FUNCTIONS
+// ----------------------------------------------------------------------------
+
+namespace BloombergLP {
+namespace bslx {
+
+void debugprint(const ByteInStream& object)
+{
+    bsl::cout << object;
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+// ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 typedef ByteInStream Obj;
 typedef ByteOutStream Out;
 
-const int SERIALIZATION_VERSION = 20131127;
+const int VERSION_SELECTOR = 20131127;
 const int SIZEOF_INT64   = 8;
 const int SIZEOF_INT32   = 4;
 const int SIZEOF_INT16   = 2;
@@ -168,32 +182,34 @@ const int SIZEOF_INT8    = 1;
 const int SIZEOF_FLOAT64 = 8;
 const int SIZEOF_FLOAT32 = 4;
 
-//=============================================================================
+// ============================================================================
 //                      GLOBAL TEST CLASSES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace ThirdParty {
 
 struct MyStruct {
   public:
-    enum Value {
+    enum EnumValue {
         e_A = 7,
         e_B = 8,
         e_C = 9
     };
 };
 
-inline
-int maxSupportedBdexVersion(const MyStruct::Value *,
-                            int                    serializationVersion)
-{
-    using bslx::VersionFunctions::maxSupportedBdexVersion;
-
-    return serializationVersion >= SERIALIZATION_VERSION ? 2 : 1;
-}
-
 template <class STREAM>
-STREAM& bdexStreamIn(STREAM& stream, MyStruct::Value& value, int version)
+STREAM& bdexStreamIn(STREAM&              stream,
+                     MyStruct::EnumValue& variable,
+                     int                  version)
+    // Assign to the specified 'variable' the value read from the specified
+    // input 'stream' using the specified 'version' format, and return a
+    // reference to 'stream'.  If 'stream' is initially invalid, this operation
+    // has no effect.  If 'version' is not supported, 'variable' is unaltered
+    // and 'stream' is invalidated, but otherwise unmodified.  If 'version' is
+    // supported but 'stream' becomes invalid during this operation, 'variable'
+    // has an undefined, but valid, state.  Note that no version is read from
+    // 'stream'.  See the 'bslx' package-level documentation for more
+    // information on BDEX streaming of value-semantic types and containers.
 {
     using bslx::InStreamFunctions::bdexStreamIn;
 
@@ -203,14 +219,14 @@ STREAM& bdexStreamIn(STREAM& stream, MyStruct::Value& value, int version)
             short newValue;
             stream.getInt16(newValue);
             if (stream) {
-                value = static_cast<MyStruct::Value>(newValue);
+                variable = static_cast<MyStruct::EnumValue>(newValue);
             }
           } break;
           case 1: {
             char newValue;
             stream.getInt8(newValue);
             if (stream) {
-                value = static_cast<MyStruct::Value>(newValue);
+                variable = static_cast<MyStruct::EnumValue>(newValue);
             }
           } break;
           default: {
@@ -222,9 +238,16 @@ STREAM& bdexStreamIn(STREAM& stream, MyStruct::Value& value, int version)
 }
 
 template <class STREAM>
-STREAM& bdexStreamOut(STREAM&                stream,
-                      const MyStruct::Value& value,
-                      int                    version)
+STREAM& bdexStreamOut(STREAM&                    stream,
+                      const MyStruct::EnumValue& value,
+                      int                        version)
+    // Write the value of this object, using the specified 'version' format, to
+    // the specified output 'stream', and return a reference to 'stream'.  If
+    // 'stream' is initially invalid, this operation has no effect.  If
+    // 'version' is not supported, 'stream' is invalidated, but otherwise
+    // unmodified.  Note that 'version' is not written to 'stream'.  See the
+    // 'bslx' package-level documentation for more information on BDEX
+    // streaming of value-semantic types and containers.
 {
     using bslx::OutStreamFunctions::bdexStreamOut;
 
@@ -244,12 +267,29 @@ STREAM& bdexStreamOut(STREAM&                stream,
     return stream;
 }
 
+inline
+int maxSupportedBdexVersion(const MyStruct::EnumValue *,
+                            int                        versionSelector)
+    // Return the maximum valid BDEX format version, as indicated by the
+    // specified 'versionSelector', to be passed to the 'bdexStreamOut' method.
+    // Note that it is highly recommended that 'versionSelector' be formatted
+    // as "YYYYMMDD", a date representation.  Also note that 'versionSelector'
+    // should be a *compile*-time-chosen value that selects a format version
+    // supported by both externalizer and unexternalizer.  See the 'bslx'
+    // package-level documentation for more information on BDEX streaming of
+    // value-semantic types and containers.
+{
+    using bslx::VersionFunctions::maxSupportedBdexVersion;
+
+    return versionSelector >= VERSION_SELECTOR ? 2 : 1;
+}
+
 }  // close ThirdParty namespace
 
 
-//=============================================================================
+// ============================================================================
 //                                 USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 ///Usage
 ///-----
@@ -283,9 +323,14 @@ STREAM& bdexStreamOut(STREAM&                stream,
 
       public:
         // CLASS METHODS
-        static int maxSupportedBdexVersion(int serializationVersion);
-            // Return the 'version' to be used with the 'bdexStreamOut' method
-            // corresponding to the specified 'serializationVersion'.  See the
+        static int maxSupportedBdexVersion(int versionSelector);
+            // Return the maximum valid BDEX format version, as indicated by
+            // the specified 'versionSelector', to be passed to the
+            // 'bdexStreamOut' method.  Note that it is highly recommended that
+            // 'versionSelector' be formatted as "YYYYMMDD", a date
+            // representation.  Also note that 'versionSelector' should be a
+            // *compile*-time-chosen value that selects a format version
+            // supported by both externalizer and unexternalizer.  See the
             // 'bslx' package-level documentation for more information on BDEX
             // streaming of value-semantic types and containers.
 
@@ -315,7 +360,7 @@ STREAM& bdexStreamOut(STREAM&                stream,
             // 'stream' using the specified 'version' format, and return a
             // reference to 'stream'.  If 'stream' is initially invalid, this
             // operation has no effect.  If 'version' is not supported, this
-            // object is unaltered and 'stream' is invalidated but otherwise
+            // object is unaltered and 'stream' is invalidated, but otherwise
             // unmodified.  If 'version' is supported but 'stream' becomes
             // invalid during this operation, this object has an undefined, but
             // valid, state.  Note that no version is read from 'stream'.  See
@@ -325,25 +370,25 @@ STREAM& bdexStreamOut(STREAM&                stream,
         //...
 
         // ACCESSORS
-        const bsl::string& firstName() const;
-            // Return the first name of this person.
-
-        const bsl::string& lastName() const;
-            // Return the last name of this person.
-
         int age() const;
             // Return the age of this person.
 
         template <class STREAM>
         STREAM& bdexStreamOut(STREAM& stream, int version) const;
-            // Write this value to the specified output 'stream' using the
-            // specified 'version' format, and return a reference to 'stream'.
-            // If 'stream' is initially invalid, this operation has no effect.
-            // If 'version' is not supported, 'stream' is invalidated but
-            // otherwise unmodified.  Note that 'version' is not written to
-            // 'stream'.  See the 'bslx' package-level documentation for more
-            // information on BDEX streaming of value-semantic types and
-            // containers.
+            // Write the value of this object, using the specified 'version'
+            // format, to the specified output 'stream', and return a reference
+            // to 'stream'.  If 'stream' is initially invalid, this operation
+            // has no effect.  If 'version' is not supported, 'stream' is
+            // invalidated, but otherwise unmodified.  Note that 'version' is
+            // not written to 'stream'.  See the 'bslx' package-level
+            // documentation for more information on BDEX streaming of
+            // value-semantic types and containers.
+
+        const bsl::string& firstName() const;
+            // Return the first name of this person.
+
+        const bsl::string& lastName() const;
+            // Return the last name of this person.
 
         //...
 
@@ -360,17 +405,13 @@ STREAM& bdexStreamOut(STREAM&                stream,
         // have the same value, and 'false' otherwise.  Two person objects
         // differ in value if they differ in first name, last name, or age.
 
-    bsl::ostream& operator<<(bsl::ostream& stream, const MyPerson& person);
-        // Write the specified 'person' value to the specified output 'stream'
-        // in some reasonable format, and return a reference to 'stream'.
-
     // ========================================================================
     //                  INLINE FUNCTION DEFINITIONS
     // ========================================================================
 
     // CLASS METHODS
     inline
-    int MyPerson::maxSupportedBdexVersion(int /* serializationVersion */) {
+    int MyPerson::maxSupportedBdexVersion(int /* versionSelector */) {
         return 1;
     }
 
@@ -406,18 +447,18 @@ STREAM& bdexStreamOut(STREAM&                stream,
                 if (!stream) {
                     d_firstName = "stream error";  // *might* be corrupted;
                                                    //  value for testing
-                    return stream;
+                    return stream;                                    // RETURN
                 }
                 stream.getString(d_lastName);
                 if (!stream) {
                     d_lastName = "stream error";  // *might* be corrupted;
                                                   //  value for testing
-                    return stream;
+                    return stream;                                    // RETURN
                 }
                 stream.getInt32(d_age);
                 if (!stream) {
                     d_age = 999;     // *might* be corrupted; value for testing
-                    return stream;
+                    return stream;                                    // RETURN
                 }
               } break;
               default: {
@@ -429,6 +470,12 @@ STREAM& bdexStreamOut(STREAM&                stream,
     }
 
     // ACCESSORS
+    inline
+    int MyPerson::age() const
+    {
+        return d_age;
+    }
+
     template <class STREAM>
     STREAM& MyPerson::bdexStreamOut(STREAM& stream, int version) const
     {
@@ -444,42 +491,37 @@ STREAM& bdexStreamOut(STREAM&                stream,
         }
         return stream;
     }
-//..
 
-   // ACCESSORS
-   const bsl::string& MyPerson::firstName() const
-   {
-       return d_firstName;
-   }
+    inline
+    const bsl::string& MyPerson::firstName() const
+    {
+        return d_firstName;
+    }
 
-   const bsl::string& MyPerson::lastName() const
-   {
-       return d_lastName;
-   }
+    inline
+    const bsl::string& MyPerson::lastName() const
+    {
+        return d_lastName;
+    }
 
-   int MyPerson::age() const
-   {
-       return d_age;
-   }
+    // FREE OPERATORS
+    inline
+    bool operator==(const MyPerson& lhs, const MyPerson& rhs)
+    {
+        return lhs.d_firstName == rhs.d_firstName &&
+               lhs.d_lastName  == rhs.d_lastName  &&
+               lhs.d_age       == rhs.d_age;
+    }
 
-   // FREE OPERATORS
-   inline
-   bool operator==(const MyPerson& lhs, const MyPerson& rhs)
-   {
-       return lhs.d_firstName == rhs.d_firstName &&
-              lhs.d_lastName  == rhs.d_lastName  &&
-              lhs.d_age       == rhs.d_age;
-   }
+    inline
+    bool operator!=(const MyPerson& lhs, const MyPerson& rhs)
+    {
+        return !(lhs == rhs);
+    }
 
-   inline
-   bool operator!=(const MyPerson& lhs, const MyPerson& rhs)
-   {
-       return !(lhs == rhs);
-   }
-
-//=============================================================================
+// ============================================================================
 //                                 MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -508,16 +550,16 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "Testing Usage Examples" << endl
-                                  << "======================" << endl;
+        if (verbose) cout << endl << "USAGE EXAMPLE" << endl
+                                  << "=============" << endl;
 
 // Then, we can exercise the new 'MyPerson' value-semantic class by
 // externalizing and reconstituting an object.  First, create a 'MyPerson'
 // 'janeSmith' and a 'bslx::ByteOutStream' 'outStream':
 //..
-    MyPerson janeSmith("Jane", "Smith", 42);
+    MyPerson            janeSmith("Jane", "Smith", 42);
     bslx::ByteOutStream outStream(20131127);
-    const int VERSION = 1;
+    const int           VERSION = 1;
     outStream.putVersion(VERSION);
     janeSmith.bdexStreamOut(outStream, VERSION);
     ASSERT(outStream.isValid());
@@ -533,7 +575,7 @@ int main(int argc, char *argv[])
 // this data into 'janeCopy':
 //..
     bslx::ByteInStream inStream(outStream.data(), outStream.length());
-    int version;
+    int                version;
     inStream.getVersion(version);
     janeCopy.bdexStreamIn(inStream, version);
     ASSERT(inStream.isValid());
@@ -544,7 +586,7 @@ int main(int argc, char *argv[])
     ASSERT(version  == VERSION);
     ASSERT(janeCopy == janeSmith);
 
-    if (veryVerbose) {
+if (veryVerbose) {
     if (janeCopy == janeSmith) {
         bsl::cout << "Successfully serialized and de-serialized Jane Smith:"
                   << "\n\tFirstName: " << janeCopy.firstName()
@@ -557,7 +599,7 @@ int main(int argc, char *argv[])
                   << "\n\tLastName : " << janeCopy.lastName()
                   << "\n\tAge      : " << janeCopy.age() << bsl::endl;
     }
-    } // if (veryVerbose)
+} // if (veryVerbose)
 //..
 
       } break;
@@ -598,17 +640,18 @@ int main(int argc, char *argv[])
 
         {
             using bslx::VersionFunctions::maxSupportedBdexVersion;
-            ThirdParty::MyStruct::Value *v = 0;
-            ASSERT(2 == maxSupportedBdexVersion(v, SERIALIZATION_VERSION));
+            ThirdParty::MyStruct::EnumValue *v = 0;
+            ASSERT(2 == maxSupportedBdexVersion(v, VERSION_SELECTOR));
             ASSERT(1 == maxSupportedBdexVersion(v, 0));
         }
         {
-            ThirdParty::MyStruct::Value initial = ThirdParty::MyStruct::e_A;
-            ThirdParty::MyStruct::Value value   = ThirdParty::MyStruct::e_B;
+            ThirdParty::MyStruct::EnumValue initial =
+                                                     ThirdParty::MyStruct::e_A;
+            ThirdParty::MyStruct::EnumValue value   =
+                                                     ThirdParty::MyStruct::e_B;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o << initial;
-            P(o.length());
             ASSERT(3 == o.length());
             ASSERT(0 == bsl::memcmp(o.data(), "\x02\x00\x07", o.length()));
 
@@ -617,8 +660,10 @@ int main(int argc, char *argv[])
             ASSERT(value == initial);
         }
         {
-            ThirdParty::MyStruct::Value initial = ThirdParty::MyStruct::e_A;
-            ThirdParty::MyStruct::Value value   = ThirdParty::MyStruct::e_B;
+            ThirdParty::MyStruct::EnumValue initial =
+                                                     ThirdParty::MyStruct::e_A;
+            ThirdParty::MyStruct::EnumValue value   =
+                                                     ThirdParty::MyStruct::e_B;
 
             Out o(0);
             o << initial;
@@ -655,14 +700,16 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "operator>>" << endl
-                          << "==========" << endl;
+                          << "UNEXTERNALIZATION FREE OPERATOR" << endl
+                          << "===============================" << endl;
 
         {
             char initial = 'a';
             char value = 'b';
-            Out o(SERIALIZATION_VERSION);
+
+            Out o(VERSION_SELECTOR);
             o << initial;
+
             Obj mX(o.data(), o.length());
             mX >> value;
             ASSERT(value == initial);
@@ -670,8 +717,10 @@ int main(int argc, char *argv[])
         {
             double initial = 7.0;
             double value = 1.0;
-            Out o(SERIALIZATION_VERSION);
+
+            Out o(VERSION_SELECTOR);
             o << initial;
+
             Obj mX(o.data(), o.length());
             mX >> value;
             ASSERT(value == initial);
@@ -681,8 +730,11 @@ int main(int argc, char *argv[])
             bsl::vector<int> value;
             value.push_back(3);
             for (int i = 0; i < 5; ++i) {
-                Out o(SERIALIZATION_VERSION);
+                if (veryVerbose) { P(i); }
+
+                Out o(VERSION_SELECTOR);
                 o << initial;
+
                 Obj mX(o.data(), o.length());
                 mX >> value;
                 LOOP_ASSERT(i, value == initial);
@@ -690,14 +742,16 @@ int main(int argc, char *argv[])
             }
         }
         {
-            float initial1 = 3.0;
-            float value1 = 1.0;
+            float       initial1 = 3.0;
+            float       value1 = 1.0;
             bsl::string initial2 = "hello";
             bsl::string value2 = "bye";
-            short initial3 = 2;
-            short value3 = 1;
-            Out o(SERIALIZATION_VERSION);
+            short       initial3 = 2;
+            short       value3 = 1;
+
+            Out o(VERSION_SELECTOR);
             o << initial1 << initial2 << initial3;
+
             Obj mX(o.data(), o.length());
             mX >> value1 >> value2 >> value3;
             ASSERT(value1 == initial1);
@@ -710,7 +764,8 @@ int main(int argc, char *argv[])
 
             char initial = 'a';
             char value = 'b';
-            Out o(SERIALIZATION_VERSION);
+
+            Out o(VERSION_SELECTOR);
             o << initial;
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -725,7 +780,8 @@ int main(int argc, char *argv[])
 
             char initial = 'a';
             char value = 'b';
-            Out o(SERIALIZATION_VERSION);
+
+            Out o(VERSION_SELECTOR);
             o << initial;
 
             Obj mX(o.data(), o.length());
@@ -758,7 +814,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   void reset();
-        //   void reset(const char *buffer, int numBytes);
+        //   void reset(const char *buffer, bsl::size_t numBytes);
         //   void reset(const bslstl::StringRef& srcData);
         // --------------------------------------------------------------------
 
@@ -767,13 +823,15 @@ int main(int argc, char *argv[])
                           << "===============" << endl;
 
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putString(bsl::string("alpha"));
             o.putString(bsl::string("beta"));
             o.putString(bsl::string("gamma"));
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
+
             bsl::string val;
             mX.getString(val);
             mX.invalidate();
@@ -788,21 +846,23 @@ int main(int argc, char *argv[])
         }
 
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putString(bsl::string("alpha"));
             o.putString(bsl::string("beta"));
             o.putString(bsl::string("gamma"));
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
+
             bsl::string val;
             mX.getString(val);
             mX.invalidate();
             ASSERT(0 != X.cursor());
             ASSERT(false == X.isValid());
 
-            const char *buffer = "abc";
-            const int LEN = 3;
+            const char        *buffer = "abc";
+            const bsl::size_t  LEN = 3;
             mX.reset(buffer, LEN);
             ASSERT(buffer == X.data());
             ASSERT(0 == X.cursor());
@@ -811,7 +871,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putString(bsl::string("alpha"));
             o.putString(bsl::string("beta"));
             o.putString(bsl::string("gamma"));
@@ -824,8 +884,9 @@ int main(int argc, char *argv[])
             ASSERT(0 != X.cursor());
             ASSERT(false == X.isValid());
 
-            const char *buffer = "abc";
-            const int LEN = 3;
+            const char        *buffer = "abc";
+            const bsl::size_t  LEN = 3;
+
             bslstl::StringRef stringRef(buffer, LEN);
             mX.reset(stringRef);
             ASSERT(buffer == X.data());
@@ -837,22 +898,17 @@ int main(int argc, char *argv[])
         if (verbose)
             cout << "\nNegative Testing." << endl;
         {
-            char DATA[16];
-            Obj mX;
-
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            ASSERT_SAFE_FAIL(mX.reset(DATA, -1));
-            ASSERT_SAFE_PASS(mX.reset(DATA, 0));
-            ASSERT_SAFE_PASS(mX.reset(DATA, 1));
+            Obj mX;
             ASSERT_SAFE_PASS(mX.reset(0, 0));
+            ASSERT_SAFE_FAIL(mX.reset(0, 1));
         }
-
       } break;
       case 26: {
         // --------------------------------------------------------------------
-        // GET STRING TEST:
+        // TESTING 'getString'
         //   Verify this method unexternalizes the expected values.
         //
         // Concerns:
@@ -870,22 +926,24 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "GET STRING TEST" << endl
-                 << "===============" << endl;
+                 << "TESTING 'getString'" << endl
+                 << "===================" << endl;
         }
 
         if (verbose) {
             cout << "\nTesting 'getString(bsl::string&)'." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putString(bsl::string("alpha"));    o.putInt8(0xFF);
             o.putString(bsl::string("beta"));     o.putInt8(0xFE);
             o.putString(bsl::string("gamma"));    o.putInt8(0xFD);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
-            char marker;
+
+            char        marker;
             bsl::string val;
             mX.getString(val);         mX.getInt8(marker);
             ASSERT(val == "alpha");    ASSERT('\xFF' == marker);
@@ -901,10 +959,11 @@ int main(int argc, char *argv[])
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putString(bsl::string("alpha"));
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             bsl::string val;
             mX.invalidate();
             mX.getString(val);
@@ -915,17 +974,18 @@ int main(int argc, char *argv[])
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putString(bsl::string("alpha"));
 
             Obj mX(o.data(), o.length());
+
             bsl::string val;
             ASSERT(&mX == &mX.getString(val));
         }
       } break;
       case 25: {
         // --------------------------------------------------------------------
-        // GET LENGTH AND VERSION:
+        // GET LENGTH AND VERSION
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
@@ -944,23 +1004,25 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "GET LENGTH AND VERSION TEST" << endl
-                 << "===========================" << endl;
+                 << "GET LENGTH AND VERSION" << endl
+                 << "======================" << endl;
         }
 
         if (verbose) {
             cout << "\nTesting getLength(int&)." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putLength(1);             o.putInt8(0xFF);
             o.putLength(128);           o.putInt8(0xFE);
             o.putLength(3);             o.putInt8(0xFD);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
+
             char marker;
-            int val;
+            int  val;
             mX.getLength(val);         mX.getInt8(marker);
             ASSERT(1 == val);          ASSERT('\xFF' == marker);
             mX.getLength(val);         mX.getInt8(marker);
@@ -972,15 +1034,17 @@ int main(int argc, char *argv[])
             ASSERT(X.cursor() == X.length());
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putLength(128);             o.putInt8(0xFD);
             o.putLength(127);             o.putInt8(0xFE);
             o.putLength(256);             o.putInt8(0xFF);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
+
             char marker;
-            int val;
+            int  val;
             mX.getLength(val);         mX.getInt8(marker);
             ASSERT(128 == val);        ASSERT('\xFD' == marker);
             mX.getLength(val);         mX.getInt8(marker);
@@ -994,10 +1058,11 @@ int main(int argc, char *argv[])
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putLength(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             int val = 0;
             mX.invalidate();
             mX.getLength(val);
@@ -1007,7 +1072,7 @@ int main(int argc, char *argv[])
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putLength(3);
 
             Obj mX(o.data(), o.length());
@@ -1016,10 +1081,10 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-          cout << "\nTesting getVersion(int&)." << endl;
+            cout << "\nTesting getVersion(int&)." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putVersion(1);
             o.putVersion(2);
             o.putVersion(3);
@@ -1037,7 +1102,7 @@ int main(int argc, char *argv[])
             ASSERT(X.cursor() == X.length());
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putVersion(252);
             o.putVersion(253);
             o.putVersion(254);
@@ -1057,10 +1122,11 @@ int main(int argc, char *argv[])
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putVersion(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             int val = 0;
             mX.invalidate();
             mX.getVersion(val);
@@ -1070,7 +1136,7 @@ int main(int argc, char *argv[])
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putVersion(3);
 
             Obj mX(o.data(), o.length());
@@ -1080,7 +1146,7 @@ int main(int argc, char *argv[])
       } break;
       case 24: {
         // --------------------------------------------------------------------
-        // GET 64-BIT FLOAT ARRAY TEST:
+        // GET 64-BIT FLOAT ARRAY TEST
         //   Verify this method unexternalizes the expected values.
         //
         // Concerns:
@@ -1112,15 +1178,17 @@ int main(int argc, char *argv[])
             const double DATA[] = { 1, 2, 3 };
             const double V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayFloat64(DATA, 0);             o.putInt8(0xFF);
             o.putArrayFloat64(DATA, 1);             o.putInt8(0xFE);
             o.putArrayFloat64(DATA, 2);             o.putInt8(0xFD);
             o.putArrayFloat64(DATA, 3);             o.putInt8(0xFC);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
-            char marker;
+
+            char   marker;
             double ar[] = { V, V, V };
             mX.getArrayFloat64(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
@@ -1147,10 +1215,11 @@ int main(int argc, char *argv[])
 
             const double DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayFloat64(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             double ar[] = { 0, 0, 0 };
             mX.invalidate();
             mX.getArrayFloat64(ar, 3);
@@ -1162,10 +1231,11 @@ int main(int argc, char *argv[])
 
             const double DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayFloat64(DATA, 3);
 
             Obj mX(o.data(), o.length());
+
             double ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayFloat64(ar, 3));
         }
@@ -1174,7 +1244,8 @@ int main(int argc, char *argv[])
             cout << "\nNegative Testing." << endl;
         {
             double DATA[5];
-            Out o(SERIALIZATION_VERSION);
+
+            Out o(VERSION_SELECTOR);
             o.putArrayFloat64(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -1201,7 +1272,7 @@ int main(int argc, char *argv[])
       } break;
       case 23: {
         // --------------------------------------------------------------------
-        // GET 32-BIT FLOAT ARRAY TEST:
+        // GET 32-BIT FLOAT ARRAY TEST
         //   Verify this method unexternalizes the expected values.
         //
         // Concerns:
@@ -1234,15 +1305,17 @@ int main(int argc, char *argv[])
             const float DATA[] = { 1, 2, 3 };
             const float V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayFloat32(DATA, 0);             o.putInt8(0xFF);
             o.putArrayFloat32(DATA, 1);             o.putInt8(0xFE);
             o.putArrayFloat32(DATA, 2);             o.putInt8(0xFD);
             o.putArrayFloat32(DATA, 3);             o.putInt8(0xFC);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
-            char marker;
+
+            char  marker;
             float ar[] = { V, V, V };
             mX.getArrayFloat32(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
@@ -1269,10 +1342,11 @@ int main(int argc, char *argv[])
 
             const float DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayFloat32(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             float ar[] = { 0, 0, 0 };
             mX.invalidate();
             mX.getArrayFloat32(ar, 3);
@@ -1284,10 +1358,11 @@ int main(int argc, char *argv[])
 
             const float DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayFloat32(DATA, 3);
 
             Obj mX(o.data(), o.length());
+
             float ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayFloat32(ar, 3));
         }
@@ -1296,7 +1371,8 @@ int main(int argc, char *argv[])
             cout << "\nNegative Testing." << endl;
         {
             float DATA[5];
-            Out o(SERIALIZATION_VERSION);
+
+            Out o(VERSION_SELECTOR);
             o.putArrayFloat32(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -1323,7 +1399,7 @@ int main(int argc, char *argv[])
       } break;
       case 22: {
         // --------------------------------------------------------------------
-        // GET 64-BIT INTEGER ARRAYS TEST:
+        // GET 64-BIT INTEGER ARRAYS TEST
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
@@ -1357,15 +1433,17 @@ int main(int argc, char *argv[])
             const bsls::Types::Int64 DATA[] = { 1, 2, 3 };
             const bsls::Types::Int64 V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt64(DATA, 0);             o.putInt8(0xFF);
             o.putArrayInt64(DATA, 1);             o.putInt8(0xFE);
             o.putArrayInt64(DATA, 2);             o.putInt8(0xFD);
             o.putArrayInt64(DATA, 3);             o.putInt8(0xFC);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
-            char marker;
+
+            char               marker;
             bsls::Types::Int64 ar[] = { V, V, V };
             mX.getArrayInt64(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
@@ -1392,10 +1470,11 @@ int main(int argc, char *argv[])
 
             const bsls::Types::Int64 DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt64(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             bsls::Types::Int64 ar[] = { 0, 0, 0 };
             mX.invalidate();
             mX.getArrayInt64(ar, 3);
@@ -1407,10 +1486,11 @@ int main(int argc, char *argv[])
 
             const bsls::Types::Int64 DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt64(DATA, 3);
 
             Obj mX(o.data(), o.length());
+
             bsls::Types::Int64 ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayInt64(ar, 3));
         }
@@ -1424,15 +1504,17 @@ int main(int argc, char *argv[])
             const bsls::Types::Uint64 DATA[] = { 1, 2, 3 };
             const bsls::Types::Uint64 V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint64(DATA, 0);            o.putInt8(0xFF);
             o.putArrayUint64(DATA, 1);            o.putInt8(0xFE);
             o.putArrayUint64(DATA, 2);            o.putInt8(0xFD);
             o.putArrayUint64(DATA, 3);            o.putInt8(0xFC);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
-            char marker;
+
+            char                marker;
             bsls::Types::Uint64 ar[] = { V, V, V };
             mX.getArrayUint64(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
@@ -1459,10 +1541,11 @@ int main(int argc, char *argv[])
 
             const bsls::Types::Uint64 DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint64(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             bsls::Types::Uint64 ar[] = { 0, 0, 0 };
             mX.invalidate();
             mX.getArrayUint64(ar, 3);
@@ -1474,10 +1557,11 @@ int main(int argc, char *argv[])
 
             const bsls::Types::Uint64 DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint64(DATA, 3);
 
             Obj mX(o.data(), o.length());
+
             bsls::Types::Uint64 ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayUint64(ar, 3));
         }
@@ -1488,7 +1572,8 @@ int main(int argc, char *argv[])
             cout << "\nNegative Testing." << endl;
         {
             bsls::Types::Int64 DATA[5];
-            Out o(SERIALIZATION_VERSION);
+
+            Out o(VERSION_SELECTOR);
             o.putArrayInt64(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -1514,7 +1599,8 @@ int main(int argc, char *argv[])
         }
         {
             bsls::Types::Uint64 DATA[5];
-            Out o(SERIALIZATION_VERSION);
+
+            Out o(VERSION_SELECTOR);
             o.putArrayUint64(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -1541,7 +1627,7 @@ int main(int argc, char *argv[])
       } break;
       case 21: {
         // --------------------------------------------------------------------
-        // GET 56-BIT INTEGER ARRAYS TEST:
+        // GET 56-BIT INTEGER ARRAYS TEST
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
@@ -1574,15 +1660,17 @@ int main(int argc, char *argv[])
             const bsls::Types::Int64 DATA[] = { 1, 2, 3 };
             const bsls::Types::Int64 V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt56(DATA, 0);             o.putInt8(0xFF);
             o.putArrayInt56(DATA, 1);             o.putInt8(0xFE);
             o.putArrayInt56(DATA, 2);             o.putInt8(0xFD);
             o.putArrayInt56(DATA, 3);             o.putInt8(0xFC);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
-            char marker;
+
+            char               marker;
             bsls::Types::Int64 ar[] = { V, V, V };
             mX.getArrayInt56(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
@@ -1609,10 +1697,11 @@ int main(int argc, char *argv[])
 
             const bsls::Types::Int64 DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt56(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             bsls::Types::Int64 ar[] = { 0, 0, 0 };
             mX.invalidate();
             mX.getArrayInt56(ar, 3);
@@ -1624,10 +1713,11 @@ int main(int argc, char *argv[])
 
             const bsls::Types::Int64 DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt56(DATA, 3);
 
             Obj mX(o.data(), o.length());
+
             bsls::Types::Int64 ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayInt56(ar, 3));
         }
@@ -1641,7 +1731,7 @@ int main(int argc, char *argv[])
             const bsls::Types::Uint64 DATA[] = { 1, 2, 3 };
             const bsls::Types::Uint64 V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint56(DATA, 0);            o.putInt8(0xFF);
             o.putArrayUint56(DATA, 1);            o.putInt8(0xFE);
             o.putArrayUint56(DATA, 2);            o.putInt8(0xFD);
@@ -1649,7 +1739,8 @@ int main(int argc, char *argv[])
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
             if (veryVerbose) { P(X) }
-            char marker;
+
+            char                marker;
             bsls::Types::Uint64 ar[] = { V, V, V };
             mX.getArrayUint56(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
@@ -1676,10 +1767,11 @@ int main(int argc, char *argv[])
 
             const bsls::Types::Uint64 DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint56(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             bsls::Types::Uint64 ar[] = { 0, 0, 0 };
             mX.invalidate();
             mX.getArrayUint56(ar, 3);
@@ -1691,10 +1783,11 @@ int main(int argc, char *argv[])
 
             const bsls::Types::Uint64 DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint56(DATA, 3);
 
             Obj mX(o.data(), o.length());
+
             bsls::Types::Uint64 ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayUint56(ar, 3));
         }
@@ -1705,7 +1798,8 @@ int main(int argc, char *argv[])
             cout << "\nNegative Testing." << endl;
         {
             bsls::Types::Int64 DATA[5];
-            Out o(SERIALIZATION_VERSION);
+
+            Out o(VERSION_SELECTOR);
             o.putArrayInt56(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -1731,7 +1825,8 @@ int main(int argc, char *argv[])
         }
         {
             bsls::Types::Uint64 DATA[5];
-            Out o(SERIALIZATION_VERSION);
+
+            Out o(VERSION_SELECTOR);
             o.putArrayUint56(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -1758,7 +1853,7 @@ int main(int argc, char *argv[])
       } break;
       case 20: {
         // --------------------------------------------------------------------
-        // GET 48-BIT INTEGER ARRAYS TEST:
+        // GET 48-BIT INTEGER ARRAYS TEST
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
@@ -1791,15 +1886,17 @@ int main(int argc, char *argv[])
             const bsls::Types::Int64 DATA[] = { 1, 2, 3 };
             const bsls::Types::Int64 V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt48(DATA, 0);             o.putInt8(0xFF);
             o.putArrayInt48(DATA, 1);             o.putInt8(0xFE);
             o.putArrayInt48(DATA, 2);             o.putInt8(0xFD);
             o.putArrayInt48(DATA, 3);             o.putInt8(0xFC);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
-            char marker;
+
+            char               marker;
             bsls::Types::Int64 ar[] = { V, V, V };
             mX.getArrayInt48(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
@@ -1826,10 +1923,11 @@ int main(int argc, char *argv[])
 
             const bsls::Types::Int64 DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt48(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             bsls::Types::Int64 ar[] = { 0, 0, 0 };
             mX.invalidate();
             mX.getArrayInt48(ar, 3);
@@ -1841,10 +1939,11 @@ int main(int argc, char *argv[])
 
             const bsls::Types::Int64 DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt48(DATA, 3);
 
             Obj mX(o.data(), o.length());
+
             bsls::Types::Int64 ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayInt48(ar, 3));
         }
@@ -1858,15 +1957,17 @@ int main(int argc, char *argv[])
             const bsls::Types::Uint64 DATA[] = { 1, 2, 3 };
             const bsls::Types::Uint64 V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint48(DATA, 0);            o.putInt8(0xFF);
             o.putArrayUint48(DATA, 1);            o.putInt8(0xFE);
             o.putArrayUint48(DATA, 2);            o.putInt8(0xFD);
             o.putArrayUint48(DATA, 3);            o.putInt8(0xFC);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
-            char marker;
+
+            char                marker;
             bsls::Types::Uint64 ar[] = { V, V, V };
             mX.getArrayUint48(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
@@ -1893,10 +1994,11 @@ int main(int argc, char *argv[])
 
             const bsls::Types::Uint64 DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint48(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             bsls::Types::Uint64 ar[] = { 0, 0, 0 };
             mX.invalidate();
             mX.getArrayUint48(ar, 3);
@@ -1908,10 +2010,11 @@ int main(int argc, char *argv[])
 
             const bsls::Types::Uint64 DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint48(DATA, 3);
 
             Obj mX(o.data(), o.length());
+
             bsls::Types::Uint64 ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayUint48(ar, 3));
         }
@@ -1922,7 +2025,8 @@ int main(int argc, char *argv[])
             cout << "\nNegative Testing." << endl;
         {
             bsls::Types::Int64 DATA[5];
-            Out o(SERIALIZATION_VERSION);
+
+            Out o(VERSION_SELECTOR);
             o.putArrayInt48(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -1948,7 +2052,8 @@ int main(int argc, char *argv[])
         }
         {
             bsls::Types::Uint64 DATA[5];
-            Out o(SERIALIZATION_VERSION);
+
+            Out o(VERSION_SELECTOR);
             o.putArrayUint48(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -1975,7 +2080,7 @@ int main(int argc, char *argv[])
       } break;
       case 19: {
         // --------------------------------------------------------------------
-        // GET 40-BIT INTEGER ARRAYS TEST:
+        // GET 40-BIT INTEGER ARRAYS TEST
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
@@ -2008,15 +2113,17 @@ int main(int argc, char *argv[])
             const bsls::Types::Int64 DATA[] = { 1, 2, 3 };
             const bsls::Types::Int64 V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt40(DATA, 0);             o.putInt8(0xFF);
             o.putArrayInt40(DATA, 1);             o.putInt8(0xFE);
             o.putArrayInt40(DATA, 2);             o.putInt8(0xFD);
             o.putArrayInt40(DATA, 3);             o.putInt8(0xFC);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
-            char marker;
+
+            char               marker;
             bsls::Types::Int64 ar[] = { V, V, V };
             mX.getArrayInt40(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
@@ -2043,10 +2150,11 @@ int main(int argc, char *argv[])
 
             const bsls::Types::Int64 DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt40(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             bsls::Types::Int64 ar[] = { 0, 0, 0 };
             mX.invalidate();
             mX.getArrayInt40(ar, 3);
@@ -2058,10 +2166,11 @@ int main(int argc, char *argv[])
 
             const bsls::Types::Int64 DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt40(DATA, 3);
 
             Obj mX(o.data(), o.length());
+
             bsls::Types::Int64 ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayInt40(ar, 3));
         }
@@ -2075,15 +2184,17 @@ int main(int argc, char *argv[])
             const bsls::Types::Uint64 DATA[] = { 1, 2, 3 };
             const bsls::Types::Uint64 V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint40(DATA, 0);            o.putInt8(0xFF);
             o.putArrayUint40(DATA, 1);            o.putInt8(0xFE);
             o.putArrayUint40(DATA, 2);            o.putInt8(0xFD);
             o.putArrayUint40(DATA, 3);            o.putInt8(0xFC);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
-            char marker;
+
+            char                marker;
             bsls::Types::Uint64 ar[] = { V, V, V };
             mX.getArrayUint40(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
@@ -2110,10 +2221,11 @@ int main(int argc, char *argv[])
 
             const bsls::Types::Uint64 DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint40(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             bsls::Types::Uint64 ar[] = { 0, 0, 0 };
             mX.invalidate();
             mX.getArrayUint40(ar, 3);
@@ -2125,10 +2237,11 @@ int main(int argc, char *argv[])
 
             const bsls::Types::Uint64 DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint40(DATA, 3);
 
             Obj mX(o.data(), o.length());
+
             bsls::Types::Uint64 ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayUint40(ar, 3));
         }
@@ -2139,7 +2252,8 @@ int main(int argc, char *argv[])
             cout << "\nNegative Testing." << endl;
         {
             bsls::Types::Int64 DATA[5];
-            Out o(SERIALIZATION_VERSION);
+
+            Out o(VERSION_SELECTOR);
             o.putArrayInt40(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -2165,7 +2279,8 @@ int main(int argc, char *argv[])
         }
         {
             bsls::Types::Uint64 DATA[5];
-            Out o(SERIALIZATION_VERSION);
+
+            Out o(VERSION_SELECTOR);
             o.putArrayUint40(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -2192,7 +2307,7 @@ int main(int argc, char *argv[])
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // GET 32-BIT INTEGER ARRAYS TEST:
+        // GET 32-BIT INTEGER ARRAYS TEST
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
@@ -2225,16 +2340,18 @@ int main(int argc, char *argv[])
             const int DATA[] = { 1, 2, 3 };
             const int V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt32(DATA, 0);             o.putInt8(0xFF);
             o.putArrayInt32(DATA, 1);             o.putInt8(0xFE);
             o.putArrayInt32(DATA, 2);             o.putInt8(0xFD);
             o.putArrayInt32(DATA, 3);             o.putInt8(0xFC);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
+
             char marker;
-            int ar[] = { V, V, V };
+            int  ar[] = { V, V, V };
             mX.getArrayInt32(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
             mX.getInt8(marker);            ASSERT('\xFF' == marker);
@@ -2260,10 +2377,11 @@ int main(int argc, char *argv[])
 
             const int DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt32(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             int ar[] = { 0, 0, 0 };
             mX.invalidate();
             mX.getArrayInt32(ar, 3);
@@ -2275,10 +2393,11 @@ int main(int argc, char *argv[])
 
             const int DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt32(DATA, 3);
 
             Obj mX(o.data(), o.length());
+
             int ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayInt32(ar, 3));
         }
@@ -2292,15 +2411,17 @@ int main(int argc, char *argv[])
             const unsigned int DATA[] = { 1, 2, 3 };
             const unsigned int V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint32(DATA, 0);            o.putInt8(0xFF);
             o.putArrayUint32(DATA, 1);            o.putInt8(0xFE);
             o.putArrayUint32(DATA, 2);            o.putInt8(0xFD);
             o.putArrayUint32(DATA, 3);            o.putInt8(0xFC);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
-            char marker;
+
+            char         marker;
             unsigned int ar[] = { V, V, V };
             mX.getArrayUint32(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
@@ -2327,10 +2448,11 @@ int main(int argc, char *argv[])
 
             const unsigned int DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint32(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             unsigned int ar[] = { 0, 0, 0 };
             mX.invalidate();
             mX.getArrayUint32(ar, 3);
@@ -2342,10 +2464,11 @@ int main(int argc, char *argv[])
 
             const unsigned int DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint32(DATA, 3);
 
             Obj mX(o.data(), o.length());
+
             unsigned int ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayUint32(ar, 3));
         }
@@ -2356,7 +2479,7 @@ int main(int argc, char *argv[])
             cout << "\nNegative Testing." << endl;
         {
             int DATA[5];
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt32(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -2381,7 +2504,8 @@ int main(int argc, char *argv[])
         }
         {
             unsigned int DATA[5];
-            Out o(SERIALIZATION_VERSION);
+
+            Out o(VERSION_SELECTOR);
             o.putArrayUint32(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -2408,7 +2532,7 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // GET 24-BIT INTEGER ARRAYS TEST:
+        // GET 24-BIT INTEGER ARRAYS TEST
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
@@ -2442,16 +2566,18 @@ int main(int argc, char *argv[])
             const int DATA[] = { 1, 2, 3 };
             const int V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt24(DATA, 0);             o.putInt8(0xFF);
             o.putArrayInt24(DATA, 1);             o.putInt8(0xFE);
             o.putArrayInt24(DATA, 2);             o.putInt8(0xFD);
             o.putArrayInt24(DATA, 3);             o.putInt8(0xFC);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
+
             char marker;
-            int ar[] = { V, V, V };
+            int  ar[] = { V, V, V };
             mX.getArrayInt24(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
             mX.getInt8(marker);            ASSERT('\xFF' == marker);
@@ -2477,10 +2603,11 @@ int main(int argc, char *argv[])
 
             const int DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt24(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             int ar[] = { 0, 0, 0 };
             mX.invalidate();
             mX.getArrayInt24(ar, 3);
@@ -2492,10 +2619,11 @@ int main(int argc, char *argv[])
 
             const int DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt24(DATA, 3);
 
             Obj mX(o.data(), o.length());
+
             int ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayInt24(ar, 3));
         }
@@ -2509,15 +2637,17 @@ int main(int argc, char *argv[])
             const unsigned int DATA[] = { 1, 2, 3 };
             const unsigned int V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint24(DATA, 0);            o.putInt8(0xFF);
             o.putArrayUint24(DATA, 1);            o.putInt8(0xFE);
             o.putArrayUint24(DATA, 2);            o.putInt8(0xFD);
             o.putArrayUint24(DATA, 3);            o.putInt8(0xFC);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
-            char marker;
+
+            char         marker;
             unsigned int ar[] = { V, V, V };
             mX.getArrayUint24(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
@@ -2544,10 +2674,11 @@ int main(int argc, char *argv[])
 
             const unsigned int DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint24(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             unsigned int ar[] = { 0, 0, 0 };
             mX.invalidate();
             mX.getArrayUint24(ar, 3);
@@ -2559,10 +2690,11 @@ int main(int argc, char *argv[])
 
             const unsigned int DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint24(DATA, 3);
 
             Obj mX(o.data(), o.length());
+
             unsigned int ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayUint24(ar, 3));
         }
@@ -2573,7 +2705,7 @@ int main(int argc, char *argv[])
             cout << "\nNegative Testing." << endl;
         {
             int DATA[5];
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt24(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -2598,7 +2730,8 @@ int main(int argc, char *argv[])
         }
         {
             unsigned int DATA[5];
-            Out o(SERIALIZATION_VERSION);
+
+            Out o(VERSION_SELECTOR);
             o.putArrayUint24(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -2625,7 +2758,7 @@ int main(int argc, char *argv[])
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // GET 16-BIT INTEGER ARRAYS TEST:
+        // GET 16-BIT INTEGER ARRAYS TEST
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
@@ -2658,15 +2791,17 @@ int main(int argc, char *argv[])
             const short DATA[] = { 1, 2, 3 };
             const short V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt16(DATA, 0);             o.putInt8(0xFF);
             o.putArrayInt16(DATA, 1);             o.putInt8(0xFE);
             o.putArrayInt16(DATA, 2);             o.putInt8(0xFD);
             o.putArrayInt16(DATA, 3);             o.putInt8(0xFC);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
-            char marker;
+
+            char  marker;
             short ar[] = { V, V, V };
             mX.getArrayInt16(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
@@ -2693,10 +2828,11 @@ int main(int argc, char *argv[])
 
             const short DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt16(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             short ar[] = { 0, 0, 0 };
             mX.invalidate();
             mX.getArrayInt16(ar, 3);
@@ -2708,10 +2844,11 @@ int main(int argc, char *argv[])
 
             const short DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt16(DATA, 3);
 
             Obj mX(o.data(), o.length());
+
             short ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayInt16(ar, 3));
         }
@@ -2725,15 +2862,17 @@ int main(int argc, char *argv[])
             const unsigned short DATA[] = { 1, 2, 3 };
             const unsigned short V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint16(DATA, 0);            o.putInt8(0xFF);
             o.putArrayUint16(DATA, 1);            o.putInt8(0xFE);
             o.putArrayUint16(DATA, 2);            o.putInt8(0xFD);
             o.putArrayUint16(DATA, 3);            o.putInt8(0xFC);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
-            char marker;
+
+            char           marker;
             unsigned short ar[] = { V, V, V };
             mX.getArrayUint16(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
@@ -2760,10 +2899,11 @@ int main(int argc, char *argv[])
 
             const unsigned short DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint16(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             unsigned short ar[] = { 0, 0, 0 };
             mX.invalidate();
             mX.getArrayUint16(ar, 3);
@@ -2775,10 +2915,11 @@ int main(int argc, char *argv[])
 
             const unsigned short DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint16(DATA, 3);
 
             Obj mX(o.data(), o.length());
+
             unsigned short ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayUint16(ar, 3));
         }
@@ -2789,7 +2930,8 @@ int main(int argc, char *argv[])
             cout << "\nNegative Testing." << endl;
         {
             short DATA[5];
-            Out o(SERIALIZATION_VERSION);
+
+            Out o(VERSION_SELECTOR);
             o.putArrayInt16(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -2814,7 +2956,8 @@ int main(int argc, char *argv[])
         }
         {
             unsigned short DATA[5];
-            Out o(SERIALIZATION_VERSION);
+
+            Out o(VERSION_SELECTOR);
             o.putArrayUint16(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -2841,7 +2984,7 @@ int main(int argc, char *argv[])
       } break;
       case 15: {
         // --------------------------------------------------------------------
-        // GET 8-BIT INTEGER ARRAYS TEST:
+        // GET 8-BIT INTEGER ARRAYS TEST
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
@@ -2875,16 +3018,18 @@ int main(int argc, char *argv[])
         }
         {
             const char DATA[] = { 1, 2, 3 };
-            const char V = (char) 0xFF;
+            const char V = static_cast<char>(0xFF);
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt8(DATA, 0);             o.putInt8(0xFF);
             o.putArrayInt8(DATA, 1);             o.putInt8(0xFE);
             o.putArrayInt8(DATA, 2);             o.putInt8(0xFD);
             o.putArrayInt8(DATA, 3);             o.putInt8(0xFC);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
+
             char marker;
             char ar[] = { V, V, V };
             mX.getArrayInt8(ar, 0);
@@ -2912,10 +3057,11 @@ int main(int argc, char *argv[])
 
             const char DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt8(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             char ar[] = { 0, 0, 0 };
             mX.invalidate();
             mX.getArrayInt8(ar, 3);
@@ -2927,10 +3073,11 @@ int main(int argc, char *argv[])
 
             const char DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt8(DATA, 3);
 
             Obj mX(o.data(), o.length());
+
             char ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayInt8(ar, 3));
         }
@@ -2942,9 +3089,9 @@ int main(int argc, char *argv[])
         }
         {
             const signed char DATA[] = { 1, 2, 3 };
-            const signed char V = (char) 0xFF;
+            const signed char V = static_cast<signed char>(0xFF);
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt8(DATA, 0);             o.putInt8(0xFF);
             o.putArrayInt8(DATA, 1);             o.putInt8(0xFE);
             o.putArrayInt8(DATA, 2);             o.putInt8(0xFD);
@@ -2952,7 +3099,8 @@ int main(int argc, char *argv[])
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
             if (veryVerbose) { P(X) }
-            char marker;
+
+            char        marker;
             signed char ar[] = { V, V, V };
             mX.getArrayInt8(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
@@ -2979,10 +3127,11 @@ int main(int argc, char *argv[])
 
             const signed char DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt8(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             signed char ar[] = { 0, 0, 0 };
             mX.invalidate();
             mX.getArrayInt8(ar, 3);
@@ -2994,10 +3143,11 @@ int main(int argc, char *argv[])
 
             const signed char DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt8(DATA, 3);
 
             Obj mX(o.data(), o.length());
+
             signed char ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayInt8(ar, 3));
         }
@@ -3009,16 +3159,18 @@ int main(int argc, char *argv[])
         }
         {
             const char DATA[] = { 1, 2, 3 };
-            const char V = (char) 0xFF;
+            const char V = static_cast<char>(0xFF);
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint8(DATA, 0);            o.putInt8(0xFF);
             o.putArrayUint8(DATA, 1);            o.putInt8(0xFE);
             o.putArrayUint8(DATA, 2);            o.putInt8(0xFD);
             o.putArrayUint8(DATA, 3);            o.putInt8(0xFC);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
+
             char marker;
             char ar[] = { V, V, V };
             mX.getArrayUint8(ar, 0);
@@ -3046,10 +3198,11 @@ int main(int argc, char *argv[])
 
             const char DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint8(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             char ar[] = { 0, 0, 0 };
             mX.invalidate();
             mX.getArrayUint8(ar, 3);
@@ -3061,10 +3214,11 @@ int main(int argc, char *argv[])
 
             const char DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint8(DATA, 3);
 
             Obj mX(o.data(), o.length());
+
             char ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayUint8(ar, 3));
         }
@@ -3078,7 +3232,7 @@ int main(int argc, char *argv[])
             const unsigned char DATA[] = { 1, 2, 3 };
             const unsigned char V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint8(DATA, 0);            o.putInt8(0xFF);
             o.putArrayUint8(DATA, 1);            o.putInt8(0xFE);
             o.putArrayUint8(DATA, 2);            o.putInt8(0xFD);
@@ -3086,7 +3240,8 @@ int main(int argc, char *argv[])
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
             if (veryVerbose) { P(X) }
-            char marker;
+
+            char          marker;
             unsigned char ar[] = { V, V, V };
             mX.getArrayUint8(ar, 0);
             ASSERT(V == ar[0] && V == ar[1] && V == ar[2]);
@@ -3113,10 +3268,11 @@ int main(int argc, char *argv[])
 
             const unsigned char DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint8(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             unsigned char ar[] = { 0, 0, 0 };
             mX.invalidate();
             mX.getArrayUint8(ar, 3);
@@ -3128,10 +3284,11 @@ int main(int argc, char *argv[])
 
             const unsigned char DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint8(DATA, 3);
 
             Obj mX(o.data(), o.length());
+
             unsigned char ar[] = { 0, 0, 0 };
             ASSERT(&mX == &mX.getArrayUint8(ar, 3));
         }
@@ -3142,7 +3299,8 @@ int main(int argc, char *argv[])
             cout << "\nNegative Testing." << endl;
         {
             char DATA[5];
-            Out o(SERIALIZATION_VERSION);
+
+            Out o(VERSION_SELECTOR);
             o.putArrayInt8(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -3167,7 +3325,8 @@ int main(int argc, char *argv[])
         }
         {
             signed char DATA[5];
-            Out o(SERIALIZATION_VERSION);
+
+            Out o(VERSION_SELECTOR);
             o.putArrayInt8(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -3193,7 +3352,8 @@ int main(int argc, char *argv[])
         }
         {
             char DATA[5];
-            Out o(SERIALIZATION_VERSION);
+
+            Out o(VERSION_SELECTOR);
             o.putArrayUint8(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -3218,7 +3378,8 @@ int main(int argc, char *argv[])
         }
         {
             unsigned char DATA[5];
-            Out o(SERIALIZATION_VERSION);
+
+            Out o(VERSION_SELECTOR);
             o.putArrayUint8(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -3245,7 +3406,7 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // GET 64-BIT FLOAT TEST:
+        // GET 64-BIT FLOAT TEST
         //   Verify this method unexternalizes the expected values.
         //
         // Concerns:
@@ -3258,7 +3419,7 @@ int main(int argc, char *argv[])
         //:   C-2)
         //
         // Testing:
-        //   getFloat64(double &variable);
+        //   getFloat64(double& variable);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -3270,14 +3431,16 @@ int main(int argc, char *argv[])
             cout << "\nTesting getFloat64." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putFloat64(1);           o.putInt8(0xFF);
             o.putFloat64(2);           o.putInt8(0xFE);
             o.putFloat64(3);           o.putInt8(0xFD);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
-            char marker;
+
+            char   marker;
             double val;
             mX.getFloat64(val);        mX.getInt8(marker);
             ASSERT(1 == val);          ASSERT('\xFF' == marker);
@@ -3292,10 +3455,11 @@ int main(int argc, char *argv[])
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putFloat64(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             double val = 0;
             mX.invalidate();
             mX.getFloat64(val);
@@ -3305,17 +3469,18 @@ int main(int argc, char *argv[])
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putFloat64(3);
 
             Obj mX(o.data(), o.length());
+
             double val;
             ASSERT(&mX == &mX.getFloat64(val));
         }
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // GET 32-BIT FLOAT TEST:
+        // GET 32-BIT FLOAT TEST
         //   Verify this method unexternalizes the expected values.
         //
         // Concerns:
@@ -3328,7 +3493,7 @@ int main(int argc, char *argv[])
         //:   C-2)
         //
         // Testing:
-        //   getFloat32(float &variable);
+        //   getFloat32(float& variable);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -3340,14 +3505,16 @@ int main(int argc, char *argv[])
             cout << "\nTesting getFloat32." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putFloat32(1);           o.putInt8(0xFF);
             o.putFloat32(2);           o.putInt8(0xFE);
             o.putFloat32(3);           o.putInt8(0xFD);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
-            char marker;
+
+            char  marker;
             float val;
             mX.getFloat32(val);        mX.getInt8(marker);
             ASSERT(1 == val);          ASSERT('\xFF' == marker);
@@ -3362,10 +3529,11 @@ int main(int argc, char *argv[])
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putFloat32(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             float val = 0;
             mX.invalidate();
             mX.getFloat32(val);
@@ -3375,17 +3543,18 @@ int main(int argc, char *argv[])
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putFloat32(3);
 
             Obj mX(o.data(), o.length());
+
             float val;
             ASSERT(&mX == &mX.getFloat32(val));
         }
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // GET 64-BIT INTEGERS TEST:
+        // GET 64-BIT INTEGERS TEST
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
@@ -3398,8 +3567,8 @@ int main(int argc, char *argv[])
         //:   C-2)
         //
         // Testing:
-        //   getInt64(bsls::Types::Int64 val &variable);
-        //   getUint64(bsls::Types::Uint64 val &variable);
+        //   getInt64(bsls::Types::Int64& variable);
+        //   getUint64(bsls::Types::Uint64& variable);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -3411,14 +3580,16 @@ int main(int argc, char *argv[])
             cout << "\nTesting getInt64." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt64(1);             o.putInt8(0xFF);
             o.putInt64(2);             o.putInt8(0xFE);
             o.putInt64(3);             o.putInt8(0xFD);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
-            char marker;
+
+            char               marker;
             bsls::Types::Int64 val;
             mX.getInt64(val);          mX.getInt8(marker);
             ASSERT(1 == val);          ASSERT('\xFF' == marker);
@@ -3433,10 +3604,11 @@ int main(int argc, char *argv[])
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt64(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             bsls::Types::Int64 val = 0;
             mX.invalidate();
             mX.getInt64(val);
@@ -3446,10 +3618,11 @@ int main(int argc, char *argv[])
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt64(3);
 
             Obj mX(o.data(), o.length());
+
             bsls::Types::Int64 val;
             ASSERT(&mX == &mX.getInt64(val));
         }
@@ -3460,14 +3633,16 @@ int main(int argc, char *argv[])
             cout << "\nTesting getUint64." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint64(1);             o.putInt8(0xFF);
             o.putUint64(2);             o.putInt8(0xFE);
             o.putUint64(3);             o.putInt8(0xFD);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
-            char marker;
+
+            char                marker;
             bsls::Types::Uint64 val;
             mX.getUint64(val);          mX.getInt8(marker);
             ASSERT(1 == val);           ASSERT('\xFF' == marker);
@@ -3482,10 +3657,11 @@ int main(int argc, char *argv[])
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint64(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             bsls::Types::Uint64 val = 0;
             mX.invalidate();
             mX.getUint64(val);
@@ -3495,17 +3671,18 @@ int main(int argc, char *argv[])
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint64(3);
 
             Obj mX(o.data(), o.length());
+
             bsls::Types::Uint64 val;
             ASSERT(&mX == &mX.getUint64(val));
         }
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // GET 56-BIT INTEGERS TEST:
+        // GET 56-BIT INTEGERS TEST
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
@@ -3518,8 +3695,8 @@ int main(int argc, char *argv[])
         //:   C-2)
         //
         // Testing:
-        //   getInt56(bsls::Types::Int64 val &variable);
-        //   getUint56(bsls::Types::Uint64 val &variable);
+        //   getInt56(bsls::Types::Int64& variable);
+        //   getUint56(bsls::Types::Uint64& variable);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -3531,14 +3708,16 @@ int main(int argc, char *argv[])
             cout << "\nTesting getInt56." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt56(1);             o.putInt8(0xFF);
             o.putInt56(2);             o.putInt8(0xFE);
             o.putInt56(3);             o.putInt8(0xFD);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
-            char marker;
+
+            char               marker;
             bsls::Types::Int64 val;
             mX.getInt56(val);          mX.getInt8(marker);
             ASSERT(1 == val);          ASSERT('\xFF' == marker);
@@ -3553,10 +3732,11 @@ int main(int argc, char *argv[])
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt56(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             bsls::Types::Int64 val = 0;
             mX.invalidate();
             mX.getInt56(val);
@@ -3566,10 +3746,11 @@ int main(int argc, char *argv[])
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt56(3);
 
             Obj mX(o.data(), o.length());
+
             bsls::Types::Int64 val;
             ASSERT(&mX == &mX.getInt56(val));
         }
@@ -3580,14 +3761,16 @@ int main(int argc, char *argv[])
             cout << "\nTesting getUint56." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint56(1);             o.putInt8(0xFF);
             o.putUint56(2);             o.putInt8(0xFE);
             o.putUint56(3);             o.putInt8(0xFD);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
-            char marker;
+
+            char                marker;
             bsls::Types::Uint64 val;
             mX.getUint56(val);          mX.getInt8(marker);
             ASSERT(1 == val);           ASSERT('\xFF' == marker);
@@ -3602,10 +3785,11 @@ int main(int argc, char *argv[])
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint56(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             bsls::Types::Uint64 val = 0;
             mX.invalidate();
             mX.getUint56(val);
@@ -3615,17 +3799,18 @@ int main(int argc, char *argv[])
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint56(3);
 
             Obj mX(o.data(), o.length());
+
             bsls::Types::Uint64 val;
             ASSERT(&mX == &mX.getUint56(val));
         }
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // GET 48-BIT INTEGERS TEST:
+        // GET 48-BIT INTEGERS TEST
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
@@ -3638,8 +3823,8 @@ int main(int argc, char *argv[])
         //:   C-2)
         //
         // Testing:
-        //   getInt48(bsls::Types::Int64 val &variable);
-        //   getUint48(bsls::Types::Uint64 val &variable);
+        //   getInt48(bsls::Types::Int64& variable);
+        //   getUint48(bsls::Types::Uint64& variable);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -3652,14 +3837,16 @@ int main(int argc, char *argv[])
             cout << "\nTesting getInt48." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt48(1);             o.putInt8(0xFF);
             o.putInt48(2);             o.putInt8(0xFE);
             o.putInt48(3);             o.putInt8(0xFD);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
-            char marker;
+
+            char               marker;
             bsls::Types::Int64 val;
             mX.getInt48(val);          mX.getInt8(marker);
             ASSERT(1 == val);          ASSERT('\xFF' == marker);
@@ -3674,10 +3861,11 @@ int main(int argc, char *argv[])
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt48(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             bsls::Types::Int64 val = 0;
             mX.invalidate();
             mX.getInt48(val);
@@ -3687,10 +3875,11 @@ int main(int argc, char *argv[])
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt48(3);
 
             Obj mX(o.data(), o.length());
+
             bsls::Types::Int64 val;
             ASSERT(&mX == &mX.getInt48(val));
         }
@@ -3701,14 +3890,16 @@ int main(int argc, char *argv[])
             cout << "\nTesting getUint48." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint48(1);             o.putInt8(0xFF);
             o.putUint48(2);             o.putInt8(0xFE);
             o.putUint48(3);             o.putInt8(0xFD);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
-            char marker;
+
+            char                marker;
             bsls::Types::Uint64 val;
             mX.getUint48(val);          mX.getInt8(marker);
             ASSERT(1 == val);           ASSERT('\xFF' == marker);
@@ -3723,10 +3914,11 @@ int main(int argc, char *argv[])
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint48(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             bsls::Types::Uint64 val = 0;
             mX.invalidate();
             mX.getUint48(val);
@@ -3736,17 +3928,18 @@ int main(int argc, char *argv[])
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint48(3);
 
             Obj mX(o.data(), o.length());
+
             bsls::Types::Uint64 val;
             ASSERT(&mX == &mX.getUint48(val));
         }
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // GET 40-BIT INTEGERS TEST:
+        // GET 40-BIT INTEGERS TEST
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
@@ -3759,8 +3952,8 @@ int main(int argc, char *argv[])
         //:   C-2)
         //
         // Testing:
-        //   getInt40(bsls::Types::Int64 val &variable);
-        //   getUint40(bsls::Types::Uint64 val &variable);
+        //   getInt40(bsls::Types::Int64& variable);
+        //   getUint40(bsls::Types::Uint64& variable);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -3773,14 +3966,16 @@ int main(int argc, char *argv[])
             cout << "\nTesting getInt40." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt40(1);             o.putInt8(0xFF);
             o.putInt40(2);             o.putInt8(0xFE);
             o.putInt40(3);             o.putInt8(0xFD);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
-            char marker;
+
+            char               marker;
             bsls::Types::Int64 val;
             mX.getInt40(val);          mX.getInt8(marker);
             ASSERT(1 == val);          ASSERT('\xFF' == marker);
@@ -3795,10 +3990,11 @@ int main(int argc, char *argv[])
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt40(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             bsls::Types::Int64 val = 0;
             mX.invalidate();
             mX.getInt40(val);
@@ -3808,10 +4004,11 @@ int main(int argc, char *argv[])
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt40(3);
 
             Obj mX(o.data(), o.length());
+
             bsls::Types::Int64 val;
             ASSERT(&mX == &mX.getInt40(val));
         }
@@ -3822,14 +4019,15 @@ int main(int argc, char *argv[])
             cout << "\nTesting getUint40." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint40(1);             o.putInt8(0xFF);
             o.putUint40(2);             o.putInt8(0xFE);
             o.putUint40(3);             o.putInt8(0xFD);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
             if (veryVerbose) { P(X) }
-            char marker;
+
+            char                marker;
             bsls::Types::Uint64 val;
             mX.getUint40(val);          mX.getInt8(marker);
             ASSERT(1 == val);           ASSERT('\xFF' == marker);
@@ -3844,10 +4042,11 @@ int main(int argc, char *argv[])
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint40(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             bsls::Types::Uint64 val = 0;
             mX.invalidate();
             mX.getUint40(val);
@@ -3857,17 +4056,18 @@ int main(int argc, char *argv[])
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint40(3);
 
             Obj mX(o.data(), o.length());
+
             bsls::Types::Uint64 val;
             ASSERT(&mX == &mX.getUint40(val));
         }
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // GET 32-BIT INTEGERS TEST:
+        // GET 32-BIT INTEGERS TEST
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
@@ -3880,8 +4080,8 @@ int main(int argc, char *argv[])
         //:   C-2)
         //
         // Testing:
-        //   getInt32(int &variable);
-        //   getUint32(unsigned int &variable);
+        //   getInt32(int& variable);
+        //   getUint32(unsigned int& variable);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -3894,15 +4094,18 @@ int main(int argc, char *argv[])
             cout << "\nTesting getInt32." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt32(1);             o.putInt8(0xFF);
             o.putInt32(2);             o.putInt8(0xFE);
             o.putInt32(3);             o.putInt8(0xFD);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
+
             char marker;
-            int val;
+            int  val;
+
             mX.getInt32(val);          mX.getInt8(marker);
             ASSERT(1 == val);          ASSERT('\xFF' == marker);
             mX.getInt32(val);          mX.getInt8(marker);
@@ -3916,10 +4119,11 @@ int main(int argc, char *argv[])
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt32(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             int val = 0;
             mX.invalidate();
             mX.getInt32(val);
@@ -3929,10 +4133,11 @@ int main(int argc, char *argv[])
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt32(3);
 
             Obj mX(o.data(), o.length());
+
             int val;
             ASSERT(&mX == &mX.getInt32(val));
         }
@@ -3943,14 +4148,16 @@ int main(int argc, char *argv[])
             cout << "\nTesting getUint32." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint32(1);             o.putInt8(0xFF);
             o.putUint32(2);             o.putInt8(0xFE);
             o.putUint32(3);             o.putInt8(0xFD);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
-            char marker;
+
+            char         marker;
             unsigned int val;
             mX.getUint32(val);          mX.getInt8(marker);
             ASSERT(1 == val);           ASSERT('\xFF' == marker);
@@ -3965,10 +4172,11 @@ int main(int argc, char *argv[])
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint32(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             unsigned int val = 0;
             mX.invalidate();
             mX.getUint32(val);
@@ -3978,17 +4186,18 @@ int main(int argc, char *argv[])
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint32(3);
 
             Obj mX(o.data(), o.length());
+
             unsigned int val;
             ASSERT(&mX == &mX.getUint32(val));
         }
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // GET 24-BIT INTEGERS TEST:
+        // GET 24-BIT INTEGERS TEST
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
@@ -4001,8 +4210,8 @@ int main(int argc, char *argv[])
         //:   C-2)
         //
         // Testing:
-        //   getInt24(int &variable);
-        //   getUint24(unsigned int &variable);
+        //   getInt24(int& variable);
+        //   getUint24(unsigned int& variable);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -4015,15 +4224,17 @@ int main(int argc, char *argv[])
             cout << "\nTesting getInt24." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt24(1);             o.putInt8(0xFF);
             o.putInt24(2);             o.putInt8(0xFE);
             o.putInt24(3);             o.putInt8(0xFD);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
+
             char marker;
-            int val;
+            int  val;
             mX.getInt24(val);          mX.getInt8(marker);
             ASSERT(1 == val);          ASSERT('\xFF' == marker);
             mX.getInt24(val);          mX.getInt8(marker);
@@ -4037,10 +4248,11 @@ int main(int argc, char *argv[])
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt24(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             int val = 0;
             mX.invalidate();
             mX.getInt24(val);
@@ -4050,10 +4262,11 @@ int main(int argc, char *argv[])
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt24(3);
 
             Obj mX(o.data(), o.length());
+
             int val;
             ASSERT(&mX == &mX.getInt24(val));
         }
@@ -4064,14 +4277,16 @@ int main(int argc, char *argv[])
             cout << "\nTesting getUint24." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint24(1);             o.putInt8(0xFF);
             o.putUint24(2);             o.putInt8(0xFE);
             o.putUint24(3);             o.putInt8(0xFD);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
-            char marker;
+
+            char         marker;
             unsigned int val;
             mX.getUint24(val);          mX.getInt8(marker);
             ASSERT(1 == val);           ASSERT('\xFF' == marker);
@@ -4086,10 +4301,11 @@ int main(int argc, char *argv[])
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint24(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             unsigned int val = 0;
             mX.invalidate();
             mX.getUint24(val);
@@ -4099,17 +4315,18 @@ int main(int argc, char *argv[])
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint24(3);
 
             Obj mX(o.data(), o.length());
+
             unsigned int val;
             ASSERT(&mX == &mX.getUint24(val));
         }
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // GET 16-BIT INTEGERS TEST:
+        // GET 16-BIT INTEGERS TEST
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
@@ -4122,8 +4339,8 @@ int main(int argc, char *argv[])
         //:   C-2)
         //
         // Testing:
-        //   getInt16(short &variable);
-        //   getUint16(unsigned short &variable);
+        //   getInt16(short& variable);
+        //   getUint16(unsigned short& variable);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -4136,14 +4353,16 @@ int main(int argc, char *argv[])
             cout << "\nTesting getInt16." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt16(1);             o.putInt8(0xFF);
             o.putInt16(2);             o.putInt8(0xFE);
             o.putInt16(3);             o.putInt8(0xFD);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
-            char marker;
+
+            char  marker;
             short val;
             mX.getInt16(val);          mX.getInt8(marker);
             ASSERT(1 == val);          ASSERT('\xFF' == marker);
@@ -4158,10 +4377,11 @@ int main(int argc, char *argv[])
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt16(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             short val = 0;
             mX.invalidate();
             mX.getInt16(val);
@@ -4171,10 +4391,11 @@ int main(int argc, char *argv[])
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt16(3);
 
             Obj mX(o.data(), o.length());
+
             short val;
             ASSERT(&mX == &mX.getInt16(val));
         }
@@ -4185,14 +4406,16 @@ int main(int argc, char *argv[])
             cout << "\nTesting getUint16." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint16(1);             o.putInt8(0xFF);
             o.putUint16(2);             o.putInt8(0xFE);
             o.putUint16(3);             o.putInt8(0xFD);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
-            char marker;
+
+            char           marker;
             unsigned short val;
             mX.getUint16(val);          mX.getInt8(marker);
             ASSERT(1 == val);           ASSERT('\xFF' == marker);
@@ -4207,10 +4430,11 @@ int main(int argc, char *argv[])
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint16(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             unsigned short val = 0;
             mX.invalidate();
             mX.getUint16(val);
@@ -4220,17 +4444,18 @@ int main(int argc, char *argv[])
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint16(3);
 
             Obj mX(o.data(), o.length());
+
             unsigned short val;
             ASSERT(&mX == &mX.getUint16(val));
         }
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // GET 8-BIT INTEGERS TEST:
+        // GET 8-BIT INTEGERS TEST
         //   Verify these methods unexternalize the expected values.  Note that
         //   getInt8(char&) is tested in the PRIMARY MANIPULATORS test.
         //
@@ -4259,14 +4484,16 @@ int main(int argc, char *argv[])
             cout << "\nTesting getInt8(signed char&)." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt8(1);
             o.putInt8(2);
             o.putInt8(3);
             o.putInt8(4);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
+
             signed char val;
             mX.getInt8(val);            ASSERT(1 == val);
             mX.getInt8(val);            ASSERT(2 == val);
@@ -4279,10 +4506,11 @@ int main(int argc, char *argv[])
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt8(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             signed char val = 0;
             mX.invalidate();
             mX.getInt8(val);
@@ -4292,10 +4520,11 @@ int main(int argc, char *argv[])
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt8(3);
 
             Obj mX(o.data(), o.length());
+
             signed char val;
             ASSERT(&mX == &mX.getInt8(val));
         }
@@ -4306,14 +4535,16 @@ int main(int argc, char *argv[])
             cout << "\nTesting getUint8(char&)." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint8(1);
             o.putUint8(2);
             o.putUint8(3);
             o.putUint8(4);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
+
             char val;
             mX.getUint8(val);            ASSERT(1 == val);
             mX.getUint8(val);            ASSERT(2 == val);
@@ -4326,10 +4557,11 @@ int main(int argc, char *argv[])
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint8(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             char val = 0;
             mX.invalidate();
             mX.getUint8(val);
@@ -4339,10 +4571,11 @@ int main(int argc, char *argv[])
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint8(3);
 
             Obj mX(o.data(), o.length());
+
             char val;
             ASSERT(&mX == &mX.getUint8(val));
         }
@@ -4353,14 +4586,16 @@ int main(int argc, char *argv[])
             cout << "\nTesting getUint8(unsigned char&)." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint8(1);
             o.putUint8(2);
             o.putUint8(3);
             o.putUint8(4);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             if (veryVerbose) { P(X) }
+
             unsigned char val;
             mX.getUint8(val);            ASSERT(1 == val);
             mX.getUint8(val);            ASSERT(2 == val);
@@ -4373,10 +4608,11 @@ int main(int argc, char *argv[])
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint8(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             unsigned char val = 0;
             mX.invalidate();
             mX.getUint8(val);
@@ -4386,29 +4622,30 @@ int main(int argc, char *argv[])
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint8(3);
 
             Obj mX(o.data(), o.length());
+
             unsigned char val;
             ASSERT(&mX == &mX.getUint8(val));
         }
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // PRINT OPERATOR TEST:
+        // PRINT OPERATOR TEST
         //   Verify the method produces the expected output format.
         //
         // Concerns:
         //: 1 Method produces expected output format.
         //
         // Plan:
-        //: 1 For a small set of objects, use 'ostrstream' to write the
+        //: 1 For a small set of objects, use 'ostringstream' to write the
         //:   object's value to a string buffer and then compare to expected
         //:   output format.  (C-1)
         //
         // Testing:
-        //   ostream& operator<<(ostream&, const ByteInStream&);
+        //   ostream& operator<<(ostream& stream, const ByteInStream& obj);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -4421,83 +4658,135 @@ int main(int argc, char *argv[])
             cout << "\nTesting print operator." << endl;
         }
 
-        const int SIZE = 1000;     // Must be big enough to hold output string.
-        const char XX = (char) 0xFF; // Value that represents an unset char.
-        char ctrl[SIZE];    memset(ctrl, XX, SIZE);
+        const int   SIZE = 1000;   // Must be big enough to hold output string.
+        const char  XX = static_cast<char>(0xFF);  // Value that represents an
+                                                   // unset char.
+        char        ctrl[SIZE];    memset(ctrl, XX, SIZE);
         const char *CTRL = ctrl;
 
         {
             Obj mX;  const Obj& X = mX;
+
             const char *EXPECTED = "";
-            char buf[SIZE];
-            memcpy(buf, CTRL, SIZE);
-            ostrstream out(buf, SIZE);    out << X << ends;
+
+            bslma::TestAllocator allocator;
+
+            ostringstream out(bsl::string(CTRL, SIZE, &allocator), &allocator);
+            out << X << ends;
+
+            bsl::string buffer(&allocator);
+            {
+                bslma::DefaultAllocatorGuard allocatorGuard(&allocator);
+
+                buffer = out.str();
+            }
+            const char *RESULT = buffer.c_str();
+
             const int LEN = static_cast<int>(strlen(EXPECTED)) + 1;
             if (veryVerbose) cout << "\tEXPECTED : " << EXPECTED << endl
-                                  << "\tACTUAL : "   << buf << endl;
-            ASSERT(XX == buf[SIZE-1]); // check for overrun
-            ASSERT(0 == memcmp(buf, EXPECTED, LEN));
-            ASSERT(0 == memcmp(buf + LEN, CTRL + LEN, SIZE - LEN));
+                                  << "\tACTUAL : "   << RESULT   << endl;
+            ASSERT(XX == RESULT[SIZE-1]); // check for overrun
+            ASSERT(0 == memcmp(RESULT, EXPECTED, LEN));
+            ASSERT(0 == memcmp(RESULT + LEN, CTRL + LEN, SIZE - LEN));
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt8(0);  o.putInt8(1);  o.putInt8(2);  o.putInt8(3);
+
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             const char *EXPECTED =
                 "\n0000\t00 01 02 03";
-            char buf[SIZE];
-            memcpy(buf, CTRL, SIZE);
-            ostrstream out(buf, SIZE);    out << X << ends;
+
+            bslma::TestAllocator allocator;
+
+            ostringstream out(bsl::string(CTRL, SIZE, &allocator), &allocator);
+            out << X << ends;
+
+            bsl::string buffer(&allocator);
+            {
+                bslma::DefaultAllocatorGuard allocatorGuard(&allocator);
+
+                buffer = out.str();
+            }
+            const char *RESULT = buffer.c_str();
+
             const int LEN = static_cast<int>(strlen(EXPECTED)) + 1;
             if (veryVerbose) cout << "\tEXPECTED : " << EXPECTED << endl
-                                  << "\tACTUAL : "   << buf << endl;
-            ASSERT(XX == buf[SIZE-1]); // check for overrun
-            ASSERT(0 == memcmp(buf, EXPECTED, LEN));
-            ASSERT(0 == memcmp(buf + LEN, CTRL + LEN, SIZE - LEN));
+                                  << "\tACTUAL : "   << RESULT   << endl;
+            ASSERT(XX == RESULT[SIZE-1]); // check for overrun
+            ASSERT(0 == memcmp(RESULT, EXPECTED, LEN));
+            ASSERT(0 == memcmp(RESULT + LEN, CTRL + LEN, SIZE - LEN));
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt8(0);  o.putInt8(1);  o.putInt8(2);  o.putInt8(3);
             o.putInt8(4);  o.putInt8(5);  o.putInt8(6);  o.putInt8(7);
             o.putInt8(8);  o.putInt8(9);  o.putInt8(10); o.putInt8(11);
+
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             const char *EXPECTED =
                 "\n0000\t00 01 02 03 04 05 06 07"
                 "\n0008\t08 09 0a 0b";
-            char buf[SIZE];
-            memcpy(buf, CTRL, SIZE);
-            ostrstream out(buf, SIZE);    out << X << ends;
+
+            bslma::TestAllocator allocator;
+
+            ostringstream out(bsl::string(CTRL, SIZE, &allocator), &allocator);
+            out << X << ends;
+
+            bsl::string buffer(&allocator);
+            {
+                bslma::DefaultAllocatorGuard allocatorGuard(&allocator);
+
+                buffer = out.str();
+            }
+            const char *RESULT = buffer.c_str();
+
             const int LEN = static_cast<int>(strlen(EXPECTED)) + 1;
             if (veryVerbose) cout << "\tEXPECTED : " << EXPECTED << endl
-                                  << "\tACTUAL : "   << buf << endl;
-            ASSERT(XX == buf[SIZE-1]); // check for overrun
-            ASSERT(0 == memcmp(buf, EXPECTED, LEN));
-            ASSERT(0 == memcmp(buf + LEN, CTRL + LEN, SIZE - LEN));
+                                  << "\tACTUAL : "   << RESULT   << endl;
+            ASSERT(XX == RESULT[SIZE-1]); // check for overrun
+            ASSERT(0 == memcmp(RESULT, EXPECTED, LEN));
+            ASSERT(0 == memcmp(RESULT + LEN, CTRL + LEN, SIZE - LEN));
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt8(  0);  o.putInt8( 1);  o.putInt8( 2);  o.putInt8( 3);
             o.putInt8(  4);  o.putInt8( 5);  o.putInt8( 6);  o.putInt8( 7);
             o.putInt8(  8);  o.putInt8( 9);  o.putInt8(10);  o.putInt8(11);
             o.putInt8(127);  o.putInt8(-1);  o.putInt8(-2);  o.putInt8(-3);
+
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             const char *EXPECTED =
                 "\n0000\t00 01 02 03 04 05 06 07"
                 "\n0008\t08 09 0a 0b 7f ff fe fd";
-            char buf[SIZE];
-            memcpy(buf, CTRL, SIZE);
-            ostrstream out(buf, SIZE);    out << X << ends;
+
+            bslma::TestAllocator allocator;
+
+            ostringstream out(bsl::string(CTRL, SIZE, &allocator), &allocator);
+            out << X << ends;
+
+            bsl::string buffer(&allocator);
+            {
+                bslma::DefaultAllocatorGuard allocatorGuard(&allocator);
+
+                buffer = out.str();
+            }
+            const char *RESULT = buffer.c_str();
+
             const int LEN = static_cast<int>(strlen(EXPECTED)) + 1;
             if (veryVerbose) cout << "\tEXPECTED : " << EXPECTED << endl
-                                  << "\tACTUAL : "   << buf << endl;
-            ASSERT(XX == buf[SIZE-1]); // check for overrun
-            ASSERT(0 == memcmp(buf, EXPECTED, LEN));
-            ASSERT(0 == memcmp(buf + LEN, CTRL + LEN, SIZE - LEN));
+                                  << "\tACTUAL : "   << RESULT   << endl;
+            ASSERT(XX == RESULT[SIZE-1]); // check for overrun
+            ASSERT(0 == memcmp(RESULT, EXPECTED, LEN));
+            ASSERT(0 == memcmp(RESULT + LEN, CTRL + LEN, SIZE - LEN));
         }
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // BASIC ACCESSORS TEST:
+        // BASIC ACCESSORS TEST
         //   Verify functionality of the basic accessors.
         //
         // Concerns:
@@ -4507,13 +4796,13 @@ int main(int argc, char *argv[])
         //: 1 Create an empty object, use 'getInt8' and 'invalidate' to modify
         //:   state, and verify the expected values for the methods.  (C-1)
         //
-        // Testing
+        // Testing:
         //   operator const void *() const;
-        //   bool isValid() const;
+        //   bsl::size_t cursor() const;
         //   const char *data() const;
         //   bool isEmpty() const;
-        //   int length() const;
-        //   int cursor() const;
+        //   bool isValid() const;
+        //   bsl::size_t length() const;
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -4531,7 +4820,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(i, X);
             LOOP_ASSERT(i, 0 == X.data());
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             for (j = 0; j < i;  j++) o.putInt8(j);
 
             Obj mX2(o.data(), o.length());  const Obj& X2 = mX2;
@@ -4547,7 +4836,10 @@ int main(int argc, char *argv[])
 
             // invalidate stream x2 by making excessive 'get' calls
             char c;
-            for (j = 0; j < i + 1; j++) mX2.getInt8(c);
+            for (j = 0; j < i + 1; j++) {
+                if (veryVerbose) { P(j); }
+                mX2.getInt8(c);
+            }
             LOOP_ASSERT(i, !X && !X2);
             LOOP_ASSERT(i, !X.isValid() && !X2.isValid());
         }
@@ -4565,7 +4857,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(i, X.cursor() == 0);
 
             // test objects of variable lengths
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             for (j = 0; j < i; j++) {
                 o.putInt8(j);
             }
@@ -4573,14 +4865,16 @@ int main(int argc, char *argv[])
             Obj mX2(o.data(), o.length());  const Obj& X2 = mX2;
             if (veryVerbose) { P(X2) }
             LOOP_ASSERT(i, (0 == i && X2.isEmpty()) || !X2.isEmpty());
-            LOOP_ASSERT(i, X2.length() == i);
+            LOOP_ASSERT(i, X2.length() == static_cast<bsl::size_t>(i));
             LOOP_ASSERT(i, X2.cursor() == 0);
 
             char c;
             for (j = 0; j < i; j++) {
+                if (veryVerbose) { P_(i) P(j); }
                 LOOP2_ASSERT(i,
                              j,
-                             X2.cursor() == SIZEOF_INT8 * j);
+                             X2.cursor() ==
+                                    static_cast<bsl::size_t>(SIZEOF_INT8 * j));
                 mX2.getInt8(c);
             }
             LOOP_ASSERT(i, X2.isEmpty());
@@ -4588,7 +4882,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // PRIMARY MANIPULATORS TEST:
+        // PRIMARY MANIPULATORS TEST
         //   Verify functionality of primary manipulators.
         //
         // Concerns:
@@ -4614,9 +4908,9 @@ int main(int argc, char *argv[])
         //:
         //: 5 Verify defensive checks are triggered for invalid values.  (C-5)
         //
-        // Testing
+        // Testing:
         //   ByteInStream();
-        //   ByteInStream(const char *buffer, int numBytes);
+        //   ByteInStream(const char *buffer, bsl::size_t numBytes);
         //   ByteInStream(const bslstl::StringRef& srcData);
         //   ~ByteInStream();
         //   getInt8(char& variable);
@@ -4642,7 +4936,7 @@ int main(int argc, char *argv[])
         {
             // Test constructor initialized with a 'char *'.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt8(1);
             o.putInt8(2);
             o.putInt8(3);
@@ -4664,13 +4958,13 @@ int main(int argc, char *argv[])
         {
             // Test constructor initialized with a 'bslstl::StringRef'.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt8(5);
             o.putInt8(6);
             o.putInt8(7);
             o.putInt8(8);
 
-            bslstl::StringRef srcData(o.data(), o.length());
+            bslstl::StringRef srcData(o.data(), static_cast<int>(o.length()));
 
             Obj mX(srcData);  const Obj& X = mX;
             ASSERT(X);
@@ -4688,10 +4982,11 @@ int main(int argc, char *argv[])
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt8(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
+
             char val = 0;
             mX.invalidate();
             mX.getInt8(val);
@@ -4701,10 +4996,11 @@ int main(int argc, char *argv[])
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt8(3);
 
             Obj mX(o.data(), o.length());
+
             char val;
             ASSERT(&mX == &mX.getInt8(val));
         }
@@ -4722,7 +5018,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(i, !X);
 
             // test objects of variable lengths
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             for (int j = 0; j < i;  j++) o.putInt8(j);
 
             Obj mX2(o.data(), o.length());  const Obj& X2 = mX2;
@@ -4737,20 +5033,16 @@ int main(int argc, char *argv[])
         if (verbose)
             cout << "\nNegative Testing." << endl;
         {
-            char DATA[16];
-
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            ASSERT_SAFE_FAIL(Obj mX(DATA, -1));
-            ASSERT_SAFE_PASS(Obj mX(DATA, 0));
-            ASSERT_SAFE_PASS(Obj mX(DATA, 1));
             ASSERT_SAFE_PASS(Obj mX(0, 0));
+            ASSERT_SAFE_FAIL(Obj mX(0, 1));
         }
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // BREATHING TEST:
+        // BREATHING TEST
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
@@ -4770,9 +5062,9 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-          cout << endl
-               << "BREATHING TEST" << endl
-               << "==============" << endl;
+            cout << endl
+                 << "BREATHING TEST" << endl
+                 << "==============" << endl;
         }
         if (verbose) {
             cout << "\nCreate object x1 using default ctor." << endl;
@@ -4795,6 +5087,7 @@ int main(int argc, char *argv[])
             cout << "\nTry getInt8() with x2." << endl;
         }
         for (i = 0; i < 5; i++) {
+            if (veryVerbose) { P(i); }
             char c;
             mX2.getInt8(c);
             LOOP_ASSERT(i, i == c);

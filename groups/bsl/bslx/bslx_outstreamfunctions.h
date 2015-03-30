@@ -102,7 +102,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Using 'bslx::OutStreamFunctions' to Externalize Data
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example we illustrate the primary intended use of the templatized
+// In this example we illustrate the primary intended use of the parameterized
 // methods of this component, as well as a few trivial invocations just to show
 // the syntax clearly.  To accomplish this, we exhibit two separate example
 // "components": a value-semantic point object, and an 'enum'.  In all cases,
@@ -141,9 +141,14 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // CLASS METHODS
-//      static int maxSupportedBdexVersion(int serializationVersion);
-//          // Return the 'version' to be used with the 'bdexStreamOut' method
-//          // corresponding to the specified 'serializationVersion'.  See the
+//      static int maxSupportedBdexVersion(int versionSelector);
+//          // Return the maximum valid BDEX format version, as indicated by
+//          // the specified 'versionSelector', to be passed to the
+//          // 'bdexStreamOut' method.  Note that it is highly recommended that
+//          // versionSelector' be formatted as "YYYYMMDD", a date
+//          // representation.  Also note that 'versionSelector' should be a
+//          // *compile*-time-chosen value that selects a format version
+//          // supported by both externalizer and unexternalizer.  See the
 //          // 'bslx' package-level documentation for more information on BDEX
 //          // streaming of value-semantic types and containers.
 //
@@ -173,14 +178,14 @@ BSLS_IDENT("$Id: $")
 //
 //      template <class STREAM>
 //      STREAM& bdexStreamOut(STREAM& stream, int version) const;
-//          // Write this value to the specified output 'stream' using the
-//          // specified 'version' format, and return a reference to 'stream'.
-//          // If 'stream' is initially invalid, this operation has no effect.
-//          // If 'version' is not supported, 'stream' is invalidated but
-//          // otherwise unmodified.  Note that 'version' is not written to
-//          // 'stream'.  See the 'bslx' package-level documentation for more
-//          // information on BDEX streaming of value-semantic types and
-//          // containers.
+//          // Write the value of this object, using the specified 'version'
+//          // format, to the specified output 'stream', and return a reference
+//          // to 'stream'.  If 'stream' is initially invalid, this operation
+//          // has no effect.  If 'version' is not supported, 'stream' is
+//          // invalidated, but otherwise unmodified.  Note that 'version' is
+//          // not written to 'stream'.  See the 'bslx' package-level
+//          // documentation for more information on BDEX streaming of
+//          // value-semantic types and containers.
 //  };
 //
 //  // FREE OPERATORS
@@ -192,15 +197,15 @@ BSLS_IDENT("$Id: $")
 //..
 // Representative (inline) implementations of these methods are shown below:
 //..
-//  //=========================================================================
+//  // ========================================================================
 //  //                      INLINE FUNCTION DEFINITIONS
-//  //=========================================================================
+//  // ========================================================================
 //
 //  // CLASS METHODS
 //  inline
-//  int MyPoint::maxSupportedBdexVersion(int serializationVersion)
+//  int MyPoint::maxSupportedBdexVersion(int versionSelector)
 //  {
-//      if (serializationVersion >= 20131201) {
+//      if (versionSelector >= 20131201) {
 //          return 2;
 //      }
 //      return 1;
@@ -347,9 +352,9 @@ BSLS_IDENT("$Id: $")
 //..
 // The relevant (inline) implementations are as follows.
 //..
-//  //=========================================================================
+//  // ========================================================================
 //  //                      INLINE FUNCTION DEFINITIONS
-//  //=========================================================================
+//  // ========================================================================
 //
 //  // CREATORS
 //  inline
@@ -548,24 +553,27 @@ namespace OutStreamFunctions {
         // Write the specified 'value' to the specified output 'stream' as a
         // 32-bit 'int', and return a reference to 'stream'.  The specified
         // 'version' is ignored.  If 'stream' is initially invalid, this
-        // operation has no effect.  The behavior is undefined unless 'STREAM'
-        // and 'TYPE' are BDEX-compliant.  Note that this function is called
-        // only for enumeration types and that if 'value' is outside the range
-        // of an 'int32_t' the externalization will be lossy.  Also note that
-        // this function is for internal use only.
+        // operation has no effect.  Note that this function is called only for
+        // enumeration types and that if 'value' is outside the range of an
+        // 'int32_t' the externalization will be lossy.  Also note that this
+        // function is for internal use only.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     template <class STREAM, class TYPE>
     STREAM& bdexStreamOutImp(STREAM&              stream,
                              const TYPE&          value,
                              int                  version,
                              const IsNotEnumType&);
-        // Write the specified 'value' to the specified output 'stream' using
-        // the specified 'version' format, and return a reference to 'stream'.
-        // If 'stream' is initially invalid, this operation has no effect.  If
-        // 'version' is not supported by 'TYPE', 'stream' is invalidated.  The
-        // behavior is undefined unless 'STREAM' and 'TYPE' are BDEX-compliant.
-        // Note that 'version' is not written to 'stream'.  Also note that this
-        // function is for internal use only.
+        // Write the specified 'value', using the specified 'version' format,
+        // to the specified output 'stream', and return a reference to
+        // 'stream'.  If 'stream' is initially invalid, this operation has no
+        // effect.  If 'version' is not supported by 'TYPE', 'stream' is
+        // invalidated, but otherwise unmodified.  Note that 'version' is not
+        // written to 'stream'.  Also note that this function is for internal
+        // use only.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
 
     // CLASS METHODS
     template <class STREAM, class TYPE>
@@ -574,19 +582,22 @@ namespace OutStreamFunctions {
         // return a reference to 'stream'.  If 'stream' is initially invalid,
         // this operation has no effect.  If needed, first write the computed
         // version information to the 'stream' and if this version is not
-        // supported by 'TYPE', 'stream' is invalidated.  The behavior is
-        // undefined unless 'STREAM' and 'TYPE' are BDEX-compliant.  Note that
-        // the version is only needed when the (template parameter) 'TYPE' is a
-        // 'bsl::vector' or a user-defined type.
+        // supported by 'TYPE', 'stream' is invalidated.  Note that the version
+        // is only needed when the (template parameter) 'TYPE' is a
+        // 'bsl::vector' or a user-defined type.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     template <class STREAM, class TYPE>
     STREAM& bdexStreamOut(STREAM& stream, const TYPE& value, int version);
-        // Write the specified 'value' to the specified output 'stream' using
-        // the specified 'version' format, and return a reference to 'stream'.
-        // If 'stream' is initially invalid, this operation has no effect.  If
-        // 'version' is not supported by 'TYPE', 'stream' is invalidated.  The
-        // behavior is undefined unless 'STREAM' and 'TYPE' are BDEX-compliant.
-        // Note that 'version' is not written to 'stream'.
+        // Write the specified 'value', using the specified 'version' format,
+        // to the specified output 'stream', and return a reference to
+        // 'stream'.  If 'stream' is initially invalid, this operation has no
+        // effect.  If 'version' is not supported by 'TYPE', 'stream' is
+        // invalidated, but otherwise unmodified.  Note that 'version' is not
+        // written to 'stream'.  See the 'bslx' package-level documentation for
+        // more information on BDEX streaming of value-semantic types and
+        // containers.
 
                        /* overloads */
 
@@ -595,16 +606,18 @@ namespace OutStreamFunctions {
         // Write the specified 'bool' 'value' to the specified output 'stream',
         // and return a reference to 'stream'.  The optionally specified
         // 'version' is ignored.  If 'stream' is initially invalid, this
-        // operation has no effect.  The behavior is undefined unless 'STREAM'
-        // is BDEX-compliant.
+        // operation has no effect.  See the 'bslx' package-level documentation
+        // for more information on BDEX streaming of value-semantic types and
+        // containers.
 
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, const char& value, int version = 0);
         // Write the specified 'char' 'value' to the specified output 'stream',
         // and return a reference to 'stream'.  The optionally specified
         // 'version' is ignored.  If 'stream' is initially invalid, this
-        // operation has no effect.  The behavior is undefined unless 'STREAM'
-        // is BDEX-compliant.
+        // operation has no effect.  See the 'bslx' package-level documentation
+        // for more information on BDEX streaming of value-semantic types and
+        // containers.
 
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM&            stream,
@@ -613,8 +626,9 @@ namespace OutStreamFunctions {
         // Write the specified 'signed char' 'value' to the specified output
         // 'stream', and return a reference to 'stream'.  The optionally
         // specified 'version' is ignored.  If 'stream' is initially invalid,
-        // this operation has no effect.  The behavior is undefined unless
-        // 'STREAM' is BDEX-compliant.
+        // this operation has no effect.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM&              stream,
@@ -623,8 +637,9 @@ namespace OutStreamFunctions {
         // Write the specified 'unsigned char' 'value' to the specified output
         // 'stream', and return a reference to 'stream'.  The optionally
         // specified 'version' is ignored.  If 'stream' is initially invalid,
-        // this operation has no effect.  The behavior is undefined unless
-        // 'STREAM' is BDEX-compliant.
+        // this operation has no effect.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM&      stream,
@@ -633,8 +648,9 @@ namespace OutStreamFunctions {
         // Write the specified 'short' 'value' to the specified output
         // 'stream', and return a reference to 'stream'.  The optionally
         // specified 'version' is ignored.  If 'stream' is initially invalid,
-        // this operation has no effect.  The behavior is undefined unless
-        // 'STREAM' is BDEX-compliant.
+        // this operation has no effect.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM&               stream,
@@ -643,16 +659,18 @@ namespace OutStreamFunctions {
         // Write the specified 'unsigned short' 'value' to the specified output
         // 'stream', and return a reference to 'stream'.  The optionally
         // specified 'version' is ignored.  If 'stream' is initially invalid,
-        // this operation has no effect.  The behavior is undefined unless
-        // 'STREAM' is BDEX-compliant.
+        // this operation has no effect.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, const int& value, int version = 0);
         // Write the specified 'int' 'value' to the specified output 'stream',
         // and return a reference to 'stream'.  The optionally specified
         // 'version' is ignored.  If 'stream' is initially invalid, this
-        // operation has no effect.  The behavior is undefined unless 'STREAM'
-        // is BDEX-compliant.
+        // operation has no effect.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM&             stream,
@@ -661,17 +679,20 @@ namespace OutStreamFunctions {
         // Write the specified 'unsigned int' 'value' to the specified output
         // 'stream', and return a reference to 'stream'.  The optionally
         // specified 'version' is ignored.  If 'stream' is initially invalid,
-        // this operation has no effect.  The behavior is undefined unless
-        // 'STREAM' is BDEX-compliant.
+        // this operation has no effect.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, const long& value, int version = 0);
         // Write the specified 'long' 'value' to the specified output 'stream'
         // as a 32-bit 'int', and return a reference to 'stream'.  The
         // optionally specified 'version' is ignored.  If 'stream' is initially
-        // invalid, this operation has no effect.  The behavior is undefined
-        // unless 'STREAM' is BDEX-compliant.  Note that for platforms where
-        // 'long' is not equivalent to 'int32_t', this operation may be lossy.
+        // invalid, this operation has no effect.  Note that for platforms
+        // where 'long' is not equivalent to 'int32_t', this operation may be
+        // lossy.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
 
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM&              stream,
@@ -680,10 +701,11 @@ namespace OutStreamFunctions {
         // Write the specified 'unsigned long' 'value' to the specified output
         // 'stream' as a 32-bit 'unsigned int', and return a reference to
         // 'stream'.  The optionally specified 'version' is ignored.  If
-        // 'stream' is initially invalid, this operation has no effect.  The
-        // behavior is undefined unless 'STREAM' is BDEX-compliant.  Note that
-        // for platforms where 'unsigned long' is not equivalent to 'uint32_t',
-        // this operation may be lossy.
+        // 'stream' is initially invalid, this operation has no effect.  Note
+        // that for platforms where 'unsigned long' is not equivalent to
+        // 'uint32_t', this operation may be lossy.  See the 'bslx'
+        // package-level documentation for more information on BDEX streaming
+        // of value-semantic types and containers.
 
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM&                   stream,
@@ -692,8 +714,9 @@ namespace OutStreamFunctions {
         // Write the specified 'bsls::Types::Int64' 'value' to the specified
         // output 'stream', and return a reference to 'stream'.  The optionally
         // specified 'version' is ignored.  If 'stream' is initially invalid,
-        // this operation has no effect.  The behavior is undefined unless
-        // 'STREAM' is BDEX-compliant.
+        // this operation has no effect.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM&                    stream,
@@ -702,16 +725,18 @@ namespace OutStreamFunctions {
         // Write the specified 'bsls::Types::Uint64' 'value' to the specified
         // output 'stream', and return a reference to 'stream'.  The optionally
         // specified 'version' is ignored.  If 'stream' is initially invalid,
-        // this operation has no effect.  The behavior is undefined unless
-        // 'STREAM' is BDEX-compliant.
+        // this operation has no effect.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, const float& value, int version = 0);
         // Write the specified 'float' 'value' to the specified output
         // 'stream', and return a reference to 'stream'.  The optionally
         // specified 'version' is ignored.  If 'stream' is initially invalid,
-        // this operation has no effect.  The behavior is undefined unless
-        // 'STREAM' is BDEX-compliant.
+        // this operation has no effect.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM&       stream,
@@ -720,8 +745,9 @@ namespace OutStreamFunctions {
         // Write the specified 'double' 'value' to the specified output
         // 'stream', and return a reference to 'stream'.  The optionally
         // specified 'version' is ignored.  If 'stream' is initially invalid,
-        // this operation has no effect.  The behavior is undefined unless
-        // 'STREAM' is BDEX-compliant.
+        // this operation has no effect.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM&            stream,
@@ -730,8 +756,9 @@ namespace OutStreamFunctions {
         // Write the specified 'bsl::string' 'value' to the specified output
         // 'stream', and return a reference to 'stream'.  The optionally
         // specified 'version' is ignored.  If 'stream' is initially invalid,
-        // this operation has no effect.  The behavior is undefined unless
-        // 'STREAM' is BDEX-compliant.
+        // this operation has no effect.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamOut(STREAM&                         stream,
@@ -740,8 +767,9 @@ namespace OutStreamFunctions {
         // Write the specified 'bsl::vector<char, ALLOC>' 'value' to the
         // specified output 'stream', and return a reference to 'stream'.  The
         // specified 'version' is ignored.  If 'stream' is initially invalid,
-        // this operation has no effect.  The behavior is undefined unless
-        // 'STREAM' is BDEX-compliant.
+        // this operation has no effect.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamOut(STREAM&                                stream,
@@ -750,8 +778,9 @@ namespace OutStreamFunctions {
         // Write the specified 'bsl::vector<signed char, ALLOC>' 'value' to the
         // specified output 'stream', and return a reference to 'stream'.  The
         // specified 'version' is ignored.  If 'stream' is initially invalid,
-        // this operation has no effect.  The behavior is undefined unless
-        // 'STREAM' is BDEX-compliant.
+        // this operation has no effect.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamOut(STREAM&                                  stream,
@@ -760,8 +789,9 @@ namespace OutStreamFunctions {
         // Write the specified 'bsl::vector<unsigned char, ALLOC>' 'value' to
         // the specified output 'stream', and return a reference to 'stream'.
         // The specified 'version' is ignored.  If 'stream' is initially
-        // invalid, this operation has no effect.  The behavior is undefined
-        // unless 'STREAM' is BDEX-compliant.
+        // invalid, this operation has no effect.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamOut(STREAM&                          stream,
@@ -770,8 +800,9 @@ namespace OutStreamFunctions {
         // Write the specified 'bsl::vector<short, ALLOC>' 'value' to the
         // specified output 'stream', and return a reference to 'stream'.  The
         // specified 'version' is ignored.  If 'stream' is initially invalid,
-        // this operation has no effect.  The behavior is undefined unless
-        // 'STREAM' is BDEX-compliant.
+        // this operation has no effect.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamOut(STREAM&                                   stream,
@@ -780,8 +811,9 @@ namespace OutStreamFunctions {
         // Write the specified 'bsl::vector<unsigned short, ALLOC>' 'value' to
         // the specified output 'stream', and return a reference to 'stream'.
         // The specified 'version' is ignored.  If 'stream' is initially
-        // invalid, this operation has no effect.  The behavior is undefined
-        // unless 'STREAM' is BDEX-compliant.
+        // invalid, this operation has no effect.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamOut(STREAM&                        stream,
@@ -790,8 +822,9 @@ namespace OutStreamFunctions {
         // Write the specified 'bsl::vector<int, ALLOC>' 'value' to the
         // specified output 'stream', and return a reference to 'stream'.  The
         // specified 'version' is ignored.  If 'stream' is initially invalid,
-        // this operation has no effect.  The behavior is undefined unless
-        // 'STREAM' is BDEX-compliant.
+        // this operation has no effect.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamOut(STREAM&                                 stream,
@@ -800,8 +833,9 @@ namespace OutStreamFunctions {
         // Write the specified 'bsl::vector<unsigned int, ALLOC>' 'value' to
         // the specified output 'stream', and return a reference to 'stream'.
         // The specified 'version' is ignored.  If 'stream' is initially
-        // invalid, this operation has no effect.  The behavior is undefined
-        // unless 'STREAM' is BDEX-compliant.
+        // invalid, this operation has no effect.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamOut(
@@ -811,8 +845,9 @@ namespace OutStreamFunctions {
         // Write the specified 'bsl::vector<bsls::Types::Int64, ALLOC>' 'value'
         // to the specified output 'stream', and return a reference to
         // 'stream'.  The specified 'version' is ignored.  If 'stream' is
-        // initially invalid, this operation has no effect.  The behavior is
-        // undefined unless 'STREAM' is BDEX-compliant.
+        // initially invalid, this operation has no effect.  See the 'bslx'
+        // package-level documentation for more information on BDEX streaming
+        // of value-semantic types and containers.
 
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamOut(
@@ -822,8 +857,9 @@ namespace OutStreamFunctions {
         // Write the specified 'bsl::vector<bsls::Types::Uint64, ALLOC>'
         // 'value' to the specified output 'stream', and return a reference to
         // 'stream'.  The specified 'version' is ignored.  If 'stream' is
-        // initially invalid, this operation has no effect.  The behavior is
-        // undefined unless 'STREAM' is BDEX-compliant.
+        // initially invalid, this operation has no effect.  See the 'bslx'
+        // package-level documentation for more information on BDEX streaming
+        // of value-semantic types and containers.
 
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamOut(STREAM&                          stream,
@@ -832,8 +868,9 @@ namespace OutStreamFunctions {
         // Write the specified 'bsl::vector<float, ALLOC>' 'value' to the
         // specified output 'stream', and return a reference to 'stream'.  The
         // specified 'version' is ignored.  If 'stream' is initially invalid,
-        // this operation has no effect.  The behavior is undefined unless
-        // 'STREAM' is BDEX-compliant.
+        // this operation has no effect.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     template <class STREAM, class ALLOC>
     STREAM& bdexStreamOut(STREAM&                           stream,
@@ -842,8 +879,9 @@ namespace OutStreamFunctions {
         // Write the specified 'bsl::vector<double, ALLOC>' 'value' to the
         // specified output 'stream', and return a reference to 'stream'.  The
         // specified 'version' is ignored.  If 'stream' is initially invalid,
-        // this operation has no effect.  The behavior is undefined unless
-        // 'STREAM' is BDEX-compliant.
+        // this operation has no effect.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
 
     template <class STREAM, class TYPE, class ALLOC>
     STREAM& bdexStreamOut(STREAM&                         stream,
@@ -853,25 +891,28 @@ namespace OutStreamFunctions {
         // 'stream' is initially invalid, this operation has no effect.  If
         // needed, first write the computed version information to the 'stream'
         // and if this version is not supported by 'TYPE' and the vector is not
-        // empty, 'stream' is invalidated.  The behavior is undefined unless
-        // 'STREAM' and 'TYPE' are BDEX-compliant.  Note that the version is
-        // only needed when the (template parameter) 'TYPE' is a 'bsl::vector'
-        // or a user-defined type.
+        // empty, 'stream' is invalidated.  Note that the version is only
+        // needed when the (template parameter) 'TYPE' is a 'bsl::vector' or a
+        // user-defined type.  See the 'bslx' package-level documentation for
+        // more information on BDEX streaming of value-semantic types and
+        // containers.
 
     template <class STREAM, class TYPE, class ALLOC>
     STREAM& bdexStreamOut(STREAM&                         stream,
                           const bsl::vector<TYPE, ALLOC>& value,
                           int                             version);
-        // Write the specified 'bsl::vector<TYPE, ALLOC>' 'value' to the
-        // specified output 'stream' using the specified 'version' format, and
+        // Write the specified 'bsl::vector<TYPE, ALLOC>' 'value', using the
+        // specified 'version' format, to the specified output 'stream', and
         // return a reference to 'stream'.  If 'stream' is initially invalid,
         // this operation has no effect.  If 'version' is not supported by
-        // 'TYPE' and the vector is not empty, 'stream' is invalidated.  The
-        // behavior is undefined unless 'STREAM' and 'TYPE' are BDEX-compliant.
-        // Note that the specified 'TYPE' might not require a 'version' to be
-        // serialized and that 'version' is not written to 'stream'.
+        // 'TYPE' and the vector is not empty, 'stream' is invalidated, but
+        // otherwise unmodified.  Note that the specified 'TYPE' might not
+        // require a 'version' to be serialized and that 'version' is not
+        // written to 'stream'.  See the 'bslx' package-level documentation for
+        // more information on BDEX streaming of value-semantic types and
+        // containers.
 
-}  // close namespace OutStreamFunctions
+}  // close OutStreamFunctions namespace
 
 // ============================================================================
 //                          INLINE FUNCTION DEFINITIONS
@@ -911,8 +952,8 @@ STREAM& OutStreamFunctions::bdexStreamOut(STREAM& stream, const TYPE& value)
 {
     using VersionFunctions::maxSupportedBdexVersion;
 
-    const int version =
-            maxSupportedBdexVersion(&value, stream.bdexSerializationVersion());
+    const int version = maxSupportedBdexVersion(&value,
+                                                stream.bdexVersionSelector());
     if (VersionFunctions::k_NO_VERSION != version) {
         stream.putVersion(version);
     }
@@ -1219,8 +1260,8 @@ STREAM& OutStreamFunctions::bdexStreamOut(
 {
     using VersionFunctions::maxSupportedBdexVersion;
 
-    const int version =
-            maxSupportedBdexVersion(&value, stream.bdexSerializationVersion());
+    const int version = maxSupportedBdexVersion(&value,
+                                                stream.bdexVersionSelector());
 
     stream.putVersion(version);
     return bdexStreamOut(stream, value, version);

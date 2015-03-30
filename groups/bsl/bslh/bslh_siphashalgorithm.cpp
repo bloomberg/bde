@@ -7,6 +7,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_types.h>
 #include <bsls_platform.h>
+#include <bsls_byteorder.h>
 
 #include <algorithm>
 #include <stddef.h>  // for 'size_t'
@@ -117,32 +118,12 @@ static u64 u8to64_le(const u8* p)
 {
     BSLS_ASSERT(p);
 
-#if defined(BSLS_PLATFORM_OS_SOLARIS)
-    u64 ret;
-  #ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    memcpy(&ret, p, sizeof(ret));
-    return ret;
-  #else
-    char *retPtr = reinterpret_cast<char *>(&ret);
-    retPtr[0] = p[7];
-    retPtr[1] = p[6];
-    retPtr[2] = p[5];
-    retPtr[3] = p[4];
-    retPtr[4] = p[3];
-    retPtr[5] = p[2];
-    retPtr[6] = p[1];
-    retPtr[7] = p[0];
-    return ret;
-  #endif
+#if defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64)
+    return *reinterpret_cast<const u64 *>(p);  // Ignore alignment.
 #else
-  #ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    return *static_cast<u64 const*>(static_cast<void const*>(p));
-  #else
-    return static_cast<u64>(p[7]) << 56 | static_cast<u64>(p[6]) << 48 |
-           static_cast<u64>(p[5]) << 40 | static_cast<u64>(p[4]) << 32 |
-           static_cast<u64>(p[3]) << 24 | static_cast<u64>(p[2]) << 16 |
-           static_cast<u64>(p[1]) <<  8 | static_cast<u64>(p[0]);
-  #endif
+    u64 ret;
+    memcpy(&ret, p, sizeof(ret));
+    return BSLS_BYTEORDER_LE_U64_TO_HOST(ret);
 #endif
 }
 
@@ -157,21 +138,16 @@ SipHashAlgorithm::SipHashAlgorithm(const char *seed)
 {
     BSLS_ASSERT(seed);
 
-#if defined(BSLS_PLATFORM_OS_SOLARIS)
-    memcpy(&d_alignment, seed, 8);
-    d_v2 ^= d_alignment;
-    d_v0 ^= d_alignment;
-
-    memcpy(&d_alignment, seed + 8, 8);
-    d_v3 ^= d_alignment;
-    d_v1 ^= d_alignment;
+#if defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64)
+    const u64 *aligned = reinterpret_cast<const u64 *>(seed);
 #else
-    const u64 *seedPtr = reinterpret_cast<const u64 *>(seed);
-    d_v3 ^= seedPtr[1];
-    d_v2 ^= seedPtr[0];
-    d_v1 ^= seedPtr[1];
-    d_v0 ^= seedPtr[0];
+    u64 aligned[2];
+    memcpy(&aligned, seed, sizeof(aligned));
 #endif
+    d_v0 ^= aligned[0];
+    d_v1 ^= aligned[1];
+    d_v2 ^= aligned[0];
+    d_v3 ^= aligned[1];
 }
 
 void

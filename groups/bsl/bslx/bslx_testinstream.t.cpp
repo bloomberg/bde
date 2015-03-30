@@ -1,26 +1,29 @@
 // bslx_testinstream.t.cpp                                            -*-C++-*-
 #include <bslx_testinstream.h>
-
 #include <bslx_testoutstream.h>                 // for testing only
+
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstdio.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
+#include <bsl_sstream.h>
 #include <bsl_string.h>
-#include <bsl_strstream.h>
 
 using namespace BloombergLP;
 using namespace bsl;
 using namespace bslx;
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
 // We are testing a "test" implementation of the BDEX unexternalization
@@ -42,17 +45,11 @@ using namespace bslx;
 // goal by configuring test input stream objects with varying input limit
 // values and invoke each input method repeatedly to ensure that exceptions are
 // thrown when expected.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 3] TestInStream();
-// [ 3] TestInStream(const char *buffer, int numBytes);
+// [ 3] TestInStream(const char *buffer, bsl::size_t numBytes);
 // [ 3] TestInStream(const bslstl::StringRef& srcData);
 // [ 3] ~TestInStream();
-// [ 3] setQuiet(int flag);
-// [27] setInputLimit(int limit);
-// [26] seek(int offset);
-// [26] void reset();
-// [28] void reset(const char *buffer, int numBytes);
-// [28] void reset(const bslstl::StringRef& srcData);
 // [29] getLength(int& variable);
 // [29] getVersion(int& variable);
 // [13] getInt64(bsls::Types::Int64& variable);
@@ -97,29 +94,35 @@ using namespace bslx;
 // [25] getArrayFloat64(double *variables, int numVariables);
 // [24] getArrayFloat32(float *variables, int numVariables);
 // [ 3] void invalidate();
+// [26] void reset();
+// [28] void reset(const char *buffer, bsl::size_t numBytes);
+// [28] void reset(const bslstl::StringRef& srcData);
+// [27] setInputLimit(int limit);
+// [ 3] setQuiet(int flag);
+// [26] seek(bsl::size_t offset);
 // [ 4] operator const void *() const;
-// [ 4] bool isValid() const;
-// [ 4] bool isEmpty() const;
-// [ 4] int length() const;
-// [ 4] int cursor() const;
-// [ 3] bool isQuiet() const;
+// [ 4] bsl::size_t cursor() const;
 // [27] int inputLimit() const;
+// [ 4] bool isEmpty() const;
+// [ 4] bool isValid() const;
+// [ 3] bool isQuiet() const;
+// [ 4] bsl::size_t length() const;
 //
 // [ 5] ostream& operator<<(ostream& stream, const TestInStream& obj);
 // [31] TestInStream& operator>>(TestInStream&, TYPE& value);
 // [32] BSLX_TESTINSTREAM_EXCEPTIONTEST_BEGIN(BSLX_TESTINSTREAM)
 // [32] BSLX_TESTINSTREAM_EXCEPTIONTEST_END
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [33] USAGE TEST
 // [ 1] BREATHING TEST
 // [ 2] int g(Out* o, const char* spec);
 // [27] Ensure every input method correctly modifies the input limit and throws
 //      an exception when the input limit is exceeded.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-//=============================================================================
+// ============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace {
 
@@ -136,9 +139,9 @@ void aSsErT(int c, const char *s, int i)
 
 }  // close unnamed namespace
 
-//=============================================================================
+// ============================================================================
 //                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
@@ -168,9 +171,24 @@ void aSsErT(int c, const char *s, int i)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
-//=============================================================================
+// ============================================================================
+//                      HELPER CLASSES AND FUNCTIONS
+// ----------------------------------------------------------------------------
+
+namespace BloombergLP {
+namespace bslx {
+
+void debugprint(const TestInStream& object)
+{
+    bsl::cout << object;
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+// ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 #define INT8_FL   "\xe0"
 #define INT8_BYTE "e0"
@@ -179,7 +197,7 @@ typedef TestInStream Obj;
 typedef TestOutStream Out;
 typedef TypeCode FC;
 
-const int SERIALIZATION_VERSION = 20131127;
+const int VERSION_SELECTOR = 20131127;
 const int SIZEOF_INT64   = 8;
 const int SIZEOF_INT56   = 7;
 const int SIZEOF_INT48   = 6;
@@ -259,9 +277,9 @@ struct InputLimitTestTable {
 // static int globalVerbose;
 static int globalVeryVerbose;
 
-//=============================================================================
+// ============================================================================
 //                    GENERATOR FUNCTION 'g' FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // The following function interprets the given 'spec' in order from left to
 // right to configure a 'bslx::TestOutStream' object according to a custom
 // language.  The language consists of letters in the ranges [A-T] and [a-t],
@@ -346,7 +364,7 @@ static int globalVeryVerbose;
 //              first three elements of 'VG' with 'putArrayInt32(VG, 3)', and
 //              'VH[1]' with 'putUint32'
 //
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int g(Out *o, const char *spec) {
     // int verbose = globalVerbose;
@@ -443,11 +461,11 @@ int g(Out *o, const char *spec) {
     return 1;
 }
 
-//=============================================================================
+// ============================================================================
 //                    FUNCTION 'testGetArray' FOR TESTING
-//-----------------------------------------------------------------------------
-// The function 'testGetArray' is a generic, templatized function to test array
-// input methods of various data types.  The function accepts an array of
+// ----------------------------------------------------------------------------
+// The function 'testGetArray' is a generic, parameterized function to test
+// array input methods of various data types.  The function accepts an array of
 // vectors having the structure defined by 'ArrayTestTable' (see above) as its
 // test data.  It iterates over the vectors in the array and performs an
 // independent test for each vector.  In each test, it first generates a test
@@ -468,7 +486,7 @@ int g(Out *o, const char *spec) {
 // element values of the input array is verified to be unchanged, and that the
 // stream becomes invalid.  Note that error messages from the stream object is
 // displayed only in "veryVerbose" mode.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 template <class ElemType, class FuncPtr>
 void testGetArray(const ArrayTestTable *data,
@@ -493,7 +511,7 @@ void testGetArray(const ArrayTestTable *data,
             cout << "\tSPEC : \"" <<  spec << '"' << endl;
         }
 
-        Out o(SERIALIZATION_VERSION);
+        Out o(VERSION_SELECTOR);
         int res = g(&o, spec);
         LOOP2_ASSERT(line, i, 1 == res);
         Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -543,7 +561,9 @@ void testGetArray(const ArrayTestTable *data,
         ElemType data[SIZE] = { 1, 1, 1 };    // array of original values
         ElemType arr[SIZE]  = { 0, 0, 0 };    // array of read values
 
-        Obj mX((const char *)data, sizeof data);  const Obj& X = mX;
+        Obj        mX(reinterpret_cast<const char *>(data), sizeof data);
+        const Obj& X = mX;
+
         mX.setQuiet(true);
         mX.invalidate();
         (mX.*getArrayFunc)(arr, SIZE);
@@ -558,22 +578,22 @@ void testGetArray(const ArrayTestTable *data,
         const int SIZE = 5;                   // temporary array size
         ElemType arr[SIZE];                   // array of read values
         {
-            Obj mX((const char *)arr, sizeof arr);
+            Obj mX(reinterpret_cast<const char *>(arr), sizeof arr);
             mX.setQuiet(true);
             ASSERT_FAIL((mX.*getArrayFunc)(0, 0));
         }
         {
-            Obj mX((const char *)arr, sizeof arr);
+            Obj mX(reinterpret_cast<const char *>(arr), sizeof arr);
             mX.setQuiet(true);
             ASSERT_FAIL((mX.*getArrayFunc)(arr, -1));
         }
         {
-            Obj mX((const char *)arr, sizeof arr);
+            Obj mX(reinterpret_cast<const char *>(arr), sizeof arr);
             mX.setQuiet(true);
             ASSERT_PASS((mX.*getArrayFunc)(arr, 0));
         }
         {
-            Obj mX((const char *)arr, sizeof arr);
+            Obj mX(reinterpret_cast<const char *>(arr), sizeof arr);
             mX.setQuiet(true);
             ASSERT_PASS((mX.*getArrayFunc)(arr, 1));
         }
@@ -581,10 +601,10 @@ void testGetArray(const ArrayTestTable *data,
 
 }
 
-//=============================================================================
+// ============================================================================
 //                    FUNCTION 'testGetScalar' FOR TESTING
-//-----------------------------------------------------------------------------
-// The function 'testGetScalar' is a generic, templatized function to test
+// ----------------------------------------------------------------------------
+// The function 'testGetScalar' is a generic, parameterized function to test
 // scalar input methods of various data types.  The function accepts an array
 // of vectors having the structure defined by 'ScalarTestTable' (see above) as
 // its test data.  It iterates over the vectors in the array and performs an
@@ -601,7 +621,7 @@ void testGetArray(const ArrayTestTable *data,
 // the invalid data, the value of the input variable is verified to be
 // unchanged, and that the stream becomes invalid.  Note that error messages
 // from the stream object is displayed only in "veryVerbose" mode.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 template <class ElemType, class FuncPtr>
 void testGetScalar(const ScalarTestTable<ElemType> *data,
@@ -623,7 +643,7 @@ void testGetScalar(const ScalarTestTable<ElemType> *data,
         if (veryVerbose) {
             cout << "\tSPEC : \"" <<  spec << '"' << endl;
         }
-        Out o(SERIALIZATION_VERSION);
+        Out o(VERSION_SELECTOR);
         int res = g(&o, spec);
         LOOP2_ASSERT(line, i, 1 == res);
         Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -668,7 +688,9 @@ void testGetScalar(const ScalarTestTable<ElemType> *data,
         ElemType data = 1;
         ElemType val = 0;
 
-        Obj mX((const char *)&data, sizeof data);  const Obj& X = mX;
+        Obj        mX(reinterpret_cast<const char *>(&data), sizeof data);
+        const Obj& X = mX;
+
         mX.setQuiet(true);
         mX.invalidate();
         (mX.*getFunc)(val);
@@ -677,11 +699,11 @@ void testGetScalar(const ScalarTestTable<ElemType> *data,
     }
 }
 
-//=============================================================================
+// ============================================================================
 //                FUNCTION 'testGetArrayInputLimit' FOR TESTING
-//-----------------------------------------------------------------------------
-// The function 'testGetArrayInputLimit' is a generic, templatized function to
-// test the behavior of array input methods with varying stream input limit
+// ----------------------------------------------------------------------------
+// The function 'testGetArrayInputLimit' is a generic, parameterized function
+// to test the behavior of array input methods with varying stream input limit
 // values.  The function accepts as its test data an array of vectors having
 // the structure defined by 'InputLimitTestTable' (see above) and performs an
 // independent test for each vector.  In each test, a test input stream is
@@ -697,7 +719,7 @@ void testGetScalar(const ScalarTestTable<ElemType> *data,
 // non-negative input limit has been exceeded and an exception has been thrown,
 // subsequent input method invocations do not throw unless the input limit is
 // updated with a non-negative value.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 template <class ElemType, class FuncPtr>
 void testGetArrayInputLimit(const InputLimitTestTable *data,
@@ -724,7 +746,7 @@ void testGetArrayInputLimit(const InputLimitTestTable *data,
     const int SIZE = 100;
     ElemType array[SIZE];
 
-    Out o(SERIALIZATION_VERSION);
+    Out o(VERSION_SELECTOR);
     int res = g(&o, spec);    ASSERT(res);
 
     {
@@ -784,11 +806,11 @@ void testGetArrayInputLimit(const InputLimitTestTable *data,
 #endif
 }
 
-//=============================================================================
+// ============================================================================
 //               FUNCTION 'testGetScalarInputLimit' FOR TESTING
-//-----------------------------------------------------------------------------
-// The function 'testGetScalarInputLimit' is a generic, templatized function to
-// test the behavior of scalar input methods with varying stream input limit
+// ----------------------------------------------------------------------------
+// The function 'testGetScalarInputLimit' is a generic, parameterized function
+// to test the behavior of scalar input methods with varying stream input limit
 // values.  The function accepts as its test data an array of vectors having
 // the structure defined by 'InputLimitTestTable' (see above) and performs an
 // independent test for each vector.  In each test, a test input stream is
@@ -804,7 +826,7 @@ void testGetArrayInputLimit(const InputLimitTestTable *data,
 // non-negative input limit has been exceeded and an exception has been thrown,
 // subsequent input method invocations do not throw unless the input limit is
 // updated with a non-negative value.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 template <class ElemType>
 void testGetScalarInputLimit(const InputLimitTestTable        *data,
@@ -828,7 +850,7 @@ void testGetScalarInputLimit(const InputLimitTestTable        *data,
 
     ElemType value;
 
-    Out o(SERIALIZATION_VERSION);
+    Out o(VERSION_SELECTOR);
     int res = g(&o, spec);    ASSERT(res);
 
     {
@@ -887,12 +909,12 @@ void testGetScalarInputLimit(const InputLimitTestTable        *data,
 #endif
 }
 
-//=============================================================================
+// ============================================================================
 //               STRUCT 'ForEachIn<LIST, N>' FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template <typename LIST, int N = LIST::LENGTH>
 struct ForEachIn {
-    // The struct 'ForEachIn' is a generic, templatized structure that
+    // The struct 'ForEachIn' is a generic, parameterized structure that
     // implements meta-function 'testInputLimit'.  The function
     // recursively instantiates 'ForEachIn<LIST, N-1>' unless N=0.
     // For the i-th instantiation, the function calls the 'test' method of
@@ -919,9 +941,9 @@ struct ForEachIn {
     }
 };
 
-//=============================================================================
+// ============================================================================
 //               STRUCT 'ForEachIn<LIST, 0>' FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template <typename LIST>
 struct ForEachIn<LIST, 0> {
     // Partial specialization of struct 'ForEachIn' for N = 0
@@ -933,14 +955,14 @@ struct ForEachIn<LIST, 0> {
     }
 };
 
-//=============================================================================
+// ============================================================================
 //               STRUCT 'GetScalar' FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template <typename ElemType,
           Obj& (Obj::*getFunc)(ElemType&),
           TypeCode::Enum tc>
 struct GetScalar {
-    // The struct 'GetScalar' is a generic, templatized structure that
+    // The struct 'GetScalar' is a generic, parameterized structure that
     // helps to store an address of 'TestInStream' access function for
     // the specified type 'ElemType' and corresponding type code type
     // 'tc'.  The struct serves as an item of a type list in INPUT
@@ -955,15 +977,15 @@ struct GetScalar {
     }
 };
 
-//=============================================================================
+// ============================================================================
 //               STRUCT 'GetArray' FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 template <typename ElemType,
           Obj& (Obj::*getFunc)(ElemType*, int),
           TypeCode::Enum tc,
           int numArrayElements>
 struct GetArray {
-    // The struct 'GetArray' is a generic, templatized structure that
+    // The struct 'GetArray' is a generic, parameterized structure that
     // helps to store an address of 'TestInStream' access function for
     // the specified type 'ElemType', corresponding type code type
     // 'tc' and 'numArrayElements' value.  The struct serves as an item
@@ -984,9 +1006,9 @@ struct GetArray {
     }
 };
 
-//=============================================================================
+// ============================================================================
 //                                 USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 ///Usage
 ///-----
@@ -1020,9 +1042,14 @@ struct GetArray {
 
       public:
         // CLASS METHODS
-        static int maxSupportedBdexVersion(int serializationVersion);
-            // Return the 'version' to be used with the 'bdexStreamOut' method
-            // corresponding to the specified 'serializationVersion'.  See the
+        static int maxSupportedBdexVersion(int versionSelector);
+            // Return the maximum valid BDEX format version, as indicated by
+            // the specified 'versionSelector', to be passed to the
+            // 'bdexStreamOut' method.  Note that it is highly recommended that
+            // 'versionSelector' be formatted as "YYYYMMDD", a date
+            // representation.  Also note that 'versionSelector' should be a
+            // *compile*-time-chosen value that selects a format version
+            // supported by both externalizer and unexternalizer.  See the
             // 'bslx' package-level documentation for more information on BDEX
             // streaming of value-semantic types and containers.
 
@@ -1052,7 +1079,7 @@ struct GetArray {
             // 'stream' using the specified 'version' format, and return a
             // reference to 'stream'.  If 'stream' is initially invalid, this
             // operation has no effect.  If 'version' is not supported, this
-            // object is unaltered and 'stream' is invalidated but otherwise
+            // object is unaltered and 'stream' is invalidated, but otherwise
             // unmodified.  If 'version' is supported but 'stream' becomes
             // invalid during this operation, this object has an undefined, but
             // valid, state.  Note that no version is read from 'stream'.  See
@@ -1073,14 +1100,14 @@ struct GetArray {
 
         template <class STREAM>
         STREAM& bdexStreamOut(STREAM& stream, int version) const;
-            // Write this value to the specified output 'stream' using the
-            // specified 'version' format, and return a reference to 'stream'.
-            // If 'stream' is initially invalid, this operation has no effect.
-            // If 'version' is not supported, 'stream' is invalidated but
-            // otherwise unmodified.  Note that 'version' is not written to
-            // 'stream'.  See the 'bslx' package-level documentation for more
-            // information on BDEX streaming of value-semantic types and
-            // containers.
+            // Write the value of this object, using the specified 'version'
+            // format, to the specified output 'stream', and return a reference
+            // to 'stream'.  If 'stream' is initially invalid, this operation
+            // has no effect.  If 'version' is not supported, 'stream' is
+            // invalidated, but otherwise unmodified.  Note that 'version' is
+            // not written to 'stream'.  See the 'bslx' package-level
+            // documentation for more information on BDEX streaming of
+            // value-semantic types and containers.
 
         //...
 
@@ -1107,7 +1134,7 @@ struct GetArray {
 
     // CLASS METHODS
     inline
-    int MyPerson::maxSupportedBdexVersion(int /* serializationVersion */) {
+    int MyPerson::maxSupportedBdexVersion(int /* versionSelector */) {
         return 1;
     }
 
@@ -1214,9 +1241,9 @@ struct GetArray {
        return !(lhs == rhs);
    }
 
-//=============================================================================
+// ============================================================================
 //                                MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
     int test = argc > 1 ? atoi(argv[1]) : 0;
@@ -1329,7 +1356,7 @@ int main(int argc, char *argv[]) {
                           << "================" << endl;
 
         for (int requiredInputs = 1; requiredInputs <= 10; ++requiredInputs) {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             for (int i = 0; i < requiredInputs; ++i) {
               o.putInt32(0);
             }
@@ -1344,7 +1371,7 @@ int main(int argc, char *argv[]) {
                 }
             } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
 
-#if BDE_BUILD_TARGET_EXC
+#ifdef BDE_BUILD_TARGET_EXC
             // NOTE: sum(i) for i = 1 .. n == i * (i + 1) / 2 and for the above
             // we want i + sum(i)_1_n (the number of inputs for the successful
             // pass plus all the failure inputs)
@@ -1390,7 +1417,7 @@ int main(int argc, char *argv[]) {
         {
             char initial = 'a';
             char value = 'b';
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o << initial;
             Obj mX(o.data(), o.length());
             mX >> value;
@@ -1399,7 +1426,7 @@ int main(int argc, char *argv[]) {
         {
             double initial = 7.0;
             double value = 1.0;
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o << initial;
             Obj mX(o.data(), o.length());
             mX >> value;
@@ -1410,7 +1437,7 @@ int main(int argc, char *argv[]) {
             bsl::vector<int> value;
             value.push_back(3);
             for (int i = 0; i < 5; ++i) {
-                Out o(SERIALIZATION_VERSION);
+                Out o(VERSION_SELECTOR);
                 o << initial;
                 Obj mX(o.data(), o.length());
                 mX >> value;
@@ -1425,7 +1452,7 @@ int main(int argc, char *argv[]) {
             bsl::string value2 = "bye";
             short initial3 = 2;
             short value3 = 1;
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o << initial1 << initial2 << initial3;
             Obj mX(o.data(), o.length());
             mX >> value1 >> value2 >> value3;
@@ -1463,7 +1490,7 @@ int main(int argc, char *argv[]) {
             cout << "\nTesting 'getString(bsl::string&)'." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putString(bsl::string("alpha"));    o.putInt8(0xFF);
             o.putString(bsl::string("beta")) ;    o.putInt8(0xFE);
             o.putString(bsl::string("gamma"));    o.putInt8(0xFD);
@@ -1483,7 +1510,7 @@ int main(int argc, char *argv[]) {
             ASSERT(X.cursor() == X.length());
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putString(bsl::string("alpha"));    o.putInt8(0xFF);
             o.makeNextInvalid();
             o.putString(bsl::string("beta")) ;    o.putInt8(0xFE);
@@ -1537,7 +1564,7 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << "\nTesting 'getLength'." << endl;
         {
             for (int len = 0; len <= 512; ++len) {
-                TestOutStream out(SERIALIZATION_VERSION);
+                TestOutStream out(VERSION_SELECTOR);
                 out.putVersion(1);
                 out.putLength(len);
                 TestInStream in(out.data(), out.length());
@@ -1613,7 +1640,7 @@ int main(int argc, char *argv[]) {
         //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
-        //   void reset(const char *buffer, int numBytes);
+        //   void reset(const char *buffer, bsl::size_t numBytes);
         //   void reset(const bslstl::StringRef& srcData);
         // --------------------------------------------------------------------
 
@@ -1622,7 +1649,7 @@ int main(int argc, char *argv[]) {
                           << "===============" << endl;
 
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putString(bsl::string("alpha"));
             o.putString(bsl::string("beta"));
             o.putString(bsl::string("gamma"));
@@ -1643,7 +1670,7 @@ int main(int argc, char *argv[]) {
         }
 
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putString(bsl::string("alpha"));
             o.putString(bsl::string("beta"));
             o.putString(bsl::string("gamma"));
@@ -1656,8 +1683,8 @@ int main(int argc, char *argv[]) {
             ASSERT(0 != X.cursor());
             ASSERT(false == X.isValid());
 
-            const char *buffer = "abc";
-            const int LEN = 3;
+            const char        *buffer = "abc";
+            const bsl::size_t  LEN = 3;
             mX.reset(buffer, LEN);
             ASSERT(buffer == X.data());
             ASSERT(0 == X.cursor());
@@ -1666,7 +1693,7 @@ int main(int argc, char *argv[]) {
         }
 
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putString(bsl::string("alpha"));
             o.putString(bsl::string("beta"));
             o.putString(bsl::string("gamma"));
@@ -1679,8 +1706,8 @@ int main(int argc, char *argv[]) {
             ASSERT(0 != X.cursor());
             ASSERT(false == X.isValid());
 
-            const char *buffer = "abc";
-            const int LEN = 3;
+            const char        *buffer = "abc";
+            const bsl::size_t  LEN = 3;
             bslstl::StringRef stringRef(buffer, LEN);
             mX.reset(stringRef);
             ASSERT(buffer == X.data());
@@ -1692,18 +1719,13 @@ int main(int argc, char *argv[]) {
         if (verbose)
             cout << "\nNegative Testing." << endl;
         {
-            char DATA[16];
-            Obj mX;
-
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            ASSERT_SAFE_FAIL(mX.reset(DATA, -1));
-            ASSERT_SAFE_PASS(mX.reset(DATA, 0));
-            ASSERT_SAFE_PASS(mX.reset(DATA, 1));
+            Obj mX;
             ASSERT_SAFE_PASS(mX.reset(0, 0));
+            ASSERT_SAFE_FAIL(mX.reset(0, 1));
         }
-
       } break;
       case 27: {
         // --------------------------------------------------------------------
@@ -1841,7 +1863,7 @@ int main(int argc, char *argv[]) {
 
 #ifdef BDE_BUILD_TARGET_EXC
         { // 'getLength'
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putLength(1);
             o.putLength(2);
             o.putLength(3);
@@ -1883,7 +1905,7 @@ int main(int argc, char *argv[]) {
             }
         }
         { // 'getVersion'
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putVersion(1);
             o.putVersion(2);
             o.putVersion(3);
@@ -1925,7 +1947,7 @@ int main(int argc, char *argv[]) {
             }
         }
         { // 'getString'
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putString(bsl::string("aaa"));
             o.putString(bsl::string("ababa"));
             o.putString(bsl::string("abcbabcba"));
@@ -2012,7 +2034,7 @@ int main(int argc, char *argv[]) {
         //:   (C-2)
         //
         // Testing:
-        //   void seek(int offset);
+        //   void seek(bsl::size_t offset);
         //   void reset();
         // --------------------------------------------------------------------
 
@@ -2022,7 +2044,7 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << "\nTesting 'seek' and 'reset'." << endl;
         {
             const char *SPEC = "k10 k10 k10 k10"; // fairly long stream
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             int res = g(&o, SPEC);          ASSERT( 1 == res);
             Obj mX(o.data(), o.length());  const Obj& X = mX;
             ASSERT( 0 == X.cursor());
@@ -4380,7 +4402,7 @@ int main(int argc, char *argv[]) {
         //: 1 Method produces expected output format.
         //
         // Plan:
-        //: 1 For a small set of objects, use 'ostrstream' to write the
+        //: 1 For a small set of objects, use 'ostringstream' to write the
         //:   object's value to a string buffer and then compare to expected
         //:   output format.  (C-1)
         //
@@ -4401,35 +4423,57 @@ int main(int argc, char *argv[]) {
         {
             Obj mX;  const Obj& X = mX;
             const char *EXPECTED = "";
-            char buf[SIZE];
-            memcpy(buf, CTRL, SIZE);
-            ostrstream out(buf, SIZE);    out << X << ends;
+
+            bslma::TestAllocator allocator;
+
+            ostringstream out(bsl::string(CTRL, SIZE, &allocator), &allocator);
+            out << X << ends;
+
+            bsl::string buffer(&allocator);
+            {
+                bslma::DefaultAllocatorGuard allocatorGuard(&allocator);
+
+                buffer = out.str();
+            }
+            const char *RESULT = buffer.c_str();
+
             const int LEN = static_cast<int>(strlen(EXPECTED)) + 1;
             if (veryVerbose) cout << "\tEXPECTED : " << EXPECTED << endl
-                                  << "\tACTUAL : "   << buf << endl;
-            ASSERT(XX == buf[SIZE-1]); // check for overrun
-            ASSERT(0 == memcmp(buf, EXPECTED, LEN));
-            ASSERT(0 == memcmp(buf + LEN, CTRL + LEN, SIZE - LEN));
+                                  << "\tACTUAL : "   << RESULT   << endl;
+            ASSERT(XX == RESULT[SIZE-1]); // check for overrun
+            ASSERT(0 == memcmp(RESULT, EXPECTED, LEN));
+            ASSERT(0 == memcmp(RESULT + LEN, CTRL + LEN, SIZE - LEN));
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt8(0);  o.putInt8(1);  o.putInt8(2);  o.putInt8(3);
             Obj mX(o.data(), o.length());  const Obj& X = mX;
             const char *EXPECTED =
                 "\n0000\t" INT8_BYTE " 00 " INT8_BYTE " 01"
                        " " INT8_BYTE " 02 " INT8_BYTE " 03";
-            char buf[SIZE];
-            memcpy(buf, CTRL, SIZE);
-            ostrstream out(buf, SIZE);    out << X << ends;
+
+            bslma::TestAllocator allocator;
+
+            ostringstream out(bsl::string(CTRL, SIZE, &allocator), &allocator);
+            out << X << ends;
+
+            bsl::string buffer(&allocator);
+            {
+                bslma::DefaultAllocatorGuard allocatorGuard(&allocator);
+
+                buffer = out.str();
+            }
+            const char *RESULT = buffer.c_str();
+
             const int LEN = static_cast<int>(strlen(EXPECTED)) + 1;
             if (veryVerbose) cout << "\tEXPECTED : " << EXPECTED << endl
-                                  << "\tACTUAL : "   << buf << endl;
-            ASSERT(XX == buf[SIZE-1]); // check for overrun
-            ASSERT(0 == memcmp(buf, EXPECTED, LEN));
-            ASSERT(0 == memcmp(buf + LEN, CTRL + LEN, SIZE - LEN));
+                                  << "\tACTUAL : "   << RESULT   << endl;
+            ASSERT(XX == RESULT[SIZE-1]); // check for overrun
+            ASSERT(0 == memcmp(RESULT, EXPECTED, LEN));
+            ASSERT(0 == memcmp(RESULT + LEN, CTRL + LEN, SIZE - LEN));
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt8(0);  o.putInt8(1);  o.putInt8(2);  o.putInt8(3);
             o.putInt8(4);  o.putInt8(5);  o.putInt8(6);  o.putInt8(7);
             o.putInt8(8);  o.putInt8(9);  o.putInt8(10); o.putInt8(11);
@@ -4441,15 +4485,26 @@ int main(int argc, char *argv[]) {
                        " " INT8_BYTE " 06 " INT8_BYTE " 07"
                 "\n0010\t" INT8_BYTE " 08 " INT8_BYTE " 09"
                        " " INT8_BYTE " 0a " INT8_BYTE " 0b";
-            char buf[SIZE];
-            memcpy(buf, CTRL, SIZE);
-            ostrstream out(buf, SIZE);    out << X << ends;
+
+            bslma::TestAllocator allocator;
+
+            ostringstream out(bsl::string(CTRL, SIZE, &allocator), &allocator);
+            out << X << ends;
+
+            bsl::string buffer(&allocator);
+            {
+                bslma::DefaultAllocatorGuard allocatorGuard(&allocator);
+
+                buffer = out.str();
+            }
+            const char *RESULT = buffer.c_str();
+
             const int LEN = static_cast<int>(strlen(EXPECTED)) + 1;
             if (veryVerbose) cout << "\tEXPECTED : " << EXPECTED << endl
-                                  << "\tACTUAL : "   << buf << endl;
-            ASSERT(XX == buf[SIZE-1]); // check for overrun
-            ASSERT(0 == memcmp(buf, EXPECTED, LEN));
-            ASSERT(0 == memcmp(buf + LEN, CTRL + LEN, SIZE - LEN));
+                                  << "\tACTUAL : "   << RESULT   << endl;
+            ASSERT(XX == RESULT[SIZE-1]); // check for overrun
+            ASSERT(0 == memcmp(RESULT, EXPECTED, LEN));
+            ASSERT(0 == memcmp(RESULT + LEN, CTRL + LEN, SIZE - LEN));
         }
       } break;
       case 4: {
@@ -4466,10 +4521,10 @@ int main(int argc, char *argv[]) {
         //
         // Testing
         //   operator const void *() const;
+        //   bsl::size_t cursor() const;
         //   bool isValid() const;
         //   bool isEmpty() const;
-        //   int length() const;
-        //   int cursor() const;
+        //   bsl::size_t length() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "BASIC ACCESSORS TEST" << endl
@@ -4484,11 +4539,11 @@ int main(int argc, char *argv[]) {
             int j;
             LOOP_ASSERT(i, X);
 
-            Out o(SERIALIZATION_VERSION);    o.putInt8(VERSION);
+            Out o(VERSION_SELECTOR);    o.putInt8(VERSION);
             for (j = 0; j < i;  ++j) o.putInt8(j);
 
             Obj mX2(o.data(), o.length());  const Obj& X2 = mX2;
-            int len = X2.length();
+            bsl::size_t len = X2.length();
             LOOP_ASSERT(i, len != 0);
             if (veryVerbose) { P(X2) }
             LOOP_ASSERT(i, X2 && X2.isValid());
@@ -4521,7 +4576,7 @@ int main(int argc, char *argv[]) {
             LOOP_ASSERT(i, X.cursor() == 0);
 
             // test objects of variable lengths
-            Out o(SERIALIZATION_VERSION);    o.putInt8(VERSION);
+            Out o(VERSION_SELECTOR);    o.putInt8(VERSION);
             for (j = 0; j < i;  ++j) o.putInt8(j);
 
             Obj mX2(o.data(), o.length());  const Obj& X2 = mX2;
@@ -4535,7 +4590,8 @@ int main(int argc, char *argv[]) {
             char c;
             mX2.getInt8(c);  // get version
             for (j = 0; j < i; ++j) {
-                const int EXP = VERSION_LEN + (SIZEOF_CODE + SIZEOF_INT8) * j;
+                const bsl::size_t EXP =
+                                 VERSION_LEN + (SIZEOF_CODE + SIZEOF_INT8) * j;
                 LOOP2_ASSERT(i, j, X2.cursor() == EXP);
                 mX2.getInt8(c);
             }
@@ -4575,7 +4631,7 @@ int main(int argc, char *argv[]) {
         //
         // Testing
         //   TestInStream();
-        //   TestInStream(const char *buffer, int numBytes);
+        //   TestInStream(const char *buffer, bsl::size_t numBytes);
         //   TestInStream(const bslstl::StringRef& srcData);
         //   ~TestInStream();
         //   setQuiet(int flag);
@@ -4634,7 +4690,7 @@ int main(int argc, char *argv[]) {
         {
             // Test constructor initialized with a 'char *'.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt8(1);
             o.putInt8(2);
             o.putInt8(3);
@@ -4656,13 +4712,13 @@ int main(int argc, char *argv[]) {
         {
             // Test constructor initialized with a 'bslstl::StringRef'.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt8(5);
             o.putInt8(6);
             o.putInt8(7);
             o.putInt8(8);
 
-            bslstl::StringRef srcData(o.data(), o.length());
+            bslstl::StringRef srcData(o.data(), static_cast<int>(o.length()));
 
             Obj mX(srcData);  const Obj& X = mX;
             ASSERT(X);
@@ -4689,7 +4745,7 @@ int main(int argc, char *argv[]) {
             LOOP_ASSERT(i, !X);
 
             // test objects of variable lengths
-            Out o(SERIALIZATION_VERSION);    o.putInt8(VERSION);
+            Out o(VERSION_SELECTOR);    o.putInt8(VERSION);
             for (int j = 0; j < i;  ++j) o.putInt8(j);
 
             Obj mX2(o.data(), o.length());  const Obj& X2 = mX2;
@@ -4713,18 +4769,16 @@ int main(int argc, char *argv[]) {
             ASSERT(0 == X.isQuiet());
         }
 
+        // --------------------------------------------------------------------
+
         if (verbose)
             cout << "\nNegative Testing." << endl;
         {
-            char DATA[16];
-
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            ASSERT_SAFE_FAIL(Obj mX(DATA, -1));
-            ASSERT_SAFE_PASS(Obj mX(DATA, 0));
-            ASSERT_SAFE_PASS(Obj mX(DATA, 1));
             ASSERT_SAFE_PASS(Obj mX(0, 0));
+            ASSERT_SAFE_FAIL(Obj mX(0, 1));
         }
       } break;
       case 2: {
@@ -4756,9 +4810,9 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << "\nTesting empty spec." << endl;
         {
             const char *SPEC = "";
-            const Out X(SERIALIZATION_VERSION);
+            const Out X(VERSION_SELECTOR);
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             int res = g(&o, SPEC);
             if (veryVerbose) { P(o) }
             ASSERT(1 == res);
@@ -4771,12 +4825,12 @@ int main(int argc, char *argv[]) {
         {
             const char *SPEC = "A012";
             if (veryVerbose) cout << "\tSPEC : \"" << SPEC << '"' << endl;
-            Out mX(SERIALIZATION_VERSION);    const Out& X = mX;
+            Out mX(VERSION_SELECTOR);    const Out& X = mX;
             mX.putInt8(VA[0]);
             mX.putInt8(VA[1]);
             mX.putInt8(VA[2]);
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             int res = g(&o, SPEC);
             if (veryVerbose) { P(o); }
             ASSERT(1 == res);
@@ -4789,13 +4843,13 @@ int main(int argc, char *argv[]) {
         {
             const char *SPEC = "  A01 \t 2  A3 \t";
             if (veryVerbose) cout << "\tSPEC : \"" << SPEC << '"' << endl;
-            Out mX(SERIALIZATION_VERSION);    const Out& X = mX;
+            Out mX(VERSION_SELECTOR);    const Out& X = mX;
             mX.putInt8(VA[0]);
             mX.putInt8(VA[1]);
             mX.putInt8(VA[2]);
             mX.putInt8(VA[3]);
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             int res = g(&o, SPEC);
             if (veryVerbose) { P(o); }
             ASSERT(1 == res);
@@ -4808,7 +4862,7 @@ int main(int argc, char *argv[]) {
         {
             const char *SPEC = "A0 B12 C0 D12 E345 F67 G8 H90 I123 J45 K6 L78";
             if (veryVerbose) cout << "\tSPEC : \"" << SPEC << '"' << endl;
-            Out mX(SERIALIZATION_VERSION);    const Out& X = mX;
+            Out mX(VERSION_SELECTOR);    const Out& X = mX;
             mX.putInt8(VA[0]);
             mX.putInt8(VB[1]);     mX.putInt8(VB[2]);
             mX.putUint8(VC[0]);
@@ -4822,7 +4876,7 @@ int main(int argc, char *argv[]) {
             mX.putFloat32(VK[6]);
             mX.putFloat64(VL[7]);  mX.putFloat64(VL[8]);
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             int res = g(&o, SPEC);
             if (veryVerbose) { P(o); }
             ASSERT(1 == res);
@@ -4840,10 +4894,10 @@ int main(int argc, char *argv[]) {
                 static char spec[10];    memset((void *) spec, 0, 10);
                 sprintf(spec, "a%d", i);
                 if (veryVerbose) cout << "\tSPEC : \"" << spec << '"' << endl;
-                Out mX(SERIALIZATION_VERSION);    const Out& X = mX;
+                Out mX(VERSION_SELECTOR);    const Out& X = mX;
                 mX.putArrayInt8(VA, i);
 
-                Out o(SERIALIZATION_VERSION);
+                Out o(VERSION_SELECTOR);
                 int res = g(&o, spec);
                 if (veryVerbose) { P(o); }
                 ASSERT(1 == res);
@@ -4855,10 +4909,10 @@ int main(int argc, char *argv[]) {
 
             const char *SPEC = "a012";
             if (veryVerbose) cout << "\tSPEC : \"" << SPEC << '"' << endl;
-            Out mX(SERIALIZATION_VERSION);    const Out& X = mX;
+            Out mX(VERSION_SELECTOR);    const Out& X = mX;
             for (i = 0; i < 3; ++i) mX.putArrayInt8(VA, i);
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             int res = g(&o, SPEC);
             if (veryVerbose) { P(o); }
             ASSERT(1 == res);
@@ -4872,7 +4926,7 @@ int main(int argc, char *argv[]) {
         {
             const char *SPEC = "a1 b2 c2 d2 e3 f4 g5 h6 i7 j8 k9 l1";
             if (veryVerbose) cout << "\tSPEC : \"" << SPEC << '"' << endl;
-            Out mX(SERIALIZATION_VERSION);    const Out& X = mX;
+            Out mX(VERSION_SELECTOR);    const Out& X = mX;
             mX.putArrayInt8(VA, 1);
             mX.putArrayInt8(VB, 2);
             mX.putArrayUint8(VC, 2);
@@ -4886,7 +4940,7 @@ int main(int argc, char *argv[]) {
             mX.putArrayFloat32(VK, 9);
             mX.putArrayFloat64(VL, 1);
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             int res = g(&o, SPEC);
             if (veryVerbose) { P(o); }
             ASSERT(1 == res);
@@ -4908,7 +4962,7 @@ int main(int argc, char *argv[]) {
             for (int i = 0; i < NUM_TEST; ++i) {
                 if (veryVerbose)
                     cout << "\tSPEC : \"" << SPEC[i] << '"' << endl;
-                Out o(SERIALIZATION_VERSION);
+                Out o(VERSION_SELECTOR);
                 int res = g(&o, SPEC[i]);
                 if (veryVerbose) { P(o); }
                 ASSERT(0 == res);
@@ -4946,7 +5000,7 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << "\nCreate object mX2 w/ an initial value."
                           << endl;
         int i;
-        Out o(SERIALIZATION_VERSION);    o.putInt8(VERSION);
+        Out o(VERSION_SELECTOR);    o.putInt8(VERSION);
         for (i = 0; i < 5; ++i) o.putInt8(i);
         Obj mX2(o.data(), o.length());  const Obj& X2 = mX2;
         if (veryVerbose) { P(X2); }

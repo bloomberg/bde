@@ -3,25 +3,27 @@
 #include <bslx_testoutstream.h>
 
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_cctype.h>
 #include <bsl_iostream.h>
-#include <bsl_strstream.h>
+#include <bsl_sstream.h>
 
 using namespace BloombergLP;
 using namespace bsl;
 using namespace bslx;
 
-//=============================================================================
+// ============================================================================
 //                              TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
 // We are testing a "test" implementation of the BDEX 'OutStream' protocol.
@@ -39,90 +41,86 @@ using namespace bslx;
 // Note that byte alignment testing is automatically performed by the property
 // that each output method inserts an odd number of "informational" bytes into
 // the stream.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 2] TestOutStream(int sV, *ba = 0);
-// [ 2] TestOutStream(int sV, int initialCapacity, *ba = 0);
+// [ 2] TestOutStream(int sV, bsl::size_t initialCapacity, *ba = 0);
 // [ 2] ~TestOutStream();
 // [ 4] void invalidate();
-// [ 2] void makeNextInvalid();
+// [ 2] makeNextInvalid();
 // [25] putLength(int length);
 // [25] putVersion(int version);
-// [ 2] void reserveCapacity(int newCapacity);
-// [ 2] void reset();
+// [ 2] reserveCapacity(bsl::size_t newCapacity);
+// [ 2] reset();
 // [12] putInt64(bsls::Types::Int64 value);
-// [12] putUint64(bsls::Types::Int64 value);
+// [12] putUint64(bsls::Types::Uint64 value);
 // [11] putInt56(bsls::Types::Int64 value);
-// [11] putUint56(bsls::Types::Int64 value);
+// [11] putUint56(bsls::Types::Uint64 value);
 // [10] putInt48(bsls::Types::Int64 value);
-// [10] putUint48(bsls::Types::Int64 value);
+// [10] putUint48(bsls::Types::Uint64 value);
 // [ 9] putInt40(bsls::Types::Int64 value);
-// [ 9] putUint40(bsls::Types::Int64 value);
+// [ 9] putUint40(bsls::Types::Uint64 value);
 // [ 8] putInt32(int value);
-// [ 8] putUint32(int value);
+// [ 8] putUint32(unsigned int value);
 // [ 7] putInt24(int value);
-// [ 7] putUint24(int value);
+// [ 7] putUint24(unsigned int value);
 // [ 6] putInt16(int value);
-// [ 6] putUint16(int value);
+// [ 6] putUint16(unsigned int value);
 // [ 2] putInt8(int value);
-// [ 2] putUint8(int value);
+// [ 2] putUint8(unsigned int value);
 // [14] putFloat64(double value);
 // [13] putFloat32(float value);
 // [26] putString(const bsl::string& value);
-// [22] putArrayInt64(const bsls::Types::Int64 *array, int numValues);
-// [22] putArrayUint64(const bsls::Types::Uint64 *array, int numValues);
-// [21] putArrayInt56(const bsls::Types::Int64 *array, int numValues);
-// [21] putArrayUint56(const bsls::Types::Uint64 *array, int numValues);
-// [20] putArrayInt48(const bsls::Types::Int64 *array, int numValues);
-// [20] putArrayUint48(const bsls::Types::Uint64 *array, int numValues);
-// [19] putArrayInt40(const bsls::Types::Int64 *array, int numValues);
-// [19] putArrayUint40(const bsls::Types::Uint64 *array, int numValues);
-// [18] putArrayInt32(const int *array, int numValues);
-// [18] putArrayUint32(const unsigned int *array, int numValues);
-// [17] putArrayInt24(const int *array, int numValues);
-// [17] putArrayUint24(const unsigned int *array, int numValues);
-// [16] putArrayInt16(const short *array, int numValues);
-// [16] putArrayUint16(const unsigned short *array, int numValues);
-// [15] putArrayInt8(const char *array, int numValues);
-// [15] putArrayInt8(const signed char *array, int numValues);
-// [15] putArrayUint8(const char *array, int numValues);
-// [15] putArrayUint8(const unsigned char *array, int numValues);
-// [24] putArrayFloat64(const double *array,int numValues);
-// [23] putArrayFloat32(const float *array, int numValues);
+// [22] putArrayInt64(const bsls::Types::Int64 *values, int numValues);
+// [22] putArrayUint64(const bsls::Types::Uint64 *values, int numValues);
+// [21] putArrayInt56(const bsls::Types::Int64 *values, int numValues);
+// [21] putArrayUint56(const bsls::Types::Uint64 *values, int numValues);
+// [20] putArrayInt48(const bsls::Types::Int64 *values, int numValues);
+// [20] putArrayUint48(const bsls::Types::Uint64 *values, int numValues);
+// [19] putArrayInt40(const bsls::Types::Int64 *values, int numValues);
+// [19] putArrayUint40(const bsls::Types::Uint64 *values, int numValues);
+// [18] putArrayInt32(const int *values, int numValues);
+// [18] putArrayUint32(const unsigned int *values, int numValues);
+// [17] putArrayInt24(const int *values, int numValues);
+// [17] putArrayUint24(const unsigned int *values, int numValues);
+// [16] putArrayInt16(const short *values, int numValues);
+// [16] putArrayUint16(const unsigned short *values, int numValues);
+// [15] putArrayInt8(const char *values, int numValues);
+// [15] putArrayInt8(const signed char *values, int numValues);
+// [15] putArrayUint8(const char *values, int numValues);
+// [15] putArrayUint8(const unsigned char *values, int numValues);
+// [24] putArrayFloat64(const double *values, int numValues);
+// [23] putArrayFloat32(const float *values, int numValues);
 // [ 4] operator const void *() const;
-// [ 3] int bdexSerializationVersion() const;
+// [ 3] int bdexVersionSelector() const;
 // [ 3] const char *data() const;
 // [ 4] bool isValid() const;
-// [ 3] int length() const;
+// [ 3] bsl::size_t length() const;
 //
 // [ 5] ostream& operator<<(ostream& stream, const TestOutStream&);
-// [27] ByteOutStream& operator<<(ByteOutStream&, const TYPE& value);
-//-----------------------------------------------------------------------------
+// [27] TestOutStream& operator<<(TestOutStream&, const TYPE& value);
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [28] USAGE
-//-----------------------------------------------------------------------------
+// [28] USAGE EXAMPLE
+// ----------------------------------------------------------------------------
 
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 
-namespace {
+static int testStatus = 0;
 
-int testStatus = 0;
-
-void aSsErT(int c, const char *s, int i)
+static void aSsErT(int c, const char *s, int i)
 {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
 
-}  // close unnamed namespace
-
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
@@ -152,9 +150,24 @@ void aSsErT(int c, const char *s, int i)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
-//=============================================================================
+// ============================================================================
+//                      HELPER CLASSES AND FUNCTIONS
+// ----------------------------------------------------------------------------
+
+namespace BloombergLP {
+namespace bslx {
+
+void debugprint(const TestOutStream& object)
+{
+    bsl::cout << object;
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+// ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // Type codes from 'bslx::TypeCode' as bytes in string representation
 #define INT8_TC    "\xe0"
@@ -187,7 +200,7 @@ void aSsErT(int c, const char *s, int i)
 typedef TestOutStream Obj;
 
 // size in bytes of each fundamental type
-const int SERIALIZATION_VERSION = 20131127;
+const int VERSION_SELECTOR = 20131127;
 const int SIZEOF_INT64   = 8;
 const int SIZEOF_INT56   = 7;
 const int SIZEOF_INT48   = 6;
@@ -201,9 +214,9 @@ const int SIZEOF_FLOAT32 = 4;
 const int SIZEOF_CODE    = SIZEOF_INT8;
 const int SIZEOF_ARRLEN  = SIZEOF_INT32;
 
-//=============================================================================
-//                      MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                                MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -243,8 +256,8 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "Testing Usage Examples" << endl
-                                  << "======================" << endl;
+        if (verbose) cout << endl << "USAGE EXAMPLE" << endl
+                                  << "=============" << endl;
 
 ///Usage
 ///-----
@@ -261,7 +274,7 @@ int main(int argc, char *argv[])
 // to 'stdout'.
 //
 // First, we create a 'bslx::TestOutStream' with an arbitrary value for its
-// 'serializationVersion' and externalize some values:
+// 'versionSelector' and externalize some values:
 //..
     bslx::TestOutStream outStream(20131127);
     outStream.putInt32(1);
@@ -271,8 +284,8 @@ int main(int argc, char *argv[])
 //..
 // Then, we compare the contents of the stream to the expected value:
 //..
-    const char *theChars = outStream.data();
-    int length = outStream.length();
+    const char  *theChars = outStream.data();
+    bsl::size_t  length   = outStream.length();
     ASSERT(24 == length);
     ASSERT( 0 == bsl::memcmp(theChars,
                              "\xE6\x00\x00\x00\x01\xE6\x00\x00\x00\x02\xE0"
@@ -282,7 +295,7 @@ int main(int argc, char *argv[])
 // Finally, we print the stream's contents to 'bsl::cout'.
 //..
     if (veryVerbose)
-    for (int i = 0; i < length; ++i) {
+    for (bsl::size_t i = 0; i < length; ++i) {
         if(bsl::isalnum(static_cast<unsigned char>(theChars[i]))) {
             bsl::cout << "nextByte (char): " << theChars[i] << bsl::endl;
         }
@@ -351,8 +364,10 @@ int main(int argc, char *argv[])
 
         {
             char value = 'a';
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
-            Obj expected(SERIALIZATION_VERSION);
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
+
+            Obj expected(VERSION_SELECTOR);
             mX << value;
             OutStreamFunctions::bdexStreamOut(expected, value);
             ASSERT(X.length() == expected.length());
@@ -360,8 +375,10 @@ int main(int argc, char *argv[])
         }
         {
             double value = 7.0;
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
-            Obj expected(SERIALIZATION_VERSION);
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
+
+            Obj expected(VERSION_SELECTOR);
             mX << value;
             OutStreamFunctions::bdexStreamOut(expected, value);
             ASSERT(X.length() == expected.length());
@@ -370,8 +387,9 @@ int main(int argc, char *argv[])
         {
             bsl::vector<int> value;
             for (int i = 0; i < 5; ++i) {
-                Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
-                Obj expected(SERIALIZATION_VERSION);
+                Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
+
+                Obj expected(VERSION_SELECTOR);
                 mX << value;
                 OutStreamFunctions::bdexStreamOut(expected, value);
                 LOOP_ASSERT(i, X.length() == expected.length());
@@ -382,11 +400,13 @@ int main(int argc, char *argv[])
             }
         }
         {
-            float value1 = 3.0;
+            float       value1 = 3.0;
             bsl::string value2 = "hello";
-            short value3 = 2;
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
-            Obj expected(SERIALIZATION_VERSION);
+            short       value3 = 2;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
+
+            Obj expected(VERSION_SELECTOR);
             mX << value1 << value2 << value3;
             OutStreamFunctions::bdexStreamOut(expected, value1);
             OutStreamFunctions::bdexStreamOut(expected, value2);
@@ -397,7 +417,7 @@ int main(int argc, char *argv[])
       } break;
       case 26: {
         // --------------------------------------------------------------------
-        // PUT STRING TEST:
+        // PUT STRING TEST
         //   Verify the method externalizes the expected bytes.
         //
         // Concerns:
@@ -426,14 +446,17 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'putString'." << endl;
         {
             const bsl::string DATA = "hello";
+
             const int SIZE = 3 * SIZEOF_INT8 + SIZEOF_INT32 + 5 * SIZEOF_INT8;
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putString(DATA);     mX.putInt8(0xff);
             mX.putString(DATA);     mX.putInt8(0xfe);
             mX.putString(DATA);     mX.putInt8(0xfd);
             mX.putString(DATA);     mX.putInt8(0xfc);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * SIZEOF_INT8 + 4 * SIZEOF_INT8 + 4 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * SIZEOF_INT8 + 4 * SIZEOF_INT8 + 4 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
              INT8_TC "\x05" UINT8_TC "\x00\x00\x00\x05" "hello" INT8_TC "\xff"
@@ -461,8 +484,10 @@ int main(int argc, char *argv[])
                           << endl;
         {
             const bsl::string DATA = "hello";
+
             const int SIZE = 3 * SIZEOF_INT8 + SIZEOF_INT32 + 5 * SIZEOF_INT8;
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putString(DATA);     mX.putInt8(0xff);
             mX.makeNextInvalid();
             mX.putString(DATA);     mX.putInt8(0xfe);
@@ -470,7 +495,7 @@ int main(int argc, char *argv[])
             mX.makeNextInvalid();
             mX.putString(DATA);     mX.putInt8(0xfc);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * SIZEOF_INT8 + 6 + 4 * SIZEOF_INT8
+            const bsl::size_t NUM_BYTES = 4 * SIZEOF_INT8 + 6 + 4 * SIZEOF_INT8
                                                                     + 4 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
@@ -485,7 +510,7 @@ int main(int argc, char *argv[])
       } break;
       case 25: {
         // --------------------------------------------------------------------
-        // PUT LENGTH AND VERSION TEST:
+        // PUT LENGTH AND VERSION TEST
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
@@ -521,15 +546,15 @@ int main(int argc, char *argv[])
                 cout << "\nTesting 'putLength'." << endl;
             }
             {
-                Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+                Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
 
                 mX.putLength(1);
                 mX.putLength(128);
                 mX.putLength(3);
                 mX.putLength(256);
                 if (veryVerbose) { P(X); }
-                const int NUM_BYTES = 4 * SIZEOF_CODE + 2 * SIZEOF_INT32 +
-                                                               2 * SIZEOF_INT8;
+                const bsl::size_t NUM_BYTES =
+                          4 * SIZEOF_CODE + 2 * SIZEOF_INT32 + 2 * SIZEOF_INT8;
                 ASSERT(NUM_BYTES == X.length());
                 ASSERT(0 == memcmp(X.data(),
                                    INT8_TC "\x01"
@@ -557,7 +582,7 @@ int main(int argc, char *argv[])
             if (verbose)
                 cout << "\nTesting 'putLength' w/ 'makeNextInvalid'." << endl;
             {
-                Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+                Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
                 mX.makeNextInvalid();
                 mX.putLength(1);
                 mX.putLength(128);
@@ -565,7 +590,7 @@ int main(int argc, char *argv[])
                 mX.putLength(3);
                 mX.putLength(256);
                 if (veryVerbose) { P(X); }
-                const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_INT32);
+                const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_INT32);
                 ASSERT(NUM_BYTES == X.length());
                 ASSERT(0 == memcmp(X.data(),
                                    INVALID_TC "\x00\x00\x00\x01"
@@ -583,7 +608,7 @@ int main(int argc, char *argv[])
                 cout << "\nTesting 'putVersion'." << endl;
             }
             {
-                Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+                Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
                 ASSERT(0 == X.length());
 
                 mX.putVersion(1);
@@ -591,7 +616,7 @@ int main(int argc, char *argv[])
                 mX.putVersion(3);
                 mX.putVersion(4);
                 if (veryVerbose) { P(X); }
-                const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+                const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
                 ASSERT(NUM_BYTES == X.length());
                 ASSERT(0 == memcmp(X.data(),
                                    UINT8_TC "\x01"
@@ -619,7 +644,7 @@ int main(int argc, char *argv[])
             if (verbose)
                 cout << "\nTesting 'putVersion' w/ 'makeNextInvalid'." << endl;
             {
-                Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+                Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
                 ASSERT(0 == X.length());
                 mX.makeNextInvalid();
                 mX.putVersion(1);
@@ -628,7 +653,7 @@ int main(int argc, char *argv[])
                 mX.putVersion(3);
                 mX.putVersion(4);
                 if (veryVerbose) { P(X); }
-                const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+                const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
                 ASSERT(NUM_BYTES == X.length());
                 ASSERT(0 == memcmp(X.data(),
                                    INVALID_TC "\x01"
@@ -644,7 +669,8 @@ int main(int argc, char *argv[])
         {
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
-            Obj mX(SERIALIZATION_VERSION);
+
+            Obj mX(VERSION_SELECTOR);
             ASSERT_FAIL(mX.putLength(-1));
             ASSERT_PASS(mX.putLength(0));
             ASSERT_PASS(mX.putLength(1));
@@ -652,7 +678,7 @@ int main(int argc, char *argv[])
       } break;
       case 24: {
         // --------------------------------------------------------------------
-        // PUT 64-BIT FLOAT ARRAY TEST:
+        // PUT 64-BIT FLOAT ARRAY TEST
         //   Verify the method externalizes the expected bytes.
         //
         // Concerns:
@@ -680,7 +706,7 @@ int main(int argc, char *argv[])
         if (verbose) {
             cout << endl
                  << "PUT 64-BIT FLOAT ARRAY TEST" << endl
-                 << "=============================" << endl;
+                 << "===========================" << endl;
         }
 
         const int SIZE = SIZEOF_FLOAT64;
@@ -690,13 +716,15 @@ int main(int argc, char *argv[])
         }
         {
             const double DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayFloat64(DATA, 0);
             mX.putArrayFloat64(DATA, 1);
             mX.putArrayFloat64(DATA, 2);
             mX.putArrayFloat64(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                            FLOAT64_TC LEN_0 ""
@@ -732,7 +760,8 @@ int main(int argc, char *argv[])
         }
         {
             const double DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayFloat64(DATA, 0);
             mX.putArrayFloat64(DATA, 1);
@@ -740,7 +769,8 @@ int main(int argc, char *argv[])
             mX.putArrayFloat64(DATA, 2);
             mX.putArrayFloat64(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                            INVALID_TC LEN_0 ""
@@ -757,9 +787,11 @@ int main(int argc, char *argv[])
             cout << "\nNegative Testing." << endl;
         {
             const double DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
-            Obj mX(SERIALIZATION_VERSION);
+
+            Obj mX(VERSION_SELECTOR);
             ASSERT_FAIL(mX.putArrayFloat64(0, 0));
             ASSERT_FAIL(mX.putArrayFloat64(DATA, -1));
             ASSERT_PASS(mX.putArrayFloat64(DATA, 0));
@@ -768,7 +800,7 @@ int main(int argc, char *argv[])
       } break;
       case 23: {
         // --------------------------------------------------------------------
-        // PUT 32-BIT FLOAT ARRAY TEST:
+        // PUT 32-BIT FLOAT ARRAY TEST
         //   Verify the method externalizes the expected bytes.
         //
         // Concerns:
@@ -796,7 +828,7 @@ int main(int argc, char *argv[])
         if (verbose) {
             cout << endl
                  << "PUT 32-BIT FLOAT ARRAY TEST" << endl
-                 << "=============================" << endl;
+                 << "===========================" << endl;
         }
 
         const int SIZE = SIZEOF_FLOAT32;
@@ -806,13 +838,15 @@ int main(int argc, char *argv[])
         }
         {
             const float DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayFloat32(DATA, 0);
             mX.putArrayFloat32(DATA, 1);
             mX.putArrayFloat32(DATA, 2);
             mX.putArrayFloat32(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                FLOAT32_TC LEN_0 ""
@@ -848,7 +882,8 @@ int main(int argc, char *argv[])
         }
         {
             const float DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayFloat32(DATA, 0);
             mX.putArrayFloat32(DATA, 1);
@@ -856,7 +891,8 @@ int main(int argc, char *argv[])
             mX.putArrayFloat32(DATA, 2);
             mX.putArrayFloat32(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC LEN_0 ""
@@ -873,9 +909,11 @@ int main(int argc, char *argv[])
             cout << "\nNegative Testing." << endl;
         {
             const float DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
-            Obj mX(SERIALIZATION_VERSION);
+
+            Obj mX(VERSION_SELECTOR);
             ASSERT_FAIL(mX.putArrayFloat32(0, 0));
             ASSERT_FAIL(mX.putArrayFloat32(DATA, -1));
             ASSERT_PASS(mX.putArrayFloat32(DATA, 0));
@@ -884,7 +922,7 @@ int main(int argc, char *argv[])
       } break;
       case 22: {
         // --------------------------------------------------------------------
-        // PUT 64-BIT INTEGER ARRAYS TEST:
+        // PUT 64-BIT INTEGER ARRAYS TEST
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
@@ -906,8 +944,8 @@ int main(int argc, char *argv[])
         //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
-        //   putArrayInt64(const int *values, int numValues);
-        //   putArrayUint64(const unsigned int *values, int numValues);
+        //   putArrayInt64(const bsls::Types::Int64 *values, int numValues);
+        //   putArrayUint64(const bsls::Types::Uint64 *values, int numValues);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -923,13 +961,15 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayInt64(DATA, 0);
             mX.putArrayInt64(DATA, 1);
             mX.putArrayInt64(DATA, 2);
             mX.putArrayInt64(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                              INT64_TC LEN_0 ""
@@ -965,7 +1005,8 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayInt64(DATA, 0);
             mX.putArrayInt64(DATA, 1);
@@ -973,7 +1014,8 @@ int main(int argc, char *argv[])
             mX.putArrayInt64(DATA, 2);
             mX.putArrayInt64(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                            INVALID_TC LEN_0 ""
@@ -993,13 +1035,15 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayUint64(DATA, 0);
             mX.putArrayUint64(DATA, 1);
             mX.putArrayUint64(DATA, 2);
             mX.putArrayUint64(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                             UINT64_TC LEN_0 ""
@@ -1035,7 +1079,8 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayUint64(DATA, 0);
             mX.putArrayUint64(DATA, 1);
@@ -1043,7 +1088,8 @@ int main(int argc, char *argv[])
             mX.putArrayUint64(DATA, 2);
             mX.putArrayUint64(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                            INVALID_TC LEN_0 ""
@@ -1060,9 +1106,11 @@ int main(int argc, char *argv[])
             cout << "\nNegative Testing." << endl;
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
-            Obj mX(SERIALIZATION_VERSION);
+
+            Obj mX(VERSION_SELECTOR);
             ASSERT_FAIL(mX.putArrayInt64(0, 0));
             ASSERT_FAIL(mX.putArrayInt64(DATA, -1));
             ASSERT_PASS(mX.putArrayInt64(DATA, 0));
@@ -1070,9 +1118,11 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
-            Obj mX(SERIALIZATION_VERSION);
+
+            Obj mX(VERSION_SELECTOR);
             ASSERT_FAIL(mX.putArrayUint64(0, 0));
             ASSERT_FAIL(mX.putArrayUint64(DATA, -1));
             ASSERT_PASS(mX.putArrayUint64(DATA, 0));
@@ -1081,7 +1131,7 @@ int main(int argc, char *argv[])
       } break;
       case 21: {
         // --------------------------------------------------------------------
-        // PUT 56-BIT INTEGER ARRAYS TEST:
+        // PUT 56-BIT INTEGER ARRAYS TEST
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
@@ -1103,8 +1153,8 @@ int main(int argc, char *argv[])
         //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
-        //   putArrayInt56(const int *values, int numValues);
-        //   putArrayUint56(const unsigned int *values, int numValues);
+        //   putArrayInt56(const bsls::Types::Int64 *values, int numValues);
+        //   putArrayUint56(const bsls::Types::Uint64 *values, int numValues);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -1120,13 +1170,15 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayInt56(DATA, 0);
             mX.putArrayInt56(DATA, 1);
             mX.putArrayInt56(DATA, 2);
             mX.putArrayInt56(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INT56_TC LEN_0 ""
@@ -1162,7 +1214,8 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayInt56(DATA, 0);
             mX.putArrayInt56(DATA, 1);
@@ -1170,7 +1223,8 @@ int main(int argc, char *argv[])
             mX.putArrayInt56(DATA, 2);
             mX.putArrayInt56(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC LEN_0 ""
@@ -1190,13 +1244,15 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayUint56(DATA, 0);
             mX.putArrayUint56(DATA, 1);
             mX.putArrayUint56(DATA, 2);
             mX.putArrayUint56(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                UINT56_TC LEN_0 ""
@@ -1232,7 +1288,8 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayUint56(DATA, 0);
             mX.putArrayUint56(DATA, 1);
@@ -1240,7 +1297,8 @@ int main(int argc, char *argv[])
             mX.putArrayUint56(DATA, 2);
             mX.putArrayUint56(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC LEN_0 ""
@@ -1257,9 +1315,11 @@ int main(int argc, char *argv[])
             cout << "\nNegative Testing." << endl;
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
-            Obj mX(SERIALIZATION_VERSION);
+
+            Obj mX(VERSION_SELECTOR);
             ASSERT_FAIL(mX.putArrayInt56(0, 0));
             ASSERT_FAIL(mX.putArrayInt56(DATA, -1));
             ASSERT_PASS(mX.putArrayInt56(DATA, 0));
@@ -1267,9 +1327,11 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
-            Obj mX(SERIALIZATION_VERSION);
+
+            Obj mX(VERSION_SELECTOR);
             ASSERT_FAIL(mX.putArrayUint56(0, 0));
             ASSERT_FAIL(mX.putArrayUint56(DATA, -1));
             ASSERT_PASS(mX.putArrayUint56(DATA, 0));
@@ -1278,7 +1340,7 @@ int main(int argc, char *argv[])
       } break;
       case 20: {
         // --------------------------------------------------------------------
-        // PUT 48-BIT INTEGER ARRAYS TEST:
+        // PUT 48-BIT INTEGER ARRAYS TEST
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
@@ -1300,8 +1362,8 @@ int main(int argc, char *argv[])
         //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
-        //   putArrayInt48(const int *values, int numValues);
-        //   putArrayUint48(const unsigned int *values, int numValues);
+        //   putArrayInt48(const bsls::Types::Int64 *values, int numValues);
+        //   putArrayUint48(const bsls::Types::Uint64 *values, int numValues);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -1317,13 +1379,15 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayInt48(DATA, 0);
             mX.putArrayInt48(DATA, 1);
             mX.putArrayInt48(DATA, 2);
             mX.putArrayInt48(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INT48_TC LEN_0 ""
@@ -1359,7 +1423,8 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayInt48(DATA, 0);
             mX.putArrayInt48(DATA, 1);
@@ -1367,7 +1432,8 @@ int main(int argc, char *argv[])
             mX.putArrayInt48(DATA, 2);
             mX.putArrayInt48(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC LEN_0 ""
@@ -1387,13 +1453,15 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayUint48(DATA, 0);
             mX.putArrayUint48(DATA, 1);
             mX.putArrayUint48(DATA, 2);
             mX.putArrayUint48(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                UINT48_TC LEN_0 ""
@@ -1429,7 +1497,8 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayUint48(DATA, 0);
             mX.putArrayUint48(DATA, 1);
@@ -1437,7 +1506,8 @@ int main(int argc, char *argv[])
             mX.putArrayUint48(DATA, 2);
             mX.putArrayUint48(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC LEN_0 ""
@@ -1454,9 +1524,11 @@ int main(int argc, char *argv[])
             cout << "\nNegative Testing." << endl;
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
-            Obj mX(SERIALIZATION_VERSION);
+
+            Obj mX(VERSION_SELECTOR);
             ASSERT_FAIL(mX.putArrayInt48(0, 0));
             ASSERT_FAIL(mX.putArrayInt48(DATA, -1));
             ASSERT_PASS(mX.putArrayInt48(DATA, 0));
@@ -1464,9 +1536,11 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
-            Obj mX(SERIALIZATION_VERSION);
+
+            Obj mX(VERSION_SELECTOR);
             ASSERT_FAIL(mX.putArrayUint48(0, 0));
             ASSERT_FAIL(mX.putArrayUint48(DATA, -1));
             ASSERT_PASS(mX.putArrayUint48(DATA, 0));
@@ -1475,7 +1549,7 @@ int main(int argc, char *argv[])
       } break;
       case 19: {
         // --------------------------------------------------------------------
-        // PUT 40-BIT INTEGER ARRAYS TEST:
+        // PUT 40-BIT INTEGER ARRAYS TEST
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
@@ -1497,8 +1571,8 @@ int main(int argc, char *argv[])
         //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
-        //   putArrayInt40(const int *values, int numValues);
-        //   putArrayUint40(const unsigned int *values, int numValues);
+        //   putArrayInt40(const bsls::Types::Int64 *values, int numValues);
+        //   putArrayUint40(const bsls::Types::Uint64 *values, int numValues);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -1514,13 +1588,15 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayInt40(DATA, 0);
             mX.putArrayInt40(DATA, 1);
             mX.putArrayInt40(DATA, 2);
             mX.putArrayInt40(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INT40_TC LEN_0 ""
@@ -1556,7 +1632,8 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayInt40(DATA, 0);
             mX.putArrayInt40(DATA, 1);
@@ -1564,7 +1641,8 @@ int main(int argc, char *argv[])
             mX.putArrayInt40(DATA, 2);
             mX.putArrayInt40(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC LEN_0 ""
@@ -1584,13 +1662,15 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayUint40(DATA, 0);
             mX.putArrayUint40(DATA, 1);
             mX.putArrayUint40(DATA, 2);
             mX.putArrayUint40(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                UINT40_TC LEN_0 ""
@@ -1626,7 +1706,8 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayUint40(DATA, 0);
             mX.putArrayUint40(DATA, 1);
@@ -1634,7 +1715,8 @@ int main(int argc, char *argv[])
             mX.putArrayUint40(DATA, 2);
             mX.putArrayUint40(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC LEN_0 ""
@@ -1651,9 +1733,11 @@ int main(int argc, char *argv[])
             cout << "\nNegative Testing." << endl;
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
-            Obj mX(SERIALIZATION_VERSION);
+
+            Obj mX(VERSION_SELECTOR);
             ASSERT_FAIL(mX.putArrayInt40(0, 0));
             ASSERT_FAIL(mX.putArrayInt40(DATA, -1));
             ASSERT_PASS(mX.putArrayInt40(DATA, 0));
@@ -1661,9 +1745,11 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
-            Obj mX(SERIALIZATION_VERSION);
+
+            Obj mX(VERSION_SELECTOR);
             ASSERT_FAIL(mX.putArrayUint40(0, 0));
             ASSERT_FAIL(mX.putArrayUint40(DATA, -1));
             ASSERT_PASS(mX.putArrayUint40(DATA, 0));
@@ -1672,7 +1758,7 @@ int main(int argc, char *argv[])
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // PUT 32-BIT INTEGER ARRAYS TEST:
+        // PUT 32-BIT INTEGER ARRAYS TEST
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
@@ -1711,13 +1797,15 @@ int main(int argc, char *argv[])
         }
         {
             const int DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayInt32(DATA, 0);
             mX.putArrayInt32(DATA, 1);
             mX.putArrayInt32(DATA, 2);
             mX.putArrayInt32(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INT32_TC LEN_0 ""
@@ -1753,7 +1841,8 @@ int main(int argc, char *argv[])
         }
         {
             const int DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayInt32(DATA, 0);
             mX.putArrayInt32(DATA, 1);
@@ -1761,7 +1850,8 @@ int main(int argc, char *argv[])
             mX.putArrayInt32(DATA, 2);
             mX.putArrayInt32(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC LEN_0 ""
@@ -1781,13 +1871,15 @@ int main(int argc, char *argv[])
         }
         {
             const unsigned int DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayUint32(DATA, 0);
             mX.putArrayUint32(DATA, 1);
             mX.putArrayUint32(DATA, 2);
             mX.putArrayUint32(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                UINT32_TC LEN_0 ""
@@ -1823,7 +1915,8 @@ int main(int argc, char *argv[])
         }
         {
             const unsigned int DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayUint32(DATA, 0);
             mX.putArrayUint32(DATA, 1);
@@ -1831,7 +1924,8 @@ int main(int argc, char *argv[])
             mX.putArrayUint32(DATA, 2);
             mX.putArrayUint32(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC LEN_0 ""
@@ -1848,9 +1942,11 @@ int main(int argc, char *argv[])
             cout << "\nNegative Testing." << endl;
         {
             const int DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
-            Obj mX(SERIALIZATION_VERSION);
+
+            Obj mX(VERSION_SELECTOR);
             ASSERT_FAIL(mX.putArrayInt32(0, 0));
             ASSERT_FAIL(mX.putArrayInt32(DATA, -1));
             ASSERT_PASS(mX.putArrayInt32(DATA, 0));
@@ -1858,9 +1954,11 @@ int main(int argc, char *argv[])
         }
         {
             const unsigned int DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
-            Obj mX(SERIALIZATION_VERSION);
+
+            Obj mX(VERSION_SELECTOR);
             ASSERT_FAIL(mX.putArrayUint32(0, 0));
             ASSERT_FAIL(mX.putArrayUint32(DATA, -1));
             ASSERT_PASS(mX.putArrayUint32(DATA, 0));
@@ -1869,7 +1967,7 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // PUT 24-BIT INTEGER ARRAYS TEST:
+        // PUT 24-BIT INTEGER ARRAYS TEST
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
@@ -1908,13 +2006,15 @@ int main(int argc, char *argv[])
         }
         {
             const int DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayInt24(DATA, 0);
             mX.putArrayInt24(DATA, 1);
             mX.putArrayInt24(DATA, 2);
             mX.putArrayInt24(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INT24_TC LEN_0 ""
@@ -1950,7 +2050,8 @@ int main(int argc, char *argv[])
         }
         {
             const int DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayInt24(DATA, 0);
             mX.putArrayInt24(DATA, 1);
@@ -1958,7 +2059,8 @@ int main(int argc, char *argv[])
             mX.putArrayInt24(DATA, 2);
             mX.putArrayInt24(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC LEN_0 ""
@@ -1978,13 +2080,15 @@ int main(int argc, char *argv[])
         }
         {
             const unsigned int DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayUint24(DATA, 0);
             mX.putArrayUint24(DATA, 1);
             mX.putArrayUint24(DATA, 2);
             mX.putArrayUint24(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                UINT24_TC LEN_0 ""
@@ -2020,7 +2124,8 @@ int main(int argc, char *argv[])
         }
         {
             const unsigned int DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayUint24(DATA, 0);
             mX.putArrayUint24(DATA, 1);
@@ -2028,7 +2133,8 @@ int main(int argc, char *argv[])
             mX.putArrayUint24(DATA, 2);
             mX.putArrayUint24(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC LEN_0 ""
@@ -2045,9 +2151,11 @@ int main(int argc, char *argv[])
             cout << "\nNegative Testing." << endl;
         {
             const int DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
-            Obj mX(SERIALIZATION_VERSION);
+
+            Obj mX(VERSION_SELECTOR);
             ASSERT_FAIL(mX.putArrayInt24(0, 0));
             ASSERT_FAIL(mX.putArrayInt24(DATA, -1));
             ASSERT_PASS(mX.putArrayInt24(DATA, 0));
@@ -2055,9 +2163,11 @@ int main(int argc, char *argv[])
         }
         {
             const unsigned int DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
-            Obj mX(SERIALIZATION_VERSION);
+
+            Obj mX(VERSION_SELECTOR);
             ASSERT_FAIL(mX.putArrayUint24(0, 0));
             ASSERT_FAIL(mX.putArrayUint24(DATA, -1));
             ASSERT_PASS(mX.putArrayUint24(DATA, 0));
@@ -2066,7 +2176,7 @@ int main(int argc, char *argv[])
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // PUT 16-BIT INTEGER ARRAYS TEST:
+        // PUT 16-BIT INTEGER ARRAYS TEST
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
@@ -2088,8 +2198,8 @@ int main(int argc, char *argv[])
         //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
-        //   putArrayInt16(const int *values, int numValues);
-        //   putArrayUint16(const unsigned int *values, int numValues);
+        //   putArrayInt16(const short *values, int numValues);
+        //   putArrayUint16(const unsigned short *values, int numValues);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -2105,13 +2215,15 @@ int main(int argc, char *argv[])
         }
         {
             const short DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayInt16(DATA, 0);
             mX.putArrayInt16(DATA, 1);
             mX.putArrayInt16(DATA, 2);
             mX.putArrayInt16(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INT16_TC LEN_0 ""
@@ -2141,7 +2253,8 @@ int main(int argc, char *argv[])
         }
         {
             const short DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayInt16(DATA, 0);
             mX.putArrayInt16(DATA, 1);
@@ -2149,7 +2262,8 @@ int main(int argc, char *argv[])
             mX.putArrayInt16(DATA, 2);
             mX.putArrayInt16(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                              INVALID_TC LEN_0 ""
@@ -2166,13 +2280,15 @@ int main(int argc, char *argv[])
         }
         {
             const unsigned short DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayUint16(DATA, 0);
             mX.putArrayUint16(DATA, 1);
             mX.putArrayUint16(DATA, 2);
             mX.putArrayUint16(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                               UINT16_TC LEN_0 ""
@@ -2202,7 +2318,8 @@ int main(int argc, char *argv[])
         }
         {
             const unsigned short DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayUint16(DATA, 0);
             mX.putArrayUint16(DATA, 1);
@@ -2210,7 +2327,8 @@ int main(int argc, char *argv[])
             mX.putArrayUint16(DATA, 2);
             mX.putArrayUint16(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                              INVALID_TC LEN_0 ""
@@ -2224,9 +2342,11 @@ int main(int argc, char *argv[])
             cout << "\nNegative Testing." << endl;
         {
             const short DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
-            Obj mX(SERIALIZATION_VERSION);
+
+            Obj mX(VERSION_SELECTOR);
             ASSERT_FAIL(mX.putArrayInt16(0, 0));
             ASSERT_FAIL(mX.putArrayInt16(DATA, -1));
             ASSERT_PASS(mX.putArrayInt16(DATA, 0));
@@ -2234,9 +2354,11 @@ int main(int argc, char *argv[])
         }
         {
             const unsigned short DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
-            Obj mX(SERIALIZATION_VERSION);
+
+            Obj mX(VERSION_SELECTOR);
             ASSERT_FAIL(mX.putArrayUint16(0, 0));
             ASSERT_FAIL(mX.putArrayUint16(DATA, -1));
             ASSERT_PASS(mX.putArrayUint16(DATA, 0));
@@ -2245,7 +2367,7 @@ int main(int argc, char *argv[])
        } break;
       case 15: {
         // --------------------------------------------------------------------
-        // PUT 8-BIT INTEGER ARRAYS TEST:
+        // PUT 8-BIT INTEGER ARRAYS TEST
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
@@ -2276,7 +2398,7 @@ int main(int argc, char *argv[])
         if (verbose) {
             cout << endl
                  << "PUT 8-BIT INTEGER ARRAYS TEST" << endl
-                 << "==============================" << endl;
+                 << "=============================" << endl;
         }
 
         const int SIZE = SIZEOF_INT8;
@@ -2286,13 +2408,15 @@ int main(int argc, char *argv[])
         }
         {
             const char DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayInt8(DATA, 0);
             mX.putArrayInt8(DATA, 1);
             mX.putArrayInt8(DATA, 2);
             mX.putArrayInt8(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INT8_TC LEN_0 ""
@@ -2323,7 +2447,8 @@ int main(int argc, char *argv[])
         }
         {
             const char DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayInt8(DATA, 0);
             mX.putArrayInt8(DATA, 1);
@@ -2331,7 +2456,8 @@ int main(int argc, char *argv[])
             mX.putArrayInt8(DATA, 2);
             mX.putArrayInt8(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC LEN_0 ""
@@ -2348,13 +2474,15 @@ int main(int argc, char *argv[])
         }
         {
             const signed char DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayInt8(DATA, 0);
             mX.putArrayInt8(DATA, 1);
             mX.putArrayInt8(DATA, 2);
             mX.putArrayInt8(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INT8_TC LEN_0 ""
@@ -2385,7 +2513,8 @@ int main(int argc, char *argv[])
         }
         {
             const signed char DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayInt8(DATA, 0);
             mX.putArrayInt8(DATA, 1);
@@ -2393,7 +2522,8 @@ int main(int argc, char *argv[])
             mX.putArrayInt8(DATA, 2);
             mX.putArrayInt8(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC LEN_0 ""
@@ -2410,13 +2540,15 @@ int main(int argc, char *argv[])
         }
         {
             const char DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayUint8(DATA, 0);
             mX.putArrayUint8(DATA, 1);
             mX.putArrayUint8(DATA, 2);
             mX.putArrayUint8(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                UINT8_TC LEN_0 ""
@@ -2447,7 +2579,8 @@ int main(int argc, char *argv[])
         }
         {
             const char DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayUint8(DATA, 0);
             mX.putArrayUint8(DATA, 1);
@@ -2455,7 +2588,8 @@ int main(int argc, char *argv[])
             mX.putArrayUint8(DATA, 2);
             mX.putArrayUint8(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC LEN_0 ""
@@ -2473,13 +2607,15 @@ int main(int argc, char *argv[])
         }
         {
             const unsigned char DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayUint8(DATA, 0);
             mX.putArrayUint8(DATA, 1);
             mX.putArrayUint8(DATA, 2);
             mX.putArrayUint8(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                UINT8_TC LEN_0 ""
@@ -2509,7 +2645,8 @@ int main(int argc, char *argv[])
         }
         {
             const unsigned char DATA[] = {1, 2, 3};
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayUint8(DATA, 0);
             mX.putArrayUint8(DATA, 1);
@@ -2517,7 +2654,8 @@ int main(int argc, char *argv[])
             mX.putArrayUint8(DATA, 2);
             mX.putArrayUint8(DATA, 3);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
+            const bsl::size_t NUM_BYTES =
+                                  4 * (SIZEOF_CODE + SIZEOF_ARRLEN) + 6 * SIZE;
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC LEN_0 ""
@@ -2531,9 +2669,11 @@ int main(int argc, char *argv[])
             cout << "\nNegative Testing." << endl;
         {
             const char DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
-            Obj mX(SERIALIZATION_VERSION);
+
+            Obj mX(VERSION_SELECTOR);
             ASSERT_FAIL(mX.putArrayInt8((char *)0, 0));
             ASSERT_FAIL(mX.putArrayInt8(DATA, -1));
             ASSERT_PASS(mX.putArrayInt8(DATA, 0));
@@ -2541,9 +2681,11 @@ int main(int argc, char *argv[])
         }
         {
             const signed char DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
-            Obj mX(SERIALIZATION_VERSION);
+
+            Obj mX(VERSION_SELECTOR);
             ASSERT_FAIL(mX.putArrayInt8((signed char *)0, 0));
             ASSERT_FAIL(mX.putArrayInt8(DATA, -1));
             ASSERT_PASS(mX.putArrayInt8(DATA, 0));
@@ -2551,9 +2693,11 @@ int main(int argc, char *argv[])
         }
         {
             const char DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
-            Obj mX(SERIALIZATION_VERSION);
+
+            Obj mX(VERSION_SELECTOR);
             ASSERT_FAIL(mX.putArrayUint8((char *)0, 0));
             ASSERT_FAIL(mX.putArrayUint8(DATA, -1));
             ASSERT_PASS(mX.putArrayUint8(DATA, 0));
@@ -2561,9 +2705,11 @@ int main(int argc, char *argv[])
         }
         {
             const unsigned char DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
-            Obj mX(SERIALIZATION_VERSION);
+
+            Obj mX(VERSION_SELECTOR);
             ASSERT_FAIL(mX.putArrayUint8((unsigned char *)0, 0));
             ASSERT_FAIL(mX.putArrayUint8(DATA, -1));
             ASSERT_PASS(mX.putArrayUint8(DATA, 0));
@@ -2572,7 +2718,7 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // PUT 64-BIT FLOAT TEST:
+        // PUT 64-BIT FLOAT TEST
         //   Verify the method externalizes the expected bytes.
         //
         // Concerns:
@@ -2590,7 +2736,7 @@ int main(int argc, char *argv[])
         //:   methods.  (C-3)
         //
         // Testing:
-        //   putFloat64(float value);
+        //   putFloat64(double value);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -2605,14 +2751,14 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'putFloat64'." << endl;
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
 
             mX.putFloat64(1);
             mX.putFloat64(2);
             mX.putFloat64(3);
             mX.putFloat64(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                FLOAT64_TC "\x3f\xf0\x00\x00\x00\x00\x00\x00"
@@ -2641,7 +2787,7 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'putFloat64' w/ 'makeNextInvalid'." << endl;
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putFloat64(1);
             mX.putFloat64(2);
@@ -2649,7 +2795,7 @@ int main(int argc, char *argv[])
             mX.putFloat64(3);
             mX.putFloat64(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC "\x3f\xf0\x00\x00\x00\x00\x00\x00"
@@ -2661,7 +2807,7 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // PUT 32-BIT FLOAT TEST:
+        // PUT 32-BIT FLOAT TEST
         //   Verify the method externalizes the expected bytes.
         //
         // Concerns:
@@ -2694,14 +2840,14 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'putFloat32'." << endl;
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
 
             mX.putFloat32(1);
             mX.putFloat32(2);
             mX.putFloat32(3);
             mX.putFloat32(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                FLOAT32_TC "\x3f\x80\x00\x00"
@@ -2730,7 +2876,7 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'putFloat32' w/ 'makeNextInvalid'." << endl;
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putFloat32(1);
             mX.putFloat32(2);
@@ -2738,7 +2884,7 @@ int main(int argc, char *argv[])
             mX.putFloat32(3);
             mX.putFloat32(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC "\x3f\x80\x00\x00"
@@ -2750,7 +2896,7 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // PUT 64-BIT INTEGERS TEST:
+        // PUT 64-BIT INTEGERS TEST
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
@@ -2784,14 +2930,14 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'putInt64'." << endl;
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
 
             mX.putInt64(1);
             mX.putInt64(2);
             mX.putInt64(3);
             mX.putInt64(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INT64_TC "\x00\x00\x00\x00\x00\x00\x00\x01"
@@ -2820,7 +2966,7 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'putInt64' w/ 'makeNextInvalid'." << endl;
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putInt64(1);
             mX.putInt64(2);
@@ -2828,7 +2974,7 @@ int main(int argc, char *argv[])
             mX.putInt64(3);
             mX.putInt64(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC "\x00\x00\x00\x00\x00\x00\x00\x01"
@@ -2844,14 +2990,14 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'putUint64'." << endl;
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
 
             mX.putUint64(1);
             mX.putUint64(2);
             mX.putUint64(3);
             mX.putUint64(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                UINT64_TC "\x00\x00\x00\x00\x00\x00\x00\x01"
@@ -2880,7 +3026,7 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'putUint64' w/ 'makeNextInvalid'." << endl;
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putUint64(1);
             mX.putUint64(2);
@@ -2888,7 +3034,7 @@ int main(int argc, char *argv[])
             mX.putUint64(3);
             mX.putUint64(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC "\x00\x00\x00\x00\x00\x00\x00\x01"
@@ -2900,7 +3046,7 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // PUT 56-BIT INTEGERS TEST:
+        // PUT 56-BIT INTEGERS TEST
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
@@ -2934,14 +3080,14 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'putInt56'." << endl;
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
 
             mX.putInt56(1);
             mX.putInt56(2);
             mX.putInt56(3);
             mX.putInt56(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INT56_TC "\x00\x00\x00\x00\x00\x00\x01"
@@ -2970,7 +3116,7 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'putInt56' w/ 'makeNextInvalid'." << endl;
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putInt56(1);
             mX.putInt56(2);
@@ -2978,7 +3124,7 @@ int main(int argc, char *argv[])
             mX.putInt56(3);
             mX.putInt56(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC "\x00\x00\x00\x00\x00\x00\x01"
@@ -2994,14 +3140,14 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'putUint56'." << endl;
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
 
             mX.putUint56(1);
             mX.putUint56(2);
             mX.putUint56(3);
             mX.putUint56(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                UINT56_TC "\x00\x00\x00\x00\x00\x00\x01"
@@ -3030,7 +3176,7 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'putUint56' w/ 'makeNextInvalid'." << endl;
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putUint56(1);
             mX.putUint56(2);
@@ -3038,7 +3184,7 @@ int main(int argc, char *argv[])
             mX.putUint56(3);
             mX.putUint56(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC "\x00\x00\x00\x00\x00\x00\x01"
@@ -3050,7 +3196,7 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // PUT 48-BIT INTEGERS TEST:
+        // PUT 48-BIT INTEGERS TEST
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
@@ -3084,14 +3230,14 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'putInt48'." << endl;
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
 
             mX.putInt48(1);
             mX.putInt48(2);
             mX.putInt48(3);
             mX.putInt48(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INT48_TC "\x00\x00\x00\x00\x00\x01"
@@ -3120,7 +3266,7 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'putInt48' w/ 'makeNextInvalid'." << endl;
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putInt48(1);
             mX.putInt48(2);
@@ -3128,7 +3274,7 @@ int main(int argc, char *argv[])
             mX.putInt48(3);
             mX.putInt48(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC "\x00\x00\x00\x00\x00\x01"
@@ -3144,14 +3290,14 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'putUint48'." << endl;
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
 
             mX.putUint48(1);
             mX.putUint48(2);
             mX.putUint48(3);
             mX.putUint48(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                UINT48_TC "\x00\x00\x00\x00\x00\x01"
@@ -3180,7 +3326,7 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'putUint48' w/ 'makeNextInvalid'." << endl;
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putUint48(1);
             mX.putUint48(2);
@@ -3188,7 +3334,7 @@ int main(int argc, char *argv[])
             mX.putUint48(3);
             mX.putUint48(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC "\x00\x00\x00\x00\x00\x01"
@@ -3200,7 +3346,7 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // PUT 40-BIT INTEGERS TEST:
+        // PUT 40-BIT INTEGERS TEST
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
@@ -3234,14 +3380,14 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'putInt40'." << endl;
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
 
             mX.putInt40(1);
             mX.putInt40(2);
             mX.putInt40(3);
             mX.putInt40(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INT40_TC "\x00\x00\x00\x00\x01"
@@ -3270,7 +3416,7 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'putInt40' w/ 'makeNextInvalid'." << endl;
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putInt40(1);
             mX.putInt40(2);
@@ -3278,7 +3424,7 @@ int main(int argc, char *argv[])
             mX.putInt40(3);
             mX.putInt40(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC "\x00\x00\x00\x00\x01"
@@ -3294,14 +3440,14 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'putUint40'." << endl;
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
 
             mX.putUint40(1);
             mX.putUint40(2);
             mX.putUint40(3);
             mX.putUint40(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                UINT40_TC "\x00\x00\x00\x00\x01"
@@ -3330,7 +3476,7 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'putUint40' w/ 'makeNextInvalid'." << endl;
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putUint40(1);
             mX.putUint40(2);
@@ -3338,7 +3484,7 @@ int main(int argc, char *argv[])
             mX.putUint40(3);
             mX.putUint40(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC "\x00\x00\x00\x00\x01"
@@ -3350,7 +3496,7 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // PUT 32-BIT INTEGERS TEST:
+        // PUT 32-BIT INTEGERS TEST
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
@@ -3384,14 +3530,14 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'putInt32'." << endl;
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
 
             mX.putInt32(1);
             mX.putInt32(2);
             mX.putInt32(3);
             mX.putInt32(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INT32_TC "\x00\x00\x00\x01"
@@ -3420,7 +3566,7 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'putInt32' w/ 'makeNextInvalid'." << endl;
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putInt32(1);
             mX.putInt32(2);
@@ -3428,7 +3574,7 @@ int main(int argc, char *argv[])
             mX.putInt32(3);
             mX.putInt32(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC "\x00\x00\x00\x01"
@@ -3444,14 +3590,14 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'putUint32'." << endl;
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
 
             mX.putUint32(1);
             mX.putUint32(2);
             mX.putUint32(3);
             mX.putUint32(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                UINT32_TC "\x00\x00\x00\x01"
@@ -3480,7 +3626,7 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'putUint32' w/ 'makeNextInvalid'." << endl;
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putUint32(1);
             mX.putUint32(2);
@@ -3488,7 +3634,7 @@ int main(int argc, char *argv[])
             mX.putUint32(3);
             mX.putUint32(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC "\x00\x00\x00\x01"
@@ -3500,7 +3646,7 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // PUT 24-BIT INTEGERS TEST:
+        // PUT 24-BIT INTEGERS TEST
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
@@ -3534,14 +3680,14 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'putInt24'." << endl;
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
 
             mX.putInt24(1);
             mX.putInt24(2);
             mX.putInt24(3);
             mX.putInt24(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INT24_TC "\x00\x00\x01"
@@ -3570,7 +3716,7 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'putInt24' w/ 'makeNextInvalid'." << endl;
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putInt24(1);
             mX.putInt24(2);
@@ -3578,7 +3724,7 @@ int main(int argc, char *argv[])
             mX.putInt24(3);
             mX.putInt24(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC "\x00\x00\x01"
@@ -3594,14 +3740,14 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'putUint24'." << endl;
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
 
             mX.putUint24(1);
             mX.putUint24(2);
             mX.putUint24(3);
             mX.putUint24(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                UINT24_TC "\x00\x00\x01"
@@ -3630,7 +3776,7 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'putUint24' w/ 'makeNextInvalid'." << endl;
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putUint24(1);
             mX.putUint24(2);
@@ -3638,7 +3784,7 @@ int main(int argc, char *argv[])
             mX.putUint24(3);
             mX.putUint24(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC "\x00\x00\x01"
@@ -3650,7 +3796,7 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // PUT 16-BIT INTEGERS TEST:
+        // PUT 16-BIT INTEGERS TEST
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
@@ -3668,8 +3814,8 @@ int main(int argc, char *argv[])
         //:   methods.  (C-3)
         //
         // Testing:
-        //   putInt16(short value);
-        //   putUint16(unsigned short value);
+        //   putInt16(int value);
+        //   putUint16(unsigned int value);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -3684,14 +3830,14 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'putInt16'." << endl;
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
 
             mX.putInt16(1);
             mX.putInt16(2);
             mX.putInt16(3);
             mX.putInt16(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INT16_TC "\x00\x01"
@@ -3720,7 +3866,7 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'putInt16' w/ 'makeNextInvalid'." << endl;
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putInt16(1);
             mX.putInt16(2);
@@ -3728,7 +3874,7 @@ int main(int argc, char *argv[])
             mX.putInt16(3);
             mX.putInt16(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC "\x00\x01"
@@ -3744,14 +3890,14 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'putUint16'." << endl;
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
 
             mX.putUint16(1);
             mX.putUint16(2);
             mX.putUint16(3);
             mX.putUint16(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                UINT16_TC "\x00\x01"
@@ -3780,7 +3926,7 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'putUint16' w/ 'makeNextInvalid'." << endl;
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putUint16(1);
             mX.putUint16(2);
@@ -3788,7 +3934,7 @@ int main(int argc, char *argv[])
             mX.putUint16(3);
             mX.putUint16(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC "\x00\x01"
@@ -3800,19 +3946,19 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // PRINT OPERATOR TEST:
+        // PRINT OPERATOR TEST
         //   Verify the method produces the expected output format.
         //
         // Concerns:
         //: 1 The method produces expected output format.
         //
         // Plan:
-        //: 1 For a small set of objects, use 'ostrstream' to write the
+        //: 1 For a small set of objects, use 'ostringstream' to write the
         //:   object's value to a string buffer and then compare to expected
         //:   output format.  (C-1)
         //
         // Testing:
-        //   ostream& operator<<(ostream&, const TestOutStream&);
+        //   ostream& operator<<(ostream& stream, const TestOutStream&);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -3825,49 +3971,43 @@ int main(int argc, char *argv[])
             cout << "\nTesting print operator." << endl;
         }
 
-        const int SIZE = 1000;     // Must be big enough to hold output string.
-        const char XX = (char) 0xFF; // Value that represents an unset char.
-        char ctrl[SIZE];    memset(ctrl, XX, SIZE);
+        const int   SIZE = 1000;  // Must be big enough to hold output string.
+        const char  XX = static_cast<char>(0xFF);  // Value that represents an
+                                                   // unset char.
+        char        ctrl[SIZE];    memset(ctrl, XX, SIZE);
         const char *CTRL = ctrl;
 
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
+
             const char *EXPECTED = "";
-            char buf[SIZE];
-            memcpy(buf, CTRL, SIZE);
-            ostrstream out(buf, SIZE);    out << X << ends;
-            const int LEN = static_cast<int>(strlen(EXPECTED)) + 1;
-            if (veryVerbose) {
-                cout << "\tEXPECTED : " << EXPECTED << endl
-                     << "\tACTUAL : "   << buf << endl;
+
+            bslma::TestAllocator allocator;
+
+            ostringstream out(bsl::string(CTRL, SIZE, &allocator), &allocator);
+            out << X << ends;
+
+            bsl::string buffer(&allocator);
+            {
+                bslma::DefaultAllocatorGuard allocatorGuard(&allocator);
+
+                buffer = out.str();
             }
-            ASSERT(XX == buf[SIZE-1]); // check for overrun
-            ASSERT(0 == memcmp(buf, EXPECTED, LEN));
-            ASSERT(0 == memcmp(buf + LEN, CTRL + LEN, SIZE - LEN));
+            const char *RESULT = buffer.c_str();
+
+            const int LEN = static_cast<int>(strlen(EXPECTED)) + 1;
+            if (veryVerbose) cout << "\tEXPECTED : " << EXPECTED << endl
+                                  << "\tACTUAL : "   << RESULT   << endl;
+            ASSERT(XX == RESULT[SIZE-1]); // check for overrun
+            ASSERT(0 == memcmp(RESULT, EXPECTED, LEN));
+            ASSERT(0 == memcmp(RESULT + LEN, CTRL + LEN, SIZE - LEN));
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
-            mX.putInt8(0);  mX.putInt8(1);  mX.putInt8(2);  mX.putInt8(3);
-            const char *EXPECTED =
-                "\n0000\t" INT8_STR " 00 " INT8_STR " 01"
-                       " " INT8_STR " 02 " INT8_STR " 03";
-            char buf[SIZE];
-            memcpy(buf, CTRL, SIZE);
-            ostrstream out(buf, SIZE);    out << X << ends;
-            const int LEN = static_cast<int>(strlen(EXPECTED)) + 1;
-            if (veryVerbose) {
-                cout << "\tEXPECTED : " << EXPECTED << endl
-                     << "\tACTUAL : "   << buf << endl;
-            }
-            ASSERT(XX == buf[SIZE-1]); // check for overrun
-            ASSERT(0 == memcmp(buf, EXPECTED, LEN));
-            ASSERT(0 == memcmp(buf + LEN, CTRL + LEN, SIZE - LEN));
-        }
-        {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putInt8(0);  mX.putInt8(1);  mX.putInt8(2);  mX.putInt8(3);
             mX.putInt8(4);  mX.putInt8(5);  mX.putInt8(6);  mX.putInt8(7);
             mX.putInt8(8);  mX.putInt8(9);  mX.putInt8(10); mX.putInt8(11);
+
             const char *EXPECTED =
                 "\n0000\t" INT8_STR " 00 " INT8_STR " 01"
                        " " INT8_STR " 02 " INT8_STR " 03"
@@ -3875,24 +4015,34 @@ int main(int argc, char *argv[])
                        " " INT8_STR " 06 " INT8_STR " 07"
                 "\n0010\t" INT8_STR " 08 " INT8_STR " 09"
                        " " INT8_STR " 0a " INT8_STR " 0b";
-            char buf[SIZE];
-            memcpy(buf, CTRL, SIZE);
-            ostrstream out(buf, SIZE);    out << X << ends;
-            const int LEN = static_cast<int>(strlen(EXPECTED)) + 1;
-            if (veryVerbose) {
-                cout << "\tEXPECTED : " << EXPECTED << endl
-                     << "\tACTUAL : "   << buf << endl;
+
+            bslma::TestAllocator allocator;
+
+            ostringstream out(bsl::string(CTRL, SIZE, &allocator), &allocator);
+            out << X << ends;
+
+            bsl::string buffer(&allocator);
+            {
+                bslma::DefaultAllocatorGuard allocatorGuard(&allocator);
+
+                buffer = out.str();
             }
-            ASSERT(XX == buf[SIZE-1]); // check for overrun
-            ASSERT(0 == memcmp(buf, EXPECTED, LEN));
-            ASSERT(0 == memcmp(buf + LEN, CTRL + LEN, SIZE - LEN));
+            const char *RESULT = buffer.c_str();
+
+            const int LEN = static_cast<int>(strlen(EXPECTED)) + 1;
+            if (veryVerbose) cout << "\tEXPECTED : " << EXPECTED << endl
+                                  << "\tACTUAL : "   << RESULT   << endl;
+            ASSERT(XX == RESULT[SIZE-1]); // check for overrun
+            ASSERT(0 == memcmp(RESULT, EXPECTED, LEN));
+            ASSERT(0 == memcmp(RESULT + LEN, CTRL + LEN, SIZE - LEN));
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putInt8(  0);  mX.putInt8( 1);  mX.putInt8( 2);  mX.putInt8( 3);
             mX.putInt8(  4);  mX.putInt8( 5);  mX.putInt8( 6);  mX.putInt8( 7);
             mX.putInt8(  8);  mX.putInt8( 9);  mX.putInt8(10);  mX.putInt8(11);
             mX.putInt8(127);  mX.putInt8(-1);  mX.putInt8(-2);  mX.putInt8(-3);
+
             const char *EXPECTED =
                 "\n0000\t" INT8_STR " 00 " INT8_STR " 01"
                        " " INT8_STR " 02 " INT8_STR " 03"
@@ -3902,17 +4052,26 @@ int main(int argc, char *argv[])
                        " " INT8_STR " 0a " INT8_STR " 0b"
                 "\n0018\t" INT8_STR " 7f " INT8_STR " ff"
                        " " INT8_STR " fe " INT8_STR " fd";
-            char buf[SIZE];
-            memcpy(buf, CTRL, SIZE);
-            ostrstream out(buf, SIZE);    out << X << ends;
-            const int LEN = static_cast<int>(strlen(EXPECTED)) + 1;
-            if (veryVerbose) {
-                cout << "\tEXPECTED : " << EXPECTED << endl
-                     << "\tACTUAL : "   << buf << endl;
+
+            bslma::TestAllocator allocator;
+
+            ostringstream out(bsl::string(CTRL, SIZE, &allocator), &allocator);
+            out << X << ends;
+
+            bsl::string buffer(&allocator);
+            {
+                bslma::DefaultAllocatorGuard allocatorGuard(&allocator);
+
+                buffer = out.str();
             }
-            ASSERT(XX == buf[SIZE-1]); // check for overrun
-            ASSERT(0 == memcmp(buf, EXPECTED, LEN));
-            ASSERT(0 == memcmp(buf + LEN, CTRL + LEN, SIZE - LEN));
+            const char *RESULT = buffer.c_str();
+
+            const int LEN = static_cast<int>(strlen(EXPECTED)) + 1;
+            if (veryVerbose) cout << "\tEXPECTED : " << EXPECTED << endl
+                                  << "\tACTUAL : "   << RESULT   << endl;
+            ASSERT(XX == RESULT[SIZE-1]); // check for overrun
+            ASSERT(0 == memcmp(RESULT, EXPECTED, LEN));
+            ASSERT(0 == memcmp(RESULT + LEN, CTRL + LEN, SIZE - LEN));
         }
       } break;
       case 4: {
@@ -3939,40 +4098,43 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "INVALIDATE" << endl
-                          << "==========" << endl;
+                          << "STREAM VALIDITY METHODS" << endl
+                          << "=======================" << endl;
 
         if (verbose) cout << "\nTesting invalidate." << endl;
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
-                              ASSERT( X && X.isValid());
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
+            ASSERT( X && X.isValid());
 
-            mX.invalidate();  ASSERT(!X && !X.isValid());
-            mX.invalidate();  ASSERT(!X && !X.isValid());
+            mX.invalidate();
+            ASSERT(!X && !X.isValid());
+
+            mX.invalidate();
+            ASSERT(!X && !X.isValid());
         }
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // BASIC ACCESSORS TEST:
+        // BASIC ACCESSORS TEST
         //   Verify functionality of the basic accessors.
         //
         // Concerns:
         //: 1 'length' and 'data' methods return correct values.
         //:
-        //: 2 'bdexSerializationVersion' returns correct value.
+        //: 2 'bdexVersionSelector' returns correct value.
         //
         // Plan:
         //: 1 Create an empty object, use 'putInt8' to modify state, and
         //:   verify the expected values for the methods.  (C-1)
         //:
-        //: 2 Create empty objects with different 'serializationVersion'
-        //:   constructor values and verify the 'bdexSerializationVersion'
-        //:   method's return value.  (C-2)
+        //: 2 Create empty objects with different 'versionSelector' constructor
+        //:   values and verify the 'bdexVersionSelector' method's return
+        //:   value.  (C-2)
         //
         // Testing:
-        //   int bdexSerializationVersion() const;
+        //   int bdexVersionSelector() const;
         //   const char *data() const;
-        //   int length() const;
+        //   bsl::size_t length() const;
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -3992,30 +4154,31 @@ int main(int argc, char *argv[])
             INT8_TC "\x00" INT8_TC "\x01" INT8_TC "\x02",
             INT8_TC "\x00" INT8_TC "\x01" INT8_TC "\x02" INT8_TC "\x03"
         };
-        const int NUM_TEST = static_cast<int>(sizeof DATA / sizeof *DATA);
+        const int   NUM_TEST = static_cast<int>(sizeof DATA / sizeof *DATA);
         for (int iLen = 0; iLen < NUM_TEST; iLen++) {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
-            for (int j = 0; j < iLen; j++) mX.putInt8(j);
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
+            for (int j = 0; j < iLen; j++) {
+                mX.putInt8(j);
+            }
 
             if (veryVerbose) { P_(iLen); P(X); }
-            const int bytes = iLen * (SIZEOF_CODE + SIZEOF_INT8);
+            const bsl::size_t bytes = iLen * (SIZEOF_CODE + SIZEOF_INT8);
             // verify length()
             LOOP_ASSERT(iLen, X.length() == bytes);
             // verify data()
             LOOP_ASSERT(iLen, 0 == memcmp(X.data(), DATA[iLen], bytes));
         }
 
-        if (verbose) cout << "\nTesting bdexSerializationVersion()." << endl;
+        if (verbose) cout << "\nTesting bdexVersionSelector()." << endl;
 
         for (int i = 0; i < 5; ++i) {
-            Obj x(SERIALIZATION_VERSION + i);
-            LOOP_ASSERT(i, SERIALIZATION_VERSION + i ==
-                                                 x.bdexSerializationVersion());
+            Obj x(VERSION_SELECTOR + i);
+            LOOP_ASSERT(i, VERSION_SELECTOR + i == x.bdexVersionSelector());
         }
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // PRIMARY MANIPULATORS TEST:
+        // PRIMARY MANIPULATORS TEST
         //   Verify functionality of primary manipulators.
         //
         // Concerns:
@@ -4030,8 +4193,6 @@ int main(int argc, char *argv[])
         //: 5 'reset' validates and removes all data from the object.
         //:
         //: 6 The destructor functions properly.
-        //:
-        //: 7 QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Verify allocation occurrences by using a test allocator.
@@ -4056,18 +4217,16 @@ int main(int argc, char *argv[])
         //:
         //: 7 Verify the functionality of the destructor using test allocators.
         //:   (C-6)
-        //:
-        //: 8 Verify defensive checks are triggered for invalid values.  (C-7)
         //
         // Testing:
         //   TestOutStream(int sV, *ba = 0);
-        //   TestOutStream(int sV, int initialCapacity, *ba = 0);
+        //   TestOutStream(int sV, bsl::size_t initialCapacity, *ba = 0);
         //   ~TestOutStream();
         //   makeNextInvalid();
         //   putInt8(int value);
-        //   putUint8(int value);
+        //   putUint8(unsigned int value);
         //   reset();
-        //   reserveCapacity(int newCapacity);
+        //   reserveCapacity(bsl::size_t newCapacity);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -4082,7 +4241,8 @@ int main(int argc, char *argv[])
                           << "constructor w/o allocator." << endl;
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
-            Obj mX(SERIALIZATION_VERSION, 100);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR, 100);  const Obj& X = mX;
             ASSERT(0 == X.length());
             ASSERT(allocations + 1 == defaultAllocator.numAllocations());
             mX.putInt8(1);
@@ -4090,7 +4250,7 @@ int main(int argc, char *argv[])
             mX.putInt8(3);
             mX.putInt8(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INT8_TC "\x01"
@@ -4116,7 +4276,8 @@ int main(int argc, char *argv[])
             ASSERT(&mX == &mX.putInt8(1));
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
+
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
             mX.reserveCapacity(300);     // Make larger than default
             ASSERT(0 == X.length());
@@ -4129,7 +4290,7 @@ int main(int argc, char *argv[])
             mX.putInt8(7);
             mX.putInt8(8);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INT8_TC "\x05"
@@ -4146,7 +4307,8 @@ int main(int argc, char *argv[])
                           << "constructor w/ allocator." << endl;
         {
             bsls::Types::Int64 allocations = ta.numAllocations();
-            Obj mX(SERIALIZATION_VERSION, 100, &ta);  const Obj& X = mX;
+
+            Obj mX(VERSION_SELECTOR, 100, &ta);  const Obj& X = mX;
             ASSERT(0 == X.length());
             ASSERT(allocations + 1 == ta.numAllocations());
             mX.putInt8(1);
@@ -4154,7 +4316,7 @@ int main(int argc, char *argv[])
             mX.putInt8(3);
             mX.putInt8(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INT8_TC "\x01"
@@ -4180,7 +4342,8 @@ int main(int argc, char *argv[])
             ASSERT(&mX == &mX.putInt8(1));
         }
         {
-            Obj mX(SERIALIZATION_VERSION, &ta);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR, &ta);  const Obj& X = mX;
+
             bsls::Types::Int64 allocations = ta.numAllocations();
             mX.reserveCapacity(300);     // Make larger than default
             ASSERT(0 == X.length());
@@ -4193,7 +4356,7 @@ int main(int argc, char *argv[])
             mX.putInt8(7);
             mX.putInt8(8);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INT8_TC "\x05"
@@ -4209,7 +4372,7 @@ int main(int argc, char *argv[])
         if (verbose)
             cout << "\nTesting 'putInt8' w/ 'makeNextInvalid'." << endl;
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             ASSERT(0 == X.length());
             mX.makeNextInvalid();
             mX.putInt8(1);
@@ -4218,7 +4381,7 @@ int main(int argc, char *argv[])
             mX.putInt8(3);
             mX.putInt8(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC "\x01"
@@ -4232,14 +4395,14 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting putUint8." << endl;
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             ASSERT(0 == X.length());
             mX.putUint8(1);
             mX.putUint8(2);
             mX.putUint8(3);
             mX.putUint8(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                UINT8_TC "\x01"
@@ -4269,7 +4432,7 @@ int main(int argc, char *argv[])
         if (verbose)
             cout << "\nTesting 'putUint8' w/ 'makeNextInvalid'." << endl;
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             ASSERT(0 == X.length());
             mX.makeNextInvalid();
             mX.putUint8(1);
@@ -4278,7 +4441,7 @@ int main(int argc, char *argv[])
             mX.putUint8(3);
             mX.putUint8(4);
             if (veryVerbose) { P(X); }
-            const int NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
+            const bsl::size_t NUM_BYTES = 4 * (SIZEOF_CODE + SIZE);
             ASSERT(NUM_BYTES == X.length());
             ASSERT(0 == memcmp(X.data(),
                                INVALID_TC "\x01"
@@ -4294,14 +4457,18 @@ int main(int argc, char *argv[])
         {
             const int NUM_TEST = 5;
             for (int iLen = 1; iLen < NUM_TEST; iLen++) {
-                Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+                Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
 
-                for (int j = 0; j < iLen; j++) mX.putInt8(j);
+                for (int j = 0; j < iLen; j++) {
+                    mX.putInt8(j);
+                }
                 mX.reset();
                 if (veryVerbose) { P_(iLen); P(X); }
                 LOOP_ASSERT(iLen, 0 == X.length());
 
-                for (int j = 0; j < iLen; j++) mX.putInt8(j);
+                for (int j = 0; j < iLen; j++) {
+                    mX.putInt8(j);
+                }
                 mX.invalidate();
                 LOOP_ASSERT(iLen, false == X.isValid());
                 mX.reset();
@@ -4309,24 +4476,6 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(iLen, X.isValid());
                 LOOP_ASSERT(iLen, 0 == X.length());
             }
-        }
-
-        // --------------------------------------------------------------------
-
-        if (verbose)
-            cout << "\nNegative Testing." << endl;
-        {
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
-
-            ASSERT_SAFE_FAIL(Obj x(SERIALIZATION_VERSION, -1));
-            ASSERT_SAFE_PASS(Obj x(SERIALIZATION_VERSION, 0));
-            ASSERT_SAFE_PASS(Obj x(SERIALIZATION_VERSION, 1));
-
-            Obj mX(SERIALIZATION_VERSION);
-            ASSERT_SAFE_FAIL(mX.reserveCapacity(-1));
-            ASSERT_SAFE_PASS(mX.reserveCapacity(0));
-            ASSERT_SAFE_PASS(mX.reserveCapacity(1));
         }
       } break;
       case 1: {
@@ -4358,7 +4507,7 @@ int main(int argc, char *argv[])
         if (verbose) {
             cout << "\nCreate object x1 using default ctor." << endl;
         }
-        Obj x1(SERIALIZATION_VERSION);
+        Obj x1(VERSION_SELECTOR);
         ASSERT(0 == x1.length());
 
         if (verbose) {
@@ -4381,10 +4530,11 @@ int main(int argc, char *argv[])
             cout << "\nTry putArrayInt8 with x1." << endl;
         }
         const char DATA[] = {0x01, 0x02, 0x03, 0x04};
-        const int SIZE = static_cast<int>(sizeof DATA / sizeof *DATA);
+        const int  SIZE = static_cast<int>(sizeof DATA / sizeof *DATA);
         x1.putArrayInt8(DATA, SIZE);
         if (veryVerbose) { P(x1); }
-        const int NUM_BYTES = SIZEOF_CODE + SIZEOF_ARRLEN + SIZEOF_INT8 * SIZE;
+        const bsl::size_t NUM_BYTES =
+                              SIZEOF_CODE + SIZEOF_ARRLEN + SIZEOF_INT8 * SIZE;
         ASSERT(NUM_BYTES == x1.length());
         ASSERT(0 == memcmp(INT8_TC "\x00\x00\x00\x04" "\x01\x02\x03\x04",
                            x1.data(),

@@ -53,6 +53,10 @@ BSLS_IDENT("$Id: $")
 //:     This macro is defined if 'extern template' is supported by the current
 //:     compiler settings for this platform.
 //:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_FINAL'
+//:     This macro is defined if 'final' is supported for classes and member
+//:     functions by the current compiler settings for this platform.
+//:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT'
 //:    This macro is defined if 'include_next' is supported by the current
 //:    compiler settings for this platform.
@@ -60,6 +64,15 @@ BSLS_IDENT("$Id: $")
 //: 'BSLS_COMPILERFEATURES_SUPPORT_NULLPTR'
 //:    This macro is defined if 'nullptr' is supported by the current compiler
 //:    settings for this platform.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT'
+//:    This macro is defined if the 'explicit' keyword applied to conversion
+//:    operators is supported by the current compiler settings for this
+//:    platform.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE'
+//:    This macro is defined if the 'override' keyword is supported by the
+//:    current compiler settings for this platform.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES'
 //:    This macro is defined if rvalue references are supported by the current
@@ -97,119 +110,342 @@ BSLS_IDENT("$Id: $")
 //  template class bsl::basic_string<char>;
 //  #endif
 //  // ...
+//
+///Feature Support in Compilers
+///----------------------------
+//
+///BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+///- - - - - - - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports syntax to introduce a
+// typedef-name using alias-declaration syntax, declaring a name for a family
+// of types.
+//
+//: Compiler support:
+//:   gcc 4.7
+//:   clang 3.0
+//:   MSVC 2013
+//:   Oracle CC 12.4
+//
+///BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
+/// - - - - - - - - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports '[[noreturn]]' C++11
+// attribute syntax.  MSVC supports the attribute with alternative syntax
+// __declspec(noreturn), and earlier versions of gcc and clang support the
+// alternative syntax '__attribute__((noreturn))'.
+//
+//: Compiler support:
+//:   gcc 4.8
+//:   clang 3.3
+//:   xlC 12.1
+//:   Oracle CC 12.4
+//
+///BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+/// - - - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports the 'decltype' reserved word.
+//
+//: Compiler support:
+//:   gcc 4.3
+//:   clang 3.3
+//:   MSVC 2010
+//:   xlC 11.1
+//:   Oracle CC 12.4
+//
+///BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
+///- - - - - - - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports allowing supression of
+// implicit instantiation of templates by prefixing an explicit instantiation
+// directive with the 'extern' keyword.
+//
+//: Compiler support:
+//:   gcc 3.3
+//:   clang (any)
+//:   MSVC 2010
+//:   xlC 11.1
+//:   Oracle CC 12.4
+//
+///BSLS_COMPILERFEATURES_SUPPORT_FINAL
+///- - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports both finalizing a class using
+// the 'final' keyword after the class name as well as preventing further
+// derived classes from overriding a 'virtual' function by using 'final' after
+// its signature.
+//
+//: Compiler support:
+//:   gcc 4.7
+//:   clang 3.0
+//:   MSVC 2012
+//:   xlC 11.1
+//:   Oracle CC 12.4
+//
+///BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+/// - - - - - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports #include_next semantics
+// expected by the deprecated and internal include code wrapped by
+// BSL_OVERRIDES_STD macro.
+//
+//: Compiler support:
+//:   gcc (any)
+//:   clang (any)
+//:   xlC 8
+//:   Oracle CC 12.4
+//
+///BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+///- - - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports the 'nullptr' reserved word.
+//
+//: Compiler support:
+//:   gcc 4.6
+//:   clang 3.0
+//:   MSVC 2010
+//:   xlC 13.1
+//:   Oracle CC 12.4
+//
+///BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports use of the 'explicit' keyword
+// to indicate that a conversion operator only available for explicit
+// conversions.
+//
+//: Compiler support:
+//:   gcc 4.5
+//:   clang 3.0
+//:   MSVC 2013
+//:   xlC 11.1
+//:   Oracle CC 12.4
+//
+///BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
+/// - - - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports use of the 'override' keyword
+// to indicate that a member function is meant to override a 'virtual'
+// function (and cause a failure if that is not the case).
+//
+//: Compiler support:
+//:   gcc 4.7
+//:   clang 3.0
+//:   MSVC 2012
+//:   xlC 11.1
+//:   Oracle CC 12.4
+//
+///BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports rvalue references and move
+// semantics compatible with the final C++11 specification.  (Semantics have
+// changed since early draft proposals.)
+//
+//: Compiler support:
+//:   gcc 4.5 (rvalue references v2.1; original draft support in gcc 4.3
+//:            is not correct with respect to final spec (v3.0))
+//:   clang 2.9
+//:   MSVC 2010
+//:   xlC 12.1
+//:   Oracle CC 12.4
+//
+///BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+///- - - - - - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports the 'static_assert' reserved
+// word.
+//
+//: Compiler support:
+//:   gcc 4.3
+//:   clang 2.9
+//:   MSVC 2010
+//:   xlC 11.1
+//:   Oracle CC 12.4
+//
+///BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES 
+/// - - - - - - - - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports the ability to express a
+// template that accepts an arbitrary number of parameters in a type-safe
+// manner.
+//
+//: Compiler support:
+//:   gcc 4.3
+//:   clang 2.9
+//:   MSVC 2013
+//:   xlC 11.1
+//:   Oracle CC 12.4
 //..
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
 
-             // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
-// GCC 4.7 has support with '-std=c++0x'.
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40700\
- && defined(__GXX_EXPERIMENTAL_CXX0X__)
+// gcc
+// https://wiki.apache.org/stdcxx/C%2B%2B0xCompilerSupport
+#if defined(BSLS_PLATFORM_CMP_GNU)
+#define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+#endif
+// gcc -std=c++11 or -std=c++0x or -std=gnu++11 or -std=gnu++0x
+#if defined(BSLS_PLATFORM_CMP_GNU) && defined(__GXX_EXPERIMENTAL_CXX0X__)
+#if BSLS_PLATFORM_CMP_VERSION >= 30300
+#define BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
+#endif
+#if BSLS_PLATFORM_CMP_VERSION >= 40300
+#define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+#define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+#define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+#endif
+#if BSLS_PLATFORM_CMP_VERSION >= 40500
+#define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+#define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+// r-value references v1.0 in gcc 4.3, v2.1 in gcc 4.5, v3.0 in gcc 4.6
+#endif
+#if BSLS_PLATFORM_CMP_VERSION >= 40600
+#define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+#endif
+#if BSLS_PLATFORM_CMP_VERSION >= 40700
 #define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+#define BSLS_COMPILERFEATURES_SUPPORT_FINAL
+#define BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
+#endif
+#if BSLS_PLATFORM_CMP_VERSION >= 40800
+#define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
+// gcc supports __attribute__((noreturn)) in earlier versions
+#endif
 #endif
 
-             // BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
 
-// GCC 4.8 has support with '-std=c++11'.
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40800\
- && defined(__GXX_EXPERIMENTAL_CXX0X__)
+// clang
+// http://clang.llvm.org/cxx_status.html
+// http://clang.llvm.org/docs/LanguageExtensions.html
+#if defined(BSLS_PLATFORM_CMP_CLANG)
+// clang supported
+#define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+#define BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
+// clang -std=c++11 or -std=c++0x or -std=gnu++11 or -std=gnu++0x
+// clang 2.9
+#if __has_feature(cxx_rvalue_references)
+#define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+#endif
+#if __has_feature(cxx_static_assert)
+#define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+#endif
+#if __has_feature(cxx_variadic_templates)
+#define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+#endif
+// clang 3.0
+#if __has_feature(cxx_alias_templates)
+#define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+#endif
+#if __has_feature(cxx_explicit_conversions)
+#define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+#endif
+#if __has_feature(cxx_override_control)
+#define BSLS_COMPILERFEATURES_SUPPORT_FINAL
+#define BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
+#endif
+#if __has_feature(cxx_nullptr)
+#define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+#endif
+// clang 3.3
+#if __has_feature(cxx_decltype)
+#define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+#endif
+#if __has_feature(cxx_attributes)
+#define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
+// clang supports __attribute__((noreturn)) in earlier versions
+#endif
+#endif
+
+
+// MSVC
+// http://msdn.microsoft.com/en-us/library/hh567368.aspx
+// http://blogs.msdn.com/b/vcblog/archive/2014/06/11/c-11-14-feature-tables-for-visual-studio-14-ctp1.aspx
+// MSVC enables C++11 features automatically in versions that provide the
+// feature.  Features can not be disabled. 
+//
+//: * extern template is not supported. It is documented as being 
+//:   "supported" but behaves in a non-conforming manner.
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#if BSLS_PLATFORM_CMP_VERSION >= 1600  // Microsoft Visual Studio 2010
+#define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+#define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+#define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+#define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+#endif
+#if BSLS_PLATFORM_CMP_VERSION >= 1800  // Microsoft Visual Studio 2013
+#define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+#define BSLS_COMPILERFEATURES_SUPPORT_FINAL
+#define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+#define BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
+#define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+#endif
+// MSVC has __declspec(noreturn)
+// (see bsls_bslexceptionutil.h bslstl_stdexceptutil.h)
+//#define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
+// (not yet supported in MSVC)
+//#define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+#endif
+
+
+// IBM Visual Age xlC 11.1 and better include increasing support for C++11
+// http://www-01.ibm.com/support/knowledgecenter/SSGH3R_13.1.0/com.ibm.xlcpp131.aix.doc/compiler_ref/macros_lang_levels.html
+// http://www-01.ibm.com/support/knowledgecenter/SSGH3R_13.1.0/com.ibm.xlcpp131.aix.doc/compiler_ref/opt_langlvl.html
+// xlC_r -qlanglvl=extended    (include next, extern template, noreturn)
+// xlC_r -qlanglvl=extended0x  (additional features)
+#if defined(BSLS_PLATFORM_CMP_IBM)
+#if defined(__IBMCPP_DECLTYPE)
+#define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+#endif
+#if defined(__IBMCPP_EXPLICIT)
+#define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+#endif
+#if defined(__IBMCPP_EXTERN_TEMPLATE)
+#define BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
+#endif
+#if defined(__IBM_INCLUDE_NEXT)
+#define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+#endif
+#if defined(__IBMCPP_NULLPTR)
+#define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+#endif
+#if defined(__IBMCPP_OVERRIDE)
+#define BSLS_COMPILERFEATURES_SUPPORT_FINAL
+#define BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
+#endif
+#if defined(__IBMCPP_RVALUE_REFERENCES)
+#define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+#endif
+#if defined(__IBMCPP_STATIC_ASSERT)
+#define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+#endif
+#if defined(__IBMCPP_VARIADIC_TEMPLATES)
+#define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+#endif
+#if defined(__IBMC_NORETURN)
+#define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
+#endif
+// (not yet supported in xlC)
+//#define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+#endif
+
+
+// Oracle Solaris Studio 12.4 claims C++11 support except for C++11
+// concurrency and atomic operations, and for user-defined literals
+// http://docs.oracle.com/cd/E37069_01/html/E37071/gncix.html#scrolltoc
+// No C++11 features are available by default. To use any C++11 features,
+// you must use the new -std=c++11 option with the CC compiler.
+// (__cplusplus >= 201103L when Oracle Solaris Studio CC -std=c++11 is invoked)
+// CC -std=c++11
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION >= 0x5130 \
+ && __cplusplus >= 201103L
+#define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+#define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+#define BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
+#define BSLS_COMPILERFEATURES_SUPPORT_FINAL
+#define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+#define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+#define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+#define BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
+#define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+#define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+#define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 #define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
 #endif
 
-             // BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 
-// Microsoft VC2010 always supports the feature (it cannot be disabled).
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR >= 1600
-#define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 
-// GCC 4.3 has support with '-std=c++0x'.
-#elif defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40300\
-   && defined(__GXX_EXPERIMENTAL_CXX0X__)
-#define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-#endif
-
-             // BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
-
-// IBM xlC compiler has support
-#if defined(BSLS_PLATFORM_CMP_IBM)
-#define BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
-
-// GCC 4.7 has support with '-std=c++0x'.
-#elif defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40700\
-   && defined(__GXX_EXPERIMENTAL_CXX0X__)
-#define BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
-#endif
-
-             // BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
-
-// GCC and CLANG compilers have support
-#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
-#define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
-#endif
-
-             // BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
-
-// Microsoft VC2010 always supports the feature (it cannot be disabled).
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR >= 1600
-#define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
-
-// GCC 4.6 has support with '-std=c++0x'.
-#elif defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40600\
-   && defined(__GXX_EXPERIMENTAL_CXX0X__)
-#define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
-#endif
-
-             // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-
-// Microsoft VC2010 always supports the feature (it cannot be disabled).
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR >= 1600
-#   define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-
-// GCC 4.5 has support with '-std=c++0x' (earlier versions are broken)
-#elif defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40500\
-   && defined(__GXX_EXPERIMENTAL_CXX0X__)
-#define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-#endif
-
-             // BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
-
-// Microsoft VC2010 always supports the feature (it cannot be disabled).
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR >= 1600
-#define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
-
-// IBM XL C++ 11 has support in '0x' mode, or if explicitly activated.  Note
-// that '__IBMCPP_STATIC_ASSERT' was not available until xlC 11, so no version
-// check is needed.
-#elif defined(BSLS_PLATFORM_CMP_IBM) && defined(__IBMCPP_STATIC_ASSERT)
-#define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
-
-// HP-UX aCC 6.25 has support with '-Ax'.
-#elif defined(BSLS_PLATFORM_CMP_HP) && BSLS_PLATFORM_CMP_VER_MAJOR >= 62500 \
-   && defined(_HP_CXX0x_SOURCE)
-#define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
-
-// GCC 4.3 has support with '-std=c++0x'.
-#elif defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40300\
-   && defined(__GXX_EXPERIMENTAL_CXX0X__)
-#define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
-#endif
-
-             // BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
-
-// IBM XL C++ 11 has support in '0x' mode, or if explicitly activated.  Note
-// that '__IBMCPP_VARIADIC_TEMPLATES' was not available until xlC 11, so no
-// version check is needed.
-#if defined(BSLS_PLATFORM_CMP_IBM) && defined(__IBMCPP_VARIADIC_TEMPLATES)
-#define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
-
-// GCC 4.3 has support with '-std=c++0x'.
-#elif defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40300\
-   && defined(__GXX_EXPERIMENTAL_CXX0X__)
-#define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
-#endif
 
     //  *** Simulate various C++11 features ***
 

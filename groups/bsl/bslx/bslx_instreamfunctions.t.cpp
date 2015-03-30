@@ -16,9 +16,9 @@ using namespace BloombergLP;
 using namespace bsl;
 using namespace bslx;
 
-//=============================================================================
+// ============================================================================
 //                              TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
 // This component provides two functions, each of which invokes a method of its
@@ -28,16 +28,16 @@ using namespace bslx;
 // responds in a simple, observable manner when its various methods are called.
 // The testing requirements are fairly straightforward and the provided test
 // type and test stream are used to verify the behavior of the two methods.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 2] bdexStreamIn(STREAM& stream, TYPE& value);
 // [ 1] bdexStreamIn(STREAM& stream, TYPE& value, int version);
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 3] USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-//=============================================================================
+// ============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace {
 
@@ -54,9 +54,9 @@ void aSsErT(int c, const char *s, int i)
 
 }  // close unnamed namespace
 
-//=============================================================================
+// ============================================================================
 //                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
@@ -75,17 +75,17 @@ void aSsErT(int c, const char *s, int i)
 #define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
-//=============================================================================
+// ============================================================================
 //                   GLOBAL CONSTANTS/TYPEDEFS FOR TESTING
-//=============================================================================
+// ============================================================================
 
 typedef bsls::Types::Int64  Int64;
 typedef bsls::Types::Uint64 Uint64;
 
-//=============================================================================
+// ============================================================================
 //              Classes, functions, etc., needed for Usage Example
-//-----------------------------------------------------------------------------
-// In this example we illustrate the primary intended use of the templatized
+// ----------------------------------------------------------------------------
+// In this example we illustrate the primary intended use of the parameterized
 // methods of this component, as well as a few trivial invocations just to show
 // the syntax clearly.  To accomplish this, we exhibit three separate example
 // "components": an 'enum', a value-semantic point object, and an input stream.
@@ -156,7 +156,7 @@ typedef bsls::Types::Uint64 Uint64;
             // 'stream' using the specified 'version' format, and return a
             // reference to 'stream'.  If 'stream' is initially invalid, this
             // operation has no effect.  If 'version' is not supported, this
-            // object is unaltered and 'stream' is invalidated but otherwise
+            // object is unaltered and 'stream' is invalidated, but otherwise
             // unmodified.  If 'version' is supported but 'stream' becomes
             // invalid during this operation, this object has an undefined, but
             // valid, state.  Note that no version is read from 'stream'.  See
@@ -173,9 +173,9 @@ typedef bsls::Types::Uint64 Uint64;
 //..
 // Representative (inline) implementations of these methods are shown below.
 //..
-//=============================================================================
+// ============================================================================
 //                          INLINE FUNCTION DEFINITIONS
-//=============================================================================
+// ============================================================================
 
 // CREATORS
 inline
@@ -309,9 +309,10 @@ class MyInStream {
         // Return the index of the next byte to be extracted from this stream.
 
     bool isEmpty() const;
-        // Return 'true' if this stream is empty, and 'false' otherwise.  Note
-        // that this function enables higher-level components to verify that,
-        // after successfully reading all expected data, no data remains.
+        // Return 'true' if this stream is empty, and 'false' otherwise.
+        // Note that this function enables higher-level types to verify
+        // that, after successfully reading all expected data, no data
+        // remains.
 
     int length() const;
         // Return the total number of bytes stored in this stream.
@@ -320,9 +321,9 @@ class MyInStream {
 //..
 // The relevant (inline) implementations are as follows.
 //..
-//=============================================================================
+// ============================================================================
 //                          INLINE FUNCTION DEFINITIONS
-//=============================================================================
+// ============================================================================
 
 // CREATORS
 inline
@@ -411,10 +412,9 @@ int MyInStream::length() const
 }
 //..
 
-//=============================================================================
+// ============================================================================
 //                      GLOBAL TEST CLASSES
-//-----------------------------------------------------------------------------
-
+// ----------------------------------------------------------------------------
 
 class MyTestInStream {
     // Test class used to test streaming.
@@ -690,7 +690,7 @@ class MyTestClass {
 
   public:
     // CLASS METHODS
-    static int maxSupportedBdexVersion(int serializationVersion);
+    static int maxSupportedBdexVersion(int versionSelector);
 
     // CREATORS
     MyTestClass() { }
@@ -701,8 +701,8 @@ class MyTestClass {
     STREAM& bdexStreamIn(STREAM& stream, int version);
 };
 
-int MyTestClass::maxSupportedBdexVersion(int serializationVersion) {
-    if (serializationVersion >= 20131201) return 2;
+int MyTestClass::maxSupportedBdexVersion(int versionSelector) {
+    if (versionSelector >= 20131201) return 2;
     return 1;
 }
 
@@ -724,9 +724,9 @@ STREAM& MyTestClass::bdexStreamIn(STREAM& stream, int version)
     return stream;
 }
 
-//=============================================================================
+// ============================================================================
 //                                  MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {

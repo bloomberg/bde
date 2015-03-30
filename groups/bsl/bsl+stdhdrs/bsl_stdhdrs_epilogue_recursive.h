@@ -42,9 +42,27 @@
 #endif
 
 
+// Now include those 'bslstl' components corresponding to the 'bsl+stdhdrs'
+// files that have been included.
+
 #ifdef BSL_INCLUDE_BSL_SSTREAM
-# ifndef INCLUDED_BSLSTL_SSTREAM
-#   include <bslstl_sstream.h>
+# ifndef INCLUDED_BSLSTL_ISTRINGSTREAM
+#   include <bslstl_istringstream.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+
+# ifndef INCLUDED_BSLSTL_OSTRINGSTREAM
+#   include <bslstl_ostringstream.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+
+# ifndef INCLUDED_BSLSTL_STRINGBUF
+#   include <bslstl_stringbuf.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+
+# ifndef INCLUDED_BSLSTL_STRINGSTREAM
+#   include <bslstl_stringstream.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 #endif
@@ -55,9 +73,6 @@
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 #endif
-
-// Now include those 'bslstl' components corresponding to the 'bsl+stdhdrs'
-// files that have been included.
 
 // If '<algorithm>' was included, then inclue the work-arounds to the platform
 // algorithms header.
@@ -224,9 +239,14 @@
 #   include <bslstl_hash.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
+# ifndef INCLUDED_BSLSTL_REFERENCEWRAPPER
+#   include <bslstl_referencewrapper.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
 #endif
 
-// If '<memory>' was included, then include our implementation of allocators.
+// If '<memory>' was included, then include our implementation of allocators,
+// 'allocator_traits', and 'shared_ptr'
 #ifdef INCLUDED_NATIVE_MEMORY
 # ifndef INCLUDED_BSLSTL_ALLOCATOR
 #   include <bslstl_allocator.h>
@@ -236,8 +256,24 @@
 #   include <bslstl_allocatortraits.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
+# ifndef INCLUDED_BSLSTL_BADWEAKPTR
+#   include <bslstl_badweakptr.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+# ifndef INCLUDED_BSLSTL_OWNERLESS
+#   include <bslstl_ownerless.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
 # ifndef INCLUDED_BSLSTL_SHAREDPTR
 #   include <bslstl_sharedptr.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+# ifndef INCLUDED_BSLSTL_SHAREDPTRALLOCATEINPLACEREP
+#   include <bslstl_sharedptrallocateinplacerep.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+# ifndef INCLUDED_BSLSTL_SHAREDPTRALLOCATEOUTOFPLACEREP
+#   include <bslstl_sharedptrallocateoutofplacerep.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 #endif

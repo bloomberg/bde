@@ -103,6 +103,20 @@ BSLS_IDENT("$Id: $")
 // for a robust implementation (such as this one) to check for the error in a
 // defensive (e.g., "DEBUG" or "SAFE") build mode.
 //
+///BDEX Compatibility with Legacy POSIX-Based Date
+///-----------------------------------------------
+// The version 1 format supported by 'bdlt::Date' for BDEX streaming is
+// expressly intended for maintaining some degree of "compatibility" with a
+// legacy date class that uses a (non-proleptic) Gregorian calendar matching
+// the POSIX 'cal' command.  Over the range of dates supported by 'bdlt::Date'
+// ('[0001JAN01 .. 9999DEC31']), the proleptic Gregorian calendar (used by
+// 'bdlt::Date') has two fewer days than 'cal', and some dates that exist in
+// one calendar do not exist in the other; therefore, true compatibility is not
+// possible.  The compatibility guaranteed by BDEX streaming version 1 is such
+// that all dates in the range '[1752SEP14 .. 9999DEC31]', as well as the
+// default value ('0001JAN01'), can be successfully exchanged, via BDEX,
+// between 'bdlt::Date' and the legacy date class.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -185,6 +199,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_dayofweek.h>
 #endif
 
+#ifndef INCLUDED_BDLT_MONTHOFYEAR
+#include <bdlt_monthofyear.h>
+#endif
+
 #ifndef INCLUDED_BDLT_SERIALDATEIMPUTIL
 #include <bdlt_serialdateimputil.h>
 #endif
@@ -238,6 +256,18 @@ class Date {
     friend int  operator-(const Date&, const Date&);
 
   private:
+    // PRIVATE CLASS METHODS
+    static bool isValidSerial(int serialDate);
+        // Return 'true' if the specified 'serialDate' represents a valid value
+        // for a 'Date' object, and 'false' otherwise.  'serialDate' represents
+        // a valid 'Date' value if it corresponds to a valid date as defined by
+        // the proleptic Gregorian calendar confined to the year range
+        // '[1 .. 9999]' inclusive, where serial date 1 corresponds to
+        // '0001/01/01' and each successive day has a serial date value that is
+        // 1 greater than that of the previous day.  See {Valid Date Values and
+        // Their Representations} for details.
+
+
     // PRIVATE CREATORS
     explicit Date(int serialDate);
         // Create a date initialized with the value indicated by the specified
@@ -402,6 +432,10 @@ class Date {
         // Load, into the specified 'year', 'month', and 'day', the respective
         // 'year', 'month', and 'day' attribute values of this date.
 
+    MonthOfYear::Enum monthOfYear() const;
+        // Return the month of the year in the range
+        // '[MonthOfYear::e_JAN .. MonthOfYear::e_DEC]' of this date.
+
                                   // Aspects
 
     template <class STREAM>
@@ -510,12 +544,19 @@ int operator-(const Date& lhs, const Date& rhs);
                                   // class Date
                                   // ----------
 
+// PRIVATE CLASS METHODS
+inline
+bool Date::isValidSerial(int serialDate)
+{
+    return SerialDateImpUtil::isValidSerial(serialDate);
+}
+
 // PRIVATE CREATORS
 inline
 Date::Date(int serialDate)
 : d_serialDate(serialDate)
 {
-    BSLS_ASSERT_SAFE(SerialDateImpUtil::isValidSerial(d_serialDate));
+    BSLS_ASSERT_SAFE(Date::isValidSerial(d_serialDate));
 }
 
 // CLASS METHODS
@@ -551,6 +592,7 @@ Date::Date(int year, int dayOfYear)
 : d_serialDate(SerialDateImpUtil::ydToSerial(year, dayOfYear))
 {
     BSLS_ASSERT_SAFE(isValidYearDay(year, dayOfYear));
+
 }
 
 inline
@@ -558,6 +600,7 @@ Date::Date(int year, int month, int day)
 : d_serialDate(SerialDateImpUtil::ymdToSerial(year, month, day))
 {
     BSLS_ASSERT_SAFE(isValidYearMonthDay(year, month, day));
+
 }
 
 inline
@@ -569,7 +612,7 @@ Date::Date(const Date& original)
 inline
 Date::~Date()
 {
-    BSLS_ASSERT_SAFE(SerialDateImpUtil::isValidSerial(d_serialDate));
+    BSLS_ASSERT_SAFE(Date::isValidSerial(d_serialDate));
 }
 
 // MANIPULATORS
@@ -583,7 +626,8 @@ Date& Date::operator=(const Date& rhs)
 inline
 Date& Date::operator+=(int numDays)
 {
-    BSLS_ASSERT_SAFE(SerialDateImpUtil::isValidSerial(d_serialDate + numDays));
+    BSLS_ASSERT_SAFE(Date::isValidSerial(d_serialDate + numDays));
+
 
     d_serialDate += numDays;
     return *this;
@@ -592,7 +636,8 @@ Date& Date::operator+=(int numDays)
 inline
 Date& Date::operator-=(int numDays)
 {
-    BSLS_ASSERT_SAFE(SerialDateImpUtil::isValidSerial(d_serialDate - numDays));
+    BSLS_ASSERT_SAFE(Date::isValidSerial(d_serialDate - numDays));
+
 
     d_serialDate -= numDays;
     return *this;
@@ -603,6 +648,7 @@ Date& Date::operator++()
 {
     BSLS_ASSERT_SAFE(*this != Date(9999, 12, 31));
 
+
     ++d_serialDate;
     return *this;
 }
@@ -611,6 +657,7 @@ inline
 Date& Date::operator--()
 {
     BSLS_ASSERT_SAFE(*this != Date(1, 1, 1));
+
 
     --d_serialDate;
     return *this;
@@ -670,9 +717,20 @@ STREAM& Date::bdexStreamIn(STREAM& stream, int version)
 
             stream.getInt24(tmpSerialDate);
 
-            if (   stream
-                && SerialDateImpUtil::isValidSerial(tmpSerialDate)) {
+            // See {BDEX Compatibility with Legacy POSIX-Based 'Date'} in the
+            // component-level documentation.
+
+            if (tmpSerialDate > 3) {
+                tmpSerialDate -= 2;  // ensure that serial values for 1752SEP14
+                                     // and later dates "align"
+            }
+            else if (tmpSerialDate > 0) {
+                tmpSerialDate = 1;   // "fuzzy" default value '[1 .. 3]'
+            }
+
+            if (stream && Date::isValidSerial(tmpSerialDate)) {
                 d_serialDate = tmpSerialDate;
+
             }
             else {
                 stream.invalidate();
@@ -716,7 +774,8 @@ int Date::year() const
 inline
 DayOfWeek::Enum Date::dayOfWeek() const
 {
-    return DayOfWeek::Enum(SerialDateImpUtil::serialToDayOfWeek(d_serialDate));
+    return static_cast<DayOfWeek::Enum>(
+                           SerialDateImpUtil::serialToDayOfWeek(d_serialDate));
 }
 
 inline
@@ -738,6 +797,12 @@ void Date::getYearMonthDay(int *year, int *month, int *day) const
     SerialDateImpUtil::serialToYmd(year, month, day, d_serialDate);
 }
 
+inline
+MonthOfYear::Enum Date::monthOfYear() const
+{
+    return static_cast<MonthOfYear::Enum>(month());
+}
+
                                   // Aspects
 
 template <class STREAM>
@@ -746,7 +811,18 @@ STREAM& Date::bdexStreamOut(STREAM& stream, int version) const
     if (stream) {
         switch (version) { // switch on the schema version
           case 1: {
-            stream.putInt24(d_serialDate);
+
+            // See {BDEX Compatibility with Legacy POSIX-Based 'Date'} in the
+            // component-level documentation.
+
+            if (1 == d_serialDate) {  // preserve default value
+                stream.putInt24(d_serialDate);
+            }
+            else {
+                stream.putInt24(d_serialDate + 2);
+                                      // ensure that serial values for
+                                      // 1752SEP14 and later dates "align"
+            }
           } break;
           default: {
             stream.invalidate();  // unrecognized version number
@@ -825,8 +901,8 @@ bdlt::Date bdlt::operator--(Date& date, int)
 inline
 bdlt::Date bdlt::operator+(const Date& date, int numDays)
 {
-    BSLS_ASSERT_SAFE(SerialDateImpUtil::isValidSerial(
-                                                 date.d_serialDate + numDays));
+    BSLS_ASSERT_SAFE(Date::isValidSerial(date.d_serialDate + numDays));
+
 
     return Date(date.d_serialDate + numDays);
 }
@@ -834,8 +910,8 @@ bdlt::Date bdlt::operator+(const Date& date, int numDays)
 inline
 bdlt::Date bdlt::operator+(int numDays, const Date& date)
 {
-    BSLS_ASSERT_SAFE(SerialDateImpUtil::isValidSerial(
-                                                 numDays + date.d_serialDate));
+    BSLS_ASSERT_SAFE(Date::isValidSerial(numDays + date.d_serialDate));
+
 
     return Date(numDays + date.d_serialDate);
 }
@@ -843,8 +919,8 @@ bdlt::Date bdlt::operator+(int numDays, const Date& date)
 inline
 bdlt::Date bdlt::operator-(const Date& date, int numDays)
 {
-    BSLS_ASSERT_SAFE(SerialDateImpUtil::isValidSerial(
-                                                 date.d_serialDate - numDays));
+    BSLS_ASSERT_SAFE(Date::isValidSerial(date.d_serialDate - numDays));
+
 
     return Date(date.d_serialDate - numDays);
 }
@@ -852,6 +928,7 @@ bdlt::Date bdlt::operator-(const Date& date, int numDays)
 inline
 int bdlt::operator-(const Date& lhs, const Date& rhs)
 {
+
     return lhs.d_serialDate - rhs.d_serialDate;
 }
 

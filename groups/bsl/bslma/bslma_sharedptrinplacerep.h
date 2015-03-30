@@ -743,7 +743,8 @@ template <class TYPE>
 inline
 void *SharedPtrInplaceRep<TYPE>::originalPtr() const
 {
-    return const_cast<void *>(static_cast<const void *>(&d_instance));
+    return const_cast<void *>(static_cast<const void *>(
+                                           bsls::Util::addressOf(d_instance)));
 }
 
 // ============================================================================

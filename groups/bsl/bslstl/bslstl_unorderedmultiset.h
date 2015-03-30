@@ -15,7 +15,7 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bsl+stdhdrs
 //
 //@DESCRIPTION: This component defines a single class template,
-// 'unordered_multiset', implementing the standard container holding a
+// 'bsl::unordered_multiset', implementing the standard container holding a
 // collection of multiple keys with no guarantees on ordering (unless keys
 // have the same value).
 //
@@ -245,16 +245,30 @@ BSLS_IDENT("$Id: $")
 //  | a.rehash(k)                                        | Average: O[n]      |
 //  |                                                    | Worst:   O[n^2]    |
 //  +----------------------------------------------------+--------------------+
-//  | a.resize(k)                                        | Average: O[n]      |
+//  | a.reserve(k)                                       | Average: O[n]      |
 //  |                                                    | Worst:   O[n^2]    |
 //  +----------------------------------------------------+--------------------+
 //..
+//
+///Iterator, pointer and reference invalidation
+///--------------------------------------------
+// No method of 'unordered_multiset' invalidates a pointer or reference to an
+// element in the set, unless it also erases that element, such as any 'erase'
+// overload, 'clear', or the destructor (that erases all elements).  Pointers
+// and references are stable through a rehash.
+//
+// Iterators to elements in the container are invalidated by any rehash, so
+// iterators may be invalidated by an 'insert' or 'emplace' call if it triggers
+// a rehash (but not otherwise).  Iterators to specific elements are also
+// invalidated when that element is erased.  Note that the 'end' iterator is
+// not an iterator referring to any element in the container, so may be
+// invalidated by any non-'const' method.
 //
 ///Unordered Multi-Set Configuration
 ///---------------------------------
 // The unordered multi-set has interfaces that can provide insight into and
 // control of its inner workings.  The syntax and semantics of these interfaces
-// for 'bslstl_unoroderedmultiset' are identical to those of
+// for 'bslstl_unorderedmultiset' are identical to those of
 // 'bslstl_unorderedmap'.  See the discussion in
 // {'bslstl_unorderedmap'|Unordered Map Configuration} and the illustrative
 // material in {'bslstl_unorderedmap'|Example 2}.
@@ -684,8 +698,8 @@ class unordered_multiset
               class EQUAL2,
               class ALLOCATOR2>
     friend bool operator==(
-                const unordered_multiset<KEY2, HASH2, EQUAL2, ALLOCATOR2>&,
-                const unordered_multiset<KEY2, HASH2, EQUAL2, ALLOCATOR2>&);
+                   const unordered_multiset<KEY2, HASH2, EQUAL2, ALLOCATOR2>&,
+                   const unordered_multiset<KEY2, HASH2, EQUAL2, ALLOCATOR2>&);
 
   public:
     // PUBLIC TYPES
@@ -1072,8 +1086,8 @@ class unordered_multiset
               class EQUAL2,
               class ALLOCATOR2>
     friend bool operator==(
-                const unordered_multiset<KEY2, HASH2, EQUAL2, ALLOCATOR2>&,
-                const unordered_multiset<KEY2, HASH2, EQUAL2, ALLOCATOR2>&);
+                   const unordered_multiset<KEY2, HASH2, EQUAL2, ALLOCATOR2>&,
+                   const unordered_multiset<KEY2, HASH2, EQUAL2, ALLOCATOR2>&);
 
 };
 
@@ -1100,8 +1114,8 @@ bool operator!=(const unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
     // "equality-comparable" (see {Requirements on 'KEY'}).
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
-void swap(unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& x,
-          unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& y);
+void swap(unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& a,
+          unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& b);
     // Swap both the value and the comparator of the specified 'a' object with
     // the value and comparator of the specified 'b' object.  The behavior is
     // undefined is unless this object was created with the same allocator as
@@ -1179,7 +1193,7 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::~unordered_multiset()
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>&
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::operator=(
-                                               const unordered_multiset& rhs)
+                                                 const unordered_multiset& rhs)
 {
     // Actually, need to check propagate_on_copy_assign trait
 
@@ -1286,9 +1300,9 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::erase(const key_type& key)
     if (HashTableLink *target = d_impl.find(key)) {
         target = d_impl.remove(target);
         size_type result = 1;
-        while (target && this->key_eq()(
-       key,
-       ListConfiguration::extractKey(static_cast<BNode *>(target)->value()))) {
+        while (target &&
+               this->key_eq()(key, ListConfiguration::extractKey(
+                                     static_cast<BNode *>(target)->value()))) {
             target = d_impl.remove(target);
             ++result;
         }
@@ -1346,8 +1360,8 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::insert(
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::iterator
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::insert(
-                                                    const_iterator    hint,
-                                                    const value_type& value)
+                                                       const_iterator    hint,
+                                                       const value_type& value)
 {
     return iterator(d_impl.insert(value, hint.node()));
 }
@@ -1589,8 +1603,8 @@ float unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::max_load_factor() const
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 bool bsl::operator==(
-              const bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
-              const bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& rhs)
+               const bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
+               const bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& rhs)
 {
     return lhs.d_impl == rhs.d_impl;
 }
@@ -1598,8 +1612,8 @@ bool bsl::operator==(
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 bool bsl::operator!=(
-              const bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
-              const bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& rhs)
+               const bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
+               const bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& rhs)
 {
     return !(lhs == rhs);
 }
@@ -1607,10 +1621,10 @@ bool bsl::operator!=(
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void
-bsl::swap(bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& x,
-          bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& y)
+bsl::swap(bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& a,
+          bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& b)
 {
-    x.swap(y);
+    a.swap(b);
 }
 
 // ============================================================================

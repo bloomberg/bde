@@ -284,7 +284,7 @@ int BitUtil::numBitsSet(uint32_t value)
 {
 #if defined(BSLS_PLATFORM_CMP_IBM)
     return __popcnt4(value);
-#elif defined(BSLS_PLATFORM_CMP_GNU)
+#elif defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
     return __builtin_popcount(value);
 #else
     return privateNumBitsSet(value);
@@ -296,7 +296,7 @@ int BitUtil::numBitsSet(uint64_t value)
 {
 #if defined(BSLS_PLATFORM_CMP_IBM)
     return __popcnt8(value);
-#elif defined(BSLS_PLATFORM_CMP_GNU)
+#elif defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
     return __builtin_popcountll(value);
 #else
     return privateNumBitsSet(value);
@@ -308,7 +308,7 @@ int BitUtil::numLeadingUnsetBits(uint32_t value)
 {
 #if defined(BSLS_PLATFORM_CMP_IBM)
     return __cntlz4(value);
-#elif defined(BSLS_PLATFORM_CMP_GNU)
+#elif defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
     // '__builtin_clz(0)' is undefined
     return __builtin_clz(value | 1) + static_cast<int>(!value);
 #else
@@ -321,7 +321,7 @@ int BitUtil::numLeadingUnsetBits(uint64_t value)
 {
 #if defined(BSLS_PLATFORM_CMP_IBM)
     return __cntlz8(value);
-#elif defined(BSLS_PLATFORM_CMP_GNU)
+#elif defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
     // '__builtin_clzll(0)' is undefined
     return __builtin_clzll(value | 1) + static_cast<int>(!value);
 #else
@@ -334,7 +334,7 @@ int BitUtil::numTrailingUnsetBits(uint32_t value)
 {
 #if defined(BSLS_PLATFORM_CMP_IBM)
     return __cnttz4(value);
-#elif defined(BSLS_PLATFORM_CMP_GNU)
+#elif defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
     enum {
         k_INT32_MASK = k_BITS_PER_INT32 - 1
     };
@@ -355,7 +355,7 @@ int BitUtil::numTrailingUnsetBits(uint64_t value)
 {
 #if defined(BSLS_PLATFORM_CMP_IBM)
     return __cnttz8(value);
-#elif defined(BSLS_PLATFORM_CMP_GNU)
+#elif defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
     enum {
         k_INT64_MASK = k_BITS_PER_INT64 - 1,
         k_INT32_MASK = k_BITS_PER_INT32 - 1

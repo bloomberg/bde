@@ -401,7 +401,7 @@ SpookyHashAlgorithm::SpookyHashAlgorithm()
 inline
 SpookyHashAlgorithm::SpookyHashAlgorithm(const char *seed)
 : d_state(
-#if defined(BSLS_PLATFORM_OS_SOLARIS)
+#if !defined(BSLS_PLATFORM_CPU_X86_64) && !defined(BSLS_PLATFORM_CPU_X86)
           static_cast<Uint64>(seed[0])  << 56 |
           static_cast<Uint64>(seed[1])  << 48 |
           static_cast<Uint64>(seed[2])  << 40 |
@@ -425,7 +425,7 @@ SpookyHashAlgorithm::SpookyHashAlgorithm(const char *seed)
           )
 {
     // These static casts and bit shifts are to prevent unaligned reads, which
-    // will cause runtime errors on Sun machines.
+    // cause runtime errors or bad results on anything but Intel.
 }
 
 // MANIPULATORS

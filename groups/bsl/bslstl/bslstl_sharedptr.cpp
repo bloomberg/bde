@@ -24,7 +24,7 @@ namespace bslstl {
 // MANIPULATORS
 bsl::shared_ptr<char>
 SharedPtrUtil::createInplaceUninitializedBuffer(
-                                              size_t       bufferSize,
+                                              size_t            bufferSize,
                                               bslma::Allocator *basicAllocator)
 {
     basicAllocator = bslma::Default::allocator(basicAllocator);

@@ -2,8 +2,11 @@
 
 #include <bsls_byteorderutil.h>
 
+#include <bsls_assert.h>         // for testing only
 #include <bsls_bsltestutil.h>    // for testing only
+#include <bsls_stopwatch.h>      // for testing only
 
+#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <limits>
@@ -33,7 +36,7 @@
 // type, the type is loaded with the unswapped value, then this is fed into
 // function under test, and the result compared to the swapped value.
 //
-// Some types vary in size across different platforms, and accomodation is
+// Some types vary in size across different platforms, and accommodation is
 // made for this, plus tests to make sure that all types are in fact tested.
 //
 // Single byte values are tested for all possible value in the 'singleByteTest'
@@ -104,12 +107,12 @@ void aSsErT(bool b, const char *s, int i)
 #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
 #define PHEX(X)  printf(#X " = 0x%llx\n", (Uint64) (X));
-#define PHEX_(X) printf(#X " = 0x%llx\t", (Uint64) (X));                     \
+#define PHEX_(X) printf(#X " = 0x%llx\t", (Uint64) (X));                      \
                  bsls::BslTestUtil::flush();
 
-#if defined(BSLS_PLATFORM_CMP_MSVC) ||                                        \
-    (defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_CPU_32_BIT))
-#define BYTEORDERUTIL_SIZEOF_WCHAR_T 2
+#if defined(BSLS_PLATFORM_OS_WINDOWS) ||                                      \
+    (defined(BSLS_PLATFORM_OS_AIX) && defined(BSLS_PLATFORM_CPU_32_BIT))
+# define BYTEORDERUTIL_SIZEOF_WCHAR_T 2
 #else
 # define BYTEORDERUTIL_SIZEOF_WCHAR_T 4
 #endif
@@ -174,16 +177,56 @@ void singleByteTest()
 
 template <class TYPE>
 void swapBytesInPlace(TYPE *value)
-    // Reverse the byte order of the specified integral object '*value'.
+    // Swap the byte order of the specified integral object '*value'.
 {
-    char *tail = reinterpret_cast<char *>(value + 1) - 1;
-    char *head = reinterpret_cast<char *>(value);
+    char *pc = reinterpret_cast<char *>(value);
 
-    for (; head < tail; ++head, --tail) {
-        char tmp = *head;
-        *head = *tail;
-        *tail = tmp;
+    for (int h = 0, t = sizeof(*value) - 1; h < t; ++h, --t) {
+        char tmp = pc[h];
+        pc[h] = pc[t];
+        pc[t] = tmp;
     }
+}
+
+inline
+unsigned short
+myGenericSwap16(unsigned short x)
+{
+//  return static_cast<unsigned short>((x >> 8) | (x << 8));
+
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(unsigned short, x);
+}
+
+inline
+unsigned int
+myGenericSwap32(unsigned int x)
+{
+#if 0
+    return ( x               << 24)
+         | ((x & 0x0000ff00) <<  8)
+         | ((x & 0x00ff0000) >>  8)
+         | ( x               >> 24);
+#endif
+
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32(unsigned int, x);
+}
+
+inline
+bsls::Types::Uint64
+myGenericSwap64(bsls::Types::Uint64 x)
+{
+#if 0
+    return ( x                         << 56)
+         | ((x & 0x000000000000ff00LL) << 40)
+         | ((x & 0x0000000000ff0000LL) << 24)
+         | ((x & 0x00000000ff000000LL) <<  8)
+         | ((x & 0x000000ff00000000LL) >>  8)
+         | ((x & 0x0000ff0000000000LL) >> 24)
+         | ((x & 0x00ff000000000000LL) >> 40)
+         | ( x                         >> 56);
+#endif
+
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(bsls::Types::Uint64, x);
 }
 
 }  // close unnamed namespace
@@ -813,18 +856,18 @@ int main(int argc, char *argv[])
         //: 1 Test 16 bit swaps.
         //:   A Test 'swapBytes16'
         //:   B Test 'swapBytes' on 'short' and 'unsigned short'
-        //:   C If '2 == sizeof(wchar_t)'. test 'swapBytes(wchar_t)'
+        //:   C If '2 == sizeof(wchar_t)', test 'swapBytes(wchar_t)'
         //:
         //: 2 Test 32 bit swaps.
         //:   A Test 'swapBytes32'
         //:   B Test 'swapBytes' on 'int' and 'unsigned int'
-        //:   C If '4 == sizeof(wchar_t)'. test 'swapBytes(wchar_t)'
-        //:   D If '4 == sizeof(long)'. test 'swapBytes(long)'
+        //:   C If '4 == sizeof(wchar_t)', test 'swapBytes(wchar_t)'
+        //:   D If '4 == sizeof(long)', test 'swapBytes(long)'
         //:
         //: 3 Test 64 bit swaps.
         //:   A Test 'swapBytes64'
         //:   B Test 'swapBytes' on 'Types::Int64' and 'Types::Uint64'
-        //:   C If '8 == sizeof(long)'. test 'swapBytes(long)'
+        //:   C If '8 == sizeof(long)', test 'swapBytes(long)'
         //:
         //: 4 Check 'bool's set when testing 'wchar_t' and 'long' to make
         //:   sure the #ifdef logic resulted in both types being tested.
@@ -986,7 +1029,160 @@ int main(int argc, char *argv[])
       default: {
         std::fprintf(stderr, "WARNING: CASE '$d' NOT FOUND.\n");
         testStatus = -1;
-      }
+      } break;
+      case -1: {
+        // --------------------------------------------------------------------
+        // PERFORMANCE SPEED TRIALS
+        //
+        // Concerns:
+        //   Evaluate the performance of the swap functions.
+        //
+        // Plan:
+        //   Repeatedly evaluate the 'swapBytes' function, and use 'StopWatch'
+        //   to evaluate how quickly they run.
+        // --------------------------------------------------------------------
+
+        if (verbose) std::printf("\nPERFORMANCE SPEED TRIALS\n"
+                                   "========================\n");
+
+        unsigned int intTotal = 0;
+        bsls::Stopwatch sw;
+
+        // Dummy loops
+
+        Uint64 startIteration = (1 << 24);
+
+        while (true) {
+            P(startIteration);
+
+            sw.reset();
+            sw.start(true);
+            unsigned short shortSrc = 0;
+            for (Uint64 ti = startIteration; ti > 0; --ti, --shortSrc) {
+                intTotal += shortSrc ^ 0x1234;
+            }
+            sw.stop();
+
+            if (sw.accumulatedUserTime() >= 2.0) {
+                break;
+            }
+
+            startIteration <<= 1;
+            BSLS_ASSERT_OPT(0 != startIteration);
+        }
+
+        double dummy16Time = sw.accumulatedUserTime();
+
+        ASSERT(dummy16Time > 0);
+
+        sw.reset();
+        sw.start(true);
+        unsigned short shortSrc = 0;
+        for (Uint64 ti = startIteration; ti > 0; --ti, --shortSrc) {
+            intTotal += Util::swapBytes(shortSrc) ^ 0x1234;
+        }
+        sw.stop();
+
+        double shortTime = sw.accumulatedUserTime() - dummy16Time;
+
+        LOOP_ASSERT(shortTime, shortTime > 0);
+
+        sw.reset();
+        sw.start(true);
+        shortSrc = -1;
+        for (Uint64 ti = startIteration; ti > 0; --ti, --shortSrc) {
+            intTotal += myGenericSwap16(shortSrc) ^ 0x1234;
+        }
+        sw.stop();
+
+        double genericShortTime = sw.accumulatedUserTime() - dummy16Time;
+
+        LOOP_ASSERT(genericShortTime, genericShortTime > 0);
+        genericShortTime = std::max(genericShortTime, 1e-20);
+        printf("16: custom/generic: %g\n", shortTime / genericShortTime);
+        P_(shortTime); P(genericShortTime);
+
+        sw.reset();
+        sw.start(true);
+        unsigned int intSrc = 0;
+        for (Uint64 ti = startIteration; ti > 0; --ti, --intSrc) {
+            intTotal += intSrc ^ 0x1234;
+        }
+        sw.stop();
+
+        double dummy32Time = sw.accumulatedUserTime();
+
+        ASSERT(dummy32Time > 0);
+
+        sw.reset();
+        sw.start(true);
+        intSrc = 0;
+        for (Uint64 ti = startIteration; ti > 0; --ti, --intSrc) {
+            intTotal += Util::swapBytes(intSrc) ^ 0x1234;
+        }
+        sw.stop();
+
+        double intTime = sw.accumulatedUserTime() - dummy32Time;
+        LOOP_ASSERT(intTime, intTime > 0);
+
+        sw.reset();
+        sw.start(true);
+        intSrc = 0;
+        for (Uint64 ti = startIteration; ti > 0; --ti, --intSrc) {
+            intTotal += myGenericSwap32(intSrc) ^ 0x1234;
+        }
+        sw.stop();
+
+        double genericIntTime = sw.accumulatedUserTime() - dummy32Time;
+
+        LOOP_ASSERT(genericIntTime, genericIntTime > 0);
+        genericIntTime = std::max(genericIntTime, 1e-20);
+        printf("32: custom/generic: %g\n", intTime / genericIntTime);
+        P_(intTime); P(genericIntTime);
+
+        Uint64 int64Total = intTotal;
+
+        sw.reset();
+        sw.start(true);
+        for (Uint64 ti = startIteration; ti > 0; --ti) {
+            int64Total += ti ^ 0x1234;
+        }
+        sw.stop();
+
+        double dummy64Time = sw.accumulatedUserTime();
+
+        LOOP_ASSERT(sw.accumulatedUserTime(), dummy64Time > 0);
+
+        sw.reset();
+        sw.start(true);
+        for (Uint64 ti = startIteration; ti > 0; --ti) {
+            int64Total += Util::swapBytes(ti) ^ 0x1234;
+        }
+        sw.stop();
+
+        double int64Time = sw.accumulatedUserTime() - dummy64Time;
+
+        LOOP_ASSERT(int64Time, int64Time > 0);
+
+        sw.reset();
+        sw.start(true);
+        for (Uint64 ti = startIteration; ti > 0; --ti) {
+            int64Total += myGenericSwap64(ti) ^ 0x1234;
+        }
+        sw.stop();
+
+        double genericInt64Time = sw.accumulatedUserTime() - dummy64Time;
+
+        LOOP_ASSERT(genericInt64Time, genericInt64Time > 0);
+        genericInt64Time = std::max(genericInt64Time, 1e-20);
+        printf("64: custom/generic: %g\n", int64Time / genericInt64Time);
+        P_(int64Time); P(genericInt64Time);
+
+        // Output 'int64Total' to make sure it's observed and prevent
+        // optimizers from optimizing loops out of existence.
+
+        P(int64Total);
+      } break;
     }
 
     if (testStatus > 0) {

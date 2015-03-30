@@ -20,13 +20,13 @@ namespace bslx {
 // FREE OPERATORS
 bsl::ostream& operator<<(bsl::ostream& stream, const ByteInStream& object)
 {
-    const int           len   = object.length();
+    const bsl::size_t   len   = object.length();
     const char         *data  = object.data();
     bsl::ios::fmtflags  flags = stream.flags();
 
     stream << bsl::hex;
 
-    for (int i = 0; i < len; ++i) {
+    for (bsl::size_t i = 0; i < len; ++i) {
         if (0 < i && 0 != i % 8) {
             stream << ' ';
         }

@@ -14,6 +14,7 @@
 #include <bsl_climits.h>
 #include <bsl_cmath.h>
 #include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_limits.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -149,7 +150,7 @@ class D32 {
     {
         decSingle d_data_s;
         decSingleFromBCD(&d_data_s, exponent, bcd, sign);
-        memcpy(&d_data, &d_data_s, sizeof(d_data));
+        bsl::memcpy(&d_data, &d_data_s, sizeof(d_data));
     }
   public:
     template <unsigned S>
@@ -157,11 +158,11 @@ class D32 {
     {
         if (S >= DECSINGLE_Pmax) {
             unsigned char buff[DECSINGLE_Pmax];
-            memcpy(&buff, &bcd[S - DECSINGLE_Pmax], DECSINGLE_Pmax);
+            bsl::memcpy(&buff, &bcd[S - DECSINGLE_Pmax], DECSINGLE_Pmax);
             set(exponent, buff, sign<0?DECFLOAT_Sign:0);
         } else {
             unsigned char buff[DECSINGLE_Pmax];
-            memset(buff, 0, DECSINGLE_Pmax);
+            bsl::memset(buff, 0, DECSINGLE_Pmax);
             for (unsigned i = S, j = DECSINGLE_Pmax - 1; i > 0; --i, --j) {
                 buff[j] = bcd[i - 1];
             }
@@ -176,7 +177,7 @@ class D32 {
     bool isEqual(const D32& other) const
     {
         // compare the memory for now.  It is wrong in general, sufficient here
-        return memcmp(&d_data, &other.d_data, sizeof(d_data)) == 0;
+        return bsl::memcmp(&d_data, &other.d_data, sizeof(d_data)) == 0;
     }
 
     bsl::ostream &printHex(bsl::ostream &o) const
@@ -213,7 +214,7 @@ class D64 {
     {
         decDouble d_data_s;
         decDoubleFromBCD(&d_data_s, exponent, bcd, sign);
-        memcpy(&d_data, &d_data_s, sizeof(d_data));
+        bsl::memcpy(&d_data, &d_data_s, sizeof(d_data));
     }
   public:
     template <unsigned S>
@@ -221,11 +222,11 @@ class D64 {
     {
         if (S >= DECDOUBLE_Pmax) {
             unsigned char buff[DECDOUBLE_Pmax];
-            memcpy(&buff, &bcd[S - DECDOUBLE_Pmax], DECDOUBLE_Pmax);
+            bsl::memcpy(&buff, &bcd[S - DECDOUBLE_Pmax], DECDOUBLE_Pmax);
             set(exponent, buff, sign<0?DECFLOAT_Sign:0);
         } else {
             unsigned char buff[DECDOUBLE_Pmax];
-            memset(buff, 0, DECDOUBLE_Pmax);
+            bsl::memset(buff, 0, DECDOUBLE_Pmax);
             for (unsigned i = S, j = DECDOUBLE_Pmax - 1; i > 0; --i, --j) {
                 buff[j] = bcd[i - 1];
             }
@@ -240,7 +241,7 @@ class D64 {
     bool isEqual(const D64& other) const
     {
         // compare the memory for now.  It is wrong in general, sufficient here
-        return memcmp(&d_data, &other.d_data, sizeof(d_data)) == 0;
+        return bsl::memcmp(&d_data, &other.d_data, sizeof(d_data)) == 0;
     }
 
     bsl::ostream &printHex(bsl::ostream &o) const
@@ -278,7 +279,7 @@ class D128 {
     {
         decQuad d_data_s;
         decQuadFromBCD(&d_data_s, exponent, bcd, sign);
-        memcpy(&d_data, &d_data_s, sizeof(d_data));
+        bsl::memcpy(&d_data, &d_data_s, sizeof(d_data));
     }
   public:
     template <unsigned S>
@@ -286,11 +287,11 @@ class D128 {
     {
         if (S >= DECQUAD_Pmax) {
             unsigned char buff[DECQUAD_Pmax];
-            memcpy(&buff, &bcd[S - DECQUAD_Pmax], DECQUAD_Pmax);
+            bsl::memcpy(&buff, &bcd[S - DECQUAD_Pmax], DECQUAD_Pmax);
             set(exponent, buff, sign<0?DECFLOAT_Sign:0);
         } else {
             unsigned char buff[DECQUAD_Pmax];
-            memset(buff, 0, DECQUAD_Pmax);
+            bsl::memset(buff, 0, DECQUAD_Pmax);
             for (unsigned i = S, j = DECQUAD_Pmax - 1; i > 0; --i, --j) {
                 buff[j] = bcd[i - 1];
             }
@@ -305,7 +306,7 @@ class D128 {
     bool isEqual(const D128& other) const
     {
         // compare the memory for now.  It is wrong in general, sufficient here
-        return memcmp(&d_data, &other.d_data, sizeof(d_data)) == 0;
+        return bsl::memcmp(&d_data, &other.d_data, sizeof(d_data)) == 0;
     }
 
     bsl::ostream &printHex(bsl::ostream &o) const
@@ -795,8 +796,8 @@ int main(int argc, char *argv[])
             const Util::ValueType64 v582 = Util::makeDecimal64(582, 0);
             const unsigned long long v255x = 0x2238000000000155ull;
             const unsigned long long v582x = 0x22380000000002aaull;
-            ASSERT(!memcmp(&v255, &v255x, 8));
-            ASSERT(!memcmp(&v582, &v582x, 8));
+            ASSERT(!bsl::memcmp(&v255, &v255x, 8));
+            ASSERT(!bsl::memcmp(&v582, &v582x, 8));
 
             for (int i = 0; i < 4; i++) {
                 unsigned long long NUM =

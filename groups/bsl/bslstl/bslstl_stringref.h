@@ -485,9 +485,9 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
     const CHAR_TYPE *data() const;
         // Return the address of the first character of the string bound to
         // this string reference such that '[data(), data()+length())' is a
-        // valid half-open range of characters.  Return 0 for an empty string
-        // reference object.  Note that the range of characters may not be
-        // null-terminated and may contain embedded null characters.
+        // valid half-open range of characters. Note that the range of
+        // characters might not be null-terminated and may contain embedded
+        // null characters.
 
     bool isEmpty() const;
         // Return 'true' if this object represents an empty string value, and
@@ -1357,7 +1357,7 @@ bslstl::operator<<(std::basic_ostream<CHAR_TYPE>& stream,
     typedef typename std::basic_ostream<char_type>::ios_base    ios_base;
     typedef typename bslstl::StringRefImp<char_type>::size_type size_type;
 
-    size_type width = stream.width();
+    size_type width = static_cast<size_type>(stream.width());
     size_type len = stringRef.length();
 
     if (len < width) {

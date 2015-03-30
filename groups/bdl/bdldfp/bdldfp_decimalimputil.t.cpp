@@ -7895,8 +7895,6 @@ int main(int argc, char* argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    typedef BDEC::DecimalImpUtil Util;
-
     cout.precision(35);
 
 

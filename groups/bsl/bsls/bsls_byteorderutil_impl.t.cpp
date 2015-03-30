@@ -14,11 +14,11 @@
 //                                  --------
 // [3] TESTING CONSISTENCY OF COMPILE-TIME FLAGS
 // [2] TESTING 'mySwapBytes*'
-// [1] TESTING 'genericSwap*' & SOUNDNESS OF TABLE
+// [1] TESTING 'BSLS_BYTEORDERUTIL_IMPL_GENERIC_SWAP*' & SOUNDNESS OF TABLE
 //-----------------------------------------------------------------------------
-// [3] 'BSLS_BYTEORDERUTIL_IMPL_CUSTOM_*'
+// [3] 'BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_*'
 // [2] 'mySwapBytes[16,32,64}'
-// [1] 'genericSwap{16,32,64}'
+// [1] 'BSLS_BYTEORDERUTIL_IMPL_GENERIC_SWAP{16,32,64}'
 //-----------------------------------------------------------------------------
 
 using namespace BloombergLP;
@@ -67,12 +67,12 @@ void aSsErT(bool b, const char *s, int i)
 #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
 #define PHEX(X)  printf(#X " = 0x%llx\n", (Uint64) (X));
-#define PHEX_(X) printf(#X " = 0x%llx\t", (Uint64) (X));                     \
+#define PHEX_(X) printf(#X " = 0x%llx\t", (Uint64) (X));                      \
                  bsls::BslTestUtil::flush();
 
 
-#if defined(BSLS_PLATFORM_CMP_MSVC) ||                                        \
-    (defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_CPU_32_BIT))
+#if defined(BSLS_PLATFORM_OS_WINDOWS) ||                                      \
+    (defined(BSLS_PLATFORM_OS_AIX) && defined(BSLS_PLATFORM_CPU_32_BIT))
 #define BYTEORDERUTIL_SIZEOF_WCHAR_T 2
 #else
 #define BYTEORDERUTIL_SIZEOF_WCHAR_T 4
@@ -91,8 +91,6 @@ void aSsErT(bool b, const char *s, int i)
 typedef BloombergLP::bsls::Types::Int64  Int64;
 typedef BloombergLP::bsls::Types::Uint64 Uint64;
 
-typedef BloombergLP::bsls::ByteOrderUtil_Impl Impl;
-
 //=============================================================================
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -101,13 +99,12 @@ template <class TYPE>
 void swapBytesInPlace(TYPE *value)
     // Swap the byte order of the specified integral object '*value'.
 {
-    char *tail = reinterpret_cast<char *>(value + 1) - 1;
-    char *head = reinterpret_cast<char *>(value);
+    char *pc = reinterpret_cast<char *>(value);
 
-    for (; head < tail; ++head, --tail) {
-        char tmp = *head;
-        *head = *tail;
-        *tail = tmp;
+    for (int h = 0, t = sizeof(*value) - 1; h < t; ++h, --t) {
+        char tmp = pc[h];
+        pc[h] = pc[t];
+        pc[t] = tmp;
     }
 }
 
@@ -116,12 +113,14 @@ unsigned short
 mySwapBytes16(unsigned short x)
     // Return the value of the specified 'x' with the byte order reversed.
 {
-#if defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_16)
-    return Impl::customSwap16(x);
-#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P16)
-    return Impl::customSwapP16(&x);
+    // These macros all return a value of type 'unsigned short'.
+
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16( unsigned short, x);
+#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16(unsigned short, &x);
 #else
-    return Impl::genericSwap16(x);
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(unsigned short, x);
 #endif
 }
 
@@ -130,12 +129,14 @@ unsigned int
 mySwapBytes32(unsigned int x)
     // Return the value of the specified 'x' with the byte order reversed.
 {
-#if defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32)
-    return Impl::customSwap32(x);
-#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32)
-    return Impl::customSwapP32(&x);
+    // These macros all return a value of type 'unsigned int'.
+
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32( unsigned int, x);
+#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32(unsigned int, &x);
 #else
-    return Impl::genericSwap32(x);
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32(unsigned int, x);
 #endif
 }
 
@@ -144,13 +145,45 @@ bsls::Types::Uint64
 mySwapBytes64(bsls::Types::Uint64 x)
     // Return the value of the specified 'x' with the byte order reversed.
 {
-#if defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64)
-    return Impl::customSwap64(x);
-#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64)
-    return Impl::customSwapP64(&x);
+    // These macros all return a value of type 'bsls::Types::Uint64'.
+
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64( bsls::Types::Uint64, x);
+#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(bsls::Types::Uint64, &x);
 #else
-    return Impl::genericSwap64(x);
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(bsls::Types::Uint64, x);
 #endif
+}
+
+inline
+unsigned short
+myGenericSwap16(unsigned short x)
+    // Return the value of the specified 'x' with the byte order reversed.
+{
+    // This macro will return a value of type 'unsigned short'.
+
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(unsigned short, x);
+}
+
+inline
+unsigned int
+myGenericSwap32(unsigned int x)
+    // Return the value of the specified 'x' with the byte order reversed.
+{
+    // This macro will return a value of type 'unsigned int'.
+
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32(unsigned int, x);
+}
+
+inline
+bsls::Types::Uint64
+myGenericSwap64(bsls::Types::Uint64 x)
+    // Return the value of the specified 'x' with the byte order reversed.
+{
+    // This macro will return a value of type 'bsls::Types::Uint64'.
+
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(bsls::Types::Uint64, x);
 }
 
 //=============================================================================
@@ -293,11 +326,11 @@ int main(int argc, char *argv[])
         // TESTING CONSISTENCY OF COMPILE-TIME FLAGS
         //
         // Concerns:
-        //: 1 When run in 'veryVerbose' moded, display which compile-time flags
+        //: 1 When run in 'veryVerbose' mode, display which compile-time flags
         //:   are defined and which are not.
         //:
-        //: 2 Verify that 'customSwapNN' and 'customSwapPNN' are never both
-        //:   set for any value of 'NN' on any platform (note that it is
+        //: 2 Verify that '*_CUSTOMSWAP_NN' and '_CUSTOMSWAPP_NN' are never
+        //:   both set for any value of 'NN' on any platform (note that it is
         //:   permissible for neither to be set).
         //
         // Plan:
@@ -307,59 +340,59 @@ int main(int argc, char *argv[])
         //:   macros being set.
         //
         // Testing:
-        //   'BSLS_BYTEORDERUTIL_IMPL_CUSTOM_*'
+        //   'BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_*'
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING CONSISTENCY OF COMPILE-TIME FLAGS\n"
                               "=========================================\n");
 
         if (veryVerbose) {
-#ifdef BSLS_BYTEORDERUTIL_IMPL_CUSTOM_16
-            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_16 defined);
+#ifdef BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16
+            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16 defined);
 #else
-            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_16 not defined);
+            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16 not defined);
 #endif
 
-#ifdef BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P16
-            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P16 defined);
+#ifdef BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16
+            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16 defined);
 #else
-            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P16 not defined);
+            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16 not defined);
 #endif
 
-#ifdef BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32
-            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32 defined);
+#ifdef BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32
+            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32 defined);
 #else
-            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32 not defined);
+            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32 not defined);
 #endif
 
-#ifdef BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32
-            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32 defined);
+#ifdef BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32
+            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32 defined);
 #else
-            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32 not defined);
+            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32 not defined);
 #endif
 
-#ifdef BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64
-            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64 defined);
+#ifdef BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64
+            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64 defined);
 #else
-            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64 not defined);
+            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64 not defined);
 #endif
 
-#ifdef BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64
-            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64 defined);
+#ifdef BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64
+            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64 defined);
 #else
-            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64 not defined);
+            Q(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64 not defined);
 #endif
         }
 
         // Check that no two custom flags are simultaneously set for how to
         // implement swapping for the same word width.
 
-#if    (defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_16) &&                         \
-        defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P16))                          \
-    || (defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32) &&                         \
-        defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32))                          \
-    || (defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64) &&                         \
-        defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64))
+#if    (defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16) &&                     \
+        defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16))                      \
+    || (defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32) &&                     \
+        defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32))                      \
+    || (defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64) &&                     \
+        defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64))
 #error inconsistent compiler flags
 #endif
       } break;
@@ -368,8 +401,8 @@ int main(int argc, char *argv[])
         // TESTING 'mySwapBytes*'
         //
         // Concerns:
-        //: 1 That all incarnations of 'customSwapNN' or 'customSwapPNN' or
-        //:   'genericSwapNN' work.
+        //: 1 That all incarnations of '*_CUSTOMSWAP_NN', '*_CUSTOMSWAP_PNN',
+        //:   and '_GENERICSWAP_NN' work.
         //
         // Plan:
         //: 1 Create the functions 'mySwapBytesNN' (before 'main', above),
@@ -381,7 +414,7 @@ int main(int argc, char *argv[])
         //:
         //: 3 For word widths 16, 32, and 64
         //:   A Test swapping signed and unsigned types with 'mySwapBytesNN'.
-        //:   B Test swapping the unsigned type with 'genericSwapNN'
+        //:   B Test swapping the unsigned type with 'myGenericSwapNN'
         //:   C Use '#ifdef's to determine if 'long' or 'wchar_t' have the
         //:     designated word width under test, and if so, test it.
         //
@@ -407,7 +440,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { PHEX_(uValue); PHEX(uSwapped); }
 
                 LOOP_ASSERT(line, uSwapped == mySwapBytes16(uValue));
-                LOOP_ASSERT(line, uSwapped == Impl::genericSwap16(uValue));
+                LOOP_ASSERT(line, uSwapped == myGenericSwap16(uValue));
                 LOOP_ASSERT(line, static_cast<unsigned short>(iSwapped) ==
                                                         mySwapBytes16(iValue));
 #if 2 == BYTEORDERUTIL_SIZEOF_WCHAR_T
@@ -435,7 +468,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { PHEX_(uValue); PHEX(uSwapped); }
 
                 LOOP_ASSERT(line, uSwapped == mySwapBytes32(uValue));
-                LOOP_ASSERT(line, uSwapped == Impl::genericSwap32(uValue));
+                LOOP_ASSERT(line, uSwapped == myGenericSwap32(uValue));
                 LOOP_ASSERT(line, iSwapped == (int) mySwapBytes32(iValue));
 
 #if 4 == BYTEORDERUTIL_SIZEOF_WCHAR_T
@@ -486,9 +519,8 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { PHEX_(uValue); PHEX(uSwapped); }
 
                 LOOP_ASSERT(line, uSwapped == mySwapBytes64(uValue));
-                LOOP_ASSERT(line, uSwapped == Impl::genericSwap64(uValue));
-                LOOP_ASSERT(line, iSwapped ==
-                                            (Int64) mySwapBytes64(iValue));
+                LOOP_ASSERT(line, uSwapped == myGenericSwap64(uValue));
+                LOOP_ASSERT(line, iSwapped == (Int64) mySwapBytes64(iValue));
 
 #if 8 == BYTEORDERUTIL_SIZEOF_LONG
                 ASSERT(8 == sizeof(long));
@@ -516,7 +548,7 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'genericSwap*' & SOUNDNESS OF TABLES
+        // TESTING 'myGenericSwap*' & SOUNDNESS OF TABLES
         //
         // Concerns:
         //: 1 Test that the tables 'data16', 'data32', and 'data64', accurately
@@ -524,7 +556,8 @@ int main(int argc, char *argv[])
         //:
         //: 2 Test that the tables are of significant length (> 10 entries).
         //:
-        //: 3 Test that 'genericSwapNN' works correctly.
+        //: 3 Test that 'BSLS_BYTEORDERUTIL_IMPL_GENERIC_SWAPNN' works
+        //:   correctly.
         //
         // Plan:
         //: 1 Create a template function 'swapBytesInPlace' that, given a
@@ -535,16 +568,16 @@ int main(int argc, char *argv[])
         //:   A Assert that the table length is >10.
         //:   B Traverse the table, apply 'swapBytesInPlace' to verify the
         //:     expected swapped value matches the swapped value.
-        //:   6 Call 'Impl::genericSwapNN' on signed and unsigned values and
+        //:   6 Call 'myGenericSwapNN' on signed and unsigned values and
         //:     confirm the result matches the expected value.
         //
         // Testing:
-        //   'genericSwap{16,32,64}'
+        //   'BSLS_BYTEORDERUTIL_IMPL_GENERIC_SWAP{16,32,64}'
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                          "\nTESTING 'genericSwap*' & SOUNDNESS OF TABLE\n"
-                            "=============================================\n");
+                         "\nTESTING '*_GENERICSWAP_*' & SOUNDNESS OF TABLE\n"
+                           "==============================================\n");
 
         if (verbose) printf("Testing 16 Bit\n");
         {
@@ -563,9 +596,9 @@ int main(int argc, char *argv[])
                 swapBytesInPlace(&uVerify);
                 ASSERT(uSwapped == uVerify);
 
-                LOOP_ASSERT(line, uSwapped == Impl::genericSwap16(uValue));
+                LOOP_ASSERT(line, uSwapped == myGenericSwap16(uValue));
                 LOOP_ASSERT(line, static_cast<unsigned short>(iSwapped) ==
-                                              Impl::genericSwap16(iValue));
+                                                      myGenericSwap16(iValue));
             }
         }
 
@@ -586,9 +619,8 @@ int main(int argc, char *argv[])
                 swapBytesInPlace(&uVerify);
                 ASSERT(uSwapped == uVerify);
 
-                LOOP_ASSERT(line, uSwapped == Impl::genericSwap32(uValue));
-                LOOP_ASSERT(line, iSwapped ==
-                                          (int) Impl::genericSwap32(iValue));
+                LOOP_ASSERT(line, uSwapped == myGenericSwap32(uValue));
+                LOOP_ASSERT(line, iSwapped == (int) myGenericSwap32(iValue));
             }
         }
 
@@ -609,9 +641,8 @@ int main(int argc, char *argv[])
                 swapBytesInPlace(&uVerify);
                 ASSERT(uSwapped == uVerify);
 
-                LOOP_ASSERT(line, uSwapped == Impl::genericSwap64(uValue));
-                LOOP_ASSERT(line, iSwapped ==
-                                        (Int64) Impl::genericSwap64(iValue));
+                LOOP_ASSERT(line, uSwapped == myGenericSwap64(uValue));
+                LOOP_ASSERT(line, iSwapped == (Int64) myGenericSwap64(iValue));
             }
         }
       } break;

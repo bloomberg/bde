@@ -1576,31 +1576,39 @@ char TestFunc()
     return N;
 }
 
-template <class TYPE>
-char lookupValue(char index)
-{
-    return index;
-}
-
 typedef char (*charFnPtr) ();
 
-charFnPtr lookupValue(char index)
+template <class TYPE>
+void makeElement(TYPE *result, char code)
 {
-    switch (index) {
-        case VA:
-            return TestFunc<'A'>;                                     // RETURN
-            break;
-        case VB:
-            return TestFunc<'B'>;                                     // RETURN
-            break;
-        case VC:
-            return TestFunc<'C'>;                                     // RETURN
-            break;
-        case VD:
-            return TestFunc<'D'>;                                     // RETURN
-            break;
-        default:
-            return TestFunc<'E'>;                                     // RETURN
+    *result = TYPE(code);
+}
+
+
+template <class TYPE>
+void makeElement(TYPE **result, char code)
+{
+    *result = reinterpret_cast<TYPE *>(code);
+}
+
+void makeElement(charFnPtr *result, char code)
+{
+    switch (code) {
+      case VA: {
+        *result = TestFunc<'A'>;
+      }  break;
+      case VB: {
+        *result = TestFunc<'B'>;
+      } break;
+      case VC: {
+        *result = TestFunc<'C'>;
+      } break;
+      case VD: {
+        *result = TestFunc<'D'>;
+      } break;
+      default: {
+        *result = TestFunc<'E'>;
+      }
     }
 }
 
@@ -1611,11 +1619,11 @@ int TestDriver<TYPE,ALLOC>::getValues(const TYPE **valuesPtr)
                                       &bslma::NewDeleteAllocator::singleton());
 
     static TYPE values[5]; // avoid DEFAULT_VALUE and UNINITIALIZED_VALUE
-    values[0] = TYPE(lookupValue<TYPE>(VA));
-    values[1] = TYPE(lookupValue<TYPE>(VB));
-    values[2] = TYPE(lookupValue<TYPE>(VC));
-    values[3] = TYPE(lookupValue<TYPE>(VD));
-    values[4] = TYPE(lookupValue<TYPE>(VE));
+    makeElement(values,     VA);
+    makeElement(values + 1, VB);
+    makeElement(values + 2, VC);
+    makeElement(values + 3, VD);
+    makeElement(values + 4, VE);
 
     const int NUM_VALUES = 5;
 
@@ -5197,8 +5205,10 @@ void TestDriver<TYPE,ALLOC>::testCase15()
             if (verbose) { P_(LINE); P(SPEC); }
 
             if (LENGTH) {
-                const bsls::Types::IntPtr TEST_VALUE = SPEC[0];
-                LOOP_ASSERT(LINE, TYPE(TEST_VALUE) == X.front());
+                TYPE element;
+                makeElement(BSLS_UTIL_ADDRESSOF(element), SPEC[0]);
+                const TYPE& ELEM = element;
+                LOOP_ASSERT(LINE, ELEM == X.front());
                 mX.front() = DEFAULT_VALUE;
                 LOOP_ASSERT(LINE, DEFAULT_VALUE == X.front());
                 mX[0] = Y[0];
@@ -5216,15 +5226,17 @@ void TestDriver<TYPE,ALLOC>::testCase15()
             LOOP3_ASSERT(LINE, dataMptr, dataCptr, dataMptr == dataCptr);
 
             for (size_t j = 0; j < LENGTH; ++j) {
-                const bsls::Types::IntPtr TEST_VALUE = SPEC[j];
-                LOOP_ASSERT(LINE, TYPE(TEST_VALUE) == X[j]);
+                TYPE element;
+                makeElement(BSLS_UTIL_ADDRESSOF(element), SPEC[j]);
+                const TYPE& ELEM = element;
+                LOOP_ASSERT(LINE, ELEM == X[j]);
                 mX[j] = DEFAULT_VALUE;
                 LOOP_ASSERT(LINE, DEFAULT_VALUE == X[j]);
                 LOOP_ASSERT(LINE, BSLS_UTIL_ADDRESSOF(X[j]) == (dataCptr + j));
                 LOOP_ASSERT(LINE,
                             BSLS_UTIL_ADDRESSOF(mX[j]) == (dataMptr + j));
                 mX.at(j) = Y[j];
-                LOOP_ASSERT(LINE, TYPE(TEST_VALUE) == X.at(j));
+                LOOP_ASSERT(LINE, ELEM == X.at(j));
                 LOOP_ASSERT(LINE,
                             BSLS_UTIL_ADDRESSOF(X.at(j)) == (dataCptr + j));
                 LOOP_ASSERT(LINE,
@@ -8003,10 +8015,10 @@ void TestDriver<TYPE,ALLOC>::testCase4()
             const int         LINE   = DATA[ti].d_lineNum;
             const char *const SPEC   = DATA[ti].d_spec_p;
             const size_t      LENGTH = DATA[ti].d_length;
-            const char *const e      = DATA[ti].d_elements;
+            const char *const ELEMS  = DATA[ti].d_elements;
 
             Obj mExp;
-            const Obj& EXP = gg(&mExp, e);   // expected spec
+            const Obj& EXP = gg(&mExp, ELEMS);   // expected spec
 
             ASSERT(LENGTH <= MAX_LENGTH);
 
@@ -8037,12 +8049,12 @@ void TestDriver<TYPE,ALLOC>::testCase4()
                 for (i = 0; i < LENGTH; ++i) {
                     LOOP3_ASSERT(LINE, ai, i, EXP[i] == mX[i]);
                     LOOP3_ASSERT(LINE, ai, i, EXP[i] == X[i]);
-                      LOOP3_ASSERT(LINE, ai, i, EXP[i] == mX.at(i));
-                      LOOP3_ASSERT(LINE, ai, i, EXP[i] == X.at(i));
+                    LOOP3_ASSERT(LINE, ai, i, EXP[i] == mX.at(i));
+                    LOOP3_ASSERT(LINE, ai, i, EXP[i] == X.at(i));
                 }
 
                 for (; i < MAX_LENGTH; ++i) {
-                    LOOP3_ASSERT(LINE, ai, i, 0 == e[i]);
+                    LOOP3_ASSERT(LINE, ai, i, 0 == ELEMS[i]);
                 }
 
                 // Check for perturbation.
@@ -8069,14 +8081,12 @@ void TestDriver<TYPE,ALLOC>::testCase4()
                         for (j = 0; j < LENGTH; ++j) {
                             LOOP4_ASSERT(LINE, ai, j, ei, EXP[j] == mY[j]);
                             LOOP4_ASSERT(LINE, ai, j, ei, EXP[j] == Y[j]);
-                              LOOP4_ASSERT(LINE, ai, j, ei,
-                                           EXP[j] == mY.at(j));
-                              LOOP4_ASSERT(LINE, ai, j, ei,
-                                           EXP[j] == Y.at(j));
+                            LOOP4_ASSERT(LINE, ai, j, ei, EXP[j] == mY.at(j));
+                            LOOP4_ASSERT(LINE, ai, j, ei, EXP[j] == Y.at(j));
                         }
 
                         for (; j < MAX_LENGTH; ++j) {
-                            LOOP4_ASSERT(LINE, ai, j, ei, 0 == e[j]);
+                            LOOP4_ASSERT(LINE, ai, j, ei, 0 == ELEMS[j]);
                         }
                     }
                 }
@@ -8090,10 +8100,10 @@ void TestDriver<TYPE,ALLOC>::testCase4()
 
         int oldLen = -1;
         for (int ti = 0; ti < NUM_DATA ; ++ti) {
-            const int         LINE         = DATA[ti].d_lineNum;
-            const char *const SPEC = DATA[ti].d_spec_p;
-            const size_t    LENGTH  = DATA[ti].d_length;
-            const char *const e = DATA[ti].d_elements;
+            const int         LINE    = DATA[ti].d_lineNum;
+            const char *const SPEC    = DATA[ti].d_spec_p;
+            const size_t      LENGTH  = DATA[ti].d_length;
+            const char *const ELEMS   = DATA[ti].d_elements;
 
             for (int ai = 0; ai < NUM_ALLOCATOR; ++ai) {
                 Obj mX(ALLOCATOR[ai]);
@@ -8126,18 +8136,21 @@ void TestDriver<TYPE,ALLOC>::testCase4()
 
                 // Change state of Y and Z so its same as X
 
-                  for (size_t j = 0; j < LENGTH; j++) {
-                      mY[j] = TYPE(e[j]);
-                      mZ.at(j) = TYPE(e[j]);
-                  }
+                for (size_t j = 0; j < LENGTH; j++) {
+                    TYPE element;
+                    makeElement(BSLS_UTIL_ADDRESSOF(element), ELEMS[j]);
+                    const TYPE& ELEM = element;
+                    mY[j]    = ELEM;
+                    mZ.at(j) = ELEM;
+                }
 
-                  if (veryVerbose) {
-                      printf("\t\tNew object1: "); P(Y);
-                      printf("\t\tNew object2: "); P(Z);
-                  }
+                if (veryVerbose) {
+                    printf("\t\tNew object1: "); P(Y);
+                    printf("\t\tNew object2: "); P(Z);
+                }
 
-                  LOOP2_ASSERT(ti, ai, Y == X);
-                  LOOP2_ASSERT(ti, ai, Z == X);
+                LOOP2_ASSERT(ti, ai, Y == X);
+                LOOP2_ASSERT(ti, ai, Z == X);
             }
         }
     }
@@ -8295,8 +8308,8 @@ void TestDriver<TYPE,ALLOC>::testCase3()
         for (int ti = 0; ti < NUM_DATA ; ++ti) {
             const int         LINE   = DATA[ti].d_lineNum;
             const char *const SPEC   = DATA[ti].d_spec_p;
-            const size_t    LENGTH = DATA[ti].d_length;
-            const char *const e      = DATA[ti].d_elements;
+            const size_t      LENGTH = DATA[ti].d_length;
+            const char *const ELEMS  = DATA[ti].d_elements;
             const int         curLen = (int)strlen(SPEC);
 
             Obj mX(&testAllocator);
@@ -8324,8 +8337,11 @@ void TestDriver<TYPE,ALLOC>::testCase3()
             LOOP_ASSERT(LINE, LENGTH == X.size());
             LOOP_ASSERT(LINE, LENGTH == Y.size());
             for (size_t i = 0; i < LENGTH; ++i) {
-                LOOP2_ASSERT(LINE, i, TYPE(e[i]) == X[i]);
-                LOOP2_ASSERT(LINE, i, TYPE(e[i]) == Y[i]);
+                TYPE element;
+                makeElement(BSLS_UTIL_ADDRESSOF(element), ELEMS[i]);
+                const TYPE& ELEM = element;
+                LOOP2_ASSERT(LINE, i, ELEM == X[i]);
+                LOOP2_ASSERT(LINE, i, ELEM == Y[i]);
             }
 
         }
@@ -9634,7 +9650,7 @@ int main(int argc, char *argv[])
             for (unsigned i = 0; i < bA.size(); ++i) {
                 ASSERTV(i, bA[i].x, bA[i].x == 'a');
             }
-        
+
             bA.assign(bB.begin(), bB.end());
             for (unsigned i = 0; i < bA.size(); ++i) {
                 ASSERTV(i, bA[i].x, bA[i].x == 'a');

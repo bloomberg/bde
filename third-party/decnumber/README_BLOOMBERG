@@ -1,0 +1,22 @@
+This directory contains a copy of the DecNumber library version 3.68.
+
+The upstream library can be obtained from
+http://speleotrove.com/decimal/
+
+The following changes have been made from the upstream:
+
+- The "decnum.pdf", which contains the library documentation, has been removed.
+  The library documentation can be found at the upstream web address.
+
+- The mode of the source files have been changed to be no longer executable.
+
+- Created 'wscript' file to build using waf, because the DecNumber library did
+  not come with a build system.
+
+Note that the set of C source files linked into the library (defined in the
+wscript) correspond to the set of modules mentioned in the "Modules" section
+of the decNumber documentation (http://speleotrove.com/decimal/decnumber.html).
+Other C source files contained in this directory are either usage examples or
+files pound included by the actual modules source files.  When this package is
+updated, care should be taken to ensure that the set of C source files defined
+in the wscript is up-to-date.

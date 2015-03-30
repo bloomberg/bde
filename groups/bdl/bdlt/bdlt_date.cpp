@@ -6,13 +6,14 @@ BSLS_IDENT_RCSID(bdlt_date_cpp,"$Id$ $CSID$")
 
 #include <bslim_printer.h>
 
+#include <bsls_log.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 
-#include <bsl_cstdio.h>    // 'fprintf'
 #include <bsl_ostream.h>
 
 #include <bsl_c_stdio.h>   // 'snprintf'
+
 
 namespace BloombergLP {
 namespace bdlt {
@@ -27,6 +28,7 @@ static const char *const months[] = {
                                   // class Date
                                   // ----------
 
+
 // MANIPULATORS
 int Date::addDaysIfValid(int numDays)
 {
@@ -34,9 +36,10 @@ int Date::addDaysIfValid(int numDays)
 
     const int tmpSerialDate = d_serialDate + numDays;
 
-    if (!SerialDateImpUtil::isValidSerial(tmpSerialDate)) {
+    if (!Date::isValidSerial(tmpSerialDate)) {
         return k_FAILURE;                                             // RETURN
     }
+
 
     d_serialDate = tmpSerialDate;
 
@@ -62,7 +65,7 @@ bsl::ostream& Date::print(bsl::ostream& stream,
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                            !SerialDateImpUtil::isValidSerial(d_serialDate))) {
+                                         !Date::isValidSerial(d_serialDate))) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
@@ -76,9 +79,7 @@ bsl::ostream& Date::print(bsl::ostream& stream,
                  d_serialDate);
 
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-        bsl::fprintf(stderr,
-                     "'bdlt::Date' precondition violated: %s.\n",
-                     buffer);
+        BSLS_LOG("'bdlt::Date' precondition violated: %s.", buffer);
 #endif
         BSLS_ASSERT_SAFE(
                  !"'bdlt::Date::print' attempted on date with invalid state.");
@@ -91,15 +92,15 @@ bsl::ostream& Date::print(bsl::ostream& stream,
 
         const char *const month = months[m];
 
-        buffer[0] = d / 10 + '0';
-        buffer[1] = d % 10 + '0';
+        buffer[0] = static_cast<char>(d / 10 + '0');
+        buffer[1] = static_cast<char>(d % 10 + '0');
         buffer[2] = month[0];
         buffer[3] = month[1];
         buffer[4] = month[2];
-        buffer[5] =   y / 1000         + '0';
-        buffer[6] = ((y % 1000) / 100) + '0';
-        buffer[7] = ((y %  100) /  10) + '0';
-        buffer[8] =   y %   10         + '0';
+        buffer[5] = static_cast<char>(  y / 1000         + '0');
+        buffer[6] = static_cast<char>(((y % 1000) / 100) + '0');
+        buffer[7] = static_cast<char>(((y %  100) /  10) + '0');
+        buffer[8] = static_cast<char>(  y %   10         + '0');
         buffer[9] = 0;
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)

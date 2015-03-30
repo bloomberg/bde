@@ -14,9 +14,10 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsl+stdhdrs
 //
-//@DESCRIPTION: This component defines a single class template 'unordered_map',
-// implementing the standard container holding a collection of unique keys,
-// each mapped to an associated value with no guarantees on ordering.
+//@DESCRIPTION: This component defines a single class template,
+// 'bsl::unordered_map', implementing the standard container holding a
+// collection of unique keys, each mapped to an associated value with no
+// guarantees on ordering.
 //
 // An instantiation of 'unordered_map' is an allocator-aware, value-semantic
 // type whose salient attributes are its size (number of keys) and the set of
@@ -259,10 +260,24 @@ BSLS_IDENT("$Id: $")
 //  | a.rehash(k)                                        | Average: O[n]      |
 //  |                                                    | Worst:   O[n^2]    |
 //  +----------------------------------------------------+--------------------+
-//  | a.resize(k)                                        | Average: O[n]      |
+//  | a.reserve(k)                                       | Average: O[n]      |
 //  |                                                    | Worst:   O[n^2]    |
 //  +----------------------------------------------------+--------------------+
 //..
+//
+///Iterator, pointer and reference invalidation
+///--------------------------------------------
+// No method of 'unordered_map' invalidates a pointer or reference to an
+// element in the set, unless it also erases that element, such as any 'erase'
+// overload, 'clear', or the destructor (that erases all elements).  Pointers
+// and references are stable through a rehash.
+//
+// Iterators to elements in the container are invalidated by any rehash, so
+// iterators may be invalidated by an 'insert' or 'emplace' call if it triggers
+// a rehash (but not otherwise).  Iterators to specific elements are also
+// invalidated when that element is erased.  Note that the 'end' iterator is
+// not an iterator referring to any element in the container, so may be
+// invalidated by any non-'const' method.
 //
 ///Unordered Map Configuration
 ///---------------------------
@@ -414,7 +429,8 @@ BSLS_IDENT("$Id: $")
 // value (0, just what we want in this case) and inserted into the map where is
 // is found on any subsequent occurrences of the word.  The 'operator[]' method
 // returns a reference providing modifiable access to the mapped value.  Here,
-// we  the '++' operator to that reference to maintain a tally for the word.
+// we apply the '++' operator to that reference to maintain a tally for the
+// word.
 //..
 //  for (int idx = 0; idx < numDocuments; ++idx) {
 //      for (char *cur = strtok(documents[idx], delimiters);
@@ -925,12 +941,11 @@ namespace bsl {
                         // class bsl::unorderedmap
                         // =======================
 
-template <
-        class KEY,
-        class VALUE,
-        class HASH  = bsl::hash<KEY>,
-        class EQUAL = bsl::equal_to<KEY>,
-        class ALLOCATOR = bsl::allocator<bsl::pair<const KEY, VALUE> > >
+template <class KEY,
+          class VALUE,
+          class HASH      = bsl::hash<KEY>,
+          class EQUAL     = bsl::equal_to<KEY>,
+          class ALLOCATOR = bsl::allocator<bsl::pair<const KEY, VALUE> > >
 class unordered_map {
     // This class template implements a value-semantic container type holding
     // an unordered set of key-value pairs having unique keys that provide a
@@ -2025,8 +2040,8 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::max_size() const
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 bool bsl::operator==(
-      const bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
-      const bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& rhs)
+             const bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& lhs,
+             const bsl::unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& rhs)
 {
     return lhs.d_impl == rhs.d_impl;
 }

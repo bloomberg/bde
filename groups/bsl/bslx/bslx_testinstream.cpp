@@ -68,7 +68,7 @@ void TestInStream::checkArray(TypeCode::Enum code,
 
 void TestInStream::checkTypeCodeAndAvailableLength(
                                                TypeCode::Enum code,
-                                               int            numExpectedBytes)
+                                               bsl::size_t    numExpectedBytes)
 {
     BSLS_ASSERT(0 < numExpectedBytes);
 
@@ -111,7 +111,7 @@ TestInStream::TestInStream()
 {
 }
 
-TestInStream::TestInStream(const char *buffer, int numBytes)
+TestInStream::TestInStream(const char *buffer, bsl::size_t numBytes)
 : d_buffer(buffer)
 , d_numBytes(numBytes)
 , d_validFlag(1)
@@ -120,7 +120,6 @@ TestInStream::TestInStream(const char *buffer, int numBytes)
 , d_cursor(0)
 {
     BSLS_ASSERT(buffer || 0 == numBytes);
-    BSLS_ASSERT(0 <= numBytes);
 }
 
 TestInStream::TestInStream(const bslstl::StringRef& srcData)
@@ -142,8 +141,10 @@ TestInStream& TestInStream::getLength(int& variable)
 {
     if (length() - cursor() < k_SIZEOF_CODE + Util::k_SIZEOF_INT8) {
         invalidate();  // Incomplete stream.  Invalidate silently.
-    } else {
-        if (127 < (unsigned char)d_buffer[cursor() + k_SIZEOF_CODE]) {
+    }
+    else {
+        if (127 <
+            static_cast<unsigned char>(d_buffer[cursor() + k_SIZEOF_CODE])) {
             // If 'length > 127', 'length' is stored as 4 bytes with top-bit
             // set.
 
@@ -151,7 +152,8 @@ TestInStream& TestInStream::getLength(int& variable)
                 getInt32(variable);
                 variable &= 0x7fffff;  // Clear top bit.
             }
-        } else {
+        }
+        else {
             // If 'length <= 127', 'length' is stored as one byte.
 
             if (isValid()) {
@@ -846,15 +848,15 @@ TestInStream& TestInStream::getArrayFloat32(float *variables, int numVariables)
 }
 
 // FREE OPERATORS
-bsl::ostream& operator<<(bsl::ostream& stream, const TestInStream& obj)
+bsl::ostream& operator<<(bsl::ostream& stream, const TestInStream& object)
 {
-    const int           len   = obj.length();
-    const char         *data  = obj.data();
+    const bsl::size_t   len   = object.length();
+    const char         *data  = object.data();
     bsl::ios::fmtflags  flags = stream.flags();
 
     stream << bsl::hex;
 
-    for (int i = 0; i < len; ++i) {
+    for (bsl::size_t i = 0; i < len; ++i) {
         if (0 < i && 0 != i % 8) {
             stream << ' ';
         }

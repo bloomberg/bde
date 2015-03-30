@@ -980,11 +980,10 @@ BSLS_IDENT("$Id: $")
 //
 // Suppose that we have a class such as 'MyDate' (below) that, except for
 // checking its invariants, would have a trivial destructor.  By not declaring
-// a destructor at all, we are able to realize significant performance
-// advantages, but then we lose the ability to validate our invariants in
-// "debug" or "safe" mode.  What we want to do is to declare (and later define)
-// the destructor in precisely those build modes for which we would want to
-// assert invariants.
+// a destructor at all, we may realize performance advantages, but then we lose
+// the ability to validate our invariants in "debug" or "safe" mode.  What we
+// want to do is to declare (and later define) the destructor in precisely
+// those build modes for which we would want to assert invariants.
 //
 // An elided class 'MyDate', which is based on a serial-date implementation, is
 // provided for reference:
@@ -1064,12 +1063,15 @@ BSLS_IDENT("$Id: $")
 //      return 1 <= d_serialDate && d_serialDate <= 3652061;
 //  }
 //..
-// Like other aspects of 'BSLS_ASSERT_SAFE', the example above benignly
-// violates the one-definition rule for mixed-mode builds.  Note that all code
-// conditionally compiled based on 'BSLS_ASSERT_SAFE_IS_ACTIVE',
-// 'BSLS_ASSERT_IS_ACTIVE', and 'BSLS_ASSERT_OPT_IS_ACTIVE' should be binary
-// compatible for mixed-mode builds.  If the conditionally-compiled code would
-// not be binary compatible, use 'BDE_BUILD_TARGET_SAFE_2' instead.
+// Like other aspects of 'BSLS_ASSERT_SAFE', the example above violates the
+// one-definition rule for mixed-mode builds.  Note that all code conditionally
+// compiled based on 'BSLS_ASSERT_SAFE_IS_ACTIVE', 'BSLS_ASSERT_IS_ACTIVE', and
+// 'BSLS_ASSERT_OPT_IS_ACTIVE' should be binary compatible for mixed-mode
+// builds.  If the conditionally-compiled code would not be binary compatible,
+// use 'BDE_BUILD_TARGET_SAFE_2' instead.
+//
+// WARNING - In practice, declaring a destructor in some build modes but not
+// others has led to subtle and difficult-to-diagnose failures.  DON'T DO IT!
 //
 // Finally, in very rare cases, we may want to put in (redundant) defensive
 // code (in the spirit of 'BSLS_ASSERT_OPT') that is not part of the

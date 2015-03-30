@@ -16,9 +16,9 @@ using namespace BloombergLP;
 using namespace bsl;
 using namespace bslx;
 
-//=============================================================================
+// ============================================================================
 //                              TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
 // This component provides two functions, each of which invokes a method of its
@@ -28,16 +28,16 @@ using namespace bslx;
 // responds in a simple, observable manner when its various methods are called.
 // The testing requirements are fairly straightforward and the provided test
 // type and test stream are used to verify the behavior of the two methods.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 2] bdexStreamOut(STREAM& stream, const TYPE& value);
 // [ 1] bdexStreamOut(STREAM& stream, const TYPE& value, int version);
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 3] USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-//=============================================================================
+// ============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace {
 
@@ -54,9 +54,9 @@ void aSsErT(int c, const char *s, int i)
 
 }  // close unnamed namespace
 
-//=============================================================================
+// ============================================================================
 //                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
@@ -75,19 +75,19 @@ void aSsErT(int c, const char *s, int i)
 #define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
-//=============================================================================
+// ============================================================================
 //                   GLOBAL CONSTANTS/TYPEDEFS FOR TESTING
-//=============================================================================
+// ============================================================================
 
 typedef bsls::Types::Int64  Int64;
 typedef bsls::Types::Uint64 Uint64;
 
-const int SERIALIZATION_VERSION = 20131201;
-const int OTHER_SERIALIZATION_VERSION = 20131101;
+const int VERSION_SELECTOR = 20131201;
+const int OTHER_VERSION_SELECTOR = 20131101;
 
-//=============================================================================
+// ============================================================================
 //                      GLOBAL TEST CLASSES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 enum MyTestEnum {
     e_A = INT_MIN,
@@ -138,7 +138,7 @@ class MyTestClass {
 
   public:
     // CLASS METHODS
-    static int maxSupportedBdexVersion(int serializationVersion);
+    static int maxSupportedBdexVersion(int versionSelector);
 
     // CREATORS
     MyTestClass() { }
@@ -149,8 +149,8 @@ class MyTestClass {
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
 };
 
-int MyTestClass::maxSupportedBdexVersion(int serializationVersion) {
-    if (serializationVersion >= SERIALIZATION_VERSION) return 2;
+int MyTestClass::maxSupportedBdexVersion(int versionSelector) {
+    if (versionSelector >= VERSION_SELECTOR) return 2;
     return 1;
 }
 
@@ -175,7 +175,7 @@ STREAM& MyTestClass::bdexStreamOut(STREAM& stream, int version) const
 class MyTestOutStream {
     // Test class used to test streaming.
 
-    int              d_serializationVersion;
+    int              d_versionSelector;
     bsl::vector<int> d_fun;
     int              d_lastVersion;
 
@@ -194,8 +194,8 @@ class MyTestOutStream {
     };
 
     // CREATORS
-    MyTestOutStream(int serializationVersion)
-      : d_serializationVersion(serializationVersion)
+    MyTestOutStream(int versionSelector)
+      : d_versionSelector(versionSelector)
       , d_fun()
       , d_lastVersion(-2)
     {
@@ -311,7 +311,7 @@ class MyTestOutStream {
     // ACCESSORS
     operator const void *() const { return this; }
     const char *data() const { return 0; }
-    int bdexSerializationVersion() const { return d_serializationVersion; }
+    int bdexVersionSelector() const { return d_versionSelector; }
     int length() const { return 0; }
     int size() const { return static_cast<int>(d_fun.size()); }
     int operator[](int index) const
@@ -333,7 +333,7 @@ struct TestWithVersion {
     {
         using bslx::OutStreamFunctions::bdexStreamOut;
 
-        MyTestOutStream stream(SERIALIZATION_VERSION);
+        MyTestOutStream stream(VERSION_SELECTOR);
 
         TYPE mValue;  const TYPE& value = mValue;
         bsl::vector<TYPE> mV;
@@ -541,9 +541,9 @@ struct TestWithoutVersion {
     }
 };
 
-//=============================================================================
+// ============================================================================
 //                                 USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 ///Usage
 ///-----
@@ -551,7 +551,7 @@ struct TestWithoutVersion {
 //
 ///Example 1: Using 'bslx::OutStreamFunctions' to Externalize Data
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example we illustrate the primary intended use of the templatized
+// In this example we illustrate the primary intended use of the parameterized
 // methods of this component, as well as a few trivial invocations just to show
 // the syntax clearly.  To accomplish this, we exhibit two separate example
 // "components": a value-semantic point object, and an 'enum'.  In all cases,
@@ -590,9 +590,14 @@ struct TestWithoutVersion {
 
       public:
         // CLASS METHODS
-        static int maxSupportedBdexVersion(int serializationVersion);
-            // Return the 'version' to be used with the 'bdexStreamOut' method
-            // corresponding to the specified 'serializationVersion'.  See the
+        static int maxSupportedBdexVersion(int versionSelector);
+            // Return the maximum valid BDEX format version, as indicated by
+            // the specified 'versionSelector', to be passed to the
+            // 'bdexStreamOut' method.  Note that it is highly recommended that
+            // versionSelector' be formatted as "YYYYMMDD", a date
+            // representation.  Also note that 'versionSelector' should be a
+            // *compile*-time-chosen value that selects a format version
+            // supported by both externalizer and unexternalizer.  See the
             // 'bslx' package-level documentation for more information on BDEX
             // streaming of value-semantic types and containers.
 
@@ -622,14 +627,14 @@ struct TestWithoutVersion {
 
         template <class STREAM>
         STREAM& bdexStreamOut(STREAM& stream, int version) const;
-            // Write this value to the specified output 'stream' using the
-            // specified 'version' format, and return a reference to 'stream'.
-            // If 'stream' is initially invalid, this operation has no effect.
-            // If 'version' is not supported, 'stream' is invalidated but
-            // otherwise unmodified.  Note that 'version' is not written to
-            // 'stream'.  See the 'bslx' package-level documentation for more
-            // information on BDEX streaming of value-semantic types and
-            // containers.
+            // Write the value of this object, using the specified 'version'
+            // format, to the specified output 'stream', and return a reference
+            // to 'stream'.  If 'stream' is initially invalid, this operation
+            // has no effect.  If 'version' is not supported, 'stream' is
+            // invalidated, but otherwise unmodified.  Note that 'version' is
+            // not written to 'stream'.  See the 'bslx' package-level
+            // documentation for more information on BDEX streaming of
+            // value-semantic types and containers.
     };
 
     // FREE OPERATORS
@@ -641,15 +646,15 @@ struct TestWithoutVersion {
 //..
 // Representative (inline) implementations of these methods are shown below:
 //..
-    //=========================================================================
+    // ========================================================================
     //                      INLINE FUNCTION DEFINITIONS
-    //=========================================================================
+    // ========================================================================
 
     // CLASS METHODS
     inline
-    int MyPoint::maxSupportedBdexVersion(int serializationVersion)
+    int MyPoint::maxSupportedBdexVersion(int versionSelector)
     {
-        if (serializationVersion >= 20131201) {
+        if (versionSelector >= 20131201) {
             return 2;
         }
         return 1;
@@ -796,9 +801,9 @@ struct TestWithoutVersion {
 //..
 // The relevant (inline) implementations are as follows.
 //..
-    //=========================================================================
+    // ========================================================================
     //                      INLINE FUNCTION DEFINITIONS
-    //=========================================================================
+    // ========================================================================
 
     // CREATORS
     inline
@@ -876,9 +881,9 @@ struct TestWithoutVersion {
     }
 //..
 
-//=============================================================================
+// ============================================================================
 //                                 MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -997,7 +1002,7 @@ int main(int argc, char *argv[])
         //:
         //: 6 Verify version is correctly externalized in all tests.  (C-5)
         //:
-        //: 7 Repeat tests with different 'serializationVersion' in the stream
+        //: 7 Repeat tests with different 'versionSelector' in the stream
         //:   constructor and verify results.  (C-7)
         //
         // Testing:
@@ -1008,8 +1013,8 @@ int main(int argc, char *argv[])
                           << "TESTING 'bdexStreamOut(stream, value)'" << endl
                           << "======================================" << endl;
 
-        {  // first choice of serializationVersion
-            MyTestOutStream stream(OTHER_SERIALIZATION_VERSION);
+        {  // first choice of versionSelector
+            MyTestOutStream stream(OTHER_VERSION_SELECTOR);
 
             std::vector<int> exp;
 
@@ -1156,10 +1161,10 @@ int main(int argc, char *argv[])
                                                             false,
                                                             true);
         }
-        {  // second choice of serializationVersion
+        {  // second choice of versionSelector
             using namespace OutStreamFunctions;
 
-            MyTestOutStream stream(SERIALIZATION_VERSION);
+            MyTestOutStream stream(VERSION_SELECTOR);
 
             std::vector<int> exp;
 

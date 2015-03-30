@@ -560,11 +560,11 @@ inline
 void *operator new(bsl::size_t size, BloombergLP::bdlma::Pool& pool)
 {
     using namespace BloombergLP;
-    typedef bsls::AlignmentUtil Util;
 
-    BSLS_ASSERT_SAFE(static_cast<int>(size) <= pool.blockSize()
-                  && Util::calculateAlignmentFromSize(size)
-                       <= Util::calculateAlignmentFromSize(pool.blockSize()));
+    BSLS_ASSERT_SAFE(
+        static_cast<int>(size) <= pool.blockSize() && 
+        bsls::AlignmentUtil::calculateAlignmentFromSize(size)
+         <= bsls::AlignmentUtil::calculateAlignmentFromSize(pool.blockSize()));
 
     static_cast<void>(size);  // suppress "unused parameter" warnings
     return pool.allocate();

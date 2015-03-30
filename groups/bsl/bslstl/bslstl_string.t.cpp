@@ -445,10 +445,21 @@ inline void dbg_print(float val) {
     fflush(stdout);
 }
 inline void dbg_print(double val) { printf("'%f'", val); fflush(stdout); }
-inline void dbg_print(const char* s) { printf("\"%s\"", s); fflush(stdout); }
-inline void dbg_print(const void* val)
+inline void dbg_print(const char *s) { printf("\"%s\"", s); fflush(stdout); }
+inline void dbg_print(const void *val)
 {
     printf("\"%p\"", val);
+    fflush(stdout);
+}
+
+void dbg_print(const wchar_t *s)
+{
+    putchar('"');
+    while (*s) {
+        dbg_print(*s);
+        ++s;
+    }
+    putchar('"');
     fflush(stdout);
 }
 
@@ -1265,7 +1276,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
             num.push_back( TYPE('0' + (i/10)      %10 ));
             num.push_back( TYPE('0' + (i)         %10 ));
 
-            if (veryVerbose) printf("Testing hash of %s\n", num.data());
+            if (veryVerbose) dbg_print("Testing hash of ", num.data(), "\n");
 
             prevHash = hash;
             hash     = hasher(num);
@@ -1311,7 +1322,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
             num.push_back( TYPE('0' + (i/10)      %10 ));
             num.push_back( TYPE('0' + (i)         %10 ));
 
-            if (veryVerbose) printf("Testing hash of %s\n", num.data());
+            if (veryVerbose) dbg_print("Testing hash of ", num.data(), "\n");
 
             prevHash = hash;
             hash     = hasher(num);

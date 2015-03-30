@@ -13,17 +13,18 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslx' package currently has 10 components having 5 levels of physical
- dependency.  The list below shows the hierarchical ordering of the components.
- The order of components within each level is not architecturally significant,
- just alphabetical.
+ 'bslx' has 14 components having five levels of dependency.  The table below
+ shows the hierarchical ordering of the components.  The package prefix and
+ underscore ('bslx_') are omitted from the full component names for layout
+ efficiency:
 ..
-  5. bslx_testinstream
+  Level
+    5:  testinstream         streambufinstream
 
-  4. bslx_byteinstream
-     bslx_testoutstream
+    4:  byteinstream         genericinstream       testoutstream
+        streambufoutstream
 
-  3. bslx_byteoutstream
+    3:  byteoutstream        genericoutstream
 
   2. bslx_instreamfunctions
      bslx_outstreamfunctions
@@ -36,35 +37,48 @@
 
 /Component Synopsis
 /------------------
-: 'bslx_byteinstream':
-:      Provide a stream class for unexternalization of fundamental types.
-:
-: 'bslx_byteoutstream':
-:      Provide a stream class for externalization of fundamental types.
-:
-: 'bslx_instreamfunctions':
-:      Facilitate uniform unexternalization of user and fundamental types.
-:
-: 'bslx_marshallingutil':
-:      Support platform-independent marshalling of fundamental types.
-:
-: 'bslx_outstreamfunctions':
-:      Facilitate uniform externalization of user and fundamental types.
-:
-: 'bslx_testinstream':
-:      Enable unexternalization of fundamental types with identification.
-:
-: 'bslx_testinstreamexception':
-:      Provide an exception class for unexternalization operations.
-:
-: 'bslx_testoutstream':
-:      Enable externalization of fundamental types with identification.
-:
-: 'bslx_typecode':
-:      Enumerate the fundamental types supported by BDEX.
-:
-: 'bslx_versionfunctions':
-:      Provide functions to return BDEX version information for types.
+ The following is a brief synopsis of the components in 'bslx':
+..
+  bslx_byteinstream            - primary production input stream
+
+  bslx_byteoutstream           - primary production output stream
+
+  bslx_genericinstream         - parameterized buffer input stream
+
+  bslx_genericoutstream        - parameterized buffer output stream
+
+  bslx_instreamfunctions       - parameterized validator/wrapper for the
+                                 'bdexStreamIn' method required of
+                                 BDEX-compliant types
+
+  bslx_marshallingutil         - utilities to put/get fundamental and array
+                                 values to/from a character buffer
+
+  bslx_outstreamfunctions      - parameterized validator/wrapper for the
+                                 'bdexStreamOut' method required of
+                                 BDEX-compliant types
+
+  bslx_streambufinstream       - 'bsl::streambuf'-based input stream
+
+  bslx_streambufoutstream      - 'bsl::streambuf'-based output stream
+
+  bslx_testinstream            - instrumented input stream, primarily for
+                                 testing
+
+  bslx_testinstreamexception   - exception object, primarily for testing
+
+  bslx_testoutstream           - instrumented output stream, primarily for
+                                 testing
+
+  bslx_typecode                - enumeration of fundamental streamable types
+
+  bslx_versionfunctions        - parameterized utility to compute serialization
+                                 version during use of 'operator<<'
+..
+ Components providing concrete streams define classes whose names are the
+ appropriate mixed-case spellings of the component names.  For example,
+ 'bslx_byteinstream' provides the 'bslx::ByteInStream' object, a concrete input
+ stream.
 
 /Externalization
 /---------------
@@ -104,13 +118,14 @@
  However, when using 'operator<<' it is impractical to directly supply the
  version to be used with each top-level object.  As such, an indirect method
  of versioning is employed, which incorporates data provided to the stream
- during the stream's construction, the 'serializationVersion'.  One requirement
+ during the stream's construction, the 'versionSelector'.  One requirement
  of all BDEX-compliant serializable types is to implement the
- 'maxSupportedBdexVersion' method, which converts this 'serializationVersion'
- to the needed version on a per object-type basis.  While the list of versions
+ 'maxSupportedBdexVersion' method, which converts this 'versionSelector' to the
+ needed version on a per object-type basis.  While the list of versions
  supported by an object is typically a sequential set of numbers starting with
- 1, the 'serializationVersion' is expected to be formatted as 'yyyymmdd', a
- date representation.
+ 1, the 'versionSelector' is expected to be formatted as "YYYYMMDD", a date
+ representation.  For example, an integral 'versionSelector' value of 20140402
+ represents the date 2014/04/02 (April 2, 2014).
 
  If a top-level object is of a type directly supported by the BDEX-compliant
  stream, no version is externalized for the data.  For the stream-supported
@@ -171,7 +186,7 @@
  respectively.
 
 /Requirements for a BDEX-Compliant Class to be Streamable
-/----------------------------------------------------------
+/--------------------------------------------------------
  In this section we give a brief synopsis of the required member functions for
  a class in order to be BDEX-streamable.  See the "Using BDEX with Your Own
  Class" section below for implementation details.
@@ -181,11 +196,16 @@
  BDEX-compliant class are as follows:
 ..
     // CLASS METHODS
-    static int maxSupportedBdexVersion(int serializationVersion);
-        // Return the 'version' to be used with the 'bdexStreamOut' method
-        // corresponding to the specified 'serializationVersion'.  See the
-        // 'bslx' package-level documentation for more information on BDEX
-        // streaming of value-semantic types and containers.
+    static int maxSupportedBdexVersion(int versionSelector);
+        // Return the maximum valid BDEX format version, as indicated by the
+        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
+        // method.  Note that it is highly recommended that 'versionSelector'
+        // be formatted as "YYYYMMDD", a date representation.  Also note that
+        // 'versionSelector' should be a *compile*-time-chosen value that
+        // selects a format version supported by both externalizer and
+        // unexternalizer.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
 
     // MANIPULATORS
     template <class STREAM>
@@ -194,7 +214,7 @@
         // 'stream' using the specified 'version' format, and return a
         // reference to 'stream'.  If 'stream' is initially invalid, this
         // operation has no effect.  If 'version' is not supported, this object
-        // is unaltered and 'stream' is invalidated but otherwise unmodified.
+        // is unaltered and 'stream' is invalidated, but otherwise unmodified.
         // If 'version' is supported but 'stream' becomes invalid during this
         // operation, this object has an undefined, but valid, state.  Note
         // that no version is read from 'stream'.  See the 'bslx' package-level
@@ -204,13 +224,14 @@
     // ACCESSORS
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write this value to the specified output 'stream' using the
-        // specified 'version' format, and return a reference to 'stream'.  If
-        // 'stream' is initially invalid, this operation has no effect.  If
-        // 'version' is not supported, 'stream' is invalidated but otherwise
-        // unmodified.  Note that 'version' is not written to 'stream'.  See
-        // the 'bslx' package-level documentation for more information on BDEX
-        // streaming of value-semantic types and containers.
+        // Write the value of this object, using the specified 'version'
+        // format, to the specified output 'stream', and return a reference to
+        // 'stream'.  If 'stream' is initially invalid, this operation has no
+        // effect.  If 'version' is not supported, 'stream' is invalidated, but
+        // otherwise unmodified.  Note that 'version' is not written to
+        // 'stream'.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
 ..
 
 /Selection of Streams
@@ -218,7 +239,7 @@
  At present, there are two pairs of concrete BDEX-compliant streams in 'bslx':
 ..
    Out Stream               In Stream              Informal Designation
-   ---------------------    ------------------     --------------------
+   -------------------      ------------------     --------------------
    bslx::ByteOutStream      bslx::ByteInStream     "Production Streams"
    bslx::TestOutStream      bslx::TestInStream     "Test Streams"
 ..
@@ -239,7 +260,7 @@
 
 
 /Using BDEX with Your Own Class
-/--------------------------------
+/------------------------------
  We will show a very brief example of a fictitious 'MyPoint' class whose
  intended purpose is to hold a pair of 'int' values representing a point in a
  two-dimensional rectilinear coordinate space.  We will first define the class
@@ -281,10 +302,10 @@
  The function-level documentation should make the purpose of each method clear,
  and we will show the implementations for 'MyPoint' soon, but first let's just
  say a few words about "version".  In a nutshell, the version is set to 1 in
- the initial release of the component, and in the best of all worlds, the
- version stays 1 forever.  If, however, for some reason the developer wishes to
- alter the BDEX streaming contract (e.g., for some performance reasons), the
- explicit version maintains backward compatibility.
+ the initial release of the class, and in the best of all worlds, the version
+ stays 1 forever.  If, however, for some reason the developer wishes to alter
+ the BDEX streaming contract (e.g., for some performance reasons), the explicit
+ version maintains backward compatibility.
 
  Adding the three methods to 'MyPoint' that are required for BDEX-compliance is
  straightforward:
@@ -295,11 +316,16 @@
 
    public:
      // CLASS METHODS
-     static int maxSupportedBdexVersion(int serializationVersion);
-        // Return the 'version' to be used with the 'bdexStreamOut' method
-        // corresponding to the specified 'serializationVersion'.  See the
-        // 'bslx' package-level documentation for more information on BDEX
-        // streaming of value-semantic types and containers.
+     static int maxSupportedBdexVersion(int versionSelector);
+         // Return the maximum valid BDEX format version, as indicated by the
+         // specified 'versionSelector', to be passed to the 'bdexStreamOut'
+         // method.  Note that it is highly recommended that 'versionSelector'
+         // be formatted as "YYYYMMDD", a date representation.  Also note that
+         // 'versionSelector' should be a *compile*-time-chosen value that
+         // selects a format version supported by both externalizer and
+         // unexternalizer.  See the 'bslx' package-level documentation for
+         // more information on BDEX streaming of value-semantic types and
+         // containers.
 
      // CREATORS
      MyPoint() : d_x(0), d_y(0) { }
@@ -316,16 +342,16 @@
 
      template <class STREAM>
      STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format, and return a
-        // reference to 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'version' is not supported, this object
-        // is unaltered and 'stream' is invalidated but otherwise unmodified.
-        // If 'version' is supported but 'stream' becomes invalid during this
-        // operation, this object has an undefined, but valid, state.  Note
-        // that no version is read from 'stream'.  See the 'bslx' package-level
-        // documentation for more information on BDEX streaming of
-        // value-semantic types and containers.
+         // Assign to this object the value read from the specified input
+         // 'stream' using the specified 'version' format, and return a
+         // reference to 'stream'.  If 'stream' is initially invalid, this
+         // operation has no effect.  If 'version' is not supported, this
+         // object is unaltered and 'stream' is invalidated, but otherwise
+         // unmodified.  If 'version' is supported but 'stream' becomes invalid
+         // during this operation, this object has an undefined, but valid,
+         // state.  Note that no version is read from 'stream'.  See the 'bslx'
+         // package-level documentation for more information on BDEX streaming
+         // of value-semantic types and containers.
 
      // ACCESSORS
      int x() const { return d_x; }
@@ -333,21 +359,22 @@
 
      template <class STREAM>
      STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write this value to the specified output 'stream' using the
-        // specified 'version' format, and return a reference to 'stream'.  If
-        // 'stream' is initially invalid, this operation has no effect.  If
-        // 'version' is not supported, 'stream' is invalidated but otherwise
-        // unmodified.  Note that 'version' is not written to 'stream'.  See
-        // the 'bslx' package-level documentation for more information on BDEX
-        // streaming of value-semantic types and containers.
+         // Write the value of this object, using the specified 'version'
+         // format, to the specified output 'stream', and return a reference to
+         // 'stream'.  If 'stream' is initially invalid, this operation has no
+         // effect.  If 'version' is not supported, 'stream' is invalidated,
+         // but otherwise unmodified.  Note that 'version' is not written to
+         // 'stream'.  See the 'bslx' package-level documentation for more
+         // information on BDEX streaming of value-semantic types and
+         // containers.
  };
 ..
  The implementations of the new BDEX-required methods might be as follows.
  The 'maxSupportedBdexVersion' method simply returns the value 1 regardless of
- the 'serializationVersion' requested:
+ the 'versionSelector' requested:
 ..
  inline
- int MyPoint::maxSupportedBdexVersion(int serializationVersion)
+ int MyPoint::maxSupportedBdexVersion(int versionSelector)
  {
      return 1;
  }
@@ -371,7 +398,7 @@
  STREAM& MyPoint::bdexStreamOut(STREAM& stream, int version) const
  {
      switch (version) {
-       case 1: {  // Implementation-specific code goes here.
+       case 1: { // Implementation-specific code goes here.
          stream.putInt32(d_x);
          stream.putInt32(d_y);
        } break;
@@ -394,7 +421,7 @@
      if (stream) {
          switch (version) {
              // switch on the schema version (starting with 1)
-           case 1: {  // Implementation-specific code goes here.
+           case 1: { // Implementation-specific code goes here.
              stream.getInt32(d_x);
              stream.getInt32(d_y);
            } break;
@@ -426,6 +453,142 @@
  would use that data member's BDEX methods rather than the stream's methods
  directly.  This is important for encapsulation.
 
+/Recommended Selection of 'versionSelector'
+/------------------------------------------
+ BDEX provides two concepts that support versioning the BDEX serialization
+ format of a type: 'version' and 'versionSelector'.  A 'version' is a 1-based
+ integer indicating one of the supported formats (e.g., format 1, format 2,
+ etc.).  A 'versionSelector' is a value that is mapped to a 'version' for a
+ type by the type's implementation of 'maxSupportedBdexVersion'.
+
+ Selecting a value for a 'versionSelector' is required at two different points:
+ (1) when implementing a new 'version' format within the 'bdexStreamIn' and
+ 'bdexStreamOut' methods of a type, and (2) when implementing code that
+ constructs a BDEX 'OutStream'.  In both cases, the value should be a
+ *compile*-time-selected value.
+
+ When a new 'version' format is implemented within the 'bdexStreamIn' and
+ 'bdexStreamOut' methods of a type, a new mapping in 'maxSupportedBdexVersion'
+ should be created to expose this new 'version' with a 'versionSelector'.  A
+ simple - and the recommended - approach is to use a value having the pattern
+ "YYYYMMDD", where "YYYYMMDD" corresponds to the "go-live" date of the
+ corresponding 'version' format.
+
+ When constructing an 'OutStream', a simple approach is to use the current date
+ as a *compile*-time constant value (but see {Updating Production Systems}).
+ In combination with the recommended selection of 'versionSelector' values for
+ 'maxSupportedBdexVersion', this will result in consistent and predictable
+ behavior while externalizing types.  Note that this recommendation is chosen
+ for its simplicity: to ensure the largest possible audience for an
+ externalized representation, clients can select the minimum date value that
+ will result in the desired version of all types externalized with 'operator<<'
+ being selected.
+
+ Clients streaming one or more objects with BDEX create a stream and supply a
+ 'versionSelector':
+  ..
+    MyObject foo( /* some value */ );
+    bslx::ByteOutStream stream(20140725);   // The minimum date that will
+                                            // result in all streamed types
+                                            // using the correct versions
+                                            // during externalization.
+    stream << foo;
+  ..
+ Notice that the 'versionSelector' is a *compile*-time-selected value (in this
+ case, the minimum date that will result in all streamed types using the
+ correct versions during externalization) that can be mapped to the
+ serialization format version of the types being serialized.  The receiver of
+ this information must support all these versions as well.  Specifying future
+ dates or allowing a run-time selection of 'versionSelector' is error prone:
+ tasks exchanging serialized data are often compiled and deployed at different
+ times, which would result in serialization errors if they were selecting a
+ serialization version at run-time (there is no guarantee the receiver has been
+ rebuilt to accept the updated format version).
+
+ For an example, assume the 'MyPoint' class is determined to need 64-bit
+ storage for the coordinate values.  The new 'bdexStreamIn' and 'bdexStreamOut'
+ code might be implemented as:
+..
+ template <class STREAM>
+ STREAM& MyPoint::bdexStreamIn(STREAM& stream, int version)
+ {
+     if (stream) {
+         switch (version) {
+             // switch on the schema version (starting with 1)
+           case 2: { // Implementation-specific code goes here.
+             stream.getInt64(d_x);
+             stream.getInt64(d_y);
+           } break;
+           case 1: { // NOTE: 'd_x' and 'd_y' were switched to 64-bit
+             int tmp;
+             stream.getInt32(tmp);
+             d_x = static_cast<bsls::Types::Int64>(tmp);
+             stream.getInt32(tmp);
+             d_y = static_cast<bsls::Types::Int64>(tmp);
+           } break;
+           default: {
+             stream.invalidate();
+           } break;
+         }
+     }
+     return stream;
+ }
+
+ template <class STREAM>
+ STREAM& MyPoint::bdexStreamOut(STREAM& stream, int version) const
+ {
+     switch (version) {
+       case 2: {
+         stream.putInt64(d_x);
+         stream.putInt64(d_y);
+       } break;
+       case 1: { // NOTE: 'd_x' and 'd_y' were switched to 64-bit
+         stream.putInt32(static_cast<int>(d_x));
+         stream.putInt32(static_cast<int>(d_y));
+       } break;
+       default: {
+         stream.invalidate();
+       } break;
+     }
+     return stream;
+ }
+..
+ The corresponding 'maxSupportedBdexVersion', where 2014/04/02 is the date on
+ which the new version is introduced, might look something like:
+..
+ inline
+ int MyPoint::maxSupportedBdexVersion(int versionSelector)
+ {
+     if (versionSelector >= 20140402) {
+         return 2;                                                // RETURN
+     }
+     return 1;
+ }
+..
+
+/Updating Production Systems
+----------------------------
+ The basic recommendation for choosing a 'versionSelector' (which is supplied
+ to the BDEX 'OutStream' constructor) is to use the current date as a 
+ *compile*-time constant value.  Using the current date will select the most 
+ recent BDEX version.  However, in environments were multiple tasks may be 
+ reading the resulting serialized value, it is important to ensure that all
+ the tasks participating in the system are capable of reading that BDEX version
+ before selecting it as an output version.  
+
+ The roll-out of a new BDEX version for an existing type ('A') in a production
+ system typically involves these steps:
+
+ 1. Update Type 'A', introducing a new BDEX version, and version selector
+    for that version that is the date the change is expected to "go-live".
+
+ 2. Rebuild and redeploy all the tasks that de-serialize 'A'.
+
+ 3. Update the version selector for tasks that serialize 'A' (choosing the date
+    used in step 1).
+
+ 4. Rebuild and redeploy all the tasks that serialize 'A'.
+
 /Overloading BDEX Free Functions
 /-------------------------------
  For third-party components, and potentially enumerations, three free functions
@@ -438,30 +601,40 @@
 ..
  template <class STREAM, class TYPE>
  STREAM& bdexStreamIn(STREAM& stream, TYPE& variable, int version);
-     // Load into the specified 'variable' the 'TYPE' value read from the
+     // Assign to the specified 'variable' the 'TYPE' value read from the
      // specified input 'stream' using the specified 'version' format, and
      // return a reference to 'stream'.  If 'stream' is initially invalid, this
      // operation has no effect.  If 'version' is not supported by 'TYPE',
-     // 'stream' is invalidated but otherwise unmodified.  The behavior is
-     // undefined unless 'STREAM' and 'TYPE' are BDEX-compliant.
+     // 'variable' is unaltered and 'stream' is invalidated, but otherwise
+     // unmodified.  If 'version' is supported by 'TYPE' but 'stream' becomes
+     // invalid during this operation, 'variable' has an undefined, but valid,
+     // state.  The behavior is undefined unless 'STREAM' and 'TYPE' are
+     // BDEX-compliant.  Note that no version is read from 'stream'.  See the
+     // 'bslx' package-level documentation for more information on BDEX
+     // streaming of value-semantic types and containers.
 
  template <class STREAM, class TYPE>
  STREAM& bdexStreamOut(STREAM& stream, const TYPE& value, int version);
-     // Write the specified 'value' to the specified output 'stream' using the
-     // specified 'version' format, and return a reference to 'stream'.  If
+     // Write the specified 'value', using the specified 'version' format, to
+     // the specified output 'stream', and return a reference to 'stream'.  If
      // 'stream' is initially invalid, this operation has no effect.  If
-     // 'version' is not supported by 'TYPE', 'stream' is invalidated but
+     // 'version' is not supported by 'TYPE', 'stream' is invalidated, but
      // otherwise unmodified.  The behavior is undefined unless 'STREAM' and
      // 'TYPE' are BDEX-compliant.  Note that 'version' is not written to
-     // 'stream'.
+     // 'stream'.  See the 'bslx' package-level documentation for more
+     // information on BDEX streaming of value-semantic types and containers.
 
  template <class TYPE>
- int maxSupportedBdexVersion(const TYPE *, int serializationVersion);
-     // Return the version to use while streaming an object of the (template
-     // parameter) type 'TYPE' with the specified 'serializationVersion' as per
-     // the BDEX protocol (see the 'bslx' package-level documentation).  Note
-     // that this function ignores any 'const' and 'volatile' qualifiers on the
-     // 'TYPE'.
+ int maxSupportedBdexVersion(const TYPE *, int versionSelector);
+     // Return the maximum valid BDEX format version, as indicated by the
+     // specified 'versionSelector', to be passed to the 'bdexStreamOut'
+     // method while streaming an object of the (template parameter) type
+     // 'TYPE'.  Note that it is highly recommended that 'versionSelector' be
+     // formatted as "YYYYMMDD", a date representation.  Also note that
+     // 'versionSelector' should be a *compile*-time-chosen value that selects
+     // a format version supported by both externalizer and unexternalizer.
+     // See the 'bslx' package-level documentation for more information on BDEX
+     // streaming of value-semantic types and containers.
 ..
 
  As a brief example, consider the following enumeration that is to be streamed
@@ -522,7 +695,7 @@
 
  inline
  int maxSupportedBdexVersion(const MyStruct::Value *,
-                             int                    serializationVersion)
+                             int                    versionSelector)
  {
      using bslx::VersionFunctions::maxSupportedBdexVersion;
 
@@ -532,67 +705,10 @@
  }  // close ThirdParty namespace
 ..
 
-/Recommended Selection of 'serializationVersion'
-/-----------------------------------------------
- In this section we present the recommended method for selecting the
- 'serializationVersion' value when implementing the 'maxSupportedBdexVersion'
- method and when constructing an output stream.
-
- Whenever a new 'version' is implemented within the 'bdexStreamOut' method of a
- component, typically a new entry in 'maxSupportedBdexVersion' should be
- created to expose this new 'version'.  Assuming the recommendations for
- selecting the 'serializationVersion' when constructing an output stream are
- followed, then a simple approach is to use the value 'yyyymmdd' where
- 'yyyymmdd' corresponds to the current date.
-
- Assuming the recommendations within this Appendix are followed, the best value
- for 'serializationVersion' to use is the minimum value that will result in the
- correct externalization 'version' being selected for all externalized objects.
- Any fixed value with 'yyyymmdd' specified as a date in the past will result in
- predictable, safe behavior.  Specifying future dates or allowing a run-time
- selection of 'serializationVersion' is error prone.  Typically, during initial
- development the output stream will be constructed with the fixed value of
- 'yyyymmdd' corresponding to the current date and this value will not be
- changed in future releases.
-
- For an example, assume the 'MyPoint' class is determined to need 64-bit
- storage for the coordinate values.  The new 'bdexStreamOut' code might be
- implemented as:
-..
- template <class STREAM>
- STREAM& MyPoint::bdexStreamOut(STREAM& stream, int version) const
- {
-     switch (version) {
-       case 2: {
-         stream.putInt64(d_x);
-         stream.putInt64(d_y);
-       } break;
-       case 1: { // NOTE: 'd_x' and 'd_y' were switched to 64-bit
-         stream.putInt32(static_cast<int>(d_x));
-         stream.putInt32(static_cast<int>(d_y));
-       } break;
-       default: {
-         stream.invalidate();
-       } break;
-     }
-     return stream;
- }
-..
- The corresponding 'maxSupportedBdexVersion', where '20140402' is the date on
- which the new version is introduced, might look something like:
-..
- inline
- int MyPoint::maxSupportedBdexVersion(int serializationVersion)
- {
-     if (serializationVersion >= 20140402) {
-         return 2;                                                // RETURN
-     }
-     return 1;
- }
-..
- Note that the value used for comparison appends a '0' to this date; this
- indicates it is the first revision for that date and - although unlikely -
- subsequent releases on the same day would use consecutively higher values.
+/Backward Compatibility with Older BDEX Serialization Packages
+/-------------------------------------------------------------
+ Users of the previous implementation of the BDEX concept can find
+ documentation on compatibility in the older package documentation.
 
 @Appendix I: The BDEX 'OutStream' Protocol
  In this section we present the function documentation of BDEX 'OutStream',
@@ -953,9 +1069,9 @@
          // An invalid stream is a stream for which an output operation was
          // detected to have failed or 'invalidate' was called.
 
-     int bdexSerializationVersion() const;
-         // Return the 'serializationVersion' to be used with 'operator<<' for
-         // BDEX streaming as per the 'bslx' package-level documentation.
+     int bdexVersionSelector() const;
+         // Return the 'versionSelector' to be used with 'operator<<' for BDEX
+         // streaming as per the 'bslx' package-level documentation.
 
      const char *data() const;
          // Return the address of the contiguous, non-modifiable internal
@@ -969,7 +1085,7 @@
          // invalid stream is a stream for which an output operation was
          // detected to have failed or 'invalidate' was called.
 
-     int length() const;
+     bsl::size_t length() const;
          // Return the number of bytes in this stream.
 
  // FREE OPERATORS
@@ -989,21 +1105,21 @@
      // MANIPULATORS
      InStream& getLength(int& length);
          // If the most-significant bit of the one byte of this stream at the
-         // current cursor location is set, load into the specified 'length'
+         // current cursor location is set, assign to the specified 'length'
          // the four-byte, two's complement integer (in host byte order)
          // comprised of the four bytes of this stream at the current cursor
          // location (in network byte order) with the most-significant bit
-         // unset; otherwise, load into the 'length' the one-byte, two's
-         // complement integer comprised of the one byte of this stream at the
-         // current cursor location.  Update the cursor location and return a
-         // reference to this stream.  If this stream is initially invalid,
-         // this operation has no effect.  If this function otherwise fails to
+         // unset; otherwise, assign to 'length' the one-byte, two's complement
+         // integer comprised of the one byte of this stream at the current
+         // cursor location.  Update the cursor location and return a reference
+         // to this stream.  If this stream is initially invalid, this
+         // operation has no effect.  If this function otherwise fails to
          // extract a valid value, this stream is marked invalid and the value
          // of 'length' is undefined.  Note that the value will be
          // zero-extended.
 
      InStream& getVersion(int& version);
-         // Load into the specified 'version' the one-byte, two's complement
+         // Assign to the specified 'version' the one-byte, two's complement
          // unsigned integer comprised of the one byte of this stream at the
          // current cursor location, update the cursor location, and return a
          // reference to this stream.  If this stream is initially invalid,
@@ -1023,12 +1139,12 @@
          // 0 (i.e., the beginning of the stream) and validate this stream if
          // it is currently invalid.
 
-     void reset(const char *buffer, int numBytes);
+     void reset(const char *buffer, bsl::size_t numBytes);
          // Reset this stream to extract from the specified 'buffer' containing
          // the specified 'numBytes', set the index of the next byte to be
          // extracted to 0 (i.e., the beginning of the stream), and validate
          // this stream if it is currently invalid.  The behavior is undefined
-         // unless '0 <= numBytes' and, if '0 == buffer', then '0 == numBytes'.
+         // unless '0 == numBytes' if '0 == buffer'.
 
      void reset(const bslstl::StringRef& srcData);
          // Reset this stream to extract from the specified 'srcData', set the
@@ -1038,7 +1154,7 @@
                        // *** scalar integer values ***
 
      InStream& getInt64(bsls::Types::Int64& variable);
-         // Load into the specified 'variable' the eight-byte, two's complement
+         // Assign to the specified 'variable' the eight-byte, two's complement
          // integer (in host byte order) comprised of the eight bytes of this
          // stream at the current cursor location (in network byte order),
          // update the cursor location, and return a reference to this stream.
@@ -1048,7 +1164,7 @@
          // Note that the value will be sign-extended.
 
      InStream& getUint64(bsls::Types::Uint64& variable);
-         // Load into the specified 'variable' the eight-byte, two's complement
+         // Assign to the specified 'variable' the eight-byte, two's complement
          // unsigned integer (in host byte order) comprised of the eight bytes
          // of this stream at the current cursor location (in network byte
          // order), update the cursor location, and return a reference to this
@@ -1058,7 +1174,7 @@
          // undefined.  Note that the value will be zero-extended.
 
      InStream& getInt56(bsls::Types::Int64& variable);
-         // Load into the specified 'variable' the seven-byte, two's complement
+         // Assign to the specified 'variable' the seven-byte, two's complement
          // integer (in host byte order) comprised of the seven bytes of this
          // stream at the current cursor location (in network byte order),
          // update the cursor location, and return a reference to this stream.
@@ -1068,7 +1184,7 @@
          // Note that the value will be sign-extended.
 
      InStream& getUint56(bsls::Types::Uint64& variable);
-         // Load into the specified 'variable' the seven-byte, two's complement
+         // Assign to the specified 'variable' the seven-byte, two's complement
          // unsigned integer (in host byte order) comprised of the seven bytes
          // of this stream at the current cursor location (in network byte
          // order), update the cursor location, and return a reference to this
@@ -1078,7 +1194,7 @@
          // undefined.  Note that the value will be zero-extended.
 
      InStream& getInt48(bsls::Types::Int64& variable);
-         // Load into the specified 'variable' the six-byte, two's complement
+         // Assign to the specified 'variable' the six-byte, two's complement
          // integer (in host byte order) comprised of the six bytes of this
          // stream at the current cursor location (in network byte order),
          // update the cursor location, and return a reference to this stream.
@@ -1088,7 +1204,7 @@
          // Note that the value will be sign-extended.
 
      InStream& getUint48(bsls::Types::Uint64& variable);
-         // Load into the specified 'variable' the six-byte, two's complement
+         // Assign to the specified 'variable' the six-byte, two's complement
          // unsigned integer (in host byte order) comprised of the six bytes of
          // this stream at the current cursor location (in network byte order),
          // update the cursor location, and return a reference to this stream.
@@ -1098,7 +1214,7 @@
          // Note that the value will be zero-extended.
 
      InStream& getInt40(bsls::Types::Int64& variable);
-         // Load into the specified 'variable' the five-byte, two's complement
+         // Assign to the specified 'variable' the five-byte, two's complement
          // integer (in host byte order) comprised of the five bytes of this
          // stream at the current cursor location (in network byte order),
          // update the cursor location, and return a reference to this stream.
@@ -1108,7 +1224,7 @@
          // Note that the value will be sign-extended.
 
      InStream& getUint40(bsls::Types::Uint64& variable);
-         // Load into the specified 'variable' the five-byte, two's complement
+         // Assign to the specified 'variable' the five-byte, two's complement
          // unsigned integer (in host byte order) comprised of the five bytes
          // of this stream at the current cursor location (in network byte
          // order), update the cursor location, and return a reference to this
@@ -1118,7 +1234,7 @@
          // undefined.  Note that the value will be zero-extended.
 
      InStream& getInt32(int& variable);
-         // Load into the specified 'variable' the four-byte, two's complement
+         // Assign to the specified 'variable' the four-byte, two's complement
          // integer (in host byte order) comprised of the four bytes of this
          // stream at the current cursor location (in network byte order),
          // update the cursor location, and return a reference to this stream.
@@ -1128,7 +1244,7 @@
          // Note that the value will be sign-extended.
 
      InStream& getUint32(unsigned int& variable);
-         // Load into the specified 'variable' the four-byte, two's complement
+         // Assign to the specified 'variable' the four-byte, two's complement
          // unsigned integer (in host byte order) comprised of the four bytes
          // of this stream at the current cursor location (in network byte
          // order), update the cursor location, and return a reference to this
@@ -1138,7 +1254,7 @@
          // undefined.  Note that the value will be zero-extended.
 
      InStream& getInt24(int& variable);
-         // Load into the specified 'variable' the three-byte, two's complement
+         // Assign to the specified 'variable' the three-byte, two's complement
          // integer (in host byte order) comprised of the three bytes of this
          // stream at the current cursor location (in network byte order),
          // update the cursor location, and return a reference to this stream.
@@ -1148,7 +1264,7 @@
          // Note that the value will be sign-extended.
 
      InStream& getUint24(unsigned int& variable);
-         // Load into the specified 'variable' the three-byte, two's complement
+         // Assign to the specified 'variable' the three-byte, two's complement
          // unsigned integer (in host byte order) comprised of the three bytes
          // of this stream at the current cursor location (in network byte
          // order), update the cursor location, and return a reference to this
@@ -1158,7 +1274,7 @@
          // undefined.  Note that the value will be zero-extended.
 
      InStream& getInt16(short& variable);
-         // Load into the specified 'variable' the two-byte, two's complement
+         // Assign to the specified 'variable' the two-byte, two's complement
          // integer (in host byte order) comprised of the two bytes of this
          // stream at the current cursor location (in network byte order),
          // update the cursor location, and return a reference to this stream.
@@ -1168,7 +1284,7 @@
          // Note that the value will be sign-extended.
 
      InStream& getUint16(unsigned short& variable);
-         // Load into the specified 'variable' the two-byte, two's complement
+         // Assign to the specified 'variable' the two-byte, two's complement
          // unsigned integer (in host byte order) comprised of the two bytes of
          // this stream at the current cursor location (in network byte order),
          // update the cursor location, and return a reference to this stream.
@@ -1179,7 +1295,7 @@
 
      InStream& getInt8(char&        variable);
      InStream& getInt8(signed char& variable);
-         // Load into the specified 'variable' the one-byte, two's complement
+         // Assign to the specified 'variable' the one-byte, two's complement
          // integer comprised of the one byte of this stream at the current
          // cursor location, update the cursor location, and return a reference
          // to this stream.  If this stream is initially invalid, this
@@ -1190,7 +1306,7 @@
 
      InStream& getUint8(char&          variable);
      InStream& getUint8(unsigned char& variable);
-         // Load into the specified 'variable' the one-byte, two's complement
+         // Assign to the specified 'variable' the one-byte, two's complement
          // unsigned integer comprised of the one byte of this stream at the
          // current cursor location, update the cursor location, and return a
          // reference to this stream.  If this stream is initially invalid,
@@ -1202,7 +1318,7 @@
                        // *** scalar floating-point values ***
 
      InStream& getFloat64(double& variable);
-         // Load into the specified 'variable' the eight-byte IEEE
+         // Assign to the specified 'variable' the eight-byte IEEE
          // double-precision floating-point number (in host byte order)
          // comprised of the eight bytes of this stream at the current cursor
          // location (in network byte order), update the cursor location, and
@@ -1212,7 +1328,7 @@
          // the value of 'variable' is undefined.
 
      InStream& getFloat32(float& variable);
-         // Load into the specified 'variable' the four-byte IEEE
+         // Assign to the specified 'variable' the four-byte IEEE
          // single-precision floating-point number (in host byte order)
          // comprised of the four bytes of this stream at the current cursor
          // location (in network byte order), update the cursor location, and
@@ -1224,7 +1340,7 @@
                        // *** string values ***
 
      InStream& getString(bsl::string& variable);
-         // Load into the specified 'variable' the string comprised of the
+         // Assign to the specified 'variable' the string comprised of the
          // length of the string (see 'getLength') and the string data (see
          // 'getUint8'), update the cursor location, and return a reference to
          // this stream.  If this stream is initially invalid, this operation
@@ -1235,7 +1351,7 @@
                        // *** arrays of integer values ***
 
      InStream& getArrayInt64(bsls::Types::Int64 *variables, int numVariables);
-         // Load into the specified 'variables' the consecutive eight-byte,
+         // Assign to the specified 'variables' the consecutive eight-byte,
          // two's complement integers (in host byte order) comprised of each of
          // the specified 'numVariables' eight-byte sequences of this stream at
          // the current cursor location (in network byte order), update the
@@ -1249,7 +1365,7 @@
 
      InStream& getArrayUint64(bsls::Types::Uint64 *variables,
                               int                  numVariables);
-         // Load into the specified 'variables' the consecutive eight-byte,
+         // Assign to the specified 'variables' the consecutive eight-byte,
          // two's complement unsigned integers (in host byte order) comprised
          // of each of the specified 'numVariables' eight-byte sequences of
          // this stream at the current cursor location (in network byte order),
@@ -1262,7 +1378,7 @@
          // will be zero-extended.
 
      InStream& getArrayInt56(bsls::Types::Int64 *variables, int numVariables);
-         // Load into the specified 'variables' the consecutive seven-byte,
+         // Assign to the specified 'variables' the consecutive seven-byte,
          // two's complement integers (in host byte order) comprised of each of
          // the specified 'numVariables' seven-byte sequences of this stream at
          // the current cursor location (in network byte order), update the
@@ -1276,7 +1392,7 @@
 
      InStream& getArrayUint56(bsls::Types::Uint64 *variables,
                               int                  numVariables);
-         // Load into the specified 'variables' the consecutive seven-byte,
+         // Assign to the specified 'variables' the consecutive seven-byte,
          // two's complement unsigned integers (in host byte order) comprised
          // of each of the specified 'numVariables' seven-byte sequences of
          // this stream at the current cursor location (in network byte order),
@@ -1289,7 +1405,7 @@
          // will be zero-extended.
 
      InStream& getArrayInt48(bsls::Types::Int64 *variables, int numVariables);
-         // Load into the specified 'variables' the consecutive six-byte, two's
+         // Assign to the specified 'variables' the consecutive six-byte, two's
          // complement integers (in host byte order) comprised of each of the
          // specified 'numVariables' six-byte sequences of this stream at the
          // current cursor location (in network byte order), update the cursor
@@ -1302,7 +1418,7 @@
 
      InStream& getArrayUint48(bsls::Types::Uint64 *variables,
                               int                  numVariables);
-         // Load into the specified 'variables' the consecutive six-byte, two's
+         // Assign to the specified 'variables' the consecutive six-byte, two's
          // complement unsigned integers (in host byte order) comprised of each
          // of the specified 'numVariables' six-byte sequences of this stream
          // at the current cursor location (in network byte order), update the
@@ -1315,7 +1431,7 @@
          // zero-extended.
 
      InStream& getArrayInt40(bsls::Types::Int64 *variables, int numVariables);
-         // Load into the specified 'variables' the consecutive five-byte,
+         // Assign to the specified 'variables' the consecutive five-byte,
          // two's complement integers (in host byte order) comprised of each of
          // the specified 'numVariables' five-byte sequences of this stream at
          // the current cursor location (in network byte order), update the
@@ -1329,7 +1445,7 @@
 
      InStream& getArrayUint40(bsls::Types::Uint64 *variables,
                               int                  numVariables);
-         // Load into the specified 'variables' the consecutive five-byte,
+         // Assign to the specified 'variables' the consecutive five-byte,
          // two's complement unsigned integers (in host byte order) comprised
          // of each of the specified 'numVariables' five-byte sequences of this
          // stream at the current cursor location (in network byte order),
@@ -1342,7 +1458,7 @@
          // will be zero-extended.
 
      InStream& getArrayInt32(int *variables, int numVariables);
-         // Load into the specified 'variables' the consecutive four-byte,
+         // Assign to the specified 'variables' the consecutive four-byte,
          // two's complement integers (in host byte order) comprised of each of
          // the specified 'numVariables' four-byte sequences of this stream at
          // the current cursor location (in network byte order), update the
@@ -1355,7 +1471,7 @@
          // sign-extended.
 
      InStream& getArrayUint32(unsigned int *variables, int numVariables);
-         // Load into the specified 'variables' the consecutive four-byte,
+         // Assign to the specified 'variables' the consecutive four-byte,
          // two's complement unsigned integers (in host byte order) comprised
          // of each of the specified 'numVariables' four-byte sequences of this
          // stream at the current cursor location (in network byte order),
@@ -1368,7 +1484,7 @@
          // will be zero-extended.
 
      InStream& getArrayInt24(int *variables, int numVariables);
-         // Load into the specified 'variables' the consecutive three-byte,
+         // Assign to the specified 'variables' the consecutive three-byte,
          // two's complement integers (in host byte order) comprised of each of
          // the specified 'numVariables' three-byte sequences of this stream at
          // the current cursor location (in network byte order), update the
@@ -1381,7 +1497,7 @@
          // sign-extended.
 
      InStream& getArrayUint24(unsigned int *variables, int numVariables);
-         // Load into the specified 'variables' the consecutive three-byte,
+         // Assign to the specified 'variables' the consecutive three-byte,
          // two's complement unsigned integers (in host byte order) comprised
          // of each of the specified 'numVariables' three-byte sequences of
          // this stream at the current cursor location (in network byte order),
@@ -1394,7 +1510,7 @@
          // will be zero-extended.
 
      InStream& getArrayInt16(short *variables, int numVariables);
-         // Load into the specified 'variables' the consecutive two-byte, two's
+         // Assign to the specified 'variables' the consecutive two-byte, two's
          // complement integers (in host byte order) comprised of each of the
          // specified 'numVariables' two-byte sequences of this stream at the
          // current cursor location (in network byte order), update the cursor
@@ -1406,7 +1522,7 @@
          // capacity.  Note that each of the values will be sign-extended.
 
      InStream& getArrayUint16(unsigned short *variables, int numVariables);
-         // Load into the specified 'variables' the consecutive two-byte, two's
+         // Assign to the specified 'variables' the consecutive two-byte, two's
          // complement unsigned integers (in host byte order) comprised of each
          // of the specified 'numVariables' two-byte sequences of this stream
          // at the current cursor location (in network byte order), update the
@@ -1420,7 +1536,7 @@
 
      InStream& getArrayInt8(char *variables,        int numVariables);
      InStream& getArrayInt8(signed char *variables, int numVariables);
-         // Load into the specified 'variables' the consecutive one-byte, two's
+         // Assign to the specified 'variables' the consecutive one-byte, two's
          // complement integers comprised of each of the specified
          // 'numVariables' one-byte sequences of this stream at the current
          // cursor location, update the cursor location, and return a reference
@@ -1433,7 +1549,7 @@
 
      InStream& getArrayUint8(char *variables,          int numVariables);
      InStream& getArrayUint8(unsigned char *variables, int numVariables);
-         // Load into the specified 'variables' the consecutive one-byte, two's
+         // Assign to the specified 'variables' the consecutive one-byte, two's
          // complement unsigned integers comprised of each of the specified
          // 'numVariables' one-byte sequences of this stream at the current
          // cursor location, update the cursor location, and return a reference
@@ -1447,7 +1563,7 @@
                        // *** arrays of floating-point values ***
 
      InStream& getArrayFloat64(double *variables, int numVariables);
-         // Load into the specified 'variables' the consecutive eight-byte IEEE
+         // Assign to the specified 'variables' the consecutive eight-byte IEEE
          // double-precision floating-point numbers (in host byte order)
          // comprised of each of the specified 'numVariables' eight-byte
          // sequences of this stream at the current cursor location (in network
@@ -1459,7 +1575,7 @@
          // and 'variables' has sufficient capacity.
 
      InStream& getArrayFloat32(float *variables, int numVariables);
-         // Load into the specified 'variables' the consecutive four-byte IEEE
+         // Assign to the specified 'variables' the consecutive four-byte IEEE
          // single-precision floating-point numbers (in host byte order)
          // comprised of each of the specified 'numVariables' four-byte
          // sequences of this stream at the current cursor location (in network
@@ -1476,7 +1592,7 @@
          // An invalid stream is a stream for which an input operation was
          // detected to have failed.
 
-     int cursor() const;
+     bsl::size_t cursor() const;
          // Return the index of the next byte to be extracted from this stream.
 
      const char *data() const;
@@ -1494,10 +1610,10 @@
 
      bool isEmpty() const;
          // Return 'true' if this stream is empty, and 'false' otherwise.  Note
-         // that this function enables higher-level components to verify that,
-         // after successfully reading all expected data, no data remains.
+         // that this function enables higher-level types to verify that, after
+         // successfully reading all expected data, no data remains.
 
-     int length() const;
+     bsl::size_t length() const;
          // Return the total number of bytes stored in the external memory
          // buffer.
 

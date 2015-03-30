@@ -177,7 +177,7 @@ int Multipool::findPool(int size) const
 
     unsigned input = accumulator;
 
-#if defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
     return __builtin_popcount(input) - 1;
 #else
     input -= (input >> 1) & 0x55555555;

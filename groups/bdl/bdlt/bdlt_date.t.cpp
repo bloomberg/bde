@@ -24,6 +24,7 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
+
 using namespace BloombergLP;
 using namespace bsl;
 
@@ -103,6 +104,7 @@ using namespace bsl;
 // [18] bdlt::DayOfWeek::Enum dayOfWeek() const;
 // [12] void getYearDay(int *year, int *dayOfYear) const;
 // [11] void getYearMonthDay(int *year, int *month, int *day) const;
+// [18] bdlt::MonthOfYear::Enum monthOfYear() const;
 // [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
 // [ 5] ostream& print(ostream& s, int level = 0, int sPL = 4) const;
 //
@@ -204,6 +206,7 @@ typedef bslx::TestOutStream Out;
 
 #define VERSION_SELECTOR 20140601
 
+
 // ============================================================================
 //                                 TYPE TRAITS
 // ----------------------------------------------------------------------------
@@ -256,7 +259,8 @@ const DefaultDataRow DEFAULT_DATA[] =
     { L_,    9999,     12,   30 },
     { L_,    9999,     12,   31 },
 };
-const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
+const int DEFAULT_NUM_DATA =
+                  static_cast<int>(sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA);
 
 // Define ALTernate DATA for test cases that use two year/day-of-year
 // representations for dates per test vector, and the difference (in days)
@@ -310,7 +314,7 @@ const AltDataRow ALT_DATA[] =
 
     { L_,       1,    1,   9999,  365,   3652058 },
 };
-const int ALT_NUM_DATA = sizeof ALT_DATA / sizeof *ALT_DATA;
+const int ALT_NUM_DATA = static_cast<int>(sizeof ALT_DATA / sizeof *ALT_DATA);
 
 // ============================================================================
 //                              MAIN PROGRAM
@@ -588,7 +592,7 @@ if (verbose)
                 { L_,       1,     1,    INT_MAX },
                 { L_,    9999,   365,    INT_MAX },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE     = DATA[ti].d_line;
@@ -612,92 +616,125 @@ if (verbose)
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // 'dayOfWeek' METHOD
-        //   Ensure that the correct day of the week is returned for any date.
+        // 'dayOfWeek' AND 'monthOfYear' METHODS
+        //   Ensure that the correct day of the week and month of the year are
+        //   returned for any date.
         //
         // Concerns:
-        //: 1 The correct day of the week is returned for any date value.
+        //: 1 For any date, the correct day of the week is returned by
+        //:   'dayOfWeek'.
         //:
-        //: 2 The method is declared 'const'.
+        //: 2 For any date, the correct month of the year is returned by
+        //:   'monthOfYear'.
+        //:
+        //: 3 The methods are declared 'const'.
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a set of distinct
         //:   object values (one per row) in terms of their year/month/day
-        //:   representation, and the 'bdlt::DayOfWeek::Enum' value expected
-        //:   from 'dayOfWeek' when applied to those tabulated dates.
+        //:   representation, and the 'bdlt::DayOfWeek::Enum' and
+        //:   'bdlt::MonthOfYear::Enum' values expected from the methods
+        //:   'dayOfWeek' and 'monthOfYear' when applied to those tabulated
+        //:   dates.
         //:
-        //: 2 For each row 'R' in the table of P-1:  (C-1..2)
+        //: 2 For each row 'R' in the table of P-1:  (C-1..3)
         //:
         //:   1 Create a 'const' object 'X' using the 3-argument value
         //:     constructor.
         //:
         //:   2 Verify that 'dayOfWeek', invoked on 'X', returns the expected
-        //:     value.  (C-1..2)
+        //:     value.  (C-1)
+        //:
+        //:   3 Verify that 'monthOfYear', invoked on 'X', returns the expected
+        //:     value.  (C-2..3)
         //
         // Testing:
         //   bdlt::DayOfWeek::Enum dayOfWeek() const;
+        //   bdlt::MonthOfYear::Enum monthOfYear() const;
         //   CONCERN: All accessor methods are declared 'const'.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "'dayOfWeek' METHOD" << endl
-                          << "==================" << endl;
+                          << "'dayOfWeek' AND 'monthOfYear' METHODS" << endl
+                          << "=====================================" << endl;
 
-        typedef bdlt::DayOfWeek DOW;
+        typedef bdlt::DayOfWeek   DOW;
+        typedef bdlt::MonthOfYear MOY;
 
         static const struct {
-            int       d_line;   // source line number
-            int       d_year;   // year under test
-            int       d_month;  // month under test
-            int       d_day;    // day under test
-            DOW::Enum d_exp;    // expected day of week
+            int       d_line;    // source line number
+            int       d_year;    // year under test
+            int       d_month;   // month under test
+            int       d_day;     // day under test
+            DOW::Enum d_expDOW;  // expected day of week
+            MOY::Enum d_expMOY;  // expected month of year
         } DATA[] = {
-            //LINE   YEAR   MONTH   DAY    EXPECTED
-            //----   ----   -----   ---    ----------
-            { L_,       1,      1,    1,   DOW::e_MON },
-            { L_,       1,      1,    2,   DOW::e_TUE },
-            { L_,       1,      1,    3,   DOW::e_WED },
-            { L_,       1,      1,    4,   DOW::e_THU },
-            { L_,       1,      1,    5,   DOW::e_FRI },
-            { L_,       1,      1,    6,   DOW::e_SAT },
-            { L_,       1,      1,    7,   DOW::e_SUN },
-            { L_,       1,      1,    8,   DOW::e_MON },
+            //LINE   YEAR   MONTH   DAY    EXPECTED DAY OF WEEK  EXPECTED MONTH
+            //----   ----   -----   ---    --------------------  --------------
+            { L_,       1,      1,    1,   DOW::e_MON,           MOY::e_JAN },
+            { L_,       1,      1,    2,   DOW::e_TUE,           MOY::e_JAN },
+            { L_,       1,      1,    3,   DOW::e_WED,           MOY::e_JAN },
+            { L_,       1,      1,    4,   DOW::e_THU,           MOY::e_JAN },
+            { L_,       1,      1,    5,   DOW::e_FRI,           MOY::e_JAN },
+            { L_,       1,      1,    6,   DOW::e_SAT,           MOY::e_JAN },
+            { L_,       1,      1,    7,   DOW::e_SUN,           MOY::e_JAN },
+            { L_,       1,      1,    8,   DOW::e_MON,           MOY::e_JAN },
 
-            { L_,       1,      2,    1,   DOW::e_THU },
-            { L_,       2,      1,    1,   DOW::e_TUE },
+            { L_,       1,      2,    1,   DOW::e_THU,           MOY::e_FEB },
+            { L_,       2,      1,    1,   DOW::e_TUE,           MOY::e_JAN },
 
-            { L_,    1600,     12,   31,   DOW::e_SUN },
+            { L_,    1600,     12,   31,   DOW::e_SUN,           MOY::e_DEC },
 
-            { L_,    1752,      9,    2,   DOW::e_SAT },
-            { L_,    1752,      9,    3,   DOW::e_SUN },
-            { L_,    1752,      9,    8,   DOW::e_FRI },
-            { L_,    1752,      9,   13,   DOW::e_WED },
-            { L_,    1752,      9,   14,   DOW::e_THU },
+            { L_,    1752,      9,    2,   DOW::e_SAT,           MOY::e_SEP },
+            { L_,    1752,      9,    3,   DOW::e_SUN,           MOY::e_SEP },
+            { L_,    1752,      9,    8,   DOW::e_FRI,           MOY::e_SEP },
+            { L_,    1752,      9,   13,   DOW::e_WED,           MOY::e_SEP },
+            { L_,    1752,      9,   14,   DOW::e_THU,           MOY::e_SEP },
 
-            { L_,    1999,     12,   31,   DOW::e_FRI },
+            { L_,    1999,     12,   31,   DOW::e_FRI,           MOY::e_DEC },
 
-            { L_,    2000,      1,    1,   DOW::e_SAT },
-            { L_,    2000,      2,   28,   DOW::e_MON },
-            { L_,    2000,      2,   29,   DOW::e_TUE },
+            { L_,    2000,      1,    1,   DOW::e_SAT,           MOY::e_JAN },
+            { L_,    2000,      2,   28,   DOW::e_MON,           MOY::e_FEB },
+            { L_,    2000,      2,   29,   DOW::e_TUE,           MOY::e_FEB },
 
-            { L_,    9999,     12,   31,   DOW::e_FRI },
+            { L_,    9999,     12,   31,   DOW::e_FRI,           MOY::e_DEC },
+
+            { L_,    2014,      1,    1,   DOW::e_WED,           MOY::e_JAN },
+            { L_,    2014,      2,    1,   DOW::e_SAT,           MOY::e_FEB },
+            { L_,    2014,      3,    1,   DOW::e_SAT,           MOY::e_MAR },
+            { L_,    2014,      4,    1,   DOW::e_TUE,           MOY::e_APR },
+            { L_,    2014,      5,    1,   DOW::e_THU,           MOY::e_MAY },
+            { L_,    2014,      6,    1,   DOW::e_SUN,           MOY::e_JUN },
+            { L_,    2014,      7,    1,   DOW::e_TUE,           MOY::e_JUL },
+            { L_,    2014,      8,    1,   DOW::e_FRI,           MOY::e_AUG },
+            { L_,    2014,      9,    1,   DOW::e_MON,           MOY::e_SEP },
+            { L_,    2014,     10,    1,   DOW::e_WED,           MOY::e_OCT },
+            { L_,    2014,     11,    1,   DOW::e_SAT,           MOY::e_NOV },
+            { L_,    2014,     12,    1,   DOW::e_MON,           MOY::e_DEC },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int       LINE  = DATA[ti].d_line;
-            const int       YEAR  = DATA[ti].d_year;
-            const int       MONTH = DATA[ti].d_month;
-            const int       DAY   = DATA[ti].d_day;
-            const DOW::Enum EXP   = DATA[ti].d_exp;
+            const int       LINE    = DATA[ti].d_line;
+            const int       YEAR    = DATA[ti].d_year;
+            const int       MONTH   = DATA[ti].d_month;
+            const int       DAY     = DATA[ti].d_day;
+            const DOW::Enum EXP_DOW = DATA[ti].d_expDOW;
+            const MOY::Enum EXP_MOY = DATA[ti].d_expMOY;
 
-            if (veryVerbose) { T_ P_(LINE) P_(YEAR) P_(MONTH) P_(DAY) P(EXP) }
+            if (veryVerbose) {
+                T_ P_(LINE) P_(YEAR) P_(MONTH) P_(DAY) P_(EXP_DOW) P(EXP_MOY)
+            }
+
 
             const Obj X(YEAR, MONTH, DAY);
 
-            if (veryVeryVerbose) { T_ T_ P_(X) P(X.dayOfWeek()) }
+            if (veryVeryVerbose) {
+                T_ T_ P_(X) P_(X.dayOfWeek()) P(X.monthOfYear())
+            }
 
-            LOOP_ASSERT(LINE, EXP == X.dayOfWeek());
+            LOOP_ASSERT(LINE, EXP_DOW == X.dayOfWeek());
+            LOOP_ASSERT(LINE, EXP_MOY == X.monthOfYear());
         }
 
       } break;
@@ -856,7 +893,7 @@ if (verbose)
             { L_,    9999,  364 },
             { L_,    9999,  365 },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) cout << "\nCompare every value with every value." << endl;
 
@@ -1667,7 +1704,7 @@ if (verbose)
                 { L_,    9998,  365,   9999,    1 },
                 { L_,    9999,  364,   9999,  365 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             if (verbose) cout << "\nTesting member 'operator++'." << endl;
 
@@ -2018,7 +2055,7 @@ if (verbose)
                 { L_,    INT_MAX,        1,     0 },
                 { L_,    INT_MAX,  INT_MAX,     0 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE = DATA[ti].d_line;
@@ -2163,7 +2200,7 @@ if (verbose)
                 { L_,      10000,        1,        1,     0 },
                 { L_,    INT_MAX,        1,        1,     0 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE  = DATA[ti].d_line;
@@ -2342,7 +2379,7 @@ if (verbose)
                 { L_,    9999,  364,     12,       30 },
                 { L_,    9999,  365,     12,       31 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int ILINE       = DATA[ti].d_line;
@@ -2431,7 +2468,7 @@ if (verbose)
                 { L_,    9999,  364 },
                 { L_,    9999,  365 },
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE = DATA[ti].d_line;
@@ -2863,8 +2900,8 @@ if (verbose)
 
         // Array object used in various stream tests.
         const Obj VALUES[]   = { VA, VB, VC, VD, VE, VF, VG };
-        const int NUM_VALUES = static_cast<int>(sizeof VALUES
-                                                / sizeof *VALUES);
+        const int NUM_VALUES =
+                              static_cast<int>(sizeof VALUES / sizeof *VALUES);
 
         if (verbose) {
             cout << "\nTesting 'maxSupportedBdexVersion'." << endl;
@@ -2895,7 +2932,7 @@ if (verbose)
             ASSERT(&out == &rvOut);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             In in(OD, LOD);
             ASSERT(in);
@@ -2936,7 +2973,7 @@ if (verbose)
                 Out& rvOut = bdexStreamOut(out, X, VERSION);
                 LOOP_ASSERT(i, &out == &rvOut);
                 const char *const OD  = out.data();
-                const int         LOD = out.length();
+                const int         LOD = static_cast<int>(out.length());
 
                 // Verify that each new value overwrites every old value and
                 // that the input stream is emptied, but remains valid.
@@ -2972,7 +3009,7 @@ if (verbose)
         {
             Out               out(VERSION_SELECTOR, &allocator);
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
             ASSERT(0 == LOD);
 
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -3018,7 +3055,7 @@ if (verbose)
             ASSERT(&out == &rvOut);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
             ASSERT(0 < LOD);
 
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -3067,15 +3104,15 @@ if (verbose)
 
             Out& rvOut1 = bdexStreamOut(out, X1, VERSION);
             ASSERT(&out == &rvOut1);
-            const int         LOD1 = out.length();
+            const int         LOD1 = static_cast<int>(out.length());
 
             Out& rvOut2 = bdexStreamOut(out, X2, VERSION);
             ASSERT(&out == &rvOut2);
-            const int         LOD2 = out.length();
+            const int         LOD2 = static_cast<int>(out.length());
 
             Out& rvOut3 = bdexStreamOut(out, X3, VERSION);
             ASSERT(&out == &rvOut3);
-            const int         LOD3 = out.length();
+            const int         LOD3 = static_cast<int>(out.length());
             const char *const OD3  = out.data();
 
             for (int i = 0; i < LOD3; ++i) {
@@ -3151,15 +3188,15 @@ if (verbose)
         }
 
         const Obj W;                // default value
-        const Obj X(1, 1, 2);       // original (control)
-        const Obj Y(1, 1, 3);       // new (streamed-out)
+        const Obj X(2, 1, 1);       // original (control)
+        const Obj Y(3, 1, 1);       // new (streamed-out)
 
         // Verify the three objects are distinct.
         ASSERT(W != X);
         ASSERT(W != Y);
         ASSERT(X != Y);
 
-        const int SERIAL_Y = 3;       // internal rep. of 'Y'
+        const int SERIAL_Y = 733;   // streamed rep. of 'Y'
 
         if (verbose) {
             cout << "\t\tGood stream (for control)." << endl;
@@ -3168,7 +3205,7 @@ if (verbose)
             Out out(VERSION_SELECTOR, &allocator);
             out.putInt24(SERIAL_Y);  // Stream out "new" value.
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -3194,7 +3231,7 @@ if (verbose)
             out.putInt24(SERIAL_Y);  // Stream out "new" value.
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -3217,7 +3254,7 @@ if (verbose)
             out.putInt24(SERIAL_Y);  // Stream out "new" value.
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -3242,7 +3279,7 @@ if (verbose)
             out.putInt24(0);  // Stream out "new" value.
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -3264,10 +3301,10 @@ if (verbose)
         }
         {
             Out out(VERSION_SELECTOR, &allocator);
-            out.putInt24(3652060);  // Stream out "new" value.
+            out.putInt24(3652062);  // Stream out "new" value.
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -3300,8 +3337,8 @@ if (verbose)
                 //LINE  YEAR  MONTH  DAY  VER  LEN  FORMAT
                 //----  ----  -----  ---  ---  ---  ---------------
                 { L_,      1,     1,   1,   1,   3,  "\x00\x00\x01"  },
-                { L_,   2014,    10,  22,   1,   3,  "\x0b\x39\x28"  },
-                { L_,   2016,     8,  27,   1,   3,  "\x0b\x3b\xcb"  }
+                { L_,   2014,    10,  22,   1,   3,  "\x0b\x39\x2a"  },
+                { L_,   2016,     8,  27,   1,   3,  "\x0b\x3b\xcd"  }
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -3324,13 +3361,14 @@ if (verbose)
                     bslx::ByteOutStream& rvOut = X.bdexStreamOut(out, VERSION);
                     LOOP_ASSERT(LINE, &out == &rvOut);
 
-                    LOOP_ASSERT(LINE, LEN == out.length());
+                    LOOP_ASSERT(LINE, LEN == static_cast<int>(out.length()));
                     LOOP_ASSERT(LINE, 0 == memcmp(out.data(), FMT, LEN));
 
                     if (verbose && memcmp(out.data(), FMT, LEN)) {
                         const char *hex = "0123456789abcdef";
                         P_(LINE);
-                        for (int j = 0; j < out.length(); ++j) {
+                        for (int j = 0; j < static_cast<int>(out.length());
+                                                                         ++j) {
                             cout << "\\x"
                                  << hex[static_cast<unsigned char>
                                             ((*(out.data() + j) >> 4) & 0x0f)]
@@ -3362,13 +3400,14 @@ if (verbose)
                                                                VERSION);
                     LOOP_ASSERT(LINE, &out == &rvOut);
 
-                    LOOP_ASSERT(LINE, LEN == out.length());
+                    LOOP_ASSERT(LINE, LEN == static_cast<int>(out.length()));
                     LOOP_ASSERT(LINE, 0 == memcmp(out.data(), FMT, LEN));
 
                     if (verbose && memcmp(out.data(), FMT, LEN)) {
                         const char *hex = "0123456789abcdef";
                         P_(LINE);
-                        for (int j = 0; j < out.length(); ++j) {
+                        for (int j = 0; j < static_cast<int>(out.length());
+                                                                         ++j) {
                             cout << "\\x"
                                  << hex[static_cast<unsigned char>
                                             ((*(out.data() + j) >> 4) & 0x0f)]
@@ -3389,6 +3428,7 @@ if (verbose)
                 }
             }
         }
+
 
       } break;
       case 9: {
@@ -3752,7 +3792,7 @@ if (verbose)
             { L_,    9999,     12,   30 },
             { L_,    9999,     12,   31 },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) cout << "\nCompare every value with every value." << endl;
 
@@ -3995,7 +4035,7 @@ if (verbose)
 #undef NL
 
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         if (verbose) cout << "\nTesting with various print specifications."
                           << endl;

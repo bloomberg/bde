@@ -14,23 +14,23 @@ using namespace BloombergLP;
 using namespace bsl;
 using namespace bslx;
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
 // The component under test provides BDEX version computation for types.  This
 // component will be tested by verifying the return value of the method for a
 // variety of 'TYPE'.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] int maxSupportedBdexVersion<TYPE>(const TYPE *, STREAM& stream);
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-//=============================================================================
+// ============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace {
 
@@ -47,9 +47,9 @@ void aSsErT(int c, const char *s, int i)
 
 }  // close unnamed namespace
 
-//=============================================================================
+// ============================================================================
 //                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
@@ -79,26 +79,26 @@ void aSsErT(int c, const char *s, int i)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
-//=============================================================================
+// ============================================================================
 //                  GLOBAL CLASSES FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 class TestStream {
     // This class implements a subset of the methods required of a
     // BDEX-compliant out stream.  This class is used to provide
-    // 'bdexSerializationVersion' when the 'VersionFunctions' methods need to
+    // 'bdexVersionSelector' when the 'VersionFunctions' methods need to
     // compute a version of a user-defined type.
 
-    int d_serializationVersion;
+    int d_versionSelector;
 
   public:
 
-    TestStream() : d_serializationVersion(0) {}
+    TestStream() : d_versionSelector(0) {}
 
-    int bdexSerializationVersion() {  return d_serializationVersion;  }
+    int bdexVersionSelector() {  return d_versionSelector;  }
 
-    void setSerializationVersion(int serializationVersion) {
-        d_serializationVersion = serializationVersion;
+    void setVersionSelector(int versionSelector) {
+        d_versionSelector = versionSelector;
     }
 };
 
@@ -117,8 +117,8 @@ class TestClass {
     // compute a version of a user-defined type.
 
   public:
-    static int maxSupportedBdexVersion(int serializationVersion) {
-        if (serializationVersion >= 20131201) {
+    static int maxSupportedBdexVersion(int versionSelector) {
+        if (versionSelector >= 20131201) {
             return 4;
         }
         else {
@@ -139,7 +139,7 @@ struct TestType {
     {
         using bslx::VersionFunctions::maxSupportedBdexVersion;
 
-        int sv = stream.bdexSerializationVersion();
+        int sv = stream.bdexVersionSelector();
 
         TYPE *t = 0;
         const TYPE *ct = 0;
@@ -165,9 +165,9 @@ struct TestType {
     }
 };
 
-//=============================================================================
+// ============================================================================
 //                                 USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 ///Usage
 ///-----
@@ -202,9 +202,9 @@ struct TestType {
 
     };
 
-//=============================================================================
+// ============================================================================
 //                                 MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
 //..
 // Finally, verify the value returned by 'maxSupportedBdexVersion' for some
 // fundamental types, 'my_Enum', and 'my_Class' with an arbitrary
-// 'serializationVersion':
+// 'versionSelector':
 //..
     using bslx::VersionFunctions::maxSupportedBdexVersion;
     using bslx::VersionFunctions::k_NO_VERSION;
@@ -278,14 +278,14 @@ int main(int argc, char *argv[])
         //: 4 'maxSupportedBdexVersion' is appropriately used for other types.
         //
         // Plan:
-        //: 1 Define a templatized class 'TestType' that will validate the
+        //: 1 Define a parameterized class 'TestType' that will validate the
         //:   return value against a provided value for 'TYPE', 'const TYPE',
         //:   'volatile TYPE', and against a second provided value for
         //:   'const' and 'volatile' nested vectors of 'TYPE' and use this
         //:   mechanism to test fundamental, enum, and 'bsl::string'.  (C-1..3)
         //:
         //: 2 Use this mechanism with a test class and two different values
-        //:   returned by the 'bdexSerializationVersion' of the stream to
+        //:   returned by the 'bdexVersionSelector' of the stream to
         //:   ensure correct return values for user-defined types.  (C-4)
         //
         // Testing:
@@ -328,7 +328,7 @@ int main(int argc, char *argv[])
 
         TestType<TestClass          >::test(stream, 3,            3);
 
-        stream.setSerializationVersion(20131201);
+        stream.setVersionSelector(20131201);
 
         TestType<TestClass          >::test(stream, 4,            4);
 

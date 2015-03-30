@@ -603,7 +603,7 @@ void WindowsDebugMessageSink::setTargetProcessId(const unsigned long pid)
 bool WindowsDebugMessageSink::wait(const unsigned long timeoutMilliseconds)
 {
 
-    // Implementation note: The functionalityfu in this class, including this
+    // Implementation note: The functionality in this class, including this
     // function, can have a much wider contract than it currently does.  The
     // contract was narrowed because the extra flexibility wasn't being used
     // so there was no need to add complexity to the test driver.  If this
@@ -2811,7 +2811,7 @@ int main(int argc, char *argv[]) {
         //:    (C-14)
         //:
         //: 15 Initialize an 'OutputRedirector' object and ask it to redirect
-        //:    'stdout'.  Confirm that a call to redirectionStreamId' returns
+        //:    'stdout'.  Confirm that a call to 'redirectedStreamId' returns
         //:    'STDOUT_STREAM'.  Confirm that 'redirectedStream' returns a
         //:    pointer equal to 'stdout', and 'nonRedirectedStream' returns a
         //:    pointer equal to 'stderr'.  Call 'enable' and confirm

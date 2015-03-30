@@ -1,0 +1,13 @@
+prefix=@prefix@
+libdir=${prefix}/@lib_dir@
+includedir=${prefix}/include/decnumber
+
+Name: DecNumber Library
+Description:
+URL: http://speleotrove.com/decimal/#decNumber
+Version: 3.6.8
+Requires:
+Requires.private:
+Libs: -L${libdir} @libs@
+Libs.private:
+Cflags: -I${includedir} @cflags@

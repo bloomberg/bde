@@ -18,6 +18,9 @@
 #include <stdlib.h>      // atoi()
 #include <string.h>
 
+#undef ES  // From solaris/x86 2.10 <stdlib.h>
+           //       -> sys/wait.h -> signal.h -> sys/ucontext.h -> sys/regset.h
+
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
@@ -2049,7 +2052,7 @@ int main(int argc, char *argv[])
         //   int operator+(const char *lhs, const StringRef& rhs);
         //   int operator+(const StringRef& lhs, const char *rhs);
         //   int operator+(const StringRef& lhs, const StringRef& rhs);
-        //   basic_string basic_string::operator+=(const StringRefData& strRf); 
+        //   basic_string basic_string::operator+=(const StringRefData& strRf);
         // --------------------------------------------------------------------
 
         if (verbose) std::cout << "\nTESTING ADDITION OPERATORS"
@@ -2664,7 +2667,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   For an empty string, non-empty string and substring, use
-        //   'ostrstream' to write that object's value to a character buffer
+        //   'ostringstream' to write that object's value to a character buffer
         //   and then compare the contents of that buffer with the expected
         //   output format.
         //

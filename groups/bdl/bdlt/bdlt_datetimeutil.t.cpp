@@ -626,7 +626,7 @@ int main(int argc, char *argv[])
         //: 5 Out-of-range dates are detected.
         //: 6 Leap seconds at the end of the year are treated as failures.
         //: 7 Bad status implies no change to result.
-        //: 8 Time = 24:00:00 converts to 24:00:00:000, but only for 1/1/1.
+        //: 8 Time = 24:00:00 converts to 24:00:00.000, but only for 1/1/1.
         //
         // Plan:
         //: 1 Approach:
@@ -694,11 +694,11 @@ int main(int argc, char *argv[])
             { L_,    100,  5, 15, 12, 46, 56, 0, 2000,  6, 12 }, // min
             { L_,    100,  5, 15, 12, 45, 57, 0, 2000,  6, 12 }, // sec
 
-                // *** Time = 24:00:00 is invalid for all dates but 1/1/1 ***
+                // *** Time = 24:00:00 is valid for all dates ***
 
             //lin   year mon day hou min sec  s  year mon hou
             //---   ---- --- --- --- --- ---  -  ---- --- ---
-            { L_,    100,  0,  1, 24,  0,  0, FAIL, 0,  0,  0 },
+            { L_,    100,  0,  1, 24,  0,  0, 0, 2000,  1,  0 },
 
                 // *** Out-of-range dates are detected ***
 
@@ -714,7 +714,7 @@ int main(int argc, char *argv[])
 
             { L_,   8099,  0,  1,  0,  0,  0, 0, 9999,  1,  0 }, // year
             { L_,   8099, 11, 31, 23, 59, 59, 0, 9999, 12, 23 },
-            { L_,   8099, 11, 31, 24,  0,  0, FAIL, 0,  0,  0 },
+            { L_,   8099, 11, 31, 24,  0,  0, 0, 9999, 12,  0 },
 
             { L_,   8100, 11, 31, 24,  0,  0, FAIL, 0,  0,  0 }, // year
             { L_,   8100, 11, 31, 23, 59, 59, FAIL, 0,  0,  0 },
@@ -752,8 +752,8 @@ int main(int argc, char *argv[])
             { L_,    100,  6, 15, -1, 12, 34, FAIL, 0,  0,  0 }, // hour
             { L_,    100,  6, 15,  0, 12, 34, 0, 2000,  7,  0 },
             { L_,    100,  6, 15, 23, 12, 34, 0, 2000,  7, 23 },
+            { L_,    100,  6, 15, 24,  0,  0, 0, 2000,  7,  0 },
             { L_,    100,  6, 15, 24,  0, 34, FAIL, 0,  0,  0 },
-            { L_,    100,  6, 15, 24,  0,  0, FAIL, 0,  0,  0 },
             { L_,    100,  6, 15, 25,  0,  0, FAIL, 0,  0,  0 },
 
             { L_,    100,  6, 15, 12, -1, 34, FAIL, 0,  0,  0 }, // min
@@ -989,12 +989,12 @@ int main(int argc, char *argv[])
                      << endl;
             }
 
-            // For any date BUT 1/1/1, time 24:00:00 is invalid.
+            // For every date besides 1/1/1, time 24:00:00 is also valid.
             in.tm_year   = -1898;
 
             status = Util::convertFromTm(&result, in);
 
-            ASSERT(0 != status);
+            ASSERT(0 == status);
 
             if (veryVeryVerbose) {
                 cout << in
@@ -1014,7 +1014,7 @@ int main(int argc, char *argv[])
         //: 1 All fields are converted properly.
         //: 2 The millisecond field is ignored.
         //: 3 tm_isdst is always set to -1.
-        //: 4 Time = 24:00:00:000 converts to 00:00:00, not to 24:00:00.
+        //: 4 Time = 24:00:00.000 converts to 00:00:00, not to 24:00:00.
         //: 5 The operation never fails.
         //
         // Plan:

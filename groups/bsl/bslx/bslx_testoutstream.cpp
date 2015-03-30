@@ -18,21 +18,19 @@ namespace bslx {
                         // -------------------
 
 // CREATORS
-TestOutStream::TestOutStream(int               serializationVersion,
+TestOutStream::TestOutStream(int               versionSelector,
                              bslma::Allocator *basicAllocator)
-: d_imp(serializationVersion, basicAllocator)
+: d_imp(versionSelector, basicAllocator)
 , d_makeNextInvalidFlag(0)
 {
 }
 
-TestOutStream::TestOutStream(int               serializationVersion,
-                             int               initialCapacity,
+TestOutStream::TestOutStream(int               versionSelector,
+                             bsl::size_t       initialCapacity,
                              bslma::Allocator *basicAllocator)
-: d_imp(serializationVersion, basicAllocator)
+: d_imp(versionSelector, basicAllocator)
 , d_makeNextInvalidFlag(0)
 {
-    BSLS_ASSERT(0 <= initialCapacity);
-
     d_imp.reserveCapacity(initialCapacity);
 }
 

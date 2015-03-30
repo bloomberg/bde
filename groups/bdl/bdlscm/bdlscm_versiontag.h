@@ -41,29 +41,18 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#define BDL_VERSION_MAJOR     2
+#ifndef INCLUDED_BSLSCM_VERSIONTAG
+#include <bslscm_versiontag.h>
+#endif
+
+
+#define BDL_VERSION_MAJOR     BSL_VERSION_MAJOR
     // Provide the major version number of the current (latest) BDL release.
 
-#define BDL_VERSION_MINOR     22
+#define BDL_VERSION_MINOR     BSL_VERSION_MINOR
     // Provide the minor version number of the current (latest) BDL release.
 
-#define BDL_MAKE_VERSION(major, minor) ((major) * 10000 \
-                                      + (minor) *   100)
-    // Construct a composite version number in the range '[ 0 .. 999900 ]' from
-    // the specified 'major' and 'minor' version numbers.  The resulting value,
-    // when expressed as a 6-digit decimal string, has "00" as the two
-    // lowest-order decimal digits, 'minor' as the next two digits, and 'major'
-    // as the highest-order digits.  The result is unique for each combination
-    // of 'major' and 'minor', and is sortable such that a value composed from
-    // a given 'major' version number will compare larger than a value composed
-    // from a smaller 'major' version number (and similarly for 'minor' version
-    // numbers).  Note that if 'major' and 'minor' are both compile-time
-    // integral constants, then the resulting expression is also a compile-time
-    // integral constant.  Also note that the patch version number is
-    // intentionally not included.  The behavior is undefined unless 'major'
-    // and 'minor' are integral values in the range '[ 0 .. 99 ]'.
-
-#define BDL_VERSION BDL_MAKE_VERSION(BDL_VERSION_MAJOR, \
+#define BDL_VERSION BSL_MAKE_VERSION(BDL_VERSION_MAJOR, \
                                      BDL_VERSION_MINOR)
     // Construct a composite version number in the range '[ 0 .. 999900 ]' from
     // the specified 'BDL_VERSION_MAJOR' and 'BDL_VERSION_MINOR' numbers

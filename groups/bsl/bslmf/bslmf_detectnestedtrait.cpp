@@ -1,6 +1,9 @@
-// bslmf_detectnestedtrait.cpp                  -*-C++-*-
+// bslmf_detectnestedtrait.cpp                                        -*-C++-*-
 
 #include <bslmf_detectnestedtrait.h>
+
+#include <bslmf_assert.h>            // for testing only
+#include <bslmf_integralconstant.h>  // for testing only
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")

@@ -21,13 +21,13 @@ BSLS_IDENT("$Id: $")
 // and traits that identify and define platform-specific compile-time
 // attributes.  These attributes consist of the types and versions of (1) the
 // operating system, (2) the processor(s), and (3) the compiler that together
-// make up the platform.  Many of macros defined in this component are
+// make up the platform.  Many of the macros defined in this component are
 // configured automatically at compile-time; compile-time switches are used
 // to configure the rest.
 //
 // Note that, for brevity, the '@' character in the following (alphabetically
 // organized) tables is used to represent the characters 'BSLS_PLATFORM' --
-// e.g., '@_OS_UNIX' represent 'BSLS_PLATFORM_OS_UNIX':
+// e.g., '@_OS_UNIX' represents 'BSLS_PLATFORM_OS_UNIX':
 //..
 //  =============================================================
 //                           OPERATING SYSTEM
@@ -93,7 +93,7 @@ BSLS_IDENT("$Id: $")
 // Writing portable software sometimes involves specializing implementations
 // to work with platform-specific interfaces.  For example, a socket-level
 // communications framework would need to operate differently on a platform
-// having a Windows operating system than one having a Unix one (but it is
+// having a Windows operating system than on one having a Unix one (but it is
 // probably unnecessary to distinguish between their respective versions):
 //..
 //  // my_socket.h
@@ -120,7 +120,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Certain compile-time constants are also provided as preprocessor macros that
 // encapsulate the capability of determining whether a machine is big-endian or
-// little-endian across all supported platforms.
+// little-endian across all supported platforms:
 //..
 //  BSLS_PLATFORM_IS_BIG_ENDIAN
 //  BSLS_PLATFORM_IS_LITTLE_ENDIAN
@@ -160,7 +160,7 @@ struct bsls_Platform_Assert;
 }  // close enterprise namespace
 #endif
 
-// Use this macro to trigger a compile-time error if #error is not supported.
+// Use this macro to trigger a compile-time error if '#error' is not supported.
 #ifdef __cplusplus
 #   define BSLS_PLATFORM_COMPILER_ERROR                        \
         char die[sizeof(::BloombergLP::bsls_Platform_Assert)]
@@ -190,12 +190,13 @@ struct bsls_Platform_Assert;
     #define BSLS_PLATFORM_CMP_IBM 1
     #define BSLS_PLATFORM_CMP_VERSION __xlC__
 
-
     // which OS -- this compiler should only be used on AIX
     #define BSLS_PLATFORM_OS_UNIX 1
     #if defined(_AIX)                          // must be defined
         #define BSLS_PLATFORM_OS_AIX 1
         #define BSLS_PLATFORM_OS_VER_MAJOR _AIX
+    #elif defined(__linux__)
+        #define BSLS_PLATFORM_OS_LINUX 1
     #else
         #error "AIX compiler appears to be in use on non-AIX OS."
         BSLS_PLATFORM_COMPILER_ERROR;
@@ -214,6 +215,10 @@ struct bsls_Platform_Assert;
         #define BSLS_PLATFORM_CPU_VER_MAJOR _ARCH_COM
     #elif defined(_ARCH_601)
         #define BSLS_PLATFORM_CPU_VER_MAJOR _ARCH_601
+    #elif defined(_ARCH_PPC)
+        #define BSLS_PLATFORM_CPU_VER_MAJOR _ARCH_PPC
+    #elif defined(_ARCH_PPC64)
+        #define BSLS_PLATFORM_CPU_VER_MAJOR _ARCH_PPC64
     #else
         #error "Unable to identify the AIX CPU."
         BSLS_PLATFORM_COMPILER_ERROR;
@@ -442,7 +447,7 @@ struct bsls_Platform_Assert;
     #pragma warning(disable : 4290)  // MSVC ignores exception specifications
     #pragma warning(disable : 4673)  // warns that warning 4670 follows
     #pragma warning(disable : 4670)  // thrown exception has inaccessible base
-    // These warnings added with VC2012 'all' warnings build
+    // These warnings added with VC2012 'all' warnings build.
     #pragma warning(disable : 4514)  // unused inline function removed
     #pragma warning(disable : 4625)  // could not generate copy constructor
     #pragma warning(disable : 4626)  // could not generate assignment operator
@@ -482,9 +487,9 @@ struct bsls_Platform_Assert;
     // TBD
     // Warning #4267 swamps the signal/noise by 2-3 orders of magnitude when
     // building for a 64-bit target.  Many of these warnings should really
-    // be dealt with, but for now we are silencing them.  This pragma should be
-    // removed and the warnings addressed in a future release.
-    #pragma warning(disable : 4267)  // conversion from 'size_t' to int
+    // be dealt with, but for now we are silencing them.  This 'pragma' should
+    // be removed and the warnings addressed in a future release.
+    #pragma warning(disable : 4267)  // conversion from 'size_t' to 'int'
 
     // TBD
     // This warning becomes prevalent after installing VC2012, and should be
@@ -492,25 +497,38 @@ struct bsls_Platform_Assert;
     #pragma warning(disable : 4365)  // signed/unsigned size_t/bsls::SizeType
     #endif // BDE_HIDE_COMMON_WINDOWS_WARNINGS
 // ---------------------------------------------------------------------------
-#elif defined(__GNUC__) || defined(__EDG__)
+#elif defined(__clang__) || defined(__GNUC__) || defined(__EDG__)
 
-    #if defined (__GNUC__)
+    #if defined(__clang__)
+        // Clang presents itself as GCC compatible, but sets the pre-defined
+        // GCC version macros ('__GNUC__', '__GNUC_MINOR__', and
+        // '__GNUC_PATCHLEVEL__') to version 4.2.1 no matter the version of
+        // Clang being used.  In order to differentiate between Clang and GCC,
+        // the compilers are identified by independent 'BSLS_PLATFORM' macros.
+        // Apple Xcode is based upon LLVM (Clang), but Apple changes the
+        // reported Clang versioning ('__clang_major__', '__clang_minor__',
+        // '__clang_patchlevel__') to report the Xcode version rather than the
+        // actual version of Clang the Xcode release includes.  A table of
+        // Xcode/Clang version information is maintained here:
+        // https://trac.macports.org/wiki/XcodeVersionInfo
+        // To avoid this extra dimension, the Clang intrinsics '__has_builtin',
+        // '__has_feature', and '__has_extension' should be used in preference
+        // to 'BSLS_PLATFORM_CMP_VERSION' when checking for compiler features.
+        // If 'BSLS_PLATFORM_CMP_VERSION' must be used, then '__APPLE_CC__'
+        // can be tested to determine if 'BSLS_PLATFORM_CMP_VERSION' represents
+        // Clang LLVM or Apple Xcode version.
+        #define BSLS_PLATFORM_CMP_CLANG 1
+        #define BSLS_PLATFORM_CMP_VERSION ( __clang_major__ * 10000           \
+                                          + __clang_minor__ * 100             \
+                                          + __clang_patchlevel__ )
+    #elif defined (__GNUC__)
         #define BSLS_PLATFORM_CMP_GNU 1
-
-        #if defined(__clang__)
-            // Clang is GCC compatible, but sometimes we need to know about it
-            #define BSLS_PLATFORM_CMP_CLANG 1
-            // We treat Clang as if it was GCC 4.4.0
-            #define BSLS_PLATFORM_CMP_VERSION (4 * 10000 \
-                            + 4 * 100)
+        #if defined(__GNUC_PATCHLEVEL__)
+            #define BSLS_PLATFORM_CMP_VERSION (__GNUC__ * 10000 \
+                        + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
         #else
-            #if defined(__GNUC_PATCHLEVEL__)
-                #define BSLS_PLATFORM_CMP_VERSION (__GNUC__ * 10000 \
-                            + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
-            #else
-                #define BSLS_PLATFORM_CMP_VERSION (__GNUC__ * 10000 \
-                            + __GNUC_MINOR__ * 100)
-            #endif
+            #define BSLS_PLATFORM_CMP_VERSION (__GNUC__ * 10000 \
+                        + __GNUC_MINOR__ * 100)
         #endif
     #else
         #define BSLS_PLATFORM_CMP_EDG 1
@@ -541,7 +559,7 @@ struct bsls_Platform_Assert;
         #define BSLS_PLATFORM_OS_DARWIN 1
     #else
         #if defined(__GNUC__)
-            #error "Unable to determine on which OS GNU compiler is running."
+            #error "Unable to determine on which OS the compiler is running."
         #else
             #error "Unable to determine on which OS EDG compiler is running."
         #endif
@@ -552,7 +570,7 @@ struct bsls_Platform_Assert;
         #define BSLS_PLATFORM_OS_UNIX 1
     #endif
 
-    // which CPU -- GNU and EDG/Como implemented almost everywhere
+    // which CPU -- GNU and EDG/Como are implemented almost everywhere
     #if defined(__alpha__)
         #define BSLS_PLATFORM_CPU_ALPHA 1
     #elif defined(__x86_64) || defined(__x86_64__)
@@ -577,8 +595,10 @@ struct bsls_Platform_Assert;
     #elif defined(__powerpc) || defined(__powerpc__) \
           || defined(__POWERPC__) || defined(__ppc__) || defined(_POWER)
         #define BSLS_PLATFORM_CPU_POWERPC 1
-        #if defined(__64BIT__)
+        #if defined(__64BIT__) || defined(_LP64) || defined(__LP64__)
             #define BSLS_PLATFORM_CPU_64_BIT 1
+        #else  // defined(_ILP32)
+            #define BSLS_PLATFORM_CPU_32_BIT 1
         #endif
     #elif defined(__sparc__) || defined(__sparc_v9__) || defined(__sparcv9)
         #define BSLS_PLATFORM_CPU_SPARC 1
@@ -590,7 +610,17 @@ struct bsls_Platform_Assert;
         #endif
     #elif defined(__arm__)
         #define BSLS_PLATFORM_CPU_ARM 1
-        #if defined(__ARM_ARCH_5T__)        \
+        #if defined(__ARM_ARCH)
+            #if __ARM_ARCH == 6
+                #define BSLS_PLATFORM_CPU_ARM_V6
+            #elif __ARM_ARCH == 7
+                #define BSLS_PLATFORM_CPU_ARM_V7
+            #elif __ARM_ARCH == 8
+                #define BSLS_PLATFORM_CPU_ARM_V8
+            #elif __ARM_ARCH == 9
+                #define BSLS_PLATFORM_CPU_ARM_V9
+            #endif
+        #elif defined(__ARM_ARCH_5T__)        \
             || defined(__ARM_ARCH_5TE__)    \
             || defined(__ARM_ARCH_5TEJ__)
             #define BSLS_PLATFORM_CPU_ARM_V5
@@ -606,7 +636,7 @@ struct bsls_Platform_Assert;
         #endif
     #else
         #if defined(__GNUC__)
-            #error "Unable to determine on which CPU GNU compiler is running."
+            #error "Unable to determine on which CPU the compiler is running."
         #else
             #error "Unable to determine on which CPU EDG compiler is running."
         #endif
@@ -752,7 +782,6 @@ struct bsls_Platform_Assert;
 
 // ----------------------------------------------------------------------------
 
-
                          // Detect Supported Platform
 
 #if !defined(BDE_DISABLE_COMPILER_VERSION_CHECK)
@@ -777,7 +806,7 @@ struct bsls_Platform_Assert;
 #    error This early compiler is not supported by BDE
 #  endif
 #elif defined(BSLS_PLATFORM_CMP_MSVC)
-    // Test MSVC last, as many compilers targeting windows offer a Microsoft
+    // Test MSVC last, as many compilers targeting Windows offer a Microsoft
     // compatibility mode.
 #  if BSLS_PLATFORM_CMP_VERSION < 1500
 #    error This early compiler is not supported by BDE
@@ -796,12 +825,17 @@ struct bsls_Platform_Assert;
 
                         // Miscellaneous Platform Macros
 
-#if defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
     #define BSLS_PLATFORM_NO_64_BIT_LITERALS 1
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CPU_64_BIT)
     #define BSLS_PLATFORM_NO_64_BIT_LITERALS 1
+#endif
+
+#if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40600)  \
+ || defined(BSLS_PLATFORM_CMP_CLANG)
+    #define BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC 1
 #endif
 // ----------------------------------------------------------------------------
 
@@ -817,11 +851,12 @@ struct bsls_Platform_Assert;
 #endif
 
 // Exactly one CMP type.
-#if BSLS_PLATFORM_CMP_EDG  \
-  + BSLS_PLATFORM_CMP_GNU  \
-  + BSLS_PLATFORM_CMP_HP   \
-  + BSLS_PLATFORM_CMP_IBM  \
-  + BSLS_PLATFORM_CMP_MSVC \
+#if BSLS_PLATFORM_CMP_EDG   \
+  + BSLS_PLATFORM_CMP_CLANG \
+  + BSLS_PLATFORM_CMP_GNU   \
+  + BSLS_PLATFORM_CMP_HP    \
+  + BSLS_PLATFORM_CMP_IBM   \
+  + BSLS_PLATFORM_CMP_MSVC  \
   + BSLS_PLATFORM_CMP_SUN != 1
     #error "Exactly one compiler must be set."
     BSLS_PLATFORM_COMPILER_ERROR;
@@ -879,7 +914,7 @@ struct bsls_Platform_Assert;
 #if defined(BSLS_PLATFORM_OS_VER_MAJOR) \
          && BSLS_PLATFORM_OS_SUBTYPE_COUNT != 1
         // For OS, MAJOR VERSION implies SUBTYPE.
-    #error "Operating system major version by not subtype defined."
+    #error "Operating system major version but not subtype defined."
     BSLS_PLATFORM_COMPILER_ERROR;
 #endif
 
