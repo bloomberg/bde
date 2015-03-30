@@ -236,7 +236,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // A simple copy assignment operator can be implemented in terms of copy/move
-// constructors, 'swap()', and destructor (in a real implementaiton the copy
+// constructors, 'swap()', and destructor (in a real implementation the copy
 // assignment would probably try to use already allocated objects). In this
 // implementation that argument is taken by value, i.e., the argument is
 // already constructed using copy or move construction (which may have been
@@ -402,12 +402,29 @@ struct RvalueUtil {
         // same notation should be applicable to the C++03 'RvalueRef<TYPE>'
         // objects and a C++11 rvalue reference 'TYPE&&' a member function
         // cannot be used.
+        //
+        // The purpose of 'access(x)' is to use the same notation for member
+        // access to 'x' independent on whether it is an actual lvalue
+        // reference or an 'RvalueRef<TYPE>'. For a concrete examples assume
+        // 'x' is a 'bsl::pair<A, B>'. When using a C++11 implementation
+        // 'RvalueRef<bsl::pair<A, B> >' is really just a 'bsl::pair<A, B>&&'
+        // and the elements could be accessed using 'x.first' and 'x.second'.
+        // For a C++03 implementation 'RvalueRef<bsl::pair<A, B> >' is a class
+        // type and 'x.first' and 'x.second' are not available. Instead, a
+        // reference to the pair needs to be obtained which could be done using
+        // 'static_cast<bsl::pair<A, B >&>(x)' or by using a named variable. To
+        // unify the notation between the C++03 and C++11 implementation,
+        // simultanously simplifying the C++03 use, 'RvalueUtil::access(x)' can
+        // be used.
+
+
     template <class TYPE>
     static typename bslmf::RemoveReference<TYPE>::Type&& move(TYPE&& lvalue);
         // Get an rvalue reference of type 'RvalueRef<TYPE>' from the specified
         // 'lvalue'. For a C++03 implementation this function behaves like a
         // factory for 'RvalueRef<TYPE> objects. For a C++11 implementation
         // this function behaves exactly like 'std::move(lvalue)'.
+
     template <class TYPE>
     static const TYPE& moveIfNoexcept(TYPE& lvalue);
         // Get an rvalue reference from the specified 'lvalue' if it can be
@@ -427,7 +444,8 @@ struct RvalueUtil {
 // ----------------------------------------------------------------------------
 
 template <class TYPE>
-inline TYPE& RvalueUtil::access(TYPE& rvalue) {
+inline
+TYPE& RvalueUtil::access(TYPE& rvalue) {
     return rvalue;
 }
 
@@ -482,8 +500,17 @@ struct RvalueUtil {
     // create a consistent notation for using the C++03 'RvalueRef<TYPE>'
     // objects and the C++11 'TYPE&&' rvalue references.
 
+  private:
     template <class TYPE>
-    static TYPE& access(RvalueRef<TYPE> rvalue);
+    static void access(const RvalueRef<TYPE>&); // not implemented
+        // This overload prevents the use of
+        // 'RvalueUtil::access(RvalueUtil::move(x))' which is consistent with
+        // the C++11 definition taking an lvalue argument but not an rvalue
+        // argument.
+
+  public:
+    template <class TYPE>
+    static TYPE& access(RvalueRef<TYPE>& rvalue);
         // Obtain a reference to the object references by the specified
         // 'rvalue' object. This reference can also be obtained by a conversion
         // of 'rvalue' to 'TYPE&' in contexts where a conversion is viable.
@@ -492,17 +519,34 @@ struct RvalueUtil {
         // same notation should be applicable to the C++03 'RvalueRef<TYPE>'
         // objects and a C++11 r-value reference 'TYPE&&' a member function
         // cannot be used.
+        //
+        // The purpose of 'access(x)' is to use the same notation for member
+        // access to 'x' independent on whether it is an actual lvalue
+        // reference or an 'RvalueRef<TYPE>'. For a concrete examples assume
+        // 'x' is a 'bsl::pair<A, B>'. When using a C++11 implementation
+        // 'RvalueRef<bsl::pair<A, B> >' is really just a 'bsl::pair<A, B>&&'
+        // and the elements could be accessed using 'x.first' and 'x.second'.
+        // For a C++03 implementation 'RvalueRef<bsl::pair<A, B> >' is a class
+        // type and 'x.first' and 'x.second' are not available. Instead, a
+        // reference to the pair needs to be obtained which could be done using
+        // 'static_cast<bsl::pair<A, B >&>(x)' or by using a named variable. To
+        // unify the notation between the C++03 and C++11 implementation,
+        // simultanously simplifying the C++03 use, 'RvalueUtil::access(x)' can
+        // be used.
+
     template <class TYPE>
     static RvalueRef<TYPE> move(TYPE& lvalue);
         // Get an rvalue reference of type 'RvalueRef<TYPE>' from the specified
         // 'lvalue'. For a C++03 implementation this function behaves like a
         // factory for 'RvalueRef<TYPE> objects. For a C++11 implementation
         // this function behaves exactly like 'std::move(value)'.
+
     template <class TYPE>
     static RvalueRef<TYPE> move(RvalueRef<TYPE> rvalue);
         // Forward the specified 'rvalue' as an rvalue reference. The rvalue
         // reference stays an rvalue reference to an object of type 'TYPE' and
         // doesn't become an rvalue reference to an rvalue reference.
+
     template <class TYPE>
     static const TYPE& moveIfNoexcept(TYPE& lvalue);
         // Get an rvalue reference from the specified 'lvalue' if it can be
@@ -524,28 +568,33 @@ struct RvalueUtil {
 // ============================================================================
 
 template <class TYPE>
-inline RvalueRef<TYPE>::RvalueRef(TYPE *pointer)
+inline
+RvalueRef<TYPE>::RvalueRef(TYPE *pointer)
     : d_pointer(pointer) {
     BSLS_ASSERT(0 != pointer);
 }
 
 template <class TYPE>
-inline RvalueRef<TYPE>::operator TYPE&() const {
+inline
+RvalueRef<TYPE>::operator TYPE&() const {
     return *d_pointer;
 }
 
 template <class TYPE>
-inline TYPE& RvalueUtil::access(RvalueRef<TYPE> rvalue) {
+inline
+TYPE& RvalueUtil::access(RvalueRef<TYPE>& rvalue) {
     return rvalue;
 }
 
 template <class TYPE>
-inline RvalueRef<TYPE> RvalueUtil::move(TYPE& lvalue) {
+inline
+RvalueRef<TYPE> RvalueUtil::move(TYPE& lvalue) {
     return RvalueRef<TYPE>(&lvalue);
 }
 
 template <class TYPE>
-inline RvalueRef<TYPE> RvalueUtil::move(RvalueRef<TYPE> rvalue) {
+inline
+RvalueRef<TYPE> RvalueUtil::move(RvalueRef<TYPE> rvalue) {
     return rvalue;
 }
 
@@ -556,7 +605,8 @@ inline RvalueRef<TYPE> RvalueUtil::move(RvalueRef<TYPE> rvalue) {
 // ----------------------------------------------------------------------------
 
 template <class TYPE>
-inline const TYPE& RvalueUtil::moveIfNoexcept(TYPE& lvalue) {
+inline
+const TYPE& RvalueUtil::moveIfNoexcept(TYPE& lvalue) {
     return lvalue;
 }
 

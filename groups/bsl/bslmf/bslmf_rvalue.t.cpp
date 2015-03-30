@@ -365,7 +365,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Use 'RvalueUtil::move()' to create an 'RvalueRef<int>' and use
-        //:   the implicite conversion to 'int&' and 'RvalueUtil::access()' to
+        //:   the implicit conversion to 'int&' and 'RvalueUtil::access()' to
         //:   to obtain a reference to the original value.
         //
         // Testing:
