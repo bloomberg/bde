@@ -2194,7 +2194,7 @@ list<VALUE, ALLOCATOR>& list<VALUE, ALLOCATOR>::operator=(list&& original)
         // Create a new list with the new allocator and new contents.  This
         // operation might throw, so we do it before destroying the old list.
 
-        list temp(std::forward<list>(original));
+        list temp(BloombergLP::bsls::Util::forward<list>(original));
 
         // Clear existing list and leave in an invalid but destructible state.
 
@@ -2324,7 +2324,7 @@ template <class... ARGS>
 inline
 void list<VALUE, ALLOCATOR>::emplace_front(ARGS&&... args)
 {
-    emplace(begin(), std::forward<ARGS>(args)...);
+    emplace(begin(), BloombergLP::bsls::Util::forward<ARGS>(args)...);
 }
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -2440,7 +2440,7 @@ template <class... ARGS>
 inline
 void list<VALUE, ALLOCATOR>::emplace_back(ARGS&&... args)
 {
-    emplace(end(), std::forward<ARGS>(args)...);
+    emplace(end(), BloombergLP::bsls::Util::forward<ARGS>(args)...);
 }
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -2590,7 +2590,7 @@ list<VALUE, ALLOCATOR>::emplace(const_iterator position, ARGS&&... args)
     NodeProctor proctor(this, p);
     AllocTraits::construct(allocator(),
                            BloombergLP::bsls::Util::addressOf(p->d_value),
-                           std::forward<ARGS>(args)...);
+                           BloombergLP::bsls::Util::forward<ARGS>(args)...);
     proctor.release();
     return insert_node(position, p);
 }
