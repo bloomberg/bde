@@ -1,6 +1,6 @@
-// bslmf_rvalue.h                                                     -*-C++-*-
-#ifndef INCLUDED_BSLMF_RVALUE
-#define INCLUDED_BSLMF_RVALUE
+// bslmf_movableref.h                                                 -*-C++-*-
+#ifndef INCLUDED_BSLMF_MOVABLEREF
+#define INCLUDED_BSLMF_MOVABLEREF
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -15,60 +15,82 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a vocabulary type to enable move semantics.
 //
 //@CLASSES:
-//  bslmf::RvalueRef: a template indicating that an object can be moved from
-//  bslmf::RvalueUtil: a namespace to hold utility functions for r-values
+//  bslmf::MovableRef: a template indicating that an object can be moved from
+//  bslmf::MovableRefUtil: a namespace to hold utility functions for r-values
 //
 //@SEE_ALSO: bslmf_forwardingtype
 //
-//@DESCRIPTION: This component provides a class template, 'bslmf::RvalueRef'
+//@DESCRIPTION: This component provides a class template, 'bslmf::MovableRef'
 // used to convey the information that an object will not be used anymore so
 // that its representation can be transferred elsewhere. In C++11 terminology
-// an object represented by a 'bslmf::RvalueRef<T>' can be moved from. This
-// component also provides a utility 'struct' 'bslmf::RvalueUtil' that enables
-// identical code for C++03 and C++11 enabling move semnatics.
+// an object represented by a 'bslmf::MovableRef<T>' can be moved from. This
+// component also provides a utility 'struct' 'bslmf::MovableRefUtil' that
+// enables identical code for C++03 and C++11 enabling move semantics.
 //
 // With a C++11 implementation
-// 'bslmf::RvalueRef<T>' is an alias template for 'T&&'. With a C++03
-// implementation 'bslmf::RvalueRef<T>' is a class template providing lvalue
+// 'bslmf::MovableRef<T>' is an alias template for 'T&&'. With a C++03
+// implementation 'bslmf::MovableRef<T>' is a class template providing lvalue
 // access to an object whose representation can be transferred. The objective
 // of this component is to provide a name for the concept of a movable object.
 // Using a common name enables use of manual move semantics when using C++03.
 // With C++11 automatic move semantics is enabled when moving objects known to
 // the compiler to go out of scope.
 //
-// Using 'bslmf::RvalueRef<T>' to support movable type enables the
+// Using 'bslmf::MovableRef<T>' to support movable type enables the
 // implementation of move semantics that work with both C++03 and C++11 without
 // conditional compilation of the user code. Only the implementation of the
-// component 'bslmf_rvalue' uses conditional compilation to select the
+// component 'bslmf_movableref' uses conditional compilation to select the
 // appropriate implementation choice.
 //
 // For consistent use across different versions of the C++ standard, a few
-// utility functions are provided in the utility class 'bslmf::RvalueUtil'.
+// utility functions are provided in the utility class 'bslmf::MovableRefUtil'.
 // This class contains functions for moving and forwarding objects. To enable
 // an identical notation to access an object with C++11 (where
-// 'bslmf::RvalueRef<T>' is just an lvalue of type 'T') and with C++03 where
-// 'bslmf::RvalueRef<T>' is a class type referencing to an lvalue of type 'T',
-// a function template 'bslmf::RvalueUtil::access(r)' is provided.
+// 'bslmf::MovableRef<T>' is just an lvalue of type 'T') and with C++03 where
+// 'bslmf::MovableRef<T>' is a class type referencing to an lvalue of type 'T',
+// a function template 'bslmf::MovableRefUtil::access(r)' is provided.
 //
-///Use of MovableRef<TYPE> Parameters
-///----------------------------------
-// The purpose of 'access(x)' is to use the same notation for member
-        // access to 'x' independent on whether it is an actual lvalue
-        // reference or an 'RvalueRef<TYPE>'. For a concrete examples assume
-        // 'x' is a 'bsl::pair<A, B>'. When using a C++11 implementation
-        // 'RvalueRef<bsl::pair<A, B> >' is really just a 'bsl::pair<A, B>&&'
-        // and the elements could be accessed using 'x.first' and 'x.second'.
-        // For a C++03 implementation 'RvalueRef<bsl::pair<A, B> >' is a class
-        // type and 'x.first' and 'x.second' are not available. Instead, a
-        // reference to the pair needs to be obtained which could be done using
-        // 'static_cast<bsl::pair<A, B >&>(x)' or by using a named variable. To
-        // unify the notation between the C++03 and C++11 implementation,
-        // simultanously simplifying the C++03 use, 'RvalueUtil::access(x)' can
-        // be used.
+///Use of 'MovableRef<TYPE>' Parameters
+///------------------------------------
+// There are a number of differences on how 'MovableRef<TYPE>' parameters are
+// handled between C++03 and C++11 implementations. Due to the languages
+// differences there is no way to avoid these. This component enables use of
+// move semantics in both C++03 and C++11 when done right. It doesn't try to
+// make implementation of move semantics easier. Here are some notes to keep in
+// mind when using this component:
+//
+//: 1 When using a 'MovableRef<TYPE>' in a context where 'TYPE' is deduced,
+//:   the resulting reference does normally *not* refer to an object that can
+//:   be moved from! (the same is true for 'TYPE&&' if 'TYPE' is deduced) Thus,
+//:   the type 'TYPE' should normally not be deduced when using
+//:   'MovableRef<TYPE>'. See below for more information.
+//: 2 Returning 'MovableRef<TYPE> (or 'TYPE&&') from a function is almost
+//:   always wrong. In particular note that the same life-time issues apply to
+//:   'MovableRef<TYPE>' as they do to reference of objects: when returning a
+//:   reference the object referred cannot be on the stack.
+//: 3 Using the argument of type 'MovableRef<TYPE>' directly in function
+//:   typically results in incorrect behavior either when using C++03 or when
+//:   using C++11. Instead, use these arguments together with
+//:   'MovableRefUtil::move()', 'MovableRefUtil::access()', or bind it to a
+//:   non-'const' lvalue reference.
+//
+// The purpose of 'access(x)' is to use the same notation for member access to
+// 'x' independent on whether it is an actual lvalue reference or an
+// 'MovableRef<TYPE>'. For a concrete examples assume 'x' is a
+// 'bsl::pair<A, B>'. When using a C++11 implementation
+// 'MovableRef<bsl::pair<A, B> >' is really just a 'bsl::pair<A, B>&&' and the
+// elements could be accessed using 'x.first' and 'x.second'. For a C++03
+// implementation 'MovableRef<bsl::pair<A, B> >' is a class type and 'x.first'
+// and 'x.second' are not available. Instead, a reference to the pair needs to
+// be obtained which could be done using 'static_cast<bsl::pair<A, B >&>(x)' or
+// by using a named variable. To unify the notation between the C++03 and C++11
+// implementation, simultanously simplifying the C++03 use
+// 'MovableRefUtil::access(x)' can be used.
 //
 ///Template Deduction and Argument Forwarding
 ///------------------------------------------
-// C++11 has two entirely differentation use of the notation 'T&&':
+// C++11 has two entirely different uses of the notation 'T&&':
+//
 //: 1 In contexts where the type 'T' is not deduced the notation implies that
 //:   only an rvalue can be bound to the corresponding reference. For this use
 //:   'T&&' is truly an rvalue reference.
@@ -76,13 +98,13 @@ BSLS_IDENT("$Id: $")
 //:   type 'T' will include information on whether the entity bound is an
 //:   rvalue or an lvalue.
 //
-// The use of 'bslmf::RvalueRef<T>' and 'T&&' can only indicate that the
-// reference is refering to an rvalue if the type 'T' is not deduced. Also, the
-// C++03 implementation cannot distinguish between rvalue and lvalue, i.e.,
-// the component should be used only in contexts where 'T' is not deduced. If
-// the type 'T' is deduced the 'bslmf::RvalueRef<T>' should not be considered
-// viable to be moved from because for a C++11 the argument may refer to an
-// lvalue.
+// The use of 'bslmf::MovableRef<T>' and 'T&&' can only indicate that the
+// reference is refering to an object whose content can be transferred if the
+// type 'T' is not deduced. Also, the C++03 implementation cannot distinguish
+// between rvalue and lvalue, i.e., the component should be used only in
+// contexts where 'T' is not deduced. If the type 'T' is deduced the
+// 'bslmf::MovableRef<T>' should not be considered viable to be moved from
+// because for a C++11 the argument may refer to an lvalue.
 //
 ///Differences Between C++03 and C++11 MovableRef<TYPE>
 ///----------------------------------------------------
@@ -103,9 +125,9 @@ BSLS_IDENT("$Id: $")
 //
 // The usage example below demonstrate both use cases using a simplified
 // version of 'std::vector<T>'. The class template is simplified to concentrate
-// on the aspects relevant to 'bslmf::RvalueRef<T>'. Most of the operations are
-// just normal implementations to create a container. The last two operations
-// described are using move operations.
+// on the aspects relevant to 'bslmf::MovableRef<T>'. Most of the operations
+// are just normal implementations to create a container. The last two
+// operations described are using move operations.
 //
 // The definition of the 'vector<TYPE>' class template is rather straight
 // forward. For simplicity a few trivial operations are implemented directly
@@ -123,7 +145,7 @@ BSLS_IDENT("$Id: $")
 //    public:
 //      vector();
 //          // Create an empty vector.
-//      vector(bslmf::RvalueRef<vector> other);
+//      vector(bslmf::MovableRef<vector> other);
 //          // Create a vector by transfering the content of the specified
 //          // 'other'.
 //      vector(const vector& other);
@@ -156,7 +178,7 @@ BSLS_IDENT("$Id: $")
 //
 //      void push_back(const TYPE& value);
 //          // Append a copy of the specified 'value' to the vector.
-//      void push_back(bslmf::RvalueRef<TYPE> value);
+//      void push_back(bslmf::MovableRef<TYPE> value);
 //          // Append an object moving the specified 'value' to the new
 //          // location.
 //      void reserve(int newCapacity);
@@ -298,54 +320,54 @@ BSLS_IDENT("$Id: $")
 //      ++this->d_end;
 //  }
 //..
-// The first operation actually demonstrating the use of 'RvalueRef<TYPE>' is
+// The first operation actually demonstrating the use of 'MovableRef<TYPE>' is
 // the move constructor:
 //..
 //  template <class TYPE>
-//  vector<TYPE>::vector(bslmf::RvalueRef<vector> other)
-//      : d_begin(bslmf::RvalueUtil::access(other).d_begin)
-//      , d_end(bslmf::RvalueUtil::access(other).d_end)
-//      , d_endBuffer(bslmf::RvalueUtil::access(other).d_endBuffer) {
+//  vector<TYPE>::vector(bslmf::MovableRef<vector> other)
+//      : d_begin(bslmf::MovableRefUtil::access(other).d_begin)
+//      , d_end(bslmf::MovableRefUtil::access(other).d_end)
+//      , d_endBuffer(bslmf::MovableRefUtil::access(other).d_endBuffer) {
 //      vector& reference(other);
 //      reference.d_begin = 0;
 //      reference.d_end = 0;
 //      reference.d_endBuffer = 0;
 //  }
 //..
-// This constructor gets an 'RvalueRef<vector<TYPE> >' passed as argument that
+// This constructor gets an 'MovableRef<vector<TYPE> >' passed as argument that
 // indicates that the referenced objects can be modified as long as it is left
 // in a state meeting the class invariants. The implementation of this
 // constructor first copies the 'd_begin', 'd_end', and 'd_capacity' members of
 // 'other'. Since 'other' is either an object of type
-// 'RvalueRef<vector<TYPE> >' (when compiling using a C++03 compiler) or an
+// 'MovableRef<vector<TYPE> >' (when compiling using a C++03 compiler) or an
 // rvalue reference 'vector<TYPE>&&' the members are accessed using
-// 'RvalueUtil::access(other)' to get a reference to a 'vector<TYPE>'. Within
-// the body of the constructor an lvalue reference is obtained either via the
-// conversion operator of 'RvalueRef<T>' or directly as 'other' is just an
-// lvalue whe compiiling with a C++11 compiler. This reference is used to set
-// the pointer members of the object referenced by 'other' to '0' completing
-// the move of the content to the object under construction.
+// 'MovableRefUtil::access(other)' to get a reference to a 'vector<TYPE>'.
+// Within the body of the constructor an lvalue reference is obtained either
+// via the conversion operator of 'MovableRef<T>' or directly as 'other' is
+// just an lvalue whe compiiling with a C++11 compiler. This reference is used
+// to set the pointer members of the object referenced by 'other' to '0'
+// completing the move of the content to the object under construction.
 //
 // Finally, a move version of 'push_back()' is provided: it takes an
-// 'RvalueRef<TYPE>' as argument. The type of this argument indicates that the
+// 'MovableRef<TYPE>' as argument. The type of this argument indicates that the
 // state can be transferred and after arranging enough capacity in the
 // 'vector<TYPE>' object a new element is move constructed at the position
 // 'd_end':
 //..
 //  template <class TYPE>
-//  void vector<TYPE>::push_back(bslmf::RvalueRef<TYPE> value) {
+//  void vector<TYPE>::push_back(bslmf::MovableRef<TYPE> value) {
 //      if (this->d_end == this->d_endBuffer) {
 //          this->reserve(this->size()? int(1.5 * this->size()): 4);
 //      }
 //      assert(this->d_end != this->d_endBuffer);
-//      new(this->d_end) TYPE(bslmf::RvalueUtil::move(value));
+//      new(this->d_end) TYPE(bslmf::MovableRefUtil::move(value));
 //      ++this->d_end;
 //  }
 //..
 // Note that this implementation of 'push_back()' uses
-// 'bslmf::RvalueUtil::move(value)' to move the argument. For a C++03
+// 'bslmf::MovableRefUtil::move(value)' to move the argument. For a C++03
 // implementation the argument would be moved even when using 'value' directly
-// because the type of 'value' stays 'bslmf::RvalueRef<TYPE>'. However, for a
+// because the type of 'value' stays 'bslmf::MovableRef<TYPE>'. However, for a
 // C++11 implementation the argument 'value' is an lvalue and using it directly
 // would result in a copy.
 //
@@ -374,7 +396,7 @@ BSLS_IDENT("$Id: $")
 // new object should use the orginal 'begin()':
 //..
 //  const int *first = vector0.begin();
-//  vector<int> vector2(bslmf::RvalueUtil::move(vector0));
+//  vector<int> vector2(bslmf::MovableRefUtil::move(vector0));
 //  assert(first == vector2.begin());
 //..
 // When create a 'vector<vector<int> >' and using 'push_back()' on this object
@@ -395,13 +417,13 @@ BSLS_IDENT("$Id: $")
 // inserted element will be the same as 'first', i.e., the representation is
 // transferred:
 //..
-//  vvector.push_back(bslmf::RvalueUtil::move(vector2)); // move
+//  vvector.push_back(bslmf::MovableRefUtil::move(vector2)); // move
 //  assert(vvector.size() == 2);
 //  assert(vvector[1].begin() == first);
 //  assert(vvector[1].size() == 5);
 //..
 // Compiling this code with both C++03 and C++11 compilers shows that there is
-// no need for conditional compilation in when using 'RvalueRef<TYPE>' while
+// no need for conditional compilation in when using 'MovableRef<TYPE>' while
 // move semantics is enabled in both modes.
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -430,15 +452,15 @@ namespace bslmf {
     && defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
 
 template <class TYPE>
-using RvalueRef = TYPE&&;
+using MovableRef = TYPE&&;
 
 #else // support rvalue references and alias templates
 
-struct RvalueUtil;
+struct MovableRefUtil;
 
 template <class TYPE>
-class RvalueRef
-    // The class template 'RvalueRef<TYPE>' provides a reference to an object
+class MovableRef
+    // The class template 'MovableRef<TYPE>' provides a reference to an object
     // of type 'TYPE' whose state will not be counted upon for later use. Put
     // differently, a function receiving an object this class template can
     // transfer ("move") the representation to a different object and leave the
@@ -446,46 +468,46 @@ class RvalueRef
     // class invariants), state. With C++11 an rvalue reference ('TYPE&&') is
     // used to represent the same semantics.
 {
-    friend struct RvalueUtil;
+    friend struct MovableRefUtil;
     TYPE *d_pointer;
 
     // PRIVATE CONSTRUCTORS
-    explicit RvalueRef(TYPE *pointer);
-        // Create an 'RvalueRef<TYPE>' object referencing the object pointed to
-        // by the specified 'pointer'. The behavior is undefined if 'pointer'
-        // does not point to an object. This constructor is private because a
-        // C++11 rvalue reference cannot be created this. For information on
-        // how to create objects of type 'RvalueRef<TYPE>' see
-        // 'RvalueUtil::move()'.
+    explicit MovableRef(TYPE *pointer);
+        // Create an 'MovableRef<TYPE>' object referencing the object pointed
+        // to by the specified 'pointer'. The behavior is undefined if
+        // 'pointer' does not point to an object. This constructor is private
+        // because a C++11 rvalue reference cannot be created this. For
+        // information on how to create objects of type 'MovableRef<TYPE>' see
+        // 'MovableRefUtil::move()'.
 
   public:
     // ACCESSORS
     operator TYPE&() const;
         // Return a reference to the referenced object. In contexts where a
         // reference to an object of type 'TYPE' is needed, an
-        // 'RvalueRef<TYPE>' behaves like such a reference. For information on
+        // 'MovableRef<TYPE>' behaves like such a reference. For information on
         // how to access the the reference in contexts where no conversion can
-        // be used see 'RvalueUtil::access()'.
+        // be used see 'MovableRefUtil::access()'.
 };
 
 #endif // support rvalue references and alias templates
 
 // ----------------------------------------------------------------------------
 
-struct RvalueUtil {
+struct MovableRefUtil {
     // This 'struct' provides a collection of utility functions operating on
-    // objects of type 'RvalueRef<TYPE>'. The primary use of these utilities to
-    // create a consistent notation for using the C++03 'RvalueRef<TYPE>'
+    // objects of type 'MovableRef<TYPE>'. The primary use of these utilities
+    // to create a consistent notation for using the C++03 'MovableRef<TYPE>'
     // objects and the C++11 'TYPE&&' rvalue references.
 
     template <class TYPE>
-    static TYPE& access(RvalueRef<TYPE>& rvalue);
+    static TYPE& access(MovableRef<TYPE>& rvalue);
         // Obtain a reference to the object references by the specified
         // 'rvalue' object. This reference can also be obtained by a conversion
         // of 'rvalue' to 'TYPE&' in contexts where a conversion is viable.
         // When a conversion isn't applicable, e.g., when caling a member of
         // 'TYPE' the reference can be accessed using 'access()'. Since the
-        // same notation should be applicable to the C++03 'RvalueRef<TYPE>'
+        // same notation should be applicable to the C++03 'MovableRef<TYPE>'
         // objects and a C++11 r-value reference 'TYPE&&' a member function
         // cannot be used.
         //
@@ -493,15 +515,16 @@ struct RvalueUtil {
         // this function.
 
     template <class TYPE>
-    static RvalueRef<TYPE> move(TYPE& lvalue);
-        // Get an rvalue reference of type 'RvalueRef<TYPE>' from the specified
-        // 'lvalue'. For a C++03 implementation this function behaves like a
-        // factory for 'RvalueRef<TYPE> objects. For a C++11 implementation
-        // this function behaves exactly like 'std::move(value)'.
+    static MovableRef<TYPE> move(TYPE& lvalue);
+        // Get an rvalue reference of type 'MovableRef<TYPE>' from the
+        // specified 'lvalue'. For a C++03 implementation this function behaves
+        // like a factory for 'MovableRef<TYPE> objects. For a C++11
+        // implementation this function behaves exactly like
+        // 'std::move(value)'.
 
     template <class TYPE>
-    static RvalueRef<typename bslmf::RemoveReference<TYPE>::Type>
-    move(RvalueRef<TYPE> rvalue);
+    static MovableRef<typename bslmf::RemoveReference<TYPE>::Type>
+    move(MovableRef<TYPE> rvalue);
         // Forward the specified 'rvalue' as an rvalue reference. The rvalue
         // reference stays an rvalue reference to an object of type 'TYPE' and
         // doesn't become an rvalue reference to an rvalue reference.
@@ -511,53 +534,53 @@ struct RvalueUtil {
 //                          INLINE DEFINITIONS
 // ============================================================================
 
-// ----------------
-// class RvalueRef
-// ----------------
+// -----------------
+// class MovableRef
+// -----------------
 
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
     || !defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
 
 template <class TYPE>
 inline
-RvalueRef<TYPE>::RvalueRef(TYPE *pointer)
+MovableRef<TYPE>::MovableRef(TYPE *pointer)
     : d_pointer(pointer) {
     BSLS_ASSERT(0 != pointer);
 }
 
 template <class TYPE>
 inline
-RvalueRef<TYPE>::operator TYPE&() const {
+MovableRef<TYPE>::operator TYPE&() const {
     return *d_pointer;
 }
 
 #endif // support rvalue references and alias templates
 
-// ------------------
-// struct RvalueUtil
-// ------------------
+// ----------------------
+// struct MovableRefUtil
+// ----------------------
 
 template <class TYPE>
 inline
-TYPE& RvalueUtil::access(RvalueRef<TYPE>& rvalue) {
+TYPE& MovableRefUtil::access(MovableRef<TYPE>& rvalue) {
     return rvalue;
 }
 
 template <class TYPE>
 inline
-RvalueRef<TYPE> RvalueUtil::move(TYPE& lvalue) {
+MovableRef<TYPE> MovableRefUtil::move(TYPE& lvalue) {
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
     && defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
     return static_cast<TYPE&&>(lvalue);
 #else  // support rvalue references and alias templates
-    return RvalueRef<TYPE>(&lvalue);
+    return MovableRef<TYPE>(&lvalue);
 #endif // support rvalue references and alias templates
 }
 
 template <class TYPE>
 inline
-RvalueRef<typename bslmf::RemoveReference<TYPE>::Type>
-RvalueUtil::move(RvalueRef<TYPE> rvalue) {
+MovableRef<typename bslmf::RemoveReference<TYPE>::Type>
+MovableRefUtil::move(MovableRef<TYPE> rvalue) {
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
     && defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
     return static_cast<typename bslmf::RemoveReference<TYPE>::Type&&>(rvalue);

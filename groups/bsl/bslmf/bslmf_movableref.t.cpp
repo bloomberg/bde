@@ -1,5 +1,5 @@
-// bslmf_rvalue.t.cpp                                                 -*-C++-*-
-#include <bslmf_rvalue.h>
+// bslmf_movableref.t.cpp                                             -*-C++-*-
+#include <bslmf_movableref.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
 
@@ -16,7 +16,7 @@ using namespace BloombergLP;
 //                                   --------
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] RVALUEREF<TYPE> AND RVALUEUTIL FUNCTIONALITY
+// [ 2] MOVABLEREF<TYPE> AND MOVABLEREFUTIL FUNCTIONALITY
 // [ 3] USAGE EXAMPLE
 
 // ============================================================================
@@ -68,11 +68,11 @@ void aSsErT(bool condition, const char *message, int line)
 
 namespace {
 
-bool testFunctionCall(int *pointer, bslmf::RvalueRef<int> rvalue)
+bool testFunctionCall(int *pointer, bslmf::MovableRef<int> rvalue)
     // This function returns 'true' if the specified 'pointer' and the
     // specified 'rvalue' refer to the same object.
 {
-    return pointer == &bslmf::RvalueUtil::access(rvalue);
+    return pointer == &bslmf::MovableRefUtil::access(rvalue);
 }
 
 template <class TYPE>
@@ -87,7 +87,7 @@ class vector
   public:
     vector();
         // Create an empty vector.
-    vector(bslmf::RvalueRef<vector> other);
+    vector(bslmf::MovableRef<vector> other);
         // Create a vector by transfering the content of the specified
         // 'other'.
     vector(const vector& other);
@@ -120,7 +120,7 @@ class vector
 
     void push_back(const TYPE& value);
         // Append a copy of the specified 'value' to the vector.
-    void push_back(bslmf::RvalueRef<TYPE> value);
+    void push_back(bslmf::MovableRef<TYPE> value);
         // Append an object moving the specified 'value' to the new
         // location.
     void reserve(int newCapacity);
@@ -156,10 +156,10 @@ vector<TYPE>::vector(const vector& other)
 }
 
 template <class TYPE>
-vector<TYPE>::vector(bslmf::RvalueRef<vector> other)
-    : d_begin(bslmf::RvalueUtil::access(other).d_begin)
-    , d_end(bslmf::RvalueUtil::access(other).d_end)
-    , d_endBuffer(bslmf::RvalueUtil::access(other).d_endBuffer) {
+vector<TYPE>::vector(bslmf::MovableRef<vector> other)
+    : d_begin(bslmf::MovableRefUtil::access(other).d_begin)
+    , d_end(bslmf::MovableRefUtil::access(other).d_end)
+    , d_endBuffer(bslmf::MovableRefUtil::access(other).d_endBuffer) {
     vector& reference(other);
     reference.d_begin = 0;
     reference.d_end = 0;
@@ -194,12 +194,12 @@ void vector<TYPE>::push_back(const TYPE& value) {
 }
 
 template <class TYPE>
-void vector<TYPE>::push_back(bslmf::RvalueRef<TYPE> value) {
+void vector<TYPE>::push_back(bslmf::MovableRef<TYPE> value) {
     if (this->d_end == this->d_endBuffer) {
         this->reserve(this->size()? int(1.5 * this->size()): 4);
     }
     ASSERT(this->d_end != this->d_endBuffer);
-    new(this->d_end) TYPE(bslmf::RvalueUtil::move(value));
+    new(this->d_end) TYPE(bslmf::MovableRefUtil::move(value));
     ++this->d_end;
 }
 
@@ -286,7 +286,7 @@ int main(int argc, char *argv[])
         }
 
         const int   *first = vector0.begin();
-        vector<int>  vector2(bslmf::RvalueUtil::move(vector0));
+        vector<int>  vector2(bslmf::MovableRefUtil::move(vector0));
         ASSERT(first == vector2.begin());
 
         vector<vector<int> > vvector;
@@ -300,73 +300,76 @@ int main(int argc, char *argv[])
             ASSERT(vector2[i] == i);
         }
 
-        vvector.push_back(bslmf::RvalueUtil::move(vector2)); // move
+        vvector.push_back(bslmf::MovableRefUtil::move(vector2)); // move
         ASSERT(vvector.size() == 2);
         ASSERT(vvector[1].begin() == first);
         ASSERT(vvector[1].size() == 5);
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // RVALUEREF<TYPE> AND RVALUEUTIL FUNCTIONALITY
+        // MOVABLEREF<TYPE> AND MOVABLEREFUTIL FUNCTIONALITY
         //
         // Concerns:
-        //: 1 Verify that an 'RvalueRef<int>' can be created from an 'int'
-        //:   using 'RvalueUtil::move()' and that references obtained using the
-        //:   implicit conversion to 'int&' or using 'RvalueUtil::access()'
-        //:   refer to the original object.
-        //: 2 Verify that an 'RvalueRef<int>' can be moved using
-        //:   'RvalueUtil::move()' and that the newly created 'RvalueRef<int>'
-        //:   references the original object.
-        //: 3 Verify that a function can be called with an 'RvalueRef<int>' and
-        //:   that the argument stores a reference to the original object.
+        //: 1 Verify that an 'MovableRef<int>' can be created from an 'int'
+        //:   using 'MovableRefUtil::move()' and that references obtained using
+        //:   the implicit conversion to 'int&' or using
+        //:   'MovableRefUtil::access()' refer to the original object.
+        //: 2 Verify that an 'MovableRef<int>' can be moved using
+        //:   'MovableRefUtil::move()' and that the newly created
+        //:   'MovableRef<int>' references the original object.
+        //: 3 Verify that a function can be called with an 'MovableRef<int>'
+        //:   and that the argument stores a reference to the original object.
         //
         // Plan:
-        //: 1 Define an 'int' object 'value' and obtain an 'RvalueRef<int>'
-        //:   named 'rvalue0' using 'RvalueUtil::move(value)'. Then use an
+        //: 1 Define an 'int' object 'value' and obtain an 'MovableRef<int>'
+        //:   named 'rvalue0' using 'MovableRefUtil::move(value)'. Then use an
         //:   implicit conversion from 'rvalue0' to 'int&' to initialize
         //:   'reference' verify that '&value' and '&reference' are identical.
-        //:   Also verify that '&value' and '&RvalueUtil::access(rvalue0)' are
-        //:   identical.
-        //: 2 Create a new 'RvalueRef<int>' named 'rvalue1' using
-        //:   'RvalueUtil::move(rvalue0)' and verify that it references the
+        //:   Also verify that '&value' and '&MovableRefUtil::access(rvalue0)'
+        //:   are identical.
+        //: 2 Create a new 'MovableRef<int>' named 'rvalue1' using
+        //:   'MovableRefUtil::move(rvalue0)' and verify that it references the
         //:   original object by comparing the address of 'value' and the
-        //:   address of the result of 'RvalueUtil::access(rvalue1).
+        //:   address of the result of 'MovableRefUtil::access(rvalue1).
         //: 3 Call a function with the address of 'value' and
-        //:   'RvalueUtil::move(value)'. From this function return the result
-        //:   comparing the address of 'value' and the address of the result of
-        //:   'RvalueUtil::access()' called on the second argument.
+        //:   'MovableRefUtil::move(value)'. From this function return the
+        //:   result comparing the address of 'value' and the address of the
+        //:   result of 'MovableRefUtil::access()' called on the second
+        //:   argument.
         //
         // Testing:
-        //     RVALUEREF<TYPE> AND RVALUEUTIL FUNCTIONALITY
+        //     MOVABLEREF<TYPE> AND MOVABLEREFUTIL FUNCTIONALITY
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nRVALUEREF<TYPE> AND RVALUEUTIL FUNCTIONALITY"
-                           "\n============================================\n");
+        if (verbose)
+            printf("\nMOVABLEREF<TYPE> AND MOVABLEREFUTIL FUNCTIONALITY"
+                   "\n=================================================\n");
 
-        int                   value(0);
-        bslmf::RvalueRef<int> rvalue0(bslmf::RvalueUtil::move(value));
-        int&                  reference(rvalue0);
+        int                    value(0);
+        bslmf::MovableRef<int> rvalue0(bslmf::MovableRefUtil::move(value));
+        int&                   reference(rvalue0);
         ASSERT(&value == &reference);
-        ASSERT(&value == &bslmf::RvalueUtil::access(rvalue0));
+        ASSERT(&value == &bslmf::MovableRefUtil::access(rvalue0));
 
-        bslmf::RvalueRef<int> rvalue1(bslmf::RvalueUtil::move(
-                                              bslmf::RvalueUtil::move(value)));
-        ASSERT(&value == &bslmf::RvalueUtil::access(rvalue1));
+        bslmf::MovableRef<int> rvalue1(bslmf::MovableRefUtil::move(
+                                          bslmf::MovableRefUtil::move(value)));
+        ASSERT(&value == &bslmf::MovableRefUtil::access(rvalue1));
 
-        ASSERT(testFunctionCall(&value, bslmf::RvalueUtil::move(value)));
+        ASSERT(testFunctionCall(&value, bslmf::MovableRefUtil::move(value)));
       } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 Verify that all operations of 'RvalueRef<TYPE>' and 'RvalueUtil'
-        //:   can be used.
+        //: 1 Verify that all operations of 'MovableRef<TYPE>' and
+        //:   'MovableRefUtil' can be used.
         //
         // Plan:
-        //: 1 Use 'RvalueUtil::move()' to create an 'RvalueRef<int>' and use
-        //:   the implicit conversion to 'int&' and 'RvalueUtil::access()' to
-        //:   to obtain a reference to the original value.
+        //: 1 Use 'MovableRefUtil::move()' to create an 'MovableRef<int>' and
+        //:   use the implicit conversion to 'int&' and
+        //:   'MovableRefUtil::access()' to obtain a reference to the original
+        //:   value.
         //
         // Testing:
         //     BREATHING TEST
@@ -375,10 +378,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        int                   value(0);
-        bslmf::RvalueRef<int> rvalue(bslmf::RvalueUtil::move(value));
-        int&                  reference(rvalue);
-        int&                  lvalue(bslmf::RvalueUtil::access(rvalue));
+        int                    value(0);
+        bslmf::MovableRef<int> rvalue(bslmf::MovableRefUtil::move(value));
+        int&                   reference(rvalue);
+        int&                   lvalue(bslmf::MovableRefUtil::access(rvalue));
         ASSERT(&reference == &lvalue);
       } break;
       default: {
