@@ -213,7 +213,7 @@ void vector<TYPE>::reserve(int newCapacity) {
         tmp.d_endBuffer = tmp.d_begin + newCapacity;
 
         for (TYPE* it = this->d_begin; it != this->d_end; ++it) {
-            new (tmp.d_end) TYPE(bslmf::RvalueUtil::moveIfNoexcept(*it));
+            new (tmp.d_end) TYPE(*it);
             ++tmp.d_end;
         }
         this->swap(tmp);
@@ -380,8 +380,6 @@ int main(int argc, char *argv[])
         int&                  reference(rvalue);
         int&                  lvalue(bslmf::RvalueUtil::access(rvalue));
         ASSERT(&reference == &lvalue);
-        int const& cvalue(bslmf::RvalueUtil::moveIfNoexcept(value));
-        ASSERT(&cvalue == &lvalue);
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

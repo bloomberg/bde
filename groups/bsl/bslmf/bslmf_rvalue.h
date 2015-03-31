@@ -105,8 +105,7 @@ BSLS_IDENT("$Id: $")
 // version of 'std::vector<T>'. The class template is simplified to concentrate
 // on the aspects relevant to 'bslmf::RvalueRef<T>'. Most of the operations are
 // just normal implementations to create a container. The last two operations
-// described are using move operations and the 'reserve()' function uses
-// 'moveIfNoexcept()'.
+// described are using move operations.
 //
 // The definition of the 'vector<TYPE>' class template is rather straight
 // forward. For simplicity a few trivial operations are implemented directly
@@ -209,13 +208,7 @@ BSLS_IDENT("$Id: $")
 // 'tmp' up to have enough capacity by allocating sufficient memory and
 // assigning the different members to point to the allocated buffer. The
 // function then iterates over the elements of 'this' and for each element
-// it constructs a new element in 'tmp'. It does so using placement new with
-// a constructor argument of 'bslmf::RvalueUtil::moveIfNoexcept(*it)'. Since
-// a successful execution of 'reserve()' will release the buffer held by 'this'
-// all elements can be moved to their new location if there is no potential of
-// failure by a later move throwing an exception. If it is possibly that moving
-// the elements might throw, the elements need to copied instead. Once all
-// elements are in place in 'tmp' the content of 'tmp' and 'this' is swapped:
+// it constructs a new element in 'tmp'.
 //..
 //  template <class TYPE>
 //  void vector<TYPE>::reserve(int newCapacity) {
@@ -227,7 +220,7 @@ BSLS_IDENT("$Id: $")
 //          tmp.d_endBuffer = tmp.d_begin + newCapacity;
 //
 //          for (TYPE* it = this->d_begin; it != this->d_end; ++it) {
-//              new (tmp.d_end) TYPE(bslmf::RvalueUtil::moveIfNoexcept(*it));
+//              new (tmp.d_end) TYPE(*it);
 //              ++tmp.d_end;
 //          }
 //          this->swap(tmp);
@@ -349,6 +342,13 @@ BSLS_IDENT("$Id: $")
 //      ++this->d_end;
 //  }
 //..
+// Note that this implementation of 'push_back()' uses
+// 'bslmf::RvalueUtil::move(value)' to move the argument. For a C++03
+// implementation the argument would be moved even when using 'value' directly
+// because the type of 'value' stays 'bslmf::RvalueRef<TYPE>'. However, for a
+// C++11 implementation the argument 'value' is an lvalue and using it directly
+// would result in a copy.
+//
 // To demonstrate the newly created 'vector<TYPE>' class in action, first a
 // 'vector<int>' is created and filled with a few elements:
 //..
@@ -424,83 +424,13 @@ namespace BloombergLP {
 
 namespace bslmf {
 
+// ----------------------------------------------------------------------------
+
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
     && defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
 
 template <class TYPE>
 using RvalueRef = TYPE&&;
-
-struct RvalueUtil {
-    // This 'struct' provides a collection of utility functions operating on
-    // objects of type 'RvalueRef<TYPE>'. The primary use of these utilities is
-    // to create a consistent notation for using the C++03 'RvalueRef<TYPE>'
-    // objects and the C++11 'TYPE&&' rvalue references.
-
-    template <class TYPE>
-    static TYPE& access(TYPE& rvalue);
-        // Obtain a reference to the object references by the specified
-        // 'rvalue' object. This reference can also be obtained by a conversion
-        // of 'rvalue' to 'TYPE&' in contexts where a conversion is viable.
-        // When a conversion isn't applicable, e.g., when caling a member of
-        // 'TYPE' the reference can be accessed using 'access()'. Since the
-        // same notation should be applicable to the C++03 'RvalueRef<TYPE>'
-        // objects and a C++11 rvalue reference 'TYPE&&' a member function
-        // cannot be used.
-        //
-        // The purpose of 'access(x)' is to use the same notation for member
-        // access to 'x' independent on whether it is an actual lvalue
-        // reference or an 'RvalueRef<TYPE>'. For a concrete examples assume
-        // 'x' is a 'bsl::pair<A, B>'. When using a C++11 implementation
-        // 'RvalueRef<bsl::pair<A, B> >' is really just a 'bsl::pair<A, B>&&'
-        // and the elements could be accessed using 'x.first' and 'x.second'.
-        // For a C++03 implementation 'RvalueRef<bsl::pair<A, B> >' is a class
-        // type and 'x.first' and 'x.second' are not available. Instead, a
-        // reference to the pair needs to be obtained which could be done using
-        // 'static_cast<bsl::pair<A, B >&>(x)' or by using a named variable. To
-        // unify the notation between the C++03 and C++11 implementation,
-        // simultanously simplifying the C++03 use, 'RvalueUtil::access(x)' can
-        // be used.
-
-
-    template <class TYPE>
-    static typename bslmf::RemoveReference<TYPE>::Type&& move(TYPE&& lvalue);
-        // Get an rvalue reference of type 'RvalueRef<TYPE>' from the specified
-        // 'lvalue'. For a C++03 implementation this function behaves like a
-        // factory for 'RvalueRef<TYPE> objects. For a C++11 implementation
-        // this function behaves exactly like 'std::move(lvalue)'.
-
-    template <class TYPE>
-    static const TYPE& moveIfNoexcept(TYPE& lvalue);
-        // Get an rvalue reference from the specified 'lvalue' if it can be
-        // determined at compile-time that moving object of type 'TYPE' cannot
-        // throw an exception otherwise get an lvalue reference to 'lvalue'.
-        // For a C++03 implementation this function always returns a 'const'
-        // reference to 'lvalue'.
-        //
-        // NOTE: the correct C++11 implementation of this function requires a
-        //   number of type traits that are currently not, yet, implemented
-        //   (it needs 'is_nothrow_move_constructible<TYPE>' and
-        //   'is_copy_constructible<TYPE>' which in turn are build upon other
-        //   type traits). Until these necessary traits are implemented this
-        //   function will always return an lvalue reference.
-};
-
-// ----------------------------------------------------------------------------
-
-template <class TYPE>
-inline
-TYPE& RvalueUtil::access(TYPE& rvalue) {
-    return rvalue;
-}
-
-template <class TYPE>
-inline
-typename bslmf::RemoveReference<TYPE>::Type&& RvalueUtil::move(TYPE&& lvalue)
-{
-    return static_cast<typename bslmf::RemoveReference<TYPE>::Type&&>(lvalue);
-}
-
-// ----------------------------------------------------------------------------
 
 #else // support rvalue references and alias templates
 
@@ -538,21 +468,16 @@ class RvalueRef
         // be used see 'RvalueUtil::access()'.
 };
 
+#endif // support rvalue references and alias templates
+
+// ----------------------------------------------------------------------------
+
 struct RvalueUtil {
     // This 'struct' provides a collection of utility functions operating on
     // objects of type 'RvalueRef<TYPE>'. The primary use of these utilities to
     // create a consistent notation for using the C++03 'RvalueRef<TYPE>'
     // objects and the C++11 'TYPE&&' rvalue references.
 
-  private:
-    template <class TYPE>
-    static void access(const RvalueRef<TYPE>&); // not implemented
-        // This overload prevents the use of
-        // 'RvalueUtil::access(RvalueUtil::move(x))' which is consistent with
-        // the C++11 definition taking an lvalue argument but not an rvalue
-        // argument.
-
-  public:
     template <class TYPE>
     static TYPE& access(RvalueRef<TYPE>& rvalue);
         // Obtain a reference to the object references by the specified
@@ -575,30 +500,23 @@ struct RvalueUtil {
         // this function behaves exactly like 'std::move(value)'.
 
     template <class TYPE>
-    static RvalueRef<TYPE> move(RvalueRef<TYPE> rvalue);
+    static RvalueRef<typename bslmf::RemoveReference<TYPE>::Type>
+    move(RvalueRef<TYPE> rvalue);
         // Forward the specified 'rvalue' as an rvalue reference. The rvalue
         // reference stays an rvalue reference to an object of type 'TYPE' and
         // doesn't become an rvalue reference to an rvalue reference.
-
-    template <class TYPE>
-    static const TYPE& moveIfNoexcept(TYPE& lvalue);
-        // Get an rvalue reference from the specified 'lvalue' if it can be
-        // determined at compile-time that moving object of type 'TYPE' cannot
-        // throw an exception otherwise get an lvalue reference to 'lvalue'.
-        // For a C++03 implementation this function always returns a 'const'
-        // reference to 'lvalue'.
-        //
-        // NOTE: the correct C++11 implementation of this function requires a
-        //   number of type traits which are currently not, yet, implemented
-        //   (it needs 'is_nothrow_move_constructible<TYPE>' and
-        //   'is_copy_constructible<TYPE>' which in turn are build upon other
-        //   type traits). Until these necessary traits are implemented this
-        //   function will always return an lvalue reference.
 };
 
 // ============================================================================
 //                          INLINE DEFINITIONS
 // ============================================================================
+
+// ----------------
+// class RvalueRef
+// ----------------
+
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
+    || !defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
 
 template <class TYPE>
 inline
@@ -613,6 +531,8 @@ RvalueRef<TYPE>::operator TYPE&() const {
     return *d_pointer;
 }
 
+#endif // support rvalue references and alias templates
+
 // ------------------
 // struct RvalueUtil
 // ------------------
@@ -626,26 +546,26 @@ TYPE& RvalueUtil::access(RvalueRef<TYPE>& rvalue) {
 template <class TYPE>
 inline
 RvalueRef<TYPE> RvalueUtil::move(TYPE& lvalue) {
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
+    && defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
+    return static_cast<TYPE&&>(lvalue);
+#else  // support rvalue references and alias templates
     return RvalueRef<TYPE>(&lvalue);
-}
-
-template <class TYPE>
-inline
-RvalueRef<TYPE> RvalueUtil::move(RvalueRef<TYPE> rvalue) {
-    return rvalue;
-}
-
-// ----------------------------------------------------------------------------
-
 #endif // support rvalue references and alias templates
-
-// ----------------------------------------------------------------------------
+}
 
 template <class TYPE>
 inline
-const TYPE& RvalueUtil::moveIfNoexcept(TYPE& lvalue) {
-    return lvalue;
+RvalueRef<typename bslmf::RemoveReference<TYPE>::Type>
+RvalueUtil::move(RvalueRef<TYPE> rvalue) {
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
+    && defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
+    return static_cast<typename bslmf::RemoveReference<TYPE>::Type&&>(rvalue);
+#else  // support rvalue references and alias templates
+    return rvalue;
+#endif // support rvalue references and alias templates
 }
+
 
 // ----------------------------------------------------------------------------
 
