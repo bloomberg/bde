@@ -18,13 +18,16 @@ BSLS_IDENT("$Id: $")
 //  bslmf::RvalueRef: a template indicating that an object can be moved from
 //  bslmf::RvalueUtil: a namespace to hold utility functions for r-values
 //
-//@SEE_ALSO:
+//@SEE_ALSO: bslmf_forwardingtype
 //
-//@DESCRIPTION: This component provides a template, 'bslmf::RvalueRef' used to
-// convey the information that an object will not be used anymore and its
-// representation can be transferred elsewhere and a utilities struct
-// 'bslmf::RvalueUtil'. In C++11 terminology an object represented by a
-// 'bslmf::RvalueRef<T>' can be moved from. With a C++11 implementation
+//@DESCRIPTION: This component provides a class template, 'bslmf::RvalueRef'
+// used to convey the information that an object will not be used anymore so
+// that its representation can be transferred elsewhere. In C++11 terminology
+// an object represented by a 'bslmf::RvalueRef<T>' can be moved from. This
+// component also provides a utility 'struct' 'bslmf::RvalueUtil' that enables
+// identical code for C++03 and C++11 enabling move semnatics.
+//
+// With a C++11 implementation
 // 'bslmf::RvalueRef<T>' is an alias template for 'T&&'. With a C++03
 // implementation 'bslmf::RvalueRef<T>' is a class template providing lvalue
 // access to an object whose representation can be transferred. The objective
@@ -33,19 +36,56 @@ BSLS_IDENT("$Id: $")
 // With C++11 automatic move semantics is enabled when moving objects known to
 // the compiler to go out of scope.
 //
-// Using 'bslmf::RvalueRef<T>' to support movable type allows implementation of
-// move semantics working with both C++03 and C++11 without conditional
-// compilation of the user code. Only the implementation of the component
-// bslmf_rvalue uses conditional compilation to enable the appropriate
-// implementation choice.
+// Using 'bslmf::RvalueRef<T>' to support movable type enables the
+// implementation of move semantics that work with both C++03 and C++11 without
+// conditional compilation of the user code. Only the implementation of the
+// component 'bslmf_rvalue' uses conditional compilation to select the
+// appropriate implementation choice.
 //
-// For a consistent use across different versions of the C++ standard a few
+// For consistent use across different versions of the C++ standard, a few
 // utility functions are provided in the utility class 'bslmf::RvalueUtil'.
-// This class contains functions for moving and forwarding objects. To use an
-// identical notation to access an object with C++11 where
-// 'bslmf::RvalueRef<T>' is just an lvalue of type 'T' and with C++03 where
+// This class contains functions for moving and forwarding objects. To enable
+// an identical notation to access an object with C++11 (where
+// 'bslmf::RvalueRef<T>' is just an lvalue of type 'T') and with C++03 where
 // 'bslmf::RvalueRef<T>' is a class type referencing to an lvalue of type 'T',
-// a function template 'bslmf::RvalueUtil<T>::access(r)' is provided.
+// a function template 'bslmf::RvalueUtil::access(r)' is provided.
+//
+///Use of MovableRef<TYPE> Parameters
+///----------------------------------
+// The purpose of 'access(x)' is to use the same notation for member
+        // access to 'x' independent on whether it is an actual lvalue
+        // reference or an 'RvalueRef<TYPE>'. For a concrete examples assume
+        // 'x' is a 'bsl::pair<A, B>'. When using a C++11 implementation
+        // 'RvalueRef<bsl::pair<A, B> >' is really just a 'bsl::pair<A, B>&&'
+        // and the elements could be accessed using 'x.first' and 'x.second'.
+        // For a C++03 implementation 'RvalueRef<bsl::pair<A, B> >' is a class
+        // type and 'x.first' and 'x.second' are not available. Instead, a
+        // reference to the pair needs to be obtained which could be done using
+        // 'static_cast<bsl::pair<A, B >&>(x)' or by using a named variable. To
+        // unify the notation between the C++03 and C++11 implementation,
+        // simultanously simplifying the C++03 use, 'RvalueUtil::access(x)' can
+        // be used.
+//
+///Template Deduction and Argument Forwarding
+///------------------------------------------
+// C++11 has two entirely differentation use of the notation 'T&&':
+//: 1 In contexts where the type 'T' is not deduced the notation implies that
+//:   only an rvalue can be bound to the corresponding reference. For this use
+//:   'T&&' is truly an rvalue reference.
+//: 2 In contexts where the type 'T' is deduced the notation implies that the
+//:   type 'T' will include information on whether the entity bound is an
+//:   rvalue or an lvalue.
+//
+// The use of 'bslmf::RvalueRef<T>' and 'T&&' can only indicate that the
+// reference is refering to an rvalue if the type 'T' is not deduced. Also, the
+// C++03 implementation cannot distinguish between rvalue and lvalue, i.e.,
+// the component should be used only in contexts where 'T' is not deduced. If
+// the type 'T' is deduced the 'bslmf::RvalueRef<T>' should not be considered
+// viable to be moved from because for a C++11 the argument may refer to an
+// lvalue.
+//
+///Differences Between C++03 and C++11 MovableRef<TYPE>
+///----------------------------------------------------
 //
 ///Usage
 ///-----
@@ -364,16 +404,20 @@ BSLS_IDENT("$Id: $")
 // no need for conditional compilation in when using 'RvalueRef<TYPE>' while
 // move semantics is enabled in both modes.
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_REMOVEREFERENCE
+#include <bslmf_removereference.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
 
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_REMOVEREFERENCE
-#include <bslmf_removereference.h>
 #endif
 
 namespace BloombergLP {
@@ -388,8 +432,8 @@ using RvalueRef = TYPE&&;
 
 struct RvalueUtil {
     // This 'struct' provides a collection of utility functions operating on
-    // objects of type 'RvalueRef<TYPE>'. The primary use of these utilities to
-    // create a consistent notation for using the C++03 'RvalueRef<TYPE>'
+    // objects of type 'RvalueRef<TYPE>'. The primary use of these utilities is
+    // to create a consistent notation for using the C++03 'RvalueRef<TYPE>'
     // objects and the C++11 'TYPE&&' rvalue references.
 
     template <class TYPE>
@@ -520,19 +564,8 @@ struct RvalueUtil {
         // objects and a C++11 r-value reference 'TYPE&&' a member function
         // cannot be used.
         //
-        // The purpose of 'access(x)' is to use the same notation for member
-        // access to 'x' independent on whether it is an actual lvalue
-        // reference or an 'RvalueRef<TYPE>'. For a concrete examples assume
-        // 'x' is a 'bsl::pair<A, B>'. When using a C++11 implementation
-        // 'RvalueRef<bsl::pair<A, B> >' is really just a 'bsl::pair<A, B>&&'
-        // and the elements could be accessed using 'x.first' and 'x.second'.
-        // For a C++03 implementation 'RvalueRef<bsl::pair<A, B> >' is a class
-        // type and 'x.first' and 'x.second' are not available. Instead, a
-        // reference to the pair needs to be obtained which could be done using
-        // 'static_cast<bsl::pair<A, B >&>(x)' or by using a named variable. To
-        // unify the notation between the C++03 and C++11 implementation,
-        // simultanously simplifying the C++03 use, 'RvalueUtil::access(x)' can
-        // be used.
+        // Please the component-level documentation for more information on
+        // this function.
 
     template <class TYPE>
     static RvalueRef<TYPE> move(TYPE& lvalue);
@@ -579,6 +612,10 @@ inline
 RvalueRef<TYPE>::operator TYPE&() const {
     return *d_pointer;
 }
+
+// ------------------
+// struct RvalueUtil
+// ------------------
 
 template <class TYPE>
 inline
