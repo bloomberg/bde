@@ -16,10 +16,11 @@
 #endif
 #endif
 
-#pragma bdeverify -FD01  // Test-machinery lacks a contract
-#pragma bdeverify -TP06  // Test-case indexing thing
-#pragma bdeverify -TP09  // Test-case indexing thing
-#pragma bdeverify -TP18  // Test-case banners are ALL-CAPS
+// These warning suppressions will be eliminated in due course.
+// BDE_VERIFY pragma: -FD01  // Test-machinery lacks a contract
+// BDE_VERIFY pragma: -TP06  // Test-case indexing thing
+// BDE_VERIFY pragma: -TP09  // Test-case indexing thing
+// BDE_VERIFY pragma: -TP18  // Test-case banners are ALL-CAPS
 
 using namespace BloombergLP;
 
@@ -408,13 +409,13 @@ int main(int argc, char *argv[])
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
-    // Confirm no static intialization locekd the global allocator
+    // Confirm no static initialization locked the global allocator
     ASSERT(&globalAllocator == bslma::Default::globalAllocator());
 
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
     bslma::Default::setDefaultAllocator(&defaultAllocator);
 
-    // Confirm no static intialization locked the default allocator
+    // Confirm no static initialization locked the default allocator
     ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
 
     bslma::TestAllocator ta;
