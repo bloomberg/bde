@@ -1567,11 +1567,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase31(){
                                         // numeric value
         double d_spec;             // specifications
     } DATA[] = {
-        //line  input                      pos      spec    
+        //line  input                      pos      spec
         //----  -----                      ---      ----
         { L_,   "0",                       1,       0},
         { L_,   "-0",                      2,       0}, 
-        { L_,   "3.145gg",                 5,       3.145}, 
+        { L_,   "3.145gg",                 5,       3.145},
         { L_,   "    -5.9991",             11,     -5.9991},
         { L_,   "10e1",                    4,       1e2},
         { L_,   "10p2",                    2,       10},
@@ -1667,8 +1667,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase31(){
         //line  input                      pos      spec
         //----  -----                      ---      ----
         { L_,   L"0",                       1,       0},
-        { L_,   L"-0",                      2,       0}, 
-        { L_,   L"3.145gg",                 5,       3.145}, 
+        { L_,   L"-0",                      2,       0},
+        { L_,   L"3.145gg",                 5,       3.145},
         { L_,   L"    -5.9991",             11,     -5.9991},
         { L_,   L"10e1",                    4,       1e2},
         { L_,   L"10p2",                    2,       10},
