@@ -542,7 +542,7 @@ int main(int argc, char *argv[])
                 size_t truncResult = size_t(result);
                 size_t truncExpect = size_t(HASH);
                 if (veryVerbose) printf(
-                             "Hashing: %i, Expecting: " U64 ", Got: "U64"\n",
+                             "Hashing: %i, Expecting: " U64 ", Got: " U64 "\n",
                              VALUE, u64(truncExpect), u64(truncResult));
                 LOOP_ASSERT(LINE, truncResult == truncExpect);
 
