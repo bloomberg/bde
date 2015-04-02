@@ -75,6 +75,31 @@ bool testFunctionCall(int *pointer, bslmf::MovableRef<int> rvalue)
     return pointer == &bslmf::MovableRefUtil::access(rvalue);
 }
 
+struct TestMoving
+{
+    int *pointer;
+    TestMoving(): pointer(new int(0)) {}
+    TestMoving(TestMoving&);
+    TestMoving(bslmf::MovableRef<TestMoving> rvalue)
+        : pointer(bslmf::MovableRefUtil::access(rvalue).pointer) {
+        bslmf::MovableRefUtil::access(rvalue).pointer = 0;
+    }
+    void operator= (TestMoving&);
+    ~TestMoving() { delete pointer; }
+};
+
+bool testMoveMovableRef(int                           *pointer,
+                        bslmf::MovableRef<TestMoving>  rvalue)
+    // This function returns 'true' if the specified 'pointer' is equal to the
+    // pointer stored in the move-constructed object and if the pointer stored
+    // in specified 'rvalue' is null afterwards.
+{
+    ASSERT(pointer == bslmf::MovableRefUtil::access(rvalue).pointer);
+    TestMoving temp(bslmf::MovableRefUtil::move(rvalue));
+    return pointer == temp.pointer
+        && 0 == bslmf::MovableRefUtil::access(rvalue).pointer;
+}
+
 template <class TYPE>
 class vector
 {
@@ -350,12 +375,12 @@ int main(int argc, char *argv[])
         int&                   reference(rvalue0);
         ASSERT(&value == &reference);
         ASSERT(&value == &bslmf::MovableRefUtil::access(rvalue0));
-
-        bslmf::MovableRef<int> rvalue1(bslmf::MovableRefUtil::move(
-                                          bslmf::MovableRefUtil::move(value)));
-        ASSERT(&value == &bslmf::MovableRefUtil::access(rvalue1));
-
         ASSERT(testFunctionCall(&value, bslmf::MovableRefUtil::move(value)));
+
+        TestMoving value1;
+        ASSERT(testMoveMovableRef(value1.pointer,
+                                  bslmf::MovableRefUtil::move(value1)));
+
       } break;
       case 1: {
         // --------------------------------------------------------------------

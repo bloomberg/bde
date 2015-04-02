@@ -339,7 +339,7 @@ BSLS_IDENT("$Id: $")
 // 'MovableRefUtil::access(other)' to get a reference to a 'vector<TYPE>'.
 // Within the body of the constructor an lvalue reference is obtained either
 // via the conversion operator of 'MovableRef<T>' or directly as 'other' is
-// just an lvalue whe compiiling with a C++11 compiler.  This reference is used
+// just an lvalue when compiling with a C++11 compiler.  This reference is used
 // to set the pointer members of the object referenced by 'other' to '0'
 // completing the move of the content to the object under construction.
 //
@@ -388,7 +388,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // When using moving this 'vector0' to a new location the representation of the
-// new object should use the orginal 'begin()':
+// new object should use the original 'begin()':
 //..
 //  const int *first = vector0.begin();
 //  vector<int> vector2(bslmf::MovableRefUtil::move(vector0));
@@ -443,19 +443,25 @@ namespace bslmf {
 
 // ----------------------------------------------------------------------------
 
-#define BSLS_MOVABLEREF_USES_RVALUE_REFERENCES \
-    (defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)   \
-         && defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES))
-    // This macro indicates whether the compoment uses C++11 rvalue references
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
+         && defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
+#    define BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES \
+    // This macro indicates whether the component uses C++11 rvalue references
     // to implement 'bslmf::MovableRef<TYPE>'.  It will evaluate to 'false' for
     // C++03 implementations and to 'true' for proper C++11 implementations.
     // For partial C++11 implementations it may evaluate to 'false' because
     // both rvalue reference and alias templates need to be supported.
+#endif
 
-#if BSLS_MOVABLEREF_USES_RVALUE_REFERENCES
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 
 template <class TYPE>
-using MovableRef = TYPE&&;
+struct MovableRef_Helper {
+    using type = TYPE&&;
+};
+
+template <class TYPE>
+using MovableRef = typename MovableRef_Helper<TYPE>::type;
 
 #else // support rvalue references and alias templates
 
@@ -504,6 +510,10 @@ struct MovableRefUtil {
     // objects and the C++11 'TYPE&&' rvalue references.
 
     template <class TYPE>
+    static TYPE& access(TYPE& lvalue) {
+        return lvalue;
+    }
+    template <class TYPE>
     static TYPE& access(MovableRef<TYPE>& lvalue);
         // Return a reference to the object referenced by the specified
         // 'lvalue' object.  This reference might be obtained by a conversion
@@ -536,11 +546,11 @@ struct MovableRefUtil {
 //                          INLINE DEFINITIONS
 // ============================================================================
 
-// -----------------
-// class MovableRef
-// -----------------
+// ----------------------------------------------------------------------------
+//                              class MovableRef
+// ----------------------------------------------------------------------------
 
-#if !BSLS_MOVABLEREF_USES_RVALUE_REFERENCES
+#if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 
 template <class TYPE>
 inline
@@ -557,9 +567,9 @@ MovableRef<TYPE>::operator TYPE&() const {
 
 #endif // support rvalue references and alias templates
 
-// ----------------------
-// struct MovableRefUtil
-// ----------------------
+// ----------------------------------------------------------------------------
+//                          struct MovableRefUtil
+// ----------------------------------------------------------------------------
 
 template <class TYPE>
 inline
@@ -570,7 +580,7 @@ TYPE& MovableRefUtil::access(MovableRef<TYPE>& rvalue) {
 template <class TYPE>
 inline
 MovableRef<TYPE> MovableRefUtil::move(TYPE& lvalue) {
-#if BSLS_MOVABLEREF_USES_RVALUE_REFERENCES
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     return static_cast<TYPE&&>(lvalue);
 #else  // support rvalue references and alias templates
     return MovableRef<TYPE>(&lvalue);
@@ -581,7 +591,7 @@ template <class TYPE>
 inline
 MovableRef<typename bsl::remove_reference<TYPE>::type>
 MovableRefUtil::move(MovableRef<TYPE> rvalue) {
-#if BSLS_MOVABLEREF_USES_RVALUE_REFERENCES
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     return static_cast<typename bsl::remove_reference<TYPE>::type&&>(rvalue);
 #else  // support rvalue references and alias templates
     return rvalue;
