@@ -50,7 +50,7 @@ bsl_strstream.h
 bsl_system_error.h
 bsl_thread.h
 bsl_tuple.h
-bls_typeindex.h
+bsl_typeindex.h
 bsl_typeinfo.h
 bsl_utility.h
 bsl_valarray.h
