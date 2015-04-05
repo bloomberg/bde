@@ -7,163 +7,300 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide functions that convert date/time objects to/from ISO 8601.
+//@PURPOSE: Provide conversions between date/time objects and ISO 8601 strings.
 //
 //@CLASSES:
 //  bdlt::Iso8601Util: namespace for ISO 8601 date/time conversion functions
-//  bdlt::Iso8601UtilConfiguration: define process-wide default behaviors
+//  bdlt::Iso8601UtilConfiguration: configuration for generated strings
 //
 //@SEE_ALSO: bdlt_date, bdlt_datetz, bdlt_datetime, bdlt_datetimetz, bdlt_time,
 //           bdlt_timetz
 //
-//@DESCRIPTION: This component provides a namespace, 'bdlt::Iso8601Util'
-// containing functions that convert 'bdlt' date and time objects to and from
-// a string representation defined by the ISO 8601 standard.  The string
-// representation generated and parsed by this component adheres to the ISO
-// 8601 standard for dates and times and is suitable for use in XML generation
-// or parsing.
+//@DESCRIPTION: This component provides a namespace, 'bdlt::Iso8601Util',
+// containing functions that convert 'bdlt' date, time, and datetime objects to
+// and from ("generate" and "parse", respectively) corresponding string
+// representations that are compliant with the ISO 8601 standard.  The version
+// of the ISO 8601 standard that is the basis for this component can be found
+// at:
+//..
+//  http://dotat.at/tmp/ISO_8601-2004_E.pdf
+//..
+// In general terms, 'Iso8601Util' functions support what ISO 8601 refers to as
+// *complete* *representations* in *extended* *format*.  We first present a
+// brief overview before delving into the details of the ISO 8601
+// representations that are supported for each of the relevant 'bdlt'
+// vocabulary types.
 //
-// Each 'generate' function takes a 'bsl::ostream' and a 'bdlt' date or time
-// object and writes the ISO 8601 representation to the stream.  Each 'parse'
-// function takes a pointer to a 'bdlt' date or time object, a character
-// string, and a length and parses the character string into the date or time
-// object, returning a non-zero status on error.
+// Each function that *generates* ISO 8601 strings (named 'generate' and
+// 'generateRaw') takes a 'bdlt' object and a 'char *' buffer or
+// 'bsl::ostream', and writes an ISO 8601 representation of the object to the
+// buffer or stream.  The "raw" functions are distinguished from their
+// non-"raw" counterparts in two respects:
 //
-// This component also provides a class 'bdlt::Iso8601UtilConfiguration' that
-// allows clients to configure process-wide default behavior for
-// 'bdlt::Iso8601Util'.
-// 'bdlt::Iso8601UtilConfiguration::setUseZAbbreviationForUtc' sets whether to
-// use 'Z' as an abbreviation for a time zone offset of 00:00 (the default
-// value is 'false').
-//
-///Subset of ISO 8601 Supported by 'bdlt::Iso8601Util'
-///---------------------------------------------------
-// This component provides support for a subset of the formats defined by the
-// ISO 8601 standard, particularly those dealing with the representation of
-// date, time, and date-time values.  The standard can be found at:
-//
-//: o http://dotat.at/tmp/ISO_8601-2004_E.pdf
-//
-///Supported Formats
-///- - - - - - - - -
-// This component supports the following formats defined in the ISO 8601
-// standard:
-//
-//: o <FRAC>       := .d+
-//: o <TZ>         := ((+|-)hh:mm|Z)
-//: o <Date>       := YYYY-MM-DD
-//: o <Time>       := hh:mm:ss{<FRAC>}
-//: o <Datetime>   := <Date>T<Time>
-//: o <DateTz>     := <Date>{<TZ>}
-//: o <TimeTz>     := <Time>{<TZ>}
-//: o <DatetimeTz> := <Datetime>{<TZ>}
+//: o The length of the 'char *' buffer is not supplied to the "raw" functions.
 //:
-//: o 'bdlt::Date' and 'bdlt::DateTz' both accept input of the form '<DateTz>'.
-//:
-//: o 'bdlt::Time' and 'bdlt::TimeTz' both accept input of the form '<TimeTz>'.
-//:
-//: o 'bdlt::Datetime' and 'bdlt::DatetimeTz' both accept input of the form
-//:   '<DatetimeTz>'.
-//:
-//: o '<FRAC>' is optional.
-//:   o 'd' in 'FRAC' is any decimal digit.
-//:   o If present, 'FRAC' must consist of a '.' followed by at least one digit
-//:     d, and is interpreted as a fraction of a second.  Digits after the
-//:     first 4 are ignored.  If more than 3 digits, it is rounded to the
-//:     nearest 3 digits, possibly resulting in a value of 1.0, which will
-//:     carry into the higher fields of the time and possibly date.
-//:
-//: o '<TZ>' is optional.
-//:   o '<TZ>' is always exactly 1 or 6 characters long.  If it is 6 chars, it
-//:     is either '+hh:mm' or '-hh:mm', if it is 1 char, it is 'Z', which
-//:     has the same meaning as '+00:00' (UTC).
-//:   o In 'bdlt::Date', '<TZ>' is ignored if present.
-//:   o In 'bdlt::Time' and 'bdlt::Datetime', which have no time zone fields,
-//:     '<TZ>' is converted to minutes and subtracted from the result.
-//:   o In 'bdlt::DateTz', 'bdlt::TimeTz', and 'bdlt::DatetimeTz' it sets the
-//:     timezone field.  If absent while parsing an object with a timezone
-//:     field, the timezone field is set to '+00:00' (UTC).
-//:   o In <TZ>, 'hh' is in the range '[00 .. 23]', 'mm' is in the range
-//:     '[00 .. 59]'.  A value of '24' for 'hh' is not allowed.
-//:
-//: o In types containing '<Date>':
-//:   o 'YYYY' is always 4 digits long, 'MM' and 'DD' are always 2 decimal
-//:     digits long.
-//:   o 'YYYY' is in the range '[0001 .. 9999]'.
-//:   o 'MM' is in the range '[01 .. 12]'
-//:   o 'DD' is in the range '[01 .. 31]', also subject to constraints
-//:     depending on year and month.
-//:   o 'YYYY-MM-DD' must be a valid year, month, day combination according to
-//:     'bdlt::Date'.
-//:
-//: o In types containing '<Time>':
-//:   o 'hh', 'mm', and 'ss' are always two decimal digits long.
-//:   o 'hh' must be in the range '[00 .. 24]'.  If 'hh' is 24, then 'mm', and
-//:      'ss' must be zero, as must '<FRAC>' and '<TZ>' if present.
-//:   o 'mm' must be in the range '[00 .. 59]'.
-//:   o 'ss' must be in the range '[00 .. 59]'.
-//:   o 'hh:mm:ss' must be a valid hour, minute, second combination according
-//:     to 'bdlt::Time'.
-//:
-//: o 'T' in '<Datetime>' literally is the uppercase letter 'T'.  It must be
-//:   present.
+//: o The "raw" functions do not output a null terminator.
 //
-///Subsets of ISO 8601 Format Not Accepted by 'bdlt::Iso8601Util'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// The ISO 8601 standard allows for the following formats which this component
-// does not support:
+// Since the generate functions always succeed, no status value is returned.
+// Instead, either the number of characters output to the 'char *' buffer or a
+// reference to the stream is returned.  (Note that the generating functions
+// also take an optional "configuration" object, which is discussed shortly.)
 //
-//: o Ordinal Dates: Dates represented by year and day of year: 2.1.10
-//: o Week Dates: Dates represented by year, ordinal week within the year, and
-//:   ordinal day within the week: 2.1.11, 4.1.3.2
-//: o Recurring Time Intervals: 2.1.17
-//: o Leap Seconds: 2.2.2
-//: o Calendar Week Numbers: 2.2.10, 4.1.4.
-//: o Basic Formats, i.e.,  Dates represented as 'YYYYMMDD', times represented
-//:   as 'hhmmss', etc: 2.3.3.  This component supports complete formats only,
-//:   that is, only formats with separators such as '-' in dates and ':' in
-//:   times, and only formats that where 'YYYY' is 4 digits and 'MM', 'DD',
-//:   'hh', 'mm', and 'ss' are always 2 digits.
-//: o Extended Formats: 2.3.4 Many of the 'Extended Formats' described in the
-//:   document are in fact complete, and are thus supported, but many extended
-//:   formats, that have an inappropriate number of digits representing their
-//:   fields, are not supported.
-//: o Representation with Reduced Accuracy: 2.3.7, 4.2.2.3, 4.2.4, 4.3.3.
-//:   Abbreviation of representations by omission of lower order components of
-//:   dates or years are not supported, except that fractions of a second are
-//:   optional.
-//: o Expanded Representation: 2.3.8, 4.1.3.3.  Years outside the range
-//:   '[0000 .. 9999]'.  In fact, only the range '[0001 .. 9999]' is supported.
-//: o Fractions are only permissible using a '.'; commas ',' are not allowed
-//:   4.2.2.4.  Fractions of hours or minutes are not allowed; only fractions
-//:   of seconds are allowed.
-//: o The time designator 'T' is only allowed within 'Datetime's and
-//:   'DatetimeTz's to delimit the end of the date from the beginning of the
-//:   time.  4.2.2.5.
-//: o 4.3.2 says that the 'T' delimiting the end of date and beginning of time
-//:   in a 'Datetime' or 'DatetimeTz' is optional.  In this implementation the
-//:   'T' is mandatory.
-//: o We do not support Time Intervals, Durations: 4.4.
-//: o We do not support Recurring Time Intervals: 4.5.
+// Each function that *parses* ISO 8601 strings (named 'parse') take the
+// address of a target 'bdlt' object and a 'const char *', and loads the object
+// with the result of parsing the character string.  Since parsing can fail,
+// the parse functions return an 'int' status value (0 for success and a
+// non-zero value for failure).  Note that, besides elementary syntactical
+// considerations, the validity of parsed strings are subject to the semantic
+// constraints imposed by the various 'isValid*' class methods, (i.e.,
+// 'Date::isValidYearMonthDay', 'Time::isValid', etc.).
 //
-///Note Regarding the Time 24:00
-///-----------------------------
-// For historic reasons, this component (dubiously) interprets the time string
-// "24:00" to be the (singular) default constructed 'Time' value (24:00).
-// According to the ISO 8601 specification, "24:00" should be interpreted as
-// midnight, the last instant of the day, whereas the default constructed
-// 'Time' is treated as 00:00, the first instant of the day.  This behavior is
-// maintained for compatibility with existing systems.  A replacement component
-// will be made available in 'bdlt' that treats "24:00" as 00:00 of the
-// following day.
+///ISO 8601 String Generation
+///--------------------------
+// Strings produced by the 'generate' and 'generateRaw' functions are a
+// straightforward transposition of the attributes of the source 'bdlt' value
+// into an appropriate ISO 8601 format, and are best illustrated by a few
+// examples.  Note that for any type having a time component ('Time', 'TimeTz',
+// 'Datetime', and 'DatetimeTz'), the fractional second is always generated,
+// and always with three decimal digits:
+//..
+//  +--------------------------------------+---------------------------------+
+//  |             Object Value             |    Generated ISO 8601 String    |
+//  +======================================+=================================+
+//  |  Date(2002, 03, 17)                  |  2002-03-17                     |
+//  +--------------------------------------+---------------------------------+
+//  |  Time(15, 46, 09, 330)               |  15:46:09.330                   |
+//  +--------------------------------------+---------------------------------+
+//  |  Datetime(Date(2002, 03, 17)         |                                 |
+//  |           Time(15, 46, 09, 330))     |  2002-03-17T15:46:09.330        |
+//  +--------------------------------------+---------------------------------+
+//  |  DateTz(Date(2002, 03, 17), -120)    |  2002-03-17-02:00               |
+//  +--------------------------------------+---------------------------------+
+//  |  TimeTz(Time(15, 46, 09, 330), 270)  |  15:46:09.330+04:30             |
+//  +--------------------------------------+---------------------------------+
+//  |  DatetimeTz(Datetime(                |                                 |
+//  |              Date(2002, 03, 17),     |                                 |
+//  |              Time(15, 46, 09, 330)), |                                 |
+//  |             0)                       |  2002-03-17T15:46:09.330+00:00  |
+//  +--------------------------------------+---------------------------------+
+//..
+///Configuration
+///- - - - - - -
+// This component also provides a (value-semantic) attribute class,
+// 'bdlt::Iso8601UtilConfiguration', that enables configuration of a few
+// aspects of string generation.  The 'generate' and 'generateRaw' functions
+// come in matched pairs, where the two functions in each pair are
+// distinguished as to whether or not a 'Iso8601UtilConfiguration' object is
+// supplied.
 //
-// Behavior changes to 'Datetime' implemented in 'bdlt' mean that ISO 8601
-// date-time values having "24:00" will not be created in newly built tasks
-// (except for "01-01-01T24:00:00") so this behavior may eventually be safely
-// removed (Note added February, 2015).
+// Three aspects of ISO 8601 string generation are adjustable via the
+// 'Iso8601UtilConfiguration' type:
+//: o The decimal sign to use in fractional seconds: '.' or ','.
+//:
+//: o Whether ':' is optional in zone designators.
+//:
+//: o Whether 'Z' is output for the zone designator instead of '+00:00' (UTC).
 //
+// Hence, 'Iso8601UtilConfiguration' has these three unconstrained attributes:
+//..
+//              Name            Type   Default
+//  -------------------------   ----   -------
+//  omitColonInZoneDesignator   bool    false
+//  useCommaForDecimalSign      bool    false
+//  useZAbbreviationForUtc      bool    false
+//..
+// For generate methods not passed an 'Iso8601UtilConfiguration' object, a
+// process-wide configuration takes effect.  This "default" configuration,
+// returned by 'Iso8601UtilConfiguration::defaultConfiguration', may be set by
+// the client.  The initial setting for the process-wide configuration (i.e.,
+// as established at start-up) has the default value for a
+// 'Iso8601UtilConfiguration' object.
+//
+///ISO 8601 String Parsing
+///-----------------------
+// The parse functions accept *all* strings that are produced by the generate
+// functions.  In addition, the parse functions accept some variation in the
+// generated strings, the details of which are discussed next.  Note that the
+// parse methods are not configurable like the generate methods; in particular,
+// the process-wide configuration has no effect on parsing.  Instead, the parse
+// methods automatically accept '.' or ',' as the decimal sign in fractional
+// seconds, and treat '+00:00', '+0000', and 'Z' as equivalent zone designators
+// (all denoting UTC).
+//
+///Zone Designators
+/// - - - - - - - -
+// The zone designator is optional, and can be present when parsing for *any*
+// type, i.e., even for 'Date', 'Time', and 'Datetime'.  If a zone designator
+// is parsed for a 'Date', it must be valid, so it can affect the status value
+// that is returned in that case, but it is otherwise ignored.  For 'Time' and
+// 'Datetime', any zone designator present in the parsed string will affect the
+// resulting object value (unless the zone designator denotes UTC) because the
+// result is converted to GMT.  If the zone designator is absent, it is treated
+// as if '+00:00' were specified:
+//..
+//  +------------------------------------+-----------------------------------+
+//  |       Parsed ISO 8601 String       |        Result Object Value        |
+//  +====================================+===================================+
+//  |  2002-03-17-02:00                  |  Date(2002, 03, 17)               |
+//  |                                    |  # zone designator ignored        |
+//  +------------------------------------+-----------------------------------+
+//  |  2002-03-17-02:65                  |  Date: parsing fails              |
+//  |                                    |  # invalid zone designator        |
+//  +------------------------------------+-----------------------------------+
+//  |  15:46:09.330+04:30                |  Time(11, 16, 09, 330)            |
+//  |                                    |  # converted to GMT               |
+//  +------------------------------------+-----------------------------------+
+//  |  15:46:09.330+04:30                |  TimeTz(Time(15, 46, 09, 330),    |
+//  |                                    |         270)                      |
+//  +------------------------------------+-----------------------------------+
+//  |  15:46:09.330                      |  TimeTz(Time(15, 46, 09, 330),    |
+//  |                                    |         0)                        |
+//  |                                    |  # implied '+00:00'               |
+//  +------------------------------------+-----------------------------------+
+//  |  2002-03-17T23:46:09.222-5:00      |  Datetime(Date(2002, 03, 18),     |
+//  |                                    |           Time(04, 46, 09, 222))  |
+//  |                                    |  # carry into 'day' attribute     |
+//  |                                    |  # when converted to GMT          |
+//  +------------------------------------+-----------------------------------+
+//..
+// In the last example above, the conversion to GMT incurs a carry into the
+// 'day' attribute of the 'Date' component of the resulting 'Datetime' value.
+// Note that if such a carry would cause an underflow or overflow at the
+// extreme ends of the valid range of dates (0001/01/01 and 9999/12/31), then
+// parsing for 'Datetime' would fail.
+//
+///Fractional Seconds
+/// - - - - - - - - -
+// The fractional second is optional.  When the fractional second is absent, it
+// is treated as if '.0' were specified.  When the fractional second is
+// present, it can have one or more digits (i.e., it can contain more than
+// three).  If more than three digits are included in the fractional second,
+// values greater than or equal to .9995 are rounded up to 1000 milliseconds.
+// This incurs a carry of one second into the 'second' attribute of the 'Time'
+// component:
+//..
+//  +--------------------------------------+---------------------------------+
+//  |        Parsed ISO 8601 String        |      Result Object Value        |
+//  +======================================+=================================+
+//  |  15:46:09.1                          |  Time(15, 46, 09, 100)          |
+//  +--------------------------------------+---------------------------------+
+//  |  15:46:09-5:00                       |  TimeTz(Time(15, 46, 09, 000),  |
+//  |                                      |         -300)                   |
+//  |                                      |  # implied '.0'                 |
+//  +--------------------------------------+---------------------------------+
+//  |  15:46:09.99949                      |  Time(15, 46, 09, 999)          |
+//  |                                      |  # truncate last two digits     |
+//  +--------------------------------------+---------------------------------+
+//  |  15:46:09.9995                       |  Time(15, 46, 10, 000)          |
+//  |                                      |  # round up and carry           |
+//  +--------------------------------------+---------------------------------+
+//..
+// Note that if a carry due to rounding of the fractional second would cause an
+// overflow at the extreme upper end of the valid range of dates (i.e.,
+// 9999/12/31), then parsing for 'Datetime' and 'DatetimeTz' would fail.
+//
+///Leap Seconds
+/// - - - - - -
+// Although leap seconds are not representable by 'bdlt::Time', positive leap
+// seconds are supported by the parse functions.  A leap second is recognized
+// when the value parsed for the 'second' attribute of a 'Time' is 60.  When a
+// leap second is detected, the 'second' attribute is taken to be 59, so that
+// the value of the 'Time' object can be validly set, then an additional second
+// is added to the object.  Note that the possible carry incurred by a leap
+// second has the same potential for overflow as may occur with fractional
+// seconds that are rounded up (although in admittedly pathological cases).
+//
+// TBD Should we tighten up our handling of leap seconds?  The ISO 8601
+// specification seems to suggest that a positive leap second can only be
+// represented as "23:59:60Z", but we allow 60 (for the 'second') to be coupled
+// with any 'hour', 'minute', 'millisecond', and zone designator.
+//
+///The Time 24:00
+/// - - - - - - -
+// According to the ISO 8601 specification, the time 24:00 is interpreted as
+// midnight, i.e., the last instant of a day.  However, this concept is not
+// representable by 'bdlt'.  Furthermore, 24:00 can only be paired with the
+// default date, 0001/01/01 (in a 'Datetime' or 'DatetimeTz' object), or with a
+// timezone offset of 0.  If 24:00 is detected while parsing an ISO 8601
+// string, the 'hour' attribute of 'Time' is set to 24 only if needed to
+// preserve the default value for a 'Time', 'TimeTz', 'Datetime', or
+// 'DatetimeTz'.  Otherwise, if 24:00 is paired with any date other than the
+// default, the resulting object is set to represent the first instant of the
+// next day (i.e., the date component is advanced by one day and the time
+// component is set to 00:00).  Note that parsing fails if the zone designator
+// is not equivalent to "+00:00", whether implied or explicit, when 24:00 is
+// encountered:
+//..
+//  +------------------------------------+-----------------------------------+
+//  |       Parsed ISO 8601 String       |        Result Object Value        |
+//  +====================================+===================================+
+//  |  24:00:00.000                      |  Time(24, 0, 0, 0)                |
+//  |                                    |  # preserve default 'Time' value  |
+//  +------------------------------------+-----------------------------------+
+//  |  24:00:00.000-4:00                 |  TimeTz: parsing fails            |
+//  |                                    |  # zone designator not UTC        |
+//  +------------------------------------+-----------------------------------+
+//  |  0001-01-01T24:00:00.000           |  Datetime(Date(0001, 01, 01),     |
+//  |                                    |           Time(24, 0, 0, 0))      |
+//  |                                    |  # preserve 'Datetime' default    |
+//  |                                    |  # value                          |
+//  +------------------------------------+-----------------------------------+
+//  |  2002-03-17T24:00:00.000           |  Datetime(Date(2002, 03, 18),     |
+//  |                                    |           Time(0, 0, 0, 0))       |
+//  |                                    |  # first instant of the next day  |
+//  |                                    |  # if 'Date' not 0001/01/01       |
+//  +------------------------------------+-----------------------------------+
+//..
+// TBD the implementation has not yet been changed to match the above table
+// with respect to 24:00 being treated as the first instant of the next day.
+// This warrants some discussion before doing so.
+//
+///Summary of Supported ISO 8601 Representations
+///- - - - - - - - - - - - - - - - - - - - - - -
+// The syntax description below summarizes the ISO 8601 string representations
+// supported by this component.  Although not quoted (for readability),
+// '[+-:.,TZ]' are literal characters that can occur in ISO 8601 strings.  The
+// characters '[YMDhms]' each denote a decimal digit, '{}' brackets optional
+// elements, '()' is used for grouping, and '|' separates alternatives:
+//..
+// <Generated Date>        ::=  <DATE>
+//
+// <Parsed Date>           ::=  <Parsed DateTz>
+//
+// <Generated DateTz>      ::=  <DATE><ZONE>
+//
+// <Parsed DateTz>         ::=  <DATE>{<ZONE>}
+//
+// <Generated Time>        ::=  <TIME FIXED>
+//
+// <Parsed Time>           ::=  <Parsed TimeTz>
+//
+// <Generated TimeTz>      ::=  <TIME FIXED><ZONE>
+//
+// <Parsed TimeTz>         ::=  <TIME FLEXIBLE>{<ZONE>}
+//
+// <Generated Datetime>    ::=  <DATE>T<TIME FIXED>
+//
+// <Parsed Datetime>       ::=  <Parsed DatetimeTz>
+//
+// <Generated DatetimeTz>  ::=  <DATE>T<TIME FIXED><ZONE>
+//
+// <Parsed DatetimeTz>     ::=  <DATE>T<TIME FLEXIBLE>{<ZONE>}
+//
+// <DATE>                  ::=  YYYY-MM-DD
+//
+// <TIME FIXED>            ::=  hh:mm:ss(.|,)sss   # exactly three digits in
+//                                                 # the fractional second
+//
+// <TIME FLEXIBLE>         ::=  hh:mm:ss{(.|,)s+}  # one or more digits in the
+//                                                 # fractional second
+//
+// <ZONE>                  ::=  (+|-)hh{:}mm|Z     # zone designator
+//..
 ///Usage
 ///-----
+// TBD recast Usage in new style
+//
 // The following example illustrates how to generate an ISO 8601-compliant
 // string from a 'bdlt::DatetimeTz' value:
 //..
@@ -194,6 +331,8 @@ BSLS_IDENT("$Id: $")
 //..
 // Note that fractions of a second was rounded up to 123 milliseconds and that
 // the offset from UTC was converted to minutes.
+//
+// TBD provide a second Usage example illustrating use of a configuration
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>

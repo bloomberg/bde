@@ -811,7 +811,9 @@ int Iso8601Util::parse(Time *result, const char *input, int inputLength)
         }
     }
 
-    // '24 == hour' is allowed only for the value '24:00:00.000' in GMT.
+    // '24 == hour' is allowed only for the value '24:00:00.000' in GMT.  The
+    // case where '0 != minute || 0 != second' is caught by 'setTimeIfValid'
+    // (above).
 
     if (24 == hour && (millisecond || tzOffset)) {
         return -1;                                                    // RETURN
@@ -971,7 +973,9 @@ int Iso8601Util::parse(TimeTz *result, const char *input, int inputLength)
         }
     }
 
-    // '24 == hour' is allowed only for the value '24:00:00.000' in GMT.
+    // '24 == hour' is allowed only for the value '24:00:00.000' in GMT.  The
+    // case where '0 != minute || 0 != second' is caught by 'setTimeIfValid'
+    // (above).
 
     if (24 == hour && (millisecond || tzOffset)) {
         return -1;                                                    // RETURN
