@@ -1737,7 +1737,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase31(){
         }
 #if !((defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800) \
     || defined(BSLS_PLATFORM_CMP_IBM))
-        // IBM has rounding issues with wcstold
         {
             long double value;
             std::wstring::size_type *sz_null = NULL;
