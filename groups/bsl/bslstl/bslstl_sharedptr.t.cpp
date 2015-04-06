@@ -3532,7 +3532,7 @@ int main(int argc, char *argv[])
     ASSERT(!intWeakPtr2.lock());
         }
       } break;
-      case 35:{//todo
+      case 35:{
         // --------------------------------------------------------------------
         // TESTING 'enable_shared_from_this constructors'
         //
@@ -3559,37 +3559,37 @@ int main(int argc, char *argv[])
         //   enable_shared_from_this& operator=
         // --------------------------------------------------------------------
           bslma::TestAllocator ta;
-          
+
           if (verbose) printf("\nTESTING 'enable_share_from_this<T>()'"
                             "\n======================================\n");
-          
+
           if (verbose) printf("\nTesting enable_share_from_this<T> constructor"
                             "\n===========================================\n");
-          
+
               bsl::shared_ptr<shareThis> sp1(new shareThis);
               bsl::shared_ptr<shareThis> sp2 (sp1); 
               ASSERT(sp1.use_count() == 2);
-              
+
               std::auto_ptr<shareThis> autoToShared(new shareThis);
               bsl::shared_ptr<shareThis> auto_sp1 (autoToShared, &ta);
               ASSERT(auto_sp1.use_count() == 1);
-              
+
               bslma::ManagedPtr<shareThis> managedToShared(new shareThis);
               bsl::shared_ptr<shareThis> managed_sp1 (managedToShared);
               ASSERT(managed_sp1.use_count() == 1);
-          
+
           if (verbose) printf("\nTesting share_from_this()"
                             "\n===========================\n");
               bsl::shared_ptr<shareThis> sp3 = sp2 -> getptr();
               bsl::shared_ptr<shareThis> sp4 = sp3 -> getptr();
               ASSERT(sp1.use_count() == 4);
-          
+
               bsl::shared_ptr<shareThis> auto_sp2 = auto_sp1 -> getptr();
               ASSERT(auto_sp1.use_count() == 2);
-          
+
               bsl::shared_ptr<shareThis> managed_sp2 = managed_sp1 -> getptr();
               ASSERT(managed_sp1.use_count() == 2);
-              
+
           if (verbose) printf("\nTesting enable_share_from_this& operator="
                               "\n=========================================\n");
               bsl::shared_ptr<shareThis> shareThis_sp1 = 
@@ -3598,11 +3598,10 @@ int main(int argc, char *argv[])
               bsl::shared_ptr<shareThis> shareThis_sp2 = 
                                                 bsl::make_shared<shareThis>(2);
               ASSERT(shareThis_sp2 -> value == 2)
-              
+
               *shareThis_sp1 = *shareThis_sp2;
               ASSERT(shareThis_sp1 -> value == 2)
 
-          
       } break;
       case 34: {
         // --------------------------------------------------------------------
