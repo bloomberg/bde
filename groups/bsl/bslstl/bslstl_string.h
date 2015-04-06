@@ -2430,12 +2430,14 @@ long stol(const wstring& str, std::size_t* pos = 0, int base = 10);
 unsigned long stoul(const string& str, std::size_t* pos = 0, int base = 10);
 unsigned long stoul(const wstring& str, std::size_t* pos = 0, int base = 10);
 
+#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
 long long stoll(const string& str, std::size_t* pos = 0, int base = 10);
 long long stoll(const wstring& str, std::size_t* pos = 0, int base = 10);
 unsigned long long stoull(const string& str, std::size_t* pos = 0,
                                                                 int base = 10);
 unsigned long long stoull(const wstring& str, std::size_t* pos = 0,
                                                                 int base = 10);
+#endif
     // Parses 'str' interpreting its content as an integral number. Optionally
     // specify 'pos' whose value is set to the position of the next character
     // after the numerical value. Optionally specify 'base' used to change the
@@ -2455,9 +2457,10 @@ float stof(const wstring& str, std::size_t* pos =0);
 double stod(const string& str, std::size_t* pos =0);
 double stod(const wstring& str, std::size_t* pos =0);
 
-
+#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
 long double stold(const string& str, std::size_t* pos =0);
 long double stold(const wstring& str, std::size_t* pos =0);
+#endif
     // Parses 'str' interpreting its contents as a floating point number. In
     // C++11 if the number in the str is prefixed with '0x' or '0X' the string
     // will be interpreted as a hex number. If there is no leading 0x or 0X the

@@ -1634,7 +1634,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase31(){
 
             delete sz_valid_ptr;
         }
-//#if __cplusplus >= 201103L
+#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
         {
             double value;
             std::string::size_type *sz_null = NULL;
@@ -1655,7 +1655,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase31(){
 
             delete sz_valid_ptr;
         }
-//#endif
+#endif
     }
 
     static const struct {
@@ -1735,6 +1735,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase31(){
 
             delete sz_valid_ptr;
         }
+#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
         {
             double value;
             std::wstring::size_type *sz_null = NULL;
@@ -1756,6 +1757,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase31(){
 
             delete sz_valid_ptr;
         }
+#endif
     }
 }
 
@@ -1928,6 +1930,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
             delete sz_valid_ptr;
         }
 
+#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
         if (SPEC <= std::numeric_limits<long long>::max()){
             long long value;
             std::string::size_type *sz_null = NULL;
@@ -1970,6 +1973,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
 
             delete sz_valid_ptr;
         }
+#endif
     }
 
     static const struct {
@@ -2106,6 +2110,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
             delete sz_valid_ptr;
         }
 
+#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
         if (SPEC <= std::numeric_limits<long long>::max()){
             long long value;
             std::cout<< "spec "<< SPEC <<std::endl;
@@ -2153,6 +2158,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase30(){
 
             delete sz_valid_ptr;
         }
+#endif
     }
 }
 

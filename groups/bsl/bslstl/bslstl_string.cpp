@@ -175,6 +175,7 @@ unsigned long bsl::stoul(const wstring& str,
     return value;
 }
 
+#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
 long long bsl::stoll(const string& str, std::size_t* pos, int base){
     char* ptr;
     int original_errno = errno;
@@ -262,6 +263,7 @@ unsigned long long bsl::stoull(const wstring& str, std::size_t* pos, int base){
     errno = original_errno;
     return value;
 }
+#endif
 
 float bsl::stof(const string& str, std::size_t* pos){
     char* ptr;
@@ -351,6 +353,7 @@ double bsl::stod(const wstring& str, std::size_t* pos){
     return value;
 }
 
+#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
 long double bsl::stold(const string& str, std::size_t* pos){
     char* ptr;
     int original_errno = errno;
@@ -394,6 +397,7 @@ long double bsl::stold(const wstring& str, std::size_t* pos){
     errno = original_errno;
     return value;
 }
+#endif
 
 bsl::string bsl::to_string(int value) {
     BSLS_ASSERT(std::numeric_limits<int>::digits * 100/332 +
