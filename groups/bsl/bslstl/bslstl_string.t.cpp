@@ -1737,10 +1737,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase31(){
         }
 #if !((defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800) \
     || defined(BSLS_PLATFORM_CMP_IBM))
-        // IBM has its own version of long double that makes operator== with 
-        // value and spec fail even through they repersent the same value.
+        // IBM has rounding issues with wcstold
         {
-            double value;
+            long double value;
             std::wstring::size_type *sz_null = NULL;
             std::wstring::size_type *sz_valid_ptr =
                                                  new std::wstring::size_type();
