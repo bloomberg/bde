@@ -1576,7 +1576,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase31(){
         { L_,   "10e1",                    4,       1e2},
         { L_,   "10p2",                    2,       10},
 #if !(defined(BSLS_PLATFORM_OS_SUNOS) || defined(BSLS_PLATFORM_OS_SOLARIS) || \
-     (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR <=1600))
+     (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR <=1800))
         { L_,   "0xf.f",                   5,       15.937500},
 #endif
 #if __cplusplus >= 201103L
@@ -1674,7 +1674,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase31(){
         { L_,   L"10e1",                    4,       1e2},
         { L_,   L"10p2",                    2,       10},
 #if !(defined(BSLS_PLATFORM_OS_SUNOS) || defined(BSLS_PLATFORM_OS_SOLARIS) || \
-     (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR <=1600))
+     (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR <=1800))
         { L_,   L"0xf.f",                   5,       15.937500},
 #endif
 
