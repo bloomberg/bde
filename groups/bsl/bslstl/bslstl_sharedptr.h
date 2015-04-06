@@ -6727,7 +6727,7 @@ struct UsesBslmaAllocator< ::bsl::shared_ptr<ELEMENT_TYPE> >
     : bsl::false_type
 {};
 
-}  // close namesapce bslma
+}  // close namespace bslma
 
 namespace bslmf {
 
