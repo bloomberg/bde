@@ -2154,21 +2154,18 @@ struct PerformanceTester
         // the level of feedback on allocator operations.
 };
 
-//todo
 struct shareThis: bsl::enable_shared_from_this<shareThis>
 {
     int value;
-    
+
     shareThis(int value = 0){
         this->value = value;
     }
-    
+
     bsl::shared_ptr<shareThis> getptr() {
         return shared_from_this();
     }
-    
 };
-
 
 // Traits for test types:
 namespace BloombergLP {

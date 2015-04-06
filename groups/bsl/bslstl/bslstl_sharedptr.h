@@ -3708,7 +3708,8 @@ class enable_shared_from_this{
     // Inheriting from 'enable_shared_from_this<T>' provides the type T with a
     // member function 'share_from_this'. If an object of type T is managed by
     // a shared_ptr<T> then calling 'shared_from_this' will return a new
-    // shared_ptr that shared ownership of that object.
+    // shared_ptr that shared ownership of that object. This implementation
+    // does not directly support multiple inheritance.
     //
     // Note that there must be a shared_ptr that owns the object before
     // 'shared_from_this' is called.
