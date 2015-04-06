@@ -1735,7 +1735,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase31(){
 
             delete sz_valid_ptr;
         }
-#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
+#if !((defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800) \
+    || defined(BSLS_PLATFORM_CMP_IBM))
+        // IBM has its own version of long double that makes operator== with 
+        // value and spec fail even through they repersent the same value.
         {
             double value;
             std::wstring::size_type *sz_null = NULL;
