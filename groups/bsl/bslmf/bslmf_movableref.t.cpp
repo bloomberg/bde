@@ -1,5 +1,6 @@
 // bslmf_movableref.t.cpp                                             -*-C++-*-
 #include <bslmf_movableref.h>
+#include <bslmf_isclass.h>
 #include <bslmf_issame.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
@@ -16,13 +17,13 @@ using namespace BloombergLP;
 //                                   Overview
 //                                   --------
 // ----------------------------------------------------------------------------
-// [  1] BREATHING TEST
-// [  2] MOVABLEREF<TYPE>
-// [  3] MOVABLEREFUTIL::MOVE
-// [  4] MOVABLEREF<TYPE>::OPERATOR TYPE&
-// [  5] MOVABLEREFUTIL::ACCESS
-// [  6] MOVABLEREF<TYPE> VS. RVALUE
+// [  2] MovableRef<TYPE>
+// [  3] MovableRefUtil::MOVE
+// [  4] MovableRef<TYPE>::OPERATOR TYPE&
+// [  5] MovableRefUtil::ACCESS
 // ----------------------------------------------------------------------------
+// [  1] BREATHING TEST
+// [  6] MovableRef<TYPE> VS. RVALUE
 // [  7] USAGE EXAMPLE
 
 // ============================================================================
@@ -83,50 +84,66 @@ class vector
 
     static void swap(TYPE*& a, TYPE*& b);
         // This function swaps the specified pointers 'a' and 'b'.
+
   public:
     vector();
         // Create an empty vector.
+
     vector(bslmf::MovableRef<vector> other);                        // IMPLICIT
         // Create a vector by transfering the content of the specified
         // 'other'.
+
     vector(const vector& other);
         // Create a vector by copying the content of the specified 'other'.
+
     vector& operator= (vector other);
         // Assign a vector by copying the content of the specified 'other'.
         // The function returns a reference to the object.  Note that
         // 'other' is passed by value to have the copy or move already be
         // done or even elided.  Within the body of the assignment operator
         // the content of 'this' and 'other' are simply swapped.
+
     ~vector();
         // Destroy the vector's elements and release any allocated memory.
 
     TYPE&       operator[](int index)      { return this->d_begin[index]; }
         // Return a reference to the object at the specified 'index'.
+
     const TYPE& operator[](int index) const{ return this->d_begin[index]; }
         // Return a reference to the object at the specified 'index'.
+
     TYPE       *begin()       { return this->d_begin; }
         // Return a pointer to the first element.
+
     const TYPE *begin() const { return this->d_begin; }
         // Return a pointer to the first element.
+
     int capacity() const { return int(this->d_endBuffer - this->d_begin); }
         // Return the capacity of the vector.
+
     bool empty() const { return this->d_begin == this->d_end; }
         // Return 'true' if the vector is empty and 'false' otherwise.
+
     TYPE       *end()       { return this->d_end; }
         // Return a pointer to the end of the range.
+
     const TYPE *end() const { return this->d_end; }
         // Return a pointer to the end of the range.
 
     void push_back(const TYPE& value);
         // Append a copy of the specified 'value' to the vector.
+
     void push_back(bslmf::MovableRef<TYPE> value);
         // Append an object moving the specified 'value' to the new
         // location.
+
     void reserve(int newCapacity);
         // Reserve enough capacity to fit at least as many elements as
         // specified by 'newCapacity'.
+
     int size() const { return int(this->d_end - this->d_begin); }
         // Return the size of the object.
+
     void swap(vector& other);
         // Swap the content of the vector with the specified 'other'.
 };
@@ -245,9 +262,11 @@ struct TestMovableRefArgument
     static bool test(TYPE&) { return false; }
         // Returns 'false' indicating that the argument is not an r-value
         // reference.
+
     static bool test(const TYPE&) { return false; }
         // Returns 'false' indicating that the argument is not an r-value
         // reference.
+
     static bool test(bslmf::MovableRef<TYPE>) { return true; }
         // Returns 'true' indicating that the argument is an r-value reference.
 };
@@ -263,9 +282,8 @@ struct MovableAddress
     }
 };
 
-class TestMoving
+class TestMoving {
     // This class is used to test some mover operations.
-{
     int *d_pointer;
     void operator= (TestMoving&);
         // The copy assignment operator is not accessible.
@@ -273,25 +291,33 @@ class TestMoving
   public:
 #endif
     TestMoving(const TestMoving& other)
-        // The copy constructor creates an object storing a pointer with a
-        // based on the value pointed to by the specified 'other' object.
+        // Create a 'TestMoving' object that is a copy of the specified
+        // 'other'.  In this case copying 'other' means allocating a new 'int'
+        // with a new unique pointer.
         : d_pointer(new int(1 + *other.d_pointer)) {
     }
+
   public:
     TestMoving(): d_pointer(new int(0)) {}
-        // The default constructor constructs an object with a unique pointer.
+        // Create a 'TestMoving' object using the default constructor.  The
+        // object is initialized with a unique pointer to 'int'.
+
     explicit TestMoving(bslmf::MovableRef<TestMoving> rvalue)
-        // The move constructor moves the pointer held by the specified
-        // 'rvalue' to the object.
+        // Create a 'TestMoving object that moves the value of the specified
+        // 'other' object.
         : d_pointer(bslmf::MovableRefUtil::access(rvalue).d_pointer) {
         bslmf::MovableRefUtil::access(rvalue).d_pointer = 0;
     }
+
     ~TestMoving() { delete this->d_pointer; }
         // The destructor deletes the allocated pointer.
+
     void operator&() const {}
         // The address-of operator gets in the way.
+
     TestMoving *getAddress() { return this; }
         // This function returns a pointer to the object.
+
     const int  *getPointer() const { return this->d_pointer; }
         // This function returns the held pointer.
 };
@@ -304,8 +330,8 @@ class TestMoving
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
+    int  test = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose = argc > 2;
 
     testStatus = 0;
     switch (test) {
@@ -330,14 +356,15 @@ int main(int argc, char *argv[])
                             "\n=============\n");
 
         vector<int> vector0;
-        ASSERT(vector0.empty());
-        ASSERT(vector0.size() == 0);
         for (int i = 0; i != 5; ++i) {
             vector0.push_back(i);
         }
-        for (int i = 0; i != vector0.size(); ++i) {
+        for (int i = 0; i != 5; ++i) {
             ASSERT(vector0[i] == i);
         }
+
+        // To verify that copying of 'vector<TYPE>' objects works, a copy is
+        // created:
 
         vector<int> vector1(vector0);
         ASSERT(vector1.size() == 5);
@@ -347,12 +374,18 @@ int main(int argc, char *argv[])
             ASSERT(vector1[i] == vector0[i]);
         }
 
-        const int   *first = vector0.begin();
-        vector<int>  vector2(bslmf::MovableRefUtil::move(vector0));
+        // When using moving this 'vector0' to a new location the
+        // representation of the new object should use the original 'begin()':
+
+        const int *first = vector0.begin();
+        vector<int> vector2(bslmf::MovableRefUtil::move(vector0));
         ASSERT(first == vector2.begin());
 
+        // When create a 'vector<vector<int> >' and using 'push_back()' on
+        // this object with 'vector2' a copy should be inserted:
+
         vector<vector<int> > vvector;
-        vvector.push_back(vector2);                              // copy
+        vvector.push_back(vector2);                          // copy
         ASSERT(vector2.size() == 5);
         ASSERT(vvector.size() == 1);
         ASSERT(vvector[0].size() == vector2.size());
@@ -361,6 +394,10 @@ int main(int argc, char *argv[])
             ASSERT(vvector[0][i] == i);
             ASSERT(vector2[i] == i);
         }
+
+        // When adding another element by moving 'vector2' the 'begin()' of the
+        // newly inserted element will be the same as 'first', i.e., the
+        // representation is transferred:
 
         vvector.push_back(bslmf::MovableRefUtil::move(vector2)); // move
         ASSERT(vvector.size() == 2);
@@ -375,6 +412,8 @@ int main(int argc, char *argv[])
         //: 1 Verify that a function declared to take a 'MovableRef<TYPE>' as
         //:   argument can be called with a temporary of type 'TYPE' when using
         //:   a C++11 implementation.
+        //: 2 Verify that a function can be overloaded for 'const TYPE&',
+        //:   'TYPE&', and 'MovableRef<TYPE>' and be called appropriately.
         //
         // Plan:
         //: 1 Call an overloaded function taking a 'MovableRef<TYPE>' argument
@@ -382,9 +421,11 @@ int main(int argc, char *argv[])
         //:   correct overload is called.  For a C++11 implementation the
         //:   overload taking a 'MovableRef<TYPE>' has to be called otherwise
         //:   one of the two lvalue overloads is called.
+        //: 2 Calling the overloaded function from the previous item and
+        //:   confirming the result also addresses this concern.
         //
         // Testing:
-        //     MOVABLEREF<TYPE> VS. RVALUE
+        //     bslmf::MovableRef<TYPE> VS. RVALUE
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nMOVABLEREF<TYPE> VS. RVALUE"
@@ -414,7 +455,7 @@ int main(int argc, char *argv[])
         //:   lvalue reference with the same address as the original object.
         //
         // Testing:
-        //     MOVABLEREFUTIL::ACCESS
+        //     MovableRefUtil::ACCESS
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nMOVABLEREFUTIL::ACCESS"
@@ -449,7 +490,7 @@ int main(int argc, char *argv[])
         //:   check that the addresses are identical.
         //
         // Testing:
-        //     MOVABLEREF<TYPE>::OPERATOR TYPE&
+        //     MovableRef<TYPE>::OPERATOR TYPE&
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nMOVABLEREF<TYPE>::OPERATOR TYPE&"
@@ -502,7 +543,7 @@ int main(int argc, char *argv[])
         //:   implementation.
         //
         // Testing:
-        //     MOVABLEREFUTIL::MOVE
+        //     MovableRefUtil::MOVE
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nMOVABLEREFUTIL::MOVE"
@@ -548,7 +589,7 @@ int main(int argc, char *argv[])
         //:   the expected type.
         //
         // Testing:
-        //     MOVABLEREF<TYPE>
+        //     MovableRef<TYPE>
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nMOVABLEREF<TYPE>"
@@ -561,12 +602,9 @@ int main(int argc, char *argv[])
         ASSERT((bsl::is_same<bslmf::MovableRef<TestMoving>,
                                                         TestMoving&&>::value));
 #else
-        ASSERT((bsl::is_same<bslmf::MovableRef<int>,
-                                             bslmf::MovableRef<int> >::value));
-        ASSERT((bsl::is_same<bslmf::MovableRef<vector<int> >,
-                                    bslmf::MovableRef<vector<int> > >::value));
-        ASSERT((bsl::is_same<bslmf::MovableRef<TestMoving>,
-                                      bslmf::MovableRef<TestMoving> >::value));
+        ASSERT(bsl::is_class<bslmf::MovableRef<int> >::value);
+        ASSERT(bsl::is_class<bslmf::MovableRef<vector<int> > >::value);
+        ASSERT(bsl::is_class<bslmf::MovableRef<TestMoving> >::value);
 #endif
       } break;
       case 1: {

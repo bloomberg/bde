@@ -32,7 +32,7 @@ BSLS_IDENT("$Id: $")
 // object is called /moving an object/.  The purpose of 'bslmf::MoveableRef<T>'
 // is to indicate to a function that an object can be moved to another object.
 //
-// With a C++11 implementation'bslmf::MovableRef<T>' is an alias template for
+// With a C++11 implementation 'bslmf::MovableRef<T>' is an alias template for
 // 'T&&'.  With a C++03 implementation 'bslmf::MovableRef<T>' is a class
 // template providing l-value access to a movable object.  The objective of
 // this component is to provide a name for the concept of a movable object.
@@ -154,50 +154,66 @@ BSLS_IDENT("$Id: $")
 //
 //      static void swap(TYPE*& a, TYPE*& b);
 //          // This function swaps the specified pointers 'a' and 'b'.
+//
 //    public:
 //      vector();
 //          // Create an empty vector.
+//
 //      vector(bslmf::MovableRef<vector> other);                    // IMPLICIT
 //          // Create a vector by transfering the content of the specified
 //          // 'other'.
+//
 //      vector(const vector& other);
 //          // Create a vector by copying the content of the specified 'other'.
+//
 //      vector& operator= (vector other);
 //          // Assign a vector by copying the content of the specified 'other'.
 //          // The function returns a reference to the object.  Note that
 //          // 'other' is passed by value to have the copy or move already be
 //          // done or even elided.  Within the body of the assignment operator
 //          // the content of 'this' and 'other' are simply swapped.
+//
 //      ~vector();
 //          // Destroy the vector's elements and release any allocated memory.
 //
 //      TYPE&       operator[](int index)      { return this->d_begin[index]; }
 //          // Return a reference to the object at the specified 'index'.
+//
 //      const TYPE& operator[](int index) const{ return this->d_begin[index]; }
 //          // Return a reference to the object at the specified 'index'.
+//
 //      TYPE       *begin()       { return this->d_begin; }
 //          // Return a pointer to the first element.
+//
 //      const TYPE *begin() const { return this->d_begin; }
 //          // Return a pointer to the first element.
+//
 //      int capacity() const { return int(this->d_endBuffer - this->d_begin); }
 //          // Return the capacity of the vector.
+//
 //      bool empty() const { return this->d_begin == this->d_end; }
 //          // Return 'true' if the vector is empty and 'false' otherwise.
+//
 //      TYPE       *end()       { return this->d_end; }
 //          // Return a pointer to the end of the range.
+//
 //      const TYPE *end() const { return this->d_end; }
 //          // Return a pointer to the end of the range.
 //
 //      void push_back(const TYPE& value);
 //          // Append a copy of the specified 'value' to the vector.
+//
 //      void push_back(bslmf::MovableRef<TYPE> value);
 //          // Append an object moving the specified 'value' to the new
 //          // location.
+//
 //      void reserve(int newCapacity);
 //          // Reserve enough capacity to fit at least as many elements as
 //          // specified by 'newCapacity'.
+//
 //      int size() const { return int(this->d_end - this->d_begin); }
 //          // Return the size of the object.
+//
 //      void swap(vector& other);
 //          // Swap the content of the vector with the specified 'other'.
 //  };
@@ -214,7 +230,8 @@ BSLS_IDENT("$Id: $")
 //  vector<TYPE>::vector()
 //      : d_begin()
 //      , d_end()
-//      , d_endBuffer() {
+//      , d_endBuffer()
+//  {
 //  }
 //..
 // To leverage already implemented functionality some of the member functions
@@ -224,13 +241,15 @@ BSLS_IDENT("$Id: $")
 // functions defined in another level):
 //..
 //  template <class TYPE>
-//  void vector<TYPE>::swap(TYPE*& a, TYPE*& b) {
+//  void vector<TYPE>::swap(TYPE*& a, TYPE*& b)
+//  {
 //      TYPE *tmp = a;
 //      a = b;
 //      b = tmp;
 //  }
 //  template <class TYPE>
-//  void vector<TYPE>::swap(vector& other) {
+//  void vector<TYPE>::swap(vector& other)
+//  {
 //      this->swap(this->d_begin, other.d_begin);
 //      this->swap(this->d_end, other.d_end);
 //      this->swap(this->d_endBuffer, other.d_endBuffer);
@@ -245,7 +264,8 @@ BSLS_IDENT("$Id: $")
 // new element in 'tmp'.
 //..
 //  template <class TYPE>
-//  void vector<TYPE>::reserve(int newCapacity) {
+//  void vector<TYPE>::reserve(int newCapacity)
+//  {
 //      if (this->capacity() < newCapacity) {
 //          vector tmp;
 //          int    size = int(sizeof(TYPE) * newCapacity);
@@ -267,7 +287,8 @@ BSLS_IDENT("$Id: $")
 // the buffer is released:
 //..
 //  template <class TYPE>
-//  vector<TYPE>::~vector() {
+//  vector<TYPE>::~vector()
+//  {
 //      if (this->d_begin) {
 //          while (this->d_begin != this->d_end) {
 //              --this->d_end;
@@ -290,7 +311,8 @@ BSLS_IDENT("$Id: $")
 //  vector<TYPE>::vector(const vector& other)
 //      : d_begin()
 //      , d_end()
-//      , d_endBuffer() {
+//      , d_endBuffer()
+//  {
 //      if (!other.empty()) {
 //          this->reserve(4 < other.size()? other.size(): 4);
 //
@@ -312,7 +334,8 @@ BSLS_IDENT("$Id: $")
 // former representation of 'this' when 'other' is destroyed':
 //..
 //  template <class TYPE>
-//  vector<TYPE>& vector<TYPE>::operator= (vector other) {
+//  vector<TYPE>& vector<TYPE>::operator= (vector other)
+//  {
 //      this->swap(other);
 //      return *this;
 //  }
@@ -323,7 +346,8 @@ BSLS_IDENT("$Id: $")
 // element at the location pointed to by 'd_end':
 //..
 //  template <class TYPE>
-//  void vector<TYPE>::push_back(const TYPE& value) {
+//  void vector<TYPE>::push_back(const TYPE& value)
+//  {
 //      if (this->d_end == this->d_endBuffer) {
 //          this->reserve(this->size()? int(1.5 * this->size()): 4);
 //      }
@@ -339,7 +363,8 @@ BSLS_IDENT("$Id: $")
 //  vector<TYPE>::vector(bslmf::MovableRef<vector> other)
 //      : d_begin(bslmf::MovableRefUtil::access(other).d_begin)
 //      , d_end(bslmf::MovableRefUtil::access(other).d_end)
-//      , d_endBuffer(bslmf::MovableRefUtil::access(other).d_endBuffer) {
+//      , d_endBuffer(bslmf::MovableRefUtil::access(other).d_endBuffer)
+//  {
 //      vector& reference(other);
 //      reference.d_begin = 0;
 //      reference.d_end = 0;
@@ -367,7 +392,8 @@ BSLS_IDENT("$Id: $")
 // 'd_end':
 //..
 //  template <class TYPE>
-//  void vector<TYPE>::push_back(bslmf::MovableRef<TYPE> value) {
+//  void vector<TYPE>::push_back(bslmf::MovableRef<TYPE> value)
+//  {
 //      if (this->d_end == this->d_endBuffer) {
 //          this->reserve(this->size()? int(1.5 * this->size()): 4);
 //      }
@@ -477,11 +503,10 @@ namespace bslmf {
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 
 template <class TYPE>
-struct MovableRef_Helper
+struct MovableRef_Helper {
     // The class template 'MovableRef_Helper' just defines a nested type
     // 'type' that is used by an alias template.  Using this indirection the
     // template argument of the alias template is prevented from being deduced.
-{
     using type = TYPE&&;
         // The type 'type' defined to be an r-value reference to the argument
         // type of 'MovableRef_Helper.
@@ -497,7 +522,7 @@ using MovableRef = typename MovableRef_Helper<TYPE>::type;
 struct MovableRefUtil;
 
 template <class TYPE>
-class MovableRef
+class MovableRef {
     // The class template 'MovableRef<TYPE>' provides a reference to a movable
     // object of type 'TYPE'.  Put differently, a function receiving an object
     // this class template can transfer (move) the representation to a
@@ -505,7 +530,6 @@ class MovableRef
     // although valid (i.e., it obeys all class invariants), state.  With
     // C++11 an r-value reference ('TYPE&&') is used to represent the same
     // semantics.
-{
     friend struct MovableRefUtil;
     TYPE *d_pointer;
 
@@ -522,7 +546,7 @@ class MovableRef
     // ACCESSORS
     operator TYPE&() const;
         // Return a reference to the referenced object.  In contexts where a
-        // reference to an object of type 'TYPE' is needed, an
+        // reference to an object of type 'TYPE' is needed, a
         // 'MovableRef<TYPE>' behaves like such a reference.  For information
         // on how to access the the reference in contexts where no conversion
         // can be used see 'MovableRefUtil::access()'.
@@ -545,7 +569,7 @@ struct MovableRefUtil {
         // 'bslma::MovableRef<TYPE>' with a C++11 implementation: the 'TYPE&&'
         // argument is a movable l-value.
         //
-        // Please the component-level documentation for more information on
+        // Please see the component-level documentation for more information on
         // this function.
 
     template <class TYPE>
@@ -565,7 +589,7 @@ struct MovableRefUtil {
 
     template <class TYPE>
     static MovableRef<TYPE> move(TYPE& lvalue);
-        // Return an r-value reference of type 'MovableRef<TYPE>' from the
+        // Return a movable reference of type 'MovableRef<TYPE>' from the
         // specified 'lvalue'.  For a C++03 implementation this function
         // behaves like a factory for 'MovableRef<TYPE> objects.  For a C++11
         // implementation this function behaves exactly like 'std::move(value)'
@@ -578,7 +602,7 @@ struct MovableRefUtil {
 #else  // support r-value references and alias templates
         move(MovableRef<TYPE> reference);
 #endif // support r-value references and alias templates
-        // Return an r-value reference to the object referred to by the
+        // Return a movable reference to the object referred to by the
         // specified 'reference'.
 };
 
