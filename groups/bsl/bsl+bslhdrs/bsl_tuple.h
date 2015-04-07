@@ -25,19 +25,30 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 #include <tuple>
 
 namespace bsl {
 
-    using native_std::tuple;
     using native_std::tuple_size;
     using native_std::tuple_element;
+
+// Libc++ for osx has a c++ 03 version of tuple that does not implement
+// any of the following components in std if there is no variadic template
+// support.
+#if !(defined(BSLS_PLATFORM_OS_DARWIN) &&                                     \
+    !defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES))
+    using native_std::tuple;
     using native_std::make_tuple;
     using native_std::forward_as_tuple;
     using native_std::tie;
     using native_std::tuple_cat;
     using native_std::get;
     using native_std::ignore;
+#endif
 
 }  // close namespace bsl
 
