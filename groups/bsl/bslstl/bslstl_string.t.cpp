@@ -1737,23 +1737,28 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase31(){
         }
 #if !((defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800) \
     || defined(BSLS_PLATFORM_CMP_IBM))
+        // IBM has rounding issues in wcstold that stop
+        // value == (long double)SPEC from evaluating to true.
         {
-            long double value;
+            double value;
             std::wstring::size_type *sz_null = NULL;
             std::wstring::size_type *sz_valid_ptr =
                                                  new std::wstring::size_type();
             std::wstring::size_type sz_valid_nonptr;
 
             value = bsl::stold(inV, sz_null);
-            LOOP3_ASSERT (ti, value, SPEC, value == (long double)SPEC);
+            LOOP3_ASSERT (ti, (double)value, (double)SPEC,
+                                                   value == (long double)SPEC);
             ASSERT (sz_null == NULL);
 
             value = bsl::stold(inV, sz_valid_ptr);
-            LOOP3_ASSERT (ti, value, SPEC, value == (long double)SPEC);
+            LOOP3_ASSERT (ti, (double)value, (double)SPEC,
+                                                   value == (long double)SPEC);
             ASSERT (*sz_valid_ptr == POS);
 
             value = bsl::stold(inV, &sz_valid_nonptr);
-            LOOP3_ASSERT (ti, value, SPEC, value == (long double)SPEC);
+            LOOP3_ASSERT (ti, (double)value, (double)SPEC,
+                                                   value == (long double)SPEC);
             ASSERT (sz_valid_nonptr == POS);
 
             delete sz_valid_ptr;
