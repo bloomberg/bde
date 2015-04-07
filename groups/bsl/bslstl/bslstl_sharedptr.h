@@ -3711,20 +3711,24 @@ class weak_ptr {
                     //==============================
 template<class ELEMENT_TYPE>
 class enable_shared_from_this{
-    // This class allows an object that is currently managed by an shared_ptr
+    // This class allows an object that is currently managed by a shared_ptr
     // to safely generate additional shared_ptr instances that all share
     // ownership of the object.
-    // Inheriting from 'enable_shared_from_this<T>' provides the type T with a
-    // member function 'share_from_this'. If an object of type T is managed by
-    // a shared_ptr<T> then calling 'shared_from_this' will return a new
-    // shared_ptr that shared ownership of that object.
+    // Inheriting from 'enable_shared_from_this<ELEMENT_TYPE>' provides the
+    // type ELEMENT_TYPE with a member function 'share_from_this'. If an object
+    // of type ELEMENT_TYPE is managed by a shared_ptr<ELEMENT_TYPE> then
+    // calling 'shared_from_this' will return a new shared_ptr that shared
+    // ownership of that object.
     //
     // Note that there must be a shared_ptr that owns the object before
     // 'shared_from_this' is called.
     //
-    // INTENDED USEAGE
-    // ---------------
-    // 
+    // The intended use of enable_shared_from_this is that the templated type
+    // 'ELEMENT_TYPE' inherits directly from the enable_shared_from_this class.
+    // In the case of multiple inheritance, only one of the base classes
+    // should inherit from the enable_shared_from_this class. If multiple base
+    // classes inherit from enable_shared_from_this, then there will be
+    // ambigious calls to the 'share_from_this' function.
 
     // allows shared_ptr to initialize d_weak_this when it detects an
     // enabled_shared_from_this base class
