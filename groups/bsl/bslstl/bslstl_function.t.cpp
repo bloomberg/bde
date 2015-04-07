@@ -1772,6 +1772,7 @@ enum WhatIsInplace {
 template <class ALLOC, class FUNC_ARG>
 void testFuncWithAlloc(int line, FUNC_ARG func_arg, WhatIsInplace inplace)
 {
+    // Get the real functor (if it's wrapped).
     typedef typename NTUNWRAP(FUNC_ARG) FUNC;
     const FUNC& func = ntUnwrap(func_arg);
 
@@ -1845,12 +1846,15 @@ void testFuncWithAlloc(int line, FUNC_ARG func_arg, WhatIsInplace inplace)
     LOOP_ASSERT(line, globalAllocMonitor.isInUseSame());
 }
 
-template <class ALLOC, class FUNC>
-void testCopyCtorWithAlloc(FUNC        func,
+template <class ALLOC, class FUNC_ARG>
+void testCopyCtorWithAlloc(FUNC_ARG    func,
                            const Obj&  original,
                            const char *originalAllocName,
                            const char *copyAllocName)
 {
+    // Get the real functor type (in case it's wrapped).
+    typedef typename NTUNWRAP(FUNC_ARG) FUNC;
+
     if (veryVeryVerbose)
         printf("\tAlloc: orig = %s, copy = %s\n", originalAllocName,
                copyAllocName);
@@ -1911,7 +1915,8 @@ void testCopyCtorWithAlloc(FUNC        func,
 
             if (copy) {
 
-                // Check for faithful copy of functor
+                // Check for faithful copy of functor.
+                // Address of original and copy must be different.
                 ASSERT(*copy.target<FUNC>() == *original.target<FUNC>());
                 ASSERT(copy.target<FUNC>() != original.target<FUNC>());
 
@@ -3876,6 +3881,11 @@ int main(int argc, char *argv[])
         //:   original and copy can use different allocators.
         //: 11 If the functor copy-constructor or the allocator throws an
         //:   exception, then no resources are leaked.
+        //: 12 The above concerns are unchanged if the original 'function'
+        //:   object is constructed with a nothrow wrapper.  Specifically, if
+        //:   the nothrow wrapper results in an otherwise ineligible functor
+        //:   being eligibile for the small object optimization, then the copy
+        //:   will also use the small object optimization.
         //
         // Plan:
         //: 1 For concern 1 copy an empty 'function' using both the copy
@@ -3923,6 +3933,8 @@ int main(int argc, char *argv[])
         //: 10 For concern 11, performed the above steps within the exception
         //:   test framework and verify that, on exception, memory allocation
         //:   does not change and no functor objects are leaked.
+        //: 11 For concern 12, perform the step 7, wrapping the 'FUNC' objects
+        //:   in nothrow wrappers.
         //
         // Testing:
         //      function(const function& other);
@@ -4036,6 +4048,21 @@ int main(int argc, char *argv[])
         TEST(StatefulAllocator<char> , LargeFunctorWithAlloc(0, &xa));
         TEST(StatefulAllocator2<char>, LargeFunctorWithAlloc(0, &xa));
 
+        if (veryVerbose) std::printf("FUNC is a nothrow wrapper\n");
+        TEST(StatefulAllocator2<char>, ntWrap(nullFuncPtr)          );
+        TEST(bslma::TestAllocator *,   ntWrap(&simpleFunc)          );
+        TEST(StatefulAllocator<char>,  ntWrap(EmptyFunctor())       );
+        TEST(bsl::allocator<char>,     ntWrap(SmallFunctor(0x2000)) );
+        TEST(StatefulAllocator<char>,  ntWrap(SmallFunctor(0x2000)) );
+        TEST(EmptySTLAllocator<char>,  ntWrap(MediumFunctor(0x4000)));
+        TEST(StatefulAllocator2<char>, ntWrap(MediumFunctor(0x4000)));
+        TEST(bslma::TestAllocator *,   ntWrap(LargeFunctor(0x6000)) );
+        TEST(bslma::TestAllocator *  , ntWrap(NTSmallFunctor(0x3000)));
+        TEST(bslma::TestAllocator *  , ntWrap(ThrowingSmallFunctor(0x7000)));
+        TEST(bslma::TestAllocator *  , ntWrap(ThrowingEmptyFunctor())     );
+        TEST(bsl::allocator<char>    , ntWrap(SmallFunctorWithAlloc(0, &xa)));
+        TEST(StatefulAllocator<char> , ntWrap(LargeFunctorWithAlloc(0, &xa)));
+
 #undef TEST
 
       } break;
@@ -4090,6 +4117,11 @@ int main(int argc, char *argv[])
         //:   various sizes, with or without throwing move constructors.
         //: 16 If memory allocation or functor construction fails with an
         //:   exception, then no resources are leaked.
+        //: 17 If 'FUNC' is wrapped in a nothrow wrapper, all of the above
+        //:   concerns hold. For concerns that hinge on the presence or
+        //:   absence of the small object optimization, any sufficiently-small
+        //:   'FUNC' is eligible for the optimization when wrapped ina nothrow
+        //:   wrapper, even if it would otherwise throw.
         //
         // Plan:
         //: 1 For concern 1, construct 'function' objects using a null pointer
@@ -4158,6 +4190,8 @@ int main(int argc, char *argv[])
         //: 16 For concern 16, construct the 'function' within the exception
         //:   test framework.  On exception, verify that any allocated memory
         //:   has been released and that no 'FUNC' objects have been leaked.
+        //: 17 For concern 17, perform the above tests on an interesting
+        //:   selection of functor types wrapped in a nothrow wrapper.
         //
         // Testing
         //      function(allocator_arg_t, const ALLOC& alloc, FUNC func);
