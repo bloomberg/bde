@@ -1,5 +1,6 @@
 // bslmf_movableref.t.cpp                                             -*-C++-*-
 #include <bslmf_movableref.h>
+#include <bslmf_issame.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
 
@@ -9,15 +10,20 @@
 
 using namespace BloombergLP;
 
-//=============================================================================
+// ----------------------------------------------------------------------------
 //                             TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                   Overview
 //                                   --------
-//-----------------------------------------------------------------------------
-// [ 1] BREATHING TEST
-// [ 2] MOVABLEREF<TYPE> AND MOVABLEREFUTIL FUNCTIONALITY
-// [ 3] USAGE EXAMPLE
+// ----------------------------------------------------------------------------
+// [  1] BREATHING TEST
+// [  2] MOVABLEREF<TYPE>
+// [  3] MOVABLEREFUTIL::MOVE
+// [  4] MOVABLEREF<TYPE>::OPERATOR TYPE&
+// [  5] MOVABLEREFUTIL::ACCESS
+// [  6] MOVABLEREF<TYPE> VS. RVALUE
+// ----------------------------------------------------------------------------
+// [  7] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -68,38 +74,6 @@ void aSsErT(bool condition, const char *message, int line)
 
 namespace {
 
-bool testFunctionCall(int *pointer, bslmf::MovableRef<int> rvalue)
-    // This function returns 'true' if the specified 'pointer' and the
-    // specified 'rvalue' refer to the same object.
-{
-    return pointer == &bslmf::MovableRefUtil::access(rvalue);
-}
-
-struct TestMoving
-{
-    int *pointer;
-    TestMoving(): pointer(new int(0)) {}
-    TestMoving(TestMoving&);
-    TestMoving(bslmf::MovableRef<TestMoving> rvalue)
-        : pointer(bslmf::MovableRefUtil::access(rvalue).pointer) {
-        bslmf::MovableRefUtil::access(rvalue).pointer = 0;
-    }
-    void operator= (TestMoving&);
-    ~TestMoving() { delete pointer; }
-};
-
-bool testMoveMovableRef(int                           *pointer,
-                        bslmf::MovableRef<TestMoving>  rvalue)
-    // This function returns 'true' if the specified 'pointer' is equal to the
-    // pointer stored in the move-constructed object and if the pointer stored
-    // in specified 'rvalue' is null afterwards.
-{
-    ASSERT(pointer == bslmf::MovableRefUtil::access(rvalue).pointer);
-    TestMoving temp(bslmf::MovableRefUtil::move(rvalue));
-    return pointer == temp.pointer
-        && 0 == bslmf::MovableRefUtil::access(rvalue).pointer;
-}
-
 template <class TYPE>
 class vector
 {
@@ -112,16 +86,16 @@ class vector
   public:
     vector();
         // Create an empty vector.
-    vector(bslmf::MovableRef<vector> other);
+    vector(bslmf::MovableRef<vector> other);                        // IMPLICIT
         // Create a vector by transfering the content of the specified
         // 'other'.
     vector(const vector& other);
         // Create a vector by copying the content of the specified 'other'.
     vector& operator= (vector other);
         // Assign a vector by copying the content of the specified 'other'.
-        // The function returns a reference to the object. Note that
+        // The function returns a reference to the object.  Note that
         // 'other' is passed by value to have the copy or move already be
-        // done or even elided. Within the body of the assignment operator
+        // done or even elided.  Within the body of the assignment operator
         // the content of 'this' and 'other' are simply swapped.
     ~vector();
         // Destroy the vector's elements and release any allocated memory.
@@ -232,7 +206,7 @@ template <class TYPE>
 void vector<TYPE>::reserve(int newCapacity) {
     if (this->capacity() < newCapacity) {
         vector tmp;
-        int size = int(sizeof(TYPE) * newCapacity);
+        int    size = int(sizeof(TYPE) * newCapacity);
         tmp.d_begin = static_cast<TYPE*>(operator new(size));
         tmp.d_end = tmp.d_begin;
         tmp.d_endBuffer = tmp.d_begin + newCapacity;
@@ -262,6 +236,69 @@ void vector<TYPE>::swap(vector& other) {
 }  // close unnamed namespace
 
 //=============================================================================
+
+namespace {
+
+template <class TYPE>
+struct TestMovableRefArgument
+{
+    static bool test(TYPE&) { return false; }
+        // Returns 'false' indicating that the argument is not an r-value
+        // reference.
+    static bool test(const TYPE&) { return false; }
+        // Returns 'false' indicating that the argument is not an r-value
+        // reference.
+    static bool test(bslmf::MovableRef<TYPE>) { return true; }
+        // Returns 'true' indicating that the argument is an r-value reference.
+};
+
+template <class TYPE>
+struct MovableAddress
+{
+    static TYPE* get(bslmf::MovableRef<TYPE> movable)
+        // Returns a pointer to object referenced by the specified 'movable'.
+    {
+        TYPE& reference(bslmf::MovableRefUtil::access(movable));
+        return &reference;
+    }
+};
+
+class TestMoving
+    // This class is used to test some mover operations.
+{
+    int *d_pointer;
+    void operator= (TestMoving&);
+        // The copy assignment operator is not accessible.
+#if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+  public:
+#endif
+    TestMoving(const TestMoving& other)
+        // The copy constructor creates an object storing a pointer with a
+        // based on the value pointed to by the specified 'other' object.
+        : d_pointer(new int(1 + *other.d_pointer)) {
+    }
+  public:
+    TestMoving(): d_pointer(new int(0)) {}
+        // The default constructor constructs an object with a unique pointer.
+    explicit TestMoving(bslmf::MovableRef<TestMoving> rvalue)
+        // The move constructor moves the pointer held by the specified
+        // 'rvalue' to the object.
+        : d_pointer(bslmf::MovableRefUtil::access(rvalue).d_pointer) {
+        bslmf::MovableRefUtil::access(rvalue).d_pointer = 0;
+    }
+    ~TestMoving() { delete this->d_pointer; }
+        // The destructor deletes the allocated pointer.
+    void operator&() const {}
+        // The address-of operator gets in the way.
+    TestMoving *getAddress() { return this; }
+        // This function returns a pointer to the object.
+    const int  *getPointer() const { return this->d_pointer; }
+        // This function returns the held pointer.
+};
+
+}  // close unnamed namespace
+
+//=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
@@ -273,7 +310,7 @@ int main(int argc, char *argv[])
     testStatus = 0;
     switch (test) {
       case 0:
-      case 3: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -315,7 +352,7 @@ int main(int argc, char *argv[])
         ASSERT(first == vector2.begin());
 
         vector<vector<int> > vvector;
-        vvector.push_back(vector2);                          // copy
+        vvector.push_back(vector2);                              // copy
         ASSERT(vector2.size() == 5);
         ASSERT(vvector.size() == 1);
         ASSERT(vvector[0].size() == vector2.size());
@@ -330,57 +367,207 @@ int main(int argc, char *argv[])
         ASSERT(vvector[1].begin() == first);
         ASSERT(vvector[1].size() == 5);
       } break;
-      case 2: {
+      case 6: {
         // --------------------------------------------------------------------
-        // MOVABLEREF<TYPE> AND MOVABLEREFUTIL FUNCTIONALITY
+        // MOVABLEREF<TYPE> VS. RVALUE
         //
         // Concerns:
-        //: 1 Verify that an 'MovableRef<int>' can be created from an 'int'
-        //:   using 'MovableRefUtil::move()' and that references obtained using
-        //:   the implicit conversion to 'int&' or using
-        //:   'MovableRefUtil::access()' refer to the original object.
-        //: 2 Verify that an 'MovableRef<int>' can be moved using
-        //:   'MovableRefUtil::move()' and that the newly created
-        //:   'MovableRef<int>' references the original object.
-        //: 3 Verify that a function can be called with an 'MovableRef<int>'
-        //:   and that the argument stores a reference to the original object.
+        //: 1 Verify that a function declared to take a 'MovableRef<TYPE>' as
+        //:   argument can be called with a temporary of type 'TYPE' when using
+        //:   a C++11 implementation.
         //
         // Plan:
-        //: 1 Define an 'int' object 'value' and obtain an 'MovableRef<int>'
-        //:   named 'rvalue0' using 'MovableRefUtil::move(value)'. Then use an
-        //:   implicit conversion from 'rvalue0' to 'int&' to initialize
-        //:   'reference' verify that '&value' and '&reference' are identical.
-        //:   Also verify that '&value' and '&MovableRefUtil::access(rvalue0)'
-        //:   are identical.
-        //: 2 Create a new 'MovableRef<int>' named 'rvalue1' using
-        //:   'MovableRefUtil::move(rvalue0)' and verify that it references the
-        //:   original object by comparing the address of 'value' and the
-        //:   address of the result of 'MovableRefUtil::access(rvalue1).
-        //: 3 Call a function with the address of 'value' and
-        //:   'MovableRefUtil::move(value)'. From this function return the
-        //:   result comparing the address of 'value' and the address of the
-        //:   result of 'MovableRefUtil::access()' called on the second
-        //:   argument.
+        //: 1 Call an overloaded function taking a 'MovableRef<TYPE>' argument
+        //:   as well as a 'TYPE&' and a 'const TYPE&' and verify that the
+        //:   correct overload is called.  For a C++11 implementation the
+        //:   overload taking a 'MovableRef<TYPE>' has to be called otherwise
+        //:   one of the two lvalue overloads is called.
         //
         // Testing:
-        //     MOVABLEREF<TYPE> AND MOVABLEREFUTIL FUNCTIONALITY
+        //     MOVABLEREF<TYPE> VS. RVALUE
         // --------------------------------------------------------------------
 
-        if (verbose)
-            printf("\nMOVABLEREF<TYPE> AND MOVABLEREFUTIL FUNCTIONALITY"
-                   "\n=================================================\n");
+        if (verbose) printf("\nMOVABLEREF<TYPE> VS. RVALUE"
+                            "\n===========================\n");
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+        ASSERT(TestMovableRefArgument<int>::test(int(18)));
+        ASSERT(TestMovableRefArgument<vector<int> >::test(vector<int>()));
+        ASSERT(TestMovableRefArgument<TestMoving>::test(TestMoving()));
+#else
+        ASSERT(!TestMovableRefArgument<int>::test(int(18)));
+        ASSERT(!TestMovableRefArgument<vector<int> >::test(vector<int>()));
+        ASSERT(!TestMovableRefArgument<TestMoving>::test(TestMoving()));
+#endif
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // MOVABLEREFUTIL::ACCESS
+        //
+        // Concerns:
+        //: 1 Verify that a 'MovableRefUtil::access()' yields an lvalue
+        //:   reference the object referenced by an lvalue or a
+        //:   'MovableRef<TYPE>'.
+        //
+        // Plan:
+        //: 1 Call a function taking a 'MovableRef<TYPE>' argument and verify
+        //:   that the result of 'MovableRefUtil::access()' can be bound to an
+        //:   lvalue reference with the same address as the original object.
+        //
+        // Testing:
+        //     MOVABLEREFUTIL::ACCESS
+        // --------------------------------------------------------------------
 
-        int                    value(0);
-        bslmf::MovableRef<int> rvalue0(bslmf::MovableRefUtil::move(value));
-        int&                   reference(rvalue0);
-        ASSERT(&value == &reference);
-        ASSERT(&value == &bslmf::MovableRefUtil::access(rvalue0));
-        ASSERT(testFunctionCall(&value, bslmf::MovableRefUtil::move(value)));
+        if (verbose) printf("\nMOVABLEREFUTIL::ACCESS"
+                            "\n======================\n");
+        {
+            int  value(19);
+            int *address(MovableAddress<int>::get(
+                                          bslmf::MovableRefUtil::move(value)));
+            ASSERT(&value == address);
+            ASSERT(&value == &bslmf::MovableRefUtil::access(value));
+        }
+        {
+            vector<int>  value;
+            vector<int> *address(MovableAddress<vector<int> >::get(
+                                          bslmf::MovableRefUtil::move(value)));
+            ASSERT(&value == address);
+            ASSERT(&value == &bslmf::MovableRefUtil::access(value));
+        }
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // MOVABLEREF<TYPE>::OPERATOR TYPE&
+        //
+        // Concerns:
+        //: 1 Verify that a 'MovableRef<TYPE>' converts to an lvalue reference
+        //:   of type 'TYPE&' and that the address of the referenced object
+        //:   is identical to the address of the original object.
+        //
+        // Plan:
+        //: 1 Use 'MovableRefUtil::move()' with an lvalue, initialize a
+        //:   'MovableRef<T>', convert the result to an lvalue reference, and
+        //:   check that the addresses are identical.
+        //
+        // Testing:
+        //     MOVABLEREF<TYPE>::OPERATOR TYPE&
+        // --------------------------------------------------------------------
 
-        TestMoving value1;
-        ASSERT(testMoveMovableRef(value1.pointer,
-                                  bslmf::MovableRefUtil::move(value1)));
+        if (verbose) printf("\nMOVABLEREF<TYPE>::OPERATOR TYPE&"
+                            "\n================================\n");
 
+        {
+            int                    value(17);
+            bslmf::MovableRef<int> rvalue(bslmf::MovableRefUtil::move(value));
+            int&                   lvalue(rvalue);
+            ASSERT(&value == &lvalue);
+        }
+        {
+            vector<int>                     value;
+            bslmf::MovableRef<vector<int> > rvalue(
+                                           bslmf::MovableRefUtil::move(value));
+            vector<int>&                    lvalue(rvalue);
+            ASSERT(&value == &lvalue);
+        }
+        {
+            TestMoving                    value;
+            bslmf::MovableRef<TestMoving> rvalue(
+                                           bslmf::MovableRefUtil::move(value));
+            TestMoving&                   lvalue(rvalue);
+            ASSERT(value.getAddress() == lvalue.getAddress());
+        }
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // MOVABLEREFUTIL::MOVE
+        //
+        // Concerns:
+        //: 1 Verify that 'MovableRefUtil::move()' produces a result that can
+        //:   be used to initialize a 'MovableRef<T>'.
+        //: 2 Verify that 'MovableRefUtil::move()' can be used with an argument
+        //:   of a type with an overloaded address-of operator.
+        //: 3 Verify that moving a 'MovableRef<T>' results in an object which
+        //:   that can be bound to a 'MovableRef<T>'.
+        //: 4 Verify that when compiling with a C++11 implementation an
+        //:   rvalue can be bound to a 'MovableRef<T>'.
+        //
+        // Plan:
+        //: 1 Use 'MovableRefUtil::move()' with an lvalue and initialize a
+        //:   'MovableRef<T>'.  Also, call a function overloaded on a 'T&' and
+        //:    a 'MovableRef<T>'.
+        //: 2 Use 'MovableRefUtil::move()' with an object of a type with an
+        //:   overloaded address-of operator.
+        //: 3 Use 'MovableRefUtil::move()' on the result of
+        //:   'MovableRefUtil::move()'.
+        //: 4 Call the test function with an rvalue when compiling with a C++11
+        //:   implementation.
+        //
+        // Testing:
+        //     MOVABLEREFUTIL::MOVE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nMOVABLEREFUTIL::MOVE"
+                            "\n====================\n");
+
+        {
+            int                    value(17);
+            bslmf::MovableRef<int> rvalue1(bslmf::MovableRefUtil::move(value));
+            ASSERT(!TestMovableRefArgument<int>::test(value));
+            ASSERT(TestMovableRefArgument<int>::test(
+                                          bslmf::MovableRefUtil::move(value)));
+            ASSERT(value == rvalue1);
+
+            bslmf::MovableRef<int> rvalue2(
+              bslmf::MovableRefUtil::move(bslmf::MovableRefUtil::move(value)));
+            ASSERT(value == rvalue2);
+        }
+        {
+            vector<int>            value;
+            ASSERT(TestMovableRefArgument<vector<int> >::test(
+                                          bslmf::MovableRefUtil::move(value)));
+            ASSERT(TestMovableRefArgument<vector<int> >::test(
+             bslmf::MovableRefUtil::move(bslmf::MovableRefUtil::move(value))));
+        }
+        {
+            TestMoving            value;
+            ASSERT(TestMovableRefArgument<TestMoving>::test(
+                                          bslmf::MovableRefUtil::move(value)));
+            ASSERT(TestMovableRefArgument<TestMoving>::test(
+             bslmf::MovableRefUtil::move(bslmf::MovableRefUtil::move(value))));
+        }
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // MOVABLEREF<TYPE>
+        //
+        // Concerns:
+        //: 1 Verify that 'MovableRef<TYPE>' exists and in case of using a
+        //:   C++11 implementation is an alias for 'TYPE&&'.
+        //
+        // Plan:
+        //: 1 Use 'bsl::is_same<...>' to make sure 'MovableRef<TYPE>' refers
+        //:   the expected type.
+        //
+        // Testing:
+        //     MOVABLEREF<TYPE>
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nMOVABLEREF<TYPE>"
+                            "\n================\n");
+
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+        ASSERT((bsl::is_same<bslmf::MovableRef<int>, int&&>::value));
+        ASSERT((bsl::is_same<bslmf::MovableRef<vector<int> >,
+                                                       vector<int>&&>::value));
+        ASSERT((bsl::is_same<bslmf::MovableRef<TestMoving>,
+                                                        TestMoving&&>::value));
+#else
+        ASSERT((bsl::is_same<bslmf::MovableRef<int>,
+                                             bslmf::MovableRef<int> >::value));
+        ASSERT((bsl::is_same<bslmf::MovableRef<vector<int> >,
+                                    bslmf::MovableRef<vector<int> > >::value));
+        ASSERT((bsl::is_same<bslmf::MovableRef<TestMoving>,
+                                      bslmf::MovableRef<TestMoving> >::value));
+#endif
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -403,11 +590,18 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+        typedef bslmf::MovableRef_Helper<int>::type MovableInt;
+        ASSERT((bsl::is_same<int&&, MovableInt>::value));
+#endif
+
         int                    value(0);
         bslmf::MovableRef<int> rvalue(bslmf::MovableRefUtil::move(value));
         int&                   reference(rvalue);
-        int&                   lvalue(bslmf::MovableRefUtil::access(rvalue));
-        ASSERT(&reference == &lvalue);
+        int&                   lvalue0(bslmf::MovableRefUtil::access(rvalue));
+        int&                   lvalue1(bslmf::MovableRefUtil::access(value));
+        ASSERT(&reference == &lvalue0);
+        ASSERT(&reference == &lvalue1);
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
