@@ -142,7 +142,7 @@ BSLS_IDENT("$Id: $")
 //     int f() BSLS_CPP11_FINAL { return 1; }
 // };
 //..
-// The semantics of the overriding fucntion aren't changed but a further
+// The semantics of the overriding function aren't changed but a further
 // derived class can't override the function 'f', i.e., the following code
 // will result in an error when compiling with C++11 mode:
 //..

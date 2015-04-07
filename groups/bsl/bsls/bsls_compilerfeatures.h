@@ -254,7 +254,7 @@ BSLS_IDENT("$Id: $")
 //:   xlC 11.1
 //:   Oracle CC 12.4
 //
-///BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES 
+///BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 /// - - - - - - - - - - - - - - - - - - - - - - - -
 // This macro is defined if the compiler supports the ability to express a
 // template that accepts an arbitrary number of parameters in a type-safe
@@ -355,9 +355,9 @@ BSLS_IDENT("$Id: $")
 // http://msdn.microsoft.com/en-us/library/hh567368.aspx
 // http://blogs.msdn.com/b/vcblog/archive/2014/06/11/c-11-14-feature-tables-for-visual-studio-14-ctp1.aspx
 // MSVC enables C++11 features automatically in versions that provide the
-// feature.  Features can not be disabled. 
+// feature.  Features can not be disabled.
 //
-//: * extern template is not supported. It is documented as being 
+//: * extern template is not supported. It is documented as being
 //:   "supported" but behaves in a non-conforming manner.
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #if BSLS_PLATFORM_CMP_VERSION >= 1600  // Microsoft Visual Studio 2010
