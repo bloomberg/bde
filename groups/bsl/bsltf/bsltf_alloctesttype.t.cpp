@@ -14,9 +14,9 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
-#include <climits>
 #include <new>
 
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
