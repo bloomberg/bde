@@ -35,14 +35,19 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// TBD
-// This component can be thoroughly tested by generating a representative set
-// of input values for each function and comparing the result with an expected
-// result.
+// The component under test consists of a suite of static member functions
+// (pure functions) that perform conversions between the values of several
+// 'bdlt' vocabulary types and corresponding string representations, where the
+// latter are defined by the ISO 8601 standard.  The general plan is that each
+// function is to be independently tested using the table-driven technique.  A
+// set of test vectors is defined globally for use in testing all functions.
+// This global data is sufficient for thoroughly testing the string generating
+// functions, but additional test vectors are required to address concerns
+// specific to the string parsing functions.  Hence, additional test data is
+// defined locally to the test cases that verify parsing.
 //
 // Global Concerns:
 //: o No memory is ever allocated from the global allocator.
-//: o No memory is ever allocated from the default allocator.
 //: o Precondition violations are detected in appropriate build modes.
 //-----------------------------------------------------------------------------
 //                         ==================
@@ -1034,36 +1039,167 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-// The following example illustrates how to generate an ISO 8601-compliant
-// string from a 'bdlt::DatetimeTz' value:
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic 'bdlt::Iso8601Util' Usage
+/// - - - - - - - - - - - - - - - - - - - - -
+// This example demonstrates basic use of one 'generate' function and two
+// 'parse' functions.
+//
+// First, we construct a few objects that are prerequisites for this and the
+// following example:
 //..
-    const bdlt::DatetimeTz theDatetime(bdlt::Datetime(2005, 1, 31,
-                                                    8, 59, 59, 123), 240);
-    bsl::stringstream ss;
-    bdlt::Iso8601Util::generate(ss, theDatetime);
-    ASSERT(ss.str() == "2005-01-31T08:59:59.123+04:00");
+    const bdlt::Date date(2005, 1, 31);     // 2005/01/31
+    const bdlt::Time time(8, 59, 59, 123);  // 08::59::59.123
+    const int        tzOffset = 240;        // +04:00 (four hours west of GMT)
 //..
-// The following example illustrates how to parse an ISO 8601-compliant string
-// into a 'bdlt::DatetimeTz' object:
+// Then, we construct a 'bdlt::DatetimeTz' object for which a corresponding ISO
+// 8601-compliant string will be generated shortly:
 //..
-    bdlt::DatetimeTz datetime;
-    const char dtStr[] = "2005-01-31T08:59:59.1226-04:00";
-    const int ret = bdlt::Iso8601Util::parse(
-                                         &datetime,
-                                         dtStr,
-                                         static_cast<int>(bsl::strlen(dtStr)));
-    ASSERT(   0 == ret);
-    ASSERT(2005 == datetime.localDatetime().year());
-    ASSERT(   1 == datetime.localDatetime().month());
-    ASSERT(  31 == datetime.localDatetime().day());
-    ASSERT(   8 == datetime.localDatetime().hour());
-    ASSERT(  59 == datetime.localDatetime().minute());
-    ASSERT(  59 == datetime.localDatetime().second());
-    ASSERT( 123 == datetime.localDatetime().millisecond());
-    ASSERT(-240 == datetime.offset());
+    const bdlt::DatetimeTz sourceDatetimeTz(bdlt::Datetime(date, time),
+                                            tzOffset);
 //..
-// Note that fractions of a second was rounded up to 123 milliseconds and that
-// the offset from UTC was converted to minutes.
+// For comparison with the ISO 8601 string generated below, note that streaming
+// the value of 'sourceDatetimeTz' to 'stdout':
+//..
+if (veryVerbose)
+    bsl::cout << sourceDatetimeTz << bsl::endl;
+//..
+// produces:
+//..
+//  31JAN2005_08:59:59.123+0400
+//..
+// Next, we use a 'generate' function to produce an ISO 8601-compliant string
+// for 'sourceDatetimeTz', writing the output to a 'bsl::ostringstream', and
+// assert that both the return value and the string that is produced are as
+// expected:
+//..
+    bsl::ostringstream oss;
+    const bsl::ostream& ret =
+                           bdlt::Iso8601Util::generate(oss, sourceDatetimeTz);
+    ASSERT(&oss == &ret);
+
+    const bsl::string iso8601 = oss.str();
+    ASSERT(iso8601 == "2005-01-31T08:59:59.123+04:00");
+//..
+// For comparison, see the output that was produced by the streaming operator
+// above.
+//
+// Now, we parse the string that was just produced, loading the result of the
+// parse into a second 'bdlt::DatetimeTz' object, and assert that the parse was
+// successful and that the target object has the same value as that of the
+// original (i.e., 'sourceDatetimeTz'):
+//..
+    bdlt::DatetimeTz targetDatetimeTz;
+
+    int rc = bdlt::Iso8601Util::parse(&targetDatetimeTz,
+                                      iso8601.c_str(),
+                                      static_cast<int>(iso8601.length()));
+    ASSERT(               0 == rc);
+    ASSERT(sourceDatetimeTz == targetDatetimeTz);
+//..
+// Finally, we parse the 'iso8601' string a second time, this time loading the
+// result into a 'bdlt::Datetime' object (instead of a 'bdlt::DatetimeTz'):
+//..
+    bdlt::Datetime targetDatetime;
+
+    rc = bdlt::Iso8601Util::parse(&targetDatetime,
+                                  iso8601.c_str(),
+                                  static_cast<int>(iso8601.length()));
+    ASSERT(                             0 == rc);
+    ASSERT(sourceDatetimeTz.utcDatetime() == targetDatetime);
+//..
+// Note that this time the value of the target object has been converted to
+// GMT.
+//
+///Example 2: Configuring ISO 8601 String Generation
+///- - - - - - - - - - - - - - - - - - - - - - - - -
+// This example demonstrates use of a 'bdlt::Iso8601UtilConfiguration' object
+// to influence the format of the ISO 8601 strings that are generated by this
+// component by passing that configuration object to 'generate'.  We also take
+// this opportunity to illustrate the flavor of the 'generate' functions that
+// outputs to a 'char *' buffer of a specified length.
+//
+// First, we construct a 'bdlt::TimeTz' object for which a corresponding ISO
+// 8601-compliant string will be generated shortly:
+//..
+    const bdlt::TimeTz sourceTimeTz(time, tzOffset);
+//..
+// For comparison with the ISO 8601 string generated below, note that streaming
+// the value of 'sourceTimeTz' to 'stdout':
+//..
+if (veryVerbose)
+    bsl::cout << sourceTimeTz << bsl::endl;
+//..
+// produces:
+//..
+//  08:59:59.123+0400
+//..
+// Then, we construct the 'bdlt::Iso8601UtilConfiguration' object that
+// indicates how we would like to affect the generated output ISO 8601 string.
+// In this case, we want to use ',' as the decimal sign (in fractional seconds)
+// and omit the ':' in zone designators:
+//..
+    bdlt::Iso8601UtilConfiguration configuration;
+    configuration.setOmitColonInZoneDesignator(true);
+    configuration.setUseCommaForDecimalSign(true);
+//..
+// Next, we define the 'char *' buffer that will be used to stored the
+// generated string.  A buffer of size 'bdlt::Iso8601Util::k_TIMETZ_STRLEN + 1'
+// is large enough to hold any string generated by this component for a
+// 'bdlt::TimeTz' object, including a null terminator:
+//..
+    const int BUFLEN = bdlt::Iso8601Util::k_TIMETZ_STRLEN + 1;
+    char buffer[BUFLEN];
+//..
+// Then, we use a 'generate' function that accepts our 'configuration' to
+// produce an ISO 8601-compliant string for 'sourceTimeTz', this time writing
+// the output to a 'char *' buffer, and assert that both the return value and
+// the string that is produced are as expected.  Note that in comparing the
+// return value against 'BUFLEN - 2' we account for the omission of the ':'
+// from the zone designator, and also for the fact that, although a null
+// terminator was generated, it is not included in the character count returned
+// by 'generate'.  Also note that we use 'bsl::strcmp' to compare the resulting
+// string knowing that we supplied a buffer having sufficient capacity to
+// accommodate a null terminator:
+//..
+    rc = bdlt::Iso8601Util::generate(buffer,
+                                     sourceTimeTz,
+                                     BUFLEN,
+                                     configuration);
+    ASSERT(BUFLEN - 2 == rc);
+    ASSERT(         0 == bsl::strcmp(buffer, "08:59:59,123+0400"));
+//..
+// For comparison, see the output that was produced by the streaming operator
+// above.
+//
+// Next, we parse the string that was just produced, loading the result of the
+// parse into a second 'bdlt::TimeTz'object , and assert that the parse was
+// successful and that the target object has the same value as that of the
+// original (i.e., 'sourceTimeTz').  Note that 'BUFLEN - 2' is passed and *not*
+// 'BUFLEN' because the former indicates the correct number of characters in
+// 'buffer' that we wish to parse:
+//..
+    bdlt::TimeTz targetTimeTz;
+
+    rc = bdlt::Iso8601Util::parse(&targetTimeTz, buffer, BUFLEN - 2);
+
+    ASSERT(           0 == rc);
+    ASSERT(sourceTimeTz == targetTimeTz);
+//..
+// Finally, we parse the string in 'buffer' a second time, this time loading
+// the result into a 'bdlt::Time' object (instead of a 'bdlt::TimeTz'):
+//..
+    bdlt::Time targetTime;
+
+    rc = bdlt::Iso8601Util::parse(&targetTime, buffer, BUFLEN - 2);
+    ASSERT(                     0 == rc);
+    ASSERT(sourceTimeTz.utcTime() == targetTime);
+//..
+// Note that this time the value of the target object has been converted to
+// GMT.
 
       } break;
       case 13: {
