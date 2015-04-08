@@ -442,7 +442,7 @@ int main(int argc, char *argv[])
           if (verbose) printf("Testing noexcept\n"
                               "================\n");
           noexceptTest();
-          
+
 #endif
       } break;
       case 7: {
@@ -549,7 +549,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
         // --------------------------------------------------------------------
-          
+
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS)
         if (verbose) printf("Testing deleted functions skipped\n"
                             "=================================\n");
@@ -609,7 +609,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
         // --------------------------------------------------------------------
-          
+
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
         if (verbose) printf("Testing constexpr skipped\n"
                             "=========================\n");
@@ -618,7 +618,7 @@ int main(int argc, char *argv[])
                             "=================\n");
         constexpr int v = A(true).m;
 #endif
-        
+
       } break;
       case 1: {
         // --------------------------------------------------------------------
