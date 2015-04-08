@@ -81,12 +81,11 @@ void noThrow() BSLS_CPP11_NOEXCEPT{
 void willThrow(){
     throw 1;
 }
-void mayThrow() BSLS_CPP11_NOEXCEPT_OPERATION(
+void mayThrow_withNoexcept_willThrow() BSLS_CPP11_NOEXCEPT_OPERATION(
         BSLS_CPP11_NOEXCEPT_OPERATION(willThrow())){
-    //void mayThrow() noexcept(noexcept(willThrow())){
     throw 1;
 }
-void mayThrowAgain() BSLS_CPP11_NOEXCEPT_OPERATION(
+void mayThrow_withNoexcept_noThrow() BSLS_CPP11_NOEXCEPT_OPERATION(
         BSLS_CPP11_NOEXCEPT_OPERATION(noThrow())){
     //throw 1;
 }
@@ -115,7 +114,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
-        
+
         if (verbose)
             std::cout << std::endl
                       << "TESTING USAGE EXAMPLE" << std::endl
@@ -127,9 +126,8 @@ int main(int argc, char *argv[])
 
 #if !defined(BSLS_COMPILERFEATURS_SUPPORT_OPERATOR_EXPLICIT) \
  || defined(FAIL_USAGE_EXPLICIT)
-        //todo
-        //bool flag = value;
-        //ASSERT(flag == false);
+        bool flag = value;
+        ASSERT(flag == false);
 #endif
 
         class FinalClass BSLS_CPP11_FINAL
@@ -222,7 +220,6 @@ int main(int argc, char *argv[])
         OverrideFailure overrideFailure;
         ASSERT(overrideFailure.f() == 2);
         ASSERT(static_cast<const OverrideBase&>(overrideFailure).f() == 0);
-
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -350,37 +347,42 @@ int main(int argc, char *argv[])
         // Concerns:
         //   1) Marking a function 'noexcept' using 'BSLS_CPP11_NOEXCEPT' or
         //      BSLS_CPP11_NOEXCEPT_OPERATION(expr) or
-        //      BSLS_CPP11_NOEXCEPT_SPECIFICATION should result in a successful 
+        //      BSLS_CPP11_NOEXCEPT_SPECIFICATION should result in a successful
         //      compilation in C++03 mode.
     	//
-        //   2) Marking a function'noexcet' using 'BSLS_CPP11_NOEXCEPT' or 
+        //   2) Marking a function'noexcet' using 'BSLS_CPP11_NOEXCEPT' or
         //      BSLS_CPP11_NOEXCEPT_OPERATION(expr) or
-        //      BSLS_CPP11_NOEXCEPT_SPECIFICATION should make the program 
+        //      BSLS_CPP11_NOEXCEPT_SPECIFICATION should make the program
         //      terminate if the function throws an exception in cpp11 mode.
     	//
         // Plan:
         //   Define a function marking it 'noexcept' using the various forms of
-        //   the macro. Test these functions ensuring that the test driver 
+        //   the macro. Test these functions ensuring that the test driver
         //   terminates if noexcept(function()) is true and the function throws
         //   an exception.
+        //   Since the correct behaviour will case the program to terminate, it
+        //   is rather difficult to create test cases that actaully tests the
+        //   feature and still have the test driver pass. As such, these tests
+        //   must be manually checked to ensure that the program terminates if
+        //   the noThrow and mayThrow_withNoexcept_noThrow functions cause 
+        //   exceptions.
         // --------------------------------------------------------------------
         if (verbose){
             std::cout << std::endl
                       << "TESTING: BSLS_CPP11_NOEXCEPT" << std::endl
                       << "============================" << std::endl;
     	}
-        
+
         try{
             noThrow();
         }catch(...){}
         try{
-            mayThrow();
+            mayThrow_withNoexcept_willThrow();
         }catch(...){}
         try{
-            mayThrowAgain();
+            mayThrow_withNoexcept_noThrow();
         }catch(...){}
-        
-        
+
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -542,17 +544,23 @@ int main(int argc, char *argv[])
         // TESTING BSLS_CPP11_CONSTEXPR
         //
         // Concerns:
-        //   1) Marking a function 'constexpr' using 'BSLS_CPP11_CONSTEXPR' 
+        //   1) Marking a function 'constexpr' using 'BSLS_CPP11_CONSTEXPR'
         //      should result in a successful compilation.
         //
-        //   2) Marking a function 'constexpr' using 'BSLS_CPP11_CONSTEXPR' 
+        //   2) Marking a function 'constexpr' using 'BSLS_CPP11_CONSTEXPR'
         //      should make the test driver not compile if the use of the 
         //      resulting constexpr function is used illegally.
         //
         // Plan:
         //   Define a struct marking its various member functions as constexprs
-        //   functions. Verify that if the constexpr member functions are not 
-        //   used appropriately the program will fail to compile in cpp11 mode. 
+        //   functions. Verify that if the constexpr member functions are not
+        //   used appropriately the program will fail to compile in cpp11 mode.
+        //
+        //   Since the correct behaviour will case the program to not compile,
+        //   it is rather difficult to create test cases that actaully tests
+        //   the feature and still have the test driver pass. As such, this
+        //   tests must be manually checked to ensure that the program does not
+        //   compile if testStruct is not used correctly.
         // --------------------------------------------------------------------
           struct testStruct {
               BSLS_CPP11_CONSTEXPR testStruct (int i) : value(i){}
@@ -561,7 +569,7 @@ int main(int argc, char *argv[])
               private:
                   int value;
           };
-          
+
           BSLS_CPP11_CONSTEXPR testStruct B (15);
           BSLS_CPP11_CONSTEXPR int X (B);
           //int X (B);
