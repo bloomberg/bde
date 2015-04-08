@@ -14,9 +14,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#pragma bde_verify -BW01  // bdewrap recommendation
-#pragma bde_verify -FD01  // Function needs contract
-#pragma bde_verify -LL01  // Line longer than 79 chars
+// These bde_verify warning suppressions should be eliminated in due course.
+// BDE_VERIFY pragma: -BW01  // bdewrap recommendation
+// BDE_VERIFY pragma: -FD01  // Function needs contract
 
 using namespace BloombergLP;
 
@@ -229,9 +229,9 @@ bool g_veryVeryVeryVerbose;
 class MyTestObject;
 class MyDerivedObject;
 
-#pragma bde_verify push    // Usage examples relax rules for expository clarity
-#pragma bde_verify -CC01   // C-style casts are used for readability
-#pragma bde_verify -FABC01 // Functions ordered for expository purpose
+// BDE_VERIFY pragma: push     // Usage examples relax rules for doc clarity
+// BDE_VERIFY pragma: -CC01    // C-style casts are used for readability
+// BDE_VERIFY pragma: -FABC01  // Functions ordered for expository purpose
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -911,7 +911,7 @@ typedef MyDerivedObject B;
 
 }  // close namespace TYPE_CASTING_TEST_NAMESPACE
 
-#pragma bde_verify pop
+// BDE_VERIFY pragma: pop
 
 // ============================================================================
 //                              TEST APPARATUS
@@ -1378,7 +1378,7 @@ void validateManagedState(unsigned int                     LINE,
 
         TYPE * objPtr = obj.ptr();
         LOOP3_ASSERT(LINE, ptr, objPtr, ptr == objPtr);
-        
+
         TYPE * objPtr2 = obj.get();
         LOOP3_ASSERT(LINE, ptr, objPtr2, ptr == objPtr2);
 
@@ -1443,7 +1443,7 @@ void validateManagedState(unsigned int                     LINE,
 
         void * objPtr2 = obj.get();
         LOOP3_ASSERT(LINE, ptr, objPtr2, ptr == objPtr2);
-        
+
         const bslma::ManagedPtrDeleter& objDel = obj.deleter();
         LOOP3_ASSERT(LINE, del, objDel, del == objDel);
 
@@ -1503,7 +1503,7 @@ void validateManagedState(unsigned int                          LINE,
 
         const void * objPtr = obj.ptr();
         LOOP3_ASSERT(LINE, ptr, objPtr, ptr == objPtr);
-        
+
         const void * objPtr2 = obj.get();
         LOOP3_ASSERT(LINE, ptr, objPtr2, ptr == objPtr2);
 
@@ -1763,8 +1763,8 @@ void debugprint(const ManagedPtrDeleter& obj)
 //: doLoadOderivFnull
 //: doLoadOCderivFnull
 
-#pragma bde_verify push
-#pragma bde_verify -FABC01 // Functions ordered logically, for easier audit.
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -FABC01 // Functions ordered logically, for easier audit.
 
 namespace {
 
@@ -4399,7 +4399,11 @@ void testLoadAliasOps3(int                        callLine,
     }
 }
 
-#pragma bde_verify pop  // end of auditable test functionality
+// BDE_VERIFY pragma: pop  // end of auditable test functionality
+
+// BDE_VERIFY pragma: push   // Test tables need long lines to read in 2D
+// BDE_VERIFY pragma: -LL01  // Line longer than 79 chars
+
 
 //=============================================================================
 // This is the test table for iterating constructor and load functions for
@@ -5113,6 +5117,8 @@ static const TestPolicy<const void> TEST_POLICY_CONST_VOID_ARRAY[] = {
     TestPolicy<const void>( OCderiv(), Fbsl(), NullPolicy() )
 };
 
+// BDE_VERIFY pragma: pop  // end of test tables
+
 //=============================================================================
 // Here we add additional test cases for the deliberately awkward 'composite'
 // case, which does not use a virtual destructor.  Note that we cannot test
@@ -5188,7 +5194,7 @@ void testDeleter(int *expectedCookieValue, void *cookie)
     ASSERT(expectedCookieValue == cookie);
 }
 
-}  // close namespace TYPE_CASTING_TEST_NAMESPACE
+}  // close namespace DRQS_30670366_NAMESPACE
 
 //=============================================================================
 //                              TEST PROGRAM
@@ -5524,7 +5530,7 @@ int main(int argc, char *argv[])
             delete p;
         }
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
-        
+
         // testing 'release().second'
         numDeletes = 0;
         {
@@ -6210,7 +6216,7 @@ int main(int argc, char *argv[])
                 TObj x(&numDeletes);
                 const Obj  o(&x, 0, countedNilDelete);
                 ASSERT(&X == o.get());
-   
+
                 Obj o2(o);  // should not compile
                 ASSERT(!"The preceding line should not have compiled");
             }

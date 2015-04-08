@@ -40,13 +40,13 @@
 #endif
 #endif
 
-// BDEVERIFY pragma: -FE01  // Testing throws exceptions not derived from std
+// BDE_VERIFY pragma: -FE01  // Testing throws exceptions not derived from std
 
 // Warnings that we hope to stop silencing one day:
-// BDEVERIFY pragma: -IND01 // Test blocks not indenting after if (printf(""))
-// BDEVERIFY pragma: -IND04 // Many violations of aligning variable declaration
-// BDEVERIFY pragma: -TP03  // Many tests without assigned test case
-// BDEVERIFY pragma: -UC01  // Warning on all-const identifiers is too strict
+// BDE_VERIFY pragma:-IND01 // Test blocks not indenting after if (printf(""))
+// BDE_VERIFY pragma:-IND04 // Many violations of aligning variable declaration
+// BDE_VERIFY pragma:-TP03  // Many tests without assigned test case
+// BDE_VERIFY pragma:-UC01  // Warning on all-const identifiers is too strict
 
 #undef ESP  //  From somewhere in SunOS2.10/x86 system headers
 
@@ -486,12 +486,12 @@ void aSsErT(bool condition, const char *message, int line)
 // Disable specific bde_verify warnings where practice of usage example may
 // differ.
 
-// BDEVERIFY pragma: push
-// BDEVERIFY pragma: -FABC01 // Functions ordered for expository purpose
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -FABC01 // Functions ordered for expository purpose
 
-// BDEVERIFY pragma: -FD01  // Function needs contract, we probably should fix
-// BDEVERIFY pragma: -FD02  // Banners diagnose badly unless we fix for FD01
-// BDEVERIFY pragma: -FD03  // no contract, so no ticks
+// BDE_VERIFY pragma: -FD01  // Function needs contract, we probably should fix
+// BDE_VERIFY pragma: -FD02  // Banners diagnose badly unless we fix for FD01
+// BDE_VERIFY pragma: -FD03  // no contract, so no ticks
 
 // ============================================================================
 //                              USAGE EXAMPLES
@@ -573,7 +573,7 @@ namespace NAMESPACE_USAGE_EXAMPLE_1 {
 // Note that the shared pointer allocates both the reference count and the
 // 'MyUser' object in a single region of memory (which is the memory that will
 // eventually be deallocated), but refers to the 'MyUser' object only.
-}  // close usage example namespace
+}  // close namespace NAMESPACE_USAGE_EXAMPLE_1
 
 namespace NAMESPACE_USAGE_EXAMPLE_2 {
 using     NAMESPACE_USAGE_EXAMPLE_1::MyUser;
@@ -666,7 +666,8 @@ using     NAMESPACE_USAGE_EXAMPLE_1::MyUser;
         return enqueueTransaction(user, transaction);
     }
 //..
-}  // close usage example namespace
+}  // close namespace NAMESPACE_USAGE_EXAMPLE_2
+
 
 // Function definitions elided from usage examples, but requiring definitions
 // for the test driver to link.
@@ -680,7 +681,8 @@ int MyTransactionManager::enqueueTransaction(bsl::shared_ptr<MyUser>,
     return 0;
 }
 
-}  // close usage namespace
+}  // close namespace NAMESPACE_USAGE_EXAMPLE_2
+
 //=============================================================================
 //                                USAGE EXAMPLE (weak_ptr)
 //-----------------------------------------------------------------------------
@@ -940,7 +942,7 @@ int MyTransactionManager::enqueueTransaction(bsl::shared_ptr<MyUser>,
     }
 //..
 
-// BDEVERIFY pragma: pop
+// BDE_VERIFY pragma: pop
 
 // Define traits outside of the text of the usage example as they distract from
 // the core message.
@@ -1022,7 +1024,7 @@ bsl::shared_ptr<int> ptrNilFun()
     return ptrNil;
 }
 
-}  // close test case namespace
+}  // close namespace NAMESPACE_TEST_CASE_16
 
                    // *** 'MyTestObject' CLASS HIERARCHY ***
 
