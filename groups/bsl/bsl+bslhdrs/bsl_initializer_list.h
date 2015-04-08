@@ -25,7 +25,12 @@ BSLS_IDENT("$Id: $")
 
 namespace bsl {
 
+// Libc++ for osx has a c++ 03 version of initializer_list that implements
+// nothing, but can still be included.
+#if !(defined(BSLS_PLATFORM_OS_DARWIN) &&                                     \
+    !defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS))
     using native_std::initializer_list;
+#endif
 
 }  // close namespace bsl
 

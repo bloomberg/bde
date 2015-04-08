@@ -193,13 +193,14 @@ struct PackSize<T> {
 // [ 2] BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 // [ 3] BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
 // [ 4] BSLS_COMPILERFEATURES_SUPPORT_FINAL
-// [ 5] BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
-// [ 6] BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
-// [ 7] BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
-// [ 8] BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
-// [ 9] BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-// [10] BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
-// [11] BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+// [ 5] BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+// [ 6] BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+// [ 7] BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+// [ 8] BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+// [ 9] BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
+// [10] BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+// [11] BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+// [12] BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 //=============================================================================
 
 int main(int argc, char *argv[])
@@ -212,7 +213,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
         //
@@ -240,7 +241,7 @@ int main(int argc, char *argv[])
         ASSERT((PackSize<int, char, double, void>::VALUE == 4));
 #endif
       } break;
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
         //
@@ -267,7 +268,7 @@ int main(int argc, char *argv[])
         static_assert(1,    "static_assert with int");
 #endif
       } break;
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         //
@@ -294,7 +295,7 @@ int main(int argc, char *argv[])
         RvalueTest obj(my_factory<RvalueTest>(RvalueArg()));
 #endif
       } break;
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
         //
@@ -325,7 +326,7 @@ int main(int argc, char *argv[])
         struct Override: OverrideBase { void f() const override {} };
 #endif
       } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
         //
@@ -363,7 +364,7 @@ int main(int argc, char *argv[])
         ASSERT(result);
 #endif
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
         //
@@ -391,7 +392,7 @@ int main(int argc, char *argv[])
         OverloadForNullptr(nullptr);
 #endif
       } break;
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
         //
@@ -415,7 +416,33 @@ int main(int argc, char *argv[])
         if (verbose) printf("Testing include_next\n"
                             "====================\n");
 #endif
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+        //
+        // Concerns:
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS' is
+        //:   defined only when the compiler is actually able to compile code
+        //:   using 'include_next'.
+        //
+        // Plan:
+        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS' is
+        //:    defined then compile code that uses this feature include a
+        //:    header file.
+        //
+        // Testing:
+        //   BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+        // --------------------------------------------------------------------
 
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+        if (verbose) printf("Testing generalized initializers skipped\n"
+                            "============================\n");
+#else
+        if (verbose) printf("Testing generalized initializers\n"
+                            "================================\n");
+        std::initializer_list<int> il = {10,20,30,40,50};
+#endif
       } break;
       case 4: {
         // --------------------------------------------------------------------
