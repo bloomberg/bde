@@ -28,7 +28,7 @@ using namespace bsl;
 // [ 2] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-#pragma bde_verify -TP19
+// BDE_VERIFY pragma: -TP19
 
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
@@ -82,8 +82,8 @@ static void aSsErT(bool b, const char *s, int i) {
 
 // Suppress some bde_verify warnings for the usage example
 
-#pragma bde_verify push
-#pragma bde_verify -FD03  // parameter not documented warning
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -FD03  // parameter not documented warning
 
 class DoesNotUseAnAllocatorType {
 };
@@ -159,7 +159,7 @@ class DoesNotUseAnAllocatorType {
 // Notice that the specialization must be performed in the 'BloombergLP::bslma'
 // namespace.
 
-#pragma bde_verify pop
+// BDE_VERIFY pragma: pop
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -199,7 +199,7 @@ struct ConvertibleToAny {
         // Return a default constructed object of 'TYPE'.
 };
 
-}
+}  // close unnamed namespace
 
 namespace BloombergLP {
 namespace bslma {
@@ -214,8 +214,8 @@ struct UsesBslmaAllocator<ConvertibleToAny> : bsl::true_type {
     // work.
 };
 
-}
-}
+}  // close package namespace
+}  // close enterprise namespace
 
 //=============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
