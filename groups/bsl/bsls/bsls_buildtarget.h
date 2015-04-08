@@ -9,9 +9,14 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide build-target information in object files.
 //
-//@CLASSES:
-//  bsls::BuildTargetExc: type name for identifying exception-enabled builds
-//  bsls::BuildTargetMt: type name for identifying multi-threaded builds
+//@MACROS:
+//  BDE_BUILD_TARGET_EXC:
+//  BDE_BUILD_TARGET_MT:
+//  BDE_OMIT_DEPRECATED: flag for omitting deprecated code from BDE source
+#ifndef BDE_OMIT_TRANSITIONAL
+// BDE_OMIT_INTERNAL_DEPRECATED: flag to omit internal-only deprecated code
+// BDE_OMIT_TRANSITIONAL: marker for non-deprecated internal-only code
+#endif
 //
 //@DESCRIPTION: The purpose of this component is to cause a link-time error
 // when trying to link an executable with incompatible libraries.  This
@@ -21,6 +26,59 @@ BSLS_IDENT("$Id: $")
 // and whether it was multi-threaded (which is enabled unless overridden by
 // defining the 'BDE_BUILD_TARGET_NO_MT' macro).  The types defined by this
 // component should not be used directly.
+//
+///Deprecation Control Macros
+///--------------------------
+#ifndef BDE_OMIT_TRANSITIONAL
+// In addition to the 'BDE_BUILD_TARGET_*' macros that determine the link-time
+// compatibility of different libraries built on BDE, this component provides a
+// group of 'BDE_OMIT_*' macros that determine whether deprecated interfaces
+// are available to programs built on BDE.
+//
+// There are four categories of code included in BDE:
+//
+//: o Current universally distributed code.
+//: o Deprecated universally distributed code.
+//: o Current Bloomberg-only code.
+//: o Deprecated Bloomberg-only code.
+//
+// By default, all code in BDE is both current and universally distributed.
+// All code that is deprecated, excluded from our open-source distribution, or
+// both, is surrounded with conditional compilation macros to allow test builds
+// without that code, and/or to make it easy to prepare an open-source
+// distribution from the full internal BDE codebase.  The conditional
+// compilation macros are:
+//
+//: o BDE_OMIT_DEPRECATED: This macro, if defined, indicates that all
+//:   deprecated code is excluded from a build of the library.
+//:
+//: o BDE_OMIT_INTERNAL_DEPRECATED: This macro, if defined, indicates that all
+//:   deprecated code that appears only in the internal Bloomberg BDE codebase
+//:   is excluded from a build of the library.  This category consists almost
+//:   entirely of code that was already deprecated at the time of a component's
+//:   initial release to open-source.  Code that is deprecated after a
+//:   component's open-source release should be marked as 'BDE_OMIT_DEPRECATED'
+//:   instead.
+//:
+//: o BDE_OMIT_TRANSITIONAL: This macro marks code that is not deprecated, but
+//:   is nevertheless excluded from the open-source release of BDE.  This
+//:   category consists primarily of code that exists to support STLPort
+//:   containers, which were not included in the open-source release, or that
+//:   provides backward compatibility access to the package-prefix versions of
+//:   non-deprecated symbols in BSL.  'BDE_OMIT_TRANSITIONAL' exists for
+//:   purposes of documentation only, and should not be defined for any build
+//:   of the library.  In particular, there is no guarantee that the library
+//:   can be built or will function correctly if 'BDE_OMIT_TRANSITIONAL' is
+//:   defined.
+#else
+// In addition to the 'BDE_BUILD_TARGET_*' macros that determine the link-time
+// compatibility of different libraries built on BDE, this component provides a
+// macro that determines whether deprecated interfaces are available to
+// programs built on BDE.
+//
+//: o BDE_OMIT_DEPRECATED: This macro, if defined, indicates that all
+//:   deprecated code is excluded from a build of the library.
+#endif
 //
 ///Usage
 ///-----
