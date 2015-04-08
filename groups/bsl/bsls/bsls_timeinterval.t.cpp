@@ -4455,7 +4455,7 @@ int main(int argc, char *argv[])
         //:   1 Create an object 'X' using the default constructor.
         //:
         //:   2 Using the 'setInterval' manipulator, set 'X' to the value
-        //:     specified in 'R1'. 
+        //:     specified in 'R1'.
         //:
         //:   3 Verify, using 'seconds' and 'nanoseconds', that 'X' has the
         //:     expected value.  (C-1..3)

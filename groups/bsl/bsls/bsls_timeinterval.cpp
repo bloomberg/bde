@@ -12,8 +12,8 @@ BSLS_IDENT_RCSID(bsls_timeinterval_cpp,"$Id$ $CSID$")
 
 #include <limits.h>
 
-#pragma bde_verify push
-#pragma bde_verify -FABC01
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -FABC01
 
 namespace BloombergLP {
 namespace bsls {
@@ -169,7 +169,7 @@ void TimeInterval::setInterval(bsls::Types::Int64 seconds,
 }  // close package namespace
 }  // close enterprise namespace
 
-#pragma bde_verify pop
+// BDE_VERIFY pragma: pop
 
 // ----------------------------------------------------------------------------
 // Copyright 2014 Bloomberg Finance L.P.

@@ -14,10 +14,9 @@
 #endif
 #endif
 
-#pragma bdeverify -FD01  // Test-machinery lacks a contract
-#pragma bdeverify -TP06  // Test-case indexing thing
-#pragma bdeverify -TP09  // Test-case indexing thing
-#pragma bdeverify -TP18  // Test-case banners are ALL-CAPS
+// These warning suppressions will be eliminated in due course.
+// BDE_VERIFY pragma: -FD01  // Test-machinery lacks a contract
+// BDE_VERIFY pragma: -TP18  // Test-case banners are ALL-CAPS
 
 using namespace BloombergLP;
 //using namespace bsl;  // automatically added by script
@@ -375,8 +374,8 @@ class MyInplaceTestObject {
                         MyTestArg12 a12,
                         MyTestArg13 a13,
                         MyTestArg14 a14);
-        // Create a 'MyInplaceTestObject' by intializing the data members
-        // 'd_a1'..'d_a14' with the specified 'a1'..'a14', and unitializing any
+        // Create a 'MyInplaceTestObject' by initializing the data members
+        // 'd_a1'..'d_a14' with the specified 'a1'..'a14', and initializing any
         // remaining data members with their default value (-1).
 
     ~MyInplaceTestObject();
@@ -823,13 +822,13 @@ int main(int argc, char *argv[])
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
-    // Confirm no static intialization locekd the global allocator
+    // Confirm no static initialization locked the global allocator
     ASSERT(&globalAllocator == bslma::Default::globalAllocator());
 
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
     bslma::Default::setDefaultAllocator(&defaultAllocator);
 
-    // Confirm no static intialization locked the default allocator
+    // Confirm no static initialization locked the default allocator
     ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
 
     bslma::TestAllocator ta(veryVeryVeryVerbose);
