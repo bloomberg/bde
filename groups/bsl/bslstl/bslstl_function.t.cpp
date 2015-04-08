@@ -1982,9 +1982,12 @@ void testCopyCtor(FUNC func, const char *originalAllocName)
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
-template <class ALLOC, class FUNC>
-void testMoveCtorWithSameAlloc(FUNC func, bool extended, const char *allocName)
+template <class ALLOC, class FUNC_ARG>
+void testMoveCtorWithSameAlloc(FUNC_ARG func, bool extended,
+                               const char *allocName)
 {
+    typedef typename NTUNWRAP(FUNC_ARG) FUNC;
+
     if (veryVeryVerbose) {
         if (extended) {
             printf("\tsource and dest using same alloc: %s\n", allocName);
@@ -1994,14 +1997,14 @@ void testMoveCtorWithSameAlloc(FUNC func, bool extended, const char *allocName)
         }
     }
 
-    bool isEmpty = isNullPtr(func);
+    bool isEmpty = isNullPtr(ntUnwrap(func));
     bool usesSmallObjectOptimization = false;
 
     // Construct a 'FUNC' object in a moved-from state.
-    FUNC movedFromFunc(func);
+    FUNC_ARG movedFromFunc(func);
     {
-        FUNC movedToFunc(std::move(movedFromFunc));
-        ASSERT(movedToFunc == func);
+        FUNC_ARG movedToFunc(std::move(movedFromFunc));
+        ASSERT(ntUnwrap(movedToFunc) == ntUnwrap(func));
     }
 
     bslma::TestAllocator ta;
@@ -2084,7 +2087,7 @@ void testMoveCtorWithSameAlloc(FUNC func, bool extended, const char *allocName)
 
             // Check for faithful move of functor
             ASSERT(dest.target_type() == typeid(ntUnwrap(func)));
-            ASSERT(*dest.target<FUNC>() == func);
+            ASSERT(*dest.target<FUNC>() == ntUnwrap(func));
 
             // Invoke
             Obj temp(func);
@@ -2107,16 +2110,18 @@ void testMoveCtorWithSameAlloc(FUNC func, bool extended, const char *allocName)
     ASSERT(globalAllocMonitor.isInUseSame());
 }
 
-template <class SRC_ALLOC, class DEST_ALLOC, class FUNC>
-void testMoveCtorWithDifferentAlloc(FUNC        func,
+template <class SRC_ALLOC, class DEST_ALLOC, class FUNC_ARG>
+void testMoveCtorWithDifferentAlloc(FUNC_ARG    func,
                                     const char *sourceAllocName,
                                     const char *destAllocName)
 {
+    typedef typename NTUNWRAP(FUNC_ARG) FUNC;
+
     if (veryVeryVerbose)
         printf("\tAlloc: source = %s, dest = %s\n", sourceAllocName,
                destAllocName);
 
-    bool isEmpty = isNullPtr(func);
+    bool isEmpty = isNullPtr(ntUnwrap(func));
 
     bslma::TestAllocator sourceTa;
     SRC_ALLOC sourceAlloc(&sourceTa);
@@ -2170,8 +2175,8 @@ void testMoveCtorWithDifferentAlloc(FUNC        func,
                 if (dest) {
 
                     // Check for faithful move of functor
-                    ASSERT(dest.target_type() == typeid(ntUnwrap(func)));
-                    ASSERT(*dest.target<FUNC>() == func);
+                    ASSERT(dest.target_type() == typeid(FUNC));
+                    ASSERT(*dest.target<FUNC>() == ntUnwrap(func));
 
                     // Invoke
                     Obj temp(func);
@@ -3677,6 +3682,11 @@ int main(int argc, char *argv[])
         //:   constructor.
         //: 11 If the functor move-constructor or the allocator throws an
         //:   exception, then no resources are leaked.
+        //: 12 The above concerns apply if the original 'function' object is
+        //:   constructed with a nothrow wrapper.  Specifically, if the
+        //:   nothrow wrapper results in an otherwise ineligible functor
+        //:   becoming eligibile for the small object optimization, then the
+        //:   copy will also use the small object optimization.
         //
         // Plan:
         //: 1 For concern 1 move an empty 'function' using both the move
@@ -3727,6 +3737,11 @@ int main(int argc, char *argv[])
         //: 10 For concern 11, performed the above steps within the exception
         //:   test framework and verify that, on exception, memory allocation
         //:   does not change and no functor objects are leaked.
+        //: 11 For concern 12, repeat the above steps with a representative
+        //:   set of 'FUNC' types. The test for memory allocation (step 8)
+        //:   will have the effect of proving that the the original and the
+        //:   moved-to object either both use the small-object optimization or
+        //:   neither uses it.
         //
         // Testing:
         //      function(function&& other)
@@ -3841,6 +3856,21 @@ int main(int argc, char *argv[])
         TEST(StatefulAllocator<char> , LargeFunctorWithAlloc(0, &xa));
         TEST(StatefulAllocator2<char>, LargeFunctorWithAlloc(0, &xa));
 
+        if (veryVerbose) std::printf("FUNC is a nothrow wrapper\n");
+        TEST(StatefulAllocator2<char>, ntWrap(nullFuncPtr)          );
+        TEST(bslma::TestAllocator *,   ntWrap(&simpleFunc)          );
+        TEST(StatefulAllocator<char>,  ntWrap(EmptyFunctor())       );
+        TEST(bsl::allocator<char>,     ntWrap(SmallFunctor(0x2000)) );
+        TEST(StatefulAllocator<char>,  ntWrap(SmallFunctor(0x2000)) );
+        TEST(EmptySTLAllocator<char>,  ntWrap(MediumFunctor(0x4000)));
+        TEST(StatefulAllocator2<char>, ntWrap(MediumFunctor(0x4000)));
+        TEST(bslma::TestAllocator *,   ntWrap(LargeFunctor(0x6000)) );
+        TEST(bslma::TestAllocator *  , ntWrap(NTSmallFunctor(0x3000)));
+        TEST(bslma::TestAllocator *  , ntWrap(ThrowingSmallFunctor(0x7000)));
+        TEST(bslma::TestAllocator *  , ntWrap(ThrowingEmptyFunctor())     );
+        TEST(bsl::allocator<char>    , ntWrap(SmallFunctorWithAlloc(0, &xa)));
+        TEST(StatefulAllocator<char> , ntWrap(LargeFunctorWithAlloc(0, &xa)));
+
 #undef TEST
 
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
@@ -3881,11 +3911,11 @@ int main(int argc, char *argv[])
         //:   original and copy can use different allocators.
         //: 11 If the functor copy-constructor or the allocator throws an
         //:   exception, then no resources are leaked.
-        //: 12 The above concerns are unchanged if the original 'function'
-        //:   object is constructed with a nothrow wrapper.  Specifically, if
-        //:   the nothrow wrapper results in an otherwise ineligible functor
-        //:   being eligibile for the small object optimization, then the copy
-        //:   will also use the small object optimization.
+        //: 12 The above concerns apply if the original 'function' object is
+        //:   constructed with a nothrow wrapper.  Specifically, if the
+        //:   nothrow wrapper results in an otherwise ineligible functor
+        //:   becoming eligibile for the small object optimization, then the
+        //:   copy will also use the small object optimization.
         //
         // Plan:
         //: 1 For concern 1 copy an empty 'function' using both the copy
@@ -3933,8 +3963,11 @@ int main(int argc, char *argv[])
         //: 10 For concern 11, performed the above steps within the exception
         //:   test framework and verify that, on exception, memory allocation
         //:   does not change and no functor objects are leaked.
-        //: 11 For concern 12, perform the step 7, wrapping the 'FUNC' objects
-        //:   in nothrow wrappers.
+        //: 11 For concern 12, repeat the above steps with a representative
+        //:   set of 'FUNC' types. The test for memory allocation (step 8)
+        //:   will have the effect of proving that the the original and the
+        //:   moved-to object either both use the small-object optimization or
+        //:   neither uses it.
         //
         // Testing:
         //      function(const function& other);
