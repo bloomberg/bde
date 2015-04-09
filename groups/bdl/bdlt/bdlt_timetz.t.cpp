@@ -64,12 +64,12 @@ using namespace bsl;
 // [ 6] bool operator==(const TimeTz& lhs, const TimeTz& rhs);
 // [ 6] bool operator!=(const TimeTz& lhs, const TimeTz& rhs);
 // [ 5] bsl::ostream& operator<<(bsl::ostream& stream, const TimeTz& rhs);
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
 // DEPRECATED
 // [10] static int maxSupportedBdexVersion();
 // [17] int validateAndSetTimeTz(const Time& localTime, int offset);
 // [16] Time gmtTime() const;
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [18] USAGE EXAMPLE
@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
 //..
       } break;
       case 17: {
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
         // --------------------------------------------------------------------
         // MANIPULATOR 'validateAndSetTimeTz'
         //
@@ -378,10 +378,10 @@ int main(int argc, char *argv[])
         }
 #else
         // Deprecated test case.  Do not remove.
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
       } break;
       case 16: {
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
         // --------------------------------------------------------------------
         // ACCESSOR 'gmtTime'
         //   A simple inspection of the implementation of 'gmtTime' shows that
@@ -424,7 +424,7 @@ int main(int argc, char *argv[])
         }
 #else
         // Deprecated test case.  Do not remove.
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
       } break;
       case 15: {
         // --------------------------------------------------------------------
@@ -1018,9 +1018,9 @@ int main(int argc, char *argv[])
         //   static int maxSupportedBdexVersion(int versionSelector);
         //   STREAM& bdexStreamIn(STREAM& stream, int version);
         //   STREAM& bdexStreamOut(STREAM& stream, int version) const;
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
         //   static int maxSupportedBdexVersion();
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1634,7 +1634,7 @@ int main(int argc, char *argv[])
             }
         }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
 
         if (verbose) {
             cout << "\nTesting deprecated methods." << endl;
@@ -1644,7 +1644,7 @@ int main(int argc, char *argv[])
                                            == Obj::maxSupportedBdexVersion(0));
         }
 
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
       } break;
       case 9: {
         // --------------------------------------------------------------------

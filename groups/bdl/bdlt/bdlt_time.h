@@ -373,7 +373,7 @@ class Time {
         // human-readable format is not fully specified, and can change without
         // notice.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
 
     // DEPRECATED METHODS
     static int maxSupportedBdexVersion();
@@ -382,6 +382,8 @@ class Time {
         // Return the most current BDEX streaming version number supported by
         // this class.
 
+#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
     static int maxSupportedVersion();
         // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
         //
@@ -406,7 +408,7 @@ class Time {
         // success, and a non-zero value (with no effect) otherwise.
         // Unspecified arguments default to 0.
 
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 
 };
 
@@ -650,7 +652,7 @@ STREAM& Time::bdexStreamOut(STREAM& stream, int version) const
     return stream;
 }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
 
 // DEPRECATED METHODS
 inline
@@ -659,6 +661,8 @@ int Time::maxSupportedBdexVersion()
     return maxSupportedBdexVersion(0);
 }
 
+#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 inline
 int Time::maxSupportedVersion()
 {
@@ -680,7 +684,7 @@ int Time::validateAndSetTime(int hour,
     return setTimeIfValid(hour, minute, second, millisecond);
 }
 
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 
 }  // close package namespace
 

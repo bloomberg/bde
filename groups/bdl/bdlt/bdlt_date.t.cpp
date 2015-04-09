@@ -127,16 +127,18 @@ using namespace bsl;
 // [15] Date operator+(int numDays, const Date& date);
 // [15] Date operator-(const Date& date, int numDays);
 // [16] int operator-(const Date& lhs, const Date& rhs);
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
 // DEPRECATED
 // [13] static bool isValid(int year, int dayOfYear);
 // [13] static bool isValid(int year, int month, int day);
 // [10] static int maxSupportedBdexVersion();
+#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 // [10] static int maxSupportedVersion();
 // [13] int validateAndSetYearDay(int year, int dayOfYear);
 // [13] int validateAndSetYearMonthDay(int year, int month, int day);
 // [ 5] bsl::ostream& streamOut(bsl::ostream& stream) const;
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [20] USAGE EXAMPLE
@@ -2799,12 +2801,14 @@ if (verbose)
         //   static bool isValidYearMonthDay(int year, int month, int day);
         //   int setYearDayIfValid(int year, int dayOfYear);
         //   int setYearMonthDayIfValid(int year, int month, int day);
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
         //   static bool isValid(int year, int dayOfYear);
         //   static bool isValid(int year, int month, int day);
+#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
         //   int validateAndSetYearDay(int year, int dayOfYear);
         //   int validateAndSetYearMonthDay(int year, int month, int day);
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2914,11 +2918,12 @@ if (verbose)
 
                     if (veryVeryVerbose) { T_ T_ P_(W) P(X) }
                 }
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
                 // '[isValid|validateAndSetYearDay](year, dayOfYear)'
 
                 {
                     LOOP_ASSERT(LINE, EXP == Obj::isValid(YEAR, DAY));
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 
                     Obj mX(1133, 275);  const Obj& X = mX;
 
@@ -2940,8 +2945,9 @@ if (verbose)
 
                         if (veryVeryVerbose) { T_ T_ P_(W) P(X) }
                     }
+#endif // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
                 }
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
             }
         }
 
@@ -3099,11 +3105,12 @@ if (verbose)
 
                     if (veryVeryVerbose) { T_ T_ P_(W) P(X) }
                 }
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
                 // '[isValid|validateAndSetYearMonthDay](year, month, day)'
 
                 {
                     LOOP_ASSERT(LINE, EXP == Obj::isValid(YEAR, MONTH, DAY));
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 
                     Obj mY(1133, 10, 2);  const Obj& Y = mY;
 
@@ -3129,8 +3136,9 @@ if (verbose)
 
                         if (veryVeryVerbose) { T_ T_ P_(W) P(Y) }
                     }
+#endif // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
                 }
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
             }
         }
 
@@ -3791,10 +3799,12 @@ if (verbose)
         //   static int maxSupportedBdexVersion(int versionSelector);
         //   STREAM& bdexStreamIn(STREAM& stream, int version);
         //   STREAM& bdexStreamOut(STREAM& stream, int version) const;
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
         //   static int maxSupportedBdexVersion();
+#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
         //   static int maxSupportedVersion();
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -4706,19 +4716,21 @@ if (verbose)
 
 #endif
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
 
         if (verbose) {
             cout << "\nTesting deprecated methods." << endl;
         }
         {
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
             ASSERT(Obj::maxSupportedVersion()
                                            == Obj::maxSupportedBdexVersion(0));
+#endif // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
             ASSERT(Obj::maxSupportedBdexVersion()
                                            == Obj::maxSupportedBdexVersion(0));
         }
 
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -5214,9 +5226,9 @@ if (verbose)
         // Testing:
         //   ostream& print(ostream& s, int level = 0, int sPL = 4) const;
         //   ostream& operator<<(ostream &os, const Date& object);
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
         //   bsl::ostream& streamOut(bsl::ostream& stream) const;
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -5390,7 +5402,7 @@ if (verbose)
             }
         }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
         if (verbose) cout << "\nTesting DEPRECATED 'streamOut' for sanity."
                           << endl;
         {
@@ -5406,7 +5418,7 @@ if (verbose)
 
             ASSERT(os1.str() == os2.str());
         }
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 
       } break;
       case 4: {

@@ -678,7 +678,7 @@ class Datetime {
         // human-readable format is not fully specified, and can change without
         // notice.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 
     Date& date();
         // !DEPRECATED!: Do *not* use.
@@ -686,12 +686,16 @@ class Datetime {
         // Return a reference providing modifiable access to the internal date
         // object of this datetime.
 
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
+#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
     static int maxSupportedBdexVersion();
         // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
         //
         // Return the most current BDEX streaming version number supported by
         // this class.
 
+#endif  // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
     static int maxSupportedVersion();
         // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
         //
@@ -720,7 +724,7 @@ class Datetime {
         // set to 0.  Return 0 on success, and a non-zero value (with no
         // effect) otherwise.
 
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 
 };
 
@@ -1278,7 +1282,7 @@ STREAM& Datetime::bdexStreamOut(STREAM& stream, int version) const
     return stream;
 }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 
 inline
 Date& Datetime::date()
@@ -1286,12 +1290,16 @@ Date& Datetime::date()
     return d_date;
 }
 
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
+#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
 inline
 int Datetime::maxSupportedBdexVersion()
 {
     return maxSupportedBdexVersion(0);
 }
 
+#endif  // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 inline
 int Datetime::maxSupportedVersion()
 {
@@ -1322,7 +1330,7 @@ int Datetime::validateAndSetDatetime(int year,
                               millisecond);
 }
 
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 
 }  // close package namespace
 
