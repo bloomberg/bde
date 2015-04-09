@@ -333,8 +333,8 @@ int main(int argc, char *argv[])
         //    Test the deprecated 'gmtStartTime' method, which has been
         //    superseded by the 'utcStartTime' method.  Note that this is the
         //    last test case because the method is defined in a
-        //    'BDE_OMIT_INTERNAL_DEPRECATED' block and will not appear in the
-        //    open source distribution of the component.
+        //    'BDE_OMIT_TRANSITIONAL' block and will not appear in the open
+        //    source distribution of the component.
         //
         // Concerns:
         //: 1 The deprecated 'gmtStartTime' computes the correct UTC start
