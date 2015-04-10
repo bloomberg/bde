@@ -823,6 +823,17 @@ struct bsls_Platform_Assert;
 #endif
 // ----------------------------------------------------------------------------
 
+                        // Miscellaneous Platform Macros
+
+#if defined(BSLS_PLATFORM_CMP_GNU)
+    #define BSLS_PLATFORM_NO_64_BIT_LITERALS 1
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CPU_64_BIT)
+    #define BSLS_PLATFORM_NO_64_BIT_LITERALS 1
+#endif
+// ----------------------------------------------------------------------------
+
                                  // Validation
 
 // Unix flag must be set by the compiler if Unix detected (except for AIX).
@@ -1245,6 +1256,9 @@ struct Platform {
 #endif
 #ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
 # define BSLS_PLATFORM__IS_LITTLE_ENDIAN BSLS_PLATFORM_IS_LITTLE_ENDIAN
+#endif
+#ifdef BSLS_PLATFORM_NO_64_BIT_LITERALS
+# define BSLS_PLATFORM__NO_64_BIT_LITERALS BSLS_PLATFORM_NO_64_BIT_LITERALS
 #endif
 #ifdef BSLS_PLATFORM_OS_AIX
 # define BSLS_PLATFORM__OS_AIX BSLS_PLATFORM_OS_AIX
