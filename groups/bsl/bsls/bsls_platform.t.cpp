@@ -102,7 +102,6 @@ bool isLittleEndian()
 // [ 1] For the OS, type ensure MAJOR_NUMBER set -> SUBTYPE set.
 // [ 2] BSLS_PLATFORM_IS_LITTLE_ENDIAN
 // [ 2] BSLS_PLATFORM_IS_BIG_ENDIAN
-// [ 3] BSLS_PLATFORM_NO_64_BIT_LITERALS
 // ============================================================================
 
 int main(int argc, char *argv[])
@@ -117,7 +116,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 4: {
+      case 3: {
         // --------------------------------------------------------------------
         // DUMPING VALUES OF OLD '__' LITERALS
         //
@@ -274,11 +273,6 @@ int main(int argc, char *argv[])
         #else
           printf("BSLS_PLATFORM_IS_LITTLE_ENDIAN == 0\n");
         #endif
-        #ifdef BSLS_PLATFORM_NO_64_BIT_LITERALS
-          printf("BSLS_PLATFORM_NO_64_BIT_LITERALS == 1\n");
-        #else
-          printf("BSLS_PLATFORM_NO_64_BIT_LITERALS == 0\n");
-        #endif
         #ifdef BSLS_PLATFORM_OS_AIX
           printf("BSLS_PLATFORM_OS_AIX == 1\n");
         #else
@@ -365,77 +359,6 @@ int main(int argc, char *argv[])
           printf("BSLS_PLATFORM_OS_WINXP == 0\n");
         #endif
       }  break;
-      case 3: {
-        // --------------------------------------------------------------------
-        // TESTING 64-BIT LITERALS:
-        //
-        // Concerns:
-        //   Since the actual flag indicates the lack of support for
-        //   64-bit integer literals, the only way to test the flag is
-        //   for the compiler to fail.  Therefore the test will check for
-        //   the absence of the flag and attempt to assign 64-bit literals
-        //   to a variable, ensuring the compile-time macro for support of
-        //   64-bit integer literals agrees with the capability of the
-        //   compiler.
-        //
-        // Plan:
-        //   - Assign both signed and unsigned 64-bit integer literals
-        //     to variables of each type.
-        //   - Verify that the compiler does not truncate the assignment or
-        //     the constant by splitting the constant into 2 32-bit constants
-        //     and combining them using logical operations into another
-        //     64-bit value.
-        //   - Verify the constructed value is equal to the 64-bit value
-        //     directly assigned.
-        //   - Verify no truncation is occurring by logically masking
-        //     and shifting the 64-bit value with the 32-bit lo and hi words.
-        //
-        // Testing:
-        //   BSLS_PLATFORM_NO_64_BIT_LITERALS
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "Testing 64-Bit Integer Constant Support" << endl
-                          << "=======================================" << endl;
-
-#if defined(BSLS_PLATFORM_NO_64_BIT_LITERALS)
-        if (veryVerbose) cout << "No 64-bit integer constants."        << endl;
-#else
-        if (veryVerbose) cout << "64-bit integer constants supported." << endl;
-
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-        typedef          __int64   T;  // Int64;
-        typedef unsigned __int64   U;  // Uint64;
-#else
-        typedef          long long T;  //Int64;
-        typedef unsigned long long U;  //Uint64;
-#endif
-
-        T i, iHi, iLo, iTest;
-        U u, uHi, uLo, uTest;
-
-        i = 9223372036854775807;  // 0x7FFFFFFFFFFFFFFF
-        u = 9223372036854775809;  // 0x8000000000000001
-
-        ASSERT(i == 0x7FFFFFFFFFFFFFFF);
-        ASSERT(u == 0x8000000000000001);
-
-        // Generate test values in 32-bit parts.
-
-        iHi   = 0x7FFFFFFF; iLo = 0xFFFFFFFF;
-        iTest = iHi << 32 | iLo;
-        ASSERT(               i == iTest);
-        ASSERT((i & 0xFFFFFFFF) == iLo);
-        ASSERT(         i >> 32 == iHi);
-
-        uHi   = 0x80000000; uLo = 0x00000001;
-        uTest = uHi << 32 | uLo;
-        ASSERT(                u == uTest);
-        ASSERT((u & 0x0FFFFFFFF) == uLo);
-        ASSERT(          u >> 32 == uHi);
-#endif
-
-      } break;
       case 2: {
         // --------------------------------------------------------------------
         // TESTING BIG ENDIAN and LITTLE ENDIAN:
