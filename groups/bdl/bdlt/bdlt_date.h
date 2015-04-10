@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: $")
 // 'bdlt::Date' and its associated free operators.  Calculations involving
 // business days (or holidays), and day-count conventions (e.g., "ISMA30360"),
 // can be found elsewhere.
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_TRANSITIONAL  // references to unreleased components
 // See 'bdlt_calendar' and the 'bbedc' day-count convention package.
 #endif
 //
@@ -526,7 +526,7 @@ class Date {
         // human-readable format is not fully specified, and can change without
         // notice.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
 
     // DEPRECATED METHODS
     static bool isValid(int year, int dayOfYear);
@@ -555,6 +555,8 @@ class Date {
         // Return the most current BDEX streaming version number supported by
         // this class.
 
+#endif  // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
     static int maxSupportedVersion();
         // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
         //
@@ -589,7 +591,7 @@ class Date {
         // (see 'isValidYearMonthDay').  Return 0 on success, and a non-zero
         // value (with no effect) otherwise.
 
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 
 };
 
@@ -1046,12 +1048,12 @@ STREAM& Date::bdexStreamOut(STREAM& stream, int version) const
     if (stream) {
         switch (version) { // switch on the schema version
           case 1: {
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
             // Prevent a corrupt date value from escaping the process (whereby
             // it may contaminate a database, for example).
 
             BSLS_ASSERT_OPT(Date::isValidSerial(d_serialDate));
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
 
 #ifndef BDE_OMIT_TRANSITIONAL
             static bsls::AtomicOperations::AtomicTypes::Int count = { 0 };
@@ -1084,7 +1086,7 @@ STREAM& Date::bdexStreamOut(STREAM& stream, int version) const
     return stream;
 }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
 
 // DEPRECATED METHODS
 inline
@@ -1105,6 +1107,8 @@ int Date::maxSupportedBdexVersion()
     return maxSupportedBdexVersion(0);
 }
 
+#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 inline
 int Date::maxSupportedVersion()
 {
@@ -1129,7 +1133,7 @@ int Date::validateAndSetYearMonthDay(int year, int month, int day)
     return setYearMonthDayIfValid(year, month, day);
 }
 
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 
 }  // close package namespace
 

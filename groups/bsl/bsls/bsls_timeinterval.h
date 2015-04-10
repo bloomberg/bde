@@ -489,7 +489,7 @@ class TimeInterval {
         // effect.  Note that the format is not fully specified, and can change
         // without notice.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
     // DEPRECATED
     static int maxSupportedBdexVersion();
         // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
@@ -497,6 +497,8 @@ class TimeInterval {
         // Return the most current BDEX streaming version number supported by
         // this class.
 
+#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
     static int maxSupportedVersion();
         // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
         //
@@ -510,7 +512,7 @@ class TimeInterval {
         // Format this time to the specified output 'stream', and return a
         // reference to the modifiable 'stream'.
 
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 
 };
 
@@ -950,7 +952,7 @@ STREAM& TimeInterval::print(STREAM& stream,
     return stream;
 }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
 
 // DEPRECATED METHODS
 inline
@@ -959,6 +961,8 @@ int TimeInterval::maxSupportedBdexVersion()
     return maxSupportedBdexVersion(0);
 }
 
+#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 inline
 int TimeInterval::maxSupportedVersion()
 {
@@ -972,7 +976,7 @@ STREAM& TimeInterval::streamOut(STREAM& stream) const
     return print(stream, 0, -1);
 }
 
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 
 }  // close package namespace
 

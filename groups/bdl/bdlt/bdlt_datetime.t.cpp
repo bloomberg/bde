@@ -147,14 +147,16 @@ using namespace bsl;
 // [13] bool operator>=(const Datetime& lhs, const Datetime& rhs);
 //
 // [ 5] ostream& operator<<(ostream &stream, const Datetime &object);
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
 // DEPRECATED METHODS
 // [10] static int maxSupportedBdexVersion();
+#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 // [10] static int maxSupportedVersion();
 // [22] Date& date();
 // [22] int validateAndSetDatetime(int, int, int, int, int, int, int);
 // [10] bsl::ostream& streamOut(bsl::ostream& stream) const;
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [23] USAGE EXAMPLE
@@ -465,7 +467,7 @@ if (veryVerbose)
 
       } break;
       case 22: {
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
         // --------------------------------------------------------------------
         // TESTING DEPRECATED MANIPULATORS
         //
@@ -681,7 +683,7 @@ if (veryVerbose)
 
 #else
        // Deprecated test case.  Do not remove.
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
       } break;
       case 21: {
         // --------------------------------------------------------------------
@@ -3380,10 +3382,10 @@ if (veryVerbose)
         //   static int maxSupportedBdexVersion(int versionSelector);
         //   STREAM& bdexStreamIn(STREAM& stream, int version);
         //   STREAM& bdexStreamOut(STREAM& stream, int version) const;
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
         //   static int maxSupportedBdexVersion();
         //   static int maxSupportedVersion();
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
         // --------------------------------------------------------------------
 
         // Allocator to use instead of the default allocator.
@@ -3960,19 +3962,21 @@ if (veryVerbose)
             }
         }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
 
         if (verbose) {
             cout << "\nTesting deprecated methods." << endl;
         }
         {
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
             ASSERT(Obj::maxSupportedVersion()
                                            == Obj::maxSupportedBdexVersion(0));
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
             ASSERT(Obj::maxSupportedBdexVersion()
                                            == Obj::maxSupportedBdexVersion(0));
         }
 
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
       } break;
       case 9: {
         // --------------------------------------------------------------------
