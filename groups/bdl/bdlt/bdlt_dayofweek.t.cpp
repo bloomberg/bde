@@ -51,13 +51,13 @@ using namespace bsl;
 // [ 4] STREAM& bdexStreamIn(STREAM& s, Enum& variable, int v);
 // [ 4] STREAM& bdexStreamOut(STREAM& s, const Enum& value, int v) const;
 // [ 4] int maxSupportedBdexVersion(const Enum *, int versionSelector);
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
 // DEPRECATED
 // [ 4] static int maxSupportedBdexVersion();
 // [ 4] STREAM& streamIn(STREAM& s, Enum& variable, int v);
 // [ 4] STREAM& streamOut(STREAM& s, const Enum& value, int v) const;
 // [ 4] int maxSupportedVersion(Enum);
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
 // ----------------------------------------------------------------------------
 // [ 5] USAGE EXAMPLE
 
@@ -110,11 +110,11 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 typedef bdlt::DayOfWeek    Obj;
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
 typedef Obj::Day           Enum;
 #else
 typedef Obj::Enum          Enum;
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
 
 enum { ABOVE_ENUM_RANGE = Obj::e_SAT + 1 };
 
@@ -287,12 +287,12 @@ if (verbose) {  // added in test driver
         //   STREAM& bdexStreamIn(STREAM& s, Enum& variable, int v);
         //   STREAM& bdexStreamOut(STREAM& s, const Enum& value, int v) const;
         //   int maxSupportedBdexVersion(const Enum *, int versionSelector);
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
         //   static int maxSupportedBdexVersion();
         //   STREAM& streamIn(STREAM& s, Enum& variable, int v);
         //   STREAM& streamOut(STREAM& s, const Enum& value, int v) const;
         //   int maxSupportedVersion(Enum);
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
         // --------------------------------------------------------------------
 
         // Allocator to use instead of the default allocator.
@@ -843,7 +843,7 @@ if (verbose) {  // added in test driver
             }
         }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
 
         if (verbose) {
             cout << "\nTesting deprecated methods." << endl;
@@ -919,7 +919,7 @@ if (verbose) {  // added in test driver
             }
         }
 
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -992,7 +992,7 @@ if (verbose) {  // added in test driver
             { L_,     Obj::e_FRIDAY,              "FRI"              },
             { L_,     Obj::e_SATURDAY,            "SAT"              },
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
             { L_,     Obj::BDET_SUN,              "SUN"              },
             { L_,     Obj::BDET_MON,              "MON"              },
             { L_,     Obj::BDET_TUE,              "TUE"              },
@@ -1138,7 +1138,7 @@ if (verbose) {  // added in test driver
             { L_,     0,    4,  Obj::e_FRIDAY,           "FRI" NL           },
             { L_,     0,    4,  Obj::e_SATURDAY,         "SAT" NL           },
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
             { L_,     0,    4,  Obj::BDET_SUN,           "SUN" NL           },
             { L_,     0,    4,  Obj::BDET_MON,           "MON" NL           },
             { L_,     0,    4,  Obj::BDET_TUE,           "TUE" NL           },

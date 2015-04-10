@@ -289,7 +289,7 @@ class TimeTz {
         // valid on entry, this operation has no effect.  Note that the format
         // is not fully specified, and can change without notice.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
 
     // DEPRECATED
     Time gmtTime() const;
@@ -314,7 +314,7 @@ class TimeTz {
         // on success, and a non-zero value with no effect on this object
         // otherwise.
 
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
 };
 
 // FREE OPERATORS
@@ -501,7 +501,7 @@ STREAM& TimeTz::bdexStreamOut(STREAM& stream, int version) const
     return stream;
 }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
 // DEPRECATED
 inline
 Time TimeTz::gmtTime() const
@@ -520,7 +520,7 @@ int TimeTz::validateAndSetTimeTz(const Time& localTime, int offset)
 {
     return setTimeTzIfValid(localTime, offset);
 }
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
 
 }  // close package namespace
 
