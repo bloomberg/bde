@@ -247,6 +247,13 @@ void dumpExTest(const char *s, int bslmaExceptionCounter,
     }
 }
 
+// Run an exception test repeatedly using up to two exception counters: If a
+// test allocator is specified, then its built-in exception limit is used. If
+// the address an exception-limit is specified, then it is used to set the
+// exception limit.  If both are specified, The test is performed first by
+// running through the allocator exception limit, then by running through the
+// specified 'exceptionLimit'.  If both are null, then the test is run without
+// forcing any exceptions.
 #define EXCEPTION_TEST_BEGIN(testAllocator, exceptionLimit) do {              \
     if (veryVeryVerbose) std::printf("\t*** EXCEPTION_TEST_BEGIN ***\n");     \
     bslma::TestAllocator *testAlloc = (testAllocator);                        \
@@ -2320,7 +2327,8 @@ void testSwap(const Obj& inA,
               bool (*    areEqualA_p)(const Obj&, const Obj&),
               bool (*    areEqualB_p)(const Obj&, const Obj&),
               int        lineA,
-              int        lineB)
+              int        lineB,
+              bool       skipExcTest)
     // Test 'function::swap'.
 {
     bslma::TestAllocator testAlloc;
@@ -2336,9 +2344,10 @@ void testSwap(const Obj& inA,
     bslma::TestAllocatorMonitor testAllocMonitor(&testAlloc);
 
     // swap() should not call any potentially-throwing operations; set
-    // allocation limit and move limit to detect such operations.
-    testAlloc.setAllocationLimit(0);
-    moveLimit = 0;
+    // allocation limit and move limit to detect such operations unless
+    // 'skipExcTest' is true.
+    testAlloc.setAllocationLimit(skipExcTest ? -1 : 0);
+    moveLimit = skipExcTest ? -1 : 0;
     a.swap(b);
     moveLimit = -1;
     testAlloc.setAllocationLimit(-1);
@@ -2359,9 +2368,9 @@ void testSwap(const Obj& inA,
 
     // Swap back using namespace-scope swap.  swap() should not call any
     // potentially-throwing operations; set allocation limit and move limit to
-    // detect such operations.
-    testAlloc.setAllocationLimit(0);
-    moveLimit = 0;
+    // detect such operations unless 'skipExcTest' is true.
+    testAlloc.setAllocationLimit(skipExcTest ? -1 : 0);
+    moveLimit = skipExcTest ? -1 : 0;
     swap(b, a);
     moveLimit = -1;
     testAlloc.setAllocationLimit(-1);
@@ -3498,13 +3507,15 @@ int main(int argc, char *argv[])
         //:   heap, is unchanged by the swap operation.
         //: 3 The above concerns apply for each of the different types of
         //:   wrapped functors.
-        //: 4 The above concerns apply to functions constructed with allocator
-        //:   constructor arguments that are pointers to type derived from
-        //:   'bslma::Allocator', 'bsl::allocator' instantiations, stateless
-        //:   STL-style allocators, and stateful STL-style allocators.
-        //:   Note that the allocators to both objects must
-        //:   compare equal in order for them to be swapped.
-        //: 5 The namespace-scope function, 'bsl::swap' invokes
+        //: 4 The above concerns apply to 'function's constructed with
+        //:   allocator constructor arguments that are pointers to type
+        //:   derived from 'bslma::Allocator', 'bsl::allocator'
+        //:   instantiations, stateless STL-style allocators, and stateful
+        //:   STL-style allocators.  Note that the allocators to both objects
+        //:   must compare equal in order for them to be swapped.
+        //: 5 The above concerns apply to 'function's constructed with nothrow
+        //:   wrappers.
+        //: 6 The namespace-scope function, 'bsl::swap' invokes
         //:   'bsl::function<F>::swap' when invoked with two 'function'
         //:   objects.
         //
@@ -3541,7 +3552,9 @@ int main(int argc, char *argv[])
         //:   through the 3-way cross product of the two arrays and the
         //:   different allocator categories and call 'testSwap' to perform
         //:   the test.
-        //: 4 For concern 5, reverse the call to member 'swap' in step 1 by
+        //: 4 For concern 5, add a nothrow-wrapped version of each 'function'
+        //:   in the arrays described in step 3.
+        //: 5 For concern 6, reverse the call to member 'swap' in step 1 by
         //:   using free function 'bsl::swap'.
         //
         // Testing
@@ -3568,10 +3581,13 @@ int main(int argc, char *argv[])
             Obj               d_function;       // function object to swap
             const char       *d_funcName;       // function object name
             AreEqualFuncPtr_t d_areEqualFunc_p; // comparison function
+            bool              d_skipExcTest;    // skip exception test
         };
 
-#define TEST_ITEM(F, V)                          \
-        { L_, Obj(F(V)), #F "(" #V ")", &AreEqualFunctions<F> }
+#define TEST_ITEM(F, V)                                                 \
+        { L_, Obj(F(V)), #F "(" #V ")", &AreEqualFunctions<F>, false }, \
+        { L_, Obj(ntWrap(F(V))), "ntWrap(" #F "(" #V "))",              \
+                &AreEqualFunctions<F>, true }
 
         TestData dataA[] = {
             TEST_ITEM(SimpleFuncPtr_t        , nullFuncPtr       ),
@@ -3613,7 +3629,8 @@ int main(int argc, char *argv[])
 
 #define TEST(ALLOC) do {                                                      \
          if (veryVeryVerbose) printf("\tAllocator type = %s\n", #ALLOC);      \
-         testSwap<ALLOC>(funcA, funcB, areEqualA, areEqualB, lineA, lineB);   \
+         testSwap<ALLOC>(funcA, funcB, areEqualA, areEqualB, lineA, lineB,    \
+                         skipExcTest);                                        \
      } while (false)
 
         int dataBSize = sizeof(dataB) / sizeof(TestData);
@@ -3628,6 +3645,8 @@ int main(int argc, char *argv[])
                 const Obj& funcB            = dataB[j].d_function;
                 const char* funcBName       = dataB[j].d_funcName;
                 AreEqualFuncPtr_t areEqualB = dataB[j].d_areEqualFunc_p;
+                bool skipExcTest            = (dataA[i].d_skipExcTest ||
+                                               dataB[j].d_skipExcTest);
 
                 if (veryVerbose) printf("swap(%s, %s)\n",funcAName,funcBName);
 
