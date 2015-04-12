@@ -2396,8 +2396,9 @@ void testAssignment(const Obj& inA,
                     bool (*    areEqualA_p)(const Obj&, const Obj&),
                     bool (*    areEqualB_p)(const Obj&, const Obj&),
                     int        lineA,
-                    int        lineB)
-    // Test 'function::swap'.
+                    int        lineB,
+                    bool       skipMvExcTest)
+    // Test copy and move assignment
 {
     bslma::TestAllocator testAlloc1;
     bslma::TestAllocator testAlloc2;
@@ -2481,7 +2482,8 @@ void testAssignment(const Obj& inA,
     testAlloc1Monitor.reset(&testAlloc1);
     testAlloc2Monitor.reset(&testAlloc2);
 
-    EXCEPTION_TEST_BEGIN(&testAlloc1, &moveLimit) {
+    EXCEPTION_TEST_BEGIN(skipMvExcTest ? 0 : &testAlloc1,
+                         skipMvExcTest ? 0 : &moveLimit) {
 
         FunctorMonitor funcMonitor(L_);
 
@@ -2556,7 +2558,8 @@ void testAssignment(const Obj& inA,
     // not comparable, then skip this part of the test.
     ALLOC_B allocB1(&testAlloc1);
     if (areEqualAlloc(allocA1, allocB1)) {
-        EXCEPTION_TEST_BEGIN(&testAlloc1, &moveLimit) {
+        EXCEPTION_TEST_BEGIN(skipMvExcTest ? 0 : &testAlloc1,
+                             skipMvExcTest ? 0 : &moveLimit) {
 
             FunctorMonitor funcMonitor(L_);
 
@@ -3337,6 +3340,9 @@ int main(int argc, char *argv[])
         //:   allocators in the lhs and rhs might be different.
         //: 10 If an exception is thrown during an assignment, both operands
         //:   of the assignment are unchanged.
+        //: 11 The above concerns apply if the functor used to construct
+        //:   either operand of the assignment was wrapped in a nothrow
+        //:   wrapper.
         //
         // Plan:
         //: 1 For concern 1, construct a pair of 'function' objects 'a' and
@@ -3390,6 +3396,10 @@ int main(int argc, char *argv[])
         //: 9 For concern 10, test assignments in within the exception-test
         //:   framework and verify that, on exception, both operands retain
         //:   their original values.
+        //: 10 For concern 11, add functors with nothrow wrappers to the array
+        //:   in step 8, above. Suppress exception tests for move assignment
+        //:   when nothrow wrappers are used, since throwing an exception from
+        //:   a wrapper would terminate the program.
         //
         // Testing
         //      function& operator=(const function&);
@@ -3414,10 +3424,13 @@ int main(int argc, char *argv[])
             Obj               d_function;       // function object to swap
             const char       *d_funcName;       // function object name
             AreEqualFuncPtr_t d_areEqualFunc_p; // comparison function
+            bool              d_skipMvExcTest;  // Skip exc test on move
         };
 
 #define TEST_ITEM(F, V)                                                       \
-        { L_, Obj(F(V)), #F "(" #V ")", &AreEqualFunctions<F> }
+        { L_, Obj(F(V)), #F "(" #V ")", &AreEqualFunctions<F>, false },       \
+        { L_, Obj(ntWrap(F(V))), "ntWrap(" #F "(" #V "))",                    \
+                &AreEqualFunctions<F>, true }
 
         TestData dataA[] = {
             TEST_ITEM(SimpleFuncPtr_t        , nullFuncPtr       ),
@@ -3461,7 +3474,8 @@ int main(int argc, char *argv[])
             if (veryVeryVerbose) printf("\tAllocator types = %s, %s\n", \
                                         #ALLOC1, #ALLOC2);              \
             testAssignment<ALLOC1, ALLOC2>(funcA, funcB, areEqualA,     \
-                                           areEqualB, lineA, lineB);    \
+                                           areEqualB, lineA, lineB,     \
+                                           skipMvExcTest);              \
         } while (false)
 
         int dataBSize = sizeof(dataB) / sizeof(TestData);
@@ -3476,6 +3490,8 @@ int main(int argc, char *argv[])
                 const Obj& funcB            = dataB[j].d_function;
                 const char* funcBName       = dataB[j].d_funcName;
                 AreEqualFuncPtr_t areEqualB = dataB[j].d_areEqualFunc_p;
+                bool skipMvExcTest          = (dataA[i].d_skipMvExcTest ||
+                                               dataB[j].d_skipMvExcTest);
 
                 if (veryVerbose) printf("Assign %s = %s\n",
                                         funcAName, funcBName);
@@ -3553,7 +3569,9 @@ int main(int argc, char *argv[])
         //:   different allocator categories and call 'testSwap' to perform
         //:   the test.
         //: 4 For concern 5, add a nothrow-wrapped version of each 'function'
-        //:   in the arrays described in step 3.
+        //:   in the arrays described in step 3. Suppress exception tests when
+        //:   nothrow wrappers are used, since throwing an exception from a
+        //:   wrapper would terminate the program.
         //: 5 For concern 6, reverse the call to member 'swap' in step 1 by
         //:   using free function 'bsl::swap'.
         //
