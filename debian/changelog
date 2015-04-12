@@ -1,5 +1,17 @@
-bsl-internal (2.23.0.1.icbeta) unstable; urgency=low
+bsl-internal (2.23.0.2.icbeta) unstable; urgency=low
 
+  * 6a9d6a8 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.23.x
+  * 869559a [APPROVAL] INTERNAL pending/releases/2.23.x/un-deprecate-bdlt-legacy-interfaces-drqs-64299432 to releases/2.23.x
+  * 6d3f57a [APPROVAL] pending/releases/2.23.x/un-deprecate-bdlt-legacy-interfaces-drqs-64299432 to releases/2.23.x
+  * a18c73a Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.23.x
+  * 5e7f4d4 [APPROVAL] INTERNAL pending/releases/2.23.x/migrate_to_comment_pragma_for_bdeverify_drqs55524626 to releases/2.23.x
+  * d3468e5 [APPROVAL] pending/releases/2.23.x/migrate_to_comment_pragma_for_bdeverify_drqs55524626 to releases/2.23.x
+
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Fri, 10 Apr 2015 16:28:03 -0400
+
+bsl-internal (2.23.0.1.icbeta) git; urgency=low
+
+  * 8f885fe bump changelog to 2.23.0.1.icbeta
   * 501a712 [APPROVAL] INTERNAL guidutil-win_drqs-63818360 to master
   * c31503d [APPROVAL] guidutil-win_drqs-63818360 to master
   * 36f3917 [APPROVAL] update-wscript-from-bde-tools to master
@@ -436,7 +448,7 @@ bsl-internal (2.23.0.1.icbeta) unstable; urgency=low
   * c9a58b6 [APPROVAL] pending/master/bdlb_bitutil to master
   * 0798a38 [APPROVAL] pending/master/correct_array_primitives_compiler_check_drqs51229610 to master
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 27 Mar 2015 13:38:59 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 1 Apr 2015 15:38:53 -0400
 
 bsl-internal (2.20.2.2) git; urgency=low
 
