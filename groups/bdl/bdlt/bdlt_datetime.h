@@ -867,7 +867,8 @@ inline
 Datetime& Datetime::operator+=(const DatetimeInterval& rhs)
 {
     BSLS_ASSERT_SAFE(rhs <= Datetime(9999, 12, 31, 23, 59, 59, 999) - *this);
-    BSLS_ASSERT_SAFE(rhs >= Datetime(   1,  1,  1,  0,  0,  0,   0) - *this);
+//  BSLS_ASSERT_SAFE(rhs >= Datetime(   1,  1,  1,  0,  0,  0,   0) - *this);
+//  ProlepticGregorianMode assert squelched
 
     d_date += d_time.addInterval(rhs);
 
@@ -878,7 +879,8 @@ inline
 Datetime& Datetime::operator-=(const DatetimeInterval& rhs)
 {
     BSLS_ASSERT_SAFE(-rhs <= Datetime(9999, 12, 31, 23, 59, 59, 999) - *this);
-    BSLS_ASSERT_SAFE(-rhs >= Datetime(   1,  1,  1,  0,  0,  0,   0) - *this);
+//  BSLS_ASSERT_SAFE(-rhs >= Datetime(   1,  1,  1,  0,  0,  0,   0) - *this);
+//  ProlepticGregorianMode assert squelched
 
     d_date += d_time.addInterval(-rhs);
 
@@ -1052,7 +1054,8 @@ void Datetime::addTime(bsls::Types::Int64 hours,
                                  milliseconds);
 
     BSLS_ASSERT_SAFE(delta <= Datetime(9999, 12, 31, 23, 59, 59, 999) - *this);
-    BSLS_ASSERT_SAFE(delta >= Datetime(   1,  1,  1,  0,  0,  0,   0) - *this);
+//  BSLS_ASSERT_SAFE(delta >= Datetime(   1,  1,  1,  0,  0,  0,   0) - *this);
+//  ProlepticGregorianMode assert squelched
 
     d_date += d_time.addInterval(delta);
 }
