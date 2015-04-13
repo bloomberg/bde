@@ -228,6 +228,14 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_istriviallycopyable.h>
 #endif
 
+#ifndef INCLUDED_BSLSTL_HASH
+#include <bslstl_hash.h>
+#endif
+
+#ifndef INCLUDED_BSLH_HASH
+#include <bslh_hash.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -272,6 +280,8 @@ class Date {
     friend Date operator+(int, const Date&);
     friend Date operator-(const Date&, int);
     friend int  operator-(const Date&, const Date&);
+    template <class HASHALG>
+    friend void hashAppend(HASHALG& hashAlg, const Date&);
 
   private:
     // PRIVATE CLASS METHODS
@@ -1308,6 +1318,14 @@ int bdlt::operator-(const Date& lhs, const Date& rhs)
 #endif
 
     return lhs.d_serialDate - rhs.d_serialDate;
+}
+
+// HASH SPECIALIZATIONS
+template <typename HASHALG>
+void bdlt::hashAppend(HASHALG& hashAlg, const Date& date)
+{
+    using ::BloombergLP::bslh::hashAppend;
+    hashAppend(hashAlg, date.d_serialDate);
 }
 
 }  // close enterprise namespace

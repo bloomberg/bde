@@ -127,15 +127,16 @@ using namespace bsl;
 // [15] Date operator+(int numDays, const Date& date);
 // [15] Date operator-(const Date& date, int numDays);
 // [16] int operator-(const Date& lhs, const Date& rhs);
+// [22] hashAppend(HASHALG& hashAlg, const Date& date);
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 // DEPRECATED
 // [13] static bool isValid(int year, int dayOfYear);
 // [13] static bool isValid(int year, int month, int day);
 // [10] static int maxSupportedBdexVersion();
 // TRANSITIONAL
-// [22] static void disableLogging();
-// [22] static void enableLogging();
-// [22] static bool isLoggingEnabled();
+// [23] static void disableLogging();
+// [23] static void enableLogging();
+// [23] static bool isLoggingEnabled();
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 // [10] static int maxSupportedVersion();
@@ -394,7 +395,7 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:
 #ifndef BDE_OPENSOURCE_PUBLICATION
-      case 22: {
+      case 23: {
         // --------------------------------------------------------------------
         // TESTING LOGGING SWITCH
         //
@@ -446,6 +447,103 @@ int main(int argc, char *argv[])
 
         bdlt::Date::disableLogging();
         ASSERT(false == bdlt::Date::isLoggingEnabled());
+
+      } break;
+    case 22: {
+        // --------------------------------------------------------------------
+        // hashAppend
+        //
+        // Concerns:
+        //: 1 Hashes different inputs differently
+        //
+        //: 2 Hashes equal inputs identically
+        //
+        //: 3 Works for const and non-const dates
+        //
+        // Plan:
+        //: 1 Create dates, some equal and some not, some const, some not.
+        //
+        //: 2 Hash them all
+        //
+        //: 3 Compare hashes, identifying those that should be equal and those
+        //:   that should not. (C-1,2)
+        //
+        //: 4 Call with different mixes of constness, to verify that all
+        //:   compile. (C-3)
+        //
+        // Testing:
+        //     hashAppend(HASHALG& hashAlg, const Date&  date);
+        // --------------------------------------------------------------------
+        if (verbose) {
+            puts("\nTESTING 'hashAppend'"
+                "\n====================");
+        }
+
+        typedef ::BloombergLP::bslh::Hash<> Hasher;
+
+        bdlt::Date d1; // P-1
+        bdlt::Date d2(1999, 12, 31);
+        bdlt::Date d3(1999, 12, 31);
+        bdlt::Date d4(1, 1, 2);
+        const bdlt::Date d5(1, 1, 2);
+        const bdlt::Date d6(1, 1, 3);
+
+        Hasher hasher;  // P-2
+        Hasher::result_type a1 = hasher(d1), a2 = hasher(d2), a3 = hasher(d3),
+                            a4 = hasher(d4), a5 = hasher(d5), a6 = hasher(d6);
+
+        if (veryVerbose) {
+            cout << "\tHash of " << d1 << " is " << a1 << endl;
+            cout << "\tHash of " << d2 << " is " << a2 << endl;
+            cout << "\tHash of " << d3 << " is " << a3 << endl;
+            cout << "\tHash of " << d4 << " is " << a4 << endl;
+            cout << "\tHash of " << d5 << " is " << a5 << endl;
+            cout << "\tHash of " << d6 << " is " << a6 << endl;
+        }
+
+        // P-3
+
+        ASSERT(a1 != a2);
+        ASSERT(a1 != a3);
+        ASSERT(a1 != a4);
+        ASSERT(a1 != a5);
+        ASSERT(a1 != a6);
+        if (veryVerbose) {
+            cout << "\td1/d2: " << int(a1 != a2)
+                 << ", d1/d3: " << int(a1 != a3)
+                 << ", d1/d4: " << int(a1 != a4)
+                 << ", d1/d5: " << int(a1 != a5)
+                 << ", d1/d6: " << int(a1 != a6) << endl;
+        }
+        ASSERT(a2 == a3);
+        ASSERT(a2 != a4);
+        ASSERT(a2 != a5);
+        ASSERT(a2 != a6);
+        if (veryVerbose) {
+            cout << "\td2/d3: " << int(a2 != a3)
+                 << ", d2/d4: " << int(a2 != a4)
+                 << ", d2/d5: " << int(a2 != a5)
+                 << ", d2/d6: " << int(a2 != a6) << endl;
+        }
+        ASSERT(a3 != a4);
+        ASSERT(a3 != a5);
+        ASSERT(a3 != a6);
+        if (veryVerbose) {
+            cout << "\td3/d4: " << int(a3 != a4)
+                 << ", d3/d5: " << int(a3 != a5)
+                 << ", d3/d6: " << int(a3 != a6) << endl;
+        }
+        // P-4
+        ASSERT(a4 == a5);
+        ASSERT(a4 != a6);
+        if (veryVerbose) {
+            cout << "\td4/d5: " << int(a4 != a5)
+                 << ", d4/d6: " << int(a4 != a6) << endl;
+        }
+        ASSERT(a5 != a6);
+        if (veryVerbose) {
+            cout << "\td5/d6: " << int(a5 != a6) << endl;
+        }
 
       } break;
       case 21: {
