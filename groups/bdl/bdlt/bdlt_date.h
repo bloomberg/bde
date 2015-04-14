@@ -697,7 +697,7 @@ int operator-(const Date& lhs, const Date& rhs);
 
 template <class HASHALG>
 void hashAppend(HASHALG& hashAlg, const Date& date);
-    // Pass the specified 'date' to the specified 'hashAlg'
+    // Pass the specified 'date' to the specified 'hashAlg'.
 
 // ============================================================================
 //                              INLINE DEFINITIONS
