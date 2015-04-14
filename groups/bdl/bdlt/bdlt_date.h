@@ -228,10 +228,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_istriviallycopyable.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_HASH
-#include <bslstl_hash.h>
-#endif
-
 #ifndef INCLUDED_BSLH_HASH
 #include <bslh_hash.h>
 #endif
@@ -698,6 +694,10 @@ Date operator-(const Date& date, int numDays);
 int operator-(const Date& lhs, const Date& rhs);
     // Return the (signed) number of days between the specified 'lhs' and 'rhs'
     // dates.  Note that if 'lhs < rhs' the result will be negative.
+
+template <class HASHALG>
+void hashAppend(HASHALG& hashAlg, const Date& date);
+    // Pass the specified 'date' to the specified 'hashAlg'
 
 // ============================================================================
 //                              INLINE DEFINITIONS
@@ -1320,7 +1320,7 @@ int bdlt::operator-(const Date& lhs, const Date& rhs)
     return lhs.d_serialDate - rhs.d_serialDate;
 }
 
-// HASH SPECIALIZATIONS
+// ASPECTS
 template <typename HASHALG>
 void bdlt::hashAppend(HASHALG& hashAlg, const Date& date)
 {
