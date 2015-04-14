@@ -468,7 +468,7 @@ int main(int argc, char *argv[])
         //     hashAppend(HASHALG& hashAlg, const Date&  date);
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTESTING 'hashAppend'"
-                          << "\n====================" << endl;
+                          << "\n====================\n";
         {
 
             typedef ::BloombergLP::bslh::Hash<> Hasher;
