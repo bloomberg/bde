@@ -3209,7 +3209,7 @@ int main(int argc, char *argv[])
         //: 4 No potentially-throwing operations are invoked.
         //: 5 The above concerns apply to 'funcition' objects constructed with
         //:   every category of allocator and every category of wrapped
-        //:   functor.
+        //:   functor, including functors in a nothrow wrapper.
         //
         // Plan:
         //: 1 For concern 1, create a 'function', 'f', and assign 'f =
@@ -3260,6 +3260,9 @@ int main(int argc, char *argv[])
 #define TEST_ITEM(F, V)                          \
         { L_, Obj(F(V)), #F "(" #V ")" }
 
+#define NTTST_ITM(F, V)                          \
+        { L_, Obj(ntWrap(F(V))), "ntWrap(" #F "(" #V "))" }
+
         TestData data[] = {
             TEST_ITEM(SimpleFuncPtr_t        , nullFuncPtr       ),
             TEST_ITEM(SimpleMemFuncPtr_t     , nullMemFuncPtr    ),
@@ -3275,9 +3278,18 @@ int main(int argc, char *argv[])
             TEST_ITEM(SmallFunctorWithAlloc  , 0x2000            ),
             TEST_ITEM(NTSmallFunctorWithAlloc, 0x2000            ),
             TEST_ITEM(LargeFunctorWithAlloc  , 0x1000            ),
+
+            NTTST_ITM(SimpleMemFuncPtr_t     , &IntWrapper::add1 ),
+            NTTST_ITM(EmptyFunctor           , 0                 ),
+            NTTST_ITM(SmallFunctor           , 0x2000            ),
+            NTTST_ITM(LargeFunctor           , 0x6000            ),
+            NTTST_ITM(NTSmallFunctor         , 0x3000            ),
+            NTTST_ITM(ThrowingSmallFunctor   , 0x7000            ),
+            NTTST_ITM(SmallFunctorWithAlloc  , 0x2000            ),
         };
         
 #undef TEST_ITEM
+#undef NTTST_ITM
 
         int dataSize = sizeof(data) / sizeof(TestData);
 
