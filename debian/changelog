@@ -1,5 +1,15 @@
-bsl-internal (2.23.0.2.icbeta) unstable; urgency=low
+bsl-internal (2.23.0.3.icbeta) unstable; urgency=low
 
+  * 96304b1 [APPROVAL] pending/releases/2.23.x/macro-conflict-bdlt_monthofyear-drqs-64566309 to releases/2.23.x
+  * bf02299 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.23.x
+  * 21ba68f [APPROVAL] INTERNAL pending/releases/2.23.x/bdlt-squelch-proleptic-asserts-drqs-64276734 to releases/2.23.x
+  * 0cccf7b [APPROVAL] pending/releases/2.23.x/bdlt-squelch-proleptic-asserts-drqs-64276734 to releases/2.23.x
+
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Wed, 15 Apr 2015 14:39:05 -0400
+
+bsl-internal (2.23.0.2.icbeta) git; urgency=low
+
+  * d5a11e5 bump changelog to 2.23.0.2.icbeta
   * 6a9d6a8 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.23.x
   * 869559a [APPROVAL] INTERNAL pending/releases/2.23.x/un-deprecate-bdlt-legacy-interfaces-drqs-64299432 to releases/2.23.x
   * 6d3f57a [APPROVAL] pending/releases/2.23.x/un-deprecate-bdlt-legacy-interfaces-drqs-64299432 to releases/2.23.x
@@ -7,7 +17,7 @@ bsl-internal (2.23.0.2.icbeta) unstable; urgency=low
   * 5e7f4d4 [APPROVAL] INTERNAL pending/releases/2.23.x/migrate_to_comment_pragma_for_bdeverify_drqs55524626 to releases/2.23.x
   * d3468e5 [APPROVAL] pending/releases/2.23.x/migrate_to_comment_pragma_for_bdeverify_drqs55524626 to releases/2.23.x
 
- -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Fri, 10 Apr 2015 16:28:03 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 12 Apr 2015 13:46:30 -0400
 
 bsl-internal (2.23.0.1.icbeta) git; urgency=low
 
