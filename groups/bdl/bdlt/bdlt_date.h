@@ -697,7 +697,10 @@ int operator-(const Date& lhs, const Date& rhs);
 
 template <class HASHALG>
 void hashAppend(HASHALG& hashAlg, const Date& date);
-    // Pass the specified 'date' to the specified 'hashAlg'.
+    // Pass the specified 'date' to the specified 'hashAlg'.  Note that this
+    // function is intended to integrate with the 'bslh' modular hashing
+    // system, and effectively provides a 'bsl::hash' specialization for
+    // 'date'.
 
 // ============================================================================
 //                              INLINE DEFINITIONS
