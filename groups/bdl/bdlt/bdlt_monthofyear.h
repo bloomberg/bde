@@ -110,7 +110,6 @@ struct MonthOfYear {
         e_DEC,     e_DECEMBER  = e_DEC
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 #if !defined(JAN) && !defined(JANUARY)
       , JAN       = e_JAN
@@ -137,8 +136,10 @@ struct MonthOfYear {
       , OCTOBER   = e_OCTOBER
       , NOVEMBER  = e_NOVEMBER
       , DECEMBER  = e_DECEMBER
+#endif  // !defined(JAN) && !defined(JANUARY)
 
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
+
 #ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
       , BDET_JAN  = e_JAN, BDET_JANUARY   = e_JAN
       , BDET_FEB  = e_FEB, BDET_FEBRUARY  = e_FEB
@@ -152,7 +153,6 @@ struct MonthOfYear {
       , BDET_OCT  = e_OCT, BDET_OCTOBER   = e_OCT
       , BDET_NOV  = e_NOV, BDET_NOVEMBER  = e_NOV
       , BDET_DEC  = e_DEC, BDET_DECEMBER  = e_DEC
-
 #endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
     };
 
