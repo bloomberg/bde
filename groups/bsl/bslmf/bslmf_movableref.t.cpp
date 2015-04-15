@@ -17,12 +17,14 @@ using namespace BloombergLP;
 //                                   Overview
 //                                   --------
 // ----------------------------------------------------------------------------
-// [  2] MovableRef<TYPE>
-// [  3] MovableRefUtil::MOVE
-// [  4] MovableRef<TYPE>::OPERATOR TYPE&
-// [  5] MovableRefUtil::ACCESS
+// [  4] MovableRef<TYPE>::operator TYPE&();
+// [  5] TYPE& access(TYPE& lvalue);
+// [  5] TYPE& access(MovableRef<TYPE>& lvalue);
+// [  3] MovableRef<TYPE> move(TYPE& lvalue);
+// [  3] MovableRef<bsl::remove_reference<T>::type> move(MovableRef<T> ref)
 // ----------------------------------------------------------------------------
 // [  1] BREATHING TEST
+// [  2] MovableRef<TYPE>
 // [  6] MovableRef<TYPE> VS. RVALUE
 // [  7] USAGE EXAMPLE
 
@@ -72,6 +74,8 @@ void aSsErT(bool condition, const char *message, int line)
 //=============================================================================
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
+// BDE_VERIFY pragma: push   // Relax formatting rules for clearer exposition
+// BDE_VERIFY pragma: -BW01  // bdewrap recommendation
 
 namespace {
 
@@ -83,7 +87,7 @@ class vector
     TYPE *d_endBuffer;
 
     static void swap(TYPE*& a, TYPE*& b);
-        // This function swaps the specified pointers 'a' and 'b'.
+        // Swap the specified pointers 'a' and 'b'.
 
   public:
     vector();
@@ -97,11 +101,11 @@ class vector
         // Create a vector by copying the content of the specified 'other'.
 
     vector& operator= (vector other);
-        // Assign a vector by copying the content of the specified 'other'.
-        // The function returns a reference to the object.  Note that
-        // 'other' is passed by value to have the copy or move already be
-        // done or even elided.  Within the body of the assignment operator
-        // the content of 'this' and 'other' are simply swapped.
+        // Assign a vector by copying the content of the specified 'other'
+        // and return a reference to this object.  Note that 'other' is
+        // passed by value to have the copy or move already be done, or
+        // even elided.  Within the body of the assignment operator the
+        // content of 'this' and 'other' are simply swapped.
 
     ~vector();
         // Destroy the vector's elements and release any allocated memory.
@@ -252,6 +256,7 @@ void vector<TYPE>::swap(vector& other) {
 
 }  // close unnamed namespace
 
+// BDE_VERIFY pragma: pop  // End of usage example relaxation
 //=============================================================================
 
 namespace {
@@ -260,22 +265,22 @@ template <class TYPE>
 struct TestMovableRefArgument
 {
     static bool test(TYPE&) { return false; }
-        // Returns 'false' indicating that the argument is not an r-value
+        // Return 'false', indicating that the argument is not an r-value
         // reference.
 
     static bool test(const TYPE&) { return false; }
-        // Returns 'false' indicating that the argument is not an r-value
+        // Return 'false', indicating that the argument is not an r-value
         // reference.
 
     static bool test(bslmf::MovableRef<TYPE>) { return true; }
-        // Returns 'true' indicating that the argument is an r-value reference.
+        // Return 'true', indicating that the argument is an r-value reference.
 };
 
 template <class TYPE>
 struct MovableAddress
 {
     static TYPE* get(bslmf::MovableRef<TYPE> movable)
-        // Returns a pointer to object referenced by the specified 'movable'.
+        // Return a pointer to object referenced by the specified 'movable'.
     {
         TYPE& reference(bslmf::MovableRefUtil::access(movable));
         return &reference;
@@ -283,10 +288,16 @@ struct MovableAddress
 };
 
 class TestMoving {
-    // This class is used to test some mover operations.
+    // This class is used to test some move operations.  It deliberately hides
+    // the assignment operator, and poisons the address-of operator.
+
+    // DATA
     int *d_pointer;
-    void operator= (TestMoving&);
-        // The copy assignment operator is not accessible.
+
+  private:
+    // NOT IMPLEMENTED
+    void operator= (TestMoving&); // = delete;
+
 #if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
   public:
 #endif
@@ -303,23 +314,23 @@ class TestMoving {
         // object is initialized with a unique pointer to 'int'.
 
     explicit TestMoving(bslmf::MovableRef<TestMoving> rvalue)
-        // Create a 'TestMoving object that moves the value of the specified
-        // 'other' object.
+        // Create a 'TestMoving' object that moves the value referenced by the
+        // specified 'rvalue'.
         : d_pointer(bslmf::MovableRefUtil::access(rvalue).d_pointer) {
         bslmf::MovableRefUtil::access(rvalue).d_pointer = 0;
     }
 
     ~TestMoving() { delete this->d_pointer; }
-        // The destructor deletes the allocated pointer.
+        // Destroy this object. Delete the allocated pointer.
 
     void operator&() const {}
-        // The address-of operator gets in the way.
+        // Do nothing.  The address-of operator gets in the way.
 
     TestMoving *getAddress() { return this; }
-        // This function returns a pointer to the object.
+        // Return the address of this object.
 
     const int  *getPointer() const { return this->d_pointer; }
-        // This function returns the held pointer.
+        // Return the held pointer.
 };
 
 }  // close unnamed namespace
@@ -334,8 +345,7 @@ int main(int argc, char *argv[])
     bool verbose = argc > 2;
 
     testStatus = 0;
-    switch (test) {
-      case 0:
+    switch (test) { case 0:
       case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
@@ -409,11 +419,11 @@ int main(int argc, char *argv[])
         // MOVABLEREF<TYPE> VS. RVALUE
         //
         // Concerns:
-        //: 1 Verify that a function declared to take a 'MovableRef<TYPE>' as
-        //:   argument can be called with a temporary of type 'TYPE' when using
-        //:   a C++11 implementation.
-        //: 2 Verify that a function can be overloaded for 'const TYPE&',
-        //:   'TYPE&', and 'MovableRef<TYPE>' and be called appropriately.
+        //: 1 A function declared to take a 'MovableRef<TYPE>' as argument can
+        //:   be called with a temporary of type 'TYPE' when using a C++11
+        //:   implementation.
+        //: 2 A function can be overloaded for 'const TYPE&', 'TYPE&', and
+        //:   'MovableRef<TYPE>' and be called appropriately.
         //
         // Plan:
         //: 1 Call an overloaded function taking a 'MovableRef<TYPE>' argument
@@ -425,7 +435,7 @@ int main(int argc, char *argv[])
         //:   confirming the result also addresses this concern.
         //
         // Testing:
-        //     bslmf::MovableRef<TYPE> VS. RVALUE
+        //   bslmf::MovableRef<TYPE> VS. RVALUE
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nMOVABLEREF<TYPE> VS. RVALUE"
@@ -442,12 +452,11 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // MOVABLEREFUTIL::ACCESS
+        // TESTING 'MovableRefUtil::access'
         //
         // Concerns:
-        //: 1 Verify that a 'MovableRefUtil::access()' yields an lvalue
-        //:   reference the object referenced by an lvalue or a
-        //:   'MovableRef<TYPE>'.
+        //: 1 'MovableRefUtil::access()' yields an lvalue reference the object
+        //:   referenced by an lvalue or a 'MovableRef<TYPE>'.
         //
         // Plan:
         //: 1 Call a function taking a 'MovableRef<TYPE>' argument and verify
@@ -455,11 +464,12 @@ int main(int argc, char *argv[])
         //:   lvalue reference with the same address as the original object.
         //
         // Testing:
-        //     MovableRefUtil::ACCESS
+        //   TYPE& access(TYPE& lvalue);
+        //   TYPE& access(MovableRef<TYPE>& lvalue);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nMOVABLEREFUTIL::ACCESS"
-                            "\n======================\n");
+        if (verbose) printf("\nTESTING 'MovableRefUtil::access'"
+                            "\n================================\n");
         {
             int  value(19);
             int *address(MovableAddress<int>::get(
@@ -477,12 +487,12 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // MOVABLEREF<TYPE>::OPERATOR TYPE&
+        // TESTING 'MovableRef<TYPE>::operator TYPE&'
         //
         // Concerns:
-        //: 1 Verify that a 'MovableRef<TYPE>' converts to an lvalue reference
-        //:   of type 'TYPE&' and that the address of the referenced object
-        //:   is identical to the address of the original object.
+        //: 1 'MovableRef<TYPE>' converts to an lvalue reference of type
+        //:   'TYPE&' and that the address of the referenced object is
+        //:    identical to the address of the original object.
         //
         // Plan:
         //: 1 Use 'MovableRefUtil::move()' with an lvalue, initialize a
@@ -490,11 +500,11 @@ int main(int argc, char *argv[])
         //:   check that the addresses are identical.
         //
         // Testing:
-        //     MovableRef<TYPE>::OPERATOR TYPE&
+        //   MovableRef<TYPE>::operator TYPE&();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nMOVABLEREF<TYPE>::OPERATOR TYPE&"
-                            "\n================================\n");
+        if (verbose) printf("\nTESTING 'MovableRef<TYPE>::operator TYPE&'"
+                            "\n==========================================\n");
 
         {
             int                    value(17);
@@ -519,17 +529,17 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // MOVABLEREFUTIL::MOVE
+        // TESTING 'MovableRefUtil::move'
         //
         // Concerns:
-        //: 1 Verify that 'MovableRefUtil::move()' produces a result that can
-        //:   be used to initialize a 'MovableRef<T>'.
-        //: 2 Verify that 'MovableRefUtil::move()' can be used with an argument
-        //:   of a type with an overloaded address-of operator.
-        //: 3 Verify that moving a 'MovableRef<T>' results in an object which
-        //:   that can be bound to a 'MovableRef<T>'.
-        //: 4 Verify that when compiling with a C++11 implementation an
-        //:   rvalue can be bound to a 'MovableRef<T>'.
+        //: 1 'MovableRefUtil::move()' produces a result that can be used to
+        //:   initialize a 'MovableRef<T>'.
+        //: 2 'MovableRefUtil::move()' can be used with an argument of a type
+        //:   with an overloaded address-of operator.
+        //: 3 Moving a 'MovableRef<T>' results in an object that can be bound
+        //:   to a 'MovableRef<T>'.
+        //: 4 When compiling with a C++11 implementation an rvalue can be bound
+        //:   to a 'MovableRef<T>'.
         //
         // Plan:
         //: 1 Use 'MovableRefUtil::move()' with an lvalue and initialize a
@@ -543,11 +553,12 @@ int main(int argc, char *argv[])
         //:   implementation.
         //
         // Testing:
-        //     MovableRefUtil::MOVE
+        //   MovableRef<TYPE> move(TYPE& lvalue);
+        //   MovableRef<bsl::remove_reference<T>::type> move(MovableRef<T> ref)
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nMOVABLEREFUTIL::MOVE"
-                            "\n====================\n");
+        if (verbose) printf("\nTESTING 'MovableRefUtil::move'"
+                            "\n==============================\n");
 
         {
             int                    value(17);
@@ -581,15 +592,15 @@ int main(int argc, char *argv[])
         // MOVABLEREF<TYPE>
         //
         // Concerns:
-        //: 1 Verify that 'MovableRef<TYPE>' exists and in case of using a
-        //:   C++11 implementation is an alias for 'TYPE&&'.
+        //: 1 'MovableRef<TYPE>' exists and in case of using a C++11
+        //:   implementation is an alias for 'TYPE&&'.
         //
         // Plan:
         //: 1 Use 'bsl::is_same<...>' to make sure 'MovableRef<TYPE>' refers
         //:   the expected type.
         //
         // Testing:
-        //     MovableRef<TYPE>
+        //   MovableRef<TYPE>
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nMOVABLEREF<TYPE>"

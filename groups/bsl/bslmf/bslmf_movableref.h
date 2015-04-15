@@ -153,7 +153,7 @@ BSLS_IDENT("$Id: $")
 //      TYPE *d_endBuffer;
 //
 //      static void swap(TYPE*& a, TYPE*& b);
-//          // This function swaps the specified pointers 'a' and 'b'.
+//          // Swap the specified pointers 'a' and 'b'.
 //
 //    public:
 //      vector();
@@ -167,11 +167,11 @@ BSLS_IDENT("$Id: $")
 //          // Create a vector by copying the content of the specified 'other'.
 //
 //      vector& operator= (vector other);
-//          // Assign a vector by copying the content of the specified 'other'.
-//          // The function returns a reference to the object.  Note that
-//          // 'other' is passed by value to have the copy or move already be
-//          // done or even elided.  Within the body of the assignment operator
-//          // the content of 'this' and 'other' are simply swapped.
+//          // Assign a vector by copying the content of the specified 'other'
+//          // and return a reference to this object.  Note that 'other' is
+//          // passed by value to have the copy or move already be done, or
+//          // even elided.  Within the body of the assignment operator the
+//          // content of 'this' and 'other' are simply swapped.
 //
 //      ~vector();
 //          // Destroy the vector's elements and release any allocated memory.
@@ -584,7 +584,7 @@ struct MovableRefUtil {
         // cannot be used directly.  Note that this overload will never deduce
         // the argument with a C++11 implementation.
         //
-        // Please the component-level documentation for more information on
+        // Please see the component-level documentation for more information on
         // this function.
 
     template <class TYPE>
