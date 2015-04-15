@@ -110,6 +110,8 @@ struct MonthOfYear {
         e_DEC,     e_DECEMBER  = e_DEC
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
+
+#if !defined(JAN) && !defined(JANUARY)
       , JAN       = e_JAN
       , FEB       = e_FEB
       , MAR       = e_MAR
@@ -134,6 +136,7 @@ struct MonthOfYear {
       , OCTOBER   = e_OCTOBER
       , NOVEMBER  = e_NOVEMBER
       , DECEMBER  = e_DECEMBER
+#endif
 
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 #ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
