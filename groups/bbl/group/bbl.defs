@@ -1,0 +1,50 @@
+# BBL external definition options
+
+*-                  _       OPTS_FILE       = bbl.defs
+
+#==============================================================================
+# STL
+
+# extra directory for install: uc(package name less '+' prefix)_INCLUDE
+*			_	BBL_STDHDRS_DIR	= sys
+
+*			_	STL_CXXFLAGS	=
+*			_	STL_LDFLAGS	=
+*			_	STL_DEFINES	=
+
+#===
+
+*                   _       STL_DEFINES     = $(BBL_STD_FLAG)
+
+!! windows          shr     STL_DEFINES     = $(BBL_STD_FLAG)
+
+*                   _       STL_DEFINES     = $(SWITCHCHAR)DBDE_OMIT_INTERNAL_DEPRECATED
+
+!! unix-*-*-*-* 	_       STL_DBGDEFS     =
+!! unix-*-*-*-* 	dbg     STL_DBGDEFS     =
+unix-*-*-*-*    	_       STL_DEFINES     = $(STL_DBGDEFS)
+
+!! unix-*-*-*-* 	_       STL_EXCDEFS     =
+!! unix-*-*-*-* 	exc     STL_EXCDEFS     =
+unix-*-*-*-*    	_       STL_DEFINES     = $(STL_EXCDEFS)
+
+!! unix-*-*-*-* 	_       STL_MTDEFS      = -D_NOTHREADS
+!! unix-*-*-*-* 	mt      STL_MTDEFS      =
+unix-*-*-*-*    	_       STL_DEFINES     = $(STL_MTDEFS)
+
+unix-SunOS-*-*-*	_	STL_CXXFLAGS	= -library=no%rwtools7
+!! unix-SunOS-*-*-gcc	_	STL_CXXFLAGS	=
+
+#===
+
+*			_	BDE_CXXFLAGS	= $(STL_DEFINES) $(STL_CXXFLAGS)
+*			_	BDE_CFLAGS	= $(STL_DEFINES) $(STL_CFLAGS)
+*			_	BDE_CXXINCLUDE  = $(STL_INCLUDE)
+*			_	BDE_LDFLAGS	= $(STL_LDFLAGS)
+# AIX compiler requires -I directives on link line to do lazy template
+# instantiation.  The $(BBL_INCLUDES) variable is not defined in this .opts file
+# but is constructed automatically by the build tool to have -I options for
+# all needed package dependencies (including BBL_INCLUDE (no S) above)
+unix-AIX-*-*-*  	_	BDE_LDFLAGS	= $(BBL_INCLUDES)
+
+#==============================================================================
