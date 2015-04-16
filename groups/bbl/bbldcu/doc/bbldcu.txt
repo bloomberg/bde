@@ -1,0 +1,34 @@
+ bbldcu.txt
+
+@PURPOSE: Provide simple day-count implementations.
+
+@DESCRIPTION: The 'bbldcu' package provides simple day-count implementations;
+ for conventions that only need two dates for the 'daysDiff' and 'yearsDiff'
+ methods.
+
+/Hierarchical Synopsis
+/---------------------
+ 'bbldcu' package currently has 7 components having one level of dependency.
+ The table below shows the hierarchical ordering of the components:
+..
+  1. bbldcu_actual360
+     bbldcu_actual365fixed
+     bbldcu_isdaactualactual
+     bbldcu_isma30360
+     bbldcu_psa30360eom
+     bbldcu_sia30360eom
+     bbldcu_sia30360neom
+..
+
+/Component Synopsis
+/------------------
+ The following is a brief synopsis of the components in 'bbldcu':
+..
+  bbldcu_actual360             - Actual/360 convention
+  bbldcu_actual365fixed        - Actual/365 (fixed) convention
+  bbldcu_isdaactualactual      - ISDA Actual/Actual convention
+  bbldcu_isma30360             - ISMA 30/360 convention
+  bbldcu_psa30360eom           - PSA 30/360 end-of-month convention
+  bbldcu_sia30360eom           - SIA 30/360 end-of-month convention
+  bbldcu_sia30360neom          - SIA 30/360 no-end-of-month convention
+..
