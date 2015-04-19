@@ -18,14 +18,14 @@ BSLS_IDENT("$Id: $")
 // ,-------------------------------------------------------------------------.
 // | Topic               |  Term                                   |   Key   |
 // |-------------------------------------------------------------------------|
-// | Exception-Safety    |                                         |         |
+// | Exception Safety    |                                         |         |
 // |                     | Exception-Neutral                       | [ES.1 ] |
 // |                     | Basic Guarantee                         | [ES.2 ] |
 // |                     | Strong Guarantee                        | [ES.3 ] |
 // |                     | No-Throw Guarantee                      | [ES.4 ] |
 // |                     | Injected Exception                      | [ES.5 ] |
 // |---------------------+-----------------------------------------+---------|
-// | Thread-Safety       |                                         |         |
+// | Thread Safety       |                                         |         |
 // |                     | Minimally Thread-Safe                   | [TS.1 ] |
 // |                     | 'const' Thread-Safe                     | [TS.2 ] |
 // |                     | Fully Thread-Safe                       | [TS.3 ] |
@@ -44,7 +44,7 @@ BSLS_IDENT("$Id: $")
 // |                     | Utility Type                            | [TC.9 ] |
 // |                     | Vocabulary Type                         | [TC.10] |
 // |---------------------+-----------------------------------------+---------|
-// | Value-Semantics     |                                         |         |
+// | Value Semantics     |                                         |         |
 // |                     | Value-Semantic Operations               | [VS.1 ] |
 // |---------------------+-----------------------------------------+---------|
 // | Uncategorized       |                                         |         |
@@ -55,10 +55,10 @@ BSLS_IDENT("$Id: $")
 ///Terminology (in Alphabetic Order)
 ///---------------------------------
 //
-///Alias Safe [UC.1]
+///Alias-Safe [UC.1]
 ///- - - - - - - - -
-//: o A *function* is *alias* *safe* if it behaves as advertized in its
-//:   contract, even when multiple arguments are aliases for the same object or
+//: o A *function* is *alias-safe* if it behaves as advertized in its contract,
+//:   even when multiple arguments are aliases for the same object or
 //:   overlapping regions of memory.
 //: o A *class* is alias-safe if all of its methods are alias-safe.
 //
@@ -215,7 +215,7 @@ BSLS_IDENT("$Id: $")
 //:   threads, and cannot function correctly in a non-multi-threading
 //:   environment (e.g., a thread pool is thread-enabled, so *must* be used in
 //:   a multi-threading environment).  Typically a *thread-enabled* class
-//:   creates or joins threads. 
+//:   creates or joins threads.
 //
 ///Unconstrained Attribute Type [TC.4]
 ///- - - - - - - - - - - - - - - - - -
