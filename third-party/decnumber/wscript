@@ -49,7 +49,7 @@ def build(bld):
     # Without this change clang/linux builds will fail with multiply defined
     # symbols.
 
-    if (-1 != bld.env['CXX'][0].find('clang')):
+    if (-1 != bld.env['CC'][0].find('clang')):
         cflags += ['-std=gnu89']
 
     prefix  = bld.env['PREFIX']
@@ -59,8 +59,8 @@ def build(bld):
         is_bde = True
     else:
         config = {}
-        config['c_flags'] = []
-        config['target'] = 'decnumber'
+        config['cflags'] = []
+        config['lib_target'] = 'decnumber'
         config['lib_install_path'] = os.path.join(prefix, 'lib')
         config['h_install_path'] = os.path.join(prefix, 'include', 'decnumber')
         config['pc_install_path'] = os.path.join(prefix, 'lib', 'pkgconfig')
@@ -68,34 +68,35 @@ def build(bld):
         config['pc_includedir'] = '${prefix}/include/decnumber'
         is_bde = False
 
+    bld(name="decnumber_pc",
+        target=config['lib_target'] + '.pc',
+        source='decnumber.pc.in',
+        features=['subst'],
+        prefix=prefix,
+        libdir=config['pc_libdir'],
+        includedir=config['pc_includedir'],
+        libs='-l' + config['lib_target'],
+        cflags='',
+        install_path=config['pc_install_path']
+    )
+
     bld(name='decnumber_lib',
         target=config['lib_target'],
         source=source_files,
         export_includes='.',
-        features = ['c', 'cstlib'],
+        features=['c', 'cstlib'],
         cflags=config['cflags'] + cflags,
-        install_path = config['lib_install_path']
+        install_path=config['lib_install_path'],
+        depends_on=['decnumber_pc'],
     )
 
-    bld(name = "decnumber_pc",
-        target = config['lib_target'] + '.pc',
-        source = 'decnumber.pc.in',
-        features = ['subst'],
-        prefix = prefix,
-        libdir = config['pc_libdir'],
-        includedir = config['pc_includedir'],
-        libs = '-l' + config['lib_target'],
-        cflags = '',
-        install_path = config['pc_install_path']
-    )
-
-    bld.install_files(config['h_install_path'],
-                      bld.path.ant_glob('*.h'))
+    if config['h_install_path']:
+        bld.install_files(config['h_install_path'],
+                          bld.path.ant_glob('*.h'))
 
     if is_bde:
-        depends_on = ['decnumber_lib', 'decnumber_pc']
         bld(name       = 'decnumber',
-            depends_on = depends_on)
+            depends_on = 'decnumber_lib')
 
 
 # ----------------------------------------------------------------------------
