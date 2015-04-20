@@ -2653,13 +2653,16 @@ void testAssignNullptr(const Obj& func, int line)
     LOOP_ASSERT(line, expNumBlocks   == testAlloc.numBlocksInUse());
 }
 
-template <class ALLOC, class FUNC>
+template <class ALLOC, class FUNC_ARG>
 void testAssignFromFunctor(const Obj&   lhsIn,
-                           FUNC         rhsIn,
+                           FUNC_ARG     rhsIn,
                            const char  *allocName,
                            const char  *lhsFuncName,
-                           const char  *rhsFuncName)
+                           const char  *rhsFuncName,
+                           bool         skipExcTest)
 {
+    typedef typename NTUNWRAP(FUNC_ARG) FUNC;
+
     if (veryVeryVerbose) {
         printf("\tObj lhs(allocator_arg, %s, %s); rhs = %s;\n",
                allocName, lhsFuncName, rhsFuncName);
@@ -2681,7 +2684,7 @@ void testAssignFromFunctor(const Obj&   lhsIn,
 
         // Make copy of 'rhsIn'.  The copy is a non-const lvalue, but its
         // value should be unchanged by the assignment.
-        FUNC rhs(rhsIn);
+        FUNC_ARG rhs(rhsIn);
 
         // 'exp' is what 'lsh' should look like after the assignment.
         preBytes = ta.numBytesInUse();
@@ -2690,7 +2693,7 @@ void testAssignFromFunctor(const Obj&   lhsIn,
 
         preBytes = ta.numBytesInUse();
         EXCEPTION_TEST_TRY {
-            lhs = rhs;  ///////// COPY-ASSIGNMENT FROM FUNC //////////
+            lhs = rhs;  ///////// COPY-ASSIGNMENT FROM FUNC_ARG //////////
 
             // The number of bytes used by the lhs after the assignment is
             // equal to the number of bytes used before the assignment plus
@@ -2705,7 +2708,7 @@ void testAssignFromFunctor(const Obj&   lhsIn,
                 LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
                              lhs.target_type() == typeid(FUNC));
                 LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
-                             *lhs.target<FUNC>() == rhsIn);
+                             *lhs.target<FUNC>() == ntUnwrap(rhsIn));
             }
             else {
                 LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName, ! lhs);
@@ -2717,7 +2720,8 @@ void testAssignFromFunctor(const Obj&   lhsIn,
                          lhsBytesAfter == expBytes);
 
             // verify that rhs is unchanged
-            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName, rhs == rhsIn);
+            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                         ntUnwrap(rhs) == ntUnwrap(rhsIn));
 
             if (lhs && exp) {
                 LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
@@ -2729,7 +2733,8 @@ void testAssignFromFunctor(const Obj&   lhsIn,
         }
         EXCEPTION_TEST_CATCH {
             // verify that both lhs and rhs are unchanged
-            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName, rhs == rhsIn);
+            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                         ntUnwrap(rhs) == ntUnwrap(rhsIn));
             LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
                          lhs.target_type() == lhsIn.target_type());
             if (lhs && lhsIn) {
@@ -2754,7 +2759,7 @@ void testAssignFromFunctor(const Obj&   lhsIn,
 
         // Make copy of 'rhsIn'.  The copy is a non-const lvalue, but its
         // value should be unchanged by the assignment.
-        FUNC rhs(rhsIn); const FUNC& RHS = rhs;
+        FUNC_ARG rhs(rhsIn); const FUNC_ARG& RHS = rhs;
 
         // 'exp' is what 'lsh' should look like after the assignment.
         Obj exp(bsl::allocator_arg, alloc, rhsIn);
@@ -2775,7 +2780,8 @@ void testAssignFromFunctor(const Obj&   lhsIn,
         }
         EXCEPTION_TEST_CATCH {
             // verify that both lhs and rhs are unchanged
-            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName, rhs == rhsIn);
+            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                         ntUnwrap(rhs) == ntUnwrap(rhsIn));
             LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
                          lhs.target_type() == lhsIn.target_type());
             if (lhs && lhsIn) {
@@ -2796,7 +2802,7 @@ void testAssignFromFunctor(const Obj&   lhsIn,
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
     // Construct a 'FUNC' object duplicating 'rhsIn' in a moved-from state.
-    FUNC movedFromRhs(rhsIn);
+    FUNC movedFromRhs(ntUnwrap(rhsIn));
     {
         FUNC movedToFunc(std::move(movedFromRhs));
         (void) movedToFunc;
@@ -2805,14 +2811,14 @@ void testAssignFromFunctor(const Obj&   lhsIn,
     FunctorMonitor funcMonitor2(L_);
 
     // Test move-assignment from functor
-    EXCEPTION_TEST_BEGIN(&ta, &moveLimit) {
+    EXCEPTION_TEST_BEGIN(&ta, skipExcTest ? NULL : &moveLimit) {
         // Make copy of lhsIn using desired allocator.  Measure memory usage.
         AllocSizeType preBytes = ta.numBytesInUse();
         Obj lhs(bsl::allocator_arg, alloc, lhsIn);
         AllocSizeType lhsBytesBefore = ta.numBytesInUse() - preBytes;
 
         // Copy 'rhsIn' so as to not change 'rhsIn'
-        FUNC rhs(rhsIn);
+        FUNC_ARG rhs(rhsIn);
 
         // 'exp' is what 'lsh' should look like after the assignment
         preBytes = ta.numBytesInUse();
@@ -2821,7 +2827,7 @@ void testAssignFromFunctor(const Obj&   lhsIn,
 
         preBytes = ta.numBytesInUse();
         EXCEPTION_TEST_TRY {
-            lhs = std::move(rhs);  //////// MOVE-ASSIGNMENT FROM FUNC /////////
+            lhs = std::move(rhs);  //////// MOVE-ASSIGNMENT FROM FUNC_ARG /////
 
             // The number of bytes used by the lhs after the assignment is
             // equal to the number of bytes used before the assignment plus
@@ -2836,7 +2842,7 @@ void testAssignFromFunctor(const Obj&   lhsIn,
                 LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
                              lhs.target_type() == typeid(FUNC));
                 LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
-                             *lhs.target<FUNC>() == rhsIn);
+                             *lhs.target<FUNC>() == ntUnwrap(rhsIn));
             }
             else {
                 // Empty expected result
@@ -2850,7 +2856,7 @@ void testAssignFromFunctor(const Obj&   lhsIn,
 
             // verify that rhs is in moved-from state
             LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
-                         rhs == movedFromRhs);
+                         ntUnwrap(rhs) == movedFromRhs);
 
             if (lhs && exp) {
                 LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
@@ -2862,7 +2868,8 @@ void testAssignFromFunctor(const Obj&   lhsIn,
         }
         EXCEPTION_TEST_CATCH {
             // verify that both lhs and rhs are unchanged
-            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName, rhs == rhsIn);
+            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                         ntUnwrap(rhs) == ntUnwrap(rhsIn));
             LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
                          lhs.target_type() == lhsIn.target_type());
             if (lhs && lhsIn) {
@@ -2990,7 +2997,8 @@ int main(int argc, char *argv[])
         //:   destroyed then re-constructed with its original allocator and
         //:   with the specified functor.
         //: 7 The above concerns apply to the entire range of functor types
-        //:   and allocator types for the lhs and functor types for the rhs.
+        //:   and allocator types for the lhs and functor types for the rhs,
+        //:   including for functors in nothrow wrappers.
         //: 8 If an exception is thrown, both lhs and rhs are unchanged.
         //
         // Plan:
@@ -3047,10 +3055,14 @@ int main(int argc, char *argv[])
             int               d_line;           // Line number
             Obj               d_function;       // function object to assign
             const char       *d_funcName;       // function object name
+            bool              d_skipExcTest;    // skip exception test
         };
 
 #define TEST_ITEM(F, V)                          \
-        { L_, Obj(F(V)), #F "(" #V ")" }
+        { L_, Obj(F(V)), #F "(" #V ")", false }
+
+#define NTTST_ITM(F, V)                          \
+        { L_, Obj(ntWrap(F(V))), "ntWrap(" #F "(" #V "))", true }
 
         TestData data[] = {
             TEST_ITEM(SimpleFuncPtr_t             , nullFuncPtr       ),
@@ -3067,18 +3079,29 @@ int main(int argc, char *argv[])
             TEST_ITEM(SmallFunctorWithAlloc       , 0x2000            ),
             TEST_ITEM(NTSmallFunctorWithAlloc     , 0x2000            ),
             TEST_ITEM(LargeFunctorWithAlloc       , 0x1000            ),
+
+            NTTST_ITM(SimpleMemFuncPtr_t          , &IntWrapper::add1 ),
+            NTTST_ITM(EmptyFunctor                , 0                 ),
+            NTTST_ITM(SmallFunctor                , 0x2000            ),
+            NTTST_ITM(LargeFunctor                , 0x6000            ),
+            NTTST_ITM(NTSmallFunctor              , 0x3000            ),
+            NTTST_ITM(ThrowingSmallFunctor        , 0x7000            ),
+            NTTST_ITM(SmallFunctorWithAlloc       , 0x2000            ),
         };
 
         const int dataSize = sizeof(data) / sizeof(data[0]);
         
 #undef TEST_ITEM
+#undef NTTST_ITM
 
-#define TEST(A, f) testAssignFromFunctor<A>(lhs, f, #A, funcName, #f)
+#define TEST(A, f) testAssignFromFunctor<A>(lhs, f, #A, funcName, #f, \
+                                            skipExcTest)
 
         for (int i = 0; i < dataSize; ++i) {
             // const int line          = data[i].d_line;
             const Obj& lhs             = data[i].d_function;
             const char* funcName       = data[i].d_funcName;
+            bool skipExcTest           = data[i].d_skipExcTest;
 
             if (veryVerbose) printf("Assign %s = nullFuncPtr\n", funcName);
             TEST(bslma::TestAllocator *  , nullFuncPtr          );
@@ -3187,6 +3210,20 @@ int main(int argc, char *argv[])
             TEST(EmptySTLAllocator<char> , LargeFunctorWithAlloc(0x2000) );
             TEST(StatefulAllocator<char> , LargeFunctorWithAlloc(0x2000) );
             TEST(StatefulAllocator2<char>, LargeFunctorWithAlloc(0x2000) );
+
+// Test with nothrow wrapper on right side
+#define NTW_TEST(A, f) testAssignFromFunctor<A>(lhs, ntWrap(f), #A, funcName, \
+                                                "ntWrap(" #f ")", true)
+
+            if (veryVerbose) printf("Assign from nothrow wrapper\n");
+            NTW_TEST(bslma::TestAllocator *  , &simpleFunc          );
+            NTW_TEST(bsl::allocator<char>    , EmptyFunctor()       );
+            NTW_TEST(EmptySTLAllocator<char> , SmallFunctor(0x2000) );
+            NTW_TEST(StatefulAllocator<char> , MediumFunctor(0x4000));
+            NTW_TEST(StatefulAllocator2<char>, LargeFunctor(0x6000) );
+            NTW_TEST(bslma::TestAllocator *  , ThrowingSmallFunctor(0x7000) );
+            NTW_TEST(bslma::TestAllocator *  , ThrowingEmptyFunctor()       );
+            NTW_TEST(bsl::allocator<char>    , SmallFunctorWithAlloc(0x2000));
 
         } // end for (each array item)
 
