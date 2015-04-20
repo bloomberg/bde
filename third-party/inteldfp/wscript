@@ -294,8 +294,8 @@ def build(bld):
         is_bde = True
     else:
         config = {}
-        config['c_flags'] = []
-        config['target'] = 'inteldfp'
+        config['cflags'] = []
+        config['lib_target'] = 'inteldfp'
         config['lib_install_path'] = os.path.join(prefix, 'lib')
         config['h_install_path'] = os.path.join(prefix, 'include', 'inteldfp')
         config['pc_install_path'] = os.path.join(prefix, 'lib', 'pkgconfig')
@@ -303,34 +303,36 @@ def build(bld):
         config['pc_includedir'] = '${prefix}/include/inteldfp'
         is_bde = False
 
-    bld(name = 'inteldfp_lib',
-        target=config['lib_target'],
-        source = source_files,
-        export_includes = 'LIBRARY/src',
-        features = ['c', 'cstlib'],
-        cflags=config['cflags'] + cflags,
-        install_path = config['lib_install_path']
-    )
-
-    bld(name = 'inteldfp_pc',
-        target = config['lib_target'] + '.pc',
-        source = 'inteldfp.pc.in',
+    bld(name='inteldfp_pc',
+        target=config['lib_target'] + '.pc',
+        source='inteldfp.pc.in',
         features = ['subst'],
-        prefix = prefix,
-        libdir = config['pc_libdir'],
-        includedir = config['pc_includedir'],
-        libs = '-l' + config['lib_target'],
-        cflags = '',
+        prefix=prefix,
+        libdir=config['pc_libdir'],
+        includedir=config['pc_includedir'],
+        libs='-l' + config['lib_target'],
+        cflags='',
         install_path = config['pc_install_path']
     )
 
-    bld.install_files(config['h_install_path'],
-                      bld.path.ant_glob('LIBRARY/src/*.h'))
+    bld(name='inteldfp_lib',
+        target=config['lib_target'],
+        source=source_files,
+        export_includes='LIBRARY/src',
+        features=['c', 'cstlib'],
+        cflags=config['cflags'] + cflags,
+        install_path=config['lib_install_path'],
+        depends_on=['inteldfp_pc']
+    )
+
+    if config['h_install_path']:
+        bld.install_files(config['h_install_path'],
+                        bld.path.ant_glob('LIBRARY/src/*.h'))
 
     if is_bde:
-        depends_on = ['inteldfp_lib', 'inteldfp_pc']
-        bld(name       = 'inteldfp',
-            depends_on = depends_on)
+        depends_on=['inteldfp_lib', ]
+        bld(name='inteldfp',
+            depends_on=['inteldfp_lib'])
 
 
 # ----------------------------------------------------------------------------
