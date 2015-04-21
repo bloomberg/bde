@@ -825,17 +825,12 @@ struct bsls_Platform_Assert;
 
                         // Miscellaneous Platform Macros
 
-#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+#if defined(BSLS_PLATFORM_CMP_GNU)
     #define BSLS_PLATFORM_NO_64_BIT_LITERALS 1
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CPU_64_BIT)
     #define BSLS_PLATFORM_NO_64_BIT_LITERALS 1
-#endif
-
-#if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40600)  \
- || defined(BSLS_PLATFORM_CMP_CLANG)
-    #define BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC 1
 #endif
 // ----------------------------------------------------------------------------
 
