@@ -77,10 +77,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isreference.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_REMOVECV
-#include <bslmf_removecv.h>
-#endif
-
 namespace BloombergLP {
 namespace bslmf {
 
@@ -131,7 +127,7 @@ template <class TYPE>
 struct is_enum
     : integral_constant<
         bool,
-        !is_fundamental<typename remove_cv<TYPE>::type>::value
+        !is_fundamental<TYPE>::value
         && !is_reference<TYPE>::value
         && is_convertible<TYPE,
                         BloombergLP::bslmf::IsEnum_AnyArithmeticType>::value
@@ -141,6 +137,26 @@ struct is_enum
     // parameter) 'TYPE' is an enumerated type.  This 'struct' derives from
     // 'bsl::true_type' if the 'TYPE' is an enumerated type, and from
     // 'bsl::false_type' otherwise.
+};
+
+template <class TYPE>
+struct is_enum<const TYPE>
+    : is_enum<TYPE>::type {
+};
+
+template <class TYPE>
+struct is_enum<volatile TYPE>
+    : is_enum<TYPE>::type {
+};
+
+template <class TYPE>
+struct is_enum<const volatile TYPE>
+    : is_enum<TYPE>::type {
+};
+
+template <>
+struct is_enum<void>
+    : bsl::false_type {
 };
 
 }  // close namespace bsl

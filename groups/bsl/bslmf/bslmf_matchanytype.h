@@ -104,12 +104,6 @@ namespace bslmf {
 struct MatchAnyType {
     // Any type can be converted into this type.
 
-    template <class TYPE> MatchAnyType(TYPE&) { }                   // IMPLICIT
-        // This constructor will match any non-cv-qualified lvalue, and is
-        // needed to handle function references on IBM and Sun compilers.
-        // A non-const version of this constructor is not necessary and will
-        // cause some compilers to complain of ambiguities.
-
     template <class TYPE> MatchAnyType(const TYPE&) { }             // IMPLICIT
         // This constructor will match any rvalue or any non-volatile lvalue.
         // A non-const version of this constructor is not necessary and will

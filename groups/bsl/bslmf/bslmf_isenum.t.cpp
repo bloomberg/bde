@@ -337,9 +337,13 @@ int main(int argc, char *argv[])
         //:   cv-qualified) user-defined type having conversions to integral or
         //:   enumerated type, or a reference to such a user-defined type.
         //
-        //: 6 'is_enum::value' is 'false' when 'TYPE' is a function type.
+        //: 6 'is_enum::value' is 'false' when 'TYPE' is a function or function
+        //:   reference type.
         //
         //: 7 'is_enum::value' is 'false' when 'TYPE' is a (possibly
+        //:   cv-qualified) array type.
+        //
+        //: 8 'is_enum::value' is 'false' when 'TYPE' is a (possibly
         //:   cv-qualified) void type.
         //
         // Plan:
@@ -417,7 +421,26 @@ int main(int argc, char *argv[])
         ASSERT(! bsl::is_enum<int(int)>::value);
         ASSERT(! bsl::is_enum<void(...)>::value);
 
-        // C-7
+        ASSERT(! bsl::is_enum<void()>::value);
+        ASSERT(! bsl::is_enum<int(char, float...)>::value);
+        ASSERT(! bsl::is_enum<void(&)()>::value);
+        ASSERT(! bsl::is_enum<int(&)(char, float...)>::value);
+
+        // C-8
+        ASSERT(! bsl::is_enum<int[2]>::value);
+        ASSERT(! bsl::is_enum<int[4][2]>::value);
+        ASSERT(! bsl::is_enum<const int[2]>::value);
+        ASSERT(! bsl::is_enum<const int[4][2]>::value);
+#if !defined(BSLS_PLATFORM_CMP_IBM)
+        // The IBM xlC compiler does not handle arrays of unknown bounds as
+        // template type parameters.
+        ASSERT(! bsl::is_enum<int[]>::value);
+        ASSERT(! bsl::is_enum<int[][2]>::value);
+        ASSERT(! bsl::is_enum<const int[]>::value);
+        ASSERT(! bsl::is_enum<const int[][2]>::value);
+#endif
+
+        // C-8
         ASSERT(! bsl::is_enum<void>::value);
         ASSERT(! bsl::is_enum<const void>::value);
         ASSERT(! bsl::is_enum<volatile void>::value);
