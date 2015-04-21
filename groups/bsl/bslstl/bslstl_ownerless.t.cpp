@@ -11,6 +11,8 @@
 #include <stdlib.h>      // atoi
 #include <string.h>      // strcmp, strcpy
 
+#undef ESP  // Solaris 10
+
 using namespace BloombergLP;
 
 //=============================================================================
