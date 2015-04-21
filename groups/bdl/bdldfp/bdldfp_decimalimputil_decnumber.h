@@ -772,7 +772,7 @@ DecimalImpUtil_DecNumber::int32ToDecimal32(int value)
         bsl::memcpy(&result, &raw, sizeof(raw));
         return result;
     }
-    return roundToDecimal32((long long int)value);
+    return roundToDecimal32(static_cast<long long>(value));
 }
 
 inline
@@ -815,7 +815,7 @@ DecimalImpUtil_DecNumber::uint32ToDecimal32(unsigned int value)
         bsl::memcpy(&result, &raw, sizeof(raw));
         return result;
     }
-    return roundToDecimal32((unsigned long long int)value);
+    return roundToDecimal32(static_cast<unsigned long long>(value));
 }
 
 inline
