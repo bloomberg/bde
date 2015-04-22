@@ -359,10 +359,10 @@ bsl::Function_NothrowWrapper<FUNC> ntWrap(const FUNC& f)
     return f;
 }
 
-#define NTUNWRAP(FUNC) bsl::Function_NothrowWrapperUtil<FUNC>::UnwrappedType
+#define NTUNWRAP_T(FUNC) bsl::Function_NothrowWrapperUtil<FUNC>::UnwrappedType
 
 template <class FUNC>
-typename NTUNWRAP(FUNC) const& ntUnwrap(const FUNC& f)
+typename NTUNWRAP_T(FUNC) const& ntUnwrap(const FUNC& f)
     // If the specified 'f' is a nothrow wrapper, then return the invokable
     // object wrapped in 'f'; otherwise return 'f' unchanged.
 {
@@ -370,7 +370,7 @@ typename NTUNWRAP(FUNC) const& ntUnwrap(const FUNC& f)
 }
 
 // template <class FUNC>
-// typename NTUNWRAP(FUNC)& ntUnwrap(FUNC& f)
+// typename NTUNWRAP_T(FUNC)& ntUnwrap(FUNC& f)
 //     // If the specified 'f' is a nothrow wrapper, then return the invokable
 //     // object wrapped in 'f'; otherwise return 'f' unchanged.
 // {
@@ -1780,7 +1780,7 @@ template <class ALLOC, class FUNC_ARG>
 void testFuncWithAlloc(int line, FUNC_ARG func_arg, WhatIsInplace inplace)
 {
     // Get the real functor (if it's wrapped).
-    typedef typename NTUNWRAP(FUNC_ARG) FUNC;
+    typedef typename NTUNWRAP_T(FUNC_ARG) FUNC;
     const FUNC& func = ntUnwrap(func_arg);
 
     const std::size_t inplaceFuncSize = (bsl::is_empty<FUNC>::value ? 0 :
@@ -1860,7 +1860,7 @@ void testCopyCtorWithAlloc(FUNC_ARG    func,
                            const char *copyAllocName)
 {
     // Get the real functor type (in case it's wrapped).
-    typedef typename NTUNWRAP(FUNC_ARG) FUNC;
+    typedef typename NTUNWRAP_T(FUNC_ARG) FUNC;
 
     if (veryVeryVerbose)
         printf("\tAlloc: orig = %s, copy = %s\n", originalAllocName,
@@ -1993,7 +1993,7 @@ template <class ALLOC, class FUNC_ARG>
 void testMoveCtorWithSameAlloc(FUNC_ARG func, bool extended,
                                const char *allocName)
 {
-    typedef typename NTUNWRAP(FUNC_ARG) FUNC;
+    typedef typename NTUNWRAP_T(FUNC_ARG) FUNC;
 
     if (veryVeryVerbose) {
         if (extended) {
@@ -2122,7 +2122,7 @@ void testMoveCtorWithDifferentAlloc(FUNC_ARG    func,
                                     const char *sourceAllocName,
                                     const char *destAllocName)
 {
-    typedef typename NTUNWRAP(FUNC_ARG) FUNC;
+    typedef typename NTUNWRAP_T(FUNC_ARG) FUNC;
 
     if (veryVeryVerbose)
         printf("\tAlloc: source = %s, dest = %s\n", sourceAllocName,
@@ -2661,7 +2661,7 @@ void testAssignFromFunctor(const Obj&   lhsIn,
                            const char  *rhsFuncName,
                            bool         skipExcTest)
 {
-    typedef typename NTUNWRAP(FUNC_ARG) FUNC;
+    typedef typename NTUNWRAP_T(FUNC_ARG) FUNC;
 
     if (veryVeryVerbose) {
         printf("\tObj lhs(allocator_arg, %s, %s); rhs = %s;\n",
