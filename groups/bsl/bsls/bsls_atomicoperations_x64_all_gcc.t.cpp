@@ -30,8 +30,10 @@ using namespace std;
 
 typedef void *(*thread_func)(void *arg);
 
+#if 0
 typedef bsls::Atomic_TypeTraits<bsls::AtomicOperations_X64_ALL_GCC>::Int 
                                                                    atomic_int;
+#endif
 
 struct thread_args
 {

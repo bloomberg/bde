@@ -7,11 +7,14 @@
 import os
 import sys
 
+from waflib import Logs, Utils
+from waflib.Configure import ConfigurationContext
 top = '.'
 out = 'build'
 
 
 def _get_tools_path(ctx):
+
     waf_path = sys.argv[0]
     base = os.path.dirname(waf_path)
     if os.path.isdir(os.path.join(base, 'lib', 'bdebld')):
@@ -22,7 +25,6 @@ def _get_tools_path(ctx):
 
 def options(ctx):
     ctx.load('bdebld.waf.wscript', tooldir=_get_tools_path(ctx))
-
 
 def configure(ctx):
     ctx.load('bdebld.waf.wscript', tooldir=_get_tools_path(ctx))

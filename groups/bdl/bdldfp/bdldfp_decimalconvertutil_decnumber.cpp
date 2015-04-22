@@ -114,6 +114,7 @@ void makeBinaryFloatingPoint(BINARY_TYPE *bfp, DECIMAL_TYPE dfp)
         return;                                                       // RETURN
     }
 
+#if 0
     // TODO: TBD we should not convert through strings - it should be possible
     // to convert directly
     BufferBuf<48> bb;
@@ -135,6 +136,7 @@ void makeBinaryFloatingPoint(BINARY_TYPE *bfp, DECIMAL_TYPE dfp)
             *bfp = -*bfp;
         }
     }
+#endif
 }
 
 }  // close anonymous namespace

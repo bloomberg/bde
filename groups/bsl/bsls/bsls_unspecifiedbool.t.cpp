@@ -571,8 +571,8 @@ int main(int argc, char *argv[])
 
         {
             const BoolType bt = BoolType();
-            ASSERT(bt    == false);
-            ASSERT(false == bt);
+            // ASSERT(bt    == false);
+            // ASSERT(false == bt);
             ASSERT(!bt);
         }
 
@@ -582,8 +582,8 @@ int main(int argc, char *argv[])
 
         {
             const BoolType b0 = 0;
-            ASSERT(b0    == false);
-            ASSERT(false == b0);
+            // ASSERT(b0    == false);
+            // ASSERT(false == b0);
             ASSERT(!b0);
         }
 
@@ -596,8 +596,8 @@ int main(int argc, char *argv[])
             // corruption bug on VC2008 when initializing a variable of
             // empty class type.
             static const Booleable babel = {};
-            ASSERT(babel == false);
-            ASSERT(false == babel);
+            // ASSERT(babel == false);
+            // ASSERT(false == babel);
             ASSERT(!babel);
 
             if (veryVerbose) printf("\t\t6.1 Initialization\n");

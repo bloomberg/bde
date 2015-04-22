@@ -350,6 +350,12 @@ NewDeleteAllocator::NewDeleteAllocator()
 
 // MANIPULATORS
 inline
+void *NewDeleteAllocator::allocate(size_type size)
+{
+    return 0 == size ? 0 : ::operator new(size);
+}
+
+inline
 void NewDeleteAllocator::deallocate(void *address)
 {
     // While the C++ standard guarantees that calling delete(0) is safe

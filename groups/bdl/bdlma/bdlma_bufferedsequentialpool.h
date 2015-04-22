@@ -378,6 +378,8 @@ class BufferedSequentialPool {
         // bytes), or the maximum buffer size if the buffer can no longer grow.
 
   public:
+    BufferedSequentialPool(BufferedSequentialPool&&) = default;
+
     // CREATORS
     BufferedSequentialPool(char                        *buffer,
                            int                          size,
@@ -464,6 +466,8 @@ class BufferedSequentialPool {
         // memory space in the external buffer supplied at construction, use
         // memory obtained from the allocator supplied at construction.  The
         // behavior is undefined unless '0 < size'.
+
+    void deallocate(void*) {}
 
     template <class TYPE>
     void deleteObjectRaw(const TYPE *object);

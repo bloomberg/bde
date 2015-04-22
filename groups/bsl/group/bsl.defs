@@ -14,6 +14,9 @@
 
 #===
 
+# provide a way to selectively disable BSL_OVERRIDES_STD
+# !! *                _       BSL_STD_FLAG    = $(SWITCHCHAR)DBSL_OVERRIDES_STD
+!! *                _       BSL_STD_FLAG    = 
 *                   _       STL_DEFINES     = $(BSL_STD_FLAG)
 
 !! windows          shr     STL_DEFINES     = $(BSL_STD_FLAG)

@@ -516,6 +516,7 @@ class allocator {
         // object with the specified 'p'.  The optionally specified 'n'
         // argument is ignored by this allocator type.
 
+#if 0
     void construct(pointer p, const TYPE& val);
         // Copy-construct an object of (template parameter) 'TYPE' from the
         // specified 'val' at the memory address specified by 'p'.  Do not
@@ -525,6 +526,9 @@ class allocator {
     void destroy(pointer p);
         // Call the 'TYPE' destructor for the object pointed to by the
         // specified 'p'.  Do not directly deallocate any memory.
+#endif
+    allocator select_on_container_copy_construction(const allocator&)
+        { return BloombergLP::bslma::Default::allocator(); }
 
     // ACCESSORS
     pointer address(reference x) const;
@@ -743,6 +747,7 @@ void allocator<TYPE>::deallocate(typename allocator::pointer   p,
     d_mechanism->deallocate(p);
 }
 
+#if 0
 template <class TYPE>
 inline
 void allocator<TYPE>::construct(typename allocator::pointer p,
@@ -757,6 +762,7 @@ void allocator<TYPE>::destroy(typename allocator::pointer p)
 {
     p->~TYPE();
 }
+#endif
 
 // ACCESSORS
 template <class TYPE>

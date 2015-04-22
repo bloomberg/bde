@@ -554,12 +554,13 @@ class Multipool {
         // the index of the memory pool managing memory blocks having the
         // minimum block size is 0.
 
-  private:
+  public:
     // NOT IMPLEMENTED
     Multipool(const Multipool&);
     Multipool& operator=(const Multipool&);
 
-  public:
+    Multipool(Multipool&& other) = default;  // OK for unused pool
+
     // CREATORS
     explicit
     Multipool(bslma::Allocator                  *basicAllocator = 0);
@@ -760,6 +761,21 @@ int Multipool::maxPooledBlockSize() const
 
 }  // close package namespace
 }  // close enterprise namespace
+
+// FREE OPERATORS
+inline
+void *operator new(bsl::size_t                                 size,
+                   BloombergLP::bdlma::Multipool& pool)
+{
+        return pool.allocate(size);
+}
+
+inline
+void operator delete(void* p, BloombergLP::bdlma::Multipool& pool)
+{
+        pool.deallocate(p);
+}
+
 
 #endif
 

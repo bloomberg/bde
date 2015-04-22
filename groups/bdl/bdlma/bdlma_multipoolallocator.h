@@ -636,12 +636,12 @@ class MultipoolAllocator : public ManagedAllocator {
     // DATA
     Multipool d_multipool;  // manager for allocated memory blocks
 
-  private:
+  public:
     // NOT IMPLEMENTED
     MultipoolAllocator(const MultipoolAllocator&);
     MultipoolAllocator& operator=(const MultipoolAllocator&);
+    MultipoolAllocator(MultipoolAllocator&&) = default;;
 
-  public:
     // CREATORS
     explicit
     MultipoolAllocator(
