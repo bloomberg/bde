@@ -165,6 +165,18 @@ struct Function_ArgTypes;
 template <class FUNC>
 struct Function_NothrowWrapperUtil;
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+// In order to allow inter-converibility between 'bsl::function' and
+// 'bdef_function', we need to bend our leveling rules a bit and
+// forward-declare 'bdef_function'.  The use of this incomplete type assumes,
+// that the structure of 'bdef_function' is identical to that of
+// 'bsl::function', though with a slightly different public interface.  Note,
+// that this is a by-name reference only.  No long-distance friendship is
+// used.
+template <class PROTOTYPE>
+class bdef_Function;
+#endif
+
                         // =======================
                         // class bad_function_call
                         // =======================
@@ -585,8 +597,6 @@ class Function_Rep {
     // otherwise.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 public:
-#else
-private:
 #endif
 
     bool isInplace() const BSLS_NOTHROW_SPEC;
@@ -754,6 +764,17 @@ public:
     // Simulation of explicit converstion to bool
     operator UnspecifiedBool() const BSLS_NOTHROW_SPEC;
 #endif
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    operator       bdef_Function<RET(*)(ARGS...)>&()       BSLS_NOTHROW_SPEC;
+    operator const bdef_Function<RET(*)(ARGS...)>&() const BSLS_NOTHROW_SPEC;
+        // Return a reference to a 'bdef_Function' that is an alias of
+        // '*this'.  Note that no copy is made; modifying the object through
+        // the returned object (e.g., by assigning to it) will modify
+        // '*this'. This operator depends on 'bdef_Function' being a thin
+        // layer on top of 'bsl::function', having identical structure.
+#endif
+    
 };
 
 // FREE FUNCTIONS
@@ -1985,7 +2006,25 @@ bsl::function<RET(ARGS...)>::operator UnspecifiedBool() const BSLS_NOTHROW_SPEC
     // otherwise it is empty (return false).
     return UnspecifiedBoolUtil::makeValue(d_invoker_p);
 }
-#endif
+#endif // BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+template <class RET, class... ARGS>
+inline
+bsl::function<RET(ARGS...)>::
+    operator bdef_Function<RET(*)(ARGS...)>&() BSLS_NOTHROW_SPEC
+{
+    return *reinterpret_cast<bdef_Function<RET(*)(ARGS...)>*>(this);
+}
+
+template <class RET, class... ARGS>
+inline
+bsl::function<RET(ARGS...)>::
+    operator const bdef_Function<RET(*)(ARGS...)>&() const BSLS_NOTHROW_SPEC
+{
+    return *reinterpret_cast<const bdef_Function<RET(*)(ARGS...)>*>(this);
+}
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 
 // FREE FUNCTIONS
