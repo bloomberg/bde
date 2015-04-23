@@ -135,7 +135,7 @@ BSLS_IDENT("$Id: $")
 //  'a', 'b'        - two distinct objects of type 'unordered_set<K>'
 //  'n', 'm'        - number of elements in 'a' and 'b' respectively
 //  'w'             - number of buckets of 'a'
-//  'value_type'    - unoredered_set<K>::value_type
+//  'value_type'    - unordered_set<K>::value_type
 //  'c'             - comparator providing an ordering for objects of type 'K'
 //  'al             - an STL-style memory allocator
 //  'i1', 'i2'      - two iterators defining a sequence of 'value_type' objects
@@ -382,7 +382,7 @@ BSLS_IDENT("$Id: $")
 // of the process, the set will contain one entry for every unique combination
 // in our data.
 //
-// First, as there are no standard methods for hashing or comparing our user
+// First, as there are no standard methods for hashing or comparing our user-
 // defined types, we define 'CustomerProfileHash' and 'CustomerProfileEqual'
 // classes, each a stateless functor.  Note that there is no meaningful
 // ordering of the attribute values, they are merely arbitrary code numbers;
@@ -398,7 +398,7 @@ BSLS_IDENT("$Id: $")
 //      //! CustomerProfileHash(const CustomerProfileHash& original) = default;
 //          // Create a 'CustomerProfileHash' object.  Note that as
 //          // 'CustomerProfileHash' is an empty (stateless) type, this
-//          // operation will have no observable effect.
+//          // operation has no observable effect.
 //
 //      //! ~CustomerProfileHash() = default;
 //          // Destroy this object.
@@ -432,7 +432,7 @@ BSLS_IDENT("$Id: $")
 //      //!                                                          = default;
 //          // Create a 'CustomerProfileEqual' object.  Note that as
 //          // 'CustomerProfileEqual' is an empty (stateless) type, this
-//          // operation will have no observable effect.
+//          // operation has no observable effect.
 //
 //      //! ~CustomerProfileEqual() = default;
 //          // Destroy this object.
@@ -708,7 +708,7 @@ class unordered_set
         // 'bsl::allocator' (the default), then 'basicAllocator' shall be
         // convertible to 'bslma::Allocator *'.  If the 'ALLOCATOR' is
         // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
-        // installed default allocator will be used to supply memory.
+        // installed default allocator is used to supply memory.
 
     explicit unordered_set(const allocator_type& basicAllocator);
         // Construct an empty unordered set that uses the specified
@@ -761,15 +761,14 @@ class unordered_set
         // 'bsl::allocator' (the default), then 'basicAllocator' shall be
         // convertible to 'bslma::Allocator *'.  If the 'allocator_type' is
         // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
-        // installed default allocator will be used to supply memory.  The
-        // (template parameter) type 'INPUT_ITERATOR' shall meet the
-        // requirements of an input iterator defined in the C++11 standard
-        // [24.2.3] providing access to values of a type convertible to
-        // 'value_type'.  The behavior is undefined unless 'first' and 'last'
-        // refer to a sequence of valid values where 'first' is at a position
-        // at or before 'last'.  This method requires that the (template
-        // parameter) type 'KEY' be "copy-constructible" (see {Requirements on
-        // 'KEY'}).
+        // installed default allocator is used to supply memory.  The (template
+        // parameter) type 'INPUT_ITERATOR' shall meet the requirements of an
+        // input iterator defined in the C++11 standard [24.2.3] providing
+        // access to values of a type convertible to 'value_type'.  The
+        // behavior is undefined unless 'first' and 'last' refer to a sequence
+        // of valid values where 'first' is at a position at or before 'last'.
+        // Note that this method requires that the (template parameter) type
+        // 'KEY' be "copy-constructible" (see {Requirements on 'KEY'}).
 
     ~unordered_set();
         // Destroy this object.
@@ -780,9 +779,9 @@ class unordered_set
         // the specified 'rhs' object, propagate to this object the allocator
         // of 'rhs' if the 'ALLOCATOR' type has trait
         // 'propagate_on_container_copy_assignment', and return a reference
-        // providing modifiable access to this object.  This method requires
-        // that the (template parameter) type 'KEY' be "copy-constructible"
-        // (see {Requirements on 'KEY'}).
+        // providing modifiable access to this object.  Note that this method
+        // requires that the (template parameter) type 'KEY' be
+        // "copy-constructible" (see {Requirements on 'KEY'}).
 
     iterator begin();
         // Return an iterator providing modifiable access to the first
@@ -857,9 +856,9 @@ class unordered_set
         // referring to the (possibly newly inserted) 'value_type' object in
         // this set whose key is the same as that of 'value', and whose
         // 'second' member is 'true' if a new value was inserted, and 'false'
-        // if the value was already present.  This method requires that the
-        // (template parameter) type 'KEY' be "copy-constructible" (see
-        // {Requirements on 'KEY'}).
+        // if the value was already present.  Note that this method requires
+        // that the (template parameter) type 'KEY' be "copy-constructible"
+        // (see {Requirements on 'KEY'}).
 
     iterator insert(const_iterator hint, const value_type& value);
         // Insert the specified 'value' into this set (in constant time if the
@@ -871,10 +870,10 @@ class unordered_set
         // referring to the (possibly newly inserted) 'value_type' object in
         // this set whose key is the same as that of 'value'.  If 'hint' is not
         // a valid immediate successor to the key of 'value', this operation
-        // will have worst case O[N] and average case constant time complexity,
+        // has worst case 'O[N]' and average case constant-time complexity,
         // where 'N' is the size of this set.  The behavior is undefined unless
-        // 'hint' is a valid iterator into this unordered set.  This method
-        // requires that the (template parameter) type 'KEY' be
+        // 'hint' is a valid iterator into this unordered set.  Note that this
+        // method requires that the (template parameter) type 'KEY' be
         // "copy-constructible" (see {Requirements on 'KEY'}).
 
     template <class INPUT_ITERATOR>
@@ -885,9 +884,11 @@ class unordered_set
         // already contained in this set.  The (template parameter) type
         // 'INPUT_ITERATOR' shall meet the requirements of an input iterator
         // defined in the C++11 standard [24.2.3] providing access to values of
-        // a type convertible to 'value_type'.  This method requires that the
-        // (template parameter) type 'KEY' be "copy-constructible" (see
-        // {Requirements on 'KEY'}).
+        // a type convertible to 'value_type'.  The behavior is undefined
+        // unless 'first' and 'last' refer to a sequence of valid values where
+        // 'first' is at a position at or before 'last'.  Note that this method
+        // requires that the (template parameter) type 'KEY' be
+        // "copy-constructible" (see {Requirements on 'KEY'}).
 
     void max_load_factor(float newLoadFactor);
         // Set the maximum load factor of this container to the specified
@@ -906,20 +907,20 @@ class unordered_set
         // the ratio between the specified 'numElements' and this quantity does
         // not exceed 'max_load_factor'.  Note that this guarantees that, after
         // the reserve, elements can be inserted to grow the container to
-        // 'size() == numElements' without rehashing. Also note that memory
-        // allocations may still occur when growing the container to 'size() ==
-        // numElements'.  Also note that this operation has no effect if
-        // 'numElements <= size()'.
+        // 'size() == numElements' without rehashing.  Also note that memory
+        // allocations may still occur when growing the container to
+        // 'size() == numElements'.  Also note that this operation has no
+        // effect if 'numElements <= size()'.
 
     void swap(unordered_set& other);
         // Exchange the value of this object as well as its hasher and
         // key-equality functor with those of the specified 'other' object.
-        // Additionally if
+        // Additionally, if
         // 'bslstl::AllocatorTraits<ALLOCATOR>::propagate_on_container_swap' is
-        // 'true' then exchange the allocator of this object with that of the
+        // 'true', then exchange the allocator of this object with that of the
         // 'other' object, and do not modify either allocator otherwise.  This
         // method provides the no-throw exception-safety guarantee and
-        // guarantees O[1] complexity.  The behavior is undefined is unless
+        // guarantees 'O[1]' complexity.  The behavior is undefined unless
         // either this object was created with the same allocator as 'other' or
         // 'propagate_on_container_swap' is 'true'.
 
@@ -980,7 +981,7 @@ class unordered_set
         // specified 'key', where the the first iterator is positioned at the
         // start of the sequence and the second iterator is positioned one past
         // the end of the sequence.  If this set contains no 'value_type'
-        // objects having 'key' then the two returned iterators will have the
+        // objects having 'key', then the two returned iterators will have the
         // same value.  Note that since a set maintains unique keys, the range
         // will contain at most one element.
 
@@ -1039,8 +1040,8 @@ bool operator==(const unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
     // value, and 'false' otherwise.  Two 'unordered_set' objects have the same
     // value if they have the same number of value-elements, and for each
     // value-element that is contained in 'lhs' there is a value-element
-    // contained in 'rhs' having the same value, and vice-versa.  This method
-    // requires that the (template parameter) type 'KEY' be
+    // contained in 'rhs' having the same value, and vice-versa.  Note that
+    // this method requires that the (template parameter) type 'KEY' be
     // "equality-comparable" (see {Requirements on 'KEY'}).
 
 
@@ -1052,21 +1053,21 @@ bool operator!=(const unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
     // have the same value if they do not have the same number of
     // value-elements, or that for some value-element contained in 'lhs' there
     // is not a value-element in 'rhs' having the same value, and vice-versa.
-    // This method requires that the (template parameter) type 'KEY' and be
-    // "equality-comparable" (see {Requirements on 'KEY'}).
+    // Note that this method requires that the (template parameter) type 'KEY'
+    // and be "equality-comparable" (see {Requirements on 'KEY'}).
 
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 void swap(unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& a,
           unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& b);
     // Swap both the value and the comparator of the specified 'a' object with
-    // the value and comparator of the specified 'b' object.  Additionally if
+    // the value and comparator of the specified 'b' object.  Additionally, if
     // 'bslstl::AllocatorTraits<ALLOCATOR>::propagate_on_container_swap' is
-    // 'true' then exchange the allocator of 'a' with that of 'b', and do not
+    // 'true', then exchange the allocator of 'a' with that of 'b', and do not
     // modify either allocator otherwise.  This method provides the no-throw
-    // exception-safety guarantee and guarantees O[1] complexity.  The behavior
-    // is undefined is unless either this object was created with the same
-    // allocator as 'other' or 'propagate_on_container_swap' is 'true'.
+    // exception-safety guarantee and guarantees 'O[1]' complexity.  The
+    // behavior is undefined unless either this object was created with the
+    // same allocator as 'other' or 'propagate_on_container_swap' is 'true'.
 
 // ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
@@ -1213,7 +1214,7 @@ inline
 typename unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::iterator
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::erase(const_iterator position)
 {
-    BSLS_ASSERT(position != this->end());
+    BSLS_ASSERT_SAFE(position != this->end());
 
     return iterator(d_impl.remove(position.node()));
 }

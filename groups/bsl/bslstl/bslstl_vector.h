@@ -89,7 +89,7 @@ BSLS_IDENT("$Id: $")
 // standard behavior of a 'bslma'-allocator-enabled type.  Such a vector
 // accepts an optional 'bslma::Allocator' argument at construction.  If the
 // address of a 'bslma::Allocator' object is explicitly supplied at
-// construction, it will be used to supply memory for the vector throughout its
+// construction, it is used to supply memory for the vector throughout its
 // lifetime; otherwise, the vector will use the default allocator installed at
 // the time of the vector's construction (see 'bslma_default').  In addition to
 // directly allocating memory from the indicated 'bslma::Allocator', a vector
@@ -198,7 +198,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Creating a Matrix Type
 ///- - - - - - - - - - - - - - - - -
-// Suppose we want to define a value semantic type representing a dynamically
+// Suppose we want to define a value-semantic type representing a dynamically
 // resizable two-dimensional matrix.
 //
 // First, we define the public interface for the 'MyMatrix' class template:
@@ -807,7 +807,7 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
     //
     // More generally, this class supports an almost complete set of *in-core*
     // *value* *semantic* operations, including copy construction, assignment,
-    // equality comparison (but excluding 'ostream' printing since this is
+    // equality comparison (but excluding 'ostream' printing since this
     // component is below STL).  A precise operational definition of when two
     // objects have the same value can be found in the description of
     // 'operator==' for the class.  This class is *exception* *neutral* with no
@@ -930,9 +930,9 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // is default-constructed.  Optionally specify the 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is not specified, a
         // default-constructed allocator is used.  Throw 'std::length_error' if
-        // 'initialSize > max_size()'.  This method requires that the (template
-        // parameter) type 'VALUE_TYPE' be "default-constructible" (see
-        // {Requirements on 'VALUE_TYPE'}).
+        // 'initialSize > max_size()'.  Note that this method requires that the
+        // (template parameter) type 'VALUE_TYPE' be "default-constructible"
+        // (see {Requirements on 'VALUE_TYPE'}).
 
     explicit
     Vector_Imp(size_type         initialSize,
@@ -942,8 +942,8 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // equals the specified 'value'.  Optionally specify the
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
         // specified, a default-constructed allocator is used.  Throw
-        // 'std::length_error' if 'initialSize > max_size()'.  This method
-        // requires that the (template parameter) type 'VALUE_TYPE' be
+        // 'std::length_error' if 'initialSize > max_size()'.  Note that this
+        // method requires that the (template parameter) type 'VALUE_TYPE' be
         // "copy-constructible" (see {Requirements on 'VALUE_TYPE'}).
 
     template <class INPUT_ITER>
@@ -956,10 +956,12 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // 'INPUT_ITER' type.  Optionally specify the 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is not specified, a
         // default-constructed allocator is used.  Throw 'std::length_error' if
-        // the number of elements in '[ first, last )' exceeds the value
-        // returned by the method 'max_size'.  This method requires that the
-        // (template parameter) type 'VALUE_TYPE' be "copy-constructible" (see
-        // {Requirements on 'VALUE_TYPE'}).
+        // the number of elements in '[first .. last)' exceeds the value
+        // returned by the method 'max_size'.  The behavior is undefined unless
+        // 'first' and 'last' refer to a sequence of valid values where 'first'
+        // is at a position at or before 'last'.  Note that this method
+        // requires that the (template parameter) type 'VALUE_TYPE' be
+        // "copy-constructible" (see {Requirements on 'VALUE_TYPE'}).
 
     Vector_Imp(const Vector_Imp& original);
     Vector_Imp(const Vector_Imp& original, const ALLOCATOR& basicAllocator);
@@ -968,9 +970,9 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // memory.  If 'basicAllocator' is not specified, then if 'ALLOCATOR'
         // is convertible from 'bslma::Allocator *', the currently installed
         // default allocator is used, otherwise the 'original' allocator is
-        // used (as mandated per the ISO standard).  This method requires that
-        // the (template parameter) type 'VALUE_TYPE' be "copy-constructible"
-        // (see {Requirements on 'VALUE_TYPE'}).
+        // used (as mandated per the ISO standard).  Note that this method
+        // requires that the (template parameter) type 'VALUE_TYPE' be
+        // "copy-constructible" (see {Requirements on 'VALUE_TYPE'}).
 
     ~Vector_Imp();
         // Destroy this vector.
@@ -981,27 +983,29 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
 
     Vector_Imp& operator=(const Vector_Imp& other);
         // Assign to this vector the value of the specified 'other' vector and
-        // return a reference to this modifiable vector.  This method requires
-        // that the (template parameter) type 'VALUE_TYPE' be
+        // return a reference to this modifiable vector.  Note that this method
+        // requires that the (template parameter) type 'VALUE_TYPE' be
         // "copy-constructible" (see {Requirements on 'VALUE_TYPE'}).
 
     template <class INPUT_ITER>
     void assign(INPUT_ITER first, INPUT_ITER last);
         // Assign to this vector the values in the range starting at the
         // specified 'first' and ending immediately before the specified 'last'
-        // iterators of the parameterized 'INPUT_ITER' type.  Note that this
-        // vector will be left in an empty state in case an exception is thrown
-        // other than by the 'VALUE_TYPE' copy constructor or assignment
-        // operator.  This method requires that the (template parameter) type
+        // iterators of the parameterized 'INPUT_ITER' type.  This vector is
+        // left in an empty state in case an exception is thrown other than by
+        // the 'VALUE_TYPE' copy constructor or assignment operator.  The
+        // behavior is undefined unless 'first' and 'last' refer to a sequence
+        // of valid values where 'first' is at a position at or before 'last'.
+        // Note that this method requires that the (template parameter) type
         // 'VALUE_TYPE' be "copy-constructible" (see {Requirements on
         // 'VALUE_TYPE'}).
 
     void assign(size_type numElements, const VALUE_TYPE& value);
         // Assign to this vector the value of the vector of the specified
         // 'numElements' size whose every elements equal the specified 'value'.
-        // Note that this vector will be left in an empty state in case an
-        // exception is thrown other than by the 'VALUE_TYPE' copy constructor
-        // or assignment operator.  This method requires that the (template
+        // This vector is left in an empty state in case an exception is thrown
+        // other than by the 'VALUE_TYPE' copy constructor or assignment
+        // operator.  Note that this method requires that the (template
         // parameter) type 'VALUE_TYPE' be "copy-constructible" (see
         // {Requirements on 'VALUE_TYPE'}).
 
@@ -1014,10 +1018,10 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // appropriate number of copies of the optionally specified 'value' at
         // the end if 'size() < newSize'.  If 'value' is not specified, a
         // default-constructed value is used.  Throw 'std::length_error' if
-        // 'newSize > max_size()'.  This method requires that the (template
-        // parameter) type 'VALUE_TYPE' be "copy-constructible" if 'value' is
-        // specified and "default-constructible" otherwise (see {Requirements
-        // on 'VALUE_TYPE'}).
+        // 'newSize > max_size()'.  Note that this method requires that the
+        // (template parameter) type 'VALUE_TYPE' be "copy-constructible" if
+        // 'value' is specified and "default-constructible" otherwise (see
+        // {Requirements on 'VALUE_TYPE'}).
 
     void reserve(size_type newCapacity);
         // Change the capacity of this vector to the specified 'newCapacity'.
@@ -1034,14 +1038,14 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     template <class... Args> void emplace_back(Args&&... args);
         // Append a new element to the end of this vector, constructed directly
-        // in place from the specified 'args'. The 'args' are passed to the
+        // in place from the specified 'args'.  The 'args' are passed to the
         // constructor using "perfect forwarding", meaning move semantics will
-        // be utilized for rvalued elements that implement them. The
+        // be utilized for rvalued elements that implement them.  The
         // combination of constructing in place and "perfect forwarding" means
-        // that when move semantics are availible, elements in 'args' will not
-        // be copied at all. When move semantics are not availible, elements in
-        // 'args' will be copied only once. This method provides the strong
-        // exception safety guarentee, so the state of this object will not be
+        // that when move semantics are available, elements in 'args' will not
+        // be copied at all.  When move semantics are not available, elements
+        // in 'args' will be copied only once.  This method provides the strong
+        // exception safety guarantee, so the state of this object will not be
         // changed if an exception is thrown (such as when allocating memory,
         // or from operations of 'VALUE_TYPE').
 
@@ -1098,9 +1102,9 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // This method provides the strong exception safety guarantee, so the
         // state of this object will not be changed if an exception is thrown
         // (such as when allocating memory, or from operations of
-        // 'VALUE_TYPE'). This method requires that the (template parameter)
-        // type 'VALUE_TYPE' be "copy-constructible" (see {Requirements on
-        // 'VALUE_TYPE'}).
+        // 'VALUE_TYPE').  Note that this method requires that the (template
+        // parameter) type 'VALUE_TYPE' be "copy-constructible" (see
+        // {Requirements on 'VALUE_TYPE'}).
 
     void pop_back();
         // Erase the last element from this vector.  The behavior is undefined
@@ -1166,25 +1170,25 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // Insert at the specified 'position' in this vector a copy of the
         // specified 'value', and return an iterator pointing to the newly
         // inserted element.  If 'value' has move semantics, then its value is
-        // valid but unspecified upon returning from this function.  The
-        // behavior is undefined unless 'position' is an iterator in the range
-        // '[ begin(), end() ]' (both endpoints included).  Note that this
+        // valid but unspecified upon returning from this function.  This
         // method offers full guarantee of rollback in case an exception is
         // thrown other than by the 'VALUE_TYPE' copy constructor or assignment
-        // operator.  This method requires that the (template parameter) type
-        // 'VALUE_TYPE' be "copy-constructible" (see {Requirements on
-        // 'VALUE_TYPE'}).
+        // operator.  The behavior is undefined unless 'position' is an
+        // iterator in the range '[begin() .. end()]' (both endpoints
+        // included).  Note that this method requires that the (template
+        // parameter) type 'VALUE_TYPE' be "copy-constructible" (see
+        // {Requirements on 'VALUE_TYPE'}).
 
     void insert(const_iterator    position,
                 size_type         numElements,
                 const VALUE_TYPE& value);
         // Insert at the specified 'position' in this vector a number equal to
-        // the specified 'numElements' of copies of the specified 'value'.  The
-        // behavior is undefined unless 'position' is an iterator in the range
-        // '[ begin(), end() ]' (both endpoints included).  Note that this
-        // method offers full guarantee of rollback in case an exception is
-        // throw is thrown other than by the 'VALUE_TYPE' copy constructor or
-        // assignment operator.  This method requires that the (template
+        // the specified 'numElements' of copies of the specified 'value'.
+        // This method offers full guarantee of rollback in case an exception
+        // is thrown other than by the 'VALUE_TYPE' copy constructor or
+        // assignment operator.  The behavior is undefined unless 'position' is
+        // an iterator in the range '[begin() .. end()]' (both endpoints
+        // included).  Note that this method requires that the (template
         // parameter) type 'VALUE_TYPE' be "copy-constructible" (see
         // {Requirements on 'VALUE_TYPE'}).
 
@@ -1193,14 +1197,15 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // Insert at the specified 'position' in this vector the values in the
         // range starting at the specified 'first' and ending immediately
         // before the specified 'last' iterators of the parameterized
-        // 'INPUT_ITER' type.  The behavior is undefined unless 'position' is
-        // an iterator in the range '[ begin(), end() ]' (both endpoints
-        // included).  Note that this method offers full guarantee of rollback
-        // in case an exception is thrown other than by the 'VALUE_TYPE' copy
-        // constructor or assignment operator.  This method requires that the
-        // (template parameter) type 'VALUE_TYPE' be "copy-constructible" (see
+        // 'INPUT_ITER' type.  This method offers full guarantee of rollback in
+        // case an exception is thrown other than by the 'VALUE_TYPE' copy
+        // constructor or assignment operator.  The behavior is undefined
+        // unless 'position' is an iterator in the range '[begin() .. end()]'
+        // (both endpoints included), and 'first' and 'last' refer to a
+        // sequence of valid values where 'first' is at a position at or before
+        // 'last'.  Note that this method requires that the (template
+        // parameter) type 'VALUE_TYPE' be "copy-constructible" (see
         // {Requirements on 'VALUE_TYPE'}).
-
 
     iterator erase(const_iterator position);
         // Remove from this vector the element at the specified 'position', and
@@ -1208,7 +1213,7 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // removed element, or to the position returned by the 'end' method if
         // the removed element was the last in the sequence.  The behavior is
         // undefined unless 'position' is an iterator in the range
-        // '[ begin(), end() )'.
+        // '[begin() .. end())'.
 
     iterator erase(const_iterator first, const_iterator last);
         // Remove from this vector the elements starting at the specified
@@ -1217,8 +1222,8 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // last removed element, or the position returned by the method 'end'
         // if the removed elements were last in the sequence.  The behavior is
         // undefined unless 'first' is an iterator in the range
-        // '[ begin(), end() ]' and 'last' is an iterator in the range
-        // '[ first, end() ]' (both endpoints included).
+        // '[begin() .. end()]' and 'last' is an iterator in the range
+        // '[first .. end()]' (both endpoints included).
 
     void swap(Vector_Imp& other);
         // Exchange the value of this vector with that of the specified 'other'
@@ -1229,7 +1234,7 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
 
     void clear();
         // Remove all the elements from this vector.  Note that this vector is
-        // empty after this call, but conserves the same capacity.
+        // empty after this call, but preserves the same capacity.
 
     // ACCESSORS
 
@@ -1253,9 +1258,9 @@ bool operator==(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
     // Return 'true' if the specified 'lhs' vector has the same value as the
     // specified 'rhs' vector.  Two vectors have the same value if they have
     // the same number of elements and the same element value at each index
-    // position in the range 0 to 'size() - 1'.  This method requires that the
-    // (template parameter) type 'VALUE_TYPE' be "equality-comparable" (see
-    // {Requirements on 'VALUE_TYPE'}).
+    // position in the range 0 to 'size() - 1'.  Note that this method requires
+    // that the (template parameter) type 'VALUE_TYPE' be "equality-comparable"
+    // (see {Requirements on 'VALUE_TYPE'}).
 
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator!=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
@@ -1263,9 +1268,10 @@ bool operator!=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
     // Return 'true' if the specified 'lhs' vector does not have the same value
     // as the specified 'rhs' vector.  Two vectors do not have the same value
     // if they have different numbers of elements or different element values
-    // in at least one index position in the range 0 to 'size() - 1'.  This
-    // method requires that the (template parameter) type 'VALUE_TYPE' be
-    // "equality-comparable" (see {Requirements on 'VALUE_TYPE'}).
+    // in at least one index position in the range 0 to 'size() - 1'.  Note
+    // that this method requires that the (template parameter) type
+    // 'VALUE_TYPE' be "equality-comparable" (see {Requirements on
+    // 'VALUE_TYPE'}).
 
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator< (const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
@@ -1275,16 +1281,16 @@ bool operator< (const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
     // is lexicographically smaller than another vector 'rhs' if there exists
     // an index 'i' between 0 and the minimum of 'lhs.size()' and 'rhs.size()'
     // such that 'lhs[i] == rhs[j]' for every '0 <= j < i', 'i < rhs.size()',
-    // and either 'i == lhs.size()' or 'lhs[i] < rhs[i]'.  This method requires
-    // that the (template parameter) type 'VALUE_TYPE' be
+    // and either 'i == lhs.size()' or 'lhs[i] < rhs[i]'.  Note that this
+    // method requires that the (template parameter) type 'VALUE_TYPE' be
     // "less-than-comparable" (see {Requirements on 'VALUE_TYPE'}).
 
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator> (const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
                 const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs);
     // Return 'true' if the specified 'lhs' vector is lexicographically larger
-    // than the specified 'rhs' vector, and 'false' otherwise.  This method
-    // requires that the (template parameter) type 'VALUE_TYPE' be
+    // than the specified 'rhs' vector, and 'false' otherwise.  Note that this
+    // method requires that the (template parameter) type 'VALUE_TYPE' be
     // "less-than-comparable" (see {Requirements on 'VALUE_TYPE'}).
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -1292,15 +1298,16 @@ bool operator<=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
                 const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs);
     // Return 'true' if the specified 'lhs' vector is lexicographically smaller
     // than or equal to the specified 'rhs' vector, and 'false' otherwise.
-    // This method requires that the (template parameter) type 'VALUE_TYPE' be
-    // "less-than-comparable" (see {Requirements on 'VALUE_TYPE'}).
+    // Note that this method requires that the (template parameter) type
+    // 'VALUE_TYPE' be "less-than-comparable" (see {Requirements on
+    // 'VALUE_TYPE'}).
 
 template <class VALUE_TYPE, class ALLOCATOR>
 bool operator>=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
                 const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs);
     // Return 'true' if the specified 'lhs' vector is lexicographically larger
-    // than the specified 'rhs' vector, and 'false' otherwise.  This method
-    // requires that the (template parameter) type 'VALUE_TYPE' be
+    // than the specified 'rhs' vector, and 'false' otherwise.  Note that this
+    // method requires that the (template parameter) type 'VALUE_TYPE' be
     // "less-than-comparable" (see {Requirements on 'VALUE_TYPE'}).
 
                       // *** specialized algorithms: ***
@@ -1343,8 +1350,8 @@ class vector : public Vector_Imp<VALUE_TYPE, ALLOCATOR>
         // Create a vector of the specified size 'n' whose every element is
         // default-constructed.  Optionally specify an 'allocator' used to
         // supply memory.  If 'allocator' is not specified, a
-        // default-constructed allocator is used.  This method requires that
-        // the (template parameter) type 'VALUE_TYPE' be
+        // default-constructed allocator is used.  Note that this method
+        // requires that the (template parameter) type 'VALUE_TYPE' be
         // "default-constructible" (see {Requirements on 'VALUE_TYPE'}).
 
     vector(size_type         n,
@@ -1353,9 +1360,9 @@ class vector : public Vector_Imp<VALUE_TYPE, ALLOCATOR>
         // Create a vector of the specified size 'n' whose every element equals
         // the specified 'value'.  Optionally specify an allocator 'alloc' used
         // to supply memory.  If 'alloc' is not specified, a
-        // default-constructed allocator is used.  This method requires that
-        // the (template parameter) type 'VALUE_TYPE' be "copy-constructible"
-        // (see {Requirements on 'VALUE_TYPE'}).
+        // default-constructed allocator is used.  Note that this method
+        // requires that the (template parameter) type 'VALUE_TYPE' be
+        // "copy-constructible" (see {Requirements on 'VALUE_TYPE'}).
 
     template <class INPUT_ITER>
     vector(INPUT_ITER       first,
@@ -1366,9 +1373,11 @@ class vector : public Vector_Imp<VALUE_TYPE, ALLOCATOR>
         // before the specified 'last' iterators of the parameterized
         // 'INPUT_ITER' type.  Optionally specify an allocator 'alloc' used to
         // supply memory.  If 'alloc' is not specified, a default-constructed
-        // allocator is used.  This method requires that the (template
-        // parameter) type 'VALUE_TYPE' be "copy-constructible" (see
-        // {Requirements on 'VALUE_TYPE'}).
+        // allocator is used.  The behavior is undefined unless 'first' and
+        // 'last' refer to a sequence of valid values where 'first' is at a
+        // position at or before 'last'.  Note that this method requires that
+        // the (template parameter) type 'VALUE_TYPE' be "copy-constructible"
+        // (see {Requirements on 'VALUE_TYPE'}).
 
     vector(const vector& original);
     vector(const vector& original, const ALLOCATOR& alloc);
@@ -1377,17 +1386,17 @@ class vector : public Vector_Imp<VALUE_TYPE, ALLOCATOR>
         // memory.  If 'alloc' is not specified, then if 'ALLOCATOR' is
         // convertible from 'bslma::Allocator *', the currently installed
         // default allocator is used, otherwise the 'original' allocator is
-        // used (as mandated per the ISO standard).  This method requires that
-        // the (template parameter) type 'VALUE_TYPE' be "copy-constructible"
-        // (see {Requirements on 'VALUE_TYPE'}).
+        // used (as mandated per the ISO standard).  Note that this method
+        // requires that the (template parameter) type 'VALUE_TYPE' be
+        // "copy-constructible" (see {Requirements on 'VALUE_TYPE'}).
 
     ~vector();
         // Destroy this vector.
 
     vector& operator=(const vector& other);
         // Assign to this vector the value of the specified 'other' vector and
-        // return a reference to this modifiable vector.  This method requires
-        // that the (template parameter) type 'VALUE_TYPE' be
+        // return a reference to this modifiable vector.  Note that this method
+        // requires that the (template parameter) type 'VALUE_TYPE' be
         // "copy-constructible" (see {Requirements on 'VALUE_TYPE'}).
 };
 
@@ -1925,8 +1934,8 @@ struct Vector_RangeCheck {
     typename bsl::enable_if<
            !Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::VALUE, bool>::type
     isInvalidRange(BSLSTL_ITERATOR, BSLSTL_ITERATOR)
-        // Return 'false' as we know of no way to identify an input iterator
-        // range that is guaranteed to be invalid.
+        // Return 'false'.  Note that we know of no way to identify an input
+        // iterator range that is guaranteed to be invalid.
     {
         return false;
     }
@@ -1936,9 +1945,9 @@ struct Vector_RangeCheck {
     typename bsl::enable_if<
            Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::VALUE, bool>::type
     isInvalidRange(BSLSTL_ITERATOR first, BSLSTL_ITERATOR last)
-        // Return 'true' if 'first <= last', and 'false' otherwise.  Behavior
-        // is undefined unless both 'first' and 'last' are valid iterators that
-        // refer to the same range.
+        // Return 'true' if 'last < first', and 'false' otherwise.  The
+        // behavior is undefined unless both 'first' and 'last' are valid
+        // iterators that refer to the same range.
     {
         return last < first;
     }
@@ -2292,9 +2301,9 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateInsert(
     }
 
     // Make sure we don't shrink the capacity if this vector is empty, because
-    // it will be swapped.  Note that '[ first, last )' is not empty so there
-    // is no harm reserving one element otherwise, in fact, it will speed up
-    // the first 'push_back'.
+    // it will be swapped.  Note that '[first .. last)' is not empty, so there
+    // is no harm reserving one element; in fact, it will speed up the first
+    // 'push_back'.
 
     const bool isEmpty = this->empty();
     Vector_Imp temp(this->get_allocator());
@@ -2988,7 +2997,7 @@ VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
         Vector_Imp temp(this->get_allocator());
         temp.privateReserveEmpty(newCapacity);
 
-        // Move '[pos, this->d_dataEnd)' to 'temp' array.
+        // Move '[pos .. this->d_dataEnd)' to 'temp' array.
 
         BloombergLP::bslalg::ArrayPrimitives::destructiveMove(
                                                   temp.d_dataBegin + index + 1,
@@ -3012,7 +3021,7 @@ VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
                                                    this->bslmaAllocator());
         guard.moveBegin(-1);
 
-        // Move '[0, pos)' to 'temp' array.
+        // Move '[0 .. pos)' to 'temp' array.
 
         BloombergLP::bslalg::ArrayPrimitives::destructiveMove(
                                                        temp.d_dataBegin,
@@ -4087,7 +4096,7 @@ void swap(vector<VALUE_TYPE *, ALLOCATOR>& a,
 }
 
              // -------------------------------------------
-             // class vector<const VALUE_TYPE *, ALLCOATOR>
+             // class vector<const VALUE_TYPE *, ALLOCATOR>
              // -------------------------------------------
 
 // FREE OPERATORS

@@ -57,10 +57,10 @@ BSLS_IDENT("$Id: $")
 // will conform to the standard behavior of a 'bslma'-allocator-enabled type.
 // Such a 'basic_string' accepts an optional 'bslma::Allocator' argument at
 // construction.  If the address of a 'bslma::Allocator' object is explicitly
-// supplied at construction, it will be used to supply memory for the
-// 'basic_string' throughout its lifetime; otherwise, the 'basic_string' will
-// use the default allocator installed at the time of the 'basic_string''s
-// construction (see 'bslma_default').
+// supplied at construction, it is used to supply memory for the 'basic_string'
+// throughout its lifetime; otherwise, the 'basic_string' will use the default
+// allocator installed at the time of the 'basic_string''s construction (see
+// 'bslma_default').
 //
 ///Lexicographical Comparisons
 ///---------------------------
@@ -885,8 +885,8 @@ class String_Imp {
     String_Imp(SIZE_TYPE length, SIZE_TYPE capacity);
         // Create a 'String_Imp' object and initialize the 'd_length' and
         // 'd_capacity' attributes with the specified 'length' and specified
-        // 'capacity', respectively.  If 'capacity' is less then
-        // 'SHORT_BUFFER_CAPACITY' then d_capacity is set to
+        // 'capacity', respectively.  If 'capacity' is less than
+        // 'SHORT_BUFFER_CAPACITY', then d_capacity is set to
         // 'SHORT_BUFFER_CAPACITY'.  The value of the 'd_short' and 'd_start_p'
         // fields are left uninitialized.  'basic_string' is required to assign
         // either d_short or d_start_p to a proper value before using any
@@ -1038,7 +1038,9 @@ class basic_string
         // (which can also match an integral type).  In the first two cases,
         // use 'privateAppendRaw'.  In the last case, forward to
         // 'privateReplaceDispatch' to separate the integral type from iterator
-        // types.
+        // types.  The behavior is undefined unless 'begin' and 'end' refer to
+        // a sequence of valid values where 'begin' is at a position at or
+        // before 'end'.
 
     basic_string& privateAssign(const CHAR_TYPE *characterString,
                                 size_type        numChars);
@@ -1086,16 +1088,20 @@ class basic_string
                              const_iterator end);
         // Initialize this object with a string represented by the specified
         // 'begin' and 'end' iterators using the 'privateAppendRaw' method for
-        // the initialization.
+        // the initialization.  The behavior is undefined unless 'begin' and
+        // 'end' refer to a sequence of valid values where 'begin' is at a
+        // position at or before 'end'.
 
     template <class INPUT_ITER>
     void privateInitDispatch(INPUT_ITER begin,
                              INPUT_ITER end);
         // Initialize this object with a string represented by the specified
-        // 'begin' and 'end' iterators.  Since the parameterized 'INPUT_ITER'
-        // type can also resolve to an integral type use the
-        // 'privateReplaceDispatch' to disambiguate between the integral type
-        // and iterator types.
+        // 'begin' and 'end' iterators.  The behavior is undefined unless
+        // 'begin' and 'end' refer to a sequence of valid values where 'begin'
+        // is at a position at or before 'end'.  Note that since the
+        // parameterized 'INPUT_ITER' type can also resolve to an integral
+        // type, use the 'privateReplaceDispatch' to disambiguate between the
+        // integral type and iterator types.
 
     void privateInsertDispatch(const_iterator position,
                                iterator       first,
@@ -1105,17 +1111,21 @@ class basic_string
                                const_iterator last);
         // Insert into this object at the specified 'position' a string
         // represented by the specified 'first' and 'last' iterators using the
-        // 'privateInsertRaw' method for insertion.
+        // 'privateInsertRaw' method for insertion.  The behavior is undefined
+        // unless 'first' and 'last' refer to a sequence of valid values where
+        // 'first' is at a position at or before 'last'.
 
     template <class INPUT_ITER>
     void privateInsertDispatch(const_iterator position,
                                INPUT_ITER     first,
                                INPUT_ITER     last);
         // Insert into this object at the specified 'position' a string
-        // represented by the specified 'first' and 'last' iterators.  Since
-        // the parameterized 'INPUT_ITER' type can also resolve to an integral
-        // type use the 'privateReplaceDispatch' to disambiguate between the
-        // integral type and iterator types.
+        // represented by the specified 'first' and 'last' iterators.  The
+        // behavior is undefined unless 'first' and 'last' refer to a sequence
+        // of valid values where 'first' is at a position at or before 'last'.
+        // Note that since the parameterized 'INPUT_ITER' type can also resolve
+        // to an integral type, use the 'privateReplaceDispatch' to
+        // disambiguate between the integral type and iterator types.
 
     basic_string& privateInsertRaw(size_type        outPosition,
                                    const CHAR_TYPE *characterString,
@@ -1205,7 +1215,9 @@ class basic_string
                                  std::forward_iterator_tag);
         // Replace the specified 'numChars' characters of this object starting
         // at the specified 'position' with the string represented by the
-        // specified 'first' and 'last' iterators.
+        // specified 'first' and 'last' iterators.  The behavior is undefined
+        // unless 'first' and 'last' refer to a sequence of valid values where
+        // 'first' is at a position at or before 'last'.
 
     void privateReserveRaw(size_type newCapacity);
         // Update the capacity of this object to be a value greater than or
@@ -1262,7 +1274,7 @@ class basic_string
     // PUBLIC CLASS DATA
     static const size_type npos = ~size_type(0);
         // Value used to denote "not-a-position", guaranteed to be outside the
-        // range '[ 0, max_size() ]'.
+        // range '[0 .. max_size()]'.
 
     // CREATORS
 
@@ -1335,7 +1347,8 @@ class basic_string
         // the parameterized 'INPUT_ITER' type.  Optionally specify the
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
         // specified, a default-constructed allocator is used.  The behavior is
-        // undefined unless '[first, last)' is a valid iterator range.
+        // undefined unless 'first' and 'last' refer to a sequence of valid
+        // values where 'first' is at a position at or before 'last'.
 
     template <class ALLOC2>
     basic_string(
@@ -1469,7 +1482,7 @@ class basic_string
 
     basic_string& operator+=(
         const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef);
-        // Append the specified 'strRef' at the end of this string. Return a
+        // Append the specified 'strRef' at the end of this string.  Return a
         // reference providing modifiable access to this string.
 
     basic_string& append(const basic_string& suffix);
@@ -1507,7 +1520,8 @@ class basic_string
         // specified 'last' iterators of the 'iterator', 'const_iterator' or
         // parameterized 'INPUT_ITER' type, respectively.  Return a reference
         // providing modifiable access to this string.  The behavior is
-        // undefined unless '[first, last)' is a valid iterator range.
+        // undefined unless 'first' and 'last' refer to a sequence of valid
+        // values where 'first' is at a position at or before 'last'.
 
     void push_back(CHAR_TYPE   character);
         // Append the specified 'character' at the end of this string.
@@ -1557,8 +1571,8 @@ class basic_string
         // before the specified 'last' iterators of the 'iterator',
         // 'const_iterator' or parameterized 'INPUT_ITER' type, respectively.
         // Return a reference providing modifiable access to this string.  The
-        // behavior is undefined unless '[first, last)' is a valid iterator
-        // range.
+        // behavior is undefined unless 'first' and 'last' refer to a sequence
+        // of valid values where 'first' is at a position at or before 'last'.
 
     basic_string& insert(size_type position, const basic_string& other);
         // Insert at the specified 'position' in this string a copy of the
@@ -1628,8 +1642,9 @@ class basic_string
         // iterator providing modifiable access to the first inserted
         // character, or a non-const copy of the 'position' iterator, if
         // 'first == last'.  The behavior is undefined unless 'position' is a
-        // valid iterator on this string and '[first, last)' is a valid
-        // iterator range.
+        // valid iterator on this string, and 'first' and 'last' refer to a
+        // sequence of valid values where 'first' is at a position at or before
+        // 'last'.
 
     basic_string& erase(size_type position = 0, size_type numChars = npos);
         // Erase from this string the substring of length the optionally
@@ -1637,27 +1652,27 @@ class basic_string
         // smaller, starting at the optionally specified 'position'.  If
         // 'position' is not specified, the first position is used (i.e.,
         // 'position' is set to 0).  Return a reference providing modifiable
-        // access to this string.  Note that if 'numChars' equals 'npos', then
-        // the remaining length of the string is erased (i.e., 'numChars' is
-        // set to 'length() - position').  Throw 'out_of_range' if
+        // access to this string.  If 'numChars' equals 'npos', then the
+        // remaining length of the string is erased (i.e., 'numChars' is set to
+        // 'length() - position').  Throw 'out_of_range' if
         // 'position > length()'.
 
     iterator erase(const_iterator position);
         // Erase a character at the specified 'position' from this string, and
         // return an iterator providing modifiable access to the character at
         // 'position' prior to erasing.  If no such character exists, return
-        // 'end()'.  The behavior is undefined unless 'position' belongs to the
-        // half-open range '[cbegin(), cend())'.
+        // 'end()'.  The behavior is undefined unless 'position' is within the
+        // half-open range '[cbegin() .. cend())'.
 
     iterator erase(const_iterator first, const_iterator last);
         // Erase from this string a substring defined by the pair of 'first'
         // and 'last' iterators within this string.  Return an iterator
         // providing modifiable access to the the character at the 'last'
         // position prior to erasing.  If no such character exists, return
-        // 'end()'.  The behavior is undefined unless 'first' and 'last' both
-        // belong to '[cbegin(), cend()]' and 'first <= last'.  Note that this
-        // call invalidates existing iterators pointing to 'first' or a
-        // subsequent position.
+        // 'end()'.  This method invalidates existing iterators pointing to
+        // 'first' or a subsequent position.  The behavior is undefined unless
+        // 'first' and 'last' are both within the range '[cbegin() .. cend()]'
+        // and 'first <= last'.
 
     void pop_back();
         // Erase the last character from this string.  The behavior is
@@ -1727,8 +1742,8 @@ class basic_string
         // position and ending right before the specified 'last' position, by
         // the specified 'replacement'.  Return a reference providing
         // modifiable access to this string.  The behavior is undefined unless
-        // 'first' and 'last' both belong to '[cbegin(), cend()]' and
-        // 'first <= last'.
+        // 'first' and 'last' are both within the range '[cbegin() .. cend()]'
+        // and 'first <= last'.
 
     basic_string& replace(const_iterator   first,
                           const_iterator   last,
@@ -1739,8 +1754,8 @@ class basic_string
         // copy of the string constructed from the specified 'numChars'
         // characters in the array starting at the specified 'characterString'
         // address.  Return a reference providing modifiable access to this
-        // string.  The behavior is undefined unless 'first' and 'last' both
-        // belong to '[cbegin(), cend()]' and 'first <= last'.
+        // string.  The behavior is undefined unless 'first' and 'last' are
+        // both within the range '[cbegin() .. cend()]' and 'first <= last'.
 
     basic_string& replace(const_iterator   first,
                           const_iterator   last,
@@ -1749,8 +1764,8 @@ class basic_string
         // position and ending right before the specified 'last' position, by
         // the null-terminated specified 'characterString'.  Return a reference
         // providing modifiable access to this string.  The behavior is
-        // undefined unless 'first' and 'last' both belong to the range
-        // '[cbegin(), cend()]' and 'first <= last'.
+        // undefined unless 'first' and 'last' are both within the range
+        // '[cbegin() .. cend()]' and 'first <= last'.
 
     basic_string& replace(const_iterator first,
                           const_iterator last,
@@ -1760,8 +1775,8 @@ class basic_string
         // position and ending right before the specified 'last' position, by a
         // number equal to the specified 'numChars' of copies of the specified
         // 'character'.  Return a reference providing modifiable access to this
-        // string.  The behavior is undefined unless 'first' and 'last' both
-        // belong to the range '[cbegin(), cend()]' and 'first <= last'.
+        // string.  The behavior is undefined unless 'first' and 'last' are
+        // both within the range '[cbegin() .. cend()]' and 'first <= last'.
 
     template <class INPUT_ITER>
     basic_string& replace(const_iterator first,
@@ -1775,9 +1790,9 @@ class basic_string
         // iterators of the 'iterator', 'const_iterator', or parameterized
         // 'INPUT_ITER' type, respectively.  Return a reference providing
         // modifiable access to this string.  The behavior is undefined unless
-        // 'first' and 'last' both belong to the range '[cbegin(), cend()]',
-        // 'first <= last' and '[stringFirst, stringLast)' is a valid iterator
-        // range.
+        // 'first' and 'last' are both within the range '[cbegin() .. cend()]',
+        // 'first <= last', and '[stringFirst .. stringLast)' is a valid
+        // iterator range.
 
     void swap(basic_string& other);
         // Exchange the value of this string with that of the specified
@@ -1824,8 +1839,8 @@ class basic_string
 
     size_type max_size() const;
         // Return the maximal possible length of this string.  Note that
-        // requests to create a string longer than this number of characters is
-        // guaranteed to raise a 'length_error' exception.
+        // requests to create a string longer than this number of characters
+        // are guaranteed to raise a 'length_error' exception.
 
     size_type capacity() const;
         // Return the capacity of this string, i.e., the maximum length for
@@ -2948,7 +2963,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplaceRaw(
         // contained.
 
         if (first < tail) {
-            // Not entirely contained: break '[first, last)' at 'tail', and
+            // Not entirely contained: break '[first .. last)' at 'tail', and
             // move it in two steps, the second shifted but not the first.
 
             size_type prefix = tail - first, suffix = last - tail;
@@ -2965,8 +2980,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplaceRaw(
                               suffix);
         }
         else {
-            // Entirely contained: copy 'tail' first, and copy '[first, last)'
-            // shifted by 'displacement'.
+            // Entirely contained: copy 'tail' first, and copy
+            // '[first .. last)' shifted by 'displacement'.
 
             CHAR_TRAITS::move(dest + numChars, tail, tailLen);
             CHAR_TRAITS::copy(dest, first + displacement, numChars);
@@ -3946,7 +3961,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(const_iterator position,
     // Sun CC compiler doesn't like that 'iterator' return type of 'insert'
     // method with an additional 'INPUT_ITER' template parameter depends on
     // template parameters of the primary template class 'basic_string'.
-    // However it happily accepts 'CHAR_TYPE *', which is how 'iterator' is
+    // However, it happily accepts 'CHAR_TYPE *', which is how 'iterator' is
     // currently defined.  It will also accept an inline definition of this
     // method (this workaround should be used when 'iterator' becomes a real
     // class and the current workaround stops working).

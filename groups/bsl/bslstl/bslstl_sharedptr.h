@@ -1040,7 +1040,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //           ++iter) {
 //..
 // First we check if the peer is still connected by acquiring a shared pointer
-// to the peer.  If the acquire operation succeeds then we can send the peer a
+// to the peer.  If the acquire operation succeeds, then we can send the peer a
 // request to send back the file best matching the specified keywords:
 //..
 //          bsl::shared_ptr<Peer> peerSharedPtr = iter->lock();
@@ -1350,7 +1350,7 @@ class shared_ptr {
         // Create a shared pointer that manages a modifiable object of
         // (template parameter) type 'COMPATIBLE_TYPE' and refers to the
         // specified 'ptr' cast to a pointer to the (template parameter) type
-        // 'ELEMENT_TYPE'.  If the specified 'basicAllocator' is not 0 then
+        // 'ELEMENT_TYPE'.  If the specified 'basicAllocator' is not 0, then
         // 'basicAllocator' is used to allocate and deallocate the internal
         // representation of the shared pointer and to destroy the shared
         // object when all references have been released; otherwise, the
@@ -1446,7 +1446,7 @@ class shared_ptr {
         // emitted indicating the error.  If 'ptr' is 0, then the null pointer
         // will be reference counted, and 'deleter(ptr)' will be called when
         // the last reference is destroyed.  If an exception is thrown when
-        // allocating storage for the internal representation then
+        // allocating storage for the internal representation, then
         // 'deleter(ptr)' will be called.  The behavior is undefined unless the
         // constructor making a copy of 'deleter' does not throw an exception.
 
@@ -1525,7 +1525,7 @@ class shared_ptr {
         // satisfy the Allocator requirements of the C++ standard (C++11
         // 17.6.3.5, [allocator.requirements]).  The specified
         // 'nullPointerLiteral' is not used.  If an exception is thrown when
-        // allocating storage for the internal representation then
+        // allocating storage for the internal representation, then
         // 'deleter((ELEMENT_TYPE *)0)' will be called.  The behavior is
         // undefined unless 'deleter' can be called with a null pointer, and
         // unless the constructor making a copy of 'deleter' does not throw an
@@ -1601,8 +1601,8 @@ class shared_ptr {
         // type.  Also note that if 'source' is empty, then an empty shared
         // pointer is created, even if 'object' is not null (in which case this
         // empty shared pointer will refer to the same object as 'object').
-        // Likewise note that if 'object' is null and 'source' is not empty,
-        // then a reference-counted null pointer alias will be created.
+        // Also note that if 'object' is null and 'source' is not empty, then a
+        // reference-counted null pointer alias will be created.
 
     template <class COMPATIBLE_TYPE>
     shared_ptr(const shared_ptr<COMPATIBLE_TYPE>& other);
@@ -1803,8 +1803,8 @@ class shared_ptr {
         // have the same type.  Also note that if 'source' is empty, then this
         // shared pointer will be reset to an empty state, even if 'ptr' is not
         // null (in which case this empty shared pointer will refer to the same
-        // object as 'ptr').  Likewise note that if 'ptr' is null and 'source'
-        // is not empty, then this shared pointer will be reset to a
+        // object as 'ptr').  Also note that if 'ptr' is null and 'source' is
+        // not empty, then this shared pointer will be reset to a
         // (reference-counted) null pointer alias.  Further note that the
         // behavior of this method is the same as 'loadAlias(source, ptr)'.
 
@@ -2055,8 +2055,8 @@ class shared_ptr {
         // not necessarily have the same type.  Also note that if 'source' is
         // empty, then this shared pointer will be reset to an empty state,
         // even if 'object' is not null (in which case this empty shared
-        // pointer will refer to the same object as 'object').  Likewise note
-        // that if 'object' is null and 'source' is not empty, then this shared
+        // pointer will refer to the same object as 'object').  Also note that
+        // if 'object' is null and 'source' is not empty, then this shared
         // pointer will be reset to a (reference-counted) null pointer alias.
         // Also note that this function is logically equivalent to:
         //..
@@ -3222,7 +3222,7 @@ struct SharedPtrUtil {
         // release the shared reference to that object, and destroy it using
         // its associated deleter if that shared pointer held the last shared
         // reference to that object.  If
-        // '0 == dynamic_cast<TARGET*>(source.get())' then '*target' shall be
+        // '0 == dynamic_cast<TARGET*>(source.get())', then '*target' shall be
         // reset to an empty state that does not refer to an object.  Note that
         // a compiler diagnostic will be emitted indicating an error unless
         // 'dynamic_cast<TARGET *>(source.get())' is a valid expression.
@@ -3234,8 +3234,8 @@ struct SharedPtrUtil {
         // same object as the specified 'source' shared pointer to the
         // (template parameter) 'SOURCE' type, and referring to
         // 'dynamic_cast<TARGET *>(source.get())'.  If that would return a
-        // shared pointer referring to nothing ('0 == get()') then instead
-        // return an (empty) default constructed shared pointer. Note that a
+        // shared pointer referring to nothing ('0 == get()'), then instead
+        // return an (empty) default constructed shared pointer.  Note that a
         // compiler diagnostic will be emitted indicating an error unless
         // 'dynamic_cast<TARGET *>(source.get())' is a valid expression..
 

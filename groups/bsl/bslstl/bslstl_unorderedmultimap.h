@@ -48,7 +48,7 @@ BSLS_IDENT("$Id: $")
 // An 'unordered_multimap' instantiation is a fully "Value-Semantic Type" (see
 // {'bsldoc_glossary'}) only if the supplied 'KEY' and 'VALUE' template
 // parameters are fully value-semantic.  It is possible to instantiate an
-// 'unoredered_multimap' with 'KEY' and 'VALUE' parameter arguments that do not
+// 'unordered_multimap' with 'KEY' and 'VALUE' parameter arguments that do not
 // provide a full set of value-semantic operations, but then some methods of
 // the container may not be instantiable.  The following terminology, adopted
 // from the C++11 standard, is used in the function documentation of
@@ -119,7 +119,7 @@ BSLS_IDENT("$Id: $")
 // conform to the standard behavior of a 'bslma'-allocator-enabled type.  Such
 // a type accepts an optional 'bslma::Allocator' argument at construction.  If
 // the address of a 'bslma::Allocator' object is explicitly supplied at
-// construction, it will be used to supply memory for the 'unordered_multimap'
+// construction, it is used to supply memory for the 'unordered_multimap'
 // throughout its lifetime; otherwise, the 'unordered_multimap' will use the
 // default allocator installed at the time of the 'unordered_multimap's
 // construction (see 'bslma_default').  In addition to directly allocating
@@ -271,7 +271,7 @@ BSLS_IDENT("$Id: $")
 ///---------------------------------
 // The unordered multi-map has interfaces that can provide insight into and
 // control of its inner workings.  The syntax and semantics of these interfaces
-// for 'bslstl_unoroderedmultimap' are identical to those of
+// for 'bslstl_unorderedmultimap' are identical to those of
 // 'bslstl_unorderedmap'.  See the discussion in
 // {'bslstl_unorderedmap'|Unordered Map Configuration} and the illustrative
 // material in {'bslstl_unorderedmap'|Example 2}.
@@ -403,7 +403,7 @@ BSLS_IDENT("$Id: $")
 //      }
 //  }
 //..
-// Then, we can readily print a complete concordance by interating through the
+// Then, we can readily print a complete concordance by iterating through the
 // map.
 //..
 //  for (ConcordanceConstItr itr  = concordance.begin(),
@@ -682,7 +682,7 @@ class unordered_multimap
         // 'allocator_type' is 'bsl::allocator' (the default), then
         // 'basicAllocator' shall be convertible to 'bslma::Allocator *'.  If
         // the 'ALLOCATOR' is 'bsl::allocator' and 'basicAllocator' is not
-        // supplied, the currently installed default allocator will be used to
+        // supplied, the currently installed default allocator is used to
         // supply memory.
 
     explicit unordered_multimap(const allocator_type& basicAllocator);
@@ -734,15 +734,15 @@ class unordered_multimap
         // 'bsl::allocator' (the default), then 'basicAllocator' shall be
         // convertible to 'bslma::Allocator *'.  If the 'allocator_type' is
         // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
-        // installed default allocator will be used to supply memory.  The
-        // (template parameter) type 'INPUT_ITERATOR' shall meet the
-        // requirements of an input iterator defined in the C++11 standard
-        // [24.2.3] providing access to values of a type convertible to
-        // 'value_type'.  The behavior is undefined unless 'first' and 'last'
-        // refer to a sequence of valid values where 'first' is at a position
-        // at or before 'last'.  This method requires that the (template
-        // parameter) types 'KEY' and 'VALUE' both be "copy-constructible" (see
-        // {Requirements on 'KEY' and 'VALUE'}).
+        // installed default allocator is used to supply memory.  The (template
+        // parameter) type 'INPUT_ITERATOR' shall meet the requirements of an
+        // input iterator defined in the C++11 standard [24.2.3] providing
+        // access to values of a type convertible to 'value_type'.  The
+        // behavior is undefined unless 'first' and 'last' refer to a sequence
+        // of valid values where 'first' is at a position at or before 'last'.
+        // Note that this method requires that the (template parameter) types
+        // 'KEY' and 'VALUE' both be "copy-constructible" (see {Requirements on
+        // 'KEY' and 'VALUE'}).
 
     ~unordered_multimap();
         // Destroy this object.
@@ -753,9 +753,9 @@ class unordered_multimap
         // the specified 'rhs' object, propagate to this object the allocator
         // of 'rhs' if the 'ALLOCATOR' type has trait
         // 'propagate_on_container_copy_assignment', and return a reference
-        // providing modifiable access to this object.  This method requires
-        // that the (template parameter types) 'KEY' and 'VALUE' both be
-        // "copy-constructible" (see {Requirements on 'KEY' and 'VALUE'}).
+        // providing modifiable access to this object.  Note that this method
+        // requires that the (template parameter types) 'KEY' and 'VALUE' both
+        // be "copy-constructible" (see {Requirements on 'KEY' and 'VALUE'}).
 
     iterator begin();
         // Return an iterator providing modifiable access to the first
@@ -783,11 +783,11 @@ class unordered_multimap
     template <class SOURCE_TYPE>
     iterator insert(const SOURCE_TYPE& value);
         // Insert the specified 'value' into this multi-map, and return an
-        // iterator to the newly inserted element.  This method requires that
-        // the (template parameter) types 'KEY' and 'VALUE' types both be
-        // "copy-constructible" (see {Requirements on 'KEY' and 'VALUE'}).
-        // Note that this one template stands in for two 'insert' functions in
-        // the C++11 standard.
+        // iterator to the newly inserted element.  Note that this method
+        // requires that the (template parameter) types 'KEY' and 'VALUE' types
+        // both be "copy-constructible" (see {Requirements on 'KEY' and
+        // 'VALUE'}).  Also note that this one template stands in for two
+        // 'insert' functions in the C++11 standard.
 
     template <class SOURCE_TYPE>
     iterator insert(const_iterator hint, const SOURCE_TYPE& value);
@@ -796,14 +796,14 @@ class unordered_multimap
         // 'value' belongs).  Return an iterator referring to the newly
         // inserted 'value_type' object in this multi-map whose key is the same
         // as that of 'value'.  If 'hint' is not a position in the bucket of
-        // the key of 'value', this operation will have worst case O[N] and
-        // average case constant time complexity, where 'N' is the size of this
+        // the key of 'value', this operation has worst case 'O[N]' and average
+        // case constant-time complexity, where 'N' is the size of this
         // multi-map.  The behavior is undefined unless 'hint' is a valid
-        // iterator into this unordered multi map.  This method requires that
-        // the (template parameter) types 'KEY' and 'VALUE' both be
-        // "copy-constructible" (see {Requirements on 'KEY' and 'VALUE'}).
-        // Note that this one template stands in for two 'insert' functions in
-        // the C++11 standard.
+        // iterator into this unordered multi map.  Note that this method
+        // requires that the (template parameter) types 'KEY' and 'VALUE' both
+        // be "copy-constructible" (see {Requirements on 'KEY' and 'VALUE'}).
+        // Also note that this one template stands in for two 'insert'
+        // functions in the C++11 standard.
 
     template <class INPUT_ITERATOR>
     void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
@@ -812,9 +812,12 @@ class unordered_multimap
         // immediately before the specified 'last' iterator.  The (template
         // parameter) type 'INPUT_ITERATOR' shall meet the requirements of an
         // input iterator defined in the C++11 standard [24.2.3] providing
-        // access to values of a type convertible to 'value_type'.  This method
-        // requires that the (template parameter) types 'KEY' and 'VALUE' both
-        // be "copy-constructible" (see {Requirements on 'KEY' and 'VALUE'}).
+        // access to values of a type convertible to 'value_type'.  The
+        // behavior is undefined unless 'first' and 'last' refer to a sequence
+        // of valid values where 'first' is at a position at or before 'last'.
+        // Note that this method requires that the (template parameter) types
+        // 'KEY' and 'VALUE' both be "copy-constructible" (see {Requirements on
+        // 'KEY' and 'VALUE'}).
 
     iterator erase(const_iterator position);
         // Remove from this multi-map the 'value_type' object at the specified
@@ -876,20 +879,20 @@ class unordered_multimap
         // the ratio between the specified 'numElements' and this quantity does
         // not exceed 'max_load_factor'.  Note that this guarantees that, after
         // the reserve, elements can be inserted to grow the container to
-        // 'size() == numElements' without rehashing. Also note that memory
-        // allocations may still occur when growing the container to 'size() ==
-        // numElements'.  Also note that this operation has no effect if
-        // 'numElements <= size()'.
+        // 'size() == numElements' without rehashing.  Also note that memory
+        // allocations may still occur when growing the container to
+        // 'size() == numElements'.  Also note that this operation has no
+        // effect if 'numElements <= size()'.
 
     void swap(unordered_multimap& other);
         // Exchange the value of this object as well as its hasher and
         // key-equality functor with those of the specified 'other' object.
-        // Additionally if
+        // Additionally, if
         // 'bslstl::AllocatorTraits<ALLOCATOR>::propagate_on_container_swap' is
-        // 'true' then exchange the allocator of this object with that of the
+        // 'true', then exchange the allocator of this object with that of the
         // 'other' object, and do not modify either allocator otherwise.  This
         // method provides the no-throw exception-safety guarantee and
-        // guarantees O[1] complexity.  The behavior is undefined is unless
+        // guarantees 'O[1]' complexity.  The behavior is undefined unless
         // either this object was created with the same allocator as 'other' or
         // 'propagate_on_container_swap' is 'true'.
 
@@ -960,8 +963,8 @@ class unordered_multimap
         // specified 'key', where the the first iterator is positioned at the
         // start of the sequence and the second iterator is positioned one past
         // the end of the sequence.  If this container contains no 'value_type'
-        // objects matching 'key' then the two returned iterators will have the
-        // same value.
+        // objects matching 'key', then the two returned iterators will have
+        // the same value.
 
     const_iterator find(const key_type& key) const;
         // Return an iterator providing non-modifiable access to the first
@@ -1013,9 +1016,10 @@ bool operator==(
     // value, and 'false' otherwise.  Two 'unordered_multimap' objects have the
     // same value if they have the same number of key-value pairs, and for each
     // key-value pair that is contained in 'lhs' there is a pair value-key
-    // contained in 'rhs' having the same value, and vice-versa.  This method
-    // requires that the (template parameter) types 'KEY' and 'VALUE' both be
-    // "equality-comparable" (see {Requirements on 'KEY' and 'VALUE'}).
+    // contained in 'rhs' having the same value, and vice-versa.  Note that
+    // this method requires that the (template parameter) types 'KEY' and
+    // 'VALUE' both be "equality-comparable" (see {Requirements on 'KEY' and
+    // 'VALUE'}).
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 bool operator!=(
@@ -1026,21 +1030,21 @@ bool operator!=(
     // not have the same value if they do not have the same number of key-value
     // pairs, or that for some key-value pair that is contained in 'lhs' there
     // is not a key-value pair in 'rhs' having the same value, and vice-versa.
-    // This method requires that the (template parameter) types 'KEY' and
-    // 'VALUE' both be "equality-comparable" (see {Requirements on 'KEY' and
-    // 'VALUE'}).
+    // Note that this method requires that the (template parameter) types 'KEY'
+    // and 'VALUE' both be "equality-comparable" (see {Requirements on 'KEY'
+    // and 'VALUE'}).
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 void swap(unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& a,
           unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& b);
     // Swap both the value and the comparator of the specified 'a' object with
-    // the value and comparator of the specified 'b' object.  Additionally if
+    // the value and comparator of the specified 'b' object.  Additionally, if
     // 'bslstl::AllocatorTraits<ALLOCATOR>::propagate_on_container_swap' is
-    // 'true' then exchange the allocator of 'a' with that of 'b', and do not
+    // 'true', then exchange the allocator of 'a' with that of 'b', and do not
     // modify either allocator otherwise.  This method provides the no-throw
-    // exception-safety guarantee and guarantees O[1] complexity.  The behavior
-    // is undefined is unless either this object was created with the same
-    // allocator as 'other' or 'propagate_on_container_swap' is 'true'.
+    // exception-safety guarantee and guarantees 'O[1]' complexity.  The
+    // behavior is undefined unless either this object was created with the
+    // same allocator as 'other' or 'propagate_on_container_swap' is 'true'.
 
 // ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS

@@ -11,7 +11,7 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bslstl::BadWeakPtr: exception class derived from 'native_std' classes
-//  bsl::bad_weak_ptr: alias to an exception type thrown by the bsl library
+//  bsl::bad_weak_ptr: alias to an exception type thrown by the 'bsl' library
 //
 //@SEE_ALSO: bslstl_sharedptr, bslstl_stdexceptionutil
 //
@@ -85,7 +85,7 @@ class BadWeakPtr : public native_std::exception {
         // 'bsls_exceptionutil' macro 'BSLS_NOTHROW_SPEC' is deliberately not
         // used here, as a number of standard libraries declare 'what' in the
         // base 'exception' class explicitly with the no-throw specification,
-        // even in a build that may not recongnise exceptions.
+        // even in a build that may not recognize exceptions.
 };
 
 // ============================================================================

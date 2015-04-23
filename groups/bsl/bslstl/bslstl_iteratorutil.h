@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 // component includes a function 'insertDistance' that returns the the number
 // of elements that should be accounted for when range-inserting in a
 // container, given a pair of iterator 'a' and 'b' describing a half-open range
-// '[a,b)'.
+// '[a .. b)'.
 //
 ///Usage
 ///-----
@@ -39,7 +39,7 @@ BSLS_IDENT("$Id: $")
 //  int *end   = &values[3];
 //..
 // Now, we use the 'IteratorUtil::insertDistance' class method to calculate the
-// distance of the open range ['begin', 'end'):
+// distance of the open range '[begin .. end)':
 //..
 //  std::size_t distance = IteratorUtil::insertDistance(begin, end);
 //  assert(3 == distance);
@@ -78,11 +78,11 @@ struct IteratorUtil {
         // Return 0 if the (template parameter) type 'InputIterator' is limited
         // to the standard input-iterator category, otherwise return the number
         // of elements that is reachable from the specified 'first' to (but not
-        // including) the specified 'last'.  The behavior is undefined unless
-        // 'last' is reachable from 'first'.  This function has a constant-time
+        // including) the specified 'last'.  This function has a constant-time
         // complexity if the iterator category of 'InputIterator' is a strictly
         // a standard input iterator, or is a random access iterator, otherwise
-        // it is linear in the length of the range ['first', 'last').  Note
+        // it is linear in the length of the range '[first .. last)'.  The
+        // behavior is undefined unless 'last' is reachable from 'first'.  Note
         // that this function always returns 0 when compiled with the Sun
         // compiler, while we work around issues in the Sun standard library.
 };
