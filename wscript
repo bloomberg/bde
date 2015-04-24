@@ -19,7 +19,7 @@ def _get_tools_path(ctx):
         return libdir
     ctx.fatal('BDE waf customizations can not be found. '
               'Make sure that you are running the waf executable located in '
-              'bde-tools/bin or bde-oss-tools/bin.')
+              'bde-oss-tools/bin.')
 
 
 def options(ctx):
