@@ -398,9 +398,6 @@ int main(int argc, char *argv[])
                           << "Testing 64-Bit Integer Constant Support" << endl
                           << "=======================================" << endl;
 
-#if defined(BSLS_PLATFORM_NO_64_BIT_LITERALS)
-        if (veryVerbose) cout << "No 64-bit integer constants."        << endl;
-#else
         if (veryVerbose) cout << "64-bit integer constants supported." << endl;
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -414,11 +411,19 @@ int main(int argc, char *argv[])
         T i, iHi, iLo, iTest;
         U u, uHi, uLo, uTest;
 
+#if !defined(BSLS_PLATFORM_NO_64_BIT_LITERALS)
         i = 9223372036854775807;  // 0x7FFFFFFFFFFFFFFF
         u = 9223372036854775809;  // 0x8000000000000001
 
         ASSERT(i == 0x7FFFFFFFFFFFFFFF);
         ASSERT(u == 0x8000000000000001);
+#else
+        i = 9223372036854775807LL;   // 0x7FFFFFFFFFFFFFFF
+        u = 9223372036854775809uLL;  // 0x8000000000000001
+
+        ASSERT(i == 0x7FFFFFFFFFFFFFFFLL);
+        ASSERT(u == 0x8000000000000001uLL);
+#endif
 
         // Generate test values in 32-bit parts.
 
@@ -433,7 +438,6 @@ int main(int argc, char *argv[])
         ASSERT(                u == uTest);
         ASSERT((u & 0x0FFFFFFFF) == uLo);
         ASSERT(          u >> 32 == uHi);
-#endif
 
       } break;
       case 2: {
