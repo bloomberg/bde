@@ -26,7 +26,7 @@ Important new features include:
 Basic Build Instructions
 ========================
 
-BDE uses a build system based on [waf](http://code.google.com/p/waf), which is
+BDE uses a build system based on [waf](https://github.com/waf-project/waf), which is
 located in the [BDE Tools](https://github.com/bloomberg/bde-tools/)
 repository. This build system must be set up before being used:
 
