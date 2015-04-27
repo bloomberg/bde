@@ -77,6 +77,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isreference.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_REMOVECV
+#include <bslmf_removecv.h>
+#endif
+
 namespace BloombergLP {
 namespace bslmf {
 
@@ -139,19 +143,25 @@ struct is_enum
     // 'bsl::false_type' otherwise.
 };
 
+// Additional partial specializations for cv-qualified types ensure that the
+// correct result is obtained for cv-qualified enums.  Note that there is a
+// peculiar bug wit the IBM xlC compiler that requires an additional use of the
+// 'remove_cv' trait to obtain the correct result (without infinite recursion)
+// for arrays of more than one dimension.
+
 template <class TYPE>
 struct is_enum<const TYPE>
-    : is_enum<TYPE>::type {
+    : is_enum<typename bsl::remove_cv<TYPE>::type>::type {
 };
 
 template <class TYPE>
 struct is_enum<volatile TYPE>
-    : is_enum<TYPE>::type {
+    : is_enum<typename bsl::remove_cv<TYPE>::type>::type {
 };
 
 template <class TYPE>
 struct is_enum<const volatile TYPE>
-    : is_enum<TYPE>::type {
+    : is_enum<typename bsl::remove_cv<TYPE>::type>::type {
 };
 
 template <>

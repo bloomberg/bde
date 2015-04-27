@@ -164,7 +164,27 @@ int main(int argc, char *argv[])
         ASSERT((is_same<remove_volatile<int *>::type, int *>::value));
         ASSERT((is_same<remove_volatile<TestType>::type, TestType>::value));
         ASSERT((is_same<remove_volatile<int volatile *>::type,
-                                                      int volatile *>::value));
+                                        int volatile *>::value));
+        ASSERT((is_same<remove_volatile<int volatile &>::type,
+                                        int volatile &>::value));
+        ASSERT((is_same<remove_volatile<int volatile()>::type,
+                                        int volatile()>::value));
+        ASSERT((is_same<remove_volatile<int[5]>::type,
+                                        int[5]>::value));
+        ASSERT((is_same<remove_volatile<int[5][2]>::type,
+                                        int[5][2]>::value));
+        ASSERT((is_same<remove_volatile<int[5][2][3]>::type,
+                                        int[5][2][3]>::value));
+        ASSERT((is_same<remove_volatile<int[]>::type,
+                                        int[]>::value));
+        ASSERT((is_same<remove_volatile<int[][2]>::type,
+                                        int[][2]>::value));
+        ASSERT((is_same<remove_volatile<int[][2][3]>::type,
+                                        int[][2][3]>::value));
+
+        ASSERT((is_same<remove_volatile<void>::type, void>::value));
+        ASSERT((is_same<remove_volatile<const void>::type,
+                                        const void>::value));
 
         // C-2
         ASSERT((is_same<remove_volatile<int volatile>::type, int>::value));
@@ -179,6 +199,24 @@ int main(int argc, char *argv[])
         ASSERT((is_same<remove_volatile<TestType const volatile>::type,
                                                       TestType const>::value));
 
+        ASSERT((is_same<remove_volatile<volatile int[5]>::type,
+                                                 int[5]>::value));
+        ASSERT((is_same<remove_volatile<volatile int[5][2]>::type,
+                                                 int[5][2]>::value));
+        ASSERT((is_same<remove_volatile<volatile int[5][2][3]>::type,
+                                                 int[5][2][3]>::value));
+
+        ASSERT((is_same<remove_volatile<volatile int[]>::type,
+                                                 int[]>::value));
+        ASSERT((is_same<remove_volatile<volatile int[][2]>::type,
+                                                 int[][2]>::value));
+        ASSERT((is_same<remove_volatile<volatile int[][2][3]>::type,
+                                                 int[][2][3]>::value));
+
+        ASSERT((is_same<remove_volatile<volatile void>::type,
+                                                 void>::value));
+        ASSERT((is_same<remove_volatile<const volatile void>::type,
+                                        const          void>::value));
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
