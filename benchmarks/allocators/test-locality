@@ -1,0 +1,52 @@
+#!/bin/bash
+
+echo time $1 -21 4 256 5 1
+     time $1 -21 4 256 5 1
+echo 
+echo time $1 -21 4 256 5 0
+     time $1 -21 4 256 5 0
+echo 
+echo time $1 -21 4 256 -5 1
+     time $1 -21 4 256 -5 1
+echo 
+echo time $1 -21 4 256 -5 0
+     time $1 -21 4 256 -5 0
+
+echo
+echo time $1 -21 4 1 5 1
+     time $1 -21 4 1 5 1
+echo
+echo time $1 -21 4 1 5 0
+     time $1 -21 4 1 5 0
+echo
+echo time $1 -21 4 1 -5 1
+     time $1 -21 4 1 -5 1
+echo
+echo time $1 -21 4 1 -5 0
+     time $1 -21 4 1 -5 0
+
+echo
+echo time $1 -21 17 256 5 1
+     time $1 -21 17 256 5 1
+echo
+echo time $1 -21 17 256 5 0
+     time $1 -21 17 256 5 0
+echo
+echo time $1 -21 17 256 -5 1
+     time $1 -21 17 256 -5 1
+echo
+echo time $1 -21 17 256 -5 0
+     time $1 -21 17 256 -5 0
+
+echo
+echo time $1 -21 17 1 5 256
+     time $1 -21 17 1 5 256
+echo
+echo time $1 -21 17 1 5 0
+     time $1 -21 17 1 5 0
+echo
+echo time $1 -21 17 1 -5 256
+     time $1 -21 17 1 -5 256
+echo
+echo time $1 -21 17 1 -5 0
+     time $1 -21 17 1 -5 0
