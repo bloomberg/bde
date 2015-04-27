@@ -192,7 +192,6 @@ struct ByteOrderUtil_Impl<TYPE, 8> {
     return static_cast<dstType>(_byteswap_ushort(                             \
                                                static_cast<unsigned short>(x)))
 
-<<<<<<< HEAD
 #endif
 
 #define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32(dstType, x)                     \
