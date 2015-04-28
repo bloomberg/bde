@@ -11,6 +11,7 @@ BSLS_IDENT_RCSID(bsls_timeinterval_cpp,"$Id$ $CSID$")
 #include <bsls_platform.h>
 
 #include <limits.h>
+#include <ostream>
 
 // BDE_VERIFY pragma: push
 // BDE_VERIFY pragma: -FABC01
@@ -164,9 +165,45 @@ void TimeInterval::setInterval(bsls::Types::Int64 seconds,
         ++d_seconds;
         d_nanoseconds -= k_NANOSECS_PER_SEC;
     }
+
+}
+
+native_std::ostream& TimeInterval::print(native_std::ostream& stream,
+                            int     level,
+                            int     spacesPerLevel) const
+{
+    if (level > 0 && spacesPerLevel != 0) {
+        // If 'level <= 0' the value will not be indented, otherwise the
+        // indentation is 'level * abs(spacesPerLevel)'.
+
+        // Use 'unsigned' to suppress gcc compiler warning.
+
+        unsigned int indentation = level *
+                      (spacesPerLevel < 0 ? -spacesPerLevel : spacesPerLevel);
+        for (unsigned int i = 0; i < indentation; ++i) {
+            stream << ' ';
+        }
+    }
+
+    stream << '(' << d_seconds     << ", "
+                  << d_nanoseconds << ')';
+
+    // We suppress the trailing end-of-line if 'spacesPerLevel < 0'.
+
+    if (spacesPerLevel >= 0) {
+        stream << '\n';
+    }
+    return stream;
 }
 
 }  // close package namespace
+
+native_std::ostream& bsls::operator<<(native_std::ostream& stream,
+                                     const bsls::TimeInterval& timeInterval)
+{
+    return timeInterval.print(stream, 0, -1);
+}
+
 }  // close enterprise namespace
 
 // BDE_VERIFY pragma: pop
