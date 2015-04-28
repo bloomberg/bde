@@ -37,7 +37,7 @@ clean:
 
 bde: Makefile
 	( cd $(BSLROOT) && \
-      export CFLAGS='$(CFLAGS_LOCAL)' && \
+      export CC='$(CC)' CFLAGS='$(CFLAGS_LOCAL)' && \
       export CXX='$(CXX)' CXXFLAGS='$(CXXFLAGS_LOCAL) -Wno-narrowing' && \
       ../bde-tools/bin/waf configure \
          --abi-bits=64 --cpp11 --build-type release --assert-level=none && \
