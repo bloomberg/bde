@@ -42,7 +42,7 @@ BSLS_IDENT("$Id: $")
 //
 // An argument 'v' of type 'T' can be passed as type 'ForwardingType<T>::Type'
 // down an arbitrarily-long chain of function calls without ever calling
-// 'std::forward'. However, in order to avoid an extra copy as well as to
+// 'std::forward'.  However, in order to avoid an extra copy as well as to
 // select the correct overload and instantiation of the eventual target
 // function, it should be converted back to a type that more closely resembles
 // the original 'T' by calling 'ForwardingTypeUtil<T>::forwardToTarget(v)'.
@@ -145,9 +145,9 @@ BSLS_IDENT("$Id: $")
 //          // 'ARG2', and 'ARG3' arguments, logging the invocation and
 //          // returning the result of the function pointer invocation.
 //..
-// Next, we declare a private member function that actually invokes the
-// wrapped function. This member function will be called by 'operator()' and
-// must therefore receive arguments indirectly through 'operator()'. In order
+// Then, we declare a private member function that actually invokes the
+// wrapped function.  This member function will be called by 'operator()' and
+// must therefore receive arguments indirectly through 'operator()'.  In order
 // to avoid excessive copies of pass-by-value arguments, we use
 // 'ForwardingType' to declare a more efficient intermediate argument type for
 // our private member function:
@@ -170,7 +170,7 @@ BSLS_IDENT("$Id: $")
 //  void logReturn(int /* ignored */) { ++returns; }
 //      // Log a return from the wrapped function.
 //..
-// Next, we implement 'operator()' to call the logging functions and then call
+// Then, we implement 'operator()' to call the logging functions and then call
 // 'invoke':
 //..
 //  template <class RET, class ARG1, class ARG2, class ARG3>
@@ -183,10 +183,10 @@ BSLS_IDENT("$Id: $")
 //      return r;
 //  }
 //..
-// Next, we implement 'invoke' to actually call the function through the
-// wrapped pointer. To reconstitute the arguments to the function as close as
-// possible to the types they were passed in as, we call the 'forwardToTarget'
-// member of 'ForwardingTypeUtil':
+// Now, we implement 'invoke' to actually call the function through the wrapped
+// pointer.  To reconstitute the arguments to the function as close as possible
+// to the types they were passed in as, we call the 'forwardToTarget' member of
+// 'ForwardingTypeUtil':
 //..
 //  template <class RET, class ARG1, class ARG2, class ARG3>
 //  RET LoggingWrapper<RET(ARG1,ARG2,ARG3)>::invoke(
@@ -200,7 +200,7 @@ BSLS_IDENT("$Id: $")
 //          bslmf::ForwardingTypeUtil<ARG3>::forwardToTarget(a3));
 //  }
 //..
-// Next, in order to see this wrapper in action, we must define a function we
+// Then, in order to see this wrapper in action, we must define a function we
 // wish to wrap.  This function will take an argument of type 'ArgType' that
 // holds an integer 'value' and keeps track of whether it has been directly
 // constructed or copied from anther 'ArgType' object.  If it has been copied,
@@ -357,7 +357,7 @@ struct ForwardingType {
     // a specified 'TYPE' parameter, a function with argument of 'TYPE' can be
     // called efficiently from another function (e.g., a wrapper) by declaring
     // the corresponding parameter of the other wrapper as 'typename
-    // ForwardingType<TYPE>::Type'. The 'Type' member is computed to minimize
+    // ForwardingType<TYPE>::Type'.  The 'Type' member is computed to minimize
     // the number of expensive copies while forwarding the arguments as
     // faithfully as possible.
 
@@ -405,7 +405,7 @@ template <class TYPE>
 struct ForwardingTypeUtil {
     // Provide a namespace for the 'forwardToTarget' function.
 
-    typedef typename ForwardingType<TYPE>::Imp::TargetType TargetType;
+    typedef typename ForwardingType<TYPE>::TargetType TargetType;
 
     static TargetType
     forwardToTarget(typename ForwardingType<TYPE>::Type v);
@@ -417,7 +417,7 @@ struct ForwardingTypeUtil {
         // an rvalue move when possible.  For compilers that do not support
         // rvalue references, return 'v' unchanged.  This function is intended
         // to be called to forward an argument to the final target function of
-        // a forwarding call chain. Note that this function is not intended
+        // a forwarding call chain.  Note that this function is not intended
         // for use with 'TYPE' parameters of 'volatile'-qualified rvalue type,
         // which are effectively unheard of in real code and have strange and
         // hard-to-understand rules.
@@ -627,7 +627,7 @@ struct ForwardingType_Imp<UNREF_TYPE,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

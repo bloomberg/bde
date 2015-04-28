@@ -1,7 +1,10 @@
 // bslmf_forwardingtype.t.cpp                                         -*-C++-*-
 #include <bslmf_forwardingtype.h>
 
+#include <bslmf_addconst.h>
+#include <bslmf_addcv.h>
 #include <bslmf_addlvaluereference.h>
+#include <bslmf_addvolatile.h>
 #include <bslmf_isarray.h>
 #include <bslmf_issame.h>          // for testing only
 
@@ -436,9 +439,9 @@ int testEndToEndArray(typename bsl::add_lvalue_reference<TP>::type arg,
             // 'ARG2', and 'ARG3' arguments, logging the invocation and
             // returning the result of the function pointer invocation.
 //..
-// Next, we declare a private member function that actually invokes the
-// wrapped function. This member function will be called by 'operator()' and
-// must therefore receive arguments indirectly through 'operator()'. In order
+// Then, we declare a private member function that actually invokes the
+// wrapped function.  This member function will be called by 'operator()' and
+// must therefore receive arguments indirectly through 'operator()'.  In order
 // to avoid excessive copies of pass-by-value arguments, we use
 // 'ForwardingType' to declare a more efficient intermediate argument type for
 // our private member function:
@@ -461,7 +464,7 @@ int testEndToEndArray(typename bsl::add_lvalue_reference<TP>::type arg,
     void logReturn(int /* ignored */) { ++returns; }
         // Log a return from the wrapped function.
 //..
-// Next, we implement 'operator()' to call the logging functions and then call
+// Then, we implement 'operator()' to call the logging functions and then call
 // 'invoke':
 //..
     template <class RET, class ARG1, class ARG2, class ARG3>
@@ -474,10 +477,10 @@ int testEndToEndArray(typename bsl::add_lvalue_reference<TP>::type arg,
         return r;
     }
 //..
-// Next, we implement 'invoke' to actually call the function through the
-// wrapped pointer. To reconstitute the arguments to the function as close as
-// possible to the types they were passed in as, we call the 'forwardToTarget'
-// member of 'ForwardingTypeUtil':
+// Now, we implement 'invoke' to actually call the function through the wrapped
+// pointer.  To reconstitute the arguments to the function as close as possible
+// to the types they were passed in as, we call the 'forwardToTarget' member of
+// 'ForwardingTypeUtil':
 //..
     template <class RET, class ARG1, class ARG2, class ARG3>
     RET LoggingWrapper<RET(ARG1,ARG2,ARG3)>::invoke(
@@ -491,7 +494,7 @@ int testEndToEndArray(typename bsl::add_lvalue_reference<TP>::type arg,
             bslmf::ForwardingTypeUtil<ARG3>::forwardToTarget(a3));
     }
 //..
-// Next, in order to see this wrapper in action, we must define a function we
+// Then, in order to see this wrapper in action, we must define a function we
 // wish to wrap.  This function will take an argument of type 'ArgType' that
 // holds an integer 'value' and keeps track of whether it has been directly
 // constructed or copied from anther 'ArgType' object.  If it has been copied,
@@ -756,7 +759,7 @@ int main(int argc, char *argv[])
 // driver unnecessarily, it may actually hide real errors.
 #define TEST_ENDTOEND_RVALUE(TP, v) {                                         \
             typedef TP T;                                                     \
-            typedef const T CT;                                               \
+            typedef bsl::add_const<T>::type CT;                               \
             CvRefMatch<T> target;                                             \
             ASSERT(testEndToEnd<T>(v, target)   == target(toRvalue<T>(v)));   \
             ASSERT(testEndToEnd<CT>(v, target)  == target(toRvalue<CT>(v)));  \
@@ -782,9 +785,9 @@ int main(int argc, char *argv[])
 
 #define TEST_ENDTOEND_LVALUE_REF(TP, v) {                                     \
             typedef TP T;                                                     \
-            typedef const T CT;                                               \
-            typedef volatile T VT;                                            \
-            typedef const volatile T CVT;                                     \
+            typedef bsl::add_const<T>::type CT;                               \
+            typedef bsl::add_volatile<T>::type VT;                            \
+            typedef bsl::add_cv<T>::type CVT;                                 \
             CT& cv = v;                                                       \
             VT& vv = v;                                                       \
             CVT& cvv = v;                                                     \
@@ -813,9 +816,9 @@ int main(int argc, char *argv[])
 
 #define TEST_ENDTOEND_RVALUE_REF(TP, v) {                                     \
             typedef TP T;                                                     \
-            typedef const T CT;                                               \
-            typedef volatile T VT;                                            \
-            typedef const volatile T CVT;                                     \
+            typedef bsl::add_const<T>::type CT;                               \
+            typedef bsl::add_volatile<T>::type VT;                            \
+            typedef bsl::add_cv<T>::type CVT;                                 \
             CvRefMatch<T> target;                                             \
             ASSERT(testEndToEnd<T&&>(native_std::move(v), target) ==          \
                    target(native_std::move(v)));                              \
@@ -849,22 +852,23 @@ int main(int argc, char *argv[])
             CvArrayMatch<char> am;                                            \
             ASSERT(testEndToEndArray<TP>(a, am)   == exp);                    \
             CvArrayMatch<const char> acm;                                     \
-            ASSERT(testEndToEndArray<const TP>(a, acm)  == exp);              \
+            ASSERT(testEndToEndArray<bsl::add_const<TP>::type>(a, acm)== exp);\
             CvArrayMatch<volatile char> avm;                                  \
-            ASSERT(testEndToEndArray<volatile TP>(a, avm)  == exp);           \
+            ASSERT(testEndToEndArray<bsl::add_volatile<TP>::type>(a, avm)     \
+                                                                      == exp);\
             CvArrayMatch<const volatile char> acvm;                           \
-            ASSERT(testEndToEndArray<const volatile TP>(a, acvm) == exp);     \
+            ASSERT(testEndToEndArray<bsl::add_cv<TP>::type>(a, acvm)  == exp);\
         }
 #else
 #define TEST_ENDTOEND_ARRAY(TP, a, exp) {                                     \
             CvArrayMatch<char> am;                                            \
             ASSERT(testEndToEnd<TP>(a, am)   == exp);                         \
             CvArrayMatch<const char> acm;                                     \
-            ASSERT(testEndToEnd<const TP>(a, acm)  == exp);                   \
+            ASSERT(testEndToEnd<bsl::add_const<TP>::type>(a, acm)  == exp);   \
             CvArrayMatch<volatile char> avm;                                  \
-            ASSERT(testEndToEnd<volatile TP>(a, avm)  == exp);                \
+            ASSERT(testEndToEnd<bsl::add_volatile<TP>::type>(a, avm)  == exp);\
             CvArrayMatch<const volatile char> acvm;                           \
-            ASSERT(testEndToEnd<const volatile TP>(a, acvm) == exp);          \
+            ASSERT(testEndToEnd<bsl::add_cv<TP>::type>(a, acvm) == exp);      \
         }
 #endif
 
@@ -893,13 +897,13 @@ int main(int argc, char *argv[])
         //: 1 For types that are not references, arrays, or functions,
         //:   'ForwardingTypeUtil<TYPE>::TargetType' is similar to
         //:   'TYPE' except that 'TargetType' might be a const reference
-        //:   (C++03) or rvalue reference (C++11+). An object of 'TYPE'
+        //:   (C++03) or rvalue reference (C++11+).  An object of 'TYPE'
         //:   converted to 'ForwardingType<TYPE>::Type' and then forwarded
         //:   using 'ForwardingTypeUtil<TYPE>::forwardToTarget(), will yield
         //:   a value equal to the original object.
         //: 2 For array types of (known or unknown) size,
         //:   'ForwardingTypeUtil<TYPE>::TargetType' yields a reference to
-        //:   'TYPE'. An array object of 'TYPE' converted to
+        //:   'TYPE'.  An array object of 'TYPE' converted to
         //:   'ForwardingType<TYPE>::Type' then forwarded using
         //:   'ForwardingTypeUtil<TYPE>::forwardToTarget() will yield a
         //:   reference to the original array.
@@ -909,7 +913,7 @@ int main(int argc, char *argv[])
         //:   'ForwardingTypeUtil<TYPE>::forwardToTarget() will yield a
         //:   a reference identical to the original.
         //: 4 All of the above concerns apply when 'TYPE' is
-        //:   cv-qualified. Note that passing volatile-qualified objects by
+        //:   cv-qualified.  Note that passing volatile-qualified objects by
         //:   value or by rvalue-reference does not really happen in real code
         //:   and is not supported by this component.
         //: 5 For function types, 'ForwardingTypeUtil<TYPE>::TargetType'
@@ -1006,7 +1010,7 @@ int main(int argc, char *argv[])
         testForwardToTargetVal<Pm      const>(m_p);
         testForwardToTargetVal<Pmf     const>(mf_p);
 
-        // Do note test volatile rvalues of class types. They have no real use
+        // Do note test volatile rvalues of class types.  They have no real use
         // and require strange copy constructors and comparison operators to
         // test correctly.
         testForwardToTargetVal<Enum    volatile>(e);
@@ -1143,7 +1147,7 @@ int main(int argc, char *argv[])
         //:   volatile-qualified and is empty otherwise.
         //: 3 The forwarding type for "function of type 'F'" or "reference to
         //:   function of type 'F'" is "reference to function of type
-        //:   'F'". The forwarding type for "pointer to function of type 'F'"
+        //:   'F'".  The forwarding type for "pointer to function of type 'F'"
         //:   is the same pointer type, 'F*'.
         //: 4 The forwarding type for "array of cvq 'TP'" or "(lvalue or
         //:   rvalue) reference to array of cvq 'TP'" is "cvq 'TP*'",
@@ -1273,38 +1277,30 @@ int main(int argc, char *argv[])
         TEST_FWD_TYPE(int[5]                   , int*                    );
         TEST_FWD_TYPE(int*[5]                  , int**                   );
         TEST_FWD_TYPE(int[5][6]                , int(*)[6]               );
-#if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
-        TEST_FWD_TYPE(Class[]                  , Class*                  );
-        TEST_FWD_TYPE(Struct[][6]              , Struct(*)[6]            );
-#endif
         TEST_FWD_TYPE(int(&)[5]                , int*                    );
         TEST_FWD_TYPE(int *const(&)[5]         , int *const *            );
         TEST_FWD_TYPE(int(&)[5][6]             , int(*)[6]               );
-#if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
-        TEST_FWD_TYPE(Class(&)[]               , Class*                  );
-        TEST_FWD_TYPE(Struct(&)[][6]           , Struct(*)[6]            );
-#endif
         TEST_FWD_TYPE(int *const[5]            , int *const *            );
         TEST_FWD_TYPE(const int[5][6]          , const int(*)[6]         );
-#if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
-        TEST_FWD_TYPE(const int[]              , const int*              );
-        TEST_FWD_TYPE(const int[][6]           , const int(*)[6]         );
-#endif
         TEST_FWD_TYPE(const int(&)[5]          , const int*              );
         TEST_FWD_TYPE(volatile int[5]          , volatile int*           );
         TEST_FWD_TYPE(volatile int[5][6]       , volatile int(*)[6]      );
-#if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
-        TEST_FWD_TYPE(volatile int[]           , volatile int*           );
-        TEST_FWD_TYPE(volatile int[][6]        , volatile int(*)[6]      );
-#endif
         TEST_FWD_TYPE(volatile int(&)[5]       , volatile int*           );
         TEST_FWD_TYPE(const volatile int[5]    , const volatile int*     );
         TEST_FWD_TYPE(const volatile int[5][6] , const volatile int(*)[6]);
+        TEST_FWD_TYPE(const volatile int(&)[5] , const volatile int*     );
 #if !defined(BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND)
+        TEST_FWD_TYPE(Class[]                  , Class*                  );
+        TEST_FWD_TYPE(Struct[][6]              , Struct(*)[6]            );
+        TEST_FWD_TYPE(Class(&)[]               , Class*                  );
+        TEST_FWD_TYPE(Struct(&)[][6]           , Struct(*)[6]            );
+        TEST_FWD_TYPE(const int[]              , const int*              );
+        TEST_FWD_TYPE(const int[][6]           , const int(*)[6]         );
+        TEST_FWD_TYPE(volatile int[]           , volatile int*           );
+        TEST_FWD_TYPE(volatile int[][6]        , volatile int(*)[6]      );
         TEST_FWD_TYPE(const volatile int[]     , const volatile int*     );
         TEST_FWD_TYPE(const volatile int[][6]  , const volatile int(*)[6]);
 #endif
-        TEST_FWD_TYPE(const volatile int(&)[5] , const volatile int*     );
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
         TEST_FWD_TYPE(int *const(&&)[5]        , int *const *            );
         TEST_FWD_TYPE(int(&&)[5]               , int*                    );
@@ -1434,7 +1430,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 For concern 1, create a variable, 'crm' of type
-        //:   'CvRefMatch<int>'. Call 'crm(v)' for variables 'v' of type cvq
+        //:   'CvRefMatch<int>'.  Call 'crm(v)' for variables 'v' of type cvq
         //:   'int' correct lvalue enumeration value is returned.  In C++11 or
         //:   later mode, test with 'std::move(v)' and verify that the correct
         //:   lvalue enumeration is returned.  Also test with a literal integer
@@ -1449,7 +1445,7 @@ int main(int argc, char *argv[])
         //: 4 For concern 5 (C++11 or later), repeat steps 2 and 3 using
         //:   'cam(std::move(v))'.
         //: 6 For concern 6, create a variable, 'fm', of type
-        //:   'FuncMatch<F>'. Call 'fm(f)' for arguments 'f' of type 'void()',
+        //:   'FuncMatch<F>'.  Call 'fm(f)' for arguments 'f' of type 'void()',
         //:   'void(&)()', and 'void(*)()', and verify that the correct
         //:   enumeration value is returned.
         //
@@ -1549,7 +1545,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
