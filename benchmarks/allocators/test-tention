@@ -1,0 +1,79 @@
+#!/bin/sh
+
+echo "T,A,S,AS1,AS2,AS3,AS5,AS7,AS9,AS11,AS13"
+./zation 30 15 10
+./zation 30 16 10
+./zation 30 17 10
+./zation 30 18 10
+./zation 30 19 10
+./zation 30 20 10
+./zation 30 20 11
+./zation 30 20 12
+./zation 30 20 13
+./zation 30 20 14
+./zation 30 20 15
+echo ""
+echo "T,A,S,AS1,AS2,AS3,AS5,AS7,AS9,AS11,AS13"
+./zation 31 15 10
+./zation 31 16 10
+./zation 31 17 10
+./zation 31 18 10
+./zation 31 19 10
+./zation 31 20 10
+./zation 31 20 11
+./zation 31 20 12
+./zation 31 20 13
+./zation 31 20 14
+./zation 31 20 15
+echo ""
+echo "T,A,S,AS1,AS2,AS3,AS5,AS7,AS9,AS11,AS13"
+./zation 32 15 10
+./zation 32 16 10
+./zation 32 17 10
+./zation 32 18 10
+./zation 32 19 10
+./zation 32 20 10
+./zation 32 20 11
+./zation 32 20 12
+./zation 32 20 13
+./zation 32 20 14
+./zation 32 20 15
+echo ""
+echo "T,A,S,AS1,AS2,AS3,AS5,AS7,AS9,AS11,AS13"
+./zation 33 15 10
+./zation 33 16 10
+./zation 33 17 10
+./zation 33 18 10
+./zation 33 19 10
+./zation 33 20 10
+./zation 33 20 11
+./zation 33 20 12
+./zation 33 20 13
+./zation 33 20 14
+./zation 33 20 15
+echo ""
+echo "T,A,S,AS1,AS2,AS3,AS5,AS7,AS9,AS11,AS13"
+./zation 34 15 10
+./zation 34 16 10
+./zation 34 17 10
+./zation 34 18 10
+./zation 34 19 10
+./zation 34 20 10
+./zation 34 20 11
+./zation 34 20 12
+./zation 34 20 13
+./zation 34 20 14
+./zation 34 20 15
+echo ""
+echo "T,A,S,AS1,AS2,AS3,AS5,AS7,AS9,AS11,AS13"
+./zation 35 15 10
+./zation 35 16 10
+./zation 35 17 10
+./zation 35 18 10
+./zation 35 19 10
+./zation 35 20 10
+./zation 35 20 11
+./zation 35 20 12
+./zation 35 20 13
+./zation 35 20 14
+./zation 35 20 15

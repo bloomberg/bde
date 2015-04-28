@@ -1,0 +1,77 @@
+#!/bin/sh
+
+echo "N,S,W,AS1,AS2,AS3,AS5,AS7,AS9,AS11,AS13"
+./tention 15 6 1
+./tention 15 6 2
+./tention 15 6 3
+./tention 15 6 4
+./tention 15 6 5
+./tention 15 6 6
+./tention 15 6 7
+./tention 15 6 8
+
+echo ""
+echo "N,S,W,AS1,AS2,AS3,AS5,AS7,AS9,AS11,AS13"
+./tention 15 7 1
+./tention 15 7 2
+./tention 15 7 3
+./tention 15 7 4
+./tention 15 7 5
+./tention 15 7 6
+./tention 15 7 7
+./tention 15 7 8
+
+echo ""
+echo "N,S,W,AS1,AS2,AS3,AS5,AS7,AS9,AS11,AS13"
+./tention 15 8 1
+./tention 15 8 2
+./tention 15 8 3
+./tention 15 8 4
+./tention 15 8 5
+./tention 15 8 6
+./tention 15 8 7
+./tention 15 8 8
+
+echo ""
+echo "N,S,W,AS1,AS2,AS3,AS5,AS7,AS9,AS11,AS13"
+./tention 16 8 1
+./tention 16 8 2
+./tention 16 8 3
+./tention 16 8 4
+./tention 16 8 5
+./tention 16 8 6
+./tention 16 8 7
+./tention 16 8 8
+
+echo ""
+echo "N,S,W,AS1,AS2,AS3,AS5,AS7,AS9,AS11,AS13"
+./tention 17 8 1
+./tention 17 8 2
+./tention 17 8 3
+./tention 17 8 4
+./tention 17 8 5
+./tention 17 8 6
+./tention 17 8 7
+./tention 17 8 8
+
+echo ""
+echo "N,S,W,AS1,AS2,AS3,AS5,AS7,AS9,AS11,AS13"
+./tention 18 8 1
+./tention 18 8 2
+./tention 18 8 3
+./tention 18 8 4
+./tention 18 8 5
+./tention 18 8 6
+./tention 18 8 7
+./tention 18 8 8
+
+echo ""
+echo "N,S,W,AS1,AS2,AS3,AS5,AS7,AS9,AS11,AS13"
+./tention 19 8 1
+./tention 19 8 2
+./tention 19 8 3
+./tention 19 8 4
+./tention 19 8 5
+./tention 19 8 6
+./tention 19 8 7
+./tention 19 8 8
