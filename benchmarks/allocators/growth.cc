@@ -116,7 +116,7 @@ template <typename Work>
 double measure(int mask, bool csv, double reference, Work work)
 {
     if (mask & SA)
-        std::cout << "\n";
+        std::cout << std::endl;
     if (!csv) {
         if (mask & SA) {
             print_datastruct(mask);

@@ -33,7 +33,7 @@ LDFLAGS_ALL = $(LIBS) $(LDFLAGS)
 all: bde run
 
 clean:
-	rm -f growth locality? zation tention *.result
+	rm -f growth locality-AS? locality-AS1? zation tention *-result growth-*-*
 
 bde: Makefile
 	( cd $(BSLROOT) && \
@@ -70,6 +70,7 @@ run: run-growth run-locality run-zation run-tention
 
 run-growth: growth
 	./test-growth 20
+	cat growth-*-* >growth-result
 
 run-locality: locality-AS1 locality-AS7 locality-AS9 locality-AS13
 	( \
