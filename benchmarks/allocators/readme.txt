@@ -39,7 +39,7 @@ A1: In all our tests, tcmalloc was substantially slower than libc malloc.
 Q2: What is the effect of building with "-flto"?
 A2: The entire source code of the BDE library, ".h" and ".cpp" files alike,
   are visible to the compiler when generating code.  Effectively all code
-  used in the program, except libc and parts libc++, are "as if" defined
+  used in the program, except libc and parts of libc++, are "as if" defined
   inline.
 
 Q3: Why do these depend on recent clang++ and libc++?
@@ -49,5 +49,5 @@ A3: The tests, particularly growth.cc and locality.cc, depend on features
   at the time of this writing libc++ is the only library that meets this
   requirement.  libc++, in turn, is most easily built with clang++.
 
-Q4: "make growth" never finishes, the compiler just sit there.
+Q4: "make growth" never finishes, the compiler just sits there.
 A4: Link-time optimization on a big program takes a long time.
