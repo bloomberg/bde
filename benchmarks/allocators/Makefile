@@ -33,57 +33,58 @@ LDFLAGS_ALL = $(LIBS) $(LDFLAGS)
 all: bde run
 
 clean:
-	rm -f growth locality? eigen thready *.result
+	rm -f growth locality? zation tention *.result
 
 bde: Makefile
 	( cd $(BSLROOT) && \
       export CFLAGS='$(CFLAGS_LOCAL)' && \
-      CXX='$(CXX)' CXXFLAGS='$(CXXFLAGS_LOCAL) -Wno-narrowing' && \
+      export CXX='$(CXX)' CXXFLAGS='$(CXXFLAGS_LOCAL) -Wno-narrowing' && \
       ../bde-tools/bin/waf configure \
          --abi-bits=64 --cpp11 --build-type release --assert-level=none && \
       ../bde-tools/bin/waf build -v; )
 	touch bde
 
+# section 7
 growth: growth.cc allocont.h bde
 	$(CXX) -o $@ $(CXXFLAGS_ALL) -Wno-unused-variable $< $(LDFLAGS_ALL)
 
-locality1: locality.cc allocont.h bde
+# section 8
+locality-AS1: locality.cc allocont.h bde
 	$(CXX) -DSTDALLOC -o $@ $(CXXFLAGS_ALL) $< $(LDFLAGS_ALL)
-locality2: locality.cc allocont.h bde
+locality-AS7: locality.cc allocont.h bde
 	$(CXX) -DCTMULTI -o $@ $(CXXFLAGS_ALL) $< $(LDFLAGS_ALL)
-locality3: locality.cc allocont.h bde
+locality-AS9: locality.cc allocont.h bde
 	$(CXX) -DRTMULTI -o $@ $(CXXFLAGS_ALL) $< $(LDFLAGS_ALL)
-locality4: locality.cc allocont.h bde
+locality-AS13: locality.cc allocont.h bde
 	$(CXX) -DRTMULTIMONO -o $@ $(CXXFLAGS_ALL) $< $(LDFLAGS_ALL)
 
-eigen: eigen.cc bde
-	$(CXX) -o $@ $(CXXFLAGS_ALL) $< $(LDFLAGS_ALL)
-thready: thready.cc bde
+# section 9
+zation: zation.cc bde
 	$(CXX) -o $@ $(CXXFLAGS_ALL) $< $(LDFLAGS_ALL)
 
-run: run-growth run-locality run-eigen run-thready
+# section 10
+tention: tention.cc bde
+	$(CXX) -o $@ $(CXXFLAGS_ALL) $< $(LDFLAGS_ALL)
+
+run: run-growth run-locality run-zation run-tention
 
 run-growth: growth
-	for i in 4 6 8 10 12 14 16; do \
-        echo ./growth $(GROWTH_SIZE) $$i - ; \
-        ./growth $(GROWTH_SIZE) $$i - | tee growth-$(GROWTH_SIZE)-$$i ; \
-    done
+	./test-growth 20
 
-run-locality: locality1 locality2 locality3 locality4
+run-locality: locality-AS1 locality-AS7 locality-AS9 locality-AS13
 	( \
-      echo "***************** using default std::allocator:"; \
-	  ./test-locality ./locality1; \
-      echo "***************** using compile-time-bound multipool"; \
-	  ./test-locality ./locality2; \
-      echo "***************** using polymorphic multipool:"; \
-	  ./test-locality ./locality3; \
-	  echo "***************** using polymorphic multipool backed by monotonic:"; \
-	  ./test-locality ./locality4; \
+      echo "********** using AS1 default std::allocator:"; \
+	  ./test-locality ./locality-AS1 2>&1; \
+      echo "********** using AS7 compile-time-bound multipool"; \
+	  ./test-locality ./locality-AS7 2>&1; \
+      echo "********** using AS9 polymorphic multipool:"; \
+	  ./test-locality ./locality-AS9 2>&1; \
+	  echo "********** using AS13 polymorphic multipool backed by monotonic:"; \
+	  ./test-locality ./locality-AS13 2>&1; \
     ) | tee locality-result
 
-run-eigen: eigen
-	time ./eigen | tee eigen-result
+run-zation: zation
+	time ./test-zation | tee zation-result
 
-run-thready: thready
-	time ./thready | tee thready-result
-
+run-tention: tention
+	time ./test-tention | tee tention-result

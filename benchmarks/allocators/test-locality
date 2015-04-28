@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 echo time $1 -21 4 256 5 1
      time $1 -21 4 256 5 1
