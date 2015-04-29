@@ -587,6 +587,7 @@ struct MovableRefUtil {
         // Please see the component-level documentation for more information on
         // this function.
 
+#if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     template <class TYPE>
     static MovableRef<TYPE> move(TYPE& lvalue);
         // Return a movable reference of type 'MovableRef<TYPE>' from the
@@ -594,6 +595,7 @@ struct MovableRefUtil {
         // behaves like a factory for 'MovableRef<TYPE> objects.  For a C++11
         // implementation this function behaves exactly like 'std::move(value)'
         // applied to l-values.
+#endif
 
     template <class TYPE>
     static MovableRef<typename bsl::remove_reference<TYPE>::type>
@@ -647,15 +649,13 @@ TYPE& MovableRefUtil::access(MovableRef<TYPE>& lvalue) {
     return lvalue;
 }
 
+#if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 template <class TYPE>
 inline
 MovableRef<TYPE> MovableRefUtil::move(TYPE& lvalue) {
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-    return static_cast<TYPE&&>(lvalue);
-#else  // support r-value references and alias templates
     return MovableRef<TYPE>(bsls::Util::addressOf(lvalue));
-#endif // support r-value references and alias templates
 }
+#endif // support r-value references and alias templates
 
 template <class TYPE>
 inline
