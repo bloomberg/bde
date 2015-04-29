@@ -176,10 +176,10 @@
 
 /Timezone Augmented Value Types: 'DateTz', 'TimeTz' and 'DatetimeTz'
 /- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
- Each of the basic date and time types has a corresponding type that is
- augmented with a value representing an offset (in minutes) from UTC.  Note
- that other BDE types represent local time offset values in as seconds (e.g.,
- the 'seconds' attribute of 'bsls::TimeInterval').
+ For each of the basic date and time types there is a corresponding
+ value-semantic type that is augmented with a value representing an offset (in
+ minutes) from UTC.  Note that other BDE types represent local time offset
+ values in as seconds (e.g., the 'seconds' attribute of 'bsls::TimeInterval').
 
  The local time offset augmented types are:
 ..
@@ -290,7 +290,7 @@
 
 /Conversion of Conventional Time Units
 /- - - - - - - - - - - - - - - - - - -
- The 'bdlt_timeunitration' component provides a set of constants that express
+ The 'bdlt_timeunitratio' component provides a set of constants that express
  the ratios between standard time units such as days, hours, ..., nanoseconds.
  One example is 'bdlt::TimeUnitRatio::k_MILLISECONDS_PER_MINUTE').
 
