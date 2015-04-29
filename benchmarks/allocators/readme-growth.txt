@@ -9,7 +9,7 @@ for F in growth-*-*; do grep -h . $F | (
   F1=${F#growth-}; X=${F1%-*}; N=${F#growth-??-};
   for S in V- H- VV VH HV HH; do for P in I S; do for B in C R;
   do for M in ND PD PL MD ML XD XL; do read i; echo "$X$N$S$P$B$M, $i";
-  done; done; done; done; ) done 
+  done; done; done; done; ) done
 
 Lines of T are comma-separated values:
 
@@ -27,7 +27,7 @@ TAG is 4 digits and 6 alpha characters, as follows
    | | |||  AS7,9   ML: monotonic/drop, leak data to allocator, destroy allocator
    | | |||  AS11,13 XD: multipool/monotonic - multipool allocator obtains storage
    | | |||             from monotonic allocator, all destroyed in order
-   | | |||  AS12,14 XL: multipool/monotonic - multipool allocator allocates 
+   | | |||  AS12,14 XL: multipool/monotonic - multipool allocator allocates
    | | |||             from monotonic allocator, data and multipool leaked
    | | |||             to monotonic allocator
    | | ||+- Binding:
@@ -42,10 +42,10 @@ TAG is 4 digits and 6 alpha characters, as follows
    | |     DS1,2    V-: vector<T>
    | |     DS3,4    H-: unordered_set<T>
    | |     DS5,6    VV: vector<vector<T>>
-   | |     DS7,8    VH: vector<unordered_set<T>> 
-   | |     DS9,10   HV: unordered_set<vector<T>> 
+   | |     DS7,8    VH: vector<unordered_set<T>>
+   | |     DS9,10   HV: unordered_set<vector<T>>
    | |     DS11,12  HH: unordered_set<unordered_set<T>>
-   | |        
+   | |
    | +----- M, log2 of number of insertions (9 -> 2^9 = 512) per iteration
    |       For VV,VH,HV,HH, inner containers get 128 elements (int or string),
    |         outer container gets 2^M inner containers
@@ -79,7 +79,7 @@ $ for i in T-???; do
          esac; echo $sz$ix $tag $rest; done;
     ) | sort -sn | (
        while read ix tag time rel rest; do
-          # (echo "**ix='$ix' tag='$tag' time='$time' rel='$rel'**"; echo) 
+          # (echo "**ix='$ix' tag='$tag' time='$time' rel='$rel'**"; echo)
           case "$tag" in
               *CND*) echo -n "[${time%,}s], ";;
               *) r=${rel%%%,}; echo -n "${r%.*}, ";;

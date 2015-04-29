@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 echo "N,S,W,AS1,AS2,AS3,AS5,AS7,AS9,AS11,AS13"
 ./tention 15 6 1

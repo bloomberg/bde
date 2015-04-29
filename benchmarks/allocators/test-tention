@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 echo "T,A,S,AS1,AS2,AS3,AS5,AS7,AS9,AS11,AS13"
 ./zation 30 15 10

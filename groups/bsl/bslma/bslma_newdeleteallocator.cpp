@@ -94,6 +94,12 @@ NewDeleteAllocator::~NewDeleteAllocator()
 {
 }
 
+// MANIPULATORS
+void *NewDeleteAllocator::allocate(size_type size)
+{
+    return 0 == size ? 0 : ::operator new(size);
+}
+
 }  // close package namespace
 
 }  // close enterprise namespace

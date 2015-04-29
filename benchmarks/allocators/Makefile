@@ -1,26 +1,28 @@
-# The following variables likely need to be configured for your machine.
-# CXX   = path to clang++  3.6
-# CC    = path to clang 3.6
-# WAF   = path to waf (https://github.com/Bloomberg/bde-tools)
-# OPTIM = remove -flto if LLVM gold plug in is not configured
+# You may need to set the following variables:
+#
+# CXX   - path to clang++  3.6
+# CC    - path to clang 3.6
+# AR    - path to clang 3.6 archiver; needed for -flto
+# WAF   - path to waf (https://github.com/Bloomberg/bde-tools)
+# OPTIM - remove -flto if LLVM gold plug in is not configured
+# BSLRC - location of BDE directory to use
 
 CXX = clang++
 CC = clang
+AR = llvm-ar
+BSLSRC = ../..
 WAF = waf
-OPTIM = -O -flto -DBSLS_ASSERT_LEVEL_NONE 
+OPTIM = -O -flto -DBSLS_ASSERT_LEVEL_NONE
 
-
-BSLROOT = ../..
-BSL = $(BSLROOT)/groups/bsl
-BDL = $(BSLROOT)/groups/bdl
+BSL = $(BSLSRC)/groups/bsl
+BDL = $(BSLSRC)/groups/bdl
 BSLINC = $(INST)/include/bsl
 BDLINC = $(INST)/include/bdl
-BSLLIB = $(BSLROOT)/build/groups/bsl
-BDLLIB = $(BSLROOT)/build/groups/bdl
-GROWTH_SIZE = 16
+BSLLIB = $(BSLSRC)/build/groups/bsl
+BDLLIB = $(BSLSRC)/build/groups/bdl
+GROWTH_SIZE = 20  # use 16 or less for testing
 STDLIB = -stdlib=libc++
 DEBUG = -g3 -Wall
-
 
 INCLUDES = \
    -I$(BSL)/bsls -I$(BSL)/bslma -I$(BSL)/bslscm -I$(BSL)/bslh \
@@ -31,59 +33,69 @@ DEFS = -D_REENTRANT -D_POSIX_PTHREAD_SEMANTICS -DBSLS_IDENT_OFF
 
 LIBS = \
    -Wl,-Bstatic \
-     -L$(BDLLIB) -lbdl -L$(BSLLIB) -lbsl /usr/lib/x86_64-linux-gnu/libc++.a \
+     -L$(BDLLIB) -lbdl -L$(BSLLIB) -lbsl -lc++ \
    -Wl,-Bdynamic \
-   -lpthread -lrt
+   -lpthread
 
 CFLAGS_LOCAL = $(DEBUG) $(OPTIM) $(TARG) $(DEFS) $(CFLAGS) -std=c99
-CXXFLAGS_LOCAL = $(DEBUG) $(OPTIM) $(TARG) $(DEFS) $(STDLIB) 
+CXXFLAGS_LOCAL = $(DEBUG) $(OPTIM) $(TARG) $(DEFS) $(STDLIB)
 CXXFLAGS_ALL = $(CXXFLAGS_LOCAL) -std=c++14 $(INCLUDES) $(CXXFLAGS)
 LDFLAGS_ALL = $(LIBS) $(LDFLAGS)
 
-all: bde run
+all: run
+
+BINARIES = growth \
+           locality-AS1 locality-AS7 locality-AS9 locality-AS13 \
+           zation tention
+
+$(BINARIES): bde-tag
+
+OUTPUT =  *-result growth-*-*
 
 clean:
-	rm -f growth locality-AS? locality-AS1? zation tention *-result growth-*-*
+	rm -f $(BINARIES) $(OUTPUT) bde-tag
 
-bde: Makefile
-	( cd $(BSLROOT) && \
+bde-tag: Makefile
+	( cd $(BSLSRC) && \
       export CC='$(CC)' CFLAGS='$(CFLAGS_LOCAL)' && \
       export CXX='$(CXX)' CXXFLAGS='$(CXXFLAGS_LOCAL) -Wno-narrowing' && \
+      export AR=llvm-ar && \
       $(WAF) configure \
          --abi-bits=64 --cpp11 --build-type release --assert-level=none && \
       $(WAF) build -v; )
-	touch bde
+	touch bde-tag
 
 # section 7
-growth: growth.cc allocont.h bde
+growth: growth.cc allocont.h bde-tag
 	$(CXX) -o $@ $(CXXFLAGS_ALL) -Wno-unused-variable $< $(LDFLAGS_ALL)
 
 # section 8
-locality-AS1: locality.cc allocont.h bde
+locality-AS1: locality.cc allocont.h
 	$(CXX) -DSTDALLOC -o $@ $(CXXFLAGS_ALL) $< $(LDFLAGS_ALL)
-locality-AS7: locality.cc allocont.h bde
+locality-AS7: locality.cc allocont.h
 	$(CXX) -DCTMULTI -o $@ $(CXXFLAGS_ALL) $< $(LDFLAGS_ALL)
-locality-AS9: locality.cc allocont.h bde
+locality-AS9: locality.cc allocont.h
 	$(CXX) -DRTMULTI -o $@ $(CXXFLAGS_ALL) $< $(LDFLAGS_ALL)
-locality-AS13: locality.cc allocont.h bde
+locality-AS13: locality.cc allocont.h
 	$(CXX) -DRTMULTIMONO -o $@ $(CXXFLAGS_ALL) $< $(LDFLAGS_ALL)
 
 # section 9
-zation: zation.cc bde
+zation: zation.cc
 	$(CXX) -o $@ $(CXXFLAGS_ALL) $< $(LDFLAGS_ALL)
 
 # section 10
-tention: tention.cc bde
+tention: tention.cc
 	$(CXX) -o $@ $(CXXFLAGS_ALL) $< $(LDFLAGS_ALL)
 
 run: run-growth run-locality run-zation run-tention
 
 run-growth: growth
-	./test-growth 20
+    @echo \"test-growth 20\" may take a full day to complete:
+	./test-growth $(GROWTH_SIZE)
 	cat growth-*-* >growth-result
 
 run-locality: locality-AS1 locality-AS7 locality-AS9 locality-AS13
-	( \
+	@( \
       echo "********** using AS1 default std::allocator:"; \
 	  ./test-locality ./locality-AS1 2>&1; \
       echo "********** using AS7 compile-time-bound multipool"; \

@@ -378,8 +378,6 @@ class BufferedSequentialPool {
         // bytes), or the maximum buffer size if the buffer can no longer grow.
 
   public:
-    BufferedSequentialPool(BufferedSequentialPool&&) = default;
-
     // CREATORS
     BufferedSequentialPool(char                        *buffer,
                            int                          size,

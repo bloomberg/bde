@@ -1,14 +1,14 @@
-#!/bin/sh
+#!/bin/bash
 
 echo time $1 -21 4 256 5 1
      time $1 -21 4 256 5 1
-echo 
+echo
 echo time $1 -21 4 256 5 0
      time $1 -21 4 256 5 0
-echo 
+echo
 echo time $1 -21 4 256 -5 1
      time $1 -21 4 256 -5 1
-echo 
+echo
 echo time $1 -21 4 256 -5 0
      time $1 -21 4 256 -5 0
 

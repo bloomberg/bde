@@ -221,15 +221,12 @@ class BlockList {
 
     bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
 
-  public:
+  private:
     // NOT IMPLEMENTED
     BlockList(const BlockList&);
     BlockList& operator=(const BlockList&);
 
-    BlockList(BlockList&& other)
-      : d_head_p(other.d_head_p), d_allocator_p(other.d_allocator_p)
-      { other.d_head_p = 0; other.d_allocator_p = 0; }
-
+  public:
     // CREATORS
     explicit
     BlockList(bslma::Allocator *basicAllocator = 0);

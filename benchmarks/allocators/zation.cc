@@ -34,7 +34,7 @@ double testOnce(T& allocator) {
 
     bsl::vector<void *> active;
     active.resize(activeAllocation);
-    
+
     clock_gettime(CLOCK_MONOTONIC, &start);
 
     int64_t i;
@@ -65,7 +65,7 @@ double testOnce(bdlma::SequentialPool& allocator) {
 
     bsl::vector<void *> active;
     active.resize(activeAllocation);
-    
+
     clock_gettime(CLOCK_MONOTONIC, &start);
 
     int64_t i;

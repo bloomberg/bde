@@ -73,33 +73,33 @@ template <class T>
 
 using string = basic_string<char>;
 
-template <class Key, class T, class Compare = std::less<Key>> 
+template <class Key, class T, class Compare = std::less<Key>>
     using map = std::map<
         Key,T,Compare,allocator<std::pair<const Key,T>>>;
-template <class Key, class T, class Compare = std::less<Key>> 
+template <class Key, class T, class Compare = std::less<Key>>
     using multimap = std::multimap<
         Key,T,Compare,allocator<std::pair<const Key,T>>>;
 
-template <class Key, class Compare = std::less<Key>> 
+template <class Key, class Compare = std::less<Key>>
     using set =      std::set<Key,Compare,allocator<Key>>;
-template <class Key, class Compare = std::less<Key>> 
+template <class Key, class Compare = std::less<Key>>
    using multiset = std::multiset<Key,Compare,allocator<Key>>;
 
 template <class Key, class T,
-          class Hash = std::hash<Key>, class Pred = std::equal_to<Key>> 
+          class Hash = std::hash<Key>, class Pred = std::equal_to<Key>>
     using unordered_map = std::unordered_map<
         Key,T,Hash,Pred,allocator<std::pair<const Key,T>>>;
 template <class Key, class T,
-          class Hash = std::hash<Key>, class Pred = std::equal_to<Key>> 
+          class Hash = std::hash<Key>, class Pred = std::equal_to<Key>>
     using unordered_multimap = std::unordered_multimap<
         Key,T,Hash,Pred,allocator<std::pair<const Key,T>>>;
 
 template <class Key,
-          class Hash = std::hash<Key>, class Pred = std::equal_to<Key>> 
+          class Hash = std::hash<Key>, class Pred = std::equal_to<Key>>
     using unordered_set = std::unordered_set<
     Key,Hash,Pred,allocator<Key>>;
 template <class Key,
-          class Hash = std::hash<Key>, class Pred = std::equal_to<Key>> 
+          class Hash = std::hash<Key>, class Pred = std::equal_to<Key>>
     using unordered_multiset = std::unordered_multiset<
         Key,Hash,Pred,allocator<Key>>;
 };
@@ -125,33 +125,33 @@ template <class T>
 
 using string = basic_string<char>;
 
-template <class Key, class T, class Compare = std::less<Key>> 
+template <class Key, class T, class Compare = std::less<Key>>
     using map = std::map<
         Key,T,Compare,allocator<std::pair<const Key,T>>>;
-template <class Key, class T, class Compare = std::less<Key>> 
+template <class Key, class T, class Compare = std::less<Key>>
     using multimap = std::multimap<
         Key,T,Compare,allocator<std::pair<const Key,T>>>;
 
-template <class Key, class Compare = std::less<Key>> 
+template <class Key, class Compare = std::less<Key>>
     using set =      std::set<Key,Compare,allocator<Key>>;
-template <class Key, class Compare = std::less<Key>> 
+template <class Key, class Compare = std::less<Key>>
     using multiset = std::multiset<Key,Compare,allocator<Key>>;
 
 template <class Key, class T,
-          class Hash = std::hash<Key>, class Pred = std::equal_to<Key>> 
+          class Hash = std::hash<Key>, class Pred = std::equal_to<Key>>
     using unordered_map = std::unordered_map<
         Key,T,Hash,Pred,allocator<std::pair<const Key,T>>>;
 template <class Key, class T,
-          class Hash = std::hash<Key>, class Pred = std::equal_to<Key>> 
+          class Hash = std::hash<Key>, class Pred = std::equal_to<Key>>
     using unordered_multimap = std::unordered_multimap<
         Key,T,Hash,Pred,allocator<std::pair<const Key,T>>>;
 
 template <class Key,
-          class Hash = std::hash<Key>, class Pred = std::equal_to<Key>> 
+          class Hash = std::hash<Key>, class Pred = std::equal_to<Key>>
     using unordered_set = std::unordered_set<
         Key,Hash,Pred,allocator<Key>>;
 template <class Key,
-          class Hash = std::hash<Key>, class Pred = std::equal_to<Key>> 
+          class Hash = std::hash<Key>, class Pred = std::equal_to<Key>>
     using unordered_multiset = std::unordered_multiset<
         Key,Hash,Pred,allocator<Key>>;
 };
@@ -177,33 +177,33 @@ template <class T>
 
 using string = basic_string<char>;
 
-template <class Key, class T, class Compare = std::less<Key>> 
+template <class Key, class T, class Compare = std::less<Key>>
     using map = std::map<
         Key,T,Compare,allocator<std::pair<const Key,T>>>;
-template <class Key, class T, class Compare = std::less<Key>> 
+template <class Key, class T, class Compare = std::less<Key>>
     using multimap = std::multimap<
         Key,T,Compare,allocator<std::pair<const Key,T>>>;
 
-template <class Key, class Compare = std::less<Key>> 
+template <class Key, class Compare = std::less<Key>>
     using set =      std::set<Key,Compare,allocator<Key>>;
-template <class Key, class Compare = std::less<Key>> 
+template <class Key, class Compare = std::less<Key>>
     using multiset = std::multiset<Key,Compare,allocator<Key>>;
 
 template <class Key, class T,
-          class Hash = std::hash<Key>, class Pred = std::equal_to<Key>> 
+          class Hash = std::hash<Key>, class Pred = std::equal_to<Key>>
     using unordered_map = std::unordered_map<
         Key,T,Hash,Pred,allocator<std::pair<const Key,T>>>;
 template <class Key, class T,
-          class Hash = std::hash<Key>, class Pred = std::equal_to<Key>> 
+          class Hash = std::hash<Key>, class Pred = std::equal_to<Key>>
     using unordered_multimap = std::unordered_multimap<
         Key,T,Hash,Pred,allocator<std::pair<const Key,T>>>;
 
 template <class Key,
-          class Hash = std::hash<Key>, class Pred = std::equal_to<Key>> 
+          class Hash = std::hash<Key>, class Pred = std::equal_to<Key>>
     using unordered_set = std::unordered_set<
         Key,Hash,Pred,allocator<Key>>;
 template <class Key,
-          class Hash = std::hash<Key>, class Pred = std::equal_to<Key>> 
+          class Hash = std::hash<Key>, class Pred = std::equal_to<Key>>
     using unordered_multiset = std::unordered_multiset<
         Key,Hash,Pred,allocator<Key>>;
 };
@@ -228,33 +228,33 @@ template <class T>
 
 using string = basic_string<char>;
 
-template <class Key, class T, class Compare = std::less<Key>> 
+template <class Key, class T, class Compare = std::less<Key>>
     using map = std::map<
         Key,T,Compare,allocator<std::pair<const Key,T>>>;
-template <class Key, class T, class Compare = std::less<Key>> 
+template <class Key, class T, class Compare = std::less<Key>>
     using multimap = std::multimap<
         Key,T,Compare,allocator<std::pair<const Key,T>>>;
 
-template <class Key, class Compare = std::less<Key>> 
+template <class Key, class Compare = std::less<Key>>
     using set =      std::set<Key,Compare,allocator<Key>>;
-template <class Key, class Compare = std::less<Key>> 
+template <class Key, class Compare = std::less<Key>>
     using multiset = std::multiset<Key,Compare,allocator<Key>>;
 
 template <class Key, class T,
-          class Hash = std::hash<Key>, class Pred = std::equal_to<Key>> 
+          class Hash = std::hash<Key>, class Pred = std::equal_to<Key>>
     using unordered_map = std::unordered_map<
         Key,T,Hash,Pred,allocator<std::pair<const Key,T>>>;
 template <class Key, class T,
-          class Hash = std::hash<Key>, class Pred = std::equal_to<Key>> 
+          class Hash = std::hash<Key>, class Pred = std::equal_to<Key>>
     using unordered_multimap = std::unordered_multimap<
         Key,T,Hash,Pred,allocator<std::pair<const Key,T>>>;
 
 template <class Key,
-          class Hash = std::hash<Key>, class Pred = std::equal_to<Key>> 
+          class Hash = std::hash<Key>, class Pred = std::equal_to<Key>>
     using unordered_set = std::unordered_set<
         Key,Hash,Pred,allocator<Key>>;
 template <class Key,
-          class Hash = std::hash<Key>, class Pred = std::equal_to<Key>> 
+          class Hash = std::hash<Key>, class Pred = std::equal_to<Key>>
     using unordered_multiset = std::unordered_multiset<
         Key,Hash,Pred,allocator<Key>>;
 };

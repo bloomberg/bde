@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-for i in 4 6 8 10 12 14 16; do 
-    echo ./growth $1 $i - 
-    ./growth $1 $i - | tee "growth-$1-$i" 
+for i in 4 6 8 10 12 14 16; do
+    echo ./growth $1 $i -
+    ./growth $1 $i - | tee "growth-$1-$i"
 done

@@ -593,7 +593,7 @@ int main(int argc, char *argv[])
                 mX.allocate();
             }
 
-            bsls::Types::Int64 numAllocations = A.numAllocations();
+            int numAllocations = A.numAllocations();
             mX.reserveCapacity(CHUNK_SIZE / 2);
             ASSERT(A.numAllocations() == numAllocations);
 
@@ -1159,31 +1159,24 @@ int main(int argc, char *argv[])
         Strategy GEO = bsls::BlockGrowth::BSLS_GEOMETRIC;
         Strategy CON = bsls::BlockGrowth::BSLS_CONSTANT;
 
-        const int NUM_REQUESTS = 100;
-
-        // Note that after the NUM_REQUESTS allocations are performed, there
-        // will be unallocated blocks that will be used before the free list;
-        // 'd_availBlocks' provides the expected number of these unallocated
-        // blocks.
-
         struct {
             int      d_line;
             int      d_blockSize;
             int      d_numBlocks;
             Strategy d_strategy;
-            int      d_availBlocks;
         } DATA[] = {
-            //    block                         avail
-            //LN  size   max chunk size  strat  blocks
-            //--  -----  --------------  -----  ------
-            { L_,     1,              5,   CON,      0 },
-            { L_,     5,             10,   CON,      0 },
-            { L_,    12,              1,   GEO,      0 },
-            { L_,    24,              5,   GEO,      2 },
-            { L_,    32, MAX_CHUNK_SIZE,   GEO,     27 }
+            //line    block
+            //no.     size      max chunk size    growth strategy
+            //----    ------    ----------------  ---------------
+            { L_,       1,                    5,            CON },
+            { L_,       5,                   10,            CON },
+            { L_,      12,                    1,            GEO },
+            { L_,      24,                    5,            GEO },
+            { L_,      32,       MAX_CHUNK_SIZE,            GEO }
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
+        const int NUM_REQUESTS = 100;
         void *p[NUM_REQUESTS];
         bslma::TestAllocator ta(veryVeryVerbose);
         const bslma::TestAllocator& TA = ta;
@@ -1193,7 +1186,6 @@ int main(int argc, char *argv[])
             const int      BLOCK_SIZE = DATA[ti].d_blockSize;
             const int      CHUNK_SIZE = DATA[ti].d_numBlocks;
             const Strategy STRATEGY   = DATA[ti].d_strategy;
-            const int      AVAIL      = DATA[ti].d_availBlocks;
 
             Obj mX(BLOCK_SIZE, STRATEGY, CHUNK_SIZE, &ta);
 
@@ -1201,7 +1193,7 @@ int main(int argc, char *argv[])
                 p[ai] = mX.allocate();
             }
 
-            bsls::Types::Int64 numAllocations = TA.numAllocations();
+            int numAllocations = TA.numAllocations();
 
             for (int dd = NUM_REQUESTS - 1; dd >= 0; --dd) {
                 mX.deallocate(p[dd]);
@@ -1210,11 +1202,8 @@ int main(int argc, char *argv[])
             if (veryVerbose) { T_ P_(CHUNK_SIZE); P(numAllocations); }
 
             // Ensure memory was deallocated in the expected sequence.
-            for (int aj = 0; aj < AVAIL; ++aj) {
-                mX.allocate();
-            }
-            for (int aj = AVAIL; aj < NUM_REQUESTS; ++aj) {
-                LOOP3_ASSERT(LINE, ti, aj, p[aj - AVAIL] == mX.allocate());
+            for (int aj = 0; aj < NUM_REQUESTS; ++aj) {
+                LOOP3_ASSERT(LINE, ti, aj, p[aj] == mX.allocate());
             }
 
             // Ensure no additional memory requests to the allocator occurred.
@@ -1297,7 +1286,7 @@ int main(int argc, char *argv[])
                     mY.allocate();
                 }
 
-                bsls::Types::Int64 numAllocations = TAX.numAllocations();
+                int numAllocations = TAX.numAllocations();
                 int numBytes = TAX.lastAllocatedNumBytes();
                 if (veryVerbose) { T_ P_(numAllocations); T_ P(numBytes); }
                 LOOP_ASSERT(chunkSize,
@@ -1334,7 +1323,7 @@ int main(int argc, char *argv[])
                     mY.allocate();
                 }
 
-                bsls::Types::Int64 numAllocations = TAX.numAllocations();
+                int numAllocations = TAX.numAllocations();
                 int numBytes = TAX.lastAllocatedNumBytes();
                 if (veryVerbose) { T_ P_(numAllocations); T_ P(numBytes); }
                 LOOP_ASSERT(chunkSize, TAY.numAllocations() == numAllocations);
@@ -1493,7 +1482,7 @@ int main(int argc, char *argv[])
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 Obj mX(BLOCK_SIZE, STRATEGY, MAXBLOCKS, &testAllocator);
 
-                bsls::Types::Int64 numAllocations = 0;
+                int numAllocations = 0;
 
                 // If geometric, grow till constant size first.
                 if (GEO == STRATEGY) {
@@ -1750,7 +1739,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2012 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

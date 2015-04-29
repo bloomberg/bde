@@ -479,8 +479,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_blockgrowth.h>
 #endif
 
-#include <utility>
-
 namespace BloombergLP {
 namespace bdlma {
 
@@ -556,18 +554,12 @@ class Multipool {
         // the index of the memory pool managing memory blocks having the
         // minimum block size is 0.
 
-  public:
+  private:
     // NOT IMPLEMENTED
     Multipool(const Multipool&);
     Multipool& operator=(const Multipool&);
 
-    Multipool(Multipool&& other)
-      : d_pools_p(other.d_pools_p), d_numPools(other.d_numPools)
-      , d_maxBlockSize(other.d_maxBlockSize)
-      , d_blockList(std::move(other.d_blockList))
-      , d_allocator_p(other.d_allocator_p)
-      { other.d_pools_p = 0; other.d_numPools = 0; other.d_allocator_p = 0; }
-
+  public:
     // CREATORS
     explicit
     Multipool(bslma::Allocator                  *basicAllocator = 0);

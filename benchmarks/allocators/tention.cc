@@ -118,7 +118,7 @@ double testOnce(void *(*f)(void *)) {
     for (int iter = 0; iter < 10; ++iter) {
         bsl::vector<pthread_t> id;
         id.resize(W);
-    
+
         for (int i = 0; i < W; ++i) {
             pthread_create(&id[i], 0, f, 0);
         }
@@ -127,7 +127,7 @@ double testOnce(void *(*f)(void *)) {
         }
     }
 
-    
+
     clock_gettime(CLOCK_MONOTONIC, &stop);
     int64_t rv = static_cast<int64_t>(stop.tv_sec - start.tv_sec) * 1000000000LL
                     + (stop.tv_nsec - start.tv_nsec);

@@ -613,9 +613,6 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
-#include <utility>
-
-
 namespace BloombergLP {
 namespace bdlma {
 
@@ -639,14 +636,12 @@ class MultipoolAllocator : public ManagedAllocator {
     // DATA
     Multipool d_multipool;  // manager for allocated memory blocks
 
-  public:
+  private:
     // NOT IMPLEMENTED
     MultipoolAllocator(const MultipoolAllocator&);
     MultipoolAllocator& operator=(const MultipoolAllocator&);
 
-    MultipoolAllocator(MultipoolAllocator&& other)
-      : d_multipool(std::move(other.d_multipool)) {}
-
+  public:
     // CREATORS
     explicit
     MultipoolAllocator(

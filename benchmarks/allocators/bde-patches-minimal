@@ -1,0 +1,77 @@
+diff --git a/groups/bdl/bdlma/bdlma_bufferedsequentialpool.h b/groups/bdl/bdlma/bdlma_bufferedsequentialpool.h
+index bf08cdc..c3ade13 100644
+--- a/groups/bdl/bdlma/bdlma_bufferedsequentialpool.h
++++ b/groups/bdl/bdlma/bdlma_bufferedsequentialpool.h
+@@ -465,6 +467,8 @@ class BufferedSequentialPool {
+         // memory obtained from the allocator supplied at construction.  The
+         // behavior is undefined unless '0 < size'.
+ 
++    void deallocate(void*) {}
++
+     template <class TYPE>
+     void deleteObjectRaw(const TYPE *object);
+         // Destroy the specified 'object'.  Note that memory associated with
+diff --git a/groups/bdl/bdlma/bdlma_multipool.h b/groups/bdl/bdlma/bdlma_multipool.h
+index d68e24c..cc96c15 100644
+--- a/groups/bdl/bdlma/bdlma_multipool.h
++++ b/groups/bdl/bdlma/bdlma_multipool.h
+@@ -761,6 +769,21 @@ int Multipool::maxPooledBlockSize() const
+ }  // close package namespace
+ }  // close enterprise namespace
+ 
++// FREE OPERATORS
++inline
++void *operator new(bsl::size_t                                 size,
++                   BloombergLP::bdlma::Multipool& pool)
++{
++        return pool.allocate(size);
++}
++
++inline
++void operator delete(void* p, BloombergLP::bdlma::Multipool& pool)
++{
++        pool.deallocate(p);
++}
++
++
+ #endif
+ 
+ // ----------------------------------------------------------------------------
+diff --git a/groups/bsl/bslstl/bslstl_allocator.h b/groups/bsl/bslstl/bslstl_allocator.h
+index 4a0a1a2..34c352e 100644
+--- a/groups/bsl/bslstl/bslstl_allocator.h
++++ b/groups/bsl/bslstl/bslstl_allocator.h
+@@ -516,6 +516,7 @@ class allocator {
+         // object with the specified 'p'.  The optionally specified 'n'
+         // argument is ignored by this allocator type.
+ 
++#if 0
+     void construct(pointer p, const TYPE& val);
+         // Copy-construct an object of (template parameter) 'TYPE' from the
+         // specified 'val' at the memory address specified by 'p'.  Do not
+@@ -525,6 +526,9 @@ class allocator {
+     void destroy(pointer p);
+         // Call the 'TYPE' destructor for the object pointed to by the
+         // specified 'p'.  Do not directly deallocate any memory.
++#endif
++    allocator select_on_container_copy_construction(const allocator&)
++        { return BloombergLP::bslma::Default::allocator(); }
+ 
+     // ACCESSORS
+     pointer address(reference x) const;
+@@ -743,6 +747,7 @@ void allocator<TYPE>::deallocate(typename allocator::pointer   p,
+     d_mechanism->deallocate(p);
+ }
+ 
++#if 0
+ template <class TYPE>
+ inline
+ void allocator<TYPE>::construct(typename allocator::pointer p,
+@@ -757,6 +762,7 @@ void allocator<TYPE>::destroy(typename allocator::pointer p)
+ {
+     p->~TYPE();
+ }
++#endif
+ 
+ // ACCESSORS
+ template <class TYPE>
