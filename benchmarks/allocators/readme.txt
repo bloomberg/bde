@@ -1,10 +1,23 @@
 These are the programs used to produce the results found in N4468,
 "On Quantifying Allocation Strategies".  
 
-These programs depend on clang++ and libc++ version 3.6 or later.
+These programs depend upon:
+  * clang++ version 3.6 or later
+    http://llvm.org/releases/download.html
+
+  * libc++ version 3.6 or later
+    On ubuntu: apt-get install libc++-dev
+
+  * LLLVM gold plugin & gold linker (OPTIONAL)
+    http://llvm.org/docs/GoldPlugin.html
+    Remove -flto optimization in Makefile to remove dependency.
+
 They use a patched BDE library built with waf and specific configuration
 options, as specified in the Makefile.  The patches needed are on this
 branch.  A snapshot of those patches is included here.
+
+To configure,
+  $ vi Makefile # configure per instrunctions
 
 To build, 
   $ make

@@ -1,3 +1,15 @@
+# The following variables likely need to be configured for your machine.
+# CXX   = path to clang++  3.6
+# CC    = path to clang 3.6
+# WAF   = path to waf (https://github.com/Bloomberg/bde-tools)
+# OPTIM = remove -flto if LLVM gold plug in is not configured
+
+CXX = clang++
+CC = clang
+WAF = waf
+OPTIM = -O -flto -DBSLS_ASSERT_LEVEL_NONE 
+
+
 BSLROOT = ../..
 BSL = $(BSLROOT)/groups/bsl
 BDL = $(BSLROOT)/groups/bdl
@@ -5,12 +17,10 @@ BSLINC = $(INST)/include/bsl
 BDLINC = $(INST)/include/bdl
 BSLLIB = $(BSLROOT)/build/groups/bsl
 BDLLIB = $(BSLROOT)/build/groups/bdl
-CXX = clang++
-CC = clang
-DEBUG = -g3 -Wall
-OPTIM = -O -flto -DBSLS_ASSERT_LEVEL_NONE 
 GROWTH_SIZE = 16
 STDLIB = -stdlib=libc++
+DEBUG = -g3 -Wall
+
 
 INCLUDES = \
    -I$(BSL)/bsls -I$(BSL)/bslma -I$(BSL)/bslscm -I$(BSL)/bslh \
@@ -39,9 +49,9 @@ bde: Makefile
 	( cd $(BSLROOT) && \
       export CC='$(CC)' CFLAGS='$(CFLAGS_LOCAL)' && \
       export CXX='$(CXX)' CXXFLAGS='$(CXXFLAGS_LOCAL) -Wno-narrowing' && \
-      ../bde-tools/bin/waf configure \
+      $(WAF) configure \
          --abi-bits=64 --cpp11 --build-type release --assert-level=none && \
-      ../bde-tools/bin/waf build -v; )
+      $(WAF) build -v; )
 	touch bde
 
 # section 7
