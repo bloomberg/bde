@@ -11,11 +11,11 @@
  utilities providing non-primitive functionality on the value types.
 
  Additional utilities provide:
-: o Current date, time, and local time offset values.
+: o Current date, time, and local-time offset values.
 : o Conversion between different date and time representations.
 : o Arithmetic and validation functions
 
- See {Value Types} and {Utilities} below for introductions to the types and
+ See {Value Types} and {Utilities} below for overviews to the types and
  functions provided by this package.
 
 /Hierarchical Synopsis
@@ -148,7 +148,7 @@
  Each of these classes are designed to hold date and time values, but do not
  themselves provide means for obtaining values such as current time and date.
  Those values are available via separate utility components.  See {Obtaining
- Date, Time, and Local Time Offset Values}.
+ Date, Time, and Local-Time Offset Values}.
 
 /Singular 'Time' and 'Datetime' Values
 /-  -  -  -  -  -  -  -  -  -  -  -  -
@@ -179,7 +179,7 @@
  For each of the basic date and time types there is a corresponding
  value-semantic type that is augmented with a value representing an offset (in
  minutes) from UTC.  Note that other BDE types represent local time offset
- values in as seconds (e.g., the 'seconds' attribute of 'bsls::TimeInterval').
+ in as seconds (e.g., the 'seconds' attribute of 'bsls::TimeInterval').
 
  The local time offset augmented types are:
 ..
@@ -191,13 +191,13 @@
 ..
  These types are not normalized to a common time zone when they are compared,
  hence, equality between objects of any of these types requires that the object
- have both the same local time value and the same local time offset values.  To
+ have both the same local time and the same local-time offset values.  To
  determine *equivalence* between such objects, each of these classes provides a
  'utc*' accessor method.
 
  These types themselves do not validate that the combinations of dates, times,
- and local time offset values they hold correspond to any officially recognized
- time zone.  See {Obtaining Current Date, Time, and Local Time Offset}.
+ and local-time offset values they hold correspond to any officially recognized
+ time zone.  See {Obtaining Current Date, Time, and Local-Time Offset Values}.
 
 /Enumerated Values
 /- - - - - - - - -
@@ -210,15 +210,15 @@
 /---------
  This package provides utility components that:
 
-: o Provide current date, time, and local time offset values.
+: o Provide current date, time, and local-time offset values.
 : o Provide date arithmetic functions.
 : o Provide a wide variety of conversion methods: between the value types
-:   defined in this package, between the package value tpyes and standard types
+:   defined in this package, between the package value types and standard types
 :   for date and time, between time values in different standard units (e.g.,
 :   hours, minutes, nanoseconds).
 
-/Obtaining Current Date, Time, and Local Time Offset
-/- - - - - - - - - - - - - - - - - - - - - - - - - -
+/Obtaining Current Date, Time, and Local-Time Offset Values
+/ - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  The 'bdlt_currenttime' component provides:
 
 : o A 'bdlt::Datetime' value for the current UTC time.
@@ -229,7 +229,7 @@
  time offset for a given UTC time and date.
 
  The local time offset corresponds to the time zone of the host machine (as set
- by the system administrator).  For local time offset values for arbitrary time
+ by the system administrator).  For local time offset for arbitrary time
  zones see the {'baetzo'} package.
 
  Both 'bdlt::CurrentTime' and 'bdlt::LocalTimeOffset' obtain their values via
