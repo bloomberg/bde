@@ -87,28 +87,28 @@ using namespace bsl;
 //:   o copy-assignment
 //:   o swap
 // ----------------------------------------------------------------------------
-// [19] PackedIntArrayConstIterator();
-// [19] PackedIntArrayConstIterator(const PIACI& original);
-// [19] ~PackedIntArrayConstIterator();
-// [19] PIACI& operator=(const PIACI& rhs);
-// [19] PIACI& PIACI::operator++();
-// [19] PIACI& PIACI::operator--();
-// [19] TYPE PIACI::operator*() const;
-// [19] TYPE PIACI::operator->() const;
-// [19] TYPE PIACI::operator[](bsl::ptrdiff_t offset) const;
-// [19] bool operator==(const PIACI& lhs, const PIAI& rhs);
-// [19] bool operator!=(const PIACI& lhs, const PIAI& rhs);
-// [21] PIACI& PIACI::operator+=(bsl::ptrdiff_t offset);
-// [21] PIACI& PIACI::operator-=(bsl::ptrdiff_t offset);
-// [21] PIACI PIACI::operator+(bsl::ptrdiff_t offset);
-// [21] PIACI PIACI::operator-(bsl::ptrdiff_t offset);
-// [21] PIACI PIACI::operator++(PIACI& iter, int);
-// [21] PIACI PIACI::operator--(PIACI& iter, int);
-// [21] bsl::ptrdiff_t operator-(const PIACI& lhs, const PIACI& rhs);
-// [20] bool operator<(const PIACI& lhs, const PIACI& rhs);
-// [20] bool operator<=(const PIACI& lhs, const PIACI& rhs);
-// [20] bool operator>(const PIACI& lhs, const PIACI& rhs);
-// [20] bool operator>=(const PIACI& lhs, const PIACI& rhs);
+// [20] PackedIntArrayConstIterator();
+// [20] PackedIntArrayConstIterator(const PIACI& original);
+// [20] ~PackedIntArrayConstIterator();
+// [20] PIACI& operator=(const PIACI& rhs);
+// [20] PIACI& PIACI::operator++();
+// [20] PIACI& PIACI::operator--();
+// [20] TYPE PIACI::operator*() const;
+// [20] TYPE PIACI::operator->() const;
+// [20] TYPE PIACI::operator[](bsl::ptrdiff_t offset) const;
+// [20] bool operator==(const PIACI& lhs, const PIAI& rhs);
+// [20] bool operator!=(const PIACI& lhs, const PIAI& rhs);
+// [22] PIACI& PIACI::operator+=(bsl::ptrdiff_t offset);
+// [22] PIACI& PIACI::operator-=(bsl::ptrdiff_t offset);
+// [22] PIACI PIACI::operator+(bsl::ptrdiff_t offset);
+// [22] PIACI PIACI::operator-(bsl::ptrdiff_t offset);
+// [22] PIACI PIACI::operator++(PIACI& iter, int);
+// [22] PIACI PIACI::operator--(PIACI& iter, int);
+// [22] bsl::ptrdiff_t operator-(const PIACI& lhs, const PIACI& rhs);
+// [21] bool operator<(const PIACI& lhs, const PIACI& rhs);
+// [21] bool operator<=(const PIACI& lhs, const PIACI& rhs);
+// [21] bool operator>(const PIACI& lhs, const PIACI& rhs);
+// [21] bool operator>=(const PIACI& lhs, const PIACI& rhs);
 // [10] int maxSupportedBdexVersion(int serializationVersion);
 // [ 2] PackedIntArray(bslma::Allocator *basicAllocator = 0);
 // [18] PackedIntArray(numElements, value, basicAllocator);
@@ -136,11 +136,13 @@ using namespace bsl;
 // [11] void swap(PackedIntArray& other);
 // [ 4] TYPE operator[](bsl::size_t index) const;
 // [ 4] bslma::Allocator *allocator() const;
+// [19] TYPE back() const;
 // [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
-// [19] PackedIntArrayConstIterator begin() const;
+// [20] PackedIntArrayConstIterator begin() const;
 // [ 4] int bytesPerElement() const;
 // [ 4] bsl::size_t capacity() const;
-// [19] PackedIntArrayConstIterator end() const;
+// [20] PackedIntArrayConstIterator end() const;
+// [19] TYPE front() const;
 // [ 4] bool isEmpty() const;
 // [ 6] bool isEqual(const PackedIntArray& other) const;
 // [ 4] bsl::size_t length() const;
@@ -151,13 +153,13 @@ using namespace bsl;
 // [11] void swap(PackedIntArray& a, PackedIntArray& b);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [23] USAGE EXAMPLE
+// [24] USAGE EXAMPLE
 // [ 3] Obj& gg(Obj *object, const char *spec);
 // [ 3] UnsignedObj& gg(UnsignedObj *object, const char *spec);
 // [ 3] int ggg(Obj *object, const char *spec);
 // [ 3] int ggg(UnsignedObj *object, const char *spec);
 // [ 8] PackedIntArray g(const char *spec);
-// [22] CONCERN: iterators remain valid over modifications
+// [23] CONCERN: iterators remain valid over modifications
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -578,8 +580,8 @@ int main(int argc, char *argv[])
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
     bslma::Default::setDefaultAllocator(&defaultAllocator);
 
-    switch (test) { case 0:  // Zero is always the leading case.
-      case 23: {
+    switch (test) { case 0:
+      case 24: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -650,7 +652,7 @@ int main(int argc, char *argv[])
     ASSERT(                                   24 == nyc.length());
 //..
       } break;
-      case 22: {
+      case 23: {
         // --------------------------------------------------------------------
         // CONST ITERATOR REMAINS VALID OVER MODIFICATIONS
         //   Ensure the methods work correctly.
@@ -869,7 +871,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 21: {
+      case 22: {
         // --------------------------------------------------------------------
         // CONST ITERATOR OTHER METHODS
         //   Ensure the methods work correctly.
@@ -1246,7 +1248,7 @@ int main(int argc, char *argv[])
             ASSERT_SAFE_FAIL(X.begin() - Y.end());
         }
       } break;
-      case 20: {
+      case 21: {
         // --------------------------------------------------------------------
         // CONST ITERATOR RELATIONAL OPERATORS
         //   Ensure the relational operators work as expected.
@@ -1354,7 +1356,7 @@ int main(int argc, char *argv[])
             ASSERT_SAFE_FAIL(X.begin() >= Y.end());
         }
       } break;
-      case 19: {
+      case 20: {
         // --------------------------------------------------------------------
         // CONST ITERATOR BASIC METHODS
         //   Ensure we can create a 'const' iterator, inspect the value at
@@ -1851,6 +1853,137 @@ int main(int argc, char *argv[])
             mX.removeAll();
             ASSERT_SAFE_FAIL(*iter);
             ASSERT_SAFE_FAIL(iter.operator->());
+        }
+      } break;
+      case 19: {
+        // --------------------------------------------------------------------
+        // TESTING 'front' AND 'back'
+        //   Ensure these accessor properly interprets object state.
+        //
+        // Concerns:
+        //: 1 Each accessor returns the value of the corresponding attribute of
+        //:   the object.
+        //:
+        //: 2 Each accessor method is declared 'const'.
+        //:
+        //: 3 No accessor allocates any memory.
+        //:
+        //: 4 QoI: asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Use the generator function to produce objects of arbitrary state
+        //:   and verify the accessors' return values against expected values.
+        //:   (C-1)
+        //:
+        //: 2 The accessors will only be accessed from a 'const' reference to
+        //:   the created object.  (C-2)
+        //:
+        //: 3 The default allocator will be used for all created objects
+        //:   (excluding those used to test 'allocator') and the number of
+        //:   allocation will be verified to ensure that no memory was
+        //:   allocated during use of the accessors.  (C-3)
+        //:
+        //: 4 Verify defensive checks are triggered for invalid values.  (C-4)
+        //
+        // Testing:
+        //   TYPE back() const;
+        //   TYPE front() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'front' AND 'back'" << endl
+                          << "==========================" << endl;
+
+        {
+            static const struct {
+                int          d_lineNum;  // source line number
+                const char  *d_spec_p;   // specification string
+                Element      d_front;    // expected 'front' value
+                Element      d_back;     // expected 'back' value
+            } DATA[] = {
+                //line    spec        front             back
+                //----  --------  ---------------  ---------------
+                { L_,   "z",                    0,               0 },
+                { L_,   "o",                   -1,              -1 },
+                { L_,   "O",                    1,               1 },
+                { L_,   "c",           k_INT8_MIN,      k_INT8_MIN },
+                { L_,   "C",           k_INT8_MAX,      k_INT8_MAX },
+                { L_,   "s",          k_INT16_MIN,     k_INT16_MIN },
+                { L_,   "S",          k_INT16_MAX,     k_INT16_MAX },
+                { L_,   "i",          k_INT32_MIN,     k_INT32_MIN },
+                { L_,   "I",          k_INT32_MAX,     k_INT32_MAX },
+                { L_,   "l",          k_INT64_MIN,     k_INT64_MIN },
+                { L_,   "L",          k_INT64_MAX,     k_INT64_MAX },
+                { L_,   "^",       k_INT8_MIN - 1,  k_INT8_MIN - 1 },
+                { L_,   "!",       k_INT8_MAX + 1,  k_INT8_MAX + 1 },
+                { L_,   "@",      k_INT16_MIN - 1, k_INT16_MIN - 1 },
+                { L_,   "$",      k_INT16_MAX + 1, k_INT16_MAX + 1 },
+                { L_,   "(",      k_INT32_MIN - 1, k_INT32_MIN - 1 },
+                { L_,   ")",      k_INT32_MAX + 1, k_INT32_MAX + 1 },
+                { L_,   "LxS",        k_INT16_MAX,     k_INT16_MAX },
+                { L_,   "CS",          k_INT8_MAX,     k_INT16_MAX },
+                { L_,   "SC",         k_INT16_MAX,      k_INT8_MAX },
+                { L_,   "CSI",         k_INT8_MAX,     k_INT32_MAX },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int         LINE  = DATA[ti].d_lineNum;
+                const char *const SPEC  = DATA[ti].d_spec_p;
+                const Element     FRONT = DATA[ti].d_front;
+                const Element     BACK  = DATA[ti].d_back;
+
+                Obj mX;  const Obj& X = gg(&mX, SPEC);   // original spec
+
+                bsls::Types::Int64 allocations =
+                                             defaultAllocator.numAllocations();
+
+                LOOP_ASSERT(LINE, FRONT == X.front());
+                LOOP_ASSERT(LINE, BACK  == X.back());
+
+                LOOP_ASSERT(LINE,
+                            defaultAllocator.numAllocations() == allocations);
+            }
+        }
+        {
+            static const struct {
+                int              d_lineNum;  // source line number
+                const char      *d_spec_p;   // specification string
+                UnsignedElement  d_front;    // expected 'front' value
+                UnsignedElement  d_back;     // expected 'back' value
+            } DATA[] = {
+                //line    spec        front              back
+                //----  --------  ----------------  ----------------
+                { L_,   "z",                     0,                0 },
+                { L_,   "O",                     1,                1 },
+                { L_,   "C",           k_UINT8_MAX,      k_UINT8_MAX },
+                { L_,   "S",          k_UINT16_MAX,     k_UINT16_MAX },
+                { L_,   "I",          k_UINT32_MAX,     k_UINT32_MAX },
+                { L_,   "L",          k_UINT64_MAX,     k_UINT64_MAX },
+                { L_,   "LxS",        k_UINT16_MAX,     k_UINT16_MAX },
+                { L_,   "CS",          k_UINT8_MAX,     k_UINT16_MAX },
+                { L_,   "SC",         k_UINT16_MAX,      k_UINT8_MAX },
+                { L_,   "CSI",         k_UINT8_MAX,     k_UINT32_MAX },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int             LINE  = DATA[ti].d_lineNum;
+                const char *const     SPEC  = DATA[ti].d_spec_p;
+                const UnsignedElement FRONT = DATA[ti].d_front;
+                const UnsignedElement BACK = DATA[ti].d_back;
+
+                UnsignedObj        mX;
+                const UnsignedObj& X = gg(&mX, SPEC);   // original spec
+
+                bsls::Types::Int64 allocations =
+                                             defaultAllocator.numAllocations();
+
+                LOOP_ASSERT(LINE, FRONT == X.front());
+                LOOP_ASSERT(LINE, BACK  == X.back());
+
+                LOOP_ASSERT(LINE,
+                            defaultAllocator.numAllocations() == allocations);
+            }
         }
       } break;
       case 18: {

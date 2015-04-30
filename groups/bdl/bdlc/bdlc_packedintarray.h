@@ -1205,6 +1205,14 @@ class PackedIntArray {
     bslma::Allocator *allocator() const;
         // Return the allocator used by this array to supply memory.
 
+    TYPE back() const;
+        // Return the value of the element at the back of this array.  The
+        // behavior is undefined unless '0 < length()'.  Note that this
+        // function is logically equivalent to:
+        //..
+        //    operator[](length() - 1)
+        //..
+
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
         // Write this value to the specified output 'stream' using the
@@ -1232,6 +1240,14 @@ class PackedIntArray {
         // Return an iterator referring to one element beyond the last element
         // in this array.  This reference remains valid as long as this array
         // exists, and length does not decrease.
+
+    TYPE front() const;
+        // Return the value of the element at the front of this array.  The
+        // behavior is undefined unless '0 < length()'.  Note that this
+        // function is logically equivalent to:
+        //..
+        //    operator[](0)
+        //..
 
     bool isEmpty() const;
         // Return 'true' if there are no elements in this array, and 'false'
@@ -2388,6 +2404,15 @@ bslma::Allocator *PackedIntArray<TYPE>::allocator() const
 }
 
 template <class TYPE>
+inline
+TYPE PackedIntArray<TYPE>::back() const
+{
+    BSLS_ASSERT_SAFE(0 < length());
+
+    return static_cast<TYPE>(d_imp[length() - 1]);
+}
+
+template <class TYPE>
 template <class STREAM>
 inline
 STREAM& PackedIntArray<TYPE>::bdexStreamOut(STREAM& stream, int version) const
@@ -2422,6 +2447,15 @@ inline
 typename PackedIntArray<TYPE>::const_iterator PackedIntArray<TYPE>::end() const
 {
     return const_iterator(&d_imp, d_imp.length());
+}
+
+template <class TYPE>
+inline
+TYPE PackedIntArray<TYPE>::front() const
+{
+    BSLS_ASSERT_SAFE(0 < length());
+
+    return static_cast<TYPE>(d_imp[0]);
 }
 
 template <class TYPE>
