@@ -332,7 +332,7 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
 template <class BSLMF_RETURN>
 struct FunctionPointerTraits<BSLMF_RETURN (*)(...)> {
     // Specialization for function pointers that return 'BSLMF_RETURN' and
-    // accept zero arguments.
+    // whose parameter list is a C-style vararg parameter pack.
 
     enum { IS_FUNCTION_POINTER = 1 };
     enum { e_IS_VARARG = 1 };
@@ -344,7 +344,7 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(...)> {
 template <class BSLMF_RETURN, class A1>
 struct FunctionPointerTraits<BSLMF_RETURN (*)(A1...)> {
     // Specialization for function pointers that return 'BSLMF_RETURN' and
-    // accept one argument.
+    // accept one argument followed by a C-style vararg parameter pack.
 
     enum { IS_FUNCTION_POINTER = 1 };
     enum { e_IS_VARARG = 1 };
@@ -356,7 +356,7 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1...)> {
 template <class BSLMF_RETURN, class A1, class A2>
 struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2...)> {
     // Specialization for function pointers that return 'BSLMF_RETURN' and
-    // accept two arguments.
+    // accept two arguments followed by a C-style vararg parameter pack.
 
     enum { IS_FUNCTION_POINTER = 1 };
     enum { e_IS_VARARG = 1 };
@@ -368,7 +368,7 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2...)> {
 template <class BSLMF_RETURN, class A1, class A2, class A3>
 struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3...)> {
     // Specialization for function pointers that return 'BSLMF_RETURN' and
-    // accept three arguments.
+    // accept three arguments followed by a C-style vararg parameter pack.
 
     enum { IS_FUNCTION_POINTER = 1 };
     enum { e_IS_VARARG = 1 };
@@ -380,7 +380,7 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3...)> {
 template <class BSLMF_RETURN, class A1, class A2, class A3, class A4>
 struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4...)> {
     // Specialization for function pointers that return 'BSLMF_RETURN' and
-    // accept four arguments.
+    // accept four arguments followed by a C-style vararg parameter pack.
 
     enum { IS_FUNCTION_POINTER = 1 };
     enum { e_IS_VARARG = 1 };
@@ -392,7 +392,7 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4...)> {
 template <class BSLMF_RETURN, class A1, class A2, class A3, class A4, class A5>
 struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5...)> {
     // Specialization for function pointers that return 'BSLMF_RETURN' and
-    // accept five arguments.
+    // accept five arguments followed by a C-style vararg parameter pack.
 
     enum { IS_FUNCTION_POINTER = 1 };
     enum { e_IS_VARARG = 1 };
@@ -405,7 +405,7 @@ template <class BSLMF_RETURN, class A1, class A2, class A3, class A4, class A5,
                               class A6>
 struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6...)> {
     // Specialization for function pointers that return 'BSLMF_RETURN' and
-    // accept six arguments.
+    // accept six arguments followed by a C-style vararg parameter pack.
 
     enum { IS_FUNCTION_POINTER = 1 };
     enum { e_IS_VARARG = 1 };
@@ -418,7 +418,7 @@ template <class BSLMF_RETURN, class A1, class A2, class A3, class A4, class A5,
                               class A6, class A7>
 struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7...)> {
     // Specialization for function pointers that return 'BSLMF_RETURN' and
-    // accept seven arguments.
+    // accept seven arguments followed by a C-style vararg parameter pack.
 
     enum { IS_FUNCTION_POINTER = 1 };
     enum { e_IS_VARARG = 1 };
@@ -431,7 +431,7 @@ template <class BSLMF_RETURN, class A1, class A2, class A3, class A4, class A5,
                               class A6, class A7, class A8>
 struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8...)> {
     // Specialization for function pointers that return 'BSLMF_RETURN' and
-    // accept eight arguments.
+    // accept eight arguments followed by a C-style vararg parameter pack.
 
     enum { IS_FUNCTION_POINTER = 1 };
     enum { e_IS_VARARG = 1 };
@@ -445,7 +445,7 @@ template <class BSLMF_RETURN, class A1, class A2, class A3, class A4, class A5,
 struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,
                                                     A9...)> {
     // Specialization for function pointers that return 'BSLMF_RETURN' and
-    // accept nine arguments.
+    // accept nine arguments followed by a C-style vararg parameter pack.
 
     enum { IS_FUNCTION_POINTER = 1 };
     enum { e_IS_VARARG = 1 };
@@ -460,7 +460,7 @@ template <class BSLMF_RETURN, class A1, class A2, class A3, class A4, class A5,
 struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
                                                     A10...)> {
     // Specialization for function pointers that return 'BSLMF_RETURN' and
-    // accept ten arguments.
+    // accept ten arguments followed by a C-style vararg parameter pack.
 
     enum { IS_FUNCTION_POINTER = 1 };
     enum { e_IS_VARARG = 1 };
@@ -475,7 +475,7 @@ template <class BSLMF_RETURN, class A1,  class A2,  class A3,  class A4,
 struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
                                                     A10,A11...)> {
     // Specialization for function pointers that return 'BSLMF_RETURN' and
-    // accept eleven arguments.
+    // accept eleven arguments followed by a C-style vararg parameter pack.
 
     enum { IS_FUNCTION_POINTER = 1 };
     enum { e_IS_VARARG = 1 };
@@ -490,7 +490,7 @@ template <class BSLMF_RETURN, class A1,  class A2,  class A3,  class A4,
 struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
                                                     A10,A11,A12...)> {
     // Specialization for function pointers that return 'BSLMF_RETURN' and
-    // accept twelve arguments.
+    // accept twelve arguments followed by a C-style vararg parameter pack.
 
     enum { IS_FUNCTION_POINTER = 1 };
     enum { e_IS_VARARG = 1 };
@@ -507,7 +507,7 @@ template <class BSLMF_RETURN, class A1,  class A2,  class A3,  class A4,
 struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
                                                     A10,A11,A12,A13...)> {
     // Specialization for function pointers that return 'BSLMF_RETURN' and
-    // accept thirteen arguments.
+    // accept thirteen arguments followed by a C-style vararg parameter pack.
 
     enum { IS_FUNCTION_POINTER = 1 };
     enum { e_IS_VARARG = 1 };
@@ -524,7 +524,7 @@ template <class BSLMF_RETURN, class A1,  class A2,  class A3,  class A4,
 struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
                                                     A10,A11,A12,A13,A14...)> {
     // Specialization for function pointers that return 'BSLMF_RETURN' and
-    // accept fourteen arguments.
+    // accept fourteen arguments followed by a C-style vararg parameter pack.
 
     enum { IS_FUNCTION_POINTER = 1 };
     enum { e_IS_VARARG = 1 };
