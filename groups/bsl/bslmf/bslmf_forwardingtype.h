@@ -125,8 +125,9 @@ BSLS_IDENT("$Id: $")
 // First we create a wrapper class that holds a function pointer of the
 // desired type:
 //..
-//  // Primary template is never defined
-//  template <class PROTOTYPE> class LoggingWrapper;
+//  // Primary template is never defined.
+//  template <class PROTOTYPE>
+//  class LoggingWrapper;
 //
 //  template <class RET, class ARG1, class ARG2, class ARG3>
 //  class LoggingWrapper<RET(ARG1, ARG2, ARG3)> {
@@ -134,35 +135,28 @@ BSLS_IDENT("$Id: $")
 //
 //      RET (*d_function_p)(ARG1, ARG2, ARG3);
 //
-//  public:
+//    public:
 //      explicit LoggingWrapper(RET (*function_p)(ARG1, ARG2, ARG3))
 //          // Create a 'LoggingWrapper' object for the specified 'function_p'
 //          // function.
 //        : d_function_p(function_p) { }
-//
-//      RET operator()(ARG1, ARG2, ARG3) const;
-//          // Invoke the stored function pointer with the specified 'ARG1',
-//          // 'ARG2', and 'ARG3' arguments, logging the invocation and
-//          // returning the result of the function pointer invocation.
 //..
-// Then, we declare a private member function that actually invokes the
-// wrapped function.  This member function will be called by 'operator()' and
-// must therefore receive arguments indirectly through 'operator()'.  In order
-// to avoid excessive copies of pass-by-value arguments, we use
-// 'ForwardingType' to declare a more efficient intermediate argument type for
-// our private member function:
+// Then, we declare an overload of the function-call operator that actually
+// invokes the wrapped function.  In order to avoid excessive copies of
+// pass-by-value arguments, we use 'ForwardingType' to declare a more efficient
+// intermediate argument type for our private member function:
 //..
-//  private:
-//      RET invoke(typename bslmf::ForwardingType<ARG1>::Type a1,
-//                 typename bslmf::ForwardingType<ARG2>::Type a2,
-//                 typename bslmf::ForwardingType<ARG3>::Type a3) const;
-//          // Invoke the wrapped function with the specified 'a1', 'a2', and
-//          // 'a3' arguments and return the result of the invocation.
+//      RET operator()(typename bslmf::ForwardingType<ARG1>::Type a1,
+//                     typename bslmf::ForwardingType<ARG2>::Type a2,
+//                     typename bslmf::ForwardingType<ARG3>::Type a3) const;
+//          // Invoke the stored function pointer with the specified 'a1',
+//          // 'a2', and 'a3' arguments, logging the invocation and returning
+//          // the result of the function pointer invocation.
 //  };
 //..
 // Next, we define logging functions that simply count the number of
 // invocations and number of returns from invocations (e.g., to count how may
-// invocations completed without exceptions):
+// invocations completed without exiting via exceptions):
 //..
 //  int invocations = 0, returns = 0;
 //  void logInvocation(int /* ignored */) { ++invocations; }
@@ -170,34 +164,23 @@ BSLS_IDENT("$Id: $")
 //  void logReturn(int /* ignored */) { ++returns; }
 //      // Log a return from the wrapped function.
 //..
-// Then, we implement 'operator()' to call the logging functions and then call
-// 'invoke':
+// Now, we implement 'operator()' call the logging functions, either side of
+// calling the logged function through the wrapped pointer.  To reconstitute
+// the arguments to the function as close as possible to the types they were
+// passed in as, we call the 'forwardToTarget' member of 'ForwardingTypeUtil':
 //..
 //  template <class RET, class ARG1, class ARG2, class ARG3>
-//  RET LoggingWrapper<RET(ARG1, ARG2, ARG3)>::operator()(ARG1 a1,
-//                                                        ARG2 a2,
-//                                                        ARG3 a3) const {
+//  RET LoggingWrapper<RET(ARG1, ARG2, ARG3)>::operator()(
+//                       typename bslmf::ForwardingType<ARG1>::Type a1,
+//                       typename bslmf::ForwardingType<ARG2>::Type a2,
+//                       typename bslmf::ForwardingType<ARG3>::Type a3) const {
 //      logInvocation(a1);
-//      RET r = invoke(a1, a2, a3);
-//      logReturn(a1);
-//      return r;
-//  }
-//..
-// Now, we implement 'invoke' to actually call the function through the wrapped
-// pointer.  To reconstitute the arguments to the function as close as possible
-// to the types they were passed in as, we call the 'forwardToTarget' member of
-// 'ForwardingTypeUtil':
-//..
-//  template <class RET, class ARG1, class ARG2, class ARG3>
-//  RET LoggingWrapper<RET(ARG1,ARG2,ARG3)>::invoke(
-//      typename bslmf::ForwardingType<ARG1>::Type a1,
-//      typename bslmf::ForwardingType<ARG2>::Type a2,
-//      typename bslmf::ForwardingType<ARG3>::Type a3) const
-//  {
-//      return d_function_p(
+//      RET r = d_function_p(
 //          bslmf::ForwardingTypeUtil<ARG1>::forwardToTarget(a1),
 //          bslmf::ForwardingTypeUtil<ARG2>::forwardToTarget(a2),
 //          bslmf::ForwardingTypeUtil<ARG3>::forwardToTarget(a3));
+//      logReturn(a1);
+//      return r;
 //  }
 //..
 // Then, in order to see this wrapper in action, we must define a function we
@@ -209,16 +192,18 @@ BSLS_IDENT("$Id: $")
 //  class ArgType {
 //      int d_value;
 //      int d_copies;
-//  public:
+//    public:
 //      explicit ArgType(int v = 0) : d_value(v), d_copies(0) { }
 //          // Create an 'ArgType' object.  Optionally specify 'v' as the
 //          // initial value of this 'ArgType' object, otherwise this object
 //          // will hold the value 0.
 //
 //      ArgType(const ArgType& original)
-//          // Copy-construct from the specified 'original'.
-//        : d_value(original.d_value)
-//        , d_copies(original.d_copies + 1) { }
+//          // Create an 'ArgType' object that is a copy of the specified
+//          // 'original'.
+//      : d_value(original.d_value)
+//      , d_copies(original.d_copies + 1)
+//      { }
 //
 //      int copies() const { return d_copies; }
 //          // Return the number of copies that this object is from the
@@ -247,7 +232,7 @@ BSLS_IDENT("$Id: $")
 // 'ArgType' had a move constructor, then the number of copies would be only 1,
 // since the final forwarding would be a move instead of a copy.
 //..
-//  void main()
+//  void usageExample2()
 //      // Usage Example
 //  {
 //      ArgType x(0);
@@ -255,7 +240,7 @@ BSLS_IDENT("$Id: $")
 //
 //      LoggingWrapper<int(const short&, ArgType&, ArgType)> lw(myFunc);
 //      assert(0 == invocations && 0 == returns);
-//      lw(2, x, y);  // Expect two copies of 'y'
+//      lw(1, x, y);  // Expect exactly one copy of 'y'
 //      assert(1 == invocations && 1 == returns);
 //      assert(99 == x.value());
 //  }
