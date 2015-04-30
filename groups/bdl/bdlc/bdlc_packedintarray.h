@@ -1100,6 +1100,11 @@ class PackedIntArray {
         // 'dstIndex' up by one.  The behavior is undefined unless
         // 'dstIndex <= length()'.
 
+    const_iterator insert(const_iterator dst, TYPE value);
+        // Insert into this array, at the specified 'dst', an element of
+        // specified 'value', shifting any elements originally at or above
+        // 'dst' up by one.
+
     void insert(bsl::size_t dstIndex, const PackedIntArray& srcArray);
         // Insert into this array, at the specified 'dstIndex', the sequence of
         // values represented by the specified 'srcArray', shifting any
@@ -2240,6 +2245,15 @@ void PackedIntArray<TYPE>::insert(bsl::size_t dstIndex, TYPE value)
     BSLS_ASSERT_SAFE(dstIndex <= length());
 
     d_imp.insert(dstIndex, static_cast<typename ImpType::ElementType>(value));
+}
+
+template <class TYPE>
+inline
+typename PackedIntArray<TYPE>::const_iterator
+                   PackedIntArray<TYPE>::insert(const_iterator dst, TYPE value)
+{
+    insert(dst.d_index, value);
+    return dst;
 }
 
 template <class TYPE>

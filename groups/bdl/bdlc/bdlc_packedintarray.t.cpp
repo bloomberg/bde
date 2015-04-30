@@ -120,6 +120,7 @@ using namespace bsl;
 // [12] void append(const PackedIntArray& srcArray, si, ne);
 // [10] STREAM& bdexStreamIn(STREAM& stream, int version);
 // [13] void insert(di, value);
+// [24] PIACI insert(PIACI dst, value);
 // [13] void insert(di, const PackedIntArray& srcArray);
 // [13] void insert(di, const PackedIntArray& srcArray, si, ne);
 // [ 2] void pop_back();
@@ -153,7 +154,7 @@ using namespace bsl;
 // [11] void swap(PackedIntArray& a, PackedIntArray& b);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [24] USAGE EXAMPLE
+// [25] USAGE EXAMPLE
 // [ 3] Obj& gg(Obj *object, const char *spec);
 // [ 3] UnsignedObj& gg(UnsignedObj *object, const char *spec);
 // [ 3] int ggg(Obj *object, const char *spec);
@@ -581,7 +582,7 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&defaultAllocator);
 
     switch (test) { case 0:
-      case 24: {
+      case 25: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -651,6 +652,134 @@ int main(int argc, char *argv[])
     ASSERT(static_cast<int>(sizeof(signed char)) == nyc.bytesPerElement());
     ASSERT(                                   24 == nyc.length());
 //..
+      } break;
+      case 24: {
+        // --------------------------------------------------------------------
+        // INSERT WITH ITERATOR
+        //   The 'insert' method operates as expected.
+        //
+        // Concerns:
+        //: 1 The method is exception neutral with respect to memory
+        //:   allocation.
+        //:
+        //: 2 The method produces the expected value.
+        //:
+        //: 3 When there is initially sufficient storage in the result variable
+        //:   to store the result, the methods produce the expected value.
+        //
+        // Plan:
+        //: 1 Wrap all tests with the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*'
+        //:   macros to ensure exception neutrality with respect to memory
+        //:   allocation.  (C-1)
+        //:
+        //: 2 Specify a set of specifications for the 'gg' function that result
+        //:   in an empty object but with different capacity and bytes per
+        //:   element characteristics.
+        //:
+        //: 3 Use the table-based approach to specify a set of test vectors.
+        //:
+        //: 4 For every item in the cross-product of these two sets, verify
+        //:   the result for the method (the set from 2 is applied to only
+        //:   the initial object).  (C-2..3)
+        //
+        // Testing:
+        //   PIACI insert(PIACI dst, value);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "INSERT WITH ITERATOR" << endl
+                          << "====================" << endl;
+
+        static const struct {
+            int         d_lineNum;
+            const char *d_spec_p;
+        } INIT[] = {
+            // line spec
+            //----  ----
+            { L_,   ""              },
+            { L_,   "Lp"            },
+            { L_,   "LLLLLLLLLLx"   },
+            { L_,   "LLLLLLLLLLxLp" },
+        };
+        const int NUM_INIT = static_cast<int>(sizeof INIT / sizeof *INIT);
+
+        if (verbose) cout << "\nValue insert with iterator." << endl;
+        {
+            static const struct {
+                int         d_lineNum;      // source line number
+                const char *d_spec1_p;      // specification 1
+                int         d_di;           // destination index
+                const char  d_spec2_p;      // specification 2
+                const char *d_exp_p;        // expected output specification
+            } DATA[] = {
+                //line  spec1     di  spec2     exp
+                //----  --------  --  --------  ----------------------------
+                { L_,   "",        0, 'C',      "C"                          },
+
+                { L_,   "C",       0, 'S',      "SC"                         },
+                { L_,   "C",       1, 'S',      "CS"                         },
+
+                { L_,   "CS",      0, 'I',      "ICS"                        },
+                { L_,   "CS",      1, 'I',      "CIS"                        },
+                { L_,   "CS",      2, 'I',      "CSI"                        },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int         LINE    = DATA[i].d_lineNum;
+                const int         DI      = DATA[i].d_di;
+                const char        SPEC2   = DATA[i].d_spec2_p;
+                const char *const EXPSPEC = DATA[i].d_exp_p;
+
+                Element    y;     getValue(SPEC2, &y, 0);
+                Obj        mEXP;  gg(&mEXP, EXPSPEC);
+                const Obj& EXP =  mEXP;
+
+                UnsignedElement    uy;     getValue(SPEC2, &uy, 0);
+                UnsignedObj        mUEXP;  gg(&mUEXP, EXPSPEC);
+                const UnsignedObj& UEXP =  mUEXP;
+
+                bsls::Types::Int64 allocations =
+                                             defaultAllocator.numAllocations();
+
+                for (int j = 0; j < NUM_INIT; ++j) {
+                    bsl::string SPEC1 = (std::string()
+                                         + INIT[j].d_spec_p
+                                         + DATA[i].d_spec1_p);
+
+                    bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+                        Obj        mX(&sa);           gg(&mX, SPEC1.c_str());
+                        const Obj& X = mX;
+                        Iterator   DST = X.begin();
+
+                        for (int k = 0; k < DI; ++k) {
+                            ++DST;
+                        }
+
+                        LOOP_ASSERT(LINE, DST == mX.insert(DST, y));
+                        LOOP_ASSERT(LINE, X == EXP);
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+                        UnsignedObj        mUX(&sa);  gg(&mUX, SPEC1.c_str());
+                        const UnsignedObj& UX = mUX;
+                        UnsignedIterator   DST = UX.begin();
+
+                        for (int k = 0; k < DI; ++k) {
+                            ++DST;
+                        }
+
+                        LOOP_ASSERT(LINE, DST == mUX.insert(DST, uy));
+                        LOOP_ASSERT(LINE, UX == UEXP);
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                }
+
+                LOOP_ASSERT(LINE,
+                            allocations == defaultAllocator.numAllocations());
+            }
+        }
       } break;
       case 23: {
         // --------------------------------------------------------------------
