@@ -551,7 +551,7 @@ int main(int argc, char *argv[])
         {
             Obj::result_type (Obj::*expectedSignature) ();
 
-            expectedSignature = &Obj::computeHash;
+            (void)(expectedSignature = &Obj::computeHash);
         }
 
       } break;
@@ -860,6 +860,23 @@ int main(int argc, char *argv[])
             hashAlg1(&int1, sizeof(int));
             hashAlg2(&int2, sizeof(int));
             ASSERT(hashAlg1.computeHash() == hashAlg2.computeHash());
+        }
+      } break;
+      case -1: {
+        // --------------------------------------------------------------------
+        // EXAMINE HASH VALUES
+        //   This case prints out hash values of the argument strings using a
+        //   fixed seed.  It is intended to demonstrate that the same strings
+        //   hash to the same values regardless of native byte ordering.
+        // --------------------------------------------------------------------
+        unsigned char seed[16] = {
+            0x1B, 0x91, 0x7C, 0x2A, 0x70, 0xAB, 0x10, 0xF5, 
+            0xF8, 0x37, 0x47, 0xC1, 0xF7, 0x00, 0x09, 0xF3, 
+        };
+        for (int i = 1; i < argc; ++i) {
+            SipHashAlgorithm hashAlg(reinterpret_cast<char *>(seed));
+            hashAlg(argv[i], strlen(argv[i]));
+            P_(argv[i]) P(hashAlg.computeHash())
         }
       } break;
       default: {

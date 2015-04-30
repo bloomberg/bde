@@ -138,16 +138,13 @@ SipHashAlgorithm::SipHashAlgorithm(const char *seed)
 {
     BSLS_ASSERT(seed);
 
-#if defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64)
-    const u64 *aligned = reinterpret_cast<const u64 *>(seed);
-#else
-    u64 aligned[2];
-    memcpy(&aligned, seed, sizeof(aligned));
-#endif
-    d_v0 ^= aligned[0];
-    d_v1 ^= aligned[1];
-    d_v2 ^= aligned[0];
-    d_v3 ^= aligned[1];
+    u64 k0 = u8to64_le(reinterpret_cast<const u8*>(&seed[0]));
+    u64 k1 = u8to64_le(reinterpret_cast<const u8*>(&seed[k_SEED_LENGTH / 2]));
+
+    d_v0 ^= k0;
+    d_v1 ^= k1;
+    d_v2 ^= k0;
+    d_v3 ^= k1;
 }
 
 void
