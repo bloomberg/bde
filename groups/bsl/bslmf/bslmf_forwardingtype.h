@@ -289,6 +289,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_ispointertomember.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISRVALUEREFERENCE
+#include <bslmf_isrvaluereference.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_REMOVECV
 #include <bslmf_removecv.h>
 #endif
@@ -536,7 +540,7 @@ struct ForwardingType_Imp<UNREF_TYPE [],
 template <class UNREF_TYPE>
 struct ForwardingType_Imp<UNREF_TYPE,
                           ForwardingType_Dispatch::e_BASIC, false> {
-    // Rvalue of basic type is forwarded with cvq removed.
+    // Rvalue of basic type is forwarded with any cv-qualifier removed.
 
     typedef typename bsl::remove_cv<UNREF_TYPE>::type Type;
     typedef UNREF_TYPE                                TargetType;
