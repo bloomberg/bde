@@ -68,6 +68,8 @@ bde-tag: Makefile
 # section 7
 growth: growth.cc allocont.h bde-tag
 	$(CXX) -o $@ $(CXXFLAGS_ALL) -Wno-unused-variable $< $(LDFLAGS_ALL)
+growth-orig: growth-orig.cc allocont.h bde-tag
+	$(CXX) -o $@ $(CXXFLAGS_ALL) -Wno-unused-variable $< $(LDFLAGS_ALL)
 
 # section 8
 locality-AS1: locality.cc allocont.h
@@ -90,9 +92,13 @@ tention: tention.cc
 run: run-growth run-locality run-zation run-tention
 
 run-growth: growth
-    @echo \"test-growth 20\" may take a full day to complete:
+	@echo \"test-growth 20\" may take a full day to complete:
 	./test-growth $(GROWTH_SIZE)
 	cat growth-*-* >growth-result
+
+run-growth-orig: growth-orig
+	./test-growth-orig $(GROWTH_SIZE)
+	cat growth-*-* >growth-orig-result
 
 run-locality: locality-AS1 locality-AS7 locality-AS9 locality-AS13
 	@( \

@@ -26,7 +26,7 @@ To run benchmarks,
   $ make run
 
 Other targets of interest:
-  bde growth locality zation tention
+  bde growth locality zation tention growth-orig
   run-growth run-locality run-zation run-tention
 
 The programs included are:
@@ -44,6 +44,9 @@ Other files:
   test-tention
   bde-patches-minimal  - snapshot of patches to bde that this depends on
   bde-patches-opt      - snapshot of an optimization for (multi-)pool
+  growth-orig.cc - original version used for paper, with bugs
+
+The "growth.cc" included here is an improved version, with bugs fixed.
 
 FAQ:
 
