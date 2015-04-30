@@ -115,8 +115,8 @@ void print_datastruct(int mask)
         }}
 }
 
-template <typename Work>
-double measure(int mask, bool csv, double reference, Work work)
+template <typename Test>
+double measure(int mask, bool csv, double reference, Test test)
 {
     if (mask & SA)
         std::cout << std::endl;
@@ -130,6 +130,7 @@ double measure(int mask, bool csv, double reference, Work work)
         std::cout << std::endl;
     }
 
+#ifndef DEBUG
     int pipes[2];
     int result = pipe(pipes);
     if (result < 0) {
@@ -168,11 +169,14 @@ double measure(int mask, bool csv, double reference, Work work)
         close(pipes[0]);
     } else {  // child
         close(pipes[0]);
+#else
+        double result_time;
+#endif
         bool failed = false;
         bsls::Stopwatch timer;
         try {
             timer.start(true);
-            work();
+            test();
         } catch (std::bad_alloc&) {
             failed = true;
         }
@@ -217,10 +221,12 @@ double measure(int mask, bool csv, double reference, Work work)
             std::cout << std::endl;
         }
         result_time = times[2];
+#ifndef DEBUG
         write(pipes[1], buf, sizeof(buf));
         close(pipes[1]);
         exit(failed);
     }
+#endif
 
     return ((mask & (SA|CT)) == (SA|CT)) ? result_time : reference;
 }
@@ -431,7 +437,7 @@ void apply_containers(int runs, int split, bool csv)
             std::unordered_set<std::string>,
             monotonic::unordered_set<monotonic::string>,
             multipool::unordered_set<multipool::string>,
-            poly::unordered_set<multipool::string>>(
+            poly::unordered_set<poly::string>>(
         HASH|STR, runs * 128, split, csv,
         [] (auto& c, int elems) {
             for (int elt: range{0, elems})
