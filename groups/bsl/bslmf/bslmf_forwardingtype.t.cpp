@@ -107,9 +107,9 @@ void aSsErT(bool condition, const char *message, int line)
  ||(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700)
 
 # define BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND
-    // This macro signifies that this compiler rejects 'type[]' as incomplete,
-    // even in contexts where it should be valid, as it will pass by reference
-    // or pointer.
+    // This macro signifies that this compiler rejects 'Type[]' as incomplete,
+    // even in contexts where it should be valid, such as where it will pass by
+    // reference or pointer.
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1800
@@ -135,9 +135,9 @@ void aSsErT(bool condition, const char *message, int line)
     // not impact the component header, this is deemed an acceptable workaround
     // to pass the test.
     //
-    // This code has not yet been tested against the Sun CC 12.4 compiler which
-    // has significantly improved standard conformance, including support for
-    // most of C++11.
+    // This code has not yet been tested against the Sun CC 12.4 compiler (or
+    // later) which has significantly improved standard conformance, including
+    // support for most of C++11.
 #endif
 
 //=============================================================================
@@ -686,7 +686,8 @@ int main(int argc, char *argv[])
         //:   target with the original cv-qualification.
         //: 5 Sized array types are forwarded to the target with the original
         //:   array size.
-        //: 6 Unsized array types are forwarded to the target as pointer types.
+        //: 6 array-of-unknown-bound types are forwarded to the target as
+        //:   pointer types.
         //
         // Plan:
         //: 1 For concern 1, create a small set of functor classes with

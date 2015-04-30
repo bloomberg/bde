@@ -290,22 +290,13 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #endif
 
-#ifndef INCLUDED_BSLS_NATIVESTD
-#include <bsls_nativestd.h>
-#endif
-
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_CSTDDEF
-#include <cstddef>       // 'std::size_t'
+#ifndef INCLUDED_STDDEF_H
+#include <stddef.h>
 #define INCLUDED_CSTDDEF
-#endif
-
-#ifndef INCLUDED_UTILITY
-#include <utility>       // 'std::move'
-#define INCLUDED_UTILITY
 #endif
 
 namespace BloombergLP {
@@ -467,15 +458,6 @@ struct ForwardingType_Imp<UNREF_TYPE,
 
         return static_cast<TargetType>(const_cast<UNREF_TYPE&>(v));
     }
-
-    static TargetType forwardToTarget(TargetType v) {
-        // Since rvalues are forwarded as *const* lvalues, we must cast away
-        // the constness before converting to an rvalue reference.  If 'TYPE'
-        // is a const reference, then the constness will be reinstated on
-        // return.
-
-        return native_std::move(v);
-    }
 #endif
 };
 
@@ -492,7 +474,7 @@ struct ForwardingType_Imp<UNREF_TYPE,
         { return v; }
 };
 
-template <class UNREF_TYPE, std::size_t k_NUM_ELEMENTS, bool k_IS_REFERENCE>
+template <class UNREF_TYPE, size_t k_NUM_ELEMENTS, bool k_IS_REFERENCE>
 struct ForwardingType_Imp<UNREF_TYPE [k_NUM_ELEMENTS],
                           ForwardingType_Dispatch::e_ARRAY, k_IS_REFERENCE>
 {
