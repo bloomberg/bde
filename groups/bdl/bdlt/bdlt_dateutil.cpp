@@ -43,7 +43,7 @@ Date DateUtil::addYearsEomEndOfFebruary(const Date& original, int numYears)
     BSLS_ASSERT_SAFE(28 == original.day() || 29 == original.day());
 
     const int newYear = original.year() + numYears;
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
     const int eom     = SerialDateImpUtil::isLeapYear(original.year()) ? 29
                                                                        : 28;
 #else
@@ -53,7 +53,7 @@ Date DateUtil::addYearsEomEndOfFebruary(const Date& original, int numYears)
 #endif
 
     if (original.day() == eom) {
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
         const int newEom = SerialDateImpUtil::isLeapYear(newYear) ? 29 : 28;
 #else
         const int newEom = DelegatingDateImpUtil::isLeapYear(newYear)
@@ -82,7 +82,7 @@ Date DateUtil::addMonthsEom(const Date& original, int numMonths)
     BSLS_ASSERT_SAFE(1 <= newYear);
     BSLS_ASSERT_SAFE(newYear <= 9999);
 
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
     const int eom    = SerialDateImpUtil::lastDayOfMonth(original.year(),
                                                          original.month());
     const int newEom = SerialDateImpUtil::lastDayOfMonth(newYear, newMonth);
@@ -117,7 +117,7 @@ Date DateUtil::addMonthsNoEom(const Date& original, int numMonths)
     BSLS_ASSERT_SAFE(1 <= newYear);
     BSLS_ASSERT_SAFE(newYear <= 9999);
 
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
     const int newEom = SerialDateImpUtil::lastDayOfMonth(newYear, newMonth);
 #else
     const int newEom = DelegatingDateImpUtil::lastDayOfMonth(newYear,
@@ -139,7 +139,7 @@ Date DateUtil::lastDayOfWeekInMonth(int             year,
     BSLS_ASSERT_SAFE(1 <= year);   BSLS_ASSERT_SAFE(year  <= 9999);
     BSLS_ASSERT_SAFE(1 <= month);  BSLS_ASSERT_SAFE(month <= 12);
 
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
     const int eom = SerialDateImpUtil::lastDayOfMonth(year, month);
 #else
     const int eom = DelegatingDateImpUtil::lastDayOfMonth(year, month);

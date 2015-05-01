@@ -14,7 +14,7 @@ BSLS_IDENT_RCSID(bdlt_date_cpp,"$Id$ $CSID$")
 
 #include <bsl_c_stdio.h>   // 'snprintf'
 
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
 #include <bdlb_bitutil.h>
 #endif
 
@@ -31,7 +31,7 @@ static const char *const months[] = {
                                   // class Date
                                   // ----------
 
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
 
 // In the POSIX calendar, the first day after 1752/09/02 is 1752/09/14.  With
 // 639798 for the "magic" serial date value, '>' is the appropriate comparison
@@ -154,7 +154,7 @@ int Date::addDaysIfValid(int numDays)
         return k_FAILURE;                                             // RETURN
     }
 
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
     static bsls::AtomicOperations::AtomicTypes::Int count = { 0 };
 
     Date::logIfProblematicDateAddition(__FILE__, __LINE__,

@@ -109,7 +109,7 @@ BSLS_IDENT("$Id: $")
 // Note that in the above usage example, either the macros or the functions can
 // be used to test whether a platform is big- or little-endian.
 
-#ifdef BDE_OMIT_TRANSITIONAL // DEPRECATED
+#ifdef BDE_OPENSOURCE_PUBLICATION // DEPRECATED
 #error "bsls_platformutil is deprecated"
 #endif
 
@@ -301,14 +301,14 @@ int PlatformUtil::roundUpToMaximalAlignment(int size)
 
 }  // close package namespace
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bsls::PlatformUtil bsls_PlatformUtil;
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

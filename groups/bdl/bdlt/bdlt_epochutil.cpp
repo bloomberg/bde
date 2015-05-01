@@ -4,7 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlt_epochutil_cpp,"$Id$ $CSID$")
 
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
 #include <bdlb_bitutil.h>
 #include <bsls_log.h>
 #endif
@@ -29,7 +29,7 @@ namespace bdlt {
 
 static const int epochData[2] = { 719163, 0 };
                                  // 719163 is 1970/01/01 in Proleptic Gregorian
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
 static const int posixEpochData[2]
                               = { 719165, 0 };
                                  // 719165 is 1970/01/01 in POSIX
@@ -43,7 +43,7 @@ static const int posixEpochData[2]
 
 const bdlt::Datetime *EpochUtil::s_epoch_p =
                            reinterpret_cast<const bdlt::Datetime *>(epochData);
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
 const bdlt::Datetime *EpochUtil::s_posixEpoch_p =
                       reinterpret_cast<const bdlt::Datetime *>(posixEpochData);
 
