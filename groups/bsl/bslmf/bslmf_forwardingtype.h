@@ -144,7 +144,7 @@ BSLS_IDENT("$Id: $")
 // Then, we declare an overload of the function-call operator that actually
 // invokes the wrapped function.  In order to avoid excessive copies of
 // pass-by-value arguments, we use 'ForwardingType' to declare a more efficient
-// intermediate argument type for our private member function:
+// intermediate argument type to forward to the wrapped function pointer:
 //..
 //      RET operator()(typename bslmf::ForwardingType<ARG1>::Type a1,
 //                     typename bslmf::ForwardingType<ARG2>::Type a2,
@@ -164,7 +164,7 @@ BSLS_IDENT("$Id: $")
 //  void logReturn(int /* ignored */) { ++returns; }
 //      // Log a return from the wrapped function.
 //..
-// Now, we implement 'operator()' call the logging functions, either side of
+// Now, we implement 'operator()' to call the logging functions, either side of
 // calling the logged function through the wrapped pointer.  To reconstitute
 // the arguments to the function as close as possible to the types they were
 // passed in as, we call the 'forwardToTarget' member of 'ForwardingTypeUtil':
