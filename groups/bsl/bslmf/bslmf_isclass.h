@@ -140,7 +140,7 @@ struct IsClass : bsl::is_class<TYPE>::type {
 }  // close package namespace
 }  // close enterprise namespace
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ============================================================================
 //                           BACKWARD COMPATIBILITY
 // ============================================================================
@@ -150,7 +150,7 @@ struct IsClass : bsl::is_class<TYPE>::type {
 #endif
 #define bslmf_IsClass bslmf::IsClass
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 #endif
 

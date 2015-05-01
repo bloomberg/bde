@@ -15,10 +15,10 @@ BSLS_IDENT("$Id: $")
 //  BDE_BUILD_TARGET_MT: flag identifying multi-threaded builds
 //  BDE_BUILD_TARGET_NO_MT: flag identifying builds that do not support threads
 //  BDE_OMIT_DEPRECATED: flag for omitting deprecated code from BDE source
-#ifndef BDE_OMIT_TRANSITIONAL  // internal code management
+#ifndef BDE_OPENSOURCE_PUBLICATION  // internal code management
 //  BDE_OMIT_INTERNAL_DEPRECATED: flag to omit internal-only deprecated code
-//  BDE_OMIT_TRANSITIONAL: marker for non-deprecated internal-only code
-#endif  // BDE_OMIT_TRANSITIONAL -- internal code management
+//  BDE_OPENSOURCE_PUBLICATION: marker for non-deprecated internal-only code
+#endif  // BDE_OPENSOURCE_PUBLICATION -- internal code management
 //
 //@DESCRIPTION: The purpose of this component is to cause a link-time error
 // when trying to link an executable with incompatible libraries.  This
@@ -39,7 +39,7 @@ BSLS_IDENT("$Id: $")
 //: o BDE_OMIT_DEPRECATED: This macro, if defined, indicates that all
 //:   deprecated code is excluded from a build of the library.
 //
-#ifndef BDE_OMIT_TRANSITIONAL  // internal code management
+#ifndef BDE_OPENSOURCE_PUBLICATION  // internal code management
 // In addition to 'BDE_OMIT_DEPRECATED', there are two other macros that also
 // determine whether deprecated interfaces are available to programs built on
 // BDE:
@@ -52,23 +52,23 @@ BSLS_IDENT("$Id: $")
 //:   component's open-source release should be marked as 'BDE_OMIT_DEPRECATED'
 //:   instead.
 //:
-//: o BDE_OMIT_TRANSITIONAL: This macro marks code that is not deprecated, but
-//:   is nevertheless excluded from the open-source release of BDE.  This
+//: o BDE_OPENSOURCE_PUBLICATION: This macro marks code that is not deprecated,
+//:   but is nevertheless excluded from the open-source release of BDE.  This
 //:   category consists primarily of code that exists to support STLPort
 //:   containers, which were not included in the open-source release, or that
 //:   documents backward compatibility access to the package-prefix versions of
-//:   non-deprecated symbols in BSL.  'BDE_OMIT_TRANSITIONAL' exists for
+//:   non-deprecated symbols in BSL.  'BDE_OPENSOURCE_PUBLICATION' exists for
 //:   purposes of documentation only, and should not be defined for any build
 //:   of the library.  In particular, there is no guarantee that the library
-//:   can be built or will function correctly if 'BDE_OMIT_TRANSITIONAL' is
-//:   defined.
+//:   can be built or will function correctly if 'BDE_OPENSOURCE_PUBLICATION'
+//:   is defined.
 //
 // Together with 'BDE_OMIT_DEPRECATED', these macros divide the BDE codebase
 // into four categories:
 //
 //: o current universally distributed code     [no label]
 //:
-//: o current Bloomberg-only code              ['BDE_OMIT_TRANSITIONAL']
+//: o current Bloomberg-only code              ['BDE_OPENSOURCE_PUBLICATION']
 //:
 //: o deprecated universally distributed code  ['BDE_OMIT_DEPRECATED']
 //:
@@ -82,7 +82,7 @@ BSLS_IDENT("$Id: $")
 // distribution from the full internal BDE codebase.  The conditional
 // compilation macros are:
 //
-#endif  // BDE_OMIT_TRANSITIONAL -- internal code management
+#endif  // BDE_OPENSOURCE_PUBLICATION -- internal code management
 ///Usage
 ///-----
 // There is no usage example for this component since it is not meant for
@@ -179,7 +179,7 @@ BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(
                                         bsls_buildtarget_assertion2,
                                         bsls::BuildTargetMt::s_isBuildTargetMt)
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -190,7 +190,7 @@ typedef bsls::BuildTargetExc bsls_ExcBuildTarget;
 typedef bsls::BuildTargetMt bsls_MtBuildTarget;
     // This alias is defined for backward compatibility.
 
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

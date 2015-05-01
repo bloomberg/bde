@@ -446,7 +446,7 @@ OBJECT_TYPE *AutoArrayMoveDestructor<OBJECT_TYPE>::destination() const
 
 }  // close package namespace
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -456,7 +456,7 @@ OBJECT_TYPE *AutoArrayMoveDestructor<OBJECT_TYPE>::destination() const
 #endif
 #define bslalg_AutoArrayMoveDestructor bslalg::AutoArrayMoveDestructor
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

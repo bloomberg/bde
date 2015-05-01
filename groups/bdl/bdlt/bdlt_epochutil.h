@@ -136,7 +136,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_datetimeinterval.h>
 #endif
 
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
 #ifndef INCLUDED_BDLT_DELEGATINGDATEIMPUTIL
 #include <bdlt_delegatingdateimputil.h>
 #endif
@@ -184,7 +184,7 @@ struct EpochUtil {
   private:
     // CLASS DATA
     static const Datetime *s_epoch_p;  // pointer to epoch time value
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
     static const Datetime *s_posixEpoch_p;
                                        // pointer to POSIX epoch time value
 
@@ -378,7 +378,7 @@ struct EpochUtil {
 inline
 const Datetime& EpochUtil::epoch()
 {
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
     return *s_epoch_p;
 #else
     return DelegatingDateImpUtil::isProlepticGregorianMode()
@@ -447,7 +447,7 @@ int EpochUtil::convertToTimeT(bsl::time_t     *result,
 inline
 Datetime EpochUtil::convertFromTimeT64(TimeT64 time)
 {
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
     BSLS_ASSERT_SAFE(-62135596800LL <= time);  // January    1, 0001 00:00:00
 #else
     if (DelegatingDateImpUtil::isProlepticGregorianMode()) {
@@ -462,7 +462,7 @@ Datetime EpochUtil::convertFromTimeT64(TimeT64 time)
     Datetime datetime(epoch());
     datetime.addSeconds(time);
 
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
     static bsls::AtomicOperations::AtomicTypes::Int count = { 0 };
 
     EpochUtil::logIfProblematicDateValue(__FILE__, __LINE__,
@@ -477,7 +477,7 @@ int EpochUtil::convertFromTimeT64(Datetime *result, TimeT64 time)
 {
     BSLS_ASSERT_SAFE(result);
 
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
     if (( DelegatingDateImpUtil::isProlepticGregorianMode() &&
                                                       -62135596800LL > time)
      || (!DelegatingDateImpUtil::isProlepticGregorianMode() &&
@@ -492,7 +492,7 @@ int EpochUtil::convertFromTimeT64(Datetime *result, TimeT64 time)
     *result = epoch();
     result->addSeconds(time);
 
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
     static bsls::AtomicOperations::AtomicTypes::Int count = { 0 };
 
     EpochUtil::logIfProblematicDateValue(__FILE__, __LINE__,
@@ -506,7 +506,7 @@ inline
 EpochUtil::TimeT64
 EpochUtil::convertToTimeT64(const Datetime& datetime)
 {
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
     static bsls::AtomicOperations::AtomicTypes::Int count = { 0 };
 
     EpochUtil::logIfProblematicDateValue(__FILE__, __LINE__,
