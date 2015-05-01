@@ -17,8 +17,16 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
 #endif
 
 #include <initializer_list>
@@ -29,7 +37,7 @@ namespace bsl {
 // nothing, but can still be included.
 #if !(defined(BSLS_PLATFORM_OS_DARWIN) &&                                     \
     !defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS))
-    using native_std::initializer_list;
+using native_std::initializer_list;
 #endif
 
 }  // close namespace bsl
