@@ -82,12 +82,12 @@ using namespace bsl;
 // [ 6] bool operator==(const DatetimeTz& lhs, const DatetimeTz& rhs);
 // [ 6] bool operator!=(const DatetimeTz& lhs, const DatetimeTz& rhs);
 // [ 5] bsl::ostream& operator<<(bsl::ostream&, const DatetimeTz&);
-#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 // DEPRECATED
 // [10] static int maxSupportedBdexVersion();
 // [13] Datetime gmtDatetime() const;
 // [12] int validateAndSetDatetimeTz(const Datetime& localDT, int offset);
-#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [15] USAGE EXAMPLE
@@ -492,9 +492,9 @@ if (verbose) {
         //
         // Testing:
         //   Datetime utcDatetime() const;
-#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
         //   Datetime gmtDatetime() const;
-#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -560,9 +560,9 @@ if (verbose) {
                 if (veryVeryVerbose) { T_ T_ P(X) }
                 LOOP_ASSERT(i, UTC_DATETIME == X.utcDatetime());
 
-#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
                 LOOP_ASSERT(i, UTC_DATETIME == X.gmtDatetime());
-#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
             }
         }
       } break;
@@ -586,9 +586,9 @@ if (verbose) {
         // Testing:
         //   static bool isValid(const Datetime& localDatetime, int offset);
         //   int setDatetimeTzIfValid(const Datetime& localDT, int offset);
-#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
         //   int validateAndSetDatetimeTz(const Datetime& localDT, int offset);
-#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -690,7 +690,7 @@ if (verbose) {
             }
         }
 
-#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
         if (verbose) {
             cout << "\nTesting deprecated methods." << endl;
@@ -782,7 +782,7 @@ if (verbose) {
             }
         }
 
-#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -1004,9 +1004,9 @@ if (verbose) {
         //   static int maxSupportedBdexVersion(int versionSelector);
         //   STREAM& bdexStreamIn(STREAM& stream, int version);
         //   STREAM& bdexStreamOut(STREAM& stream, int version) const;
-#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
         //   static int maxSupportedBdexVersion();
-#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1623,7 +1623,7 @@ if (verbose) {
             }
         }
 
-#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
         if (verbose) {
             cout << "\nTesting deprecated methods." << endl;
@@ -1633,7 +1633,7 @@ if (verbose) {
                                            == Obj::maxSupportedBdexVersion(0));
         }
 
-#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
       } break;
       case 9: {
         // --------------------------------------------------------------------

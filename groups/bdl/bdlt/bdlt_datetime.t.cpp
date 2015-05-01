@@ -147,10 +147,10 @@ using namespace bsl;
 // [13] bool operator>=(const Datetime& lhs, const Datetime& rhs);
 //
 // [ 5] ostream& operator<<(ostream &stream, const Datetime &object);
-#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 // DEPRECATED METHODS
 // [10] static int maxSupportedBdexVersion();
-#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 // [10] static int maxSupportedVersion();
 // [22] Date& date();
@@ -3382,10 +3382,10 @@ if (veryVerbose)
         //   static int maxSupportedBdexVersion(int versionSelector);
         //   STREAM& bdexStreamIn(STREAM& stream, int version);
         //   STREAM& bdexStreamOut(STREAM& stream, int version) const;
-#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
         //   static int maxSupportedBdexVersion();
         //   static int maxSupportedVersion();
-#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
         // --------------------------------------------------------------------
 
         // Allocator to use instead of the default allocator.
@@ -3962,7 +3962,7 @@ if (veryVerbose)
             }
         }
 
-#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
         if (verbose) {
             cout << "\nTesting deprecated methods." << endl;
@@ -3976,7 +3976,7 @@ if (veryVerbose)
                                            == Obj::maxSupportedBdexVersion(0));
         }
 
-#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
       } break;
       case 9: {
         // --------------------------------------------------------------------

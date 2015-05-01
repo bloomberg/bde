@@ -424,7 +424,7 @@ class DatetimeTz {
         // valid on entry, this operation has no effect.  Note that the format
         // is not fully specified, and can change without notice.
 
-#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
     // DEPRECATED METHODS
     Datetime gmtDatetime() const;
@@ -450,7 +450,7 @@ class DatetimeTz {
         // values respectively and return 0, leave this object unmodified and
         // return a non-zero value otherwise.
 
-#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 
 };
 
@@ -644,7 +644,7 @@ STREAM& DatetimeTz::bdexStreamOut(STREAM& stream, int version) const
     return stream;
 }
 
-#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
 // DEPRECATED METHODS
 inline
@@ -666,7 +666,7 @@ int DatetimeTz::validateAndSetDatetimeTz(const Datetime& localDatetime,
     return setDatetimeTzIfValid(localDatetime, offset);
 }
 
-#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 
 }  // close package namespace
 

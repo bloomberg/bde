@@ -325,7 +325,7 @@ const char *ObjectBuffer<TYPE>::buffer() const
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 
 #ifdef bsls_ObjectBuffer
 #undef bsls_ObjectBuffer
@@ -333,7 +333,7 @@ const char *ObjectBuffer<TYPE>::buffer() const
 #define bsls_ObjectBuffer bsls::ObjectBuffer
     // This alias is defined for backward compatibility.
 
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

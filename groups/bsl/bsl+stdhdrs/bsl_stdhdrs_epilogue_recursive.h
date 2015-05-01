@@ -44,7 +44,7 @@
 #error "potential infinite inclusion of the recursive epilogue detected"
 #endif
 
-#ifndef BDE_OMIT_TRANSITIONAL // STP
+#ifndef BDE_OPENSOURCE_PUBLICATION // STP
 // First start with STLPort containers, which may include native headers.  The
 // 'BSL_INCLUDE_*' macros are defined in the standard headers inside the
 // 'bsl+stdhdrs' package.
@@ -69,7 +69,7 @@
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 #endif
-#endif  // BDE_OMIT_TRANSITIONAL -- STP
+#endif  // BDE_OPENSOURCE_PUBLICATION -- STP
 
 // Now include those 'bslstl' components corresponding to the 'bsl+stdhdrs'
 // files that have been included.
@@ -110,12 +110,12 @@
 #   include <bslstl_algorithmworkaround.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
-# ifndef BDE_OMIT_TRANSITIONAL // STP
+# ifndef BDE_OPENSOURCE_PUBLICATION // STP
 #   ifndef INCLUDED_BSLSTP_EXALGORITHM
 #     include <bslstp_exalgorithm.h>
 #     define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 #   endif
-# endif  // BDE_OMIT_TRANSITIONAL -- STP
+# endif  // BDE_OPENSOURCE_PUBLICATION -- STP
 #endif
 
 // 'bslstl' containers go here.
@@ -266,12 +266,12 @@
 
 // If '<functional>' was included, then include extensions to functional.
 #ifdef INCLUDED_NATIVE_FUNCTIONAL
-#ifndef BDE_OMIT_TRANSITIONAL // STP
+#ifndef BDE_OPENSOURCE_PUBLICATION // STP
 # ifndef INCLUDED_BSLSTP_EXFUNCTIONAL
 #   include <bslstp_exfunctional.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
-#endif  // BDE_OMIT_TRANSITIONAL -- STP
+#endif  // BDE_OPENSOURCE_PUBLICATION -- STP
 # ifndef INCLUDED_BSLSTL_EQUALTO
 #   include <bslstl_equalto.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE

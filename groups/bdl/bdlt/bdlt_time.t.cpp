@@ -104,10 +104,10 @@ using namespace bsl;
 // [15] Time operator+(const Time&, const DatetimeInterval&);
 // [15] Time operator+(const DatetimeInterval&, const Time&);
 // [15] Time operator-(const Time&, const DatetimeInterval&);
-#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 // DEPRECATED
 // [10] static int maxSupportedBdexVersion();
-#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 // [10] static int maxSupportedVersion();
 // [17] int validateAndSetTime(h, m = 0, s = 0, ms = 0);
@@ -1666,9 +1666,9 @@ if (veryVerbose)
         //   static int maxSupportedBdexVersion(int versionSelector);
         //   STREAM& bdexStreamIn(STREAM& stream, int version);
         //   STREAM& bdexStreamOut(STREAM& stream, int version) const;
-#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
         //   static int maxSupportedBdexVersion();
-#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
         //   static int maxSupportedVersion();
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
@@ -2252,7 +2252,7 @@ if (veryVerbose)
             }
         }
 
-#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
         if (verbose) {
             cout << "\nTesting deprecated methods." << endl;
@@ -2266,7 +2266,7 @@ if (veryVerbose)
                                            == Obj::maxSupportedBdexVersion(0));
         }
 
-#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
       } break;
       case 9: {
         // --------------------------------------------------------------------

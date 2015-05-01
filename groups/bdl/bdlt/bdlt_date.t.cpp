@@ -24,7 +24,7 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
 // TBD Extra inclusions needed temporarily for testing 'logIfProblematicDate*'.
 #include <bsls_log.h>
 #include <bsl_string.h>
@@ -127,12 +127,12 @@ using namespace bsl;
 // [15] Date operator+(int numDays, const Date& date);
 // [15] Date operator-(const Date& date, int numDays);
 // [16] int operator-(const Date& lhs, const Date& rhs);
-#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 // DEPRECATED
 // [13] static bool isValid(int year, int dayOfYear);
 // [13] static bool isValid(int year, int month, int day);
 // [10] static int maxSupportedBdexVersion();
-#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 // [10] static int maxSupportedVersion();
 // [13] int validateAndSetYearDay(int year, int dayOfYear);
@@ -223,7 +223,7 @@ typedef bslx::TestOutStream Out;
 
 #define VERSION_SELECTOR 20140601
 
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
 
 // TBD stuff needed temporarily for testing 'logIfProblematicDate*'
 
@@ -344,7 +344,7 @@ const AltDataRow ALT_DATA[] =
 
     { L_,    1999,   59,   2000,   58,       364 },
 
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
     { L_,    1000,    1,   1001,    1,       365 },
 #endif
     { L_,    1998,   59,   1999,   59,       365 },
@@ -356,7 +356,7 @@ const AltDataRow ALT_DATA[] =
 
     { L_,    1999,   59,   2002,   59,      1096 },
 
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
     { L_,       1,    1,   9999,  365,   3652058 },
 #endif
 };
@@ -389,7 +389,7 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
 
     switch (test) { case 0:
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
       case 21: {
         // --------------------------------------------------------------------
         // TESTING 'logIfProblematicDate*'
@@ -1259,7 +1259,7 @@ if (verbose)
                 { L_,       1,     1,    INT_MIN },
                 { L_,    9999,   365,    INT_MIN },
 
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 { L_,    9999,   365,   -3652059 },
 #endif
 
@@ -1284,7 +1284,7 @@ if (verbose)
 
                 { L_,    9998,   365,        366 },
 
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 { L_,       1,     1,    3652059 },
 #endif
 
@@ -1425,7 +1425,7 @@ if (verbose)
                 T_ P_(LINE) P_(YEAR) P_(MONTH) P_(DAY) P_(EXP_DOW) P(EXP_MOY)
             }
 
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
             if (!bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()
              && YEAR <= 1752) {
                 continue;
@@ -2121,7 +2121,7 @@ if (verbose)
                 }
 
                 {
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                     Obj mX(V);  ASSERT_SAFE_PASS(mX +=  3652058);
                     Obj mY(V);  ASSERT_SAFE_FAIL(mY +=  3652059);
 #else
@@ -2144,7 +2144,7 @@ if (verbose)
                 }
 
                 {
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                     Obj mX(W);  ASSERT_SAFE_PASS(mX += -3652058);
                     Obj mY(W);  ASSERT_SAFE_FAIL(mY += -3652059);
 #else
@@ -2170,7 +2170,7 @@ if (verbose)
                 }
 
                 {
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                     Obj mX(V);  ASSERT_SAFE_PASS(mX -= -3652058);
                     Obj mY(V);  ASSERT_SAFE_FAIL(mY -= -3652059);
 #else
@@ -2193,7 +2193,7 @@ if (verbose)
                 }
 
                 {
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                     Obj mX(W);  ASSERT_SAFE_PASS(mX -=  3652058);
                     Obj mY(W);  ASSERT_SAFE_FAIL(mY -=  3652059);
 #else
@@ -2217,7 +2217,7 @@ if (verbose)
                 ASSERT_SAFE_PASS(V +        0);
                 ASSERT_SAFE_FAIL(V +       -1);
 
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 ASSERT_SAFE_PASS(V +  3652058);
                 ASSERT_SAFE_FAIL(V +  3652059);
 #else
@@ -2236,7 +2236,7 @@ if (verbose)
                 ASSERT_SAFE_PASS(W +        0);
                 ASSERT_SAFE_FAIL(W +        1);
 
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 ASSERT_SAFE_PASS(W + -3652058);
                 ASSERT_SAFE_FAIL(W + -3652059);
 #else
@@ -2258,7 +2258,7 @@ if (verbose)
                 ASSERT_SAFE_PASS(       0 + V);
                 ASSERT_SAFE_FAIL(      -1 + V);
 
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 ASSERT_SAFE_PASS( 3652058 + V);
                 ASSERT_SAFE_FAIL( 3652059 + V);
 #else
@@ -2277,7 +2277,7 @@ if (verbose)
                 ASSERT_SAFE_PASS(       0 + W);
                 ASSERT_SAFE_FAIL(       1 + W);
 
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 ASSERT_SAFE_PASS(-3652058 + W);
                 ASSERT_SAFE_FAIL(-3652059 + W);
 #else
@@ -2299,7 +2299,7 @@ if (verbose)
                 ASSERT_SAFE_PASS(V -        0);
                 ASSERT_SAFE_FAIL(V -        1);
 
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 ASSERT_SAFE_PASS(V - -3652058);
                 ASSERT_SAFE_FAIL(V - -3652059);
 #else
@@ -2318,7 +2318,7 @@ if (verbose)
                 ASSERT_SAFE_PASS(W -        0);
                 ASSERT_SAFE_FAIL(W -       -1);
 
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 ASSERT_SAFE_PASS(W -  3652058);
                 ASSERT_SAFE_FAIL(W -  3652059);
 #else
@@ -2499,7 +2499,7 @@ if (verbose)
                 { L_,       4,  366,      5,    1 },
                 { L_,      10,   59,     10,   60 },
                 { L_,     100,   90,    100,   91 },
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 { L_,     100,  365,    101,    1 },
 #endif
                 { L_,     400,   59,    400,   60 },
@@ -2801,10 +2801,10 @@ if (verbose)
         //   static bool isValidYearMonthDay(int year, int month, int day);
         //   int setYearDayIfValid(int year, int dayOfYear);
         //   int setYearMonthDayIfValid(int year, int month, int day);
-#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
         //   static bool isValid(int year, int dayOfYear);
         //   static bool isValid(int year, int month, int day);
-#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
         //   int validateAndSetYearDay(int year, int dayOfYear);
         //   int validateAndSetYearMonthDay(int year, int month, int day);
@@ -2859,7 +2859,7 @@ if (verbose)
                 { L_,        100,        0,     0 },
                 { L_,        100,        1,     1 },
                 { L_,        100,      365,     1 },
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 { L_,        100,      366,     0 },
 #endif
 
@@ -2871,7 +2871,7 @@ if (verbose)
                 { L_,       1000,        0,     0 },
                 { L_,       1000,        1,     1 },
                 { L_,       1000,      365,     1 },
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 { L_,       1000,      366,     0 },
 #endif
 
@@ -2918,7 +2918,7 @@ if (verbose)
 
                     if (veryVeryVerbose) { T_ T_ P_(W) P(X) }
                 }
-#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
                 // '[isValid|validateAndSetYearDay](year, dayOfYear)'
 
                 {
@@ -2947,7 +2947,7 @@ if (verbose)
                     }
 #endif // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
                 }
-#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
             }
         }
 
@@ -2992,7 +2992,7 @@ if (verbose)
                 { L_,          4,        2,       30,     0 },
 
                 { L_,        100,        2,       28,     1 },
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 { L_,        100,        2,       29,     0 },
 #endif
 
@@ -3001,7 +3001,7 @@ if (verbose)
                 { L_,        400,        2,       30,     0 },
 
                 { L_,       1000,        2,       28,     1 },
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 { L_,       1000,        2,       29,     0 },
 #endif
 
@@ -3105,7 +3105,7 @@ if (verbose)
 
                     if (veryVeryVerbose) { T_ T_ P_(W) P(X) }
                 }
-#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
                 // '[isValid|validateAndSetYearMonthDay](year, month, day)'
 
                 {
@@ -3138,7 +3138,7 @@ if (verbose)
                     }
 #endif // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
                 }
-#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
             }
         }
 
@@ -3259,20 +3259,20 @@ if (verbose)
                 { L_,       2,    1,      1,        1 },
                 { L_,      10,   95,      4,        5 },
                 { L_,      10,  284,     10,       11 },
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 { L_,     100,  158,      6,        7 },
                 { L_,     100,  316,     11,       12 },
                 { L_,    1000,  221,      8,        9 },
 #endif
                 { L_,    1100,   31,      1,       31 },
                 { L_,    1200,   60,      2,       29 },
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 { L_,    1300,   90,      3,       31 },
                 { L_,    1400,  120,      4,       30 },
                 { L_,    1500,  151,      5,       31 },
 #endif
                 { L_,    1600,  182,      6,       30 },
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 { L_,    1700,  212,      7,       31 },
 #endif
                 { L_,    1800,  243,      8,       31 },
@@ -3730,7 +3730,7 @@ if (verbose)
         //:
         //: 9 The initial value of the object has no affect on
         //:   unexternalization.
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
         //:
         //:10 Streaming version 1 provides the expected compatibility between
         //:   the two calendar modes.
@@ -3787,7 +3787,7 @@ if (verbose)
         //:
         //:11 In all cases, verify the return value of the tested method.
         //:   (C-8)
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
         //:
         //:12 Let 'M' be the ordered set of calendar modes { POSIX, proleptic
         //:   Gregorian }.  For each '(u, v)' in the set 'M x M', verify that
@@ -3799,9 +3799,9 @@ if (verbose)
         //   static int maxSupportedBdexVersion(int versionSelector);
         //   STREAM& bdexStreamIn(STREAM& stream, int version);
         //   STREAM& bdexStreamOut(STREAM& stream, int version) const;
-#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
         //   static int maxSupportedBdexVersion();
-#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
         //   static int maxSupportedVersion();
 #endif // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
@@ -4121,7 +4121,7 @@ if (verbose)
         ASSERT(W != Y);
         ASSERT(X != Y);
 
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
         const int SERIAL_Y = 733;   // streamed rep. of 'Y'
 #else
         int SERIAL_Y;               // streamed rep. of 'Y'
@@ -4365,7 +4365,7 @@ if (verbose)
             }
         }
 
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
 
         if (verbose) cout << "\nCompatibility of the two calendar modes."
                           << endl;
@@ -4716,7 +4716,7 @@ if (verbose)
 
 #endif
 
-#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
         if (verbose) {
             cout << "\nTesting deprecated methods." << endl;
@@ -4730,7 +4730,7 @@ if (verbose)
                                            == Obj::maxSupportedBdexVersion(0));
         }
 
-#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -5858,7 +5858,7 @@ if (verbose)
         ASSERT(0 == (X == Z));        ASSERT(1 == (X != Z));
 
       } break;
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
       case -1: {
         // --------------------------------------------------------------------
         // 'logIfProblematicDate*' Log Messages

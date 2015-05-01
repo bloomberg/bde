@@ -136,7 +136,7 @@ struct MonthOfYear {
       , DECEMBER  = e_DECEMBER
 
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
-#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
       , BDET_JAN  = e_JAN, BDET_JANUARY   = e_JAN
       , BDET_FEB  = e_FEB, BDET_FEBRUARY  = e_FEB
       , BDET_MAR  = e_MAR, BDET_MARCH     = e_MAR
@@ -150,7 +150,7 @@ struct MonthOfYear {
       , BDET_NOV  = e_NOV, BDET_NOVEMBER  = e_NOV
       , BDET_DEC  = e_DEC, BDET_DECEMBER  = e_DEC
 
-#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
     };
 
     enum {
@@ -162,13 +162,13 @@ struct MonthOfYear {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
       , LENGTH        = k_NUM_MONTHS
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
-#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
       , BDET_LENGTH   = k_NUM_MONTHS
 
-#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
     };
 
-#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
     typedef Enum Month;
         // Define an alias, 'Month', to the enum type, 'Enum' defined by this
         // component.
@@ -250,7 +250,7 @@ struct MonthOfYear {
         // from any of those corresponding to the enumerators, but is otherwise
         // unspecified.
 
-#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
     static int maxSupportedBdexVersion();
         // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
@@ -258,7 +258,7 @@ struct MonthOfYear {
         // Return the most current BDEX streaming version number supported by
         // this struct.
 
-#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 };
 
 // FREE OPERATORS
@@ -370,7 +370,7 @@ int MonthOfYear::maxSupportedBdexVersion(int /* versionSelector */)
     return 1;
 }
 
-#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
 inline
 int MonthOfYear::maxSupportedBdexVersion()
@@ -378,7 +378,7 @@ int MonthOfYear::maxSupportedBdexVersion()
     return maxSupportedBdexVersion(0);
 }
 
-#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 
 }  // close package namespace
 
@@ -414,7 +414,7 @@ int bdlt::maxSupportedBdexVersion(const bdlt::MonthOfYear::Enum *,
     return bdlt::MonthOfYear::maxSupportedBdexVersion(versionSelector);
 }
 
-#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
 // BDEX STREAMING SUPPORT
 
@@ -454,7 +454,7 @@ int maxSupportedVersion(bdlt::MonthOfYear::Enum)
 
 }  // close namespace bdex_VersionFunctions;
 
-#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 
 }  // close enterprise namespace
 

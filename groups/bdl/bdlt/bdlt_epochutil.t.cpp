@@ -21,7 +21,7 @@
 #include <bsl_string.h>
 #include <bsl_ctime.h>
 
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
 // TBD Extra inclusions needed temporarily for testing
 //     'logIfProblematicDateValue'.
 
@@ -189,7 +189,7 @@ const bdlt::Datetime &EarlyEpochCopier::copiedValue()
 
 EarlyEpochCopier earlyEpochCopier INITATTR;
 
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
 
 // TBD stuff needed temporarily for testing 'logIfProblematicDateValue'
 
@@ -232,7 +232,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
       case 7: {
         // --------------------------------------------------------------------
         // TESTING 'logIfProblematicDateValue'
@@ -2409,7 +2409,7 @@ int main(int argc, char *argv[])
                           << "==============================================="
                           << endl;
 
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
         // Prior to the Unix epoch there are two more days in the POSIX
         // calendar as compared to the proleptic Gregorian calendar.
 
@@ -2448,7 +2448,7 @@ int main(int argc, char *argv[])
 
                 //lin year mon day hou min sec msec           result   ld =
                 //--- ---- --- --- --- --- --- ----  --------------    Leap Day
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 { L_,    1,  1,  1,  0,  0,  0,   0,   -62135596800LL },
 #else
                 { L_,    1,  1,  1,  0,  0,  0,   0,   -62135596800LL
@@ -2543,7 +2543,7 @@ int main(int argc, char *argv[])
                     // *** Time = 24:00:00:000 converts to 00:00:00 ***
                 //lin year mon day hou min sec msec          result
                 //--- ---- --- --- --- --- --- ----  --------------
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 { L_,    1,  1,  1, 24,  0,  0,   0,   -62135596800LL },
 #else
                 { L_,    1,  1,  1, 24,  0,  0,   0,   -62135596800LL
@@ -2677,7 +2677,7 @@ int main(int argc, char *argv[])
                 { L_,  LLONG_LIMITS.min(),
                                       FAILURE,0,  0,  0,  0,  0,  0 },
                 { L_,  LLONG_MIN + 1, FAILURE,0,  0,  0,  0,  0,  0 },
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                 { L_, -62135596802LL, FAILURE,0,  0,  0,  0,  0,  0 },
                 { L_, -62135596801LL, FAILURE,0,  0,  0,  0,  0,  0 },
                 { L_, -62135596800LL, 0,      1,  1,  1,  0,  0,  0 },
@@ -2986,7 +2986,7 @@ int main(int argc, char *argv[])
         ASSERT(epochAddressIsNotZero);
         ASSERT(EPOCH == EarlyEpochCopier::copiedValue());
       } break;
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
       case -1: {
         // --------------------------------------------------------------------
         // 'logIfProblematicDateValue' Log Messages

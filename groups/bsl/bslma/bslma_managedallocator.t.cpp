@@ -1,6 +1,6 @@
 // bslma_managedallocator.t.cpp                                       -*-C++-*-
 
-#ifndef BDE_OMIT_TRANSITIONAL // DEPRECATED
+#ifndef BDE_OPENSOURCE_PUBLICATION // DEPRECATED
 
 #include <bslma_managedallocator.h>
 
@@ -670,7 +670,7 @@ int main(int argc, char *argv[])
     return -1;
 }
 
-#endif  // BDE_OMIT_TRANSITIONAL -- DEPRECATED
+#endif  // BDE_OPENSOURCE_PUBLICATION -- DEPRECATED
 
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.

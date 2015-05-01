@@ -61,13 +61,13 @@ using namespace bsl;
 // [ 4] STREAM& bdexStreamOut(STREAM& s, const Enum& value, int v) const;
 // [ 4] int maxSupportedBdexVersion(const Enum *, int versionSelector);
 //
-#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 // DEPRECATED
 // [ 4] static int maxSupportedBdexVersion();
 // [ 4] STREAM& streamIn(STREAM& s, Enum& variable, int v);
 // [ 4] STREAM& streamOut(STREAM& s, const Enum& value, int v) const;
 // [ 4] int maxSupportedVersion(Enum);
-#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 // ----------------------------------------------------------------------------
 // [ 5] USAGE EXAMPLE
 
@@ -301,12 +301,12 @@ if (veryVerbose)
         //   STREAM& bdexStreamIn(STREAM& s, Enum& variable, int v);
         //   STREAM& bdexStreamOut(STREAM& s, const Enum& value, int v) const;
         //   int maxSupportedBdexVersion(const Enum *, int versionSelector);
-#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
         //   static int maxSupportedBdexVersion();
         //   STREAM& streamIn(STREAM& s, Enum& variable, int v);
         //   STREAM& streamOut(STREAM& s, const Enum& value, int v) const;
         //   int maxSupportedVersion(Enum);
-#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
         // --------------------------------------------------------------------
 
         // Allocator to use instead of the default allocator.
@@ -862,7 +862,7 @@ if (veryVerbose)
             }
         }
 
-#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
         if (verbose) {
             cout << "\nTesting deprecated methods." << endl;
@@ -943,7 +943,7 @@ if (veryVerbose)
             }
         }
 
-#endif // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
       } break;
       case 3: {
         // --------------------------------------------------------------------

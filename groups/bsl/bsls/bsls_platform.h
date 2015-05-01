@@ -1090,7 +1090,7 @@ struct Platform {
 }  // close package namespace
 #endif  // __cplusplus
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
                       // ======================
@@ -1119,7 +1119,7 @@ typedef bsls::Platform bsls_Platform;
     // This alias is defined for backward compatibility.
 #endif
 
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 #ifdef __cplusplus
 }  // close enterprise namespace

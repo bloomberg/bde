@@ -1,5 +1,5 @@
 // bslma_bufferallocator.cpp                                          -*-C++-*-
-#ifndef BDE_OMIT_TRANSITIONAL // DEPRECATED
+#ifndef BDE_OPENSOURCE_PUBLICATION // DEPRECATED
 
 #include <bslma_bufferallocator.h>
 
@@ -190,7 +190,7 @@ void BufferAllocator::print() const
 
 }  // close enterprise namespace
 
-#endif // BDE_OMIT_TRANSITIONAL -- DEPRECATED
+#endif // BDE_OPENSOURCE_PUBLICATION -- DEPRECATED
 
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.
