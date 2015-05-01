@@ -157,7 +157,7 @@ double measure(int mask, bool csv, double reference, Test test)
             }
         } else {
             if (!csv) {
-                std::cout << "    (failed)" << std::endl;
+                std::cout << "   (failed)\n" << std::endl;
             } else {
                 std::cout << "(failed), (failed%), ";
                 print_datastruct(mask);
@@ -224,7 +224,7 @@ double measure(int mask, bool csv, double reference, Test test)
 #ifndef DEBUG
         write(pipes[1], buf, sizeof(buf));
         close(pipes[1]);
-        exit(failed);
+        exit(0);
     }
 #endif
 
@@ -252,6 +252,7 @@ void apply_allocation_strategies(
     int mask, int runs, int split, bool csv, Work work)
 {
     double reference;
+
 // allocator: std::allocator, bound: compile-time
     reference = measure((SA|mask|CT), csv, 0.0,
         [runs,split,work]() {
@@ -463,7 +464,8 @@ void apply_containers(int runs, int split, bool csv)
             poly::vector<poly::vector<poly::string>>>(
         VECVEC|STR, runs, split, csv,
         [split] (auto& c, int elems) {
-            typename std::decay<decltype(c)>::type::value_type s;
+            typename std::decay<decltype(c)>::type::value_type s(
+                c.get_allocator());
             s.reserve(128);
             for (int i : range{0,128})
                 s.emplace_back(sptr(), slen());
@@ -480,7 +482,8 @@ void apply_containers(int runs, int split, bool csv)
         VECHASH|INT, runs, split, csv,
         [split] (auto& c, int elems) {
             int in[128]; std::generate(in, in+128, random_engine);
-            typename std::decay<decltype(c)>::type::value_type s(128);
+            typename std::decay<decltype(c)>::type::value_type s(
+                128, c.get_allocator());
             s.insert(in, in+128);
             c.push_back(std::move(s));
             for (int elt: range{0, split})
@@ -494,7 +497,8 @@ void apply_containers(int runs, int split, bool csv)
             poly::vector<poly::unordered_set<poly::string>>>(
         VECHASH|STR, runs, split, csv,
         [split] (auto& c, int elems) {
-            typename std::decay<decltype(c)>::type::value_type s(128);
+            typename std::decay<decltype(c)>::type::value_type s(
+                128, c.get_allocator());
             for (int i : range{0,128})
                 s.emplace(sptr(), slen());
             c.push_back(std::move(s));
@@ -517,7 +521,8 @@ void apply_containers(int runs, int split, bool csv)
                     my_equal<poly::vector<int>>>>(
         HASHVEC|INT, runs, split, csv,
         [split] (auto& c, int elems) {
-            typename std::decay<decltype(c)>::type::key_type s;
+            typename std::decay<decltype(c)>::type::key_type s(
+                c.get_allocator());
             s.reserve(128);
             for (int i: range{0, 128})
                 s.emplace_back(random_engine());
@@ -541,7 +546,8 @@ void apply_containers(int runs, int split, bool csv)
                 my_equal<poly::vector<poly::string>>>>(
         HASHVEC|STR, runs, split, csv,
         [split] (auto& c, int elems) {
-            typename std::decay<decltype(c)>::type::key_type s;
+            typename std::decay<decltype(c)>::type::key_type s(
+                c.get_allocator());
             s.reserve(128);
             for (int i: range{0, 128})
                 s.emplace_back(sptr(), slen());
@@ -568,7 +574,8 @@ void apply_containers(int runs, int split, bool csv)
                     my_equal<poly::unordered_set<int>>>>(
         HASHHASH|INT, runs, split, csv,
         [split] (auto& c, int elems) {
-            typename std::decay<decltype(c)>::type::key_type s(128);
+            typename std::decay<decltype(c)>::type::key_type s(
+                128, c.get_allocator());
             for (int i: range{0, 128})
                 s.emplace(random_engine());
             c.emplace(std::move(s));
@@ -594,7 +601,8 @@ void apply_containers(int runs, int split, bool csv)
                     my_equal<poly::unordered_set<poly::string>>>>(
         HASHHASH|STR, runs, split, csv,
         [split] (auto& c, int elems) {
-            typename std::decay<decltype(c)>::type::key_type s(128);
+            typename std::decay<decltype(c)>::type::key_type s(
+                128, c.get_allocator());
             for (int i: range{0, 128})
                 s.emplace(sptr(), slen());
             c.emplace(std::move(s));
