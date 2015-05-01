@@ -31,9 +31,12 @@ INCLUDES = \
 
 DEFS = -D_REENTRANT -D_POSIX_PTHREAD_SEMANTICS -DBSLS_IDENT_OFF
 
+# Change this if not using libc++:
+LIBCPP = -lc++ -lc++abi
+
 LIBS = \
    -Wl,-Bstatic \
-     -L$(BDLLIB) -lbdl -L$(BSLLIB) -lbsl -lc++ \
+     -L$(BDLLIB) -lbdl -L$(BSLLIB) -lbsl $(LIBCPP) \
    -Wl,-Bdynamic \
    -lpthread
 
