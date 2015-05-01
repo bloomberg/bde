@@ -127,6 +127,7 @@ using namespace bsl;
 // [12] void push_back(TYPE value);
 // [14] void remove(di);
 // [14] void remove(di, ne);
+// [25] PIACI remove(PIACI dstFirst, PIACI dstLast);
 // [ 2] void removeAll();
 // [15] void replace(di, value);
 // [15] void replace(di, const PackedIntArray& srcArray, si, ne);
@@ -154,7 +155,7 @@ using namespace bsl;
 // [11] void swap(PackedIntArray& a, PackedIntArray& b);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [25] USAGE EXAMPLE
+// [26] USAGE EXAMPLE
 // [ 3] Obj& gg(Obj *object, const char *spec);
 // [ 3] UnsignedObj& gg(UnsignedObj *object, const char *spec);
 // [ 3] int ggg(Obj *object, const char *spec);
@@ -582,7 +583,7 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&defaultAllocator);
 
     switch (test) { case 0:
-      case 25: {
+      case 26: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -653,9 +654,141 @@ int main(int argc, char *argv[])
     ASSERT(                                   24 == nyc.length());
 //..
       } break;
+      case 25: {
+        // --------------------------------------------------------------------
+        // TESTING 'remove(PIACI dstFirst, PIACI dstLast)'
+        //   The 'remove' method operates as expected.
+        //
+        // Concerns:
+        //: 1 The methods produce the expected value.
+        //:
+        //: 2 QoI: asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Specify a set of specifications for the 'gg' function that result
+        //:   in an empty object but with different capacity and bytes per
+        //:   element characteristics.
+        //:
+        //: 2 Use the table-based approach to specify a set of test vectors.
+        //:
+        //: 3 For every item in the cross-product of these two sets, verify
+        //:   the result for the method (the set from 2 is applied to only
+        //:   the initial object).  (C-1)
+        //:
+        //: 4 Verify defensive checks are triggered for invalid values.  (C-2)
+        //
+        // Testing:
+        //   PIACI remove(PIACI dstFirst, PIACI dstLast);
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << endl
+                 << "TESTING 'remove(PIACI dstFirst, PIACI dstLast)'" << endl
+                 << "===============================================" << endl;
+        }
+
+        static const struct {
+            int         d_lineNum;
+            const char *d_spec_p;
+        } INIT[] = {
+            // line spec
+            //----  ----
+            { L_,   ""              },
+            { L_,   "Lp"            },
+            { L_,   "LLLLLLLLLLx"   },
+            { L_,   "LLLLLLLLLLxLp" },
+        };
+        const int NUM_INIT = static_cast<int>(sizeof INIT / sizeof *INIT);
+
+        if (verbose) cout << "\nSub-array remove." << endl;
+        {
+            static const struct {
+                int         d_lineNum;      // source line number
+                const char *d_spec_p;       // specification
+                int         d_di;           // destination index
+                int         d_ne;           // number of elements
+                const char *d_exp_p;        // expected output specification
+            } DATA[] = {
+                //line  spec      di  ne  exp
+                //----  --------  --  --  ----------------------
+                { L_,   "C",       0,  0, "C"                    },
+                { L_,   "CS",      0,  0, "CS"                   },
+
+                { L_,   "CSIL",    0,  1, "SIL"                  },
+                { L_,   "CSIL",    1,  1, "CIL"                  },
+                { L_,   "CSIL",    2,  1, "CSL"                  },
+                { L_,   "CSIL",    3,  1, "CSI"                  },
+
+                { L_,   "CSIL",    0,  2, "IL"                   },
+                { L_,   "CSIL",    1,  2, "CL"                   },
+                { L_,   "CSIL",    2,  2, "CS"                   },
+
+                { L_,   "CSIL",    0,  3, "L"                    },
+                { L_,   "CSIL",    1,  3, "C"                    },
+
+                { L_,   "CSIL",    0,  4, ""                     },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int         LINE    = DATA[i].d_lineNum;
+                const int         DI      = DATA[i].d_di;
+                const int         NE      = DATA[i].d_ne;
+                const char *const EXPSPEC = DATA[i].d_exp_p;
+
+                Obj mEXP;  gg(&mEXP, EXPSPEC);  const Obj& EXP = mEXP;
+
+                UnsignedObj        mUEXP;  gg(&mUEXP, EXPSPEC);
+                const UnsignedObj& UEXP = mUEXP;
+
+                for (int j = 0; j < NUM_INIT; ++j) {
+                    bsl::string SPEC = (std::string()
+                                        + INIT[j].d_spec_p
+                                        + DATA[i].d_spec_p);
+
+                    if (veryVerbose) { P(SPEC) }
+
+                    Obj        mX;  gg(&mX, SPEC.c_str());
+                    const Obj& X = mX;
+                    Iterator   F = X.begin() + DI;
+                    Iterator   L = F + NE;
+                    LOOP_ASSERT(LINE, F == mX.remove(F, L));
+                    LOOP_ASSERT(LINE, X == EXP);
+
+                    UnsignedObj        mUX;  gg(&mUX, SPEC.c_str());
+                    const UnsignedObj& UX = mUX;
+                    UnsignedIterator   UF = UX.begin() + DI;
+                    UnsignedIterator   UL = UF + NE;
+                    LOOP_ASSERT(LINE, UF == mUX.remove(UF, UL));
+                    LOOP_ASSERT(LINE, UX == UEXP);
+                }
+            }
+        }
+
+        if (verbose) cout << "\nNegative testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
+
+            Obj         mX;   gg(&mX,  "CSI");
+            UnsignedObj mUX;  gg(&mUX, "CSI");
+
+            Obj        mT;
+            const Obj& T = mT;
+
+            UnsignedObj        mUT;
+            const UnsignedObj& UT = mUT;
+
+            mT = mX;  ASSERT_SAFE_PASS(mT.remove(T.begin(), T.end()));
+            mT = mX;  ASSERT_SAFE_FAIL(mT.remove(T.end(),   T.begin()));
+
+            mUT = mUX;  ASSERT_SAFE_PASS(mUT.remove(UT.begin(), UT.end()));
+            mUT = mUX;  ASSERT_SAFE_FAIL(mUT.remove(UT.end(),   UT.begin()));
+        }
+      } break;
       case 24: {
         // --------------------------------------------------------------------
-        // INSERT WITH ITERATOR
+        // TESTING 'insert(PIACI dst, value)'
         //   The 'insert' method operates as expected.
         //
         // Concerns:
@@ -687,8 +820,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "INSERT WITH ITERATOR" << endl
-                          << "====================" << endl;
+                          << "TESTING 'insert(PIACI dst, value)'" << endl
+                          << "==================================" << endl;
 
         static const struct {
             int         d_lineNum;
@@ -752,12 +885,7 @@ int main(int argc, char *argv[])
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
                         Obj        mX(&sa);           gg(&mX, SPEC1.c_str());
                         const Obj& X = mX;
-                        Iterator   DST = X.begin();
-
-                        for (int k = 0; k < DI; ++k) {
-                            ++DST;
-                        }
-
+                        Iterator   DST = X.begin() + DI;
                         LOOP_ASSERT(LINE, DST == mX.insert(DST, y));
                         LOOP_ASSERT(LINE, X == EXP);
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
@@ -765,12 +893,7 @@ int main(int argc, char *argv[])
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
                         UnsignedObj        mUX(&sa);  gg(&mUX, SPEC1.c_str());
                         const UnsignedObj& UX = mUX;
-                        UnsignedIterator   DST = UX.begin();
-
-                        for (int k = 0; k < DI; ++k) {
-                            ++DST;
-                        }
-
+                        UnsignedIterator   DST = UX.begin() + DI;
                         LOOP_ASSERT(LINE, DST == mUX.insert(DST, uy));
                         LOOP_ASSERT(LINE, UX == UEXP);
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
@@ -3397,7 +3520,6 @@ int main(int argc, char *argv[])
             mUT = mUX;  ASSERT_SAFE_FAIL(mUT.remove(3, 1));
             mUT = mUX;  ASSERT_SAFE_FAIL(mUT.remove(4, 0));
         }
-
       } break;
       case 13: {
         // --------------------------------------------------------------------

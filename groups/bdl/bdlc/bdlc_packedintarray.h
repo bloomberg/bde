@@ -1103,7 +1103,7 @@ class PackedIntArray {
     const_iterator insert(const_iterator dst, TYPE value);
         // Insert into this array, at the specified 'dst', an element of
         // specified 'value', shifting any elements originally at or above
-        // 'dst' up by one.
+        // 'dst' up by one.  Return an iterator to the newly inserted element.
 
     void insert(bsl::size_t dstIndex, const PackedIntArray& srcArray);
         // Insert into this array, at the specified 'dstIndex', the sequence of
@@ -1142,10 +1142,18 @@ class PackedIntArray {
 
     void remove(bsl::size_t dstIndex, bsl::size_t numElements);
         // Remove from this array, starting at the specified 'dstIndex', the
-        // specified 'numElements'.  Shift the elements of this array that are
-        // at 'dstIndex + numElements' or above to 'numElements' indices lower.
-        // The behavior is undefined unless
+        // specified 'numElements', shifting the elements of this array that
+        // are at 'dstIndex + numElements' or above to 'numElements' indices
+        // lower.  The behavior is undefined unless
         // 'dstIndex + numElements <= length()'.
+
+    const_iterator remove(const_iterator dstFirst, const_iterator dstLast);
+        // Remove from this array the elements starting from the specified
+        // 'dstFirst' up to, but not including, the specified 'dstLast',
+        // shifting the elements of this array that are at or above 'dstLast'
+        // to 'dstLast - dstFirst' indices lower.  Return at iterator to the
+        // new position of the element that was refered to by 'dstLast'.  The
+        // behavior is undefined unless 'dstFirst <= dstLast'.
 
     void removeAll();
         // Remove all the elements from this array and set the storage required
@@ -2318,6 +2326,17 @@ void PackedIntArray<TYPE>::remove(bsl::size_t dstIndex,
     BSLS_ASSERT_SAFE(dstIndex    <= length() - numElements);
 
     d_imp.remove(dstIndex, numElements);
+}
+
+template <class TYPE>
+inline
+typename PackedIntArray<TYPE>::const_iterator
+  PackedIntArray<TYPE>::remove(const_iterator dstFirst, const_iterator dstLast)
+{
+    BSLS_ASSERT_SAFE(dstFirst <= dstLast);
+
+    remove(dstFirst.d_index, dstLast.d_index - dstFirst.d_index);
+    return dstFirst;
 }
 
 template <class TYPE>
