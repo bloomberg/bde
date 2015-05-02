@@ -156,12 +156,54 @@ int main(int argc, char *argv[])
         ASSERT(false == is_const<TestType>::value);
         ASSERT(false == is_const<TestType volatile>::value);
 
+        ASSERT(false == is_const<int &>::value);
+        ASSERT(false == is_const<const int &>::value);
+        ASSERT(false == is_const<volatile int &>::value);
+
+        ASSERT(false == is_const<void>::value);
+        ASSERT(false == is_const<void volatile>::value);
+
+        ASSERT(false == is_const<const int()>::value);
+        ASSERT(false == is_const<const int(&)()>::value);
+        ASSERT(false == is_const<const int(*)()>::value);
+
+        ASSERT(false == is_const<int[4]>::value);
+        ASSERT(false == is_const<volatile int[4]>::value);
+
+        ASSERT(false == is_const<int[4][2]>::value);
+        ASSERT(false == is_const<volatile int[4][2]>::value);
+
+        ASSERT(false == is_const<int[]>::value);
+        ASSERT(false == is_const<volatile int[]>::value);
+
+        ASSERT(false == is_const<int[][2]>::value);
+        ASSERT(false == is_const<volatile int[][2]>::value);
+
         // C-2
         ASSERT(true == is_const<int const>::value);
         ASSERT(true == is_const<int const volatile>::value);
 
         ASSERT(true == is_const<TestType const>::value);
         ASSERT(true == is_const<TestType const volatile>::value);
+
+        ASSERT(true == is_const<void const>::value);
+        ASSERT(true == is_const<void const volatile>::value);
+
+        ASSERT(true == is_const<int *const>::value);
+        ASSERT(true == is_const<int(* const)()>::value);
+
+        ASSERT(true == is_const<const int[4]>::value);
+        ASSERT(true == is_const<const volatile int[4]>::value);
+
+        ASSERT(true == is_const<const int[4][2]>::value);
+        ASSERT(true == is_const<const volatile int[4][2]>::value);
+
+        ASSERT(true == is_const<const int[]>::value);
+        ASSERT(true == is_const<const volatile int[]>::value);
+
+        ASSERT(true == is_const<const int[][2]>::value);
+        ASSERT(true == is_const<const volatile int[][2]>::value);
+
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
