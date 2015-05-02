@@ -47,6 +47,15 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
+#ifndef INCLUDED_STDDEF_H
+#include <stddef.h>
+#endif
+
+
 namespace bsl {
 
                          // ===================
@@ -84,6 +93,64 @@ struct remove_const<TYPE const> {
         // This 'typedef' is an alias to the same type as the (template
         // parameter) 'TYPE' except with the 'const'-qualifier removed.
 };
+
+#if defined(BSLS_PLATFORM_CMP_IBM)
+// The IBM xlC compiler has an odd issue trying to remove 'const' qualifiers
+// from multidimensional arrays.  This workaround was last verified as required
+// for the xlC 12.1 compiler - more recent compilers still need testing.
+
+template <class TYPE, size_t N>
+struct remove_const<TYPE[N]> {
+     // This partial specialization of 'bsl::remove_const', for when the
+     // (template parameter) 'TYPE' is an array type.  On IBM compilers, it is
+     // necessary to separately 'remove_const' on the element type, and then
+     // reconstruct the array dimensions.
+
+    // PUBLIC TYPES
+    typedef typename remove_const<TYPE>::type type[N];
+        // This 'typedef' is an alias to the same type as the (template
+        // parameter) 'TYPE[N]' except with the 'const'-qualifier removed.
+};
+
+template <class TYPE, size_t N>
+struct remove_const<const TYPE[N]> {
+     // This partial specialization of 'bsl::remove_const', for when the
+     // (template parameter) 'TYPE' is an array type.  On IBM compilers, it is
+     // necessary to separately 'remove_const' on the element type, and then
+     // reconstruct the array dimensions.
+
+    // PUBLIC TYPES
+    typedef typename remove_const<const TYPE>::type type[N];
+        // This 'typedef' is an alias to the same type as the (template
+        // parameter) 'TYPE[N]' except with the 'const'-qualifier removed.
+};
+
+template <class TYPE>
+struct remove_const<TYPE[]> {
+     // This partial specialization of 'bsl::remove_const', for when the
+     // (template parameter) 'TYPE' is an array type.  On IBM compilers, it is
+     // necessary to separately 'remove_const' on the element type, and then
+     // reconstruct the array dimensions.
+
+    // PUBLIC TYPES
+    typedef typename remove_const<TYPE>::type type[];
+        // This 'typedef' is an alias to the same type as the (template
+        // parameter) 'TYPE[]' except with the 'const'-qualifier removed.
+};
+
+template <class TYPE>
+struct remove_const<const TYPE[]> {
+     // This partial specialization of 'bsl::remove_const', for when the
+     // (template parameter) 'TYPE' is an array type.  On IBM compilers, it is
+     // necessary to separately 'remove_const' on the element type, and then
+     // reconstruct the array dimensions.
+
+    // PUBLIC TYPES
+    typedef typename remove_const<const TYPE>::type type[];
+        // This 'typedef' is an alias to the same type as the (template
+        // parameter) 'TYPE[]' except with the 'const'-qualifier removed.
+};
+#endif
 
 }  // close namespace bsl
 
