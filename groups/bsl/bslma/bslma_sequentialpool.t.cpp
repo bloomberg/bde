@@ -1,6 +1,6 @@
 // bslma_sequentialpool.t.cpp                                         -*-C++-*-
 
-#ifndef BDE_OMIT_TRANSITIONAL // DEPRECATED
+#ifndef BDE_OPENSOURCE_PUBLICATION // DEPRECATED
 
 #include <bslma_sequentialpool.h>
 
@@ -1965,7 +1965,7 @@ int main(int argc, char *argv[])
     return -1;
 }
 
-#endif  // BDE_OMIT_TRANSITIONAL -- DEPRECATED
+#endif  // BDE_OPENSOURCE_PUBLICATION -- DEPRECATED
 
 
 // ----------------------------------------------------------------------------

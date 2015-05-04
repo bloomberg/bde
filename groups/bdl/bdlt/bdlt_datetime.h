@@ -687,14 +687,14 @@ class Datetime {
         // object of this datetime.
 
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
-#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
     static int maxSupportedBdexVersion();
         // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
         //
         // Return the most current BDEX streaming version number supported by
         // this class.
 
-#endif  // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#endif  // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
     static int maxSupportedVersion();
         // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
@@ -1294,14 +1294,14 @@ Date& Datetime::date()
 }
 
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
-#ifndef BDE_OMIT_TRANSITIONAL  // pending deprecation
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 inline
 int Datetime::maxSupportedBdexVersion()
 {
     return maxSupportedBdexVersion(0);
 }
 
-#endif  // BDE_OMIT_TRANSITIONAL -- pending deprecation
+#endif  // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 inline
 int Datetime::maxSupportedVersion()

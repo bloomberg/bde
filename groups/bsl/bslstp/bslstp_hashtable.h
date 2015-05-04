@@ -47,7 +47,7 @@
 ///-----
 // This component is for internal use only.
 
-#ifdef BDE_OMIT_TRANSITIONAL // STP
+#ifdef BDE_OPENSOURCE_PUBLICATION // STP
 #error "bslstp_hashtable is not for publication"
 #endif
 

@@ -1399,7 +1399,7 @@ void bslstl::hashAppend(HASHALG& hashAlg,
 
 }  // close enterprise namespace
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -1421,7 +1421,7 @@ void bslstl::hashAppend(HASHALG& hashAlg,
 #endif
 #define bslstl_StringRef bslstl::StringRef
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 
 #endif

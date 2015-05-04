@@ -157,7 +157,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_dayofweek.h>
 #endif
 
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
 #ifndef INCLUDED_BDLT_SERIALDATEIMPUTIL
 #include <bdlt_serialdateimputil.h>
 #endif
@@ -377,7 +377,7 @@ Date DateUtil::addYearsNoEom(const Date& original, int numYears)
     if (2 == original.month() && 29 == original.day()) {
         return Date(newYear,
                     original.month(),
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
                     SerialDateImpUtil::isLeapYear(newYear) ? 29 : 28);
 #else
                     DelegatingDateImpUtil::isLeapYear(newYear) ? 29 : 28);
@@ -423,7 +423,7 @@ bool DateUtil::isValidYYYYMMDD(int yyyymmddValue)
     yyyymmddValue   /= 100;
     const int month  = yyyymmddValue % 100;
 
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
     return SerialDateImpUtil::isValidYearMonthDay(yyyymmddValue / 100,
                                                   month,
                                                   day);
