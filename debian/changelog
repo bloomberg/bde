@@ -1,11 +1,29 @@
-bsl-internal (2.23.0.3.icbeta) unstable; urgency=low
+bsl-internal (2.23.0.4.icbeta) unstable; urgency=low
 
+  * cec78d2 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.23.x
+  * d236170 [APPROVAL] INTERNAL review/internal-release-candidate-drqs-65207819 to releases/2.23.x
+  * 7ba5329 [APPROVAL] review/internal-release-candidate-drqs-65207819 to releases/2.23.x
+  * 6e88493 [APPROVAL] Merge branch 'rename-bde-omit-transitional-drqs-65207819' into internal-release-candidate-drqs-65207819
+  * dcef795 [APPROVAL] OSS pending/releases/2.23.x/clarify-bdldfp_documentation-drqs64066799 to releases/2.23.x
+  * 59ef787 [APPROVAL] pending/releases/2.23.x/clarify-bdldfp_documentation-drqs64066799 to releases/2.23.x
+  * 05b01fe [APPROVAL] OSS pending/releases/2.23.x/unused-var-warning_drqs-62836334 to releases/2.23.x
+  * 486ecab [APPROVAL] pending/releases/2.23.x/unused-var-warning_drqs-62836334 to releases/2.23.x
+  * 59156db [APPROVAL] OSS pending/releases/2.23.x/bsls_atomic-test-driver-case-7-timing-out-drqs-64653622 to releases/2.23.x
+  * 2de5464 [APPROVAL] pending/releases/2.23.x/bsls_atomic-test-driver-case-7-timing-out-drqs-64653622 to releases/2.23.x
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 4 May 2015 10:54:01 -0400
+
+bsl-internal (2.23.0.3.icbeta) git; urgency=low
+
+  * 1585078 bump changelog to 2.23.0.3.icbeta
   * 96304b1 [APPROVAL] pending/releases/2.23.x/macro-conflict-bdlt_monthofyear-drqs-64566309 to releases/2.23.x
+  * 5590722 [APPROVAL] INTERNAL pending/master/macro-conflict-bdlt_monthofyear-drqs-64566309 to master
   * bf02299 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.23.x
   * 21ba68f [APPROVAL] INTERNAL pending/releases/2.23.x/bdlt-squelch-proleptic-asserts-drqs-64276734 to releases/2.23.x
   * 0cccf7b [APPROVAL] pending/releases/2.23.x/bdlt-squelch-proleptic-asserts-drqs-64276734 to releases/2.23.x
+  * 6ae31e0 [APPROVAL] INTERNAL pending/master/bdlt-squelch-proleptic-asserts-drqs-64276734 to master
 
- -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Wed, 15 Apr 2015 14:39:05 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 15 Apr 2015 14:49:14 -0400
 
 bsl-internal (2.23.0.2.icbeta) git; urgency=low
 
@@ -13,15 +31,22 @@ bsl-internal (2.23.0.2.icbeta) git; urgency=low
   * 6a9d6a8 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.23.x
   * 869559a [APPROVAL] INTERNAL pending/releases/2.23.x/un-deprecate-bdlt-legacy-interfaces-drqs-64299432 to releases/2.23.x
   * 6d3f57a [APPROVAL] pending/releases/2.23.x/un-deprecate-bdlt-legacy-interfaces-drqs-64299432 to releases/2.23.x
+  * 3ba06e4 [APPROVAL] INTERNAL pending/master/un-deprecate-bdlt-legacy-interfaces-drqs-64299432 to master
+  * 1ec458a [APPROVAL] INTERNAL revert-BSLS_PLATFORM_NO_64_BIT_LITERALS to master
+  * 41d2e56 [APPROVAL] pending/master/no-no-64-bit-literals_drqs-61790493 to master
+  * 4aa20cb [APPROVAL] INTERNAL pending/master/seedhash_test_driver_uses_cpp11_userdefined_literals_drqs64089486 to master
   * a18c73a Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.23.x
   * 5e7f4d4 [APPROVAL] INTERNAL pending/releases/2.23.x/migrate_to_comment_pragma_for_bdeverify_drqs55524626 to releases/2.23.x
   * d3468e5 [APPROVAL] pending/releases/2.23.x/migrate_to_comment_pragma_for_bdeverify_drqs55524626 to releases/2.23.x
+  * bf0e0c6 [APPROVAL] INTERNAL pending/master/migrate_to_comment_pragma_for_bdeverify_drqs55524626 to master
+  * dbb2c70 [APPROVAL] INTERNAL remove-c-style-casts-drqs-59406521 to master
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 12 Apr 2015 13:46:30 -0400
 
 bsl-internal (2.23.0.1.icbeta) git; urgency=low
 
   * 8f885fe bump changelog to 2.23.0.1.icbeta
+  * c70656e Add warnings about conversions from double
   * 501a712 [APPROVAL] INTERNAL guidutil-win_drqs-63818360 to master
   * c31503d [APPROVAL] guidutil-win_drqs-63818360 to master
   * 36f3917 [APPROVAL] update-wscript-from-bde-tools to master
