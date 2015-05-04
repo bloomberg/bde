@@ -370,27 +370,66 @@ void PackedIntArrayImp<STORAGE>::replaceImp(void        *dst,
 }
 
 template <class STORAGE>
-void PackedIntArrayImp<STORAGE>::reserveCapacityImp(
-                                           bsl::size_t requiredCapacityInBytes)
+int PackedIntArrayImp<STORAGE>::
+      requiredBytesPerElement(bsl::size_t index, bsl::size_t numElements) const
 {
-    // Compute next capacity level.
+    // Assert 'index + numElements <= d_length' without risk of overflow.
+    BSLS_ASSERT(numElements <= d_length);
+    BSLS_ASSERT(index       <= d_length - numElements);
 
-    requiredCapacityInBytes = nextCapacityGE(requiredCapacityInBytes,
-                                             d_capacityInBytes);
+    bsl::size_t endIndex = index + numElements;
 
-    // Allocate new memory.
+    int requiredBytesPerElement = 1;
+    switch (d_bytesPerElement) {
+      case 1: {
+      } break;
+      case 2: {
+        typename STORAGE::TwoByteStorageType *s =
+              static_cast<typename STORAGE::TwoByteStorageType *>(d_storage_p);
+        for (bsl::size_t i = index; i < endIndex; ++i) {
+            int rbpe = STORAGE::requiredBytesPerElement(
+                                               static_cast<ElementType>(s[i]));
+            if (requiredBytesPerElement < rbpe) {
+                requiredBytesPerElement = rbpe;
+                break;
+            }
+        }
+      } break;
+      case 4: {
+        typename STORAGE::FourByteStorageType *s =
+             static_cast<typename STORAGE::FourByteStorageType *>(d_storage_p);
+        for (bsl::size_t i = index; i < endIndex; ++i) {
+            int rbpe = STORAGE::requiredBytesPerElement(
+                                               static_cast<ElementType>(s[i]));
+            if (requiredBytesPerElement < rbpe) {
+                requiredBytesPerElement = rbpe;
+                if (4 == requiredBytesPerElement) {
+                    break;
+                }
+            }
+        }
+      } break;
+      case 8: {
+        typename STORAGE::EightByteStorageType *s =
+            static_cast<typename STORAGE::EightByteStorageType *>(d_storage_p);
+        for (bsl::size_t i = index; i < endIndex; ++i) {
+            int rbpe = STORAGE::requiredBytesPerElement(
+                                               static_cast<ElementType>(s[i]));
+            if (requiredBytesPerElement < rbpe) {
+                requiredBytesPerElement = rbpe;
+                if (8 == requiredBytesPerElement) {
+                    break;
+                }
+            }
+        }
+      } break;
+      default: {
+        // Only the above values are valid so this case should never happen.
 
-    void *src = d_storage_p;
-    d_storage_p = d_allocator_p->allocate(requiredCapacityInBytes);
-    d_capacityInBytes = requiredCapacityInBytes;
-
-    // Copy existing data.
-
-    bsl::memcpy(d_storage_p, src, d_length * d_bytesPerElement);
-
-    // Deallocate original memory.
-
-    d_allocator_p->deallocate(src);
+        BSLS_ASSERT_OPT("Invalid value for 'd_bytesPerElement'." && 0);
+      } break;
+    }
+    return requiredBytesPerElement;
 }
 
 // PRIVATE ACCESSORS
@@ -589,69 +628,6 @@ bool PackedIntArrayImp<STORAGE>::isEqualImp(
       } break;
     }
     return true;
-}
-
-template <class STORAGE>
-int PackedIntArrayImp<STORAGE>::
-      requiredBytesPerElement(bsl::size_t index, bsl::size_t numElements) const
-{
-    // Assert 'index + numElements <= d_length' without risk of overflow.
-    BSLS_ASSERT(numElements <= d_length);
-    BSLS_ASSERT(index       <= d_length - numElements);
-
-    bsl::size_t endIndex = index + numElements;
-
-    int requiredBytesPerElement = 1;
-    switch (d_bytesPerElement) {
-      case 1: {
-      } break;
-      case 2: {
-        typename STORAGE::TwoByteStorageType *s =
-              static_cast<typename STORAGE::TwoByteStorageType *>(d_storage_p);
-        for (bsl::size_t i = index; i < endIndex; ++i) {
-            int rbpe = STORAGE::requiredBytesPerElement(
-                                               static_cast<ElementType>(s[i]));
-            if (requiredBytesPerElement < rbpe) {
-                requiredBytesPerElement = rbpe;
-                break;
-            }
-        }
-      } break;
-      case 4: {
-        typename STORAGE::FourByteStorageType *s =
-             static_cast<typename STORAGE::FourByteStorageType *>(d_storage_p);
-        for (bsl::size_t i = index; i < endIndex; ++i) {
-            int rbpe = STORAGE::requiredBytesPerElement(
-                                               static_cast<ElementType>(s[i]));
-            if (requiredBytesPerElement < rbpe) {
-                requiredBytesPerElement = rbpe;
-                if (4 == requiredBytesPerElement) {
-                    break;
-                }
-            }
-        }
-      } break;
-      case 8: {
-        typename STORAGE::EightByteStorageType *s =
-            static_cast<typename STORAGE::EightByteStorageType *>(d_storage_p);
-        for (bsl::size_t i = index; i < endIndex; ++i) {
-            int rbpe = STORAGE::requiredBytesPerElement(
-                                               static_cast<ElementType>(s[i]));
-            if (requiredBytesPerElement < rbpe) {
-                requiredBytesPerElement = rbpe;
-                if (8 == requiredBytesPerElement) {
-                    break;
-                }
-            }
-        }
-      } break;
-      default: {
-        // Only the above values are valid so this case should never happen.
-
-        BSLS_ASSERT_OPT("Invalid value for 'd_bytesPerElement'." && 0);
-      } break;
-    }
-    return requiredBytesPerElement;
 }
 
 // CREATORS
@@ -1400,6 +1376,30 @@ void PackedIntArrayImp<STORAGE>::replace(
                      address() + srcIndex * d_bytesPerElement,
                      numElements * d_bytesPerElement);
     }
+}
+
+template <class STORAGE>
+void PackedIntArrayImp<STORAGE>::reserveCapacityImp(
+                                           bsl::size_t requiredCapacityInBytes)
+{
+    // Compute next capacity level.
+
+    requiredCapacityInBytes = nextCapacityGE(requiredCapacityInBytes,
+                                             d_capacityInBytes);
+
+    // Allocate new memory.
+
+    void *src = d_storage_p;
+    d_storage_p = d_allocator_p->allocate(requiredCapacityInBytes);
+    d_capacityInBytes = requiredCapacityInBytes;
+
+    // Copy existing data.
+
+    bsl::memcpy(d_storage_p, src, d_length * d_bytesPerElement);
+
+    // Deallocate original memory.
+
+    d_allocator_p->deallocate(src);
 }
 
 // ACCESSORS

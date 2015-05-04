@@ -389,11 +389,10 @@ class PackedIntArrayImp {
     // PUBLIC TYPES
     typedef typename STORAGE::EightByteStorageType ElementType;
 
-  private:
-    // PRIVATE CLASS DATA
+    // CLASS DATA
     static const bsl::size_t k_MAX_CAPACITY          = 0x7fffffff;
-    static const bsl::size_t k_MAX_BYTES_PER_ELEMENT = 8;
 
+  private:
     // DATA
     void             *d_storage_p;        // The allocated memory.
 
@@ -442,10 +441,6 @@ class PackedIntArrayImp {
         // 'srcBytesPerElement != dstBytesPerElement', and either the memory
         // ranges do not overlap or: 'dst == src' and 'dstIndex >= srcIndex'
         // and 'dstBytesPerElement > srcBytesPerElement'.
-
-    void reserveCapacityImp(bsl::size_t requiredCapacityInBytes);
-        // Make the capacity of this array at least the specified
-        // 'requiredCapacityInBytes'.
 
     // PRIVATE ACCESSORS
     char *address() const;
@@ -606,9 +601,13 @@ class PackedIntArrayImp {
         // 'srcArray' are the same, the behavior is as if a copy of 'srcArray'
         // were passed.
 
+    void reserveCapacityImp(bsl::size_t requiredCapacityInBytes);
+        // Make the capacity of this array at least the specified
+        // 'requiredCapacityInBytes'.
+
     void reserveCapacity(bsl::size_t numElements);
         // Make the capacity of this array at least the specified
-        // 'numElements'.
+        // 'numElements' assuming the current 'bytesPerElement()'.
 
     void reserveCapacity(bsl::size_t numElements, ElementType maxValue);
         // Make the capacity of this array at least the specified
@@ -1014,6 +1013,9 @@ class PackedIntArray {
 
     // PRIVATE TYPES
     typedef typename PackedIntArrayImpType<TYPE>::Type ImpType;
+
+    // PRIVATE CLASS DATA
+    static const bsl::size_t k_MAX_BYTES_PER_ELEMENT = 8;
 
     // DATA
     ImpType d_imp;  // Implementation of either a signed or unsigned 64-bit
@@ -1669,9 +1671,9 @@ inline
 void PackedIntArrayImp<STORAGE>::reserveCapacity(bsl::size_t numElements)
 {
     // Test for potential overflow.
-    BSLS_ASSERT_SAFE(k_MAX_CAPACITY / k_MAX_BYTES_PER_ELEMENT >= numElements);
+    BSLS_ASSERT_SAFE(k_MAX_CAPACITY / d_bytesPerElement >= numElements);
 
-    size_t requiredCapacityInBytes = k_MAX_BYTES_PER_ELEMENT * numElements;
+    size_t requiredCapacityInBytes = d_bytesPerElement * numElements;
     if (requiredCapacityInBytes > d_capacityInBytes) {
         reserveCapacityImp(requiredCapacityInBytes);
     }
@@ -2381,7 +2383,11 @@ template <class TYPE>
 inline
 void PackedIntArray<TYPE>::reserveCapacity(bsl::size_t numElements)
 {
-    d_imp.reserveCapacity(numElements);
+    // Test for potential overflow.
+    BSLS_ASSERT_SAFE(
+             ImpType::k_MAX_CAPACITY / k_MAX_BYTES_PER_ELEMENT >= numElements);
+
+    d_imp.reserveCapacityImp(numElements * k_MAX_BYTES_PER_ELEMENT);
 }
 
 template <class TYPE>
