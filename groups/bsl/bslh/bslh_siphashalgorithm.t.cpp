@@ -51,7 +51,8 @@ using namespace bslh;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 6] Trait IsBitwiseMoveable
-// [ 7] USAGE EXAMPLE
+// [ 7] Byte-order independence
+// [ 8] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -405,7 +406,7 @@ int main(int argc, char *argv[])
 //  bool veryVeryVeryVerbose = argc > 5;
 
     switch (test) { case 0:
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   The hashing algorithm can be used to create more powerful
@@ -455,6 +456,59 @@ int main(int argc, char *argv[])
         ASSERT(!hashTable.contains(Future("Swiss Franc", 'X', 2014)));
         ASSERT(!hashTable.contains(Future("US Dollar", 'F', 2014)));
 
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // HASH SEED INDEPENDENT OF BYTE ORDER
+        //   The hash seed should produce the same hash results (on character
+        //   strings) regardless of architecture byte order.
+        //
+        // Concerns:
+        //: 1 Since the seed is given as an array of bytes, we want to insure
+        //:   that the results of hashing (similarly byte-orde-independent)
+        //:   character strings is the same regardless of the byte ordering
+        //:   used for integers.
+        //
+        // Plan:
+        //: 1 Seed the algorithm with a value that represents different 128-bit
+        //:   values on different architectures, and verify that the algorithm
+        //:   produces a known hash value independently of those.
+        //
+        // Testing:
+        //    Byte-order independence
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nHASH SEED INDEPENDENT OF BYTE ORDER"
+                            "\n===================================\n");
+        static const struct {
+            int                 d_line;
+            const char          d_seed[17];
+            const char          d_value[21];
+            int                 d_length;
+            bsls::Types::Uint64 d_expectedHash;
+        } DATA[] = {
+        // LINE SEED VALUE LENGTH EXPECTEDHASH
+         {  L_, "\0\1\2\3\4\5\6\7\10\11\12\13\14\15\16\17",
+                     "\0\1\2\3\4\5\6\7\10\11\12\13\14\15\16",
+                           15,    0xa129ca6149be45e5ULL        },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int i = 0; i != NUM_DATA; ++i) {
+            const int                  LINE   = DATA[i].d_line;
+            const char                *SEED   = DATA[i].d_seed;
+            const char                *VALUE  = DATA[i].d_value;
+            const int                  LENGTH = DATA[i].d_length;
+            const bsls::Types::Uint64  EXP    = DATA[i].d_expectedHash;
+
+            Obj hasher(SEED);
+            hasher(VALUE, LENGTH);
+            bsls::Types::Uint64 hash = hasher.computeHash();
+            if (veryVerbose) {
+                P_(LINE) P_(SEED) P_(VALUE) P_(EXP) P(hash)
+            }
+            ASSERTV(LINE, hash, EXP, EXP == hash);
+        }
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -869,9 +923,13 @@ int main(int argc, char *argv[])
         //   fixed seed.  It is intended to demonstrate that the same strings
         //   hash to the same values regardless of native byte ordering.
         // --------------------------------------------------------------------
+
+        if (verbose) printf("\nEXAMINE HASH VALUES"
+                            "\n===================\n");
+
         unsigned char seed[16] = {
-            0x1B, 0x91, 0x7C, 0x2A, 0x70, 0xAB, 0x10, 0xF5, 
-            0xF8, 0x37, 0x47, 0xC1, 0xF7, 0x00, 0x09, 0xF3, 
+            0x1B, 0x91, 0x7C, 0x2A, 0x70, 0xAB, 0x10, 0xF5,
+            0xF8, 0x37, 0x47, 0xC1, 0xF7, 0x00, 0x09, 0xF3,
         };
         for (int i = 1; i < argc; ++i) {
             SipHashAlgorithm hashAlg(reinterpret_cast<char *>(seed));
