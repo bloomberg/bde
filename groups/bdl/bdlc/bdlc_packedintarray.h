@@ -391,7 +391,8 @@ class PackedIntArrayImp {
 
   private:
     // PRIVATE CLASS DATA
-    static const bsl::size_t k_MAX_CAPACITY = 0x7fffffff;
+    static const bsl::size_t k_MAX_CAPACITY          = 0x7fffffff;
+    static const bsl::size_t k_MAX_BYTES_PER_ELEMENT = 8;
 
     // DATA
     void             *d_storage_p;        // The allocated memory.
@@ -1152,7 +1153,7 @@ class PackedIntArray {
         // 'dstFirst' up to, but not including, the specified 'dstLast',
         // shifting the elements of this array that are at or above 'dstLast'
         // to 'dstLast - dstFirst' indices lower.  Return at iterator to the
-        // new position of the element that was refered to by 'dstLast'.  The
+        // new position of the element that was referred to by 'dstLast'.  The
         // behavior is undefined unless 'dstFirst <= dstLast'.
 
     void removeAll();
@@ -1469,9 +1470,11 @@ bsl::size_t PackedIntArrayImp<STORAGE>::nextCapacityGE(bsl::size_t minValue,
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return minValue;                                              // RETURN
     }
+
     while (value < minValue) {
         value += (value + 3) / 2;
     }
+
     return value;
 }
 
@@ -1666,9 +1669,9 @@ inline
 void PackedIntArrayImp<STORAGE>::reserveCapacity(bsl::size_t numElements)
 {
     // Test for potential overflow.
-    BSLS_ASSERT_SAFE(k_MAX_CAPACITY / d_bytesPerElement >= numElements);
+    BSLS_ASSERT_SAFE(k_MAX_CAPACITY / k_MAX_BYTES_PER_ELEMENT >= numElements);
 
-    size_t requiredCapacityInBytes = d_bytesPerElement * numElements;
+    size_t requiredCapacityInBytes = k_MAX_BYTES_PER_ELEMENT * numElements;
     if (requiredCapacityInBytes > d_capacityInBytes) {
         reserveCapacityImp(requiredCapacityInBytes);
     }
