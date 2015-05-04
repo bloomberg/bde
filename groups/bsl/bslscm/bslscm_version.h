@@ -52,6 +52,8 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_versiontag.h> // BSL_VERSION_MAJOR, BSL_VERSION_MINOR
 #endif
 
+#error "BDE_OPENSOURCE_PUBLICATION incompatible with internal code base"
+
 #define BDE_DONT_ALLOW_TRANSITIVE_INCLUDES 1
     // When we don't want to rely on legacy features, we also want to make sure
     // we are not picking up macros or type aliases via (direct or transitive)
