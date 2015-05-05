@@ -390,20 +390,21 @@ class PackedIntArrayImp {
     typedef typename STORAGE::EightByteStorageType ElementType;
 
     // CLASS DATA
-    static const bsl::size_t k_MAX_CAPACITY          = 0x7fffffff;
+    static const bsl::size_t k_MAX_CAPACITY = 0x7fffffff;  // maximum capacity
+                                                           // in bytes
 
   private:
     // DATA
-    void             *d_storage_p;        // The allocated memory.
+    void             *d_storage_p;        // allocated memory
 
-    bsl::size_t       d_length;           // The length of the array.
+    bsl::size_t       d_length;           // length of the array
 
-    int               d_bytesPerElement;  // The number of bytes used to store
-                                          // each element.
+    int               d_bytesPerElement;  // number of bytes used to store each
+                                          // element
 
-    bsl::size_t       d_capacityInBytes;  // The capacity of the array.
+    bsl::size_t       d_capacityInBytes;  // capacity of the array
 
-    bslma::Allocator *d_allocator_p;      // The allocator used for all memory.
+    bslma::Allocator *d_allocator_p;      // allocator used for all memory
 
     // PRIVATE CLASS METHODS
     static bsl::size_t nextCapacityGE(bsl::size_t minValue, bsl::size_t value);
@@ -603,19 +604,23 @@ class PackedIntArrayImp {
 
     void reserveCapacityImp(bsl::size_t requiredCapacityInBytes);
         // Make the capacity of this array at least the specified
-        // 'requiredCapacityInBytes'.
+        // 'requiredCapacityInBytes'.  This method has no effect if the
+        // current capacity meets or exceeds the required capacity.
 
     void reserveCapacity(bsl::size_t numElements);
         // Make the capacity of this array at least the specified
-        // 'numElements' assuming the current 'bytesPerElement()'.
+        // 'numElements' assuming the current 'bytesPerElement()'.  This
+        // method has no effect if the current capacity meets or exceeds the
+        // required capacity.
 
     void reserveCapacity(bsl::size_t numElements, ElementType maxValue);
         // Make the capacity of this array at least the specified
         // 'numElements'.  The specified 'maxValue' denotes the maximum element
         // value that will be subsequently added to this array.  After this
         // call 'numElements' having values in the range '[0, maxValue]' are
-        // guaranteed to not cause a reallocation.  The behavior is undefined
-        // unless '0 <= maxValue'.
+        // guaranteed to not cause a reallocation.  This method has no effect
+        // if the current capacity meets or exceeds the required capacity.
+        // The behavior is undefined unless '0 <= maxValue'.
 
     void reserveCapacity(bsl::size_t numElements,
                          ElementType minValue,
@@ -625,8 +630,9 @@ class PackedIntArrayImp {
         // respectively, the minimum and maximum elements values that will be
         // subsequently added to this array.  After this call 'numElements'
         // having values in the range '[minValue, maxValue]' are guaranteed to
-        // not cause a reallocation.  The behavior is undefined unless
-        // 'minValue <= maxValue'.
+        // not cause a reallocation.  This method has no effect if the current
+        // capacity meets or exceeds the required capacity.  The behavior is
+        // undefined unless 'minValue <= maxValue'.
 
     void resize(bsl::size_t numElements);
         // Set the length of this array to the specified 'numElements'.  If
@@ -666,7 +672,7 @@ class PackedIntArrayImp {
 
     bool isEmpty() const;
         // Return 'true' if there are no elements in this array, and 'false'
-        // otherwise,
+        // otherwise.
 
     bool isEqual(const PackedIntArrayImp& other) const;
         // Return 'true' if this and the specified 'other' array have the same
@@ -1098,9 +1104,9 @@ class PackedIntArray {
         // value-semantic types and containers.
 
     void insert(bsl::size_t dstIndex, TYPE value);
-        // Insert into this array, at the specified 'dstIndex', an element of
-        // specified 'value', shifting any elements originally at or above
-        // 'dstIndex' up by one.  The behavior is undefined unless
+        // Insert into this array, at the specified 'dstIndex', an element
+        // having the specified 'value', shifting any elements originally at
+        // or above 'dstIndex' up by one.  The behavior is undefined unless
         // 'dstIndex <= length()'.
 
     const_iterator insert(const_iterator dst, TYPE value);
@@ -1154,9 +1160,10 @@ class PackedIntArray {
         // Remove from this array the elements starting from the specified
         // 'dstFirst' up to, but not including, the specified 'dstLast',
         // shifting the elements of this array that are at or above 'dstLast'
-        // to 'dstLast - dstFirst' indices lower.  Return at iterator to the
-        // new position of the element that was referred to by 'dstLast'.  The
-        // behavior is undefined unless 'dstFirst <= dstLast'.
+        // to 'dstLast - dstFirst' indices lower.  Return an iterator to the
+        // new position of the element that was referred to by 'dstLast' or
+        // 'end()' if 'dstLast == end()'.  The behavior is undefined unless
+        // 'dstFirst <= dstLast'.
 
     void removeAll();
         // Remove all the elements from this array and set the storage required
@@ -1182,15 +1189,17 @@ class PackedIntArray {
 
     void reserveCapacity(bsl::size_t numElements);
         // Make the capacity of this array at least the specified
-        // 'numElements'.
+        // 'numElements'.  This method has no effect if the current capacity
+        // meets or exceeds the required capacity.
 
     void reserveCapacity(bsl::size_t numElements, TYPE maxValue);
         // Make the capacity of this array at least the specified
         // 'numElements'.  The specified 'maxValue' denotes the maximum element
         // value that will be subsequently added to this array.  After this
         // call 'numElements' having values in the range '[0, maxValue]' are
-        // guaranteed to not cause a reallocation.  The behavior is undefined
-        // unless '0 <= maxValue'.
+        // guaranteed to not cause a reallocation.  This method has no effect
+        // if the current capacity meets or exceeds the required capacity.
+        // The behavior is undefined unless '0 <= maxValue'.
 
     void reserveCapacity(bsl::size_t numElements,
                          TYPE        minValue,
@@ -1200,8 +1209,9 @@ class PackedIntArray {
         // respectively, the minimum and maximum elements values that will be
         // subsequently added to this array.  After this call 'numElements'
         // having values in the range '[minValue, maxValue]' are guaranteed to
-        // not cause a reallocation.  The behavior is undefined unless
-        // 'minValue <= maxValue'.
+        // not cause a reallocation.  This method has no effect if the current
+        // capacity meets or exceeds the required capacity.  The behavior is
+        // undefined unless 'minValue <= maxValue'.
 
     void resize(bsl::size_t numElements);
         // Set the length of this array to the specified 'numElements'.  If
