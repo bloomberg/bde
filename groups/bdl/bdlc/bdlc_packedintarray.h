@@ -1110,8 +1110,8 @@ class PackedIntArray {
         // 'dstIndex <= length()'.
 
     const_iterator insert(const_iterator dst, TYPE value);
-        // Insert into this array, at the specified 'dst', an element of
-        // specified 'value', shifting any elements originally at or above
+        // Insert into this array, at the specified 'dst', an element having
+        // the specified 'value', shifting any elements originally at or above
         // 'dst' up by one.  Return an iterator to the newly inserted element.
 
     void insert(bsl::size_t dstIndex, const PackedIntArray& srcArray);
@@ -1277,7 +1277,7 @@ class PackedIntArray {
 
     bool isEmpty() const;
         // Return 'true' if there are no elements in this array, and 'false'
-        // otherwise,
+        // otherwise.
 
     bool isEqual(const PackedIntArray& other) const;
         // Return 'true' if this and the specified 'other' array have the same
