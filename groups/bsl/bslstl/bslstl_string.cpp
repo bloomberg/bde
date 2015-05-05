@@ -4,6 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <cstdio>
+
 // IMPLEMENTATION NOTES:
 // This string class implements a "short string optimization" which optimizes
 // the handling of short strings (strings shorter than a certain length) by
