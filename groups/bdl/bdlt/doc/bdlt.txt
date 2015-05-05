@@ -15,7 +15,7 @@
 : o Conversion between different date and time representations.
 : o Arithmetic and validation functions
 
- See {Value Types} and {Utilities} below for overviews to the types and
+ See {Value Types} and {Utilities} below for overviews of the types and
  functions provided by this package.
 
 /Hierarchical Synopsis
@@ -110,10 +110,10 @@
 /Value Types
 /-----------
  This package defines value-semantic types that represent dates, times (of
- day), and type representing combined date and time values.  For each of those
- "time" types, there is a related type that also holds an time offset value
- from UTC.  There are also enumerated values representing month of the year and
- day of the week.
+ day), and combined date and time values.  For each of these "time" types,
+ there is a related type that also holds a time offset value from UTC.  There
+ are also enumerated types representing the months of the year and the days of
+ the week.
 
 /Value Types: 'Date', 'Time' and 'Datetime'
 / - - - - - - - - - - - - - - - - - - - - -
@@ -134,9 +134,9 @@
 : o The definition of 'bdlt::Datetime' does *not* allow for leap seconds.
 
  The above classes define values representing points on a timeline (e.g., dates
- on a calendar, positions on a clock).  Alternatively, the
- 'bdlt::DatetimeInterval' class represents the difference (to millisecond
- resolution) between those points.
+ on a calendar, positions on a clock) whereas the 'bdlt::DatetimeInterval'
+ class represents the *difference* (to millisecond resolution) between those
+ points.
 ..
   Type             Difference Type
   -------          ----------------
@@ -169,7 +169,7 @@
  Similarly, the 'bdlt::Datetime' class defines one singular value,
  "0001/01/01_24:00:00.000", which happens to be the default constructed value.
  The restrictions and semantics of this value parallel those of the singular
- 'bdtl::Time' value.
+ 'bdlt::Time' value.
 
  Some applications use the singular values of these types as placeholders when
  a value must be provided but is not known.  (See 'bdetu_unset'.)
@@ -178,8 +178,8 @@
 /- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  For each of the basic date and time types there is a corresponding
  value-semantic type that is augmented with a value representing an offset (in
- minutes) from UTC.  Note that other BDE types represent local time offset
- in as seconds (e.g., the 'seconds' attribute of 'bsls::TimeInterval').
+ minutes) from UTC.  Note that other BDE types represent local time offset as
+ seconds (e.g., the 'seconds' attribute of 'bsls::TimeInterval').
 
  The local time offset augmented types are:
 ..
@@ -196,14 +196,15 @@
  'utc*' accessor method.
 
  These types themselves do not validate that the combinations of dates, times,
- and local-time offset values they hold correspond to any officially recognized
- time zone.  See {Obtaining Current Date, Time, and Local-Time Offset Values}.
+ and local-time offset values they hold correspond to a valid time in any
+ officially recognized time zone.  See {Obtaining Current Date, Time, and
+ Local-Time Offset Values}.
 
 /Enumerated Values
 /- - - - - - - - -
  The 'bdlt' package provides enumerations in 'bdlt_monthofyear' and
  'bdlt_dayofweek'.  The 'bdlt_dayofweekset' provides an efficient, ordered
- container of unique 'bdtl::DayofWeek::Enum' values (i.e., containing no more
+ container of unique 'btdl::DayofWeek::Enum' values (i.e., containing no more
  than seven elements).
 
 /Utilities
@@ -225,19 +226,18 @@
 : o A 'bdlt::Datetime' value for the current local time.
 : o A 'bsls::TimeInterval' from the start of the epoch.
 
- The 'bdlt_localtimeoffset' component defines a function that returns the local
- time offset for a given UTC time and date.
-
- The local time offset corresponds to the time zone of the host machine (as set
- by the system administrator).  For local time offset for arbitrary time
- zones see the {'baetzo'} package.
+ The 'bdlt_localtimeoffset' component defines a function that returns the
+ offset of the host machines designated time zone (as set by the system
+ administrator) from UTC, including adjustments between standard and
+ daylight-saving time, as of a given UTC time and date.  For local-time offset
+ for arbitrary time zones see the {'baetzo'} package.
 
  Both 'bdlt::CurrentTime' and 'bdlt::LocalTimeOffset' obtain their values via
  user-installed callback functions.  The default callbacks obtain their values
  from platform appropriate system calls.  User-defined callbacks can provide
  high-performance (e.g., cached) alternatives to the default system calls, can
- be instrumented to gather statistics, and can mock the passage of
- time for test scenarios.
+ be instrumented to gather statistics, and can simulate the passage of time for
+ test scenarios.
 
 /Advanced Date Arithmetic: 'bdlt::DateUtil'
 / - - - - - - - - - - - - - - - - - - - - -
@@ -248,9 +248,8 @@
 :   -- before or after a given date.  Two different end-of-month conventions
 :   are provided.
 :
-: o Find the next -- or previous -- occurrence of day of a given day of week
-:   relative to a specified date (inclusive or exclusive of that specified
-:   date).
+: o Find the next -- or previous -- occurrence of a given day of week relative
+:   to a specified date (inclusive or exclusive of that specified date).
 :
 : o Find the date of a specified day of week that is the *nth* (e.g., 1st, 3rd)
 :   or last occurrence in a specified year and month.
@@ -270,7 +269,7 @@
 ..
   Component          Conversions
   -----------------  --------------------------------------------------------
-  bdlt_dateutil      bdlt::Date     <=> int in "YYYYMMDD" format
+  bdlt_dateutil      bdlt::Date     <=> 'int' in "YYYYMMDD" format
 
   bdlt_datetimeutil  bdlt::Datetime <=> bsl::tm
 
@@ -292,7 +291,7 @@
 /- - - - - - - - - - - - - - - - - - -
  The 'bdlt_timeunitratio' component provides a set of constants that express
  the ratios between standard time units such as days, hours, ..., nanoseconds.
- One example is 'bdlt::TimeUnitRatio::k_MILLISECONDS_PER_MINUTE').
+ One example is 'bdlt::TimeUnitRatio::k_MILLISECONDS_PER_MINUTE'.
 
 /Usage
 /-----
@@ -304,44 +303,44 @@
  prone in practice.  Consequently, people tend to schedule events on dates
  that are easy to calculate -- e.g., first of the month, anniversary dates --
  even though we know that not all months and years express intervals of the
- identical length.  Access to a rich set of types and utilities for date and
- time calculations affords us other options.  Suppose we wish to commemorate
- the 20,000th day since our birth.
+ same length.  Access to a rich set of types and utilities for date and time
+ calculations affords us other options.
 
- First, create a 'bdlt::Datetime' object to represent our date of birth.
- Assuming we were born at the exact start of the Unix epoch:
+ Suppose we wish to commemorate the 20,000th day since our birth.
+
+ First, create a 'bdlt::Datetime' object to represent our date of birth.  Let
+ us assume that we were born at the exact start of the Unix epoch:
 ..
-  bdlt::Datetime dtBirthday = bdlt::EpochUtil::epoch();
-  assert(bdlt::Datetime(1970, 1, 1, 0, 0, 0, 0) == dtBirthday);
+    bdlt::Datetime dtBirthday = bdlt::EpochUtil::epoch();
+    assert(bdlt::Datetime(1970, 1, 1, 0, 0, 0, 0) == dtBirthday);
 ..
  Next, we calculate the milestone date (and time).
 ..
-  bdlt::Datetime dt20k(dtBirthday);  dt20k.addDays(20000);
-  assert(bdlt::DatetimeInterval(20000) == dt20k - dtBirthday);
+    bdlt::Datetime dt20k(dtBirthday);  dt20k.addDays(20000);
+    assert(bdlt::DatetimeInterval(20000) == dt20k - dtBirthday);
 
-  bsl::cout << dt20k << bsl::endl;
+    bsl::cout << dt20k << bsl::endl;
 ..
  and find:
 ..
   04OCT2024_00:00:00.000
 ..
- Then, we recall that the above values represent UTC datetime values but we
- were born, still reside, and plan to celebrate the milestone in New York
- City.  Thus, we must obtain the local time offset in NYC for that future date
- and use it to calculate the milestone (date) in that time zone.
+ The above value represents UTC date and time values.  We, however, plan to
+ celebrate the milestone in New York City.  Thus, we must obtain the local
+ time offset in NYC for that future date and use it to calculate the
+ milestone (date) in that time zone.
 ..
-  bsls::TimeInterval localTimeOffset
-                             = bdlt::LocalTimeOffset::localTimeOffset(dt20k);
-  assert(0 == localTimeOffset.nanoseconds());
+    bsls::TimeInterval     localTimeOffset =
+                                 bdlt::LocalTimeOffset::localTimeOffset(dt20k);
 
-  bdlt::Datetime dtAdjusted(dt20k);
-  dtAdjusted.addSeconds(offsetSeconds);
+    bdlt::DatetimeInterval dtOffset =
+      bdlt::IntervalConversionUtil::convertToDatetimeInterval(localTimeOffset);
 
-  bdlt::DatetimeTz dtz20kLocal(dtAdjusted,
-                               static_cast<int>(offsetSeconds /
-                                 bdlt::TimeUnitRatio::k_SECONDS_PER_MINUTE));
+    bdlt::DatetimeTz       dtz20kLocal(
+                                    dt20k + dtOffset,
+                                    static_cast<int>(dtOffset.totalMinutes()));
 
-  bsl::cout << dtz20kLocal << bsl::endl;
+    bsl::cout << dtz20kLocal << bsl::endl;
 ..
  which is one calendar day earlier:
 ..
@@ -349,7 +348,7 @@
 ..
  Notice that the local time offset was expressed in units of minutes for the
  constructor of 'bdlt::DatetimeTz', but the class 'print' method shows that
- value in hours.
+ value as the concatenated decimal values four hours and minutes.
 
  Next, since we prefer to hold celebrations on weekend days, not weekdays, we
  determine the day of the week on which the milestone date falls.
@@ -357,30 +356,30 @@
  To aid our calculation, we define a 'bdlt::DayOfWeekSet' object set of the
  weekend days in New York City.
 ..
-  bdlt::DayOfWeekSet weekendDays;
-  weekendDays.add(bdlt::DayOfWeek::e_SATURDAY);
-  weekendDays.add(bdlt::DayOfWeek::e_SUNDAY);
+    bdlt::DayOfWeekSet weekendDays;
+    weekendDays.add(bdlt::DayOfWeek::e_SATURDAY);
+    weekendDays.add(bdlt::DayOfWeek::e_SUNDAY);
 ..
  Now, we determine if the target date is a weekend day.  If so, we can plan
  our celebration for that date; otherwise, we will plan for the next weekend
  date.
 ..
-  bdlt::Date milestone = dtz20kLocal.localDatetime().date();
-  bdlt::Date holdDate  = weekendDays.isMember(milestone.dayOfWeek())
-                       ? milestone
-                       : bdlt::DateUtil::nextDayOfWeek(
-                                                 bdlt::DayOfWeek::e_SATURDAY,
-                                                 milestone);
+    bdlt::Date milestone = dtz20kLocal.localDatetime().date();
+    bdlt::Date holdDate  = weekendDays.isMember(milestone.dayOfWeek())
+                         ? milestone
+                         : bdlt::DateUtil::nextDayOfWeek(
+                                                   bdlt::DayOfWeek::e_SATURDAY,
+                                                   milestone);
 ..
  Finally, we examine our results:
 ..
-  bsl::cout << "Milestone:"          << " "
-            << milestone.dayOfWeek() << " "
-            << milestone             << bsl::endl;
+    bsl::cout << "Milestone:"          << " "
+              << milestone.dayOfWeek() << " "
+              << milestone             << bsl::endl;
 
-  bsl::cout << "Hold date:"          << " "
-            << holdDate.dayOfWeek()  << " "
-            << holdDate              << bsl::endl;
+    bsl::cout << "Hold date:"          << " "
+              << holdDate.dayOfWeek()  << " "
+              << holdDate              << bsl::endl;
 ..
  we find:
 ..
