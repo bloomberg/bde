@@ -124,22 +124,28 @@ BSLS_IDENT("$Id: $")
 #include <bsls_alignmentutil.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bsls {
 
-                        // ===================
-                        // union AlignedBuffer
-                        // ===================
+                        // ========================
+                        // union AlignedBuffer_Data
+                        // ========================
 
-template <int SIZE, int ALIGNMENT = AlignmentUtil::BSLS_MAX_ALIGNMENT>
-union AlignedBuffer {
-    // An instance of this union is a block of raw memory of specified 'SIZE'
-    // and 'ALIGNMENT'.  A 'AlignedBuffer' object does not manage the
-    // construction or destruction of any other objects.  'SIZE' is rounded up
-    // to the nearest multiple of 'ALIGNMENT'.  An instantiation of this union
-    // template will not compile unless 'ALIGNMENT' is a power of two not
-    // larger than 'AlignmentUtil::BSLS_MAX_ALIGNMENT'.
+template <int SIZE, int ALIGNMENT>
+union AlignedBuffer_Data {
+    // This *private* implementation type provides a public 'char' array
+    // data member 'd_buffer' whose length is the specifed (template parameter)
+    // 'SIZE' and which is aligned according to the specified (template
+    // parameter) 'ALIGNMENT'.
 
   public:
     typedef typename AlignmentToType<ALIGNMENT>::Type AlignmentType;
@@ -148,11 +154,54 @@ union AlignedBuffer {
         // Note that to allow the union to access this typedef it must be
         // declared with public access.
 
-  private:
-    // Buffer of 'SIZE' bytes, correctly aligned at 'ALIGNMENT' The size of
-    // this union will always be an even multiple of 'ALIGNMENT'.
+#if defined(BSLS_COMPILERFEATURES_ALIGNAS)
+    // The C++11 implementation uses the 'alignas' keyword to ensure the
+    // alignment of 'd_buffer'.
+
+    char alignas(ALIGNMENT) d_buffer[SIZE];
+#else
+    // The C++03 implementation uses a union data member to ensure the
+    // alignment of 'd_buffer'.
+
     char          d_buffer[SIZE];
     AlignmentType d_align;
+#endif
+};
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) && !defined(BSLS_COMPILERFEATURES_ALIGNAS)
+// We provide template specializations for MSVC using __declspec(align).
+// Note that MSVC does not enforce the alignment of (at least) 'double'
+// variables on the stack.  (internal issue 64140445).
+
+#define BSLS_ALIGNAS(N) __declspec(align(N))
+template <int SIZE>
+union AlignedBuffer_Data<SIZE, 1> {BSLS_ALIGNAS(1) char d_buffer[SIZE]; };
+template <int SIZE>
+union AlignedBuffer_Data<SIZE, 2> {BSLS_ALIGNAS(2) char d_buffer[SIZE]; };
+template <int SIZE>
+union AlignedBuffer_Data<SIZE, 4> {BSLS_ALIGNAS(4) char d_buffer[SIZE]; };
+template <int SIZE>
+union AlignedBuffer_Data<SIZE, 8> {BSLS_ALIGNAS(8) char d_buffer[SIZE]; };
+template <int SIZE>
+union AlignedBuffer_Data<SIZE, 16> {BSLS_ALIGNAS(16) char d_buffer[SIZE]; };
+#undef BSLS_ALIGNAS
+#endif  // defined(BSLS_PLATFORM_CMP_MSVC)
+
+                        // ===================
+                        // class AlignedBuffer
+                        // ===================
+
+template <int SIZE, int ALIGNMENT = AlignmentUtil::BSLS_MAX_ALIGNMENT>
+class AlignedBuffer {
+    // An instance of this union is a block of raw memory of specified 'SIZE'
+    // and 'ALIGNMENT'.  A 'AlignedBuffer' object does not manage the
+    // construction or destruction of any other objects.  'SIZE' is rounded up
+    // to the nearest multiple of 'ALIGNMENT'.  An instantiation of this union
+    // template will not compile unless 'ALIGNMENT' is a power of two not
+    // larger than 'AlignmentUtil::BSLS_MAX_ALIGNMENT'.
+
+    // DATA
+    AlignedBuffer_Data<SIZE, ALIGNMENT> d_data;
 
   public:
     // CREATORS Note that We deliberately omit defining constructors and
@@ -182,7 +231,7 @@ template <int SIZE, int ALIGNMENT>
 inline
 char *AlignedBuffer<SIZE, ALIGNMENT>::buffer()
 {
-    return d_buffer;
+    return d_data.d_buffer;
 }
 
 // ACCESSORS
@@ -190,7 +239,7 @@ template <int SIZE, int ALIGNMENT>
 inline
 const char *AlignedBuffer<SIZE, ALIGNMENT>::buffer() const
 {
-    return d_buffer;
+    return d_data.d_buffer;
 }
 
 }  // close package namespace
