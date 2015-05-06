@@ -218,19 +218,19 @@ int main(int argc, char *argv[])
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
         //
         // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_ALIGNAS' is defined
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS' is defined
         //:    only when the compiler is able to compile code with the
         //:    alignas specifier.
         //
         // Plan:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_ALIGNAS' is defined
+        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS' is defined
         //:   then compile code that uses the align as specifier.
         //
         // Testing:
-        //   BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_ALIGNAS
+        //   BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
         // --------------------------------------------------------------------
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_ALIGNAS)
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS)
         if (verbose) printf("Testing 'alignas' skipped\n"
                             "===========================\n");
 #else
