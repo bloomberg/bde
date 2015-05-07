@@ -14,9 +14,9 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Ramya Iyer (riyer)
 //
-//@DESCRIPTION: This component provides a mechanism class, 'Printer', that, in
-// many cases, simplifies the implementation of types providing a 'print'
-// method with the signature:
+//@DESCRIPTION: This component provides a mechanism class, 'bslim::Printer',
+// that, in many cases, simplifies the implementation of types providing a
+// 'print' method with the signature:
 //..
 //  bsl::ostream& print(bsl::ostream& stream,
 //                      int           level          = 0,
@@ -88,8 +88,8 @@ BSLS_IDENT("$Id: $")
 // standard 'print' function of a value-semantic class having multiple
 // attributes.  Suppose we have a class, 'RecordAttributes', that provides a
 // container for a fixed set of attributes.  A 'RecordAttributes' object has
-// two attributes, "timestamp", of type 'my::Datetime', and
-// "processID", of type 'int':
+// two attributes, "timestamp", of type 'my::Datetime', and "processID", of
+// type 'int':
 //..
 //  class StockTrade {
 //      // This class represents the properties of a stock trace.
@@ -143,8 +143,8 @@ BSLS_IDENT("$Id: $")
 // method may be implemented to output the internal state of an object of such
 // a type, e.g., for debugging purposes.
 //
-// For example, consider a memory manager class, 'BlockList', that
-// maintains a linked list of memory blocks:
+// For example, consider a memory manager class, 'BlockList', that maintains a
+// linked list of memory blocks:
 //..
 //  class BlockList {
 //      // This class implements a low-level memory manager that allocates and
@@ -595,18 +595,6 @@ class Printer {
                                                // formatting
 
   private:
-    // PRIVATE ACCESSORS
-    void printEndIndentation() const;
-        // Print to the output stream supplied at construction
-        // 'absLevel() * spacesPerLevel()' blank spaces if
-        // 'spacesPerLevel() >= 0', and print a single blank space otherwise.
-
-    void printIndentation() const;
-        // Print to the output stream supplied at construction
-        // '(absLevel() + 1) * spacesPerLevel()' blank spaces if
-        // 'spacesPerLevel() >= 0', and print a single blank space otherwise.
-
-  private:
     // NOT IMPLEMENTED
     Printer& operator=(const Printer&);
 
@@ -636,7 +624,7 @@ class Printer {
     template <class TYPE>
     void print(const TYPE& data, const char *name) const;
         // [!DEPRECATED!  -- use 'printAttribute' instead, or 'printValue' if
-        // no 'name' is wanted.]
+        // no name is wanted.]
         //
         // Format to the output stream supplied at construction the specified
         // 'data', prefixed by the specified 'name' if 'name' is not 0.  Format
@@ -666,9 +654,9 @@ class Printer {
         //:   not provide a standard 'print' method.
         //
         // If 'spacesPerLevel() < 0', format 'data' on a single line.
-        // If 'spacesPerLevel() >= 0', indent 'data' by
-        // '(absLevel() + 1) * spacesPerLevel()' blank spaces.  The behavior is
-        // undefined if 'TYPE' is a 'char *', but not a null-terminated string.
+        // Otherwise, indent 'data' by '(absLevel() + 1) * spacesPerLevel()'
+        // blank spaces.  The behavior is undefined if 'TYPE' is a 'char *',
+        // but not a null-terminated string.
 #endif  // BDE_OPENSOURCE_PUBLICATION
 
     template <class TYPE>
@@ -716,9 +704,9 @@ class Printer {
         //:   not provide a standard 'print' method.
         //
         // If 'spacesPerLevel() < 0', format 'data' on a single line.
-        // If 'spacesPerLevel() >= 0', indent 'data' by
-        // '(absLevel() + 1) * spacesPerLevel()' blank spaces.  The behavior is
-        // undefined if 'TYPE' is a 'char *', but not a null-terminated string.
+        // Otherwise, indent 'data' by '(absLevel() + 1) * spacesPerLevel()'
+        // blank spaces.  The behavior is undefined if 'TYPE' is a 'char *',
+        // but not a null-terminated string.
 
     template <class ITERATOR>
     void printAttribute(const char      *name,
@@ -730,6 +718,11 @@ class Printer {
         // position.  The parameterized 'ITERATOR' type must support
         // 'operator++', 'operator*', and 'operator=='.  This function will
         // call 'printValue' on each element in the range '[begin, end)'.
+
+    void printEndIndentation() const;
+        // Print to the output stream supplied at construction
+        // 'absLevel() * spacesPerLevel()' blank spaces if
+        // 'spacesPerLevel() >= 0', and print a single blank space otherwise.
 
     template <class TYPE, class PRINT_FUNCTOR>
     void printForeign(const TYPE&           data,
@@ -755,6 +748,11 @@ class Printer {
         // 'name' is not 0.  If 'spacesPerLevel() < 0', print on a single line.
         // If 'spacesPerLevel() >= 0', indent by
         // '(absLevel() + 1) * spacesPerLevel()' blank spaces.
+
+    void printIndentation() const;
+        // Print to the output stream supplied at construction
+        // '(absLevel() + 1) * spacesPerLevel()' blank spaces if
+        // 'spacesPerLevel() >= 0', and print a single blank space otherwise.
 
     template <class TYPE>
     void printOrNull(const TYPE& address, const char *name) const;
@@ -810,9 +808,9 @@ class Printer {
         //:   not provide a standard 'print' method.
         //
         // If 'spacesPerLevel() < 0', format 'data' on a single line.
-        // If 'spacesPerLevel() >= 0', indent 'data' by
-        // '(absLevel() + 1) * spacesPerLevel()' blank spaces.  The behavior is
-        // undefined if 'TYPE' is a 'char *', but not a null-terminated string.
+        // Otherwise, indent 'data' by '(absLevel() + 1) * spacesPerLevel()'
+        // blank spaces.  The behavior is undefined if 'TYPE' is a 'char *',
+        // but not a null-terminated string.
 
     template <class ITERATOR>
     void printValue(const ITERATOR& begin,
@@ -825,10 +823,10 @@ class Printer {
         // in the range '[begin, end)'.
 
     int spacesPerLevel() const;
-        // Return the number of whitespace characters to output for each
-        // level of indentation.  The number of whitespace characters for
-        // each level of indentation is configured using the 'spacesPerLevel'
-        // supplied at construction.
+        // Return the number of whitespace characters to output for each level
+        // of indentation.  The number of whitespace characters for each level
+        // of indentation is configured using the 'spacesPerLevel' supplied at
+        // construction.
 
     void start(bool suppressBracket = false) const;
         // Print to the output stream supplied at construction
@@ -838,9 +836,9 @@ class Printer {
         // 'suppressBracket' is 'false', print an opening square bracket.
 
     bool suppressInitialIndentFlag() const;
-        // Return 'true' if the initial output indentation will be
-        // suppressed, and 'false' otherwise.  The initial indentation will be
-        // suppressed if the 'level' supplied at construction is negative.
+        // Return 'true' if the initial output indentation will be suppressed,
+        // and 'false' otherwise.  The initial indentation will be suppressed
+        // if the 'level' supplied at construction is negative.
 };
 
                         // =====================
@@ -859,12 +857,12 @@ struct Printer_Helper {
                       const TYPE&   data,
                       int           level,
                       int           spacesPerLevel);
-        // Format the specified 'data' to the specified output `stream' at the
-        // (absolute value of) the specified indentation `level', using the
+        // Format the specified 'data' to the specified output 'stream' at the
+        // (absolute value of) the specified indentation 'level', using the
         // specified 'spacesPerLevel', the number of spaces per indentation
         // level for this and all of its nested objects.  Note that this
-        // function dispatches to 'printRaw' based on the type traits of
-        // the deduced (template parameter) 'TYPE'.
+        // function dispatches to 'printRaw' based on the type traits of the
+        // deduced (template parameter) 'TYPE'.
 
     template <class ITERATOR>
     static void print(bsl::ostream&   stream,
@@ -872,126 +870,116 @@ struct Printer_Helper {
                       const ITERATOR& end,
                       int             level,
                       int             spacesPerLevel);
-        // Format the container containing the specified range of objects from
-        // '[ begin, end )', where 'ITERATOR' supports the operators '++' and
-        // '*' to access the objects.  Individual objects are printed with
+        // Format the range of objects specified by '[ begin, end )' to the
+        // specified output 'stream' at the (absolute value of) the specified
+        // indentation 'level', using the specified 'spacesPerLevel', the
+        // number of spaces per indentation level for the objects and their
+        // nested objects, where 'ITERATOR' supports the operators '++' and '*'
+        // to access the objects.  Individual objects are printed with
         // 'printValue'.
 
                       // Fundamental types
 
-    static void printRaw(
-                        bsl::ostream&                  stream,
-                        char                           data,
-                        int                            level,
-                        int                            spacesPerLevel,
-                        bslmf::SelectTraitCase<bsl::is_fundamental>);
-    static void printRaw(
-                        bsl::ostream&                  stream,
-                        bool                           data,
-                        int                            level,
-                        int                            spacesPerLevel,
-                        bslmf::SelectTraitCase<bsl::is_fundamental>);
+    static void printRaw(bsl::ostream&                  stream,
+                         char                           data,
+                         int                            level,
+                         int                            spacesPerLevel,
+                         bslmf::SelectTraitCase<bsl::is_fundamental>);
+    static void printRaw(bsl::ostream&                  stream,
+                         bool                           data,
+                         int                            level,
+                         int                            spacesPerLevel,
+                         bslmf::SelectTraitCase<bsl::is_fundamental>);
     template <class TYPE>
-    static void printRaw(
-                        bsl::ostream&                  stream,
-                        TYPE                           data,
-                        int                            level,
-                        int                            spacesPerLevel,
-                        bslmf::SelectTraitCase<bsl::is_fundamental>);
+    static void printRaw(bsl::ostream&                  stream,
+                         TYPE                           data,
+                         int                            level,
+                         int                            spacesPerLevel,
+                         bslmf::SelectTraitCase<bsl::is_fundamental>);
     template <class TYPE>
-    static void printRaw(
-                        bsl::ostream&                  stream,
-                        TYPE                           data,
-                        int                            level,
-                        int                            spacesPerLevel,
-                        bslmf::SelectTraitCase<bsl::is_enum>);
+    static void printRaw(bsl::ostream&                  stream,
+                         TYPE                           data,
+                         int                            level,
+                         int                            spacesPerLevel,
+                         bslmf::SelectTraitCase<bsl::is_enum>);
 
                       // Function pointer types
 
     template <class TYPE>
-    static void printRaw(
-                        bsl::ostream&                      stream,
-                        const TYPE&                        data,
-                        int                                level,
-                        int                                spacesPerLevel,
-                        bslmf::SelectTraitCase<bslmf::IsFunctionPointer>);
+    static void printRaw(bsl::ostream&                      stream,
+                         const TYPE&                        data,
+                         int                                level,
+                         int                                spacesPerLevel,
+                         bslmf::SelectTraitCase<bslmf::IsFunctionPointer>);
 
                       // Pointer types
 
-    static void printRaw(
-                        bsl::ostream&              stream,
-                        const char                *data,
-                        int                        level,
-                        int                        spacesPerLevel,
-                        bslmf::SelectTraitCase<bsl::is_pointer>);
-    static void printRaw(
-                        bsl::ostream&              stream,
-                        const void                *data,
-                        int                        level,
-                        int                        spacesPerLevel,
-                        bslmf::SelectTraitCase<bsl::is_pointer>);
+    static void printRaw(bsl::ostream&              stream,
+                         const char                *data,
+                         int                        level,
+                         int                        spacesPerLevel,
+                         bslmf::SelectTraitCase<bsl::is_pointer>);
+    static void printRaw(bsl::ostream&              stream,
+                         const void                *data,
+                         int                        level,
+                         int                        spacesPerLevel,
+                         bslmf::SelectTraitCase<bsl::is_pointer>);
     template <class TYPE>
-    static void printRaw(
-                        bsl::ostream&              stream,
-                        const TYPE                *data,
-                        int                        level,
-                        int                        spacesPerLevel,
-                        bslmf::SelectTraitCase<bsl::is_pointer>);
+    static void printRaw(bsl::ostream&              stream,
+                         const TYPE                *data,
+                         int                        level,
+                         int                        spacesPerLevel,
+                         bslmf::SelectTraitCase<bsl::is_pointer>);
     template <class TYPE>
-    static void printRaw(
-                        bsl::ostream&              stream,
-                        const TYPE                *data,
-                        int                        level,
-                        int                        spacesPerLevel,
-                        bslmf::SelectTraitCase<bsl::is_array>);
+    static void printRaw(bsl::ostream&              stream,
+                         const TYPE                *data,
+                         int                        level,
+                         int                        spacesPerLevel,
+                         bslmf::SelectTraitCase<bsl::is_array>);
 
                       // Types with STL iterators
 
-    static void printRaw(
-                        bsl::ostream&                      stream,
-                        const bsl::string&                 data,
-                        int                                level,
-                        int                                spacesPerLevel,
-                        bslmf::SelectTraitCase<bslalg::HasStlIterators>);
+    static void printRaw(bsl::ostream&                      stream,
+                         const bsl::string&                 data,
+                         int                                level,
+                         int                                spacesPerLevel,
+                         bslmf::SelectTraitCase<bslalg::HasStlIterators>);
     template <class TYPE>
-    static void printRaw(
-                        bsl::ostream&                      stream,
-                        const TYPE&                        data,
-                        int                                level,
-                        int                                spacesPerLevel,
-                        bslmf::SelectTraitCase<bslalg::HasStlIterators>);
+    static void printRaw(bsl::ostream&                      stream,
+                         const TYPE&                        data,
+                         int                                level,
+                         int                                spacesPerLevel,
+                         bslmf::SelectTraitCase<bslalg::HasStlIterators>);
 
                       // Default types
 
     template <class T1, class T2>
-    static void printRaw(
-                        bsl::ostream&              stream,
-                        const bsl::pair<T1, T2>&   data,
-                        int                        level,
-                        int                        spacesPerLevel,
-                        bslmf::SelectTraitCase<>);
+    static void printRaw(bsl::ostream&              stream,
+                         const bsl::pair<T1, T2>&   data,
+                         int                        level,
+                         int                        spacesPerLevel,
+                         bslmf::SelectTraitCase<>);
 
-    static void printRaw(
-                        bsl::ostream&              stream,
-                        const bslstl::StringRef&   data,
-                        int                        level,
-                        int                        spacesPerLevel,
-                        bslmf::SelectTraitCase<>);
+    static void printRaw(bsl::ostream&              stream,
+                         const bslstl::StringRef&   data,
+                         int                        level,
+                         int                        spacesPerLevel,
+                         bslmf::SelectTraitCase<>);
 
     template <class TYPE>
-    static void printRaw(
-                        bsl::ostream&              stream,
-                        const TYPE&                data,
-                        int                        level,
-                        int                        spacesPerLevel,
-                        bslmf::SelectTraitCase<>);
-        // 'PrintRaw': the 'print' method of this class dispatches the actual
-        // printing to the appropriate specialized 'printRaw' method for the
-        // individual TYPE for printing.
+    static void printRaw(bsl::ostream&              stream,
+                         const TYPE&                data,
+                         int                        level,
+                         int                        spacesPerLevel,
+                         bslmf::SelectTraitCase<>);
+        // The 'print' method of this class dispatches based on 'TYPE' and
+        // traits to a 'printRaw' method to do the actual printing of the
+        // specified 'data' to the specified 'stream' with indentation based on
+        // the specified 'level' and 'spacesPerLevel'.
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
 
@@ -1171,12 +1159,11 @@ void Printer_Helper::print(bsl::ostream&   stream,
 
 template <class TYPE>
 inline
-void Printer_Helper::printRaw(
-                         bsl::ostream&                  stream,
-                         TYPE                           data,
-                         int                            ,
-                         int                            spacesPerLevel,
-                         bslmf::SelectTraitCase<bsl::is_fundamental>)
+void Printer_Helper::printRaw(bsl::ostream&                  stream,
+                              TYPE                           data,
+                              int                            ,
+                              int                            spacesPerLevel,
+                              bslmf::SelectTraitCase<bsl::is_fundamental>)
 {
     stream << data;
     if (spacesPerLevel >= 0) {
@@ -1221,12 +1208,11 @@ void Printer_Helper::printRaw(
 
 template <class TYPE>
 inline
-void Printer_Helper::printRaw(
-                             bsl::ostream&              stream,
-                             const TYPE                *data,
-                             int                        level,
-                             int                        spacesPerLevel,
-                             bslmf::SelectTraitCase<bsl::is_pointer>)
+void Printer_Helper::printRaw(bsl::ostream&              stream,
+                              const TYPE                *data,
+                              int                        level,
+                              int                        spacesPerLevel,
+                              bslmf::SelectTraitCase<bsl::is_pointer>)
 {
     printRaw(stream,
              static_cast<const void *>(data),
@@ -1246,12 +1232,11 @@ void Printer_Helper::printRaw(
 
 template <class TYPE>
 inline
-void Printer_Helper::printRaw(
-                             bsl::ostream&              stream,
-                             const TYPE                *data,
-                             int                        level,
-                             int                        spacesPerLevel,
-                             bslmf::SelectTraitCase<bsl::is_array>)
+void Printer_Helper::printRaw(bsl::ostream&              stream,
+                              const TYPE                *data,
+                              int                        level,
+                              int                        spacesPerLevel,
+                              bslmf::SelectTraitCase<bsl::is_array>)
 {
     printRaw(stream, data, level, spacesPerLevel,
              bslmf::SelectTraitCase<bsl::is_pointer>());
@@ -1338,7 +1323,6 @@ void Printer_Helper::print(bsl::ostream& stream,
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif
