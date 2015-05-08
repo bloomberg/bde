@@ -45,6 +45,9 @@ const int MAGIC_SERIAL = 639798;  // 1752/09/02 POSIX
 
 const int LOG_THROTTLE_MASK = 1 | 8 | 256;
 
+// CLASS DATA
+bool Date::s_loggingEnabledFlag = false;  // *off* by default
+
 // PRIVATE CLASS METHODS
 void Date::logIfProblematicDateAddition(
                        const char                               *fileName,
@@ -53,7 +56,8 @@ void Date::logIfProblematicDateAddition(
                        int                                       numDays,
                        bsls::AtomicOperations::AtomicTypes::Int *count)
 {
-    if (serialDate > MAGIC_SERIAL && (serialDate + numDays) > MAGIC_SERIAL) {
+    if (!Date::isLoggingEnabled()
+     || (serialDate > MAGIC_SERIAL && (serialDate + numDays) > MAGIC_SERIAL)) {
         return;                                                       // RETURN
     }
 
@@ -83,7 +87,8 @@ void Date::logIfProblematicDateDifference(
                        int                                       rhsSerialDate,
                        bsls::AtomicOperations::AtomicTypes::Int *count)
 {
-    if (lhsSerialDate > MAGIC_SERIAL && rhsSerialDate > MAGIC_SERIAL) {
+    if (!Date::isLoggingEnabled()
+     || (lhsSerialDate > MAGIC_SERIAL && rhsSerialDate > MAGIC_SERIAL)) {
         return;                                                       // RETURN
     }
 
@@ -118,7 +123,8 @@ void Date::logIfProblematicDateValue(
                        int                                       serialDate,
                        bsls::AtomicOperations::AtomicTypes::Int *count)
 {
-    if (serialDate > MAGIC_SERIAL || 1 == serialDate) {
+    if (!Date::isLoggingEnabled()
+     || (serialDate > MAGIC_SERIAL || 1 == serialDate)) {
         return;                                                       // RETURN
     }
 
@@ -139,6 +145,21 @@ void Date::logIfProblematicDateValue(
                                  year, month, day,
                                  tmpCount);
     }
+}
+
+// CLASS METHODS
+void Date::disableLogging()
+{
+    s_loggingEnabledFlag = false;
+
+    BSLS_LOG_SIMPLE("'bdlt::Date' logging disabled");
+}
+
+void Date::enableLogging()
+{
+    s_loggingEnabledFlag = true;
+
+    BSLS_LOG_SIMPLE("'bdlt::Date' logging enabled");
 }
 
 #endif

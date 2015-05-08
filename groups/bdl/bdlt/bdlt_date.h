@@ -253,6 +253,11 @@ class Date {
     // representation).  See {Valid Date Values and Their Representations} for
     // details.
 
+#ifdef BDE_OPENSOURCE_PUBLICATION
+    // CLASS DATA
+    static bool s_loggingEnabledFlag;  // 'true' iff logging is enabled
+#endif
+
     // DATA
     int d_serialDate;  // absolute serial date (1 == 1/1/1, 2 == 1/1/2, ...)
 
@@ -554,6 +559,22 @@ class Date {
         //
         // Return the most current BDEX streaming version number supported by
         // this class.
+
+    // TRANSITIONAL METHODS
+    static void disableLogging();
+        // Disable the logging of potential issues pertaining to the transition
+        // to proleptic Gregorian.  This function has no effect if logging is
+        // already disabled.  Do *not* call this method unless you know what
+        // you are doing.
+
+    static void enableLogging();
+        // Enable the logging of potential issues pertaining to the transition
+        // to proleptic Gregorian.  This function has no effect if logging is
+        // already enabled.  Do *not* call this method unless you know what you
+        // are doing.
+
+    static bool isLoggingEnabled();
+        // Return 'true' if logging is enabled, and 'false' otherwise.
 
 #endif  // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
@@ -1105,6 +1126,13 @@ inline
 int Date::maxSupportedBdexVersion()
 {
     return maxSupportedBdexVersion(0);
+}
+
+// TRANSITIONAL METHODS
+inline
+bool Date:isLoggingEnabled()
+{
+    return s_loggingEnabledFlag;
 }
 
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation

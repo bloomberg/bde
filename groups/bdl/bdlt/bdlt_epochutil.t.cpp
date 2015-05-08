@@ -25,6 +25,7 @@
 // TBD Extra inclusions needed temporarily for testing
 //     'logIfProblematicDateValue'.
 
+#include <bdlt_date.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bsls_log.h>
@@ -266,6 +267,12 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTESTING 'logIfProblematicDateValue'"
                           << "\n===================================" << endl;
+
+        if (!bdlt::Date::isLoggingEnabled()) {
+            if (verbose) cout << "\nLogging is disabled.  Skipping..." << endl;
+
+            break;
+        }
 
         bslma::TestAllocator da("case7", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard dag(&da);

@@ -5,6 +5,7 @@
 BSLS_IDENT_RCSID(bdlt_epochutil_cpp,"$Id$ $CSID$")
 
 #ifndef BDE_OPENSOURCE_PUBLICATION
+#include <bdlt_date.h>
 #include <bdlb_bitutil.h>
 #include <bsls_log.h>
 #endif
@@ -66,7 +67,8 @@ void EpochUtil::logIfProblematicDateValue(
                        const Date&                               date,
                        bsls::AtomicOperations::AtomicTypes::Int *count)
 {
-    if (date > *reinterpret_cast<const Date *>(&MAGIC_SERIAL)) {
+    if (!Date::isLoggingEnabled()
+     || (date > *reinterpret_cast<const Date *>(&MAGIC_SERIAL))) {
         return;                                                       // RETURN
     }
 
