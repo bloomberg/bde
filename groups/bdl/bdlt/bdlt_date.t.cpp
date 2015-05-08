@@ -427,6 +427,12 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTESTING 'logIfProblematicDate*'"
                           << "\n===============================" << endl;
 
+        if (!bdlt::Date::isLoggingEnabled()) {
+            if (verbose) cout << "\nLogging is disabled.  Skipping..." << endl;
+
+            break;
+        }
+
         bslma::TestAllocator da("case21", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard dag(&da);
 
