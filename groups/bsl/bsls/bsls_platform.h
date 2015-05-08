@@ -834,8 +834,8 @@ struct bsls_Platform_Assert;
 #endif
 
 #if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40600)  \
-	 || defined(BSLS_PLATFORM_CMP_CLANG)
-	 #define BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC 1
+                                    || defined(BSLS_PLATFORM_CMP_CLANG)
+     #define BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC 1
 #endif
 // ----------------------------------------------------------------------------
 
