@@ -253,7 +253,7 @@ class Date {
     // representation).  See {Valid Date Values and Their Representations} for
     // details.
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifndef BDE_OPENSOURCE_PUBLICATION
     // CLASS DATA
     static bool s_loggingEnabledFlag;  // 'true' iff logging is enabled
 #endif
@@ -1130,7 +1130,7 @@ int Date::maxSupportedBdexVersion()
 
 // TRANSITIONAL METHODS
 inline
-bool Date:isLoggingEnabled()
+bool Date::isLoggingEnabled()
 {
     return s_loggingEnabledFlag;
 }
