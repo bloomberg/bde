@@ -839,13 +839,19 @@ struct bsls_Platform_Assert;
 #if defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CPU_64_BIT)
     #define BSLS_PLATFORM_NO_64_BIT_LITERALS 1
 #endif
+
+#if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40600)  \
+                                    || defined(BSLS_PLATFORM_CMP_CLANG)
+    #define BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC 1
+#endif
 // ----------------------------------------------------------------------------
 
                                  // Validation
 
 // Unix flag must be set by the compiler if Unix detected (except for AIX).
-#if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_AIX) && \
-                                      !defined(BSLS_PLATFORM_OS_DARWIN)
+#if defined(BSLS_PLATFORM_OS_UNIX)     \
+  && !defined(BSLS_PLATFORM_OS_AIX)    \
+  && !defined(BSLS_PLATFORM_OS_DARWIN)
     #if !defined(unix) && !defined(__unix__) && !defined(__unix)
         #error "Unix platform assumed, but unix flag not set by compiler"
         BSLS_PLATFORM_COMPILER_ERROR;

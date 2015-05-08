@@ -1167,7 +1167,7 @@ bool OutputRedirector::load()
 
         if(charsRead < 0) {
             d_outputBuffer[0] = '\0';
-        } else if(static_cast<unsigned long>(charsRead) >= d_outputSize) {
+        } else if(charsRead >= d_outputSize) {
             // This case should never happen.  This assignment is safe because
             // the total buffer size is enough to hold 'd_outputSize' + 1.
             d_outputBuffer[d_outputSize] = '\0';
