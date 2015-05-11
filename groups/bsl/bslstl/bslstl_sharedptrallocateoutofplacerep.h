@@ -23,7 +23,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // shared object.  Memory is supplied and reclaimed by an allocator of the
 // parameterized 'ALLOCATOR' type.
 //
-///Thread-Safety
+///Thread Safety
 ///-------------
 // 'bslstl::SharedPtrAllocateOutofplaceRep' is thread-safe provided that
 // 'disposeObject' and 'disposeRep' are not called explicitly, meaning that all
@@ -326,7 +326,7 @@ class SharedPtrAllocateOutofplaceRep_InitProctor {
     // If the proctor is not released before it's destruction, a copy of the
     // deleter is instantiated to delete the pointer (in case 'operator()' is
     // non-'const').  Also note that if the deleter throws during
-    // copy-construction, the provided pointer will not be destroyed.
+    // copy construction, the provided pointer will not be destroyed.
 
     // DATA
     TYPE           *d_ptr_p;    // address of the managed object (held, not

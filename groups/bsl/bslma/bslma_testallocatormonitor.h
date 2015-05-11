@@ -169,7 +169,7 @@ BSLS_IDENT("$Id: $")
 //:
 //: 3 No accessor allocates any memory.
 //:
-//: 4 All memory allocation is exception neutral.
+//: 4 All memory allocation is exception-neutral.
 //:
 //: 5 QoI: The default constructor allocates no memory.
 //:
@@ -211,7 +211,7 @@ BSLS_IDENT("$Id: $")
 //:     Confirm that the attribute was set and that memory was allocated.
 //:
 //:   3 Confirm the the primary manipulator (the 'setDescription' method) is
-//:     exception neutral (i.e., exceptions from the allocator are propagated
+//:     exception-neutral (i.e., exceptions from the allocator are propagated
 //:     and no memory is leaked).  Use the
 //:     'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros to manage the test,
 //:     and use the test allocator monitor to confirm that memory is allocated

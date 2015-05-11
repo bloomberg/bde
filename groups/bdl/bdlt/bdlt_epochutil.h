@@ -48,7 +48,7 @@ BSLS_IDENT("$Id: $")
 // Reference Systems Service, but simply regard each day as having a fixed
 // number of seconds (24 hours * 60 minutes / hour * 60 seconds / minute).
 //
-///Thread-Safety
+///Thread Safety
 ///-------------
 // It is safe to invoke any function defined in this component in two or more
 // separate threads simultaneously, provided no other thread is simultaneously

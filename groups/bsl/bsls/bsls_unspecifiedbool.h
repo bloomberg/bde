@@ -63,7 +63,7 @@ BSLS_IDENT("$Id: $")
 //      // PRIVATE ACCESSORS
 //      bool operator==(const SimplePtr &);  // = delete;
 //      bool operator!=(const SimplePtr &);  // = delete;
-//          // Suppress equality comparison operations on objects of this
+//          // Suppress equality-comparison operations on objects of this
 //          // class.
 //
 //    public:

@@ -1169,7 +1169,7 @@ class ManagedPtr {
         // but does *not* allow managed pointers to be compared (e.g., via '<'
         // or '>').  Note that a superior solution is available in C++11 using
         // the 'explicit operator bool()' syntax, that removes the need for a
-        // special boolean-like type and private equality comparison operators.
+        // special boolean-like type and private equality-comparison operators.
 
     typename bslmf::AddReference<TARGET_TYPE>::Type operator*() const;
         // Return a reference to the target object.  The behavior is undefined
