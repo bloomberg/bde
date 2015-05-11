@@ -20,6 +20,24 @@
  * it to <string.h>
  */
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
+#if !defined(__cplusplus)
+
+#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
+#   include <bsl_stdhdrs_incpaths.h>
+#   endif
+
+#   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
+#     include_next <string.h>
+#   else
+#     include BSL_NATIVE_C_LIB_HEADER(string.h)
+#   endif
+
+#else  /* defined(__cplusplus) */
+
 #include <bsl_cstring.h>
 
 using std::memmove;
@@ -27,6 +45,8 @@ using std::memcpy;
 using std::memchr;
 using std::memcmp;
 using std::memset;
+
+#endif  /* __cplusplus */
 
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.
