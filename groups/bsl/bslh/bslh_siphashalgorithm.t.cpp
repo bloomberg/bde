@@ -482,13 +482,13 @@ int main(int argc, char *argv[])
                             "\n===================================\n");
         static const struct {
             int                 d_line;
-            const char          d_seed[17];
-            const char          d_value[21];
+            const char          d_seed[16];
+            const char         *d_value;
             int                 d_length;
             bsls::Types::Uint64 d_expectedHash;
         } DATA[] = {
         // LINE SEED VALUE LENGTH EXPECTEDHASH
-         {  L_, "\0\1\2\3\4\5\6\7\10\11\12\13\14\15\16\17",
+         {  L_, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 },
                      "\0\1\2\3\4\5\6\7\10\11\12\13\14\15\16",
                            15,    0xa129ca6149be45e5ULL        },
         };
