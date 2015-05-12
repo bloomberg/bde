@@ -4917,7 +4917,7 @@ int main(int argc, char *argv[])
             ASSERT(&out == &X.bdexStreamOut(out, VERSION));
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const bsl::size_t LOD = out.length();
             In                in(OD, LOD);
             ASSERT(in);
             ASSERT(!in.isEmpty());
@@ -4936,7 +4936,7 @@ int main(int argc, char *argv[])
             ASSERT(&out == &X.bdexStreamOut(out, VERSION));
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const bsl::size_t LOD = out.length();
             In                in(OD, LOD);
             ASSERT(in);
             ASSERT(!in.isEmpty());
@@ -4964,7 +4964,7 @@ int main(int argc, char *argv[])
 
                 bdexStreamOut(out, X, VERSION);
                 const char *const OD  = out.data();
-                const int         LOD = out.length();
+                const bsl::size_t LOD = out.length();
 
                 // Verify that each new value overwrites every old value and
                 // that the input stream is emptied, but remains valid.
@@ -4994,7 +4994,7 @@ int main(int argc, char *argv[])
 
                 bdexStreamOut(out, X, VERSION);
                 const char *const OD  = out.data();
-                const int         LOD = out.length();
+                const bsl::size_t LOD = out.length();
 
                 // Verify that each new value overwrites every old value and
                 // that the input stream is emptied, but remains valid.
@@ -5024,7 +5024,7 @@ int main(int argc, char *argv[])
             Out out(SERIALIZATION_VERSION);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const bsl::size_t LOD = out.length();
             ASSERT(0 == LOD);
 
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -5050,7 +5050,7 @@ int main(int argc, char *argv[])
             Out out(SERIALIZATION_VERSION);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const bsl::size_t LOD = out.length();
             ASSERT(0 == LOD);
 
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -5089,11 +5089,11 @@ int main(int argc, char *argv[])
 
             Out out(SERIALIZATION_VERSION);
             bdexStreamOut(out, X1, VERSION);
-            const int LOD1 = out.length();
+            const bsl::size_t LOD1 = out.length();
             bdexStreamOut(out, X2, VERSION);
-            const int LOD2 = out.length();
+            const bsl::size_t LOD2 = out.length();
             bdexStreamOut(out, X3, VERSION);
-            const int LOD  = out.length();
+            const bsl::size_t LOD  = out.length();
 
             const char *const OD = out.data();
 
@@ -5156,11 +5156,11 @@ int main(int argc, char *argv[])
 
             Out out(SERIALIZATION_VERSION);
             bdexStreamOut(out, X1, VERSION);
-            const int LOD1 = out.length();
+            const bsl::size_t LOD1 = out.length();
             bdexStreamOut(out, X2, VERSION);
-            const int LOD2 = out.length();
+            const bsl::size_t LOD2 = out.length();
             bdexStreamOut(out, X3, VERSION);
-            const int LOD  = out.length();
+            const bsl::size_t LOD  = out.length();
 
             const char *const OD = out.data();
 
@@ -5234,7 +5234,7 @@ int main(int argc, char *argv[])
             out.putInt8(127);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const bsl::size_t LOD = out.length();
 
             Obj t(X);        ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
             In in(OD, LOD);  ASSERT(in);
@@ -5253,7 +5253,7 @@ int main(int argc, char *argv[])
             out.putUint8(255);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const bsl::size_t LOD = out.length();
 
             UnsignedObj t(UX);
             ASSERT(UW != t);  ASSERT(UX == t);  ASSERT(UY != t);
@@ -5277,7 +5277,7 @@ int main(int argc, char *argv[])
             out.putInt8(127);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const bsl::size_t LOD = out.length();
 
             Obj t(X);        ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
             In in(OD, LOD);  ASSERT(in);
@@ -5299,7 +5299,7 @@ int main(int argc, char *argv[])
             out.putUint8(255);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const bsl::size_t LOD = out.length();
 
             UnsignedObj t(UX);
             ASSERT(UW != t);  ASSERT(UX == t);  ASSERT(UY != t);
@@ -5322,7 +5322,7 @@ int main(int argc, char *argv[])
             out.putInt8(127);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const bsl::size_t LOD = out.length();
 
             Obj t(X);        ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
             In in(OD, LOD);  ASSERT(in);
@@ -5344,7 +5344,7 @@ int main(int argc, char *argv[])
             out.putUint8(255);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const bsl::size_t LOD = out.length();
 
             UnsignedObj t(UX);
             ASSERT(UW != t);  ASSERT(UX == t);  ASSERT(UY != t);
@@ -5367,7 +5367,7 @@ int main(int argc, char *argv[])
             out.putInt8(127);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const bsl::size_t LOD = out.length();
 
             Obj t(X);        ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
             In in(OD, LOD);  ASSERT(in);
@@ -5387,7 +5387,7 @@ int main(int argc, char *argv[])
             out.putUint8(255);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const bsl::size_t LOD = out.length();
 
             UnsignedObj t(UX);
             ASSERT(UW != t);  ASSERT(UX == t);  ASSERT(UY != t);
