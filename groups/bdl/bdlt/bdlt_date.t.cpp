@@ -132,6 +132,10 @@ using namespace bsl;
 // [13] static bool isValid(int year, int dayOfYear);
 // [13] static bool isValid(int year, int month, int day);
 // [10] static int maxSupportedBdexVersion();
+// TRANSITIONAL
+// [22] static void disableLogging();
+// [22] static void enableLogging();
+// [22] static bool isLoggingEnabled();
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 // [10] static int maxSupportedVersion();
@@ -390,6 +394,60 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:
 #ifndef BDE_OPENSOURCE_PUBLICATION
+      case 22: {
+        // --------------------------------------------------------------------
+        // TESTING LOGGING SWITCH
+        //
+        // Concerns:
+        //: 1 Logging is disabled by default.
+        //:
+        //: 2 The 'disableLogging' function disables logging regardless of its
+        //:   current setting.
+        //:
+        //: 3 The 'enableLogging' function enables logging regardless of its
+        //:   current setting.
+        //:
+        //: 4 The value returned by the 'isLoggingEnabled' function is 'true'
+        //:   if logging is enabled, and 'false' otherwise.
+        //
+        // Plan:
+        //: 1 Verify logging is initially disabled.  (C-1)
+        //:
+        //: 2 Cycle through a sequence of calls to the "disable" and "enable"
+        //:   functions ensuring that each function is called at least once
+        //:   when the current logging state is off and at least once when the
+        //:   state is on.  Follow each call with a call to 'isLoggingEnabled'
+        //:   to verify that the expected logging state is in effect.  (C-2..4)
+        //
+        // Testing:
+        //   static void disableLogging();
+        //   static void enableLogging();
+        //   static bool isLoggingEnabled();
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING LOGGING SWITCH" << endl
+                          << "======================" << endl;
+
+        // Logging is disabled by default.
+        ASSERT(false == bdlt::Date::isLoggingEnabled());
+
+        bdlt::Date::disableLogging();
+        ASSERT(false == bdlt::Date::isLoggingEnabled());
+
+        bdlt::Date::disableLogging();
+        ASSERT(false == bdlt::Date::isLoggingEnabled());
+
+        bdlt::Date::enableLogging();
+        ASSERT(true  == bdlt::Date::isLoggingEnabled());
+
+        bdlt::Date::enableLogging();
+        ASSERT(true  == bdlt::Date::isLoggingEnabled());
+
+        bdlt::Date::disableLogging();
+        ASSERT(false == bdlt::Date::isLoggingEnabled());
+
+      } break;
       case 21: {
         // --------------------------------------------------------------------
         // TESTING 'logIfProblematicDate*'
@@ -426,6 +484,12 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTESTING 'logIfProblematicDate*'"
                           << "\n===============================" << endl;
+
+        if (!bdlt::Date::isLoggingEnabled()) {
+            if (verbose) cout << "\nLogging is disabled.  Skipping..." << endl;
+
+            break;
+        }
 
         bslma::TestAllocator da("case21", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard dag(&da);
