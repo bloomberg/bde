@@ -13,20 +13,22 @@ out = 'build'
 
 def _get_tools_path(ctx):
     waf_path = sys.argv[0]
-    base = os.path.dirname(waf_path)
-    if os.path.isdir(os.path.join(base, 'lib', 'bdebld')):
-        return os.path.join(base, 'lib')
-    ctx.fatal("BDE waf customizations can not be found under tools/lib in the "
-              "path to waf.")
+    libdir = os.path.join(os.path.dirname(os.path.dirname(waf_path)), 'lib',
+                          'python')
+    if os.path.isdir(os.path.join(libdir, 'bdebuild')):
+        return libdir
+    ctx.fatal('BDE waf customizations can not be found. '
+              'Make sure that you are running the waf executable located in '
+              'bde-oss-tools/bin.')
 
 
 def options(ctx):
-    ctx.load('bdebld.waf.wscript', tooldir=_get_tools_path(ctx))
+    ctx.load('bdebuild.waf.wscript', tooldir=_get_tools_path(ctx))
 
 
 def configure(ctx):
-    ctx.load('bdebld.waf.wscript', tooldir=_get_tools_path(ctx))
+    ctx.load('bdebuild.waf.wscript', tooldir=_get_tools_path(ctx))
 
 
 def build(ctx):
-    ctx.load('bdebld.waf.wscript', tooldir=_get_tools_path(ctx))
+    ctx.load('bdebuild.waf.wscript', tooldir=_get_tools_path(ctx))
