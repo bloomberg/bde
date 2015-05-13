@@ -735,8 +735,8 @@ class PackedIntArrayConstIterator {
     // This unconstrained (value-semantic) class represents a random access
     // iterator providing non-modifiable access to the elements of a
     // 'PackedIntArray'.  This class provides all functionality of a random
-    // access iterator, as defined by the standard, and is compatible with most
-    // standard methods requiring a bidirectional const_iterator.
+    // access iterator, as defined by the standard, but is *not* compatible
+    // with most standard methods requiring a bidirectional const_iterator.
     //
     // This class does not perform any bounds checking.  The returned iterator,
     // 'it', referencing an element within a 'PackedIntArray', 'array', remains
@@ -787,10 +787,6 @@ class PackedIntArrayConstIterator {
 
     // The following typedefs define the traits for this iterator to make it
     // compatible with standard functions.
-
-    typedef bsl::random_access_iterator_tag iterator_category;  // The category
-                                                                // of the
-                                                                // iterator.
 
     typedef bsl::ptrdiff_t                   difference_type;   // The type
                                                                 // used for the
