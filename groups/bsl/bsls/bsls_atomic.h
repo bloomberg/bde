@@ -1003,7 +1003,7 @@ class AtomicPointer {
 
     TYPE *testAndSwap(const TYPE *compareValue, TYPE *swapValue);
         // Compare the value of this object to the specified 'compareValue'.
-        // If they are equal, set the value of this atomic integer to the
+        // If they are equal, set the value of this atomic pointer to the
         // specified 'swapValue', otherwise leave this value unchanged.  Return
         // the previous value of this atomic integer, whether or not the swap
         // occurred.  Note that the entire test-and-swap operation is performed
@@ -1011,7 +1011,7 @@ class AtomicPointer {
 
     TYPE *testAndSwapAcqRel(const TYPE *compareValue, TYPE *swapValue);
         // Compare the value of this object to the specified 'compareValue'.
-        // If they are equal, set the value of this atomic integer to the
+        // If they are equal, set the value of this atomic pointer to the
         // specified 'swapValue', otherwise leave this value unchanged.  Return
         // the previous value of this atomic integer, whether or not the swap
         // occurred.  Note that the entire test-and-swap operation is performed
