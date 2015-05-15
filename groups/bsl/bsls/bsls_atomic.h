@@ -1005,7 +1005,7 @@ class AtomicPointer {
         // Compare the value of this object to the specified 'compareValue'.
         // If they are equal, set the value of this atomic pointer to the
         // specified 'swapValue', otherwise leave this value unchanged.  Return
-        // the previous value of this atomic integer, whether or not the swap
+        // the previous value of this atomic pointer, whether or not the swap
         // occurred.  Note that the entire test-and-swap operation is performed
         // atomically.
 
@@ -1013,7 +1013,7 @@ class AtomicPointer {
         // Compare the value of this object to the specified 'compareValue'.
         // If they are equal, set the value of this atomic pointer to the
         // specified 'swapValue', otherwise leave this value unchanged.  Return
-        // the previous value of this atomic integer, whether or not the swap
+        // the previous value of this atomic pointer, whether or not the swap
         // occurred.  Note that the entire test-and-swap operation is performed
         // atomically and it provides the acquire/release memory ordering
         // guarantee.
