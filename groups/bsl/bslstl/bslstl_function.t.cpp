@@ -312,7 +312,8 @@ void dumpExTest(const char *s, int bslmaExceptionCounter,
 
 #else // if ! BDE_BUILD_TARGET_EXC
 
-#define EXCEPTION_TEST_BEGIN(testAllocator, exceptionLimit) do {
+#define EXCEPTION_TEST_BEGIN(testAllocator, exceptionLimit) do { \
+    (void) (testAllocator); (void) (exceptionLimit);
 #define EXCEPTION_TEST_TRY do { if (true)
 #define EXCEPTION_TEST_CATCH else
 #define EXCEPTION_TEST_ENDTRY } while (false)
@@ -2400,6 +2401,8 @@ void testAssignment(const Obj& inA,
                     bool       skipMvExcTest)
     // Test copy and move assignment
 {
+    (void) skipMvExcTest; // Avoid unused arg warning in C++03 mode
+
     bslma::TestAllocator testAlloc1;
     bslma::TestAllocator testAlloc2;
     ALLOC_A allocA1(&testAlloc1);
@@ -2430,6 +2433,10 @@ void testAssignment(const Obj& inA,
         AllocSizeType preB2Bytes = testAlloc2.numBytesInUse();
         AllocSizeType preB2Total = testAlloc2.numBytesTotal();
         EXCEPTION_TEST_TRY {
+            if (skipMvExcTest) {
+                testAlloc1.setAllocationLimit(-1);
+                copyLimit = -1;
+            }
             a = b;  ///////// COPY ASSIGNMENT //////////
             AllocSizeType postA1Bytes = testAlloc1.numBytesInUse();
             AllocSizeType postB2Bytes = testAlloc2.numBytesInUse();
@@ -2482,8 +2489,7 @@ void testAssignment(const Obj& inA,
     testAlloc1Monitor.reset(&testAlloc1);
     testAlloc2Monitor.reset(&testAlloc2);
 
-    EXCEPTION_TEST_BEGIN(skipMvExcTest ? 0 : &testAlloc1,
-                         skipMvExcTest ? 0 : &moveLimit) {
+    EXCEPTION_TEST_BEGIN(&testAlloc1, &moveLimit) {
 
         FunctorMonitor funcMonitor(L_);
 
@@ -2503,6 +2509,10 @@ void testAssignment(const Obj& inA,
         AllocSizeType preB2Bytes = testAlloc2.numBytesInUse();
         AllocSizeType preB2Total = testAlloc2.numBytesTotal();
         EXCEPTION_TEST_TRY {
+            if (skipMvExcTest) {
+                testAlloc1.setAllocationLimit(-1);
+                moveLimit = -1;
+            }
             a = std::move(b);  ///////// MOVE ASSIGNMENT //////////
             AllocSizeType postA1Bytes = testAlloc1.numBytesInUse();
             AllocSizeType postB2Bytes = testAlloc2.numBytesInUse();
@@ -2558,8 +2568,7 @@ void testAssignment(const Obj& inA,
     // not comparable, then skip this part of the test.
     ALLOC_B allocB1(&testAlloc1);
     if (areEqualAlloc(allocA1, allocB1)) {
-        EXCEPTION_TEST_BEGIN(skipMvExcTest ? 0 : &testAlloc1,
-                             skipMvExcTest ? 0 : &moveLimit) {
+        EXCEPTION_TEST_BEGIN(&testAlloc1, &moveLimit) {
 
             FunctorMonitor funcMonitor(L_);
 
@@ -2576,6 +2585,10 @@ void testAssignment(const Obj& inA,
             //     testAlloc1.numBytesInUse() - preA1Bytes;
 
             EXCEPTION_TEST_TRY {
+                if (skipMvExcTest) {
+                    testAlloc1.setAllocationLimit(-1);
+                    moveLimit = -1;
+                }
                 // Move assigment with equal allocators is the same as swap
                 AllocSizeType preA1Bytes = testAlloc1.numBytesInUse();
                 AllocSizeType preA1Total = testAlloc1.numBytesTotal();
@@ -2663,6 +2676,8 @@ void testAssignFromFunctor(const Obj&   lhsIn,
 {
     typedef typename NTUNWRAP_T(FUNC_ARG) FUNC;
 
+    (void) skipExcTest; // Avoid unused arg warning in C++03 mode.
+
     if (veryVeryVerbose) {
         printf("\tObj lhs(allocator_arg, %s, %s); rhs = %s;\n",
                allocName, lhsFuncName, rhsFuncName);
@@ -2693,6 +2708,10 @@ void testAssignFromFunctor(const Obj&   lhsIn,
 
         preBytes = ta.numBytesInUse();
         EXCEPTION_TEST_TRY {
+            if (skipExcTest) {
+                ta.setAllocationLimit(-1);
+                copyLimit = -1;
+            }
             lhs = rhs;  ///////// COPY-ASSIGNMENT FROM FUNC_ARG //////////
 
             // The number of bytes used by the lhs after the assignment is
@@ -2765,6 +2784,10 @@ void testAssignFromFunctor(const Obj&   lhsIn,
         Obj exp(bsl::allocator_arg, alloc, rhsIn);
 
         EXCEPTION_TEST_TRY {
+            if (skipExcTest) {
+                ta.setAllocationLimit(-1);
+                copyLimit = -1;
+            }
             // Prove that assignment can be called with const rhs.
             lhs = RHS;  // Assignment from const rhs
 
