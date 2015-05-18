@@ -143,6 +143,22 @@ BSL_OVERRIDES_STD mode"
 // TBD: Remove this when BloombergLP is removed from bsl package group
 using namespace BloombergLP;
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+
+// In order to allow inter-converibility between 'bsl::function' and
+// 'bdef_function', we need to bend our leveling rules a bit and
+// forward-declare 'bdef_function'.  The use of this incomplete type assumes,
+// that the structure of 'bdef_function' is identical to that of
+// 'bsl::function', though with a slightly different public interface.  Note,
+// that this is a by-name reference only.  No long-distance friendship is
+// used.
+namespace BloombergLP {
+    template <class PROTOTYPE>
+    class bdef_Function;
+}
+
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
+
 namespace bsl {
 
 // TBD: Move into its own component (or into uses_allocator component)
@@ -164,18 +180,6 @@ struct Function_ArgTypes;
 
 template <class FUNC>
 struct Function_NothrowWrapperUtil;
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-// In order to allow inter-converibility between 'bsl::function' and
-// 'bdef_function', we need to bend our leveling rules a bit and
-// forward-declare 'bdef_function'.  The use of this incomplete type assumes,
-// that the structure of 'bdef_function' is identical to that of
-// 'bsl::function', though with a slightly different public interface.  Note,
-// that this is a by-name reference only.  No long-distance friendship is
-// used.
-template <class PROTOTYPE>
-class bdef_Function;
-#endif
 
                         // =======================
                         // class bad_function_call
