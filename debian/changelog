@@ -1,5 +1,16 @@
-bsl-internal (2.23.0.4.icbeta) unstable; urgency=low
+bsl-internal (2.23.0.5) unstable; urgency=low
 
+  * 20c51ee Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.23.x
+  * 6024755 [APPROVAL] INTERNAL review/releases-2.23.x-bdlt_date-logging-switch-drqs-65486833 to releases/2.23.x
+  * a9ccf04 [APPROVAL] review/releases-2.23.x-bdlt_date-logging-switch-drqs-65486833 to releases/2.23.x
+  * e399774 [APPROVAL] OSS releases-2.23.x-cherry-pick-restore-bsls_platform-gcc-pragma-drqs-65447001 to releases/2.23.x
+  * 2e152f6 [APPROVAL] releases-2.23.x-cherry-pick-restore-bsls_platform-gcc-pragma-drqs-65447001 to releases/2.23.x
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 13 May 2015 11:25:31 -0400
+
+bsl-internal (2.23.0.4.icbeta) git; urgency=low
+
+  * aff8719 bump changelog to 2.23.0.4.icbeta
   * cec78d2 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.23.x
   * d236170 [APPROVAL] INTERNAL review/internal-release-candidate-drqs-65207819 to releases/2.23.x
   * 7ba5329 [APPROVAL] review/internal-release-candidate-drqs-65207819 to releases/2.23.x
@@ -11,7 +22,7 @@ bsl-internal (2.23.0.4.icbeta) unstable; urgency=low
   * 59156db [APPROVAL] OSS pending/releases/2.23.x/bsls_atomic-test-driver-case-7-timing-out-drqs-64653622 to releases/2.23.x
   * 2de5464 [APPROVAL] pending/releases/2.23.x/bsls_atomic-test-driver-case-7-timing-out-drqs-64653622 to releases/2.23.x
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 4 May 2015 10:54:01 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 4 May 2015 10:59:18 -0400
 
 bsl-internal (2.23.0.3.icbeta) git; urgency=low
 
