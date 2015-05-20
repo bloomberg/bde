@@ -7566,7 +7566,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING 'ManagedPtr_Ref'
         //
-        // 'bslma::ManagedPtr_Ref' is similar to an in-core value semantic type
+        // 'bslma::ManagedPtr_Ref' is similar to an in-core value-semantic type
         // having a single pointer as its only attribute; it does not offer the
         // traditional range of value-semantic operations such as equality
         // comparison and printing.  Its test concerns and plan are closely

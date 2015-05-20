@@ -130,7 +130,7 @@ namespace bdlt {
                         // ==========
 
 class Time {
-    // This class implements a value semantic type that represents the time of
+    // This class implements a value-semantic type that represents the time of
     // day to a resolution of one millisecond.  Each object of this (almost)
     // simply constrained attribute class *always* represents a valid time
     // value to a resolution of one millisecond.  The valid range for times is

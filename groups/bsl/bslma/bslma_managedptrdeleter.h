@@ -7,10 +7,10 @@
 #endif
 BSLS_IDENT("$Id$ $CSID$")
 
-//@PURPOSE: Provide an in-core value semantic class to call a delete function.
+//@PURPOSE: Provide an in-core value-semantic class to call a delete function.
 //
 //@CLASSES:
-//  bslma::ManagedPtrDeleter: in-core value semantic class storing a deleter
+//  bslma::ManagedPtrDeleter: in-core value-semantic class storing a deleter
 //
 //@SEE_ALSO: bslma_managedptr
 //

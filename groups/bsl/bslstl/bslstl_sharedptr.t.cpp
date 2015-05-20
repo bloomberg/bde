@@ -58,7 +58,7 @@ using namespace BloombergLP;
 //                                  Overview
 //                                  --------
 // This test driver tests the functionality of a complex facility consisting of
-// two in-core value semantic types (one of which has pointer semantics), a
+// two in-core value-semantic types (one of which has pointer semantics), a
 // utility class, and a simple functor (which does nothing!).  Testing is
 // complicated that the two value-semantic types have a cycle in their public
 // interface, so some parts of their testing must be deferred until after the
@@ -7480,7 +7480,7 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // TESTING RELATIONAL OPERATORS
-        //   For an in-core value semantic type, validate the (in)equality
+        //   For an in-core value-semantic type, validate the (in)equality
         //   comparison operators before validating copy and assignment.  We
         //   take advantage of the regularity of testing these operators to
         //   include the ordered comparison operators in this same test case.

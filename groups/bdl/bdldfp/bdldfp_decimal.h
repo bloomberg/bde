@@ -598,7 +598,7 @@ typedef Decimal_Type128 Decimal128;
                             // ====================
 
 class Decimal_Type32 {
-    // This value semantic class implements the IEEE-754 32 bit decimal
+    // This value-semantic class implements the IEEE-754 32 bit decimal
     // floating-point interchange format type.  This class is a standard layout
     // type that is 'const' thread-safe and exception-neutral.
 
@@ -942,7 +942,7 @@ operator<<(bsl::basic_ostream<CHARTYPE, TRAITS>& stream, Decimal32 object);
                             // ====================
 
 class Decimal_Type64 {
-    // This value semantic class implements the IEEE-754 64 bit decimal
+    // This value-semantic class implements the IEEE-754 64 bit decimal
     // floating-point format arithmetic type.  This class is a standard layout
     // type that is 'const' thread-safe and exception-neutral.
 
@@ -2090,7 +2090,7 @@ operator<< (bsl::basic_ostream<CHARTYPE, TRAITS>& stream, Decimal64 object);
                            // =====================
 
 class Decimal_Type128 {
-    // This value semantic class implements the IEEE-754 128 bit decimal
+    // This value-semantic class implements the IEEE-754 128 bit decimal
     // floating-point format arithmetic type.  This class is a standard layout
     // type that is 'const' thread-safe and exception-neutral.
 

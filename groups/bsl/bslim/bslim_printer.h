@@ -431,7 +431,7 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // For very simple classes, it may be desirable always to format the attributes
 // on a single line.  In this example, we discuss the 'print' method formatting
-// for such a low-level value semantic class.
+// for such a low-level value-semantic class.
 //
 // Usually, single-line or multi-line formatting options are specified by the
 // value of the 'spacesPerLevel' argument, but for a simple class that always
