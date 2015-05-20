@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
 
         //: o Ubiquitous Concern: Low words shouldn't be affected by high-word
         //:   manipulation.
-        //: o Ubiquitous Cocnern: High words should be set to the value being
+        //: o Ubiquitous Concern: High words should be set to the value being
         //:   used.
         //: o Note that this test is effectively not needed, but is included
         //:   for theoretical completeness.
@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
 
         // Phase 3: Test comparison of values:
 
-        // Concern: Values A thru D compare equal to themselves.
+        // Concern: Values A through D compare equal to themselves.
         // Special case -- Value A is always 0.
 
         ASSERT(blank    == fromInt);
