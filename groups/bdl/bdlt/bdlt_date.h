@@ -287,50 +287,56 @@ class Date {
 
 #ifndef BDE_OPENSOURCE_PUBLICATION
     // PRIVATE CLASS METHODS
-    static void logIfProblematicDateAddition(
-                       const char                               *fileName,
-                       int                                       lineNumber,
-                       int                                       serialDate,
-                       int                                       numDays,
-                       bsls::AtomicOperations::AtomicTypes::Int *count);
+    static void logIfProblematicDateAddition(const char *fileName,
+                                             int         lineNumber,
+                                             int         locationId,
+                                             int         serialDate,
+                                             int         numDays);
         // Log a message to 'stderr' that includes the specified 'fileName' and
-        // 'lineNumber', and increment the specified 'count', if the addition
-        // of the specified 'numDays' to the date represented by the specified
-        // 'serialDate' is deemed to be problematic.  A date addition is
-        // problematic if *either* the initial date *or* the final date is
-        // prior to 1752/09/14 when in POSIX mode (1752/09/16 when in proleptic
-        // Gregorian mode).  Note that actual generation of log messages may be
-        // throttled to limit spew to 'stderr', but the count is always
-        // incremented.
+        // 'lineNumber', and increment the internal 'count' associated with the
+        // specified unique 'locationId', if the addition of the specified
+        // 'numDays' to the date represented by the specified 'serialDate' is
+        // deemed to be problematic.  A date addition is problematic if
+        // *either* the initial date *or* the final date is prior to 1752/09/14
+        // when in POSIX mode (1752/09/16 when in proleptic Gregorian mode).
+        // The behavior is undefined unless '0 <= locationId <= 31' and
+        // 'locationId' is uniquely associated with the 'fileName'/'lineNumber'
+        // pair.  Note that actual generation of log messages may be throttled
+        // to limit spew to 'stderr', but the internal count for the
+        // 'locationId' is always incremented.
 
-    static void logIfProblematicDateDifference(
-                       const char                               *fileName,
-                       int                                       lineNumber,
-                       int                                       lhsSerialDate,
-                       int                                       rhsSerialDate,
-                       bsls::AtomicOperations::AtomicTypes::Int *count);
+    static void logIfProblematicDateDifference(const char *fileName,
+                                               int         lineNumber,
+                                               int         locationId,
+                                               int         lhsSerialDate,
+                                               int         rhsSerialDate);
         // Log a message to 'stderr' that includes the specified 'fileName' and
-        // 'lineNumber', and increment the specified 'count', if the difference
-        // between the dates represented by the specified 'lhsSerialDate' and
-        // 'rhsSerialDate' is deemed to be problematic.  A date difference is
-        // problematic if *either* date is prior to 1752/09/14 when in POSIX
-        // mode (1752/09/16 when in proleptic Gregorian mode).  Note that
-        // actual generation of log messages may be throttled to limit spew to
-        // 'stderr', but the count is always incremented.
+        // 'lineNumber', and increment the internal 'count' associated with the
+        // specified unique 'locationId', if the difference between the dates
+        // represented by the specified 'lhsSerialDate' and 'rhsSerialDate' is
+        // deemed to be problematic.  A date difference is problematic if
+        // *either* date is prior to 1752/09/14 when in POSIX mode (1752/09/16
+        // when in proleptic Gregorian mode).  The behavior is undefined unless
+        // '0 <= locationId <= 31' and 'locationId' is uniquely associated with
+        // the 'fileName'/'lineNumber' pair.  Note that actual generation of
+        // log messages may be throttled to limit spew to 'stderr', but the
+        // internal count for the 'locationId' is always incremented.
 
-    static void logIfProblematicDateValue(
-                       const char                               *fileName,
-                       int                                       lineNumber,
-                       int                                       serialDate,
-                       bsls::AtomicOperations::AtomicTypes::Int *count);
+    static void logIfProblematicDateValue(const char *fileName,
+                                          int         lineNumber,
+                                          int         locationId,
+                                          int         serialDate);
         // Log a message to 'stderr' that includes the specified 'fileName' and
-        // 'lineNumber', and increment the specified 'count', if the specified
-        // 'serialDate' is deemed to represent a problematic date value.  A
-        // date value is problematic if it is prior to 1752/09/14 when in POSIX
-        // mode (1752/09/16 when in proleptic Gregorian mode) and is *not*
-        // 0001/01/01.  Note that actual generation of log messages may be
-        // throttled to limit spew to 'stderr', but the count is always
-        // incremented.
+        // 'lineNumber', and increment the internal 'count' associated with the
+        // specified unique 'locationId', if the specified 'serialDate' is
+        // deemed to represent a problematic date value.  A date value is
+        // problematic if it is prior to 1752/09/14 when in POSIX mode
+        // (1752/09/16 when in proleptic Gregorian mode) and is *not*
+        // 0001/01/01.  The behavior is undefined unless
+        // '0 <= locationId <= 31' and 'locationId' is uniquely associated with
+        // the 'fileName'/'lineNumber' pair.  Note that actual generation of
+        // log messages may be throttled to limit spew to 'stderr', but the
+        // internal count for the 'locationId' is always incremented.
 #endif
 
     // PRIVATE CREATORS
@@ -757,9 +763,11 @@ Date::Date(int year, int dayOfYear)
     BSLS_ASSERT_SAFE(isValidYearDay(year, dayOfYear));
 
 #ifndef BDE_OPENSOURCE_PUBLICATION
-    static bsls::AtomicOperations::AtomicTypes::Int count = { 0 };
+    enum { locationId = 0 };
 
-    Date::logIfProblematicDateValue(__FILE__, __LINE__, d_serialDate, &count);
+    Date::logIfProblematicDateValue(__FILE__, __LINE__,
+                                    static_cast<int>(locationId),
+                                    d_serialDate);
 #endif
 }
 
@@ -774,9 +782,11 @@ Date::Date(int year, int month, int day)
     BSLS_ASSERT_SAFE(isValidYearMonthDay(year, month, day));
 
 #ifndef BDE_OPENSOURCE_PUBLICATION
-    static bsls::AtomicOperations::AtomicTypes::Int count = { 0 };
+    enum { locationId = 1 };
 
-    Date::logIfProblematicDateValue(__FILE__, __LINE__, d_serialDate, &count);
+    Date::logIfProblematicDateValue(__FILE__, __LINE__,
+                                    static_cast<int>(locationId),
+                                    d_serialDate);
 #endif
 }
 
@@ -806,10 +816,11 @@ Date& Date::operator+=(int numDays)
     BSLS_ASSERT_SAFE(Date::isValidSerial(d_serialDate + numDays));
 
 #ifndef BDE_OPENSOURCE_PUBLICATION
-    static bsls::AtomicOperations::AtomicTypes::Int count = { 0 };
+    enum { locationId = 2 };
 
     Date::logIfProblematicDateAddition(__FILE__, __LINE__,
-                                       d_serialDate, numDays, &count);
+                                       static_cast<int>(locationId),
+                                       d_serialDate, numDays);
 #endif
 
     d_serialDate += numDays;
@@ -822,10 +833,11 @@ Date& Date::operator-=(int numDays)
     BSLS_ASSERT_SAFE(Date::isValidSerial(d_serialDate - numDays));
 
 #ifndef BDE_OPENSOURCE_PUBLICATION
-    static bsls::AtomicOperations::AtomicTypes::Int count = { 0 };
+    enum { locationId = 3 };
 
     Date::logIfProblematicDateAddition(__FILE__, __LINE__,
-                                       d_serialDate, -numDays, &count);
+                                       static_cast<int>(locationId),
+                                       d_serialDate, -numDays);
 #endif
 
     d_serialDate -= numDays;
@@ -838,10 +850,11 @@ Date& Date::operator++()
     BSLS_ASSERT_SAFE(*this != Date(9999, 12, 31));
 
 #ifndef BDE_OPENSOURCE_PUBLICATION
-    static bsls::AtomicOperations::AtomicTypes::Int count = { 0 };
+    enum { locationId = 4 };
 
     Date::logIfProblematicDateAddition(__FILE__, __LINE__,
-                                       d_serialDate, 1, &count);
+                                       static_cast<int>(locationId),
+                                       d_serialDate, 1);
 #endif
 
     ++d_serialDate;
@@ -854,10 +867,11 @@ Date& Date::operator--()
     BSLS_ASSERT_SAFE(*this != Date(1, 1, 1));
 
 #ifndef BDE_OPENSOURCE_PUBLICATION
-    static bsls::AtomicOperations::AtomicTypes::Int count = { 0 };
+    enum { locationId = 5 };
 
     Date::logIfProblematicDateAddition(__FILE__, __LINE__,
-                                       d_serialDate, -1, &count);
+                                       static_cast<int>(locationId),
+                                       d_serialDate, -1);
 #endif
 
     --d_serialDate;
@@ -874,9 +888,11 @@ void Date::setYearDay(int year, int dayOfYear)
 #else
     d_serialDate = DelegatingDateImpUtil::ydToSerial(year, dayOfYear);
 
-    static bsls::AtomicOperations::AtomicTypes::Int count = { 0 };
+    enum { locationId = 6 };
 
-    Date::logIfProblematicDateValue(__FILE__, __LINE__, d_serialDate, &count);
+    Date::logIfProblematicDateValue(__FILE__, __LINE__,
+                                    static_cast<int>(locationId),
+                                    d_serialDate);
 #endif
 }
 
@@ -903,9 +919,11 @@ void Date::setYearMonthDay(int year, int month, int day)
 #else
     d_serialDate = DelegatingDateImpUtil::ymdToSerial(year, month, day);
 
-    static bsls::AtomicOperations::AtomicTypes::Int count = { 0 };
+    enum { locationId = 7 };
 
-    Date::logIfProblematicDateValue(__FILE__, __LINE__, d_serialDate, &count);
+    Date::logIfProblematicDateValue(__FILE__, __LINE__,
+                                    static_cast<int>(locationId),
+                                    d_serialDate);
 #endif
 }
 
@@ -955,10 +973,11 @@ STREAM& Date::bdexStreamIn(STREAM& stream, int version)
                 d_serialDate = tmpSerialDate;
 
 #ifndef BDE_OPENSOURCE_PUBLICATION
-                static bsls::AtomicOperations::AtomicTypes::Int count = { 0 };
+                enum { locationId = 8 };
 
                 Date::logIfProblematicDateValue(__FILE__, __LINE__,
-                                                d_serialDate, &count);
+                                                static_cast<int>(locationId),
+                                                d_serialDate);
 #endif
             }
             else {
@@ -1077,10 +1096,11 @@ STREAM& Date::bdexStreamOut(STREAM& stream, int version) const
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 
 #ifndef BDE_OPENSOURCE_PUBLICATION
-            static bsls::AtomicOperations::AtomicTypes::Int count = { 0 };
+            enum { locationId = 9 };
 
             Date::logIfProblematicDateValue(__FILE__, __LINE__,
-                                            d_serialDate, &count);
+                                            static_cast<int>(locationId),
+                                            d_serialDate);
 
             if (!DelegatingDateImpUtil::isProlepticGregorianMode()) {
                 stream.putInt24(d_serialDate);
@@ -1234,10 +1254,11 @@ bdlt::Date bdlt::operator+(const Date& date, int numDays)
     BSLS_ASSERT_SAFE(Date::isValidSerial(date.d_serialDate + numDays));
 
 #ifndef BDE_OPENSOURCE_PUBLICATION
-    static bsls::AtomicOperations::AtomicTypes::Int count = { 0 };
+    enum { locationId = 10 };
 
     Date::logIfProblematicDateAddition(__FILE__, __LINE__,
-                                       date.d_serialDate, numDays, &count);
+                                       static_cast<int>(locationId),
+                                       date.d_serialDate, numDays);
 #endif
 
     return Date(date.d_serialDate + numDays);
@@ -1249,10 +1270,11 @@ bdlt::Date bdlt::operator+(int numDays, const Date& date)
     BSLS_ASSERT_SAFE(Date::isValidSerial(numDays + date.d_serialDate));
 
 #ifndef BDE_OPENSOURCE_PUBLICATION
-    static bsls::AtomicOperations::AtomicTypes::Int count = { 0 };
+    enum { locationId = 11 };
 
     Date::logIfProblematicDateAddition(__FILE__, __LINE__,
-                                       date.d_serialDate, numDays, &count);
+                                       static_cast<int>(locationId),
+                                       date.d_serialDate, numDays);
 #endif
 
     return Date(numDays + date.d_serialDate);
@@ -1264,10 +1286,11 @@ bdlt::Date bdlt::operator-(const Date& date, int numDays)
     BSLS_ASSERT_SAFE(Date::isValidSerial(date.d_serialDate - numDays));
 
 #ifndef BDE_OPENSOURCE_PUBLICATION
-    static bsls::AtomicOperations::AtomicTypes::Int count = { 0 };
+    enum { locationId = 12 };
 
     Date::logIfProblematicDateAddition(__FILE__, __LINE__,
-                                       date.d_serialDate, -numDays, &count);
+                                       static_cast<int>(locationId),
+                                       date.d_serialDate, -numDays);
 #endif
 
     return Date(date.d_serialDate - numDays);
@@ -1277,11 +1300,11 @@ inline
 int bdlt::operator-(const Date& lhs, const Date& rhs)
 {
 #ifndef BDE_OPENSOURCE_PUBLICATION
-    static bsls::AtomicOperations::AtomicTypes::Int count = { 0 };
+    enum { locationId = 13 };
 
     Date::logIfProblematicDateDifference(__FILE__, __LINE__,
-                                         lhs.d_serialDate, rhs.d_serialDate,
-                                         &count);
+                                         static_cast<int>(locationId),
+                                         lhs.d_serialDate, rhs.d_serialDate);
 #endif
 
     return lhs.d_serialDate - rhs.d_serialDate;

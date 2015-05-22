@@ -49,19 +49,21 @@ const int LOG_THROTTLE_MASK = 1 | 8 | 256;
 bool Date::s_loggingEnabledFlag = false;  // *off* by default
 
 // PRIVATE CLASS METHODS
-void Date::logIfProblematicDateAddition(
-                       const char                               *fileName,
-                       int                                       lineNumber,
-                       int                                       serialDate,
-                       int                                       numDays,
-                       bsls::AtomicOperations::AtomicTypes::Int *count)
+void Date::logIfProblematicDateAddition(const char *fileName,
+                                        int         lineNumber,
+                                        int         locationId,
+                                        int         serialDate,
+                                        int         numDays)
 {
     if (!Date::isLoggingEnabled()
      || (serialDate > MAGIC_SERIAL && (serialDate + numDays) > MAGIC_SERIAL)) {
         return;                                                       // RETURN
     }
 
-    const int tmpCount = bsls::AtomicOperations::addIntNvRelaxed(count, 1);
+    static bsls::AtomicOperations::AtomicTypes::Int counts[32] = { 0 };
+
+    const int tmpCount
+              = bsls::AtomicOperations::addIntNvRelaxed(&counts[locationId], 1);
 
     if ((LOG_THROTTLE_MASK & tmpCount)
      && 1 == bdlb::BitUtil::numBitsSet(
@@ -80,19 +82,21 @@ void Date::logIfProblematicDateAddition(
     }
 }
 
-void Date::logIfProblematicDateDifference(
-                       const char                               *fileName,
-                       int                                       lineNumber,
-                       int                                       lhsSerialDate,
-                       int                                       rhsSerialDate,
-                       bsls::AtomicOperations::AtomicTypes::Int *count)
+void Date::logIfProblematicDateDifference(const char *fileName,
+                                          int         lineNumber,
+                                          int         locationId,
+                                          int         lhsSerialDate,
+                                          int         rhsSerialDate)
 {
     if (!Date::isLoggingEnabled()
      || (lhsSerialDate > MAGIC_SERIAL && rhsSerialDate > MAGIC_SERIAL)) {
         return;                                                       // RETURN
     }
 
-    const int tmpCount = bsls::AtomicOperations::addIntNvRelaxed(count, 1);
+    static bsls::AtomicOperations::AtomicTypes::Int counts[32] = { 0 };
+
+    const int tmpCount
+              = bsls::AtomicOperations::addIntNvRelaxed(&counts[locationId], 1);
 
     if (1 == bdlb::BitUtil::numBitsSet(
                              static_cast<bdlb::BitUtil::uint32_t>(tmpCount))
@@ -117,18 +121,20 @@ void Date::logIfProblematicDateDifference(
     }
 }
 
-void Date::logIfProblematicDateValue(
-                       const char                               *fileName,
-                       int                                       lineNumber,
-                       int                                       serialDate,
-                       bsls::AtomicOperations::AtomicTypes::Int *count)
+void Date::logIfProblematicDateValue(const char *fileName,
+                                     int         lineNumber,
+                                     int         locationId,
+                                     int         serialDate)
 {
     if (!Date::isLoggingEnabled()
      || (serialDate > MAGIC_SERIAL || 1 == serialDate)) {
         return;                                                       // RETURN
     }
 
-    const int tmpCount = bsls::AtomicOperations::addIntNvRelaxed(count, 1);
+    static bsls::AtomicOperations::AtomicTypes::Int counts[32] = { 0 };
+
+    const int tmpCount
+              = bsls::AtomicOperations::addIntNvRelaxed(&counts[locationId], 1);
 
     if (1 == bdlb::BitUtil::numBitsSet(
                              static_cast<bdlb::BitUtil::uint32_t>(tmpCount))
@@ -176,10 +182,13 @@ int Date::addDaysIfValid(int numDays)
     }
 
 #ifndef BDE_OPENSOURCE_PUBLICATION
-    static bsls::AtomicOperations::AtomicTypes::Int count = { 0 };
+    // Using maximum location 31 to minimize chance of a conflict with header
+    // location values.
+    enum { locationId = 31 };
 
     Date::logIfProblematicDateAddition(__FILE__, __LINE__,
-                                       d_serialDate, numDays, &count);
+                                       static_cast<int>(locationId),
+                                       d_serialDate, numDays);
 #endif
 
     d_serialDate = tmpSerialDate;
