@@ -61,18 +61,20 @@ const int MAGIC_SERIAL = 639798;  // 1752/09/02 POSIX
 const int LOG_THROTTLE_MASK = 1 | 8 | 256;
 
 // PRIVATE CLASS METHODS
-void EpochUtil::logIfProblematicDateValue(
-                       const char                               *fileName,
-                       int                                       lineNumber,
-                       const Date&                               date,
-                       bsls::AtomicOperations::AtomicTypes::Int *count)
+void EpochUtil::logIfProblematicDateValue(const char  *fileName,
+                                          int          lineNumber,
+                                          int          locationId,
+                                          const Date&  date)
 {
     if (!Date::isLoggingEnabled()
      || (date > *reinterpret_cast<const Date *>(&MAGIC_SERIAL))) {
         return;                                                       // RETURN
     }
 
-    const int tmpCount = bsls::AtomicOperations::addIntNvRelaxed(count, 1);
+    static bsls::AtomicOperations::AtomicTypes::Int counts[32] = { 0 };
+
+    const int tmpCount
+              = bsls::AtomicOperations::addIntNvRelaxed(&counts[locationId], 1);
 
     if ((LOG_THROTTLE_MASK & tmpCount)
      && 1 == bdlb::BitUtil::numBitsSet(
