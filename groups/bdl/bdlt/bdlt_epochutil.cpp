@@ -74,7 +74,7 @@ void EpochUtil::logIfProblematicDateValue(const char  *fileName,
     static bsls::AtomicOperations::AtomicTypes::Int counts[32] = { 0 };
 
     const int tmpCount
-              = bsls::AtomicOperations::addIntNvRelaxed(&counts[locationId], 1);
+             = bsls::AtomicOperations::addIntNvRelaxed(&counts[locationId], 1);
 
     if ((LOG_THROTTLE_MASK & tmpCount)
      && 1 == bdlb::BitUtil::numBitsSet(
