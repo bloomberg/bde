@@ -62,6 +62,10 @@ void Date::logIfProblematicDateAddition(const char *fileName,
 
     static bsls::AtomicOperations::AtomicTypes::Int counts[32] = { 0 };
 
+    if (locationId < 0 || locationId > 31) {
+        return;                                                       // RETURN
+    }
+
     const int tmpCount
              = bsls::AtomicOperations::addIntNvRelaxed(&counts[locationId], 1);
 
@@ -94,6 +98,10 @@ void Date::logIfProblematicDateDifference(const char *fileName,
     }
 
     static bsls::AtomicOperations::AtomicTypes::Int counts[32] = { 0 };
+
+    if (locationId < 0 || locationId > 31) {
+        return;                                                       // RETURN
+    }
 
     const int tmpCount
              = bsls::AtomicOperations::addIntNvRelaxed(&counts[locationId], 1);
@@ -132,6 +140,10 @@ void Date::logIfProblematicDateValue(const char *fileName,
     }
 
     static bsls::AtomicOperations::AtomicTypes::Int counts[32] = { 0 };
+
+    if (locationId < 0 || locationId > 31) {
+        return;                                                       // RETURN
+    }
 
     const int tmpCount
              = bsls::AtomicOperations::addIntNvRelaxed(&counts[locationId], 1);
