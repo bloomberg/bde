@@ -1,12 +1,19 @@
-bsl-internal (2.23.0.5) unstable; urgency=low
+bsl-internal (2.23.0.6) unstable; urgency=low
 
+  * 4da9755 [APPROVAL] remove-atomics-from-logIfProblematic-drqs-66019213 to releases/2.23.x
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 22 May 2015 15:25:11 -0400
+
+bsl-internal (2.23.0.5) git; urgency=low
+
+  * e778181 Changelog for version 2.23.0.5
   * 20c51ee Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.23.x
   * 6024755 [APPROVAL] INTERNAL review/releases-2.23.x-bdlt_date-logging-switch-drqs-65486833 to releases/2.23.x
   * a9ccf04 [APPROVAL] review/releases-2.23.x-bdlt_date-logging-switch-drqs-65486833 to releases/2.23.x
   * e399774 [APPROVAL] OSS releases-2.23.x-cherry-pick-restore-bsls_platform-gcc-pragma-drqs-65447001 to releases/2.23.x
   * 2e152f6 [APPROVAL] releases-2.23.x-cherry-pick-restore-bsls_platform-gcc-pragma-drqs-65447001 to releases/2.23.x
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 13 May 2015 11:25:31 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 18 May 2015 11:00:53 -0400
 
 bsl-internal (2.23.0.4.icbeta) git; urgency=low
 
