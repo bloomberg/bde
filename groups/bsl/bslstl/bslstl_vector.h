@@ -2200,7 +2200,9 @@ Vector_ImpBase<VALUE_TYPE>::data() const
 
 // CREATORS
 template <class VALUE_TYPE, class ALLOCATOR>
+#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
 inline
+#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
 Vector_Imp<VALUE_TYPE, ALLOCATOR>::Guard::Guard(VALUE_TYPE          *data,
                                                 std::size_t          capacity,
                                                 VectorContainerBase *container)
@@ -2211,7 +2213,9 @@ Vector_Imp<VALUE_TYPE, ALLOCATOR>::Guard::Guard(VALUE_TYPE          *data,
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
+#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
 inline
+#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
 Vector_Imp<VALUE_TYPE, ALLOCATOR>::Guard::~Guard()
 {
     if (d_data_p) {
@@ -2221,7 +2225,9 @@ Vector_Imp<VALUE_TYPE, ALLOCATOR>::Guard::~Guard()
 
 // MANIPULATORS
 template <class VALUE_TYPE, class ALLOCATOR>
+#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
 inline
+#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
 void Vector_Imp<VALUE_TYPE, ALLOCATOR>::Guard::release()
 {
     d_data_p = 0;
@@ -2506,7 +2512,9 @@ Vector_Imp<VALUE_TYPE, ALLOCATOR>::Vector_Imp(size_type         initialSize,
 
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class INPUT_ITER>
+#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
 inline
+#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
 Vector_Imp<VALUE_TYPE, ALLOCATOR>::Vector_Imp(INPUT_ITER       first,
                                               INPUT_ITER       last,
                                               const ALLOCATOR& basicAllocator)
@@ -2564,7 +2572,9 @@ Vector_Imp(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& original,
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
+#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
 inline
+#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
 Vector_Imp<VALUE_TYPE, ALLOCATOR>::~Vector_Imp()
 {
     if (this->d_dataBegin) {
