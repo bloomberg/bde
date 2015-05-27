@@ -2434,9 +2434,7 @@ namespace BloombergLP {
 namespace bslh {
 
 template <class HASHALG, class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 void hashAppend(
     HASHALG&                                                           hashAlg,
     const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& input);
@@ -2496,9 +2494,7 @@ String_Imp<CHAR_TYPE, SIZE_TYPE>::computeNewCapacity(SIZE_TYPE newLength,
 
 // CREATORS
 template <class CHAR_TYPE, class SIZE_TYPE>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 String_Imp<CHAR_TYPE, SIZE_TYPE>::String_Imp()
 : d_start_p(0)
 , d_length(0)
@@ -2507,9 +2503,7 @@ String_Imp<CHAR_TYPE, SIZE_TYPE>::String_Imp()
 }
 
 template <class CHAR_TYPE, class SIZE_TYPE>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 String_Imp<CHAR_TYPE, SIZE_TYPE>::String_Imp(SIZE_TYPE length,
                                              SIZE_TYPE capacity)
 : d_start_p(0)
@@ -3217,9 +3211,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplace(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplace(
                                                      size_type      position,
@@ -3348,9 +3340,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                                   const basic_string& original)
 : Imp(original)
@@ -3363,9 +3353,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                             const basic_string& original,
                                             const ALLOCATOR&    basicAllocator)
@@ -3379,9 +3367,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                             const basic_string& original,
                                             size_type           position,
@@ -3394,9 +3380,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                              const CHAR_TYPE  *characterString,
                                              const ALLOCATOR&  basicAllocator)
@@ -3409,9 +3393,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                              const CHAR_TYPE  *characterString,
                                              size_type         numChars,
@@ -3425,9 +3407,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                               size_type         numChars,
                                               CHAR_TYPE         character,
@@ -3453,9 +3433,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 template <class ALLOC2>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
   const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& original,
   const ALLOCATOR&                                              basicAllocator)
@@ -3477,9 +3455,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::~basic_string()
 {
     // perform a validity check
@@ -3495,9 +3471,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::~basic_string()
                 // *** 21.3.2 construct/copy/destroy: ***
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(
                                                        const basic_string& rhs)
@@ -3506,9 +3480,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(const CHAR_TYPE *rhs)
 {
@@ -3518,9 +3490,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(const CHAR_TYPE *rhs)
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(CHAR_TYPE character)
 {
@@ -3530,9 +3500,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(CHAR_TYPE character)
                       // *** 21.3.4 capacity: ***
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::resize(size_type newLength,
                                                            CHAR_TYPE character)
 {
@@ -3545,9 +3513,7 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::resize(size_type newLength,
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::resize(size_type newLength)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(newLength > max_size())) {
@@ -3559,9 +3525,7 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::resize(size_type newLength)
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::reserve(
                                                          size_type newCapacity)
 {
@@ -3574,9 +3538,7 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::reserve(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::clear()
 {
     // Note: Stlport and Dinkumware do not deallocate the allocated buffer in
@@ -3681,9 +3643,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::
                      // *** 21.3.6 modifiers: ***
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(
                                                        const basic_string& rhs)
@@ -3692,9 +3652,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(
                                                           const CHAR_TYPE *rhs)
@@ -3705,9 +3663,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(CHAR_TYPE character)
 {
@@ -3716,9 +3672,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(CHAR_TYPE character)
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(
                const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef)
@@ -3727,9 +3681,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(
                                                    const basic_string&  suffix)
@@ -3762,9 +3714,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(
                                               const CHAR_TYPE *characterString,
@@ -3782,9 +3732,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(
                                               const CHAR_TYPE *characterString)
@@ -3795,9 +3743,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(size_type numChars,
                                                       CHAR_TYPE character)
@@ -3839,9 +3785,7 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::push_back(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
                                                const basic_string& replacement)
@@ -3875,9 +3819,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
                                               const CHAR_TYPE *characterString)
@@ -3905,9 +3847,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
                    const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef)
@@ -3916,9 +3856,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(size_type numChars,
                                                       CHAR_TYPE character)
@@ -3944,9 +3882,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(INPUT_ITER first,
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(
                                                   size_type           position,
@@ -4005,18 +3941,14 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(
                                               size_type        position,
                                               const CHAR_TYPE *characterString)
 {
     BSLS_ASSERT_SAFE(characterString);
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
 
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
     return insert(position,
                   characterString,
                   CHAR_TRAITS::length(characterString));
@@ -4276,9 +4208,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                                               size_type        outPosition,
@@ -4379,9 +4309,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                                               const_iterator   first,
@@ -4519,9 +4447,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::crbegin() const
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_reverse_iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rend() const
 {
@@ -4529,9 +4455,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rend() const
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_reverse_iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::crend() const
 {
@@ -4597,9 +4521,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator[](
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_reference
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::at(size_type position) const
 {
@@ -4680,9 +4602,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::get_allocator() const
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find(
                                            const basic_string&  substring,
@@ -4723,9 +4643,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find(
                                                const CHAR_TYPE *substring,
@@ -4752,9 +4670,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find(CHAR_TYPE character,
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rfind(
                                             const basic_string& substring,
@@ -4792,9 +4708,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rfind(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rfind(
                                               const CHAR_TYPE *characterString,
@@ -4808,9 +4722,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rfind(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rfind(CHAR_TYPE character,
                                                      size_type position) const
@@ -4819,9 +4731,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rfind(CHAR_TYPE character,
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_of(
                                            const basic_string& characterString,
@@ -4856,9 +4766,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_of(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_of(
                                               const CHAR_TYPE *characterString,
@@ -4872,9 +4780,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_of(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_of(
                                                       CHAR_TYPE character,
@@ -4884,9 +4790,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_of(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_of(
                                            const basic_string& characterString,
@@ -4925,9 +4829,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_of(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_of(
                                               const CHAR_TYPE *characterString,
@@ -4941,9 +4843,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_of(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_of(
                                                       CHAR_TYPE character,
@@ -4953,9 +4853,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_of(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_not_of(
                                            const basic_string& characterString,
@@ -4991,9 +4889,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_not_of(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_not_of(
                                               const CHAR_TYPE *characterString,
@@ -5007,9 +4903,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_not_of(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_not_of(
                                                       CHAR_TYPE character,
@@ -5019,9 +4913,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_not_of(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_not_of (
                                            const basic_string& characterString,
@@ -5057,9 +4949,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_not_of (
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_not_of (
                                               const CHAR_TYPE *characterString,
@@ -5073,9 +4963,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_not_of (
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_not_of (
                                                       CHAR_TYPE character,
@@ -5085,9 +4973,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_not_of (
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::substr(size_type position,
                                                       size_type numChars) const
@@ -5098,9 +4984,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::substr(size_type position,
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
                                                const basic_string& other) const
 {
@@ -5159,9 +5043,7 @@ int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
                                                   const CHAR_TYPE *other) const
 {
@@ -5197,9 +5079,7 @@ int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
                                                   size_type        lhsPosition,
                                                   size_type        lhsNumChars,
@@ -5819,9 +5699,7 @@ void bsl::hashAppend(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 std::size_t bsl::hashBasicString(
                     const basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str)
 {
@@ -5831,9 +5709,7 @@ std::size_t bsl::hashBasicString(
 namespace BloombergLP {
 
 template <class HASHALG, class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-#ifdef BDE_OPENSOURCE_PUBLICATION // BIG BLOAT
-inline
-#endif // BDE_OPENSOURCE_PUBLICATION -- BIG BLOAT
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 void bslh::hashAppend(
     HASHALG&                                                           hashAlg,
     const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& input)
