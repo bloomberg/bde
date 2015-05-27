@@ -18,5 +18,3 @@
 !! unix-Linux-*-*-*        shr SHR_SHLIB_DEPS  = -lrt
 !! unix-HP_UX-*-*-*        shr SHR_SHLIB_DEPS  = -lstd_v2 -lCsup -lunwind -lc
 
-windows             _       BDE_CXXFLAGS     = /DBDE_OMIT_INTERNAL_DEPRECATED
-
