@@ -97,7 +97,7 @@ class ExceptionGuard {
         // Release the guard from verifying the state of the object.
 
     void resetValue(const OBJECT& value, int line);
-        // Reset the expected state of the guarded object, if an exception 
+        // Reset the expected state of the guarded object, if an exception
         // should propagate past this guard, to the specified 'value', which is
         // set from the specified 'line'.
 };

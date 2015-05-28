@@ -63,7 +63,7 @@ BSLS_IDENT("$Id: $")
 // arbitrary size.  A pool is a concrete data structure used to organize and
 // supply memory according to specific needs (e.g., a consistent size).
 // Concrete allocators may use pools in their implementations, and pools will
-// aways take a base 'bslma::Allocator' protocol in their interface.  You can
+// always take a base 'bslma::Allocator' protocol in their interface.  You can
 // think of an allocator as a stream of memory that flows into a pool of
 // memory.  Memory is allocated from the pool until it is dry; only then does
 // new memory flow into the pool from the allocator.

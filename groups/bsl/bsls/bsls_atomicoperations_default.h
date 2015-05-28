@@ -62,7 +62,7 @@ BSLS_IDENT("$Id: $")
 // is parameterized with the derived class template parameter.  In the context
 // of atomic operations, the CRTP allows the non-essential base class methods
 // to be accessed through the platform specific derived class, while the
-// template parametrization of the base class allows the implementations for
+// template parameterization of the base class allows the implementations for
 // platform-independent (non-essential) operations in the base class to be
 // implemented in terms of the core operations implemented in the
 // platform-specific derived class.

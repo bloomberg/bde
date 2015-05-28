@@ -107,7 +107,7 @@ BSLS_IDENT("$Id: $")
 //  bool operator!=(MyList_Iterator<PAYLOAD> lhs,
 //                  MyList_Iterator<PAYLOAD> rhs);
 //..
-// Then, we implment the functions for the iterator type.
+// Then, we implement the functions for the iterator type.
 //..
 //                                  // ---------------
 //                                  // MyList_Iterator

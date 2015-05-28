@@ -169,12 +169,12 @@ class FunctorAdapter_FunctionPointer {
 
     // MANIPULATORS
     operator FUNCTION_POINTER& ();
-        // Convert this object to the parametrized 'FUNCTION_POINTER' by
+        // Convert this object to the parameterized 'FUNCTION_POINTER' by
         // returning the function pointer supplied on construction.
 
     // ACCESSORS
     operator const FUNCTION_POINTER& () const;
-        // Convert this object to the parametrized 'FUNCTION_POINTER' by
+        // Convert this object to the parameterized 'FUNCTION_POINTER' by
         // returning the function pointer supplied on construction.
 };
 

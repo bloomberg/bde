@@ -283,7 +283,7 @@ struct AlignmentImpCalc <long double> {
     // in glibc returns memory aligned to 8-bytes, not 16-bytes.  8-byte
     // alignment is sufficient for proper long double operation on POWER even
     // though 16-byte alignment is more optimal (and is required for vector
-    // instructions).  
+    // instructions).
     //
     // Note: the optional tcmalloc library returns memory aligned to 16-bytes.
 

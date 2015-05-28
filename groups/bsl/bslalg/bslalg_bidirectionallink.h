@@ -109,7 +109,7 @@ BSLS_IDENT("$Id: $")
 // Then, we define our 'MyList' class, with 'MyList::Iterator' being a public
 // typedef of 'MyList_Iterator'.  For brevity, we will omit a lot of
 // functionality that a full, general-purpose list class would have,
-// implmenting only what we will need for this example.
+// implementing only what we will need for this example.
 //..
 //                                  // ======
 //                                  // MyList
@@ -149,7 +149,7 @@ BSLS_IDENT("$Id: $")
 //      void popBack();
 //  };
 //..
-// Next, we implment the functions for the iterator type.
+// Next, we implement the functions for the iterator type.
 //..
 //                              // ---------------
 //                              // MyList_Iterator

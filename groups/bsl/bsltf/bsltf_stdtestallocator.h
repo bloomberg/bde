@@ -394,7 +394,7 @@ struct StdTestAllocator_CommonUtil {
         // 'elementSize' bytes of storage, that can potentially be allocated by
         // a 'StdTestAllocator'.  Note that this function is mostly about
         // insulating consumers of this component from a standard header, so
-        // that theis test componet does not hide missing header dependencies
+        // that this test component does not hide missing header dependencies
         // in testing scenarios.
 };
 

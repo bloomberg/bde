@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslalg_scalarprimitives, bslalg_typetraits
 //
-//@DESCRIPTION: This component provides utilies to destroy arrays with a
+//@DESCRIPTION: This component provides utilities to destroy arrays with a
 // uniform interface, but selecting a different implementation according to the
 // traits possessed by the underlying type.
 //

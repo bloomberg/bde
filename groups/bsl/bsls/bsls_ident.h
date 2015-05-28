@@ -300,8 +300,8 @@ BSLS_IDENT_PRAGMA_ONCE
  * file.
  *
  * #ident, #pragma ident, #pragma comment each can take a -single- user-defined
- * token (no concatentation of string constants or preprocessor macro ##
- * concatentation)  (MS Visual Studio will do string concatenation)
+ * token (no concatenation of string constants or preprocessor macro ##
+ * concatenation)  (MS Visual Studio will do string concatenation)
  *
  * C99 _Pragma() can expanded in macros and can be used in place of #pragma.
  * GCC does not implement a #pragma version of gcc #ident preprocessor

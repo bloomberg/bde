@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a type that is convertible-to-'bool',
 // and so may be used to satisfy many C++ standard library requirements, but is
 // perversely implemented to provide the most awkward interface that meets the
-// requirements.  This type is not intented for use in production code, but is
+// requirements.  This type is not intended for use in production code, but is
 // most useful when implementing test drivers for generic components that must
 // accept predicates, or other expressions, that yield a type that is merely
 // convertible to 'bool'.

@@ -76,7 +76,7 @@ BSLS_IDENT("$Id: $")
 //..
 ///Example 2: Reading the 'VALUE' member
 /// - - - - - - - - - - - - - - - - - -
-// In addition to forming new types, the value of the integral paramameter to
+// In addition to forming new types, the value of the integral parameter to
 // 'MetaInt' is "saved" in the enum member 'VALUE', and is accessible for use
 // in compile-time or run-time operations.
 //..

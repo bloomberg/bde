@@ -64,7 +64,7 @@ BSLS_IDENT("$Id: $")
 //
 // Because of the destructive nature of a bitwise move (the original object
 // must be treated as uninitialized storage after the move), a class can be
-// bitwise moveable but not also bitwise copiable.  For example, a class
+// bitwise moveable but not also bitwise copyable.  For example, a class
 // that contains a pointer to heap-allocated storage is generally bitwise
 // moveable.  The moved object simply refers to the same storage as the
 // (defunct) original.  However a bitwise copy of the same object would

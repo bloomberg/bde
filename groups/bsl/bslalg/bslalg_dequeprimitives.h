@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslalg_scalarprimitives, bslalg_arrayprimitives
 //
-//@DESCRIPTION: This component provides utilies to initialize, destroy, move,
+//@DESCRIPTION: This component provides utilities to initialize, destroy, move,
 // and otherwise perform various primitive manipulations on deques with a
 // uniform interface, but selecting a different implementation according to the
 // various traits possessed by the underlying type, and selecting a simpler

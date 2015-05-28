@@ -33,8 +33,8 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 // A 'bslma::DeallocatorGuard' can be used to ensure that a dynamically
-// allocated raw memory resource is safely deallocated in the presense of
-// multiple return satements or exceptions in an exception-neutral way (i.e.,
+// allocated raw memory resource is safely deallocated in the presence of
+// multiple return statements or exceptions in an exception-neutral way (i.e.,
 // without the need for 'try'/'catch' blocks).  In this simple example,
 // consider the function 'evaluatePassword' which attempts to determine how
 // secure a given password might be:

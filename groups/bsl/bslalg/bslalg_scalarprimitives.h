@@ -1208,7 +1208,7 @@ struct ScalarPrimitives_Imp {
 // Workaround for optimization issue in xlC that mishandles pointer aliasing.
 //   IV56864: ALIASING BEHAVIOUR FOR PLACEMENT NEW
 //   http://www-01.ibm.com/support/docview.wss?uid=swg1IV56864
-// Place this macro following each use of placment new.  Alternatively,
+// Place this macro following each use of placement new.  Alternatively,
 // compile with xlC_r -qalias=noansi, which reduces optimization opportunities
 // across entire translation unit instead of simply across optimization fence.
 // Update: issue is fixed in xlC 13.1 (__xlC__ >= 0x0d01).

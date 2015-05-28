@@ -145,7 +145,7 @@ BSLS_IDENT("$Id: $")
 // This macro should be used *with* *caution*.  The macro will generally
 // decrease the performance of code on which it is applied, and is not
 // implemented on all platforms.
-// 
+//
 ///Usage
 ///-----
 // The following series of examples illustrates use of the macros and functions
@@ -430,7 +430,7 @@ namespace BloombergLP {
 
 #endif
 
-// Define the 'BSLS_PERFORMANCEHINT_HAS_ATTRIBUTE_COLD' and 
+// Define the 'BSLS_PERFORMANCEHINT_HAS_ATTRIBUTE_COLD' and
 // 'BSLS_PERFORMANCEHINT_ATTRIBUTE_COLD' macros.
 
 #if defined(BSLS_PLATFORM_CMP_CLANG)

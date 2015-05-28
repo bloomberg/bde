@@ -11,7 +11,7 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsls::AtomicOperations_ALL_ALL_ClangIntrinsics:
-//  clang '__c11_atomic_*' instrinsics
+//  clang '__c11_atomic_*' intrinsics
 //
 //@DESCRIPTION: This component provides classes necessary to implement atomics
 // in 32bit/64bit mode using clang compiler intrinsics.  The classes are for
