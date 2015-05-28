@@ -16,6 +16,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_PLATFORM_OS_*: operating system type, sub-type, and version
 //  BSLS_PLATFORM_CPU_* instruction set, instruction width, and version
 //  BSLS_PLATFORM_CMP_*: compiler vendor, and version
+//  BSLS_PLATFORM_AGGRESSIVE_INLINE: inline code for speed over text size
 //
 //@DESCRIPTION: This component implements a suite of preprocessor macros
 // and traits that identify and define platform-specific compile-time
@@ -77,6 +78,15 @@ BSLS_IDENT("$Id: $")
 //   @_CMP_SUN
 //
 //  =============================================================
+//
+//  =============================================================
+//                              INLINING
+//  -------------------------------------------------------------
+//     Flag
+//  -----------------
+//   @_AGGRESSIVE_INLINE
+//
+//  =============================================================
 //..
 // These macros are configured automatically, where possible.  At a minimum,
 // the generic operating system type (i.e., either 'BSLS_PLATFORM_OS_UNIX' or
@@ -87,6 +97,14 @@ BSLS_IDENT("$Id: $")
 // discrimination is required (e.g., based on sub-type or version of a specific
 // operating system, processor, or compiler).  Note that supplying a minor
 // version number implies that the major version is also defined.
+//
+// The aggressive inlining macro 'BSLS_PLATFORM_AGGRESSIVE_INLINE' is defined
+// as the 'inline' keyword on all compilers except 'BSLS_PLATFROM_CMP_IBM' and
+// 'BSLS_PLATFORM_CMP_SUN', where it is left empty.  This is required for some
+// of our legacy applications where substantially growing the text size is not
+// possible.  Even on those platforms, the symbol will be defined as 'inline'
+// if 'BDE_BUILD_TARGET_AGGRESSIVE_INLINE' is passed in via the '-D' option of
+// the compiler.
 //
 ///Usage
 ///-----
@@ -837,6 +855,14 @@ struct bsls_Platform_Assert;
                                     || defined(BSLS_PLATFORM_CMP_CLANG)
      #define BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC 1
 #endif
+
+#if !(defined(BSLS_PLATFORM_CMP_AIX) || defined(BSLS_PLATFORM_CMP_SUN)) \
+                                && !defined(BDE_BUILD_TARGET_AGGRESSIVE_INLINE)
+    #define BSLS_PLATFORM_AGGRESSIVE_INLINE inline
+#else
+    #define BSLS_PLATFORM_AGGRESSIVE_INLINE
+#endif
+
 // ----------------------------------------------------------------------------
 
                                  // Validation
