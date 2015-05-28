@@ -20,6 +20,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES: flag for rvalue references
 //  BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT: flag for 'static_assert'
 //  BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES: flag for variadic params.
+//  BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS: flag for 'alignas'.
 //
 //@SEE_ALSO: bsls_platform
 //
@@ -84,6 +85,10 @@ BSLS_IDENT("$Id: $")
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES'
 //:    This macro is defined if variadic template parameters are supported by
+//:    the current compiler settings for this platform.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS'
+//:    This macro is defined if 'alignas' alignment specifier is supported by
 //:    the current compiler settings for this platform.
 //
 ///Usage
@@ -265,6 +270,17 @@ BSLS_IDENT("$Id: $")
 //:   xlC 11.1
 //:   Oracle CC 12.4
 //..
+//
+///BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
+///- - - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports the 'alignas' alignment
+// specifier.
+//
+//: Compiler support:
+//:   gcc 4.8
+//:   clang 3.0
+//
+// This feature is not yet supported in Visual Studio, xlc, CC.
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
@@ -302,6 +318,7 @@ BSLS_IDENT("$Id: $")
 #if BSLS_PLATFORM_CMP_VERSION >= 40800
 #define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
 // gcc supports __attribute__((noreturn)) in earlier versions
+#define BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
 #endif
 #endif
 
@@ -337,6 +354,9 @@ BSLS_IDENT("$Id: $")
 #endif
 #if __has_feature(cxx_nullptr)
 #define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+#endif
+#if __has_feature(cxx_alignas)
+#define BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
 #endif
 // clang 3.3
 #if __has_feature(cxx_decltype)
