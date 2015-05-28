@@ -13,64 +13,6 @@ BSLS_IDENT("$Id$ $CSID$")
 namespace BloombergLP {
 namespace bslma {
 
-ManagedPtr_Members::ManagedPtr_Members(ManagedPtr_Members& other)
-: d_obj_p(other.d_obj_p)
-{
-    if (d_obj_p) {
-        d_deleter = other.d_deleter;
-    }
-    other.clear();
-}
-
-void ManagedPtr_Members::clear()
-{
-    d_obj_p = 0;
-}
-
-void ManagedPtr_Members::move(ManagedPtr_Members *other)
-{
-    // if 'other.d_obj_p' is null then 'other.d_deleter' may not be initialized
-    // but 'set' takes care of that concern.  deleter passed by ref, so no read
-    // of uninitialized memory occurs
-
-    BSLS_ASSERT(other);
-    BSLS_ASSERT(this != other);
-
-    d_obj_p = other->d_obj_p;
-    if (other->d_obj_p) {
-        d_deleter = other->d_deleter;
-    }
-
-    other->clear();
-}
-
-void ManagedPtr_Members::moveAssign(ManagedPtr_Members *other)
-{
-    BSLS_ASSERT(other);
-
-    // Must protect against self-assignment due to destructive move.
-
-    if (this != other) {
-        runDeleter();
-        move(other);
-    }
-}
-
-void ManagedPtr_Members::set(void        *object,
-                             void        *factory,
-                             DeleterFunc  deleter)
-{
-    // Note that 'factory' may be null if 'deleter' supports it, so cannot be
-    // asserted here.
-
-    BSLS_ASSERT_SAFE(0 != deleter || 0 == object);
-
-    d_obj_p = object;
-    if (object) {
-        d_deleter.set(object, factory, deleter);
-    }
-}
-
 void ManagedPtr_Members::swap(ManagedPtr_Members & other)
 {
     if (!d_obj_p) {
