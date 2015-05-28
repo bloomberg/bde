@@ -1,8 +1,32 @@
-bsl-internal (2.23.0.6) unstable; urgency=low
+bsl-internal (2.23.1.0) unstable; urgency=low
 
+  * dbd1ad0 [APPROVAL] review/fix_windows_for_2.23_release_drqs66175940 to releases/2.23.x
+  * 658a4ad Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.23.x
+  * e3a6909 [APPROVAL] INTERNAL bump-version-to-2.23.1 to releases/2.23.x
+  * dd7104e [APPROVAL] bump-version-to-2.23.1 to releases/2.23.x
+  * 8ab35f8 [APPROVAL] OSS review/bslma_managedptr_inline-member-functions-drqs-62215128 to releases/2.23.x
+  * 6c135d4 [APPROVAL] review/bslma_managedptr_inline-member-functions-drqs-62215128 to releases/2.23.x
+  * 6f2ab93 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.23.x
+  * b4a8fd4 [APPROVAL] INTERNAL pending/releases/2.23.x/bdlt-date-hash-append-drqs-36926766_cherrypick to releases/2.23.x
+  * afb00aa [APPROVAL] pending/releases/2.23.x/bdlt-date-hash-append-drqs-36926766_cherrypick to releases/2.23.x
+  * b549ce3 Bump patch version for 2.23.1
+  * 88ae3b5 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.23.x
+  * 646eb3a [APPROVAL] INTERNAL unwind-inlining-from-string-and-vector-66116717 to releases/2.23.x
+  * 94940c9 [APPROVAL] unwind-inlining-from-string-and-vector-66116717 to releases/2.23.x
+  * bb1cdbc Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.23.x
+  * 0cf65fa [APPROVAL] INTERNAL pending/releases/2.23.x/bslstdhdrs-memory-c-support-2.23 to releases/2.23.x
+  * d8c39c6 [APPROVAL] pending/releases/2.23.x/bslstdhdrs-memory-c-support-2.23 to releases/2.23.x
+  * af07bd1 [APPROVAL] OSS bdlb_guidutil-stlport-fix-drqs-65917200-2.23 to releases/2.23.x
+  * e49c988 [APPROVAL] bdlb_guidutil-stlport-fix-drqs-65917200-2.23 to releases/2.23.x
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 28 May 2015 13:11:07 -0400
+
+bsl-internal (2.23.0.6) git; urgency=low
+
+  * 3bd45b0 Changelog for version 2.23.0.6
   * 4da9755 [APPROVAL] remove-atomics-from-logIfProblematic-drqs-66019213 to releases/2.23.x
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 22 May 2015 15:25:11 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 22 May 2015 15:27:58 -0400
 
 bsl-internal (2.23.0.5) git; urgency=low
 
