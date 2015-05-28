@@ -42,8 +42,18 @@
   #define DECCAUTHOR   "Mike Cowlishaw"               /* Who to blame */
 
   #if !defined(int32_t)
-    #include <stdint.h>            /* C99 standard integers           */
+    #if defined(_MSC_VER) && _MSC_VER < 1600
+        /* Visual Studio has no stdint.h before VC 2010 */
+        typedef          __int32 int32_t;
+        typedef unsigned __int32 uint32_t;
+        typedef unsigned __int8  uint8_t;
+        typedef unsigned __int16 uint16_t;
+        typedef unsigned __int64 uint64_t;
+    #else
+      #include <stdint.h>            /* C99 standard integers         */
+    #endif
   #endif
+
   #include <stdio.h>               /* for printf, etc.                */
   #include <signal.h>              /* for traps                       */
 
