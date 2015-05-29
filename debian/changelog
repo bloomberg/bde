@@ -1,5 +1,16 @@
-bsl-internal (2.23.1.0) unstable; urgency=low
+bsl-internal (2.23.1.1) unstable; urgency=low
 
+  * a11f7fc Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.23.x
+  * 9d09f6c [APPROVAL] INTERNAL pending/releases/2.23.x/remove-bslmf-cycle-drqs-65490871_cherrypick to releases/2.23.x
+  * c21bfd6 [APPROVAL] pending/releases/2.23.x/remove-bslmf-cycle-drqs-65490871_cherrypick to releases/2.23.x
+  * 13f013b [APPROVAL] OSS pending/releases/2.23.x/patch_for_stdint_on_vc2008_drqs66222923_cherrypick to releases/2.23.x
+  * 395aa6a [APPROVAL] pending/releases/2.23.x/patch_for_stdint_on_vc2008_drqs66222923_cherrypick to releases/2.23.x
+
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Thu, 28 May 2015 17:42:37 -0400
+
+bsl-internal (2.23.1.0) git; urgency=low
+
+  * 90f1d9f Changelog for version 2.23.1.0
   * dbd1ad0 [APPROVAL] review/fix_windows_for_2.23_release_drqs66175940 to releases/2.23.x
   * 658a4ad Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.23.x
   * e3a6909 [APPROVAL] INTERNAL bump-version-to-2.23.1 to releases/2.23.x
@@ -19,7 +30,7 @@ bsl-internal (2.23.1.0) unstable; urgency=low
   * af07bd1 [APPROVAL] OSS bdlb_guidutil-stlport-fix-drqs-65917200-2.23 to releases/2.23.x
   * e49c988 [APPROVAL] bdlb_guidutil-stlport-fix-drqs-65917200-2.23 to releases/2.23.x
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 28 May 2015 13:11:07 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 28 May 2015 13:28:06 -0400
 
 bsl-internal (2.23.0.6) git; urgency=low
 
