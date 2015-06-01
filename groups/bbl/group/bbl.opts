@@ -2,10 +2,6 @@
 
 *-                      _       OPTS_FILE       = bbl.opts
 
-# Internal location of 'bbl+stdhdrs' directory, used by builds of BBL prior
-# to the group install stage
-#!! *			_	STL_INCLUDE	= -I$(BBL_LOCN)/bbl+stdhdrs/include/$(UPLID)/$(UFID)
-
 *			_	BDE_CINCLUDE	= $(STL_INCLUDE)
 
 -- unix-SunOS-*-*-cc	_	AR_PACKAGE	= $(SET_TEMPLATE_CACHE_DIR)
