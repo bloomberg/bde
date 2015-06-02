@@ -1,12 +1,21 @@
-bsl-internal (2.23.1.1) unstable; urgency=low
+bsl-internal (2.23.1.2) unstable; urgency=low
 
+  * 6373962 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.23.x
+  * c49050f [APPROVAL] INTERNAL release-2.23-bdlt_datetime-restore-old-2400-behavior-drqs-66330738 to releases/2.23.x
+  * ad54d01 [APPROVAL] release-2.23-bdlt_datetime-restore-old-2400-behavior-drqs-66330738 to releases/2.23.x
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 2 Jun 2015 15:58:46 -0400
+
+bsl-internal (2.23.1.1) git; urgency=low
+
+  * 1cb42fd Changelog for version 2.23.1.1
   * a11f7fc Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.23.x
   * 9d09f6c [APPROVAL] INTERNAL pending/releases/2.23.x/remove-bslmf-cycle-drqs-65490871_cherrypick to releases/2.23.x
   * c21bfd6 [APPROVAL] pending/releases/2.23.x/remove-bslmf-cycle-drqs-65490871_cherrypick to releases/2.23.x
   * 13f013b [APPROVAL] OSS pending/releases/2.23.x/patch_for_stdint_on_vc2008_drqs66222923_cherrypick to releases/2.23.x
   * 395aa6a [APPROVAL] pending/releases/2.23.x/patch_for_stdint_on_vc2008_drqs66222923_cherrypick to releases/2.23.x
 
- -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Thu, 28 May 2015 17:42:37 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 29 May 2015 10:22:27 -0400
 
 bsl-internal (2.23.1.0) git; urgency=low
 
