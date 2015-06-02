@@ -1,15 +1,12 @@
 // bdlt_datetime.t.cpp                                                -*-C++-*-
 #include <bdlt_datetime.h>
 
-#include <bdlt_date.h>
-#include <bdlt_time.h>
-
 #include <bdls_testutil.h>
 
+#include <bslma_default.h>
 #include <bslma_testallocator.h>
 
 #include <bsls_asserttest.h>
-#include <bsls_types.h>
 
 #include <bslx_byteinstream.h>
 #include <bslx_byteoutstream.h>
@@ -25,13 +22,10 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
-#include <bsl_algorithm.h>
-#include <bsl_cstdlib.h>     // 'atoi'
-
 #include <bsl_algorithm.h>  // 'min', 'max'
+#include <bsl_cstdlib.h>    // 'atoi'
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
-#include <bsl_strstream.h>
 #include <bsl_sstream.h>
 
 using namespace BloombergLP;
@@ -60,7 +54,7 @@ using namespace bsl;
 //: o 'setTime'
 //
 // Basic Accessors
-//: o 'date' ('const' overload)
+//: o 'date'
 //: o 'time'
 //
 // Global Concerns:
@@ -71,9 +65,6 @@ using namespace bsl;
 //: o Precondition violations are detected in appropriate build modes.
 //
 // Global Assumptions:
-//: o Any explicit memory allocations are presumed to use the global or default
-//:   allocator.
-//:
 //: o ACCESSOR methods are 'const' thread-safe.
 //:
 //: o Individual attribute types are presumed to be *alias-safe*; hence, only
@@ -89,7 +80,7 @@ using namespace bsl;
 // [ 2] Datetime();
 // [11] Datetime(const Date& date);
 // [11] Datetime(const Date& date, const Time& time);
-// [11] Datetime(int y, int m, int d, int h , int m , int s, int ms);
+// [11] Datetime(int y, int m, int d, int h, int m, int s, int ms);
 // [ 7] Datetime(const Datetime& original);
 // [ 2] ~Datetime();
 //
@@ -411,7 +402,7 @@ if (veryVerbose)
 // such as 'bdlt::Datetime' makes doing date and time calculations trivial.
 //
 // Suppose one wants to divide into an arbitrary interval such as the time
-// between sunset and sunset into an arbitrary number (say 7) of equal
+// between sunset and sunrise into an arbitrary number (say 7) of equal
 // intervals (perhaps to use as a duty roster for teams making astronomical
 // observations).
 //
@@ -469,14 +460,12 @@ if (veryVerbose)
         //:
         //: 2 The method works irrespective of the initial state of the object.
         //:
-        //: 3 The method does not change the "time" part unless
-        //:   'Time() == time()', then the "time" part is set to
-        //:   'Time(0, 0, 0, 0)'.
+        //: 3 The method does not change the "time" part.
         //:
         //: 4 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Construct a table of substantial and varies differences in value
+        //: 1 Construct a table of substantial and varied differences in value
         //:   that spans the range of 'Datetime' values and includes the
         //:   default value.  The table will be used to create a series of test
         //:   objects.  Also construct an array of integer values that will be
@@ -488,7 +477,7 @@ if (veryVerbose)
         //:   method with the (possibly adjusted) days value and confirm that
         //:   the date has been increased (decreased) by the expected number of
         //:   days.  Also confirm that the "time" part equals that of the
-        //:   original value.  (C-1, C-2, C-3)
+        //:   original value.  (C-1..3)
         //:
         //: 3 Verify that, in appropriate build modes, defensive checks are
         //:   triggered when an attempt is made to perform operations that
@@ -588,12 +577,7 @@ if (veryVerbose)
                 mU.addDays(DELTA);
 
                 LOOP2_ASSERT(i, j, U.date() - R.date() == DELTA);
-
-                if (Time() == R.time()) {
-                    LOOP2_ASSERT(i, j, Time(0, 0, 0, 0) == U.time());
-                } else {
-                    LOOP2_ASSERT(i, j, R.time()         == U.time());
-                }
+                LOOP2_ASSERT(i, j, R.time()            == U.time());
             }
         }
 
@@ -627,11 +611,10 @@ if (veryVerbose)
         //:
         //: 2 The methods work irrespective of the initial state of the object.
         //:
-        //: 3 The 'setDate' method does not change the "time" part unless
-        //:   '24 == hour()' initially, and the 'setTime' method does not
-        //:   change the "date" part.
+        //: 3 The 'setDate' method does not change the "time" part, and the
+        //:   'setTime' method does not change the "date" part.
         //:
-        //: 4 The methods are alias safe.
+        //: 4 The methods are alias-safe.
         //
         // Plan:
         //: 1 Construct a table of substantial and varied differences in value
@@ -641,13 +624,13 @@ if (veryVerbose)
         //:   source of date and time values to be used as arguments to the
         //:   'setDate' and 'setTime' methods, respectively.
         //:
-        //: 2 For each value specified by the table (P-1) create a test object
+        //: 2 For each value specified by the table (P-1), create a test object
         //:   and invoke the 'setDate' ('setTime') method using each of the
         //:   date (time) values from the table.  In each case confirm that the
         //:   "date" and "time" parts of the test object have the expected
         //:   values.  (C-1..3)
         //:
-        //: 3 For each value specified by the table (P-1) create an object and
+        //: 3 For each value specified by the table (P-1), create an object and
         //:   invoke its 'setDate' ('setTime') method using the "date" ("time")
         //:   part of that object as an argument.  Confirm that the object
         //:   value is unchanged.  (C-4)
@@ -740,12 +723,7 @@ if (veryVerbose)
                 mU.setDate(DATE);
 
                 LOOP2_ASSERT(i, j, DATE     == U.date());
-
-                if (Obj() == R && Date() != DATE) {
-                    LOOP2_ASSERT(i, j, Time(0, 0, 0, 0) == U.time());
-                } else {
-                    LOOP2_ASSERT(i, j, R.time()         == U.time());
-                }
+                LOOP2_ASSERT(i, j, R.time() == U.time());
 
                 Obj mV(R);  const Obj& V = mV;
 
@@ -754,12 +732,7 @@ if (veryVerbose)
                 mV.setTime(TIME);
 
                 LOOP2_ASSERT(i, j, R.date() == V.date());
-
-                if (Date() != R.date() && Time() == TIME) {
-                    LOOP2_ASSERT(i, j, Time(0, 0, 0, 0) == V.time());
-                } else {
-                    LOOP2_ASSERT(i, j, TIME             == V.time());
-                }
+                LOOP2_ASSERT(i, j, TIME     == V.time());
             }
         }
 
@@ -802,21 +775,20 @@ if (veryVerbose)
         // TESTING 'setYearDay' AND 'setYearMonthDay'
         //
         // Concerns:
-        //: 1 The each method sets the intended date value.
-        //: 2 Both methods
-        //:   1 Change the default time value to "00:00:00.000".
-        //:   2 Otherwise leave the time value unchanged.
-        //: 3 Original value of the object is not relevant.
+        //: 1 Each method sets the intended date value.
+        //:
+        //: 2 Each method leaves the time value unchanged.
+        //:
+        //: 3 The original value of the object is not relevant.
         //
         // Plan:
         //: 1 Construct a table of valid inputs and compare results with the
         //:   expected values.  (C-1)
         //:
-        //: 2 Confirm that the time value of the test object is not changed
-        //:   except an initial default time value (24:00:00.000) is set to
-        //:   (00:00:00.000).  (C-2)
+        //: 2 Confirm that the time value of the test object is not changed.
+        //:   (C-2)
         //:
-        //: 3 Repeat the tests for a series of test object that span the range
+        //: 3 Repeat the tests for a series of test objects that span the range
         //:   of valid 'Datetime' values and include the default constructed
         //:   object.
         //
@@ -898,24 +870,14 @@ if (veryVerbose)
                 Obj mX(OBJ);  const Obj& X = mX;
 
                 mX.setYearDay(YEAR, DAY_OF_YEAR);
-                LOOP_ASSERT(LINE, ED == X.date());
-
-                if (Time() == OBJ.time() && Date() != X.date()) {
-                    LOOP_ASSERT(LINE, Time(0, 0, 0, 0) == X.time());
-                } else {
-                    LOOP_ASSERT(LINE, OBJ.time()       == X.time());
-                }
+                LOOP_ASSERT(LINE, ED         == X.date());
+                LOOP_ASSERT(LINE, OBJ.time() == X.time());
 
                 Obj mY(OBJ);  const Obj& Y = mY;
 
                 mY.setYearMonthDay(YEAR, MONTH, DAY);
-                LOOP_ASSERT(LINE, ED == Y.date());
-
-                if (Time() == OBJ.time() && Date() != Y.date()) {
-                    LOOP_ASSERT(LINE, Time(0, 0, 0, 0) == Y.time());
-                } else {
-                    LOOP_ASSERT(LINE, OBJ.time()       == Y.time());
-                }
+                LOOP_ASSERT(LINE, ED         == Y.date());
+                LOOP_ASSERT(LINE, OBJ.time() == Y.time());
             }
         }
 
@@ -931,27 +893,30 @@ if (veryVerbose)
         //: 2 The return value on success is 0.
         //:
         //: 3 If the arguments are valid, the object is set accordingly;
-        //:   otherwise, the the object is unchanged.
+        //:   otherwise, the object is unchanged.
         //:
-        //: 4 The results are identical irrespective of the initial value of
+        //: 4 The return value on failure is non-zero.
+        //:
+        //: 5 The results are identical irrespective of the initial value of
         //:   the object.
         //:
-        //: 5 Each optional argument is set to the expected value (0).
+        //: 6 Each optional argument is set to the expected value (0).
+        //:
         //
         // Plan:
-        //: 1 Construct a table of valid and invalid inputs and compare results
-        //:   to expected "valid" values.  (C-1,2,3)
+        //: 1 Construct a table of valid and invalid inputs.
         //:
-        //: 2 Repeat the individual "time" part is set.  (C-1) Repeat the tests
-        //:   for a series of objects that span the range of valid 'Datetime'
-        //:   values including the default constructed object (C-4)
+        //: 2 For a series of test objects that span the range of valid
+        //:   'Datetime' values, including a default constructed object, invoke
+        //:   the method under test using the values from the table in P-1, and
+        //:   verify the results are as expected.  (C-1..5)
         //:
         //: 3 Construct a series of object pairs.  For each pair, invoke the
         //:   'setDatetimeIfValid' method by explicitly specifying the expected
         //:   default value for an optional argument for one object, and by not
         //:   omitting the optional argument for the other object.  The two
         //:   objects should compare equal.  For each pair of the series, omit
-        //:   one more of the four optional arguments.  (C-5)
+        //:   one more of the four optional arguments.  (C-6)
         //
         // Testing:
         //   int setDatetimeIfValid(int, int, int, int, int, int, int);
@@ -1008,6 +973,7 @@ if (veryVerbose)
                 { L_,  9999,   1,   1,    0,    0,   0,     0,    1   },
 
                 { L_,     1,   1,   1,   24,    0,   0,     0,    1   },
+                { L_,     2,   1,   1,   24,    0,   0,     0,    1   },
 
                 { L_,  1400,  10,   2,    7,   31,   2,    22,    1   },
                 { L_,  2002,   8,  27,   14,    2,  48,   976,    1   },
@@ -1036,7 +1002,6 @@ if (veryVerbose)
 
                 { L_,  1401,   2,  29,    7,   31,   2,    22,    0   },
                 { L_,  2002,   2,  29,   14,    2,  48,   976,    0   },
-
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -1051,25 +1016,26 @@ if (veryVerbose)
                 const int MSEC     = DATA[i].d_msec;
                 const int EXPECTED = DATA[i].d_expected;
 
-                Obj x(OBJ);  const Obj& X = x;
+                Obj mX(OBJ);  const Obj& X = mX;
 
                 if (1 == EXPECTED) {
                     const Obj R(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, MSEC);
 
                     LOOP_ASSERT(LINE,
-                                0 == x.setDatetimeIfValid(YEAR,
-                                                          MONTH,
-                                                          DAY,
-                                                          HOUR,
-                                                          MINUTE,
-                                                          SECOND,
-                                                          MSEC));
+                                0 == mX.setDatetimeIfValid(YEAR,
+                                                           MONTH,
+                                                           DAY,
+                                                           HOUR,
+                                                           MINUTE,
+                                                           SECOND,
+                                                           MSEC));
                     LOOP_ASSERT(LINE, R == X);
+
                     if (veryVerbose) { T_ T_ P_(EXPECTED) P_(R) P(X) }
                 }
                 else {
                     LOOP_ASSERT(LINE,
-                                -1 == x.setDatetimeIfValid(YEAR,
+                                0 != mX.setDatetimeIfValid(YEAR,
                                                            MONTH,
                                                            DAY,
                                                            HOUR,
@@ -1264,7 +1230,7 @@ if (veryVerbose)
         //:
         //:   2 The entries include pairs with no differences.
         //:
-        //: 3 Use the pairs of date and time values to construct 'Datetime
+        //: 3 Use the pairs of date and time values to construct 'Datetime'
         //:   objects.
         //:
         //:   1 Take calculate the differences between those objects (in
@@ -1359,7 +1325,6 @@ if (veryVerbose)
             { L_,       1999,     2,    28,    364,   2000,     2,    27 },
             { L_,       1999,     2,    28,   1096,   2002,     2,    28 },
             { L_,       2002,     2,    28,  -1096,   1999,     2,    28 },
-
         };
         const int NUM_DATE_DATA =
                         static_cast<int>(sizeof DATE_DATA / sizeof *DATE_DATA);
@@ -1395,7 +1360,6 @@ if (veryVerbose)
 
             { L_,      1,  0,  0,   0,   0,  0,  0,   0,       3600000  },
             { L_,      0,  0,  0,   0,   1,  0,  0,   0,      -3600000  },
-
         };
         const int NUM_TIME_DATA =
                         static_cast<int>(sizeof TIME_DATA / sizeof *TIME_DATA);
@@ -1508,8 +1472,8 @@ if (veryVerbose)
 
             if (veryVerbose) { P(startOfEpoch) P(endOfEpoch) P(delta) }
 
-            Obj x(startOfEpoch);  const Obj& X = x;
-            Obj y(  endOfEpoch);  const Obj& Y = y;
+            const Obj X(startOfEpoch);
+            const Obj Y(  endOfEpoch);
 
             ASSERT( delta == Y - X);
             ASSERT(-delta == X - Y);
@@ -1522,13 +1486,13 @@ if (veryVerbose)
         if (verbose) cout
           << "\nTest handling of hour 24." << endl;
         {
-            Obj x;  const Obj& X = x;
-            Obj y;  const Obj& Y = y;
+            Obj mX;  const Obj& X = mX;
+            Obj mY;  const Obj& Y = mY;
 
             const DatetimeInterval zero(0, 0, 0, 0, 0);
 
-            x += zero;
-            y -= zero;
+            mX += zero;
+            mY -= zero;
 
             ASSERT(Obj(1, 1, 1, 0, 0, 0, 0) == X);
             ASSERT(Obj(1, 1, 1, 0, 0, 0, 0) == Y);
@@ -2477,71 +2441,69 @@ if (veryVerbose)
         // Concerns:
         //: 1 Each of the time-only manipulators correctly forwards its
         //:   arguments to the appropriate manipulator of the constituent
-        //:   'Time' object
+        //:   'Time' object.
         //:
-        //:   1 When the "time" part has a non-default value, each of the time
-        //:     setting manipulators change it's intended time field (e.g.,
-        //:     hours, milliseconds) and no other.  See C-2.
+        //:   1 When the "time" part has a non-default value, each of the time-
+        //:     setting manipulators changes it's intended time field (e.g.,
+        //:     hours, milliseconds) and no other (see C-2)
         //:
         //:   2 None of the time-setting manipulators change the "date" part.
         //:
-        //: 2 The complex constraints between "time" fields of the default time
-        //:   value (24:00:00.000) are honored.
-        //:
-        //: 3 None of these manipulators (except the 'setDatetime' method)
+        //: 2 None of these manipulators, except the 'setDatetime' method,
         //:   alters the "date" part of the object.
         //:
-        //: 4 The 'setDatetime' method correctly forwards its arguments to the
-        //:   appropriate manipulator of the constituent 'Date' and 'Time'
+        //: 3 The 'setDatetime' method correctly forwards its arguments to the
+        //:   appropriate manipulators of the constituent 'Date' and 'Time'
         //:   objects.
         //:
-        //: 5 The 'setDatime' method defines the same optional parameters and
-        //:   provides the same default values as the value constructor.
+        //: 4 The 'setDatetime' method defines the same optional parameters and
+        //:   provides the same default values as the seven-argument value
+        //:   constructor.
         //:
-        //: 6 The methods have the same effect regardless of the object's
-        //:   initial value, except for the special case of the default time
-        //:   value.
+        //: 5 The methods have the same effect regardless of the object's
+        //:   initial value.
         //:
-        //: 7 QoI: Asserted precondition violations are detected when enabled.
+        //: 6 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 For a set of independent test values that do no include the
-        //:   default value (24:00:00.000), use the default constructor to
-        //:   create an object and use the time-only 'set' manipulators to set
-        //:   its value.  Verify the value using the basic accessors after each
-        //:   individual "time" field is set.  (C-1) Repeat the tests for a
+        //: 1 For a set of independent test values that do not include the
+        //:   default 'Time' value (24:00:00.000), use the default constructor
+        //:   to create an object and use the time-only "set" manipulators to
+        //:   set its value.  Verify the value using the basic accessors after
+        //:   each individual "time" field is set.  Repeat the tests for a
         //:   series of objects that span the range of valid 'Datetime' values,
-        //:   but excluding the default constructed object (see P-2) (C-7)
+        //:   but excluding the default constructed object (see P-2).
         //:
-        //: 2 Create a series of objects having a time "field" equal to
-        //:   'Time()' (24:00:00.000) and confirm using values from the
-        //:   bounding the valid range of each field that using any of the
-        //:   individual time-setting manipulators both sets the specified
-        //:   value (e.g., minute, second) *and* sets the hour field to 0.
-        //:   Then create an object having non-zero values for "time" fields
-        //:   and confirm that 'setHour(24)' sets that specified value *and*
-        //:   sets all other fields to 0.  (C-2)
+        //: 2 Create a series of objects having a time "part" equal to 'Time()'
+        //:   (24:00:00.000) and confirm using values from the valid bounding
+        //:   range of each "time" field that using any of the individual
+        //:   time-setting manipulators both sets the specified value (e.g.,
+        //:   minute, second) *and* sets the hour field to 0.  Then create an
+        //:   object having non-zero values for "time" fields and confirm that
+        //:   'setHour(24)' sets that specified value *and* sets all other
+        //:   fields to 0.  (C-1..2)
         //:
-        //: 3 For each set of values used in the testing the seven-argument
-        //:   value constructor, create and compare two objects for equality.
-        //:   One is created by the value constructor (proven earlier), the
-        //:   other by using the seven-argument 'setDatetime' method of a test
-        //:   object.  (C-4) Use a series of test objects that span the range
-        //:   of valid 'Datetime' values, *including* the default constructed
-        //:   object.  (C-6)
+        //: 3 For each set of values used in testing the seven-argument value
+        //:   constructor, create and compare two objects for equality.  One is
+        //:   created by the value constructor (proven earlier), the other by
+        //:   using the seven-argument 'setDatetime' method of a test object.
+        //:   Use a series of test objects that span the range of valid
+        //:   'Datetime' values, *including* the default constructed object.
+        //:   (C-3, 5)
         //:
         //: 4 Create a series of five object pairs using the default
-        //:   constructor and then set the values of "date" and "time" parts
-        //:   using the 'setDatetime' method.  As we go through the five pairs
-        //:   of objects, we invoke the 'setDatetime' method with one fewer of
-        //:   the four optional arguments for one of the objects and invoke
-        //:   'setDatetime' with the expected default values for the other
-        //:   object.  The two objects must compare equal.  (C-5)
+        //:   constructor and then set the values of the "date" and "time"
+        //:   parts using the 'setDatetime' method.  As we go through the five
+        //:   pairs of objects, we invoke the 'setDatetime' method with one
+        //:   fewer of the four optional arguments for one of the objects and
+        //:   invoke 'setDatetime' with the expected default values (of the
+        //:   optional arguments) for the other object.  Verify that the two
+        //:   objects compare equal.  (C-4)
         //:
         //: 5 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered when an attempt is made invoke methods with arguments
-        //:   that are outside the valid ranges defined in the contracts.
-        //:   (using the 'BSLS_ASSERTTEST_*' macros).  (C-7)
+        //:   triggered when an attempt is made to invoke methods with
+        //:   arguments that are outside the valid ranges defined in the
+        //:   contracts (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
         //
         // Testing:
         //   void setHour(int hour);
@@ -2718,7 +2680,7 @@ if (veryVerbose)
                                        if (veryVerbose) { T_;  P_(X); }
             mX.setHour(24);            if (veryVerbose) { P(X); cout << endl; }
             ASSERT(DATE == X.date());
-            ASSERT( 0   == X.time().hour());
+            ASSERT(24   == X.time().hour());
             ASSERT( 0   == X.time().minute());
             ASSERT( 0   == X.time().second());
             ASSERT( 0   == X.time().millisecond());
@@ -2752,6 +2714,7 @@ if (veryVerbose)
                 {    1,  1,  1,  24,  0,  0,   0 },  // default
 
                 {    1,  1,  1,   0,  0,  0,   0 },  // start of epoch
+                {    1,  1,  2,  24,  0,  0,   0 },
                 {   10,  4,  5,   0,  0,  0, 999 },
                 {  100,  6,  7,   0,  0, 59,   0 },
                 { 1000,  8,  9,   0, 59,  0,   0 },
@@ -2781,9 +2744,9 @@ if (veryVerbose)
 
                 const Obj R(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, MSEC);
 
-                Obj x(OBJ);  const Obj& X = x;
+                Obj mX(OBJ);  const Obj& X = mX;
 
-                x.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, MSEC);
+                mX.setDatetime(YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, MSEC);
 
                 if (veryVerbose) { T_ T_  P_(R)  P(X) }
                 LOOP_ASSERT(i, R == X);
@@ -2907,9 +2870,9 @@ if (veryVerbose)
         //:
         //: 2 All optional constructor parameters have their expected values.
         //:
-        //: 3 A 'Date' object can be converted to a 'Datetime' object of having
+        //: 3 A 'Date' object can be converted to a 'Datetime' object having
         //:   the expected value.  (The single-value value constructor is
-        //:   not 'explicit').
+        //:   not 'explicit'.)
         //
         // Plan:
         //: 1 Specify a set of (unique) valid object values (one per row) in
@@ -2921,9 +2884,9 @@ if (veryVerbose)
         //: 2 For each row 'R1' (representing a distinct object value, 'V') in
         //:   the table described in P-1:  (C-1)
         //:
-        //:   1 Create a 'const' 'Obj' 'X' the default constructor
-        //:     and primary manipulators as a reference for objects created
-        //:     using the value constructors.
+        //:   1 Create a 'const' 'Obj' 'X', using the default constructor and
+        //:     primary manipulators, as a reference for objects created using
+        //:     the value constructors.
         //:
         //:   2 Use the row attributes to create 'const' objects 'A', 'B', and
         //:     'C' using the three value constructors.
@@ -2933,17 +2896,17 @@ if (veryVerbose)
         //: 3 Create a series of object pairs using the value constructor that
         //:   allows optional parameters.  The initial object of the series has
         //:   no value parameter equal to the corresponding default parameter.
-        //:   For each subsequent pairs in the series, we omit an additional
+        //:   For each subsequent pair in the series, we omit an additional
         //:   optional parameter then compare to an object created by
         //:   explicitly specifying the expected default values in the value
         //:   constructor.  The two objects, one created with omitted optional
-        //:   parameters, The other created with all parameters explicitly
-        //:   specified must compare equal.  (C-2)
+        //:   parameters, the other created with all parameters explicitly
+        //:   specified, must compare equal.  (C-2)
         //:
-        //: 4 Assign a 'Date' object to a 'Datetime' object.  As there is
-        //:   no such assignment operator, the 'Date' object must be converted
-        //:   to a 'Datetime' object for the assignment to compile.  Confirm
-        //:   that the "time" part has the expected value, "00:00:00.000".
+        //: 4 Assign a 'Date' object to a 'Datetime' object.  As there is no
+        //:   such assignment operator, the 'Date' object must be converted to
+        //:   a 'Datetime' object for the assignment to compile.  Confirm that
+        //:   the "time" part has the expected value, "00:00:00.000".
         //:
         //: 5 Verify that, in appropriate build modes, defensive checks are
         //:   triggered when an attempt is made to construct objects from both
@@ -2953,7 +2916,7 @@ if (veryVerbose)
         // Testing:
         //   Datetime(const Date& date);
         //   Datetime(const Date& date, const Time& time);
-        //   Datetime(int y, int m, int d, int h , int m , int s, int ms);
+        //   Datetime(int y, int m, int d, int h, int m, int s, int ms);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3221,7 +3184,7 @@ if (veryVerbose)
             ASSERT(&out == &rvOut);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             In in(OD, LOD);
             ASSERT(in);
@@ -3262,7 +3225,7 @@ if (veryVerbose)
                 Out& rvOut = bdexStreamOut(out, X, VERSION);
                 LOOP_ASSERT(i, &out == &rvOut);
                 const char *const OD  = out.data();
-                const int         LOD = out.length();
+                const int         LOD = static_cast<int>(out.length());
 
                 // Verify that each new value overwrites every old value and
                 // that the input stream is emptied, but remains valid.
@@ -3298,7 +3261,7 @@ if (veryVerbose)
         {
             Out               out(VERSION_SELECTOR, &allocator);
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
             ASSERT(0 == LOD);
 
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -3344,7 +3307,7 @@ if (veryVerbose)
             ASSERT(&out == &rvOut);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
             ASSERT(0 < LOD);
 
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -3393,15 +3356,15 @@ if (veryVerbose)
 
             Out& rvOut1 = bdexStreamOut(out, X1, VERSION);
             ASSERT(&out == &rvOut1);
-            const int         LOD1 = out.length();
+            const int         LOD1 = static_cast<int>(out.length());
 
             Out& rvOut2 = bdexStreamOut(out, X2, VERSION);
             ASSERT(&out == &rvOut2);
-            const int         LOD2 = out.length();
+            const int         LOD2 = static_cast<int>(out.length());
 
             Out& rvOut3 = bdexStreamOut(out, X3, VERSION);
             ASSERT(&out == &rvOut3);
-            const int         LOD3 = out.length();
+            const int         LOD3 = static_cast<int>(out.length());
             const char *const OD3  = out.data();
 
             for (int i = 0; i < LOD3; ++i) {
@@ -3542,7 +3505,7 @@ if (veryVerbose)
             bdexStreamOut(out, bdlt::Time(1), VERSION);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -3573,7 +3536,7 @@ if (veryVerbose)
             bdexStreamOut(out, bdlt::Time(1), VERSION);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -3601,7 +3564,7 @@ if (veryVerbose)
             bdexStreamOut(out, bdlt::Time(1), VERSION);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj mT(X);  const Obj& T = mT;
             ASSERT(X == T);
@@ -3670,13 +3633,14 @@ if (veryVerbose)
                     bslx::ByteOutStream& rvOut = X.bdexStreamOut(out, VERSION);
                     LOOP_ASSERT(LINE, &out == &rvOut);
 
-                    LOOP_ASSERT(LINE, LEN == out.length());
+                    LOOP_ASSERT(LINE, LEN == static_cast<int>(out.length()));
                     LOOP_ASSERT(LINE, 0 == memcmp(out.data(), FMT, LEN));
 
                     if (verbose && memcmp(out.data(), FMT, LEN)) {
                         const char *hex = "0123456789abcdef";
                         P_(LINE);
-                        for (int j = 0; j < out.length(); ++j) {
+                        for (int j = 0;
+                             j < static_cast<int>(out.length()); ++j) {
                             cout << "\\x"
                                  << hex[static_cast<unsigned char>
                                             ((*(out.data() + j) >> 4) & 0x0f)]
@@ -3709,13 +3673,14 @@ if (veryVerbose)
                                                                VERSION);
                     LOOP_ASSERT(LINE, &out == &rvOut);
 
-                    LOOP_ASSERT(LINE, LEN == out.length());
-                    LOOP_ASSERT(LINE, 0 == memcmp(out.data(), FMT, LEN));
+                    LOOP_ASSERT(LINE, LEN == static_cast<int>(out.length()));
+                    LOOP_ASSERT(LINE, 0   == memcmp(out.data(), FMT, LEN));
 
                     if (verbose && memcmp(out.data(), FMT, LEN)) {
                         const char *hex = "0123456789abcdef";
                         P_(LINE);
-                        for (int j = 0; j < out.length(); ++j) {
+                        for (int j = 0;
+                             j < static_cast<int>(out.length()); ++j) {
                             cout << "\\x"
                                  << hex[static_cast<unsigned char>
                                             ((*(out.data() + j) >> 4) & 0x0f)]
@@ -4765,11 +4730,10 @@ if (veryVerbose)
         //: 2 Each primary manipulator forwards its input to the corresponding
         //:   (fully-tested) member object ("date" or "time", as appropriate).
         //:
-        //: 3 The default arguments for 'setTime' has the expected value (0).
+        //: 3 The default arguments for 'setTime' have the expected value (0).
         //:
         //: 4 Each primary manipulator sets one part of the object ("date" or
-        //:   "time" as appropriate) and has no effect on the other except
-        //:   when "time" has the value 'Time()'.
+        //:   "time", as appropriate) and has no effect on the other.
         //:
         //: 5 The object can be destroyed.
         //
@@ -4786,18 +4750,18 @@ if (veryVerbose)
         //:   1 For each test, confirm that the value of the "other part"
         //:     remains unchanged.  (C-4)
         //:
-        //: 3 Confirm that each basic accessor leaves the other "part"
-        //:   unchanged when the other part has a non-default value.
+        //: 3 Confirm that each primary manipulator leaves the other "part"
+        //:   unchanged.
         //:
         //: 4 The destructor is exercised on each test object as it leaves
-        //:   scope.  (C-4)
+        //:   scope.  (C-5)
         //:
         //: 5 Construct a series of object pairs.  For each pair, invoke the
         //:   'setDatetimeIfValid' method by explicitly specifying the expected
         //:   default value for an optional argument for one object, and by not
         //:   omitting the optional argument for the other object.  The two
         //:   objects should compare equal.  For each pair of the series, omit
-        //:   one more of the four optional arguments.  (C-3)
+        //:   one or more of the four optional arguments.  (C-3)
         //
         // Testing:
         //   Datetime();
@@ -4904,7 +4868,7 @@ if (veryVerbose)
             ASSERT(D0 == D1);
         }
 
-        if (verbose) cout << "\nTesting 'setYearMonthDate'." << endl;
+        if (verbose) cout << "\nTesting 'setYearMonthDay'." << endl;
         {
             static const struct {
                 int d_year;
@@ -4951,15 +4915,10 @@ if (veryVerbose)
                                       P(X.date().day())
                 }
 
-                LOOP_ASSERT(i, YEAR                 == X.date().year());
-                LOOP_ASSERT(i, MONTH                == X.date().month());
-                LOOP_ASSERT(i, DAY                  == X.date().day());
-                if (X.date() == Date()) {
-                    LOOP_ASSERT(i, Time()           == X.time());
-                }
-                else {
-                    LOOP_ASSERT(i, Time(0, 0, 0, 0) == X.time());
-                }
+                LOOP_ASSERT(i, YEAR   == X.date().year());
+                LOOP_ASSERT(i, MONTH  == X.date().month());
+                LOOP_ASSERT(i, DAY    == X.date().day());
+                LOOP_ASSERT(i, Time() == X.time());
             }
         }
 
@@ -4972,11 +4931,11 @@ if (veryVerbose)
             const int HRA = 1, MIA = 2, SCA = 3, MSA = 4;  // h, m, s, ms for A
             const int HRB = 5, MIB = 6, SCB = 7, MSB = 8;  // h, m, s, ms for B
 
-            Obj x;  const Obj& X = x;
+            Obj mX;  const Obj& X = mX;
 
-            x.setYearMonthDay(YRA, MOA, DAA);
+            mX.setYearMonthDay(YRA, MOA, DAA);
 
-            x.setTime(HRA, MIA, SCA, MSA);
+            mX.setTime(HRA, MIA, SCA, MSA);
             ASSERT(YRA == X.date().year());
             ASSERT(MOA == X.date().month());
             ASSERT(DAA == X.date().day());
@@ -4985,7 +4944,7 @@ if (veryVerbose)
             ASSERT(SCA == X.time().second());
             ASSERT(MSA == X.time().millisecond());
 
-            x.setTime(HRB, MIB, SCB, MSB);
+            mX.setTime(HRB, MIB, SCB, MSB);
             ASSERT(YRA == X.date().year());
             ASSERT(MOA == X.date().month());
             ASSERT(DAA == X.date().day());
@@ -4994,7 +4953,7 @@ if (veryVerbose)
             ASSERT(SCB == X.time().second());
             ASSERT(MSB == X.time().millisecond());
 
-            x.setYearMonthDay(YRB, MOB, DAB);
+            mX.setYearMonthDay(YRB, MOB, DAB);
             ASSERT(YRB == X.date().year());
             ASSERT(MOB == X.date().month());
             ASSERT(DAB == X.date().day());
