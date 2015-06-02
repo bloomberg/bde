@@ -1,5 +1,5 @@
-// bbldcu_isma30360.t.cpp                                             -*-C++-*-
-#include <bbldcu_isma30360.h>
+// bbldc_basicisma30360.t.cpp                                         -*-C++-*-
+#include <bbldc_basicisma30360.h>
 
 #include <bdls_testutil.h>
 
@@ -75,7 +75,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                     GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bbldcu::Isma30360 Util;
+typedef bbldc::BasicIsma30360 Util;
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// The following snippets of code illustrate how to use 'bbldcu::Isma30360'
+// The following snippets of code illustrate how to use 'bbldc::BasicIsma30360'
 // methods.  First, create two 'bdlt::Date' variables 'd1' and 'd2':
 //..
     const bdlt::Date d1(2004,  9, 30);
@@ -126,12 +126,12 @@ int main(int argc, char *argv[])
 //..
 // Then, compute the day count between these two dates:
 //..
-    const int daysDiff = bbldcu::Isma30360::daysDiff(d1, d2);
+    const int daysDiff = bbldc::BasicIsma30360::daysDiff(d1, d2);
     ASSERT(90 == daysDiff);
 //..
 // Finally, compute the year fraction between these two dates:
 //..
-    const double yearsDiff = bbldcu::Isma30360::yearsDiff(d1, d2);
+    const double yearsDiff = bbldc::BasicIsma30360::yearsDiff(d1, d2);
     ASSERT(0.25 == yearsDiff);
 //..
       } break;

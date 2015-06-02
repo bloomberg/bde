@@ -1,5 +1,5 @@
-// bbldcu_actual360.t.cpp                                             -*-C++-*-
-#include <bbldcu_actual360.h>
+// bbldc_basicactual360.t.cpp                                         -*-C++-*-
+#include <bbldc_basicactual360.h>
 
 #include <bdls_testutil.h>
 
@@ -75,7 +75,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                     GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bbldcu::Actual360 Util;
+typedef bbldc::BasicActual360 Util;
 
 // ============================================================================
 //                              MAIN PROGRAM
@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// The following snippets of code illustrate how to use 'bbldcu::Actual360'
+// The following snippets of code illustrate how to use 'bbldc::BasicActual360'
 // methods.  First, create four 'bdlt::Date' variables:
 //..
     const bdlt::Date dA(2004, 2, 1);
@@ -128,21 +128,21 @@ int main(int argc, char *argv[])
 // Then, compute the day count between some pairs of these dates:
 //..
     int daysDiff;
-    daysDiff = bbldcu::Actual360::daysDiff(dA, dB);
+    daysDiff = bbldc::BasicActual360::daysDiff(dA, dB);
     ASSERT( 29 == daysDiff);
-    daysDiff = bbldcu::Actual360::daysDiff(dA, dC);
+    daysDiff = bbldc::BasicActual360::daysDiff(dA, dC);
     ASSERT( 90 == daysDiff);
-    daysDiff = bbldcu::Actual360::daysDiff(dA, dD);
+    daysDiff = bbldc::BasicActual360::daysDiff(dA, dD);
     ASSERT(366 == daysDiff);
-    daysDiff = bbldcu::Actual360::daysDiff(dB, dC);
+    daysDiff = bbldc::BasicActual360::daysDiff(dB, dC);
     ASSERT( 61 == daysDiff);
 //..
 // Finally, compute the year fraction between some of these dates:
 //..
     double yearsDiff;
-    yearsDiff = bbldcu::Actual360::yearsDiff(dA, dC);
+    yearsDiff = bbldc::BasicActual360::yearsDiff(dA, dC);
     ASSERT(0.25 == yearsDiff);
-    yearsDiff = bbldcu::Actual360::yearsDiff(dA, dD);
+    yearsDiff = bbldc::BasicActual360::yearsDiff(dA, dD);
     // Need fuzzy comparison since 'yearsDiff' is a 'double'.
     ASSERT(yearsDiff < 1.0167 && yearsDiff > 1.0166);
 //..

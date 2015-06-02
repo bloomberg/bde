@@ -1,7 +1,7 @@
-bbldcu_actual360
-bbldcu_actual365fixed
-bbldcu_isdaactualactual
-bbldcu_isma30360
-bbldcu_psa30360eom
-bbldcu_sia30360eom
-bbldcu_sia30360neom
+bbldc_basicactual360
+bbldc_basicactual365fixed
+bbldc_basicisdaactualactual
+bbldc_basicisma30360
+bbldc_basicpsa30360eom
+bbldc_basicsia30360eom
+bbldc_basicsia30360neom

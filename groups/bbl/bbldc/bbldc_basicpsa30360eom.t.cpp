@@ -1,5 +1,5 @@
-// bbldcu_psa30360eom.t.cpp                                           -*-C++-*-
-#include <bbldcu_psa30360eom.h>
+// bbldc_basicpsa30360eom.t.cpp                                       -*-C++-*-
+#include <bbldc_basicpsa30360eom.h>
 
 #include <bdls_testutil.h>
 
@@ -75,7 +75,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                     GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bbldcu::Psa30360eom Util;
+typedef bbldc::BasicPsa30360eom Util;
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -118,20 +118,21 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// The following snippets of code illustrate how to use 'bbldcu::Psa30360eom'
-// methods.  First, create two 'bdlt::Date' variables 'd1' and 'd2':
+// The following snippets of code illustrate how to use
+// 'bbldc::BasicPsa30360eom' methods.  First, create two 'bdlt::Date' variables
+// 'd1' and 'd2':
 //..
     const bdlt::Date d1(2004,  9, 30);
     const bdlt::Date d2(2004, 12, 31);
 //..
 // Then, compute the day count between these two dates:
 //..
-    const int daysDiff = bbldcu::Psa30360eom::daysDiff(d1, d2);
+    const int daysDiff = bbldc::BasicPsa30360eom::daysDiff(d1, d2);
     ASSERT(90 == daysDiff);
 //..
 // Finally, compute the year fraction between these two dates:
 //..
-    const double yearsDiff = bbldcu::Psa30360eom::yearsDiff(d1, d2);
+    const double yearsDiff = bbldc::BasicPsa30360eom::yearsDiff(d1, d2);
     ASSERT(0.25 == yearsDiff);
 //..
       } break;

@@ -1,6 +1,6 @@
-// bbldcu_isdaactualactual.h                                          -*-C++-*-
-#ifndef INCLUDED_BBLDCU_ISDAACTUALACTUAL
-#define INCLUDED_BBLDCU_ISDAACTUALACTUAL
+// bbldc_basicisdaactualactual.h                                      -*-C++-*-
+#ifndef INCLUDED_BBLDC_BASICISDAACTUALACTUAL
+#define INCLUDED_BBLDC_BASICISDAACTUALACTUAL
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,14 +10,14 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide stateless functions for the ISDA Actual/Actual convention.
 //
 //@CLASSES:
-//  bbldcu::IsdaActualActual: ISDA Actual/Actual convention stateless functions
+//  bbldc::BasicIsdaActualActual: ISDA Actual/Actual stateless functions
 //
-//@DESCRIPTION: This component provides a 'struct', 'bbldcu::IsdaActualActual',
-// that serves as a namespace for defining a suite of date-related functions,
-// used to compute the day count and the year fraction between two dates as per
-// the ISDA Actual/Actual day-count convention.  In this day-count convention,
-// the day count between two dates is exactly the number of days occuring in
-// the time period.
+//@DESCRIPTION: This component provides a 'struct',
+// 'bbldc::BasicIsdaActualActual', that serves as a namespace for defining a
+// suite of date-related functions, used to compute the day count and the year
+// fraction between two dates as per the ISDA Actual/Actual day-count
+// convention.  In this day-count convention, the day count between two dates
+// is exactly the number of days occuring in the time period.
 //
 ///Usage
 ///-----
@@ -26,7 +26,7 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
-// 'bbldcu::IsdaActualActual' methods.  First, create two 'bdlt::Date'
+// 'bbldc::BasicIsdaActualActual' methods.  First, create two 'bdlt::Date'
 // variables 'd1' and 'd2':
 //..
 //  const bdlt::Date d1(2003, 10, 19);
@@ -34,12 +34,12 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, compute the day count between these two dates:
 //..
-//  const int daysDiff = bbldcu::IsdaActualActual::daysDiff(d1, d2);
+//  const int daysDiff = bbldc::BasicIsdaActualActual::daysDiff(d1, d2);
 //  assert(73 == daysDiff);
 //..
 // Finally, compute the year fraction between these two dates:
 //..
-//  const double yearsDiff = bbldcu::IsdaActualActual::yearsDiff(d1, d2);
+//  const double yearsDiff = bbldc::BasicIsdaActualActual::yearsDiff(d1, d2);
 //  // Need fuzzy comparison since 'yearsDiff' is a 'double'.
 //  assert(yearsDiff > 0.1999 && yearsDiff < 0.2001);
 //..
@@ -53,13 +53,13 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bbldcu {
+namespace bbldc {
 
-                          // =======================
-                          // struct IsdaActualActual
-                          // =======================
+                        // ============================
+                        // struct BasicIsdaActualActual
+                        // ============================
 
-struct IsdaActualActual {
+struct BasicIsdaActualActual {
     // This 'struct' provides a namespace for a suite of pure functions that
     // compute values based on dates according to the ISDA Actual/Actual
     // day-count convention.
@@ -94,8 +94,8 @@ struct IsdaActualActual {
 
 // CLASS METHODS
 inline
-int IsdaActualActual::daysDiff(const bdlt::Date& beginDate,
-                               const bdlt::Date& endDate)
+int BasicIsdaActualActual::daysDiff(const bdlt::Date& beginDate,
+                                    const bdlt::Date& endDate)
 {
     return endDate - beginDate;
 }

@@ -1,14 +1,16 @@
-// bbldcu_psa30360eom.cpp                                             -*-C++-*-
-#include <bbldcu_psa30360eom.h>
+// bbldc_basicpsa30360eom.cpp                                         -*-C++-*-
+#include <bbldc_basicpsa30360eom.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bbldcu_psa30360eom_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bbldc_basicpsa30360eom_cpp,"$Id$ $CSID$")
 
 #include <bdlt_date.h>
 #include <bdlt_serialdateimputil.h>
 
+#include <bsls_assert.h>
+
 namespace BloombergLP {
-namespace bbldcu {
+namespace bbldc {
 
 // STATIC METHODS
 inline
@@ -36,8 +38,8 @@ static int max(int lhs, int rhs)
 static int computeDaysDiff(const bdlt::Date& beginDate,
                            const bdlt::Date& endDate)
     // Return the number of days between the specified 'beginDate' and
-    // 'endDate' according to the PSA 30/360 end-of-month day-count convention.  If
-    // 'beginDate <= endDate', then the result is non-negative.  Note that
+    // 'endDate' according to the PSA 30/360 end-of-month day-count convention.
+    // If 'beginDate <= endDate', then the result is non-negative.  Note that
     // reversing the order of 'beginDate' and 'endDate' negates the result.
 {
     int y1, m1, d1, y2, m2, d2;
@@ -78,14 +80,14 @@ static int computeDaysDiff(const bdlt::Date& beginDate,
                            // ------------------
 
 // CLASS METHODS
-int Psa30360eom::daysDiff(const bdlt::Date& beginDate,
-                          const bdlt::Date& endDate)
+int BasicPsa30360eom::daysDiff(const bdlt::Date& beginDate,
+                               const bdlt::Date& endDate)
 {
     return computeDaysDiff(beginDate, endDate);
 }
 
-double Psa30360eom::yearsDiff(const bdlt::Date& beginDate,
-                              const bdlt::Date& endDate)
+double BasicPsa30360eom::yearsDiff(const bdlt::Date& beginDate,
+                                   const bdlt::Date& endDate)
 {
     return static_cast<double>(computeDaysDiff(beginDate, endDate)) / 360.0;
 }

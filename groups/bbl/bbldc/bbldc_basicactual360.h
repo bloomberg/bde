@@ -1,6 +1,6 @@
-// bbldcu_actual360.h                                                 -*-C++-*-
-#ifndef INCLUDED_BBLDCU_ACTUAL360
-#define INCLUDED_BBLDCU_ACTUAL360
+// bbldc_basicactual360.h                                             -*-C++-*-
+#ifndef INCLUDED_BBLDC_BASICACTUAL360
+#define INCLUDED_BBLDC_BASICACTUAL360
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,16 +10,16 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide stateless functions for the Actual/360 convention.
 //
 //@CLASSES:
-//  bbldcu::Actual360: Actual/360 convention stateless functions
+//  bbldc::BasicActual360: Actual/360 convention stateless functions
 //
-//@DESCRIPTION: This component provides a 'struct', 'bbldcu::Actual360', that
-// serves as a namespace for defining a suite of date-related functions, used
-// to compute the day count and the year fraction between two dates as per the
-// Actual/360 day-count convention.  In this day-count convention, we simply
-// measure the number of days occurring in a time period, and to calculate
-// years, divide that by 360.  Note that this means the number of years between
-// January 1, 2005 and January 1, 2006 is about 1.0139.  No end-of-month rule
-// adjustments are made.  Given 'beginDate' and 'endDate':
+//@DESCRIPTION: This component provides a 'struct', 'bbldc::BasicActual360',
+// that serves as a namespace for defining a suite of date-related functions,
+// used to compute the day count and the year fraction between two dates as per
+// the Actual/360 day-count convention.  In this day-count convention, we
+// simply measure the number of days occurring in a time period, and to
+// calculate years, divide that by 360.  Note that this means the number of
+// years between January 1, 2005 and January 1, 2006 is about 1.0139.  No
+// end-of-month rule adjustments are made.  Given 'beginDate' and 'endDate':
 //..
 //  yearsDiff ::= sign(endDate - beginDate) *
 //                                 (days between beginDate and endDate) / 360.0
@@ -31,7 +31,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// The following snippets of code illustrate how to use 'bbldcu::Actual360'
+// The following snippets of code illustrate how to use 'bbldc::BasicActual360'
 // methods.  First, create four 'bdlt::Date' variables:
 //..
 //  const bdlt::Date dA(2004, 2, 1);
@@ -42,21 +42,21 @@ BSLS_IDENT("$Id: $")
 // Then, compute the day count between some pairs of these dates:
 //..
 //  int daysDiff;
-//  daysDiff = bbldcu::Actual360::daysDiff(dA, dB);
+//  daysDiff = bbldc::BasicActual360::daysDiff(dA, dB);
 //  assert( 29 == daysDiff);
-//  daysDiff = bbldcu::Actual360::daysDiff(dA, dC);
+//  daysDiff = bbldc::BasicActual360::daysDiff(dA, dC);
 //  assert( 90 == daysDiff);
-//  daysDiff = bbldcu::Actual360::daysDiff(dA, dD);
+//  daysDiff = bbldc::BasicActual360::daysDiff(dA, dD);
 //  assert(366 == daysDiff);
-//  daysDiff = bbldcu::Actual360::daysDiff(dB, dC);
+//  daysDiff = bbldc::BasicActual360::daysDiff(dB, dC);
 //  assert( 61 == daysDiff);
 //..
 // Finally, compute the year fraction between some of these dates:
 //..
 //  double yearsDiff;
-//  yearsDiff = bbldcu::Actual360::yearsDiff(dA, dC);
+//  yearsDiff = bbldc::BasicActual360::yearsDiff(dA, dC);
 //  assert(0.25 == yearsDiff);
-//  yearsDiff = bbldcu::Actual360::yearsDiff(dA, dD);
+//  yearsDiff = bbldc::BasicActual360::yearsDiff(dA, dD);
 //  // Need fuzzy comparison since 'yearsDiff' is a 'double'.
 //  assert(yearsDiff < 1.0167 && yearsDiff > 1.0166);
 //..
@@ -70,13 +70,13 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bbldcu {
+namespace bbldc {
 
-                           // ================
-                           // struct Actual360
-                           // ================
+                         // =====================
+                         // struct BasicActual360
+                         // =====================
 
-struct Actual360 {
+struct BasicActual360 {
     // This 'struct' provides a namespace for a suite of pure functions that
     // compute values based on dates according to the Actual/360 day-count
     // convention.
@@ -110,7 +110,8 @@ struct Actual360 {
 
 // CLASS METHODS
 inline
-int Actual360::daysDiff(const bdlt::Date& beginDate, const bdlt::Date& endDate)
+int BasicActual360::daysDiff(const bdlt::Date& beginDate,
+                             const bdlt::Date& endDate)
 {
     return endDate - beginDate;
 }

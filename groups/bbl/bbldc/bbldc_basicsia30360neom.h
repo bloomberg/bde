@@ -1,6 +1,6 @@
-// bbldcu_sia30360neom.h                                              -*-C++-*-
-#ifndef INCLUDED_BBLDCU_SIA30360NEOM
-#define INCLUDED_BBLDCU_SIA30360NEOM
+// bbldc_basicsia30360neom.h                                          -*-C++-*-
+#ifndef INCLUDED_BBLDC_BASICSIA30360NEOM
+#define INCLUDED_BBLDC_BASICSIA30360NEOM
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,9 +10,9 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide stateless functions for the SIA-30/360-neom convention.
 //
 //@CLASSES:
-//  bbldcu::Sia30360neom: SIA-30/360-neom convention stateless functions
+//  bbldc::BasicSia30360neom: SIA-30/360-neom convention stateless functions
 //
-//@DESCRIPTION: This component provides a 'struct', 'bbldcu::Sia30360neom',
+//@DESCRIPTION: This component provides a 'struct', 'bbldc::BasicSia30360neom',
 // that serves as a namespace for defining a suite of date-related functions,
 // used to compute the day count and year fraction between two dates as
 // prescribed by the Standard Industry Association (SIA) 30/360 no-end-of-month
@@ -47,20 +47,21 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// The following snippets of code illustrate how to use 'bbldcu::Sia30360neom'
-// methods.  First, create two 'bdlt::Date' variables 'd1' and 'd2':
+// The following snippets of code illustrate how to use
+// 'bbldc::BsicSia30360neom' methods.  First, create two 'bdlt::Date' variables
+// 'd1' and 'd2':
 //..
 //  const bdlt::Date d1(2004,  9, 30);
 //  const bdlt::Date d2(2004, 12, 30);
 //..
 // Then, compute the day count between these two dates:
 //..
-//  const int daysDiff = bbldcu::Sia30360neom::daysDiff(d1, d2);
+//  const int daysDiff = bbldc::BasicSia30360neom::daysDiff(d1, d2);
 //  assert(90 == daysDiff);
 //..
 // Finally, compute the year fraction between these two dates:
 //..
-//  const double yearsDiff = bbldcu::Sia30360neom::yearsDiff(d1, d2);
+//  const double yearsDiff = bbldc::BasicSia30360neom::yearsDiff(d1, d2);
 //  assert(0.25 == yearsDiff);
 //..
 
@@ -76,13 +77,13 @@ class Date;
 
 }  // close namespace bdlt
 
-namespace bbldcu {
+namespace bbldc {
 
-                           // ===================
-                           // struct Sia30360neom
-                           // ===================
+                         // ========================
+                         // struct BasicSia30360neom
+                         // ========================
 
-struct Sia30360neom {
+struct BasicSia30360neom {
     // This 'struct' provides a namespace for a suite of pure functions that
     // compute values based on dates according to the SIA-30/360-neom
     // day-count convention.

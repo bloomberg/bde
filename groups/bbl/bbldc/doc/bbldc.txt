@@ -1,34 +1,34 @@
- bbldcu.txt
+ bbldc.txt
 
 @PURPOSE: Provide basic day count implementations.
 
-@DESCRIPTION: The 'bbldcu' package provides basic day count implementations;
- for conventions that only need two dates for the 'daysDiff' and 'yearsDiff'
+@DESCRIPTION: The 'bbldc' package provides basic day count implementations; for
+ conventions that only need two dates for the 'daysDiff' and 'yearsDiff'
  methods.
 
 /Hierarchical Synopsis
 /---------------------
- 'bbldcu' package currently has 7 components having one level of dependency.
+ 'bbldc' package currently has 7 components having one level of dependency.
  The table below shows the hierarchical ordering of the components:
 ..
-  1. bbldcu_actual360
-     bbldcu_actual365fixed
-     bbldcu_isdaactualactual
-     bbldcu_isma30360
-     bbldcu_psa30360eom
-     bbldcu_sia30360eom
-     bbldcu_sia30360neom
+  1. bbldc_basicactual360
+     bbldc_basicactual365fixed
+     bbldc_basicisdaactualactual
+     bbldc_basicisma30360
+     bbldc_basicpsa30360eom
+     bbldc_basicsia30360eom
+     bbldc_basicsia30360neom
 ..
 
 /Component Synopsis
 /------------------
- The following is a brief synopsis of the components in 'bbldcu':
+ The following is a brief synopsis of the components in 'bbldc':
 ..
-  bbldcu_actual360             - Actual/360 convention
-  bbldcu_actual365fixed        - Actual/365 (fixed) convention
-  bbldcu_isdaactualactual      - ISDA Actual/Actual convention
-  bbldcu_isma30360             - ISMA 30/360 convention
-  bbldcu_psa30360eom           - PSA 30/360 end-of-month convention
-  bbldcu_sia30360eom           - SIA 30/360 end-of-month convention
-  bbldcu_sia30360neom          - SIA 30/360 no-end-of-month convention
+  bbldc_basicactual360             - Actual/360 convention
+  bbldc_basicactual365fixed        - Actual/365 (fixed) convention
+  bbldc_basicisdaactualactual      - ISDA Actual/Actual convention
+  bbldc_basicisma30360             - ISMA 30/360 convention
+  bbldc_basicpsa30360eom           - PSA 30/360 end-of-month convention
+  bbldc_basicsia30360eom           - SIA 30/360 end-of-month convention
+  bbldc_basicsia30360neom          - SIA 30/360 no-end-of-month convention
 ..

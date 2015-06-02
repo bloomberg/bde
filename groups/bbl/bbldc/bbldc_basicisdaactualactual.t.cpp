@@ -1,5 +1,5 @@
-// bbldcu_isdaactualactual.t.cpp                                      -*-C++-*-
-#include <bbldcu_isdaactualactual.h>
+// bbldc_basicisdaactualactual.t.cpp                                  -*-C++-*-
+#include <bbldc_basicisdaactualactual.h>
 
 #include <bdls_testutil.h>
 
@@ -77,7 +77,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                     GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bbldcu::IsdaActualActual Util;
+typedef bbldc::BasicIsdaActualActual Util;
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
-// 'bbldcu::IsdaActualActual' methods.  First, create two 'bdlt::Dates'
+// 'bbldc::BasicIsdaActualActual' methods.  First, create two 'bdlt::Date'
 // variables 'd1' and 'd2':
 //..
     const bdlt::Date d1(2003, 10, 19);
@@ -129,12 +129,12 @@ int main(int argc, char *argv[])
 //..
 // Then, compute the day count between these two dates:
 //..
-    const int daysDiff = bbldcu::IsdaActualActual::daysDiff(d1, d2);
+    const int daysDiff = bbldc::BasicIsdaActualActual::daysDiff(d1, d2);
     ASSERT(73 == daysDiff);
 //..
 // Finally, compute the year fraction between these two dates:
 //..
-    const double yearsDiff = bbldcu::IsdaActualActual::yearsDiff(d1, d2);
+    const double yearsDiff = bbldc::BasicIsdaActualActual::yearsDiff(d1, d2);
     // Need fuzzy comparison since 'yearsDiff' is a 'double'.
     ASSERT(yearsDiff > 0.1999 && yearsDiff < 0.2001);
 //..

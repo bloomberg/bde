@@ -1,6 +1,6 @@
-// bbldcu_actual365fixed.h                                            -*-C++-*-
-#ifndef INCLUDED_BBLDCU_ACTUAL365FIXED
-#define INCLUDED_BBLDCU_ACTUAL365FIXED
+// bbldc_basicactual365fixed.h                                        -*-C++-*-
+#ifndef INCLUDED_BBLDC_BASICACTUAL365FIXED
+#define INCLUDED_BBLDC_BASICACTUAL365FIXED
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,17 +10,17 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide stateless functions for the Actual/365 (fixed) convention.
 //
 //@CLASSES:
-//  bbldcu::Actual365Fixed: Actual/365 fixed convention stateless functions
+//  bbldc::BasicActual365Fixed: Actual/365 fixed convention stateless functions
 //
-//@DESCRIPTION: This component provides a 'struct', 'bbldcu::Actual365Fixed',
-// that serves as a namespace for defining a suite of date-related functions,
-// used to compute the day count and year fraction between two dates as per the
-// Actual/365 (fixed) day-count convention.  In this day-count convention, we
-// simply measure the number of days occuring in a time period, and to
-// calculate years, divide that by 365.  Note that this means the number of
-// years between January 1, 2004 and January 1, 2005 comes out to about
-// 1.00274.  No end-of-month rule adjustments are made.  Given 'beginDate' and
-// 'endDate':
+//@DESCRIPTION: This component provides a 'struct',
+// 'bbldc::BasicActual365Fixed', that serves as a namespace for defining a
+// suite of date-related functions, used to compute the day count and year
+// fraction between two dates as per the Actual/365 (fixed) day-count
+// convention.  In this day-count convention, we simply measure the number of
+// days occuring in a time period, and to calculate years, divide that by 365.
+// Note that this means the number of years between January 1, 2004 and January
+// 1, 2005 comes out to about 1.00274.  No end-of-month rule adjustments are
+// made.  Given 'beginDate' and 'endDate':
 //..
 //  yearsDiff ::= sign(endDate - beginDate) *
 //                                 (days between beginDate and endDate) / 365.0
@@ -33,7 +33,7 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
-// 'bbldcu::Actual365Fixed' methods.  First, create four 'bdlt::Date'
+// 'bbldc::BasicActual365Fixed' methods.  First, create four 'bdlt::Date'
 // variables:
 //..
 //  const bdlt::Date dA(2004, 2, 1);
@@ -44,22 +44,22 @@ BSLS_IDENT("$Id: $")
 // Then, compute the day count between some pairs of these dates:
 //..
 //  int daysDiff;
-//  daysDiff = bbldcu::Actual365Fixed::daysDiff(dA, dB);
+//  daysDiff = bbldc::BasicActual365Fixed::daysDiff(dA, dB);
 //  assert( 29 == daysDiff);
-//  daysDiff = bbldcu::Actual365Fixed::daysDiff(dA, dC);
+//  daysDiff = bbldc::BasicActual365Fixed::daysDiff(dA, dC);
 //  assert( 90 == daysDiff);
-//  daysDiff = bbldcu::Actual365Fixed::daysDiff(dA, dD);
+//  daysDiff = bbldc::BasicActual365Fixed::daysDiff(dA, dD);
 //  assert(366 == daysDiff);
-//  daysDiff = bbldcu::Actual365Fixed::daysDiff(dB, dC);
+//  daysDiff = bbldc::BasicActual365Fixed::daysDiff(dB, dC);
 //  assert( 61 == daysDiff);
 //..
 // Finally, compute the year fraction between some of these dates:
 //..
 //  double yearsDiff;
-//  yearsDiff = bbldcu::Actual365Fixed::yearsDiff(dA, dC);
-//  assert(yearsDiff > 0.2465 && yearsDiff < 0.2466);
-//  yearsDiff = bbldcu::Actual365Fixed::yearsDiff(dA, dD);
+//  yearsDiff = bbldc::BasicActual365Fixed::yearsDiff(dA, dC);
 //  // Need fuzzy comparison since 'yearsDiff' is a 'double'.
+//  assert(yearsDiff > 0.2465 && yearsDiff < 0.2466);
+//  yearsDiff = bbldc::BasicActual365Fixed::yearsDiff(dA, dD);
 //  assert(yearsDiff > 1.0027 && yearsDiff < 1.0028);
 //..
 
@@ -72,13 +72,13 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bbldcu {
+namespace bbldc {
 
-                           // =====================
-                           // struct Actual365Fixed
-                           // =====================
+                         // ==========================
+                         // struct BasicActual365Fixed
+                         // ==========================
 
-struct Actual365Fixed {
+struct BasicActual365Fixed {
     // This 'struct' provides a namespace for a suite of pure functions that
     // compute values based on dates according to the Actual/365 fixed
     // day-count convention.
@@ -107,14 +107,14 @@ struct Actual365Fixed {
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                           // ---------------------
-                           // struct Actual365Fixed
-                           // ---------------------
+                         // --------------------------
+                         // struct BasicActual365Fixed
+                         // --------------------------
 
 // CLASS METHODS
 inline
-int Actual365Fixed::daysDiff(const bdlt::Date& beginDate,
-                             const bdlt::Date& endDate)
+int BasicActual365Fixed::daysDiff(const bdlt::Date& beginDate,
+                                  const bdlt::Date& endDate)
 {
     return endDate - beginDate;
 }

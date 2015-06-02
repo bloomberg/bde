@@ -1,6 +1,6 @@
-// bbldcu_sia30360eom.h                                               -*-C++-*-
-#ifndef INCLUDED_BBLDCU_SIA30360EOM
-#define INCLUDED_BBLDCU_SIA30360EOM
+// bbldc_basicsia30360eom.h                                           -*-C++-*-
+#ifndef INCLUDED_BBLDC_BASICSIA30360EOM
+#define INCLUDED_BBLDC_BASICSIA30360EOM
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,18 +10,19 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide stateless functions for SIA 30/360 end-of-month convention.
 //
 //@CLASSES:
-//  bbldcu::Sia30360eom: SIA 30/360 eom convention stateless functions
+//  bbldc::BasicSia30360eom: SIA 30/360 eom convention stateless functions
 //
-//@DESCRIPTION: This component provides a 'struct', 'bbldcu::Sia30360eom', that
-// serves as a namespace for defining a suite of date-related functions, used
-// to compute the day count and year fraction between two dates as prescribed
-// by the Standard Industry Association (SIA) 30/360 day-count convention with
-// end of month (eom) adjustments.  In this day-count convention (also known as
-// "US 30/360" or just "30/360"), each year is assumed to have 12 months and
-// 360 days, with each month consisting of exactly 30 days.  Special
-// end-of-month rule adjustments *are* made to account for the last day of
-// February.  Note that in this day-count convention, the second date may or
-// may not be adjusted depending on the first date.
+//@DESCRIPTION: This component provides a 'struct', 'bbldc::BasicSia30360eom',
+// that serves as a namespace for defining a suite of date-related functions,
+// used to compute the day count and year fraction between two dates as
+// prescribed by the Standard Industry Association (SIA) 30/360 day-count
+// convention with end of month (eom) adjustments.  In this day-count
+// convention (also known as "US 30/360" or just "30/360"), each year is
+// assumed to have 12 months and 360 days, with each month consisting of
+// exactly 30 days.  Special end-of-month rule adjustments *are* made to
+// account for the last day of February.  Note that in this day-count
+// convention, the second date may or may not be adjusted depending on the
+// first date.
 //
 ///SIA-30/360-eom Day Count Algorithm
 ///----------------------------------
@@ -52,20 +53,21 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// The following snippets of code illustrate how to use 'bbldcu::Sia30360eom'
-// methods.  First, create two 'bdlt::Date' variables 'd1' and 'd2':
+// The following snippets of code illustrate how to use
+// 'bbldc::BasicSia30360eom' methods.  First, create two 'bdlt::Date' variables
+// 'd1' and 'd2':
 //..
 //  const bdlt::Date d1(2004,  9, 30);
 //  const bdlt::Date d2(2004, 12, 31);
 //..
 // Then, compute the day count between these two dates:
 //..
-//  const int daysDiff = bbldcu::Sia30360eom::daysDiff(d1, d2);
+//  const int daysDiff = bbldc::BasicSia30360eom::daysDiff(d1, d2);
 //  assert(90 == daysDiff);
 //..
 // Finally, compute the year fraction between these two dates:
 //..
-//  const double yearsDiff = bbldcu::Sia30360eom::yearsDiff(d1, d2);
+//  const double yearsDiff = bbldc::BasicSia30360eom::yearsDiff(d1, d2);
 //  assert(0.25 == yearsDiff);
 //..
 
@@ -81,13 +83,13 @@ class Date;
 
 }  // close namespace bdlt
 
-namespace bbldcu {
+namespace bbldc {
 
-                           // ==================
-                           // struct Sia30360eom
-                           // ==================
+                         // =======================
+                         // struct BasicSia30360eom
+                         // =======================
 
-struct Sia30360eom {
+struct BasicSia30360eom {
     // This 'struct' provides a namespace for a suite of pure functions that
     // compute values based on dates according to the SIA 30/360 end-of-month
     // day-count convention.

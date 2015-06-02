@@ -1,23 +1,23 @@
-// bbldcu_isdaactualactual.cpp                                        -*-C++-*-
-#include <bbldcu_isdaactualactual.h>
+// bbldc_basicisdaactualactual.cpp                                    -*-C++-*-
+#include <bbldc_basicisdaactualactual.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bbldcu_isdaactualactual_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bbldc_basicisdaactualactual_cpp,"$Id$ $CSID$")
 
 #include <bdlt_serialdateimputil.h>
 
 #include <bsls_assert.h>
 
 namespace BloombergLP {
-namespace bbldcu {
+namespace bbldc {
 
-                          // -----------------------
-                          // struct IsdaActualActual
-                          // -----------------------
+                        // ----------------------------
+                        // struct BasicIsdaActualActual
+                        // ----------------------------
 
 // CLASS METHODS
-double IsdaActualActual::yearsDiff(const bdlt::Date& beginDate,
-                                   const bdlt::Date& endDate)
+double BasicIsdaActualActual::yearsDiff(const bdlt::Date& beginDate,
+                                        const bdlt::Date& endDate)
 {
     const int beginYear = beginDate.year();
     const int endYear   = endDate.year();

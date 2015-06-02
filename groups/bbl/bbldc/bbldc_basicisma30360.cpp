@@ -1,13 +1,13 @@
-// bbldcu_isma30360.cpp                                               -*-C++-*-
-#include <bbldcu_isma30360.h>
+// bbldc_basicisma30360.cpp                                           -*-C++-*-
+#include <bbldc_basicisma30360.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bbldcu_isma30360_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bbldc_basicisma30360_cpp,"$Id$ $CSID$")
 
 #include <bdlt_date.h>
 
 namespace BloombergLP {
-namespace bbldcu {
+namespace bbldc {
 
 // STATIC METHODS
 static int computeDaysDiff(const bdlt::Date& beginDate,
@@ -38,14 +38,14 @@ static int computeDaysDiff(const bdlt::Date& beginDate,
                            // ----------------
 
 // CLASS METHODS
-int Isma30360::daysDiff(const bdlt::Date& beginDate,
-                        const bdlt::Date& endDate)
+int BasicIsma30360::daysDiff(const bdlt::Date& beginDate,
+                             const bdlt::Date& endDate)
 {
     return computeDaysDiff(beginDate, endDate);
 }
 
-double Isma30360::yearsDiff(const bdlt::Date& beginDate,
-                            const bdlt::Date& endDate)
+double BasicIsma30360::yearsDiff(const bdlt::Date& beginDate,
+                                 const bdlt::Date& endDate)
 {
     return static_cast<double>(computeDaysDiff(beginDate, endDate)) / 360.0;
 }

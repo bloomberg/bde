@@ -1,5 +1,5 @@
-// bbldcu_actual365fixed.t.cpp                                        -*-C++-*-
-#include <bbldcu_actual365fixed.h>
+// bbldc_basicactual365fixed.t.cpp                                    -*-C++-*-
+#include <bbldc_basicactual365fixed.h>
 
 #include <bdls_testutil.h>
 
@@ -75,7 +75,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                     GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bbldcu::Actual365Fixed Util;
+typedef bbldc::BasicActual365Fixed Util;
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
-// 'bbldcu::Actual365Fixed' methods.  First, create four 'bdlt::Date'
+// 'bbldc::BasicActual365Fixed' methods.  First, create four 'bdlt::Date'
 // variables:
 //..
     const bdlt::Date dA(2004, 2, 1);
@@ -129,22 +129,22 @@ int main(int argc, char *argv[])
 // Then, compute the day count between some pairs of these dates:
 //..
     int daysDiff;
-    daysDiff = bbldcu::Actual365Fixed::daysDiff(dA, dB);
+    daysDiff = bbldc::BasicActual365Fixed::daysDiff(dA, dB);
     ASSERT( 29 == daysDiff);
-    daysDiff = bbldcu::Actual365Fixed::daysDiff(dA, dC);
+    daysDiff = bbldc::BasicActual365Fixed::daysDiff(dA, dC);
     ASSERT( 90 == daysDiff);
-    daysDiff = bbldcu::Actual365Fixed::daysDiff(dA, dD);
+    daysDiff = bbldc::BasicActual365Fixed::daysDiff(dA, dD);
     ASSERT(366 == daysDiff);
-    daysDiff = bbldcu::Actual365Fixed::daysDiff(dB, dC);
+    daysDiff = bbldc::BasicActual365Fixed::daysDiff(dB, dC);
     ASSERT( 61 == daysDiff);
 //..
 // Finally, compute the year fraction between some of these dates:
 //..
     double yearsDiff;
-    yearsDiff = bbldcu::Actual365Fixed::yearsDiff(dA, dC);
-    ASSERT(yearsDiff > 0.2465 && yearsDiff < 0.2466);
-    yearsDiff = bbldcu::Actual365Fixed::yearsDiff(dA, dD);
+    yearsDiff = bbldc::BasicActual365Fixed::yearsDiff(dA, dC);
     // Need fuzzy comparison since 'yearsDiff' is a 'double'.
+    ASSERT(yearsDiff > 0.2465 && yearsDiff < 0.2466);
+    yearsDiff = bbldc::BasicActual365Fixed::yearsDiff(dA, dD);
     ASSERT(yearsDiff > 1.0027 && yearsDiff < 1.0028);
 //..
       } break;
