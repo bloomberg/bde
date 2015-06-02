@@ -5,7 +5,7 @@
 
 #include <bdlt_date.h>
 
-#include <bsl_cstdlib.h>     // atoi()
+#include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
@@ -75,16 +75,17 @@ void aSsErT(bool condition, const char *message, int line)
 //                     GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bbldcu::Psa30360eom Obj;
+typedef bbldcu::Psa30360eom Util;
 
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
-int main(int argc, char *argv[]) {
-    int test        = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose     = argc > 2;
-    int veryVerbose = argc > 3;
+int main(int argc, char *argv[])
+{
+    int  test        = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose     = argc > 2;
+    bool veryVerbose = argc > 3;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -115,20 +116,20 @@ int main(int argc, char *argv[]) {
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Computing Day-Count and Year-Fraction
+///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use 'bbldcu::Psa30360eom'
-// methods.  First, create two 'bdlt::Dates' 'd1' and 'd2':
+// methods.  First, create two 'bdlt::Date' variables 'd1' and 'd2':
 //..
     const bdlt::Date d1(2004,  9, 30);
     const bdlt::Date d2(2004, 12, 31);
 //..
-// Then, compute the day-count between these two dates:
+// Then, compute the day count between these two dates:
 //..
     const int daysDiff = bbldcu::Psa30360eom::daysDiff(d1, d2);
     ASSERT(90 == daysDiff);
 //..
-// Finally, compute the year-fraction between these two dates:
+// Finally, compute the year fraction between these two dates:
 //..
     const double yearsDiff = bbldcu::Psa30360eom::yearsDiff(d1, d2);
     ASSERT(0.25 == yearsDiff);
@@ -150,7 +151,7 @@ int main(int argc, char *argv[]) {
         //:   in years D}.  For the method under test, in a loop over the
         //:   elements of S, apply the method to dates having the values d1
         //:   and d2 and confirm the result using the value D with a fuzzy
-        //:   comparison (since the return value is a floating point number).
+        //:   comparison (since the return value is a floating-point number).
         //:   (C-1)
         //:
         //: 2 Also verify the result is negated when the date parameters are
@@ -253,7 +254,6 @@ int main(int argc, char *argv[]) {
                 { L_,     2000,     1,    31,   2004,     3,    30,   4.1667 },
                 { L_,     2000,     1,    31,   2004,     3,    31,   4.1667 },
             };
-
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             if (verbose) cout <<
@@ -263,17 +263,15 @@ int main(int argc, char *argv[]) {
                 const int    LINE      = DATA[di].d_lineNum;
                 const double NUM_YEARS = DATA[di].d_numYears;
 
-                bdlt::Date        x(DATA[di].d_year1,
-                                    DATA[di].d_month1,
-                                    DATA[di].d_day1);
-                const bdlt::Date& X = x;
-                bdlt::Date        y(DATA[di].d_year2,
-                                    DATA[di].d_month2,
-                                    DATA[di].d_day2);
-                const bdlt::Date& Y = y;
+                const bdlt::Date X(DATA[di].d_year1,
+                                   DATA[di].d_month1,
+                                   DATA[di].d_day1);
+                const bdlt::Date Y(DATA[di].d_year2,
+                                   DATA[di].d_month2,
+                                   DATA[di].d_day2);
 
                 if (veryVerbose) { T_;  P_(X);  P_(Y);  P_(NUM_YEARS); }
-                const double RESULT = Obj::yearsDiff(X, Y);
+                const double RESULT = Util::yearsDiff(X, Y);
 
                 if (veryVerbose) { P(RESULT); }
                 const double diff = NUM_YEARS - RESULT;
@@ -281,7 +279,7 @@ int main(int argc, char *argv[]) {
 
                 // Verify the result is negated when the dates are reversed.
 
-                const double NRESULT = Obj::yearsDiff(Y, X);
+                const double NRESULT = Util::yearsDiff(Y, X);
                 const double sum     = RESULT + NRESULT;
                 LOOP_ASSERT(LINE, -1.0e-15 <= sum && sum <= 1.0e-15);
             }
@@ -449,7 +447,6 @@ int main(int argc, char *argv[]) {
 
                 { L_,     2003,     2,    28,   2004,     2,    29,      359 },
             };
-
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             if (verbose) cout <<
@@ -459,24 +456,22 @@ int main(int argc, char *argv[]) {
                 const int LINE     = DATA[di].d_lineNum;
                 const int NUM_DAYS = DATA[di].d_numDays;
 
-                bdlt::Date        x(DATA[di].d_year1,
-                                    DATA[di].d_month1,
-                                    DATA[di].d_day1);
-                const bdlt::Date& X = x;
-                bdlt::Date        y(DATA[di].d_year2,
-                                    DATA[di].d_month2,
-                                    DATA[di].d_day2);
-                const bdlt::Date& Y = y;
+                const bdlt::Date X(DATA[di].d_year1,
+                                   DATA[di].d_month1,
+                                   DATA[di].d_day1);
+                const bdlt::Date Y(DATA[di].d_year2,
+                                   DATA[di].d_month2,
+                                   DATA[di].d_day2);
 
                 if (veryVerbose) { T_;  P_(X);  P_(Y);  P_(NUM_DAYS); }
-                const int RESULT = Obj::daysDiff(X, Y);
+                const int RESULT = Util::daysDiff(X, Y);
 
                 if (veryVerbose) { P(RESULT); }
                 LOOP_ASSERT(LINE, NUM_DAYS == RESULT);
 
                 // Verify the result is negated when the dates are reversed.
 
-                const int NRESULT = Obj::daysDiff(Y, X);
+                const int NRESULT = Util::daysDiff(Y, X);
                 LOOP_ASSERT(LINE, NRESULT == -RESULT);
             }
         }

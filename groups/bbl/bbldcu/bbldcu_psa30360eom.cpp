@@ -15,11 +15,15 @@ inline
 static bool isLastDayOfFebruary(int year, int month, int day)
     // Return 'true' if the specified 'day' of the specified 'month' in the
     // specified 'year' is the last day of February for that 'year', and
-    // 'false' otherwise.
+    // 'false' otherwise.  The behavior is undefined unless 'year', 'month',
+    // and 'day' represent a valid 'bdlt::Date' value.
 {
-    return    2 == month
-           && (   29 == day
-               || (28 == day && !bdlt::SerialDateImpUtil::isLeapYear(year)));
+    BSLS_ASSERT_SAFE(bdlt::SerialDateImpUtil::
+                                        isValidYearMonthDay(year, month, day));
+
+    return 2 == month
+        && (   29 == day
+            || (28 == day && !bdlt::SerialDateImpUtil::isLeapYear(year)));
 }
 
 inline
@@ -31,8 +35,8 @@ static int max(int lhs, int rhs)
 
 static int computeDaysDiff(const bdlt::Date& beginDate,
                            const bdlt::Date& endDate)
-    // Return the number of days between the specified  'beginDate' and
-    // 'endDate' according to the PSA 30/360 end-of-month convention.  If
+    // Return the number of days between the specified 'beginDate' and
+    // 'endDate' according to the PSA 30/360 end-of-month day-count convention.  If
     // 'beginDate <= endDate', then the result is non-negative.  Note that
     // reversing the order of 'beginDate' and 'endDate' negates the result.
 {
@@ -47,7 +51,7 @@ static int computeDaysDiff(const bdlt::Date& beginDate,
     }
 
     // This implementation is coded to look exactly like the description as it
-    // appears in the PSA doc:
+    // appears in the PSA document:
 
     if (isLastDayOfFebruary(y1, m1, d1)) {
         d1 = 30;

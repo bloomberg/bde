@@ -7,6 +7,8 @@ BSLS_IDENT_RCSID(bbldcu_sia30360eom_cpp,"$Id$ $CSID$")
 #include <bdlt_date.h>
 #include <bdlt_serialdateimputil.h>
 
+#include <bsls_assert.h>
+
 namespace BloombergLP {
 namespace bbldcu {
 
@@ -15,18 +17,22 @@ inline
 static bool isLastDayOfFebruary(int year, int month, int day)
     // Return 'true' if the specified 'day' of the specified 'month' in the
     // specified 'year' is the last day of February for that 'year', and
-    // 'false' otherwise.
+    // 'false' otherwise.  The behavior is undefined unless 'year', 'month',
+    // and 'day' represent a valid 'bdlt::Date' value.
 {
-    return    2 == month
-           && (   29 == day
-               || (28 == day && !bdlt::SerialDateImpUtil::isLeapYear(year)));
+    BSLS_ASSERT_SAFE(bdlt::SerialDateImpUtil::
+                                        isValidYearMonthDay(year, month, day));
+
+    return 2 == month
+        && (   29 == day
+            || (28 == day && !bdlt::SerialDateImpUtil::isLeapYear(year)));
 }
 
 static int computeDaysDiff(const bdlt::Date& beginDate,
                            const bdlt::Date& endDate)
-    // Return the number of days between the specified  'beginDate' and
-    // 'endDate' according to the SIA 30/360 end-of-month convention.  If
-    // 'beginDate <= endDate', then the result is non-negative.  Note that
+    // Return the number of days between the specified 'beginDate' and
+    // 'endDate' according to the SIA 30/360 end-of-month day-count convention.
+    // If 'beginDate <= endDate', then the result is non-negative.  Note that
     // reversing the order of 'beginDate' and 'endDate' negates the result.
 {
     int y1, m1, d1, y2, m2, d2;

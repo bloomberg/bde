@@ -7,41 +7,40 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide support for the ISDA Actual/Actual convention.
+//@PURPOSE: Provide stateless functions for the ISDA Actual/Actual convention.
 //
 //@CLASSES:
 //  bbldcu::IsdaActualActual: ISDA Actual/Actual convention stateless functions
 //
 //@DESCRIPTION: This component provides a 'struct', 'bbldcu::IsdaActualActual',
-// that defines a suite of date-related functions, which can be used to compute
-// the day-count and the year-fraction between two dates as per the ISDA
-// Actual/Actual convention.  In this convention, the day-count between two
-// dates is exactly the number of days separating the dates as per a
-// conventional calendar.
+// that serves as a namespace for defining a suite of date-related functions,
+// used to compute the day count and the year fraction between two dates as per
+// the ISDA Actual/Actual day-count convention.  In this day-count convention,
+// the day count between two dates is exactly the number of days occuring in
+// the time period.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Computing Day-Count and Year-Fraction
+///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
-// 'bbldcu::IsdaActualActual' methods.  First, create two 'bdlt::Dates' 'd1'
-// and 'd2':
+// 'bbldcu::IsdaActualActual' methods.  First, create two 'bdlt::Date'
+// variables 'd1' and 'd2':
 //..
 //  const bdlt::Date d1(2003, 10, 19);
 //  const bdlt::Date d2(2003, 12, 31);
 //..
-// Then, compute the day-count between these two dates:
+// Then, compute the day count between these two dates:
 //..
 //  const int daysDiff = bbldcu::IsdaActualActual::daysDiff(d1, d2);
 //  assert(73 == daysDiff);
 //..
-// Finally, compute the year-fraction between these two dates:
+// Finally, compute the year fraction between these two dates:
 //..
 //  const double yearsDiff = bbldcu::IsdaActualActual::yearsDiff(d1, d2);
-//  // Need fuzzy comparison since 'yearsDiff' is a double.  Expect
-//  // '0.2 == yearsDiff'.
+//  // Need fuzzy comparison since 'yearsDiff' is a 'double'.
 //  assert(yearsDiff > 0.1999 && yearsDiff < 0.2001);
 //..
 
@@ -63,25 +62,26 @@ namespace bbldcu {
 struct IsdaActualActual {
     // This 'struct' provides a namespace for a suite of pure functions that
     // compute values based on dates according to the ISDA Actual/Actual
-    // convention.
+    // day-count convention.
 
     // CLASS METHODS
     static int daysDiff(const bdlt::Date& beginDate,
                         const bdlt::Date& endDate);
-        // Return the number of days between the specified 'beginDate' and
-        // 'endDate' according to the ISDA Actual/Actual convention.  If
-        // 'beginDate <= endDate', then the result is non-negative.  Note that
-        // reversing the order of 'beginDate' and 'endDate' negates the result.
+        // Return the (signed) number of days between the specified 'beginDate'
+        // and 'endDate' according to the ISDA Actual/Actual day-count
+        // convention.  If 'beginDate <= endDate', then the result is
+        // non-negative.  Note that reversing the order of 'beginDate' and
+        // 'endDate' negates the result.
 
     static double yearsDiff(const bdlt::Date& beginDate,
                             const bdlt::Date& endDate);
-        // Return the number of years between the specified 'beginDate' and
-        // 'endDate' according to the ISDA Actual/Actual convention.  If
-        // 'beginDate <= endDate', then the result is non-negative.  The
-        // behavior is undefined if either 'beginDate' or 'endDate' is in the
-        // year 1752.  Note that reversing the order of 'beginDate' and
+        // Return the (signed fractional) number of years between the specified
+        // 'beginDate' and 'endDate' according to the ISDA Actual/Actual
+        // day-count convention.  If 'beginDate <= endDate', then the result is
+        // non-negative.  Note that reversing the order of 'beginDate' and
         // 'endDate' negates the result; specifically
-        // '|yearsDiff(b, e) + yearsDiff(e, b)| <= 1.0e-15'.
+        // '|yearsDiff(b, e) + yearsDiff(e, b)| <= 1.0e-15' for all dates 'b'
+        // and 'e'.
 };
 
 // ============================================================================

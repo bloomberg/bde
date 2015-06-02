@@ -1,8 +1,8 @@
  bbldcu.txt
 
-@PURPOSE: Provide simple day-count implementations.
+@PURPOSE: Provide basic day count implementations.
 
-@DESCRIPTION: The 'bbldcu' package provides simple day-count implementations;
+@DESCRIPTION: The 'bbldcu' package provides basic day count implementations;
  for conventions that only need two dates for the 'daysDiff' and 'yearsDiff'
  methods.
 

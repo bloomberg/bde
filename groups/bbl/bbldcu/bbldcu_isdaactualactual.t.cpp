@@ -7,7 +7,7 @@
 
 #include <bsls_asserttest.h>
 
-#include <bsl_cstdlib.h>     // atoi()
+#include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
@@ -74,30 +74,20 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
-// ----------------------------------------------------------------------------
-
-#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
-#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
-#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
-#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
-#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
-#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
-
-// ============================================================================
 //                     GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bbldcu::IsdaActualActual Obj;
+typedef bbldcu::IsdaActualActual Util;
 
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
-int main(int argc, char *argv[]) {
-    int test        = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose     = argc > 2;
-    int veryVerbose = argc > 3;
+int main(int argc, char *argv[])
+{
+    int  test        = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose     = argc > 2;
+    bool veryVerbose = argc > 3;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -128,25 +118,24 @@ int main(int argc, char *argv[]) {
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Computing Day-Count and Year-Fraction
+///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
-// 'bbldcu::IsdaActualActual' methods.  First, create two 'bdlt::Dates' 'd1'
-// and 'd2':
+// 'bbldcu::IsdaActualActual' methods.  First, create two 'bdlt::Dates'
+// variables 'd1' and 'd2':
 //..
     const bdlt::Date d1(2003, 10, 19);
     const bdlt::Date d2(2003, 12, 31);
 //..
-// Then, compute the day-count between these two dates:
+// Then, compute the day count between these two dates:
 //..
     const int daysDiff = bbldcu::IsdaActualActual::daysDiff(d1, d2);
     ASSERT(73 == daysDiff);
 //..
-// Finally, compute the year-fraction between these two dates:
+// Finally, compute the year fraction between these two dates:
 //..
     const double yearsDiff = bbldcu::IsdaActualActual::yearsDiff(d1, d2);
-    // Need fuzzy comparison since 'yearsDiff' is a double.  Expect
-    // '0.2 == yearsDiff'.
+    // Need fuzzy comparison since 'yearsDiff' is a 'double'.
     ASSERT(yearsDiff > 0.1999 && yearsDiff < 0.2001);
 //..
       } break;
@@ -160,21 +149,17 @@ int main(int argc, char *argv[]) {
         //: 1 The 'yearsDiff' method produces the correct results.
         //:
         //: 2 Reversing the date parameters negates the returned value.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Specify a set S of {pairs of dates (d1, d2) and their difference
         //:   in years D}.  For the method under test, in a loop over the
         //:   elements of S, apply the method to dates having the values d1
         //:   and d2 and confirm the result using the value D with a fuzzy
-        //:   comparison (since the return value is a floating point number).
+        //:   comparison (since the return value is a floating-point number).
         //:   (C-1)
         //:
         //: 2 Also verify the result is negated when the date parameters are
         //:   reversed.  (C-2)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   double yearsDiff(const bdlt::Date& bD, const bdlt::Date& eD);
@@ -230,7 +215,6 @@ int main(int argc, char *argv[]) {
                 { L_,     2002,     8,    15,   2003,     7,    15,   0.9151 },
                 { L_,     2003,    11,     1,   2004,     5,     1,   0.4977 },
             };
-
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             if (verbose) cout <<
@@ -240,17 +224,15 @@ int main(int argc, char *argv[]) {
                 const int    LINE      = DATA[di].d_lineNum;
                 const double NUM_YEARS = DATA[di].d_numYears;
 
-                bdlt::Date        x(DATA[di].d_year1,
-                                    DATA[di].d_month1,
-                                    DATA[di].d_day1);
-                const bdlt::Date& X = x;
-                bdlt::Date        y(DATA[di].d_year2,
-                                    DATA[di].d_month2,
-                                    DATA[di].d_day2);
-                const bdlt::Date& Y = y;
+                const bdlt::Date X(DATA[di].d_year1,
+                                   DATA[di].d_month1,
+                                   DATA[di].d_day1);
+                const bdlt::Date Y(DATA[di].d_year2,
+                                   DATA[di].d_month2,
+                                   DATA[di].d_day2);
 
                 if (veryVerbose) { T_;  P_(X);  P_(Y);  P_(NUM_YEARS); }
-                const double RESULT = Obj::yearsDiff(X, Y);
+                const double RESULT = Util::yearsDiff(X, Y);
 
                 if (veryVerbose) { P(RESULT); }
                 const double diff = NUM_YEARS - RESULT;
@@ -258,34 +240,10 @@ int main(int argc, char *argv[]) {
 
                 // Verify the result is negated when the dates are reversed.
 
-                const double NRESULT = Obj::yearsDiff(Y, X);
+                const double NRESULT = Util::yearsDiff(Y, X);
                 const double sum     = RESULT + NRESULT;
                 LOOP_ASSERT(LINE, -1.0e-15 <= sum && sum <= 1.0e-15);
             }
-        }
-
-        { // negative testing
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
-
-            ASSERT_PASS(Obj::yearsDiff(bdlt::Date(1751, 1, 1),
-                                       bdlt::Date(1751, 1, 1)));
-
-            ASSERT_FAIL(Obj::yearsDiff(bdlt::Date(1751, 1, 1),
-                                       bdlt::Date(1752, 1, 1)));
-
-            ASSERT_FAIL(Obj::yearsDiff(bdlt::Date(1752, 1, 1),
-                                       bdlt::Date(1753, 1, 1)));
-
-            ASSERT_PASS(Obj::yearsDiff(bdlt::Date(1753, 1, 1),
-                                       bdlt::Date(1753, 1, 1)));
-
-
-            ASSERT_FAIL(Obj::yearsDiff(bdlt::Date(1752, 1, 1),
-                                       bdlt::Date(1751, 1, 1)));
-
-            ASSERT_FAIL(Obj::yearsDiff(bdlt::Date(1753, 1, 1),
-                                       bdlt::Date(1752, 1, 1)));
         }
       } break;
       case 1: {
@@ -425,7 +383,6 @@ int main(int argc, char *argv[]) {
 
                 { L_,     2003,     2,    28,   2004,     2,    29,      366 },
             };
-
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             if (verbose) cout <<
@@ -435,24 +392,22 @@ int main(int argc, char *argv[]) {
                 const int LINE     = DATA[di].d_lineNum;
                 const int NUM_DAYS = DATA[di].d_numDays;
 
-                bdlt::Date        x(DATA[di].d_year1,
-                                    DATA[di].d_month1,
-                                    DATA[di].d_day1);
-                const bdlt::Date& X = x;
-                bdlt::Date        y(DATA[di].d_year2,
-                                    DATA[di].d_month2,
-                                    DATA[di].d_day2);
-                const bdlt::Date& Y = y;
+                const bdlt::Date X(DATA[di].d_year1,
+                                   DATA[di].d_month1,
+                                   DATA[di].d_day1);
+                const bdlt::Date Y(DATA[di].d_year2,
+                                   DATA[di].d_month2,
+                                   DATA[di].d_day2);
 
                 if (veryVerbose) { T_;  P_(X);  P_(Y);  P_(NUM_DAYS); }
-                const int RESULT = Obj::daysDiff(X, Y);
+                const int RESULT = Util::daysDiff(X, Y);
 
                 if (veryVerbose) { P(RESULT); }
                 LOOP_ASSERT(LINE, NUM_DAYS == RESULT);
 
                 // Verify the result is negated when the dates are reversed.
 
-                const int NRESULT = Obj::daysDiff(Y, X);
+                const int NRESULT = Util::daysDiff(Y, X);
                 LOOP_ASSERT(LINE, NRESULT == -RESULT);
             }
         }

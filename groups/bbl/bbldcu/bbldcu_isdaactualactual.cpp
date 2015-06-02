@@ -19,9 +19,6 @@ namespace bbldcu {
 double IsdaActualActual::yearsDiff(const bdlt::Date& beginDate,
                                    const bdlt::Date& endDate)
 {
-    BSLS_ASSERT(1752 != beginDate.year());
-    BSLS_ASSERT(1752 != endDate.year());
-
     const int beginYear = beginDate.year();
     const int endYear   = endDate.year();
 
@@ -33,7 +30,7 @@ double IsdaActualActual::yearsDiff(const bdlt::Date& beginDate,
     return static_cast<double>(endYear - beginYear - 1)
          + static_cast<double>(bdlt::Date(beginYear + 1, 1, 1) - beginDate)
                                                               / daysInBeginYear
-         + static_cast<double>(endDate -         bdlt::Date(endYear, 1, 1))
+         + static_cast<double>(endDate - bdlt::Date(endYear, 1, 1))
                                                                / daysInEndYear;
 }
 
