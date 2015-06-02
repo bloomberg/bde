@@ -80,7 +80,7 @@ namespace bbldc {
 
 struct DayCountConvention {
     // This 'struct' provides a namespace for enumerating the set of day-count
-    // conventions supported within 'bbldcu'.  See 'Enum' in the 'TYPES'
+    // conventions supported within 'bbldc'.  See 'Enum' in the 'TYPES'
     // sub-section for details.
     //
     // This 'struct':
@@ -89,7 +89,7 @@ struct DayCountConvention {
 
     // TYPES
     enum Enum {
-        // Enumerated 'bbldcu' day-count conventions.
+        // Enumerated 'bbldc' day-count conventions.
 
         e_ACTUAL_360                = 0,
         e_ACTUAL_365_FIXED          = 1,
