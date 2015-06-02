@@ -84,7 +84,7 @@ BSLS_IDENT("$Id: $")
 //      return static_cast<double>((endDate - beginDate) / 365.0);
 //  }
 //..
-// Then, create two 'bdlt::Dates' 'd1' and 'd2' to use with the
+// Then, create two 'bdlt::Date' variables 'd1' and 'd2' to use with the
 // 'my_DayCountConvention' object and its day-count convention methods.
 //..
 //  const bdlt::Date d1(2003, 10, 19);

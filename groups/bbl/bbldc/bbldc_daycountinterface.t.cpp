@@ -239,7 +239,7 @@ int main(int argc, char *argv[]) {
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-// Then, create two 'bdlt::Dates' 'd1' and 'd2' to use with the
+// Then, create two 'bdlt::Date' variables 'd1' and 'd2' to use with the
 // 'my_DayCountConvention' object and its day-count convention methods.
 //..
     const bdlt::Date d1(2003, 10, 19);
