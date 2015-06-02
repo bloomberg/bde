@@ -1,8 +1,15 @@
-bsl-internal (2.23.0.6) unstable; urgency=low
+bsl-internal (2.23.0.7) unstable; urgency=low
 
+  * 7436ebe revert 'Datetime' semantic changes that were made w.r.t. Time==24:00 in BDE 2.23
+
+ -- D. Clay Wilson <cwilson9@bloomberg.net>  Tue, 2 Jun 2015 14:44:46 -0400
+
+bsl-internal (2.23.0.6) git; urgency=low
+
+  * 3bd45b0 Changelog for version 2.23.0.6
   * 4da9755 [APPROVAL] remove-atomics-from-logIfProblematic-drqs-66019213 to releases/2.23.x
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 22 May 2015 15:25:11 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 22 May 2015 15:27:58 -0400
 
 bsl-internal (2.23.0.5) git; urgency=low
 
