@@ -1,6 +1,6 @@
-// bbldc_perioddaycount.t.cpp                                         -*-C++-*-
+// bbldc_basicdaycount.t.cpp                                          -*-C++-*-
 
-#include <bbldc_perioddaycount.h>
+#include <bbldc_basicdaycount.h>
 
 #include <bdls_testutil.h>
 
@@ -9,7 +9,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 
-#include <bsl_cstdlib.h>     // atoi()
+#include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
@@ -28,7 +28,7 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 // [ 2] int daysDiff(beginDate, endDate, convention);
 // [ 1] bool isSupported(convention);
-// [ 3] double yearsDiff(begin, end, periodDate, periodYearDiff, conv);
+// [ 3] double yearsDiff(beginDate, endDate, convention);
 // ----------------------------------------------------------------------------
 // [ 4] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
@@ -92,10 +92,22 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bbldc::PeriodDayCount Util;
+typedef bbldc::BasicDayCount Util;
 
-const bbldc::DayCountConvention::Enum PERIOD_ICMA_ACTUAL_ACTUAL =
-                        bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL;
+const bbldc::DayCountConvention::Enum ACTUAL_360 =
+                                       bbldc::DayCountConvention::e_ACTUAL_360;
+const bbldc::DayCountConvention::Enum ACTUAL_365_FIXED =
+                                 bbldc::DayCountConvention::e_ACTUAL_365_FIXED;
+const bbldc::DayCountConvention::Enum ISDA_ACTUAL_ACTUAL =
+                               bbldc::DayCountConvention::e_ISDA_ACTUAL_ACTUAL;
+const bbldc::DayCountConvention::Enum ISMA_30_360 =
+                                      bbldc::DayCountConvention::e_ISMA_30_360;
+const bbldc::DayCountConvention::Enum PSA_30_360_EOM =
+                                   bbldc::DayCountConvention::e_PSA_30_360_EOM;
+const bbldc::DayCountConvention::Enum SIA_30_360_EOM =
+                                   bbldc::DayCountConvention::e_SIA_30_360_EOM;
+const bbldc::DayCountConvention::Enum SIA_30_360_NEOM =
+                                  bbldc::DayCountConvention::e_SIA_30_360_NEOM;
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -139,39 +151,30 @@ int main(int argc, char *argv[])
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
-// 'bbldcm::PeriodIcmaActualActual' methods.  First, create two 'bdlt::Date'
+// 'bbldcu::IsdaActualActual' methods.  First, create two 'bdlt::Date'
 // variables 'd1' and 'd2':
 //..
     const bdlt::Date d1(2003, 10, 19);
     const bdlt::Date d2(2003, 12, 31);
 //..
-// Then, create a schedule of period dates 'sched' corresponding to a
-// quarterly payment ('periodYearDiff == 0.25'):
+// Then, compute the day count between these two dates according to the ISDA
+// Actual/Actual convention:
 //..
-    bsl::vector<bdlt::Date> sched;
-    sched.push_back(bdlt::Date(2003, 10, 1));
-    sched.push_back(bdlt::Date(2004,  1, 1));
-//..
-// Now, compute the day count between these two dates according to the Period
-// ICMA Actual/Actual day-count convention:
-//..
-    const int daysDiff = bbldc::PeriodDayCount::daysDiff(
-                       d1,
-                       d2,
-                       bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL);
+    const int daysDiff = bbldc::BasicDayCount::daysDiff(
+                              d1,
+                              d2,
+                              bbldc::DayCountConvention::e_ISDA_ACTUAL_ACTUAL);
     ASSERT(73 == daysDiff);
 //..
 // Finally, compute the year fraction between these two dates according to the
-// Period ICMA Actual/Actual day-count convention:
+// ISDA Actual/Actual convention:
 //..
-    const double yearsDiff = bbldc::PeriodDayCount::yearsDiff(
-                       d1,
-                       d2,
-                       sched,
-                       0.25,
-                       bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL);
-    // Need fuzzy comparison since 'yearsDiff' is a double.
-    ASSERT(yearsDiff > 0.1983 && yearsDiff < 0.1985);
+    const double yearsDiff = bbldc::BasicDayCount::yearsDiff(
+                              d1,
+                              d2,
+                              bbldc::DayCountConvention::e_ISDA_ACTUAL_ACTUAL);
+//  // Need fuzzy comparison since 'yearsDiff' is a double.
+    ASSERT(0.1999 < yearsDiff && 0.2001 > yearsDiff);
 //..
       } break;
       case 3: {
@@ -197,7 +200,7 @@ int main(int argc, char *argv[])
         //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
-        //   double yearsDiff(begin, end, periodDate, periodYearDiff, conv);
+        //   double yearsDiff(beginDate, endDate, convention);
         // --------------------------------------------------------------------
 
 
@@ -206,14 +209,6 @@ int main(int argc, char *argv[])
                           << "===================" << endl;
 
         {
-            bsl::vector<bdlt::Date>        mSchedule;
-            const bsl::vector<bdlt::Date>& SCHEDULE = mSchedule;
-            {
-                for (unsigned year = 1990; year <= 2006; ++year) {
-                    mSchedule.push_back(bdlt::Date(year, 1, 1));
-                }
-            }
-
             static const struct {
                 int    d_lineNum;                       // source line number
 
@@ -228,20 +223,35 @@ int main(int argc, char *argv[])
                 double d_numYears;                      // result # of years
             } DATA[] = {
 
-    //                           - - first - - -  - - second - -
-    //line  type                 year  mnth  day  year  mnth  day  numYears
-    //----  -------------------  ----  ----  ---  ----  ----  ---  --------
-    { L_,   PERIOD_ICMA_ACTUAL_ACTUAL,
-                                 1992,   2,    1, 1993,    3,   1, 1.0769 },
-    { L_,   PERIOD_ICMA_ACTUAL_ACTUAL,
-                                 1993,   2,    1, 1996,    2,   1, 2.9998 },
+    //                          - - -first - - -  - - - second - -
+    //line  type                year  mnth  day  year  mnth  day  numYears
+    //----  ------------------  ----  ----  ---  ----  ----  ---  --------
+    { L_,   ACTUAL_360,         1993,   12,  15, 1993,   12,  31, 0.0444444 },
+    { L_,   ACTUAL_360,         2003,    2,  28, 2004,    2,  29, 1.01667   },
+
+    { L_,   ACTUAL_365_FIXED,   1993,   12,  15, 1993,   12,  31, 0.0438356 },
+    { L_,   ACTUAL_365_FIXED,   2003,    2,  28, 2004,    2,  29, 1.00274   },
+
+    { L_,   ISDA_ACTUAL_ACTUAL, 1993,   12,  15, 1993,   12,  31, 0.0438356 },
+    { L_,   ISDA_ACTUAL_ACTUAL, 2003,    2,  28, 2004,    2,  29, 1.0023    },
+
+    { L_,   ISMA_30_360,        1993,   12,  15, 1993,   12,  31, 0.0416667 },
+    { L_,   ISMA_30_360,        2003,    2,  28, 2004,    2,  29, 1.00278   },
+
+    { L_,   PSA_30_360_EOM,     1993,   12,  15, 1993,   12,  31, 0.0444444 },
+    { L_,   PSA_30_360_EOM,     2003,    2,  28, 2004,    2,  29, 0.997222  },
+
+    { L_,   SIA_30_360_EOM,     1993,   12,  15, 1993,   12,  31, 0.0444444 },
+    { L_,   SIA_30_360_EOM,     2003,    2,  28, 2004,    2,  29, 1.0000    },
+
+    { L_,   SIA_30_360_NEOM,    1993,   12,  15, 1993,   12,  31, 0.0444444 },
+    { L_,   SIA_30_360_NEOM,    2003,    2,  28, 2004,    2,  29, 1.00278   },
             };
 
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            if (verbose) {
-                cout << "\nTesting: 'yearsDiff(b, e, pD, pYD, c)'" << endl;
-            }
+            if (verbose) cout <<
+                "\nTesting: 'yearsDiff(beginDate, endDate, type)'" << endl;
 
             // Ensure the test data differentiates each convention type.
 
@@ -309,11 +319,7 @@ int main(int argc, char *argv[])
                     T_ T_ T_ T_ T_ T_ T_;
                 }
 
-                const double RESULT = Util::yearsDiff(X,
-                                                      Y,
-                                                      SCHEDULE,
-                                                      1.0,
-                                                      CONV);
+                const double RESULT = Util::yearsDiff(X, Y, CONV);
 
                 if (veryVerbose) { P(RESULT); }
                 const double diff = NUM_YEARS - RESULT;
@@ -328,111 +334,15 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            // 'periodDate' with no errors
-
-            bsl::vector<bdlt::Date>        mA;
-            const bsl::vector<bdlt::Date>& A = mA;
-            {
-                mA.push_back(bdlt::Date(2015, 1, 5));
-                mA.push_back(bdlt::Date(2015, 2, 5));
-                mA.push_back(bdlt::Date(2015, 3, 5));
-                mA.push_back(bdlt::Date(2015, 4, 5));
-                mA.push_back(bdlt::Date(2015, 5, 5));
-            }
-
-            // 'periodDate' with non-sorted values
-
-            bsl::vector<bdlt::Date>        mE1;
-            const bsl::vector<bdlt::Date>& E1 = mE1;
-            {
-                mE1.push_back(bdlt::Date(2015, 1, 5));
-                mE1.push_back(bdlt::Date(2015, 3, 5));
-                mE1.push_back(bdlt::Date(2015, 2, 5));
-                mE1.push_back(bdlt::Date(2015, 4, 5));
-                mE1.push_back(bdlt::Date(2015, 5, 5));
-            }
-
-            // 'periodDate' with non-unique values
-
-            bsl::vector<bdlt::Date>        mE2;
-            const bsl::vector<bdlt::Date>& E2 = mE2;
-            {
-                mE2.push_back(bdlt::Date(2015, 1, 5));
-                mE2.push_back(bdlt::Date(2015, 2, 5));
-                mE2.push_back(bdlt::Date(2015, 3, 5));
-                mE2.push_back(bdlt::Date(2015, 3, 5));
-                mE2.push_back(bdlt::Date(2015, 4, 5));
-                mE2.push_back(bdlt::Date(2015, 5, 5));
-            }
-
-            // 'periodDate' with only one value
-
-            bsl::vector<bdlt::Date>        mE3;
-            const bsl::vector<bdlt::Date>& E3 = mE3;
-            {
-                mE3.push_back(bdlt::Date(2015, 1, 5));
-            }
-
-            // 'periodDate' with no values
-
-            bsl::vector<bdlt::Date>        mE4;
-            const bsl::vector<bdlt::Date>& E4 = mE4;
-
             ASSERT_OPT_PASS(Util::yearsDiff(
-                      bdlt::Date(2015, 1, 5),
-                      bdlt::Date(2015, 5, 5),
-                      A,
-                      1.0,
-                      bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL));
-
-            ASSERT_SAFE_FAIL(Util::yearsDiff(
-                      bdlt::Date(2015, 1, 5),
-                      bdlt::Date(2015, 5, 5),
-                      E1,
-                      1.0,
-                      bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL));
-
-            ASSERT_SAFE_FAIL(Util::yearsDiff(
-                      bdlt::Date(2015, 1, 5),
-                      bdlt::Date(2015, 5, 5),
-                      E2,
-                      1.0,
-                      bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL));
-
-            ASSERT_FAIL(Util::yearsDiff(
-                      bdlt::Date(2015, 1, 5),
-                      bdlt::Date(2015, 1, 5),
-                      E3,
-                      1.0,
-                      bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL));
-
-            ASSERT_FAIL(Util::yearsDiff(
-                      bdlt::Date(2015, 1, 5),
-                      bdlt::Date(2015, 1, 5),
-                      E4,
-                      1.0,
-                      bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL));
-
-            ASSERT_FAIL(Util::yearsDiff(
-                      bdlt::Date(2015, 1, 4),
-                      bdlt::Date(2015, 1, 5),
-                      A,
-                      1.0,
-                      bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL));
-
-            ASSERT_FAIL(Util::yearsDiff(
-                      bdlt::Date(2015, 1, 5),
-                      bdlt::Date(2015, 5, 6),
-                      A,
-                      1.0,
-                      bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL));
+                                     bdlt::Date(2012, 1, 1),
+                                     bdlt::Date(2012, 1, 1),
+                                     bbldc::DayCountConvention::e_ACTUAL_360));
 
             ASSERT_OPT_FAIL(Util::yearsDiff(
-                             bdlt::Date(2015, 1, 5),
-                             bdlt::Date(2015, 5, 6),
-                             A,
-                             1.0,
-                             bbldc::DayCountConvention::e_ISDA_ACTUAL_ACTUAL));
+                                   bdlt::Date(2012, 1, 1),
+                                   bdlt::Date(2012, 1, 1),
+                                   bbldc::DayCountConvention::e_DEPRECATED_1));
         }
       } break;
       case 2: {
@@ -483,10 +393,26 @@ int main(int argc, char *argv[])
     //line  type                year  month  day  year  month  day  numDays
     //----  ------------------  ----  -----  ---  ----  -----  ---  -------
 
-    { L_,   PERIOD_ICMA_ACTUAL_ACTUAL,
-                                1993,    12,  15, 1993,    12,  31,      16 },
-    { L_,   PERIOD_ICMA_ACTUAL_ACTUAL,
-                                2003,     2,  28, 2004,     2,  29,     366 },
+    { L_,   ISDA_ACTUAL_ACTUAL, 1993,    12,  15, 1993,    12,  31,      16 },
+    { L_,   ISDA_ACTUAL_ACTUAL, 2003,     2,  28, 2004,     2,  29,     366 },
+
+    { L_,   ACTUAL_360,         1993,    12,  15, 1993,    12,  31,      16 },
+    { L_,   ACTUAL_360,         2003,     2,  28, 2004,     2,  29,     366 },
+
+    { L_,   ACTUAL_365_FIXED,   1993,    12,  15, 1993,    12,  31,      16 },
+    { L_,   ACTUAL_365_FIXED,   2003,     2,  28, 2004,     2,  29,     366 },
+
+    { L_,   ISMA_30_360,        1993,    12,  15, 1993,    12,  31,      15 },
+    { L_,   ISMA_30_360,        2003,     2,  28, 2004,     2,  29,     361 },
+
+    { L_,   SIA_30_360_EOM,     1993,    12,  15, 1993,    12,  31,      16 },
+    { L_,   SIA_30_360_EOM,     2003,     2,  28, 2004,     2,  29,     360 },
+
+    { L_,   SIA_30_360_NEOM,    1993,    12,  15, 1993,    12,  31,      16 },
+    { L_,   SIA_30_360_NEOM,    2003,     2,  28, 2004,     2,  29,     361 },
+
+    { L_,   PSA_30_360_EOM,     1993,    12,  15, 1993,    12,  31,      16 },
+    { L_,   PSA_30_360_EOM,     2003,     2,  28, 2004,     2,  29,     359 },
             };
 
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -506,6 +432,13 @@ int main(int argc, char *argv[])
                         const bbldc::DayCountConvention::Enum CONV2 =
                                                                 DATA[j].d_type;
                         if (CONV1 != CONV2) {
+                            if (CONV1 == ACTUAL_360 ||
+                                CONV1 == ACTUAL_365_FIXED ||
+                                CONV2 == ACTUAL_360 ||
+                                CONV2 == ACTUAL_365_FIXED) {
+                                continue;
+                            }
+
                             int hasUnique = 0;
                             for (int ii = 0; ii < NUM_DATA; ++ii) {
                                 if (CONV1 == DATA[ii].d_type) {
@@ -574,14 +507,14 @@ int main(int argc, char *argv[])
                                           hG(bsls::AssertTest::failTestDriver);
 
             ASSERT_OPT_PASS(Util::daysDiff(
-                      bdlt::Date(2015, 1, 5),
-                      bdlt::Date(2015, 5, 6),
-                      bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL));
+                                     bdlt::Date(2012, 1, 1),
+                                     bdlt::Date(2012, 1, 1),
+                                     bbldc::DayCountConvention::e_ACTUAL_360));
 
             ASSERT_OPT_FAIL(Util::daysDiff(
-                             bdlt::Date(2015, 1, 5),
-                             bdlt::Date(2015, 5, 6),
-                             bbldc::DayCountConvention::e_ISDA_ACTUAL_ACTUAL));
+                                   bdlt::Date(2012, 1, 1),
+                                   bdlt::Date(2012, 1, 1),
+                                   bbldc::DayCountConvention::e_DEPRECATED_1));
         }
       } break;
       case 1: {
@@ -608,7 +541,13 @@ int main(int argc, char *argv[])
         for (int i = 0; i < 1000; ++i) {
             const bbldc::DayCountConvention::Enum convention =
                                static_cast<bbldc::DayCountConvention::Enum>(i);
-            ASSERT((PERIOD_ICMA_ACTUAL_ACTUAL == convention)
+            ASSERT((   ACTUAL_360         == convention
+                    || ACTUAL_365_FIXED   == convention
+                    || ISDA_ACTUAL_ACTUAL == convention
+                    || ISMA_30_360        == convention
+                    || PSA_30_360_EOM     == convention
+                    || SIA_30_360_EOM     == convention
+                    || SIA_30_360_NEOM    == convention)
                    == Util::isSupported(convention));
         }
       } break;
