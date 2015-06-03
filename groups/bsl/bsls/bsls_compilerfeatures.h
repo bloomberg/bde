@@ -504,7 +504,7 @@ BSLS_IDENT("$Id: $")
 #else
 // Use real perfect-forwarding; no workaround needed.
 #   define BSLS_COMPILERFEATURES_FORWARD_REF(T) T&&
-#   define BSLS_COMPILERFEATURES_FORWARD(T,V)   native_std::forward<T>(V)
+#   define BSLS_COMPILERFEATURES_FORWARD(T,V)   bsls::Util::forward<T>(V)
 #endif
 
 #endif
