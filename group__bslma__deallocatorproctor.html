@@ -290,7 +290,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd>Similarly, any resources acquired as a result of copy constructing the objects from the old array to the new array would be leaked if the constructor of <code>TYPE</code> throws. Using the <code>my_AutoDestructor</code> prevents the leak by invoking the destructor of the proctored (and newly created) objects in the new array should the <code>my_AutoDestructor</code> goes out of scope before the <code>release</code> method of the proctor is called. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Note that the <code>append</code> method assumes the copy constructor of <code>TYPE</code> takes an allocator as a second argument. In production code, a constructor proxy that checks the traits of <code>TYPE</code> (to see whether <code>TYPE</code> uses <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code>) should be used (see <code><a class="el" href="classbslalg_1_1ConstructorProxy.html">bslalg::ConstructorProxy</a></code>). </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:21 for BDE Release 2.23.1 Open-Source by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:21 for BDE Release 2.23.1 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>
