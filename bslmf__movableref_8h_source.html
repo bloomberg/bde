@@ -1,0 +1,704 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.23.1 OSS</title>
+<html>
+<pre>
+// bslmf_movableref.h                                                 -*-C++-*-
+#ifndef INCLUDED_BSLMF_MOVABLEREF
+#define INCLUDED_BSLMF_MOVABLEREF
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a vocabulary type to enable move semantics.
+//
+//@CLASSES:
+//  bslmf::MovableRef: a template indicating that an object can be moved from
+//  bslmf::MovableRefUtil: a namespace for functions dealing with movables
+//
+//@SEE_ALSO:
+//
+//@DESCRIPTION: This component provides a class template, &#39;bslmf::MovableRef&#39;
+// used to convey the information that an object will not be used anymore so
+// that its representation can be transferred elsewhere.  In C++11 terminology
+// an object represented by a &#39;bslmf::MovableRef&lt;T&gt;&#39; can be moved from.  This
+// component also provides a utility &#39;struct&#39; &#39;bslmf::MovableRefUtil&#39; that
+// enables use of identical code for C++03 and C++11 to implement move
+// semantics.
+//
+// An object is /movable/ when it isn&#39;t being used in a way depending on its
+// current representation after an operation on this object.  For example, when
+// passing a temporary object to a function the temporary object is movable: it
+// can&#39;t be referred to other than in the function call.  When objects are no
+// longer be used their internal representation can be transferred to another
+// object.  Transferring the internal representation of an object to another
+// object is called /moving an object/.  The purpose of &#39;bslmf::MoveableRef&lt;T&gt;&#39;
+// is to indicate to a function that an object can be moved to another object.
+//
+// With a C++11 implementation &#39;bslmf::MovableRef&lt;T&gt;&#39; is an alias template for
+// &#39;T&amp;&amp;&#39;.  With a C++03 implementation &#39;bslmf::MovableRef&lt;T&gt;&#39; is a class
+// template providing l-value access to a movable object.  The objective of
+// this component is to provide a name for the concept of a movable object.
+// Using a common name enables use of manual move semantics when using C++03.
+// With C++11 additionally automatic move semantics is enabled resulting in
+// moving objects known to the compiler to go out of scope, e.g., when passing
+// a temporary object to a function or returning a local variable.
+//
+// Using &#39;bslmf::MovableRef&lt;T&gt;&#39; to support movable types enables the
+// implementation of move semantics that work with both C++03 and C++11 without
+// conditional compilation of the user code.  Only the implementation of the
+// component &#39;bslmf_movableref&#39; uses conditional compilation to select the
+// appropriate implementation choice.  For a C++11 implementation the use of
+// &#39;bslmf::MovableRef&lt;T&gt;&#39; instead of &#39;T&amp;&amp;&#39; has the advantage that the &#39;T&#39; will
+// not be deduced an the argument is known to be movable: when a function takes
+// a &#39;T&amp;&amp;&#39; as argument with a deduced &#39;T&#39; the deduced type may be an l-value
+// reference that isn&#39;t necessarily movable.  When using &#39;bslmf::MovableRef&lt;T&gt;&#39;
+// with C++11 the type will not be deduced and to turn an l-value into a
+// movable object it is necessary to explicitly use &#39;move()&#39; at the call site.
+//
+// For consistent use across different versions of the C++ standard, a few
+// utility functions are provided in the utility class &#39;bslmf::MovableRefUtil&#39;.
+// This class contains functions for moving and accessing objects.  To enable
+// an identical notation to access an object with C++11 (where
+// &#39;bslmf::MovableRef&lt;T&gt;&#39; is just an l-value of type &#39;T&#39;) and with C++03 where
+// &#39;bslmf::MovableRef&lt;T&gt;&#39; is a class type referencing an l-value of type &#39;T&#39;,
+// the function template &#39;bslmf::MovableRefUtil::access(r)&#39; is provided.
+//
+///Use of &#39;MovableRef&lt;TYPE&gt;&#39; Parameters
+///------------------------------------
+// There are a number of differences how &#39;MovableRef&lt;TYPE&gt;&#39; parameters are
+// handled between C++03 and C++11 implementations.  Due to the language
+// differences there is no way to avoid these.  This component enables use of
+// move semantics in both C++03 and C++11 when done right.  It doesn&#39;t try to
+// make implementation of move semantics easier.  Here are some notes to keep
+// in mind when using this component:
+//
+//: 1 When using a &#39;TYPE&amp;&amp;&#39; in a context where &#39;TYPE&#39; is deduced, the resulting
+//:   reference does normally *not* refer to an object that can be moved from!
+//:   If &#39;bslmf::MovableRef&lt;TYPE&gt;&#39; would deduce the type when using a C++11
+//:   implementation the name would be rather misleading.  Thus, the &#39;TYPE&#39;
+//:   won&#39;t be deduced.  When using a C++03 the type /can/ be deduced.
+//:   However, a program depending on the &#39;TYPE&#39; being deduced from a
+//:   &#39;bslmf::MovableRef&lt;TYPE&gt;&#39; will not compile with a C++11 implementation.
+//: 2 Returning &#39;MovableRef&lt;TYPE&gt;&#39; (or &#39;TYPE&amp;&amp;&#39;) from a function is almost
+//:   always wrong.  In particular note that the same life-time issues apply to
+//:   &#39;MovableRef&lt;TYPE&gt;&#39; as they do to references of objects: when returning a
+//:   reference the object referred to cannot be on the stack, i.e., returning
+//:   a &#39;MovableRef&lt;TYPE&gt;&#39; refering to a local variable or a by-value function
+//:   parameter is certainly wrong.  Returning a &#39;MovableRef&lt;TYPE&gt;&#39; to a
+//:   function parameter received as a reference type can be correct.
+//: 3 Using the argument of type &#39;MovableRef&lt;TYPE&gt;&#39; directly in a function
+//:   typically results in incorrect behavior either when using C++03 or when
+//:   using C++11.  Instead, use these arguments together with
+//:   &#39;MovableRefUtil::move()&#39;, &#39;MovableRefUtil::access()&#39;, or bind them to a
+//:   non-&#39;const&#39; l-value reference.
+//
+// The purpose of &#39;access(x)&#39; is to use the same notation for member access to
+// &#39;x&#39; independent on whether it is an actual l-value reference or an
+// &#39;MovableRef&lt;TYPE&gt;&#39;.  For a concrete examples assume &#39;x&#39; is a
+// &#39;bsl::pair&lt;A, B&gt;&#39;.  When using a C++11 implementation
+// &#39;MovableRef&lt;bsl::pair&lt;A, B&gt; &gt;&#39; is really just a &#39;bsl::pair&lt;A, B&gt;&amp;&amp;&#39; and the
+// elements could be accessed using &#39;x.first&#39; and &#39;x.second&#39;.  For a C++03
+// implementation &#39;MovableRef&lt;bsl::pair&lt;A, B&gt; &gt;&#39; is a class type and &#39;x.first&#39;
+// and &#39;x.second&#39; are not available.  Instead, a reference to the pair needs to
+// be obtained which could be done using &#39;static_cast&lt;bsl::pair&lt;A, B &gt;&amp;&gt;(x)&#39; or
+// by using a named variable.  To unify the notation between the C++03 and
+// C++11 implementation, simultanously simplifying the C++03 use
+// &#39;MovableRefUtil::access(x)&#39; can be used.
+//
+///Template Deduction and Argument Forwarding
+///------------------------------------------
+// C++11 has two entirely different uses of the notation &#39;T&amp;&amp;&#39;:
+//
+//: 1 In contexts where the type &#39;T&#39; is not deduced the notation implies that
+//:   only an r-value can be bound to the corresponding reference.  For this
+//:   use &#39;T&amp;&amp;&#39; is truly an r-value reference.
+//: 2 In contexts where the type &#39;T&#39; is deduced the notation implies that the
+//:   type &#39;T&#39; will include information on whether the entity bound is an
+//:   r-value or an l-value.
+//
+// The use of &#39;bslmf::MovableRef&lt;T&gt;&#39; and &#39;T&amp;&amp;&#39; can only indicate that the
+// reference is refering to an object whose content can be transferred if the
+// type &#39;T&#39; is not deduced.  Also, the C++03 implementation cannot distinguish
+// between r-value and l-value, i.e., the component should be used only in
+// contexts where &#39;T&#39; is not deduced.
+//
+///Usage
+///-----
+// There are two sides of move semantics:
+//
+//: 1 Classes or class templates that are _move-enabled_, i.e., which can
+//:   transfer their internal representation to another object in some
+//:   situations.  To become move-enabled a class needs to implement, at
+//:   least, a move constructor.  It should probably also implement a move
+//:   assignment.
+//: 2 Users of a potentially move-enabled class may take advantage of moving
+//:   objects by explicitly indicating that ownership of resources may be
+//:   transferred.  When using C++11 the compiler can automatically detect
+//:   some situations where it is safe to move objects but this features is
+//:   not available with C++03.
+//
+// The usage example below demonstrate both use cases using a simplified
+// version of &#39;std::vector&lt;T&gt;&#39;.  The class template is simplified to
+// concentrate on the aspects relevant to &#39;bslmf::MovableRef&lt;T&gt;&#39;.  Most of the
+// operations are just normal implementations to create a container.  The last
+// two operations described are using move operations.
+//
+// The definition of the &#39;vector&lt;TYPE&gt;&#39; class template is rather straight
+// forward.  For simplicity a few trivial operations are implemented directly
+// in the class definition:
+//..
+//  template &lt;class TYPE&gt;
+//  class vector
+//  {
+//      TYPE *d_begin;
+//      TYPE *d_end;
+//      TYPE *d_endBuffer;
+//
+//      static void swap(TYPE*&amp; a, TYPE*&amp; b);
+//          // Swap the specified pointers &#39;a&#39; and &#39;b&#39;.
+//
+//    public:
+//      vector();
+//          // Create an empty vector.
+//
+//      vector(bslmf::MovableRef&lt;vector&gt; other);                    // IMPLICIT
+//          // Create a vector by transfering the content of the specified
+//          // &#39;other&#39;.
+//
+//      vector(const vector&amp; other);
+//          // Create a vector by copying the content of the specified &#39;other&#39;.
+//
+//      vector&amp; operator= (vector other);
+//          // Assign a vector by copying the content of the specified &#39;other&#39;
+//          // and return a reference to this object.  Note that &#39;other&#39; is
+//          // passed by value to have the copy or move already be done, or
+//          // even elided.  Within the body of the assignment operator the
+//          // content of &#39;this&#39; and &#39;other&#39; are simply swapped.
+//
+//      ~vector();
+//          // Destroy the vector&#39;s elements and release any allocated memory.
+//
+//      TYPE&amp;       operator[](int index)      { return this-&gt;d_begin[index]; }
+//          // Return a reference to the object at the specified &#39;index&#39;.
+//
+//      const TYPE&amp; operator[](int index) const{ return this-&gt;d_begin[index]; }
+//          // Return a reference to the object at the specified &#39;index&#39;.
+//
+//      TYPE       *begin()       { return this-&gt;d_begin; }
+//          // Return a pointer to the first element.
+//
+//      const TYPE *begin() const { return this-&gt;d_begin; }
+//          // Return a pointer to the first element.
+//
+//      int capacity() const { return int(this-&gt;d_endBuffer - this-&gt;d_begin); }
+//          // Return the capacity of the vector.
+//
+//      bool empty() const { return this-&gt;d_begin == this-&gt;d_end; }
+//          // Return &#39;true&#39; if the vector is empty and &#39;false&#39; otherwise.
+//
+//      TYPE       *end()       { return this-&gt;d_end; }
+//          // Return a pointer to the end of the range.
+//
+//      const TYPE *end() const { return this-&gt;d_end; }
+//          // Return a pointer to the end of the range.
+//
+//      void push_back(const TYPE&amp; value);
+//          // Append a copy of the specified &#39;value&#39; to the vector.
+//
+//      void push_back(bslmf::MovableRef&lt;TYPE&gt; value);
+//          // Append an object moving the specified &#39;value&#39; to the new
+//          // location.
+//
+//      void reserve(int newCapacity);
+//          // Reserve enough capacity to fit at least as many elements as
+//          // specified by &#39;newCapacity&#39;.
+//
+//      int size() const { return int(this-&gt;d_end - this-&gt;d_begin); }
+//          // Return the size of the object.
+//
+//      void swap(vector&amp; other);
+//          // Swap the content of the vector with the specified &#39;other&#39;.
+//  };
+//..
+// The class stores pointers to the begin and the end of the elements as well
+// as a pointer to the end of the allocated buffer.  If there are no elements,
+// null pointers are stored.  There a number of accessors similar to the
+// accessors used by &#39;std::vector&lt;TYPE&gt;&#39;.
+//
+// The default constructor creates an empty &#39;vector&lt;TYPE&gt;&#39; by simply
+// initializing all member pointers to be null pointers:
+//..
+//  template &lt;class TYPE&gt;
+//  vector&lt;TYPE&gt;::vector()
+//      : d_begin()
+//      , d_end()
+//      , d_endBuffer()
+//  {
+//  }
+//..
+// To leverage already implemented functionality some of the member functions
+// operate on a temporary &#39;vector&lt;TYPE&gt;&#39; and move the result into place using
+// the &#39;swap()&#39; member function that simply does a memberwise &#39;swap()&#39; (the
+// function swapping pointers is implemented here to avoid any dependency on
+// functions defined in another level):
+//..
+//  template &lt;class TYPE&gt;
+//  void vector&lt;TYPE&gt;::swap(TYPE*&amp; a, TYPE*&amp; b)
+//  {
+//      TYPE *tmp = a;
+//      a = b;
+//      b = tmp;
+//  }
+//  template &lt;class TYPE&gt;
+//  void vector&lt;TYPE&gt;::swap(vector&amp; other)
+//  {
+//      this-&gt;swap(this-&gt;d_begin, other.d_begin);
+//      this-&gt;swap(this-&gt;d_end, other.d_end);
+//      this-&gt;swap(this-&gt;d_endBuffer, other.d_endBuffer);
+//  }
+//..
+// The member function &#39;reserve()&#39; arranges for the &#39;vector&lt;TYPE&gt;&#39; to have
+// enough capacity for the number of elements specified as argument.  The
+// function first creates an empty &#39;vector&lt;TYPE&gt;&#39; called &#39;tmp&#39; and sets &#39;tmp&#39;
+// up to have enough capacity by allocating sufficient memory and assigning the
+// different members to point to the allocated buffer.  The function then
+// iterates over the elements of &#39;this&#39; and for each element it constructs a
+// new element in &#39;tmp&#39;.
+//..
+//  template &lt;class TYPE&gt;
+//  void vector&lt;TYPE&gt;::reserve(int newCapacity)
+//  {
+//      if (this-&gt;capacity() &lt; newCapacity) {
+//          vector tmp;
+//          int    size = int(sizeof(TYPE) * newCapacity);
+//          tmp.d_begin = static_cast&lt;TYPE*&gt;(operator new(size));
+//          tmp.d_end = tmp.d_begin;
+//          tmp.d_endBuffer = tmp.d_begin + newCapacity;
+//
+//          for (TYPE* it = this-&gt;d_begin; it != this-&gt;d_end; ++it) {
+//              new (tmp.d_end) TYPE(*it);
+//              ++tmp.d_end;
+//          }
+//          this-&gt;swap(tmp);
+//      }
+//  }
+//..
+// Any allocated data and constructed elements need to be release in the
+// destructor.  The destructor does so by calling the destructor of the
+// elements in the buffer from back to front.  Once the elements are destroyed
+// the buffer is released:
+//..
+//  template &lt;class TYPE&gt;
+//  vector&lt;TYPE&gt;::~vector()
+//  {
+//      if (this-&gt;d_begin) {
+//          while (this-&gt;d_begin != this-&gt;d_end) {
+//              --this-&gt;d_end;
+//              this-&gt;d_end-&gt;~TYPE();
+//          }
+//          operator delete(this-&gt;d_begin);
+//      }
+//  }
+//..
+// Using &#39;reserve()&#39; and constructing the elements it is straight forward to
+// implement the copy constructor.  First the member pointers are initialed to
+// null.  If &#39;other&#39; is empty there is nothing further to do as it is desirable
+// to not allocate a buffer for an empty &#39;vector&#39;.  If there are elements to
+// copy the buffer is set up by calling &#39;reserve()&#39; to create sufficient
+// capacity.  Once that is done elements are copied by iterating over the
+// elements of &#39;other&#39; and constructing elements using placement new in the
+// appropriate location.
+//..
+//  template &lt;class TYPE&gt;
+//  vector&lt;TYPE&gt;::vector(const vector&amp; other)
+//      : d_begin()
+//      , d_end()
+//      , d_endBuffer()
+//  {
+//      if (!other.empty()) {
+//          this-&gt;reserve(4 &lt; other.size()? other.size(): 4);
+//
+//          ASSERT(other.size() &lt;= this-&gt;capacity());
+//          for (TYPE* it = other.d_begin; it != other.d_end; ++it) {
+//              new (this-&gt;d_end) TYPE(*it);
+//              ++this-&gt;d_end;
+//          }
+//      }
+//  }
+//..
+// A simple copy assignment operator can be implemented in terms of copy/move
+// constructors, &#39;swap()&#39;, and destructor (in a real implementation the copy
+// assignment would probably try to use already allocated objects).  In this
+// implementation that argument is taken by value, i.e., the argument is
+// already constructed using copy or move construction (which may have been
+// elided), the content of &#39;this&#39; is swapped with the content of &#39;other&#39;
+// leaving this in the desired state, and the destructor will release the
+// former representation of &#39;this&#39; when &#39;other&#39; is destroyed&#39;:
+//..
+//  template &lt;class TYPE&gt;
+//  vector&lt;TYPE&gt;&amp; vector&lt;TYPE&gt;::operator= (vector other)
+//  {
+//      this-&gt;swap(other);
+//      return *this;
+//  }
+//..
+// To complete the normal C++03 operations of &#39;vector&lt;TYPE&gt;&#39; the only remaining
+// member function is &#39;push_back()&#39;.  This function calls &#39;reserve()&#39; to obtain
+// more capacity if the current capacity is filled and then constructs the new
+// element at the location pointed to by &#39;d_end&#39;:
+//..
+//  template &lt;class TYPE&gt;
+//  void vector&lt;TYPE&gt;::push_back(const TYPE&amp; value)
+//  {
+//      if (this-&gt;d_end == this-&gt;d_endBuffer) {
+//          this-&gt;reserve(this-&gt;size()? int(1.5 * this-&gt;size()): 4);
+//      }
+//      assert(this-&gt;d_end != this-&gt;d_endBuffer);
+//      new(this-&gt;d_end) TYPE(value);
+//      ++this-&gt;d_end;
+//  }
+//..
+// The first operation actually demonstrating the use of &#39;MovableRef&lt;TYPE&gt;&#39; is
+// the move constructor:
+//..
+//  template &lt;class TYPE&gt;
+//  vector&lt;TYPE&gt;::vector(bslmf::MovableRef&lt;vector&gt; other)
+//      : d_begin(bslmf::MovableRefUtil::access(other).d_begin)
+//      , d_end(bslmf::MovableRefUtil::access(other).d_end)
+//      , d_endBuffer(bslmf::MovableRefUtil::access(other).d_endBuffer)
+//  {
+//      vector&amp; reference(other);
+//      reference.d_begin = 0;
+//      reference.d_end = 0;
+//      reference.d_endBuffer = 0;
+//  }
+//..
+// This constructor gets an &#39;MovableRef&lt;vector&lt;TYPE&gt; &gt;&#39; passed as argument that
+// indicates that the referenced objects can be modified as long as it is left
+// in a state meeting the class invariants.  The implementation of this
+// constructor first copies the &#39;d_begin&#39;, &#39;d_end&#39;, and &#39;d_capacity&#39; members of
+// &#39;other&#39;.  Since &#39;other&#39; is either an object of type
+// &#39;MovableRef&lt;vector&lt;TYPE&gt; &gt;&#39; (when compiling using a C++03 compiler) or an
+// r-value reference &#39;vector&lt;TYPE&gt;&amp;&amp;&#39; the members are accessed using
+// &#39;MovableRefUtil::access(other)&#39; to get a reference to a &#39;vector&lt;TYPE&gt;&#39;.
+// Within the body of the constructor an l-value reference is obtained either
+// via the conversion operator of &#39;MovableRef&lt;T&gt;&#39; or directly as &#39;other&#39; is
+// just an l-value when compiling with a C++11 compiler.  This reference is
+// used to set the pointer members of the object referenced by &#39;other&#39; to &#39;0&#39;
+// completing the move of the content to the object under construction.
+//
+// Finally, a move version of &#39;push_back()&#39; is provided: it takes an
+// &#39;MovableRef&lt;TYPE&gt;&#39; as argument.  The type of this argument indicates that
+// the state can be transferred and after arranging enough capacity in the
+// &#39;vector&lt;TYPE&gt;&#39; object a new element is move constructed at the position
+// &#39;d_end&#39;:
+//..
+//  template &lt;class TYPE&gt;
+//  void vector&lt;TYPE&gt;::push_back(bslmf::MovableRef&lt;TYPE&gt; value)
+//  {
+//      if (this-&gt;d_end == this-&gt;d_endBuffer) {
+//          this-&gt;reserve(this-&gt;size()? int(1.5 * this-&gt;size()): 4);
+//      }
+//      assert(this-&gt;d_end != this-&gt;d_endBuffer);
+//      new(this-&gt;d_end) TYPE(bslmf::MovableRefUtil::move(value));
+//      ++this-&gt;d_end;
+//  }
+//..
+// Note that this implementation of &#39;push_back()&#39; uses
+// &#39;bslmf::MovableRefUtil::move(value)&#39; to move the argument.  For a C++03
+// implementation the argument would be moved even when using &#39;value&#39; directly
+// because the type of &#39;value&#39; stays &#39;bslmf::MovableRef&lt;TYPE&gt;&#39;.  However, for a
+// C++11 implementation the argument &#39;value&#39; is an l-value and using it
+// directly would result in a copy.
+//
+// To demonstrate the newly created &#39;vector&lt;TYPE&gt;&#39; class in action, first a
+// &#39;vector&lt;int&gt;&#39; is created and filled with a few elements:
+//..
+//  vector&lt;int&gt; vector0;
+//  for (int i = 0; i != 5; ++i) {
+//      vector0.push_back(i);
+//  }
+//  for (int i = 0; i != 5; ++i) {
+//      assert(vector0[i] == i);
+//  }
+//..
+// To verify that copying of &#39;vector&lt;TYPE&gt;&#39; objects works, a copy is created:
+//..
+//  vector&lt;int&gt; vector1(vector0);
+//  assert(vector1.size() == 5);
+//  assert(vector1.size() == vector0.size());
+//  for (int i = 0; i != vector1.size(); ++i) {
+//      assert(vector1[i] == i);
+//      assert(vector1[i] == vector0[i]);
+//  }
+//..
+// When using moving this &#39;vector0&#39; to a new location the representation of the
+// new object should use the original &#39;begin()&#39;:
+//..
+//  const int *first = vector0.begin();
+//  vector&lt;int&gt; vector2(bslmf::MovableRefUtil::move(vector0));
+//  assert(first == vector2.begin());
+//..
+// When create a &#39;vector&lt;vector&lt;int&gt; &gt;&#39; and using &#39;push_back()&#39; on this object
+// with &#39;vector2&#39; a copy should be inserted:
+//..
+//  vector&lt;vector&lt;int&gt; &gt; vvector;
+//  vvector.push_back(vector2);                          // copy
+//  assert(vector2.size() == 5);
+//  assert(vvector.size() == 1);
+//  assert(vvector[0].size() == vector2.size());
+//  assert(vvector[0].begin() != first);
+//  for (int i = 0; i != 5; ++i) {
+//      assert(vvector[0][i] == i);
+//      assert(vector2[i] == i);
+//  }
+//..
+// When adding another element by moving &#39;vector2&#39; the &#39;begin()&#39; of the newly
+// inserted element will be the same as &#39;first&#39;, i.e., the representation is
+// transferred:
+//..
+//  vvector.push_back(bslmf::MovableRefUtil::move(vector2)); // move
+//  assert(vvector.size() == 2);
+//  assert(vvector[1].begin() == first);
+//  assert(vvector[1].size() == 5);
+//..
+// Compiling this code with both C++03 and C++11 compilers shows that there is
+// no need for conditional compilation in when using &#39;MovableRef&lt;TYPE&gt;&#39; while
+// move semantics is enabled in both modes.
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_REMOVEREFERENCE
+#include &lt;bslmf_removereference.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include &lt;bsls_compilerfeatures.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_UTIL
+#include &lt;bsls_util.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslmf {
+
+// ----------------------------------------------------------------------------
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
+         &amp;&amp; defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
+#    define BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
+    // This macro indicates whether the component uses C++11 r-value references
+    // to implement &#39;bslmf::MovableRef&lt;TYPE&gt;&#39;.  It will evaluate to &#39;false&#39; for
+    // C++03 implementations and to &#39;true&#39; for proper C++11 implementations.
+    // For partial C++11 implementations it may evaluate to &#39;false&#39; because
+    // both r-value reference and alias templates need to be supported.
+#endif
+
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+
+template &lt;class TYPE&gt;
+struct MovableRef_Helper {
+    // The class template &#39;MovableRef_Helper&#39; just defines a nested type
+    // &#39;type&#39; that is used by an alias template.  Using this indirection the
+    // template argument of the alias template is prevented from being deduced.
+    using type = TYPE&amp;&amp;;
+        // The type &#39;type&#39; defined to be an r-value reference to the argument
+        // type of &#39;MovableRef_Helper.
+};
+
+template &lt;class TYPE&gt;
+using MovableRef = typename MovableRef_Helper&lt;TYPE&gt;::type;
+    // The alias template &#39;MovableRef&lt;TYPE&gt;&#39; yields an r-value reference of
+    // type &#39;TYPE&amp;&amp;&#39;.
+
+#else // support r-value references and alias templates
+
+struct MovableRefUtil;
+
+template &lt;class TYPE&gt;
+class MovableRef {
+    // The class template &#39;MovableRef&lt;TYPE&gt;&#39; provides a reference to a movable
+    // object of type &#39;TYPE&#39;.  Put differently, a function receiving an object
+    // this class template can transfer (move) the representation to a
+    // different object and leave the referenced object in an unspecified,
+    // although valid (i.e., it obeys all class invariants), state.  With
+    // C++11 an r-value reference (&#39;TYPE&amp;&amp;&#39;) is used to represent the same
+    // semantics.
+    friend struct MovableRefUtil;
+    TYPE *d_pointer;
+
+    // PRIVATE CONSTRUCTORS
+    explicit MovableRef(TYPE *pointer);
+        // Create an &#39;MovableRef&lt;TYPE&gt;&#39; object referencing the object pointed
+        // to by the specified &#39;pointer&#39;.  The behavior is undefined if
+        // &#39;pointer&#39; does not point to an object.  This constructor is private
+        // because a C++11 r-value reference cannot be created like this.  For
+        // information on how to create objects of type &#39;MovableRef&lt;TYPE&gt;&#39; see
+        // &#39;MovableRefUtil::move()&#39;.
+
+  public:
+    // ACCESSORS
+    operator TYPE&amp;() const;
+        // Return a reference to the referenced object.  In contexts where a
+        // reference to an object of type &#39;TYPE&#39; is needed, a
+        // &#39;MovableRef&lt;TYPE&gt;&#39; behaves like such a reference.  For information
+        // on how to access the the reference in contexts where no conversion
+        // can be used see &#39;MovableRefUtil::access()&#39;.
+};
+
+#endif // support r-value references and alias templates
+
+// ----------------------------------------------------------------------------
+
+struct MovableRefUtil {
+    // This &#39;struct&#39; provides a collection of utility functions operating on
+    // objects of type &#39;MovableRef&lt;TYPE&gt;&#39;.  The primary use of these utilities
+    // to create a consistent notation for using the C++03 &#39;MovableRef&lt;TYPE&gt;&#39;
+    // objects and the C++11 &#39;TYPE&amp;&amp;&#39; r-value references.
+
+    template &lt;class TYPE&gt;
+    static TYPE&amp; access(TYPE&amp; lvalue);
+        // Return a reference to the specified &#39;lvalue&#39;.  This overload of
+        // access is used when accessing an argument passed by
+        // &#39;bslma::MovableRef&lt;TYPE&gt;&#39; with a C++11 implementation: the &#39;TYPE&amp;&amp;&#39;
+        // argument is a movable l-value.
+        //
+        // Please see the component-level documentation for more information on
+        // this function.
+
+    template &lt;class TYPE&gt;
+    static TYPE&amp; access(MovableRef&lt;TYPE&gt;&amp; lvalue);
+        // Return a reference to the object referenced by the specified
+        // &#39;lvalue&#39; object.  This reference might be obtained by a conversion
+        // of &#39;lvalue&#39; to &#39;TYPE&amp;&#39; in contexts where a conversion is viable.
+        // When a conversion isn&#39;t applicable, e.g., when caling a member of
+        // &#39;TYPE&#39;, the reference can be accessed using &#39;access()&#39;.  Since the
+        // same notation should be applicable to the C++03 &#39;MovableRef&lt;TYPE&gt;&#39;
+        // objects and a C++11 r-value reference &#39;TYPE&amp;&amp;&#39;, a member function
+        // cannot be used directly.  Note that this overload will never deduce
+        // the argument with a C++11 implementation.
+        //
+        // Please see the component-level documentation for more information on
+        // this function.
+
+#if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    template &lt;class TYPE&gt;
+    static MovableRef&lt;TYPE&gt; move(TYPE&amp; lvalue);
+        // Return a movable reference of type &#39;MovableRef&lt;TYPE&gt;&#39; from the
+        // specified &#39;lvalue&#39;.  For a C++03 implementation this function
+        // behaves like a factory for &#39;MovableRef&lt;TYPE&gt; objects.  For a C++11
+        // implementation this function behaves exactly like &#39;std::move(value)&#39;
+        // applied to l-values.
+#endif
+
+    template &lt;class TYPE&gt;
+    static MovableRef&lt;typename bsl::remove_reference&lt;TYPE&gt;::type&gt;
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+        move(TYPE&amp;&amp; reference);
+#else  // support r-value references and alias templates
+        move(MovableRef&lt;TYPE&gt; reference);
+#endif // support r-value references and alias templates
+        // Return a movable reference to the object referred to by the
+        // specified &#39;reference&#39;.
+};
+
+// ============================================================================
+//                          INLINE DEFINITIONS
+// ============================================================================
+
+// ----------------------------------------------------------------------------
+//                              class MovableRef
+// ----------------------------------------------------------------------------
+
+#if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+
+template &lt;class TYPE&gt;
+inline
+MovableRef&lt;TYPE&gt;::MovableRef(TYPE *pointer)
+    : d_pointer(pointer) {
+    BSLS_ASSERT(0 != pointer);
+}
+
+template &lt;class TYPE&gt;
+inline
+MovableRef&lt;TYPE&gt;::operator TYPE&amp;() const {
+    return *d_pointer;
+}
+
+#endif // support r-value references and alias templates
+
+// ----------------------------------------------------------------------------
+//                          struct MovableRefUtil
+// ----------------------------------------------------------------------------
+
+template &lt;class TYPE&gt;
+inline
+TYPE&amp; MovableRefUtil::access(TYPE&amp; lvalue) {
+    return lvalue;
+}
+
+template &lt;class TYPE&gt;
+inline
+TYPE&amp; MovableRefUtil::access(MovableRef&lt;TYPE&gt;&amp; lvalue) {
+    return lvalue;
+}
+
+#if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+template &lt;class TYPE&gt;
+inline
+MovableRef&lt;TYPE&gt; MovableRefUtil::move(TYPE&amp; lvalue) {
+    return MovableRef&lt;TYPE&gt;(bsls::Util::addressOf(lvalue));
+}
+#endif // support r-value references and alias templates
+
+template &lt;class TYPE&gt;
+inline
+MovableRef&lt;typename bsl::remove_reference&lt;TYPE&gt;::type&gt;
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+MovableRefUtil::move(TYPE&amp;&amp; rvalue) {
+    return static_cast&lt;typename bsl::remove_reference&lt;TYPE&gt;::type&amp;&amp;&gt;(rvalue);
+#else  // support r-value references and alias templates
+MovableRefUtil::move(MovableRef&lt;TYPE&gt; rvalue) {
+    return rvalue;
+#endif // support r-value references and alias templates
+}
+
+// ----------------------------------------------------------------------------
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+// ----------------------------------------------------------------------------
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

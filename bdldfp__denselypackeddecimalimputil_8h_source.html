@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bdldfp_denselypackeddecimalimputil.h                               -*-C++-*-
@@ -107,43 +107,44 @@ struct DenselyPackedDecimalImpUtil {
         // &#39;unsigned int&#39; type values, as it is intended for use with raw bit
         // manipulation functions.
 
-    static StorageType32 makeDecimalRaw32(int mantissa, int exponent);
+    static StorageType32 makeDecimalRaw32(int significand, int exponent);
         // Return a &#39;StorageType32&#39; object representing a decimal floating
-        // point number consisting of the specified &#39;mantissa&#39; and &#39;exponent&#39;,
-        // with the sign given by the &#39;mantissa&#39;.  If &#39;mantissa&#39; is 0, the
-        // result is 0 but the quanta of the result is unspecified.  The
-        // behavior is undefined unless &#39;abs(mantissa) &lt;= 9,999,999&#39; and
-        // &#39;-101 &lt;= exponent &lt;= 90&#39;.
+        // point number consisting of the specified &#39;significand&#39; and
+        // &#39;exponent&#39;, with the sign given by the &#39;significand&#39;.  If
+        // &#39;significand&#39; is 0, the result is 0 but the quanta of the result is
+        // unspecified.  The behavior is undefined unless
+        // &#39;abs(significand) &lt;= 9,999,999&#39; and &#39;-101 &lt;= exponent &lt;= 90&#39;.
 
-    static StorageType64 makeDecimalRaw64(unsigned long long int mantissa,
+    static StorageType64 makeDecimalRaw64(unsigned long long int significand,
                                                              int exponent);
-    static StorageType64 makeDecimalRaw64(         long long int mantissa,
+    static StorageType64 makeDecimalRaw64(         long long int significand,
                                                              int exponent);
-    static StorageType64 makeDecimalRaw64(unsigned           int mantissa,
+    static StorageType64 makeDecimalRaw64(unsigned           int significand,
                                                              int exponent);
-    static StorageType64 makeDecimalRaw64(                   int mantissa,
+    static StorageType64 makeDecimalRaw64(                   int significand,
                                                              int exponent);
         // Create a &#39;StorageType64&#39; object representing a decimal floating
-        // point number consisting of the specified &#39;mantissa&#39; and &#39;exponent&#39;,
-        // with the sign given by the &#39;mantissa&#39;.  If &#39;mantissa&#39; is 0, the
-        // result is 0 but the quanta of the result is unspecified.  The
-        // behavior is undefined unless
-        // &#39;abs(mantissa) &lt;= 9,999,999,999,999,999&#39; and
+        // point number consisting of the specified &#39;significand&#39; and
+        // &#39;exponent&#39;, with the sign given by the &#39;significand&#39;.  If
+        // &#39;significand&#39; is 0, the result is 0 but the quanta of the result is
+        // unspecified.  The behavior is undefined unless
+        // &#39;abs(significand) &lt;= 9,999,999,999,999,999&#39; and
         // &#39;-398 &lt;= exponent &lt;= 369&#39;.
 
-    static StorageType128 makeDecimalRaw128(unsigned long long int mantissa,
+    static StorageType128 makeDecimalRaw128(unsigned long long int significand,
                                                                int exponent);
-    static StorageType128 makeDecimalRaw128(         long long int mantissa,
+    static StorageType128 makeDecimalRaw128(         long long int significand,
                                                                int exponent);
-    static StorageType128 makeDecimalRaw128(unsigned           int mantissa,
+    static StorageType128 makeDecimalRaw128(unsigned           int significand,
                                                                int exponent);
-    static StorageType128 makeDecimalRaw128(                   int mantissa,
+    static StorageType128 makeDecimalRaw128(                   int significand,
                                                                int exponent);
         // Create a &#39;StorageType128&#39; object representing a decimal floating
-        // point number consisting of the specified &#39;mantissa&#39; and &#39;exponent&#39;,
-        // with the sign given by the &#39;mantissa&#39;.  If &#39;mantissa&#39; is 0, the
-        // result is 0 but the quanta of the result is unspecified.  The
-        // behavior is undefined unless &#39;-6176 &lt;= exponent &lt;= 6111&#39;.
+        // point number consisting of the specified &#39;significand&#39; and
+        // &#39;exponent&#39;, with the sign given by the &#39;significand&#39;.  If
+        // &#39;significand&#39; is 0, the result is 0 but the quanta of the result is
+        // unspecified.  The behavior is undefined unless
+        // &#39;-6176 &lt;= exponent &lt;= 6111&#39;.
 };
 
 }  // close package namespace

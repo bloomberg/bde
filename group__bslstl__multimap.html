@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: bslstl_multimap Component</title>
+<title>BDE 2.23.1 OSS: bslstl_multimap Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
@@ -133,7 +134,7 @@ Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">iterator&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__multimap.html#gaba8153e6008d2b181899391f1de75aef">bsl::multimap::find</a> (const key_type &amp;key)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">iterator&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__multimap.html#ga9972e29c155617882ce1f522dfdf8386">bsl::multimap::lower_bound</a> (const key_type &amp;key)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">iterator&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__multimap.html#gad841c0a375de8e6a63caced8d73e2cd2">bsl::multimap::upper_bound</a> (const key_type &amp;key)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1pair.html">bsl::pair</a>&lt; iterator, iterator &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__multimap.html#ga7829889c2fe3d26153cb499eb08381cc">bsl::multimap::equal_range</a> (const key_type &amp;x)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1pair.html">bsl::pair</a>&lt; iterator, iterator &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__multimap.html#gaf38aff817813298d162c52f6b830b92d">bsl::multimap::equal_range</a> (const key_type &amp;key)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">allocator_type&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__multimap.html#gacbc93157666d0148fa83893a23ec2ef8">bsl::multimap::get_allocator</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">const_iterator&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__multimap.html#ga56cb6563136e9cccdedca848cd3f339f">bsl::multimap::begin</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">const_iterator&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__multimap.html#gaf01381f49ca53e56ae54423dbda4c909">bsl::multimap::end</a> () const </td></tr>
@@ -153,7 +154,7 @@ Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">const_iterator&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__multimap.html#gaa1d6e5f0835935d0e303ce0798bd7440">bsl::multimap::lower_bound</a> (const key_type &amp;key) const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">const_iterator&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__multimap.html#ga5ae39fe1fdb7c3a000378a51e5234d89">bsl::multimap::upper_bound</a> (const key_type &amp;key) const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1pair.html">bsl::pair</a>&lt; const_iterator, <br class="typebreak"/>
-const_iterator &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__multimap.html#ga535226f3b5611f646c690c39b9e8d253">bsl::multimap::equal_range</a> (const key_type &amp;x) const </td></tr>
+const_iterator &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__multimap.html#ga7d85487a916f1bd551e78438b9570c24">bsl::multimap::equal_range</a> (const key_type &amp;key) const </td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class KEY , class VALUE , class COMPARATOR , class ALLOCATOR &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__multimap.html#gae27bff9d448ee8c63a9171d2a395720b">bsl::operator==</a> (const multimap&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt; &amp;lhs, const multimap&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt; &amp;rhs)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class KEY , class VALUE , class COMPARATOR , class ALLOCATOR &gt; </td></tr>
@@ -207,13 +208,17 @@ Variables</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="classes"></a> <a class="anchor" id="2"></a> </dd></dl>
 <dl class="user"><dt><b>Classes: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="el" href="classbsl_1_1multimap.html">bsl::multimap</a> STL-compatible multimap template </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><table class="doxtable">
+<tr>
+<td><a class="el" href="classbsl_1_1multimap.html">bsl::multimap</a> </td><td>STL-compatible multimap template  </td></tr>
+</table>
+</dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="group__bslstl__map.html" title="Provide an STL-compliant map class.">Component bslstl_map</a>, <a class="el" href="group__bslstl__multiset.html" title="Provide an STL-compliant multiset class.">Component bslstl_multiset</a> </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component defines a single class template <code>multimap</code>, implementing the standard container holding an ordered sequence of key-value pairs (possibly having duplicate keys), and presenting a mapping from the keys (of a template parameter type, <code>KEY</code>) to their associated values (of another template parameter type, <code>VALUE</code>). </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component defines a single class template <code><a class="el" href="classbsl_1_1multimap.html">bsl::multimap</a></code>, implementing the standard container holding an ordered sequence of key-value pairs (possibly having duplicate keys), and presenting a mapping from the keys (of a template parameter type, <code>KEY</code>) to their associated values (of another template parameter type, <code>VALUE</code>). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>An instantiation of <code>multimap</code> is an allocator-aware, value-semantic type whose salient attributes are its size (number of key-value pairs) and the ordered sequence of key-value pairs the multimap contains. If <code>multimap</code> is instantiated with either a key type or mapped-value type that is not itself value-semantic, then it will not retain all of its value-semantic qualities. In particular, if a either the key or value type cannot be tested for equality, then a <code>multimap</code> containing that type cannot be tested for equality. It is even possible to instantiate <code>multimap</code> with a key or mapped-value type that does not have a copy-constructor, in which case the <code>multimap</code> will not be copyable. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>A <code>multimap</code> meets the requirements of an associative container with bidirectional iterators in the C++11 standard [23.2.4]. The <code>multimap</code> implemented here adheres to the C++11 standard, except that it does not have interfaces that take rvalue references, <code>initializer_lists</code>, <code>emplace</code>, or operations taking a variadic number of template parameters. Note that excluded C++11 features are those that require (or are greatly simplified by) C++11 compiler support. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
@@ -912,12 +917,12 @@ template&lt;class KEY , class VALUE , class COMPARATOR  = std::less&lt;KEY&gt;, 
           <td class="paramtype">COMPARATOR&nbsp;</td>
           <td class="paramname"> <em>c</em></td>
           <td>&nbsp;)&nbsp;</td>
-          <td><code> [inline, protected, inherited]</code></td>
+          <td><code> [protected, inherited]</code></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a <code><a class="el" href="classbsl_1_1multimap_1_1value__compare.html">value_compare</a></code> object that will delegate to the specified <code>comparator</code> for comparisons. </p>
+<p>IMPLICIT: Create a <code><a class="el" href="classbsl_1_1multimap_1_1value__compare.html">value_compare</a></code> object that will delegate to the specified <code>comparator</code> for comparisons. </p>
 
 </div>
 </div>
@@ -942,14 +947,12 @@ template&lt;class KEY , class VALUE , class COMPARATOR  = std::less&lt;KEY&gt;, 
         <tr>
           <td></td>
           <td>)</td>
-          <td></td><td></td><td> const<code> [inline, inherited]</code></td>
+          <td></td><td></td><td> const<code> [inherited]</code></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>&lt; Return <code>true</code> if the specified <code>x</code> object is ordered before the specified <code>y</code> object, as determined by the comparator supplied at construction. </p>
-
-<p>References <a class="el" href="group__bslstl__multimap.html#ga023433abc85bf2e4f3df3492f76351da">bsl::multimap&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;::value_compare::comp</a>.</p>
+<p>Return <code>true</code> if the specified <code>x</code> object is ordered before the specified <code>y</code> object, as determined by the comparator supplied at construction. </p>
 
 </div>
 </div>
@@ -1272,7 +1275,7 @@ template&lt;class KEY , class VALUE , class COMPARATOR  = std::less&lt;KEY&gt;, 
       </table>
 </div>
 <div class="memdoc">
-<p>Insert the specified <code>value</code> into this multimap as close as possible to the position just prior to the specified <code>hint</code> (in amortized constant time if the specified <code>hint</code> is a valid immediate successor to the key of <code>value</code>). If <code>hint</code> is not a valid immediate successor to the key of <code>value</code>, this operation will have O[log(N)] complexity, where <code>N</code> is the size of this multimap. The behavior is undefined unless <code>hint</code> is a valid iterator into this multimap. This method requires that the (template parameter) types <code>KEY</code> and <code>VALUE</code> both be <a href="group__bslstl__multimap.html#requirements_on_key_and_value.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__multimap.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). </p>
+<p>Insert the specified <code>value</code> into this multimap as close as possible to the position just prior to the specified <code>hint</code> (in amortized constant time if the <code>hint</code> is a valid immediate successor to the key of <code>value</code>). If <code>hint</code> is not a valid immediate successor to the key of <code>value</code>, this operation will have O[log(N)] complexity, where <code>N</code> is the size of this multimap. The behavior is undefined unless <code>hint</code> is a valid iterator into this multimap. This method requires that the (template parameter) types <code>KEY</code> and <code>VALUE</code> both be <a href="group__bslstl__multimap.html#requirements_on_key_and_value.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__multimap.html#requirements_on_key_and_value" class="el">Requirements on <code>KEY</code> and <code>VALUE</code></a>). </p>
 
 </div>
 </div>
@@ -1484,7 +1487,7 @@ template&lt;class KEY , class VALUE , class COMPARATOR  = std::less&lt;KEY&gt;, 
 
 </div>
 </div>
-<a class="anchor" id="ga7829889c2fe3d26153cb499eb08381cc"></a><!-- doxytag: member="bsl::multimap::equal_range" ref="ga7829889c2fe3d26153cb499eb08381cc" args="(const key_type &amp;x)" -->
+<a class="anchor" id="gaf38aff817813298d162c52f6b830b92d"></a><!-- doxytag: member="bsl::multimap::equal_range" ref="gaf38aff817813298d162c52f6b830b92d" args="(const key_type &amp;key)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -1494,7 +1497,7 @@ template&lt;class KEY , class VALUE , class COMPARATOR  = std::less&lt;KEY&gt;, 
           <td class="memname"><a class="el" href="classbsl_1_1pair.html">bsl::pair</a>&lt;iterator,iterator&gt; <a class="el" href="classbsl_1_1multimap.html">bsl::multimap</a>&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;::equal_range </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="group__bslstl__multimap.html#gad7afc1729b7c01609e6d7544e87a4286">key_type</a> &amp;&nbsp;</td>
-          <td class="paramname"> <em>x</em></td>
+          <td class="paramname"> <em>key</em></td>
           <td>&nbsp;)&nbsp;</td>
           <td><code> [inherited]</code></td>
         </tr>
@@ -1869,7 +1872,7 @@ template&lt;class KEY , class VALUE , class COMPARATOR  = std::less&lt;KEY&gt;, 
 
 </div>
 </div>
-<a class="anchor" id="ga535226f3b5611f646c690c39b9e8d253"></a><!-- doxytag: member="bsl::multimap::equal_range" ref="ga535226f3b5611f646c690c39b9e8d253" args="(const key_type &amp;x) const " -->
+<a class="anchor" id="ga7d85487a916f1bd551e78438b9570c24"></a><!-- doxytag: member="bsl::multimap::equal_range" ref="ga7d85487a916f1bd551e78438b9570c24" args="(const key_type &amp;key) const " -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -1879,7 +1882,7 @@ template&lt;class KEY , class VALUE , class COMPARATOR  = std::less&lt;KEY&gt;, 
           <td class="memname"><a class="el" href="classbsl_1_1pair.html">bsl::pair</a>&lt;const_iterator,const_iterator&gt; <a class="el" href="classbsl_1_1multimap.html">bsl::multimap</a>&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;::equal_range </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="group__bslstl__multimap.html#gad7afc1729b7c01609e6d7544e87a4286">key_type</a> &amp;&nbsp;</td>
-          <td class="paramname"> <em>x</em></td>
+          <td class="paramname"> <em>key</em></td>
           <td>&nbsp;)&nbsp;</td>
           <td> const<code> [inherited]</code></td>
         </tr>
@@ -2115,12 +2118,10 @@ template&lt;class KEY , class VALUE , class COMPARATOR  = std::less&lt;KEY&gt;, 
 <div class="memdoc">
 <p>we would not have elected to make this data </p>
 
-<p>Referenced by <a class="el" href="group__bslstl__multimap.html#ga1c7c709746e806fc198d1223fdb877f8">bsl::multimap&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;::value_compare::operator()()</a>.</p>
-
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:29 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:23 for BDE Release 2.23.1 Open-Source by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

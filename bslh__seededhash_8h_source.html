@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bslh_seededhash.h                                                  -*-C++-*-
@@ -42,7 +42,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // call the &#39;hashAppend&#39; free function for &#39;TYPE&#39; and provide &#39;hashAppend&#39; an
 // instance of the &#39;HASH_ALGORITHM&#39; which has been constructed using the stored
 // seed.  Clients are expected to define a free-function &#39;hashAppend&#39; for each
-// of the types they wish to be hashable (see bslh_hash.h for details on
+// of the types they wish to be hashable (see &#39;bslh_hash.h&#39; for details on
 // &#39;hashAppend&#39;).  More information can be found in the package level
 // documentation for &#39;bslh&#39; (internal users can also find information here
 // {TEAM BDE:USING MODULAR HASHING&lt;GO&gt;})
@@ -60,9 +60,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // Users of this modular hashing system are free write their own hashing
 // algorithms.  In order to plug into &#39;bslh::SeededHash&#39;, the user-implemented
 // algorithms must meet the requirements for regular &#39;bslh&#39; hashing algorithms
-// defined in bslh_hash.h, with the exception that a default constructor is not
-// required.  The user-implemented algorithm must also implement the interface
-// shown here:
+// defined in &#39;bslh_hash.h&#39;, with the exception that a default constructor is
+// not required.  The user-implemented algorithm must also implement the
+// interface shown here:
 //..
 // class SomeHashAlgorithm
 // {
@@ -101,7 +101,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //:
 //: B The seed generator is copy constructible.
 //
-// Option A is prefered because it allows &#39;bslh::SeededHash&#39; to be defualt
+// Option A is preferred because it allows &#39;bslh::SeededHash&#39; to be default
 // constructible.  Option B is allowed, but means that &#39;bslh::SeededHash&#39; must
 // be passed an already-instantiated &#39;SEED_GENERATOR&#39; at construction.
 //

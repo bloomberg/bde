@@ -1,0 +1,2614 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.23.1 OSS</title>
+<html>
+<pre>
+// bdlc_packedintarray.h                                              -*-C++-*-
+#ifndef INCLUDED_BDLC_PACKEDINTARRAY
+#define INCLUDED_BDLC_PACKEDINTARRAY
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide an extensible, packed array of integral values.
+//
+//@CLASSES:
+//  bdlc::PackedIntArray: packed array of integral values
+//  bdlc::PackedIntArrayConstIterator: bidirectional &#39;const_iterator&#39;
+//
+//@DESCRIPTION: This component provides a space-efficient value-semantic array
+// class template, &#39;bdlc::PackedIntArray&#39;, and an associated iterator,
+// &#39;bdlc::PackedIntArrayConstIterator&#39;, that provides non-modifiable access to
+// its elements.  The interface of this class provides the user with
+// functionality similar to a &#39;bsl::vector&lt;int&gt;&#39;.  The implementation is
+// designed to reduce dynamic memory usage by storing its contents differently
+// according to the magnitude of values placed within it.  The user need not be
+// concerned with the internal representation of the data.  The array supports
+// primitive operations (e.g., insertion, look-up, removal) as well as a
+// complete set of value-semantic operations; however, direct reference to
+// individual elements is not available.  Users can access the value of
+// individual elements by calling the indexing operator or via iterators.  Note
+// that iterators are *not* invalidated if an array object reallocates memory.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: &#39;Temperature Map&#39;
+///- - - - - - - - - - - - - - - -
+// There exist many applications in which the range of &#39;int&#39; data that a
+// container will hold is not known at design time.  This means in order to
+// build a robust component one must default to &#39;bsl::vector&lt;int&gt;&#39;, which for
+// many applications is excessive in its usage of space.
+//
+// Suppose we are creating a map of temperatures for every city in the United
+// States for every day.  This represents a large body of data, most of which
+// is easily representable in a &#39;signed char&#39;, and in only rare situations is a
+// &#39;short&#39; required.
+//
+// To be able to represent all possible values for all areas and times,
+// including extremes like Death Valley, a traditional implementation would
+// require use of a &#39;vector&lt;short&gt;&#39; for each day for each area.  This is
+// excessive for all but the most extreme values, and therefore wasteful for
+// this map as a whole.
+//
+// We can use &#39;bdlc::PackedIntArray&#39; to efficiently store this data.
+//
+// First, we declare and define a &#39;my_Date&#39; class.  This class is very similar
+// to &#39;bdlt::Date&#39;, and therefore is elided for the sake of compactness.
+//..
+//                              // =======
+//                              // my_Date
+//                              // =======
+//  class my_Date {
+//      // A (value-semantic) attribute class that provides a very simple date.
+//      signed char d_day;    // the day
+//      signed char d_month;  // the month
+//      int         d_year;   // the year
+//
+//      // FRIENDS
+//      friend bool operator&lt;(const my_Date&amp;, const my_Date&amp;);
+//
+//    public:
+//      // CREATORS
+//      explicit my_Date(int         year  = 1,
+//                       signed char month = 1,
+//                       signed char day   = 1);
+//          // Create a &#39;my_Date&#39; object having the optionally specified &#39;day&#39;,
+//          // &#39;month&#39;, and &#39;year&#39;. Each, if unspecified, will default to 1.
+//  };
+//
+//  bool operator&lt;(const my_Date&amp; lhs, const my_Date&amp; rhs);
+//      // Return &#39;true&#39; if the specified &#39;lhs&#39; represents an earlier date than
+//      // the specified &#39;rhs&#39; object, and &#39;false&#39; otherwise.
+//
+//                          // -------
+//                          // my_Date
+//                          // -------
+//  // CREATORS
+//  inline
+//  my_Date::my_Date(int year, signed char month , signed char day)
+//  : d_day(day)
+//  , d_month(month)
+//  , d_year(year)
+//  {
+//  }
+//
+//  bool operator&lt;(const my_Date&amp; lhs, const my_Date&amp; rhs)
+//  {
+//      return 10000 * lhs.d_year + 100 * lhs.d_month + lhs.d_day &lt;
+//             10000 * rhs.d_year + 100 * rhs.d_month + rhs.d_day;
+//  }
+//..
+// Then, we create our TemperatureMap, which is a map of dates to a map of zip
+// codes to a &#39;PackedIntArray&#39; of temperatures.  Each &#39;PackedIntArray&#39; has
+// entries for each temperature from 12 A.M, to 11 P.M for each city in each
+// zip code.  Notice that we use a &#39;PackedIntArray&#39; to hold the data
+// compactly.
+//..
+//  bsl::map&lt;my_Date, bsl::map&lt;int, bdlc::PackedIntArray&lt;int&gt; &gt; &gt;
+//                                                              temperatureMap;
+//..
+// Next, we add data to the map (provided by the National Weather Service) for
+// a normal case, and the extreme.
+//..
+//  bdlc::PackedIntArray&lt;int&gt;&amp; nyc
+//                         = temperatureMap[my_Date(2013, 9, 06)][10023];
+//  bdlc::PackedIntArray&lt;int&gt;&amp; dValley
+//                         = temperatureMap[my_Date(1913, 7, 10)][92328];
+//
+//  int nycTemperatures[24]  = {60,  58, 57,  56, 55,  54,  54,  55,
+//                              56,  59, 61,  64, 66,  67,  69,  69,
+//                              70,  70, 68,  67, 65,  63,  61,  60};
+//
+//  int deathValleyTemps[24] = {65,  55, 50, 47,  62,  75,  77,  89,
+//                              91,  92, 95, 110, 113, 121, 134, 126,
+//                              113, 99, 96, 84,  79,  81,  73,  69};
+//..
+// Then, since the size of the data set is known at design time, as well as
+// extreme values for the areas, we can use the &#39;reserveCapacity()&#39; method to
+// give the container hints about the data to come.
+//..
+//  nyc.reserveCapacity(    24, 50, 108);
+//  dValley.reserveCapacity(24, 45, 134);
+//..
+// Now, we add the data to the respective containers.
+//..
+//  for (bsl::size_t i= 0; i &lt; 24; ++i) {
+//      nyc.append(nycTemperatures[i]);
+//      dValley.append(deathValleyTemps[i])
+//  }
+//..
+// Finally, notice that in order to represent these values in a
+// &#39;PackedIntArray&#39;, it required &#39;24 * sizeof(signed char)&#39; bytes (24 on most
+// systems) of dynamic memory for &#39;nyc&#39;, which represents the normal case for
+// this data.  A &#39;vector&lt;short&gt;&#39; would require &#39;24 * sizeof(short)&#39; bytes (48
+// on most systems) of dynamic memory to represent the same data.
+//..
+//  assert(static_cast&lt;int&gt;(sizeof(signed char)) == nyc.bytesPerElement());
+//  assert(                                   24 == nyc.length());
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include &lt;bslalg_swaputil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include &lt;bslma_usesbslmaallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_IF
+#include &lt;bslmf_if.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISSAME
+#include &lt;bslmf_issame.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PERFORMANCEHINT
+#include &lt;bsls_performancehint.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include &lt;bsls_types.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CSTDDEF
+#include &lt;bsl_cstddef.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CSTRING
+#include &lt;bsl_cstring.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_LIMITS
+#include &lt;bsl_limits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+#ifndef INCLUDED_STDINT
+#include &lt;stdint.h&gt;
+#define INCLUDED_STDINT
+#endif
+
+
+namespace BloombergLP {
+namespace bdlc {
+
+// FORWARD DECLARATIONS
+template &lt;class TYPE&gt; class PackedIntArray;
+
+template &lt;class TYPE&gt; class PackedIntArrayConstIterator;
+
+template &lt;class TYPE&gt; PackedIntArrayConstIterator&lt;TYPE&gt;
+                           operator++(PackedIntArrayConstIterator&lt;TYPE&gt;&amp;, int);
+
+template &lt;class TYPE&gt; PackedIntArrayConstIterator&lt;TYPE&gt;
+                           operator--(PackedIntArrayConstIterator&lt;TYPE&gt;&amp;, int);
+
+template &lt;class TYPE&gt;
+bool operator==(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp;,
+                const PackedIntArrayConstIterator&lt;TYPE&gt;&amp;);
+
+template &lt;class TYPE&gt;
+bool operator!=(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp;,
+                const PackedIntArrayConstIterator&lt;TYPE&gt;&amp;);
+
+template &lt;class TYPE&gt;
+bsl::ptrdiff_t operator-(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp;,
+                         const PackedIntArrayConstIterator&lt;TYPE&gt;&amp;);
+
+template &lt;class TYPE&gt;
+bool operator&lt;(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp;,
+               const PackedIntArrayConstIterator&lt;TYPE&gt;&amp;);
+
+template &lt;class TYPE&gt;
+bool operator&lt;=(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp;,
+                const PackedIntArrayConstIterator&lt;TYPE&gt;&amp;);
+
+template &lt;class TYPE&gt;
+bool operator&gt;(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp;,
+               const PackedIntArrayConstIterator&lt;TYPE&gt;&amp;);
+
+template &lt;class TYPE&gt;
+bool operator&gt;=(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp;,
+                const PackedIntArrayConstIterator&lt;TYPE&gt;&amp;);
+
+                      // ===============================
+                      // struct PackedIntArrayImp_Signed
+                      // ===============================
+
+struct PackedIntArrayImp_Signed {
+    // This &#39;struct&#39; provides a namespace for types and methods used to
+    // implement a space-efficient value-semantic array class representing a
+    // sequence of &#39;TYPE&#39; elements; &#39;TYPE&#39; must be convertable to either a
+    // &#39;int64_t&#39;.  Specifically, it defines the types used to store the array&#39;s
+    // data, methods needed to externalize and unexternalize the array, and a
+    // method to determine the storage size to use for a given value.
+
+    // PUBLIC TYPES
+    typedef  int8_t OneByteStorageType;
+    typedef int16_t TwoByteStorageType;
+    typedef int32_t FourByteStorageType;
+    typedef int64_t EightByteStorageType;
+
+    // CLASS METHODS
+    template &lt;class STREAM&gt;
+    static void bdexGet8(STREAM&amp; stream, int8_t&amp; variable);
+        // Read from the specified &#39;stream&#39; the specified &#39;variable&#39; as per the
+        // requirements of the BDEX protocol.
+
+    template &lt;class STREAM&gt;
+    static void bdexGet16(STREAM&amp; stream, int16_t&amp; variable);
+        // Read from the specified &#39;stream&#39; the specified &#39;variable&#39; as per the
+        // requirements of the BDEX protocol.
+
+    template &lt;class STREAM&gt;
+    static void bdexGet32(STREAM&amp; stream, int32_t&amp; variable);
+        // Read from the specified &#39;stream&#39; the specified &#39;variable&#39; as per the
+        // requirements of the BDEX protocol.
+
+    template &lt;class STREAM&gt;
+    static void bdexGet64(STREAM&amp; stream, int64_t&amp; variable);
+        // Read from the specified &#39;stream&#39; the specified &#39;variable&#39; as per the
+        // requirements of the BDEX protocol.
+
+    template &lt;class STREAM&gt;
+    static void bdexPut8(STREAM&amp; stream, int8_t value);
+        // Write to the specified &#39;stream&#39; the specified &#39;value&#39; as per the
+        // requirements of the BDEX protocol.
+
+    template &lt;class STREAM&gt;
+    static void bdexPut16(STREAM&amp; stream, int16_t value);
+        // Write to the specified &#39;stream&#39; the specified &#39;value&#39; as per the
+        // requirements of the BDEX protocol.
+
+    template &lt;class STREAM&gt;
+    static void bdexPut32(STREAM&amp; stream, int32_t value);
+        // Write to the specified &#39;stream&#39; the specified &#39;value&#39; as per the
+        // requirements of the BDEX protocol.
+
+    template &lt;class STREAM&gt;
+    static void bdexPut64(STREAM&amp; stream, int64_t value);
+        // Write to the specified &#39;stream&#39; the specified &#39;value&#39; as per the
+        // requirements of the BDEX protocol.
+
+    static int requiredBytesPerElement(EightByteStorageType value);
+        // Return the required number of bytes to store the specified &#39;value&#39;.
+};
+
+                     // =================================
+                     // struct PackedIntArrayImp_Unsigned
+                     // =================================
+
+struct PackedIntArrayImp_Unsigned {
+    // This &#39;struct&#39; provides a namespace for types and methods used to
+    // implement a space-efficient value-semantic array class representing a
+    // sequence of &#39;TYPE&#39; elements; &#39;TYPE&#39; must be convertable to either a
+    // &#39;uint64_t&#39;.  Specifically, it defines the types used to store the
+    // array&#39;s data, methods needed to externalize and unexternalize the array,
+    // and a method to determine the storage size to use for a given value.
+
+    // PUBLIC TYPES
+    typedef  uint8_t OneByteStorageType;
+    typedef uint16_t TwoByteStorageType;
+    typedef uint32_t FourByteStorageType;
+    typedef uint64_t EightByteStorageType;
+
+    // CLASS METHODS
+    template &lt;class STREAM&gt;
+    static void bdexGet8(STREAM&amp; stream, uint8_t&amp; variable);
+        // Read from the specified &#39;stream&#39; the specified &#39;variable&#39; as per the
+        // requirements of the BDEX protocol.
+
+    template &lt;class STREAM&gt;
+    static void bdexGet16(STREAM&amp; stream, uint16_t&amp; variable);
+        // Read from the specified &#39;stream&#39; the specified &#39;variable&#39; as per the
+        // requirements of the BDEX protocol.
+
+    template &lt;class STREAM&gt;
+    static void bdexGet32(STREAM&amp; stream, uint32_t&amp; variable);
+        // Read from the specified &#39;stream&#39; the specified &#39;variable&#39; as per the
+        // requirements of the BDEX protocol.
+
+    template &lt;class STREAM&gt;
+    static void bdexGet64(STREAM&amp; stream, uint64_t&amp; variable);
+        // Read from the specified &#39;stream&#39; the specified &#39;variable&#39; as per the
+        // requirements of the BDEX protocol.
+
+    template &lt;class STREAM&gt;
+    static void bdexPut8(STREAM&amp; stream, uint8_t value);
+        // Write to the specified &#39;stream&#39; the specified &#39;value&#39; as per the
+        // requirements of the BDEX protocol.
+
+    template &lt;class STREAM&gt;
+    static void bdexPut16(STREAM&amp; stream, uint16_t value);
+        // Write to the specified &#39;stream&#39; the specified &#39;value&#39; as per the
+        // requirements of the BDEX protocol.
+
+    template &lt;class STREAM&gt;
+    static void bdexPut32(STREAM&amp; stream, uint32_t value);
+        // Write to the specified &#39;stream&#39; the specified &#39;value&#39; as per the
+        // requirements of the BDEX protocol.
+
+    template &lt;class STREAM&gt;
+    static void bdexPut64(STREAM&amp; stream, uint64_t value);
+        // Write to the specified &#39;stream&#39; the specified &#39;value&#39; as per the
+        // requirements of the BDEX protocol.
+
+    static int requiredBytesPerElement(EightByteStorageType value);
+        // Return the required number of bytes to store the specified &#39;value&#39;.
+};
+
+                          // =======================
+                          // class PackedIntArrayImp
+                          // =======================
+
+template &lt;class STORAGE&gt;
+class PackedIntArrayImp {
+    // This space-efficient value-semantic array class represents a sequence of
+    // &#39;STORAGE::EightByteStorageType&#39; elements;
+    // &#39;STORAGE::EightByteStorageType&#39; must be convertable to either a signed
+    // or unsigned 64-bit integer using &#39;static_cast&#39;.  The interface provides
+    // functionality similar to a &#39;vector&lt;int&gt;&#39; however references to
+    // individual elements are not provided.
+
+  public:
+    // PUBLIC TYPES
+    typedef typename STORAGE::EightByteStorageType ElementType;
+
+    // CLASS DATA
+    static const bsl::size_t k_MAX_CAPACITY = 0x7fffffff;  // maximum capacity
+                                                           // in bytes
+
+  private:
+    // DATA
+    void             *d_storage_p;        // allocated memory
+
+    bsl::size_t       d_length;           // length of the array
+
+    int               d_bytesPerElement;  // number of bytes used to store each
+                                          // element
+
+    bsl::size_t       d_capacityInBytes;  // capacity of the array
+
+    bslma::Allocator *d_allocator_p;      // allocator used for all memory
+
+    // PRIVATE CLASS METHODS
+    static bsl::size_t nextCapacityGE(bsl::size_t minValue, bsl::size_t value);
+        // Return the next valid number of bytes of capacity that is at least
+        // the specified &#39;minValue&#39;, starting from the specified &#39;value&#39;.
+
+    // PRIVATE MANIPULATORS
+    void expandImp(int         requiredBytesPerElement,
+                   bsl::size_t requiredCapacityInBytes);
+        // Make the capacity of this array at least the specified
+        // &#39;requiredCapacityInBytes&#39; and increase the bytes used to store an
+        // element to the specified &#39;requiredBytesPerElement&#39;.  The behavior is
+        // undefined unless &#39;requiredBytesPerElement &gt; bytesPerElement()&#39;.
+
+    void replaceImp(bsl::size_t dstIndex, ElementType value);
+        // Change the value of the element at the specified &#39;dstIndex&#39; in this
+        // array to the specified &#39;value&#39;.  The behavior is undefined unless
+        // &#39;dstIndex &lt; length()&#39; and the required bytes to store the &#39;value&#39; is
+        // less than or equal to &#39;bytesPerElement()&#39;.
+
+    void replaceImp(void        *dst,
+                    bsl::size_t  dstIndex,
+                    int          dstBytesPerElement,
+                    void        *src,
+                    bsl::size_t  srcIndex,
+                    int          srcBytesPerElement,
+                    bsl::size_t  numElements);
+        // Change the values of the specified &#39;numElements&#39; elements in the
+        // specified &#39;dst&#39; array beginning at the specified &#39;dstIndex&#39; with the
+        // specified &#39;dstBytesPerElement&#39; to those of the &#39;numElements&#39; values
+        // in the specified &#39;src&#39; array beginning at the specified &#39;srcIndex&#39;
+        // with the specified &#39;srcBytesPerElement&#39;.  The behavior is undefined
+        // unless the source array has sufficient values,
+        // &#39;dstIndex + numElements &lt;= length()&#39;,
+        // &#39;srcBytesPerElement != dstBytesPerElement&#39;, and either the memory
+        // ranges do not overlap or: &#39;dst == src&#39; and &#39;dstIndex &gt;= srcIndex&#39;
+        // and &#39;dstBytesPerElement &gt; srcBytesPerElement&#39;.
+
+    // PRIVATE ACCESSORS
+    char *address() const;
+        // Return the address of the storage as a &#39;char *&#39;.
+
+    bool isEqualImp(const PackedIntArrayImp&amp; other) const;
+        // Return &#39;true&#39; if this and the specified &#39;other&#39; array have the same
+        // value, and &#39;false&#39; otherwise.  Two &#39;PackedIntArrayImp&#39; arrays have
+        // the same value if they have the same length, and all corresponding
+        // elements (those at the same indices) have the same value.  The
+        // behavior is undefined unless &#39;length() == other.length()&#39; and
+        // &#39;bytesPerElement() != other.bytesPerElement()&#39;.
+
+    int requiredBytesPerElement(bsl::size_t index,
+                                bsl::size_t numElements) const;
+        // Return the required number of bytes to store the specified
+        // &#39;numValues&#39; values of this array starting at the specified &#39;index&#39;.
+        // The behavior is undefined unless &#39;index + numElements &lt;= length()&#39;.
+
+  public:
+    // CLASS METHODS
+    static int maxSupportedBdexVersion(int serializationVersion);
+        // Return the &#39;version&#39; to be used with the &#39;bdexStreamOut&#39; method
+        // corresponding to the specified &#39;serializationVersion&#39;.  See the
+        // &#39;bslx&#39; package-level documentation for more information on BDEX
+        // streaming of value-semantic types and containers.
+
+    // CREATORS
+    explicit PackedIntArrayImp(bslma::Allocator *basicAllocator = 0);
+        // Create an empty &#39;PackedIntArrayImp&#39;.  Optionally specify a
+        // &#39;basicAllocator&#39; used to supply memory.  If &#39;basicAllocator&#39; is 0,
+        // the currently installed default allocator is used.
+
+    explicit PackedIntArrayImp(bsl::size_t       numElements,
+                               ElementType       value = 0,
+                               bslma::Allocator *basicAllocator = 0);
+        // Create a &#39;PackedIntArrayImp&#39; having the specified &#39;numElements&#39;.
+        // Optionally specify a &#39;value&#39; to which each element will be set.  If
+        // value is not specified, 0 is used.  Optionally specify a
+        // &#39;basicAllocator&#39; used to supply memory.  If &#39;basicAllocator&#39; is 0,
+        // the currently installed default allocator is used.
+
+    PackedIntArrayImp(const PackedIntArrayImp&amp;  original,
+                      bslma::Allocator         *basicAllocator = 0);
+        // Create a &#39;PackedIntArrayImp&#39; having the same value as the specified
+        // &#39;original&#39; one.  Optionally specify a &#39;basicAllocator&#39; used to
+        // supply memory.  If &#39;basicAllocator&#39; is 0, the currently installed
+        // default allocator is used.
+
+    ~PackedIntArrayImp();
+        // Destroy this object
+
+    // MANIPULATORS
+    PackedIntArrayImp&amp; operator=(const PackedIntArrayImp&amp; rhs);
+        // Assign to this array the value of the specified &#39;rhs&#39; array, and
+        // return a reference providing modifiable access to this array.
+
+    void append(ElementType value);
+        // Append an element having the specified &#39;value&#39; to the end of this
+        // array.
+
+    void append(const PackedIntArrayImp&amp; srcArray);
+        // Append the sequence of values represented by the specified
+        // &#39;srcArray&#39; to the end of this array.  Note that if this array and
+        // &#39;srcArray&#39; are the same, the behavior is as if a copy of &#39;srcArray&#39;
+        // were passed.
+
+    void append(const PackedIntArrayImp&amp; srcArray,
+                bsl::size_t              srcIndex,
+                bsl::size_t              numElements);
+        // Append the sequence of values of the specified &#39;numElements&#39;
+        // starting at the specified &#39;srcIndex&#39; in the specified &#39;srcArray&#39; to
+        // the end of this array.  The behavior is undefined unless
+        // &#39;srcIndex + numElements &lt;= srcArray.length()&#39;.  Note that if this
+        // array and &#39;srcArray&#39; are the same, the behavior is as if a copy of
+        // &#39;srcArray&#39; were passed.
+
+    template &lt;class STREAM&gt;
+    STREAM&amp; bdexStreamIn(STREAM&amp; stream, int version);
+        // Assign to this object the value read from the specified input
+        // &#39;stream&#39; using the specified &#39;version&#39; format, and return a
+        // reference to &#39;stream&#39;.  If &#39;stream&#39; is initially invalid, this
+        // operation has no effect.  If &#39;version&#39; is not supported, this object
+        // is unaltered and &#39;stream&#39; is invalidated but otherwise unmodified.
+        // If &#39;version&#39; is supported but &#39;stream&#39; becomes invalid during this
+        // operation, this object has an undefined, but valid, state.  Note
+        // that no version is read from &#39;stream&#39;.  See the &#39;bslx&#39; package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
+
+    void insert(bsl::size_t dstIndex, ElementType value);
+        // Insert into this array, at the specified &#39;dstIndex&#39;, an element of
+        // specified &#39;value&#39;, shifting any elements originally at or above
+        // &#39;dstIndex&#39; up by one.  The behavior is undefined unless
+        // &#39;dstIndex &lt;= length()&#39;.
+
+    void insert(bsl::size_t dstIndex, const PackedIntArrayImp&amp; srcArray);
+        // Insert into this array, at the specified &#39;dstIndex&#39;, the sequence of
+        // values represented by the specified &#39;srcArray&#39;, shifting any
+        // elements originally at or above &#39;dstIndex&#39; up by &#39;srcArray.length()&#39;
+        // indices higher.  The behavior is undefined unless
+        // &#39;dstIndex &lt;= length()&#39;.  Note that if this array and &#39;srcArray&#39; are
+        // the same, the behavior is as if a copy of &#39;srcArray&#39; were passed.
+
+    void insert(bsl::size_t              dstIndex,
+                const PackedIntArrayImp&amp; srcArray,
+                bsl::size_t              srcIndex,
+                bsl::size_t              numElements);
+        // Insert into this array, at the specified &#39;dstIndex&#39;, the specified
+        // &#39;numElements&#39; values in the specified &#39;srcArray&#39; starting at the
+        // specified &#39;srcIndex&#39;.  Elements greater than or equal to &#39;dstIndex&#39;
+        // are shifted up &#39;numElements&#39; positions.  The behavior is undefined
+        // unless &#39;dstIndex &lt;= length()&#39; and
+        // &#39;srcIndex + numElements &lt;= srcArray.length()&#39;.  Note that if this
+        // array and &#39;srcArray&#39; are the same, the behavior is as if a copy of
+        // &#39;srcArray&#39; were passed.
+
+    void pop_back();
+        // Remove the last element from this array.  The behavior is undefined
+        // unless &#39;0 &lt; length()&#39; .
+
+    void push_back(ElementType value);
+        // Append an element having the specified &#39;value&#39; to the end of this
+        // array.
+
+    void remove(bsl::size_t dstIndex);
+        // Remove from this array the element at the specified &#39;dstIndex&#39;.
+        // Each element having an index greater than &#39;dstIndex&#39; before the
+        // removal is shifted down by one index position.  The behavior is
+        // undefined unless &#39;dstIndex &lt; length()&#39; .
+
+    void remove(bsl::size_t dstIndex, bsl::size_t numElements);
+        // Remove from this array, starting at the specified &#39;dstIndex&#39;, the
+        // specified &#39;numElements&#39;.  Shift the elements of this array that are
+        // at &#39;dstIndex + numElements&#39; or above to &#39;numElements&#39; indices lower.
+        // The behavior is undefined unless
+        // &#39;dstIndex + numElements &lt;= length()&#39;.
+
+    void removeAll();
+        // Remove all the elements from this array and set the storage required
+        // per element to one byte.
+
+    void replace(bsl::size_t dstIndex, ElementType value);
+        // Change the value of the element at the specified &#39;dstIndex&#39; in this
+        // array to the specified &#39;value&#39;.  The behavior is undefined unless
+        // &#39;dstIndex &lt; length()&#39;.
+
+    void replace(bsl::size_t              dstIndex,
+                 const PackedIntArrayImp&amp; srcArray,
+                 bsl::size_t              srcIndex,
+                 bsl::size_t              numElements);
+        // Change the values of the specified &#39;numElements&#39; elements in this
+        // array beginning at the specified &#39;dstIndex&#39; to those of the
+        // &#39;numElements&#39; values in the specified &#39;srcArray&#39; beginning at the
+        // specified &#39;srcIndex&#39;.  The behavior is undefined unless
+        // &#39;srcIndex + numElements &lt;= srcArray.length()&#39; and
+        // &#39;dstIndex + numElements &lt;= length()&#39;.  Note that if this array and
+        // &#39;srcArray&#39; are the same, the behavior is as if a copy of &#39;srcArray&#39;
+        // were passed.
+
+    void reserveCapacityImp(bsl::size_t requiredCapacityInBytes);
+        // Make the capacity of this array at least the specified
+        // &#39;requiredCapacityInBytes&#39;.  This method has no effect if the
+        // current capacity meets or exceeds the required capacity.
+
+    void reserveCapacity(bsl::size_t numElements);
+        // Make the capacity of this array at least the specified
+        // &#39;numElements&#39; assuming the current &#39;bytesPerElement()&#39;.  This
+        // method has no effect if the current capacity meets or exceeds the
+        // required capacity.
+
+    void reserveCapacity(bsl::size_t numElements, ElementType maxValue);
+        // Make the capacity of this array at least the specified
+        // &#39;numElements&#39;.  The specified &#39;maxValue&#39; denotes the maximum element
+        // value that will be subsequently added to this array.  After this
+        // call &#39;numElements&#39; having values in the range &#39;[0, maxValue]&#39; are
+        // guaranteed to not cause a reallocation.  This method has no effect
+        // if the current capacity meets or exceeds the required capacity.
+        // The behavior is undefined unless &#39;0 &lt;= maxValue&#39;.
+
+    void reserveCapacity(bsl::size_t numElements,
+                         ElementType minValue,
+                         ElementType maxValue);
+        // Make the capacity of this array at least the specified
+        // &#39;numElements&#39;.  The specified &#39;minValue&#39; and &#39;maxValue&#39; denote,
+        // respectively, the minimum and maximum elements values that will be
+        // subsequently added to this array.  After this call &#39;numElements&#39;
+        // having values in the range &#39;[minValue, maxValue]&#39; are guaranteed to
+        // not cause a reallocation.  This method has no effect if the current
+        // capacity meets or exceeds the required capacity.  The behavior is
+        // undefined unless &#39;minValue &lt;= maxValue&#39;.
+
+    void resize(bsl::size_t numElements);
+        // Set the length of this array to the specified &#39;numElements&#39;.  If
+        // &#39;numElements &gt; length()&#39;, the added elements are initialized to 0.
+
+    void swap(PackedIntArrayImp&amp; other);
+        // Efficiently exchange the value of this array with the value of the
+        // specified &#39;other&#39; array.  This method provides the no-throw
+        // exception-safety guarantee.  The behavior is undefined unless this
+        // array was created with the same allocator as &#39;other&#39;.
+
+    // ACCESSORS
+    ElementType operator[](bsl::size_t index) const;
+        // Return the value of the element at the specified &#39;index&#39;.  The
+        // behavior is undefined unless &#39;index &lt; length()&#39;.
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this array to supply memory.
+
+    template &lt;class STREAM&gt;
+    STREAM&amp; bdexStreamOut(STREAM&amp; stream, int version) const;
+        // Write this value to the specified output &#39;stream&#39; using the
+        // specified &#39;version&#39; format, and return a reference to &#39;stream&#39;.  If
+        // &#39;stream&#39; is initially invalid, this operation has no effect.  If
+        // &#39;version&#39; is not supported, &#39;stream&#39; is invalidated but otherwise
+        // unmodified.  Note that &#39;version&#39; is not written to &#39;stream&#39;.  See
+        // the &#39;bslx&#39; package-level documentation for more information on BDEX
+        // streaming of value-semantic types and containers.
+
+    int bytesPerElement() const;
+        // Return the number of bytes currently used to store each element in
+        // this array.
+
+    bsl::size_t capacity() const;
+        // Return the number of elements this array can hold in terms of the
+        // current data type used to store its elements.
+
+    bool isEmpty() const;
+        // Return &#39;true&#39; if there are no elements in this array, and &#39;false&#39;
+        // otherwise.
+
+    bool isEqual(const PackedIntArrayImp&amp; other) const;
+        // Return &#39;true&#39; if this and the specified &#39;other&#39; array have the same
+        // value, and &#39;false&#39; otherwise.  Two &#39;PackedIntArrayImp&#39; arrays have
+        // the same value if they have the same length, and all corresponding
+        // elements (those at the same indices) have the same value.
+
+    bsl::size_t length() const;
+        // Return number of elements in this array.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the value of this array to the specified output &#39;stream&#39; in a
+        // human-readable format, and return a reference to &#39;stream&#39;.
+        // Optionally specify an initial indentation &#39;level&#39;, whose absolute
+        // value is incremented recursively for nested arrays.  If &#39;level&#39; is
+        // specified, optionally specify &#39;spacesPerLevel&#39;, whose absolute value
+        // indicates the number of spaces per indentation level for this and
+        // all of its nested arrays.  If &#39;level&#39; is negative, format the entire
+        // output on one line, suppressing all but the initial indentation (as
+        // governed by &#39;level&#39;).  If &#39;stream&#39; is not valid on entry, this
+        // operation has no effect.  Note that the format is not fully
+        // specified, and can change without notice.
+};
+
+
+                       // ============================
+                       // struct PackedIntArrayImpType
+                       // ============================
+
+template &lt;class TYPE&gt;
+struct PackedIntArrayImpType {
+    // This meta-function selects
+    // &#39;PackedIntArrayImp&lt;PackedIntArrayImp_Unsigned&gt;&#39; if &#39;TYPE&#39; should be
+    // stored as an unsigned integer, and
+    // &#39;PackedIntArrayImp&lt;PackedIntArrayImp_Signed&gt;&#39; otherwise.
+
+    typedef typename bslmf::If&lt;   bsl::is_same&lt;TYPE, unsigned char&gt;::value
+                               || bsl::is_same&lt;TYPE, unsigned short&gt;::value
+                               || bsl::is_same&lt;TYPE, unsigned int&gt;::value
+                               || bsl::is_same&lt;TYPE, unsigned long int&gt;::value
+                               || bsl::is_same&lt;TYPE,
+                                               bsls::Types::Uint64&gt;::value
+                               || bsl::is_same&lt;TYPE, uint8_t&gt;::value
+                               || bsl::is_same&lt;TYPE, uint16_t&gt;::value
+                               || bsl::is_same&lt;TYPE, uint32_t&gt;::value
+                               || bsl::is_same&lt;TYPE, uint64_t&gt;::value,
+                               PackedIntArrayImp&lt;PackedIntArrayImp_Unsigned&gt;,
+                               PackedIntArrayImp&lt;PackedIntArrayImp_Signed&gt; &gt;
+                                                                ::Type Type;
+};
+
+                       // =================================
+                       // class PackedIntArrayConstIterator
+                       // =================================
+
+template &lt;class TYPE&gt;
+class PackedIntArrayConstIterator {
+    // This unconstrained (value-semantic) class represents a random access
+    // iterator providing non-modifiable access to the elements of a
+    // &#39;PackedIntArray&#39;.  This class provides all functionality of a random
+    // access iterator, as defined by the standard, but is *not* compatible
+    // with most standard methods requiring a bidirectional const_iterator.
+    //
+    // This class does not perform any bounds checking.  The returned iterator,
+    // &#39;it&#39;, referencing an element within a &#39;PackedIntArray&#39;, &#39;array&#39;, remains
+    // valid while &#39;0 &lt;= it - array.begin() &lt; array.length()&#39;.
+
+    // PRIVATE TYPES
+    typedef typename PackedIntArrayImpType&lt;TYPE&gt;::Type ImpType;
+
+    // DATA
+    const ImpType *d_array_p; // A pointer to the &#39;PackedIntArrayImp&#39; into
+                              // which this iterator references.
+
+    bsl::size_t    d_index;   // The index of the referenced value within the
+                              // array.
+
+    // FRIENDS
+    friend class PackedIntArray&lt;TYPE&gt;;
+
+    friend PackedIntArrayConstIterator
+                               operator++&lt;&gt;(PackedIntArrayConstIterator&amp;, int);
+
+    friend PackedIntArrayConstIterator
+                               operator--&lt;&gt;(PackedIntArrayConstIterator&amp;, int);
+
+    friend bool operator==&lt;&gt;(const PackedIntArrayConstIterator&amp;,
+                             const PackedIntArrayConstIterator&amp;);
+
+    friend bool operator!=&lt;&gt;(const PackedIntArrayConstIterator&amp;,
+                             const PackedIntArrayConstIterator&amp;);
+
+    friend bsl::ptrdiff_t operator-&lt;&gt;(const PackedIntArrayConstIterator&amp;,
+                                      const PackedIntArrayConstIterator&amp;);
+
+    friend bool operator&lt; &lt;&gt;(const PackedIntArrayConstIterator&amp;,
+                             const PackedIntArrayConstIterator&amp;);
+
+    friend bool operator&lt;=&lt;&gt;(const PackedIntArrayConstIterator&amp;,
+                             const PackedIntArrayConstIterator&amp;);
+
+    friend bool operator&gt;&lt;&gt;(const PackedIntArrayConstIterator&amp;,
+                            const PackedIntArrayConstIterator&amp;);
+
+    friend bool operator&gt;=&lt;&gt;(const PackedIntArrayConstIterator&amp;,
+                             const PackedIntArrayConstIterator&amp;);
+
+  public:
+    // PUBLIC TYPES
+
+    // The following typedefs define the traits for this iterator to make it
+    // compatible with standard functions.
+
+    typedef bsl::ptrdiff_t                   difference_type;   // The type
+                                                                // used for the
+                                                                // distance
+                                                                // between two
+                                                                // iterators.
+
+    typedef bsl::size_t                      size_type;         // The type
+                                                                // used for any
+                                                                // function
+                                                                // requiring a
+                                                                // length (i.e,
+                                                                // index).
+
+    typedef TYPE                             value_type;        // The type for
+                                                                // all returns
+                                                                // of element
+                                                                // values.
+
+    typedef void *                           pointer;           // The type of
+                                                                // an arbitrary
+                                                                // pointer into
+                                                                // the array.
+
+    typedef TYPE&amp;                            reference;         // The type for
+                                                                // all returns
+                                                                // of element
+                                                                // references.
+
+  private:
+    // PRIVATE CREATORS
+    PackedIntArrayConstIterator(const ImpType *array, bsl::size_t index);
+        // Create a &#39;PackedIntArrayConstIterator&#39; object with a pointer to the
+        // specified &#39;array&#39; and the specified &#39;index&#39;.  The behavior is
+        // undefined unless &#39;index &lt;= array-&gt;length()&#39;.
+
+  public:
+    // CREATORS
+    PackedIntArrayConstIterator();
+        // Create a default &#39;PackedIntArrayConstIterator&#39;.  Note that the use
+        // of most methods - as indicated in their documentation - upon this
+        // iterator will result in undefined behavior.
+
+    PackedIntArrayConstIterator(const PackedIntArrayConstIterator&amp; original);
+        // Create a &#39;PackedIntArrayConstIterator&#39; having the same value as the
+        // specified &#39;original&#39; one.
+
+    //! ~PackedIntArrayConstIterator() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    PackedIntArrayConstIterator&amp;
+                             operator=(const PackedIntArrayConstIterator&amp; rhs);
+        // Assign to this iterator the value of the specified &#39;rhs&#39; iterator,
+        // and return a reference providing modifiable access to this iterator.
+
+    PackedIntArrayConstIterator&amp; operator++();
+        // Advance this iterator to refer to the next element in the referenced
+        // array and return a reference to this iterator *after* the
+        // advancement.  The returned iterator, &#39;it&#39;, referencing an element
+        // within a &#39;PackedIntArray&#39;, &#39;array&#39;, remains valid as long as
+        // &#39;0 &lt;= it - array.begin() &lt;= array.length()&#39;.  The behavior is
+        // undefined unless, on entry,
+        // &#39;PackedIntArrayConstInterator() != *this&#39; and
+        // &#39;*this - array.begin() &lt; array.length()&#39;.
+
+    PackedIntArrayConstIterator&amp; operator--();
+        // Decrement this iterator to refer to the previous element in the
+        // referenced array and return a reference to this iterator *after* the
+        // decrementation.  The returned iterator, &#39;it&#39;, referencing an element
+        // within a &#39;PackedIntArray&#39;, &#39;array&#39;, remains valid as long as
+        // &#39;0 &lt;= it - array.begin() &lt;= array.length()&#39;.  The behavior is
+        // undefined unless, on entry, &#39;0 &lt; *this - array.begin()&#39;.
+
+    PackedIntArrayConstIterator&amp; operator+=(bsl::ptrdiff_t offset);
+        // Advance this iterator by the specified &#39;offset&#39; from the element
+        // referenced to this iterator.  The returned iterator, &#39;it&#39;,
+        // referencing an element within a &#39;PackedIntArray&#39;, &#39;array&#39;, remains
+        // valid as long as &#39;0 &lt;= it - array.begin() &lt;= array.length()&#39;.  The
+        // behavior is undefined unless
+        // &#39;PackedIntArrayConstInterator() != *this&#39; and
+        // &#39;0 &lt;= *this - array.begin() + offset &lt;= array.length()&#39;.
+
+    PackedIntArrayConstIterator&amp; operator-=(bsl::ptrdiff_t offset);
+        // Decrement this iterator by the specified &#39;offset&#39; from the element
+        // referenced to this iterator.  The returned iterator, &#39;it&#39;,
+        // referencing an element within a &#39;PackedIntArray&#39;, &#39;array&#39;, remains
+        // valid as long as &#39;0 &lt;= it - array.begin() &lt;= array.length()&#39;.  The
+        // behavior is undefined unless
+        // &#39;PackedIntArrayConstInterator() != *this&#39; and
+        // &#39;0 &lt;= *this - array.begin() - offset &lt;= array.length()&#39;.
+
+    // ACCESSORS
+    TYPE operator*() const;
+        // Return the element value referenced by this iterator.  The behavior
+        // is undefined unless for this iterator, referencing an element within
+        // a &#39;PackedIntArray&#39; &#39;array&#39;,
+        // &#39;PackedIntArrayConstInterator() != *this&#39; and
+        // &#39;*this - array.begin() &lt; array.length()&#39;.
+
+    TYPE operator-&gt;() const;
+        // Return the element value referenced by this iterator.  The behavior
+        // is undefined unless for this iterator, referencing an element within
+        // a &#39;PackedIntArray&#39; &#39;array&#39;,
+        // &#39;PackedIntArrayConstInterator() != *this&#39; and
+        // &#39;*this - array.begin() &lt; array.length()&#39;.
+
+    TYPE operator[](bsl::ptrdiff_t offset) const;
+        // Return the element that is the specified &#39;offset&#39; from the element
+        // reference by this array.  The behavior is undefined unless for this
+        // iterator, referencing an element within a &#39;PackedIntArray&#39; &#39;array&#39;,
+        // &#39;PackedIntArrayConstInterator() != *this&#39; and
+        // &#39;0 &lt;= *this - array.begin() + offset &lt; array.length()&#39;.
+
+    PackedIntArrayConstIterator operator+(bsl::ptrdiff_t offset) const;
+        // Return an iterator referencing the location at the specified
+        // &#39;offset&#39; from the element referenced by this iterator.  The returned
+        // iterator, &#39;it&#39;, referencing an element within a &#39;PackedIntArray&#39;,
+        // &#39;array&#39;, remains valid as long as
+        // &#39;0 &lt;= it - array.begin() &lt;= array.length()&#39;.  The behavior is
+        // undefined unless
+        // &#39;0 &lt;= *this - array.begin() + offset &lt;= array.length()&#39;.
+
+    PackedIntArrayConstIterator operator-(bsl::ptrdiff_t offset) const;
+        // Return an iterator referencing the location at the specified
+        // &#39;offset&#39; from the element referenced by this iterator.  The returned
+        // iterator, &#39;it&#39;, referencing an element within a &#39;PackedIntArray&#39;,
+        // &#39;array&#39;, remains valid as long as
+        // &#39;0 &lt;= it - array.begin() &lt;= array.length()&#39;.  The behavior is
+        // undefined unless &#39;PackedIntArrayConstInterator() != *this&#39; and
+        // &#39;0 &lt;= *this - array.begin() - offset &lt;= array.length()&#39;.
+};
+
+// FREE FUNCTIONS
+template &lt;class TYPE&gt;
+PackedIntArrayConstIterator&lt;TYPE&gt;
+                      operator++(PackedIntArrayConstIterator&lt;TYPE&gt;&amp; iter, int);
+    // Advance the specified iterator &#39;iter&#39; to refer to the next element in
+    // the referenced array, and return an iterator referring to the original
+    // element (*before* the advancement).  The returned iterator, &#39;it&#39;,
+    // referencing an element within a &#39;PackedIntArray&#39;, &#39;array&#39;, remains valid
+    // as long as &#39;0 &lt;= it - array.begin() &lt;= array.length()&#39;.  The behavior is
+    // undefined unless, on entry, &#39;PackedIntArrayConstInterator() != iter&#39; and
+    // &#39;iter - array.begin() &lt; array.length()&#39;.
+
+template &lt;class TYPE&gt;
+PackedIntArrayConstIterator&lt;TYPE&gt;
+                      operator--(PackedIntArrayConstIterator&lt;TYPE&gt;&amp; iter, int);
+    // Decrement the specified iterator &#39;iter&#39; to refer to the previous element
+    // in the referenced array, and return an iterator referring to the
+    // original element (*before* the decrementation).  The returned iterator,
+    // &#39;it&#39;, referencing an element within a &#39;PackedIntArray&#39;, &#39;array&#39;, remains
+    // valid as long as &#39;0 &lt;= it - array.begin() &lt;= array.length()&#39;.  The
+    // behavior is undefined unless, on entry,
+    // &#39;PackedIntArrayConstInterator() != iter&#39; and &#39;0 &lt; iter - array.begin()&#39;.
+
+template &lt;class TYPE&gt;
+bool operator==(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; lhs,
+                const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; iterators have the same
+    // value, and &#39;false&#39; otherwise.  Two &#39;PackedIntArrayConstIterator&#39;
+    // iterators have the same value if they refer to the same array, and have
+    // the same index.
+
+template &lt;class TYPE&gt;
+bool operator!=(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; lhs,
+                const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; iterators do not have the
+    // same value and &#39;false&#39; otherwise.  Two &#39;PackedIntArrayConstIterator&#39;
+    // iterators do not have the same value if they do not refer to the same
+    // array, or do not have the same index.
+
+template &lt;class TYPE&gt;
+bsl::ptrdiff_t operator-(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; lhs,
+                         const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; rhs);
+    // Return the number of elements between specified &#39;lhs&#39; and &#39;rhs&#39;.  The
+    // behavior is undefined unless &#39;lhs&#39; and &#39;rhs&#39; reference the same array.
+
+template &lt;class TYPE&gt;
+bool operator&lt;(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; lhs,
+               const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; has a value less than the specified
+    // &#39;rhs&#39;, &#39;false&#39; otherwise.  An iterator has a value less than another if
+    // its index is less the other&#39;s index.  The behavior is undefined unless
+    // &#39;lhs&#39; and &#39;rhs&#39; refer to the same array.
+
+template &lt;class TYPE&gt;
+bool operator&lt;=(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; lhs,
+                const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; has a value less than or equal to
+    // the specified &#39;rhs, &#39;false&#39; otherwise.  An iterator has a value less
+    // than or equal to another if its index is less or equal the other&#39;s
+    // index.  The behavior is undefined unless &#39;lhs&#39; and &#39;rhs&#39; refer to the
+    // same array.
+
+template &lt;class TYPE&gt;
+bool operator&gt;(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; lhs,
+               const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; has a value greater than the
+    // specified &#39;rhs&#39;, &#39;false&#39; otherwise.  An iterator has a value greater
+    // than another if its index is greater the other&#39;s index.  The behavior is
+    // undefined unless &#39;lhs&#39; and &#39;rhs&#39; refer to the same array.
+
+template &lt;class TYPE&gt;
+bool operator&gt;=(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; lhs,
+                const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; has a value greater or equal than
+    // the specified &#39;rhs&#39;, &#39;false&#39; otherwise.  An iterator has a value greater
+    // than or equal to another if its index is greater the other&#39;s index.  The
+    // behavior is undefined unless &#39;lhs&#39; and &#39;rhs&#39; refer to the same array.
+
+                            // ====================
+                            // class PackedIntArray
+                            // ====================
+
+template &lt;class TYPE&gt;
+class PackedIntArray {
+    // This space-efficient value-semantic array class represents a sequence of
+    // &#39;TYPE&#39; elements; &#39;TYPE&#39; must be convertable to either a signed or
+    // unsigned 64-bit integer using &#39;static_cast&#39;.  The interface provides
+    // functionality similar to a &#39;vector&lt;int&gt;&#39; however references to
+    // individual elements are not provided.  This class provides accessors
+    // that return iterators that provide non-modifiable access to its
+    // elements.  The returned iterators, unlike those returned by a
+    // &#39;vector&lt;int&gt;&#39; are *not* invalidated upon reallocation.
+
+    // PRIVATE TYPES
+    typedef typename PackedIntArrayImpType&lt;TYPE&gt;::Type ImpType;
+
+    // PRIVATE CLASS DATA
+    static const bsl::size_t k_MAX_BYTES_PER_ELEMENT = 8;
+
+    // DATA
+    ImpType d_imp;  // Implementation of either a signed or unsigned 64-bit
+                    // integer packed array.
+
+  public:
+    // PUBLIC TYPES
+    typedef TYPE value_type;  // The type for all returns of element values.
+
+    typedef PackedIntArrayConstIterator&lt;TYPE&gt; const_iterator;
+
+    // CLASS METHODS
+    static int maxSupportedBdexVersion(int serializationVersion);
+        // Return the &#39;version&#39; to be used with the &#39;bdexStreamOut&#39; method
+        // corresponding to the specified &#39;serializationVersion&#39;.  See the
+        // &#39;bslx&#39; package-level documentation for more information on BDEX
+        // streaming of value-semantic types and containers.
+
+    // CREATORS
+    explicit PackedIntArray(bslma::Allocator *basicAllocator = 0);
+        // Create an empty &#39;PackedIntArray&#39;.  Optionally specify a
+        // &#39;basicAllocator&#39; used to supply memory.  If &#39;basicAllocator&#39; is 0,
+        // the currently installed default allocator is used.
+
+    explicit PackedIntArray(bsl::size_t       numElements,
+                            TYPE              value = 0,
+                            bslma::Allocator *basicAllocator = 0);
+        // Create a &#39;PackedIntArray&#39; having the specified &#39;numElements&#39;.
+        // Optionally specify a &#39;value&#39; to which each element will be set.  If
+        // value is not specified, 0 is used.  Optionally specify a
+        // &#39;basicAllocator&#39; used to supply memory.  If &#39;basicAllocator&#39; is 0,
+        // the currently installed default allocator is used.
+
+    PackedIntArray(const PackedIntArray&amp;  original,
+                   bslma::Allocator      *basicAllocator = 0);
+        // Create a &#39;PackedIntArray&#39; having the same value as the specified
+        // &#39;original&#39; one.  Optionally specify a &#39;basicAllocator&#39; used to
+        // supply memory.  If &#39;basicAllocator&#39; is 0, the currently installed
+        // default allocator is used.
+
+    ~PackedIntArray();
+        // Destroy this object
+
+    // MANIPULATORS
+    PackedIntArray&amp; operator=(const PackedIntArray&amp; rhs);
+        // Assign to this array the value of the specified &#39;rhs&#39; array, and
+        // return a reference providing modifiable access to this array.
+
+    void append(TYPE value);
+        // Append an element having the specified &#39;value&#39; to the end of this
+        // array.
+
+    void append(const PackedIntArray&amp; srcArray);
+        // Append the sequence of values represented by the specified
+        // &#39;srcArray&#39; to the end of this array.  Note that if this array and
+        // &#39;srcArray&#39; are the same, the behavior is as if a copy of &#39;srcArray&#39;
+        // were passed.
+
+    void append(const PackedIntArray&amp; srcArray,
+                bsl::size_t           srcIndex,
+                bsl::size_t           numElements);
+        // Append the sequence of values of the specified &#39;numElements&#39;
+        // starting at the specified &#39;srcIndex&#39; in the specified &#39;srcArray&#39; to
+        // the end of this array.  The behavior is undefined unless
+        // &#39;srcIndex + numElements &lt;= srcArray.length()&#39;.  Note that if this
+        // array and &#39;srcArray&#39; are the same, the behavior is as if a copy of
+        // &#39;srcArray&#39; were passed.
+
+    template &lt;class STREAM&gt;
+    STREAM&amp; bdexStreamIn(STREAM&amp; stream, int version);
+        // Assign to this object the value read from the specified input
+        // &#39;stream&#39; using the specified &#39;version&#39; format, and return a
+        // reference to &#39;stream&#39;.  If &#39;stream&#39; is initially invalid, this
+        // operation has no effect.  If &#39;version&#39; is not supported, this object
+        // is unaltered and &#39;stream&#39; is invalidated but otherwise unmodified.
+        // If &#39;version&#39; is supported but &#39;stream&#39; becomes invalid during this
+        // operation, this object has an undefined, but valid, state.  Note
+        // that no version is read from &#39;stream&#39;.  See the &#39;bslx&#39; package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
+
+    void insert(bsl::size_t dstIndex, TYPE value);
+        // Insert into this array, at the specified &#39;dstIndex&#39;, an element
+        // having the specified &#39;value&#39;, shifting any elements originally at
+        // or above &#39;dstIndex&#39; up by one.  The behavior is undefined unless
+        // &#39;dstIndex &lt;= length()&#39;.
+
+    const_iterator insert(const_iterator dst, TYPE value);
+        // Insert into this array, at the specified &#39;dst&#39;, an element having
+        // the specified &#39;value&#39;, shifting any elements originally at or above
+        // &#39;dst&#39; up by one.  Return an iterator to the newly inserted element.
+
+    void insert(bsl::size_t dstIndex, const PackedIntArray&amp; srcArray);
+        // Insert into this array, at the specified &#39;dstIndex&#39;, the sequence of
+        // values represented by the specified &#39;srcArray&#39;, shifting any
+        // elements originally at or above &#39;dstIndex&#39; up by &#39;srcArray.length()&#39;
+        // indices higher.  The behavior is undefined unless
+        // &#39;dstIndex &lt;= length()&#39;.  Note that if this array and &#39;srcArray&#39; are
+        // the same, the behavior is as if a copy of &#39;srcArray&#39; were passed.
+
+    void insert(bsl::size_t           dstIndex,
+                const PackedIntArray&amp; srcArray,
+                bsl::size_t           srcIndex,
+                bsl::size_t           numElements);
+        // Insert into this array, at the specified &#39;dstIndex&#39;, the specified
+        // &#39;numElements&#39; values in the specified &#39;srcArray&#39; starting at the
+        // specified &#39;srcIndex&#39;.  Elements greater than or equal to &#39;dstIndex&#39;
+        // are shifted up &#39;numElements&#39; positions.  The behavior is undefined
+        // unless &#39;dstIndex &lt;= length()&#39; and
+        // &#39;srcIndex + numElements &lt;= srcArray.length()&#39;.  Note that if this
+        // array and &#39;srcArray&#39; are the same, the behavior is as if a copy of
+        // &#39;srcArray&#39; were passed.
+
+    void pop_back();
+        // Remove the last element from this array.  The behavior is undefined
+        // unless &#39;0 &lt; length()&#39; .
+
+    void push_back(TYPE value);
+        // Append an element having the specified &#39;value&#39; to the end of this
+        // array.
+
+    void remove(bsl::size_t dstIndex);
+        // Remove from this array the element at the specified &#39;dstIndex&#39;.
+        // Each element having an index greater than &#39;dstIndex&#39; before the
+        // removal is shifted down by one index position.  The behavior is
+        // undefined unless &#39;dstIndex &lt; length()&#39; .
+
+    void remove(bsl::size_t dstIndex, bsl::size_t numElements);
+        // Remove from this array, starting at the specified &#39;dstIndex&#39;, the
+        // specified &#39;numElements&#39;, shifting the elements of this array that
+        // are at &#39;dstIndex + numElements&#39; or above to &#39;numElements&#39; indices
+        // lower.  The behavior is undefined unless
+        // &#39;dstIndex + numElements &lt;= length()&#39;.
+
+    const_iterator remove(const_iterator dstFirst, const_iterator dstLast);
+        // Remove from this array the elements starting from the specified
+        // &#39;dstFirst&#39; up to, but not including, the specified &#39;dstLast&#39;,
+        // shifting the elements of this array that are at or above &#39;dstLast&#39;
+        // to &#39;dstLast - dstFirst&#39; indices lower.  Return an iterator to the
+        // new position of the element that was referred to by &#39;dstLast&#39; or
+        // &#39;end()&#39; if &#39;dstLast == end()&#39;.  The behavior is undefined unless
+        // &#39;dstFirst &lt;= dstLast&#39;.
+
+    void removeAll();
+        // Remove all the elements from this array and set the storage required
+        // per element to one byte.
+
+    void replace(bsl::size_t dstIndex, TYPE value);
+        // Change the value of the element at the specified &#39;dstIndex&#39; in this
+        // array to the specified &#39;value&#39;.  The behavior is undefined unless
+        // &#39;dstIndex &lt; length()&#39;.
+
+    void replace(bsl::size_t           dstIndex,
+                 const PackedIntArray&amp; srcArray,
+                 bsl::size_t           srcIndex,
+                 bsl::size_t           numElements);
+        // Change the values of the specified &#39;numElements&#39; elements in this
+        // array beginning at the specified &#39;dstIndex&#39; to those of the
+        // &#39;numElements&#39; values in the specified &#39;srcArray&#39; beginning at the
+        // specified &#39;srcIndex&#39;.  The behavior is undefined unless
+        // &#39;srcIndex + numElements &lt;= srcArray.length()&#39; and
+        // &#39;dstIndex + numElements &lt;= length()&#39;.  Note that if this array and
+        // &#39;srcArray&#39; are the same, the behavior is as if a copy of &#39;srcArray&#39;
+        // were passed.
+
+    void reserveCapacity(bsl::size_t numElements);
+        // Make the capacity of this array at least the specified
+        // &#39;numElements&#39;.  This method has no effect if the current capacity
+        // meets or exceeds the required capacity.
+
+    void reserveCapacity(bsl::size_t numElements, TYPE maxValue);
+        // Make the capacity of this array at least the specified
+        // &#39;numElements&#39;.  The specified &#39;maxValue&#39; denotes the maximum element
+        // value that will be subsequently added to this array.  After this
+        // call &#39;numElements&#39; having values in the range &#39;[0, maxValue]&#39; are
+        // guaranteed to not cause a reallocation.  This method has no effect
+        // if the current capacity meets or exceeds the required capacity.
+        // The behavior is undefined unless &#39;0 &lt;= maxValue&#39;.
+
+    void reserveCapacity(bsl::size_t numElements,
+                         TYPE        minValue,
+                         TYPE        maxValue);
+        // Make the capacity of this array at least the specified
+        // &#39;numElements&#39;.  The specified &#39;minValue&#39; and &#39;maxValue&#39; denote,
+        // respectively, the minimum and maximum elements values that will be
+        // subsequently added to this array.  After this call &#39;numElements&#39;
+        // having values in the range &#39;[minValue, maxValue]&#39; are guaranteed to
+        // not cause a reallocation.  This method has no effect if the current
+        // capacity meets or exceeds the required capacity.  The behavior is
+        // undefined unless &#39;minValue &lt;= maxValue&#39;.
+
+    void resize(bsl::size_t numElements);
+        // Set the length of this array to the specified &#39;numElements&#39;.  If
+        // &#39;numElements &gt; length()&#39;, the added elements are initialized to 0.
+
+    void swap(PackedIntArray&amp; other);
+        // Efficiently exchange the value of this array with the value of the
+        // specified &#39;other&#39; array.  This method provides the no-throw
+        // exception-safety guarantee.  The behavior is undefined unless this
+        // array was created with the same allocator as &#39;other&#39;.
+
+    // ACCESSORS
+    TYPE operator[](bsl::size_t index) const;
+        // Return the value of the element at the specified &#39;index&#39;.  The
+        // behavior is undefined unless &#39;index &lt; length()&#39;.
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this array to supply memory.
+
+    TYPE back() const;
+        // Return the value of the element at the back of this array.  The
+        // behavior is undefined unless &#39;0 &lt; length()&#39;.  Note that this
+        // function is logically equivalent to:
+        //..
+        //    operator[](length() - 1)
+        //..
+
+    template &lt;class STREAM&gt;
+    STREAM&amp; bdexStreamOut(STREAM&amp; stream, int version) const;
+        // Write this value to the specified output &#39;stream&#39; using the
+        // specified &#39;version&#39; format, and return a reference to &#39;stream&#39;.  If
+        // &#39;stream&#39; is initially invalid, this operation has no effect.  If
+        // &#39;version&#39; is not supported, &#39;stream&#39; is invalidated but otherwise
+        // unmodified.  Note that &#39;version&#39; is not written to &#39;stream&#39;.  See
+        // the &#39;bslx&#39; package-level documentation for more information on BDEX
+        // streaming of value-semantic types and containers.
+
+    const_iterator begin() const;
+        // Return an iterator referring to the first element in this array (or
+        // the past-the-end iterator if this array is empty).  This reference
+        // remains valid as long as this array exists.
+
+    int bytesPerElement() const;
+        // Return the number of bytes currently used to store each element in
+        // this array.
+
+    bsl::size_t capacity() const;
+        // Return the number of elements this array can hold in terms of the
+        // current data type used to store its elements.
+
+    const_iterator end() const;
+        // Return an iterator referring to one element beyond the last element
+        // in this array.  This reference remains valid as long as this array
+        // exists, and length does not decrease.
+
+    TYPE front() const;
+        // Return the value of the element at the front of this array.  The
+        // behavior is undefined unless &#39;0 &lt; length()&#39;.  Note that this
+        // function is logically equivalent to:
+        //..
+        //    operator[](0)
+        //..
+
+    bool isEmpty() const;
+        // Return &#39;true&#39; if there are no elements in this array, and &#39;false&#39;
+        // otherwise.
+
+    bool isEqual(const PackedIntArray&amp; other) const;
+        // Return &#39;true&#39; if this and the specified &#39;other&#39; array have the same
+        // value, and &#39;false&#39; otherwise.  Two &#39;PackedIntArray&#39; arrays have the
+        // same value if they have the same length, and all corresponding
+        // elements (those at the same indices) have the same value.
+
+    bsl::size_t length() const;
+        // Return number of elements in this array.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the value of this array to the specified output &#39;stream&#39; in a
+        // human-readable format, and return a reference to &#39;stream&#39;.
+        // Optionally specify an initial indentation &#39;level&#39;, whose absolute
+        // value is incremented recursively for nested arrays.  If &#39;level&#39; is
+        // specified, optionally specify &#39;spacesPerLevel&#39;, whose absolute value
+        // indicates the number of spaces per indentation level for this and
+        // all of its nested arrays.  If &#39;level&#39; is negative, format the entire
+        // output on one line, suppressing all but the initial indentation (as
+        // governed by &#39;level&#39;).  If &#39;stream&#39; is not valid on entry, this
+        // operation has no effect.  Note that the format is not fully
+        // specified, and can change without notice.
+};
+
+// FREE OPERATORS
+template &lt;class TYPE&gt;
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;               stream,
+                         const PackedIntArray&lt;TYPE&gt;&amp; array);
+    // Write the value of the specified &#39;array&#39; to the specified output
+    // &#39;stream&#39; in a single-line format, and return a reference providing
+    // modifiable access to &#39;stream&#39;.  If &#39;stream&#39; is not valid on entry, this
+    // operation has no effect.  Note that this human-readable format is not
+    // fully specified and can change without notice.
+
+template &lt;class TYPE&gt;
+bool operator==(const PackedIntArray&lt;TYPE&gt;&amp; lhs,
+                const PackedIntArray&lt;TYPE&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; arrays have the same
+    // value, and &#39;false&#39; otherwise.  Two &#39;PackedIntArray&#39; arrays have the same
+    // value if they have the same length, and all corresponding elements
+    // (those at the same indices) have the same value.
+
+template &lt;class TYPE&gt;
+bool operator!=(const PackedIntArray&lt;TYPE&gt;&amp; lhs,
+                const PackedIntArray&lt;TYPE&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; arrays do not have the
+    // same value, and &#39;false&#39; otherwise.  Two &#39;PackedIntArray&#39; arrays do not
+    // have the same value if they do not have the same length, or if any
+    // corresponding elements (those at the same indices) do not have the same
+    // value.
+
+// FREE FUNCTIONS
+template &lt;class TYPE&gt;
+void swap(PackedIntArray&lt;TYPE&gt;&amp; a, PackedIntArray&lt;TYPE&gt;&amp; b);
+    // Efficiently exchange the values of the specified &#39;a&#39; and &#39;b&#39; arrays.
+    // This method provides the no-throw exception-safety guarantee.  This
+    // method invalidates previously-obtained iterators and references.  The
+    // behavior is undefined unless both arrays were created with the same
+    // allocator.
+
+// ============================================================================
+//                           INLINE DEFINITIONS
+// ============================================================================
+
+                      // -------------------------------
+                      // struct PackedIntArrayImp_Signed
+                      // -------------------------------
+
+template &lt;class STREAM&gt;
+void PackedIntArrayImp_Signed::bdexGet8(STREAM&amp; stream, int8_t&amp; variable)
+{
+    char v;
+    stream.getInt8(v);
+    variable = static_cast&lt;int8_t&gt;(v);
+}
+
+template &lt;class STREAM&gt;
+void PackedIntArrayImp_Signed::bdexGet16(STREAM&amp; stream, int16_t&amp; variable)
+{
+    short v;
+    stream.getInt16(v);
+    variable = static_cast&lt;int16_t&gt;(v);
+}
+
+template &lt;class STREAM&gt;
+void PackedIntArrayImp_Signed::bdexGet32(STREAM&amp; stream, int32_t&amp; variable)
+{
+    int v;
+    stream.getInt32(v);
+    variable = static_cast&lt;int32_t&gt;(v);
+}
+
+template &lt;class STREAM&gt;
+void PackedIntArrayImp_Signed::bdexGet64(STREAM&amp; stream, int64_t&amp; variable)
+{
+    bsls::Types::Int64 v;
+    stream.getInt64(v);
+    variable = static_cast&lt;int64_t&gt;(v);
+}
+
+template &lt;class STREAM&gt;
+void PackedIntArrayImp_Signed::bdexPut8(STREAM&amp; stream, int8_t value)
+{
+    stream.putInt8(static_cast&lt;int&gt;(value));
+}
+
+template &lt;class STREAM&gt;
+void PackedIntArrayImp_Signed::bdexPut16(STREAM&amp; stream, int16_t value)
+{
+    stream.putInt16(static_cast&lt;int&gt;(value));
+}
+
+template &lt;class STREAM&gt;
+void PackedIntArrayImp_Signed::bdexPut32(STREAM&amp; stream, int32_t value)
+{
+    stream.putInt32(static_cast&lt;int&gt;(value));
+}
+
+template &lt;class STREAM&gt;
+void PackedIntArrayImp_Signed::bdexPut64(STREAM&amp; stream, int64_t value)
+{
+    stream.putInt64(static_cast&lt;bsls::Types::Int64&gt;(value));
+}
+
+                     // ---------------------------------
+                     // struct PackedIntArrayImp_Unsigned
+                     // ---------------------------------
+
+template &lt;class STREAM&gt;
+void PackedIntArrayImp_Unsigned::bdexGet8(STREAM&amp; stream, uint8_t&amp; variable)
+{
+    unsigned char v;
+    stream.getUint8(v);
+    variable = static_cast&lt;uint8_t&gt;(v);
+}
+
+template &lt;class STREAM&gt;
+void PackedIntArrayImp_Unsigned::bdexGet16(STREAM&amp; stream, uint16_t&amp; variable)
+{
+    unsigned short v;
+    stream.getUint16(v);
+    variable = static_cast&lt;uint16_t&gt;(v);
+}
+
+template &lt;class STREAM&gt;
+void PackedIntArrayImp_Unsigned::bdexGet32(STREAM&amp; stream, uint32_t&amp; variable)
+{
+    unsigned int v;
+    stream.getUint32(v);
+    variable = static_cast&lt;uint32_t&gt;(v);
+}
+
+template &lt;class STREAM&gt;
+void PackedIntArrayImp_Unsigned::bdexGet64(STREAM&amp; stream, uint64_t&amp; variable)
+{
+    bsls::Types::Uint64 v;
+    stream.getUint64(v);
+    variable = static_cast&lt;uint64_t&gt;(v);
+}
+
+template &lt;class STREAM&gt;
+void PackedIntArrayImp_Unsigned::bdexPut8(STREAM&amp; stream, uint8_t value)
+{
+    stream.putUint8(static_cast&lt;unsigned int&gt;(value));
+}
+
+template &lt;class STREAM&gt;
+void PackedIntArrayImp_Unsigned::bdexPut16(STREAM&amp; stream, uint16_t value)
+{
+    stream.putUint16(static_cast&lt;unsigned int&gt;(value));
+}
+
+template &lt;class STREAM&gt;
+void PackedIntArrayImp_Unsigned::bdexPut32(STREAM&amp; stream, uint32_t value)
+{
+    stream.putUint32(static_cast&lt;unsigned int&gt;(value));
+}
+
+template &lt;class STREAM&gt;
+void PackedIntArrayImp_Unsigned::bdexPut64(STREAM&amp; stream, uint64_t value)
+{
+    stream.putUint64(static_cast&lt;bsls::Types::Uint64&gt;(value));
+}
+
+                         // ------------------------
+                         // struct PackedIntArrayImp
+                         // ------------------------
+
+// PRIVATE CLASS METHODS
+template &lt;class STORAGE&gt;
+inline
+bsl::size_t PackedIntArrayImp&lt;STORAGE&gt;::nextCapacityGE(bsl::size_t minValue,
+                                                       bsl::size_t value)
+{
+    BSLS_ASSERT_SAFE(minValue &lt;= k_MAX_CAPACITY);
+
+    static const bsl::size_t k_TOP_CAPACITY = k_MAX_CAPACITY / 3 * 2 - 3;
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(minValue &gt;= k_TOP_CAPACITY)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return minValue;                                              // RETURN
+    }
+
+    while (value &lt; minValue) {
+        value += (value + 3) / 2;
+    }
+
+    return value;
+}
+
+// PRIVATE ACCESSORS
+template &lt;class STORAGE&gt;
+inline
+char *PackedIntArrayImp&lt;STORAGE&gt;::address() const
+{
+    return static_cast&lt;char *&gt;(d_storage_p);
+}
+
+// CLASS METHODS
+template &lt;class STORAGE&gt;
+inline
+int PackedIntArrayImp&lt;STORAGE&gt;::maxSupportedBdexVersion(int)
+{
+    return 1;
+}
+
+// MANIPULATORS
+template &lt;class STORAGE&gt;
+inline
+void PackedIntArrayImp&lt;STORAGE&gt;::
+                             append(const PackedIntArrayImp&lt;STORAGE&gt;&amp; srcArray)
+{
+    append(srcArray, 0, srcArray.d_length);
+}
+
+template &lt;class STORAGE&gt;
+template &lt;class STREAM&gt;
+inline
+STREAM&amp; PackedIntArrayImp&lt;STORAGE&gt;::bdexStreamIn(STREAM&amp; stream, int version)
+{
+    if (stream) {
+        switch (version) { // switch on the schema version
+          case 1: {
+            int tmpBytesPerElement;
+            {
+                char v;
+                stream.getInt8(v);
+                tmpBytesPerElement = static_cast&lt;int&gt;(v);
+            }
+            if (   1 != tmpBytesPerElement
+                &amp;&amp; 2 != tmpBytesPerElement
+                &amp;&amp; 4 != tmpBytesPerElement
+                &amp;&amp; 8 != tmpBytesPerElement) {
+                stream.invalidate();
+            }
+            else {
+                bsl::size_t tmpLength;
+                {
+                    int v;
+                    stream.getLength(v);
+                    tmpLength = static_cast&lt;bsl::size_t&gt;(v);
+                }
+                if (stream) {
+                    bsl::size_t numBytes = tmpBytesPerElement * tmpLength;
+                    if (numBytes &gt; d_capacityInBytes) {
+                        // Compute next capacity level.
+
+                        bsl::size_t requiredCapacityInBytes =
+                                   nextCapacityGE(numBytes, d_capacityInBytes);
+
+                        // Allocate new memory.
+                        void *dst =
+                              d_allocator_p-&gt;allocate(requiredCapacityInBytes);
+
+                        // Deallocate original memory.
+
+                        d_allocator_p-&gt;deallocate(d_storage_p);
+
+                        // Update storage and capacity.
+
+                        d_storage_p = dst;
+                        d_capacityInBytes = requiredCapacityInBytes;
+                    }
+
+                    // Update bytes per element and length.
+
+                    d_bytesPerElement = tmpBytesPerElement;
+                    d_length = tmpLength;
+
+                    // Populate the data from the stream.
+
+                    switch (d_bytesPerElement) {
+                      case 1: {
+                        typename STORAGE::OneByteStorageType *s =
+                            static_cast&lt;typename STORAGE::OneByteStorageType *&gt;
+                                                                 (d_storage_p);
+                        for (bsl::size_t i = 0; i &lt; d_length; ++i) {
+                            STORAGE::bdexGet8(stream, s[i]);
+                        }
+                      } break;
+                      case 2: {
+                        typename STORAGE::TwoByteStorageType *s =
+                            static_cast&lt;typename STORAGE::TwoByteStorageType *&gt;
+                                                                 (d_storage_p);
+                        for (bsl::size_t i = 0; i &lt; d_length; ++i) {
+                            STORAGE::bdexGet16(stream, s[i]);
+                        }
+                      } break;
+                      case 4: {
+                        typename STORAGE::FourByteStorageType *s =
+                           static_cast&lt;typename STORAGE::FourByteStorageType *&gt;
+                                                                 (d_storage_p);
+                        for (bsl::size_t i = 0; i &lt; d_length; ++i) {
+                            STORAGE::bdexGet32(stream, s[i]);
+                        }
+                      } break;
+                      case 8: {
+                        typename STORAGE::EightByteStorageType *s =
+                          static_cast&lt;typename STORAGE::EightByteStorageType *&gt;
+                                                                 (d_storage_p);
+                        for (bsl::size_t i = 0; i &lt; d_length; ++i) {
+                            STORAGE::bdexGet64(stream, s[i]);
+                        }
+                      } break;
+                    }
+                }
+            }
+          } break;
+          default: {
+            stream.invalidate();  // unrecognized version number
+          }
+        }
+    }
+    return stream;
+}
+
+template &lt;class STORAGE&gt;
+inline
+void PackedIntArrayImp&lt;STORAGE&gt;::insert(
+                                    bsl::size_t                       dstIndex,
+                                    const PackedIntArrayImp&lt;STORAGE&gt;&amp; srcArray)
+{
+    BSLS_ASSERT_SAFE(dstIndex &lt;= d_length);
+
+    insert(dstIndex, srcArray, 0, srcArray.length());
+}
+
+template &lt;class STORAGE&gt;
+inline
+void PackedIntArrayImp&lt;STORAGE&gt;::pop_back()
+{
+    BSLS_ASSERT_SAFE(0 &lt; d_length);
+
+    --d_length;
+}
+
+template &lt;class STORAGE&gt;
+inline
+void PackedIntArrayImp&lt;STORAGE&gt;::push_back(ElementType value)
+{
+    append(value);
+}
+
+template &lt;class STORAGE&gt;
+inline
+void PackedIntArrayImp&lt;STORAGE&gt;::remove(bsl::size_t dstIndex)
+{
+    BSLS_ASSERT_SAFE(dstIndex &lt; d_length);
+
+    remove(dstIndex, 1);
+}
+
+template &lt;class STORAGE&gt;
+inline
+void PackedIntArrayImp&lt;STORAGE&gt;::remove(bsl::size_t dstIndex,
+                                        bsl::size_t numElements)
+{
+    // Assert &#39;dstIndex + numElements &lt;= d_length&#39; without risk of overflow.
+    BSLS_ASSERT_SAFE(numElements &lt;= d_length);
+    BSLS_ASSERT_SAFE(dstIndex    &lt;= d_length - numElements);
+
+    d_length -= numElements;
+
+    bsl::memmove(address() + dstIndex * d_bytesPerElement,
+                 address() + (dstIndex + numElements) * d_bytesPerElement,
+                 (d_length - dstIndex) * d_bytesPerElement);
+}
+
+template &lt;class STORAGE&gt;
+inline
+void PackedIntArrayImp&lt;STORAGE&gt;::removeAll()
+{
+    d_length = 0;
+    d_bytesPerElement = 1;
+}
+
+template &lt;class STORAGE&gt;
+inline
+void PackedIntArrayImp&lt;STORAGE&gt;::reserveCapacity(bsl::size_t numElements)
+{
+    // Test for potential overflow.
+    BSLS_ASSERT_SAFE(k_MAX_CAPACITY / d_bytesPerElement &gt;= numElements);
+
+    size_t requiredCapacityInBytes = d_bytesPerElement * numElements;
+    if (requiredCapacityInBytes &gt; d_capacityInBytes) {
+        reserveCapacityImp(requiredCapacityInBytes);
+    }
+}
+
+template &lt;class STORAGE&gt;
+inline
+void PackedIntArrayImp&lt;STORAGE&gt;::reserveCapacity(bsl::size_t numElements,
+                                                 ElementType maxValue)
+{
+    BSLS_ASSERT_SAFE(0 &lt;= maxValue);
+
+    int requiredBytesPerElement = d_bytesPerElement;
+
+    int rbpe = STORAGE::requiredBytesPerElement(maxValue);
+    if (rbpe &gt; requiredBytesPerElement) {
+        requiredBytesPerElement = rbpe;
+    }
+
+    // Test for potential overflow.
+    BSLS_ASSERT_SAFE(k_MAX_CAPACITY / requiredBytesPerElement &gt;= numElements);
+
+    size_t requiredCapacityInBytes = requiredBytesPerElement * numElements;
+
+    if (requiredCapacityInBytes &gt; d_capacityInBytes) {
+        reserveCapacityImp(requiredCapacityInBytes);
+    }
+}
+
+template &lt;&gt;
+inline
+void PackedIntArrayImp&lt;PackedIntArrayImp_Unsigned&gt;::
+                                       reserveCapacity(bsl::size_t numElements,
+                                                       ElementType maxValue)
+{
+    int requiredBytesPerElement = d_bytesPerElement;
+
+    int rbpe = PackedIntArrayImp_Unsigned::requiredBytesPerElement(maxValue);
+    if (rbpe &gt; requiredBytesPerElement) {
+        requiredBytesPerElement = rbpe;
+    }
+
+    // Test for potential overflow.
+    BSLS_ASSERT_SAFE(k_MAX_CAPACITY / requiredBytesPerElement &gt;= numElements);
+
+    size_t requiredCapacityInBytes = requiredBytesPerElement * numElements;
+
+    if (requiredCapacityInBytes &gt; d_capacityInBytes) {
+        reserveCapacityImp(requiredCapacityInBytes);
+    }
+}
+
+template &lt;class STORAGE&gt;
+inline
+void PackedIntArrayImp&lt;STORAGE&gt;::reserveCapacity(bsl::size_t numElements,
+                                                 ElementType minValue,
+                                                 ElementType maxValue)
+{
+    BSLS_ASSERT_SAFE(minValue &lt;= maxValue);
+
+    int requiredBytesPerElement = d_bytesPerElement;
+
+    int rbpe = STORAGE::requiredBytesPerElement(maxValue);
+    if (rbpe &gt; requiredBytesPerElement) {
+        requiredBytesPerElement = rbpe;
+    }
+
+    rbpe = STORAGE::requiredBytesPerElement(minValue);
+    if (rbpe &gt; requiredBytesPerElement) {
+        requiredBytesPerElement = rbpe;
+    }
+
+    // Test for potential overflow.
+    BSLS_ASSERT_SAFE(k_MAX_CAPACITY / requiredBytesPerElement &gt;= numElements);
+
+    size_t requiredCapacityInBytes = requiredBytesPerElement * numElements;
+
+    if (requiredCapacityInBytes &gt; d_capacityInBytes) {
+        reserveCapacityImp(requiredCapacityInBytes);
+    }
+}
+
+template &lt;class STORAGE&gt;
+inline
+void PackedIntArrayImp&lt;STORAGE&gt;::resize(bsl::size_t numElements)
+{
+    if (numElements &gt; d_length) {
+        reserveCapacity(numElements);
+        bsl::memset(address() + d_length * d_bytesPerElement,
+                    0,
+                    (numElements - d_length) * d_bytesPerElement);
+    }
+    d_length = numElements;
+}
+
+template &lt;class STORAGE&gt;
+inline
+void PackedIntArrayImp&lt;STORAGE&gt;::swap(PackedIntArrayImp&lt;STORAGE&gt;&amp; other)
+{
+    BSLS_ASSERT_SAFE(d_allocator_p == other.d_allocator_p);
+
+    bslalg::SwapUtil::swap(&amp;d_storage_p,        &amp;other.d_storage_p);
+    bslalg::SwapUtil::swap(&amp;d_length,           &amp;other.d_length);
+    bslalg::SwapUtil::swap(&amp;d_bytesPerElement,  &amp;other.d_bytesPerElement);
+    bslalg::SwapUtil::swap(&amp;d_capacityInBytes,  &amp;other.d_capacityInBytes);
+}
+
+// ACCESSORS
+template &lt;class STORAGE&gt;
+inline
+bslma::Allocator *PackedIntArrayImp&lt;STORAGE&gt;::allocator() const
+{
+    return d_allocator_p;
+}
+
+template &lt;class STORAGE&gt;
+template &lt;class STREAM&gt;
+inline
+STREAM&amp; PackedIntArrayImp&lt;STORAGE&gt;::bdexStreamOut(STREAM&amp; stream,
+                                                  int     version) const
+{
+    if (stream) {
+        switch (version) {
+          case 1: {
+            stream.putInt8(d_bytesPerElement);
+            stream.putLength(static_cast&lt;int&gt;(d_length));
+            switch (d_bytesPerElement) {
+              case 1: {
+                typename STORAGE::OneByteStorageType *s =
+                            static_cast&lt;typename STORAGE::OneByteStorageType *&gt;
+                                                                 (d_storage_p);
+                for (bsl::size_t i = 0; i &lt; d_length; ++i) {
+                    STORAGE::bdexPut8(stream, s[i]);
+                }
+              } break;
+              case 2: {
+                typename STORAGE::TwoByteStorageType *s =
+                            static_cast&lt;typename STORAGE::TwoByteStorageType *&gt;
+                                                                 (d_storage_p);
+                for (bsl::size_t i = 0; i &lt; d_length; ++i) {
+                    STORAGE::bdexPut16(stream, s[i]);
+                }
+              } break;
+              case 4: {
+                typename STORAGE::FourByteStorageType *s =
+                           static_cast&lt;typename STORAGE::FourByteStorageType *&gt;
+                                                                 (d_storage_p);
+                for (bsl::size_t i = 0; i &lt; d_length; ++i) {
+                    STORAGE::bdexPut32(stream, s[i]);
+                }
+              } break;
+              case 8: {
+                typename STORAGE::EightByteStorageType *s =
+                          static_cast&lt;typename STORAGE::EightByteStorageType *&gt;
+                                                                 (d_storage_p);
+                for (bsl::size_t i = 0; i &lt; d_length; ++i) {
+                    STORAGE::bdexPut64(stream, s[i]);
+                }
+              } break;
+            }
+          } break;
+          default: {
+            stream.invalidate();  // unrecognized version number
+          }
+        }
+    }
+    return stream;
+}
+
+template &lt;class STORAGE&gt;
+inline
+int PackedIntArrayImp&lt;STORAGE&gt;::bytesPerElement() const {
+    return d_bytesPerElement;
+}
+
+template &lt;class STORAGE&gt;
+inline
+bsl::size_t PackedIntArrayImp&lt;STORAGE&gt;::capacity() const {
+    return d_capacityInBytes / d_bytesPerElement;
+}
+
+template &lt;class STORAGE&gt;
+inline
+bool PackedIntArrayImp&lt;STORAGE&gt;::isEmpty() const {
+    return 0 == d_length;
+}
+
+template &lt;class STORAGE&gt;
+inline
+bool PackedIntArrayImp&lt;STORAGE&gt;::isEqual(
+                                 const PackedIntArrayImp&lt;STORAGE&gt;&amp; other) const
+{
+    if (d_length == other.d_length) {
+        if (d_bytesPerElement == other.d_bytesPerElement) {
+            return 0 == bsl::memcmp(d_storage_p,
+                                    other.d_storage_p,
+                                    d_length * d_bytesPerElement);    // RETURN
+        }
+        else {
+            return isEqualImp(other);                                 // RETURN
+        }
+    }
+    return false;
+}
+
+template &lt;class STORAGE&gt;
+inline
+bsl::size_t PackedIntArrayImp&lt;STORAGE&gt;::length() const {
+    return d_length;
+}
+
+                    // ---------------------------------
+                    // class PackedIntArrayConstIterator
+                    // ---------------------------------
+
+// PRIVATE CREATORS
+template &lt;class TYPE&gt;
+inline
+PackedIntArrayConstIterator&lt;TYPE&gt;::PackedIntArrayConstIterator(
+                                                          const ImpType *array,
+                                                          bsl::size_t    index)
+: d_array_p(array)
+, d_index(index)
+{
+    BSLS_ASSERT_SAFE(d_index &lt;= d_array_p-&gt;length());
+}
+
+// CREATORS
+template &lt;class TYPE&gt;
+inline
+PackedIntArrayConstIterator&lt;TYPE&gt;::PackedIntArrayConstIterator()
+: d_array_p(0)
+, d_index(0)
+{
+}
+
+template &lt;class TYPE&gt;
+inline
+PackedIntArrayConstIterator&lt;TYPE&gt;::PackedIntArrayConstIterator(
+                                   const PackedIntArrayConstIterator&amp; original)
+: d_array_p(original.d_array_p)
+, d_index(original.d_index)
+{
+}
+
+// MANIPULATORS
+template &lt;class TYPE&gt;
+inline
+PackedIntArrayConstIterator&lt;TYPE&gt;&amp; PackedIntArrayConstIterator&lt;TYPE&gt;::
+                              operator=(const PackedIntArrayConstIterator&amp; rhs)
+{
+    d_array_p = rhs.d_array_p;
+    d_index   = rhs.d_index;
+    return *this;
+}
+
+template &lt;class TYPE&gt;
+inline
+PackedIntArrayConstIterator&lt;TYPE&gt;&amp;
+                                PackedIntArrayConstIterator&lt;TYPE&gt;::operator++()
+{
+    BSLS_ASSERT_SAFE(d_array_p);
+    BSLS_ASSERT_SAFE(d_index &lt; d_array_p-&gt;length());
+
+    ++d_index;
+    return *this;
+}
+
+template &lt;class TYPE&gt;
+inline
+PackedIntArrayConstIterator&lt;TYPE&gt;&amp;
+                                PackedIntArrayConstIterator&lt;TYPE&gt;::operator--()
+{
+    BSLS_ASSERT_SAFE(d_array_p);
+    BSLS_ASSERT_SAFE(0 &lt; d_index);
+
+    --d_index;
+    return *this;
+}
+
+template &lt;class TYPE&gt;
+inline
+PackedIntArrayConstIterator&lt;TYPE&gt;&amp;
+           PackedIntArrayConstIterator&lt;TYPE&gt;::operator+=(bsl::ptrdiff_t offset)
+{
+    BSLS_ASSERT_SAFE(d_array_p);
+
+    // Assert &#39;0 &lt;= d_index + offset &lt;= d_array_p-&gt;length()&#39; without risk of
+    // overflow.
+    BSLS_ASSERT_SAFE(0 &lt;= offset || d_index &gt;= bsl::size_t(-offset));
+    BSLS_ASSERT_SAFE(   0 &gt;= offset
+                     || d_array_p-&gt;length() - d_index &gt;= bsl::size_t(offset));
+
+    d_index += offset;
+    return *this;
+}
+
+template &lt;class TYPE&gt;
+inline
+PackedIntArrayConstIterator&lt;TYPE&gt;&amp;
+           PackedIntArrayConstIterator&lt;TYPE&gt;::operator-=(bsl::ptrdiff_t offset)
+{
+    BSLS_ASSERT_SAFE(d_array_p);
+
+    // Assert &#39;0 &lt;= d_index - offset &lt;= d_array_p-&gt;length()&#39; without risk of
+    // overflow.
+    BSLS_ASSERT_SAFE(   0 &gt;= offset || d_index &gt;= bsl::size_t(offset));
+    BSLS_ASSERT_SAFE(   0 &lt;= offset
+                     || d_array_p-&gt;length() - d_index &gt;= bsl::size_t(-offset));
+
+    d_index -= offset;
+    return *this;
+}
+
+// ACCESSORS
+template &lt;class TYPE&gt;
+inline
+TYPE PackedIntArrayConstIterator&lt;TYPE&gt;::operator*() const
+{
+    BSLS_ASSERT_SAFE(d_array_p);
+    BSLS_ASSERT_SAFE(d_index &lt; d_array_p-&gt;length());
+
+    return static_cast&lt;TYPE&gt;((*d_array_p)[d_index]);
+}
+
+template &lt;class TYPE&gt;
+inline
+TYPE PackedIntArrayConstIterator&lt;TYPE&gt;::operator-&gt;() const
+{
+    BSLS_ASSERT_SAFE(d_array_p);
+    BSLS_ASSERT_SAFE(d_index &lt; d_array_p-&gt;length());
+
+    return *(*this);
+}
+
+template &lt;class TYPE&gt;
+inline
+TYPE PackedIntArrayConstIterator&lt;TYPE&gt;::operator[](bsl::ptrdiff_t offset) const
+{
+    BSLS_ASSERT_SAFE(d_array_p);
+
+    // Assert &#39;0 &lt;= d_index + offset &lt; d_array_p-&gt;length()&#39; without risk of
+    // overflow.
+    BSLS_ASSERT_SAFE(0 &lt;= offset || d_index &gt;= bsl::size_t(-offset));
+    BSLS_ASSERT_SAFE(   0 &gt;= offset
+                     || d_array_p-&gt;length() - d_index &gt; bsl::size_t(offset));
+
+    return static_cast&lt;TYPE&gt;((*d_array_p)[d_index + offset]);
+}
+
+template &lt;class TYPE&gt;
+inline
+PackedIntArrayConstIterator&lt;TYPE&gt;
+      PackedIntArrayConstIterator&lt;TYPE&gt;::operator+(bsl::ptrdiff_t offset) const
+{
+    BSLS_ASSERT_SAFE(d_array_p);
+
+    // Assert &#39;0 &lt;= d_index + offset &lt;= d_array_p-&gt;length()&#39; without risk of
+    // overflow.
+    BSLS_ASSERT_SAFE(0 &lt;= offset || d_index &gt;= bsl::size_t(-offset));
+    BSLS_ASSERT_SAFE(   0 &gt;= offset
+                     || d_array_p-&gt;length() - d_index &gt;= bsl::size_t(offset));
+
+    return PackedIntArrayConstIterator&lt;TYPE&gt;(d_array_p, d_index + offset);
+}
+
+
+template &lt;class TYPE&gt;
+inline
+PackedIntArrayConstIterator&lt;TYPE&gt;
+      PackedIntArrayConstIterator&lt;TYPE&gt;::operator-(bsl::ptrdiff_t offset) const
+{
+    BSLS_ASSERT_SAFE(d_array_p);
+
+    // Assert &#39;0 &lt;= d_index - offset &lt;= d_array_p-&gt;length()&#39; without risk of
+    // overflow.
+    BSLS_ASSERT_SAFE(   0 &gt;= offset || d_index &gt;= bsl::size_t(offset));
+    BSLS_ASSERT_SAFE(   0 &lt;= offset
+                     || d_array_p-&gt;length() - d_index &gt;= bsl::size_t(-offset));
+
+    return PackedIntArrayConstIterator&lt;TYPE&gt;(d_array_p, d_index - offset);
+}
+
+// FREE FUNCTIONS
+template &lt;class TYPE&gt;
+inline
+PackedIntArrayConstIterator&lt;TYPE&gt; operator++(
+                                       PackedIntArrayConstIterator&lt;TYPE&gt;&amp; iter,
+                                       int)
+{
+    BSLS_ASSERT_SAFE(iter.d_array_p);
+    BSLS_ASSERT_SAFE(iter.d_index &lt; iter.d_array_p-&gt;length());
+
+    const PackedIntArrayConstIterator&lt;TYPE&gt; curr = iter;
+    ++iter;
+    return curr;
+}
+
+template &lt;class TYPE&gt;
+inline
+PackedIntArrayConstIterator&lt;TYPE&gt; operator--(
+                                       PackedIntArrayConstIterator&lt;TYPE&gt;&amp; iter,
+                                       int)
+{
+    BSLS_ASSERT_SAFE(iter.d_array_p);
+    BSLS_ASSERT_SAFE(iter.d_index &gt; 0);
+
+    const PackedIntArrayConstIterator&lt;TYPE&gt; curr = iter;
+    --iter;
+    return curr;
+}
+
+template &lt;class TYPE&gt;
+inline
+bool operator==(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; lhs,
+                const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; rhs)
+{
+    return lhs.d_array_p == rhs.d_array_p &amp;&amp; lhs.d_index == rhs.d_index;
+}
+
+template &lt;class TYPE&gt;
+inline
+bool operator!=(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; lhs,
+                const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; rhs)
+{
+    return lhs.d_array_p != rhs.d_array_p || lhs.d_index != rhs.d_index;
+}
+
+template &lt;class TYPE&gt;
+inline
+bsl::ptrdiff_t operator-(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; lhs,
+                         const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; rhs)
+{
+    BSLS_ASSERT_SAFE(lhs.d_array_p == rhs.d_array_p);
+
+    BSLS_ASSERT_SAFE(
+          lhs.d_index &gt;= rhs.d_index
+        ? lhs.d_index - rhs.d_index &lt;=
+                        bsl::size_t(std::numeric_limits&lt;bsl::ptrdiff_t&gt;::max())
+        : rhs.d_index - lhs.d_index &lt;=
+                      bsl::size_t(std::numeric_limits&lt;bsl::ptrdiff_t&gt;::min()));
+
+    return static_cast&lt;bsl::ptrdiff_t&gt;(lhs.d_index - rhs.d_index);
+}
+
+template &lt;class TYPE&gt;
+inline
+bool operator&lt;(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; lhs,
+               const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; rhs)
+{
+    BSLS_ASSERT_SAFE(lhs.d_array_p == rhs.d_array_p);
+
+    return lhs.d_index &lt; rhs.d_index;
+}
+
+template &lt;class TYPE&gt;
+inline
+bool operator&lt;=(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; lhs,
+                const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; rhs)
+{
+    BSLS_ASSERT_SAFE(lhs.d_array_p == rhs.d_array_p);
+
+    return lhs.d_index &lt;= rhs.d_index;
+}
+
+template &lt;class TYPE&gt;
+inline
+bool operator&gt;(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; lhs,
+               const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; rhs)
+{
+    BSLS_ASSERT_SAFE(lhs.d_array_p == rhs.d_array_p);
+
+    return lhs.d_index &gt; rhs.d_index;
+}
+
+template &lt;class TYPE&gt;
+inline
+bool operator&gt;=(const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; lhs,
+                const PackedIntArrayConstIterator&lt;TYPE&gt;&amp; rhs)
+{
+    BSLS_ASSERT_SAFE(lhs.d_array_p == rhs.d_array_p);
+
+    return lhs.d_index &gt;= rhs.d_index;
+}
+
+                    // --------------------
+                    // class PackedIntArray
+                    // --------------------
+
+// CLASS METHODS
+template &lt;class TYPE&gt;
+inline
+int PackedIntArray&lt;TYPE&gt;::maxSupportedBdexVersion(int serializationVersion)
+{
+    return ImpType::maxSupportedBdexVersion(serializationVersion);
+}
+
+// CREATORS
+template &lt;class TYPE&gt;
+inline
+PackedIntArray&lt;TYPE&gt;::PackedIntArray(bslma::Allocator *basicAllocator)
+: d_imp(basicAllocator)
+{
+}
+
+template &lt;class TYPE&gt;
+inline
+PackedIntArray&lt;TYPE&gt;::PackedIntArray(bsl::size_t       numElements,
+                                     TYPE              value,
+                                     bslma::Allocator *basicAllocator)
+: d_imp(numElements,
+        static_cast&lt;typename ImpType::ElementType&gt;(value),
+        basicAllocator)
+{
+}
+
+template &lt;class TYPE&gt;
+inline
+PackedIntArray&lt;TYPE&gt;::PackedIntArray(
+                                   const PackedIntArray&lt;TYPE&gt;&amp;  original,
+                                   bslma::Allocator            *basicAllocator)
+: d_imp(original.d_imp, basicAllocator)
+{
+}
+
+template &lt;class TYPE&gt;
+inline
+PackedIntArray&lt;TYPE&gt;::~PackedIntArray()
+{
+}
+
+// MANIPULATORS
+template &lt;class TYPE&gt;
+inline
+PackedIntArray&lt;TYPE&gt;&amp; PackedIntArray&lt;TYPE&gt;::operator=(
+                                               const PackedIntArray&lt;TYPE&gt;&amp; rhs)
+{
+    d_imp = rhs.d_imp;
+    return *this;
+}
+
+template &lt;class TYPE&gt;
+inline
+void PackedIntArray&lt;TYPE&gt;::append(TYPE value)
+{
+    d_imp.append(static_cast&lt;typename ImpType::ElementType&gt;(value));
+}
+
+template &lt;class TYPE&gt;
+inline
+void PackedIntArray&lt;TYPE&gt;::append(const PackedIntArray&lt;TYPE&gt;&amp; srcArray)
+{
+    d_imp.append(srcArray.d_imp);
+}
+
+template &lt;class TYPE&gt;
+inline
+void PackedIntArray&lt;TYPE&gt;::append(const PackedIntArray&lt;TYPE&gt;&amp; srcArray,
+                                  bsl::size_t                 srcIndex,
+                                  bsl::size_t                 numElements)
+{
+    // Assert &#39;srcIndex + numElements &lt;= srcArray.length()&#39; without risk of
+    // overflow.
+    BSLS_ASSERT_SAFE(numElements &lt;= srcArray.length());
+    BSLS_ASSERT_SAFE(srcIndex    &lt;= srcArray.length() - numElements);
+
+    d_imp.append(srcArray.d_imp, srcIndex, numElements);
+}
+
+template &lt;class TYPE&gt;
+template &lt;class STREAM&gt;
+inline
+STREAM&amp; PackedIntArray&lt;TYPE&gt;::bdexStreamIn(STREAM&amp; stream, int version)
+{
+    return d_imp.bdexStreamIn(stream, version);
+}
+
+template &lt;class TYPE&gt;
+inline
+void PackedIntArray&lt;TYPE&gt;::insert(bsl::size_t dstIndex, TYPE value)
+{
+    BSLS_ASSERT_SAFE(dstIndex &lt;= length());
+
+    d_imp.insert(dstIndex, static_cast&lt;typename ImpType::ElementType&gt;(value));
+}
+
+template &lt;class TYPE&gt;
+inline
+typename PackedIntArray&lt;TYPE&gt;::const_iterator
+                   PackedIntArray&lt;TYPE&gt;::insert(const_iterator dst, TYPE value)
+{
+    insert(dst.d_index, value);
+    return dst;
+}
+
+template &lt;class TYPE&gt;
+inline
+void PackedIntArray&lt;TYPE&gt;::insert(bsl::size_t                 dstIndex,
+                                  const PackedIntArray&lt;TYPE&gt;&amp; srcArray)
+{
+    BSLS_ASSERT_SAFE(dstIndex &lt;= length());
+
+    d_imp.insert(dstIndex, srcArray.d_imp);
+}
+
+template &lt;class TYPE&gt;
+inline
+void PackedIntArray&lt;TYPE&gt;::insert(bsl::size_t                 dstIndex,
+                                  const PackedIntArray&lt;TYPE&gt;&amp; srcArray,
+                                  bsl::size_t                 srcIndex,
+                                  bsl::size_t                 numElements)
+{
+    BSLS_ASSERT_SAFE(dstIndex &lt;= length());
+
+    // Assert &#39;srcIndex + numElements &lt;= srcArray.length()&#39; without risk of
+    // overflow.
+    BSLS_ASSERT_SAFE(numElements &lt;= srcArray.length());
+    BSLS_ASSERT_SAFE(srcIndex    &lt;= srcArray.length() - numElements);
+
+    d_imp.insert(dstIndex, srcArray.d_imp, srcIndex, numElements);
+}
+
+template &lt;class TYPE&gt;
+inline
+void PackedIntArray&lt;TYPE&gt;::pop_back()
+{
+    BSLS_ASSERT_SAFE(0 &lt; length());
+
+    d_imp.pop_back();
+}
+
+template &lt;class TYPE&gt;
+inline
+void PackedIntArray&lt;TYPE&gt;::push_back(TYPE value)
+{
+    d_imp.push_back(static_cast&lt;typename ImpType::ElementType&gt;(value));
+}
+
+template &lt;class TYPE&gt;
+inline
+void PackedIntArray&lt;TYPE&gt;::remove(bsl::size_t dstIndex)
+{
+    BSLS_ASSERT(dstIndex &lt; length());
+
+    d_imp.remove(dstIndex);
+}
+
+template &lt;class TYPE&gt;
+inline
+void PackedIntArray&lt;TYPE&gt;::remove(bsl::size_t dstIndex,
+                                  bsl::size_t numElements)
+{
+    // Assert &#39;dstIndex + numElements &lt;= length()&#39; without risk of overflow.
+    BSLS_ASSERT_SAFE(numElements &lt;= length());
+    BSLS_ASSERT_SAFE(dstIndex    &lt;= length() - numElements);
+
+    d_imp.remove(dstIndex, numElements);
+}
+
+template &lt;class TYPE&gt;
+inline
+typename PackedIntArray&lt;TYPE&gt;::const_iterator
+  PackedIntArray&lt;TYPE&gt;::remove(const_iterator dstFirst, const_iterator dstLast)
+{
+    BSLS_ASSERT_SAFE(dstFirst &lt;= dstLast);
+
+    remove(dstFirst.d_index, dstLast.d_index - dstFirst.d_index);
+    return dstFirst;
+}
+
+template &lt;class TYPE&gt;
+inline
+void PackedIntArray&lt;TYPE&gt;::removeAll()
+{
+    d_imp.removeAll();
+}
+
+template &lt;class TYPE&gt;
+inline
+void PackedIntArray&lt;TYPE&gt;::replace(bsl::size_t dstIndex, TYPE value)
+{
+    BSLS_ASSERT_SAFE(dstIndex &lt; length());
+
+    d_imp.replace(dstIndex, static_cast&lt;typename ImpType::ElementType&gt;(value));
+}
+
+template &lt;class TYPE&gt;
+inline
+void PackedIntArray&lt;TYPE&gt;::replace(bsl::size_t                 dstIndex,
+                                   const PackedIntArray&lt;TYPE&gt;&amp; srcArray,
+                                   bsl::size_t                 srcIndex,
+                                   bsl::size_t                 numElements)
+{
+    // Assert &#39;dstIndex + numElements &lt;= length()&#39; without risk of overflow.
+    BSLS_ASSERT_SAFE(numElements &lt;= length());
+    BSLS_ASSERT_SAFE(dstIndex    &lt;= length() - numElements);
+
+    // Assert &#39;srcIndex + numElements &lt;= srcArray.length()&#39; without risk of
+    // overflow.
+    BSLS_ASSERT_SAFE(numElements &lt;= srcArray.length());
+    BSLS_ASSERT_SAFE(srcIndex    &lt;= srcArray.length() - numElements);
+
+    d_imp.replace(dstIndex, srcArray.d_imp, srcIndex, numElements);
+}
+
+template &lt;class TYPE&gt;
+inline
+void PackedIntArray&lt;TYPE&gt;::reserveCapacity(bsl::size_t numElements)
+{
+    // Test for potential overflow.
+    BSLS_ASSERT_SAFE(
+             ImpType::k_MAX_CAPACITY / k_MAX_BYTES_PER_ELEMENT &gt;= numElements);
+
+    d_imp.reserveCapacityImp(numElements * k_MAX_BYTES_PER_ELEMENT);
+}
+
+template &lt;class TYPE&gt;
+inline
+void PackedIntArray&lt;TYPE&gt;::reserveCapacity(bsl::size_t numElements,
+                                           TYPE        maxValue)
+{
+    // To avoid a compiler warning, asserting &#39;0 &lt;= maxValue&#39; is omitted; the
+    // test is performed in &#39;d_imp.reserveCapacity&#39;.
+
+    d_imp.reserveCapacity(numElements, maxValue);
+}
+
+template &lt;class TYPE&gt;
+inline
+void PackedIntArray&lt;TYPE&gt;::reserveCapacity(bsl::size_t numElements,
+                                           TYPE        minValue,
+                                           TYPE        maxValue)
+{
+    BSLS_ASSERT_SAFE(minValue &lt;= maxValue);
+
+    d_imp.reserveCapacity(numElements, minValue, maxValue);
+}
+
+template &lt;class TYPE&gt;
+inline
+void PackedIntArray&lt;TYPE&gt;::resize(bsl::size_t numElements)
+{
+    d_imp.resize(numElements);
+}
+
+template &lt;class TYPE&gt;
+inline
+void PackedIntArray&lt;TYPE&gt;::swap(PackedIntArray&lt;TYPE&gt;&amp; other)
+{
+    BSLS_ASSERT_SAFE(allocator() == other.allocator());
+
+    d_imp.swap(other.d_imp);
+}
+
+// ACCESSORS
+template &lt;class TYPE&gt;
+inline
+TYPE PackedIntArray&lt;TYPE&gt;::operator[](bsl::size_t index) const
+{
+    BSLS_ASSERT_SAFE(index &lt; length());
+
+    return static_cast&lt;TYPE&gt;(d_imp[index]);
+}
+
+template &lt;class TYPE&gt;
+inline
+bslma::Allocator *PackedIntArray&lt;TYPE&gt;::allocator() const
+{
+    return d_imp.allocator();
+}
+
+template &lt;class TYPE&gt;
+inline
+TYPE PackedIntArray&lt;TYPE&gt;::back() const
+{
+    BSLS_ASSERT_SAFE(0 &lt; length());
+
+    return static_cast&lt;TYPE&gt;(d_imp[length() - 1]);
+}
+
+template &lt;class TYPE&gt;
+template &lt;class STREAM&gt;
+inline
+STREAM&amp; PackedIntArray&lt;TYPE&gt;::bdexStreamOut(STREAM&amp; stream, int version) const
+{
+    return d_imp.bdexStreamOut(stream, version);
+}
+
+template &lt;class TYPE&gt;
+inline
+typename PackedIntArray&lt;TYPE&gt;::const_iterator
+                                            PackedIntArray&lt;TYPE&gt;::begin() const
+{
+    return const_iterator(&amp;d_imp, 0);
+}
+
+template &lt;class TYPE&gt;
+inline
+int PackedIntArray&lt;TYPE&gt;::bytesPerElement() const
+{
+    return d_imp.bytesPerElement();
+}
+
+template &lt;class TYPE&gt;
+inline
+bsl::size_t PackedIntArray&lt;TYPE&gt;::capacity() const
+{
+    return d_imp.capacity();
+}
+
+template &lt;class TYPE&gt;
+inline
+typename PackedIntArray&lt;TYPE&gt;::const_iterator PackedIntArray&lt;TYPE&gt;::end() const
+{
+    return const_iterator(&amp;d_imp, d_imp.length());
+}
+
+template &lt;class TYPE&gt;
+inline
+TYPE PackedIntArray&lt;TYPE&gt;::front() const
+{
+    BSLS_ASSERT_SAFE(0 &lt; length());
+
+    return static_cast&lt;TYPE&gt;(d_imp[0]);
+}
+
+template &lt;class TYPE&gt;
+inline
+bool PackedIntArray&lt;TYPE&gt;::isEmpty() const
+{
+    return d_imp.isEmpty();
+}
+
+template &lt;class TYPE&gt;
+inline
+bool PackedIntArray&lt;TYPE&gt;::isEqual(const PackedIntArray&lt;TYPE&gt;&amp; other) const
+{
+    return d_imp.isEqual(other.d_imp);
+}
+
+template &lt;class TYPE&gt;
+inline
+bsl::size_t PackedIntArray&lt;TYPE&gt;::length() const
+{
+    return d_imp.length();
+}
+
+template &lt;class TYPE&gt;
+bsl::ostream&amp; PackedIntArray&lt;TYPE&gt;::print(bsl::ostream&amp; stream,
+                                          int           level,
+                                          int           spacesPerLevel) const
+{
+    return d_imp.print(stream, level, spacesPerLevel);
+}
+
+// FREE OPERATORS
+template &lt;class TYPE&gt;
+inline
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;               stream,
+                         const PackedIntArray&lt;TYPE&gt;&amp; array)
+{
+    return array.print(stream);
+}
+
+template &lt;class TYPE&gt;
+inline
+bool operator==(const PackedIntArray&lt;TYPE&gt;&amp; lhs,
+                const PackedIntArray&lt;TYPE&gt;&amp; rhs)
+{
+    return lhs.isEqual(rhs);
+}
+
+template &lt;class TYPE&gt;
+inline
+bool operator!=(const PackedIntArray&lt;TYPE&gt;&amp; lhs,
+                const PackedIntArray&lt;TYPE&gt;&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+// FREE FUNCTIONS
+template &lt;class TYPE&gt;
+inline
+void swap(PackedIntArray&lt;TYPE&gt;&amp; a, PackedIntArray&lt;TYPE&gt;&amp; b)
+{
+    BSLS_ASSERT_SAFE(a.allocator() == b.allocator());
+
+    a.swap(b);
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+// TRAITS
+namespace BloombergLP {
+namespace bslma {
+
+template &lt;class STORAGE&gt;
+struct UsesBslmaAllocator&lt;bdlc::PackedIntArrayImp&lt;STORAGE&gt; &gt;
+                                                           : bsl::true_type {};
+
+template &lt;class TYPE&gt;
+struct UsesBslmaAllocator&lt;bdlc::PackedIntArray&lt;TYPE&gt; &gt; : bsl::true_type {};
+
+}  // close namespace bslma
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bslstl_stack.h                                                     -*-C++-*-
@@ -289,6 +289,10 @@ BSL_OVERRIDES_STD mode&quot;
 #include &lt;bslmf_enableif.h&gt;
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include &lt;bsls_compilerfeatures.h&gt;
+#endif
+
 #ifndef INCLUDED_ALGORITHM
 #include &lt;algorithm&gt;
 #define INCLUDED_ALGORITHM
@@ -305,16 +309,20 @@ class Stack_HasAllocatorType {
     // &#39;CONTAINER::allocator_type&#39; is present, and remove them from the
     // constructor overload set otherwise.
 
+    // TYPES
     typedef char YesType;
     struct NoType { char a[2]; };
 
+    // CLASS METHODS
     template &lt;typename TYPE&gt;
     static YesType match(const typename TYPE::allocator_type *);
     template &lt;typename TYPE&gt;
     static NoType match(...);
+        // The return type of &#39;match&#39; is &#39;YesType&#39; if &#39;TYPE&#39; has an allocator
+        // type, and &#39;NoType&#39; otherwise.
 
   public:
-    enum { VALUE = (1 == sizeof(match&lt;CONTAINER&gt;(0))) };
+    enum { VALUE = (sizeof(YesType) == sizeof(match&lt;CONTAINER&gt;(0))) };
 };
 
 template &lt;class VALUE, class CONTAINER = deque&lt;VALUE&gt; &gt;
@@ -427,8 +435,8 @@ class stack {
 
     explicit
     stack(stack&amp;&amp;          original);
-
         // TBD
+
     template &lt;class ALLOCATOR&gt;
     stack(stack&amp;&amp;          original,
           const ALLOCATOR&amp; basicAllocator,

@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
  bsls.txt
@@ -23,59 +23,64 @@
 
 /Hierarchical Synopsis
 /---------------------
- The &#39;bsls&#39; package currently has 53 components having 14 levels of physical
+ The &#39;bsls&#39; package currently has 58 components having 14 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  14. bsls_alignedbuffer
-      bsls_alignment
-      bsls_platformutil
+  14. bsls_byteorder
 
-  13. bsls_alignmentutil
+  13. bsls_byteorderutil
+
+  12. bsls_stopwatch
+      bsls_systemtime
+
+  11. bsls_alignedbuffer
+      bsls_timeutil
+
+  10. bsls_alignmentutil
       bsls_bslexceptionutil
       bsls_bsllock
+      bsls_bslonce
+      bsls_log
+      bsls_timeinterval
 
-  12. bsls_asserttest
+   9. bsls_asserttest
+      bsls_byteorderutil_impl                                         !PRIVATE!
       bsls_exceptionutil
 
-  11. bsls_assert
-
-  10. bsls_performancehint
-
-   9. bsls_stopwatch
-
-   8. bsls_atomic
-      bsls_timeutil
+   8. bsls_assert
+      bsls_atomic
 
    7. bsls_atomicoperations
 
-   6. bsls_atomicoperations_powerpc32_aix_xlc
-      bsls_atomicoperations_powerpc64_aix_xlc
-      bsls_atomicoperations_sparc32_sun_cc
-      bsls_atomicoperations_sparc64_sun_cc
-      bsls_byteorder
+   6. bsls_atomicoperations_powerpc32_aix_xlc                         !PRIVATE!
+      bsls_atomicoperations_powerpc64_aix_xlc                         !PRIVATE!
+      bsls_atomicoperations_sparc32_sun_cc                            !PRIVATE!
+      bsls_atomicoperations_sparc64_sun_cc                            !PRIVATE!
       bsls_objectbuffer
 
    5. bsls_alignmentfromtype
-      bsls_atomicoperations_all_all_gccintrinsics
-      bsls_atomicoperations_arm_all_gcc
-      bsls_atomicoperations_ia64_hp_acc
-      bsls_atomicoperations_powerpc_aix_gcc
-      bsls_atomicoperations_powerpc_aix_xlc_default
-      bsls_atomicoperations_sparc_sun_cc_default
-      bsls_atomicoperations_x64_all_gcc
-      bsls_atomicoperations_x64_win_msvc
-      bsls_atomicoperations_x86_all_gcc
-      bsls_atomicoperations_x86_win_msvc
-      bsls_byteorderutil
+      bsls_atomicoperations_all_all_clangintrinsics                   !PRIVATE!
+      bsls_atomicoperations_all_all_gccintrinsics                     !PRIVATE!
+      bsls_atomicoperations_arm_all_gcc                               !PRIVATE!
+      bsls_atomicoperations_ia64_hp_acc                               !PRIVATE!
+      bsls_atomicoperations_powerpc_aix_xlc_default                   !PRIVATE!
+      bsls_atomicoperations_powerpc_all_gcc                           !PRIVATE!
+      bsls_atomicoperations_sparc_sun_cc_default                      !PRIVATE!
+      bsls_atomicoperations_x64_all_gcc                               !PRIVATE!
+      bsls_atomicoperations_x64_win_msvc                              !PRIVATE!
+      bsls_atomicoperations_x86_all_gcc                               !PRIVATE!
+      bsls_atomicoperations_x86_win_msvc                              !PRIVATE!
 
-   4. bsls_alignmenttotype
-      bsls_atomicoperations_default
+   4. bsls_alignment
+      bsls_alignmenttotype
+      bsls_atomicoperations_default                                   !PRIVATE!
       bsls_buildtarget
-      bsls_byteorderutil_impl
-      bsls_int64
+      bsls_cpp11
       bsls_nullptr
+      bsls_performancehint
+      bsls_systemclocktype
       bsls_unspecifiedbool
       bsls_util
 
@@ -134,49 +139,52 @@
 : &#39;bsls_atomicoperations&#39;:
 :      Provide platform-independent atomic operations.
 :
-: &#39;bsls_atomicoperations_all_all_gccintrinsics&#39;:
+: &#39;bsls_atomicoperations_all_all_clangintrinsics&#39;:                    !PRIVATE!
+:      Implement atomic operations using clang &#39;__c11_atomic_*&#39; intrinsics
+:
+: &#39;bsls_atomicoperations_all_all_gccintrinsics&#39;:                      !PRIVATE!
 :      Implement atomic operations using gcc &#39;__atomic_*&#39; intrinsics.
 :
-: &#39;bsls_atomicoperations_arm_all_gcc&#39;:
+: &#39;bsls_atomicoperations_arm_all_gcc&#39;:                                !PRIVATE!
 :      Provide implementations of atomic operations for ARM/GCC.
 :
-: &#39;bsls_atomicoperations_default&#39;:
+: &#39;bsls_atomicoperations_default&#39;:                                    !PRIVATE!
 :      Provide default implementation for atomic operations.
 :
-: &#39;bsls_atomicoperations_ia64_hp_acc&#39;:
+: &#39;bsls_atomicoperations_ia64_hp_acc&#39;:                                !PRIVATE!
 :      Provide implementations of atomic operations for HPUX/IA64.
 :
-: &#39;bsls_atomicoperations_powerpc32_aix_xlc&#39;:
+: &#39;bsls_atomicoperations_powerpc32_aix_xlc&#39;:                          !PRIVATE!
 :      Provide implementations of atomic operations for PowerPC/AIX-32bit.
 :
-: &#39;bsls_atomicoperations_powerpc64_aix_xlc&#39;:
+: &#39;bsls_atomicoperations_powerpc64_aix_xlc&#39;:                          !PRIVATE!
 :      Provide implementations of atomic operations for PowerPC/AIX-64bit.
 :
-: &#39;bsls_atomicoperations_powerpc_aix_gcc&#39;:
-:      Provide implementations of atomic operations for PowerPC/AIX/GCC.
-:
-: &#39;bsls_atomicoperations_powerpc_aix_xlc_default&#39;:
+: &#39;bsls_atomicoperations_powerpc_aix_xlc_default&#39;:                    !PRIVATE!
 :      Provide default base implementations of atomics for PowerPC/AIX.
 :
-: &#39;bsls_atomicoperations_sparc32_sun_cc&#39;:
+: &#39;bsls_atomicoperations_powerpc_all_gcc&#39;:                            !PRIVATE!
+:      Provide implementations of atomic operations for gcc on PowerPC
+:
+: &#39;bsls_atomicoperations_sparc32_sun_cc&#39;:                             !PRIVATE!
 :      Provide implementations of atomic operations for Sparc/Sun (32bit).
 :
-: &#39;bsls_atomicoperations_sparc64_sun_cc&#39;:
+: &#39;bsls_atomicoperations_sparc64_sun_cc&#39;:                             !PRIVATE!
 :      Provide implementations of atomic operations for Sparc/Sun (64bit).
 :
-: &#39;bsls_atomicoperations_sparc_sun_cc_default&#39;:
+: &#39;bsls_atomicoperations_sparc_sun_cc_default&#39;:                       !PRIVATE!
 :      Provide default base implementations of atomics for Sparc/Sun.
 :
-: &#39;bsls_atomicoperations_x64_all_gcc&#39;:
+: &#39;bsls_atomicoperations_x64_all_gcc&#39;:                                !PRIVATE!
 :      Provide implementations of atomic operations for X86_64/GCC.
 :
-: &#39;bsls_atomicoperations_x64_win_msvc&#39;:
+: &#39;bsls_atomicoperations_x64_win_msvc&#39;:                               !PRIVATE!
 :      Provide implementations of atomic operations for X86_64/MSVC/Win64.
 :
-: &#39;bsls_atomicoperations_x86_all_gcc&#39;:
+: &#39;bsls_atomicoperations_x86_all_gcc&#39;:                                !PRIVATE!
 :      Provide implementations of atomic operations for X86/GCC.
 :
-: &#39;bsls_atomicoperations_x86_win_msvc&#39;:
+: &#39;bsls_atomicoperations_x86_win_msvc&#39;:                               !PRIVATE!
 :      Provide implementations of atomic operations for X86/MSVC/Windows.
 :
 : &#39;bsls_blockgrowth&#39;:
@@ -187,6 +195,9 @@
 :
 : &#39;bsls_bsllock&#39;:
 :      Provide a platform-independent mutex for use below &#39;bslmt&#39;.
+:
+: &#39;bsls_bslonce&#39;:
+:      Provide BSL a thread-safe way to execute code once per process.
 :
 : &#39;bsls_bsltestutil&#39;:
 :      Provide test utilities for &#39;bsl&#39; that do not use &lt;iostream&gt;.
@@ -200,11 +211,14 @@
 : &#39;bsls_byteorderutil&#39;:
 :      Provide byte-order swapping functions.
 :
-: &#39;bsls_byteorderutil_impl&#39;:
+: &#39;bsls_byteorderutil_impl&#39;:                                          !PRIVATE!
 :      Provide implementation of byte-order manipulation functions.
 :
 : &#39;bsls_compilerfeatures&#39;:
 :      Provide macros to identify compiler support for C++11 features.
+:
+: &#39;bsls_cpp11&#39;:
+:      Provide macros for C++11 forward compatibility.
 :
 : &#39;bsls_exceptionutil&#39;:
 :      Provide simplified exception constructs for non-exception builds.
@@ -212,11 +226,11 @@
 : &#39;bsls_ident&#39;:
 :      Provide macros for inserting SCM Ids into source files.
 :
-: &#39;bsls_int64&#39;:
-:      Provide namespace for platform-dependent 64-bit integer types.
-:
 : &#39;bsls_linkcoercion&#39;:
 :      Provide a way to force a link-time dependency into an object.
+:
+: &#39;bsls_log&#39;:
+:      Provide a namespace for low-level logging functions.
 :
 : &#39;bsls_macroincrement&#39;:
 :      Provide a macro to increment preprocessor numbers.
@@ -236,14 +250,20 @@
 : &#39;bsls_platform&#39;:
 :      Provide compile-time support for platform/attribute identification.
 :
-: &#39;bsls_platformutil&#39;:
-:      Provide consistent interface for platform-dependent functionality.
-:
 : &#39;bsls_protocoltest&#39;:
 :      Provide classes and macros for testing abstract protocols.
 :
 : &#39;bsls_stopwatch&#39;:
 :      Provide access to user, system, and wall times of current process.
+:
+: &#39;bsls_systemclocktype&#39;:
+:      Enumerate the set of system clock types.
+:
+: &#39;bsls_systemtime&#39;:
+:      Provide utilities to retrieve the system time.
+:
+: &#39;bsls_timeinterval&#39;:
+:      Provide a representation of a time interval.
 :
 : &#39;bsls_timeutil&#39;:
 :      Provide a platform-neutral functional interface to system clocks.
@@ -437,6 +457,14 @@
  reset, so the elapsed time &quot;interval&quot; accumulated by a single object may be
  from multiple, discontinuous segments of time.  The non-negative total
  accumulated time (in seconds) is available as a &#39;double&#39; value.
+
+/&#39;bsls_systemclocktype&#39;
+/ - - - - - - - - - - -
+ The {&#39;bsls_systemclocktype&#39;} component provides a namespace for the &#39;enum&#39;
+ type &#39;bsls::SystemClockType::Enum&#39;, which enumerates the set of system clock
+ types.  A &#39;bsls::SystemClockType&#39; is particularly important when providing
+ time-out values to synchronization methods where those time-outs must be
+ consistent in environments where the system clocks may be changed.
 
 /&#39;bsls_timeutil&#39;
 /- - - - - - - -

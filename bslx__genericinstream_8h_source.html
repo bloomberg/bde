@@ -1,0 +1,2386 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.23.1 OSS</title>
+<html>
+<pre>
+// bslx_genericinstream.h                                             -*-C++-*-
+#ifndef INCLUDED_BSLX_GENERICINSTREAM
+#define INCLUDED_BSLX_GENERICINSTREAM
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Unexternalization of fundamental types from a parameterized stream.
+//
+//@CLASSES:
+//  bslx::GenericInStream: parameterized input stream for fundamental types
+//
+//@SEE_ALSO: bslx_streambufinstream, bslx_genericoutstream
+//
+//@DESCRIPTION: This component implements a parameterized input stream
+// class, &#39;bslx::GenericInStream&#39;, that provides platform-independent input
+// methods (&quot;unexternalization&quot;) on values, and arrays of values, of
+// fundamental types, and on &#39;bsl::string&#39;.
+//
+// The &#39;bslx::GenericInStream&#39; type reads from a compliant user-supplied buffer
+// (see {Generic Byte-Format Parser}) directly, with no data copying or
+// assumption of ownership.  The user must therefore make sure that the
+// lifetime and visibility of the buffer is sufficient to satisfy the needs of
+// the input stream.
+//
+// This component is intended to be used in conjunction with the
+// &#39;bslx_genericoutstream&#39; &quot;externalization&quot; component.  Each input method of
+// &#39;bslx::GenericInStream&#39; reads either a value or a homogeneous array of
+// values of a fundamental type, in a format that was written by the
+// corresponding &#39;bslx::GenericOutStream&#39; method.  In general, the user of
+// this component cannot rely on being able to read data that was written by
+// any mechanism other than &#39;bslx::GenericOutStream&#39;.
+//
+// The supported types and required content are listed in the &#39;bslx&#39;
+// package-level documentation under &quot;Supported Types&quot;.
+//
+// Note that input streams can be *invalidated* explicitly and queried for
+// *validity*.  Reading from an initially invalid stream has no effect.
+// Attempting to read beyond the end of a stream will automatically invalidate
+// the stream.  Whenever an inconsistent value is detected, the stream should
+// be invalidated explicitly.
+//
+///Generic Byte-Format Parser
+///--------------------------
+// The class &#39;bslx::GenericInStream&#39; is parameterized by a buffered stream
+// class, &#39;STREAMBUF&#39;, which, given the declarations:
+//..
+//  char        c;
+//  int         len;
+//  const char *s;
+//  STREAMBUF  *sb;
+//..
+// must make the following expressions syntactically valid, with the assert
+// statements highlighting the expected return values:
+//..
+//  STREAMBUF::traits_type::int_type eof = STREAMBUF::traits_type::eof();
+//  assert(eof != sb-&gt;sbumpc());
+//  assert(eof != sb-&gt;sgetc());
+//  assert(len == sb-&gt;sgetn(s, len));
+//..
+// Suitable choices for &#39;STREAMBUF&#39; include any class that implements the
+// &#39;bsl::basic_streambuf&#39; protocol.
+//
+// The class &#39;bslx::StreambufInStream&#39; is a &#39;typedef&#39; for
+// &#39;bslx::GenericInStream&lt;bsl::streambuf&gt;&#39;.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.  The first example
+// depicts usage with a &#39;bsl::stringbuf&#39;.  The second example replaces the
+// &#39;bsl::stringbuf&#39; with a user-defined &#39;STREAMBUF&#39;.
+//
+///Example 1: Basic Unexternalization
+///- - - - - - - - - - - - - - - - -
+// Suppose we wish to implement a (deliberately simple) &#39;MyPerson&#39; class as a
+// value-semantic object that supports BDEX externalization and
+// unexternalization.  In addition to whatever data and methods that we choose
+// to put into our design, we must supply three methods having specific names
+// and signatures in order to comply with the BDEX protocol: a class method
+// &#39;maxSupportedBdexVersion&#39;, an accessor (i.e., a &#39;const&#39; method)
+// &#39;bdexStreamOut&#39;, and a manipulator (i.e., a non-&#39;const&#39; method)
+// &#39;bdexStreamIn&#39;.  This example shows how to implement those three methods.
+//
+// In this example we will not worry overly about &quot;good design&quot; of the
+// &#39;MyPerson&#39; component, and we will declare but not implement illustrative
+// methods and free operators, except for the three required BDEX methods,
+// which are implemented in full.  In particular, we will not make explicit use
+// of &#39;bslma&#39; allocators; a more complete design would do so:
+//
+// First, we implement &#39;MyPerson&#39;:
+//..
+//  class MyPerson {
+//      bsl::string d_firstName;
+//      bsl::string d_lastName;
+//      int         d_age;
+//
+//      friend bool operator==(const MyPerson&amp;, const MyPerson&amp;);
+//
+//    public:
+//      // CLASS METHODS
+//      static int maxSupportedBdexVersion(int versionSelector);
+//          // Return the maximum valid BDEX format version, as indicated by
+//          // the specified &#39;versionSelector&#39;, to be passed to the
+//          // &#39;bdexStreamOut&#39; method.  Note that it is highly recommended that
+//          // &#39;versionSelector&#39; be formatted as &quot;YYYYMMDD&quot;, a date
+//          // representation.  Also note that &#39;versionSelector&#39; should be a
+//          // *compile*-time-chosen value that selects a format version
+//          // supported by both externalizer and unexternalizer.  See the
+//          // &#39;bslx&#39; package-level documentation for more information on BDEX
+//          // streaming of value-semantic types and containers.
+//
+//      // CREATORS
+//      MyPerson();
+//          // Create a default person.
+//
+//      MyPerson(const char *firstName, const char *lastName, int age);
+//          // Create a person having the specified &#39;firstName&#39;, &#39;lastName&#39;,
+//          // and &#39;age&#39;.
+//
+//      MyPerson(const MyPerson&amp; original);
+//          // Create a person having the value of the specified &#39;original&#39;
+//          // person.
+//
+//      ~MyPerson();
+//          // Destroy this object.
+//
+//      // MANIPULATORS
+//      MyPerson&amp; operator=(const MyPerson&amp; rhs);
+//          // Assign to this person the value of the specified &#39;rhs&#39; person,
+//          // and return a reference to this person.
+//
+//      template &lt;class STREAM&gt;
+//      STREAM&amp; bdexStreamIn(STREAM&amp; stream, int version);
+//          // Assign to this object the value read from the specified input
+//          // &#39;stream&#39; using the specified &#39;version&#39; format, and return a
+//          // reference to &#39;stream&#39;.  If &#39;stream&#39; is initially invalid, this
+//          // operation has no effect.  If &#39;version&#39; is not supported, this
+//          // object is unaltered and &#39;stream&#39; is invalidated, but otherwise
+//          // unmodified.  If &#39;version&#39; is supported but &#39;stream&#39; becomes
+//          // invalid during this operation, this object has an undefined, but
+//          // valid, state.  Note that no version is read from &#39;stream&#39;.  See
+//          // the &#39;bslx&#39; package-level documentation for more information on
+//          // BDEX streaming of value-semantic types and containers.
+//
+//      //...
+//
+//      // ACCESSORS
+//      int age() const;
+//          // Return the age of this person.
+//
+//      template &lt;class STREAM&gt;
+//      STREAM&amp; bdexStreamOut(STREAM&amp; stream, int version) const;
+//          // Write the value of this object, using the specified &#39;version&#39;
+//          // format, to the specified output &#39;stream&#39;, and return a reference
+//          // to &#39;stream&#39;.  If &#39;stream&#39; is initially invalid, this operation
+//          // has no effect.  If &#39;version&#39; is not supported, &#39;stream&#39; is
+//          // invalidated, but otherwise unmodified.  Note that &#39;version&#39; is
+//          // not written to &#39;stream&#39;.  See the &#39;bslx&#39; package-level
+//          // documentation for more information on BDEX streaming of
+//          // value-semantic types and containers.
+//
+//      const bsl::string&amp; firstName() const;
+//          // Return the first name of this person.
+//
+//      const bsl::string&amp; lastName() const;
+//          // Return the last name of this person.
+//
+//      //...
+//
+//  };
+//
+//  // FREE OPERATORS
+//  bool operator==(const MyPerson&amp; lhs, const MyPerson&amp; rhs);
+//      // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; person objects have
+//      // the same value, and &#39;false&#39; otherwise.  Two person objects have the
+//      // same value if they have the same first name, last name, and age.
+//
+//  bool operator!=(const MyPerson&amp; lhs, const MyPerson&amp; rhs);
+//      // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; person objects do not
+//      // have the same value, and &#39;false&#39; otherwise.  Two person objects
+//      // differ in value if they differ in first name, last name, or age.
+//
+//  // ========================================================================
+//  //                  INLINE FUNCTION DEFINITIONS
+//  // ========================================================================
+//
+//  // CLASS METHODS
+//  inline
+//  int MyPerson::maxSupportedBdexVersion(int /* versionSelector */) {
+//      return 1;
+//  }
+//
+//  // CREATORS
+//  inline
+//  MyPerson::MyPerson()
+//  : d_firstName(&quot;&quot;)
+//  , d_lastName(&quot;&quot;)
+//  , d_age(0)
+//  {
+//  }
+//
+//  inline
+//  MyPerson::MyPerson(const char *firstName, const char *lastName, int age)
+//  : d_firstName(firstName)
+//  , d_lastName(lastName)
+//  , d_age(age)
+//  {
+//  }
+//
+//  inline
+//  MyPerson::~MyPerson()
+//  {
+//  }
+//
+//  template &lt;class STREAM&gt;
+//  STREAM&amp; MyPerson::bdexStreamIn(STREAM&amp; stream, int version)
+//  {
+//      if (stream) {
+//          switch (version) {  // switch on the &#39;bslx&#39; version
+//            case 1: {
+//              stream.getString(d_firstName);
+//              if (!stream) {
+//                  d_firstName = &quot;stream error&quot;;  // *might* be corrupted;
+//                                                 //  value for testing
+//                  return stream;                                    // RETURN
+//              }
+//              stream.getString(d_lastName);
+//              if (!stream) {
+//                  d_lastName = &quot;stream error&quot;;  // *might* be corrupted;
+//                                                //  value for testing
+//                  return stream;                                    // RETURN
+//              }
+//              stream.getInt32(d_age);
+//              if (!stream) {
+//                  d_age = 999;     // *might* be corrupted; value for testing
+//                  return stream;                                    // RETURN
+//              }
+//            } break;
+//            default: {
+//              stream.invalidate();
+//            }
+//          }
+//      }
+//      return stream;
+//  }
+//
+//  // ACCESSORS
+//  inline
+//  int MyPerson::age() const
+//  {
+//      return d_age;
+//  }
+//
+//  template &lt;class STREAM&gt;
+//  STREAM&amp; MyPerson::bdexStreamOut(STREAM&amp; stream, int version) const
+//  {
+//      switch (version) {
+//        case 1: {
+//          stream.putString(d_firstName);
+//          stream.putString(d_lastName);
+//          stream.putInt32(d_age);
+//        } break;
+//        default: {
+//          stream.invalidate();
+//        } break;
+//      }
+//      return stream;
+//  }
+//
+//  inline
+//  const bsl::string&amp; MyPerson::firstName() const
+//  {
+//      return d_firstName;
+//  }
+//
+//  inline
+//  const bsl::string&amp; MyPerson::lastName() const
+//  {
+//      return d_lastName;
+//  }
+//
+//  // FREE OPERATORS
+//  inline
+//  bool operator==(const MyPerson&amp; lhs, const MyPerson&amp; rhs)
+//  {
+//      return lhs.d_firstName == rhs.d_firstName &amp;&amp;
+//             lhs.d_lastName  == rhs.d_lastName  &amp;&amp;
+//             lhs.d_age       == rhs.d_age;
+//  }
+//
+//  inline
+//  bool operator!=(const MyPerson&amp; lhs, const MyPerson&amp; rhs)
+//  {
+//      return !(lhs == rhs);
+//  }
+//..
+// Then, we can exercise the new &#39;MyPerson&#39; value-semantic class by
+// externalizing and reconstituting an object.  First, create a &#39;MyPerson&#39;
+// &#39;janeSmith1&#39; and a &#39;bslx::GenericOutStream&#39; &#39;outStream1&#39;:
+//..
+//  MyPerson                               janeSmith1(&quot;Jane&quot;, &quot;Smith&quot;, 42);
+//  bsl::stringbuf                         buffer1;
+//  bslx::GenericOutStream&lt;bsl::stringbuf&gt; outStream1(&amp;buffer1, 20131127);
+//  const int                              VERSION1 = 1;
+//  outStream1.putVersion(VERSION1);
+//  janeSmith1.bdexStreamOut(outStream1, VERSION1);
+//  assert(outStream1.isValid());
+//..
+// Next, create a &#39;MyPerson&#39; &#39;janeCopy1&#39; initialized to the default value, and
+// assert that &#39;janeCopy1&#39; is different from &#39;janeSmith1&#39;:
+//..
+//  MyPerson janeCopy1;
+//  assert(janeCopy1 != janeSmith1);
+//..
+// Then, create a &#39;bslx::GenericInStream&#39; &#39;inStream1&#39; initialized with the
+// buffer from the &#39;bslx::GenericOutStream&#39; object &#39;outStream1&#39; and
+// unexternalize this data into &#39;janeCopy1&#39;:
+//..
+//  bslx::GenericInStream&lt;bsl::stringbuf&gt; inStream1(&amp;buffer1);
+//  int                                   version1;
+//  inStream1.getVersion(version1);
+//  janeCopy1.bdexStreamIn(inStream1, version1);
+//  assert(inStream1.isValid());
+//..
+// Finally, &#39;assert&#39; the obtained values are as expected and display the
+// results to &#39;bsl::stdout&#39;:
+//..
+//  assert(version1  == VERSION1);
+//  assert(janeCopy1 == janeSmith1);
+//
+//  if (janeCopy1 == janeSmith1) {
+//      bsl::cout &lt;&lt; &quot;Successfully serialized and de-serialized Jane Smith:&quot;
+//                &lt;&lt; &quot;\n\tFirstName: &quot; &lt;&lt; janeCopy1.firstName()
+//                &lt;&lt; &quot;\n\tLastName : &quot; &lt;&lt; janeCopy1.lastName()
+//                &lt;&lt; &quot;\n\tAge      : &quot; &lt;&lt; janeCopy1.age() &lt;&lt; bsl::endl;
+//  }
+//  else {
+//      bsl::cout &lt;&lt; &quot;Serialization unsuccessful.  &#39;janeCopy1&#39; holds:&quot;
+//                &lt;&lt; &quot;\n\tFirstName: &quot; &lt;&lt; janeCopy1.firstName()
+//                &lt;&lt; &quot;\n\tLastName : &quot; &lt;&lt; janeCopy1.lastName()
+//                &lt;&lt; &quot;\n\tAge      : &quot; &lt;&lt; janeCopy1.age() &lt;&lt; bsl::endl;
+//  }
+//..
+//
+///Example 2: Sample &#39;STREAMBUF&#39; Implementation
+///- - - - - - - - - - - - - - - - - - - - - -
+// For this example, we will implement &#39;MyStreamBuf&#39;, a minimal &#39;STREAMBUF&#39; to
+// to be used with &#39;bslx::GenericInStream&#39; and &#39;bslx::GenericOutStream&#39;.  The
+// implementation will consist of only what is required of the type.  For
+// comparison, we will reuse &#39;MyPerson&#39; and repeat part of {Example 1} to
+// demonstrate how to use &#39;bslx::GenericInStream&#39;.
+//
+// First, we implement &#39;MyStreamBuf&#39; (which, for brevity, simply uses the
+// default allocator):
+//..
+//  class MyStreamBuf {
+//      // This class implements a very basic stream buffer suitable for use in
+//      // &#39;bslx::GenericOutStream&#39; and &#39;bslx::GenericInStream&#39;.
+//
+//      // DATA
+//      bsl::deque&lt;char&gt; d_buffer;  // the input and output buffer
+//
+//    private:
+//      // NOT IMPLEMENTED
+//      MyStreamBuf(const MyStreamBuf&amp;);
+//      MyStreamBuf&amp; operator=(const MyStreamBuf&amp;);
+//
+//    public:
+//      // TYPES
+//      struct traits_type {
+//          static int eof() { return -1; }
+//      };
+//
+//      // CREATORS
+//      MyStreamBuf();
+//          // Create an empty stream buffer.
+//
+//      ~MyStreamBuf();
+//          // Destroy this stream buffer.
+//
+//      // MANIPULATORS
+//      int pubsync();
+//          // Return 0.
+//
+//      int sbumpc();
+//          // Read the next character in this buffer.  Return the value of the
+//          // character on success, and &#39;traits_type::eof()&#39; otherwise.
+//
+//      int sgetc();
+//          // Peek at the next character in this buffer.  Return the value of
+//          // the character on success, and &#39;traits_type::eof()&#39; otherwise.
+//
+//      bsl::streamsize sgetn(char *s, bsl::streamsize length);
+//          // Load the specified &#39;length&#39; characters into the specified
+//          // address &#39;s&#39;, and return the number of characters read.
+//
+//      int sputc(char c);
+//          // Write the specified character &#39;c&#39; to this buffer.  Return &#39;c&#39; on
+//          // success, and &#39;traits_type::eof()&#39; otherwise.
+//
+//      bsl::streamsize sputn(const char *s, bsl::streamsize length);
+//          // Write the specified &#39;length&#39; characters at the specified address
+//          // &#39;s&#39; to this buffer, and return the number of characters written.
+//  };
+//
+//  // ========================================================================
+//  //                  INLINE FUNCTION DEFINITIONS
+//  // ========================================================================
+//
+//  // CREATORS
+//  MyStreamBuf::MyStreamBuf()
+//  : d_buffer()
+//  {
+//  }
+//
+//  MyStreamBuf::~MyStreamBuf()
+//  {
+//  }
+//
+//  // MANIPULATORS
+//  int MyStreamBuf::pubsync()
+//  {
+//      // In this implementation, there is nothing to be done except return
+//      // success.
+//
+//      return 0;
+//  }
+//
+//  int MyStreamBuf::sbumpc()
+//  {
+//      if (!d_buffer.empty()) {
+//          const int rv = static_cast&lt;int&gt;(d_buffer.front());
+//          d_buffer.pop_front();
+//          return rv;                                                // RETURN
+//      }
+//      return traits_type::eof();
+//  }
+//
+//  int MyStreamBuf::sgetc()
+//  {
+//      if (!d_buffer.empty()) {
+//          return static_cast&lt;int&gt;(d_buffer.front());                // RETURN
+//      }
+//      return traits_type::eof();
+//  }
+//
+//  bsl::streamsize MyStreamBuf::sgetn(char *s, bsl::streamsize length)
+//  {
+//      for (bsl::streamsize i = 0; i &lt; length; ++i) {
+//          if (d_buffer.empty()) {
+//              return i;                                             // RETURN
+//          }
+//          s[i] = d_buffer.front();
+//          d_buffer.pop_front();
+//      }
+//      return length;
+//  }
+//
+//  int MyStreamBuf::sputc(char c)
+//  {
+//      d_buffer.push_back(c);
+//      return static_cast&lt;int&gt;(c);
+//  }
+//
+//  bsl::streamsize MyStreamBuf::sputn(const char      *s,
+//                                     bsl::streamsize  length)
+//  {
+//      for (bsl::streamsize i = 0; i &lt; length; ++i) {
+//          d_buffer.push_back(s[i]);
+//      }
+//      return length;
+//  }
+//..
+// Then, we create a &#39;MyPerson&#39; &#39;janeSmith2&#39; and a &#39;bslx::GenericOutStream&#39;
+// &#39;outStream2&#39;:
+//..
+//  MyPerson                               janeSmith2(&quot;Jane&quot;, &quot;Smith&quot;, 42);
+//  MyStreamBuf                            buffer2;
+//  bslx::GenericOutStream&lt;MyStreamBuf&gt;    outStream2(&amp;buffer2, 20131127);
+//  const int                              VERSION2 = 1;
+//  outStream2.putVersion(VERSION2);
+//  janeSmith2.bdexStreamOut(outStream2, VERSION2);
+//  assert(outStream2.isValid());
+//..
+// Next, create a &#39;MyPerson&#39; &#39;janeCopy2&#39; initialized to the default value, and
+// assert that &#39;janeCopy2&#39; is different from &#39;janeSmith2&#39;:
+//..
+//  MyPerson janeCopy2;
+//  assert(janeCopy2 != janeSmith2);
+//..
+// Then, create a &#39;bslx::GenericInStream&#39; &#39;inStream2&#39; initialized with the
+// buffer from the &#39;bslx::GenericOutStream&#39; object &#39;outStream2&#39; and
+// unexternalize this data into &#39;janeCopy2&#39;:
+//..
+//  bslx::GenericInStream&lt;MyStreamBuf&gt;    inStream2(&amp;buffer2);
+//  int                                   version2;
+//  inStream2.getVersion(version2);
+//  janeCopy2.bdexStreamIn(inStream2, version2);
+//  assert(inStream2.isValid());
+//..
+// Finally, &#39;assert&#39; the obtained values are as expected:
+//..
+//  assert(version2  == VERSION2);
+//  assert(janeCopy2 == janeSmith2);
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLX_INSTREAMFUNCTIONS
+#include &lt;bslx_instreamfunctions.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PERFORMANCEHINT
+#include &lt;bsls_performancehint.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include &lt;bsls_types.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CSTDDEF
+#include &lt;bsl_cstddef.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include &lt;bsl_string.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_VECTOR
+#include &lt;bsl_vector.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bslx {
+
+                        // =====================
+                        // class GenericInStream
+                        // =====================
+
+template &lt;class STREAMBUF&gt;
+class GenericInStream {
+    // This class provides input methods to unexternalize values, and C-style
+    // arrays of values, of the fundamental integral and floating-point types,
+    // as well as &#39;bsl::string&#39; values, using a byte format documented in the
+    // &#39;bslx_byteoutstream&#39; component.  In particular, each &#39;get&#39; method of
+    // this class is guaranteed to read stream data written by the
+    // corresponding &#39;put&#39; method of &#39;bslx::GenericOutStream&#39;.  Note that
+    // attempting to read beyond the end of a stream will automatically
+    // invalidate the stream.  See the &#39;bslx&#39; package-level documentation for
+    // the definition of the BDEX &#39;InStream&#39; protocol.
+
+    // PRIVATE TYPES
+    enum {
+        // Enumerate the platform-independent sizes (in bytes) of data types in
+        // wire format.  Note that the wire format size may differ from the
+        // size in memory.
+
+        k_SIZEOF_INT64   = 8,
+        k_SIZEOF_INT56   = 7,
+        k_SIZEOF_INT48   = 6,
+        k_SIZEOF_INT40   = 5,
+        k_SIZEOF_INT32   = 4,
+        k_SIZEOF_INT24   = 3,
+        k_SIZEOF_INT16   = 2,
+        k_SIZEOF_INT8    = 1,
+        k_SIZEOF_FLOAT64 = 8,
+        k_SIZEOF_FLOAT32 = 4
+    };
+
+    // DATA
+    STREAMBUF *d_streamBuf;  // held stream to read from
+
+    bool       d_validFlag;  // stream validity flag; &#39;true&#39; if stream is in
+                             // valid state, &#39;false&#39; otherwise
+
+    // NOT IMPLEMENTED
+    GenericInStream(const GenericInStream&amp;);
+    GenericInStream&amp; operator=(const GenericInStream&amp;);
+
+  private:
+    // PRIVATE MANIPULATORS
+    void validate();
+        // Put this output stream into a valid state.  This function has no
+        // effect if this stream is already valid.
+
+  public:
+    // CREATORS
+    GenericInStream(STREAMBUF *streamBuf);
+        // Create an input byte stream that reads its input from the specified
+        // &#39;streamBuf&#39;.
+
+    ~GenericInStream();
+        // Destroy this object.
+
+    // MANIPULATORS
+    GenericInStream&amp; getLength(int&amp; length);
+        // If the most-significant bit of the one byte of this stream at the
+        // current cursor location is set, assign to the specified &#39;length&#39; the
+        // four-byte, two&#39;s complement integer (in host byte order) comprised
+        // of the four bytes of this stream at the current cursor location (in
+        // network byte order) with the most-significant bit unset; otherwise,
+        // assign to &#39;length&#39; the one-byte, two&#39;s complement integer comprised
+        // of the one byte of this stream at the current cursor location.
+        // Update the cursor location and return a reference to this stream.
+        // If this stream is initially invalid, this operation has no effect.
+        // If this function otherwise fails to extract a valid value, this
+        // stream is marked invalid and the value of &#39;length&#39; is undefined.
+        // Note that the value will be zero-extended.
+
+    GenericInStream&amp; getVersion(int&amp; version);
+        // Assign to the specified &#39;version&#39; the one-byte, two&#39;s complement
+        // unsigned integer comprised of the one byte of this stream at the
+        // current cursor location, update the cursor location, and return a
+        // reference to this stream.  If this stream is initially invalid, this
+        // operation has no effect.  If this function otherwise fails to
+        // extract a valid value, this stream is marked invalid and the value
+        // of &#39;version&#39; is undefined.  Note that the value will be
+        // zero-extended.
+
+    void invalidate();
+        // Put this input stream in an invalid state.  This function has no
+        // effect if this stream is already invalid.  Note that this function
+        // should be called whenever a value extracted from this stream is
+        // determined to be invalid, inconsistent, or otherwise incorrect.
+
+                      // *** scalar integer values ***
+
+    GenericInStream&amp; getInt64(bsls::Types::Int64&amp; variable);
+        // Assign to the specified &#39;variable&#39; the eight-byte, two&#39;s complement
+        // integer (in host byte order) comprised of the eight bytes of this
+        // stream at the current cursor location (in network byte order),
+        // update the cursor location, and return a reference to this stream.
+        // If this stream is initially invalid, this operation has no effect.
+        // If this function otherwise fails to extract a valid value, this
+        // stream is marked invalid and the value of &#39;variable&#39; is undefined.
+        // Note that the value will be sign-extended.
+
+    GenericInStream&amp; getUint64(bsls::Types::Uint64&amp; variable);
+        // Assign to the specified &#39;variable&#39; the eight-byte, two&#39;s complement
+        // unsigned integer (in host byte order) comprised of the eight bytes
+        // of this stream at the current cursor location (in network byte
+        // order), update the cursor location, and return a reference to this
+        // stream.  If this stream is initially invalid, this operation has no
+        // effect.  If this function otherwise fails to extract a valid value,
+        // this stream is marked invalid and the value of &#39;variable&#39; is
+        // undefined.  Note that the value will be zero-extended.
+
+    GenericInStream&amp; getInt56(bsls::Types::Int64&amp; variable);
+        // Assign to the specified &#39;variable&#39; the seven-byte, two&#39;s complement
+        // integer (in host byte order) comprised of the seven bytes of this
+        // stream at the current cursor location (in network byte order),
+        // update the cursor location, and return a reference to this stream.
+        // If this stream is initially invalid, this operation has no effect.
+        // If this function otherwise fails to extract a valid value, this
+        // stream is marked invalid and the value of &#39;variable&#39; is undefined.
+        // Note that the value will be sign-extended.
+
+    GenericInStream&amp; getUint56(bsls::Types::Uint64&amp; variable);
+        // Assign to the specified &#39;variable&#39; the seven-byte, two&#39;s complement
+        // unsigned integer (in host byte order) comprised of the seven bytes
+        // of this stream at the current cursor location (in network byte
+        // order), update the cursor location, and return a reference to this
+        // stream.  If this stream is initially invalid, this operation has no
+        // effect.  If this function otherwise fails to extract a valid value,
+        // this stream is marked invalid and the value of &#39;variable&#39; is
+        // undefined.  Note that the value will be zero-extended.
+
+    GenericInStream&amp; getInt48(bsls::Types::Int64&amp; variable);
+        // Assign to the specified &#39;variable&#39; the six-byte, two&#39;s complement
+        // integer (in host byte order) comprised of the six bytes of this
+        // stream at the current cursor location (in network byte order),
+        // update the cursor location, and return a reference to this stream.
+        // If this stream is initially invalid, this operation has no effect.
+        // If this function otherwise fails to extract a valid value, this
+        // stream is marked invalid and the value of &#39;variable&#39; is undefined.
+        // Note that the value will be sign-extended.
+
+    GenericInStream&amp; getUint48(bsls::Types::Uint64&amp; variable);
+        // Assign to the specified &#39;variable&#39; the six-byte, two&#39;s complement
+        // unsigned integer (in host byte order) comprised of the six bytes of
+        // this stream at the current cursor location (in network byte order),
+        // update the cursor location, and return a reference to this stream.
+        // If this stream is initially invalid, this operation has no effect.
+        // If this function otherwise fails to extract a valid value, this
+        // stream is marked invalid and the value of &#39;variable&#39; is undefined.
+        // Note that the value will be zero-extended.
+
+    GenericInStream&amp; getInt40(bsls::Types::Int64&amp; variable);
+        // Assign to the specified &#39;variable&#39; the five-byte, two&#39;s complement
+        // integer (in host byte order) comprised of the five bytes of this
+        // stream at the current cursor location (in network byte order),
+        // update the cursor location, and return a reference to this stream.
+        // If this stream is initially invalid, this operation has no effect.
+        // If this function otherwise fails to extract a valid value, this
+        // stream is marked invalid and the value of &#39;variable&#39; is undefined.
+        // Note that the value will be sign-extended.
+
+    GenericInStream&amp; getUint40(bsls::Types::Uint64&amp; variable);
+        // Assign to the specified &#39;variable&#39; the five-byte, two&#39;s complement
+        // unsigned integer (in host byte order) comprised of the five bytes of
+        // this stream at the current cursor location (in network byte order),
+        // update the cursor location, and return a reference to this stream.
+        // If this stream is initially invalid, this operation has no effect.
+        // If this function otherwise fails to extract a valid value, this
+        // stream is marked invalid and the value of &#39;variable&#39; is undefined.
+        // Note that the value will be zero-extended.
+
+    GenericInStream&amp; getInt32(int&amp; variable);
+        // Assign to the specified &#39;variable&#39; the four-byte, two&#39;s complement
+        // integer (in host byte order) comprised of the four bytes of this
+        // stream at the current cursor location (in network byte order),
+        // update the cursor location, and return a reference to this stream.
+        // If this stream is initially invalid, this operation has no effect.
+        // If this function otherwise fails to extract a valid value, this
+        // stream is marked invalid and the value of &#39;variable&#39; is undefined.
+        // Note that the value will be sign-extended.
+
+    GenericInStream&amp; getUint32(unsigned int&amp; variable);
+        // Assign to the specified &#39;variable&#39; the four-byte, two&#39;s complement
+        // unsigned integer (in host byte order) comprised of the four bytes of
+        // this stream at the current cursor location (in network byte order),
+        // update the cursor location, and return a reference to this stream.
+        // If this stream is initially invalid, this operation has no effect.
+        // If this function otherwise fails to extract a valid value, this
+        // stream is marked invalid and the value of &#39;variable&#39; is undefined.
+        // Note that the value will be zero-extended.
+
+    GenericInStream&amp; getInt24(int&amp; variable);
+        // Assign to the specified &#39;variable&#39; the three-byte, two&#39;s complement
+        // integer (in host byte order) comprised of the three bytes of this
+        // stream at the current cursor location (in network byte order),
+        // update the cursor location, and return a reference to this stream.
+        // If this stream is initially invalid, this operation has no effect.
+        // If this function otherwise fails to extract a valid value, this
+        // stream is marked invalid and the value of &#39;variable&#39; is undefined.
+        // Note that the value will be sign-extended.
+
+    GenericInStream&amp; getUint24(unsigned int&amp; variable);
+        // Assign to the specified &#39;variable&#39; the three-byte, two&#39;s complement
+        // unsigned integer (in host byte order) comprised of the three bytes
+        // of this stream at the current cursor location (in network byte
+        // order), update the cursor location, and return a reference to this
+        // stream.  If this stream is initially invalid, this operation has no
+        // effect.  If this function otherwise fails to extract a valid value,
+        // this stream is marked invalid and the value of &#39;variable&#39; is
+        // undefined.  Note that the value will be zero-extended.
+
+    GenericInStream&amp; getInt16(short&amp; variable);
+        // Assign to the specified &#39;variable&#39; the two-byte, two&#39;s complement
+        // integer (in host byte order) comprised of the two bytes of this
+        // stream at the current cursor location (in network byte order),
+        // update the cursor location, and return a reference to this stream.
+        // If this stream is initially invalid, this operation has no effect.
+        // If this function otherwise fails to extract a valid value, this
+        // stream is marked invalid and the value of &#39;variable&#39; is undefined.
+        // Note that the value will be sign-extended.
+
+    GenericInStream&amp; getUint16(unsigned short&amp; variable);
+        // Assign to the specified &#39;variable&#39; the two-byte, two&#39;s complement
+        // unsigned integer (in host byte order) comprised of the two bytes of
+        // this stream at the current cursor location (in network byte order),
+        // update the cursor location, and return a reference to this stream.
+        // If this stream is initially invalid, this operation has no effect.
+        // If this function otherwise fails to extract a valid value, this
+        // stream is marked invalid and the value of &#39;variable&#39; is undefined.
+        // Note that the value will be zero-extended.
+
+    GenericInStream&amp; getInt8(char&amp;        variable);
+    GenericInStream&amp; getInt8(signed char&amp; variable);
+        // Assign to the specified &#39;variable&#39; the one-byte, two&#39;s complement
+        // integer comprised of the one byte of this stream at the current
+        // cursor location, update the cursor location, and return a reference
+        // to this stream.  If this stream is initially invalid, this operation
+        // has no effect.  If this function otherwise fails to extract a valid
+        // value, this stream is marked invalid and the value of &#39;variable&#39; is
+        // undefined.  Note that the value will be sign-extended.
+
+    GenericInStream&amp; getUint8(char&amp;          variable);
+    GenericInStream&amp; getUint8(unsigned char&amp; variable);
+        // Assign to the specified &#39;variable&#39; the one-byte, two&#39;s complement
+        // unsigned integer comprised of the one byte of this stream at the
+        // current cursor location, update the cursor location, and return a
+        // reference to this stream.  If this stream is initially invalid, this
+        // operation has no effect.  If this function otherwise fails to
+        // extract a valid value, this stream is marked invalid and the value
+        // of &#39;variable&#39; is undefined.  Note that the value will be
+        // zero-extended.
+
+                      // *** scalar floating-point values ***
+
+    GenericInStream&amp; getFloat64(double&amp; variable);
+        // Assign to the specified &#39;variable&#39; the eight-byte IEEE
+        // double-precision floating-point number (in host byte order)
+        // comprised of the eight bytes of this stream at the current cursor
+        // location (in network byte order), update the cursor location, and
+        // return a reference to this stream.  If this stream is initially
+        // invalid, this operation has no effect.  If this function otherwise
+        // fails to extract a valid value, this stream is marked invalid and
+        // the value of &#39;variable&#39; is undefined.
+
+    GenericInStream&amp; getFloat32(float&amp; variable);
+        // Assign to the specified &#39;variable&#39; the four-byte IEEE
+        // single-precision floating-point number (in host byte order)
+        // comprised of the four bytes of this stream at the current cursor
+        // location (in network byte order), update the cursor location, and
+        // return a reference to this stream.  If this stream is initially
+        // invalid, this operation has no effect.  If this function otherwise
+        // fails to extract a valid value, this stream is marked invalid and
+        // the value of &#39;variable&#39; is undefined.
+
+                      // *** string values ***
+
+    GenericInStream&amp; getString(bsl::string&amp; variable);
+        // Assign to the specified &#39;variable&#39; the string comprised of the
+        // length of the string (see &#39;getLength&#39;) and the string data (see
+        // &#39;getUint8&#39;), update the cursor location, and return a reference to
+        // this stream.  If this stream is initially invalid, this operation
+        // has no effect.  If this function otherwise fails to extract a valid
+        // value, this stream is marked invalid and the value of &#39;variable&#39; is
+        // undefined.
+
+                      // *** arrays of integer values ***
+
+    GenericInStream&amp; getArrayInt64(bsls::Types::Int64 *variables,
+                                   int                 numVariables);
+        // Assign to the specified &#39;variables&#39; the consecutive eight-byte,
+        // two&#39;s complement integers (in host byte order) comprised of each of
+        // the specified &#39;numVariables&#39; eight-byte sequences of this stream at
+        // the current cursor location (in network byte order), update the
+        // cursor location, and return a reference to this stream.  If this
+        // stream is initially invalid, this operation has no effect.  If this
+        // function otherwise fails to extract a valid value, this stream is
+        // marked invalid and the value of &#39;variables&#39; is undefined.  The
+        // behavior is undefined unless &#39;0 &lt;= numVariables&#39; and &#39;variables&#39; has
+        // sufficient capacity.  Note that each of the values will be
+        // sign-extended.
+
+    GenericInStream&amp; getArrayUint64(bsls::Types::Uint64 *variables,
+                                    int                  numVariables);
+        // Assign to the specified &#39;variables&#39; the consecutive eight-byte,
+        // two&#39;s complement unsigned integers (in host byte order) comprised of
+        // each of the specified &#39;numVariables&#39; eight-byte sequences of this
+        // stream at the current cursor location (in network byte order),
+        // update the cursor location, and return a reference to this stream.
+        // If this stream is initially invalid, this operation has no effect.
+        // If this function otherwise fails to extract a valid value, this
+        // stream is marked invalid and the value of &#39;variables&#39; is undefined.
+        // The behavior is undefined unless &#39;0 &lt;= numVariables&#39; and &#39;variables&#39;
+        // has sufficient capacity.  Note that each of the values will be
+        // zero-extended.
+
+    GenericInStream&amp; getArrayInt56(bsls::Types::Int64 *variables,
+                                   int                 numVariables);
+        // Assign to the specified &#39;variables&#39; the consecutive seven-byte,
+        // two&#39;s complement integers (in host byte order) comprised of each of
+        // the specified &#39;numVariables&#39; seven-byte sequences of this stream at
+        // the current cursor location (in network byte order), update the
+        // cursor location, and return a reference to this stream.  If this
+        // stream is initially invalid, this operation has no effect.  If this
+        // function otherwise fails to extract a valid value, this stream is
+        // marked invalid and the value of &#39;variables&#39; is undefined.  The
+        // behavior is undefined unless &#39;0 &lt;= numVariables&#39; and &#39;variables&#39; has
+        // sufficient capacity.  Note that each of the values will be
+        // sign-extended.
+
+    GenericInStream&amp; getArrayUint56(bsls::Types::Uint64 *variables,
+                                    int                  numVariables);
+        // Assign to the specified &#39;variables&#39; the consecutive seven-byte,
+        // two&#39;s complement unsigned integers (in host byte order) comprised of
+        // each of the specified &#39;numVariables&#39; seven-byte sequences of this
+        // stream at the current cursor location (in network byte order),
+        // update the cursor location, and return a reference to this stream.
+        // If this stream is initially invalid, this operation has no effect.
+        // If this function otherwise fails to extract a valid value, this
+        // stream is marked invalid and the value of &#39;variables&#39; is undefined.
+        // The behavior is undefined unless &#39;0 &lt;= numVariables&#39; and &#39;variables&#39;
+        // has sufficient capacity.  Note that each of the values will be
+        // zero-extended.
+
+    GenericInStream&amp; getArrayInt48(bsls::Types::Int64 *variables,
+                                   int                 numVariables);
+        // Assign to the specified &#39;variables&#39; the consecutive six-byte, two&#39;s
+        // complement integers (in host byte order) comprised of each of the
+        // specified &#39;numVariables&#39; six-byte sequences of this stream at the
+        // current cursor location (in network byte order), update the cursor
+        // location, and return a reference to this stream.  If this stream is
+        // initially invalid, this operation has no effect.  If this function
+        // otherwise fails to extract a valid value, this stream is marked
+        // invalid and the value of &#39;variables&#39; is undefined.  The behavior is
+        // undefined unless &#39;0 &lt;= numVariables&#39; and &#39;variables&#39; has sufficient
+        // capacity.  Note that each of the values will be sign-extended.
+
+    GenericInStream&amp; getArrayUint48(bsls::Types::Uint64 *variables,
+                                    int                  numVariables);
+        // Assign to the specified &#39;variables&#39; the consecutive six-byte, two&#39;s
+        // complement unsigned integers (in host byte order) comprised of each
+        // of the specified &#39;numVariables&#39; six-byte sequences of this stream at
+        // the current cursor location (in network byte order), update the
+        // cursor location, and return a reference to this stream.  If this
+        // stream is initially invalid, this operation has no effect.  If this
+        // function otherwise fails to extract a valid value, this stream is
+        // marked invalid and the value of &#39;variables&#39; is undefined.  The
+        // behavior is undefined unless &#39;0 &lt;= numVariables&#39; and &#39;variables&#39; has
+        // sufficient capacity.  Note that each of the values will be
+        // zero-extended.
+
+    GenericInStream&amp; getArrayInt40(bsls::Types::Int64 *variables,
+                                   int                 numVariables);
+        // Assign to the specified &#39;variables&#39; the consecutive five-byte, two&#39;s
+        // complement integers (in host byte order) comprised of each of the
+        // specified &#39;numVariables&#39; five-byte sequences of this stream at the
+        // current cursor location (in network byte order), update the cursor
+        // location, and return a reference to this stream.  If this stream is
+        // initially invalid, this operation has no effect.  If this function
+        // otherwise fails to extract a valid value, this stream is marked
+        // invalid and the value of &#39;variables&#39; is undefined.  The behavior is
+        // undefined unless &#39;0 &lt;= numVariables&#39; and &#39;variables&#39; has sufficient
+        // capacity.  Note that each of the values will be sign-extended.
+
+    GenericInStream&amp; getArrayUint40(bsls::Types::Uint64 *variables,
+                                    int                  numVariables);
+        // Assign to the specified &#39;variables&#39; the consecutive five-byte, two&#39;s
+        // complement unsigned integers (in host byte order) comprised of each
+        // of the specified &#39;numVariables&#39; five-byte sequences of this stream
+        // at the current cursor location (in network byte order), update the
+        // cursor location, and return a reference to this stream.  If this
+        // stream is initially invalid, this operation has no effect.  If this
+        // function otherwise fails to extract a valid value, this stream is
+        // marked invalid and the value of &#39;variables&#39; is undefined.  The
+        // behavior is undefined unless &#39;0 &lt;= numVariables&#39; and &#39;variables&#39; has
+        // sufficient capacity.  Note that each of the values will be
+        // zero-extended.
+
+    GenericInStream&amp; getArrayInt32(int *variables, int numVariables);
+        // Assign to the specified &#39;variables&#39; the consecutive four-byte, two&#39;s
+        // complement integers (in host byte order) comprised of each of the
+        // specified &#39;numVariables&#39; four-byte sequences of this stream at the
+        // current cursor location (in network byte order), update the cursor
+        // location, and return a reference to this stream.  If this stream is
+        // initially invalid, this operation has no effect.  If this function
+        // otherwise fails to extract a valid value, this stream is marked
+        // invalid and the value of &#39;variables&#39; is undefined.  The behavior is
+        // undefined unless &#39;0 &lt;= numVariables&#39; and &#39;variables&#39; has sufficient
+        // capacity.  Note that each of the values will be sign-extended.
+
+    GenericInStream&amp; getArrayUint32(unsigned int *variables, int numVariables);
+        // Assign to the specified &#39;variables&#39; the consecutive four-byte, two&#39;s
+        // complement unsigned integers (in host byte order) comprised of each
+        // of the specified &#39;numVariables&#39; four-byte sequences of this stream
+        // at the current cursor location (in network byte order), update the
+        // cursor location, and return a reference to this stream.  If this
+        // stream is initially invalid, this operation has no effect.  If this
+        // function otherwise fails to extract a valid value, this stream is
+        // marked invalid and the value of &#39;variables&#39; is undefined.  The
+        // behavior is undefined unless &#39;0 &lt;= numVariables&#39; and &#39;variables&#39; has
+        // sufficient capacity.  Note that each of the values will be
+        // zero-extended.
+
+    GenericInStream&amp; getArrayInt24(int *variables, int numVariables);
+        // Assign to the specified &#39;variables&#39; the consecutive three-byte,
+        // two&#39;s complement integers (in host byte order) comprised of each of
+        // the specified &#39;numVariables&#39; three-byte sequences of this stream at
+        // the current cursor location (in network byte order), update the
+        // cursor location, and return a reference to this stream.  If this
+        // stream is initially invalid, this operation has no effect.  If this
+        // function otherwise fails to extract a valid value, this stream is
+        // marked invalid and the value of &#39;variables&#39; is undefined.  The
+        // behavior is undefined unless &#39;0 &lt;= numValues&#39; and &#39;variables&#39; has
+        // sufficient capacity.  Note that each of the values will be
+        // sign-extended.
+
+    GenericInStream&amp; getArrayUint24(unsigned int *variables, int numVariables);
+        // Assign to the specified &#39;variables&#39; the consecutive three-byte,
+        // two&#39;s complement unsigned integers (in host byte order) comprised of
+        // each of the specified &#39;numVariables&#39; three-byte sequences of this
+        // stream at the current cursor location (in network byte order),
+        // update the cursor location, and return a reference to this stream.
+        // If this stream is initially invalid, this operation has no effect.
+        // If this function otherwise fails to extract a valid value, this
+        // stream is marked invalid and the value of &#39;variables&#39; is undefined.
+        // The behavior is undefined unless &#39;0 &lt;= numVariables&#39; and &#39;variables&#39;
+        // has sufficient capacity.  Note that each of the values will be
+        // zero-extended.
+
+    GenericInStream&amp; getArrayInt16(short *variables, int numVariables);
+        // Assign to the specified &#39;variables&#39; the consecutive two-byte, two&#39;s
+        // complement integers (in host byte order) comprised of each of the
+        // specified &#39;numVariables&#39; two-byte sequences of this stream at the
+        // current cursor location (in network byte order), update the cursor
+        // location, and return a reference to this stream.  If this stream is
+        // initially invalid, this operation has no effect.  If this function
+        // otherwise fails to extract a valid value, this stream is marked
+        // invalid and the value of &#39;variables&#39; is undefined.  The behavior is
+        // undefined unless &#39;0 &lt;= numVariables&#39; and &#39;variables&#39; has sufficient
+        // capacity.  Note that each of the values will be sign-extended.
+
+    GenericInStream&amp; getArrayUint16(unsigned short *variables,
+                                    int             numVariables);
+        // Assign to the specified &#39;variables&#39; the consecutive two-byte, two&#39;s
+        // complement unsigned integers (in host byte order) comprised of each
+        // of the specified &#39;numVariables&#39; two-byte sequences of this stream at
+        // the current cursor location (in network byte order), update the
+        // cursor location, and return a reference to this stream.  If this
+        // stream is initially invalid, this operation has no effect.  If this
+        // function otherwise fails to extract a valid value, this stream is
+        // marked invalid and the value of &#39;variables&#39; is undefined.  The
+        // behavior is undefined unless &#39;0 &lt;= numVariables&#39; and &#39;variables&#39; has
+        // sufficient capacity.  Note that each of the values will be
+        // zero-extended.
+
+    GenericInStream&amp; getArrayInt8(char *variables, int numVariables);
+    GenericInStream&amp; getArrayInt8(signed char *variables, int numVariables);
+        // Assign to the specified &#39;variables&#39; the consecutive one-byte, two&#39;s
+        // complement integers comprised of each of the specified
+        // &#39;numVariables&#39; one-byte sequences of this stream at the current
+        // cursor location, update the cursor location, and return a reference
+        // to this stream.  If this stream is initially invalid, this operation
+        // has no effect.  If this function otherwise fails to extract a valid
+        // value, this stream is marked invalid and the value of &#39;variables&#39; is
+        // undefined.  The behavior is undefined unless &#39;0 &lt;= numVariables&#39; and
+        // &#39;variables&#39; has sufficient capacity.  Note that each of the values
+        // will be sign-extended.
+
+    GenericInStream&amp; getArrayUint8(char *variables, int numVariables);
+    GenericInStream&amp; getArrayUint8(unsigned char *variables, int numVariables);
+        // Assign to the specified &#39;variables&#39; the consecutive one-byte, two&#39;s
+        // complement unsigned integers comprised of each of the specified
+        // &#39;numVariables&#39; one-byte sequences of this stream at the current
+        // cursor location, update the cursor location, and return a reference
+        // to this stream.  If this stream is initially invalid, this operation
+        // has no effect.  If this function otherwise fails to extract a valid
+        // value, this stream is marked invalid and the value of &#39;variables&#39; is
+        // undefined.  The behavior is undefined unless &#39;0 &lt;= numVariables&#39; and
+        // &#39;variables&#39; has sufficient capacity.  Note that each of the values
+        // will be zero-extended.
+
+                      // *** arrays of floating-point values ***
+
+    GenericInStream&amp; getArrayFloat64(double *variables, int numVariables);
+        // Assign to the specified &#39;variables&#39; the consecutive eight-byte IEEE
+        // double-precision floating-point numbers (in host byte order)
+        // comprised of each of the specified &#39;numVariables&#39; eight-byte
+        // sequences of this stream at the current cursor location (in network
+        // byte order), update the cursor location, and return a reference to
+        // this stream.  If this stream is initially invalid, this operation
+        // has no effect.  If this function otherwise fails to extract a valid
+        // value, this stream is marked invalid and the value of &#39;variables&#39; is
+        // undefined.  The behavior is undefined unless &#39;0 &lt;= numVariables&#39; and
+        // &#39;variables&#39; has sufficient capacity.
+
+    GenericInStream&amp; getArrayFloat32(float *variables, int numVariables);
+        // Assign to the specified &#39;variables&#39; the consecutive four-byte IEEE
+        // single-precision floating-point numbers (in host byte order)
+        // comprised of each of the specified &#39;numVariables&#39; four-byte
+        // sequences of this stream at the current cursor location (in network
+        // byte order), update the cursor location, and return a reference to
+        // this stream.  If this stream is initially invalid, this operation
+        // has no effect.  If this function otherwise fails to extract a valid
+        // value, this stream is marked invalid and the value of &#39;variables&#39; is
+        // undefined.  The behavior is undefined unless &#39;0 &lt;= numVariables&#39; and
+        // &#39;variables&#39; has sufficient capacity.
+
+    // ACCESSORS
+    operator const void *() const;
+        // Return a non-zero value if this stream is valid, and 0 otherwise.
+        // An invalid stream is a stream in which insufficient or invalid data
+        // was detected during an extraction operation.  Note that an empty
+        // stream will be valid unless an extraction attempt or explicit
+        // invalidation causes it to be otherwise.
+
+    bool isValid() const;
+        // Return &#39;true&#39; if this stream is valid, and &#39;false&#39; otherwise.  An
+        // invalid stream is a stream in which insufficient or invalid data was
+        // detected during an extraction operation.  Note that an empty stream
+        // will be valid unless an extraction attempt or explicit invalidation
+        // causes it to be otherwise.
+};
+
+// FREE OPERATORS
+template &lt;class STREAMBUF, class TYPE&gt;
+GenericInStream&lt;STREAMBUF&gt;&amp;
+                   operator&gt;&gt;(GenericInStream&lt;STREAMBUF&gt;&amp; stream, TYPE&amp; value);
+    // Read the specified &#39;value&#39; from the specified input &#39;stream&#39; following
+    // the requirements of the BDEX protocol (see the &#39;bslx&#39; package-level
+    // documentation), and return a reference to &#39;stream&#39;.  The behavior is
+    // undefined unless &#39;TYPE&#39; is BDEX-compliant.
+
+// ============================================================================
+//                           INLINE DEFINITIONS
+// ============================================================================
+
+                        // ---------------------
+                        // class GenericInStream
+                        // ---------------------
+
+// PRIVATE MANIPULATORS
+template &lt;class STREAMBUF&gt;
+inline
+void GenericInStream&lt;STREAMBUF&gt;::validate()
+{
+    d_validFlag = true;
+}
+
+// CREATORS
+template &lt;class STREAMBUF&gt;
+inline
+GenericInStream&lt;STREAMBUF&gt;::GenericInStream(STREAMBUF *streamBuf)
+: d_streamBuf(streamBuf)
+, d_validFlag(true)
+{
+    BSLS_ASSERT_SAFE(streamBuf);
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericInStream&lt;STREAMBUF&gt;::~GenericInStream()
+{
+}
+
+// MANIPULATORS
+template &lt;class STREAMBUF&gt;
+inline
+GenericInStream&lt;STREAMBUF&gt;&amp; GenericInStream&lt;STREAMBUF&gt;::getLength(int&amp; length)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    invalidate();
+
+    const int current = d_streamBuf-&gt;sgetc();
+    if (STREAMBUF::traits_type::eof() != current) {
+        validate();
+        if (127 &lt; current) {
+            // If &#39;length &gt; 127&#39;, &#39;length&#39; is stored as 4 bytes with top bit
+            // set.
+
+            getInt32(length);
+            length &amp;= 0x7fffffff;  // Clear top bit.
+        }
+        else {
+            // If &#39;length &lt;= 127&#39;, &#39;length&#39; is stored as one byte.
+
+            char tmp;
+            getInt8(tmp);
+            length = tmp;
+        }
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getVersion(int&amp; version)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    unsigned char tmp;
+    getUint8(tmp);
+    version = tmp;
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+void GenericInStream&lt;STREAMBUF&gt;::invalidate()
+{
+    d_validFlag = false;
+}
+
+                      // *** scalar integer values ***
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getInt64(bsls::Types::Int64&amp; variable)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    invalidate();
+
+    if (sizeof variable &gt; k_SIZEOF_INT64) {
+        const int current = d_streamBuf-&gt;sgetc();
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                   STREAMBUF::traits_type::eof() == current)) {
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+            return *this;                                             // RETURN
+        }
+        variable = 0x80 &amp; current ? -1 : 0;  // sign extend
+    }
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    char *bytes = reinterpret_cast&lt;char *&gt;(&amp;variable);
+    char  rawBytes[k_SIZEOF_INT64];
+    if (k_SIZEOF_INT64 == d_streamBuf-&gt;sgetn(rawBytes, k_SIZEOF_INT64)) {
+        validate();
+        bytes[7] = rawBytes[0];
+        bytes[6] = rawBytes[1];
+        bytes[5] = rawBytes[2];
+        bytes[4] = rawBytes[3];
+        bytes[3] = rawBytes[4];
+        bytes[2] = rawBytes[5];
+        bytes[1] = rawBytes[6];
+        bytes[0] = rawBytes[7];
+    }
+#else
+    char *bytes =
+        reinterpret_cast&lt;char *&gt;(&amp;variable) + sizeof variable - k_SIZEOF_INT64;
+    if (k_SIZEOF_INT64 == d_streamBuf-&gt;sgetn(bytes, k_SIZEOF_INT64)) {
+        validate();
+    }
+#endif
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getUint64(bsls::Types::Uint64&amp; variable)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    invalidate();
+
+    if (sizeof variable &gt; k_SIZEOF_INT64) {
+        variable = 0;  // zero-extend
+    }
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    char *bytes = reinterpret_cast&lt;char *&gt;(&amp;variable);
+    char  rawBytes[k_SIZEOF_INT64];
+    if (k_SIZEOF_INT64 == d_streamBuf-&gt;sgetn(rawBytes, k_SIZEOF_INT64)) {
+        validate();
+        bytes[7] = rawBytes[0];
+        bytes[6] = rawBytes[1];
+        bytes[5] = rawBytes[2];
+        bytes[4] = rawBytes[3];
+        bytes[3] = rawBytes[4];
+        bytes[2] = rawBytes[5];
+        bytes[1] = rawBytes[6];
+        bytes[0] = rawBytes[7];
+    }
+#else
+    char *bytes =
+        reinterpret_cast&lt;char *&gt;(&amp;variable) + sizeof variable - k_SIZEOF_INT64;
+    if (k_SIZEOF_INT64 == d_streamBuf-&gt;sgetn(bytes, k_SIZEOF_INT64)) {
+        validate();
+    }
+#endif
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getInt56(bsls::Types::Int64&amp; variable)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    invalidate();
+
+    const int current = d_streamBuf-&gt;sgetc();
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                   STREAMBUF::traits_type::eof() == current)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+    variable = 0x80 &amp; current ? -1 : 0;  // sign extend
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    char *bytes = reinterpret_cast&lt;char *&gt;(&amp;variable);
+    char  rawBytes[k_SIZEOF_INT56];
+    if (k_SIZEOF_INT56 == d_streamBuf-&gt;sgetn(rawBytes, k_SIZEOF_INT56)) {
+        validate();
+        bytes[6] = rawBytes[0];
+        bytes[5] = rawBytes[1];
+        bytes[4] = rawBytes[2];
+        bytes[3] = rawBytes[3];
+        bytes[2] = rawBytes[4];
+        bytes[1] = rawBytes[5];
+        bytes[0] = rawBytes[6];
+    }
+#else
+    char *bytes =
+        reinterpret_cast&lt;char *&gt;(&amp;variable) + sizeof variable - k_SIZEOF_INT56;
+    if (k_SIZEOF_INT56 == d_streamBuf-&gt;sgetn(bytes, k_SIZEOF_INT56)) {
+        validate();
+    }
+#endif
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getUint56(bsls::Types::Uint64&amp; variable)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    invalidate();
+
+    variable = 0;  // zero-extend
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    char *bytes = reinterpret_cast&lt;char *&gt;(&amp;variable);
+    char  rawBytes[k_SIZEOF_INT56];
+    if (k_SIZEOF_INT56 == d_streamBuf-&gt;sgetn(rawBytes, k_SIZEOF_INT56)) {
+        validate();
+        bytes[6] = rawBytes[0];
+        bytes[5] = rawBytes[1];
+        bytes[4] = rawBytes[2];
+        bytes[3] = rawBytes[3];
+        bytes[2] = rawBytes[4];
+        bytes[1] = rawBytes[5];
+        bytes[0] = rawBytes[6];
+    }
+#else
+    char *bytes =
+        reinterpret_cast&lt;char *&gt;(&amp;variable) + sizeof variable - k_SIZEOF_INT56;
+    if (k_SIZEOF_INT56 == d_streamBuf-&gt;sgetn(bytes, k_SIZEOF_INT56)) {
+        validate();
+    }
+#endif
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getInt48(bsls::Types::Int64&amp; variable)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    invalidate();
+
+    const int current = d_streamBuf-&gt;sgetc();
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                   STREAMBUF::traits_type::eof() == current)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+    variable = 0x80 &amp; current ? -1 : 0;  // sign extend
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    char *bytes = reinterpret_cast&lt;char *&gt;(&amp;variable);
+    char  rawBytes[k_SIZEOF_INT48];
+    if (k_SIZEOF_INT48 == d_streamBuf-&gt;sgetn(rawBytes, k_SIZEOF_INT48)) {
+        validate();
+        bytes[5] = rawBytes[0];
+        bytes[4] = rawBytes[1];
+        bytes[3] = rawBytes[2];
+        bytes[2] = rawBytes[3];
+        bytes[1] = rawBytes[4];
+        bytes[0] = rawBytes[5];
+    }
+#else
+    char *bytes =
+        reinterpret_cast&lt;char *&gt;(&amp;variable) + sizeof variable - k_SIZEOF_INT48;
+    if (k_SIZEOF_INT48 == d_streamBuf-&gt;sgetn(bytes, k_SIZEOF_INT48)) {
+        validate();
+    }
+#endif
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getUint48(bsls::Types::Uint64&amp; variable)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    invalidate();
+
+    variable = 0;  // zero-extend
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    char *bytes = reinterpret_cast&lt;char *&gt;(&amp;variable);
+    char  rawBytes[k_SIZEOF_INT48];
+    if (k_SIZEOF_INT48 == d_streamBuf-&gt;sgetn(rawBytes, k_SIZEOF_INT48)) {
+        validate();
+        bytes[5] = rawBytes[0];
+        bytes[4] = rawBytes[1];
+        bytes[3] = rawBytes[2];
+        bytes[2] = rawBytes[3];
+        bytes[1] = rawBytes[4];
+        bytes[0] = rawBytes[5];
+    }
+#else
+    char *bytes =
+        reinterpret_cast&lt;char *&gt;(&amp;variable) + sizeof variable - k_SIZEOF_INT48;
+    if (k_SIZEOF_INT48 == d_streamBuf-&gt;sgetn(bytes, k_SIZEOF_INT48)) {
+        validate();
+    }
+#endif
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getInt40(bsls::Types::Int64&amp; variable)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    invalidate();
+
+    const int current = d_streamBuf-&gt;sgetc();
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                   STREAMBUF::traits_type::eof() == current)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+    variable = 0x80 &amp; current ? -1 : 0;  // sign extend
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    char *bytes = reinterpret_cast&lt;char *&gt;(&amp;variable);
+    char  rawBytes[k_SIZEOF_INT40];
+    if (k_SIZEOF_INT40 == d_streamBuf-&gt;sgetn(rawBytes, k_SIZEOF_INT40)) {
+        validate();
+        bytes[4] = rawBytes[0];
+        bytes[3] = rawBytes[1];
+        bytes[2] = rawBytes[2];
+        bytes[1] = rawBytes[3];
+        bytes[0] = rawBytes[4];
+    }
+#else
+    char *bytes =
+        reinterpret_cast&lt;char *&gt;(&amp;variable) + sizeof variable - k_SIZEOF_INT40;
+    if (k_SIZEOF_INT40 == d_streamBuf-&gt;sgetn(bytes, k_SIZEOF_INT40)) {
+        validate();
+    }
+#endif
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getUint40(bsls::Types::Uint64&amp; variable)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    invalidate();
+
+    variable = 0;  // zero-extend
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    char *bytes = reinterpret_cast&lt;char *&gt;(&amp;variable);
+    char  rawBytes[k_SIZEOF_INT40];
+    if (k_SIZEOF_INT40 == d_streamBuf-&gt;sgetn(rawBytes, k_SIZEOF_INT40)) {
+        validate();
+        bytes[4] = rawBytes[0];
+        bytes[3] = rawBytes[1];
+        bytes[2] = rawBytes[2];
+        bytes[1] = rawBytes[3];
+        bytes[0] = rawBytes[4];
+    }
+#else
+    char *bytes =
+        reinterpret_cast&lt;char *&gt;(&amp;variable) + sizeof variable - k_SIZEOF_INT40;
+    if (k_SIZEOF_INT40 == d_streamBuf-&gt;sgetn(bytes, k_SIZEOF_INT40)) {
+        validate();
+    }
+#endif
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getInt32(int&amp; variable)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    invalidate();
+
+    if (sizeof variable &gt; k_SIZEOF_INT32) {
+        const int current = d_streamBuf-&gt;sgetc();
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                   STREAMBUF::traits_type::eof() == current)) {
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+            return *this;                                             // RETURN
+        }
+        variable = 0x80 &amp; current ? -1 : 0;  // sign extend
+    }
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    char *bytes = reinterpret_cast&lt;char *&gt;(&amp;variable);
+    char  rawBytes[k_SIZEOF_INT32];
+    if (k_SIZEOF_INT32 == d_streamBuf-&gt;sgetn(rawBytes, k_SIZEOF_INT32)) {
+        validate();
+        bytes[3] = rawBytes[0];
+        bytes[2] = rawBytes[1];
+        bytes[1] = rawBytes[2];
+        bytes[0] = rawBytes[3];
+    }
+#else
+    char *bytes =
+        reinterpret_cast&lt;char *&gt;(&amp;variable) + sizeof variable - k_SIZEOF_INT32;
+    if (k_SIZEOF_INT32 == d_streamBuf-&gt;sgetn(bytes, k_SIZEOF_INT32)) {
+        validate();
+    }
+#endif
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getUint32(unsigned int&amp; variable)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    invalidate();
+
+    if (sizeof variable &gt; k_SIZEOF_INT32) {
+        variable = 0;  // zero-extend
+    }
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    char *bytes = reinterpret_cast&lt;char *&gt;(&amp;variable);
+    char  rawBytes[k_SIZEOF_INT32];
+    if (k_SIZEOF_INT32 == d_streamBuf-&gt;sgetn(rawBytes, k_SIZEOF_INT32)) {
+        validate();
+        bytes[3] = rawBytes[0];
+        bytes[2] = rawBytes[1];
+        bytes[1] = rawBytes[2];
+        bytes[0] = rawBytes[3];
+    }
+#else
+    char *bytes =
+        reinterpret_cast&lt;char *&gt;(&amp;variable) + sizeof variable - k_SIZEOF_INT32;
+    if (k_SIZEOF_INT32 == d_streamBuf-&gt;sgetn(bytes, k_SIZEOF_INT32)) {
+        validate();
+    }
+#endif
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getInt24(int&amp; variable)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    invalidate();
+
+    const int current = d_streamBuf-&gt;sgetc();
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                   STREAMBUF::traits_type::eof() == current)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+    variable = 0x80 &amp; current ? -1 : 0;  // sign extend
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    char *bytes = reinterpret_cast&lt;char *&gt;(&amp;variable);
+    char  rawBytes[k_SIZEOF_INT24];
+    if (k_SIZEOF_INT24 == d_streamBuf-&gt;sgetn(rawBytes, k_SIZEOF_INT24)) {
+        validate();
+        bytes[2] = rawBytes[0];
+        bytes[1] = rawBytes[1];
+        bytes[0] = rawBytes[2];
+    }
+#else
+    char *bytes =
+        reinterpret_cast&lt;char *&gt;(&amp;variable) + sizeof variable - k_SIZEOF_INT24;
+    if (k_SIZEOF_INT24 == d_streamBuf-&gt;sgetn(bytes, k_SIZEOF_INT24)) {
+        validate();
+    }
+#endif
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getUint24(unsigned int&amp; variable)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    invalidate();
+
+    variable = 0;  // zero-extend
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    char *bytes = reinterpret_cast&lt;char *&gt;(&amp;variable);
+    char  rawBytes[k_SIZEOF_INT24];
+    if (k_SIZEOF_INT24 == d_streamBuf-&gt;sgetn(rawBytes, k_SIZEOF_INT24)) {
+        validate();
+        bytes[2] = rawBytes[0];
+        bytes[1] = rawBytes[1];
+        bytes[0] = rawBytes[2];
+    }
+#else
+    char *bytes =
+        reinterpret_cast&lt;char *&gt;(&amp;variable) + sizeof variable - k_SIZEOF_INT24;
+    if (k_SIZEOF_INT24 == d_streamBuf-&gt;sgetn(bytes, k_SIZEOF_INT24)) {
+        validate();
+    }
+#endif
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getInt16(short&amp; variable)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    invalidate();
+
+    if (sizeof variable &gt; k_SIZEOF_INT16) {
+        const int current = d_streamBuf-&gt;sgetc();
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                   STREAMBUF::traits_type::eof() == current)) {
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+            return *this;                                             // RETURN
+        }
+        variable = 0x80 &amp; current ? -1 : 0;  // sign extend
+    }
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    char *bytes = reinterpret_cast&lt;char *&gt;(&amp;variable);
+    char  rawBytes[k_SIZEOF_INT16];
+    if (k_SIZEOF_INT16 == d_streamBuf-&gt;sgetn(rawBytes, k_SIZEOF_INT16)) {
+        validate();
+        bytes[1] = rawBytes[0];
+        bytes[0] = rawBytes[1];
+    }
+#else
+    char *bytes =
+        reinterpret_cast&lt;char *&gt;(&amp;variable) + sizeof variable - k_SIZEOF_INT16;
+    if (k_SIZEOF_INT16 == d_streamBuf-&gt;sgetn(bytes, k_SIZEOF_INT16)) {
+        validate();
+    }
+#endif
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getUint16(unsigned short&amp; variable)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    invalidate();
+
+    if (sizeof variable &gt; k_SIZEOF_INT16) {
+        variable = 0;  // zero-extend
+    }
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    char *bytes = reinterpret_cast&lt;char *&gt;(&amp;variable);
+    char  rawBytes[k_SIZEOF_INT16];
+    if (k_SIZEOF_INT16 == d_streamBuf-&gt;sgetn(rawBytes, k_SIZEOF_INT16)) {
+        validate();
+        bytes[1] = rawBytes[0];
+        bytes[0] = rawBytes[1];
+    }
+#else
+    char *bytes =
+        reinterpret_cast&lt;char *&gt;(&amp;variable) + sizeof variable - k_SIZEOF_INT16;
+    if (k_SIZEOF_INT16 == d_streamBuf-&gt;sgetn(bytes, k_SIZEOF_INT16)) {
+        validate();
+    }
+#endif
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getInt8(char&amp; variable)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    invalidate();
+
+    const int current = d_streamBuf-&gt;sbumpc();
+    if (STREAMBUF::traits_type::eof() != current) {
+        validate();
+        variable = static_cast&lt;char&gt;(current);
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getInt8(signed char&amp; variable)
+{
+    return getInt8(reinterpret_cast&lt;char&amp;&gt;(variable));
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getUint8(char&amp; variable)
+{
+    return getInt8(variable);
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getUint8(unsigned char&amp; variable)
+{
+    return getInt8(reinterpret_cast&lt;char&amp;&gt;(variable));
+}
+
+                      // *** scalar floating-point values ***
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getFloat64(double&amp; variable)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    invalidate();
+
+    if (sizeof variable &gt; k_SIZEOF_FLOAT64) {
+        variable = 0;  // zero-fill mantissa
+    }
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    char *bytes = reinterpret_cast&lt;char *&gt;(&amp;variable);
+    char  rawBytes[k_SIZEOF_FLOAT64];
+    if (k_SIZEOF_FLOAT64 == d_streamBuf-&gt;sgetn(rawBytes, k_SIZEOF_FLOAT64)) {
+        validate();
+        bytes[sizeof variable - 1] = rawBytes[0];
+        bytes[sizeof variable - 2] = rawBytes[1];
+        bytes[sizeof variable - 3] = rawBytes[2];
+        bytes[sizeof variable - 4] = rawBytes[3];
+        bytes[sizeof variable - 5] = rawBytes[4];
+        bytes[sizeof variable - 6] = rawBytes[5];
+        bytes[sizeof variable - 7] = rawBytes[6];
+        bytes[sizeof variable - 8] = rawBytes[7];
+    }
+#else
+    char *bytes = reinterpret_cast&lt;char *&gt;(&amp;variable);
+    if (k_SIZEOF_FLOAT64 == d_streamBuf-&gt;sgetn(bytes, k_SIZEOF_FLOAT64)) {
+        validate();
+    }
+#endif
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getFloat32(float&amp; variable)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    invalidate();
+
+    if (sizeof variable &gt; k_SIZEOF_FLOAT32) {
+        variable = 0;  // zero-fill mantissa
+    }
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    char *bytes = reinterpret_cast&lt;char *&gt;(&amp;variable);
+    char  rawBytes[k_SIZEOF_FLOAT32];
+    if (k_SIZEOF_FLOAT32 == d_streamBuf-&gt;sgetn(rawBytes, k_SIZEOF_FLOAT32)) {
+        validate();
+        bytes[sizeof variable - 1] = rawBytes[0];
+        bytes[sizeof variable - 2] = rawBytes[1];
+        bytes[sizeof variable - 3] = rawBytes[2];
+        bytes[sizeof variable - 4] = rawBytes[3];
+    }
+#else
+    char *bytes = reinterpret_cast&lt;char *&gt;(&amp;variable);
+    if (k_SIZEOF_FLOAT32 == d_streamBuf-&gt;sgetn(bytes, k_SIZEOF_FLOAT32)) {
+        validate();
+    }
+#endif
+
+    return *this;
+}
+
+                      // *** string values ***
+
+template &lt;class STREAMBUF&gt;
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getString(bsl::string&amp; variable)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    int length;
+    getLength(length);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    // &#39;length&#39; could be corrupt or invalid, so we limit the initial &#39;resize&#39;
+    // to something that can accommodate the preponderance of strings that will
+    // arise in practice.  The remaining portion of a string longer than 16M is
+    // read in via a second pass.
+
+    enum { k_INITIAL_ALLOCATION_SIZE = 16 * 1024 * 1024 };
+
+    const int initialLength = length &lt; k_INITIAL_ALLOCATION_SIZE
+                              ? length
+                              : k_INITIAL_ALLOCATION_SIZE;
+
+    variable.resize(initialLength);
+
+    if (0 == length) {
+        return *this;                                                 // RETURN
+    }
+
+    getArrayUint8(&amp;variable.front(), initialLength);
+    if (isValid() &amp;&amp; length &gt; initialLength) {
+        variable.resize(length);
+        getArrayUint8(&amp;variable[initialLength], length - initialLength);
+    }
+
+    return *this;
+}
+
+                      // *** arrays of integer values ***
+
+template &lt;class STREAMBUF&gt;
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getArrayInt64(bsls::Types::Int64 *variables,
+                                          int                 numVariables)
+{
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 &lt;= numVariables);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const bsls::Types::Int64 *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getInt64(*variables);
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getArrayUint64(bsls::Types::Uint64 *variables,
+                                           int                  numVariables)
+{
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 &lt;= numVariables);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const bsls::Types::Uint64 *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getUint64(*variables);
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getArrayInt56(bsls::Types::Int64 *variables,
+                                          int                 numVariables)
+{
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 &lt;= numVariables);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const bsls::Types::Int64 *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getInt56(*variables);
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getArrayUint56(bsls::Types::Uint64 *variables,
+                                           int                  numVariables)
+{
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 &lt;= numVariables);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const bsls::Types::Uint64 *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getUint56(*variables);
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getArrayInt48(bsls::Types::Int64 *variables,
+                                          int                 numVariables)
+{
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 &lt;= numVariables);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const bsls::Types::Int64 *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getInt48(*variables);
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getArrayUint48(bsls::Types::Uint64 *variables,
+                                           int                  numVariables)
+{
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 &lt;= numVariables);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const bsls::Types::Uint64 *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getUint48(*variables);
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getArrayInt40(bsls::Types::Int64 *variables,
+                                          int                 numVariables)
+{
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 &lt;= numVariables);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const bsls::Types::Int64 *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getInt40(*variables);
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getArrayUint40(bsls::Types::Uint64 *variables,
+                                           int                  numVariables)
+{
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 &lt;= numVariables);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const bsls::Types::Uint64 *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getUint40(*variables);
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getArrayInt32(int *variables, int numVariables)
+{
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 &lt;= numVariables);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const int *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getInt32(*variables);
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getArrayUint32(unsigned int *variables,
+                                           int           numVariables)
+{
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 &lt;= numVariables);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const unsigned int *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getUint32(*variables);
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getArrayInt24(int *variables, int numVariables)
+{
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 &lt;= numVariables);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const int *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getInt24(*variables);
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getArrayUint24(unsigned int *variables,
+                                           int           numVariables)
+{
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 &lt;= numVariables);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const unsigned int *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getUint24(*variables);
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getArrayInt16(short *variables,
+                                          int    numVariables)
+{
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 &lt;= numVariables);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const short *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getInt16(*variables);
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getArrayUint16(unsigned short *variables,
+                                           int             numVariables)
+{
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 &lt;= numVariables);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const unsigned short *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getUint16(*variables);
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getArrayInt8(char *variables,
+                                         int   numVariables)
+{
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 &lt;= numVariables);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const char *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getInt8(*variables);
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getArrayInt8(signed char *variables,
+                                         int          numVariables)
+{
+    BSLS_ASSERT_SAFE(variables);
+    BSLS_ASSERT_SAFE(0 &lt;= numVariables);
+
+    return getArrayInt8(reinterpret_cast&lt;char *&gt;(variables), numVariables);
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getArrayUint8(char *variables,
+                                          int   numVariables)
+{
+    BSLS_ASSERT_SAFE(variables);
+    BSLS_ASSERT_SAFE(0 &lt;= numVariables);
+
+    return getArrayInt8(variables, numVariables);
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getArrayUint8(unsigned char *variables,
+                                          int            numVariables)
+{
+    BSLS_ASSERT_SAFE(variables);
+    BSLS_ASSERT_SAFE(0 &lt;= numVariables);
+
+    return getArrayInt8(reinterpret_cast&lt;char *&gt;(variables), numVariables);
+}
+
+                      // *** arrays of floating-point values ***
+
+template &lt;class STREAMBUF&gt;
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getArrayFloat64(double *variables,
+                                            int     numVariables)
+{
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 &lt;= numVariables);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const double *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getFloat64(*variables);
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+GenericInStream&lt;STREAMBUF&gt;&amp;
+GenericInStream&lt;STREAMBUF&gt;::getArrayFloat32(float *variables,
+                                            int    numVariables)
+{
+    BSLS_ASSERT(variables);
+    BSLS_ASSERT(0 &lt;= numVariables);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
+                                              || 0 == numVariables)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const float *end = variables + numVariables;
+    for (; variables != end; ++variables) {
+        getFloat32(*variables);
+    }
+
+    return *this;
+}
+
+// ACCESSORS
+template &lt;class STREAMBUF&gt;
+inline
+GenericInStream&lt;STREAMBUF&gt;::operator const void *() const
+{
+    return isValid() ? this : 0;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+bool GenericInStream&lt;STREAMBUF&gt;::isValid() const
+{
+    return d_validFlag;
+}
+
+template &lt;class STREAMBUF, class TYPE&gt;
+inline
+GenericInStream&lt;STREAMBUF&gt;&amp;
+                operator&gt;&gt;(GenericInStream&lt;STREAMBUF&gt;&amp; stream, TYPE&amp; value)
+{
+    return InStreamFunctions::bdexStreamIn(stream, value);
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2014 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

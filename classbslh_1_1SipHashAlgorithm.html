@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: Class bslh::SipHashAlgorithm</title>
+<title>BDE 2.23.1 OSS: Class bslh::SipHashAlgorithm</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
@@ -79,7 +80,7 @@
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="classbslh_1_1SipHashAlgorithm.html#aab267e46712a58e7d188373bea1cb56aa88b9d67b844992d47454c7ba56835590">k_SEED_LENGTH</a> =  16
+<tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="classbslh_1_1SipHashAlgorithm.html#a74d28baf325f5be86777ba13e3260947a88b9d67b844992d47454c7ba56835590">k_SEED_LENGTH</a> =  16
  }</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef Uint64&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslh_1_1SipHashAlgorithm.html#aaf6889081a535bfbd4259c25f42cd322">result_type</a></td></tr>
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
@@ -106,7 +107,7 @@ Public Member Functions</h2></td></tr>
 </div>
 </div>
 <hr/><h2>Member Enumeration Documentation</h2>
-<a class="anchor" id="aab267e46712a58e7d188373bea1cb56a"></a><!-- doxytag: member="bslh::SipHashAlgorithm::@15" ref="aab267e46712a58e7d188373bea1cb56a" args="" -->
+<a class="anchor" id="a74d28baf325f5be86777ba13e3260947"></a><!-- doxytag: member="bslh::SipHashAlgorithm::@21" ref="a74d28baf325f5be86777ba13e3260947" args="" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -116,8 +117,9 @@ Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
+<p>Seed length in bytes. </p>
 <dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
-<tr><td valign="top"><em><a class="anchor" id="aab267e46712a58e7d188373bea1cb56aa88b9d67b844992d47454c7ba56835590"></a><!-- doxytag: member="k_SEED_LENGTH" ref="aab267e46712a58e7d188373bea1cb56aa88b9d67b844992d47454c7ba56835590" args="" -->k_SEED_LENGTH</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="a74d28baf325f5be86777ba13e3260947a88b9d67b844992d47454c7ba56835590"></a><!-- doxytag: member="k_SEED_LENGTH" ref="a74d28baf325f5be86777ba13e3260947a88b9d67b844992d47454c7ba56835590" args="" -->k_SEED_LENGTH</em>&nbsp;</td><td>
 </td></tr>
 </table>
 </dd>
@@ -141,7 +143,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a <code><a class="el" href="classbslh_1_1SipHashAlgorithm.html">bslh::SipHashAlgorithm</a></code>, seeded with a 128-bit (<code>k_SEED_LENGTH</code> bytes) seed pointed to by the specified <code>seed</code>. Each bit of the supplied seed will contribute to the final hash produced by <code><a class="el" href="classbslh_1_1SipHashAlgorithm.html#aa4e6bfb889af7d0699ef0e35be5fd37f">computeHash()</a></code>. The behaviour is undefined unless <code>seed</code> points to at least 16 bytes of initialized memory. Note that if data in <code>seed</code> is not random, all guarantees of security and denial of service protection are void. </p>
+<p>Create a <code><a class="el" href="classbslh_1_1SipHashAlgorithm.html">bslh::SipHashAlgorithm</a></code>, seeded with a 128-bit (<code>k_SEED_LENGTH</code> bytes) seed pointed to by the specified <code>seed</code>. Each bit of the supplied seed will contribute to the final hash produced by <code><a class="el" href="classbslh_1_1SipHashAlgorithm.html#aa4e6bfb889af7d0699ef0e35be5fd37f">computeHash()</a></code>. The behaviour is undefined unless <code>seed</code> points to at least 16 bytes of initialized memory. Note that if data in <code>seed</code> is not random, all guarantees of security and Denial of Service (DoS) protection are void. </p>
 
 </div>
 </div>
@@ -241,7 +243,7 @@ Public Member Functions</h2></td></tr>
 <li><a class="el" href="bslh__siphashalgorithm_8h_source.html">bslh_siphashalgorithm.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:37 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:34 for BDE Release 2.23.1 Open-Source by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

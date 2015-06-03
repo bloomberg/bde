@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bslalg_autoarraymovedestructor.h                                   -*-C++-*-
@@ -48,7 +48,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //..
 // The copy constructor for the type being inserted may throw, so we need to
 // have a guard object which allows us to make some guarantee about the state
-// of the array after the guard is destroyed.  What we want to guarantee is 
+// of the array after the guard is destroyed.  What we want to guarantee is
 // that there are as many valid objects at the start of the array as before
 // with no other valid objects in existence.
 //
@@ -325,9 +325,9 @@ class AutoArrayMoveDestructor {
         // destruction, moves the range &#39;[ begin, middle )&#39; to the specified
         // &#39;destination&#39; and destroys the &#39;[ middle, end )&#39; range.  The
         // behavior is undefined unless &#39;begin&#39;, &#39;middle&#39;, and &#39;end&#39; refer to
-        // a contiguous sequence of initialized &#39;OBJECT_TYPE&#39; objects, where 
+        // a contiguous sequence of initialized &#39;OBJECT_TYPE&#39; objects, where
         // &#39;begin &lt;= middle &lt;= end&#39;, and &#39;destination&#39; refers to a contiguous
-        // sequence of (uninitialized) memory of sufficent size to hold 
+        // sequence of (uninitialized) memory of sufficient size to hold
         // &#39;end - begin&#39; &#39;OBJECT_TYPE&#39; objects (which must not overlap
         // &#39;[begin, end)&#39;).
 

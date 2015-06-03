@@ -1,0 +1,139 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.23.1 OSS</title>
+<html>
+<pre>
+// bsls_systemclocktype.h                                             -*-C++-*-
+#ifndef INCLUDED_BSLS_SYSTEMCLOCKTYPE
+#define INCLUDED_BSLS_SYSTEMCLOCKTYPE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Enumerate the set of system clock types.
+//
+//@CLASSES:
+//  bsls::SystemClockType: namespace for a clock type &#39;enum&#39;
+//
+//@DESCRIPTION: This component provides a namespace for the &#39;enum&#39; type
+// &#39;bsls::SystemClockType::Enum&#39;, which enumerates the set of system clock
+// types.  A &#39;bsls::SystemClockType&#39; is particularly important when providing
+// time-out values to synchronization methods where those time-outs must be
+// consistent in environments where the system clocks may be changed.
+//
+///Enumerators
+///-----------
+//..
+//  Name          Description
+//  -----------   -------------------------------------------------------------
+//  e_REALTIME    System clock that returns the current wall time maintained by
+//                the system, and which is affected by adjustments to the
+//                system&#39;s clock (i.e., time values returned may jump
+//                &quot;forwards&quot; and &quot;backwards&quot; as the current time-of-day is
+//                changed on the system).
+//
+//  e_MONOTONIC   System clock that returns the elapsed time since some
+//                unspecified starting point in the past.  The returned values
+//                are monotonically non-decreasing, and are generally not
+//                affected by changes to the system time.
+//..
+//
+///USAGE
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
+// The following snippets of code provide a simple illustration of using
+// &#39;bsls::SystemClockType&#39;.
+//
+// First, we create a variable &#39;value&#39; of type &#39;bsls::SystemClockType::Enum&#39;
+// and initialize it with the enumerator value
+// &#39;bsls::SystemClockType::e_MONOTONIC&#39;:
+//..
+//  bsls::SystemClockType::Enum value = bsls::SystemClockType::e_MONOTONIC;
+//..
+// Now, we store the address of its ASCII representation in a pointer variable,
+// &#39;asciiValue&#39;, of type &#39;const char *&#39;:
+//..
+//  const char *asciiValue = bsls::SystemClockType::toAscii(value);
+//..
+// Finally, we verify the value of &#39;asciiValue&#39;:
+//..
+//  assert(0 == strcmp(asciiValue, &quot;MONOTONIC&quot;));
+//..
+
+namespace BloombergLP {
+namespace bsls {
+
+                         // ======================
+                         // struct SystemClockType
+                         // ======================
+
+struct SystemClockType {
+    // This &#39;struct&#39; provides a namespace for enumerating the set of system
+    // clock type for use in distinguishing which system clock to use for
+    // measuring time.  See &#39;Enum&#39; in the TYPES sub-section for details.
+
+  public:
+    // TYPES
+    enum Enum {
+        // Enumeration clock type values.
+
+        e_REALTIME,   // System clock that returns the current wall time
+                      // maintained by the system, and which is affected by
+                      // adjustments to the system&#39;s clock (i.e., time values
+                      // returned may jump &quot;forwards&quot; and &quot;backwards&quot; as the
+                      // current time-of-day is changed on the system).
+
+        e_MONOTONIC   // System clock that returns the elapsed time since some
+                      // unspecified starting point in the past.  The returned
+                      // values are monotonically non-decreasing, and are
+                      // generally not affected by changes to the system time.
+    };
+
+  public:
+    static const char *toAscii(SystemClockType::Enum value);
+        // Return the non-modifiable string representation corresponding to the
+        // specified enumeration &#39;value&#39;, if it exists, and a unique (error)
+        // string otherwise.  The string representation of &#39;value&#39; matches its
+        // corresponding enumerator name with the &quot;e_&quot; prefix elided.  For
+        // example:
+        //..
+        //  bsl::cout &lt;&lt; SystemClockType::toAscii(SystemClockType::e_REALTIME);
+        //..
+        // will print the following on standard output:
+        //..
+        //  REALTIME
+        //..
+        // Note that specifying a &#39;value&#39; that does not match any of the
+        // enumerators will result in a string representation that is distinct
+        // from any of those corresponding to the enumerators, but is otherwise
+        // unspecified.
+};
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2014 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

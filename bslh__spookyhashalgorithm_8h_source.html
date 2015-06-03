@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bslh_spookyhashalgorithm.h                                         -*-C++-*-
@@ -22,14 +22,14 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //@DESCRIPTION: &#39;bslh::SpookyHashAlgorithm&#39; implements the SpookyHash algorithm
 // by Bob Jenkins.  This algorithm is a general purpose algorithm that is known
 // to quickly reach good avalanche performance and execute in time that is
-// comprable to or faster than other industry standard algorithms such as
+// comparable to or faster than other industry standard algorithms such as
 // CityHash.  It is a good default choice for hashing values in unordered
 // associative containers.  For more information, see:
 // http://burtleburtle.net/bob/hash/spooky.html
 //
 // This class satisfies the requirements for regular &#39;bslh&#39; hashing algorithms
-// and seeded &#39;bslh&#39; hashing algorithms, defined in bslh_hash.h and
-// bslh_seededhash.h respectively.  More information can be found in the
+// and seeded &#39;bslh&#39; hashing algorithms, defined in &#39;bslh_hash.h&#39; and
+// &#39;bslh_seededhash.h&#39; respectively.  More information can be found in the
 // package level documentation for &#39;bslh&#39; (internal users can also find
 // information here {TEAM BDE:USING MODULAR HASHING&lt;GO&gt;})
 //
@@ -46,7 +46,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // may still be able to produce keys that will cause a DoS attack in hash
 // tables using this algorithm.  If security is required, an algorithm that
 // documents better secure properties should be used, such as
-// &#39;bslh_siphashalgorithm&#39;.
+// &#39;bslh::SipHashAlgorithm&#39;.
 //
 ///Speed
 ///-----
@@ -65,14 +65,14 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 ///Hash Consistency
 ///----------------
-// This hash algorithm is endian-specific.  It is designed for little endian
-// machines, however, it will run on big endian machines.  On big endian
+// This hash algorithm is endian-specific.  It is designed for little-endian
+// machines, however, it will run on big-endian machines.  On big-endian
 // machines, the Performance and Security Guarantees still apply, however the
 // hashes produced will be different from those produced by the canonical
 // implementation.  The creator of this algorithm acknowledges this and says
 // that the big-endian hashes are just as good as the little-endian ones.  It
 // is not recommended to send hashes from &#39;bslh::SpookyHashAlgorihtm&#39; over a
-// network becuase of the differances in hashes across architectures.  It is
+// network because of the differences in hashes across architectures.  It is
 // also not recommended to write hashes from &#39;bslh::SpookyHashAlgorihtm&#39; to any
 // memory accessible by multiple machines.
 //
@@ -406,7 +406,7 @@ SpookyHashAlgorithm::SpookyHashAlgorithm()
 inline
 SpookyHashAlgorithm::SpookyHashAlgorithm(const char *seed)
 : d_state(
-#if defined(BSLS_PLATFORM_OS_SOLARIS)
+#if !defined(BSLS_PLATFORM_CPU_X86_64) &amp;&amp; !defined(BSLS_PLATFORM_CPU_X86)
           static_cast&lt;Uint64&gt;(seed[0])  &lt;&lt; 56 |
           static_cast&lt;Uint64&gt;(seed[1])  &lt;&lt; 48 |
           static_cast&lt;Uint64&gt;(seed[2])  &lt;&lt; 40 |
@@ -430,7 +430,7 @@ SpookyHashAlgorithm::SpookyHashAlgorithm(const char *seed)
           )
 {
     // These static casts and bit shifts are to prevent unaligned reads, which
-    // will cause runtime errors on Sun machines.
+    // cause runtime errors or bad results on anything but Intel.
 }
 
 // MANIPULATORS

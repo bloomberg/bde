@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bsls_performancehint.h                                             -*-C++-*-
@@ -22,6 +22,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(X): &#39;X&#39; probably evaluates to zero
 //  BSLS_PERFORMANCEHINT_PREDICT_EXPECT(X, Y): &#39;X&#39; probably evaluates to &#39;Y&#39;
 //  BSLS_PERFORMANCEHINT_UNLIKELY_HINT: annotate block unlikely to be taken
+//  BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE: prevent compiler optimizations
 //
 //@DESCRIPTION: This component provides performance hints for the compiler or
 // hardware.  There are currently two types of hints that are supported:
@@ -124,6 +125,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  prefetchForWriting(address)      Prefetches one cache line worth of data at
 //                                   the specified &#39;address&#39; for writing.
 //..
+//
 ///Warning
 ///- - - -
 // These functions must be used *with* *caution*.  Inappropriate use of these
@@ -132,6 +134,22 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // accessed, otherwise prefetching will be pointless.  A profiler should be
 // used to understand the program&#39;s behavior before attempting to optimize with
 // these functions.
+//
+///Optimization Fence
+///------------------
+// The macro &#39;BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE&#39; prevents some compiler
+// optimizations, particularly compiler instruction reordering.  This fence
+// does *not* map to a CPU instruction and has no impact on processor
+// instruction re-ordering, and therefore should not be used to synchronize
+// memory between threads.  The fence may be useful in unusual contexts, like
+// performing benchmarks, or working around bugs identified in the compiler&#39;s
+// optimizer.
+//
+///Warning
+///- - - -
+// This macro should be used *with* *caution*.  The macro will generally
+// decrease the performance of code on which it is applied, and is not
+// implemented on all platforms.
 //
 ///Usage
 ///-----
@@ -352,14 +370,25 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #define INCLUDED_MACHINE_SYS_BUILTINS
 #endif
 
+#ifndef INCLUDED_MACHINE_SYS_INLINE
+#include &lt;machine/sys/inline.h&gt;
+#define INCLUDED_MACHINE_SYS_INLINE
+#endif
+
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_SUN)
 
 #ifndef INCLUDED_SUN_PREFETCH
-#include &lt;sun_prefetch.h&gt;  // for &#39;sparc_prefetch_write_many&#39;,
-                           // &#39;sparc_prefetch_read_many&#39;
+#include &lt;sun_prefetch.h&gt;  // for &#39;sparc_prefetch_write|read_many&#39;
 #define INCLUDED_SUN_PREFETCH
+#endif
+
+#if BSLS_PLATFORM_CMP_VERSION &gt;= 0x5110
+#ifndef INCLUDED_SUN_MBARRIER
+#include &lt;mbarrier.h&gt;
+#define INCLUDED_SUN_MBARRIER
+#endif
 #endif
 
 #endif
@@ -369,6 +398,11 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #ifndef INCLUDED_XMMINTRIN
 #include &lt;xmmintrin.h&gt;     // for &#39;_mm_prefetch&#39;, &#39;_MM_HINT_T0&#39;
 #define INCLUDED_XMMINTRIN
+#endif
+
+#ifndef INCLUDED_INTRIN
+#include &lt;intrin.h&gt;
+#define INCLUDED_INTRIN
 #endif
 
 #endif
@@ -383,8 +417,9 @@ namespace BloombergLP {
 // that support &#39;__builtin_expect&#39;.
 
 #if defined(BDE_BUILD_TARGET_OPT) &amp;&amp;                                          \
-   (defined(BSLS_PLATFORM_CMP_GNU) ||                                        \
-   (defined(BSLS_PLATFORM_CMP_IBM) &amp;&amp; BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 0x0900))
+   (defined(BSLS_PLATFORM_CMP_CLANG) ||                                       \
+    defined(BSLS_PLATFORM_CMP_GNU)   ||                                       \
+    (defined(BSLS_PLATFORM_CMP_IBM) &amp;&amp; BSLS_PLATFORM_CMP_VERSION &gt;= 0x0900))
 
     #define BSLS_PERFORMANCEHINT_PREDICT_LIKELY(expr)                         \
                                               __builtin_expect(!!(expr), 1)
@@ -400,14 +435,68 @@ namespace BloombergLP {
 
 #endif
 
+// Define the &#39;BSLS_PERFORMANCEHINT_HAS_ATTRIBUTE_COLD&#39; and
+// &#39;BSLS_PERFORMANCEHINT_ATTRIBUTE_COLD&#39; macros.
+
+#if defined(BSLS_PLATFORM_CMP_CLANG)
+    #if __has_attribute(cold)
+    #define BSLS_PERFORMANCEHINT_ATTRIBUTE_COLD  __attribute__((cold))
+    #endif
+#elif (defined(BSLS_PLATFORM_CMP_GNU) &amp;&amp; BSLS_PLATFORM_CMP_VERSION &gt;= 40300)
+    #define BSLS_PERFORMANCEHINT_ATTRIBUTE_COLD  __attribute__((cold))
+#endif
+
+#if !defined(BSLS_PERFORMANCEHINT_ATTRIBUTE_COLD)
+    #define BSLS_PERFORMANCEHINT_ATTRIBUTE_COLD
+#else
+    #define BSLS_PERFORMANCEHINT_HAS_ATTRIBUTE_COLD 1
+#endif
+
+
+// Define the &#39;BSLS_PERFORMANCEHINT_UNLIKELY_HINT&#39; macro.
+
 #if defined(BDE_BUILD_TARGET_OPT) &amp;&amp; defined(BSLS_PLATFORM_CMP_SUN)
     #define BSLS_PERFORMANCEHINT_UNLIKELY_HINT                                \
                              BloombergLP::bsls::PerformanceHint::rarelyCalled()
-#elif defined(BDE_BUILD_TARGET_OPT) &amp;&amp; defined(BSLS_PLATFORM_CMP_IBM)
+#elif defined(BDE_BUILD_TARGET_OPT) &amp;&amp;                                        \
+   (defined(BSLS_PLATFORM_CMP_IBM) || BSLS_PERFORMANCEHINT_HAS_ATTRIBUTE_COLD)
     #define BSLS_PERFORMANCEHINT_UNLIKELY_HINT                                \
                              BloombergLP::bsls::PerformanceHint::lowFrequency()
 #else
     #define BSLS_PERFORMANCEHINT_UNLIKELY_HINT
+#endif
+
+                        // =======================================
+                        // BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE
+                        // =======================================
+
+
+#if defined(BSLS_PLATFORM_CMP_IBM)
+
+    #define BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE __fence()
+
+#elif defined(BSLS_PLATFORM_CMP_MSVC)
+
+    #pragma intrinsic(_ReadWriteBarrier)
+    #define BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE _ReadWriteBarrier()
+
+#elif defined(BSLS_PLATFORM_CMP_HP)
+
+    #define BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE                           \
+                             _Asm_sched_fence(_UP_MEM_FENCE|_DOWN_MEM_FENCE)
+
+#elif (defined(BSLS_PLATFORM_CMP_SUN) &amp;&amp; BSLS_PLATFORM_CMP_VERSION &gt;= 0x5110)
+
+    #define BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE __compiler_barrier()
+
+#elif defined(BSLS_PLATFORM_CMP_GNU)                                          \
+   || defined(BSLS_PLATFORM_CMP_CLANG)                                        \
+   || (defined(BSLS_PLATFORM_CMP_SUN) &amp;&amp; BSLS_PLATFORM_CMP_VERSION &gt;= 0x5100)
+
+    #define BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE asm volatile(&quot;&quot;:::&quot;memory&quot;)
+
+#else
+    #error &quot;BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE not implemented&quot;
 #endif
 
 namespace bsls {
@@ -417,8 +506,8 @@ namespace bsls {
                         // ======================
 
 struct PerformanceHint {
-    // This &#39;struct&#39; provides a namespace for a suite of primitive pure
-    // procedures that give performance hints to the compiler or hardware.
+    // This &#39;struct&#39; provides a namespace for a suite of functions that give
+    // performance hints to the compiler or hardware.
 
     // CLASS METHODS
     static void prefetchForReading(const void *address);
@@ -455,6 +544,7 @@ struct PerformanceHint {
 #endif  // BSLS_PLATFORM_CMP_SUN
 #endif  // BDE_BUILD_TARGET_OPT
 
+    BSLS_PERFORMANCEHINT_ATTRIBUTE_COLD
     static void lowFrequency();
         // This is an empty function that is marked with low execution
         // frequency using pragmas.  If this function is placed in a block of
@@ -462,9 +552,9 @@ struct PerformanceHint {
         // generated and mark the block as unlikely.
 };
 
-// ===========================================================================
-//                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
+//                           INLINE DEFINITIONS
+// ============================================================================
 
                         // ----------------------
                         // struct PerformanceHint
@@ -474,7 +564,7 @@ struct PerformanceHint {
 inline
 void PerformanceHint::prefetchForReading(const void *address)
 {
-#if defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
 
     __builtin_prefetch(address, 0);
 
@@ -505,7 +595,7 @@ void PerformanceHint::prefetchForReading(const void *address)
 inline
 void PerformanceHint::prefetchForWriting(void *address)
 {
-#if defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
 
     __builtin_prefetch(address, 1);
 
@@ -535,7 +625,9 @@ void PerformanceHint::prefetchForWriting(void *address)
 }
 
 // This function must be inlined for the pragma to take effect on the branch
-// prediction.
+// prediction in IBM xlC.
+
+BSLS_PERFORMANCEHINT_ATTRIBUTE_COLD
 inline
 void PerformanceHint::lowFrequency()
 {

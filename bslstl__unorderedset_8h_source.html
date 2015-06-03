@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bslstl_unorderedset.h                                              -*-C++-*-
@@ -19,9 +19,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //@SEE_ALSO: bsl+stdhdrs
 //
-//@DESCRIPTION: This component defines a single class template &#39;unordered_set&#39;,
-// implementing the standard container holding a collection of unique keys with
-// no guarantees on ordering.
+//@DESCRIPTION: This component defines a single class template,
+// &#39;bsl::unordered_set&#39;, implementing the standard container holding a
+// collection of unique keys with no guarantees on ordering.
 //
 // An instantiation of &#39;unordered_set&#39; is an allocator-aware, value-semantic
 // type whose salient attributes are its size (number of keys) and the set of
@@ -49,17 +49,17 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 ///Requirements on &#39;KEY&#39;
 ///---------------------
 // An &#39;unordered_set&#39; instantiation is a fully &quot;Value-Semantic Type&quot; (see
-// {&#39;bsldoc_glossary&#39;}) only if the supplied &#39;KEY&#39; template parameters is
-// fully value-semantic.  It is possible to instantiate an &#39;unordered_set&#39; with
-// &#39;KEY&#39; parameter arguments that do not provide a full set of
-// value-semantic operations, but then some methods of the container may not be
-// instantiable.  The following terminology, adopted from the C++11 standard,
-// is used in the function documentation of &#39;unordered_set&#39; to describe a
-// function&#39;s requirements for the &#39;KEY&#39; template parameter.  These terms are
-// also defined in section [utility.arg.requirements] of the C++11 standard.
-// Note that, in the context of an &#39;unordered_set&#39; instantiation, the
-// requirements apply specifically to the &#39;unordered_set&#39;s element type,
-// &#39;value_type&#39;, which is an alias for &#39;KEY&#39;.
+// {&#39;bsldoc_glossary&#39;}) only if the supplied &#39;KEY&#39; template parameters is fully
+// value-semantic.  It is possible to instantiate an &#39;unordered_set&#39; with &#39;KEY&#39;
+// parameter arguments that do not provide a full set of value-semantic
+// operations, but then some methods of the container may not be instantiable.
+// The following terminology, adopted from the C++11 standard, is used in the
+// function documentation of &#39;unordered_set&#39; to describe a function&#39;s
+// requirements for the &#39;KEY&#39; template parameter.  These terms are also defined
+// in section [utility.arg.requirements] of the C++11 standard.  Note that, in
+// the context of an &#39;unordered_set&#39; instantiation, the requirements apply
+// specifically to the &#39;unordered_set&#39;s element type, &#39;value_type&#39;, which is an
+// alias for &#39;KEY&#39;.
 //
 //: &quot;default-constructible&quot;:
 //:     The type provides an accessible default constructor.
@@ -248,16 +248,30 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  | a.rehash(k)                                        | Average: O[n]      |
 //  |                                                    | Worst:   O[n^2]    |
 //  +----------------------------------------------------+--------------------+
-//  | a.resize(k)                                        | Average: O[n]      |
+//  | a.reserve(k)                                       | Average: O[n]      |
 //  |                                                    | Worst:   O[n^2]    |
 //  +----------------------------------------------------+--------------------+
 //..
+//
+///Iterator, pointer and reference invalidation
+///--------------------------------------------
+// No method of &#39;unordered_set&#39; invalidates a pointer or reference to an
+// element in the set, unless it also erases that element, such as any &#39;erase&#39;
+// overload, &#39;clear&#39;, or the destructor (that erases all elements).  Pointers
+// and references are stable through a rehash.
+//
+// Iterators to elements in the container are invalidated by any rehash, so
+// iterators may be invalidated by an &#39;insert&#39; or &#39;emplace&#39; call if it triggers
+// a rehash (but not otherwise).  Iterators to specific elements are also
+// invalidated when that element is erased.  Note that the &#39;end&#39; iterator is
+// not an iterator referring to any element in the container, so may be
+// invalidated by any non-&#39;const&#39; method.
 //
 ///Unordered Set Configuration
 ///---------------------------
 // The unordered set has interfaces that can provide insight into and control
 // of its inner workings.  The syntax and semantics of these interfaces for
-// &#39;bslstl_unoroderedset&#39; are identical to those of &#39;bslstl_unorderedmap&#39;.  See
+// &#39;bslstl_unorderedset&#39; are identical to those of &#39;bslstl_unorderedmap&#39;.  See
 // the discussion in {&#39;bslstl_unorderedmap&#39;|Unordered Map Configuration} and
 // the illustrative material in {&#39;bslstl_unorderedmap&#39;|Example 2}.
 //
@@ -637,8 +651,8 @@ class unordered_set
               class EQUAL2,
               class ALLOCATOR2&gt;
     friend bool operator==(
-                const unordered_set&lt;KEY2, HASH2, EQUAL2, ALLOCATOR2&gt;&amp;,
-                const unordered_set&lt;KEY2, HASH2, EQUAL2, ALLOCATOR2&gt;&amp;);
+                        const unordered_set&lt;KEY2, HASH2, EQUAL2, ALLOCATOR2&gt;&amp;,
+                        const unordered_set&lt;KEY2, HASH2, EQUAL2, ALLOCATOR2&gt;&amp;);
 
   public:
     // PUBLIC TYPES
@@ -677,7 +691,8 @@ class unordered_set
 
   public:
     // CREATORS
-    explicit unordered_set(size_type        initialNumBuckets = 0,
+    explicit unordered_set(
+                      size_type             initialNumBuckets = 0,
                       const hasher&amp;         hashFunction = hasher(),
                       const key_equal&amp;      keyEqual = key_equal(),
                       const allocator_type&amp; basicAllocator = allocator_type());
@@ -867,8 +882,8 @@ class unordered_set
         // requires that the (template parameter) type &#39;KEY&#39; be
         // &quot;copy-constructible&quot; (see {Requirements on &#39;KEY&#39;}).
 
-    template &lt;class INPUT_ITERATOR&gt; void insert(INPUT_ITERATOR first,
-            INPUT_ITERATOR last);
+    template &lt;class INPUT_ITERATOR&gt;
+    void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
         // Insert into this set the value of each &#39;value_type&#39; object in the
         // range starting at the specified &#39;first&#39; iterator and ending
         // immediately before the specified &#39;last&#39; iterator, whose key is not
@@ -914,7 +929,8 @@ class unordered_set
         // &#39;propagate_on_container_swap&#39; is &#39;true&#39;.
 
     // ACCESSORS
-    const_iterator begin() const; const_iterator cbegin() const;
+    const_iterator begin() const;
+    const_iterator cbegin() const;
         // Return an iterator providing non-modifiable access to the first
         // &#39;value_type&#39; object (in the sequence of &#39;value_type&#39; objects)
         // maintained by this set, or the &#39;end&#39; iterator if this set is empty.
@@ -1046,8 +1062,8 @@ bool operator!=(const unordered_set&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;&amp; lhs,
 
 
 template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
-void swap(unordered_set&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;&amp; x,
-          unordered_set&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;&amp; y);
+void swap(unordered_set&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;&amp; a,
+          unordered_set&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;&amp; b);
     // Swap both the value and the comparator of the specified &#39;a&#39; object with
     // the value and comparator of the specified &#39;b&#39; object.  Additionally if
     // &#39;bslstl::AllocatorTraits&lt;ALLOCATOR&gt;::propagate_on_container_swap&#39; is
@@ -1293,8 +1309,8 @@ inline
 void unordered_set&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::insert(INPUT_ITERATOR first,
                                                         INPUT_ITERATOR last)
 {
-    if (size_type maxInsertions =
-            ::BloombergLP::bslstl::IteratorUtil::insertDistance(first, last)) {
+    if (size_type maxInsertions = static_cast&lt;size_type&gt;(
+           ::BloombergLP::bslstl::IteratorUtil::insertDistance(first, last))) {
         this-&gt;reserve(this-&gt;size() + maxInsertions);
     }
 
@@ -1567,10 +1583,10 @@ bool bsl::operator!=(
 
 template &lt;class KEY, class HASH, class EQUAL, class ALLOCATOR&gt;
 inline
-void bsl::swap(bsl::unordered_set&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;&amp; x,
-               bsl::unordered_set&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;&amp; y)
+void bsl::swap(bsl::unordered_set&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;&amp; a,
+               bsl::unordered_set&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;&amp; b)
 {
-    x.swap(y);
+    a.swap(b);
 }
 
 // ============================================================================

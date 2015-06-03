@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: bslh_seededhash Component</title>
+<title>BDE 2.23.1 OSS: bslh_seededhash Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
@@ -112,7 +113,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This component provides a templated <code>struct</code>, <code><a class="el" href="structbslh_1_1SeededHash.html">bslh::SeededHash</a></code>, that defines a hash-functor that can be used with standard containers (a drop in replacement for <code><a class="el" href="structbsl_1_1hash.html">bsl::hash</a></code>), and which applies the supplied (template parameter) <code>HASH_ALGORITHM</code> to the attributes of the (template parameter) <code>TYPE</code> which have been identified as salient to hashing. The <code><a class="el" href="structbslh_1_1SeededHash.html">bslh::SeededHash</a></code> template parameter <code>HASH_ALGORITHM</code> must be a hashing algorithm that conforms the the requirements outlined below (see <a href="group__bslh__seededhash.html#requirements_for_seeded_bslh_hashing_algorithms" class="el">Requirements for Seeded <code>bslh</code> Hashing Algorithms</a>). Note that there are several hashing algorithms defined in <code>bslh</code>, some of which do not accept seeds, meaning they cannot be used with <code><a class="el" href="structbslh_1_1SeededHash.html">bslh::SeededHash</a></code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><code><a class="el" href="structbslh_1_1SeededHash.html">bslh::SeededHash</a></code> will use the (template parameter) <code>SEED_GENERATOR</code> to generate the seed used to instantiate the <code>HASH_ALGORITHM</code>. The <code><a class="el" href="structbslh_1_1SeededHash.html">bslh::SeededHash</a></code> template parameter <code>SEED_GENERATOR</code> must be a seed generator that conforms the the requirements outlined below (see <a href="group__bslh__seededhash.html#requirements_on_(template_parameter)_type_seed_generator" class="el">Requirements on (template parameter) Type <code>SEED_GENERATOR</code></a>). The seed will be generated once upon construction of <code><a class="el" href="structbslh_1_1SeededHash.html">bslh::SeededHash</a></code> and then held until destruction. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>A call to <code>bslh::Hash::operator()</code> for a (template parameter) <code>TYPE</code> will call the <code>hashAppend</code> free function for <code>TYPE</code> and provide <code>hashAppend</code> an instance of the <code>HASH_ALGORITHM</code> which has been constructed using the stored seed. Clients are expected to define a free-function <code>hashAppend</code> for each of the types they wish to be hashable (see <a class="el" href="bslh__hash_8h.html" title="Provide a struct to run bslh hash algorithms on supported types.">bslh_hash.h</a> for details on <code>hashAppend</code>). More information can be found in the package level documentation for <code>bslh</code> (internal users can also find information here {TEAM BDE:USING MODULAR HASHING&lt;GO&gt;}) </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>A call to <code>bslh::Hash::operator()</code> for a (template parameter) <code>TYPE</code> will call the <code>hashAppend</code> free function for <code>TYPE</code> and provide <code>hashAppend</code> an instance of the <code>HASH_ALGORITHM</code> which has been constructed using the stored seed. Clients are expected to define a free-function <code>hashAppend</code> for each of the types they wish to be hashable (see <code><a class="el" href="bslh__hash_8h.html" title="Provide a struct to run bslh hash algorithms on supported types.">bslh_hash.h</a></code> for details on <code>hashAppend</code>). More information can be found in the package level documentation for <code>bslh</code> (internal users can also find information here {TEAM BDE:USING MODULAR HASHING&lt;GO&gt;}) </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="relationship_to_bslh~3A~3Ahash"></a> <a class="anchor" id="description.relationship_to_bslh~3A~3Ahash"></a> <a class="anchor" id="relationship_to_bslh"></a> <a class="anchor" id="description.relationship_to_bslh"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Relationship to bslh::Hash: </b></dt><dd></dd></dl>
@@ -120,7 +121,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="requirements_for_seeded_bslh_hashing_algorithms"></a> <a class="anchor" id="description.requirements_for_seeded_bslh_hashing_algorithms"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Requirements for Seeded bslh Hashing Algorithms: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Users of this modular hashing system are free write their own hashing algorithms. In order to plug into <code><a class="el" href="structbslh_1_1SeededHash.html">bslh::SeededHash</a></code>, the user-implemented algorithms must meet the requirements for regular <code>bslh</code> hashing algorithms defined in <a class="el" href="bslh__hash_8h.html" title="Provide a struct to run bslh hash algorithms on supported types.">bslh_hash.h</a>, with the exception that a default constructor is not required. The user-implemented algorithm must also implement the interface shown here: <br/>
+<dl class="user"><dt><b></b></dt><dd>Users of this modular hashing system are free write their own hashing algorithms. In order to plug into <code><a class="el" href="structbslh_1_1SeededHash.html">bslh::SeededHash</a></code>, the user-implemented algorithms must meet the requirements for regular <code>bslh</code> hashing algorithms defined in <code><a class="el" href="bslh__hash_8h.html" title="Provide a struct to run bslh hash algorithms on supported types.">bslh_hash.h</a></code>, with the exception that a default constructor is not required. The user-implemented algorithm must also implement the interface shown here: <br/>
 <br/>
 <div class="fragment"><pre class="fragment"> <span class="keyword">class </span>SomeHashAlgorithm
  {
@@ -151,7 +152,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> A The seed generator is default constructible.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> B The seed generator is copy constructible.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div> </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Option A is prefered because it allows <code><a class="el" href="structbslh_1_1SeededHash.html">bslh::SeededHash</a></code> to be defualt constructible. Option B is allowed, but means that <code><a class="el" href="structbslh_1_1SeededHash.html">bslh::SeededHash</a></code> must be passed an already-instantiated <code>SEED_GENERATOR</code> at construction. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Option A is preferred because it allows <code><a class="el" href="structbslh_1_1SeededHash.html">bslh::SeededHash</a></code> to be default constructible. Option B is allowed, but means that <code><a class="el" href="structbslh_1_1SeededHash.html">bslh::SeededHash</a></code> must be passed an already-instantiated <code>SEED_GENERATOR</code> at construction. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.4"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
@@ -272,7 +273,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:27 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:20 for BDE Release 2.23.1 Open-Source by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bslmf_isenum.h                                                     -*-C++-*-
@@ -134,7 +134,7 @@ template &lt;class TYPE&gt;
 struct is_enum
     : integral_constant&lt;
         bool,
-        !is_fundamental&lt;typename remove_cv&lt;TYPE&gt;::type&gt;::value
+        !is_fundamental&lt;TYPE&gt;::value
         &amp;&amp; !is_reference&lt;TYPE&gt;::value
         &amp;&amp; is_convertible&lt;TYPE,
                         BloombergLP::bslmf::IsEnum_AnyArithmeticType&gt;::value
@@ -144,6 +144,32 @@ struct is_enum
     // parameter) &#39;TYPE&#39; is an enumerated type.  This &#39;struct&#39; derives from
     // &#39;bsl::true_type&#39; if the &#39;TYPE&#39; is an enumerated type, and from
     // &#39;bsl::false_type&#39; otherwise.
+};
+
+// Additional partial specializations for cv-qualified types ensure that the
+// correct result is obtained for cv-qualified enums.  Note that there is a
+// peculiar bug wit the IBM xlC compiler that requires an additional use of the
+// &#39;remove_cv&#39; trait to obtain the correct result (without infinite recursion)
+// for arrays of more than one dimension.
+
+template &lt;class TYPE&gt;
+struct is_enum&lt;const TYPE&gt;
+    : is_enum&lt;typename bsl::remove_cv&lt;TYPE&gt;::type&gt;::type {
+};
+
+template &lt;class TYPE&gt;
+struct is_enum&lt;volatile TYPE&gt;
+    : is_enum&lt;typename bsl::remove_cv&lt;TYPE&gt;::type&gt;::type {
+};
+
+template &lt;class TYPE&gt;
+struct is_enum&lt;const volatile TYPE&gt;
+    : is_enum&lt;typename bsl::remove_cv&lt;TYPE&gt;::type&gt;::type {
+};
+
+template &lt;&gt;
+struct is_enum&lt;void&gt;
+    : bsl::false_type {
 };
 
 }  // close namespace bsl

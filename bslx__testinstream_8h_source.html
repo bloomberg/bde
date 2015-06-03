@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bslx_testinstream.h                                                -*-C++-*-
@@ -23,17 +23,18 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //@SEE_ALSO: bslx_testoutstream, bslx_byteinstream
 //
-//@DESCRIPTION: This component implements a byte-array-based input stream class
-// that provides platform-independent input methods (&quot;unexternalization&quot;) on
-// values, and arrays of values, of fundamental types, and on &#39;bsl::string&#39;.
-// This component also verifies, for these types, that the type of data
-// requested from the stream matches what was written to the stream.  This
-// component is meant for testing only.
+//@DESCRIPTION: This component implements a byte-array-based input stream
+// class, &#39;bslx::TestInStream&#39;, that provides platform-independent input
+// methods (&quot;unexternalization&quot;) on values, and arrays of values, of
+// fundamental types, and on &#39;bsl::string&#39;.  &#39;bslx::TestInStream&#39; also
+// verifies, for these types, that the type of data requested from the stream
+// matches what was written to the stream.  &#39;bslx::TestInStream&#39; is meant for
+// testing only.
 //
-// This component reads from a user-supplied buffer directly, with no data
-// copying or assumption of ownership.  The user must therefore make sure that
-// the lifetime and visibility of the buffer is sufficient to satisfy the needs
-// of the input stream.
+// The &#39;bslx::TestInStream&#39; type reads from a user-supplied buffer directly,
+// with no data copying or assumption of ownership.  The user must therefore
+// make sure that the lifetime and visibility of the buffer is sufficient to
+// satisfy the needs of the input stream.
 //
 // This component is intended to be used in conjunction with the
 // &#39;bslx_testoutstream&#39; externalization component.  Each input method of
@@ -43,35 +44,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // rely on being able to read data that was written by any mechanism other than
 // &#39;bslx::TestOutStream&#39;.
 //
-// The supported types and required content are listed in the table below.  All
-// of the fundamental types in the table may be input as scalar values or as
-// homogeneous arrays.  &#39;bsl::string&#39; is input as an &#39;int&#39; representing the
-// string&#39;s length and a homogeneous &#39;char&#39; array for the string&#39;s data.  Note
-// that &#39;Int64&#39; and &#39;Uint64&#39; denote &#39;bsls::Types::Int64&#39; and
-// &#39;bsls::Types::Uint64&#39;, which in turn are &#39;typedef&#39; names for the signed and
-// unsigned 64-bit integer types, respectively, on the host platform:
-//..
-//      C++ TYPE          REQUIRED CONTENT OF ANY PLATFORM-NEUTRAL FORMAT
-//      --------          -----------------------------------------------
-//      Int64             least significant 64 bits (signed)
-//      Uint64            least significant 64 bits (unsigned)
-//      int               least significant 32 bits (signed)
-//      unsigned int      least significant 32 bits (unsigned)
-//      short             least significant 16 bits (signed)
-//      unsigned short    least significant 16 bits (unsigned)
-//      char              least significant  8 bits (platform-dependent)
-//      signed char       least significant  8 bits (signed)
-//      unsigned char     least significant  8 bits (unsigned)
-//      double            IEEE standard 8-byte floating-point value
-//      float             IEEE standard 4-byte floating-point value
-//
-//      bsl::string       BDE implementation of the STL string class
-//..
-// This component also supports compact streaming in of integer types.  In
-// particular, 64-bit values can be streamed in from 40-, 48-, 56-, or 64-bit
-// values, and 32-bit values can be streamed in from 24- or 32-bit values
-// (consistent with what has been written to the stream, of course).  Note
-// that, for signed types, the sign is preserved for all streamed-in values.
+// The supported types and required content are listed in the &#39;bslx&#39;
+// package-level documentation under &quot;Supported Types&quot;.
 //
 // Note that input streams can be *invalidated* explicitly and queried for
 // *validity* and *emptiness*.  Reading from an initially invalid stream has no
@@ -145,9 +119,14 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //    public:
 //      // CLASS METHODS
-//      static int maxSupportedBdexVersion(int serializationVersion);
-//          // Return the &#39;version&#39; to be used with the &#39;bdexStreamOut&#39; method
-//          // corresponding to the specified &#39;serializationVersion&#39;.  See the
+//      static int maxSupportedBdexVersion(int versionSelector);
+//          // Return the maximum valid BDEX format version, as indicated by
+//          // the specified &#39;versionSelector&#39;, to be passed to the
+//          // &#39;bdexStreamOut&#39; method.  Note that it is highly recommended that
+//          // &#39;versionSelector&#39; be formatted as &quot;YYYYMMDD&quot;, a date
+//          // representation.  Also note that &#39;versionSelector&#39; should be a
+//          // *compile*-time-chosen value that selects a format version
+//          // supported by both externalizer and unexternalizer.  See the
 //          // &#39;bslx&#39; package-level documentation for more information on BDEX
 //          // streaming of value-semantic types and containers.
 //
@@ -177,7 +156,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //          // &#39;stream&#39; using the specified &#39;version&#39; format, and return a
 //          // reference to &#39;stream&#39;.  If &#39;stream&#39; is initially invalid, this
 //          // operation has no effect.  If &#39;version&#39; is not supported, this
-//          // object is unaltered and &#39;stream&#39; is invalidated but otherwise
+//          // object is unaltered and &#39;stream&#39; is invalidated, but otherwise
 //          // unmodified.  If &#39;version&#39; is supported but &#39;stream&#39; becomes
 //          // invalid during this operation, this object has an undefined, but
 //          // valid, state.  Note that no version is read from &#39;stream&#39;.  See
@@ -198,14 +177,14 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //      template &lt;class STREAM&gt;
 //      STREAM&amp; bdexStreamOut(STREAM&amp; stream, int version) const;
-//          // Write this value to the specified output &#39;stream&#39; using the
-//          // specified &#39;version&#39; format, and return a reference to &#39;stream&#39;.
-//          // If &#39;stream&#39; is initially invalid, this operation has no effect.
-//          // If &#39;version&#39; is not supported, &#39;stream&#39; is invalidated but
-//          // otherwise unmodified.  Note that &#39;version&#39; is not written to
-//          // &#39;stream&#39;.  See the &#39;bslx&#39; package-level documentation for more
-//          // information on BDEX streaming of value-semantic types and
-//          // containers.
+//          // Write the value of this object, using the specified &#39;version&#39;
+//          // format, to the specified output &#39;stream&#39;, and return a reference
+//          // to &#39;stream&#39;.  If &#39;stream&#39; is initially invalid, this operation
+//          // has no effect.  If &#39;version&#39; is not supported, &#39;stream&#39; is
+//          // invalidated, but otherwise unmodified.  Note that &#39;version&#39; is
+//          // not written to &#39;stream&#39;.  See the &#39;bslx&#39; package-level
+//          // documentation for more information on BDEX streaming of
+//          // value-semantic types and containers.
 //
 //      //...
 //
@@ -232,7 +211,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //  // CLASS METHODS
 //  inline
-//  int MyPerson::maxSupportedBdexVersion(int /* serializationVersion */) {
+//  int MyPerson::maxSupportedBdexVersion(int /* versionSelector */) {
 //      return 1;
 //  }
 //
@@ -378,6 +357,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bsls_types.h&gt;
 #endif
 
+#ifndef INCLUDED_BSL_CSTDDEF
+#include &lt;bsl_cstddef.h&gt;
+#endif
+
 #ifndef INCLUDED_BSL_IOSFWD
 #include &lt;bsl_iosfwd.h&gt;
 #endif
@@ -408,19 +391,19 @@ class TestInStream {
     // the definition of the BDEX &#39;InStream&#39; protocol.
 
     // DATA
-    const char *d_buffer;      // bytes to be unexternalized
+    const char  *d_buffer;      // bytes to be unexternalized
 
-    int         d_numBytes;    // number of bytes in &#39;d_buffer&#39;
+    bsl::size_t  d_numBytes;    // number of bytes in &#39;d_buffer&#39;
 
-    bool        d_validFlag;   // stream validity flag; &#39;true&#39; if stream is in
-                               // valid state, &#39;false&#39; otherwise
+    bool         d_validFlag;   // stream validity flag; &#39;true&#39; if stream is in
+                                // valid state, &#39;false&#39; otherwise
 
-    int         d_quietFlag;   // flag for &quot;quiet&quot; mode
+    int          d_quietFlag;   // flag for &quot;quiet&quot; mode
 
-    int         d_inputLimit;  // number of input op&#39;s before exception
+    int          d_inputLimit;  // number of input op&#39;s before exception
 
-    int         d_cursor;      // index of the next byte to be extracted from
-                               // this stream
+    bsl::size_t  d_cursor;      // index of the next byte to be extracted from
+                                // this stream
 
     // FRIENDS
     friend bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;, const TestInStream&amp;);
@@ -453,7 +436,7 @@ class TestInStream {
         // insufficient data in the buffer.
 
     void checkTypeCodeAndAvailableLength(TypeCode::Enum code,
-                                         int            numExpectedBytes);
+                                         bsl::size_t    numExpectedBytes);
         // Verify the validity of the type code and the sufficiency of data at
         // the current cursor position in the external memory buffer.  Extract
         // the type code at the cursor position from the buffer.  If the type
@@ -481,10 +464,10 @@ class TestInStream {
         // Create an empty test input stream.  Note that the constructed object
         // is useless until a buffer is set with the &#39;reset&#39; method.
 
-    TestInStream(const char *buffer, int numBytes);
+    TestInStream(const char *buffer, bsl::size_t numBytes);
         // Create a test input stream containing the specified initial
         // &#39;numBytes&#39; from the specified &#39;buffer&#39;.  The behavior is undefined
-        // unless &#39;0 &lt;= numBytes&#39; and, if &#39;0 == buffer&#39;, then &#39;0 == numBytes&#39;.
+        // unless &#39;0 == numBytes&#39; if &#39;0 == buffer&#39;.
 
     explicit TestInStream(const bslstl::StringRef&amp; srcData);
         // Create a test input stream containing the specified &#39;srcData&#39;.
@@ -530,18 +513,28 @@ class TestInStream {
         // should be called whenever a value extracted from this stream is
         // determined to be invalid, inconsistent, or otherwise incorrect.
 
-    void seek(int offset);
+    void reset();
+        // Set the index of the next byte to be extracted from this stream to 0
+        // (i.e., the beginning of the stream) and validate this stream if it
+        // is currently invalid.
+
+    void reset(const char *buffer, bsl::size_t numBytes);
+        // Reset this stream to extract from the specified &#39;buffer&#39; containing
+        // the specified &#39;numBytes&#39;, set the index of the next byte to be
+        // extracted to 0 (i.e., the beginning of the stream), and validate
+        // this stream if it is currently invalid.  The behavior is undefined
+        // unless &#39;0 == numBytes&#39; if &#39;0 == buffer&#39;.
+
+    void reset(const bslstl::StringRef&amp; srcData);
+        // Reset this stream to extract from the specified &#39;srcData&#39;, set the
+        // index of the next byte to be extracted to 0 (i.e., the beginning of
+        // the stream), and validate this stream if it is currently invalid.
+
+    void seek(bsl::size_t offset);
         // Set the index of the next byte to be extracted from this stream to
         // the specified &#39;offset&#39; from the beginning of the stream, and
         // validate this stream if it is currently invalid.  The behavior is
-        // undefined unless &#39;0 &lt;= offset &lt;= length()&#39;.
-
-    void setQuiet(bool flagValue);
-        // Set the quiet mode for this test stream to the specified (boolean)
-        // &#39;flagValue&#39;.  If &#39;flagValue&#39; is &#39;true&#39;, then quiet mode is turned ON
-        // and no error messages will be written to standard output.  If
-        // &#39;flagValue&#39; is &#39;false&#39;, then quiet mode is turned OFF.  Note that
-        // quiet mode is turned OFF by default.
+        // undefined unless &#39;offset &lt;= length()&#39;.
 
     void setInputLimit(int limit);
         // Set the number of input operations allowed on this stream to the
@@ -549,22 +542,12 @@ class TestInStream {
         // than 0, no exception is to be thrown.  By default, no exception is
         // scheduled.
 
-    void reset();
-        // Set the index of the next byte to be extracted from this stream to 0
-        // (i.e., the beginning of the stream) and validate this stream if it
-        // is currently invalid.
-
-    void reset(const char *buffer, int numBytes);
-        // Reset this stream to extract from the specified &#39;buffer&#39; containing
-        // the specified &#39;numBytes&#39;, set the index of the next byte to be
-        // extracted to 0 (i.e., the beginning of the stream), and validate
-        // this stream if it is currently invalid.  The behavior is undefined
-        // unless &#39;0 &lt;= numBytes&#39; and, if &#39;0 == buffer&#39;, then &#39;0 == numBytes&#39;.
-
-    void reset(const bslstl::StringRef&amp; srcData);
-        // Reset this stream to extract from the specified &#39;srcData&#39;, set the
-        // index of the next byte to be extracted to 0 (i.e., the beginning of
-        // the stream), and validate this stream if it is currently invalid.
+    void setQuiet(bool flagValue);
+        // Set the quiet mode for this test stream to the specified (boolean)
+        // &#39;flagValue&#39;.  If &#39;flagValue&#39; is &#39;true&#39;, then quiet mode is turned ON
+        // and no error messages will be written to standard output.  If
+        // &#39;flagValue&#39; is &#39;false&#39;, then quiet mode is turned OFF.  Note that
+        // quiet mode is turned OFF by default.
 
                       // *** scalar integer values ***
 
@@ -1114,13 +1097,27 @@ class TestInStream {
         // An invalid stream is a stream for which an input operation was
         // detected to have failed.
 
-    int cursor() const;
+    bsl::size_t cursor() const;
         // Return the index of the next byte to be extracted from this stream.
 
     const char *data() const;
         // Return the address of the contiguous, non-modifiable external memory
         // buffer of this stream.  The behavior of accessing elements outside
         // the range &#39;[ data() .. data() + (length() - 1) ]&#39; is undefined.
+
+    int inputLimit() const;
+        // Return the current number of input requests left before an exception
+        // is thrown.  A negative value indicates that no exception is
+        // scheduled.
+
+    bool isEmpty() const;
+        // Return &#39;true&#39; if this stream is empty, and &#39;false&#39; otherwise.  Note
+        // that this function enables higher-level types to verify that, after
+        // successfully reading all expected data, no data remains.
+
+    bool isQuiet() const;
+        // Return &#39;true&#39; if this stream&#39;s quiet mode is ON, and &#39;false&#39;
+        // otherwise.
 
     bool isValid() const;
         // Return &#39;true&#39; if this stream is valid, and &#39;false&#39; otherwise.  An
@@ -1129,21 +1126,7 @@ class TestInStream {
         // will be valid unless an extraction attempt or explicit invalidation
         // causes it to be otherwise.
 
-    bool isEmpty() const;
-        // Return &#39;true&#39; if this stream is empty, and &#39;false&#39; otherwise.  Note
-        // that this function enables higher-level components to verify that,
-        // after successfully reading all expected data, no data remains.
-
-    bool isQuiet() const;
-        // Return &#39;true&#39; if this stream&#39;s quiet mode is ON, and &#39;false&#39;
-        // otherwise.
-
-    int inputLimit() const;
-        // Return the current number of input requests left before an exception
-        // is thrown.  A negative value indicates that no exception is
-        // scheduled.
-
-    int length() const;
+    bsl::size_t length() const;
         // Return the total number of bytes stored in the external memory
         // buffer.
 };
@@ -1309,7 +1292,7 @@ TestInStream_getProxy(BSLX_STREAM_TYPE *stream)
 namespace bslx {
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
                          // ------------------
@@ -1319,7 +1302,7 @@ namespace bslx {
 // PRIVATE MANIPULATORS
 inline
 void TestInStream::throwExceptionIfInputLimitExhausted(
-                                                   const TypeCode::Enum&amp; code)
+                                                    const TypeCode::Enum&amp; code)
 {
 #ifdef BDE_BUILD_TARGET_EXC
     if (0 &lt;= d_inputLimit) {
@@ -1339,28 +1322,6 @@ void TestInStream::invalidate()
 }
 
 inline
-void TestInStream::seek(int offset)
-{
-    BSLS_ASSERT_SAFE(0 &lt;= offset);
-    BSLS_ASSERT_SAFE(     offset &lt;= length());
-
-    d_cursor    = offset;
-    d_validFlag = 1;
-}
-
-inline
-void TestInStream::setQuiet(bool flagValue)
-{
-    d_quietFlag = flagValue;
-}
-
-inline
-void TestInStream::setInputLimit(int limit)
-{
-    d_inputLimit = limit;
-}
-
-inline
 void TestInStream::reset()
 {
     d_validFlag = true;
@@ -1368,10 +1329,9 @@ void TestInStream::reset()
 }
 
 inline
-void TestInStream::reset(const char *buffer, int numBytes)
+void TestInStream::reset(const char *buffer, bsl::size_t numBytes)
 {
     BSLS_ASSERT_SAFE(buffer || 0 == numBytes);
-    BSLS_ASSERT_SAFE(0 &lt;= numBytes);
 
     d_buffer    = buffer;
     d_numBytes  = numBytes;
@@ -1383,9 +1343,30 @@ inline
 void TestInStream::reset(const bslstl::StringRef&amp; srcData)
 {
     d_buffer    = srcData.data();
-    d_numBytes  = static_cast&lt;int&gt;(srcData.length());
+    d_numBytes  = srcData.length();
     d_validFlag = true;
     d_cursor    = 0;
+}
+
+inline
+void TestInStream::seek(bsl::size_t offset)
+{
+    BSLS_ASSERT_SAFE(offset &lt;= length());
+
+    d_cursor    = offset;
+    d_validFlag = 1;
+}
+
+inline
+void TestInStream::setInputLimit(int limit)
+{
+    d_inputLimit = limit;
+}
+
+inline
+void TestInStream::setQuiet(bool flagValue)
+{
+    d_quietFlag = flagValue;
 }
 
 // ACCESSORS
@@ -1396,7 +1377,7 @@ TestInStream::operator const void *() const
 }
 
 inline
-int TestInStream::cursor() const
+bsl::size_t TestInStream::cursor() const
 {
     return d_cursor;
 }
@@ -1408,9 +1389,9 @@ const char *TestInStream::data() const
 }
 
 inline
-bool TestInStream::isValid() const
+int TestInStream::inputLimit() const
 {
-    return d_validFlag;
+    return d_inputLimit;
 }
 
 inline
@@ -1426,13 +1407,13 @@ bool TestInStream::isQuiet() const
 }
 
 inline
-int TestInStream::inputLimit() const
+bool TestInStream::isValid() const
 {
-    return d_inputLimit;
+    return d_validFlag;
 }
 
 inline
-int TestInStream::length() const
+bsl::size_t TestInStream::length() const
 {
     return d_numBytes;
 }

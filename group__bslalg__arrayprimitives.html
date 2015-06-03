@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: bslalg_arrayprimitives Component</title>
+<title>BDE 2.23.1 OSS: bslalg_arrayprimitives Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
@@ -113,22 +114,22 @@ Namespaces</h2></td></tr>
   ----------------------------  ---------------------------------------------
   defaultConstruct              <span class="stringliteral">&#39;Sc::defaultConstruct&#39;</span> from value <span class="keywordflow">for each</span>
                                 element in the target range, or <span class="stringliteral">&#39;std::memset&#39;</span>
-                                <span class="keywordflow">if</span> <a class="code" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1_1type.html">type</a> has a trivial <span class="keywordflow">default</span> constructor
+                                <span class="keywordflow">if</span> type has a trivial <span class="keywordflow">default</span> constructor
 
   uninitializedFillN            <span class="stringliteral">&#39;Sc::copyConstruct&#39;</span> from value <span class="keywordflow">for each</span>
                                 element in the target range, or <span class="stringliteral">&#39;std::memset&#39;</span>
-                                <span class="keywordflow">if</span> value is all 0s or 1s bits, and <a class="code" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1_1type.html">type</a> is
+                                <span class="keywordflow">if</span> value is all 0s or 1s bits, and type is
                                 bit-wise copyable
 
   copyConstruct                 <span class="stringliteral">&#39;Sc::copyConstruct&#39;</span> from each element in the
                                 original range to the corresponding element
                                 in the target range, or <span class="stringliteral">&#39;std::memcpy&#39;</span> <span class="keywordflow">if</span>
-                                value is null and <a class="code" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1_1type.html">type</a> is bit-wise copyable
+                                value is null and type is bit-wise copyable
 
   destructiveMove               <span class="stringliteral">&#39;Sc::destructiveMove&#39;</span> from each element in
                                 the original range to the corresponding
                                 element in the target range, or <span class="stringliteral">&#39;std::memcpy&#39;</span>
-                                <span class="keywordflow">if</span> <a class="code" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1_1type.html">type</a> is bit-wise moveable
+                                <span class="keywordflow">if</span> type is bit-wise moveable
 
   destructiveMoveAndInsert      <span class="stringliteral">&#39;Sc::destructiveMove&#39;</span> from each element in
                                 the original range to the corresponding
@@ -167,7 +168,7 @@ Namespaces</h2></td></tr>
   rotate                        <span class="stringliteral">&#39;Sc::destructiveMove&#39;</span> to move elements into a
                                 shifting hole along parallel cyclic
                                 permutations, or <span class="stringliteral">&#39;std::memmove&#39;</span> <span class="keywordflow">for</span> small
-                                rotations <span class="keywordflow">if</span> <a class="code" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1_1type.html">type</a> is bit-wise moveable
+                                rotations <span class="keywordflow">if</span> type is bit-wise moveable
 </pre></div><br/>
 <br/>
  The traits under consideration by this component are: <br/>
@@ -351,7 +352,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:27 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:20 for BDE Release 2.23.1 Open-Source by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

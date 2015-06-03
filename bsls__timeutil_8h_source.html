@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bsls_timeutil.h                                                    -*-C++-*-
@@ -49,7 +49,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // The behavior of the timer on windows platforms depends on the interaction of
 // operating system, BIOS, and processor, and certain combinations of the three
 // (particularly older ones) are vulnerable to timer inaccuracy.  For example,
-// frequently the &#39;QueryPerformanceCounter&#39; function that &#39;TmeUtil&#39; uses on
+// frequently the &#39;QueryPerformanceCounter&#39; function that &#39;TimeUtil&#39; uses on
 // Windows will utilize the CPU&#39;s timestamp counter (TSC), and CPUs with speed
 // scaling mechanisms such as SpeedStep (frequently used for power management)
 // will generally see the clock speed vary with the CPU frequency.  However,
@@ -242,9 +242,11 @@ struct TimeUtil {
 #elif defined BSLS_PLATFORM_OS_AIX
     typedef timebasestruct_t                  OpaqueNativeTime;
 #elif defined BSLS_PLATFORM_OS_HPUX
-        typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
+    typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
 #elif defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
-        typedef timespec                          OpaqueNativeTime;
+    typedef timespec                          OpaqueNativeTime;
+#elif defined BSLS_PLATFORM_OS_DARWIN
+    typedef struct { Types::Int64 d_opaque; } OpaqueNativeTime;
 #elif defined BSLS_PLATFORM_OS_UNIX
     typedef timeval                           OpaqueNativeTime;
 #elif defined BSLS_PLATFORM_OS_WINDOWS

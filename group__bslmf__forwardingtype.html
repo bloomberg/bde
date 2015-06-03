@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: bslmf_forwardingtype Component</title>
+<title>BDE 2.23.1 OSS: bslmf_forwardingtype Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
@@ -78,7 +79,13 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#3">Description</a> <ul>
 <li>
-<a href="#3.1">Usage</a> </li>
+<a href="#3.1">Usage</a> <ul>
+<li>
+<a href="#3.1.1">Example 1: Direct look at metafunction results</a> </li>
+<li>
+<a href="#3.1.2">Example 2: A logging invocation wrapper</a> </li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -93,6 +100,8 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><table class="doxtable">
 <tr>
 <td><a class="el" href="structbslmf_1_1ForwardingType.html">bslmf::ForwardingType</a> </td><td>meta-function to determine optimal forwarding type  </td></tr>
+<tr>
+<td><a class="el" href="structbslmf_1_1ForwardingTypeUtil.html">bslmf::ForwardingTypeUtil</a> </td><td>Namespace for forwarding functions  </td></tr>
 </table>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
@@ -100,68 +109,180 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a meta function determining the most efficient forwarding type for a given template type <code>TYPE</code>. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>For instance, on some platforms, non-modifiable references to user types should be taken by <code>const&amp;</code> to avoid a potentially expensive copy, but basic types (e.g., fundamental types, pointer types, function references and pointers) would be more efficiently taken by (non-reference) value, even though this involves making a copy. This is because the copy can then be used internally by the function, whereas a <code>const&amp;</code> cannot and would have to be copied anyway (if used locally by the compiler), adding to the cost of passing the <code>const&amp;</code> argument. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component should not be used except when performance is of highest concern. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component provides a meta function, <code><a class="el" href="structbslmf_1_1ForwardingType.html">bslmf::ForwardingType</a></code>, determining the most efficient forwarding type for a given template type <code>TYPE</code>. The forwarding type is used to pass an argument from the client of a component through a chain of nested function calls to the ultimate consumer of the argument. This component also provides a utility class template, <code><a class="el" href="structbslmf_1_1ForwardingTypeUtil.html">bslmf::ForwardingTypeUtil</a></code>, supplying functions to most efficiently forward an argument to another function. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>For instance, basic types (e.g., fundamental types, pointer types, function references and pointers) can efficiently be passed by value down a chain of nested function calls. However a large object or one with a non-trivial copy constructor would be better passed by const reference, even if the ultimate consumer takes that argument by value. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Another form of optimization is the early decay of arrays to pointers, preventing a proliferation of different template instantiations for every array size being used. Although the outermost function may still be instantiated on the full array type, intermediate functions are all instantiated on the same pointer type, regardless of array size. This decay also applies to reference-to-array types. The user can recover the original array type when forwarding to the final consumer by using <code><a class="el" href="structbslmf_1_1ForwardingTypeUtil.html">bslmf::ForwardingTypeUtil</a>&lt;T&gt;forwardToTarget()</code> (see below). </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>An argument <code>v</code> of type <code>T</code> can be passed as type <code>ForwardingType&lt;T&gt;Type</code> down an arbitrarily-long chain of function calls without ever calling <code>std::forward</code>. However, in order to avoid an extra copy as well as to select the correct overload and instantiation of the eventual target function, it should be converted back to a type that more closely resembles the original <code>T</code> by calling <code>ForwardingTypeUtil&lt;T&gt;forwardToTarget(v)</code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component is intended to be used when performance is of highest concern or when creating function wrappers that are intended to minimize perturbations on the interface of the functions that they wrap. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Note that previous versions of this component forwarded const references to basic types by value instead of by const reference. This transformation was an attempt to avoid an extra dereference operation, but in real use cases the extra dereference happened anyway, on the call to the outermost forwarding function. Moreover, such a transformation is subtly broken because, in the rare case where the target function cares about the address of the reference (e.g., if it compares it to some known address), it would wind up with the address of a temporary copy, rather than the address of the original argument. Thus, the current component forwards references as references in all cases, including for basic types, except in the case of arrays and functions (that decay to pointers). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The following example shows the result of instantiating <code><a class="el" href="structbslmf_1_1ForwardingType.html">bslmf::ForwardingType</a></code> on a number of different types. First declare some types to compare: <br/>
+<dl class="user"><dt><b></b></dt><dd>In this section we show intended use of this component. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_direct_look_at_metafunction_results"></a> <a class="anchor" id="usage.example_1~3A_direct_look_at_metafunction_results"></a> <a class="anchor" id="description.usage.example_1~3A_direct_look_at_metafunction_results"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
+<dl class="user"><dt><b>Example 1: Direct look at metafunction results: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>In this example, we invoke <code>ForwardingType</code> on a variety of types and look at the resulting <code>Type</code> member: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">struct </span>MyType {};
-  <span class="keyword">typedef</span> <span class="keywordtype">int</span>                    T1;
-  <span class="keyword">typedef</span> <span class="keywordtype">int</span>&amp;                   T2;
-  <span class="keyword">typedef</span> <span class="keyword">const</span> <span class="keyword">volatile</span> <span class="keywordtype">double</span>&amp; T3;
-  <span class="keyword">typedef</span> <span class="keyword">const</span> <span class="keywordtype">double</span> &amp;         T4;
-  <span class="keyword">typedef</span> <span class="keyword">const</span> <span class="keywordtype">float</span> * &amp;        T5;
-  <span class="keyword">typedef</span> <span class="keyword">const</span> <span class="keywordtype">float</span> * <span class="keyword">const</span> &amp;  T6;
-  <span class="keyword">typedef</span> MyType                 T7;
-  <span class="keyword">typedef</span> <span class="keyword">const</span> MyType&amp;          T8;
-  <span class="keyword">typedef</span> MyType&amp;                T9;
-  <span class="keyword">typedef</span> Mytype*                T10;
+  <span class="keyword">typedef</span> MyType&amp; MyTypeRef;
+
+  <span class="keywordtype">void</span> main()
+      <span class="comment">// Usage example.</span>
+  {
+      <span class="keyword">typedef</span> <span class="keywordtype">int</span>                     T1;
+      <span class="keyword">typedef</span> <span class="keywordtype">int</span>&amp;                    T2;
+      <span class="keyword">typedef</span> <span class="keyword">const</span> <span class="keyword">volatile</span> <span class="keywordtype">double</span>&amp;  T3;
+      <span class="keyword">typedef</span> <span class="keyword">const</span> <span class="keywordtype">double</span> &amp;          T4;
+      <span class="keyword">typedef</span> <span class="keyword">const</span> <span class="keywordtype">float</span> * &amp;         T5;
+      <span class="keyword">typedef</span> <span class="keyword">const</span> <span class="keywordtype">float</span> * <span class="keyword">const</span> &amp;   T6;
+      <span class="keyword">typedef</span> MyType                  T7;
+      <span class="keyword">typedef</span> <span class="keyword">const</span> MyType&amp;           T8;
+      <span class="keyword">typedef</span> MyType&amp;                 T9;
+      <span class="keyword">typedef</span> MyType                 *T10;
+
+      <span class="keyword">typedef</span> <span class="keywordtype">int</span>                     EXP1;
+      <span class="keyword">typedef</span> <span class="keywordtype">int</span>&amp;                    EXP2;
+      <span class="keyword">typedef</span> <span class="keyword">const</span> <span class="keyword">volatile</span> <span class="keywordtype">double</span>&amp;  EXP3;
+      <span class="keyword">typedef</span> <span class="keyword">const</span> <span class="keywordtype">double</span> &amp;          EXP4;
+      <span class="keyword">typedef</span> <span class="keyword">const</span> <span class="keywordtype">float</span> * &amp;         EXP5;
+      <span class="keyword">typedef</span> <span class="keyword">const</span> <span class="keywordtype">float</span> * <span class="keyword">const</span> &amp;   EXP6;
+      <span class="keyword">typedef</span> <span class="keyword">const</span> MyType&amp;           EXP7;
+      <span class="keyword">typedef</span> <span class="keyword">const</span> MyType&amp;           EXP8;
+      <span class="keyword">typedef</span> MyType&amp;                 EXP9;
+      <span class="keyword">typedef</span> MyType                 *EXP10;
+
+      assert((<a class="code" href="structbsl_1_1is__same.html">bsl::is_same</a>&lt;<a class="code" href="structbslmf_1_1ForwardingType.html#a0f731f7bfa609190d7712029e72865ab">bslmf::ForwardingType&lt;T1&gt;::Type</a>, EXP1&gt;::value));
+      assert((<a class="code" href="structbsl_1_1is__same.html">bsl::is_same</a>&lt;<a class="code" href="structbslmf_1_1ForwardingType.html#a0f731f7bfa609190d7712029e72865ab">bslmf::ForwardingType&lt;T2&gt;::Type</a>, EXP2&gt;::value));
+      assert((<a class="code" href="structbsl_1_1is__same.html">bsl::is_same</a>&lt;<a class="code" href="structbslmf_1_1ForwardingType.html#a0f731f7bfa609190d7712029e72865ab">bslmf::ForwardingType&lt;T3&gt;::Type</a>, EXP3&gt;::value));
+      assert((<a class="code" href="structbsl_1_1is__same.html">bsl::is_same</a>&lt;<a class="code" href="structbslmf_1_1ForwardingType.html#a0f731f7bfa609190d7712029e72865ab">bslmf::ForwardingType&lt;T4&gt;::Type</a>, EXP4&gt;::value));
+      assert((<a class="code" href="structbsl_1_1is__same.html">bsl::is_same</a>&lt;<a class="code" href="structbslmf_1_1ForwardingType.html#a0f731f7bfa609190d7712029e72865ab">bslmf::ForwardingType&lt;T5&gt;::Type</a>, EXP5&gt;::value));
+      assert((<a class="code" href="structbsl_1_1is__same.html">bsl::is_same</a>&lt;<a class="code" href="structbslmf_1_1ForwardingType.html#a0f731f7bfa609190d7712029e72865ab">bslmf::ForwardingType&lt;T6&gt;::Type</a>, EXP6&gt;::value));
+      assert((<a class="code" href="structbsl_1_1is__same.html">bsl::is_same</a>&lt;<a class="code" href="structbslmf_1_1ForwardingType.html#a0f731f7bfa609190d7712029e72865ab">bslmf::ForwardingType&lt;T7&gt;::Type</a>, EXP7&gt;::value));
+      assert((<a class="code" href="structbsl_1_1is__same.html">bsl::is_same</a>&lt;<a class="code" href="structbslmf_1_1ForwardingType.html#a0f731f7bfa609190d7712029e72865ab">bslmf::ForwardingType&lt;T8&gt;::Type</a>, EXP8&gt;::value));
+      assert((<a class="code" href="structbsl_1_1is__same.html">bsl::is_same</a>&lt;<a class="code" href="structbslmf_1_1ForwardingType.html#a0f731f7bfa609190d7712029e72865ab">bslmf::ForwardingType&lt;T9&gt;::Type</a>, EXP9&gt;::value));
+      assert((<a class="code" href="structbsl_1_1is__same.html">bsl::is_same</a>&lt;<a class="code" href="structbslmf_1_1ForwardingType.html#a0f731f7bfa609190d7712029e72865ab">bslmf::ForwardingType&lt;T10&gt;::Type</a>, EXP10&gt;::value));
+  }
 </pre></div><br/>
 <br/>
- Next declare the expected result types: <br/>
+ </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_a_logging_invocation_wrapper"></a> <a class="anchor" id="usage.example_2~3A_a_logging_invocation_wrapper"></a> <a class="anchor" id="description.usage.example_2~3A_a_logging_invocation_wrapper"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.1.2"></a> </dd></dl>
+<dl class="user"><dt><b>Example 2: A logging invocation wrapper: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This example illustrates the use of <code>ForwardingType</code> to efficiently implement a wrapper class that holds a function pointer and logs information about each call to the pointed-to-function through the wrapper. Suppose the pointed-to-function takes three arguments whose types are specified via template arguments, where the first argument is required to be convertible to <code>int</code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>First we create a wrapper class that holds a function pointer of the desired type: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keyword">typedef</span> <span class="keywordtype">int</span>                    EXP1;
-  <span class="keyword">typedef</span> <span class="keywordtype">int</span>&amp;                   EXP2;
-  <span class="keyword">typedef</span> <span class="keyword">const</span> <span class="keyword">volatile</span> <span class="keywordtype">double</span>&amp; EXP3;
-  <span class="keyword">typedef</span> <span class="keywordtype">double</span>                 EXP4;
-  <span class="keyword">typedef</span> <span class="keyword">const</span> <span class="keywordtype">float</span> * &amp;        EXP5;
-  <span class="keyword">typedef</span> <span class="keyword">const</span> <span class="keywordtype">float</span> *          EXP6;
-  <span class="keyword">typedef</span> <span class="keyword">const</span> MyType&amp;          EXP7;
-  <span class="keyword">typedef</span> <span class="keyword">const</span> MyType&amp;          EXP8;
-  <span class="keyword">typedef</span> MyType&amp;                EXP9;
-  <span class="keyword">typedef</span> Mytype*                EXP10;
+<div class="fragment"><pre class="fragment">  <span class="comment">// Primary template is never defined.</span>
+  <span class="keyword">template</span> &lt;<span class="keyword">class</span> PROTOTYPE&gt;
+  <span class="keyword">class </span>LoggingWrapper;
+
+  <span class="keyword">template</span> &lt;<span class="keyword">class</span> RET, <span class="keyword">class</span> ARG1, <span class="keyword">class</span> ARG2, <span class="keyword">class</span> ARG3&gt;
+  <span class="keyword">class </span>LoggingWrapper&lt;RET(ARG1, ARG2, ARG3)&gt; {
+      <span class="comment">// Specialization of wrapper for specified function prototype.</span>
+
+      RET (*d_function_p)(ARG1, ARG2, ARG3);
+
+    <span class="keyword">public</span>:
+      <span class="keyword">explicit</span> LoggingWrapper(RET (*function_p)(ARG1, ARG2, ARG3))
+          <span class="comment">// Create a &#39;LoggingWrapper&#39; object for the specified &#39;function_p&#39;</span>
+          <span class="comment">// function.</span>
+        : d_function_p(function_p) { }
 </pre></div><br/>
 <br/>
- Finally, check that they match: <br/>
+ Then, we declare an overload of the function-call operator that actually invokes the wrapped function. In order to avoid excessive copies of pass-by-value arguments, we use <code>ForwardingType</code> to declare a more efficient intermediate argument type to forward to the wrapped function pointer: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  assert(1 == (<a class="code" href="structbsl_1_1is__same.html">bsl::is_same</a>&lt;<a class="code" href="structbslmf_1_1ForwardingType.html#a6951e13ec29a4a16cb7950d758d8c1ea">bslmf::ForwardingType&lt;T1&gt;::Type</a>,
-                             EXP1&gt;::value));
-  assert(1 == (<a class="code" href="structbsl_1_1is__same.html">bsl::is_same</a>&lt;<a class="code" href="structbslmf_1_1ForwardingType.html#a6951e13ec29a4a16cb7950d758d8c1ea">bslmf::ForwardingType&lt;T2&gt;::Type</a>,
-                             EXP2&gt;::value));
-  assert(1 == (<a class="code" href="structbsl_1_1is__same.html">bsl::is_same</a>&lt;<a class="code" href="structbslmf_1_1ForwardingType.html#a6951e13ec29a4a16cb7950d758d8c1ea">bslmf::ForwardingType&lt;T3&gt;::Type</a>,
-                             EXP3&gt;::value));
-  assert(1 == (<a class="code" href="structbsl_1_1is__same.html">bsl::is_same</a>&lt;<a class="code" href="structbslmf_1_1ForwardingType.html#a6951e13ec29a4a16cb7950d758d8c1ea">bslmf::ForwardingType&lt;T4&gt;::Type</a>,
-                             EXP4&gt;::value));
-  assert(1 == (<a class="code" href="structbsl_1_1is__same.html">bsl::is_same</a>&lt;<a class="code" href="structbslmf_1_1ForwardingType.html#a6951e13ec29a4a16cb7950d758d8c1ea">bslmf::ForwardingType&lt;T5&gt;::Type</a>,
-                             EXP5&gt;::value));
-  assert(1 == (<a class="code" href="structbsl_1_1is__same.html">bsl::is_same</a>&lt;<a class="code" href="structbslmf_1_1ForwardingType.html#a6951e13ec29a4a16cb7950d758d8c1ea">bslmf::ForwardingType&lt;T6&gt;::Type</a>,
-                             EXP6&gt;::value));
-  assert(1 == (<a class="code" href="structbsl_1_1is__same.html">bsl::is_same</a>&lt;<a class="code" href="structbslmf_1_1ForwardingType.html#a6951e13ec29a4a16cb7950d758d8c1ea">bslmf::ForwardingType&lt;T7&gt;::Type</a>,
-                             EXP7&gt;::value));
-  assert(1 == (<a class="code" href="structbsl_1_1is__same.html">bsl::is_same</a>&lt;<a class="code" href="structbslmf_1_1ForwardingType.html#a6951e13ec29a4a16cb7950d758d8c1ea">bslmf::ForwardingType&lt;T8&gt;::Type</a>,
-                             EXP8&gt;::value));
-  assert(1 == (<a class="code" href="structbsl_1_1is__same.html">bsl::is_same</a>&lt;<a class="code" href="structbslmf_1_1ForwardingType.html#a6951e13ec29a4a16cb7950d758d8c1ea">bslmf::ForwardingType&lt;T9&gt;::Type</a>,
-                             EXP9&gt;::value));
-  assert(1 == (<a class="code" href="structbsl_1_1is__same.html">bsl::is_same</a>&lt;<a class="code" href="structbslmf_1_1ForwardingType.html#a6951e13ec29a4a16cb7950d758d8c1ea">bslmf::ForwardingType&lt;T10&gt;::Type</a>,
-                             EXP10&gt;::value));
+<div class="fragment"><pre class="fragment">      RET operator()(<span class="keyword">typename</span> <a class="code" href="structbslmf_1_1ForwardingType.html#a0f731f7bfa609190d7712029e72865ab">bslmf::ForwardingType&lt;ARG1&gt;::Type</a> a1,
+                     <span class="keyword">typename</span> <a class="code" href="structbslmf_1_1ForwardingType.html#a0f731f7bfa609190d7712029e72865ab">bslmf::ForwardingType&lt;ARG2&gt;::Type</a> a2,
+                     <span class="keyword">typename</span> <a class="code" href="structbslmf_1_1ForwardingType.html#a0f731f7bfa609190d7712029e72865ab">bslmf::ForwardingType&lt;ARG3&gt;::Type</a> a3) <span class="keyword">const</span>;
+          <span class="comment">// Invoke the stored function pointer with the specified &#39;a1&#39;,</span>
+          <span class="comment">// &#39;a2&#39;, and &#39;a3&#39; arguments, logging the invocation and returning</span>
+          <span class="comment">// the result of the function pointer invocation.</span>
+  };
+</pre></div><br/>
+<br/>
+ Next, we define logging functions that simply count the number of invocations and number of returns from invocations (e.g., to count how may invocations completed without exiting via exceptions): <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keywordtype">int</span> invocations = 0, returns = 0;
+  <span class="keywordtype">void</span> logInvocation(<span class="keywordtype">int</span> <span class="comment">/* ignored */</span>) { ++invocations; }
+      <span class="comment">// Log an invocation of the wrapped function.</span>
+  <span class="keywordtype">void</span> logReturn(<span class="keywordtype">int</span> <span class="comment">/* ignored */</span>) { ++returns; }
+      <span class="comment">// Log a return from the wrapped function.</span>
+</pre></div><br/>
+<br/>
+ Now, we implement <code>operator()</code> to call the logging functions, either side of calling the logged function through the wrapped pointer. To reconstitute the arguments to the function as close as possible to the types they were passed in as, we call the <code>forwardToTarget</code> member of <code>ForwardingTypeUtil</code>: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> RET, <span class="keyword">class</span> ARG1, <span class="keyword">class</span> ARG2, <span class="keyword">class</span> ARG3&gt;
+  RET LoggingWrapper&lt;RET(ARG1, ARG2, ARG3)&gt;::operator()(
+                       <span class="keyword">typename</span> <a class="code" href="structbslmf_1_1ForwardingType.html#a0f731f7bfa609190d7712029e72865ab">bslmf::ForwardingType&lt;ARG1&gt;::Type</a> a1,
+                       <span class="keyword">typename</span> <a class="code" href="structbslmf_1_1ForwardingType.html#a0f731f7bfa609190d7712029e72865ab">bslmf::ForwardingType&lt;ARG2&gt;::Type</a> a2,
+                       <span class="keyword">typename</span> <a class="code" href="structbslmf_1_1ForwardingType.html#a0f731f7bfa609190d7712029e72865ab">bslmf::ForwardingType&lt;ARG3&gt;::Type</a> a3)<span class="keyword"> const </span>{
+      logInvocation(a1);
+      RET r = d_function_p(
+          <a class="code" href="structbslmf_1_1ForwardingTypeUtil.html">bslmf::ForwardingTypeUtil&lt;ARG1&gt;::forwardToTarget</a>(a1),
+          <a class="code" href="structbslmf_1_1ForwardingTypeUtil.html">bslmf::ForwardingTypeUtil&lt;ARG2&gt;::forwardToTarget</a>(a2),
+          <a class="code" href="structbslmf_1_1ForwardingTypeUtil.html">bslmf::ForwardingTypeUtil&lt;ARG3&gt;::forwardToTarget</a>(a3));
+      logReturn(a1);
+      <span class="keywordflow">return</span> r;
+  }
+</pre></div><br/>
+<br/>
+ Then, in order to see this wrapper in action, we must define a function we wish to wrap. This function will take an argument of type <code>ArgType</code> that holds an integer <code>value</code> and keeps track of whether it has been directly constructed or copied from anther <code>ArgType</code> object. If it has been copied, it keeps track of how many "generations" of copy were made: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">class </span>ArgType {
+      <span class="keywordtype">int</span> d_value;
+      <span class="keywordtype">int</span> d_copies;
+    <span class="keyword">public</span>:
+      <span class="keyword">explicit</span> ArgType(<span class="keywordtype">int</span> v = 0) : d_value(v), d_copies(0) { }
+          <span class="comment">// Create an &#39;ArgType&#39; object.  Optionally specify &#39;v&#39; as the</span>
+          <span class="comment">// initial value of this &#39;ArgType&#39; object, otherwise this object</span>
+          <span class="comment">// will hold the value 0.</span>
+
+      ArgType(<span class="keyword">const</span> ArgType&amp; original)
+          <span class="comment">// Create an &#39;ArgType&#39; object that is a copy of the specified</span>
+          <span class="comment">// &#39;original&#39;.</span>
+      : d_value(original.d_value)
+      , d_copies(original.d_copies + 1)
+      { }
+
+      <span class="keywordtype">int</span> copies()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> d_copies; }
+          <span class="comment">// Return the number of copies that this object is from the</span>
+          <span class="comment">// original.</span>
+
+      <span class="keywordtype">int</span> value()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> d_value; }
+          <span class="comment">// Return the value of this object.</span>
+  };
+
+  <span class="keywordtype">int</span> myFunc(<span class="keyword">const</span> <span class="keywordtype">short</span>&amp; i, ArgType&amp; x, ArgType y)
+      <span class="comment">// Assign the specified &#39;x&#39; the value of the specified &#39;y&#39; and return</span>
+      <span class="comment">// the &#39;value()&#39; of &#39;x&#39;.  Verify that the specified &#39;i&#39; matches</span>
+      <span class="comment">// &#39;y.copies()&#39;.  &#39;x&#39; is passed by reference in order to demonstrate</span>
+      <span class="comment">// forwarding of reference arguments.</span>
+  {
+      assert(i == y.copies());
+      x = y;
+      <span class="keywordflow">return</span> x.value();
+  }
+</pre></div><br/>
+<br/>
+ Finally, we create a instance of <code>LoggingWrapper</code> to wrap <code>myFunc</code>, and we invoke it. Note that <code>y</code> is copied into the second argument of <code>operator()</code> and is copied again when <code>myFunc</code> is invoked. However, it is <em>not</em> copied when <code>operator()</code> calls <code>invoke()</code> because the <code>ForwardType</code> of <code>ArgType</code> is <code>const ArgType&amp;</code>, which does not create another copy. In C++11, if <code>ArgType</code> had a move constructor, then the number of copies would be only 1, since the final forwarding would be a move instead of a copy. <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keywordtype">void</span> usageExample2()
+      <span class="comment">// Usage Example</span>
+  {
+      ArgType x(0);
+      ArgType y(99);
+
+      LoggingWrapper&lt;int(const short&amp;, ArgType&amp;, ArgType)&gt; lw(myFunc);
+      assert(0 == invocations &amp;&amp; 0 == returns);
+      lw(1, x, y);  <span class="comment">// Expect exactly one copy of &#39;y&#39;</span>
+      assert(1 == invocations &amp;&amp; 1 == returns);
+      assert(99 == x.value());
+  }
 </pre></div><br/>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:28 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:21 for BDE Release 2.23.1 Open-Source by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

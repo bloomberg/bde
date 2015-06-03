@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bslalg_hashtableimputil.h                                          -*-C++-*-
@@ -104,7 +104,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 ///&#39;KEY_CONFIG&#39; Template Parameter
 ///-------------------------------
 // Several of the operations provided by &#39;HashTableImpUtil&#39; are template
-// functions parametrized on the typename &#39;KEY_CONFIG&#39;.
+// functions parameterized on the typename &#39;KEY_CONFIG&#39;.
 //
 ///&#39;KEY_CONFIG&#39;
 /// - - - - - -
@@ -393,7 +393,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // Then, we customize our table to manipulate zero-terminated &#39;const char *&#39;
 // strings.  We make the simplifying assumption that the strings pointed at by
 // the &#39;const char *&#39;s are longer-lived that the &#39;HashSet&#39; will be.  We must
-// provide an equality comparator so that two copies, in diffferent locations,
+// provide an equality comparator so that two copies, in different locations,
 // of the same sequence of characters will evaluate equal:
 //..
 //  struct StringEqual {
@@ -449,7 +449,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  assert(1 == hs.insert(&quot;meow&quot;));
 //..
 // Next, we attempt to insert a redundant value, and observe that the &#39;insert&#39;
-// mthod returns &#39;false&#39; to indicate that the insert was refused:
+// method returns &#39;false&#39; to indicate that the insert was refused:
 //..
 //  assert(0 == hs.insert(&quot;woof&quot;));
 //..
@@ -469,7 +469,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //..
 // Then, we attempt to erase a string which is not in our &#39;HashSet&#39; and observe
 // that &#39;false&#39; is returned, which tells us the &#39;erase&#39; attempt was
-// unsuccesful:
+// unsuccessful:
 //..
 //  assert(0 == hs.erase(&quot;ruff&quot;));
 //..
@@ -559,7 +559,6 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 namespace BloombergLP {
 namespace bslalg {
 
-    
                     // =======================================
                     // class HashTableImpUtil_ExtractKeyResult
                     // =======================================
@@ -897,7 +896,7 @@ void HashTableImpUtil::rehash(HashTableAnchor   *newAnchor,
     BSLS_ASSERT_SAFE(!elementList || !elementList-&gt;previousLink());
 
     class Proctor {
-        // An object of this proctor class guarnatees that, on leaving scope,
+        // An object of this proctor class guarantees that, on leaving scope,
         // any remaining elements in the original specified &#39;elementList&#39; are
         // spliced to the front of the list rooted in the specified &#39;newAnchor&#39;
         // so that there is only one list for the client to clear if an

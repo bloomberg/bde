@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bslmf_ispolymorphic.h                                              -*-C++-*-
@@ -124,8 +124,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bsls_platform.h&gt;
 #endif
 
-#if (defined(BSLS_PLATFORM_CMP_GNU) &amp;&amp; BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 40300)\
- || (defined(BSLS_PLATFORM_CMP_MSVC) &amp;&amp; BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 1500)
+#if (defined(BSLS_PLATFORM_CMP_GNU) &amp;&amp; BSLS_PLATFORM_CMP_VERSION &gt;= 40300)    \
+ || (defined(BSLS_PLATFORM_CMP_MSVC) &amp;&amp; BSLS_PLATFORM_CMP_VERSION &gt;= 1500)    \
+ || defined(BSLS_PLATFORM_CMP_CLANG)
 #define BSLMF_ISPOLYMORPHIC_HAS_INTRINSIC
 #endif
 

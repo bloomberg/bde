@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: bslh_seedgenerator Component</title>
+<title>BDE 2.23.1 OSS: bslh_seedgenerator Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
@@ -107,7 +108,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This component provides a class, <code><a class="el" href="classbslh_1_1SeedGenerator.html">bslh::SeedGenerator</a></code>, which utilizes a user-supplied Random Number Generator (RNG) to generate arbitrary length seeds. The quality of the seeds will only be as good as the quality of the supplied RNG. A cryptographically secure RNG must be supplied in order for <code>SeedGenerator</code> to produce seeds suitable for a cryptographically secure algorithm. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This class satisfies the requirements for a seed generator, defined in <a class="el" href="bslh__seededhash_8h.html" title="Provide a struct to run seeded bslh hash algorithms on types.">bslh_seededhash.h</a>. More information can be found in the package level documentation for <code>bslh</code> (internal users can also find information here {TEAM BDE:USING MODULAR HASHING&lt;GO&gt;}) </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This class satisfies the requirements for a seed generator, defined in <code><a class="el" href="bslh__seededhash_8h.html" title="Provide a struct to run seeded bslh hash algorithms on types.">bslh_seededhash.h</a></code>. More information can be found in the package level documentation for <code>bslh</code> (internal users can also find information here {TEAM BDE:USING MODULAR HASHING&lt;GO&gt;}) </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="requirements_on_rng"></a> <a class="anchor" id="description.requirements_on_rng"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Requirements on RNG: </b></dt><dd></dd></dl>
@@ -219,7 +220,7 @@ Namespaces</h2></td></tr>
   };
 </pre></div><br/>
 <br/>
- Next, we define our constructor where we actually use <code><a class="el" href="classbslh_1_1SeedGenerator.html">bslh::SeedGenerator</a></code>. <code><a class="el" href="classbslh_1_1SeedGenerator.html">bslh::SeedGenerator</a></code> allows us to create arbitarty length seeds to match the requirements of the above declared algorithms. <br/>
+ Next, we define our constructor where we actually use <code><a class="el" href="classbslh_1_1SeedGenerator.html">bslh::SeedGenerator</a></code>. <code><a class="el" href="classbslh_1_1SeedGenerator.html">bslh::SeedGenerator</a></code> allows us to create arbitrary length seeds to match the requirements of the above declared algorithms. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> HASH_ALGORITHM&gt;
   <span class="keyword">template</span>&lt;<span class="keyword">class</span> SEED_GENERATOR&gt;
@@ -272,7 +273,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:27 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:20 for BDE Release 2.23.1 Open-Source by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

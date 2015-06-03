@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: bsls_compilerfeatures Component</title>
+<title>BDE 2.23.1 OSS: bsls_compilerfeatures Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
@@ -76,7 +77,11 @@
 <li>
 <a href="#4.1">Macro Summary</a> </li>
 <li>
-<a href="#4.2">Usage</a> </li>
+<a href="#4.2">Usage</a> <ul>
+<li>
+<a href="#4.2.1">BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS</a> </li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -109,6 +114,8 @@
 <td>BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT </td><td>flag for <code>static_assert</code>  </td></tr>
 <tr>
 <td>BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES </td><td>flag for variadic params.  </td></tr>
+<tr>
+<td>BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS </td><td>flag for <code>alignas</code>.  </td></tr>
 </table>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
@@ -126,11 +133,15 @@
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN</code> This macro is defined if the <code>[[noreturn]]</code> attribute is supported by the current compiler settings for this platform.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE</code> This macro is defined if <code>decltype</code> is supported by the current compiler settings for this platform.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE</code> This macro is defined if <code>extern template</code> is supported by the current compiler settings for this platform.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>BSLS_COMPILERFEATURES_SUPPORT_FINAL</code> This macro is defined if <code>final</code> is supported for classes and member functions by the current compiler settings for this platform.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT</code> This macro is defined if <code>include_next</code> is supported by the current compiler settings for this platform.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>BSLS_COMPILERFEATURES_SUPPORT_NULLPTR</code> This macro is defined if <code>nullptr</code> is supported by the current compiler settings for this platform.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT</code> This macro is defined if the <code>explicit</code> keyword applied to conversion operators is supported by the current compiler settings for this platform.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE</code> This macro is defined if the <code>override</code> keyword is supported by the current compiler settings for this platform.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES</code> This macro is defined if rvalue references are supported by the current compiler settings for this platform.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT</code> This macro is defined if <code>static_assert</code> is supported by the current compiler settings for this platform.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES</code> This macro is defined if variadic template parameters are supported by the current compiler settings for this platform.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS</code> This macro is defined if <code>alignas</code> alignment specifier is supported by the current compiler settings for this platform.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div> </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="4.2"></a> </dd></dl>
@@ -152,12 +163,247 @@
 <span class="preprocessor"></span>  <span class="keyword">template</span> <span class="keyword">class </span><a class="code" href="classbsl_1_1String__Imp.html">bsl::String_Imp&lt;char, bsl::string::size_type&gt;</a>;
   <span class="keyword">template</span> <span class="keyword">class </span><a class="code" href="classbsl_1_1basic__string.html">bsl::basic_string&lt;char&gt;</a>;
 <span class="preprocessor">  #endif</span>
-<span class="preprocessor">  // ...</span>
+<span class="preprocessor"></span>  <span class="comment">// ...</span>
+
+/Feature Support in Compilers
+/----------------------------
+
+/BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+/- - - - - - - - - - - - - - - - - - - - - - -
+ This macro is defined <span class="keywordflow">if</span> the compiler supports syntax to introduce a
+ <span class="keyword">typedef</span>-name <span class="keyword">using</span> alias-declaration syntax, declaring a name <span class="keywordflow">for</span> a family
+ of types.
+
+ &lt;div <span class="keyword">class</span>=<span class="stringliteral">&quot;hanging&quot;</span>&gt;
+ \par
+  Compiler support:
+ &lt;br&gt;
+  gcc 4.7
+  clang 3.0
+  MSVC 2013
+  Oracle CC 12.4
+
+ \par
+ &lt;/div&gt;
+
+/BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
+/ - - - - - - - - - - - - - - - - - - - - - - - -
+ This macro is defined <span class="keywordflow">if</span> the compiler supports <span class="stringliteral">&#39;[[noreturn]]&#39;</span> C++11
+ attribute syntax.  MSVC supports the attribute with alternative syntax
+ __declspec(noreturn), and earlier versions of gcc and clang support the
+ alternative syntax <span class="stringliteral">&#39;__attribute__((noreturn))&#39;</span>.
+
+ &lt;div <span class="keyword">class</span>=<span class="stringliteral">&quot;hanging&quot;</span>&gt;
+ \par
+  Compiler support:
+ &lt;br&gt;
+  gcc 4.8
+  clang 3.3
+  xlC 12.1
+  Oracle CC 12.4
+
+ \par
+ &lt;/div&gt;
+
+/BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+/ - - - - - - - - - - - - - - - - - - -
+ This macro is defined <span class="keywordflow">if</span> the compiler supports the <span class="stringliteral">&#39;decltype&#39;</span> reserved word.
+
+ &lt;div <span class="keyword">class</span>=<span class="stringliteral">&quot;hanging&quot;</span>&gt;
+ \par
+  Compiler support:
+ &lt;br&gt;
+  gcc 4.3
+  clang 3.3
+  MSVC 2010
+  xlC 11.1
+  Oracle CC 12.4
+
+ \par
+ &lt;/div&gt;
+
+/BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
+/- - - - - - - - - - - - - - - - - - - - - - -
+ This macro is defined <span class="keywordflow">if</span> the compiler supports allowing supression of
+ implicit instantiation of templates by prefixing an <span class="keyword">explicit</span> instantiation
+ directive with the <span class="stringliteral">&#39;extern&#39;</span> keyword.
+
+ &lt;div <span class="keyword">class</span>=<span class="stringliteral">&quot;hanging&quot;</span>&gt;
+ \par
+  Compiler support:
+ &lt;br&gt;
+  gcc 3.3
+  clang (any)
+  MSVC 2010
+  xlC 11.1
+  Oracle CC 12.4
+
+ \par
+ &lt;/div&gt;
+
+/BSLS_COMPILERFEATURES_SUPPORT_FINAL
+/- - - - - - - - - - - - - - - - - -
+ This macro is defined if the compiler supports both finalizing a class using
+ the &#39;final&#39; keyword after the class name as well as preventing further
+ derived classes from overriding a &#39;virtual&#39; function by using &#39;final&#39; after
+ its signature.
+
+ &lt;div class=&quot;hanging&quot;&gt;
+ \par
+  Compiler support:
+ &lt;br&gt;
+  gcc 4.7
+  clang 3.0
+  MSVC 2012
+  xlC 11.1
+  Oracle CC 12.4
+
+ \par
+ &lt;/div&gt;
+
+/BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+/ - - - - - - - - - - - - - - - - - - - - -
+ This macro is defined if the compiler supports <span class="preprocessor">#include_next semantics</span>
+<span class="preprocessor"></span> expected by the deprecated and <span class="keyword">internal</span> include code wrapped by
+ BSL_OVERRIDES_STD macro.
+
+ &lt;div <span class="keyword">class</span>=<span class="stringliteral">&quot;hanging&quot;</span>&gt;
+ \par
+  Compiler support:
+ &lt;br&gt;
+  gcc (any)
+  clang (any)
+  xlC 8
+  Oracle CC 12.4
+
+ \par
+ &lt;/div&gt;
+
+/BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+/- - - - - - - - - - - - - - - - - - -
+ This macro is defined if the compiler supports the &#39;nullptr&#39; reserved word.
+
+ &lt;div class=&quot;hanging&quot;&gt;
+ \par
+  Compiler support:
+ &lt;br&gt;
+  gcc 4.6
+  clang 3.0
+  MSVC 2010
+  xlC 13.1
+  Oracle CC 12.4
+
+ \par
+ &lt;/div&gt;
+
+/BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+/- - - - - - - - - - - - - - - - - - - - - - - -
+ This macro is defined if the compiler supports use of the &#39;explicit&#39; keyword
+ to indicate that a conversion operator only available for explicit
+ conversions.
+
+ &lt;div class=&quot;hanging&quot;&gt;
+ \par
+  Compiler support:
+ &lt;br&gt;
+  gcc 4.5
+  clang 3.0
+  MSVC 2013
+  xlC 11.1
+  Oracle CC 12.4
+
+ \par
+ &lt;/div&gt;
+
+/BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
+/ - - - - - - - - - - - - - - - - - - -
+ This macro is defined if the compiler supports use of the &#39;override&#39; keyword
+ to indicate that a member function is meant to override a &#39;virtual&#39;
+ function (and cause a failure if that is not the case).
+
+ &lt;div class=&quot;hanging&quot;&gt;
+ \par
+  Compiler support:
+ &lt;br&gt;
+  gcc 4.7
+  clang 3.0
+  MSVC 2012
+  xlC 11.1
+  Oracle CC 12.4
+
+ \par
+ &lt;/div&gt;
+
+/BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+/- - - - - - - - - - - - - - - - - - - - - - - -
+ This macro is defined if the compiler supports rvalue references and move
+ semantics compatible with the final C++11 specification.  (Semantics have
+ changed since early draft proposals.)
+
+ &lt;div class=&quot;hanging&quot;&gt;
+ \par
+  Compiler support:
+ &lt;br&gt;
+  gcc 4.5 (rvalue references v2.1; original draft support in gcc 4.3
+ is not correct with respect to final spec (v3.0))
+  clang 2.9
+  MSVC 2010
+  xlC 12.1
+  Oracle CC 12.4
+
+ \par
+ &lt;/div&gt;
+
+/BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+/- - - - - - - - - - - - - - - - - - - - - -
+ This macro is defined if the compiler supports the &#39;static_assert&#39; reserved
+ word.
+
+ &lt;div class=&quot;hanging&quot;&gt;
+ \par
+  Compiler support:
+ &lt;br&gt;
+  gcc 4.3
+  clang 2.9
+  MSVC 2010
+  xlC 11.1
+  Oracle CC 12.4
+
+ \par
+ &lt;/div&gt;
+
+/BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+/ - - - - - - - - - - - - - - - - - - - - - - - -
+ This macro is defined if the compiler supports the ability to express a
+ template that accepts an arbitrary number of parameters in a type-safe
+ manner.
+
+ &lt;div class=&quot;hanging&quot;&gt;
+ \par
+  Compiler support:
+ &lt;br&gt;
+  gcc 4.3
+  clang 2.9
+  MSVC 2013
+  xlC 11.1
+  Oracle CC 12.4
+
+ \par
+ &lt;/div&gt;
 </pre></div><br/>
 <br/>
  </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_compilerfeatures_support_alignas"></a> <a class="anchor" id="usage.bsls_compilerfeatures_support_alignas"></a> <a class="anchor" id="description.usage.bsls_compilerfeatures_support_alignas"></a> <a class="anchor" id="4.2.1"></a> </dd></dl>
+<dl class="user"><dt><b>BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This macro is defined if the compiler supports the <code>alignas</code> alignment specifier. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> Compiler support: <br/>
+ gcc 4.8 clang 3.0</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This feature is not yet supported in Visual Studio, xlc, CC. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:28 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:22 for BDE Release 2.23.1 Open-Source by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

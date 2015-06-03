@@ -1,0 +1,260 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.23.1 OSS</title>
+<html>
+<pre>
+// bslstl_referencewrapper.h                                          -*-C++-*-
+#ifndef INCLUDED_BSLSTL_REFERENCEWRAPPER
+#define INCLUDED_BSLSTL_REFERENCEWRAPPER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide copyable, assignable object wrapper for references.
+//
+//@CLASSES:
+//  bsl::reference_wrapper: class object to hold a reference to an object
+//
+//@DESCRIPTION: This component provides &#39;bsl::reference_wrapper&#39;, a reduced
+//  implementation of the standard C++2011 template of the same name, which
+//  simply wraps a reference into a copyable, assignable object to allow it to
+//  be stored in a place that cannot normally hold a reference, such as a
+//  standard container.  Because a reference wrapper is convertible to its
+//  contained reference type, it can be passed to functions that take such a
+//  reference.
+//
+//  This component also provides the (free) helper functions &#39;bsl::ref&#39; and
+//  &#39;bsl::cref&#39; that may be used to generate &#39;reference_wrapper&#39; objects more
+//  concisely than with the constructor.
+//
+//  NOTE: This component is a partial implementation of the standard class,
+//  omitting support for use as a function object, and is in any case of
+//  limited usefulness in a pure C++98 environment.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Sorted References
+/// - - - - - - - - - - - - - -
+// Let us suppose that we wish to handle objects that will be passed to a
+// comparison function expecting references to the objects.  Let us suppose
+// further that these objects are large enough that we would not wish to move
+// them around bodily as they are sorted.  Note that plausible examples of uses
+// for this component are limited in freestanding C++98.
+//
+// First, let us define the large-object type:
+//..
+//  struct Canary {
+//      static const int s_size = 1000;
+//      Canary *d_values[s_size];
+//      Canary();
+//  };
+//
+//  Canary::Canary()
+//  {
+//       for (int i = 0; i &lt; s_size; ++i) {
+//           d_values[i] = this;
+//       }
+//  }
+//..
+// Next, we define the comparison function:
+//..
+//  bool operator&lt;(Canary const&amp; a, Canary const&amp; b)
+//  {
+//      return a.d_values[0] &lt; b.d_values[0];
+//  }
+//..
+// Finally, we define a generic function to sort two items:
+//..
+//  template &lt;typename T&gt;
+//  void sortTwoItems(T&amp; a, T&amp; b)
+//  {
+//      if (b &lt; a) {
+//          T tmp(a);
+//          a = b;
+//          b = tmp;
+//      }
+//  }
+//..
+// We can call &#39;sortTwoItems&#39; on wrappers representing &#39;Canary&#39; objects
+// without need to move actual, large &#39;Canary&#39; objects about.  In the call to
+// &#39;sortTwoItems&#39;, below, the &#39;operator=&#39; used in it is that of
+// &#39;bsl::reference_wrapper&lt;Canary&gt;&#39;, but the &#39;operator&lt;&#39; used is the one
+// declared for &#39;Canary&amp;&#39; arguments.  All of the conversions needed are
+// applied implicitly:
+//..
+//  Canary canaries[2];
+//  bsl::reference_wrapper&lt;Canary&gt; canaryA = bsl::ref(canaries[1]);
+//  bsl::reference_wrapper&lt;Canary&gt; canaryB = bsl::ref(canaries[0]);
+//  sortTwoItems(canaryA, canaryB);
+//
+//  assert(&amp;canaryA.get() == canaries);
+//  assert(&amp;canaryB.get() == canaries + 1);
+//..
+
+// Prevent &#39;bslstl&#39; headers from being included directly in &#39;BSL_OVERRIDES_STD&#39;
+// mode.  Doing so is unsupported, and is likely to cause compilation errors.
+#if defined(BSL_OVERRIDES_STD) &amp;&amp; !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#error &quot;&lt;bslstl_referencewrapper.h&gt; header can&#39;t be included directly in \
+BSL_OVERRIDES_STD mode&quot;
+#endif
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_UTIL
+#include &lt;bsls_util.h&gt;  // for BloombergLP::bsls::Util::addressOf
+#endif
+
+namespace bsl {
+
+                    // =======================
+                    // class reference_wrapper
+                    // =======================
+
+template &lt;typename T&gt;
+class reference_wrapper {
+    // This class is a wrapper that encapsulates an object reference, enabling
+    // operations not possible on actual references, including assignment,
+    // copying, and storage in standard containers.  When stored in a
+    // container, it enables functions defined to operate on references to the
+    // type represented to be called on the container elements.
+
+  private:
+    // DATA
+    T *d_represented_p;  // the represented object (not owned)
+
+  public:
+    // TYPES
+    typedef T type;
+
+    // CREATORS
+    reference_wrapper(T&amp; object);    // IMPLICIT
+        // Create a reference wrapper representing the specified &#39;object&#39;.
+
+    // reference_wrapper(const reference_wrapper&amp; original) = default;
+        // Create a reference wrapper referring to the same object as the
+        // specified &#39;original&#39;.
+
+    // ~reference_wrapper() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    // reference_wrapper&amp; operator=(const reference_wrapper&amp; rhs) = default;
+        // Assign this object to refer to the same object as the specified
+        // &#39;rhs&#39;, and return &#39;*this&#39;.
+
+    // ACCESSORS
+    T&amp; get() const;
+        // Return a reference to the object that &#39;*this&#39; represents.
+
+    operator T&amp;() const;
+        // Return a reference to the object that &#39;*this&#39; represents.
+};
+
+// FREE FUNCTIONS
+template &lt;typename T&gt;
+reference_wrapper&lt;const T&gt; cref(const T&amp; object);
+    // Return a reference wrapper representing a &#39;const&#39; view of the specified
+    // &#39;object&#39;.
+
+template &lt;typename T&gt;
+reference_wrapper&lt;const T&gt; cref(reference_wrapper&lt;T&gt; original);
+    // Return a reference wrapper representing a &#39;const&#39; view of the same
+    // object as the specified &#39;original&#39;.
+
+template &lt;typename T&gt;
+reference_wrapper&lt;T&gt; ref(T&amp; object);
+    // Return a reference wrapper that represents the specified &#39;object&#39;.
+
+template &lt;typename T&gt;
+reference_wrapper&lt;T&gt; ref(reference_wrapper&lt;T&gt; original);
+    // Return a reference wrapper that represents the same object as the
+    // specified &#39;original&#39;.
+
+}  // close namespace bsl
+
+// ============================================================================
+//                      INLINE DEFINITIONS
+// ============================================================================
+
+                    // -----------------------
+                    // class reference_wrapper
+                    // -----------------------
+
+// CREATORS
+template &lt;typename T&gt;
+inline
+bsl::reference_wrapper&lt;T&gt;::reference_wrapper(T&amp; object)
+  : d_represented_p(BloombergLP::bsls::Util::addressOf(object))
+{
+}
+
+// ACCESSORS
+template &lt;typename T&gt;
+inline
+T&amp; bsl::reference_wrapper&lt;T&gt;::get() const
+{
+    return *d_represented_p;
+}
+
+template &lt;typename T&gt;
+inline
+bsl::reference_wrapper&lt;T&gt;::operator T&amp;() const
+{
+    return *d_represented_p;
+}
+
+// FREE FUNCTIONS
+template &lt;typename T&gt;
+inline
+bsl::reference_wrapper&lt;const T&gt; bsl::cref(const T&amp; object)
+{
+    return reference_wrapper&lt;const T&gt;(object);
+}
+
+template &lt;typename T&gt;
+inline
+bsl::reference_wrapper&lt;const T&gt; bsl::cref(bsl::reference_wrapper&lt;T&gt; original)
+{
+    return cref(original.get());
+}
+
+template &lt;typename T&gt;
+inline
+bsl::reference_wrapper&lt;T&gt; bsl::ref(T&amp; object)
+{
+    return reference_wrapper&lt;T&gt;(object);
+}
+
+template &lt;typename T&gt;
+inline
+bsl::reference_wrapper&lt;T&gt; bsl::ref(bsl::reference_wrapper&lt;T&gt; original)
+{
+    return ref(original.get());
+}
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2013 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

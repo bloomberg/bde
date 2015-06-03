@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bslmf_forwardingtype.h                                             -*-C++-*-
@@ -16,109 +16,289 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //@CLASSES:
 //  bslmf::ForwardingType: meta-function to determine optimal forwarding type
+//  bslmf::ForwardingTypeUtil: Namespace for forwarding functions
 //
 //@SEE_ALSO: bslmf_removecvq
 //
-//@DESCRIPTION: This component provides a meta function determining the most
-// efficient forwarding type for a given template type &#39;TYPE&#39;.
+//@DESCRIPTION: This component provides a meta function,
+// &#39;bslmf::ForwardingType&#39;, determining the most efficient forwarding type for
+// a given template type &#39;TYPE&#39;.  The forwarding type is used to pass an
+// argument from the client of a component through a chain of nested function
+// calls to the ultimate consumer of the argument.  This component also
+// provides a utility class template, &#39;bslmf::ForwardingTypeUtil&#39;, supplying
+// functions to most efficiently forward an argument to another function.
 //
-// For instance, on some platforms, non-modifiable references to user types
-// should be taken by &#39;const&amp;&#39; to avoid a potentially expensive copy, but basic
-// types (e.g., fundamental types, pointer types, function references and
-// pointers) would be more efficiently taken by (non-reference) value, even
-// though this involves making a copy.  This is because the copy can then be
-// used internally by the function, whereas a &#39;const&amp;&#39; cannot and would have to
-// be copied anyway (if used locally by the compiler), adding to the cost of
-// passing the &#39;const&amp;&#39; argument.
+// For instance, basic types (e.g., fundamental types, pointer types, function
+// references and pointers) can efficiently be passed by value down a chain of
+// nested function calls.  However a large object or one with a non-trivial
+// copy constructor would be better passed by const reference, even if the
+// ultimate consumer takes that argument by value.
 //
-// This component should not be used except when performance is of highest
-// concern.
+// Another form of optimization is the early decay of arrays to pointers,
+// preventing a proliferation of different template instantiations for every
+// array size being used.  Although the outermost function may still be
+// instantiated on the full array type, intermediate functions are all
+// instantiated on the same pointer type, regardless of array size.  This
+// decay also applies to reference-to-array types.  The user can recover the
+// original array type when forwarding to the final consumer by using
+// &#39;bslmf::ForwardingTypeUtil&lt;T&gt;::forwardToTarget()&#39; (see below).
+//
+// An argument &#39;v&#39; of type &#39;T&#39; can be passed as type &#39;ForwardingType&lt;T&gt;::Type&#39;
+// down an arbitrarily-long chain of function calls without ever calling
+// &#39;std::forward&#39;.  However, in order to avoid an extra copy as well as to
+// select the correct overload and instantiation of the eventual target
+// function, it should be converted back to a type that more closely resembles
+// the original &#39;T&#39; by calling &#39;ForwardingTypeUtil&lt;T&gt;::forwardToTarget(v)&#39;.
+//
+// This component is intended to be used when performance is of highest concern
+// or when creating function wrappers that are intended to minimize
+// perturbations on the interface of the functions that they wrap.
+//
+// Note that previous versions of this component forwarded const references to
+// basic types by value instead of by const reference.  This transformation was
+// an attempt to avoid an extra dereference operation, but in real use cases
+// the extra dereference happened anyway, on the call to the outermost
+// forwarding function.  Moreover, such a transformation is subtly broken
+// because, in the rare case where the target function cares about the address
+// of the reference (e.g., if it compares it to some known address), it would
+// wind up with the address of a temporary copy, rather than the address of the
+// original argument.  Thus, the current component forwards references as
+// references in all cases, including for basic types, except in the case of
+// arrays and functions (that decay to pointers).
 //
 ///Usage
-///------
-// The following example shows the result of instantiating
-// &#39;bslmf::ForwardingType&#39; on a number of different types.  First declare some
-// types to compare:
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Direct look at metafunction results
+///- - - - - - - - - - - - - - - - - - - - - - -
+// In this example, we invoke &#39;ForwardingType&#39; on a variety of types and look
+// at the resulting &#39;Type&#39; member:
 //..
 //  struct MyType {};
-//  typedef int                    T1;
-//  typedef int&amp;                   T2;
-//  typedef const volatile double&amp; T3;
-//  typedef const double &amp;         T4;
-//  typedef const float * &amp;        T5;
-//  typedef const float * const &amp;  T6;
-//  typedef MyType                 T7;
-//  typedef const MyType&amp;          T8;
-//  typedef MyType&amp;                T9;
-//  typedef Mytype*                T10;
+//  typedef MyType&amp; MyTypeRef;
+//
+//  void main()
+//      // Usage example.
+//  {
+//      typedef int                     T1;
+//      typedef int&amp;                    T2;
+//      typedef const volatile double&amp;  T3;
+//      typedef const double &amp;          T4;
+//      typedef const float * &amp;         T5;
+//      typedef const float * const &amp;   T6;
+//      typedef MyType                  T7;
+//      typedef const MyType&amp;           T8;
+//      typedef MyType&amp;                 T9;
+//      typedef MyType                 *T10;
+//
+//      typedef int                     EXP1;
+//      typedef int&amp;                    EXP2;
+//      typedef const volatile double&amp;  EXP3;
+//      typedef const double &amp;          EXP4;
+//      typedef const float * &amp;         EXP5;
+//      typedef const float * const &amp;   EXP6;
+//      typedef const MyType&amp;           EXP7;
+//      typedef const MyType&amp;           EXP8;
+//      typedef MyType&amp;                 EXP9;
+//      typedef MyType                 *EXP10;
+//
+//      assert((bsl::is_same&lt;bslmf::ForwardingType&lt;T1&gt;::Type, EXP1&gt;::value));
+//      assert((bsl::is_same&lt;bslmf::ForwardingType&lt;T2&gt;::Type, EXP2&gt;::value));
+//      assert((bsl::is_same&lt;bslmf::ForwardingType&lt;T3&gt;::Type, EXP3&gt;::value));
+//      assert((bsl::is_same&lt;bslmf::ForwardingType&lt;T4&gt;::Type, EXP4&gt;::value));
+//      assert((bsl::is_same&lt;bslmf::ForwardingType&lt;T5&gt;::Type, EXP5&gt;::value));
+//      assert((bsl::is_same&lt;bslmf::ForwardingType&lt;T6&gt;::Type, EXP6&gt;::value));
+//      assert((bsl::is_same&lt;bslmf::ForwardingType&lt;T7&gt;::Type, EXP7&gt;::value));
+//      assert((bsl::is_same&lt;bslmf::ForwardingType&lt;T8&gt;::Type, EXP8&gt;::value));
+//      assert((bsl::is_same&lt;bslmf::ForwardingType&lt;T9&gt;::Type, EXP9&gt;::value));
+//      assert((bsl::is_same&lt;bslmf::ForwardingType&lt;T10&gt;::Type, EXP10&gt;::value));
+//  }
 //..
-// Next declare the expected result types:
+//
+///Example 2: A logging invocation wrapper
+///- - - - - - - - - - - - - - - - - - - - - - -
+// This example illustrates the use of &#39;ForwardingType&#39; to efficiently
+// implement a wrapper class that holds a function pointer and logs
+// information about each call to the pointed-to-function through the wrapper.
+// Suppose the pointed-to-function takes three arguments whose types are
+// specified via template arguments, where the first argument is required to
+// be convertible to &#39;int&#39;.
+//
+// First we create a wrapper class that holds a function pointer of the
+// desired type:
 //..
-//  typedef int                    EXP1;
-//  typedef int&amp;                   EXP2;
-//  typedef const volatile double&amp; EXP3;
-//  typedef double                 EXP4;
-//  typedef const float * &amp;        EXP5;
-//  typedef const float *          EXP6;
-//  typedef const MyType&amp;          EXP7;
-//  typedef const MyType&amp;          EXP8;
-//  typedef MyType&amp;                EXP9;
-//  typedef Mytype*                EXP10;
+//  // Primary template is never defined.
+//  template &lt;class PROTOTYPE&gt;
+//  class LoggingWrapper;
+//
+//  template &lt;class RET, class ARG1, class ARG2, class ARG3&gt;
+//  class LoggingWrapper&lt;RET(ARG1, ARG2, ARG3)&gt; {
+//      // Specialization of wrapper for specified function prototype.
+//
+//      RET (*d_function_p)(ARG1, ARG2, ARG3);
+//
+//    public:
+//      explicit LoggingWrapper(RET (*function_p)(ARG1, ARG2, ARG3))
+//          // Create a &#39;LoggingWrapper&#39; object for the specified &#39;function_p&#39;
+//          // function.
+//        : d_function_p(function_p) { }
 //..
-// Finally, check that they match:
+// Then, we declare an overload of the function-call operator that actually
+// invokes the wrapped function.  In order to avoid excessive copies of
+// pass-by-value arguments, we use &#39;ForwardingType&#39; to declare a more efficient
+// intermediate argument type to forward to the wrapped function pointer:
 //..
-//  assert(1 == (bsl::is_same&lt;bslmf::ForwardingType&lt;T1&gt;::Type,
-//                             EXP1&gt;::value));
-//  assert(1 == (bsl::is_same&lt;bslmf::ForwardingType&lt;T2&gt;::Type,
-//                             EXP2&gt;::value));
-//  assert(1 == (bsl::is_same&lt;bslmf::ForwardingType&lt;T3&gt;::Type,
-//                             EXP3&gt;::value));
-//  assert(1 == (bsl::is_same&lt;bslmf::ForwardingType&lt;T4&gt;::Type,
-//                             EXP4&gt;::value));
-//  assert(1 == (bsl::is_same&lt;bslmf::ForwardingType&lt;T5&gt;::Type,
-//                             EXP5&gt;::value));
-//  assert(1 == (bsl::is_same&lt;bslmf::ForwardingType&lt;T6&gt;::Type,
-//                             EXP6&gt;::value));
-//  assert(1 == (bsl::is_same&lt;bslmf::ForwardingType&lt;T7&gt;::Type,
-//                             EXP7&gt;::value));
-//  assert(1 == (bsl::is_same&lt;bslmf::ForwardingType&lt;T8&gt;::Type,
-//                             EXP8&gt;::value));
-//  assert(1 == (bsl::is_same&lt;bslmf::ForwardingType&lt;T9&gt;::Type,
-//                             EXP9&gt;::value));
-//  assert(1 == (bsl::is_same&lt;bslmf::ForwardingType&lt;T10&gt;::Type,
-//                             EXP10&gt;::value));
+//      RET operator()(typename bslmf::ForwardingType&lt;ARG1&gt;::Type a1,
+//                     typename bslmf::ForwardingType&lt;ARG2&gt;::Type a2,
+//                     typename bslmf::ForwardingType&lt;ARG3&gt;::Type a3) const;
+//          // Invoke the stored function pointer with the specified &#39;a1&#39;,
+//          // &#39;a2&#39;, and &#39;a3&#39; arguments, logging the invocation and returning
+//          // the result of the function pointer invocation.
+//  };
+//..
+// Next, we define logging functions that simply count the number of
+// invocations and number of returns from invocations (e.g., to count how may
+// invocations completed without exiting via exceptions):
+//..
+//  int invocations = 0, returns = 0;
+//  void logInvocation(int /* ignored */) { ++invocations; }
+//      // Log an invocation of the wrapped function.
+//  void logReturn(int /* ignored */) { ++returns; }
+//      // Log a return from the wrapped function.
+//..
+// Now, we implement &#39;operator()&#39; to call the logging functions, either side of
+// calling the logged function through the wrapped pointer.  To reconstitute
+// the arguments to the function as close as possible to the types they were
+// passed in as, we call the &#39;forwardToTarget&#39; member of &#39;ForwardingTypeUtil&#39;:
+//..
+//  template &lt;class RET, class ARG1, class ARG2, class ARG3&gt;
+//  RET LoggingWrapper&lt;RET(ARG1, ARG2, ARG3)&gt;::operator()(
+//                       typename bslmf::ForwardingType&lt;ARG1&gt;::Type a1,
+//                       typename bslmf::ForwardingType&lt;ARG2&gt;::Type a2,
+//                       typename bslmf::ForwardingType&lt;ARG3&gt;::Type a3) const {
+//      logInvocation(a1);
+//      RET r = d_function_p(
+//          bslmf::ForwardingTypeUtil&lt;ARG1&gt;::forwardToTarget(a1),
+//          bslmf::ForwardingTypeUtil&lt;ARG2&gt;::forwardToTarget(a2),
+//          bslmf::ForwardingTypeUtil&lt;ARG3&gt;::forwardToTarget(a3));
+//      logReturn(a1);
+//      return r;
+//  }
+//..
+// Then, in order to see this wrapper in action, we must define a function we
+// wish to wrap.  This function will take an argument of type &#39;ArgType&#39; that
+// holds an integer &#39;value&#39; and keeps track of whether it has been directly
+// constructed or copied from anther &#39;ArgType&#39; object.  If it has been copied,
+// it keeps track of how many &quot;generations&quot; of copy were made:
+//..
+//  class ArgType {
+//      int d_value;
+//      int d_copies;
+//    public:
+//      explicit ArgType(int v = 0) : d_value(v), d_copies(0) { }
+//          // Create an &#39;ArgType&#39; object.  Optionally specify &#39;v&#39; as the
+//          // initial value of this &#39;ArgType&#39; object, otherwise this object
+//          // will hold the value 0.
+//
+//      ArgType(const ArgType&amp; original)
+//          // Create an &#39;ArgType&#39; object that is a copy of the specified
+//          // &#39;original&#39;.
+//      : d_value(original.d_value)
+//      , d_copies(original.d_copies + 1)
+//      { }
+//
+//      int copies() const { return d_copies; }
+//          // Return the number of copies that this object is from the
+//          // original.
+//
+//      int value() const { return d_value; }
+//          // Return the value of this object.
+//  };
+//
+//  int myFunc(const short&amp; i, ArgType&amp; x, ArgType y)
+//      // Assign the specified &#39;x&#39; the value of the specified &#39;y&#39; and return
+//      // the &#39;value()&#39; of &#39;x&#39;.  Verify that the specified &#39;i&#39; matches
+//      // &#39;y.copies()&#39;.  &#39;x&#39; is passed by reference in order to demonstrate
+//      // forwarding of reference arguments.
+//  {
+//      assert(i == y.copies());
+//      x = y;
+//      return x.value();
+//  }
+//..
+// Finally, we create a instance of &#39;LoggingWrapper&#39; to wrap &#39;myFunc&#39;, and we
+// invoke it.  Note that &#39;y&#39; is copied into the second argument of &#39;operator()&#39;
+// and is copied again when &#39;myFunc&#39; is invoked.  However, it is *not* copied
+// when &#39;operator()&#39; calls &#39;invoke()&#39; because the &#39;ForwardType&#39; of &#39;ArgType&#39; is
+// &#39;const ArgType&amp;&#39;, which does not create another copy.  In C++11, if
+// &#39;ArgType&#39; had a move constructor, then the number of copies would be only 1,
+// since the final forwarding would be a move instead of a copy.
+//..
+//  void usageExample2()
+//      // Usage Example
+//  {
+//      ArgType x(0);
+//      ArgType y(99);
+//
+//      LoggingWrapper&lt;int(const short&amp;, ArgType&amp;, ArgType)&gt; lw(myFunc);
+//      assert(0 == invocations &amp;&amp; 0 == returns);
+//      lw(1, x, y);  // Expect exactly one copy of &#39;y&#39;
+//      assert(1 == invocations &amp;&amp; 1 == returns);
+//      assert(99 == x.value());
+//  }
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include &lt;bslscm_version.h&gt;
 #endif
 
-#ifndef INCLUDED_BSLMF_FUNCTIONPOINTERTRAITS
-#include &lt;bslmf_functionpointertraits.h&gt;
+#ifndef INCLUDED_BSLMF_ISARRAY
+#include &lt;bslmf_isarray.h&gt;
 #endif
 
 #ifndef INCLUDED_BSLMF_ISENUM
 #include &lt;bslmf_isenum.h&gt;
 #endif
 
+#ifndef INCLUDED_BSLMF_ISFUNCTION
+#include &lt;bslmf_isfunction.h&gt;
+#endif
+
 #ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
 #include &lt;bslmf_isfundamental.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISPOINTER
+#include &lt;bslmf_ispointer.h&gt;
 #endif
 
 #ifndef INCLUDED_BSLMF_ISPOINTERTOMEMBER
 #include &lt;bslmf_ispointertomember.h&gt;
 #endif
 
-#ifndef INCLUDED_BSLMF_MEMBERFUNCTIONPOINTERTRAITS
-#include &lt;bslmf_memberfunctionpointertraits.h&gt;
+#ifndef INCLUDED_BSLMF_ISRVALUEREFERENCE
+#include &lt;bslmf_isrvaluereference.h&gt;
 #endif
 
-#ifndef INCLUDED_BSLMF_REMOVECVQ
-#include &lt;bslmf_removecvq.h&gt;
+#ifndef INCLUDED_BSLMF_REMOVECV
+#include &lt;bslmf_removecv.h&gt;
 #endif
 
-#ifndef INCLUDED_CSTDDEF
-#include &lt;cstddef&gt;       // &#39;std::size_t&#39;
+#ifndef INCLUDED_BSLMF_REMOVEREFERENCE
+#include &lt;bslmf_removereference.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include &lt;bsls_compilerfeatures.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+#ifndef INCLUDED_STDDEF_H
+#include &lt;stddef.h&gt;
 #define INCLUDED_CSTDDEF
 #endif
 
@@ -127,8 +307,28 @@ namespace BloombergLP {
 
 namespace bslmf {
 
-template &lt;class TYPE, int IS_BASIC_TYPE, int IS_REFERENCE&gt;
+// Forward declarations
+template &lt;class TYPE&gt;
+struct ForwardingTypeUtil;
+
+template &lt;class TYPE, int k_CATEGORY, bool k_IS_REFERENCE&gt;
 struct ForwardingType_Imp;
+
+                        // =============================
+                        // class ForwardingType_Dispatch
+                        // =============================
+
+struct ForwardingType_Dispatch {
+    // Namespace for type dispatch categories
+
+    enum {
+        e_FUNCTION,   // Function or pointer to function
+        e_ARRAY,      // Array
+        e_RVALUE_REF, // Rvalue reference
+        e_BASIC,      // Built-in, pointer, or enum type
+        e_CLASS       // Class, struct or union
+    };
+};
 
                         // ====================
                         // class ForwardingType
@@ -136,150 +336,261 @@ struct ForwardingType_Imp;
 
 template &lt;class TYPE&gt;
 struct ForwardingType {
-    // This template is used to specialize &#39;TYPE&#39; such that arguments of type
-    // &#39;TYPE&#39; can be efficiently forwarded by reference or pointer.
+    // This template metafunction has a member &#39;Type&#39; computed such that, for
+    // a specified &#39;TYPE&#39; parameter, a function with argument of &#39;TYPE&#39; can be
+    // called efficiently from another function (e.g., a wrapper) by declaring
+    // the corresponding parameter of the other wrapper as &#39;typename
+    // ForwardingType&lt;TYPE&gt;::Type&#39;.  The &#39;Type&#39; member is computed to minimize
+    // the number of expensive copies while forwarding the arguments as
+    // faithfully as possible.
 
-    enum { BSLMF_FORWARDING_TYPE_ID = 1 };  // For testing only.
+  private:
+    typedef typename bsl::remove_reference&lt;TYPE&gt;::type UnrefType;
+
     enum {
-        IS_BASIC_TYPE = bsl::is_fundamental&lt;TYPE&gt;::value ||
-                        bsl::is_member_pointer&lt;TYPE&gt;::value ||
-                        IsFunctionPointer&lt;TYPE&gt;::value ||
-                        IsFunctionPointer&lt;TYPE*&gt;::value ||
-                        bsl::is_enum&lt;TYPE&gt;::value
+        k_IS_REFERENCE = bsl::is_reference&lt;TYPE&gt;::value,
+
+        k_CATEGORY = (bsl::is_function&lt;UnrefType&gt;::value    ?
+                                        ForwardingType_Dispatch::e_FUNCTION   :
+                      bsl::is_array&lt;UnrefType&gt;::value       ?
+                                        ForwardingType_Dispatch::e_ARRAY      :
+                      bsl::is_rvalue_reference&lt;TYPE&gt;::value ?
+                                        ForwardingType_Dispatch::e_RVALUE_REF :
+                      bsl::is_fundamental&lt;TYPE&gt;::value ||
+                      bsl::is_pointer&lt;TYPE&gt;::value ||
+                      bsl::is_member_pointer&lt;TYPE&gt;::value ||
+                      bsl::is_enum&lt;TYPE&gt;::value             ?
+                                        ForwardingType_Dispatch::e_BASIC      :
+                                        ForwardingType_Dispatch::e_CLASS)
     };
 
-    typedef typename
-        ForwardingType_Imp&lt;TYPE, IS_BASIC_TYPE, 0 &gt;::Type Type;
+    typedef ForwardingType_Imp&lt;UnrefType, k_CATEGORY, k_IS_REFERENCE&gt; Imp;
+
+    friend struct ForwardingTypeUtil&lt;TYPE&gt;;
+
+  public:
+
+    typedef typename Imp::Type       Type;
+        // The type that should be used to forward &#39;TYPE&#39; through a chain of
+        // function calls.
+
+    typedef typename Imp::TargetType TargetType;
+        // The closest type used to &quot;reconstitute&quot; &#39;TYPE&#39; from
+        // &#39;ForwardingType&lt;TYPE&gt;::Type&#39;.  This type may differ from &#39;TYPE&#39;
+        // through the addition of a reference.
 };
 
-// PARTIAL SPECIALIZATIONS
-template &lt;class TYPE&gt;
-struct ForwardingType&lt;const TYPE&amp;&gt; {
-    // This specialization is used when the template parameter of
-    // &#39;ForwardingType&#39; is a &#39;const T&amp;&#39; and &#39;T&#39; is not a volatile type.  In
-    // that case, it may be advantageous to pass an argument by value if &#39;T&#39; is
-    // a basic type, but not if it is a user-defined type.
-
-    enum { BSLMF_FORWARDING_TYPE_ID = 2 };  // For testing only.
-    enum {
-        IS_BASIC_TYPE = bsl::is_fundamental&lt;TYPE&gt;::value ||
-                        bsl::is_member_pointer&lt;TYPE&gt;::value ||
-                        IsFunctionPointer&lt;TYPE&gt;::value ||
-                        IsFunctionPointer&lt;TYPE*&gt;::value ||
-                        bsl::is_enum&lt;TYPE&gt;::value
-    };
-
-    typedef typename
-        ForwardingType_Imp&lt;const TYPE, IS_BASIC_TYPE, 0 &gt;::Type Type;
-};
+                        // ========================
+                        // class ForwardingTypeUtil
+                        // ========================
 
 template &lt;class TYPE&gt;
-struct ForwardingType&lt;const volatile TYPE&amp;&gt; {
-    // This specialization is used when the template parameter of
-    // &#39;ForwardingType&#39; is a &#39;const volatile T&amp;&#39;.  In that case, this template
-    // parameter cannot be forwarded as any other type.
+struct ForwardingTypeUtil {
+    // Provide a namespace for the &#39;forwardToTarget&#39; function.
 
-    enum { BSLMF_FORWARDING_TYPE_ID = 3 };  // For testing only.
+    typedef typename ForwardingType&lt;TYPE&gt;::TargetType TargetType;
 
-    typedef const volatile TYPE&amp; Type;
-};
-
-template &lt;class TYPE&gt;
-struct ForwardingType&lt;volatile TYPE&amp;&gt; {
-    // This specialization is used when the template parameter of
-    // &#39;ForwardingType&#39; is a &#39;const volatile T&amp;&#39;.  In that case, this template
-    // parameter cannot be forwarded as any other type.
-
-    enum { BSLMF_FORWARDING_TYPE_ID = 4 };  // For testing only.
-
-    typedef volatile TYPE* Type;
-};
-
-template &lt;class TYPE&gt;
-struct ForwardingType&lt;TYPE&amp;&gt;
-: public ForwardingType_Imp&lt;TYPE, 0, 1&gt; {
-    // This specialization is used when the template parameter of
-    // &#39;ForwardingType&#39; is a &#39;T&amp;&#39; and &#39;T&#39; is not cv-qualified.
-
-    enum { BSLMF_FORWARDING_TYPE_ID = 5 };  // For testing only.
-};
-
-template &lt;class TYPE&gt;
-struct ForwardingType&lt;TYPE*&gt; {
-    // Pointer rvalues should not be forwarded any other way.
-
-    enum { BSLMF_FORWARDING_TYPE_ID = 6 };  // For testing only.
-    typedef TYPE* Type;
-};
-
-template &lt;class TYPE&gt;
-struct ForwardingType&lt;TYPE* const&amp;&gt; {
-    // Pointer rvalues should not be forwarded any other way.
-
-    enum { BSLMF_FORWARDING_TYPE_ID = 7 };  // For testing only.
-    typedef TYPE* Type;
+    static TargetType
+    forwardToTarget(typename ForwardingType&lt;TYPE&gt;::Type v);
+        // Return (for the specified &#39;v&#39; parameter) &#39;std::forward&lt;TYPE&gt;(v)&#39;,
+        // where &#39;v&#39; is assumed to originally have been an argument of &#39;TYPE&#39;
+        // after forwarding through an intermediate call chain.  Specifically,
+        // if &#39;TYPE&#39; is an rvalue type, return an rvalue reference to &#39;v&#39;,
+        // otherwise return &#39;v&#39; unchanged, thus converting an rvalue copy into
+        // an rvalue move when possible.  For compilers that do not support
+        // rvalue references, return &#39;v&#39; unchanged.  This function is intended
+        // to be called to forward an argument to the final target function of
+        // a forwarding call chain.  Note that this function is not intended
+        // for use with &#39;TYPE&#39; parameters of &#39;volatile&#39;-qualified rvalue type,
+        // which are effectively unheard of in real code and have strange and
+        // hard-to-understand rules.
 };
 
                         // =========================
                         // class ConstForwardingType
                         // =========================
 
-template &lt;class TYPE&gt;
-struct ConstForwardingType : public ForwardingType&lt;const TYPE&gt;{
-    // Use &#39;ConstForwardingType&lt;TYPE&gt;&#39; for forwarding an rvalue of the given
-    // &#39;TYPE&#39;.  Note that for lvalues and pointer types,
-    // &#39;ConstForwardingType&lt;TYPE&gt;&#39; should produce the same type as the
-    // &#39;ForwardingType&lt;TYPE&gt;&#39;.
-};
-
-// PARTIAL SPECIALIZATIONS
-template &lt;class TYPE&gt;
-struct ConstForwardingType&lt;TYPE&amp;&gt; : public ForwardingType&lt;TYPE&amp;&gt;{
-};
+#ifndef BDE_OMIT_DEPRECATED
 
 template &lt;class TYPE&gt;
-struct ConstForwardingType&lt;TYPE*&gt; : public ForwardingType&lt;TYPE*&gt;{
+struct ConstForwardingType : public ForwardingType&lt;TYPE&gt; {
+    //!DEPRECATED!: Use &#39;ForwardingType&#39; instead.
 };
+
+#endif // BDE_OMIT_DEPRECATED
+
+// ============================================================================
+//                              INLINE DEFINITIONS
+// ============================================================================
+
+// BDE_VERIFY pragma: push  // Relax some bde_verify rules in the imp section
+// BDE_VERIFY pragma: -CD01 // Member function defined in class definition
+
+template &lt;class TYPE&gt;
+#ifndef BSLS_PLATFORM_CMP_IBM
+inline  // Trips an ICE or infinite compile loop with xlC optimized builds.
+#endif
+typename ForwardingTypeUtil&lt;TYPE&gt;::TargetType
+ForwardingTypeUtil&lt;TYPE&gt;::forwardToTarget(
+                                         typename ForwardingType&lt;TYPE&gt;::Type v)
+{
+    return ForwardingType&lt;TYPE&gt;::Imp::forwardToTarget(v);
+}
 
                         // ========================
                         // class ForwardingType_Imp
                         // ========================
 
-template &lt;class TYPE, int IS_BASIC_TYPE, int IS_REFERENCE&gt;
-struct ForwardingType_Imp {
-    typedef TYPE&amp; Type;
-};
+// PRIMARY TEMPLATE HAS NO DEFINITION
 
 // PARTIAL SPECIALIZATIONS
-template &lt;class TYPE&gt;
-struct ForwardingType_Imp&lt;TYPE,0,0&gt; {
-    typedef const TYPE&amp; Type;
+template &lt;class UNREF_TYPE&gt;
+struct ForwardingType_Imp&lt;UNREF_TYPE,
+                          ForwardingType_Dispatch::e_RVALUE_REF, true&gt;
+{
+    // Rvalue reference is forwarded as a reference to const lvalue.
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    typedef const UNREF_TYPE&amp; Type;
+    typedef UNREF_TYPE&amp;&amp;      TargetType;
+    static TargetType forwardToTarget(Type v) {
+        // Since rvalues are forwarded as *const* lvalues, we must cast away
+        // the constness before converting to an rvalue reference.  If &#39;TYPE&#39;
+        // is a const reference, then the constness will be reinstated on
+        // return.
+
+        return static_cast&lt;TargetType&gt;(const_cast&lt;UNREF_TYPE&amp;&gt;(v));
+    }
+#endif
 };
 
-template &lt;class TYPE, std::size_t NUM_ELEMENTS&gt;
-struct ForwardingType_Imp&lt;TYPE [NUM_ELEMENTS], 0, 0&gt; {
-    typedef TYPE *Type;
+template &lt;class UNREF_TYPE, bool k_IS_REFERENCE&gt;
+struct ForwardingType_Imp&lt;UNREF_TYPE,
+                          ForwardingType_Dispatch::e_FUNCTION, k_IS_REFERENCE&gt;
+{
+    // Function and function reference is forwarded as function reference.
+
+    typedef UNREF_TYPE&amp; Type;
+    typedef UNREF_TYPE&amp; TargetType;
+    static TargetType forwardToTarget(Type v)
+        // Return the specified &#39;v&#39; argument.
+        { return v; }
 };
 
-template &lt;class TYPE, std::size_t NUM_ELEMENTS&gt;
-struct ForwardingType_Imp&lt;TYPE [NUM_ELEMENTS], 0, 1&gt; {
-    typedef TYPE *Type;
+template &lt;class UNREF_TYPE, size_t k_NUM_ELEMENTS, bool k_IS_REFERENCE&gt;
+struct ForwardingType_Imp&lt;UNREF_TYPE [k_NUM_ELEMENTS],
+                          ForwardingType_Dispatch::e_ARRAY, k_IS_REFERENCE&gt;
+{
+    // Array of known size and reference to array of known size is forwarded as
+    // pointer to array element type.
+
+    typedef UNREF_TYPE  *Type;
+    typedef UNREF_TYPE (&amp;TargetType)[k_NUM_ELEMENTS];
+    static TargetType forwardToTarget(Type v)
+        // Return the specified &#39;v&#39;, cast to a reference to array.
+        { return reinterpret_cast&lt;TargetType&gt;(*v); }
 };
 
-template &lt;class TYPE&gt;
-struct ForwardingType_Imp&lt;TYPE,1, 0&gt; {
-    typedef typename bsl::remove_cv&lt;TYPE&gt;::type Type;
+#if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION &gt;= 1700
+template &lt;class UNREF_TYPE, bool k_IS_REFERENCE&gt;
+struct ForwardingType_Imp&lt;UNREF_TYPE [],
+                          ForwardingType_Dispatch::e_ARRAY, k_IS_REFERENCE&gt; {
+    // Array of unknown size and reference to array of unknown size is
+    // forwarded as pointer to array element type.
+
+    typedef UNREF_TYPE *Type;
+    typedef UNREF_TYPE (&amp;TargetType)[];
+    static TargetType forwardToTarget(Type v)
+        // Return the specified &#39;v&#39; argument cast to a reference to array of
+        // unknown size.
+        { return reinterpret_cast&lt;TargetType&gt;(*v); }
+};
+#endif
+
+template &lt;class UNREF_TYPE&gt;
+struct ForwardingType_Imp&lt;UNREF_TYPE,
+                          ForwardingType_Dispatch::e_BASIC, false&gt; {
+    // Rvalue of basic type is forwarded with any cv-qualifier removed.
+
+    typedef typename bsl::remove_cv&lt;UNREF_TYPE&gt;::type Type;
+    typedef UNREF_TYPE                                TargetType;
+    static TargetType forwardToTarget(Type v)
+        // Return the specified &#39;v&#39; argument with cv qualifiers added to match
+        // the specified &#39;UNREF_TYPE&#39;.
+        { return v; }
+};
+
+template &lt;class UNREF_TYPE&gt;
+struct ForwardingType_Imp&lt;UNREF_TYPE,
+                          ForwardingType_Dispatch::e_BASIC, true&gt; {
+    // Lvalue reference to basic type is forwarded unchanged.
+
+    typedef UNREF_TYPE&amp; Type;
+    typedef UNREF_TYPE&amp; TargetType;
+    static TargetType forwardToTarget(Type v)
+        // Return the specified &#39;v&#39; argument.
+        { return v; }
+};
+
+template &lt;class UNREF_TYPE&gt;
+struct ForwardingType_Imp&lt;UNREF_TYPE,
+                          ForwardingType_Dispatch::e_CLASS, false&gt; {
+    // Rvalue of user type (i.e., class or union) is forwarded as a const
+    // reference.
+
+    typedef const UNREF_TYPE&amp; Type;
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    typedef UNREF_TYPE&amp;&amp;      TargetType;
+    static TargetType forwardToTarget(Type v)
+        // Return the specified &#39;v&#39; argument cast to a modifiable rvalue
+        // reference.
+    {
+        // Since rvalues are forwarded as *const* lvalues, we must cast away
+        // the constness before converting to an rvalue reference.  If &#39;TYPE&#39;
+        // is a const reference, then the constness will be reinstated on
+        // return.
+
+        return static_cast&lt;TargetType&gt;(const_cast&lt;UNREF_TYPE&amp;&gt;(v));
+    }
+#else
+    typedef const UNREF_TYPE&amp; TargetType;
+    static TargetType forwardToTarget(Type v)
+        // Return the specified &#39;v&#39; argument.
+        { return v; }
+#endif
+};
+
+template &lt;class UNREF_TYPE&gt;
+struct ForwardingType_Imp&lt;UNREF_TYPE,
+                          ForwardingType_Dispatch::e_CLASS, true&gt; {
+    // Lvalue of user type (i.e., class or union) is forwarded as a reference,
+    // where the cv-qualification of the referenced type depends on the
+    // cv-qualification of the Lvalue&#39;s type.
+
+    typedef UNREF_TYPE&amp; Type;
+    typedef UNREF_TYPE&amp; TargetType;
+    static TargetType forwardToTarget(Type v)
+        // Return the specified &#39;v&#39; argument.
+        { return v; }
 };
 
 }  // close package namespace
-
-
 }  // close enterprise namespace
+
+
+#ifdef bslmf_ConstForwardingType
+#undef bslmf_ConstForwardingType
+#endif
+// BDE_VERIFY pragma: -SLM01 // Allow non-standard macro to leak from header
+#define bslmf_ConstForwardingType bslmf::ConstForwardingType
+    // This alias is defined for backward compatibility.
+
+// BDE_VERIFY pragma: pop // Restore bde_verify rules
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
 // you may not use this file except in compliance with the License.

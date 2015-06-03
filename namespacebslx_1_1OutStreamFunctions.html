@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: Namespace bslx::OutStreamFunctions</title>
+<title>BDE 2.23.1 OSS: Namespace bslx::OutStreamFunctions</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li class="current"><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
@@ -182,7 +183,7 @@ template&lt;class STREAM , class TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Write the specified <code>value</code> to the specified output <code>stream</code> as a 32-bit <code>int</code>, and return a reference to <code>stream</code>. The specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. The behavior is undefined unless <code>STREAM</code> and <code>TYPE</code> are BDEX-compliant. Note that this function is called only for enumeration types and that if <code>value</code> is outside the range of an <code>int32_t</code> the externalization will be lossy. Also note that this function is for internal use only. </p>
+<p>Write the specified <code>value</code> to the specified output <code>stream</code> as a 32-bit <code>int</code>, and return a reference to <code>stream</code>. The specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. Note that this function is called only for enumeration types and that if <code>value</code> is outside the range of an <code>int32_t</code> the externalization will be lossy. Also note that this function is for internal use only. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
 
 </div>
 </div>
@@ -224,7 +225,7 @@ template&lt;class STREAM , class TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Write the specified <code>value</code> to the specified output <code>stream</code> using the specified <code>version</code> format, and return a reference to <code>stream</code>. If <code>stream</code> is initially invalid, this operation has no effect. If <code>version</code> is not supported by <code>TYPE</code>, <code>stream</code> is invalidated. The behavior is undefined unless <code>STREAM</code> and <code>TYPE</code> are BDEX-compliant. Note that <code>version</code> is not written to <code>stream</code>. Also note that this function is for internal use only. </p>
+<p>Write the specified <code>value</code>, using the specified <code>version</code> format, to the specified output <code>stream</code>, and return a reference to <code>stream</code>. If <code>stream</code> is initially invalid, this operation has no effect. If <code>version</code> is not supported by <code>TYPE</code>, <code>stream</code> is invalidated, but otherwise unmodified. Note that <code>version</code> is not written to <code>stream</code>. Also note that this function is for internal use only. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
 
 </div>
 </div>
@@ -254,7 +255,7 @@ template&lt;class STREAM , class TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Write the specified <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. If <code>stream</code> is initially invalid, this operation has no effect. If needed, first write the computed version information to the <code>stream</code> and if this version is not supported by <code>TYPE</code>, <code>stream</code> is invalidated. The behavior is undefined unless <code>STREAM</code> and <code>TYPE</code> are BDEX-compliant. Note that the version is only needed when the (template parameter) <code>TYPE</code> is a <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a></code> or a user-defined type. </p>
+<p>Write the specified <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. If <code>stream</code> is initially invalid, this operation has no effect. If needed, first write the computed version information to the <code>stream</code> and if this version is not supported by <code>TYPE</code>, <code>stream</code> is invalidated. Note that the version is only needed when the (template parameter) <code>TYPE</code> is a <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a></code> or a user-defined type. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
 
 </div>
 </div>
@@ -290,7 +291,7 @@ template&lt;class STREAM , class TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Write the specified <code>value</code> to the specified output <code>stream</code> using the specified <code>version</code> format, and return a reference to <code>stream</code>. If <code>stream</code> is initially invalid, this operation has no effect. If <code>version</code> is not supported by <code>TYPE</code>, <code>stream</code> is invalidated. The behavior is undefined unless <code>STREAM</code> and <code>TYPE</code> are BDEX-compliant. Note that <code>version</code> is not written to <code>stream</code>. </p>
+<p>Write the specified <code>value</code>, using the specified <code>version</code> format, to the specified output <code>stream</code>, and return a reference to <code>stream</code>. If <code>stream</code> is initially invalid, this operation has no effect. If <code>version</code> is not supported by <code>TYPE</code>, <code>stream</code> is invalidated, but otherwise unmodified. Note that <code>version</code> is not written to <code>stream</code>. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
 
 </div>
 </div>
@@ -326,7 +327,7 @@ template&lt;class STREAM &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Write the specified <code>bool</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The optionally specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. The behavior is undefined unless <code>STREAM</code> is BDEX-compliant. </p>
+<p>Write the specified <code>bool</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The optionally specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
 
 </div>
 </div>
@@ -362,7 +363,7 @@ template&lt;class STREAM &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Write the specified <code>char</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The optionally specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. The behavior is undefined unless <code>STREAM</code> is BDEX-compliant. </p>
+<p>Write the specified <code>char</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The optionally specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
 
 </div>
 </div>
@@ -398,7 +399,7 @@ template&lt;class STREAM &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Write the specified <code>signed char</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The optionally specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. The behavior is undefined unless <code>STREAM</code> is BDEX-compliant. </p>
+<p>Write the specified <code>signed char</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The optionally specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
 
 </div>
 </div>
@@ -434,7 +435,7 @@ template&lt;class STREAM &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Write the specified <code>unsigned char</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The optionally specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. The behavior is undefined unless <code>STREAM</code> is BDEX-compliant. </p>
+<p>Write the specified <code>unsigned char</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The optionally specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
 
 </div>
 </div>
@@ -470,7 +471,7 @@ template&lt;class STREAM &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Write the specified <code>short</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The optionally specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. The behavior is undefined unless <code>STREAM</code> is BDEX-compliant. </p>
+<p>Write the specified <code>short</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The optionally specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
 
 </div>
 </div>
@@ -506,7 +507,7 @@ template&lt;class STREAM &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Write the specified <code>unsigned short</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The optionally specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. The behavior is undefined unless <code>STREAM</code> is BDEX-compliant. </p>
+<p>Write the specified <code>unsigned short</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The optionally specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
 
 </div>
 </div>
@@ -542,7 +543,7 @@ template&lt;class STREAM &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Write the specified <code>int</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The optionally specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. The behavior is undefined unless <code>STREAM</code> is BDEX-compliant. </p>
+<p>Write the specified <code>int</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The optionally specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
 
 </div>
 </div>
@@ -578,7 +579,7 @@ template&lt;class STREAM &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Write the specified <code>unsigned int</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The optionally specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. The behavior is undefined unless <code>STREAM</code> is BDEX-compliant. </p>
+<p>Write the specified <code>unsigned int</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The optionally specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
 
 </div>
 </div>
@@ -614,7 +615,7 @@ template&lt;class STREAM &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Write the specified <code>long</code> <code>value</code> to the specified output <code>stream</code> as a 32-bit <code>int</code>, and return a reference to <code>stream</code>. The optionally specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. The behavior is undefined unless <code>STREAM</code> is BDEX-compliant. Note that for platforms where <code>long</code> is not equivalent to <code>int32_t</code>, this operation may be lossy. </p>
+<p>Write the specified <code>long</code> <code>value</code> to the specified output <code>stream</code> as a 32-bit <code>int</code>, and return a reference to <code>stream</code>. The optionally specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. Note that for platforms where <code>long</code> is not equivalent to <code>int32_t</code>, this operation may be lossy. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
 
 </div>
 </div>
@@ -650,7 +651,7 @@ template&lt;class STREAM &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Write the specified <code>unsigned long</code> <code>value</code> to the specified output <code>stream</code> as a 32-bit <code>unsigned int</code>, and return a reference to <code>stream</code>. The optionally specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. The behavior is undefined unless <code>STREAM</code> is BDEX-compliant. Note that for platforms where <code>unsigned long</code> is not equivalent to <code>uint32_t</code>, this operation may be lossy. </p>
+<p>Write the specified <code>unsigned long</code> <code>value</code> to the specified output <code>stream</code> as a 32-bit <code>unsigned int</code>, and return a reference to <code>stream</code>. The optionally specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. Note that for platforms where <code>unsigned long</code> is not equivalent to <code>uint32_t</code>, this operation may be lossy. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
 
 </div>
 </div>
@@ -686,7 +687,7 @@ template&lt;class STREAM &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Write the specified <code><a class="el" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a></code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The optionally specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. The behavior is undefined unless <code>STREAM</code> is BDEX-compliant. </p>
+<p>Write the specified <code><a class="el" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a></code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The optionally specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
 
 </div>
 </div>
@@ -722,7 +723,7 @@ template&lt;class STREAM &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Write the specified <code><a class="el" href="structbsls_1_1Types.html#a62cdf73ffc20667bc9de36b07c9c25f0">bsls::Types::Uint64</a></code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The optionally specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. The behavior is undefined unless <code>STREAM</code> is BDEX-compliant. </p>
+<p>Write the specified <code><a class="el" href="structbsls_1_1Types.html#a62cdf73ffc20667bc9de36b07c9c25f0">bsls::Types::Uint64</a></code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The optionally specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
 
 </div>
 </div>
@@ -758,7 +759,7 @@ template&lt;class STREAM &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Write the specified <code>float</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The optionally specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. The behavior is undefined unless <code>STREAM</code> is BDEX-compliant. </p>
+<p>Write the specified <code>float</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The optionally specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
 
 </div>
 </div>
@@ -794,7 +795,7 @@ template&lt;class STREAM &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Write the specified <code>double</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The optionally specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. The behavior is undefined unless <code>STREAM</code> is BDEX-compliant. </p>
+<p>Write the specified <code>double</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The optionally specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
 
 </div>
 </div>
@@ -830,7 +831,7 @@ template&lt;class STREAM &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Write the specified <code>bsl::string</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The optionally specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. The behavior is undefined unless <code>STREAM</code> is BDEX-compliant. </p>
+<p>Write the specified <code>bsl::string</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The optionally specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
 
 </div>
 </div>
@@ -866,7 +867,7 @@ template&lt;class STREAM , class ALLOC &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Write the specified <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a>&lt;char, ALLOC&gt;</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. The behavior is undefined unless <code>STREAM</code> is BDEX-compliant. </p>
+<p>Write the specified <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a>&lt;char, ALLOC&gt;</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
 
 </div>
 </div>
@@ -902,7 +903,7 @@ template&lt;class STREAM , class ALLOC &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Write the specified <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a>&lt;signed char, ALLOC&gt;</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. The behavior is undefined unless <code>STREAM</code> is BDEX-compliant. </p>
+<p>Write the specified <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a>&lt;signed char, ALLOC&gt;</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
 
 </div>
 </div>
@@ -938,7 +939,7 @@ template&lt;class STREAM , class ALLOC &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Write the specified <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a>&lt;unsigned char, ALLOC&gt;</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. The behavior is undefined unless <code>STREAM</code> is BDEX-compliant. </p>
+<p>Write the specified <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a>&lt;unsigned char, ALLOC&gt;</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
 
 </div>
 </div>
@@ -974,7 +975,7 @@ template&lt;class STREAM , class ALLOC &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Write the specified <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a>&lt;short, ALLOC&gt;</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. The behavior is undefined unless <code>STREAM</code> is BDEX-compliant. </p>
+<p>Write the specified <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a>&lt;short, ALLOC&gt;</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
 
 </div>
 </div>
@@ -1010,7 +1011,7 @@ template&lt;class STREAM , class ALLOC &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Write the specified <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a>&lt;unsigned short, ALLOC&gt;</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. The behavior is undefined unless <code>STREAM</code> is BDEX-compliant. </p>
+<p>Write the specified <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a>&lt;unsigned short, ALLOC&gt;</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
 
 </div>
 </div>
@@ -1046,7 +1047,7 @@ template&lt;class STREAM , class ALLOC &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Write the specified <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a>&lt;int, ALLOC&gt;</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. The behavior is undefined unless <code>STREAM</code> is BDEX-compliant. </p>
+<p>Write the specified <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a>&lt;int, ALLOC&gt;</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
 
 </div>
 </div>
@@ -1082,7 +1083,7 @@ template&lt;class STREAM , class ALLOC &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Write the specified <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a>&lt;unsigned int, ALLOC&gt;</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. The behavior is undefined unless <code>STREAM</code> is BDEX-compliant. </p>
+<p>Write the specified <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a>&lt;unsigned int, ALLOC&gt;</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
 
 </div>
 </div>
@@ -1118,7 +1119,7 @@ template&lt;class STREAM , class ALLOC &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Write the specified <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a>&lt;<a class="el" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a>, ALLOC&gt;</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. The behavior is undefined unless <code>STREAM</code> is BDEX-compliant. </p>
+<p>Write the specified <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a>&lt;<a class="el" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a>, ALLOC&gt;</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
 
 </div>
 </div>
@@ -1154,7 +1155,7 @@ template&lt;class STREAM , class ALLOC &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Write the specified <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a>&lt;<a class="el" href="structbsls_1_1Types.html#a62cdf73ffc20667bc9de36b07c9c25f0">bsls::Types::Uint64</a>, ALLOC&gt;</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. The behavior is undefined unless <code>STREAM</code> is BDEX-compliant. </p>
+<p>Write the specified <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a>&lt;<a class="el" href="structbsls_1_1Types.html#a62cdf73ffc20667bc9de36b07c9c25f0">bsls::Types::Uint64</a>, ALLOC&gt;</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
 
 </div>
 </div>
@@ -1190,7 +1191,7 @@ template&lt;class STREAM , class ALLOC &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Write the specified <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a>&lt;float, ALLOC&gt;</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. The behavior is undefined unless <code>STREAM</code> is BDEX-compliant. </p>
+<p>Write the specified <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a>&lt;float, ALLOC&gt;</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
 
 </div>
 </div>
@@ -1226,7 +1227,7 @@ template&lt;class STREAM , class ALLOC &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Write the specified <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a>&lt;double, ALLOC&gt;</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. The behavior is undefined unless <code>STREAM</code> is BDEX-compliant. </p>
+<p>Write the specified <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a>&lt;double, ALLOC&gt;</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. The specified <code>version</code> is ignored. If <code>stream</code> is initially invalid, this operation has no effect. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
 
 </div>
 </div>
@@ -1256,7 +1257,7 @@ template&lt;class STREAM , class TYPE , class ALLOC &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Write the specified <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a>&lt;TYPE, ALLOC&gt;</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. If <code>stream</code> is initially invalid, this operation has no effect. If needed, first write the computed version information to the <code>stream</code> and if this version is not supported by <code>TYPE</code> and the vector is not empty, <code>stream</code> is invalidated. The behavior is undefined unless <code>STREAM</code> and <code>TYPE</code> are BDEX-compliant. Note that the version is only needed when the (template parameter) <code>TYPE</code> is a <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a></code> or a user-defined type. </p>
+<p>Write the specified <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a>&lt;TYPE, ALLOC&gt;</code> <code>value</code> to the specified output <code>stream</code>, and return a reference to <code>stream</code>. If <code>stream</code> is initially invalid, this operation has no effect. If needed, first write the computed version information to the <code>stream</code> and if this version is not supported by <code>TYPE</code> and the vector is not empty, <code>stream</code> is invalidated. Note that the version is only needed when the (template parameter) <code>TYPE</code> is a <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a></code> or a user-defined type. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
 
 </div>
 </div>
@@ -1292,12 +1293,12 @@ template&lt;class STREAM , class TYPE , class ALLOC &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Write the specified <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a>&lt;TYPE, ALLOC&gt;</code> <code>value</code> to the specified output <code>stream</code> using the specified <code>version</code> format, and return a reference to <code>stream</code>. If <code>stream</code> is initially invalid, this operation has no effect. If <code>version</code> is not supported by <code>TYPE</code> and the vector is not empty, <code>stream</code> is invalidated. The behavior is undefined unless <code>STREAM</code> and <code>TYPE</code> are BDEX-compliant. Note that the specified <code>TYPE</code> might not require a <code>version</code> to be serialized and that <code>version</code> is not written to <code>stream</code>. </p>
+<p>Write the specified <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a>&lt;TYPE, ALLOC&gt;</code> <code>value</code>, using the specified <code>version</code> format, to the specified output <code>stream</code>, and return a reference to <code>stream</code>. If <code>stream</code> is initially invalid, this operation has no effect. If <code>version</code> is not supported by <code>TYPE</code> and the vector is not empty, <code>stream</code> is invalidated, but otherwise unmodified. Note that the specified <code>TYPE</code> might not require a <code>version</code> to be serialized and that <code>version</code> is not written to <code>stream</code>. See the <code>bslx</code> package-level documentation for more information on BDEX streaming of value-semantic types and containers. </p>
 
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:45 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:46 for BDE Release 2.23.1 Open-Source by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

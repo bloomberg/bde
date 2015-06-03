@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bsls_linkcoercion.h                                                -*-C++-*-
@@ -61,7 +61,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 
 namespace BloombergLP {
 
-#if  (defined(BSLS_PLATFORM_OS_LINUX) &amp;&amp; defined(BSLS_PLATFORM_CMP_GNU)) \
+#if  (defined(BSLS_PLATFORM_OS_LINUX)                                         \
+      &amp;&amp; (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)))\
   || defined(BSLS_PLATFORM_OS_DARWIN)
 #define BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(type,             \
                                                   refName,          \

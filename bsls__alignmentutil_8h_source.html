@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bsls_alignmentutil.h                                               -*-C++-*-
@@ -244,8 +244,12 @@ struct AlignmentUtil {
         FuncPtr      d_funcPointer;
         float        d_float;
         double       d_double;
+#if ! (defined(BSLS_PLATFORM_CPU_POWERPC) &amp;&amp; defined(BSLS_PLATFORM_OS_LINUX))
         long double  d_longDouble;
-#if defined(BSLS_PLATFORM_CPU_X86) &amp;&amp; defined(BSLS_PLATFORM_CMP_GNU)
+#endif
+#if defined(BSLS_PLATFORM_CPU_X86)                                            \
+ &amp;&amp; (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))      \
+ &amp;&amp; !defined(BSLS_PLATFORM_OS_SOLARIS)
         AlignmentImp8ByteAlignedType
                      d_8bytesAlignedType;
 #endif

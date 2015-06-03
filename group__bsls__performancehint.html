@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: bsls_performancehint Component</title>
+<title>BDE 2.23.1 OSS: bsls_performancehint Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
@@ -52,9 +53,6 @@
   </div>
 </div>
 <div class="header">
-  <div class="summary">
-<a href="#namespaces">Namespaces</a> &#124;
-<a href="#define-members">Defines</a>  </div>
   <div class="headertitle">
 <h1>Component bsls_performancehint<br/>
 <small>
@@ -66,17 +64,7 @@
 <p>Provide performance hints for code optimization.  
 <a href="#_details">More...</a></p>
 <table class="memberdecls">
-<tr><td colspan="2"><h2><a name="namespaces"></a>
-Namespaces</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">namespace &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebsls.html">bsls</a></td></tr>
-<tr><td colspan="2"><h2><a name="define-members"></a>
-Defines</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bsls__performancehint.html#ga1da8c8a6c2d5c98a91d19139843725a3">BSLS_PERFORMANCEHINT_PREDICT_LIKELY</a>(expr)&nbsp;&nbsp;&nbsp;(expr)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bsls__performancehint.html#gae9831919bd580f971e8bbc4eb8c2905e">BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY</a>(expr)&nbsp;&nbsp;&nbsp;(expr)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bsls__performancehint.html#ga1854b59aa6acb9767282a3e7a6a9f6d4">BSLS_PERFORMANCEHINT_PREDICT_EXPECT</a>(expr, value)&nbsp;&nbsp;&nbsp;(expr)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bsls__performancehint.html#ga627719df87d6f75b96389ef3dcb29c82">BSLS_PERFORMANCEHINT_UNLIKELY_HINT</a></td></tr>
 </table>
-<hr/><a name="_details"></a><h2>Detailed Description</h2>
 <dl class="user"><dt><b>Outline</b></dt><dd><ul>
 <li>
 <a href="#1">Purpose</a> </li>
@@ -101,13 +89,19 @@ Defines</h2></td></tr>
 </ul>
 </li>
 <li>
-<a href="#4.3">Usage</a> </li>
+<a href="#4.3">Optimization Fence</a> <ul>
 <li>
-<a href="#4.4">Example 1 -- USING BRANCH PREDICTION MACROS</a> </li>
+<a href="#4.3.1">Warning</a> </li>
+</ul>
+</li>
 <li>
-<a href="#4.5">Example 2 -- USING <code>BSLS_PERFORMANCEHINT_PREDICT_EXPECT</code></a> </li>
+<a href="#4.4">Usage</a> </li>
 <li>
-<a href="#4.6">Example 3 -- Cache Line Prefetching</a> </li>
+<a href="#4.5">Example 1 -- USING BRANCH PREDICTION MACROS</a> </li>
+<li>
+<a href="#4.6">Example 2 -- USING <code>BSLS_PERFORMANCEHINT_PREDICT_EXPECT</code></a> </li>
+<li>
+<a href="#4.7">Example 3 -- Cache Line Prefetching</a> </li>
 </ul>
 </li>
 </ul>
@@ -121,7 +115,7 @@ Defines</h2></td></tr>
 <dl class="user"><dt><b>Classes: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><table class="doxtable">
 <tr>
-<td><a class="el" href="structbsls_1_1PerformanceHint.html">bsls::PerformanceHint</a> </td><td>namespace for performance optimization hints  </td></tr>
+<td>bsls::PerformanceHint </td><td>namespace for performance optimization hints  </td></tr>
 </table>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
@@ -129,13 +123,15 @@ Defines</h2></td></tr>
 <dl class="user"><dt><b>Macros: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><table class="doxtable">
 <tr>
-<td><a class="el" href="group__bsls__performancehint.html#ga1da8c8a6c2d5c98a91d19139843725a3">BSLS_PERFORMANCEHINT_PREDICT_LIKELY(X)</a> </td><td><code>X</code> probably evaluates to non-zero  </td></tr>
+<td>BSLS_PERFORMANCEHINT_PREDICT_LIKELY(X) </td><td><code>X</code> probably evaluates to non-zero  </td></tr>
 <tr>
-<td><a class="el" href="group__bsls__performancehint.html#gae9831919bd580f971e8bbc4eb8c2905e">BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(X)</a> </td><td><code>X</code> probably evaluates to zero  </td></tr>
+<td>BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(X) </td><td><code>X</code> probably evaluates to zero  </td></tr>
 <tr>
-<td><a class="el" href="group__bsls__performancehint.html#ga1854b59aa6acb9767282a3e7a6a9f6d4">BSLS_PERFORMANCEHINT_PREDICT_EXPECT(X, Y)</a> </td><td><code>X</code> probably evaluates to <code>Y</code>  </td></tr>
+<td>BSLS_PERFORMANCEHINT_PREDICT_EXPECT(X, Y) </td><td><code>X</code> probably evaluates to <code>Y</code>  </td></tr>
 <tr>
 <td>BSLS_PERFORMANCEHINT_UNLIKELY_HINT </td><td>annotate block unlikely to be taken  </td></tr>
+<tr>
+<td>BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE </td><td>prevent compiler optimizations  </td></tr>
 </table>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
@@ -156,7 +152,7 @@ data cache prefetching  </li>
 <br/>
 <div class="fragment"><pre class="fragment">/               Macro Name                          Description of Macro
 /----------------------------------------       -----------------------------
- <a class="code" href="group__bsls__performancehint.html#ga1da8c8a6c2d5c98a91d19139843725a3">BSLS_PERFORMANCEHINT_PREDICT_LIKELY</a>(expr)      Hint to the compiler that the
+ BSLS_PERFORMANCEHINT_PREDICT_LIKELY(expr)      Hint to the compiler that the
                                                 specified *integral* &#39;expr&#39;
                                                 expression is likely to
                                                 evaluate to non-zero.
@@ -164,7 +160,7 @@ data cache prefetching  </li>
                                                 depending on the result of
                                                 the expression.
 
- <a class="code" href="group__bsls__performancehint.html#gae9831919bd580f971e8bbc4eb8c2905e">BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY</a>(expr)    Hint to the compiler that the
+ BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(expr)    Hint to the compiler that the
                                                 specified *integral* &#39;expr&#39;
                                                 expression is likely to
                                                 evaluate to zero.  Returns
@@ -172,7 +168,7 @@ data cache prefetching  </li>
                                                 on the result of the
                                                 expression.
 
- <a class="code" href="group__bsls__performancehint.html#ga1854b59aa6acb9767282a3e7a6a9f6d4">BSLS_PERFORMANCEHINT_PREDICT_EXPECT</a>(expr, value)
+ BSLS_PERFORMANCEHINT_PREDICT_EXPECT(expr, value)
                                                 Hint to the compiler that the
                                                 specified *integral* &#39;expr&#39;
                                                 expression is likely to
@@ -180,7 +176,7 @@ data cache prefetching  </li>
                                                 &#39;value&#39;.  Returns the result
                                                 of the expression.
 
- <a class="code" href="group__bsls__performancehint.html#ga627719df87d6f75b96389ef3dcb29c82">BSLS_PERFORMANCEHINT_UNLIKELY_HINT</a>             Hint to the compiler that the
+ BSLS_PERFORMANCEHINT_UNLIKELY_HINT             Hint to the compiler that the
                                                 block which contains the hint
                                                 is unlikely chosen.  Use this
                                                 in conjunction with the
@@ -197,15 +193,15 @@ data cache prefetching  </li>
 <dl class="user"><dt><b>Limitations: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>There is a bug in gcc 4.2, 4.3, and 4.4 such that when using the branch prediction macros with multiple conditions, the generated code might not be properly optimized. For example: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keywordflow">if</span> (<a class="code" href="group__bsls__performancehint.html#ga1da8c8a6c2d5c98a91d19139843725a3">BSLS_PERFORMANCEHINT_PREDICT_LIKELY</a>(a &amp;&amp; b)) {
+<div class="fragment"><pre class="fragment">  <span class="keywordflow">if</span> (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(a &amp;&amp; b)) {
       <span class="comment">// ...</span>
   }
 </pre></div><br/>
 <br/>
  The work-around is simply to split the conditions: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keywordflow">if</span> (<a class="code" href="group__bsls__performancehint.html#ga1da8c8a6c2d5c98a91d19139843725a3">BSLS_PERFORMANCEHINT_PREDICT_LIKELY</a>(a)
-   &amp;&amp; <a class="code" href="group__bsls__performancehint.html#ga1da8c8a6c2d5c98a91d19139843725a3">BSLS_PERFORMANCEHINT_PREDICT_LIKELY</a>(b)) {
+<div class="fragment"><pre class="fragment">  <span class="keywordflow">if</span> (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(a)
+   &amp;&amp; BSLS_PERFORMANCEHINT_PREDICT_LIKELY(b)) {
       <span class="comment">// ...</span>
   }
 </pre></div><br/>
@@ -219,7 +215,7 @@ data cache prefetching  </li>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="data_cache_prefetching"></a> <a class="anchor" id="description.data_cache_prefetching"></a> <a class="anchor" id="4.2"></a> </dd></dl>
 <dl class="user"><dt><b>Data Cache Prefetching: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The two functions provided in the <code><a class="el" href="structbsls_1_1PerformanceHint.html">bsls::PerformanceHint</a></code> <code>struct</code> are <code>prefetchForReading</code> and <code>prefetchForWriting</code>. Use of these functions will cause the compiler to generate prefetch instructions to prefetch one cache line worth of data at the specified address into the cache line to minimize processor stalls. <br/>
+<dl class="user"><dt><b></b></dt><dd>The two functions provided in the <code>bsls::PerformanceHint</code> <code>struct</code> are <code>prefetchForReading</code> and <code>prefetchForWriting</code>. Use of these functions will cause the compiler to generate prefetch instructions to prefetch one cache line worth of data at the specified address into the cache line to minimize processor stalls. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">       Function Name                       Description of Function
   ------------------------         ------------------------------------------
@@ -231,15 +227,24 @@ data cache prefetching  </li>
 </pre></div><br/>
 <br/>
  </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="data_cache_prefetching.warning"></a> <a class="anchor" id="description.data_cache_prefetching.warning"></a> <a class="anchor" id="4.2.1"></a> </dd></dl>
 <dl class="user"><dt><b>Warning: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>These functions must be used <em>with</em> <em>caution</em>. Inappropriate use of these functions degrades performance. Note that there should be sufficient time for the prefetch instruction to finish before the specified address is accessed, otherwise prefetching will be pointless. A profiler should be used to understand the program's behavior before attempting to optimize with these functions. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="4.3"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="optimization_fence"></a> <a class="anchor" id="description.optimization_fence"></a> <a class="anchor" id="4.3"></a> </dd></dl>
+<dl class="user"><dt><b>Optimization Fence: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The macro <code>BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE</code> prevents some compiler optimizations, particularly compiler instruction reordering. This fence does <em>not</em> map to a CPU instruction and has no impact on processor instruction re-ordering, and therefore should not be used to synchronize memory between threads. The fence may be useful in unusual contexts, like performing benchmarks, or working around bugs identified in the compiler's optimizer. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="optimization_fence.warning"></a> <a class="anchor" id="description.optimization_fence.warning"></a> <a class="anchor" id="4.3.1"></a> </dd></dl>
+<dl class="user"><dt><b>Warning: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This macro should be used <em>with</em> <em>caution</em>. The macro will generally decrease the performance of code on which it is applied, and is not implemented on all platforms. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="4.4"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The following series of examples illustrates use of the macros and functions provided by this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1_--_using_branch_prediction_macros"></a> <a class="anchor" id="description.example_1_--_using_branch_prediction_macros"></a> <a class="anchor" id="4.4"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1_--_using_branch_prediction_macros"></a> <a class="anchor" id="description.example_1_--_using_branch_prediction_macros"></a> <a class="anchor" id="4.5"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1 -- USING BRANCH PREDICTION MACROS: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The following demonstrates the use of <code>BSLS_PERFORMANCEHINT_PREDICT_LIKELY</code> and <code>BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY</code> to generate more efficient assembly instructions. Note the use of <code>BSLS_PERFORMANCEHINT_UNLIKELY_HINT</code> inside the <code>if</code> branch for maximum portability. <br/>
 <br/>
@@ -265,7 +270,7 @@ data cache prefetching  </li>
           <span class="comment">// Correct usage of &#39;BSLS_PERFORMANCEHINT_PREDICT_LIKELY&#39; since</span>
           <span class="comment">// there are nine of ten chance that this branch is taken.</span>
 
-          <span class="keywordflow">if</span> (<a class="code" href="group__bsls__performancehint.html#ga1da8c8a6c2d5c98a91d19139843725a3">BSLS_PERFORMANCEHINT_PREDICT_LIKELY</a>(8 != y)) {
+          <span class="keywordflow">if</span> (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(8 != y)) {
               foo();
           }
           <span class="keywordflow">else</span> {
@@ -323,7 +328,7 @@ data cache prefetching  </li>
 </pre></div><br/>
 <br/>
  </dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2_--_using_bsls_performancehint_predict_expect"></a> <a class="anchor" id="description.example_2_--_using_bsls_performancehint_predict_expect"></a> <a class="anchor" id="4.5"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2_--_using_bsls_performancehint_predict_expect"></a> <a class="anchor" id="description.example_2_--_using_bsls_performancehint_predict_expect"></a> <a class="anchor" id="4.6"></a> </dd></dl>
 <dl class="user"><dt><b>Example 2 -- USING BSLS_PERFORMANCEHINT_PREDICT_EXPECT: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This macro is essentially the same as the <code>__builtin_expect(expr, value)</code> macro that is provided by some compilers. This macro allows the user to define more complex hints to the compiler, such as the optimization of <code>switch</code> statements. For example, given: <br/>
 <br/>
@@ -332,7 +337,7 @@ data cache prefetching  </li>
 <br/>
  the following is incorrect usage of <code>BSLS_PERFORMANCEHINT_PREDICT_EXPECT</code>, since the probability of getting a 3 is equivalent to the other possibilities ( 0, 1, 2 ): <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keywordflow">switch</span> (<a class="code" href="group__bsls__performancehint.html#ga1854b59aa6acb9767282a3e7a6a9f6d4">BSLS_PERFORMANCEHINT_PREDICT_EXPECT</a>(x, 3)) {
+<div class="fragment"><pre class="fragment">  <span class="keywordflow">switch</span> (BSLS_PERFORMANCEHINT_PREDICT_EXPECT(x, 3)) {
     <span class="keywordflow">case</span> 1: <span class="comment">//..</span>
             <span class="keywordflow">break</span>;
     <span class="keywordflow">case</span> 2: <span class="comment">//..</span>
@@ -345,7 +350,7 @@ data cache prefetching  </li>
 <br/>
  However, this is sufficient to illustrate the intent of this macro. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_3_--_cache_line_prefetching"></a> <a class="anchor" id="description.example_3_--_cache_line_prefetching"></a> <a class="anchor" id="4.6"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_3_--_cache_line_prefetching"></a> <a class="anchor" id="description.example_3_--_cache_line_prefetching"></a> <a class="anchor" id="4.7"></a> </dd></dl>
 <dl class="user"><dt><b>Example 3 -- Cache Line Prefetching: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The following demonstrates use of <code>prefetchForReading</code> and <code>prefetchForWriting</code> to prefetch data cache lines: <br/>
 <br/>
@@ -392,8 +397,8 @@ data cache prefetching  </li>
 <div class="fragment"><pre class="fragment">  <span class="keywordtype">void</span> add(<span class="keywordtype">int</span> *arrayA, <span class="keywordtype">int</span> *arrayB)
   {
       <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; SIZE / 8; ++i){
-          <a class="code" href="structbsls_1_1PerformanceHint.html#af23680cf938aa44915af1657bcd53683">bsls::PerformanceHint::prefetchForWriting</a>((<span class="keywordtype">int</span> *) arrayA + 16);
-          <a class="code" href="structbsls_1_1PerformanceHint.html#afd06bebf56c0e6ea681df5a506895dc8">bsls::PerformanceHint::prefetchForReading</a>((<span class="keywordtype">int</span> *) arrayB + 16);
+          bsls::PerformanceHint::prefetchForWriting((<span class="keywordtype">int</span> *) arrayA + 16);
+          bsls::PerformanceHint::prefetchForReading((<span class="keywordtype">int</span> *) arrayB + 16);
 
           *(arrayA++) = *arrayA + *(arrayB++);
           *(arrayA++) = *arrayA + *(arrayB++);
@@ -421,87 +426,8 @@ data cache prefetching  </li>
 </pre></div><br/>
 <br/>
  And we get less of an improvement in speed. Similarly, if we prefetch too far away from the data use, the data might be removed from the cache before it is looked at and the prefetch is wasted. </dd></dl>
-<hr/><h2>Define Documentation</h2>
-<a class="anchor" id="ga1da8c8a6c2d5c98a91d19139843725a3"></a><!-- doxytag: member="bsls_performancehint.h::BSLS_PERFORMANCEHINT_PREDICT_LIKELY" ref="ga1da8c8a6c2d5c98a91d19139843725a3" args="(expr)" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define BSLS_PERFORMANCEHINT_PREDICT_LIKELY</td>
-          <td>(</td>
-          <td class="paramtype">&nbsp;</td>
-          <td class="paramname">expr</td>
-          <td>&nbsp;)&nbsp;</td>
-          <td>&nbsp;&nbsp;&nbsp;(expr)</td>
-        </tr>
-      </table>
 </div>
-<div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="gae9831919bd580f971e8bbc4eb8c2905e"></a><!-- doxytag: member="bsls_performancehint.h::BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY" ref="gae9831919bd580f971e8bbc4eb8c2905e" args="(expr)" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY</td>
-          <td>(</td>
-          <td class="paramtype">&nbsp;</td>
-          <td class="paramname">expr</td>
-          <td>&nbsp;)&nbsp;</td>
-          <td>&nbsp;&nbsp;&nbsp;(expr)</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-<p>Referenced by <a class="el" href="group__bslstl__string.html#ga391b9ebeea0089f5ffa0ba00cf32a3eb">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::append()</a>, <a class="el" href="group__bslstl__string.html#gab9bf941c75fbb73ed82f8bb135b01d3c">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::assign()</a>, <a class="el" href="group__bslstl__string.html#gaa1d2382eeb4b366a2368b43272a8d6e5">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::at()</a>, <a class="el" href="group__bslstl__string.html#gacb0ed7da149152e171cb89437088c785">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::compare()</a>, <a class="el" href="group__bslstl__string.html#gaeb2d4cf4d56a290b3091777b6cb66fc8">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::copy()</a>, <a class="el" href="group__bslstl__string.html#gafc5850be8c60d15b6a8d46efa5db876f">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::erase()</a>, <a class="el" href="group__bslstl__string.html#ga0b07fe15ba6cb9106f13ad09aa1c1ad0">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::insert()</a>, <a class="el" href="group__bslstl__string.html#ga6cf77eba8e1c6889f82179256b876446">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::push_back()</a>, <a class="el" href="group__bslstl__string.html#ga528bae64a7621e4204b98bfba8b0f3b8">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::replace()</a>, <a class="el" href="group__bslstl__string.html#ga89c1eba9a0af6cc49856833210509d4e">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::reserve()</a>, <a class="el" href="group__bslstl__string.html#ga25b862783d3d32a02bff9aa4c9e1a4c4">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::resize()</a>, <a class="el" href="classbslma_1_1AutoDestructor.html#ab3182aa8fc8a5c3ff3131f6037c762a0">bslma::AutoDestructor&lt; TYPE &gt;::~AutoDestructor()</a>, <a class="el" href="classbslma_1_1AutoRawDeleter.html#a1ea98415bb99ccfeae6c392b7cc22708">bslma::AutoRawDeleter&lt; TYPE, ALLOCATOR &gt;::~AutoRawDeleter()</a>, <a class="el" href="classbslma_1_1DeallocatorProctor.html#a5d96c0ed69b256de0362b25cf0697e3c">bslma::DeallocatorProctor&lt; ALLOCATOR &gt;::~DeallocatorProctor()</a>, <a class="el" href="classbslma_1_1DestructorProctor.html#a2950562bd89cc970f404b87a6ec24988">bslma::DestructorProctor&lt; TYPE &gt;::~DestructorProctor()</a>, and <a class="el" href="classbslma_1_1RawDeleterProctor.html#a5e79cb04d4d486899b77f59d4c7b360f">bslma::RawDeleterProctor&lt; TYPE, ALLOCATOR &gt;::~RawDeleterProctor()</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="ga1854b59aa6acb9767282a3e7a6a9f6d4"></a><!-- doxytag: member="bsls_performancehint.h::BSLS_PERFORMANCEHINT_PREDICT_EXPECT" ref="ga1854b59aa6acb9767282a3e7a6a9f6d4" args="(expr, value)" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define BSLS_PERFORMANCEHINT_PREDICT_EXPECT</td>
-          <td>(</td>
-          <td class="paramtype">&nbsp;</td>
-          <td class="paramname">expr, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&nbsp;</td>
-          <td class="paramname">value</td><td>&nbsp;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td><td>&nbsp;&nbsp;&nbsp;(expr)</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="ga627719df87d6f75b96389ef3dcb29c82"></a><!-- doxytag: member="bsls_performancehint.h::BSLS_PERFORMANCEHINT_UNLIKELY_HINT" ref="ga627719df87d6f75b96389ef3dcb29c82" args="" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define BSLS_PERFORMANCEHINT_UNLIKELY_HINT</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-</div>
-</div>
-</div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:29 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:22 for BDE Release 2.23.1 Open-Source by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

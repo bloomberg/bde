@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bdldfp_decimalimputil_inteldfp.h                                   -*-C++-*-
@@ -572,38 +572,38 @@ struct DecimalImpUtil_IntelDfp {
 
                         // makeDecimalRaw functions
 
-    static ValueType32  makeDecimalRaw32(int mantissa, int exponent);
+    static ValueType32  makeDecimalRaw32(int significand, int exponent);
         // Create a &#39;ValueType32&#39; object representing a decimal floating point
-        // number consisting of the specified &#39;mantissa&#39; and &#39;exponent&#39;, with
-        // the sign given by &#39;mantissa&#39;.  The behavior is undefined unless
-        // &#39;abs(mantissa) &lt;= 9,999,999&#39; and &#39;-101 &lt;= exponent &lt;= 90&#39;.
+        // number consisting of the specified &#39;significand&#39; and &#39;exponent&#39;,
+        // with the sign given by &#39;significand&#39;.  The behavior is undefined
+        // unless &#39;abs(significand) &lt;= 9,999,999&#39; and &#39;-101 &lt;= exponent &lt;= 90&#39;.
 
-    static ValueType64 makeDecimalRaw64(unsigned long long int mantissa,
+    static ValueType64 makeDecimalRaw64(unsigned long long int significand,
                                                            int exponent);
-    static ValueType64 makeDecimalRaw64(         long long int mantissa,
+    static ValueType64 makeDecimalRaw64(         long long int significand,
                                                            int exponent);
-    static ValueType64 makeDecimalRaw64(unsigned           int mantissa,
+    static ValueType64 makeDecimalRaw64(unsigned           int significand,
                                                            int exponent);
-    static ValueType64 makeDecimalRaw64(                   int mantissa,
+    static ValueType64 makeDecimalRaw64(                   int significand,
                                                            int exponent);
         // Create a &#39;ValueType64&#39; object representing a decimal floating point
-        // number consisting of the specified &#39;mantissa&#39; and &#39;exponent&#39;, with
-        // the sign given by &#39;mantissa&#39;.  The behavior is undefined unless
-        // &#39;abs(mantissa) &lt;= 9,999,999,999,999,999&#39; and
+        // number consisting of the specified &#39;significand&#39; and &#39;exponent&#39;,
+        // with the sign given by &#39;significand&#39;.  The behavior is undefined
+        // unless &#39;abs(significand) &lt;= 9,999,999,999,999,999&#39; and
         // &#39;-398 &lt;= exponent &lt;= 369&#39;.
 
-    static ValueType128 makeDecimalRaw128(unsigned long long int mantissa,
+    static ValueType128 makeDecimalRaw128(unsigned long long int significand,
                                                              int exponent);
-    static ValueType128 makeDecimalRaw128(         long long int mantissa,
+    static ValueType128 makeDecimalRaw128(         long long int significand,
                                                              int exponent);
-    static ValueType128 makeDecimalRaw128(unsigned           int mantissa,
+    static ValueType128 makeDecimalRaw128(unsigned           int significand,
                                                              int exponent);
-    static ValueType128 makeDecimalRaw128(                   int mantissa,
+    static ValueType128 makeDecimalRaw128(                   int significand,
                                                              int exponent);
         // Create a &#39;ValueType128&#39; object representing a decimal floating point
-        // number consisting of the specified &#39;mantissa&#39; and &#39;exponent&#39;, with
-        // the sign given by &#39;mantissa&#39;.  The behavior is undefined unless
-        // &#39;-6176 &lt;= exponent &lt;= 6111&#39;.
+        // number consisting of the specified &#39;significand&#39; and &#39;exponent&#39;,
+        // with the sign given by &#39;significand&#39;.  The behavior is undefined
+        // unless &#39;-6176 &lt;= exponent &lt;= 6111&#39;.
 
                         // IEEE Scale B functions
 
@@ -676,22 +676,22 @@ struct DecimalImpUtil_IntelDfp {
 
                         // Densely Packed Conversion Functions
 
-    static ValueType32  convertFromDenselyPacked(
+    static ValueType32  convertFromDPD(
                               DenselyPackedDecimalImpUtil::StorageType32  dpd);
-    static ValueType64  convertFromDenselyPacked(
+    static ValueType64  convertFromDPD(
                               DenselyPackedDecimalImpUtil::StorageType64  dpd);
-    static ValueType128 convertFromDenselyPacked(
+    static ValueType128 convertFromDPD(
                               DenselyPackedDecimalImpUtil::StorageType128 dpd);
         // Return a &#39;ValueTypeXX&#39; representing the specified &#39;dpd&#39;, which is
         // currently in Densely Packed Decimal (DPD) format.  This format is
         // compatible with the IBM compiler&#39;s native type, and the decNumber
         // library.
 
-    static DenselyPackedDecimalImpUtil::StorageType32  convertToDenselyPacked(
+    static DenselyPackedDecimalImpUtil::StorageType32  convertToDPD(
                                                            ValueType32  value);
-    static DenselyPackedDecimalImpUtil::StorageType64  convertToDenselyPacked(
+    static DenselyPackedDecimalImpUtil::StorageType64  convertToDPD(
                                                            ValueType64  value);
-    static DenselyPackedDecimalImpUtil::StorageType128 convertToDenselyPacked(
+    static DenselyPackedDecimalImpUtil::StorageType128 convertToDPD(
                                                            ValueType128 value);
         // Return a &#39;DenselyPackedDecimalImpUtil::StorageTypeXX&#39; representing
         // the specified &#39;value&#39; in Densely Packed Decimal (DPD) format.  This
@@ -700,24 +700,24 @@ struct DecimalImpUtil_IntelDfp {
 
                         // Binary Integral Conversion Functions
 
-    static ValueType32  convertFromBinaryIntegral(
+    static ValueType32  convertFromBID(
                              BinaryIntegralDecimalImpUtil::StorageType32  bid);
-    static ValueType64  convertFromBinaryIntegral(
+    static ValueType64  convertFromBID(
                              BinaryIntegralDecimalImpUtil::StorageType64  bid);
-    static ValueType128 convertFromBinaryIntegral(
+    static ValueType128 convertFromBID(
                              BinaryIntegralDecimalImpUtil::StorageType128 bid);
         // Return a &#39;ValueTypeXX&#39; representing the specified &#39;bid&#39;, which is
         // currently in Binary Integral Decimal (BID) format.  This format is
         // compatible with the Intel DFP implementation type.
 
     static
-    BinaryIntegralDecimalImpUtil::StorageType32  convertToBinaryIntegral(
+    BinaryIntegralDecimalImpUtil::StorageType32  convertToBID(
                                                            ValueType32  value);
     static
-    BinaryIntegralDecimalImpUtil::StorageType64  convertToBinaryIntegral(
+    BinaryIntegralDecimalImpUtil::StorageType64  convertToBID(
                                                            ValueType64  value);
     static
-    BinaryIntegralDecimalImpUtil::StorageType128 convertToBinaryIntegral(
+    BinaryIntegralDecimalImpUtil::StorageType128 convertToBID(
                                                            ValueType128 value);
         // Return a &#39;BinaryIntegralDecimalImpUtil::StorageTypeXX&#39; representing
         // the specified &#39;value&#39; in Binary Integral Decimal (BID) format.  This
@@ -1279,99 +1279,99 @@ DecimalImpUtil_IntelDfp::binaryToDecimal128(double value)
 
 inline
 DecimalImpUtil_IntelDfp::ValueType32
-DecimalImpUtil_IntelDfp::makeDecimalRaw32(int mantissa,
+DecimalImpUtil_IntelDfp::makeDecimalRaw32(int significand,
                                           int exponent)
 {
     DecimalImpUtil_IntelDfp::ValueType32 result;
-    result = DecimalImpUtil_IntelDfp::int32ToDecimal32(mantissa);
+    result = DecimalImpUtil_IntelDfp::int32ToDecimal32(significand);
     result = DecimalImpUtil_IntelDfp::scaleB(result, exponent);
     return result;
 }
 
 inline
 DecimalImpUtil_IntelDfp::ValueType64
-DecimalImpUtil_IntelDfp::makeDecimalRaw64(unsigned long long mantissa,
+DecimalImpUtil_IntelDfp::makeDecimalRaw64(unsigned long long significand,
                                           int                exponent)
 {
     DecimalImpUtil_IntelDfp::ValueType64 result;
-    result = DecimalImpUtil_IntelDfp::uint64ToDecimal64(mantissa);
+    result = DecimalImpUtil_IntelDfp::uint64ToDecimal64(significand);
     result = DecimalImpUtil_IntelDfp::scaleB(result, exponent);
     return result;
 }
 
 inline
 DecimalImpUtil_IntelDfp::ValueType64
-DecimalImpUtil_IntelDfp::makeDecimalRaw64(long long mantissa,
+DecimalImpUtil_IntelDfp::makeDecimalRaw64(long long significand,
                                           int       exponent)
 {
     DecimalImpUtil_IntelDfp::ValueType64 result;
-    result = DecimalImpUtil_IntelDfp::int64ToDecimal64(mantissa);
+    result = DecimalImpUtil_IntelDfp::int64ToDecimal64(significand);
     result = DecimalImpUtil_IntelDfp::scaleB(result, exponent);
     return result;
 }
 
 inline
 DecimalImpUtil_IntelDfp::ValueType64
-DecimalImpUtil_IntelDfp::makeDecimalRaw64(unsigned int mantissa,
+DecimalImpUtil_IntelDfp::makeDecimalRaw64(unsigned int significand,
                                           int          exponent)
 {
     DecimalImpUtil_IntelDfp::ValueType64 result;
-    result = DecimalImpUtil_IntelDfp::uint32ToDecimal64(mantissa);
+    result = DecimalImpUtil_IntelDfp::uint32ToDecimal64(significand);
     result = DecimalImpUtil_IntelDfp::scaleB(result, exponent);
     return result;
 }
 
 inline
 DecimalImpUtil_IntelDfp::ValueType64
-DecimalImpUtil_IntelDfp::makeDecimalRaw64(int mantissa,
+DecimalImpUtil_IntelDfp::makeDecimalRaw64(int significand,
                                           int exponent)
 {
     DecimalImpUtil_IntelDfp::ValueType64 result;
-    result = DecimalImpUtil_IntelDfp::int32ToDecimal64(mantissa);
+    result = DecimalImpUtil_IntelDfp::int32ToDecimal64(significand);
     result = DecimalImpUtil_IntelDfp::scaleB(result, exponent);
     return result;
 }
 
 inline
 DecimalImpUtil_IntelDfp::ValueType128
-DecimalImpUtil_IntelDfp::makeDecimalRaw128(unsigned long long mantissa,
+DecimalImpUtil_IntelDfp::makeDecimalRaw128(unsigned long long significand,
                                            int                exponent)
 {
     DecimalImpUtil_IntelDfp::ValueType128 result;
-    result = DecimalImpUtil_IntelDfp::uint64ToDecimal128(mantissa);
+    result = DecimalImpUtil_IntelDfp::uint64ToDecimal128(significand);
     result = DecimalImpUtil_IntelDfp::scaleB(result, exponent);
     return result;
 }
 
 inline
 DecimalImpUtil_IntelDfp::ValueType128
-DecimalImpUtil_IntelDfp::makeDecimalRaw128(long long mantissa,
+DecimalImpUtil_IntelDfp::makeDecimalRaw128(long long significand,
                                            int       exponent)
 {
     DecimalImpUtil_IntelDfp::ValueType128 result;
-    result = DecimalImpUtil_IntelDfp::int64ToDecimal128(mantissa);
+    result = DecimalImpUtil_IntelDfp::int64ToDecimal128(significand);
     result = DecimalImpUtil_IntelDfp::scaleB(result, exponent);
     return result;
 }
 
 inline
 DecimalImpUtil_IntelDfp::ValueType128
-DecimalImpUtil_IntelDfp::makeDecimalRaw128(unsigned int mantissa,
+DecimalImpUtil_IntelDfp::makeDecimalRaw128(unsigned int significand,
                                            int          exponent)
 {
     DecimalImpUtil_IntelDfp::ValueType128 result;
-    result = DecimalImpUtil_IntelDfp::uint32ToDecimal128(mantissa);
+    result = DecimalImpUtil_IntelDfp::uint32ToDecimal128(significand);
     result = DecimalImpUtil_IntelDfp::scaleB(result, exponent);
     return result;
 }
 
 inline
 DecimalImpUtil_IntelDfp::ValueType128
-DecimalImpUtil_IntelDfp::makeDecimalRaw128(int mantissa,
+DecimalImpUtil_IntelDfp::makeDecimalRaw128(int significand,
                                            int exponent)
 {
     DecimalImpUtil_IntelDfp::ValueType128 result;
-    result = DecimalImpUtil_IntelDfp::int32ToDecimal128(mantissa);
+    result = DecimalImpUtil_IntelDfp::int32ToDecimal128(significand);
     result = DecimalImpUtil_IntelDfp::scaleB(result, exponent);
     return result;
 }
@@ -1492,7 +1492,7 @@ DecimalImpUtil_IntelDfp::format(DecimalImpUtil_IntelDfp::ValueType128  value,
 
 inline
 DecimalImpUtil_IntelDfp::ValueType32
-DecimalImpUtil_IntelDfp::convertFromDenselyPacked(
+DecimalImpUtil_IntelDfp::convertFromDPD(
                                 DenselyPackedDecimalImpUtil::StorageType32 dpd)
 {
     ValueType32 value;
@@ -1506,7 +1506,7 @@ DecimalImpUtil_IntelDfp::convertFromDenselyPacked(
 
 inline
 DecimalImpUtil_IntelDfp::ValueType64
-DecimalImpUtil_IntelDfp::convertFromDenselyPacked(
+DecimalImpUtil_IntelDfp::convertFromDPD(
                                 DenselyPackedDecimalImpUtil::StorageType64 dpd)
 {
     ValueType64 value;
@@ -1520,7 +1520,7 @@ DecimalImpUtil_IntelDfp::convertFromDenselyPacked(
 
 inline
 DecimalImpUtil_IntelDfp::ValueType128
-DecimalImpUtil_IntelDfp::convertFromDenselyPacked(
+DecimalImpUtil_IntelDfp::convertFromDPD(
                                DenselyPackedDecimalImpUtil::StorageType128 dpd)
 {
     ValueType128 value;
@@ -1534,7 +1534,7 @@ DecimalImpUtil_IntelDfp::convertFromDenselyPacked(
 
 inline
 DenselyPackedDecimalImpUtil::StorageType32
-DecimalImpUtil_IntelDfp::convertToDenselyPacked(
+DecimalImpUtil_IntelDfp::convertToDPD(
                                     DecimalImpUtil_IntelDfp::ValueType32 value)
 {
     ValueType32 result;
@@ -1548,7 +1548,7 @@ DecimalImpUtil_IntelDfp::convertToDenselyPacked(
 
 inline
 DenselyPackedDecimalImpUtil::StorageType64
-DecimalImpUtil_IntelDfp::convertToDenselyPacked(
+DecimalImpUtil_IntelDfp::convertToDPD(
                                     DecimalImpUtil_IntelDfp::ValueType64 value)
 {
     ValueType64 result;
@@ -1562,7 +1562,7 @@ DecimalImpUtil_IntelDfp::convertToDenselyPacked(
 
 inline
 DenselyPackedDecimalImpUtil::StorageType128
-DecimalImpUtil_IntelDfp::convertToDenselyPacked(
+DecimalImpUtil_IntelDfp::convertToDPD(
                                    DecimalImpUtil_IntelDfp::ValueType128 value)
 {
     ValueType128 result;
@@ -1577,40 +1577,40 @@ DecimalImpUtil_IntelDfp::convertToDenselyPacked(
 
 inline
 DecimalImpUtil_IntelDfp::ValueType32
-DecimalImpUtil_IntelDfp::convertFromBinaryIntegral(
+DecimalImpUtil_IntelDfp::convertFromBID(
                                 BinaryIntegralDecimalImpUtil::StorageType32 bid)
 {
     ValueType32 result;
-    memcpy(&amp;result, &amp;bid, sizeof(result));
+    bsl::memcpy(&amp;result, &amp;bid, sizeof(result));
 
     return result;
 }
 
 inline
 DecimalImpUtil_IntelDfp::ValueType64
-DecimalImpUtil_IntelDfp::convertFromBinaryIntegral(
+DecimalImpUtil_IntelDfp::convertFromBID(
                                 BinaryIntegralDecimalImpUtil::StorageType64 bid)
 {
     ValueType64 result;
-    memcpy(&amp;result, &amp;bid, sizeof(result));
+    bsl::memcpy(&amp;result, &amp;bid, sizeof(result));
 
     return result;
 }
 
 inline
 DecimalImpUtil_IntelDfp::ValueType128
-DecimalImpUtil_IntelDfp::convertFromBinaryIntegral(
+DecimalImpUtil_IntelDfp::convertFromBID(
                                BinaryIntegralDecimalImpUtil::StorageType128 bid)
 {
     ValueType128 result;
-    memcpy(&amp;result, &amp;bid, sizeof(result));
+    bsl::memcpy(&amp;result, &amp;bid, sizeof(result));
 
     return result;
 }
 
 inline
 BinaryIntegralDecimalImpUtil::StorageType32
-DecimalImpUtil_IntelDfp::convertToBinaryIntegral(
+DecimalImpUtil_IntelDfp::convertToBID(
                                     DecimalImpUtil_IntelDfp::ValueType32 value)
 {
     BinaryIntegralDecimalImpUtil::StorageType32 bid;
@@ -1621,7 +1621,7 @@ DecimalImpUtil_IntelDfp::convertToBinaryIntegral(
 
 inline
 BinaryIntegralDecimalImpUtil::StorageType64
-DecimalImpUtil_IntelDfp::convertToBinaryIntegral(
+DecimalImpUtil_IntelDfp::convertToBID(
                                     DecimalImpUtil_IntelDfp::ValueType64 value)
 {
     BinaryIntegralDecimalImpUtil::StorageType64 bid;
@@ -1632,7 +1632,7 @@ DecimalImpUtil_IntelDfp::convertToBinaryIntegral(
 
 inline
 BinaryIntegralDecimalImpUtil::StorageType128
-DecimalImpUtil_IntelDfp::convertToBinaryIntegral(
+DecimalImpUtil_IntelDfp::convertToBID(
                                    DecimalImpUtil_IntelDfp::ValueType128 value)
 {
     BinaryIntegralDecimalImpUtil::StorageType128 bid;

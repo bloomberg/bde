@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: bslx_testoutstream Component</title>
+<title>BDE 2.23.1 OSS: bslx_testoutstream Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
@@ -79,9 +80,11 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#3">Description</a> <ul>
 <li>
-<a href="#3.1">Usage</a> <ul>
+<a href="#3.1">Versioning</a> </li>
 <li>
-<a href="#3.1.1">Example 1: Basic Externalization</a> </li>
+<a href="#3.2">Usage</a> <ul>
+<li>
+<a href="#3.2.1">Example 1: Basic Externalization</a> </li>
 </ul>
 </li>
 </ul>
@@ -105,39 +108,28 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component implements a byte-array-based output stream class that provides platform-independent output methods ("externalization") on values, and arrays of values, of fundamental types, and on <code>bsl::string</code>. This component also externalizes information to the stream that can be used by the reader of the stream to verify, for these types, that the type of data requested from the input stream matches what was written by this output stream. This component is meant for testing only. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component implements a byte-array-based output stream class, <code><a class="el" href="classbslx_1_1TestOutStream.html">bslx::TestOutStream</a></code>, that provides platform-independent output methods ("externalization") on values, and arrays of values, of fundamental types, and on <code>bsl::string</code>. This component also externalizes information to the stream that can be used by the reader of the stream to verify, for these types, that the type of data requested from the input stream matches what was written by this output stream. This component is meant for testing only. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This component is intended to be used in conjunction with the <code>bslx_testinstream</code> "unexternalization" component. Each output method of <code><a class="el" href="classbslx_1_1TestOutStream.html">bslx::TestOutStream</a></code> writes a value or a homogeneous array of values to an internally managed buffer. The values are formatted to be readable by the corresponding <code><a class="el" href="classbslx_1_1TestInStream.html">bslx::TestInStream</a></code> method. In general, the user cannot rely on any other mechanism to read data written by <code><a class="el" href="classbslx_1_1TestOutStream.html">bslx::TestOutStream</a></code> unless that mechanism explicitly states its ability to do so. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The supported types and required content are listed in the table below. All of the fundamental types in the table may be output as scalar values or as homogeneous arrays. <code>bsl::string</code> is output as an <code>int</code> representing the string's length and a homogeneous <code>char</code> array for the string's data. Note that <code>Int64</code> and <code>Uint64</code> denote <code><a class="el" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a></code> and <code><a class="el" href="structbsls_1_1Types.html#a62cdf73ffc20667bc9de36b07c9c25f0">bsls::Types::Uint64</a></code>, which in turn are <code>typedef</code> names for the signed and unsigned 64-bit integer types, respectively, on the host platform. <br/>
-<br/>
-<div class="fragment"><pre class="fragment">      C++ TYPE          REQUIRED CONTENT OF ANY PLATFORM-NEUTRAL FORMAT
-      --------          -----------------------------------------------
-      Int64             least significant 64 bits (<span class="keywordtype">signed</span>)
-      Uint64            least significant 64 bits (<span class="keywordtype">unsigned</span>)
-      <span class="keywordtype">int</span>               least significant 32 bits (<span class="keywordtype">signed</span>)
-      <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>      least significant 32 bits (<span class="keywordtype">unsigned</span>)
-      <span class="keywordtype">short</span>             least significant 16 bits (<span class="keywordtype">signed</span>)
-      <span class="keywordtype">unsigned</span> <span class="keywordtype">short</span>    least significant 16 bits (<span class="keywordtype">unsigned</span>)
-      <span class="keywordtype">char</span>              least significant  8 bits (platform-dependent)
-      <span class="keywordtype">signed</span> <span class="keywordtype">char</span>       least significant  8 bits (<span class="keywordtype">signed</span>)
-      <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span>     least significant  8 bits (<span class="keywordtype">unsigned</span>)
-      <span class="keywordtype">double</span>            IEEE standard 8-byte floating-point value
-      <span class="keywordtype">float</span>             IEEE standard 4-byte floating-point value
-
-      bsl::<span class="keywordtype">string</span>       BDE implementation of the STL <span class="keywordtype">string</span> class
-</pre></div><br/>
-<br/>
- This component also supports compact streaming of integer types. In particular, 64-bit integers can be streamed as 40-, 48-, 56-, or 64-bit values, and 32-bit integers can be streamed as 24- or 32-bit values, at the user's discretion. In all cases, the least significant bytes of the fundamental integer type are written to the stream. Note that, for signed types, this truncation may not preserve the sign of the streamed value; it is the user's responsibility to choose output methods appropriate to the data. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The supported types and required content are listed in the <code>bslx</code> package-level documentation under "Supported Types". </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Note that the values are stored in big-endian format (i.e., network byte order). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Note that output streams can be <em>invalidated</em> explicitly and queried for <em>validity</em>. Writing to an initially invalid stream has no effect. Whenever an output operation fails, the stream should be invalidated explicitly. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="versioning"></a> <a class="anchor" id="description.versioning"></a> <a class="anchor" id="3.1"></a> </dd></dl>
+<dl class="user"><dt><b>Versioning: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>BDEX provides two concepts that support versioning the BDEX serialization format of a type: <code>version</code> and <code>versionSelector</code>. A <code>version</code> is a 1-based integer indicating one of the supported formats (e.g., format 1, format 2, etc.). A <code>versionSelector</code> is a value that is mapped to a <code>version</code> for a type by the type's implementation of <code>maxSupportedBdexVersion</code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Selecting a value for a <code>versionSelector</code> is required at two different points: (1) when implementing a new <code>version</code> format within the <code>bdexStreamIn</code> and <code>bdexStreamOut</code> methods of a type, and (2) when implementing code that constructs a BDEX <code>OutStream</code>. In both cases, the value should be a <em>compile</em>-time-selected value. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>When a new <code>version</code> format is implemented within the <code>bdexStreamIn</code> and <code>bdexStreamOut</code> methods of a type, a new mapping in <code>maxSupportedBdexVersion</code> should be created to expose this new <code>version</code> with a <code>versionSelector</code>. A simple - and the recommended - approach is to use a value having the pattern "YYYYMMDD", where "YYYYMMDD" corresponds to the "go-live" date of the corresponding <code>version</code> format. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>When constructing an <code>OutStream</code>, a simple approach is to use the current date as a <em>compile</em>-time constant value. In combination with the recommended selection of <code>versionSelector</code> values for <code>maxSupportedBdexVersion</code>, this will result in consistent and predictable behavior while externalizing types. Note that this recommendation is chosen for its simplicity: to ensure the largest possible audience for an externalized representation, clients can select the minimum date value that will result in the desired version of all types externalized with <code>operator&lt;&lt;</code> being selected. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>See the <code>bslx</code> package-level documentation for more detailed information about versioning. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This section illustrates intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_basic_externalization"></a> <a class="anchor" id="usage.example_1~3A_basic_externalization"></a> <a class="anchor" id="description.usage.example_1~3A_basic_externalization"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_basic_externalization"></a> <a class="anchor" id="usage.example_1~3A_basic_externalization"></a> <a class="anchor" id="description.usage.example_1~3A_basic_externalization"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.2.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Basic Externalization: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>A <code><a class="el" href="classbslx_1_1TestOutStream.html">bslx::TestOutStream</a></code> can be used to externalize values in a platform-neutral way. Writing out fundamental C++ types and <code>bsl::string</code> requires no additional work on the part of the client; the client can simply use the stream directly. The following code serializes a few representative values using a <code><a class="el" href="classbslx_1_1TestOutStream.html">bslx::TestOutStream</a></code>, compares the contents of this stream to the expected value, and then writes the contents of this stream's buffer to <code>stdout</code>. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>First, we create a <code><a class="el" href="classbslx_1_1TestOutStream.html">bslx::TestOutStream</a></code> with an arbitrary value for its <code>serializationVersion</code> and externalize some values: <br/>
+<dl class="user"><dt><b></b></dt><dd>First, we create a <code><a class="el" href="classbslx_1_1TestOutStream.html">bslx::TestOutStream</a></code> with an arbitrary value for its <code>versionSelector</code> and externalize some values: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <a class="code" href="classbslx_1_1TestOutStream.html">bslx::TestOutStream</a> outStream(20131127);
   outStream.putInt32(1);
@@ -148,8 +140,8 @@ Namespaces</h2></td></tr>
 <br/>
  Then, we compare the contents of the stream to the expected value: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keyword">const</span> <span class="keywordtype">char</span> *theChars = outStream.data();
-  <span class="keywordtype">int</span> length = outStream.length();
+<div class="fragment"><pre class="fragment">  <span class="keyword">const</span> <span class="keywordtype">char</span>  *theChars = outStream.data();
+  bsl::size_t  length   = outStream.length();
   assert(24 == length);
   assert( 0 == bsl::memcmp(theChars,
                            <span class="stringliteral">&quot;\xE6\x00\x00\x00\x01\xE6\x00\x00\x00\x02\xE0&quot;</span>
@@ -159,7 +151,7 @@ Namespaces</h2></td></tr>
 <br/>
  Finally, we print the stream's contents to <code>bsl::cout</code>. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; length; ++i) {
+<div class="fragment"><pre class="fragment">  <span class="keywordflow">for</span> (bsl::size_t i = 0; i &lt; length; ++i) {
       <span class="keywordflow">if</span>(bsl::isalnum(static_cast&lt;unsigned char&gt;(theChars[i]))) {
           bsl::cout &lt;&lt; <span class="stringliteral">&quot;nextByte (char): &quot;</span> &lt;&lt; theChars[i] &lt;&lt; bsl::endl;
       }
@@ -198,7 +190,7 @@ Namespaces</h2></td></tr>
  Note the negative numeric values indicate the "type" of the data that follows (see <code>bslx_typecode</code>). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>See the <code>bslx_testinstream</code> component usage example for a more practical example of using this test output stream. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:31 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:24 for BDE Release 2.23.1 Open-Source by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -1,0 +1,320 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.23.1 OSS</title>
+<html>
+<pre>
+// bsls_bslonce.h                                                     -*-C++-*-
+#ifndef INCLUDED_BSLS_BSLONCE
+#define INCLUDED_BSLS_BSLONCE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide BSL a thread-safe way to execute code once per process.
+//
+//@CLASSES:
+//   bsls::BslOnce: statically initializable gate-keeper for a once-block
+//   bsls::BslOnceGuard: guard for safely using &#39;bsls::BslOnce&#39;
+//
+//@SEE_ALSO:
+//
+//@AUTHOR: Henry Verschell (hversche)
+//
+//@DESCRIPTION: This component provides a pair of classes, &#39;bsls::BslOnce&#39;
+// and &#39;bsls::BslOnceGuard&#39;, which give the caller a way to run a block of
+// code exactly once within the current process, particularly in the presence
+// of multiple threads.  The typical purpose of this one-time execution is the
+// initialization of a singleton on first use.
+//
+// [!WARNING!] Clients outside of &#39;bsl&#39; should *not* use this component.
+// Because of its location in the hierarchy, this component guards critical
+// sections using a spin-lock.  Equivalent components that are more robust and
+// efficient will be provided at a higher level (see &#39;bcemt_once&#39;).
+//
+// A &#39;bsls::Bslnce&#39; object can be statically initialized using the
+// &#39;BSLS_BSLONCE_INTIALIZER&#39; macro.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Using &#39;bsls::BslOnce&#39; to Perform a Singleton Initialization
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// The following example demonstrates using &#39;bsls::BslOnce&#39; to initialize a
+// singleton object.
+//
+// First we declare a &#39;struct&#39;, &#39;MySingleton&#39;, whose definition is elided:
+//..
+//  struct MySingleton {
+//
+//    // PUBLIC DATA
+//    int d_exampleData;
+//
+//    // ...
+//  };
+//..
+// Notice that the data members are public because we want to avoid dynamic
+// runtime initialize (i.e., initialization at run-time before the start of
+// &#39;main&#39;) when an object of this type is declared in a static context.
+//
+// Now we implement a function &#39;getSingleton&#39; that returns a singleton object.
+// &#39;getSingleton&#39; uses &#39;BslOnce&#39; to ensure the singleton is initialized only
+// once, and that the singleton is initialized before the function returns:
+//..
+//  MySingleton *getSingleton()
+//      // Return a reference to a modifiable singleton object.
+//  {
+//     static MySingleton singleton = { 0 };
+//     static BslOnce     once      = BSLS_BSLONCE_INITIALIZER;
+//
+//     BslOnceGuard onceGuard;
+//     if (onceGuard.enter(&amp;once)) {
+//       // Initialize &#39;singleton&#39;.  Note that this code is executed exactly
+//       // once.
+//
+//     }
+//     return &amp;singleton;
+//  }
+//..
+// Notice that &#39;BslOnce&#39; must be initialized to &#39;BSLS_BSLONCE_INITIALIZER&#39;, and
+// that &#39;singleton&#39; is a function scoped static variable to avoid allocating
+// it on the &#39;heap&#39; (which might be reported as leaked memory).
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
+#include &lt;bsls_atomicoperations.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bsls {
+
+                        // =============
+                        // class BslOnce
+                        // =============
+
+#define BSLS_BSLONCE_INITIALIZER { 0xdead }
+    // Use this macro to initialize an object of type &#39;bsls::Once&#39;.  E.g.:
+    //..
+    //  bsls::Once once = BSLS_BSLONCE_INITIALIZER;
+    //..
+    // Note that we use an unlikely arbitrary value to permit effectively
+    // asserting a &#39;BslOnce&#39; for correct initialization.
+
+
+struct BslOnce {
+     // This &#39;struct&#39; provides a simple data type for ensuring a block of code
+     // is executed (only) once.  Note that this is defined as a &#39;struct&#39; to
+     // allow constant initialization in a global or static context using
+     // BSLS_BSLONCE_INTIALIZER.
+
+  public:
+     // PUBLID DATA
+     bsls::AtomicOperations::AtomicTypes::Int d_onceState;
+                           // The state of the one-time block of code managed
+                           // by this object (must be one of the &#39;State&#39;
+                           // values).  This value is public to allow static
+                           // initialization (with &#39;BSLS_BSLONCE_INITIALIZER&#39;),
+                           // but should never be directly accessed or
+                           // modified.
+
+
+  private:
+     // PRIVATE TYPES
+     enum State {
+         // Note that we select unusual integer values in order to more
+         // effectively test (in appropriate build modes) that &#39;d_onceState&#39;
+         // was correctly initialized.
+
+         e_NOT_ENTERED = 0xdead,
+         e_IN_PROGRESS,
+         e_DONE
+     };
+
+    // PRIVATE MANIPULATORS
+    bool doEnter();
+        // Enter the one-time block of code.  Return &#39;true&#39; if the one-time
+        // block of code has been entered, and &#39;false&#39; if the one-time block of
+        // code has already been executed.  If this function returns &#39;false&#39;
+        // then the thread of execution in which &#39;enter&#39; returned &#39;true&#39; has
+        // already called &#39;leave&#39; -- i.e., the one-time block of code is
+        // guaranteed to have *completed* execution.  The behavior is undefined
+        // unless this object was originally initialized to
+        // &#39;BSLS_BSLONCE_INITIALIZER&#39;.  Note that this private variant of
+        // &#39;enter&#39; does not perform a test before attempting to acquire the
+        // spin-lock, and is meant to be implemented out of line (so that the
+        // expected path of &#39;enter&#39; may be more easily inlined).
+
+  public:
+    // MANIPULATORS
+    bool enter();
+        // Enter the one-time block of code.  Return &#39;true&#39; if the one-time
+        // block of code has been entered, and &#39;false&#39; if the one-time block of
+        // code has already been executed.  If this function returns &#39;false&#39;
+        // then the thread of execution in which &#39;enter&#39; returned &#39;true&#39; has
+        // already called &#39;leave&#39; -- i.e., the one-time block of code is
+        // guaranteed to have *completed* execution.  The behavior is undefined
+        // unless this object was originally initialized to
+        // &#39;BSLS_BSLONCE_INITIALIZER&#39;.  Note that a successful &#39;enter&#39; locks a
+        // spin-lock; it is imperative that &#39;leave&#39; be called quickly.
+
+    void leave();
+        // Exit the one-time block of code.  The behavior is undefined unless
+        // the caller had previously called &#39;enter&#39;, and &#39;enter&#39; had returned
+        // &#39;true&#39;.
+};
+
+
+                        // ==================
+                        // class BslOnceGuard
+                        // ==================
+
+class BslOnceGuard {
+    // This class provides a guard for managing a &#39;BslOnce&#39; for the purpose of
+    // executing a block of code (only) once.
+
+  private:
+
+     // DATA
+    BslOnce *d_once;  // once gate-keeper
+
+    // NOT IMPLEMENTED
+    BslOnceGuard(const BslOnceGuard&amp;);
+    BslOnceGuard&amp; operator=(const BslOnceGuard&amp;);
+
+
+  public:
+    // CREATORS
+    BslOnceGuard();
+        // Create a guard to manage a block of code that is executed once.
+
+    ~BslOnceGuard();
+        // Destroy this guard, and if &#39;enter&#39; had been called on this object
+        // without a subsequent call to &#39;leave&#39;, then call &#39;leave&#39; to signal
+        // the completion of the one-time block of code.
+
+    // MANIPULATORS
+    bool enter(BslOnce *once);
+        // Enter the one-time block of code that is managed by the specified
+        // &#39;once&#39;.  Return &#39;true&#39; if the one-time block of code has been
+        // entered, and &#39;false&#39; if the one-time block of code has already been
+        // executed.  If this function returns &#39;false&#39; then the thread of
+        // execution in which &#39;enter&#39; returned &#39;true&#39; has already called
+        // &#39;leave&#39; -- i.e., the one-time block of code is guaranteed to have
+        // *completed* execution.  The behavior is undefined unless &#39;once&#39; was
+        // originally initialized to &#39;BSLS_BSLONCE_INITIALIZER&#39;.  Note that a
+        // successful &#39;enter&#39; locks a spin-lock; it is imperative that &#39;leave&#39;
+        // be called quickly.
+
+    void leave();
+        // Exit the one-time block of code.  The behavior is undefined unless
+        // the caller had previously called &#39;enter&#39;, and &#39;enter&#39; had returned
+        // &#39;true&#39;.
+};
+
+
+// ============================================================================
+//                         INLINE DEFINITIONS
+// ============================================================================
+
+                        // -------------
+                        // class BslOnce
+                        // -------------
+
+
+// MANIPULATORS
+inline
+bool BslOnce::enter()
+{
+    if (e_DONE == bsls::AtomicOperations::getIntAcquire(&amp;d_onceState)) {
+        return false;                                                 // RETURN
+    }
+
+    return doEnter();
+};
+
+inline
+void BslOnce::leave()
+{
+    BSLS_ASSERT_SAFE(e_IN_PROGRESS ==
+                     bsls::AtomicOperations::getIntRelaxed(&amp;d_onceState));
+
+    bsls::AtomicOperations::setIntRelease(&amp;d_onceState, e_DONE);
+}
+
+
+                        // ==================
+                        // class BslOnceGuard
+                        // ==================
+
+
+// CREATORS
+inline
+BslOnceGuard::BslOnceGuard()
+: d_once(0)
+{
+}
+
+inline
+BslOnceGuard::~BslOnceGuard()
+{
+    if (d_once) {
+        d_once-&gt;leave();
+    }
+}
+
+// MANIPULATORS
+inline
+bool BslOnceGuard::enter(BslOnce *once)
+{
+    BSLS_ASSERT_SAFE(once);
+    BSLS_ASSERT_SAFE(!d_once);
+
+    bool success = once-&gt;enter();
+
+    // If the block guarded by &#39;once&#39; has successfully been entered, set
+    // &#39;d_once&#39; so that &#39;leave&#39; will be called when this guard is destroyed.
+
+    if (success) {
+        d_once = once;
+    }
+    return success;
+}
+
+inline
+void BslOnceGuard::leave()
+{
+    BSLS_ASSERT_SAFE(d_once);
+
+    d_once-&gt;leave();
+    d_once = 0;
+
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2014 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

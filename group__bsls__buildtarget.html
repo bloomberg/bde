@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: bsls_buildtarget Component</title>
+<title>BDE 2.23.1 OSS: bsls_buildtarget Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
@@ -87,11 +88,13 @@ Variables</h2></td></tr>
 <li>
 <a href="#1">Purpose</a> </li>
 <li>
-<a href="#2">Classes</a> </li>
+<a href="#2">Macros</a> </li>
 <li>
 <a href="#3">Description</a> <ul>
 <li>
-<a href="#3.1">Usage</a> </li>
+<a href="#3.1">Deprecation Control Macros</a> </li>
+<li>
+<a href="#3.2">Usage</a> </li>
 </ul>
 </li>
 </ul>
@@ -101,13 +104,19 @@ Variables</h2></td></tr>
 <dl class="user"><dt><b>Purpose: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Provide build-target information in object files. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="classes"></a> <a class="anchor" id="2"></a> </dd></dl>
-<dl class="user"><dt><b>Classes: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="macros"></a> <a class="anchor" id="2"></a> </dd></dl>
+<dl class="user"><dt><b>Macros: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><table class="doxtable">
 <tr>
-<td><a class="el" href="namespacebsls.html#aa2c6030de0bb64c0ff041513bb7afcc9">bsls::BuildTargetExc</a> </td><td>type name for identifying exception-enabled builds  </td></tr>
+<td>BDE_BUILD_TARGET_EXC </td><td>flag identifying exception-enabled builds  </td></tr>
 <tr>
-<td><a class="el" href="namespacebsls.html#a550c5c533feb94a6c638508cbfc4981b">bsls::BuildTargetMt</a> </td><td>type name for identifying multi-threaded builds  </td></tr>
+<td>BDE_BUILD_TARGET_NO_EXC </td><td>flag identifying exception-disabled builds  </td></tr>
+<tr>
+<td>BDE_BUILD_TARGET_MT </td><td>flag identifying multi-threaded builds  </td></tr>
+<tr>
+<td>BDE_BUILD_TARGET_NO_MT </td><td>flag identifying builds that do not support threads  </td></tr>
+<tr>
+<td>BDE_OMIT_DEPRECATED </td><td>flag for omitting deprecated code from BDE source  </td></tr>
 </table>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
@@ -115,7 +124,16 @@ Variables</h2></td></tr>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The purpose of this component is to cause a link-time error when trying to link an executable with incompatible libraries. This component defines type names that indicate two build target parameters. These parameters determine whether the build was exception-enabled (which is the case unless overridden by defining the <code>BDE_BUILD_TARGET_NO_EXC</code> macro), and whether it was multi-threaded (which is enabled unless overridden by defining the <code>BDE_BUILD_TARGET_NO_MT</code> macro). The types defined by this component should not be used directly. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="deprecation_control_macros"></a> <a class="anchor" id="description.deprecation_control_macros"></a> <a class="anchor" id="3.1"></a> </dd></dl>
+<dl class="user"><dt><b>Deprecation Control Macros: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>In addition to the <code>BDE_BUILD_TARGET_*</code> macros that determine the link-time compatibility of different libraries built on BDE, this component documents a macro that determines whether deprecated interfaces are available to programs built on BDE: </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><ul>
+<li>
+BDE_OMIT_DEPRECATED: This macro, if defined, indicates that all deprecated code is excluded from a build of the library.  </li>
+</ul>
+</dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>There is no usage example for this component since it is not meant for direct client use. </dd></dl>
 <hr/><h2>Define Documentation</h2>
@@ -194,7 +212,7 @@ Variables</h2></td></tr>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:28 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:22 for BDE Release 2.23.1 Open-Source by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

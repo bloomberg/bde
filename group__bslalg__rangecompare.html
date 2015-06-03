@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: bslalg_rangecompare Component</title>
+<title>BDE 2.23.1 OSS: bslalg_rangecompare Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
@@ -193,7 +194,7 @@ The class has no virtual members.  </li>
 <dl class="user"><dt><b></b></dt><dd>Then, we declare the equality comparison operators for <code>MyContainer</code>: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> VALUE_TYPE&gt;
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#ae38909e0885ad40b01e80afb221e6737">operator==</a>(<span class="keyword">const</span> MyContainer&lt;VALUE_TYPE&gt;&amp; lhs,
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> MyContainer&lt;VALUE_TYPE&gt;&amp; lhs,
                   <span class="keyword">const</span> MyContainer&lt;VALUE_TYPE&gt;&amp; rhs);
       <span class="comment">// Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects have the same</span>
       <span class="comment">// value, and &#39;false&#39; otherwise.  Two &#39;MyContainer&#39; objects have the</span>
@@ -201,7 +202,7 @@ The class has no virtual members.  </li>
       <span class="comment">// has the same value as the corresponding element in &#39;rhs&#39;.</span>
 
   <span class="keyword">template</span> &lt;<span class="keyword">class</span> VALUE_TYPE&gt;
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#a3be038ba34aba97e5c03f884da729377">operator!=</a>(<span class="keyword">const</span> MyContainer&lt;VALUE_TYPE&gt;&amp; lhs,
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aceb1a703f6f64327cd3cdcd03a557f4a">operator!=</a>(<span class="keyword">const</span> MyContainer&lt;VALUE_TYPE&gt;&amp; lhs,
                   <span class="keyword">const</span> MyContainer&lt;VALUE_TYPE&gt;&amp; rhs);
       <span class="comment">// Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects do not have</span>
       <span class="comment">// the same value, and &#39;false&#39; otherwise.  Two &#39;MyContainer&#39; objects do</span>
@@ -214,7 +215,7 @@ The class has no virtual members.  </li>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> VALUE_TYPE&gt;
   <span class="keyword">inline</span>
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#ae38909e0885ad40b01e80afb221e6737">operator==</a>(<span class="keyword">const</span> MyContainer&lt;VALUE_TYPE&gt;&amp; lhs,
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> MyContainer&lt;VALUE_TYPE&gt;&amp; lhs,
                   <span class="keyword">const</span> MyContainer&lt;VALUE_TYPE&gt;&amp; rhs)
   {
       <span class="keywordflow">return</span> BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
@@ -227,7 +228,7 @@ The class has no virtual members.  </li>
 
   <span class="keyword">template</span> &lt;<span class="keyword">class</span> VALUE_TYPE&gt;
   <span class="keyword">inline</span>
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#a3be038ba34aba97e5c03f884da729377">operator!=</a>(<span class="keyword">const</span> MyContainer&lt;VALUE_TYPE&gt;&amp; lhs,
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aceb1a703f6f64327cd3cdcd03a557f4a">operator!=</a>(<span class="keyword">const</span> MyContainer&lt;VALUE_TYPE&gt;&amp; lhs,
                   <span class="keyword">const</span> MyContainer&lt;VALUE_TYPE&gt;&amp; rhs)
   {
       <span class="keywordflow">return</span> !BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
@@ -254,7 +255,7 @@ The class has no virtual members.  </li>
       <span class="comment">// ...</span>
 
       <span class="comment">// FRIENDS</span>
-      <span class="keyword">friend</span> <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#ae38909e0885ad40b01e80afb221e6737">operator==</a>(<span class="keyword">const</span> MyString&amp;, <span class="keyword">const</span> MyString&amp;);
+      <span class="keyword">friend</span> <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> MyString&amp;, <span class="keyword">const</span> MyString&amp;);
       <span class="comment">// ...</span>
 
     <span class="keyword">public</span>:
@@ -269,7 +270,7 @@ The class has no virtual members.  </li>
       <span class="comment">// ...</span>
   };
 
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#ae38909e0885ad40b01e80afb221e6737">operator==</a>(<span class="keyword">const</span> MyString&amp; lhs, <span class="keyword">const</span> MyString&amp; rhs)
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> MyString&amp; lhs, <span class="keyword">const</span> MyString&amp; rhs)
   {
       <span class="keywordflow">return</span> lhs.d_length == rhs.d_length
           &amp;&amp; 0 == std::strncmp(lhs.d_start_p, rhs.d_start_p, lhs.d_length);
@@ -304,7 +305,7 @@ The class has no virtual members.  </li>
       <span class="keywordtype">int</span> d_y;  <span class="comment">// the y-coordinate of the point</span>
 
       <span class="comment">// FRIENDS</span>
-      <span class="keyword">friend</span> <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#ae38909e0885ad40b01e80afb221e6737">operator==</a>(<span class="keyword">const</span> MyPoint&amp;, <span class="keyword">const</span> MyPoint&amp;);
+      <span class="keyword">friend</span> <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> MyPoint&amp;, <span class="keyword">const</span> MyPoint&amp;);
       <span class="comment">// ...</span>
 
     <span class="keyword">public</span>:
@@ -320,7 +321,7 @@ The class has no virtual members.  </li>
       <span class="comment">// ...</span>
   };
 
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#ae38909e0885ad40b01e80afb221e6737">operator==</a>(<span class="keyword">const</span> MyPoint&amp; lhs, <span class="keyword">const</span> MyPoint&amp; rhs)
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> MyPoint&amp; lhs, <span class="keyword">const</span> MyPoint&amp; rhs)
   {
       <span class="keywordflow">return</span> lhs.d_x == rhs.d_x &amp;&amp; lhs.d_y == rhs.d_y;
   }
@@ -360,7 +361,7 @@ The class has no virtual members.  </li>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:27 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:20 for BDE Release 2.23.1 Open-Source by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

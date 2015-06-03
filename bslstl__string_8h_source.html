@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bslstl_string.h                                                    -*-C++-*-
@@ -17,7 +17,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //@CLASSES:
 //  bsl::basic_string: C++ standard compliant &#39;basic_string&#39; implementation
 //  bsl::string: &#39;typedef&#39; for &#39;bsl::basic_string&lt;char&gt;&#39;
-//  bsl::wstring: &#39;typedef&#39; for &#39;bsl::basic_string&lt;wchar&gt;&#39;
+//  bsl::wstring: &#39;typedef&#39; for &#39;bsl::basic_string&lt;wchar_t&gt;&#39;
 //
 //@SEE_ALSO: ISO C++ Standard, Section 21 [strings]
 //
@@ -2394,7 +2394,7 @@ namespace BloombergLP {
 namespace bslh {
 
 template &lt;class HASHALG, class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
-inline
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 void hashAppend(
     HASHALG&amp;                                                           hashAlg,
     const native_std::basic_string&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;&amp; input);
@@ -2454,6 +2454,7 @@ String_Imp&lt;CHAR_TYPE, SIZE_TYPE&gt;::computeNewCapacity(SIZE_TYPE newLength,
 
 // CREATORS
 template &lt;class CHAR_TYPE, class SIZE_TYPE&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 String_Imp&lt;CHAR_TYPE, SIZE_TYPE&gt;::String_Imp()
 : d_start_p(0)
 , d_length(0)
@@ -2462,6 +2463,7 @@ String_Imp&lt;CHAR_TYPE, SIZE_TYPE&gt;::String_Imp()
 }
 
 template &lt;class CHAR_TYPE, class SIZE_TYPE&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 String_Imp&lt;CHAR_TYPE, SIZE_TYPE&gt;::String_Imp(SIZE_TYPE length,
                                              SIZE_TYPE capacity)
 : d_start_p(0)
@@ -3169,6 +3171,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::privateReplace(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;&amp;
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::privateReplace(
                                                      size_type      position,
@@ -3297,6 +3300,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::basic_string(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::basic_string(
                                                   const basic_string&amp; original)
 : Imp(original)
@@ -3309,6 +3313,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::basic_string(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::basic_string(
                                             const basic_string&amp; original,
                                             const ALLOCATOR&amp;    basicAllocator)
@@ -3322,6 +3327,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::basic_string(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::basic_string(
                                             const basic_string&amp; original,
                                             size_type           position,
@@ -3334,6 +3340,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::basic_string(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::basic_string(
                                              const CHAR_TYPE  *characterString,
                                              const ALLOCATOR&amp;  basicAllocator)
@@ -3346,6 +3353,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::basic_string(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::basic_string(
                                              const CHAR_TYPE  *characterString,
                                              size_type         numChars,
@@ -3359,6 +3367,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::basic_string(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::basic_string(
                                               size_type         numChars,
                                               CHAR_TYPE         character,
@@ -3384,6 +3393,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::basic_string(
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
 template &lt;class ALLOC2&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::basic_string(
   const native_std::basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOC2&gt;&amp; original,
   const ALLOCATOR&amp;                                              basicAllocator)
@@ -3405,6 +3415,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::basic_string(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::~basic_string()
 {
     // perform a validity check
@@ -3420,6 +3431,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::~basic_string()
                 // *** 21.3.2 construct/copy/destroy: ***
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;&amp;
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::operator=(
                                                        const basic_string&amp; rhs)
@@ -3428,6 +3440,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::operator=(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;&amp;
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::operator=(const CHAR_TYPE *rhs)
 {
@@ -3437,6 +3450,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::operator=(const CHAR_TYPE *
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;&amp;
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::operator=(CHAR_TYPE character)
 {
@@ -3446,6 +3460,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::operator=(CHAR_TYPE charact
                       // *** 21.3.4 capacity: ***
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 void basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::resize(size_type newLength,
                                                            CHAR_TYPE character)
 {
@@ -3458,6 +3473,7 @@ void basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::resize(size_type newLe
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 void basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::resize(size_type newLength)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(newLength &gt; max_size())) {
@@ -3469,6 +3485,7 @@ void basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::resize(size_type newLe
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 void basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::reserve(
                                                          size_type newCapacity)
 {
@@ -3481,6 +3498,7 @@ void basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::reserve(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 void basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::clear()
 {
     // Note: Stlport and Dinkumware do not deallocate the allocated buffer in
@@ -3585,6 +3603,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::
                      // *** 21.3.6 modifiers: ***
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;&amp;
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::operator+=(
                                                        const basic_string&amp; rhs)
@@ -3593,6 +3612,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::operator+=(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;&amp;
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::operator+=(
                                                           const CHAR_TYPE *rhs)
@@ -3603,6 +3623,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::operator+=(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;&amp;
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::operator+=(CHAR_TYPE character)
 {
@@ -3611,6 +3632,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::operator+=(CHAR_TYPE charac
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;&amp;
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::operator+=(
                const BloombergLP::bslstl::StringRefData&lt;CHAR_TYPE&gt;&amp; strRef)
@@ -3619,6 +3641,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::operator+=(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;&amp;
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::append(
                                                    const basic_string&amp;  suffix)
@@ -3651,6 +3674,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::append(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;&amp;
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::append(
                                               const CHAR_TYPE *characterString,
@@ -3668,6 +3692,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::append(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;&amp;
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::append(
                                               const CHAR_TYPE *characterString)
@@ -3678,6 +3703,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::append(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;&amp;
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::append(size_type numChars,
                                                       CHAR_TYPE character)
@@ -3719,6 +3745,7 @@ void basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::push_back(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;&amp;
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::assign(
                                                const basic_string&amp; replacement)
@@ -3752,6 +3779,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::assign(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;&amp;
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::assign(
                                               const CHAR_TYPE *characterString)
@@ -3779,7 +3807,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::assign(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
-inline
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;&amp;
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::assign(
                    const BloombergLP::bslstl::StringRefData&lt;CHAR_TYPE&gt;&amp; strRef)
@@ -3788,6 +3816,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::assign(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;&amp;
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::assign(size_type numChars,
                                                       CHAR_TYPE character)
@@ -3813,6 +3842,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::assign(INPUT_ITER first,
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;&amp;
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::insert(
                                                   size_type           position,
@@ -3871,6 +3901,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::insert(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;&amp;
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::insert(
                                               size_type        position,
@@ -4137,6 +4168,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::replace(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;&amp;
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::replace(
                                               size_type        outPosition,
@@ -4237,6 +4269,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::replace(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;&amp;
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::replace(
                                               const_iterator   first,
@@ -4374,6 +4407,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::crbegin() const
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::const_reverse_iterator
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::rend() const
 {
@@ -4381,6 +4415,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::rend() const
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::const_reverse_iterator
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::crend() const
 {
@@ -4446,6 +4481,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::operator[](
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::const_reference
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::at(size_type position) const
 {
@@ -4526,6 +4562,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::get_allocator() const
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::size_type
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::find(
                                            const basic_string&amp;  substring,
@@ -4566,6 +4603,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::find(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::size_type
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::find(
                                                const CHAR_TYPE *substring,
@@ -4592,6 +4630,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::find(CHAR_TYPE character,
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::size_type
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::rfind(
                                             const basic_string&amp; substring,
@@ -4629,6 +4668,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::rfind(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::size_type
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::rfind(
                                               const CHAR_TYPE *characterString,
@@ -4642,6 +4682,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::rfind(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::size_type
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::rfind(CHAR_TYPE character,
                                                      size_type position) const
@@ -4650,6 +4691,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::rfind(CHAR_TYPE character,
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::size_type
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::find_first_of(
                                            const basic_string&amp; characterString,
@@ -4684,6 +4726,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::find_first_of(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::size_type
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::find_first_of(
                                               const CHAR_TYPE *characterString,
@@ -4697,6 +4740,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::find_first_of(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::size_type
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::find_first_of(
                                                       CHAR_TYPE character,
@@ -4706,6 +4750,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::find_first_of(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::size_type
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::find_last_of(
                                            const basic_string&amp; characterString,
@@ -4744,6 +4789,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::find_last_of(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::size_type
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::find_last_of(
                                               const CHAR_TYPE *characterString,
@@ -4757,6 +4803,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::find_last_of(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::size_type
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::find_last_of(
                                                       CHAR_TYPE character,
@@ -4766,6 +4813,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::find_last_of(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::size_type
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::find_first_not_of(
                                            const basic_string&amp; characterString,
@@ -4801,6 +4849,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::find_first_not_of(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::size_type
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::find_first_not_of(
                                               const CHAR_TYPE *characterString,
@@ -4814,6 +4863,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::find_first_not_of(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::size_type
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::find_first_not_of(
                                                       CHAR_TYPE character,
@@ -4823,6 +4873,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::find_first_not_of(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::size_type
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::find_last_not_of (
                                            const basic_string&amp; characterString,
@@ -4858,6 +4909,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::find_last_not_of (
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::size_type
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::find_last_not_of (
                                               const CHAR_TYPE *characterString,
@@ -4871,6 +4923,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::find_last_not_of (
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::size_type
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::find_last_not_of (
                                                       CHAR_TYPE character,
@@ -4880,6 +4933,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::find_last_not_of (
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;
 basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::substr(size_type position,
                                                       size_type numChars) const
@@ -4890,6 +4944,7 @@ basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::substr(size_type position,
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 int basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::compare(
                                                const basic_string&amp; other) const
 {
@@ -4948,6 +5003,7 @@ int basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::compare(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 int basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::compare(
                                                   const CHAR_TYPE *other) const
 {
@@ -4983,6 +5039,7 @@ int basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::compare(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 int basic_string&lt;CHAR_TYPE,CHAR_TRAITS,ALLOCATOR&gt;::compare(
                                                   size_type        lhsPosition,
                                                   size_type        lhsNumChars,
@@ -5602,7 +5659,7 @@ void bsl::hashAppend(
 }
 
 template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
-inline
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 std::size_t bsl::hashBasicString(
                     const basic_string&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;&amp; str)
 {
@@ -5612,7 +5669,7 @@ std::size_t bsl::hashBasicString(
 namespace BloombergLP {
 
 template &lt;class HASHALG, class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
-inline
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 void bslh::hashAppend(
     HASHALG&amp;                                                           hashAlg,
     const native_std::basic_string&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;&amp; input)

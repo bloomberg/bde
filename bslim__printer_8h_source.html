@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bslim_printer.h                                                    -*-C++-*-
@@ -667,6 +667,9 @@ class Printer {
         //: o If &#39;TYPE&#39; is a &#39;bsl::pair&#39; object, print out the two elements of
         //:   the pair.
         //:
+        //: o If &#39;TYPE&#39; is a &#39;bslstl::StringRef&#39; object, print the referenced
+        //:   string enclosed in quotes (possibly including embedded 0s).
+        //:
         //: o If &#39;TYPE&#39; has STL iterators (this includes all STL sequence and
         //:   associative containers: vector, deque, list, set, map, multiset,
         //:   multimap, unordered_set, unordered_map, unordered_multiset, and
@@ -757,6 +760,9 @@ class Printer {
         //:
         //: o If &#39;TYPE&#39; is a &#39;bsl::pair&#39; object, print out the two elements of
         //:   the pair.
+        //:
+        //: o If &#39;TYPE&#39; is a &#39;bslstl::StringRef&#39; object, print the referenced
+        //:   string enclosed in quotes (possibly including embedded 0s).
         //:
         //: o If &#39;TYPE&#39; has STL iterators (this includes all STL sequence and
         //:   associative containers: vector, deque, list, set, map, multiset,
@@ -926,6 +932,13 @@ struct Printer_Helper {
     static void printRaw(
                         bsl::ostream&amp;              stream,
                         const bsl::pair&lt;T1, T2&gt;&amp;   data,
+                        int                        level,
+                        int                        spacesPerLevel,
+                        bslmf::SelectTraitCase&lt;&gt;);
+
+    static void printRaw(
+                        bsl::ostream&amp;              stream,
+                        const bslstl::StringRef&amp;   data,
                         int                        level,
                         int                        spacesPerLevel,
                         bslmf::SelectTraitCase&lt;&gt;);

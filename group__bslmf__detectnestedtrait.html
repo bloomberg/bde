@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: bslmf_detectnestedtrait Component</title>
+<title>BDE 2.23.1 OSS: bslmf_detectnestedtrait Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
@@ -62,7 +63,7 @@
 </div>
 <div class="contents">
 
-<p>Provide meta-function to test for nested trait.  
+<p>Provide a facility for defining traits and detecting legacy traits.  
 <a href="#_details">More...</a></p>
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="namespaces"></a>
@@ -78,7 +79,17 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#3">Description</a> <ul>
 <li>
-<a href="#3.1">Usage</a> </li>
+<a href="#3.1">Nested Trait Idiom vs. C++11 Trait Idiom</a> </li>
+<li>
+<a href="#3.2">Writing a User-Defined Trait</a> </li>
+<li>
+<a href="#3.3">Detecting Legacy Traits</a> </li>
+<li>
+<a href="#3.4">Usage</a> <ul>
+<li>
+<a href="#3.4.1">Example 1: Defining a Custom Trait</a> </li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -86,27 +97,272 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="purpose"></a> <a class="anchor" id="1"></a> </dd></dl>
 <dl class="user"><dt><b>Purpose: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Provide meta-function to test for nested trait. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Provide a facility for defining traits and detecting legacy traits. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="classes"></a> <a class="anchor" id="2"></a> </dd></dl>
 <dl class="user"><dt><b>Classes: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><table class="doxtable">
 <tr>
-<td><a class="el" href="structbslmf_1_1DetectNestedTrait.html">bslmf::DetectNestedTrait</a> </td><td>meta-function  </td></tr>
+<td><a class="el" href="structbslmf_1_1DetectNestedTrait.html">bslmf::DetectNestedTrait</a> </td><td>meta-function to test a nested trait  </td></tr>
 </table>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="see"><dt><b>See also:</b></dt><dd></dd></dl>
+<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="group__bslmf__nestedtraitdeclaration.html" title="Provide a nested declaration to associate a class with a trait.">Component bslmf_nestedtraitdeclaration</a> </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component defines a meta-function, <code><a class="el" href="structbslmf_1_1DetectNestedTrait.html">bslmf::DetectNestedTrait</a></code>, that facilitates the creation of traits that can be associated with a type using the nested trait mechanism in <code>bslmf_declarenestedtrait</code>. Such traits are referred to as "nested traits" because their association with a type is embedded within the type's definition. <code><a class="el" href="structbslmf_1_1DetectNestedTrait.html">bslmf::DetectNestedTrait</a></code> and can also be used to detect traits created using older legacy traits definitions mechanisms used at Bloomberg. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Please note: <ol>
+<li>
+The use of <code><a class="el" href="structbslmf_1_1DetectNestedTrait.html">bslmf::DetectNestedTrait</a></code> to detect traits is <em>deprecated</em>. Clients should detect traits using the C++11 idiom (see <a href="group__bslmf__detectnestedtrait.html#nested_trait_idiom_vs._c++11_trait_idiom" class="el">Nested Trait Idiom vs. C++11 Trait Idiom</a> below)  </li>
+<li>
+Clients are encouraged to use a C++11 idiom for defining traits. However, authors of traits who want trait users to be able to take advantage of <code>bslmf_nestedtraitdeclaration</code> must define traits that inherit from <code><a class="el" href="structbslmf_1_1DetectNestedTrait.html">bslmf::DetectNestedTrait</a></code> (see <a href="group__bslmf__detectnestedtrait.html#writing_a_user-defined_trait" class="el">Writing a User-Defined Trait</a> below).  </li>
+</ol>
+</dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="nested_trait_idiom_vs._c++11_trait_idiom"></a> <a class="anchor" id="description.nested_trait_idiom_vs._c++11_trait_idiom"></a> <a class="anchor" id="3.1"></a> </dd></dl>
+<dl class="user"><dt><b>Nested Trait Idiom vs. C++11 Trait Idiom: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>BDE supports two idioms for defining traits and associating them with types. The older idiom uses <code><a class="el" href="structbslmf_1_1DetectNestedTrait.html">bslmf::DetectNestedTrait</a></code> to define traits, and the <code>BSLMF_NESTED_TRAIT_DECLARATION*</code> macros to associate traits with types. This idiom is called the "nested trait" idiom. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The newer idiom is familiar to users of C++11 traits, and is referred to here as the "C++11 trait" idiom. In the C++11 trait idiom, a trait is a template that derives its truth value from <code><a class="el" href="namespacebsl.html#a124171e6663dfc2b3c10256844c8dc3b">bsl::true_type</a></code> or <code><a class="el" href="namespacebsl.html#a072205c212218b4b4cccaf66052c99a4">bsl::false_type</a></code>, and is associated with a type by providing a specialization of the trait for the associated type. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>For example, a minimal C++11 trait, <code>abcd::C11Trait</code>, could be defined as: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">namespace </span>abcd {
+
+  <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE&gt;
+  <span class="keyword">struct </span>C11Trait : bsl::<a class="code" href="namespacebsl.html#a072205c212218b4b4cccaf66052c99a4">false_type</a> {
+  };
+
+  }  <span class="comment">// close namespace abcd</span>
+</pre></div><br/>
+<br/>
+ <code>abcd::C11Trait</code> would then be associated with a class, <code>xyza::SomeClass</code>, by specializing the trait for that class: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">namespace </span>xyza {
+
+  <span class="keyword">class </span>SomeClass {
+      <span class="comment">// The definition of &#39;SomeClass&#39; does not affect the trait mechanism.</span>
+
+      <span class="comment">// ...</span>
+  };
+
+  }  <span class="comment">// close namespace xyza</span>
+
+  <span class="keyword">namespace </span>abcd {
+
+  <span class="keyword">template</span> &lt;&gt;
+  <span class="keyword">struct </span>C11Trait&lt;xyza::SomeClass&gt; : bsl::<a class="code" href="namespacebsl.html#a124171e6663dfc2b3c10256844c8dc3b">true_type</a> {
+  };
+
+  }  <span class="comment">// close namespace abcd</span>
+</pre></div><br/>
+<br/>
+ Note that the specialization is defined in the same namespace as the original trait. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Both idioms detect the association of a trait with a class in the same way: by inspecting the trait's <code>value</code> member. <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  assert(<span class="keyword">true</span>  == abcd::C11Trait&lt;xyza::SomeClass&gt;::value);
+  assert(<span class="keyword">false</span> == abcd::C11Trait&lt;xyza::Foo&gt;::value);
+  assert(<span class="keyword">true</span>  == abcd::BarTrait&lt;xyza::Foo&gt;::value);
+  assert(<span class="keyword">false</span> == abcd::BarTrait&lt;xyza::SomeClass&gt;::value);
+</pre></div><br/>
+<br/>
+ The C++11 trait idiom is the standard idiom for new code in BDE. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="writing_a_user-defined_trait"></a> <a class="anchor" id="description.writing_a_user-defined_trait"></a> <a class="anchor" id="3.2"></a> </dd></dl>
+<dl class="user"><dt><b>Writing a User-Defined Trait: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>On systems that do not require compatibility with the nested trait idiom, new traits should be written according to the C++11 trait idiom. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>On systems that support the nested trait idiom, any new user-defined trait should derive its truth value from <code><a class="el" href="structbslmf_1_1DetectNestedTrait.html">bslmf::DetectNestedTrait</a></code> following the Curiously Recurring Template Pattern. This will allow the trait to be detected by directly inspecting the trait's <code>value</code> member, regardless of whether the trait is associated with a type through the nested trait idiom or through the C++11 trait idiom. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Therefore, the simplest maximally-compatible trait would look like this: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE&gt;
+  <span class="keyword">struct </span>MyTrait : bslmf::DetectNestedTrait&lt;TYPE, MyTrait&gt;::type {};
+</pre></div><br/>
+<br/>
+ A trait having more complex default logic could derive from <code><a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant</a></code> using the <code>value</code> member of <code><a class="el" href="structbslmf_1_1DetectNestedTrait.html">bslmf::DetectNestedTrait</a></code>, such as: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE&gt;
+  <span class="keyword">struct </span>ComplexTrait : bsl::integral_constant&lt;bool,
+                          bslmf::DetectNestedTrait&lt;TYPE, ComplexTrait&gt;::value
+                          || SomeOtherTrait&lt;TYPE&gt;::value&gt; {
+  };
+</pre></div><br/>
+<br/>
+ These are the only recommended uses of <code><a class="el" href="structbslmf_1_1DetectNestedTrait.html">bslmf::DetectNestedTrait</a>&lt;TYPE, TRAIT&gt;type</code> and <code><a class="el" href="structbslmf_1_1DetectNestedTrait.html">bslmf::DetectNestedTrait</a>&lt;TYPE, TRAIT&gt;value</code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="detecting_legacy_traits"></a> <a class="anchor" id="description.detecting_legacy_traits"></a> <a class="anchor" id="3.3"></a> </dd></dl>
+<dl class="user"><dt><b>Detecting Legacy Traits: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>If a trait, <code>TRAIT</code>, has been associated with a type, <code>TYPE</code>, using one of the <code>BSLMF_NESTED_TRAIT_DECLARATION*</code> macros then <code><a class="el" href="structbslmf_1_1DetectNestedTrait.html">bslmf::DetectNestedTrait</a>&lt;TYPE, TRAIT&gt;</code> derives from <code><a class="el" href="namespacebsl.html#a124171e6663dfc2b3c10256844c8dc3b">bsl::true_type</a></code>. Otherwise, <code><a class="el" href="structbslmf_1_1DetectNestedTrait.html">bslmf::DetectNestedTrait</a>&lt;TYPE, TRAIT&gt;</code> derives from <code><a class="el" href="namespacebsl.html#a072205c212218b4b4cccaf66052c99a4">bsl::false_type</a></code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Therefore, if a trait <code>abcd::BarTrait</code> has been associated with a class <code>xyza::Foo</code> in the following way: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">namespace </span>xyza {
+
+  <span class="keyword">class </span>Foo {
+      <span class="comment">// ... various implementation details ...</span>
+
+    <span class="keyword">public</span>:
+      <span class="comment">// TRAITS</span>
+      <a class="code" href="bslmf__nestedtraitdeclaration_8h.html#a6d33ff2982d65052e0c33136bf4d74e7">BSLMF_NESTED_TRAIT_DECLARATION</a>(Foo, abcd::BarTrait);
+
+      <span class="comment">// ... the rest of the public interface ...</span>
+  };
+
+  }  <span class="comment">// close namespace xyza</span>
+</pre></div><br/>
+<br/>
+ then <code><a class="el" href="structbslmf_1_1DetectNestedTrait.html">bslmf::DetectNestedTrait</a>&lt;TYPE, TRAIT&gt;value</code> will evaluate to <code>true</code> and <code><a class="el" href="structbslmf_1_1DetectNestedTrait.html">bslmf::DetectNestedTrait</a>&lt;TYPE, TRAIT&gt;type</code> will be <code><a class="el" href="namespacebsl.html#a124171e6663dfc2b3c10256844c8dc3b">bsl::true_type</a></code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.4"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This section illustrates intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_defining_a_custom_trait"></a> <a class="anchor" id="usage.example_1~3A_defining_a_custom_trait"></a> <a class="anchor" id="description.usage.example_1~3A_defining_a_custom_trait"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.4.1"></a> </dd></dl>
+<dl class="user"><dt><b>Example 1: Defining a Custom Trait: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>When writing generic infrastructure code, we often need to choose among multiple code paths based on the capabilities of the types on which we are operating. If those capabilities are reflected in a type's public interface, we may be able to use techniques such as SFINAE to choose the appropriate code path. However, SFINAE cannot detect all of a type's capabilities. In particular, SFINAE cannot detect constructors, memory allocation, thread-safety characteristics, and so on. Functions that depend on these capabilities must use another technique to determine the correct code path to use for a given type. We can solve this sort of problem by associating types with custom traits that indicate what capabilities are provided by a given type. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>First, in package <code>abcd</code>, define a trait, <code>RequiresLockTrait</code>, that indicates that a type's methods must not be called unless a known lock it first acquired: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">namespace </span>abcd {
+
+  <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE&gt;
+  <span class="keyword">struct </span>RequiresLockTrait :
+                    bslmf::DetectNestedTrait&lt;TYPE, RequiresLockTrait&gt;::type {
+  };
+
+  } <span class="comment">// close package namespace</span>
+</pre></div><br/>
+<br/>
+ Notice that <code>RequiresLockTrait</code> derives from <code><a class="el" href="structbslmf_1_1DetectNestedTrait.html">bslmf::DetectNestedTrait</a>&lt;TYPE, RequiresLockTrait&gt;type</code> using the curiously recurring template pattern. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Then, in package <code>xyza</code>, we declare a type, <code>DoesNotRequireALockType</code>, that can be used without acquiring the lock: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">namespace </span>xyza {
+
+  <span class="keyword">class </span>DoesNotRequireLockType {
+      <span class="comment">// ...</span>
+
+    <span class="keyword">public</span>:
+      <span class="comment">// CREATORS</span>
+      DoesNotRequireLockType();
+          <span class="comment">// ...</span>
+  };
+</pre></div><br/>
+<br/>
+ Next, we declare a type, <code>RequiresLockTypeA</code>, that does require the lock. We use the <code>BSLMF_NESTED_TRAIT_DECLARATION</code> macro to associate the type with the <code>abcd::RequiresLockTrait</code> trait: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">class </span>RequiresLockTypeA {
+      <span class="comment">// ...</span>
+
+    <span class="keyword">public</span>:
+      <span class="comment">// TRAITS</span>
+      <a class="code" href="bslmf__nestedtraitdeclaration_8h.html#a6d33ff2982d65052e0c33136bf4d74e7">BSLMF_NESTED_TRAIT_DECLARATION</a>(RequiresLockTypeA,
+                                     abcd::RequiresLockTrait);
+
+      <span class="comment">// CREATORS</span>
+      RequiresLockTypeA();
+          <span class="comment">// ...</span>
+
+  };
+</pre></div><br/>
+<br/>
+ Notice that the macro declaration is performed within the scope of the class declaration, and must be done with public scope. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Then, we declare a templatized container type, <code>Container</code>, that is parameterized on some <code>ELEMENT</code> type. If <code>ELEMENT</code> requires a lock, then a <code>Container</code> of <code>ELEMENT</code>s will require a lock as well. This can be expressed using the <code>BSLMF_NESTED_TRAIT_DECLARATION_IF</code> macro, by providing <code>abcd::RequiresLockTrait&lt;ELEMENT&gt;value</code> as the condition for associating the trait with <code>Container</code>. <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> ELEMENT&gt;
+  <span class="keyword">struct </span>Container {
+      <span class="comment">// ...</span>
+
+    <span class="keyword">public</span>:
+      <span class="comment">// TRAITS</span>
+      <a class="code" href="bslmf__nestedtraitdeclaration_8h.html#afba4d34c00d363b3b83f2768fc5d0887">BSLMF_NESTED_TRAIT_DECLARATION_IF</a>(Container, abcd::RequiresLockTrait,
+                                    abcd::RequiresLockTrait&lt;ELEMENT&gt;::value);
+
+      <span class="comment">// ...</span>
+  };
+</pre></div><br/>
+<br/>
+ Next, we show that traits based on <code><a class="el" href="structbslmf_1_1DetectNestedTrait.html">bslmf::DetectNestedTrait</a></code> can be associated with a type using "C++11-style" trait association. To do this, we declare a type, <code>RequiresLockTypeB</code>, that also requires the lock, but does not used the <code>BSLMF_NESTED_TRAIT_DECLARATION</code> macro: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">class </span>RequiresLockTypeB {
+      <span class="comment">// ...</span>
+
+    <span class="keyword">public</span>:
+      <span class="comment">// CREATORS</span>
+      RequiresLockTypeB();
+          <span class="comment">// ...</span>
+
+  };
+
+  } <span class="comment">// close package namespace</span>
+</pre></div><br/>
+<br/>
+ Then, we associate <code>RequiresLockTypeB</code> with <code>abcd::RequiresLockTrait</code> by directly specializing <code>abcd::RequiresLockTrait&lt;xyza::RequiresLockTypeB&gt;</code>. This is the standard way of associating a type with a trait since C++11: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">namespace </span>abcd {
+
+  <span class="keyword">template</span> &lt;&gt;
+  <span class="keyword">struct </span>RequiresLockTrait&lt;xyza::RequiresLockTypeB&gt; : bsl::<a class="code" href="namespacebsl.html#a124171e6663dfc2b3c10256844c8dc3b">true_type</a> {
+  };
+
+  } <span class="comment">// close namespace abcd</span>
+</pre></div><br/>
+<br/>
+ Now, we can write a function that inspects <code>abcd::RequiresLockTrait&lt;TYPE&gt;value</code> to test whether or not various types are associated with <code>abcd::RequiresLockTrait</code>: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keywordtype">void</span> example1()
+  {
+      assert(<span class="keyword">false</span> ==
+             abcd::RequiresLockTrait&lt;xyza::DoesNotRequireLockType&gt;::value);
+
+      assert(<span class="keyword">true</span>  ==
+             abcd::RequiresLockTrait&lt;xyza::RequiresLockTypeA&gt;::value);
+
+      assert(<span class="keyword">true</span>  ==
+             abcd::RequiresLockTrait&lt;xyza::RequiresLockTypeB&gt;::value);
+
+      assert(<span class="keyword">false</span> ==
+             abcd::RequiresLockTrait&lt;
+                     xyza::Container&lt;xyza::DoesNotRequireLockType&gt; &gt;::value);
+
+      assert(<span class="keyword">true</span>  ==
+             abcd::RequiresLockTrait&lt;
+                          xyza::Container&lt;xyza::RequiresLockTypeA&gt; &gt;::value);
+
+      assert(<span class="keyword">true</span>  ==
+             abcd::RequiresLockTrait&lt;
+                          xyza::Container&lt;xyza::RequiresLockTypeB&gt; &gt;::value);
+
+      <span class="comment">// ...</span>
+  }
+</pre></div><br/>
+<br/>
+ Finally, we demonstrate that the trait can be tested at compilation time, by writing a function that tests the trait within the context of a compile-time <code>BSLMF_ASSERT</code>: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keywordtype">void</span> example2()
+  {
+      <a class="code" href="group__bslmf__assert.html#ga25a196cf9f296d429b37512e9ad8ee27">BSLMF_ASSERT</a>(<span class="keyword">false</span> ==
+             abcd::RequiresLockTrait&lt;xyza::DoesNotRequireLockType&gt;::value);
+
+      <a class="code" href="group__bslmf__assert.html#ga25a196cf9f296d429b37512e9ad8ee27">BSLMF_ASSERT</a>(<span class="keyword">true</span>  ==
+             abcd::RequiresLockTrait&lt;xyza::RequiresLockTypeA&gt;::value);
+
+      <a class="code" href="group__bslmf__assert.html#ga25a196cf9f296d429b37512e9ad8ee27">BSLMF_ASSERT</a>(<span class="keyword">true</span>  ==
+             abcd::RequiresLockTrait&lt;xyza::RequiresLockTypeB&gt;::value);
+
+      <a class="code" href="group__bslmf__assert.html#ga25a196cf9f296d429b37512e9ad8ee27">BSLMF_ASSERT</a>(<span class="keyword">false</span> ==
+             abcd::RequiresLockTrait&lt;
+                     xyza::Container&lt;xyza::DoesNotRequireLockType&gt; &gt;::value);
+
+      <a class="code" href="group__bslmf__assert.html#ga25a196cf9f296d429b37512e9ad8ee27">BSLMF_ASSERT</a>(<span class="keyword">true</span>  ==
+             abcd::RequiresLockTrait&lt;
+                          xyza::Container&lt;xyza::RequiresLockTypeA&gt; &gt;::value);
+
+      <a class="code" href="group__bslmf__assert.html#ga25a196cf9f296d429b37512e9ad8ee27">BSLMF_ASSERT</a>(<span class="keyword">true</span>  ==
+             abcd::RequiresLockTrait&lt;
+                          xyza::Container&lt;xyza::RequiresLockTypeB&gt; &gt;::value);
+
+  }
+</pre></div><br/>
+<br/>
+ </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:28 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:21 for BDE Release 2.23.1 Open-Source by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

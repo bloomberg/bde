@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: bslx_instreamfunctions Component</title>
+<title>BDE 2.23.1 OSS: bslx_instreamfunctions Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
@@ -115,7 +116,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd>By default, objects of enumeration type are streamed in as 32-bit <code>int</code> values. Users can override this behavior by providing overloads of the <code>InStreamFunctions::bdexStreamIn</code> function in the enumeration's namespace for their enumeration types. The general form of this overload is: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> STREAM&gt;
-  STREAM&amp; <a class="code" href="namespacebslx_1_1InStreamFunctions.html#a51ef35d627d850a81a33c3106cbf1b52">bdexStreamIn</a>(STREAM&amp; stream, MyEnum&amp; variable, <span class="keywordtype">int</span> version)
+  STREAM&amp; <a class="code" href="namespacebdlt.html#afc51da85db916b88828707653e987140">bdexStreamIn</a>(STREAM&amp; stream, MyEnum&amp; variable, <span class="keywordtype">int</span> version)
   {
       <span class="keyword">using</span> bslx::InStreamFunctions::bdexStreamIn;
 
@@ -151,7 +152,7 @@ Namespaces</h2></td></tr>
  then the implementation of the <code>bdexStreamIn</code> method must rely on the <code><a class="el" href="namespacebslx_1_1InStreamFunctions.html">bslx::InStreamFunctions</a></code> implementation to input the value: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">using</span> bslx::InStreamFunctions::bdexStreamIn;
-  <a class="code" href="namespacebslx_1_1InStreamFunctions.html#a51ef35d627d850a81a33c3106cbf1b52">bdexStreamIn</a>(stream, d_value, 1);
+  <a class="code" href="namespacebdlt.html#afc51da85db916b88828707653e987140">bdexStreamIn</a>(stream, d_value, 1);
 </pre></div><br/>
 <br/>
  This call will resolve to the correct sequence of <code>get</code> calls no matter whether <code>TYPE</code> is a fundamental type, a BDEX-compliant <code>enum</code>, or a proper BDEX-compliant class. In the latter two cases, the explicit specification of the version format (in this case, 1) guarantees the stable operation of this method whether or not <code>TYPE</code> is provided additional version formats. </dd></dl>
@@ -162,7 +163,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_using_bslx~3A~3Ainstreamfunctions_to_unexternalize_data"></a> <a class="anchor" id="usage.example_1~3A_using_bslx~3A~3Ainstreamfunctions_to_unexternalize_data"></a> <a class="anchor" id="description.usage.example_1~3A_using_bslx~3A~3Ainstreamfunctions_to_unexternalize_data"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.2.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Using bslx::InStreamFunctions to Unexternalize Data: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>In this example we illustrate the primary intended use of the templatized methods of this component, as well as a few trivial invocations just to show the syntax clearly. To accomplish this, we exhibit three separate example "components": an <code>enum</code>, a value-semantic point object, and an input stream. In all cases, the component designs are very simple, with much of the implied functionality omitted, in order to focus attention on the key aspects of the functionality of <em>this</em> component. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>In this example we illustrate the primary intended use of the parameterized methods of this component, as well as a few trivial invocations just to show the syntax clearly. To accomplish this, we exhibit three separate example "components": an <code>enum</code>, a value-semantic point object, and an input stream. In all cases, the component designs are very simple, with much of the implied functionality omitted, in order to focus attention on the key aspects of the functionality of <em>this</em> component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, consider an <code>enum</code> <code>Color</code> that enumerates a set of colors: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">enum</span> Color {
@@ -214,12 +215,12 @@ Namespaces</h2></td></tr>
           <span class="comment">// Return the enumerated color of this point.</span>
 
       <span class="keyword">template</span> &lt;<span class="keyword">class</span> STREAM&gt;
-      STREAM&amp; <a class="code" href="namespacebslx_1_1InStreamFunctions.html#a51ef35d627d850a81a33c3106cbf1b52">bdexStreamIn</a>(STREAM&amp; stream, <span class="keywordtype">int</span> version);
+      STREAM&amp; <a class="code" href="namespacebdlt.html#afc51da85db916b88828707653e987140">bdexStreamIn</a>(STREAM&amp; stream, <span class="keywordtype">int</span> version);
           <span class="comment">// Assign to this object the value read from the specified input</span>
           <span class="comment">// &#39;stream&#39; using the specified &#39;version&#39; format, and return a</span>
           <span class="comment">// reference to &#39;stream&#39;.  If &#39;stream&#39; is initially invalid, this</span>
           <span class="comment">// operation has no effect.  If &#39;version&#39; is not supported, this</span>
-          <span class="comment">// object is unaltered and &#39;stream&#39; is invalidated but otherwise</span>
+          <span class="comment">// object is unaltered and &#39;stream&#39; is invalidated, but otherwise</span>
           <span class="comment">// unmodified.  If &#39;version&#39; is supported but &#39;stream&#39; becomes</span>
           <span class="comment">// invalid during this operation, this object has an undefined, but</span>
           <span class="comment">// valid, state.  Note that no version is read from &#39;stream&#39;.  See</span>
@@ -229,7 +230,7 @@ Namespaces</h2></td></tr>
 
   <span class="comment">// FREE OPERATORS</span>
   <span class="keyword">inline</span>
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#ae38909e0885ad40b01e80afb221e6737">operator==</a>(<span class="keyword">const</span> MyPoint&amp; lhs, <span class="keyword">const</span> MyPoint&amp; rhs);
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> MyPoint&amp; lhs, <span class="keyword">const</span> MyPoint&amp; rhs);
       <span class="comment">// Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; points have the same</span>
       <span class="comment">// value, and &#39;false&#39; otherwise.  Two points have the same value if</span>
       <span class="comment">// they have the same x and y coordinates and the same color.</span>
@@ -237,9 +238,9 @@ Namespaces</h2></td></tr>
 <br/>
  Representative (inline) implementations of these methods are shown below: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="comment">//=========================================================================</span>
+<div class="fragment"><pre class="fragment">  <span class="comment">// ========================================================================</span>
   <span class="comment">//                      INLINE FUNCTION DEFINITIONS</span>
-  <span class="comment">//=========================================================================</span>
+  <span class="comment">// ========================================================================</span>
 
   <span class="comment">// CREATORS</span>
   <span class="keyword">inline</span>
@@ -286,7 +287,7 @@ Namespaces</h2></td></tr>
   <span class="comment">// ...</span>
 
   <span class="keyword">template</span> &lt;<span class="keyword">class</span> STREAM&gt;
-  STREAM&amp; <a class="code" href="namespacebslx_1_1InStreamFunctions.html#a51ef35d627d850a81a33c3106cbf1b52">MyPoint::bdexStreamIn</a>(STREAM&amp; stream, <span class="keywordtype">int</span> version)
+  STREAM&amp; <a class="code" href="namespacebdlt.html#afc51da85db916b88828707653e987140">MyPoint::bdexStreamIn</a>(STREAM&amp; stream, <span class="keywordtype">int</span> version)
   {
       <span class="keywordflow">switch</span> (version) {
         <span class="keywordflow">case</span> 1: {
@@ -305,7 +306,7 @@ Namespaces</h2></td></tr>
 
   <span class="comment">// FREE OPERATORS</span>
   <span class="keyword">inline</span>
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#ae38909e0885ad40b01e80afb221e6737">operator==</a>(<span class="keyword">const</span> MyPoint&amp; lhs, <span class="keyword">const</span> MyPoint&amp; rhs)
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> MyPoint&amp; lhs, <span class="keyword">const</span> MyPoint&amp; rhs)
   {
       <span class="keywordflow">return</span> lhs.x()     == rhs.x()
           &amp;&amp; lhs.y()     == rhs.y()
@@ -374,9 +375,9 @@ Namespaces</h2></td></tr>
 
      <span class="keywordtype">bool</span> isEmpty() <span class="keyword">const</span>;
           <span class="comment">// Return &#39;true&#39; if this stream is empty, and &#39;false&#39; otherwise.</span>
-          <span class="comment">// Note that this function enables higher-level components to</span>
-          <span class="comment">// verify that, after successfully reading all expected data, no</span>
-          <span class="comment">// data remains.</span>
+          <span class="comment">// Note that this function enables higher-level types to verify</span>
+          <span class="comment">// that, after successfully reading all expected data, no data</span>
+          <span class="comment">// remains.</span>
 
      <span class="keywordtype">int</span> length() <span class="keyword">const</span>;
          <span class="comment">// Return the total number of bytes stored in this stream.</span>
@@ -385,9 +386,9 @@ Namespaces</h2></td></tr>
 <br/>
  The relevant (inline) implementations are as follows. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="comment">//=========================================================================</span>
+<div class="fragment"><pre class="fragment">  <span class="comment">// ========================================================================</span>
   <span class="comment">//                      INLINE FUNCTION DEFINITIONS</span>
-  <span class="comment">//=========================================================================</span>
+  <span class="comment">// ========================================================================</span>
 
   <span class="comment">// CREATORS</span>
   <span class="keyword">inline</span>
@@ -486,12 +487,12 @@ Namespaces</h2></td></tr>
       <span class="keywordtype">int</span>        i         = 0;
 
       MyInStream in1(buffer, 4);  <span class="comment">// use the one buffer</span>
-      <a class="code" href="namespacebslx_1_1InStreamFunctions.html#a51ef35d627d850a81a33c3106cbf1b52">bdexStreamIn</a>(in1, i, 1);
+      <a class="code" href="namespacebdlt.html#afc51da85db916b88828707653e987140">bdexStreamIn</a>(in1, i, 1);
       assert(in1);  assert(EXP == i);
 
       i = 0;                      <span class="comment">// reset &#39;i&#39;</span>
       MyInStream in2(buffer, 4);  <span class="comment">// re-use &#39;buffer (no version)</span>
-      <a class="code" href="namespacebslx_1_1InStreamFunctions.html#a51ef35d627d850a81a33c3106cbf1b52">bdexStreamIn</a>(in2, i, 0);
+      <a class="code" href="namespacebdlt.html#afc51da85db916b88828707653e987140">bdexStreamIn</a>(in2, i, 0);
       assert(in2);  assert(EXP == i);
   }
 
@@ -502,21 +503,21 @@ Namespaces</h2></td></tr>
       MyPoint p1, p2;  <span class="comment">// two default points</span>
 
       MyInStream in1(buffer1, 5);  <span class="comment">// &#39;buffer1&#39; has no version byte</span>
-      <a class="code" href="namespacebslx_1_1InStreamFunctions.html#a51ef35d627d850a81a33c3106cbf1b52">bdexStreamIn</a>(in1, p1, 1);
+      <a class="code" href="namespacebdlt.html#afc51da85db916b88828707653e987140">bdexStreamIn</a>(in1, p1, 1);
       assert(in1);  assert(EXP == p1);
 
       MyInStream in2(buffer2, 6);  <span class="comment">// &#39;buffer2&#39; *has* a version</span>
       <span class="keywordtype">int</span> version;
       in2.getVersion(version);
       assert(1 == version);
-      <a class="code" href="namespacebslx_1_1InStreamFunctions.html#a51ef35d627d850a81a33c3106cbf1b52">bdexStreamIn</a>(in2, p2, version);
+      <a class="code" href="namespacebdlt.html#afc51da85db916b88828707653e987140">bdexStreamIn</a>(in2, p2, version);
       assert(in2);  assert(EXP == p2);
   }
 </pre></div><br/>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:31 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:24 for BDE Release 2.23.1 Open-Source by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

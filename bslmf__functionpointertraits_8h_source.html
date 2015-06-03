@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bslmf_functionpointertraits.h                                      -*-C++-*-
@@ -131,6 +131,7 @@ struct FunctionPointerTraits&lt;BSLMF_RETURN (*)()&gt; {
     // accept zero arguments.
 
     enum { IS_FUNCTION_POINTER = 1 };
+    enum { e_IS_VARARG = 0 };
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList0                       ArgumentList;
     typedef FunctionPointerCPlusPlusLinkage Linkage;
@@ -142,6 +143,7 @@ struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1)&gt; {
     // accept one argument.
 
     enum { IS_FUNCTION_POINTER = 1 };
+    enum { e_IS_VARARG = 0 };
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList1&lt;A1&gt;                   ArgumentList;
     typedef FunctionPointerCPlusPlusLinkage Linkage;
@@ -153,6 +155,7 @@ struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2)&gt; {
     // accept two arguments.
 
     enum { IS_FUNCTION_POINTER = 1 };
+    enum { e_IS_VARARG = 0 };
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList2&lt;A1,A2&gt;                ArgumentList;
     typedef FunctionPointerCPlusPlusLinkage Linkage;
@@ -164,6 +167,7 @@ struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3)&gt; {
     // accept three arguments.
 
     enum { IS_FUNCTION_POINTER = 1 };
+    enum { e_IS_VARARG = 0 };
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList3&lt;A1,A2,A3&gt;             ArgumentList;
     typedef FunctionPointerCPlusPlusLinkage Linkage;
@@ -175,6 +179,7 @@ struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4)&gt; {
     // accept four arguments.
 
     enum { IS_FUNCTION_POINTER = 1 };
+    enum { e_IS_VARARG = 0 };
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList4&lt;A1,A2,A3,A4&gt;          ArgumentList;
     typedef FunctionPointerCPlusPlusLinkage Linkage;
@@ -186,6 +191,7 @@ struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4,A5)&gt; {
     // accept five arguments.
 
     enum { IS_FUNCTION_POINTER = 1 };
+    enum { e_IS_VARARG = 0 };
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList5&lt;A1,A2,A3,A4,A5&gt;       ArgumentList;
     typedef FunctionPointerCPlusPlusLinkage Linkage;
@@ -198,6 +204,7 @@ struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6)&gt; {
     // accept six arguments.
 
     enum { IS_FUNCTION_POINTER = 1 };
+    enum { e_IS_VARARG = 0 };
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList6&lt;A1,A2,A3,A4,A5,A6&gt;    ArgumentList;
     typedef FunctionPointerCPlusPlusLinkage Linkage;
@@ -210,6 +217,7 @@ struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7)&gt; {
     // accept seven arguments.
 
     enum { IS_FUNCTION_POINTER = 1 };
+    enum { e_IS_VARARG = 0 };
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList7&lt;A1,A2,A3,A4,A5,A6,A7&gt; ArgumentList;
     typedef FunctionPointerCPlusPlusLinkage Linkage;
@@ -222,6 +230,7 @@ struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8)&gt; {
     // accept eight arguments.
 
     enum { IS_FUNCTION_POINTER = 1 };
+    enum { e_IS_VARARG = 0 };
     typedef BSLMF_RETURN                       ResultType;
     typedef TypeList8&lt;A1,A2,A3,A4,A5,A6,A7,A8&gt; ArgumentList;
     typedef FunctionPointerCPlusPlusLinkage    Linkage;
@@ -235,6 +244,7 @@ struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,
     // accept nine arguments.
 
     enum { IS_FUNCTION_POINTER = 1 };
+    enum { e_IS_VARARG = 0 };
     typedef BSLMF_RETURN                          ResultType;
     typedef TypeList9&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9&gt; ArgumentList;
     typedef FunctionPointerCPlusPlusLinkage       Linkage;
@@ -249,6 +259,7 @@ struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
     // accept ten arguments.
 
     enum { IS_FUNCTION_POINTER = 1 };
+    enum { e_IS_VARARG = 0 };
     typedef BSLMF_RETURN                               ResultType;
     typedef TypeList10&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10&gt; ArgumentList;
     typedef FunctionPointerCPlusPlusLinkage            Linkage;
@@ -263,6 +274,7 @@ struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
     // accept eleven arguments.
 
     enum { IS_FUNCTION_POINTER = 1 };
+    enum { e_IS_VARARG = 0 };
     typedef BSLMF_RETURN                                   ResultType;
     typedef TypeList11&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11&gt; ArgumentList;
     typedef FunctionPointerCPlusPlusLinkage                Linkage;
@@ -277,6 +289,7 @@ struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
     // accept twelve arguments.
 
     enum { IS_FUNCTION_POINTER = 1 };
+    enum { e_IS_VARARG = 0 };
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList12&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12&gt;
                                             ArgumentList;
@@ -293,6 +306,7 @@ struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
     // accept thirteen arguments.
 
     enum { IS_FUNCTION_POINTER = 1 };
+    enum { e_IS_VARARG = 0 };
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList13&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13&gt;
                                             ArgumentList;
@@ -309,6 +323,214 @@ struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
     // accept fourteen arguments.
 
     enum { IS_FUNCTION_POINTER = 1 };
+    enum { e_IS_VARARG = 0 };
+    typedef BSLMF_RETURN                    ResultType;
+    typedef TypeList14&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13,A14&gt;
+                                            ArgumentList;
+    typedef FunctionPointerCPlusPlusLinkage Linkage;
+};
+
+// vararg function pointers
+
+template &lt;class BSLMF_RETURN&gt;
+struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(...)&gt; {
+    // Specialization for function pointers that return &#39;BSLMF_RETURN&#39; and
+    // whose parameter list is a C-style vararg parameter pack.
+
+    enum { IS_FUNCTION_POINTER = 1 };
+    enum { e_IS_VARARG = 1 };
+    typedef BSLMF_RETURN                    ResultType;
+    typedef TypeList0                       ArgumentList;
+    typedef FunctionPointerCPlusPlusLinkage Linkage;
+};
+
+template &lt;class BSLMF_RETURN, class A1&gt;
+struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1...)&gt; {
+    // Specialization for function pointers that return &#39;BSLMF_RETURN&#39; and
+    // accept one argument followed by a C-style vararg parameter pack.
+
+    enum { IS_FUNCTION_POINTER = 1 };
+    enum { e_IS_VARARG = 1 };
+    typedef BSLMF_RETURN                    ResultType;
+    typedef TypeList1&lt;A1&gt;                   ArgumentList;
+    typedef FunctionPointerCPlusPlusLinkage Linkage;
+};
+
+template &lt;class BSLMF_RETURN, class A1, class A2&gt;
+struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2...)&gt; {
+    // Specialization for function pointers that return &#39;BSLMF_RETURN&#39; and
+    // accept two arguments followed by a C-style vararg parameter pack.
+
+    enum { IS_FUNCTION_POINTER = 1 };
+    enum { e_IS_VARARG = 1 };
+    typedef BSLMF_RETURN                    ResultType;
+    typedef TypeList2&lt;A1,A2&gt;                ArgumentList;
+    typedef FunctionPointerCPlusPlusLinkage Linkage;
+};
+
+template &lt;class BSLMF_RETURN, class A1, class A2, class A3&gt;
+struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3...)&gt; {
+    // Specialization for function pointers that return &#39;BSLMF_RETURN&#39; and
+    // accept three arguments followed by a C-style vararg parameter pack.
+
+    enum { IS_FUNCTION_POINTER = 1 };
+    enum { e_IS_VARARG = 1 };
+    typedef BSLMF_RETURN                    ResultType;
+    typedef TypeList3&lt;A1,A2,A3&gt;             ArgumentList;
+    typedef FunctionPointerCPlusPlusLinkage Linkage;
+};
+
+template &lt;class BSLMF_RETURN, class A1, class A2, class A3, class A4&gt;
+struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4...)&gt; {
+    // Specialization for function pointers that return &#39;BSLMF_RETURN&#39; and
+    // accept four arguments followed by a C-style vararg parameter pack.
+
+    enum { IS_FUNCTION_POINTER = 1 };
+    enum { e_IS_VARARG = 1 };
+    typedef BSLMF_RETURN                    ResultType;
+    typedef TypeList4&lt;A1,A2,A3,A4&gt;          ArgumentList;
+    typedef FunctionPointerCPlusPlusLinkage Linkage;
+};
+
+template &lt;class BSLMF_RETURN, class A1, class A2, class A3, class A4, class A5&gt;
+struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4,A5...)&gt; {
+    // Specialization for function pointers that return &#39;BSLMF_RETURN&#39; and
+    // accept five arguments followed by a C-style vararg parameter pack.
+
+    enum { IS_FUNCTION_POINTER = 1 };
+    enum { e_IS_VARARG = 1 };
+    typedef BSLMF_RETURN                    ResultType;
+    typedef TypeList5&lt;A1,A2,A3,A4,A5&gt;       ArgumentList;
+    typedef FunctionPointerCPlusPlusLinkage Linkage;
+};
+
+template &lt;class BSLMF_RETURN, class A1, class A2, class A3, class A4, class A5,
+                              class A6&gt;
+struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6...)&gt; {
+    // Specialization for function pointers that return &#39;BSLMF_RETURN&#39; and
+    // accept six arguments followed by a C-style vararg parameter pack.
+
+    enum { IS_FUNCTION_POINTER = 1 };
+    enum { e_IS_VARARG = 1 };
+    typedef BSLMF_RETURN                    ResultType;
+    typedef TypeList6&lt;A1,A2,A3,A4,A5,A6&gt;    ArgumentList;
+    typedef FunctionPointerCPlusPlusLinkage Linkage;
+};
+
+template &lt;class BSLMF_RETURN, class A1, class A2, class A3, class A4, class A5,
+                              class A6, class A7&gt;
+struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7...)&gt; {
+    // Specialization for function pointers that return &#39;BSLMF_RETURN&#39; and
+    // accept seven arguments followed by a C-style vararg parameter pack.
+
+    enum { IS_FUNCTION_POINTER = 1 };
+    enum { e_IS_VARARG = 1 };
+    typedef BSLMF_RETURN                    ResultType;
+    typedef TypeList7&lt;A1,A2,A3,A4,A5,A6,A7&gt; ArgumentList;
+    typedef FunctionPointerCPlusPlusLinkage Linkage;
+};
+
+template &lt;class BSLMF_RETURN, class A1, class A2, class A3, class A4, class A5,
+                              class A6, class A7, class A8&gt;
+struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8...)&gt; {
+    // Specialization for function pointers that return &#39;BSLMF_RETURN&#39; and
+    // accept eight arguments followed by a C-style vararg parameter pack.
+
+    enum { IS_FUNCTION_POINTER = 1 };
+    enum { e_IS_VARARG = 1 };
+    typedef BSLMF_RETURN                       ResultType;
+    typedef TypeList8&lt;A1,A2,A3,A4,A5,A6,A7,A8&gt; ArgumentList;
+    typedef FunctionPointerCPlusPlusLinkage    Linkage;
+};
+
+template &lt;class BSLMF_RETURN, class A1, class A2, class A3, class A4, class A5,
+                              class A6, class A7, class A8, class A9&gt;
+struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,
+                                                    A9...)&gt; {
+    // Specialization for function pointers that return &#39;BSLMF_RETURN&#39; and
+    // accept nine arguments followed by a C-style vararg parameter pack.
+
+    enum { IS_FUNCTION_POINTER = 1 };
+    enum { e_IS_VARARG = 1 };
+    typedef BSLMF_RETURN                          ResultType;
+    typedef TypeList9&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9&gt; ArgumentList;
+    typedef FunctionPointerCPlusPlusLinkage       Linkage;
+};
+
+template &lt;class BSLMF_RETURN, class A1, class A2, class A3, class A4, class A5,
+                              class A6, class A7, class A8, class A9,
+                              class A10&gt;
+struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
+                                                    A10...)&gt; {
+    // Specialization for function pointers that return &#39;BSLMF_RETURN&#39; and
+    // accept ten arguments followed by a C-style vararg parameter pack.
+
+    enum { IS_FUNCTION_POINTER = 1 };
+    enum { e_IS_VARARG = 1 };
+    typedef BSLMF_RETURN                               ResultType;
+    typedef TypeList10&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10&gt; ArgumentList;
+    typedef FunctionPointerCPlusPlusLinkage            Linkage;
+};
+
+template &lt;class BSLMF_RETURN, class A1,  class A2,  class A3,  class A4,
+                              class A5,  class A6,  class A7,  class A8,
+                              class A9,  class A10, class A11&gt;
+struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
+                                                    A10,A11...)&gt; {
+    // Specialization for function pointers that return &#39;BSLMF_RETURN&#39; and
+    // accept eleven arguments followed by a C-style vararg parameter pack.
+
+    enum { IS_FUNCTION_POINTER = 1 };
+    enum { e_IS_VARARG = 1 };
+    typedef BSLMF_RETURN                                   ResultType;
+    typedef TypeList11&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11&gt; ArgumentList;
+    typedef FunctionPointerCPlusPlusLinkage                Linkage;
+};
+
+template &lt;class BSLMF_RETURN, class A1,  class A2,  class A3,  class A4,
+                              class A5,  class A6,  class A7,  class A8,
+                              class A9,  class A10, class A11, class A12&gt;
+struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
+                                                    A10,A11,A12...)&gt; {
+    // Specialization for function pointers that return &#39;BSLMF_RETURN&#39; and
+    // accept twelve arguments followed by a C-style vararg parameter pack.
+
+    enum { IS_FUNCTION_POINTER = 1 };
+    enum { e_IS_VARARG = 1 };
+    typedef BSLMF_RETURN                    ResultType;
+    typedef TypeList12&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12&gt;
+                                            ArgumentList;
+    typedef FunctionPointerCPlusPlusLinkage Linkage;
+};
+
+template &lt;class BSLMF_RETURN, class A1,  class A2,  class A3,  class A4,
+                              class A5,  class A6,  class A7,  class A8,
+                              class A9,  class A10, class A11, class A12,
+                              class A13&gt;
+struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
+                                                    A10,A11,A12,A13...)&gt; {
+    // Specialization for function pointers that return &#39;BSLMF_RETURN&#39; and
+    // accept thirteen arguments followed by a C-style vararg parameter pack.
+
+    enum { IS_FUNCTION_POINTER = 1 };
+    enum { e_IS_VARARG = 1 };
+    typedef BSLMF_RETURN                    ResultType;
+    typedef TypeList13&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13&gt;
+                                            ArgumentList;
+    typedef FunctionPointerCPlusPlusLinkage Linkage;
+};
+
+template &lt;class BSLMF_RETURN, class A1,  class A2,  class A3,  class A4,
+                              class A5,  class A6,  class A7,  class A8,
+                              class A9,  class A10, class A11, class A12,
+                              class A13, class A14&gt;
+struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
+                                                    A10,A11,A12,A13,A14...)&gt; {
+    // Specialization for function pointers that return &#39;BSLMF_RETURN&#39; and
+    // accept fourteen arguments followed by a C-style vararg parameter pack.
+
+    enum { IS_FUNCTION_POINTER = 1 };
+    enum { e_IS_VARARG = 1 };
     typedef BSLMF_RETURN                    ResultType;
     typedef TypeList14&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13,A14&gt;
                                             ArgumentList;

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: bdldfp_decimal Component</title>
+<title>BDE 2.23.1 OSS: bdldfp_decimal Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
@@ -101,7 +102,9 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#4.2">Decimal Floating-Point</a> <ul>
 <li>
-<a href="#4.2.1">Cohorts</a> </li>
+<a href="#4.2.1"><em>WARNING</em>: Conversions from <code>float</code> and <code>double</code></a> </li>
+<li>
+<a href="#4.2.2">Cohorts</a> </li>
 </ul>
 </li>
 <li>
@@ -185,13 +188,13 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="floating-point_primer"></a> <a class="anchor" id="description.floating-point_primer"></a> <a class="anchor" id="4.1"></a> </dd></dl>
 <dl class="user"><dt><b>Floating-Point Primer: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>There are several ways of represent numbers when using digital computers. The simplest would be an integer format, however such a format severely limits the range of numbers that can be represented; and it cannot represent real (non-integer) numbers directly at all. Integers might be used to represent real numbers of limited precision by treating them as a multiple of the real value being represented; these are often known as fixed-point numbers. However general computations require higher precision and a larger range than integer and fixed point types are able to efficiently provide. Floating-point numbers provide what integers cannot. They are able to represent a large range of real values (although not precisely) while using a fixed (and reasonable) amount of storage. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Floating-pont numbers are constructed from a set of significant digits of a radix on a sliding scale, where their position is determined by an exponent over the same radix. For example let's see some 32bit decimal (radix 10) floating-point numbers that have maximum 7 significant digits (significand): <br/>
+<dl class="user"><dt><b></b></dt><dd>Floating-point numbers are constructed from a set of significant digits of a radix on a sliding scale, where their position is determined by an exponent over the same radix. For example let's see some 32bit decimal (radix 10) floating-point numbers that have maximum 7 significant digits (significand): <br/>
 <br/>
 <div class="fragment"><pre class="fragment">   Significand | Exponent | Value        |
   -------------+----------+--------------+  In the Value column you may
        1234567 |        0 |   1234567.0  |  observer how the decimal point
        1234567 |        1 |  12345670.0  |  is <span class="stringliteral">&quot;floating&quot;</span> about the digits
-       1234567 |        2 | 123456700.0  |  of the significand (mantissa).
+       1234567 |        2 | 123456700.0  |  of the significand.
        1234567 |       -1 |    123456.7  |
        1234567 |       -2 |     12345.67 |
 </pre></div><br/>
@@ -294,7 +297,11 @@ Note that the C++ Decimal TR uses a different, not-specified, and not very usefu
 <dl class="user"><dt><b></b></dt><dd>Floating-point types are carefully designed trade-offs between saving space (in memory), CPU cycles (for calculations) and still provide useful accuracy for computations. Decimal floating-point types represent further compromises (compared to binary floating-points) in being able to represent less numbers (than their binary counterpats) and being slower, but providing exact representations for the numbers humans care about. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In decimal floating-point world <code>0.1 + 0.2 == 0.3</code>, as humans expect; because each of those 3 numbers can be represented <em>exactly</em> in a decimal floating-point format. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="decimal_floating-point.cohorts"></a> <a class="anchor" id="description.decimal_floating-point.cohorts"></a> <a class="anchor" id="4.2.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="warning~3A_conversions_from_float_and_double"></a> <a class="anchor" id="decimal_floating-point.warning~3A_conversions_from_float_and_double"></a> <a class="anchor" id="description.decimal_floating-point.warning~3A_conversions_from_float_and_double"></a> <a class="anchor" id="warning"></a> <a class="anchor" id="decimal_floating-point.warning"></a> <a class="anchor" id="description.decimal_floating-point.warning"></a> <a class="anchor" id="4.2.1"></a> </dd></dl>
+<dl class="user"><dt><b>WARNING: Conversions from float and double: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Clients should <em>be</em> <em>careful</em> when using the conversions from <code>float</code> and <code>double</code> provided by this component. In situations where a <code>float</code> or <code>double</code> was originally obtained from a decimal floating point representation (e.g., a <code>bdldfp::Decimal</code>, or a string, like "4.1"), the conversions in <code>bdldfp_decimalconvertutil</code> will provide the correct conversion back to a decimal floating point value. The conversions in this component provide the closest decimal floating point value to the supplied binary floating point representation, which may replicate imprecisions required to initially approximate the value in a binary representation. The conversions in this component are typically useful when converting binary floating point values that have undergone mathematical operations that require rounding (so they are already in-exact approximations). </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="decimal_floating-point.cohorts"></a> <a class="anchor" id="description.decimal_floating-point.cohorts"></a> <a class="anchor" id="4.2.2"></a> </dd></dl>
 <dl class="user"><dt><b>Cohorts: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In the binary floating-point world the formats are optimized for the highest precision, range and speed. They are stored normalized and therefore store no information about their accuracy. In finances, the area that decimal floating-point types target, accuracy of a number is usually very important. We may have a number that is 1, but we know it may be 1.001 or 1.002 etc. And we may have another number 1, which we know to be accurate to 6 significant digits. We would display the former number as <code>1.00</code> and the latter number as <code>1.00000</code>. The decimal floating-point types are able to store both numbers <em>and</em> their precision using so call cohorts. The <code>1.00</code> will be stored as <code>100e-2</code> while <code>1.00000</code> will be stored as 100000e-5. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Cohorts compare equal, and mostly behave the same way in calculation except when it comes to the accuracy of the result. If I have a number that is accurate to 5 digits only, it would be a mistake to try to expect more than 5 digits accuracy from a calculation involving it. The IEEE-754 rules of cohorts (in calculations) ensures that results will be a cohort that indicates the proper expected accuracy. </dd></dl>
@@ -385,7 +392,7 @@ Note that the C++ Decimal TR uses a different, not-specified, and not very usefu
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:27 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:19 for BDE Release 2.23.1 Open-Source by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

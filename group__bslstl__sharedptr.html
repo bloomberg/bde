@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: bslstl_sharedptr Component</title>
+<title>BDE 2.23.1 OSS: bslstl_sharedptr Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
@@ -71,8 +72,7 @@
 <tr><td colspan="2"><h2><a name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr&lt; ELEMENT_TYPE &gt;</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr&lt; LHS_TYPE, RHS_TYPE &gt;</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1hash_3_01shared__ptr_3_01ELEMENT__TYPE_01_4_01_4.html">bsl::hash&lt; shared_ptr&lt; ELEMENT_TYPE &gt; &gt;</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr&lt; ELEMENT_TYPE &gt;</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslstl_1_1SharedPtrNilDeleter.html">bslstl::SharedPtrNilDeleter</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbslstl_1_1SharedPtr__DefaultDeleter.html">bslstl::SharedPtr_DefaultDeleter</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1SharedPtr__RepProctor.html">bslstl::SharedPtr_RepProctor</a></td></tr>
@@ -80,8 +80,7 @@ Classes</h2></td></tr>
 Typedefs</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef ELEMENT_TYPE&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga61ba33bd2aeb0d92257c509d5871e5e2">bsl::shared_ptr::element_type</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef ELEMENT_TYPE&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga499733138e91edd57c5e1094a3a3ab57">bsl::shared_ptr::ElementType</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef ELEMENT_TYPE&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gab3b2afafcf0e37543aa0bf0e8c7803f5">bsl::weak_ptr::element_type</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef size_t&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga7616cc4e8610c55e5e215c9d352a1e0c">bsl::hash&lt; shared_ptr&lt; ELEMENT_TYPE &gt; &gt;::result_type</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef ELEMENT_TYPE&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga419d042c15b44670e9e8009d669ff153">bsl::weak_ptr::element_type</a></td></tr>
 <tr><td colspan="2"><h2><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga25bfad5e168d83249437014e7b6b8892">bsl::shared_ptr::shared_ptr</a> ()</td></tr>
@@ -165,7 +164,7 @@ Functions</h2></td></tr>
 *, BloombergLP::bslma::SharedPtrRep * &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga54f46f5bb220e063bd7c097b8302a838">bsl::shared_ptr::release</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga31292c33e0410049a25c59c0c4b74049">bsl::shared_ptr::operator BoolType</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">add_lvalue_reference<br class="typebreak"/>
-&lt; ELEMENT_TYPE &gt;::<a class="el" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1_1type.html">type</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga7561cfb064b73fc506712a0bf4b4f6d1">bsl::shared_ptr::operator*</a> () const </td></tr>
+&lt; ELEMENT_TYPE &gt;::type&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga7561cfb064b73fc506712a0bf4b4f6d1">bsl::shared_ptr::operator*</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">ELEMENT_TYPE *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaf0b9e0d68f8775c9f64c4df92d0f0d9b">bsl::shared_ptr::operator-&gt;</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">ELEMENT_TYPE *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga48f002a13755bd11276a297079d8254e">bsl::shared_ptr::get</a> () const </td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class ANY_TYPE &gt; </td></tr>
@@ -175,108 +174,175 @@ Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga71ce3c0494bfb53b944cfad471f458cc">bsl::shared_ptr::unique</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">long&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga577317da7b2aa99e58309cc7db1941de">bsl::shared_ptr::use_count</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">add_lvalue_reference<br class="typebreak"/>
-&lt; ELEMENT_TYPE &gt;::<a class="el" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1_1type.html">type</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gac951c0325b8179829b715d8e9e48c595">bsl::shared_ptr::operator[]</a> (ptrdiff_t index) const </td></tr>
+&lt; ELEMENT_TYPE &gt;::type&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gac951c0325b8179829b715d8e9e48c595">bsl::shared_ptr::operator[]</a> (ptrdiff_t index) const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">BloombergLP::bslma::ManagedPtr<br class="typebreak"/>
 &lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gacf1fa65139ac6e757e041353be18897e">bsl::shared_ptr::managedPtr</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">BloombergLP::bslma::SharedPtrRep *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaa2c9e02ec8be7cb54746f8a41b0b5c12">bsl::shared_ptr::rep</a> () const </td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga9940e0e924ecfb7a502c2be1507dfd87">bsl::weak_ptr::weak_ptr</a> ()</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga0bf98cb70e05a196dfc68316a44663bd">bsl::weak_ptr::weak_ptr</a> (const weak_ptr &amp;original)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class LHS_TYPE , class RHS_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga1c1c2704b92642dd439cdad97a848d57">bsl::operator==</a> (const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class LHS_TYPE , class RHS_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga3a77beaa9951f55de2c793f025d576c4">bsl::operator!=</a> (const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class LHS_TYPE , class RHS_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga66ad66d30f8224d17b9a095394af53a3">bsl::operator&lt;</a> (const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class LHS_TYPE , class RHS_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga18eb1b3e0476913d7ba6ba1af5f1bde0">bsl::operator&gt;</a> (const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class LHS_TYPE , class RHS_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaf7d2404f8ddbbf36bbf27fe3fb8685a7">bsl::operator&lt;=</a> (const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class LHS_TYPE , class RHS_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gae407f6ed76abc4c51b61472c966c28fc">bsl::operator&gt;=</a> (const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class LHS_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga02586f71629626fe00132cefebf9d0f6">bsl::operator==</a> (const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, nullptr_t)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class RHS_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga6ebbfc95461e707c1219dcfd8d5eb65c">bsl::operator==</a> (nullptr_t, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class LHS_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaf6de5b2e8b27c39f51c873993d71f9ad">bsl::operator!=</a> (const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, nullptr_t)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class RHS_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gae1eab178a468625aa5836216595b076c">bsl::operator!=</a> (nullptr_t, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class LHS_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaf4c4bb456f48f1842cb63357527e9644">bsl::operator&lt;</a> (const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, nullptr_t)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class RHS_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga88c588f14653fec148e0f293794505a4">bsl::operator&lt;</a> (nullptr_t, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class LHS_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga2fcb633c59eda20af4715e688bf0dbee">bsl::operator&lt;=</a> (const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, nullptr_t)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class RHS_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga013b0c9607f5b710d6e54a95137560ed">bsl::operator&lt;=</a> (nullptr_t, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class LHS_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga8b013ca7ef46710259e40234cfcc735a">bsl::operator&gt;</a> (const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, nullptr_t)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class RHS_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaeb88e103f0bc7111f829207a03644bcb">bsl::operator&gt;</a> (nullptr_t, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class LHS_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gac55976d83a9c4bb361e6d9acdb221405">bsl::operator&gt;=</a> (const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, nullptr_t)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class RHS_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gad53c3f8eaccc4210b0d6aa129870e5f8">bsl::operator&gt;=</a> (nullptr_t, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class CHAR_TYPE , class CHAR_TRAITS , class ELEMENT_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">native_std::basic_ostream<br class="typebreak"/>
+&lt; CHAR_TYPE, CHAR_TRAITS &gt; &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaef9191e2d4f9e99421de794cfa210c63">bsl::operator&lt;&lt;</a> (native_std::basic_ostream&lt; CHAR_TYPE, CHAR_TRAITS &gt; &amp;stream, const shared_ptr&lt; ELEMENT_TYPE &gt; &amp;rhs)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class HASHALG , class ELEMENT_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gafe12b0f6723f7f260ec2c37f78ecc034">bsl::hashAppend</a> (HASHALG &amp;hashAlg, const shared_ptr&lt; ELEMENT_TYPE &gt; &amp;input)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga050d5c3fbf77c1ddc00d3e18c07cebc8">bsl::swap</a> (shared_ptr&lt; ELEMENT_TYPE &gt; &amp;a, shared_ptr&lt; ELEMENT_TYPE &gt; &amp;b)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class DELETER , class ELEMENT_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">DELETER *&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga52fdaf60492df2fe31fe398d13184f82">bsl::get_deleter</a> (const shared_ptr&lt; ELEMENT_TYPE &gt; &amp;p)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class TO_TYPE , class FROM_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; TO_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga903f6e4e7b2befd616936456786efa34">bsl::const_pointer_cast</a> (const shared_ptr&lt; FROM_TYPE &gt; &amp;source)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class TO_TYPE , class FROM_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; TO_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaa4dded295fd97099aa32efb1d6e2a054">bsl::dynamic_pointer_cast</a> (const shared_ptr&lt; FROM_TYPE &gt; &amp;source)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class TO_TYPE , class FROM_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; TO_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga22893acbe6dca3b4184b1b5f92891c09">bsl::static_pointer_cast</a> (const shared_ptr&lt; FROM_TYPE &gt; &amp;source)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class ALLOC &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga842124bb63d969e2caf74d9acab97fc5">bsl::allocate_shared</a> (ALLOC basicAllocator)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class ALLOC , class A1 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaf2cdad3ee884ea8b77ab9c1426f56fbd">bsl::allocate_shared</a> (ALLOC basicAllocator, const A1 &amp;a1)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaafac01371f305d61c5c78789e1e7946d">bsl::allocate_shared</a> (ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaf290055ca0d2dd2a1cb63b87b45c1150">bsl::allocate_shared</a> (ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga01d65a5dc53c7e2eb8e3611e26eb97bc">bsl::allocate_shared</a> (ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga2bd5e0e636661483155a7c1c8b3e38ae">bsl::allocate_shared</a> (ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga53ddafd51e59bf1e423a926039c54b52">bsl::allocate_shared</a> (ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga5c2325b69b0e632dce693eef38ec06b8">bsl::allocate_shared</a> (ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga2a65a4a51652aba5a8bba984d8619ae9">bsl::allocate_shared</a> (ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gace3929d2362de8b5b52094a9f6d6eed2">bsl::allocate_shared</a> (ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaac721eeddc042f80302f2b9f4785b53a">bsl::allocate_shared</a> (ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 , class A11 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga9606c6f277d02bbfcc74c06f7cba41d1">bsl::allocate_shared</a> (ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 , class A11 , class A12 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gab59fe722c57eec981284f58d5d20cd29">bsl::allocate_shared</a> (ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 , class A11 , class A12 , class A13 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaa1da907c0dbd8b80f8a3c768e85e7d5d">bsl::allocate_shared</a> (ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12, const A13 &amp;a13)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 , class A11 , class A12 , class A13 , class A14 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gab57cfb5ad98e1adf035316e35672077a">bsl::allocate_shared</a> (ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12, const A13 &amp;a13, const A14 &amp;a14)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class ALLOC &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaa5cf03e39a028e9896de9a8c08df1445">bsl::allocate_shared</a> (ALLOC *basicAllocator)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class ALLOC , class A1 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga7f487dab167660990e57e8f6dd4ce8e6">bsl::allocate_shared</a> (ALLOC *basicAllocator, const A1 &amp;a1)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga952b9d0f95d7a0f91f485d1146beb191">bsl::allocate_shared</a> (ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga2168d1fe1563beb5029888bf7f64f2ec">bsl::allocate_shared</a> (ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga0e189e4547a008770d94657320a19757">bsl::allocate_shared</a> (ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaffcd074404490763a00537270d15a919">bsl::allocate_shared</a> (ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga4074c4cc4167a9ed7c6c2dc5f88e7d29">bsl::allocate_shared</a> (ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga5d1ed3d2127b1f90ee4f088e236b98aa">bsl::allocate_shared</a> (ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga777ca6cbbff46d15b499a10a901d7d11">bsl::allocate_shared</a> (ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga9075db3c0bc09d1fb7fbcca6f8109392">bsl::allocate_shared</a> (ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga43c7f93dad387f6c22e352c18e4ebf21">bsl::allocate_shared</a> (ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 , class A11 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga6a16b6a4c819dfbd9fb72dd3e1e7580a">bsl::allocate_shared</a> (ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 , class A11 , class A12 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga4b455a513f5fa28d4199646af210ef14">bsl::allocate_shared</a> (ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 , class A11 , class A12 , class A13 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga3cdaf66722173632cf99dcba808fe7a4">bsl::allocate_shared</a> (ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12, const A13 &amp;a13)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 , class A11 , class A12 , class A13 , class A14 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga852abbdd03b262816ec5f706e78daa66">bsl::allocate_shared</a> (ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12, const A13 &amp;a13, const A14 &amp;a14)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga0afacd0aecba8ee3341580f6e696bee5">bsl::make_shared</a> ()</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class A1 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga948481509b5773206e5ea25c52b61283">bsl::make_shared</a> (const A1 &amp;a1)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class A1 , class A2 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaed83c08eabc1f22ff41be3d7949b016a">bsl::make_shared</a> (const A1 &amp;a1, const A2 &amp;a2)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class A1 , class A2 , class A3 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga5b3b07f21e4b038a58efa13ea2583d18">bsl::make_shared</a> (const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class A1 , class A2 , class A3 , class A4 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga5ccdad6d77d6f91c4d26d36a2a1c9933">bsl::make_shared</a> (const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class A1 , class A2 , class A3 , class A4 , class A5 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gad70fcbb076fc7c7c9e75f297f2149c58">bsl::make_shared</a> (const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga41fdc22eb8ffb9ac386b266e2b100f47">bsl::make_shared</a> (const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga0a18cef762683586ddcf554750974540">bsl::make_shared</a> (const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga5386aae75c602403e22c26f58d9aa3f2">bsl::make_shared</a> (const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga0c90eba2b70dc7509f69950d04bfee31">bsl::make_shared</a> (const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga98eed9180e3758990ff0bda0b0f41683">bsl::make_shared</a> (const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 , class A11 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga47afd18d2ac49909d2f78359550bcd65">bsl::make_shared</a> (const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 , class A11 , class A12 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gae7f8b8e43681cb4423673c7dce5488b1">bsl::make_shared</a> (const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 , class A11 , class A12 , class A13 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga72666c8cd2da3ed6ce6bd6c27f0cd189">bsl::make_shared</a> (const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12, const A13 &amp;a13)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 , class A11 , class A12 , class A13 , class A14 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga3876caafb24bb32d3300754b741cd7a6">bsl::make_shared</a> (const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12, const A13 &amp;a13, const A14 &amp;a14)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gad857b724f69dc6b25d1797702102549f">bsl::weak_ptr::weak_ptr</a> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gae2adefc8f8926f276c3ecf36daa874f0">bsl::weak_ptr::weak_ptr</a> (const weak_ptr &amp;original)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class COMPATIBLE_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gad7dac6852f146dbef51807a77d3f5cc4">bsl::weak_ptr::weak_ptr</a> (const shared_ptr&lt; COMPATIBLE_TYPE &gt; &amp;other)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga35a234785bed69f0cb3b9c69b466e707">bsl::weak_ptr::weak_ptr</a> (const shared_ptr&lt; COMPATIBLE_TYPE &gt; &amp;other)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class COMPATIBLE_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gae3bcfbc12277b8ccce95c264e758b0cb">bsl::weak_ptr::weak_ptr</a> (const weak_ptr&lt; COMPATIBLE_TYPE &gt; &amp;other)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga83c5b6a7e59b4b83fd92eb55dd94d13c">bsl::weak_ptr::~weak_ptr</a> ()</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">weak_ptr &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaa96b1f3ff409dd6d2f03b7dc547bf171">bsl::weak_ptr::operator=</a> (const weak_ptr &amp;rhs)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gab7aa5423fab31f0cd5d86514d85b13c9">bsl::weak_ptr::weak_ptr</a> (const weak_ptr&lt; COMPATIBLE_TYPE &gt; &amp;other)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga2aef66bfe030b2aaecc59dcf3717f762">bsl::weak_ptr::~weak_ptr</a> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">weak_ptr &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga688404a7ec31a3c2da8a8ad097bcb3d4">bsl::weak_ptr::operator=</a> (const weak_ptr &amp;rhs)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class COMPATIBLE_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">weak_ptr &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga7e021158dedaef83db2d3dd4942da6a0">bsl::weak_ptr::operator=</a> (const shared_ptr&lt; COMPATIBLE_TYPE &gt; &amp;rhs)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">weak_ptr &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaec46064b65bcee0e7dbc947c38ceb75f">bsl::weak_ptr::operator=</a> (const shared_ptr&lt; COMPATIBLE_TYPE &gt; &amp;rhs)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class COMPATIBLE_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">weak_ptr &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gafd00f8a837e9936bcd30d9d315459773">bsl::weak_ptr::operator=</a> (const weak_ptr&lt; COMPATIBLE_TYPE &gt; &amp;rhs)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaa78169359c056e9f1e460428cda0ec0d">bsl::weak_ptr::reset</a> ()</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga6b59f80aff90853cdae36ff04783d82b">bsl::weak_ptr::swap</a> (weak_ptr &amp;other)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaa75a9c8ed01c2a85f198fc83af4feee1">bsl::weak_ptr::expired</a> () const </td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga34104a654a94454a482db63125d71221">bsl::weak_ptr::lock</a> () const </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">weak_ptr &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga1e3495245099b3146e82bd006e586c70">bsl::weak_ptr::operator=</a> (const weak_ptr&lt; COMPATIBLE_TYPE &gt; &amp;rhs)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga9d4ffeef0e33e4bbb6664605f39467af">bsl::weak_ptr::reset</a> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga74555d04ec23d02199d7c79951a5fc65">bsl::weak_ptr::swap</a> (weak_ptr &amp;other)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaee9df79d0a4d9bc4aa352692d98490e3">bsl::weak_ptr::expired</a> () const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga839f5aa12ddb60bd5fcc260849b406ac">bsl::weak_ptr::lock</a> () const </td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class ANY_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga9a2064e628262e110c375aeb57183324">bsl::weak_ptr::owner_before</a> (const shared_ptr&lt; ANY_TYPE &gt; &amp;other) const </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga9ec9e1557a53ecc665ac8ff8d38a45b7">bsl::weak_ptr::owner_before</a> (const shared_ptr&lt; ANY_TYPE &gt; &amp;other) const </td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class ANY_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga404af02b5e8e178639b74bc2eb0c43f5">bsl::weak_ptr::owner_before</a> (const weak_ptr&lt; ANY_TYPE &gt; &amp;other) const </td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">BloombergLP::bslma::SharedPtrRep *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gac873ee69042167ce8d257e2a682a83dd">bsl::weak_ptr::rep</a> () const </td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">long&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga99089c0e74da9d1aa08b8e273948953d">bsl::weak_ptr::use_count</a> () const </td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga4f5045e9116c7afd014c1a6b0b41b5df">bsl::hash&lt; shared_ptr&lt; ELEMENT_TYPE &gt; &gt;::hash</a> ()</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gafa521e9dd34d7759aa9dbc726499045f">bsl::hash&lt; shared_ptr&lt; ELEMENT_TYPE &gt; &gt;::hash</a> (const hash &amp;original)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga5d280e2986743f6ed16022c658fd911b">bsl::hash&lt; shared_ptr&lt; ELEMENT_TYPE &gt; &gt;::~hash</a> ()</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">hash &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gae31bcc4016306c89295802b85d460490">bsl::hash&lt; shared_ptr&lt; ELEMENT_TYPE &gt; &gt;::operator=</a> (const hash &amp;rhs)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">size_t&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gad689cb8f390fb7628ad531a3a11e1420">bsl::hash&lt; shared_ptr&lt; ELEMENT_TYPE &gt; &gt;::operator()</a> (const shared_ptr&lt; ELEMENT_TYPE &gt; &amp;x) const </td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga1c1c2704b92642dd439cdad97a848d57">bsl::operator==</a> (const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga3a77beaa9951f55de2c793f025d576c4">bsl::operator!=</a> (const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga66ad66d30f8224d17b9a095394af53a3">bsl::operator&lt;</a> (const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga18eb1b3e0476913d7ba6ba1af5f1bde0">bsl::operator&gt;</a> (const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaf7d2404f8ddbbf36bbf27fe3fb8685a7">bsl::operator&lt;=</a> (const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gae407f6ed76abc4c51b61472c966c28fc">bsl::operator&gt;=</a> (const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga02586f71629626fe00132cefebf9d0f6">bsl::operator==</a> (const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, nullptr_t)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga6ebbfc95461e707c1219dcfd8d5eb65c">bsl::operator==</a> (nullptr_t, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaf6de5b2e8b27c39f51c873993d71f9ad">bsl::operator!=</a> (const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, nullptr_t)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gae1eab178a468625aa5836216595b076c">bsl::operator!=</a> (nullptr_t, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaf4c4bb456f48f1842cb63357527e9644">bsl::operator&lt;</a> (const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, nullptr_t)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga88c588f14653fec148e0f293794505a4">bsl::operator&lt;</a> (nullptr_t, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga2fcb633c59eda20af4715e688bf0dbee">bsl::operator&lt;=</a> (const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, nullptr_t)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga013b0c9607f5b710d6e54a95137560ed">bsl::operator&lt;=</a> (nullptr_t, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga8b013ca7ef46710259e40234cfcc735a">bsl::operator&gt;</a> (const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, nullptr_t)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaeb88e103f0bc7111f829207a03644bcb">bsl::operator&gt;</a> (nullptr_t, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gac55976d83a9c4bb361e6d9acdb221405">bsl::operator&gt;=</a> (const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, nullptr_t)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gad53c3f8eaccc4210b0d6aa129870e5f8">bsl::operator&gt;=</a> (nullptr_t, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">native_std::basic_ostream<br class="typebreak"/>
-&lt; CHAR_TYPE, CHAR_TRAITS &gt; &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaef9191e2d4f9e99421de794cfa210c63">bsl::operator&lt;&lt;</a> (native_std::basic_ostream&lt; CHAR_TYPE, CHAR_TRAITS &gt; &amp;stream, const shared_ptr&lt; ELEMENT_TYPE &gt; &amp;rhs)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga050d5c3fbf77c1ddc00d3e18c07cebc8">bsl::swap</a> (shared_ptr&lt; ELEMENT_TYPE &gt; &amp;a, shared_ptr&lt; ELEMENT_TYPE &gt; &amp;b)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">DELETER *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga52fdaf60492df2fe31fe398d13184f82">bsl::get_deleter</a> (const shared_ptr&lt; ELEMENT_TYPE &gt; &amp;p)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; TO_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga903f6e4e7b2befd616936456786efa34">bsl::const_pointer_cast</a> (const shared_ptr&lt; FROM_TYPE &gt; &amp;source)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; TO_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaa4dded295fd97099aa32efb1d6e2a054">bsl::dynamic_pointer_cast</a> (const shared_ptr&lt; FROM_TYPE &gt; &amp;source)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; TO_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga22893acbe6dca3b4184b1b5f92891c09">bsl::static_pointer_cast</a> (const shared_ptr&lt; FROM_TYPE &gt; &amp;source)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga842124bb63d969e2caf74d9acab97fc5">bsl::allocate_shared</a> (ALLOC basicAllocator)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaf2cdad3ee884ea8b77ab9c1426f56fbd">bsl::allocate_shared</a> (ALLOC basicAllocator, const A1 &amp;a1)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaafac01371f305d61c5c78789e1e7946d">bsl::allocate_shared</a> (ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaf290055ca0d2dd2a1cb63b87b45c1150">bsl::allocate_shared</a> (ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga01d65a5dc53c7e2eb8e3611e26eb97bc">bsl::allocate_shared</a> (ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga2bd5e0e636661483155a7c1c8b3e38ae">bsl::allocate_shared</a> (ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga53ddafd51e59bf1e423a926039c54b52">bsl::allocate_shared</a> (ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga5c2325b69b0e632dce693eef38ec06b8">bsl::allocate_shared</a> (ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga2a65a4a51652aba5a8bba984d8619ae9">bsl::allocate_shared</a> (ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gace3929d2362de8b5b52094a9f6d6eed2">bsl::allocate_shared</a> (ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaac721eeddc042f80302f2b9f4785b53a">bsl::allocate_shared</a> (ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga9606c6f277d02bbfcc74c06f7cba41d1">bsl::allocate_shared</a> (ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gab59fe722c57eec981284f58d5d20cd29">bsl::allocate_shared</a> (ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaa1da907c0dbd8b80f8a3c768e85e7d5d">bsl::allocate_shared</a> (ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12, const A13 &amp;a13)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gab57cfb5ad98e1adf035316e35672077a">bsl::allocate_shared</a> (ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12, const A13 &amp;a13, const A14 &amp;a14)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaa5cf03e39a028e9896de9a8c08df1445">bsl::allocate_shared</a> (ALLOC *basicAllocator)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga7f487dab167660990e57e8f6dd4ce8e6">bsl::allocate_shared</a> (ALLOC *basicAllocator, const A1 &amp;a1)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga952b9d0f95d7a0f91f485d1146beb191">bsl::allocate_shared</a> (ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga2168d1fe1563beb5029888bf7f64f2ec">bsl::allocate_shared</a> (ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga0e189e4547a008770d94657320a19757">bsl::allocate_shared</a> (ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaffcd074404490763a00537270d15a919">bsl::allocate_shared</a> (ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga4074c4cc4167a9ed7c6c2dc5f88e7d29">bsl::allocate_shared</a> (ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga5d1ed3d2127b1f90ee4f088e236b98aa">bsl::allocate_shared</a> (ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga777ca6cbbff46d15b499a10a901d7d11">bsl::allocate_shared</a> (ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga9075db3c0bc09d1fb7fbcca6f8109392">bsl::allocate_shared</a> (ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga43c7f93dad387f6c22e352c18e4ebf21">bsl::allocate_shared</a> (ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga6a16b6a4c819dfbd9fb72dd3e1e7580a">bsl::allocate_shared</a> (ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga4b455a513f5fa28d4199646af210ef14">bsl::allocate_shared</a> (ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga3cdaf66722173632cf99dcba808fe7a4">bsl::allocate_shared</a> (ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12, const A13 &amp;a13)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga852abbdd03b262816ec5f706e78daa66">bsl::allocate_shared</a> (ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12, const A13 &amp;a13, const A14 &amp;a14)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga0afacd0aecba8ee3341580f6e696bee5">bsl::make_shared</a> ()</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga948481509b5773206e5ea25c52b61283">bsl::make_shared</a> (const A1 &amp;a1)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaed83c08eabc1f22ff41be3d7949b016a">bsl::make_shared</a> (const A1 &amp;a1, const A2 &amp;a2)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga5b3b07f21e4b038a58efa13ea2583d18">bsl::make_shared</a> (const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga5ccdad6d77d6f91c4d26d36a2a1c9933">bsl::make_shared</a> (const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gad70fcbb076fc7c7c9e75f297f2149c58">bsl::make_shared</a> (const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga41fdc22eb8ffb9ac386b266e2b100f47">bsl::make_shared</a> (const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga0a18cef762683586ddcf554750974540">bsl::make_shared</a> (const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga5386aae75c602403e22c26f58d9aa3f2">bsl::make_shared</a> (const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga0c90eba2b70dc7509f69950d04bfee31">bsl::make_shared</a> (const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga98eed9180e3758990ff0bda0b0f41683">bsl::make_shared</a> (const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga47afd18d2ac49909d2f78359550bcd65">bsl::make_shared</a> (const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gae7f8b8e43681cb4423673c7dce5488b1">bsl::make_shared</a> (const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga72666c8cd2da3ed6ce6bd6c27f0cd189">bsl::make_shared</a> (const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12, const A13 &amp;a13)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">shared_ptr&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga3876caafb24bb32d3300754b741cd7a6">bsl::make_shared</a> (const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12, const A13 &amp;a13, const A14 &amp;a14)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gad7f43c35a15e87ad6e3f859c47f135f4">bsl::swap</a> (weak_ptr&lt; ELEMENT_TYPE &gt; &amp;a, weak_ptr&lt; ELEMENT_TYPE &gt; &amp;b)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga8b95837ff793e790ed40b52877ce67fc">bsl::weak_ptr::owner_before</a> (const weak_ptr&lt; ANY_TYPE &gt; &amp;other) const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">BloombergLP::bslma::SharedPtrRep *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga363c49165444b7f320feab8c3e24c940">bsl::weak_ptr::rep</a> () const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">long&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gad550e30b99fea724afcc02ad3433e141">bsl::weak_ptr::use_count</a> () const </td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class ELEMENT_TYPE &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gad7f43c35a15e87ad6e3f859c47f135f4">bsl::swap</a> (weak_ptr&lt; ELEMENT_TYPE &gt; &amp;a, weak_ptr&lt; ELEMENT_TYPE &gt; &amp;b)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga6c2a72c4594b6193d545ae660731e0d4">bslstl::SharedPtrUtil::throwBadWeakPtr</a> ()</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class TARGET , class SOURCE &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaa7c3c7f1ae148cf6352b0fa6708a4aff">bslstl::SharedPtrUtil::constCast</a> (<a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; TARGET &gt; *target, const <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; SOURCE &gt; &amp;source)</td></tr>
@@ -380,7 +446,7 @@ Friends</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd>This component implements a thread-safe, generic, reference-counted "smart pointer" to support "shared ownership" of objects of (template parameter) <code>ELEMENT_TYPE</code>. Shared pointers implement a form of the "envelope/letter" idiom. For each shared object, a representation that manages the number of references to it is created. Many shared pointers can simultaneously refer to the same shared object by storing a reference to the same representation. Shared pointers also implement the "construction is
  acquisition, destruction is release" idiom. When a shared pointer is created it increments the number of shared references to the shared object that was specified to its constructor (or was referred to by a shared pointer passed to the copy constructor). When a shared pointer is assigned to or destroyed, then the number of shared references to the shared object is decremented. When all references to the shared object are released, both the representation and the object are destroyed. <code><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a></code> emulates the interface of a native pointer. The shared object may be accessed directly using the <code>-&gt;</code> operator, or the dereference operator (operator <code>*</code>) can be used to obtain a reference to the shared object. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This component also provides a mechanism, <code><a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a></code>, used to create weak references to reference-counted shared (<code><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a></code>) objects. A weak reference provides conditional access to a shared object managed by a <code><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a></code>, but, unlike a shared (or "strong") reference, does not affect the shared object's lifetime. An object having even one shared reference to it will not be destroyed, but an object having only weak references would have been destroyed when the last shared reference was released. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>A weak pointer can be constructed from another weak pointer or a <code><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a></code>. To access the shared object referenced by a weak pointer clients must first obtain a shared pointer to that object using the <code>acquireSharedPtr</code> method. If the shared object has been destroyed (as indicated by the <code>expired</code> method), then <code>acquireSharedPtr</code> returns a shared pointer in the default constructed (empty) state. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>A weak pointer can be constructed from another weak pointer or a <code><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a></code>. To access the shared object referenced by a weak pointer clients must first obtain a shared pointer to that object using the <code>lock</code> method. If the shared object has been destroyed (as indicated by the <code>expired</code> method), then <code>lock</code> returns a shared pointer in the default constructed (empty) state. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This component also provides a functor, <code><a class="el" href="structbslstl_1_1SharedPtrNilDeleter.html">bslstl::SharedPtrNilDeleter</a></code>, which may used to create a shared pointer that takes no action when the last shared reference is destroyed. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This component also provides a utility class, <code><a class="el" href="structbslstl_1_1SharedPtrUtil.html">bslstl::SharedPtrUtil</a></code>, which provides several functions that are frequently used with shared pointers. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
@@ -886,7 +952,7 @@ Friends</h2></td></tr>
 <br/>
  <code><a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a></code> does not provide direct access to the shared object being referenced. To access and manipulate the <code>int</code> from the weak pointer, we have to obtain a shared pointer from it: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <a class="code" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr&lt;int&gt;</a> intPtr2 = intWeakPtr.acquireSharedPtr();
+<div class="fragment"><pre class="fragment">  <a class="code" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr&lt;int&gt;</a> intPtr2 = intWeakPtr.lock();
   assert(intPtr2);
   assert(10 == *intPtr2);
 
@@ -918,7 +984,7 @@ Friends</h2></td></tr>
 <div class="fragment"><pre class="fragment">  intPtr.<a class="code" href="group__bslstl__sharedptr.html#ga37f640bcf2343ba65ee81e87a794e35f">reset</a>();
   intPtr2.<a class="code" href="group__bslstl__sharedptr.html#ga37f640bcf2343ba65ee81e87a794e35f">reset</a>();
   assert(intWeakPtr2.expired());
-  assert(!intWeakPtr2.acquireSharedPtr());
+  assert(!intWeakPtr2.lock());
 </pre></div><br/>
 <br/>
  Example 4 - Breaking cyclical dependencies<ul>
@@ -975,7 +1041,7 @@ Friends</h2></td></tr>
  Even though we have released <code>alertPtr</code> and <code>userPtr</code> there still exists a cyclic reference between the two objects, so none of the objects are destroyed. </li>
 </ul>
 </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>We can break this cyclical dependency we define a modified alert class <code>ModifiedAlert</code> that stores a weak pointer to a <code>ModifiedUser</code> object. Below is the definition for the <code>ModifiedUser</code> class which is identical to the <code>User</code> class, the only difference being that it stores shared pointer to <code>ModifiedAlert</code>s instead of <code>Alert</code>s: <br/>
+<dl class="user"><dt><b></b></dt><dd>We can break this cyclical dependency we define a modified alert class <code>ModifiedAlert</code> that stores a weak pointer to a <code>ModifiedUser</code> object. Below is the definition for the <code>ModifiedUser</code> class that is identical to the <code>User</code> class, the only difference being that it stores shared pointer to <code>ModifiedAlert</code>s instead of <code>Alert</code>s: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">class </span>ModifiedAlert;
 
@@ -1127,7 +1193,7 @@ Friends</h2></td></tr>
 <br/>
  First we check if the peer is still connected by acquiring a shared pointer to the peer. If the acquire operation succeeds then we can send the peer a request to send back the file best matching the specified keywords: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">          <a class="code" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr&lt;Peer&gt;</a> peerSharedPtr = iter-&gt;acquireSharedPtr();
+<div class="fragment"><pre class="fragment">          <a class="code" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr&lt;Peer&gt;</a> peerSharedPtr = iter-&gt;lock();
           <span class="keywordflow">if</span> (peerSharedPtr) {
 
               <span class="comment">// Search the peer for file best matching the specified</span>
@@ -1144,7 +1210,7 @@ Friends</h2></td></tr>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keywordtype">void</span> download(<span class="keyword">const</span> SearchResult&amp; result)
   {
-      <a class="code" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr&lt;Peer&gt;</a> peerSharedPtr = result.peer().acquireSharedPtr();
+      <a class="code" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr&lt;Peer&gt;</a> peerSharedPtr = result.peer().lock();
       <span class="keywordflow">if</span> (peerSharedPtr) {
           <span class="comment">// Download the result.filename() file from peer knowing that</span>
           <span class="comment">// the peer is still connected.</span>
@@ -1184,29 +1250,14 @@ template&lt;class ELEMENT_TYPE&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="gab3b2afafcf0e37543aa0bf0e8c7803f5"></a><!-- doxytag: member="bsl::weak_ptr::element_type" ref="gab3b2afafcf0e37543aa0bf0e8c7803f5" args="" -->
+<a class="anchor" id="ga419d042c15b44670e9e8009d669ff153"></a><!-- doxytag: member="bsl::weak_ptr::element_type" ref="ga419d042c15b44670e9e8009d669ff153" args="" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class LHS_TYPE, class RHS_TYPE&gt; </div>
+template&lt;class ELEMENT_TYPE&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">typedef ELEMENT_TYPE <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; LHS_TYPE, RHS_TYPE &gt;::element_type<code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="ga7616cc4e8610c55e5e215c9d352a1e0c"></a><!-- doxytag: member="bsl::hash&lt; shared_ptr&lt; ELEMENT_TYPE &gt; &gt;::result_type" ref="ga7616cc4e8610c55e5e215c9d352a1e0c" args="" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class ELEMENT_TYPE &gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">typedef size_t <a class="el" href="structbsl_1_1hash.html">bsl::hash</a>&lt; shared_ptr&lt; ELEMENT_TYPE &gt; &gt;::result_type<code> [inherited]</code></td>
+          <td class="memname">typedef ELEMENT_TYPE <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::element_type<code> [inherited]</code></td>
         </tr>
       </table>
 </div>
@@ -1275,7 +1326,7 @@ template&lt;class COMPATIBLE_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a shared pointer that manages a modifiable object of (template parameter) type <code>COMPATIBLE_TYPE</code> and refers to the specified <code>(ELEMENT_TYPE *)ptr</code>. The currently installed default allocator is used to allocate and deallocate the internal representation of the shared pointer. When all references have been released, the object pointed to by the managed pointer will be destroyed by a call to <code>delete ptr</code>. If <code>COMPATIBLE_TYPE *</code> is not implicitly convertible to <code>ELEMENT_TYPE *</code>, then a compiler diagnostic will be emitted indicating the error. If <code>ptr</code> is 0, an empty shared pointer is created and no memory is allocated. If an exception is thrown allocating storage for the representation, then <code>delete ptr</code> will be called. </p>
+<p>Create a shared pointer that manages a modifiable object of (template parameter) type <code>COMPATIBLE_TYPE</code> and refers to the specified <code>(ELEMENT_TYPE *)ptr</code>. The currently installed default allocator is used to allocate and deallocate the internal representation of the shared pointer. When all references have been released, the object pointed to by the managed pointer will be destroyed by a call to <code>delete ptr</code>. If <code>COMPATIBLE_TYPE *</code> is not implicitly convertible to <code>ELEMENT_TYPE *</code>, then a compiler diagnostic will be emitted indicating the error. If <code>ptr</code> is 0, then this shared pointer will still allocate an internal representation to share ownership of that empty state, which will be reclaimed when the last reference is destroyed. If an exception is thrown allocating storage for the representation, then <code>delete ptr</code> will be called. Note that if <code>ptr</code> is a null-pointer constant, the compiler will actually select the <code>shared_ptr(bsl::nullptr_t)</code> constructor, resulting in an empty shared pointer. </p>
 
 </div>
 </div>
@@ -1307,7 +1358,7 @@ template&lt;class COMPATIBLE_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a shared pointer that manages a modifiable object of (template parameter) type <code>COMPATIBLE_TYPE</code> and refers to the specified <code>ptr</code> cast to a pointer to the (template parameter) type <code>ELEMENT_TYPE</code>. If the specified <code>basicAllocator</code> is not 0 then <code>basicAllocator</code> is used to allocate and deallocate the internal representation of the shared pointer and to destroy the shared object when all references have been released; otherwise, the currently installed default allocator is used. If <code>COMPATIBLE_TYPE *</code> is not implicitly convertible to <code>ELEMENT_TYPE *</code>, then a compiler diagnostic will be emitted indicating the error. If <code>ptr</code> is 0, an empty shared pointer is created and <code>basicAllocator</code> is ignored. Note that if <code>basicAllocator</code> is a pointer to a class derived from <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code>, the compiler will actually select the following (more general) constructor that has the same behavior: <br/>
+<p>Create a shared pointer that manages a modifiable object of (template parameter) type <code>COMPATIBLE_TYPE</code> and refers to the specified <code>ptr</code> cast to a pointer to the (template parameter) type <code>ELEMENT_TYPE</code>. If the specified <code>basicAllocator</code> is not 0 then <code>basicAllocator</code> is used to allocate and deallocate the internal representation of the shared pointer and to destroy the shared object when all references have been released; otherwise, the currently installed default allocator is used. If <code>COMPATIBLE_TYPE *</code> is not implicitly convertible to <code>ELEMENT_TYPE *</code>, then a compiler diagnostic will be emitted indicating the error. If <code>ptr</code> is 0, then this shared pointer will still allocate an internal representation to share ownership of that empty state, which will be reclaimed when the last reference is destroyed. Note that if <code>ptr</code> is a null-pointer constant, the compiler will actually select the <code>shared_ptr(bsl::nullptr_t, BloombergLP::bslma::Allocator *)</code> constructor, resulting in an empty shared pointer. Note that if <code>basicAllocator</code> is a pointer to a class derived from <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code>, the compiler will actually select the following (more general) constructor that has the same behavior: <br/>
 <br/>
 </p>
 <div class="fragment"><pre class="fragment">          <span class="keyword">template</span> &lt;<span class="keyword">class</span> COMPATIBLE_TYPE, <span class="keyword">class</span> DELETER&gt;
@@ -3141,7 +3192,7 @@ template&lt;class ELEMENT_TYPE&gt; </div>
 template&lt;class ELEMENT_TYPE&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">add_lvalue_reference&lt;ELEMENT_TYPE&gt;::<a class="el" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1_1type.html">type</a> <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::operator* </td>
+          <td class="memname">add_lvalue_reference&lt;ELEMENT_TYPE&gt;::type <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::operator* </td>
           <td>(</td>
           <td class="paramname"></td>
           <td>&nbsp;)&nbsp;</td>
@@ -3286,7 +3337,7 @@ template&lt;class ELEMENT_TYPE&gt; </div>
 template&lt;class ELEMENT_TYPE&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">add_lvalue_reference&lt;ELEMENT_TYPE&gt;::<a class="el" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1_1type.html">type</a> <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::operator[] </td>
+          <td class="memname">add_lvalue_reference&lt;ELEMENT_TYPE&gt;::type <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::operator[] </td>
           <td>(</td>
           <td class="paramtype">ptrdiff_t&nbsp;</td>
           <td class="paramname"> <em>index</em></td>
@@ -3316,7 +3367,7 @@ template&lt;class ELEMENT_TYPE&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return a managed pointer that refers to the same object as this shared pointer and which has a deleter that decrements the reference count for the shared object. </p>
+<p>Return a managed pointer that refers to the same object as this shared pointer and that has a deleter that decrements the reference count for the shared object. </p>
 
 </div>
 </div>
@@ -3340,451 +3391,11 @@ template&lt;class ELEMENT_TYPE&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="ga9940e0e924ecfb7a502c2be1507dfd87"></a><!-- doxytag: member="bsl::weak_ptr::weak_ptr" ref="ga9940e0e924ecfb7a502c2be1507dfd87" args="()" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class LHS_TYPE, class RHS_TYPE&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; LHS_TYPE, RHS_TYPE &gt;::weak_ptr </td>
-          <td>(</td>
-          <td class="paramname"></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td><code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Create a weak pointer in the empty state and referring to no object, i.e., a weak pointer having no representation. </p>
-
-</div>
-</div>
-<a class="anchor" id="ga0bf98cb70e05a196dfc68316a44663bd"></a><!-- doxytag: member="bsl::weak_ptr::weak_ptr" ref="ga0bf98cb70e05a196dfc68316a44663bd" args="(const weak_ptr &amp;original)" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class LHS_TYPE, class RHS_TYPE&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; LHS_TYPE, RHS_TYPE &gt;::weak_ptr </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&lt; LHS_TYPE, RHS_TYPE &gt; &amp;&nbsp;</td>
-          <td class="paramname"> <em>original</em></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td><code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Create a weak pointer that refers to the same object (if any) as the specified <code>original</code> weak pointer, and increment the number of weak references to the object managed by <code>original</code> (if any). Note that if <code>original</code> is in the empty state, this weak pointer will be initialized to the empty state. </p>
-
-</div>
-</div>
-<a class="anchor" id="gad7dac6852f146dbef51807a77d3f5cc4"></a><!-- doxytag: member="bsl::weak_ptr::weak_ptr" ref="gad7dac6852f146dbef51807a77d3f5cc4" args="(const shared_ptr&lt; COMPATIBLE_TYPE &gt; &amp;other)" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class LHS_TYPE, class RHS_TYPE&gt; </div>
-<div class="memtemplate">
-template&lt;class COMPATIBLE_TYPE &gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; LHS_TYPE, RHS_TYPE &gt;::weak_ptr </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; COMPATIBLE_TYPE &gt; &amp;&nbsp;</td>
-          <td class="paramname"> <em>other</em></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td><code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>IMPLICIT: </p>
-
-</div>
-</div>
-<a class="anchor" id="gae3bcfbc12277b8ccce95c264e758b0cb"></a><!-- doxytag: member="bsl::weak_ptr::weak_ptr" ref="gae3bcfbc12277b8ccce95c264e758b0cb" args="(const weak_ptr&lt; COMPATIBLE_TYPE &gt; &amp;other)" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class LHS_TYPE, class RHS_TYPE&gt; </div>
-<div class="memtemplate">
-template&lt;class COMPATIBLE_TYPE &gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; LHS_TYPE, RHS_TYPE &gt;::weak_ptr </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&lt; COMPATIBLE_TYPE &gt; &amp;&nbsp;</td>
-          <td class="paramname"> <em>other</em></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td><code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>IMPLICIT: Create a weak pointer that refers to the same object (if any) as the specified <code>other</code> (shared or weak) pointer of the (template parameter) <code>COMPATIBLE_TYPE</code>, and increment the number of weak references to the object managed by <code>other</code> (if any). If <code>COMPATIBLE_TYPE *</code> is not implicitly convertible to <code>ELEMENT_TYPE *</code>, then a compiler diagnostic will be emitted. Note that if <code>other</code> is in the empty state, this weak pointer will be initialized to the empty state. </p>
-
-</div>
-</div>
-<a class="anchor" id="ga83c5b6a7e59b4b83fd92eb55dd94d13c"></a><!-- doxytag: member="bsl::weak_ptr::~weak_ptr" ref="ga83c5b6a7e59b4b83fd92eb55dd94d13c" args="()" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class LHS_TYPE, class RHS_TYPE&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; LHS_TYPE, RHS_TYPE &gt;::~weak_ptr </td>
-          <td>(</td>
-          <td class="paramname"></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td><code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Destroy this weak pointer object. If this weak pointer manages a (possibly shared) object, release the weak reference to that object. </p>
-
-</div>
-</div>
-<a class="anchor" id="gaa96b1f3ff409dd6d2f03b7dc547bf171"></a><!-- doxytag: member="bsl::weak_ptr::operator=" ref="gaa96b1f3ff409dd6d2f03b7dc547bf171" args="(const weak_ptr &amp;rhs)" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class LHS_TYPE, class RHS_TYPE&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">weak_ptr&amp; <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; LHS_TYPE, RHS_TYPE &gt;::operator= </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&lt; LHS_TYPE, RHS_TYPE &gt; &amp;&nbsp;</td>
-          <td class="paramname"> <em>rhs</em></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td><code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Make this weak pointer refer to the same object (if any) as the specified <code>rhs</code> weak pointer. Decrement the number of weak references to the object this weak pointer manages (if any), and increment the number of weak references to the object managed by <code>rhs</code> (if any). Return a reference providing modifiable access to this weak pointer. Note that if <code>rhs</code> is in the empty state, this weak pointer will be set to the empty state. </p>
-
-</div>
-</div>
-<a class="anchor" id="ga7e021158dedaef83db2d3dd4942da6a0"></a><!-- doxytag: member="bsl::weak_ptr::operator=" ref="ga7e021158dedaef83db2d3dd4942da6a0" args="(const shared_ptr&lt; COMPATIBLE_TYPE &gt; &amp;rhs)" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class LHS_TYPE, class RHS_TYPE&gt; </div>
-<div class="memtemplate">
-template&lt;class COMPATIBLE_TYPE &gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">weak_ptr&amp; <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; LHS_TYPE, RHS_TYPE &gt;::operator= </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; COMPATIBLE_TYPE &gt; &amp;&nbsp;</td>
-          <td class="paramname"> <em>rhs</em></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td><code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="gafd00f8a837e9936bcd30d9d315459773"></a><!-- doxytag: member="bsl::weak_ptr::operator=" ref="gafd00f8a837e9936bcd30d9d315459773" args="(const weak_ptr&lt; COMPATIBLE_TYPE &gt; &amp;rhs)" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class LHS_TYPE, class RHS_TYPE&gt; </div>
-<div class="memtemplate">
-template&lt;class COMPATIBLE_TYPE &gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">weak_ptr&amp; <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; LHS_TYPE, RHS_TYPE &gt;::operator= </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&lt; COMPATIBLE_TYPE &gt; &amp;&nbsp;</td>
-          <td class="paramname"> <em>rhs</em></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td><code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Make this weak pointer refer to the same object (if any) as the specified <code>rhs</code> (shared or weak) pointer to the (template parameter) <code>COMPATIBLE_TYPE</code>. Decrement the number of weak references to the object to which this weak pointer currently manages (if any), and increment the number of weak references to the object managed by <code>rhs</code> (if any). Return a reference providing modifiable access to this weak pointer. If <code>COMPATIBLE_TYPE *</code> is not implicitly convertible to <code>TYPE *</code>, then a compiler diagnostic will be emitted. Note that if <code>rhs</code> is in the empty state, this weak pointer will be set to the empty state. </p>
-
-</div>
-</div>
-<a class="anchor" id="gaa78169359c056e9f1e460428cda0ec0d"></a><!-- doxytag: member="bsl::weak_ptr::reset" ref="gaa78169359c056e9f1e460428cda0ec0d" args="()" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class LHS_TYPE, class RHS_TYPE&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">void <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; LHS_TYPE, RHS_TYPE &gt;::reset </td>
-          <td>(</td>
-          <td class="paramname"></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td><code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Reset this weak pointer to the empty state. If this weak pointer manages a (possibly shared) object, then decrement the number of weak references to that object. </p>
-
-</div>
-</div>
-<a class="anchor" id="ga6b59f80aff90853cdae36ff04783d82b"></a><!-- doxytag: member="bsl::weak_ptr::swap" ref="ga6b59f80aff90853cdae36ff04783d82b" args="(weak_ptr &amp;other)" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class LHS_TYPE, class RHS_TYPE&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">void <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; LHS_TYPE, RHS_TYPE &gt;::swap </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&lt; LHS_TYPE, RHS_TYPE &gt; &amp;&nbsp;</td>
-          <td class="paramname"> <em>other</em></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td><code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Efficiently exchange the states of this weak pointer and the specified <code>other</code> weak pointer such that each will refer to the object (if any) and representation (if any) formerly referred to and managed by the other. </p>
-
-</div>
-</div>
-<a class="anchor" id="gaa75a9c8ed01c2a85f198fc83af4feee1"></a><!-- doxytag: member="bsl::weak_ptr::expired" ref="gaa75a9c8ed01c2a85f198fc83af4feee1" args="() const " -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class LHS_TYPE, class RHS_TYPE&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">bool <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; LHS_TYPE, RHS_TYPE &gt;::expired </td>
-          <td>(</td>
-          <td class="paramname"></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td> const<code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Return <code>true</code> if this weak pointer is in the empty state or the object that it originally referenced has been destroyed, and <code>false</code> otherwise. </p>
-
-</div>
-</div>
-<a class="anchor" id="ga34104a654a94454a482db63125d71221"></a><!-- doxytag: member="bsl::weak_ptr::lock" ref="ga34104a654a94454a482db63125d71221" args="() const " -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class LHS_TYPE, class RHS_TYPE&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; LHS_TYPE, RHS_TYPE &gt;::lock </td>
-          <td>(</td>
-          <td class="paramname"></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td> const<code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Return a shared pointer to the object referred to by this weak pointer if <code>false == expired()</code>, and a shared pointer in the empty state otherwise. </p>
-
-</div>
-</div>
-<a class="anchor" id="ga9a2064e628262e110c375aeb57183324"></a><!-- doxytag: member="bsl::weak_ptr::owner_before" ref="ga9a2064e628262e110c375aeb57183324" args="(const shared_ptr&lt; ANY_TYPE &gt; &amp;other) const " -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class LHS_TYPE, class RHS_TYPE&gt; </div>
-<div class="memtemplate">
-template&lt;class ANY_TYPE &gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">bool <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; LHS_TYPE, RHS_TYPE &gt;::owner_before </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; ANY_TYPE &gt; &amp;&nbsp;</td>
-          <td class="paramname"> <em>other</em></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td> const<code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="ga404af02b5e8e178639b74bc2eb0c43f5"></a><!-- doxytag: member="bsl::weak_ptr::owner_before" ref="ga404af02b5e8e178639b74bc2eb0c43f5" args="(const weak_ptr&lt; ANY_TYPE &gt; &amp;other) const " -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class LHS_TYPE, class RHS_TYPE&gt; </div>
-<div class="memtemplate">
-template&lt;class ANY_TYPE &gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">bool <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; LHS_TYPE, RHS_TYPE &gt;::owner_before </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&lt; ANY_TYPE &gt; &amp;&nbsp;</td>
-          <td class="paramname"> <em>other</em></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td> const<code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Return <code>true</code> if the address of the <code>BloombergLP::bslma::SharedPtrRep</code> object used by this weak pointer is ordered before the address of the <code>BloombergLP::bslma::SharedPtrRep</code> object used by the specified <code>other</code> shared pointer under the total ordering defined by <code>std::less&lt;BloombergLP::bslma::SharedPtrRep *&gt;</code>, and <code>false</code> otherwise. </p>
-
-</div>
-</div>
-<a class="anchor" id="gac873ee69042167ce8d257e2a682a83dd"></a><!-- doxytag: member="bsl::weak_ptr::rep" ref="gac873ee69042167ce8d257e2a682a83dd" args="() const " -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class LHS_TYPE, class RHS_TYPE&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">BloombergLP::bslma::SharedPtrRep* <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; LHS_TYPE, RHS_TYPE &gt;::rep </td>
-          <td>(</td>
-          <td class="paramname"></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td> const<code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Return the address providing modifiable access to the <code>BloombergLP::bslma::SharedPtrRep</code> object held by this weak pointer, or 0 if this weak pointer is in the empty state. </p>
-
-</div>
-</div>
-<a class="anchor" id="ga99089c0e74da9d1aa08b8e273948953d"></a><!-- doxytag: member="bsl::weak_ptr::use_count" ref="ga99089c0e74da9d1aa08b8e273948953d" args="() const " -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class LHS_TYPE, class RHS_TYPE&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">long <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; LHS_TYPE, RHS_TYPE &gt;::use_count </td>
-          <td>(</td>
-          <td class="paramname"></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td> const<code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Return a "snapshot" of the current number of shared pointers that share ownership of the object referred to by this weak pointer, or 0 if this weak pointer is in the empty state. </p>
-
-</div>
-</div>
-<a class="anchor" id="ga4f5045e9116c7afd014c1a6b0b41b5df"></a><!-- doxytag: member="bsl::hash&lt; shared_ptr&lt; ELEMENT_TYPE &gt; &gt;::hash" ref="ga4f5045e9116c7afd014c1a6b0b41b5df" args="()" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class ELEMENT_TYPE &gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="structbsl_1_1hash.html">bsl::hash</a>&lt; shared_ptr&lt; ELEMENT_TYPE &gt; &gt;::hash </td>
-          <td>(</td>
-          <td class="paramname"></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td><code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Create a <code>hash</code> object. </p>
-
-</div>
-</div>
-<a class="anchor" id="gafa521e9dd34d7759aa9dbc726499045f"></a><!-- doxytag: member="bsl::hash&lt; shared_ptr&lt; ELEMENT_TYPE &gt; &gt;::hash" ref="gafa521e9dd34d7759aa9dbc726499045f" args="(const hash &amp;original)" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class ELEMENT_TYPE &gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="structbsl_1_1hash.html">bsl::hash</a>&lt; shared_ptr&lt; ELEMENT_TYPE &gt; &gt;::hash </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="structbsl_1_1hash.html">hash</a>&lt; <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; ELEMENT_TYPE &gt; &gt; &amp;&nbsp;</td>
-          <td class="paramname"> <em>original</em></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td><code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Create a <code>hash</code> object. Note that as <code>hash</code> is an empty (stateless) type, this operation will have no observable effect. </p>
-
-</div>
-</div>
-<a class="anchor" id="ga5d280e2986743f6ed16022c658fd911b"></a><!-- doxytag: member="bsl::hash&lt; shared_ptr&lt; ELEMENT_TYPE &gt; &gt;::~hash" ref="ga5d280e2986743f6ed16022c658fd911b" args="()" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class ELEMENT_TYPE &gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="structbsl_1_1hash.html">bsl::hash</a>&lt; shared_ptr&lt; ELEMENT_TYPE &gt; &gt;::~hash </td>
-          <td>(</td>
-          <td class="paramname"></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td><code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Destroy this object. </p>
-
-</div>
-</div>
-<a class="anchor" id="gae31bcc4016306c89295802b85d460490"></a><!-- doxytag: member="bsl::hash&lt; shared_ptr&lt; ELEMENT_TYPE &gt; &gt;::operator=" ref="gae31bcc4016306c89295802b85d460490" args="(const hash &amp;rhs)" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class ELEMENT_TYPE &gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">hash&amp; <a class="el" href="structbsl_1_1hash.html">bsl::hash</a>&lt; shared_ptr&lt; ELEMENT_TYPE &gt; &gt;::operator= </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="structbsl_1_1hash.html">hash</a>&lt; <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; ELEMENT_TYPE &gt; &gt; &amp;&nbsp;</td>
-          <td class="paramname"> <em>rhs</em></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td><code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Assign to this object the value of the specified <code>rhs</code> object, and return a reference providing modifiable access to this object. Note that as <code>hash</code> is an empty (stateless) type, this operation will have no observable effect. </p>
-
-</div>
-</div>
-<a class="anchor" id="gad689cb8f390fb7628ad531a3a11e1420"></a><!-- doxytag: member="bsl::hash&lt; shared_ptr&lt; ELEMENT_TYPE &gt; &gt;::operator()" ref="gad689cb8f390fb7628ad531a3a11e1420" args="(const shared_ptr&lt; ELEMENT_TYPE &gt; &amp;x) const " -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class ELEMENT_TYPE &gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">size_t <a class="el" href="structbsl_1_1hash.html">bsl::hash</a>&lt; shared_ptr&lt; ELEMENT_TYPE &gt; &gt;::operator() </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; ELEMENT_TYPE &gt; &amp;&nbsp;</td>
-          <td class="paramname"> <em>x</em></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td> const<code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Return a hash value computed using the specified <code>x</code>. Two <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code> objects will have the same hash value if they refer to the same object, whether or not they share ownership of the same object. Likewise, two shared pointers that share ownership of the same object may have different hash values if they alias that object through distinct pointer values. </p>
-
-</div>
-</div>
 <a class="anchor" id="ga1c1c2704b92642dd439cdad97a848d57"></a><!-- doxytag: member="bsl::operator==" ref="ga1c1c2704b92642dd439cdad97a848d57" args="(const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class LHS_TYPE , class RHS_TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">bool bsl::operator== </td>
@@ -3806,12 +3417,15 @@ template&lt;class ELEMENT_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>Return <code>true</code> if the specified <code>lhs</code> shared pointer refers to the same object (if any) as that referred to by the specified <code>rhs</code> shared pointer (if any), and <code>false</code> otherwise; a compiler diagnostic will be emitted indicating the error unless a (raw) pointer to <code>LHS_TYPE</code> can be compared to a (raw) pointer to <code>RHS_TYPE</code>. Note that two shared pointers that compare equal do not necessarily manage the same object due to aliasing. </p>
 
 </div>
 </div>
 <a class="anchor" id="ga3a77beaa9951f55de2c793f025d576c4"></a><!-- doxytag: member="bsl::operator!=" ref="ga3a77beaa9951f55de2c793f025d576c4" args="(const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class LHS_TYPE , class RHS_TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">bool bsl::operator!= </td>
@@ -3833,12 +3447,15 @@ template&lt;class ELEMENT_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>Return <code>true</code> if the specified <code>lhs</code> shared pointer does not refer to the same object (if any) as that referred to by the specified <code>rhs</code> shared pointer (if any), and <code>false</code> otherwise; a compiler diagnostic will be emitted indicating the error unless a (raw) pointer to <code>LHS_TYPE</code> can be compared to a (raw) pointer to <code>RHS_TYPE</code>. Note that two shared pointers that do not compare equal may manage the same object due to aliasing. </p>
 
 </div>
 </div>
 <a class="anchor" id="ga66ad66d30f8224d17b9a095394af53a3"></a><!-- doxytag: member="bsl::operator&lt;" ref="ga66ad66d30f8224d17b9a095394af53a3" args="(const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class LHS_TYPE , class RHS_TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">bool bsl::operator&lt; </td>
@@ -3860,12 +3477,15 @@ template&lt;class ELEMENT_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>Return <code>true</code> if the address of the object that the specified <code>lhs</code> shared pointer refers to is ordered before the address of the object that the specified <code>rhs</code> shared pointer refers to under the total ordering supplied by <code>std::less&lt;T *&gt;</code>, where <code>T *</code> is the composite pointer type of <code>LHS_TYPE *</code> and <code>RHS_TYPE *</code>, and <code>false</code> otherwise. </p>
 
 </div>
 </div>
 <a class="anchor" id="ga18eb1b3e0476913d7ba6ba1af5f1bde0"></a><!-- doxytag: member="bsl::operator&gt;" ref="ga18eb1b3e0476913d7ba6ba1af5f1bde0" args="(const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class LHS_TYPE , class RHS_TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">bool bsl::operator&gt; </td>
@@ -3887,12 +3507,15 @@ template&lt;class ELEMENT_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>Return <code>true</code> if the address of the object that the specified <code>lhs</code> shared pointer refers to is ordered after the address of the object that the specified <code>rhs</code> shared pointer refers to under the total ordering supplied by <code>std::less&lt;T *&gt;</code>, where <code>T *</code> is the composite pointer type of <code>LHS_TYPE *</code> and <code>RHS_TYPE *</code>, and <code>false</code> otherwise. </p>
 
 </div>
 </div>
 <a class="anchor" id="gaf7d2404f8ddbbf36bbf27fe3fb8685a7"></a><!-- doxytag: member="bsl::operator&lt;=" ref="gaf7d2404f8ddbbf36bbf27fe3fb8685a7" args="(const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class LHS_TYPE , class RHS_TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">bool bsl::operator&lt;= </td>
@@ -3914,12 +3537,15 @@ template&lt;class ELEMENT_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>Return <code>true</code> if the specified <code>lhs</code> shared pointer refers to the same object as the specified <code>rhs</code> shared pointer, or if the address of the object referred to by <code>lhs</code> (if any) is ordered before the address of the object referred to by <code>rhs</code> (if any) under the total ordering supplied by <code>std::less&lt;T *&gt;</code>, where <code>T *</code> is the composite pointer type of <code>LHS_TYPE *</code> and <code>RHS_TYPE *</code>, and <code>false</code> otherwise. </p>
 
 </div>
 </div>
 <a class="anchor" id="gae407f6ed76abc4c51b61472c966c28fc"></a><!-- doxytag: member="bsl::operator&gt;=" ref="gae407f6ed76abc4c51b61472c966c28fc" args="(const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class LHS_TYPE , class RHS_TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">bool bsl::operator&gt;= </td>
@@ -3941,12 +3567,15 @@ template&lt;class ELEMENT_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>Return <code>true</code> if the specified <code>lhs</code> shared pointer refers to the same object as the specified <code>rhs</code> shared pointer, or if the address of the object referred to by <code>lhs</code> (if any) is ordered after the address of the object referred to by <code>rhs</code> (if any) under the total ordering supplied by <code>std::less&lt;T *&gt;</code>, where <code>T *</code> is the composite pointer type of <code>LHS_TYPE *</code> and <code>RHS_TYPE *</code>, and <code>false</code> otherwise. </p>
 
 </div>
 </div>
 <a class="anchor" id="ga02586f71629626fe00132cefebf9d0f6"></a><!-- doxytag: member="bsl::operator==" ref="ga02586f71629626fe00132cefebf9d0f6" args="(const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, nullptr_t)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class LHS_TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">bool bsl::operator== </td>
@@ -3968,12 +3597,15 @@ template&lt;class ELEMENT_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>Return <code>true</code> if the specified <code>lhs</code> shared pointer does not refer to an object, and <code>false</code> otherwise. </p>
 
 </div>
 </div>
 <a class="anchor" id="ga6ebbfc95461e707c1219dcfd8d5eb65c"></a><!-- doxytag: member="bsl::operator==" ref="ga6ebbfc95461e707c1219dcfd8d5eb65c" args="(nullptr_t, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class RHS_TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">bool bsl::operator== </td>
@@ -3995,12 +3627,15 @@ template&lt;class ELEMENT_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>Return <code>true</code> if the specified <code>rhs</code> shared pointer does not refer to an object, and <code>false</code> otherwise. </p>
 
 </div>
 </div>
 <a class="anchor" id="gaf6de5b2e8b27c39f51c873993d71f9ad"></a><!-- doxytag: member="bsl::operator!=" ref="gaf6de5b2e8b27c39f51c873993d71f9ad" args="(const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, nullptr_t)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class LHS_TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">bool bsl::operator!= </td>
@@ -4022,12 +3657,15 @@ template&lt;class ELEMENT_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>Return <code>true</code> if the specified <code>lhs</code> shared pointer refers to an object, and <code>false</code> otherwise. </p>
 
 </div>
 </div>
 <a class="anchor" id="gae1eab178a468625aa5836216595b076c"></a><!-- doxytag: member="bsl::operator!=" ref="gae1eab178a468625aa5836216595b076c" args="(nullptr_t, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class RHS_TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">bool bsl::operator!= </td>
@@ -4049,12 +3687,15 @@ template&lt;class ELEMENT_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>Return <code>true</code> if the specified <code>rhs</code> shared pointer refers to an object, and <code>false</code> otherwise. </p>
 
 </div>
 </div>
 <a class="anchor" id="gaf4c4bb456f48f1842cb63357527e9644"></a><!-- doxytag: member="bsl::operator&lt;" ref="gaf4c4bb456f48f1842cb63357527e9644" args="(const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, nullptr_t)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class LHS_TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">bool bsl::operator&lt; </td>
@@ -4076,12 +3717,15 @@ template&lt;class ELEMENT_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>Return <code>true</code> if the address of the object referred to by the specified <code>lhs</code> shared pointer is ordered before the null-pointer value under the total ordering supplied by <code>std::less&lt;LHS_TYPE *&gt;</code>, and <code>false</code> otherwise. </p>
 
 </div>
 </div>
 <a class="anchor" id="ga88c588f14653fec148e0f293794505a4"></a><!-- doxytag: member="bsl::operator&lt;" ref="ga88c588f14653fec148e0f293794505a4" args="(nullptr_t, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class RHS_TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">bool bsl::operator&lt; </td>
@@ -4103,12 +3747,15 @@ template&lt;class ELEMENT_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>Return <code>true</code> if the address of the object referred to by the specified <code>rhs</code> shared pointer is ordered after the null-pointer value under the total ordering supplied by <code>std::less&lt;RHS_TYPE *&gt;</code>, and <code>false</code> otherwise. </p>
 
 </div>
 </div>
 <a class="anchor" id="ga2fcb633c59eda20af4715e688bf0dbee"></a><!-- doxytag: member="bsl::operator&lt;=" ref="ga2fcb633c59eda20af4715e688bf0dbee" args="(const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, nullptr_t)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class LHS_TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">bool bsl::operator&lt;= </td>
@@ -4130,12 +3777,15 @@ template&lt;class ELEMENT_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>Return <code>true</code> if the specified <code>lhs</code> shared pointer does not refer to an object, or if the address of the object referred to by <code>lhs</code> is ordered before the null-pointer value under the total ordering supplied by <code>std::less&lt;LHS_TYPE *&gt;</code>, and <code>false</code> otherwise. </p>
 
 </div>
 </div>
 <a class="anchor" id="ga013b0c9607f5b710d6e54a95137560ed"></a><!-- doxytag: member="bsl::operator&lt;=" ref="ga013b0c9607f5b710d6e54a95137560ed" args="(nullptr_t, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class RHS_TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">bool bsl::operator&lt;= </td>
@@ -4157,12 +3807,15 @@ template&lt;class ELEMENT_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>Return <code>true</code> if the specified <code>rhs</code> shared pointer does not refer to an object, or if the address of the object referred to by <code>rhs</code> is ordered after the null-pointer value under the total ordering supplied by <code>std::less&lt;RHS_TYPE *&gt;</code>, and <code>false</code> otherwise. </p>
 
 </div>
 </div>
 <a class="anchor" id="ga8b013ca7ef46710259e40234cfcc735a"></a><!-- doxytag: member="bsl::operator&gt;" ref="ga8b013ca7ef46710259e40234cfcc735a" args="(const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, nullptr_t)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class LHS_TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">bool bsl::operator&gt; </td>
@@ -4184,12 +3837,15 @@ template&lt;class ELEMENT_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>Return <code>true</code> if the address of the object referred to by the specified <code>lhs</code> shared pointer is ordered after the null-pointer value under the total ordering supplied by <code>std::less&lt;LHS_TYPE *&gt;</code>, and <code>false</code> otherwise. </p>
 
 </div>
 </div>
 <a class="anchor" id="gaeb88e103f0bc7111f829207a03644bcb"></a><!-- doxytag: member="bsl::operator&gt;" ref="gaeb88e103f0bc7111f829207a03644bcb" args="(nullptr_t, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class RHS_TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">bool bsl::operator&gt; </td>
@@ -4211,12 +3867,15 @@ template&lt;class ELEMENT_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>Return <code>true</code> if the address of the object referred to by the specified <code>rhs</code> shared pointer is ordered before the null-pointer value under the total ordering supplied by <code>std::less&lt;RHS_TYPE *&gt;</code>, and <code>false</code> otherwise. </p>
 
 </div>
 </div>
 <a class="anchor" id="gac55976d83a9c4bb361e6d9acdb221405"></a><!-- doxytag: member="bsl::operator&gt;=" ref="gac55976d83a9c4bb361e6d9acdb221405" args="(const shared_ptr&lt; LHS_TYPE &gt; &amp;lhs, nullptr_t)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class LHS_TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">bool bsl::operator&gt;= </td>
@@ -4238,12 +3897,15 @@ template&lt;class ELEMENT_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>Return <code>true</code> if the specified <code>lhs</code> shared pointer does not refer to an object, or if the address of the object referred to by <code>lhs</code> is ordered after the null-pointer value under the total ordering supplied by <code>std::less&lt;LHS_TYPE *&gt;</code>, and <code>false</code> otherwise. </p>
 
 </div>
 </div>
 <a class="anchor" id="gad53c3f8eaccc4210b0d6aa129870e5f8"></a><!-- doxytag: member="bsl::operator&gt;=" ref="gad53c3f8eaccc4210b0d6aa129870e5f8" args="(nullptr_t, const shared_ptr&lt; RHS_TYPE &gt; &amp;rhs)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class RHS_TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">bool bsl::operator&gt;= </td>
@@ -4265,12 +3927,15 @@ template&lt;class ELEMENT_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>Return <code>true</code> if the specified <code>rhs</code> shared pointer does not refer to an object, or if the address of the object referred to by <code>rhs</code> is ordered before the null-pointer value under the total ordering supplied by <code>std::less&lt;RHS_TYPE *&gt;</code>, and <code>false</code> otherwise. </p>
 
 </div>
 </div>
 <a class="anchor" id="gaef9191e2d4f9e99421de794cfa210c63"></a><!-- doxytag: member="bsl::operator&lt;&lt;" ref="gaef9191e2d4f9e99421de794cfa210c63" args="(native_std::basic_ostream&lt; CHAR_TYPE, CHAR_TRAITS &gt; &amp;stream, const shared_ptr&lt; ELEMENT_TYPE &gt; &amp;rhs)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class CHAR_TYPE , class CHAR_TRAITS , class ELEMENT_TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">native_std::basic_ostream&lt;CHAR_TYPE, CHAR_TRAITS&gt;&amp; bsl::operator&lt;&lt; </td>
@@ -4292,12 +3957,45 @@ template&lt;class ELEMENT_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>Print to the specified <code>stream</code> the address of the shared object referred to by the specified <code>rhs</code> shared pointer and return a reference to the modifiable <code>stream</code>. </p>
+
+</div>
+</div>
+<a class="anchor" id="gafe12b0f6723f7f260ec2c37f78ecc034"></a><!-- doxytag: member="bsl::hashAppend" ref="gafe12b0f6723f7f260ec2c37f78ecc034" args="(HASHALG &amp;hashAlg, const shared_ptr&lt; ELEMENT_TYPE &gt; &amp;input)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class HASHALG , class ELEMENT_TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void bsl::hashAppend </td>
+          <td>(</td>
+          <td class="paramtype">HASHALG &amp;&nbsp;</td>
+          <td class="paramname"> <em>hashAlg</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const shared_ptr&lt; ELEMENT_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>input</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Pass the address of the object referred to by the specified <code>input</code> shared pointer to the specified <code>hashAlg</code> hashing algorithm of (template parameter) type <code>HASHALG</code>. </p>
 
 </div>
 </div>
 <a class="anchor" id="ga050d5c3fbf77c1ddc00d3e18c07cebc8"></a><!-- doxytag: member="bsl::swap" ref="ga050d5c3fbf77c1ddc00d3e18c07cebc8" args="(shared_ptr&lt; ELEMENT_TYPE &gt; &amp;a, shared_ptr&lt; ELEMENT_TYPE &gt; &amp;b)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">void bsl::swap </td>
@@ -4319,12 +4017,15 @@ template&lt;class ELEMENT_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>Efficiently exchange the states of the specified <code>a</code> and <code>b</code> shared pointers such that each will refer to the object formerly referred to by the other, and each will manage the object formerly managed by the other. </p>
 
 </div>
 </div>
 <a class="anchor" id="ga52fdaf60492df2fe31fe398d13184f82"></a><!-- doxytag: member="bsl::get_deleter" ref="ga52fdaf60492df2fe31fe398d13184f82" args="(const shared_ptr&lt; ELEMENT_TYPE &gt; &amp;p)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class DELETER , class ELEMENT_TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">DELETER* bsl::get_deleter </td>
@@ -4337,12 +4038,15 @@ template&lt;class ELEMENT_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>Return the address of deleter used by the specified <code>p</code> shared pointer if the (template parameter) type <code>DELETER</code> is the type of the deleter installed in <code>p</code>, and a null pointer value otherwise. </p>
 
 </div>
 </div>
 <a class="anchor" id="ga903f6e4e7b2befd616936456786efa34"></a><!-- doxytag: member="bsl::const_pointer_cast" ref="ga903f6e4e7b2befd616936456786efa34" args="(const shared_ptr&lt; FROM_TYPE &gt; &amp;source)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class TO_TYPE , class FROM_TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;TO_TYPE&gt; bsl::const_pointer_cast </td>
@@ -4355,12 +4059,15 @@ template&lt;class ELEMENT_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>Return a <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt;TO_TYPE&gt;</code> object sharing ownership of the same object as the specified <code>source</code> shared pointer to the (template parameter) <code>FROM_TYPE</code>, and referring to <code>const_cast&lt;TO_TYPE *&gt;(source.get())</code>. Note that if <code>source</code> cannot be <code>const</code>-cast to <code>TO_TYPE *</code>, then a compiler diagnostic will be emitted indicating the error. </p>
 
 </div>
 </div>
 <a class="anchor" id="gaa4dded295fd97099aa32efb1d6e2a054"></a><!-- doxytag: member="bsl::dynamic_pointer_cast" ref="gaa4dded295fd97099aa32efb1d6e2a054" args="(const shared_ptr&lt; FROM_TYPE &gt; &amp;source)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class TO_TYPE , class FROM_TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;TO_TYPE&gt; bsl::dynamic_pointer_cast </td>
@@ -4373,12 +4080,15 @@ template&lt;class ELEMENT_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>Return a <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt;TO_TYPE&gt;</code> object sharing ownership of the same object as the specified <code>source</code> shared pointer to the (template parameter) <code>FROM_TYPE</code>, and referring to <code>dynamic_cast&lt;TO_TYPE*&gt;(source.get())</code>. If <code>source</code> cannot be dynamically cast to <code>TO_TYPE *</code>, then an empty <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt;TO_TYPE&gt;</code> object is returned. </p>
 
 </div>
 </div>
 <a class="anchor" id="ga22893acbe6dca3b4184b1b5f92891c09"></a><!-- doxytag: member="bsl::static_pointer_cast" ref="ga22893acbe6dca3b4184b1b5f92891c09" args="(const shared_ptr&lt; FROM_TYPE &gt; &amp;source)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class TO_TYPE , class FROM_TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;TO_TYPE&gt; bsl::static_pointer_cast </td>
@@ -4391,12 +4101,15 @@ template&lt;class ELEMENT_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>Return a <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt;TO_TYPE&gt;</code> object sharing ownership of the same object as the specified <code>source</code> shared pointer to the (template parameter) <code>FROM_TYPE</code>, and referring to <code>static_cast&lt;TO_TYPE *&gt;(source.get())</code>. Note that if <code>source</code> cannot be statically cast to <code>TO_TYPE *</code>, then a compiler diagnostic will be emitted indicating the error. </p>
 
 </div>
 </div>
 <a class="anchor" id="ga842124bb63d969e2caf74d9acab97fc5"></a><!-- doxytag: member="bsl::allocate_shared" ref="ga842124bb63d969e2caf74d9acab97fc5" args="(ALLOC basicAllocator)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class ALLOC &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::allocate_shared </td>
@@ -4415,6 +4128,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="gaf2cdad3ee884ea8b77ab9c1426f56fbd"></a><!-- doxytag: member="bsl::allocate_shared" ref="gaf2cdad3ee884ea8b77ab9c1426f56fbd" args="(ALLOC basicAllocator, const A1 &amp;a1)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class ALLOC , class A1 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::allocate_shared </td>
@@ -4442,6 +4157,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="gaafac01371f305d61c5c78789e1e7946d"></a><!-- doxytag: member="bsl::allocate_shared" ref="gaafac01371f305d61c5c78789e1e7946d" args="(ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::allocate_shared </td>
@@ -4475,6 +4192,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="gaf290055ca0d2dd2a1cb63b87b45c1150"></a><!-- doxytag: member="bsl::allocate_shared" ref="gaf290055ca0d2dd2a1cb63b87b45c1150" args="(ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::allocate_shared </td>
@@ -4514,6 +4233,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="ga01d65a5dc53c7e2eb8e3611e26eb97bc"></a><!-- doxytag: member="bsl::allocate_shared" ref="ga01d65a5dc53c7e2eb8e3611e26eb97bc" args="(ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::allocate_shared </td>
@@ -4559,6 +4280,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="ga2bd5e0e636661483155a7c1c8b3e38ae"></a><!-- doxytag: member="bsl::allocate_shared" ref="ga2bd5e0e636661483155a7c1c8b3e38ae" args="(ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::allocate_shared </td>
@@ -4610,6 +4333,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="ga53ddafd51e59bf1e423a926039c54b52"></a><!-- doxytag: member="bsl::allocate_shared" ref="ga53ddafd51e59bf1e423a926039c54b52" args="(ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::allocate_shared </td>
@@ -4667,6 +4392,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="ga5c2325b69b0e632dce693eef38ec06b8"></a><!-- doxytag: member="bsl::allocate_shared" ref="ga5c2325b69b0e632dce693eef38ec06b8" args="(ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::allocate_shared </td>
@@ -4730,6 +4457,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="ga2a65a4a51652aba5a8bba984d8619ae9"></a><!-- doxytag: member="bsl::allocate_shared" ref="ga2a65a4a51652aba5a8bba984d8619ae9" args="(ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::allocate_shared </td>
@@ -4799,6 +4528,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="gace3929d2362de8b5b52094a9f6d6eed2"></a><!-- doxytag: member="bsl::allocate_shared" ref="gace3929d2362de8b5b52094a9f6d6eed2" args="(ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::allocate_shared </td>
@@ -4874,6 +4605,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="gaac721eeddc042f80302f2b9f4785b53a"></a><!-- doxytag: member="bsl::allocate_shared" ref="gaac721eeddc042f80302f2b9f4785b53a" args="(ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::allocate_shared </td>
@@ -4955,6 +4688,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="ga9606c6f277d02bbfcc74c06f7cba41d1"></a><!-- doxytag: member="bsl::allocate_shared" ref="ga9606c6f277d02bbfcc74c06f7cba41d1" args="(ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 , class A11 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::allocate_shared </td>
@@ -5042,6 +4777,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="gab59fe722c57eec981284f58d5d20cd29"></a><!-- doxytag: member="bsl::allocate_shared" ref="gab59fe722c57eec981284f58d5d20cd29" args="(ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 , class A11 , class A12 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::allocate_shared </td>
@@ -5135,6 +4872,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="gaa1da907c0dbd8b80f8a3c768e85e7d5d"></a><!-- doxytag: member="bsl::allocate_shared" ref="gaa1da907c0dbd8b80f8a3c768e85e7d5d" args="(ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12, const A13 &amp;a13)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 , class A11 , class A12 , class A13 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::allocate_shared </td>
@@ -5234,6 +4973,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="gab57cfb5ad98e1adf035316e35672077a"></a><!-- doxytag: member="bsl::allocate_shared" ref="gab57cfb5ad98e1adf035316e35672077a" args="(ALLOC basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12, const A13 &amp;a13, const A14 &amp;a14)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 , class A11 , class A12 , class A13 , class A14 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::allocate_shared </td>
@@ -5333,12 +5074,15 @@ template&lt;class ELEMENT_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>Return a <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code> object referring to and managing a new <code>ELEMENT_TYPE</code> object. The specified <code>basicAllocator</code> will be used to supply a single contiguous region of memory holding the returned shared pointer's internal representation and the new <code>ELEMENT_TYPE</code> object, which is initialized by calling <code><a class="el" href="structbsl_1_1allocator__traits.html">allocator_traits</a>&lt;ALLOC&gt;construct</code> passing <code>basicAllocator</code>, an <code>ELEMENT_TYPE *</code> pointer to space for the new shared object, and the specified arguments <code>a1</code> up to <code>aN</code> where <code>N</code> (at most 14) is the number of arguments passed to this method. Note that the allocator argument is <em>not</em> implicitly passed to the constructor for <code>ELEMENT_TYPE</code>; typically, to construct an object of <code>ELEMENT_TYPE</code> with an allocator, pass the allocator as one of the arguments (frequently the last argument), but note that some allocators will perform this customization in their <code>construct</code> implementation. </p>
 
 </div>
 </div>
 <a class="anchor" id="gaa5cf03e39a028e9896de9a8c08df1445"></a><!-- doxytag: member="bsl::allocate_shared" ref="gaa5cf03e39a028e9896de9a8c08df1445" args="(ALLOC *basicAllocator)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class ALLOC &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::allocate_shared </td>
@@ -5357,6 +5101,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="ga7f487dab167660990e57e8f6dd4ce8e6"></a><!-- doxytag: member="bsl::allocate_shared" ref="ga7f487dab167660990e57e8f6dd4ce8e6" args="(ALLOC *basicAllocator, const A1 &amp;a1)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class ALLOC , class A1 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::allocate_shared </td>
@@ -5384,6 +5130,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="ga952b9d0f95d7a0f91f485d1146beb191"></a><!-- doxytag: member="bsl::allocate_shared" ref="ga952b9d0f95d7a0f91f485d1146beb191" args="(ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::allocate_shared </td>
@@ -5417,6 +5165,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="ga2168d1fe1563beb5029888bf7f64f2ec"></a><!-- doxytag: member="bsl::allocate_shared" ref="ga2168d1fe1563beb5029888bf7f64f2ec" args="(ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::allocate_shared </td>
@@ -5456,6 +5206,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="ga0e189e4547a008770d94657320a19757"></a><!-- doxytag: member="bsl::allocate_shared" ref="ga0e189e4547a008770d94657320a19757" args="(ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::allocate_shared </td>
@@ -5501,6 +5253,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="gaffcd074404490763a00537270d15a919"></a><!-- doxytag: member="bsl::allocate_shared" ref="gaffcd074404490763a00537270d15a919" args="(ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::allocate_shared </td>
@@ -5552,6 +5306,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="ga4074c4cc4167a9ed7c6c2dc5f88e7d29"></a><!-- doxytag: member="bsl::allocate_shared" ref="ga4074c4cc4167a9ed7c6c2dc5f88e7d29" args="(ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::allocate_shared </td>
@@ -5609,6 +5365,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="ga5d1ed3d2127b1f90ee4f088e236b98aa"></a><!-- doxytag: member="bsl::allocate_shared" ref="ga5d1ed3d2127b1f90ee4f088e236b98aa" args="(ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::allocate_shared </td>
@@ -5672,6 +5430,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="ga777ca6cbbff46d15b499a10a901d7d11"></a><!-- doxytag: member="bsl::allocate_shared" ref="ga777ca6cbbff46d15b499a10a901d7d11" args="(ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::allocate_shared </td>
@@ -5741,6 +5501,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="ga9075db3c0bc09d1fb7fbcca6f8109392"></a><!-- doxytag: member="bsl::allocate_shared" ref="ga9075db3c0bc09d1fb7fbcca6f8109392" args="(ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::allocate_shared </td>
@@ -5816,6 +5578,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="ga43c7f93dad387f6c22e352c18e4ebf21"></a><!-- doxytag: member="bsl::allocate_shared" ref="ga43c7f93dad387f6c22e352c18e4ebf21" args="(ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::allocate_shared </td>
@@ -5897,6 +5661,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="ga6a16b6a4c819dfbd9fb72dd3e1e7580a"></a><!-- doxytag: member="bsl::allocate_shared" ref="ga6a16b6a4c819dfbd9fb72dd3e1e7580a" args="(ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 , class A11 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::allocate_shared </td>
@@ -5984,6 +5750,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="ga4b455a513f5fa28d4199646af210ef14"></a><!-- doxytag: member="bsl::allocate_shared" ref="ga4b455a513f5fa28d4199646af210ef14" args="(ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 , class A11 , class A12 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::allocate_shared </td>
@@ -6077,6 +5845,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="ga3cdaf66722173632cf99dcba808fe7a4"></a><!-- doxytag: member="bsl::allocate_shared" ref="ga3cdaf66722173632cf99dcba808fe7a4" args="(ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12, const A13 &amp;a13)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 , class A11 , class A12 , class A13 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::allocate_shared </td>
@@ -6176,6 +5946,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="ga852abbdd03b262816ec5f706e78daa66"></a><!-- doxytag: member="bsl::allocate_shared" ref="ga852abbdd03b262816ec5f706e78daa66" args="(ALLOC *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12, const A13 &amp;a13, const A14 &amp;a14)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class ALLOC , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 , class A11 , class A12 , class A13 , class A14 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::allocate_shared </td>
@@ -6275,12 +6047,15 @@ template&lt;class ELEMENT_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>Return a <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code> object referring to and managing a new <code>ELEMENT_TYPE</code> object. The specified <code>basicAllocator</code> will be used to supply a single contiguous region of memory holding the returned shared pointer's internal representation and the new <code>ELEMENT_TYPE</code> object, which is initialized using the <code>ELEMENT_TYPE</code> constructor that takes the specified arguments <code>a1</code> up to <code>aN</code> where <code>N</code> (at most 14) is the number of arguments passed to this method. If <code>ELEMENT_TYPE</code> uses <code>blsma</code> allocators, then the default allocator is passed as an extra argument in the final position. </p>
 
 </div>
 </div>
 <a class="anchor" id="ga0afacd0aecba8ee3341580f6e696bee5"></a><!-- doxytag: member="bsl::make_shared" ref="ga0afacd0aecba8ee3341580f6e696bee5" args="()" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::make_shared </td>
@@ -6298,6 +6073,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="ga948481509b5773206e5ea25c52b61283"></a><!-- doxytag: member="bsl::make_shared" ref="ga948481509b5773206e5ea25c52b61283" args="(const A1 &amp;a1)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class A1 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::make_shared </td>
@@ -6316,6 +6093,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="gaed83c08eabc1f22ff41be3d7949b016a"></a><!-- doxytag: member="bsl::make_shared" ref="gaed83c08eabc1f22ff41be3d7949b016a" args="(const A1 &amp;a1, const A2 &amp;a2)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class A1 , class A2 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::make_shared </td>
@@ -6343,6 +6122,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="ga5b3b07f21e4b038a58efa13ea2583d18"></a><!-- doxytag: member="bsl::make_shared" ref="ga5b3b07f21e4b038a58efa13ea2583d18" args="(const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class A1 , class A2 , class A3 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::make_shared </td>
@@ -6376,6 +6157,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="ga5ccdad6d77d6f91c4d26d36a2a1c9933"></a><!-- doxytag: member="bsl::make_shared" ref="ga5ccdad6d77d6f91c4d26d36a2a1c9933" args="(const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class A1 , class A2 , class A3 , class A4 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::make_shared </td>
@@ -6415,6 +6198,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="gad70fcbb076fc7c7c9e75f297f2149c58"></a><!-- doxytag: member="bsl::make_shared" ref="gad70fcbb076fc7c7c9e75f297f2149c58" args="(const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class A1 , class A2 , class A3 , class A4 , class A5 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::make_shared </td>
@@ -6460,6 +6245,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="ga41fdc22eb8ffb9ac386b266e2b100f47"></a><!-- doxytag: member="bsl::make_shared" ref="ga41fdc22eb8ffb9ac386b266e2b100f47" args="(const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::make_shared </td>
@@ -6511,6 +6298,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="ga0a18cef762683586ddcf554750974540"></a><!-- doxytag: member="bsl::make_shared" ref="ga0a18cef762683586ddcf554750974540" args="(const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::make_shared </td>
@@ -6568,6 +6357,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="ga5386aae75c602403e22c26f58d9aa3f2"></a><!-- doxytag: member="bsl::make_shared" ref="ga5386aae75c602403e22c26f58d9aa3f2" args="(const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::make_shared </td>
@@ -6631,6 +6422,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="ga0c90eba2b70dc7509f69950d04bfee31"></a><!-- doxytag: member="bsl::make_shared" ref="ga0c90eba2b70dc7509f69950d04bfee31" args="(const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::make_shared </td>
@@ -6700,6 +6493,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="ga98eed9180e3758990ff0bda0b0f41683"></a><!-- doxytag: member="bsl::make_shared" ref="ga98eed9180e3758990ff0bda0b0f41683" args="(const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::make_shared </td>
@@ -6775,6 +6570,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="ga47afd18d2ac49909d2f78359550bcd65"></a><!-- doxytag: member="bsl::make_shared" ref="ga47afd18d2ac49909d2f78359550bcd65" args="(const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 , class A11 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::make_shared </td>
@@ -6856,6 +6653,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="gae7f8b8e43681cb4423673c7dce5488b1"></a><!-- doxytag: member="bsl::make_shared" ref="gae7f8b8e43681cb4423673c7dce5488b1" args="(const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 , class A11 , class A12 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::make_shared </td>
@@ -6943,6 +6742,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="ga72666c8cd2da3ed6ce6bd6c27f0cd189"></a><!-- doxytag: member="bsl::make_shared" ref="ga72666c8cd2da3ed6ce6bd6c27f0cd189" args="(const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12, const A13 &amp;a13)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 , class A11 , class A12 , class A13 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::make_shared </td>
@@ -7036,6 +6837,8 @@ template&lt;class ELEMENT_TYPE &gt; </div>
 <a class="anchor" id="ga3876caafb24bb32d3300754b741cd7a6"></a><!-- doxytag: member="bsl::make_shared" ref="ga3876caafb24bb32d3300754b741cd7a6" args="(const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12, const A13 &amp;a13, const A14 &amp;a14)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE , class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 , class A11 , class A12 , class A13 , class A14 &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; bsl::make_shared </td>
@@ -7129,12 +6932,354 @@ template&lt;class ELEMENT_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>Return a <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code> object referring to and managing a new <code>ELEMENT_TYPE</code> object. The default allocator will be used to supply a single contiguous region of memory holding the returned shared pointer's internal representation and the new <code>ELEMENT_TYPE</code> object, which is initialized using the <code>ELEMENT_TYPE</code> constructor that takes the specified arguments <code>a1</code> up to <code>aN</code> where <code>N</code> (at most 14) is the number of arguments passed to this method. If <code>ELEMENT_TYPE</code> uses <code>blsma</code> allocators, then the default allocator is passed as an extra argument in the final position. </p>
+
+</div>
+</div>
+<a class="anchor" id="gad857b724f69dc6b25d1797702102549f"></a><!-- doxytag: member="bsl::weak_ptr::weak_ptr" ref="gad857b724f69dc6b25d1797702102549f" args="()" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::weak_ptr </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create a weak pointer in the empty state and referring to no object, i.e., a weak pointer having no representation. </p>
+
+</div>
+</div>
+<a class="anchor" id="gae2adefc8f8926f276c3ecf36daa874f0"></a><!-- doxytag: member="bsl::weak_ptr::weak_ptr" ref="gae2adefc8f8926f276c3ecf36daa874f0" args="(const weak_ptr &amp;original)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::weak_ptr </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&lt; ELEMENT_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>original</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create a weak pointer that refers to the same object (if any) as the specified <code>original</code> weak pointer, and increment the number of weak references to the object managed by <code>original</code> (if any). Note that if <code>original</code> is in the empty state, this weak pointer will be initialized to the empty state. </p>
+
+</div>
+</div>
+<a class="anchor" id="ga35a234785bed69f0cb3b9c69b466e707"></a><!-- doxytag: member="bsl::weak_ptr::weak_ptr" ref="ga35a234785bed69f0cb3b9c69b466e707" args="(const shared_ptr&lt; COMPATIBLE_TYPE &gt; &amp;other)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class COMPATIBLE_TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::weak_ptr </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; COMPATIBLE_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>other</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>IMPLICIT: </p>
+
+</div>
+</div>
+<a class="anchor" id="gab7aa5423fab31f0cd5d86514d85b13c9"></a><!-- doxytag: member="bsl::weak_ptr::weak_ptr" ref="gab7aa5423fab31f0cd5d86514d85b13c9" args="(const weak_ptr&lt; COMPATIBLE_TYPE &gt; &amp;other)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class COMPATIBLE_TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::weak_ptr </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&lt; COMPATIBLE_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>other</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>IMPLICIT: Create a weak pointer that refers to the same object (if any) as the specified <code>other</code> (shared or weak) pointer of the (template parameter) <code>COMPATIBLE_TYPE</code>, and increment the number of weak references to the object managed by <code>other</code> (if any). If <code>COMPATIBLE_TYPE *</code> is not implicitly convertible to <code>ELEMENT_TYPE *</code>, then a compiler diagnostic will be emitted. Note that if <code>other</code> is in the empty state, this weak pointer will be initialized to the empty state. </p>
+
+</div>
+</div>
+<a class="anchor" id="ga2aef66bfe030b2aaecc59dcf3717f762"></a><!-- doxytag: member="bsl::weak_ptr::~weak_ptr" ref="ga2aef66bfe030b2aaecc59dcf3717f762" args="()" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::~weak_ptr </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Destroy this weak pointer object. If this weak pointer manages a (possibly shared) object, release the weak reference to that object. </p>
+
+</div>
+</div>
+<a class="anchor" id="ga688404a7ec31a3c2da8a8ad097bcb3d4"></a><!-- doxytag: member="bsl::weak_ptr::operator=" ref="ga688404a7ec31a3c2da8a8ad097bcb3d4" args="(const weak_ptr &amp;rhs)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">weak_ptr&amp; <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::operator= </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&lt; ELEMENT_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>rhs</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Make this weak pointer refer to the same object (if any) as the specified <code>rhs</code> weak pointer. Decrement the number of weak references to the object this weak pointer manages (if any), and increment the number of weak references to the object managed by <code>rhs</code> (if any). Return a reference providing modifiable access to this weak pointer. Note that if <code>rhs</code> is in the empty state, this weak pointer will be set to the empty state. </p>
+
+</div>
+</div>
+<a class="anchor" id="gaec46064b65bcee0e7dbc947c38ceb75f"></a><!-- doxytag: member="bsl::weak_ptr::operator=" ref="gaec46064b65bcee0e7dbc947c38ceb75f" args="(const shared_ptr&lt; COMPATIBLE_TYPE &gt; &amp;rhs)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class COMPATIBLE_TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">weak_ptr&amp; <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::operator= </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; COMPATIBLE_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>rhs</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ga1e3495245099b3146e82bd006e586c70"></a><!-- doxytag: member="bsl::weak_ptr::operator=" ref="ga1e3495245099b3146e82bd006e586c70" args="(const weak_ptr&lt; COMPATIBLE_TYPE &gt; &amp;rhs)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class COMPATIBLE_TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">weak_ptr&amp; <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::operator= </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&lt; COMPATIBLE_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>rhs</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Make this weak pointer refer to the same object (if any) as the specified <code>rhs</code> (shared or weak) pointer to the (template parameter) <code>COMPATIBLE_TYPE</code>. Decrement the number of weak references to the object to which this weak pointer currently manages (if any), and increment the number of weak references to the object managed by <code>rhs</code> (if any). Return a reference providing modifiable access to this weak pointer. If <code>COMPATIBLE_TYPE *</code> is not implicitly convertible to <code>TYPE *</code>, then a compiler diagnostic will be emitted. Note that if <code>rhs</code> is in the empty state, this weak pointer will be set to the empty state. </p>
+
+</div>
+</div>
+<a class="anchor" id="ga9d4ffeef0e33e4bbb6664605f39467af"></a><!-- doxytag: member="bsl::weak_ptr::reset" ref="ga9d4ffeef0e33e4bbb6664605f39467af" args="()" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::reset </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Reset this weak pointer to the empty state. If this weak pointer manages a (possibly shared) object, then decrement the number of weak references to that object. </p>
+
+</div>
+</div>
+<a class="anchor" id="ga74555d04ec23d02199d7c79951a5fc65"></a><!-- doxytag: member="bsl::weak_ptr::swap" ref="ga74555d04ec23d02199d7c79951a5fc65" args="(weak_ptr &amp;other)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::swap </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&lt; ELEMENT_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>other</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Efficiently exchange the states of this weak pointer and the specified <code>other</code> weak pointer such that each will refer to the object (if any) and representation (if any) formerly referred to and managed by the other. </p>
+
+</div>
+</div>
+<a class="anchor" id="gaee9df79d0a4d9bc4aa352692d98490e3"></a><!-- doxytag: member="bsl::weak_ptr::expired" ref="gaee9df79d0a4d9bc4aa352692d98490e3" args="() const " -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::expired </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const<code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return <code>true</code> if this weak pointer is in the empty state or the object that it originally referenced has been destroyed, and <code>false</code> otherwise. </p>
+
+</div>
+</div>
+<a class="anchor" id="ga839f5aa12ddb60bd5fcc260849b406ac"></a><!-- doxytag: member="bsl::weak_ptr::lock" ref="ga839f5aa12ddb60bd5fcc260849b406ac" args="() const " -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">shared_ptr&lt;ELEMENT_TYPE&gt; <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::lock </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const<code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return a shared pointer to the object referred to by this weak pointer if <code>false == expired()</code>, and a shared pointer in the empty state otherwise. </p>
+
+</div>
+</div>
+<a class="anchor" id="ga9ec9e1557a53ecc665ac8ff8d38a45b7"></a><!-- doxytag: member="bsl::weak_ptr::owner_before" ref="ga9ec9e1557a53ecc665ac8ff8d38a45b7" args="(const shared_ptr&lt; ANY_TYPE &gt; &amp;other) const " -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class ANY_TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::owner_before </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; ANY_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>other</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const<code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ga8b95837ff793e790ed40b52877ce67fc"></a><!-- doxytag: member="bsl::weak_ptr::owner_before" ref="ga8b95837ff793e790ed40b52877ce67fc" args="(const weak_ptr&lt; ANY_TYPE &gt; &amp;other) const " -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class ANY_TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::owner_before </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&lt; ANY_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>other</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const<code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return <code>true</code> if the address of the <code>BloombergLP::bslma::SharedPtrRep</code> object used by this weak pointer is ordered before the address of the <code>BloombergLP::bslma::SharedPtrRep</code> object used by the specified <code>other</code> shared pointer under the total ordering defined by <code>std::less&lt;BloombergLP::bslma::SharedPtrRep *&gt;</code>, and <code>false</code> otherwise. </p>
+
+</div>
+</div>
+<a class="anchor" id="ga363c49165444b7f320feab8c3e24c940"></a><!-- doxytag: member="bsl::weak_ptr::rep" ref="ga363c49165444b7f320feab8c3e24c940" args="() const " -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">BloombergLP::bslma::SharedPtrRep* <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::rep </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const<code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return the address providing modifiable access to the <code>BloombergLP::bslma::SharedPtrRep</code> object held by this weak pointer, or 0 if this weak pointer is in the empty state. </p>
+
+</div>
+</div>
+<a class="anchor" id="gad550e30b99fea724afcc02ad3433e141"></a><!-- doxytag: member="bsl::weak_ptr::use_count" ref="gad550e30b99fea724afcc02ad3433e141" args="() const " -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">long <a class="el" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr</a>&lt; ELEMENT_TYPE &gt;::use_count </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const<code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return a "snapshot" of the current number of shared pointers that share ownership of the object referred to by this weak pointer, or 0 if this weak pointer is in the empty state. </p>
 
 </div>
 </div>
 <a class="anchor" id="gad7f43c35a15e87ad6e3f859c47f135f4"></a><!-- doxytag: member="bsl::swap" ref="gad7f43c35a15e87ad6e3f859c47f135f4" args="(weak_ptr&lt; ELEMENT_TYPE &gt; &amp;a, weak_ptr&lt; ELEMENT_TYPE &gt; &amp;b)" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">void bsl::swap </td>
@@ -7156,6 +7301,7 @@ template&lt;class ELEMENT_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>Efficiently exchange the states of the specified <code>a</code> and <code>b</code> weak pointers such that each will refer to the object (if any) and representation formerly referred to by the other. </p>
 
 </div>
 </div>
@@ -7363,7 +7509,7 @@ template&lt;class TARGET , class SOURCE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Destroy this <code><a class="el" href="classbslstl_1_1SharedPtr__RepProctor.html">SharedPtr_RepProctor</a></code>, and release ownership of the <code><a class="el" href="classbslma_1_1SharedPtrRep.html">bslma::SharedPtrRep</a></code> it manages (if any). If no such object is currently being managed, this method has no effect. </p>
+<p>Destroy this <code><a class="el" href="classbslstl_1_1SharedPtr__RepProctor.html">SharedPtr_RepProctor</a></code>, and dispose of (deallocate) the <code><a class="el" href="classbslma_1_1SharedPtrRep.html">bslma::SharedPtrRep</a></code> it manages (if any). If no such object is currently being managed, this method has no effect. Note that the destructor of the <code><a class="el" href="classbslma_1_1SharedPtrRep.html">bslma::SharedPtrRep</a></code> will not be called as the reference count will not be decremented. </p>
 
 </div>
 </div>
@@ -7405,7 +7551,7 @@ template&lt;class ELEMENT_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class LHS_TYPE, class RHS_TYPE&gt; </div>
+template&lt;class ELEMENT_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">friend class weak_ptr<code> [friend, inherited]</code></td>
@@ -7417,7 +7563,7 @@ template&lt;class LHS_TYPE, class RHS_TYPE&gt; </div>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:29 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:23 for BDE Release 2.23.1 Open-Source by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

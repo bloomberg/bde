@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: bslma_destructorproctor Component</title>
+<title>BDE 2.23.1 OSS: bslma_destructorproctor Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
@@ -248,7 +249,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd>In the above implementation, if the copy construction of the second object in the pair throws, all memory (and any other resources) acquired as a result of copying the (not-yet-managed) object would be leaked. Using the <code><a class="el" href="classbslma_1_1DestructorProctor.html">bslma::DestructorProctor</a></code> prevents the leaks by invoking the destructor of the proctored object automatically should the proctor go out of scope before the <code>release</code> method of the proctor is called (such as when the function exits prematurely due to an exception). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Note that the <code>copyConstruct</code> method assumes the copy constructor of <code>TYPE::firstType</code> and <code>TYPE::secondType</code> takes an allocator as a second argument. In production code, a constructor proxy that checks the traits of <code>TYPE::firstType</code> and <code>TYPE::secondType</code> (to determine whether they uses <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code>) should be used (see <code>bslalg_constructorproxy</code>). </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:28 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:21 for BDE Release 2.23.1 Open-Source by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

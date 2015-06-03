@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: Class bsl::String_Imp</title>
+<title>BDE 2.23.1 OSS: Class bsl::String_Imp</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
@@ -107,12 +108,12 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1String__Imp.html">String_Imp</a> &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gab60fccb24e62d362663c00ed6285b3ea">operator=</a> (const <a class="el" href="classbsl_1_1String__Imp.html">String_Imp</a> &amp;rhs)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gaa84e137b4df18defbd422bd14b7afb8e">swap</a> (<a class="el" href="classbsl_1_1String__Imp.html">String_Imp</a> &amp;other)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gad45a4779242e1126b7c28f5c9f38ddc9">resetFields</a> ()</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">CHAR_TYPE *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gac7e983fc7ad932e4b6d80bea7c2611f0">dataPtr</a> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">CHAR_TYPE *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gac615a1e1641fc698f2fe72f46abeff13">dataPtr</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga5e8fe3a4824803307fd12d99dbdb75aa">isShortString</a> () const </td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">const CHAR_TYPE *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gaa81be1d0acf68dad7a0f5697c733ba35">dataPtr</a> () const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">const CHAR_TYPE *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga392e38b23313e8c824569fd3541d4c35">dataPtr</a> () const </td></tr>
 <tr><td colspan="2"><h2><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static SIZE_TYPE&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga748343a56e50e73b56fc93c366cd69fb">computeNewCapacity</a> (SIZE_TYPE newLength, SIZE_TYPE oldCapacity, SIZE_TYPE maxSize)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static SIZE_TYPE&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga1bc7c061cf2305946e9f006d3e4afa80">computeNewCapacity</a> (SIZE_TYPE newLength, SIZE_TYPE oldCapacity, SIZE_TYPE maxSize)</td></tr>
 <tr><td colspan="2"><h2><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr><td class="memItemLeft" >union {</td></tr>
@@ -146,7 +147,7 @@ template&lt;class CHAR_TYPE, class SIZE_TYPE&gt; </div>
 <p>This <code>enum</code> contains values necessary to calculate the size of the short string buffer. The starting value is <code>SHORT_BUFFER_MIN_BYTES</code>, which defines the minimal number of bytes (or <code>char</code> values) that the short string buffer should be able to contain. Then this value is aligned to a word boundary. Then we make sure that it fits at least one <code>CHAR_TYPE</code> character (because the default state of the string object requires that the first character is initialized with a NULL-terminator). The final output of this enum used by <code><a class="el" href="classbsl_1_1String__Imp.html">String_Imp</a></code> is the <code>SHORT_BUFFER_CAPACITY</code> value. It defines the capacity of the short string buffer and also the capacity of the default-constructed empty string object. </p>
 <dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
 <tr><td valign="top"><em><a class="anchor" id="a7e4ce1d261f79994237b4f477d8a7b9ba0e1371246e068266bce19245457286ce"></a><!-- doxytag: member="SHORT_BUFFER_MIN_BYTES" ref="a7e4ce1d261f79994237b4f477d8a7b9ba0e1371246e068266bce19245457286ce" args="" -->SHORT_BUFFER_MIN_BYTES</em>&nbsp;</td><td>
-<p>minimum required size of the short </p>
+<p>minimum required size of the short string buffer in bytes </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="ga7e4ce1d261f79994237b4f477d8a7b9ba565c2480306e7c02dd1696bbef7c7f38"></a><!-- doxytag: member="SHORT_BUFFER_NEED_BYTES" ref="ga7e4ce1d261f79994237b4f477d8a7b9ba565c2480306e7c02dd1696bbef7c7f38" args="" -->SHORT_BUFFER_NEED_BYTES</em>&nbsp;</td><td>
 <p>round it to a word boundary </p>
@@ -157,6 +158,7 @@ template&lt;class CHAR_TYPE, class SIZE_TYPE&gt; </div>
 <tr><td valign="top"><em><a class="anchor" id="ga7e4ce1d261f79994237b4f477d8a7b9ba15bb913f0705ac3befd77b71cb7bed27"></a><!-- doxytag: member="SHORT_BUFFER_LENGTH" ref="ga7e4ce1d261f79994237b4f477d8a7b9ba15bb913f0705ac3befd77b71cb7bed27" args="" -->SHORT_BUFFER_LENGTH</em>&nbsp;</td><td>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="ga7e4ce1d261f79994237b4f477d8a7b9bace55be8a5c1f10560d2d39cca7528a11"></a><!-- doxytag: member="SHORT_BUFFER_CAPACITY" ref="ga7e4ce1d261f79994237b4f477d8a7b9bace55be8a5c1f10560d2d39cca7528a11" args="" -->SHORT_BUFFER_CAPACITY</em>&nbsp;</td><td>
+<p>short string buffer capacity (not including the null-terminator) </p>
 </td></tr>
 </table>
 </dd>
@@ -179,15 +181,13 @@ template&lt;class CHAR_TYPE, class SIZE_TYPE&gt; </div>
 <div class="memdoc">
 <p>short string buffer </p>
 
-<p>Referenced by <a class="el" href="group__bslstl__string.html#gac7e983fc7ad932e4b6d80bea7c2611f0">bsl::String_Imp&lt; CHAR_TYPE, SIZE_TYPE &gt;::dataPtr()</a>.</p>
-
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="bslstl__string_8h_source.html">bslstl_string.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:36 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:32 for BDE Release 2.23.1 Open-Source by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

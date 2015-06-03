@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bsls_atomicoperations.h                                            -*-C++-*-
@@ -692,7 +692,17 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bsls_types.h&gt;
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_GNU) &amp;&amp; BSLS_PLATFORM_CMP_VERSION &gt;= 40700
+#if defined(BSLS_PLATFORM_CMP_CLANG)
+#if __has_extension(c_atomic) || __has_extension(cxx_atomic)  // clang 3.1+
+#define BSLS_ATOMICOPERATIONS_CLANG_ATOMICS
+#endif
+#endif
+
+#if defined(BSLS_ATOMICOPERATIONS_CLANG_ATOMICS)
+    //  clang 3.1+
+#   include &lt;bsls_atomicoperations_all_all_clangintrinsics.h&gt;
+
+#elif defined(BSLS_PLATFORM_CMP_GNU) &amp;&amp; BSLS_PLATFORM_CMP_VERSION &gt;= 40700
     //  GCC 4.7+
 #   include &lt;bsls_atomicoperations_all_all_gccintrinsics.h&gt;
 
@@ -725,7 +735,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #           include &lt;bsls_atomicoperations_powerpc32_aix_xlc.h&gt;
 #       endif
 #   elif defined(BSLS_PLATFORM_CMP_GNU)
-#       include &lt;bsls_atomicoperations_powerpc_aix_gcc.h&gt;
+#       include &lt;bsls_atomicoperations_powerpc_all_gcc.h&gt;
 #   else
 #       define BSLS_ATOMICOPERATIONS_ERROR
 #   endif

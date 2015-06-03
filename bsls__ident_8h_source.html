@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bsls_ident.h                                                       -*-C++-*-
@@ -257,11 +257,8 @@ BSLS_IDENT_RCSID(sysutil_ident_h,&quot;$Id: $&quot;)
   #define BSLS_IDENT_PRAGMA_ONCE
 #elif defined(__IBMC__) || defined(__IBMCPP__)
   #define BSLS_IDENT_PRAGMA_ONCE _Pragma(&quot;once&quot;)
-#elif (0 &amp;&amp; defined(_MSC_VER))
-  /* XXX: It&#39;s unclear what level of support Microsoft&#39;s compiler has for
-   * _Pragma(&quot;once&quot;) - leave disabled for now.
-   */
-  #define BSLS_IDENT_PRAGMA_ONCE _Pragma(&quot;once&quot;)
+#elif defined(_MSC_VER)
+  #define BSLS_IDENT_PRAGMA_ONCE __pragma(once)
 #elif (defined(__HP_cc)  &amp;&amp; __HP_cc-0  &gt;= 62500) \
    || (defined(__HP_aCC) &amp;&amp; __HP_aCC-0 &gt;= 62500)
   /* supported in aCC A.06.25 (had not been fully supported in aCC A.06.20) */
@@ -308,8 +305,8 @@ BSLS_IDENT_PRAGMA_ONCE
  * file.
  *
  * #ident, #pragma ident, #pragma comment each can take a -single- user-defined
- * token (no concatentation of string constants or preprocessor macro ##
- * concatentation)  (MS Visual Studio will do string concatenation)
+ * token (no concatenation of string constants or preprocessor macro ##
+ * concatenation)  (MS Visual Studio will do string concatenation)
  *
  * C99 _Pragma() can expanded in macros and can be used in place of #pragma.
  * GCC does not implement a #pragma version of gcc #ident preprocessor

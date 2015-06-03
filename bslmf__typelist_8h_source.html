@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bslmf_typelist.h                                                   -*-C++-*-
@@ -122,10 +122,10 @@ struct TypeList: public TypeList20&lt;A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,
                          // =====================
 
 template &lt;int INDEX, class LIST, class DEFAULTTYPE=Nil,
-          int INRANGE=((INDEX &gt; 0 &amp;&amp; INDEX &lt;= (int)LIST::LENGTH) ? 1 : 0)&gt;
+          int INRANGE=((1 &lt;= INDEX &amp;&amp; INDEX &lt;= (int)LIST::LENGTH) ? 1 : 0)&gt;
 struct TypeListTypeOf {
     // This template is specialized below to return the type the &#39;INDEX&#39;th
-    // member of the typelist &#39;LIST&#39;.  If &#39;0 &gt; INDEX &lt;= LIST::LENGTH&#39; then
+    // member of the typelist &#39;LIST&#39;.  If &#39;1 &lt;= INDEX &lt;= LIST::LENGTH&#39; then
     // &#39;Type&#39; will be defined as the type of the member.  Note that INDEX is
     // relative to 1.
 

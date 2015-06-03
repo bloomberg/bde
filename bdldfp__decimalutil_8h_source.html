@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bdldfp_decimalutil.h                                               -*-C++-*-
@@ -135,49 +135,53 @@ struct DecimalUtil {
 
                             // Creators functions
 
-    static Decimal32 makeDecimalRaw32 (int mantissa, int exponent);
+    static Decimal32 makeDecimalRaw32 (int significand, int exponent);
         // Create a &#39;Decimal32&#39; object representing a decimal floating point
-        // number consisting of the specified &#39;mantissa&#39; and &#39;exponent&#39;, with
-        // the sign given by the &#39;mantissa&#39; (if signed).  The behavior is
-        // undefined unless &#39;-9,999,999 &lt;= mantissa &lt;= 9,999,999&#39; and
+        // number consisting of the specified &#39;significand&#39; and &#39;exponent&#39;,
+        // with the sign given by the &#39;significand&#39; (if signed).  The behavior
+        // is undefined unless &#39;-9,999,999 &lt;= significand &lt;= 9,999,999&#39; and
         // &#39;-101 &lt;= exponent &lt;= 90&#39;.
 
-    static Decimal64 makeDecimalRaw64(int                mantissa,
+    static Decimal64 makeDecimalRaw64(int                significand,
                                       int                exponent);
-    static Decimal64 makeDecimalRaw64(unsigned int       mantissa,
+    static Decimal64 makeDecimalRaw64(unsigned int       significand,
                                       int                exponent);
-    static Decimal64 makeDecimalRaw64(long long          mantissa,
+    static Decimal64 makeDecimalRaw64(long long          significand,
                                       int                exponent);
-    static Decimal64 makeDecimalRaw64(unsigned long long mantissa,
+    static Decimal64 makeDecimalRaw64(unsigned long long significand,
                                       int                exponent);
         // Create a &#39;Decimal64&#39; object representing a decimal floating point
-        // number consisting of the specified &#39;mantissa&#39; and &#39;exponent&#39;, with
-        // the sign given by the &#39;mantissa&#39; (if signed).  If &#39;mantissa&#39; is 0,
-        // the result is 0 but the quanta of the result is unspecified.  The
-        // behavior is undefined unless
-        // &#39;-9,999,999,999,999,999 &lt;= mantissa &lt;= 9,999,999,999,999,999&#39; and
+        // number consisting of the specified &#39;significand&#39; and &#39;exponent&#39;,
+        // with the sign given by the &#39;significand&#39; (if signed).  If
+        // &#39;significand&#39; is 0, the result is 0 but the quanta of the result is
+        // unspecified.  The behavior is undefined unless
+        // &#39;-9,999,999,999,999,999 &lt;= significand &lt;= 9,999,999,999,999,999&#39; and
         // &#39;-398 &lt;= exponent &lt;= 369&#39;.
 
-    static Decimal128 makeDecimalRaw128(int                mantissa,
+    static Decimal128 makeDecimalRaw128(int                significand,
                                         int                exponent);
-    static Decimal128 makeDecimalRaw128(unsigned int       mantissa,
+    static Decimal128 makeDecimalRaw128(unsigned int       significand,
                                         int                exponent);
-    static Decimal128 makeDecimalRaw128(long long          mantissa,
+    static Decimal128 makeDecimalRaw128(long long          significand,
                                         int                exponent);
-    static Decimal128 makeDecimalRaw128(unsigned long long mantissa,
+    static Decimal128 makeDecimalRaw128(unsigned long long significand,
                                         int                exponent);
         // Create a &#39;Deciaml128&#39; object representing a decimal floating point
-        // number consisting of the specified &#39;mantissa&#39; and specified
-        // &#39;exponent&#39;, with the sign given by the &#39;mantissa&#39; (if signed).  If
-        // &#39;mantissa&#39; is 0, the result is 0 but the quanta of the result is
-        // unspecified.  The behavior is undefined unless
+        // number consisting of the specified &#39;significand&#39; and specified
+        // &#39;exponent&#39;, with the sign given by the &#39;significand&#39; (if signed).
+        // If &#39;significand&#39; is 0, the result is 0 but the quanta of the result
+        // is unspecified.  The behavior is undefined unless
         // &#39;-6176 &lt;= exponent &lt;= 6111&#39;.
 
-    static Decimal64 makeDecimal64(int                mantissa, int exponent);
-    static Decimal64 makeDecimal64(unsigned int       mantissa, int exponent);
-    static Decimal64 makeDecimal64(long long          mantissa, int exponent);
-    static Decimal64 makeDecimal64(unsigned long long mantissa, int exponent);
-        // Return a &#39;DecimalNN&#39; object that has the specified &#39;mantissa&#39; and
+    static Decimal64 makeDecimal64(int                significand,
+                                   int                exponent);
+    static Decimal64 makeDecimal64(unsigned int       significand,
+                                   int                exponent);
+    static Decimal64 makeDecimal64(long long          significand,
+                                   int                exponent);
+    static Decimal64 makeDecimal64(unsigned long long significand,
+                                   int                exponent);
+        // Return a &#39;DecimalNN&#39; object that has the specified &#39;significand&#39; and
         // &#39;exponent&#39;, rounded according to the current decimal rounding mode,
         // if necessary.  If an overflow condition occurs. store the value of
         // the macro &#39;ERANGE&#39; into &#39;errno&#39; and return infinity with the
@@ -363,7 +367,7 @@ struct DecimalUtil {
     static int quantum(Decimal128 value);
         // Return an integer equal to the exponent field in the specified
         // &#39;value&#39;.  Each decimal floating point number is a representation of
-        // the ideal form &#39;m * (10 ** e)&#39;, where &#39;m&#39; is mantissa and &#39;e&#39; is
+        // the ideal form &#39;s * (10 ** e)&#39;, where &#39;s&#39; is significand and &#39;e&#39; is
         // exponent.  This function returns that exponent value.  The behavior
         // is undefined if &#39;value&#39; is NaN or &#39;value&#39; is infinity.
 
@@ -436,72 +440,74 @@ struct DecimalUtil {
 // ============================================================================
 
 inline
-Decimal32 DecimalUtil::makeDecimalRaw32(int mantissa, int exponent)
+Decimal32 DecimalUtil::makeDecimalRaw32(int significand, int exponent)
 {
-    return DecimalImpUtil::makeDecimalRaw32(mantissa, exponent);
+    return DecimalImpUtil::makeDecimalRaw32(significand, exponent);
 }
 inline
-Decimal64 DecimalUtil::makeDecimalRaw64(int mantissa, int exponent)
+Decimal64 DecimalUtil::makeDecimalRaw64(int significand, int exponent)
 {
-    return DecimalImpUtil::makeDecimalRaw64(mantissa, exponent);
+    return DecimalImpUtil::makeDecimalRaw64(significand, exponent);
 }
 inline
-Decimal64 DecimalUtil::makeDecimalRaw64(unsigned int mantissa, int exponent)
+Decimal64 DecimalUtil::makeDecimalRaw64(unsigned int significand, int exponent)
 {
-    return DecimalImpUtil::makeDecimalRaw64(mantissa, exponent);
+    return DecimalImpUtil::makeDecimalRaw64(significand, exponent);
 }
 inline
-Decimal64 DecimalUtil::makeDecimalRaw64(long long mantissa, int exponent)
+Decimal64 DecimalUtil::makeDecimalRaw64(long long significand, int exponent)
 {
-    return DecimalImpUtil::makeDecimalRaw64(mantissa, exponent);
+    return DecimalImpUtil::makeDecimalRaw64(significand, exponent);
 }
 inline
 Decimal64
-DecimalUtil::makeDecimalRaw64(unsigned long long mantissa, int exponent)
+DecimalUtil::makeDecimalRaw64(unsigned long long significand, int exponent)
 {
-    return DecimalImpUtil::makeDecimalRaw64(mantissa, exponent);
+    return DecimalImpUtil::makeDecimalRaw64(significand, exponent);
 }
 inline
-Decimal128 DecimalUtil::makeDecimalRaw128(int mantissa, int exponent)
+Decimal128 DecimalUtil::makeDecimalRaw128(int significand, int exponent)
 {
-    return DecimalImpUtil::makeDecimalRaw128(mantissa, exponent);
+    return DecimalImpUtil::makeDecimalRaw128(significand, exponent);
 }
 inline
-Decimal128 DecimalUtil::makeDecimalRaw128(unsigned int mantissa, int exponent)
+Decimal128 DecimalUtil::makeDecimalRaw128(unsigned int significand,
+                                          int          exponent)
 {
-    return DecimalImpUtil::makeDecimalRaw128(mantissa, exponent);
+    return DecimalImpUtil::makeDecimalRaw128(significand, exponent);
 }
 inline
-Decimal128 DecimalUtil::makeDecimalRaw128(long long mantissa, int exponent)
+Decimal128 DecimalUtil::makeDecimalRaw128(long long significand, int exponent)
 {
-    return DecimalImpUtil::makeDecimalRaw128(mantissa, exponent);
+    return DecimalImpUtil::makeDecimalRaw128(significand, exponent);
 }
 inline
 Decimal128
-DecimalUtil::makeDecimalRaw128(unsigned long long mantissa, int exponent)
+DecimalUtil::makeDecimalRaw128(unsigned long long significand, int exponent)
 {
-    return DecimalImpUtil::makeDecimalRaw128(mantissa, exponent);
+    return DecimalImpUtil::makeDecimalRaw128(significand, exponent);
 }
 
 inline
-Decimal64 DecimalUtil::makeDecimal64(int mantissa, int exponent)
+Decimal64 DecimalUtil::makeDecimal64(int significand, int exponent)
 {
-    return DecimalImpUtil::makeDecimal64(mantissa, exponent);
+    return DecimalImpUtil::makeDecimal64(significand, exponent);
 }
 inline
-Decimal64 DecimalUtil::makeDecimal64(unsigned int mantissa, int exponent)
+Decimal64 DecimalUtil::makeDecimal64(unsigned int significand, int exponent)
 {
-    return DecimalImpUtil::makeDecimal64(mantissa, exponent);
+    return DecimalImpUtil::makeDecimal64(significand, exponent);
 }
 inline
-Decimal64 DecimalUtil::makeDecimal64(long long mantissa, int exponent)
+Decimal64 DecimalUtil::makeDecimal64(long long significand, int exponent)
 {
-    return DecimalImpUtil::makeDecimal64(mantissa, exponent);
+    return DecimalImpUtil::makeDecimal64(significand, exponent);
 }
 inline
-Decimal64 DecimalUtil::makeDecimal64(unsigned long long mantissa, int exponent)
+Decimal64 DecimalUtil::makeDecimal64(unsigned long long significand,
+                                     int                exponent)
 {
-    return DecimalImpUtil::makeDecimal64(mantissa, exponent);
+    return DecimalImpUtil::makeDecimal64(significand, exponent);
 }
 
                              // Quantum functions

@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bslstl_map.h                                                       -*-C++-*-
@@ -19,7 +19,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //@SEE_ALSO: bslstl_multimap, bslstl_set
 //
-//@DESCRIPTION: This component defines a single class template &#39;map&#39;,
+//@DESCRIPTION: This component defines a single class template &#39;bsl::map&#39;,
 // implementing the standard container holding an ordered sequence of key-value
 // pairs (having unique keys), and presenting a mapping from the keys (of a
 // template parameter type, &#39;KEY&#39;) to their associated values (of another
@@ -462,6 +462,14 @@ BSL_OVERRIDES_STD mode&quot;
 #include &lt;bslalg_typetraithasstliterators.h&gt;
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PERFORMANCEHINT
+#include &lt;bsls_performancehint.h&gt;
+#endif
+
 #ifndef INCLUDED_FUNCTIONAL
 #include &lt;functional&gt;
 #define INCLUDED_FUNCTIONAL
@@ -575,7 +583,7 @@ class map {
         COMPARATOR comp;  // we would not have elected to make this data
                           // member protected ourselves
 
-        value_compare(COMPARATOR comparator) : comp(comparator) {}
+        value_compare(COMPARATOR comparator);                       // IMPLICIT
             // Create a &#39;value_compare&#39; object that will delegate to the
             // specified &#39;comparator&#39; for comparisons.
 
@@ -595,13 +603,10 @@ class map {
             // of the overload of &#39;operator()&#39; (the comparison function)
             // provided by a &#39;map::value_compare&#39; object.
 
-        bool operator()(const value_type&amp; x, const value_type&amp; y) const
+        bool operator()(const value_type&amp; x, const value_type&amp; y) const;
             // Return &#39;true&#39; if the specified &#39;x&#39; object is ordered before the
             // specified &#39;y&#39; object, as determined by the comparator supplied
             // at construction.
-        {
-            return comp(x.first, y.first);
-        }
     };
 
   private:
@@ -642,8 +647,8 @@ class map {
 
   public:
     // CREATORS
-    explicit map(const COMPARATOR&amp; comparator = COMPARATOR(),
-                 const ALLOCATOR&amp;  basicAllocator  = ALLOCATOR())
+    explicit map(const COMPARATOR&amp; comparator     = COMPARATOR(),
+                 const ALLOCATOR&amp;  basicAllocator = ALLOCATOR())
         // Construct an empty map.  Optionally specify a &#39;comparator&#39; used to
         // order key-value pairs contained in this object.  If &#39;comparator&#39; is
         // not supplied, a default-constructed object of the (template
@@ -954,12 +959,11 @@ class map {
         // that this method is not exception agnostic.
 
     key_compare key_comp() const;
-        // Return the key-comparison functor (or function pointer) used by
-        // this map; if a comparator was supplied at construction, return its
-        // value, otherwise return a default constructed &#39;key_compare&#39;
-        // object.  Note that this comparator compares objects of type &#39;KEY&#39;,
-        // which is the key part of the &#39;value_type&#39; objects contained in this
-        // map.
+        // Return the key-comparison functor (or function pointer) used by this
+        // map; if a comparator was supplied at construction, return its value,
+        // otherwise return a default constructed &#39;key_compare&#39; object.  Note
+        // that this comparator compares objects of type &#39;KEY&#39;, which is the
+        // key part of the &#39;value_type&#39; objects contained in this map.
 
     value_compare value_comp() const;
         // Return a functor for comparing two &#39;value_type&#39; objects by comparing
@@ -974,8 +978,8 @@ class map {
 
     size_type count(const key_type&amp; key) const;
         // Return the number of &#39;value_type&#39; objects within this map having the
-        // specified &#39;key&#39;.  Note that since a map maintains unique keys,
-        // the returned value will be either 0 or 1.
+        // specified &#39;key&#39;.  Note that since a map maintains unique keys, the
+        // returned value will be either 0 or 1.
 
     const_iterator lower_bound(const key_type&amp; key) const;
         // Return an iterator providing non-modifiable access to the first
@@ -1145,6 +1149,26 @@ map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::DataWrapper::DataWrapper(
 : ::bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::Comparator(comparator)
 , d_pool(basicAllocator)
 {
+}
+
+                             // ------------------------
+                             // class map::value_compare
+                             // ------------------------
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::value_compare::value_compare(
+                                                         COMPARATOR comparator)
+: comp(comparator)
+{
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+bool map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::value_compare::operator()(
+                                const value_type&amp; x, const value_type&amp; y) const
+{
+    return comp(x.first, y.first);
 }
 
                              // ---------
@@ -1433,11 +1457,11 @@ void map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::insert(INPUT_ITERATOR first,
 template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
 inline
 typename map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::iterator
-map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::insert(const_iterator    position,
+map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::insert(const_iterator    hint,
                                                const value_type&amp; value)
 {
     BloombergLP::bslalg::RbTreeNode *hintNode =
-                const_cast&lt;BloombergLP::bslalg::RbTreeNode *&gt;(position.node());
+                const_cast&lt;BloombergLP::bslalg::RbTreeNode *&gt;(hint.node());
     int comparisonResult;
     BloombergLP::bslalg::RbTreeNode *insertLocation =
         BloombergLP::bslalg::RbTreeUtil::findUniqueInsertLocation(
@@ -1505,7 +1529,7 @@ void map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::swap(map&amp; other)
 {
     if (AllocatorTraits::propagate_on_container_swap::value) {
         BloombergLP::bslalg::SwapUtil::swap(&amp;nodeFactory().allocator(),
-                                           &amp;other.nodeFactory().allocator());
+                                            &amp;other.nodeFactory().allocator());
         quickSwap(other);
     }
     else {
@@ -1780,9 +1804,8 @@ map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::equal_range(const key_type&amp; ke
 
 template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
 inline
-bool bsl::operator==(
-                    const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
-                    const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; rhs)
+bool bsl::operator==(const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
+                     const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; rhs)
 {
     return BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
                                                     lhs.end(),
@@ -1794,17 +1817,15 @@ bool bsl::operator==(
 
 template &lt;class KEY,  class VALUE,  class COMPARATOR,  class ALLOCATOR&gt;
 inline
-bool bsl::operator!=(
-                    const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
-                    const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; rhs)
+bool bsl::operator!=(const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
+                     const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; rhs)
 {
     return !(lhs == rhs);
 }
 
 template &lt;class KEY,  class VALUE,  class COMPARATOR,  class ALLOCATOR&gt;
 inline
-bool bsl::operator&lt;(
-                    const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
+bool bsl::operator&lt;(const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
                     const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; rhs)
 {
     return 0 &gt; BloombergLP::bslalg::RangeCompare::lexicographical(lhs.begin(),
@@ -1817,8 +1838,7 @@ bool bsl::operator&lt;(
 
 template &lt;class KEY,  class VALUE,  class COMPARATOR,  class ALLOCATOR&gt;
 inline
-bool bsl::operator&gt;(
-                    const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
+bool bsl::operator&gt;(const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
                     const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; rhs)
 {
     return rhs &lt; lhs;
@@ -1826,9 +1846,8 @@ bool bsl::operator&gt;(
 
 template &lt;class KEY,  class VALUE,  class COMPARATOR,  class ALLOCATOR&gt;
 inline
-bool bsl::operator&lt;=(
-                    const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
-                    const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; rhs)
+bool bsl::operator&lt;=(const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
+                     const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; rhs)
 {
     return !(rhs &lt; lhs);
 }
@@ -1836,9 +1855,8 @@ bool bsl::operator&lt;=(
 
 template &lt;class KEY,  class VALUE,  class COMPARATOR,  class ALLOCATOR&gt;
 inline
-bool bsl::operator&gt;=(
-                    const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
-                    const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; rhs)
+bool bsl::operator&gt;=(const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; lhs,
+                     const bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;&amp; rhs)
 {
     return !(lhs &lt; rhs);
 }
@@ -1864,10 +1882,7 @@ namespace BloombergLP {
 
 namespace bslalg {
 
-template &lt;typename KEY,
-          typename VALUE,
-          typename COMPARATOR,
-          typename ALLOCATOR&gt;
+template &lt;class KEY,  class VALUE,  class COMPARATOR,  class ALLOCATOR&gt;
 struct HasStlIterators&lt;bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt; &gt;
     : bsl::true_type
 {};
@@ -1876,10 +1891,7 @@ struct HasStlIterators&lt;bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt; &gt;
 
 namespace bslma {
 
-template &lt;typename KEY,
-          typename VALUE,
-          typename COMPARATOR,
-          typename ALLOCATOR&gt;
+template &lt;class KEY,  class VALUE,  class COMPARATOR,  class ALLOCATOR&gt;
 struct UsesBslmaAllocator&lt;bsl::map&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt; &gt;
     : bsl::is_convertible&lt;Allocator*, ALLOCATOR&gt;
 {};

@@ -1,0 +1,512 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.23.1 OSS</title>
+<html>
+<pre>
+// bdlt_datetz.h                                                      -*-C++-*-
+#ifndef INCLUDED_BDLT_DATETZ
+#define INCLUDED_BDLT_DATETZ
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a representation of a date with time zone offset.
+//
+//@CLASSES:
+//  bdlt::DateTz: local-date value with time zone offset from UTC
+//
+//@SEE_ALSO: bdlt_date, bdlt_datetimetz
+//
+//@DESCRIPTION: This component provides a single value-semantic class,
+// &#39;bdlt::DateTz&#39;, that represents a date value in a particular time zone.
+// Each &#39;bdlt::DateTz&#39; object contains a time zone offset from UTC (in minutes)
+// and a &#39;bdlt::Date&#39; value in that time zone.  For logical consistency, the
+// date value and offset should correspond to a geographically valid time zone,
+// but such consistency is the user&#39;s responsibility.  This component does not
+// enforce logical constraints on any values.
+//
+///Caveats on Time Zone Support
+///----------------------------
+// A &#39;bdlt::DateTz&#39; value is intended to be interpreted as a value in a local
+// time zone, along with the offset of that value from UTC.  However, there are
+// some problems with this simple interpretation.  First of all, the offset
+// value may not correspond to any time zone that has ever existed.  For
+// example, the offset value could be set to one minute, or to 1,234 minutes.
+// The meaning of the resulting &quot;local time&quot; value is always clear, but the
+// local time might not correspond to any geographical or historical time zone.
+//
+// The second problem is more subtle.  A given offset from UTC might be &quot;valid&quot;
+// in that it corresponds to a real time zone, but the actual date value might
+// not exist in that time zone.  To make matters worse, a &quot;valid&quot; offset may
+// not (indeed, rarely will) specify one time zone uniquely.  Moreover, the
+// date value might be valid in one time zone corresponding to a given offset,
+// and not in another time zone.
+//
+// For these reasons (and others), this component cannot and does not perform
+// any validation relating to time zones or offsets.  The user must take care
+// to honor the &quot;local date&quot; contract of this component.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Representing Dates In Different Time Zones
+///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose that we need to compare dates in different time zones.  The
+// &#39;bdlt::DateTz&#39; type helps us to accomplish this by providing the
+// &#39;utcStartTime&#39; method, which returns a &#39;bdlt::Datetime&#39; value corresponding
+// to the UTC &quot;point in time&quot; when the local date starts (i.e. 000 hours local
+// time).
+//
+// First, we default construct an object &#39;dateTz1&#39;, which has an offset of 0,
+// implying that the object represents a date in the UTC time zone.
+//..
+//  bdlt::DateTz dateTz1;
+//  assert(0                   == dateTz1.offset());
+//  assert(dateTz1.localDate() == dateTz1.utcStartTime().date());
+//  assert(dateTz1.localDate() == bdlt::Date());
+//..
+// Notice the value of a default contructed &#39;bdlt::DateTz&#39; object is the same
+// as that of a default constructed &#39;bdlt::Date&#39; object.
+//
+// Then, we construct two objects &#39;dateTz2&#39; and &#39;dateTz3&#39; to have a local date
+// of 2013/12/31 in the EST time zone (UTC-5) and the pacific time zone (UTC-8)
+// respectively:
+//..
+//  bdlt::DateTz dateTz2 (bdlt::Date(2013, 12, 31), -5 * 60);
+//  bdlt::DateTz dateTz3 (bdlt::Date(2013, 12, 31), -8 * 60);
+//..
+// Next, we compare the local dates of the two &#39;DateTz&#39; objects, and verify
+// that they compare equal:
+//..
+//  bdlt::Date localDate(2013, 12, 31);
+//  assert(localDate == dateTz2.localDate());
+//  assert(localDate == dateTz3.localDate());
+//..
+// Now, we compare the starting time of the two &#39;DateTz&#39; objects using the
+// &#39;utcStartTime&#39; method:
+//..
+//  assert(dateTz2.utcStartTime() &lt; dateTz3.utcStartTime());
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLT_DATE
+#include &lt;bdlt_date.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLT_DATETIME
+#include &lt;bdlt_datetime.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include &lt;bslmf_integralconstant.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include &lt;bslmf_istriviallycopyable.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bdlt {
+
+                             // ============
+                             // class DateTz
+                             // ============
+
+class DateTz {
+    // This value-semantic class describes a date value in a particular time
+    // zone, which is indicated using an offset from UTC (in minutes).
+
+    // PRIVATE TYPES
+    enum ValidOffsetRange {
+        // This enumeration specifies the minimum and maximum time zone offset
+        // values.
+
+        k_MAX_OFFSET =  1440,
+        k_MIN_OFFSET = -1440
+    };
+
+    // DATA
+    Date d_localDate;  // date value in timezone specified by &#39;d_offset&#39;
+    int  d_offset;     // offset from UTC (in minutes)
+
+  public:
+    // CLASS METHODS
+    static bool isValid(const Date&amp; localDate, int offset);
+        // Return &#39;true&#39; if the specified &#39;localDate&#39; and the specified time
+        // zone &#39;offset&#39; represent a valid &#39;DateTz&#39; value, and &#39;false&#39;
+        // otherwise.  A &#39;localDate&#39; and &#39;offset&#39; represent a valid &#39;DateTz&#39;
+        // value if &#39;offset&#39; is in the range &#39;( -1440 .. 1440 )&#39;.  Note that a
+        // &#39;true&#39; result from this function does not guarantee that &#39;offset&#39;
+        // corresponds to any geographical or historical time zone.  Also note
+        // that a &#39;true&#39; result from this function does not guarantee that
+        // &#39;localDate&#39; itself is a valid &#39;Date&#39; object.
+
+                                  // Aspects
+
+    static int maxSupportedBdexVersion(int versionSelector);
+        // Return the maximum valid BDEX format version, as indicated by the
+        // specified &#39;versionSelector&#39;, to be passed to the &#39;bdexStreamOut&#39;
+        // method.  Note that it is highly recommended that &#39;versionSelector&#39;
+        // be formatted as &quot;YYYYMMDD&quot;, a date representation.  Also note that
+        // &#39;versionSelector&#39; should be a *compile*-time-chosen value that
+        // selects a format version supported by both externalizer and
+        // unexternalizer.  See the &#39;bslx&#39; package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
+
+    // CREATORS
+    DateTz();
+        // Create a &#39;DateTz&#39; object having the (default) attribute values.
+
+    DateTz(const Date&amp; localDate, int offset);
+        // Create a &#39;DateTz&#39; object having a local date value equal to the
+        // specified &#39;localDate&#39; and a time zone offset value from UTC equal to
+        // the specified &#39;offset&#39; (in minutes).  The behavior is undefined
+        // unless &#39;offset&#39; is in the range &#39;( -1440 .. 1440 )&#39;.  Note that this
+        // method provides no validation, and it is the user&#39;s responsibility
+        // to ensure that &#39;offset&#39; represents a valid time zone and that
+        // &#39;localDate&#39; represents a valid date in that time zone.
+
+    DateTz(const DateTz&amp; original);
+        // Create a &#39;DateTz&#39; object having the same value as the specified
+        // &#39;original&#39; object.
+
+    // The following destructor is generated by the compiler, except in &quot;SAFE&quot;
+    // build modes (e.g., to enable the checking of class invariants).
+    ~DateTz();
+        // Destroy this object.
+
+    // MANIPULATORS
+    DateTz&amp; operator=(const DateTz&amp; rhs);
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.
+
+    void setDateTz(const Date&amp; localDate, int offset);
+        // Set the local date and the time zone offset of this object to the
+        // specified &#39;localDate&#39; and &#39;offset&#39; values respectively.  The
+        // behavior is undefined unless &#39;offset&#39; is in the range
+        // &#39;( -1440 .. 1440 )&#39;.  Note that this method provides no validation,
+        // and it is the user&#39;s responsibility to assure the consistency of the
+        // resulting value.
+
+    int setDateTzIfValid(const Date&amp; localDate, int offset);
+        // Set the local date and time zone offset of this object to the
+        // specified &#39;localDate&#39; and &#39;offset&#39; values respectively if
+        // &#39;localDate&#39; and &#39;offset&#39; represent a valid &#39;DateTz&#39; value.  Return 0
+        // on success, and a non-zero value with no effect on this &#39;DateTz&#39;
+        // object otherwise.
+
+                                  // Aspects
+
+    template &lt;class STREAM&gt;
+    STREAM&amp; bdexStreamIn(STREAM&amp; stream, int version);
+        // Assign to this object the value read from the specified input
+        // &#39;stream&#39; using the specified &#39;version&#39; format, and return a
+        // reference to &#39;stream&#39;.  If &#39;stream&#39; is initially invalid, this
+        // operation has no effect.  If &#39;version&#39; is not supported, this object
+        // is unaltered and &#39;stream&#39; is invalidated, but otherwise unmodified.
+        // If &#39;version&#39; is supported but &#39;stream&#39; becomes invalid during this
+        // operation, this object has an undefined, but valid, state.  Note
+        // that no version is read from &#39;stream&#39;.  See the &#39;bslx&#39; package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
+
+    // ACCESSORS
+    Date localDate() const;
+        // Return a &#39;Date&#39; object having the value of the local date
+        // represented by this object.  Note that this is the &#39;Date&#39; supplied
+        // at construction and may not correspond to the actual time zone
+        // offset of the local system.
+
+    int offset() const;
+        // Return the time zone offset of this &#39;DateTz&#39; object.  Note that the
+        // offset is in minutes from UTC.
+
+    Datetime utcStartTime() const;
+        // Return a &#39;Datetime&#39; object having the value of the UTC &quot;point in
+        // time&quot; when the local date starts (i.e., 0000 hours local time).  The
+        // behavior is undefined unless the local date starting time represents
+        // a valid &#39;Datetime&#39; value for the UTC timezone.  Note that the
+        // returned value is equal to:
+        //..
+        //  Datetime(localDate()).addMinutes(-offset());
+        //..
+
+                                  // Aspects
+
+    template &lt;class STREAM&gt;
+    STREAM&amp; bdexStreamOut(STREAM&amp; stream, int version) const;
+        // Write the value of this object, using the specified &#39;version&#39;
+        // format, to the specified output &#39;stream&#39;, and return a reference to
+        // &#39;stream&#39;.  If &#39;stream&#39; is initially invalid, this operation has no
+        // effect.  If &#39;version&#39; is not supported, &#39;stream&#39; is invalidated, but
+        // otherwise unmodified.  Note that &#39;version&#39; is not written to
+        // &#39;stream&#39;.  See the &#39;bslx&#39; package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the value of this object to the specified output &#39;stream&#39; in a
+        // human-readable format, and return a reference to &#39;stream&#39;.
+        // Optionally specify an initial indentation &#39;level&#39;, whose absolute
+        // value is incremented recursively for nested objects.  If &#39;level&#39; is
+        // specified, optionally specify &#39;spacesPerLevel&#39;, whose absolute value
+        // indicates the number of spaces per indentation level for this and
+        // all of its nested objects.  If &#39;level&#39; is negative, suppress
+        // indentation of the first line.  If &#39;spacesPerLevel&#39; is negative,
+        // format the entire output on one line, suppressing all but the
+        // initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is not
+        // valid on entry, this operation has no effect.  Note that the format
+        // is not fully specified, and can change without notice.
+
+
+};
+
+// FREE OPERATORS
+bool operator==(const DateTz&amp; lhs, const DateTz&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; &#39;DateTz&#39; objects have the
+    // same value, and &#39;false&#39; otherwise.  Two &#39;DateTz&#39; objects have the same
+    // value if they have the same local date value and the same time zone
+    // offset value.
+
+bool operator!=(const DateTz&amp; lhs, const DateTz&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; &#39;DateTz&#39; objects do not
+    // have the same value, and &#39;false&#39; otherwise.  Two &#39;DateTz&#39; objects do not
+    // have the same value if they do not have the same local date values or
+    // the same time zone offset values.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, const DateTz&amp; rhs);
+    // Write the value of the specified &#39;rhs&#39; object to the specified output
+    // &#39;stream&#39; in a single-line format, and return a reference providing
+    // modifiable access to &#39;stream&#39;.  If &#39;stream&#39; is not valid on entry, this
+    // operation has no effect.  Note that this human-readable format is not
+    // fully specified and can change without notice.  Also note that this
+    // method has the same behavior as &#39;object.print(stream, 0, -1)&#39;, but with
+    // the attribute names elided.
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                                // ------------
+                                // class DateTz
+                                // ------------
+
+// CLASS METHODS
+inline
+bool DateTz::isValid(const Date&amp;, int offset)
+{
+     return k_MIN_OFFSET &lt; offset
+         &amp;&amp; k_MAX_OFFSET &gt; offset;
+}
+
+                                  // Aspects
+
+inline
+int DateTz::maxSupportedBdexVersion(int /* versionSelector */)
+{
+    return 1;
+}
+
+// CREATORS
+inline
+DateTz::DateTz()
+: d_localDate()
+, d_offset(0)
+{
+}
+
+inline
+DateTz::DateTz(const Date&amp; localDate, int offset)
+: d_localDate(localDate)
+, d_offset(offset)
+{
+    BSLS_ASSERT_SAFE(isValid(localDate, offset));
+}
+
+inline
+DateTz::DateTz(const DateTz&amp; original)
+: d_localDate(original.d_localDate)
+, d_offset(original.d_offset)
+{
+}
+
+inline
+DateTz::~DateTz()
+{
+    BSLS_ASSERT_SAFE(isValid(d_localDate, d_offset));
+}
+
+// MANIPULATORS
+inline
+DateTz&amp; DateTz::operator=(const DateTz&amp; rhs)
+{
+    d_localDate = rhs.d_localDate;
+    d_offset    = rhs.d_offset;
+
+    return *this;
+}
+
+inline
+void DateTz::setDateTz(const Date&amp; localDate, int offset)
+{
+    BSLS_ASSERT_SAFE(isValid(localDate, offset));
+
+    d_localDate = localDate;
+    d_offset    = offset;
+}
+
+inline
+int DateTz::setDateTzIfValid(const Date&amp; localDate, int offset)
+{
+    if (isValid(localDate, offset)) {
+        setDateTz(localDate, offset);
+        return 0;                                                     // RETURN
+    }
+    return -1;
+}
+
+                                  // Aspects
+
+template &lt;class STREAM&gt;
+STREAM&amp; DateTz::bdexStreamIn(STREAM&amp; stream, int version)
+{
+    if (stream) {
+        switch (version) { // switch on the schema version
+          case 1: {
+            Date localDate;
+            localDate.bdexStreamIn(stream, 1);
+
+            int offset;
+            stream.getInt32(offset);
+
+            if (stream &amp;&amp; isValid(localDate, offset)) {
+                d_localDate = localDate;
+                d_offset    = offset;
+            }
+            else {
+                stream.invalidate();
+            }
+          } break;
+          default: {
+            stream.invalidate();  // unrecognized version number
+          }
+        }
+    }
+    return stream;
+}
+
+// ACCESSORS
+inline
+Date DateTz::localDate() const
+{
+    return d_localDate;
+}
+
+inline
+int DateTz::offset() const
+{
+    return d_offset;
+}
+
+inline
+Datetime DateTz::utcStartTime() const
+{
+    Datetime utc(d_localDate, Time(0,0,0,0));
+    utc.addMinutes(-d_offset);
+    return utc;
+}
+
+                                  // Aspects
+
+template &lt;class STREAM&gt;
+STREAM&amp; DateTz::bdexStreamOut(STREAM&amp; stream, int version) const
+{
+    if (stream) {
+        switch (version) { // switch on the schema version
+          case 1: {
+            d_localDate.bdexStreamOut(stream, 1);
+            stream.putInt32(d_offset);
+          } break;
+          default: {
+            stream.invalidate();  // unrecognized version number
+          }
+        }
+    }
+    return stream;
+}
+
+
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bool bdlt::operator==(const DateTz&amp; lhs, const DateTz&amp; rhs)
+{
+    return lhs.offset()    == rhs.offset()
+        &amp;&amp; lhs.localDate() == rhs.localDate();
+}
+
+inline
+bool bdlt::operator!=(const DateTz&amp; lhs, const DateTz&amp; rhs)
+{
+    return lhs.offset()    != rhs.offset()
+        || lhs.localDate() != rhs.localDate();
+}
+
+inline
+bsl::ostream&amp; bdlt::operator&lt;&lt;(bsl::ostream&amp; stream, const DateTz&amp; rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+}  // close enterprise namespace
+
+namespace bsl {
+
+// TRAITS
+template &lt;&gt;
+struct is_trivially_copyable&lt;BloombergLP::bdlt::DateTz&gt; : bsl::true_type {
+    // This template specialization for &#39;is_trivially_copyable&#39; indicates that
+    // &#39;bdlt::DateTz&#39; is a trivially copyable type.
+
+};
+
+}  // close namespace bsl
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2014 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

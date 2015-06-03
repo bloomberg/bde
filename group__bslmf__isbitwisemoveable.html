@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: bslmf_isbitwisemoveable Component</title>
+<title>BDE 2.23.1 OSS: bslmf_isbitwisemoveable Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
@@ -131,13 +132,13 @@ Its constructor registers a pointer to itself in some static registry.  </li>
 It contains a data member that is not bitwise moveable.  </li>
 </ul>
 </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Because of the destructive nature of a bitwise move (the original object must be treated as uninitialized storage after the move), a class can be bitwise moveable but not also bitwise copiable. For example, a class that contains a pointer to heap-allocated storage is generally bitwise moveable. The moved object simply refers to the same storage as the (defunct) original. However a bitwise copy of the same object would incorrectly cause the original and the copy to share the same heap-allocated storage. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Because of the destructive nature of a bitwise move (the original object must be treated as uninitialized storage after the move), a class can be bitwise moveable but not also bitwise copyable. For example, a class that contains a pointer to heap-allocated storage is generally bitwise moveable. The moved object simply refers to the same storage as the (defunct) original. However a bitwise copy of the same object would incorrectly cause the original and the copy to share the same heap-allocated storage. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:28 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:21 for BDE Release 2.23.1 Open-Source by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

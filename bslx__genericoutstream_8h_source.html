@@ -1,0 +1,1757 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.23.1 OSS</title>
+<html>
+<pre>
+// bslx_genericoutstream.h                                            -*-C++-*-
+#ifndef INCLUDED_BSLX_GENERICOUTSTREAM
+#define INCLUDED_BSLX_GENERICOUTSTREAM
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Externalization of fundamental types to a parameterized stream.
+//
+//@CLASSES:
+//  bslx::GenericOutStream: parameterized output stream for fundamentals
+//
+//@SEE_ALSO: bslx_streambufoutstream, bslx_genericinstream
+//
+//@DESCRIPTION: This component implements a parameterized output stream
+// class, &#39;bslx::GenericOutStream&#39;, that provides platform-independent output
+// methods (&quot;externalization&quot;) on values, and arrays of values, of fundamental
+// types, and on &#39;bsl::string&#39;.
+//
+// This component is intended to be used in conjunction with the
+// &#39;bslx_genericinstream&#39; &quot;unexternalization&quot; component.  Each output method of
+// &#39;bslx::GenericOutStream&#39; writes either a value or a homogeneous array of
+// values of a fundamental type, in a format that is readable by the
+// corresponding &#39;bslx::GenericInStream&#39; method.  In general, the user cannot
+// rely on any other mechanism to read data written by &#39;bslx::GenericOutStream&#39;
+// unless that mechanism explicitly states its ability to do so.
+//
+// The supported types and required content are listed in the &#39;bslx&#39;
+// package-level documentation under &quot;Supported Types&quot;.
+//
+// Note that the values are stored in big-endian (i.e., network byte order)
+// format.
+//
+// Note that output streams can be *invalidated* explicitly and queried for
+// *validity*.  Writing to an initially invalid stream has no effect.  Whenever
+// an output operation fails, the stream should be invalidated explicitly.
+//
+///Generic Byte-Format Generator
+///-----------------------------
+// The class &#39;bslx::GenericOutStream&#39; is parameterized by a buffered stream
+// class, &#39;STREAMBUF&#39;, which, given the declarations:
+//..
+//  char        c;
+//  int         len;
+//  const char *s;
+//  STREAMBUF  *sb;
+//..
+// must make the following expressions syntactically valid, with the assert
+// statements highlighting the expected return values:
+//..
+//  STREAMBUF::traits_type::int_type eof = STREAMBUF::traits_type::eof();
+//  assert(eof != sb-&gt;sputc(c));
+//  assert(len == sb-&gt;sputn(s, len));
+//  assert(  0 == sb-&gt;pubsync());
+//..
+// Suitable choices for &#39;STREAMBUF&#39; include any class that implements the
+// &#39;bsl::basic_streambuf&#39; protocol.
+//
+// The class &#39;bslx::StreambufOutStream&#39; is a &#39;typedef&#39; of
+// &#39;bslx::GenericOutStream&lt;bsl::streambuf&gt;&#39;.
+//
+///Versioning
+///----------
+// BDEX provides two concepts that support versioning the BDEX serialization
+// format of a type: &#39;version&#39; and &#39;versionSelector&#39;.  A &#39;version&#39; is a 1-based
+// integer indicating one of the supported formats (e.g., format 1, format 2,
+// etc.).  A &#39;versionSelector&#39; is a value that is mapped to a &#39;version&#39; for a
+// type by the type&#39;s implementation of &#39;maxSupportedBdexVersion&#39;.
+//
+// Selecting a value for a &#39;versionSelector&#39; is required at two different
+// points: (1) when implementing a new &#39;version&#39; format within the
+// &#39;bdexStreamIn&#39; and &#39;bdexStreamOut&#39; methods of a type, and (2) when
+// implementing code that constructs a BDEX &#39;OutStream&#39;.  In both cases, the
+// value should be a *compile*-time-selected value.
+//
+// When a new &#39;version&#39; format is implemented within the &#39;bdexStreamIn&#39; and
+// &#39;bdexStreamOut&#39; methods of a type, a new mapping in
+// &#39;maxSupportedBdexVersion&#39; should be created to expose this new &#39;version&#39;
+// with a &#39;versionSelector&#39;.  A simple - and the recommended - approach is to
+// use a value having the pattern &quot;YYYYMMDD&quot;, where &quot;YYYYMMDD&quot; corresponds to
+// the &quot;go-live&quot; date of the corresponding &#39;version&#39; format.
+//
+// When constructing an &#39;OutStream&#39;, a simple approach is to use the current
+// date as a *compile*-time constant value.  In combination with the
+// recommended selection of &#39;versionSelector&#39; values for
+// &#39;maxSupportedBdexVersion&#39;, this will result in consistent and predictable
+// behavior while externalizing types.  Note that this recommendation is chosen
+// for its simplicity: to ensure the largest possible audience for an
+// externalized representation, clients can select the minimum date value that
+// will result in the desired version of all types externalized with
+// &#39;operator&lt;&lt;&#39; being selected.
+//
+// See the &#39;bslx&#39; package-level documentation for more detailed information
+// about versioning.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.  The first example
+// depicts usage with a &#39;bsl::stringbuf&#39;.  The second example replaces the
+// &#39;bsl::stringbuf&#39; with a user-defined &#39;STREAMBUF&#39;.
+//
+///Example 1: Basic Externalization
+///- - - - - - - - - - - - - - - -
+// A &#39;bslx::GenericOutStream&#39; can be used to externalize values in a
+// platform-neutral way.  Writing out fundamental C++ types and &#39;bsl::string&#39;
+// requires no additional work on the part of the client; the client can simply
+// use the stream directly.  The following code serializes a few representative
+// values using a &#39;bslx::GenericOutStream&#39;, compares the contents of this
+// stream to the expected value, and then writes the contents of this stream&#39;s
+// buffer to &#39;stdout&#39;.
+//
+// First, we create a &#39;bslx::GenericOutStream&#39;, with an arbitrary value for its
+// &#39;versionSelector&#39;, and externalize some values:
+//..
+//  bsl::stringbuf                         buffer1;
+//  bslx::GenericOutStream&lt;bsl::stringbuf&gt; outStream1(&amp;buffer1, 20131127);
+//  outStream1.putInt32(1);
+//  outStream1.putInt32(2);
+//  outStream1.putInt8(&#39;c&#39;);
+//  outStream1.putString(bsl::string(&quot;hello&quot;));
+//..
+// Then, we compare the contents of the buffer to the expected value:
+//..
+//  bsl::string  theChars = buffer1.str();
+//  assert(15 == theChars.size());
+//  assert( 0 == bsl::memcmp(theChars.data(),
+//                           &quot;\x00\x00\x00\x01\x00\x00\x00\x02&quot;&quot;c\x05&quot;&quot;hello&quot;,
+//                           15));
+//..
+// Finally, we print the buffer&#39;s contents to &#39;bsl::cout&#39;.
+//..
+//  for (bsl::size_t i = 0; i &lt; theChars.size(); ++i) {
+//      if (bsl::isalnum(static_cast&lt;unsigned char&gt;(theChars[i]))) {
+//          bsl::cout &lt;&lt; &quot;nextByte (char): &quot; &lt;&lt; theChars[i] &lt;&lt; bsl::endl;
+//      }
+//      else {
+//          bsl::cout &lt;&lt; &quot;nextByte (int): &quot;
+//                    &lt;&lt; static_cast&lt;int&gt;(theChars[i])
+//                    &lt;&lt; bsl::endl;
+//      }
+//  }
+//..
+// Executing the above code results in the following output:
+//..
+//  nextByte (int): 0
+//  nextByte (int): 0
+//  nextByte (int): 0
+//  nextByte (int): 1
+//  nextByte (int): 0
+//  nextByte (int): 0
+//  nextByte (int): 0
+//  nextByte (int): 2
+//  nextByte (char): c
+//  nextByte (int): 5
+//  nextByte (char): h
+//  nextByte (char): e
+//  nextByte (char): l
+//  nextByte (char): l
+//  nextByte (char): o
+//..
+// See the &#39;bslx_genericinstream&#39; component usage example for a more practical
+// example of using &#39;bslx&#39; streams.
+//
+///Example 2: Sample &#39;STREAMBUF&#39; Implementation
+///- - - - - - - - - - - - - - - - - - - - - -
+// For this example, we will implement &#39;MyOutStreamBuf&#39;, a minimal &#39;STREAMBUF&#39;
+// to be used with &#39;bslx::GenericOutStream&#39;.  The implementation will consist
+// of only what is required of the type and two accessors to verify correct
+// functionality (&#39;data&#39; and &#39;length&#39;).
+//
+// First, we implement &#39;MyOutStreamBuf&#39; (which, for brevity, simply uses the
+// default allocator):
+//..
+//  class MyOutStreamBuf {
+//      // This class implements a very basic stream buffer suitable for use in
+//      // &#39;bslx::GenericOutStream&#39;.
+//
+//      // DATA
+//      bsl::string d_buffer;  // output buffer
+//
+//    private:
+//      // NOT IMPLEMENTED
+//      MyOutStreamBuf(const MyOutStreamBuf&amp;);
+//      MyOutStreamBuf&amp; operator=(const MyOutStreamBuf&amp;);
+//
+//    public:
+//      // TYPES
+//      struct traits_type {
+//          static int eof() { return -1; }
+//      };
+//
+//      // CREATORS
+//      MyOutStreamBuf();
+//          // Create an empty stream buffer.
+//
+//      ~MyOutStreamBuf();
+//          // Destroy this stream buffer.
+//
+//      // MANIPULATORS
+//      int pubsync();
+//          // Return 0.
+//
+//      int sputc(char c);
+//          // Write the specified character &#39;c&#39; to this buffer.  Return &#39;c&#39; on
+//          // success, and &#39;traits_type::eof()&#39; otherwise.
+//
+//      bsl::streamsize sputn(const char *s, bsl::streamsize length);
+//          // Write the specified &#39;length&#39; characters at the specified address
+//          // &#39;s&#39; to this buffer, and return the number of characters written.
+//
+//      // ACCESSORS
+//      const char *data() const;
+//          // Return the address of the non-modifiable character buffer held
+//          // by this stream buffer.
+//
+//      bsl::streamsize size() const;
+//          // Return the number of characters from the beginning of the buffer
+//          // to the current write position.
+//  };
+//
+//  // ========================================================================
+//  //                  INLINE FUNCTION DEFINITIONS
+//  // ========================================================================
+//
+//  // CREATORS
+//  MyOutStreamBuf::MyOutStreamBuf()
+//  : d_buffer()
+//  {
+//  }
+//
+//  MyOutStreamBuf::~MyOutStreamBuf()
+//  {
+//  }
+//
+//  // MANIPULATORS
+//  int MyOutStreamBuf::pubsync()
+//  {
+//      // In this implementation, there is nothing to be done except return
+//      // success.
+//
+//      return 0;
+//  }
+//
+//  int MyOutStreamBuf::sputc(char c)
+//  {
+//      d_buffer += c;
+//      return static_cast&lt;int&gt;(c);
+//  }
+//
+//  bsl::streamsize MyOutStreamBuf::sputn(const char      *s,
+//                                        bsl::streamsize  length)
+//  {
+//      d_buffer.append(s, length);
+//      return length;
+//  }
+//
+//  // ACCESSORS
+//  const char *MyOutStreamBuf::data() const
+//  {
+//      return d_buffer.data();
+//  }
+//
+//  bsl::streamsize MyOutStreamBuf::size() const
+//  {
+//      return d_buffer.size();
+//  }
+//..
+// Then, we create &#39;buffer2&#39;, an instance of &#39;MyOutStreamBuf&#39;, and a
+// &#39;bslx::GenericOutStream&#39; using &#39;buffer2&#39;, with an arbitrary value for its
+// &#39;versionSelector&#39;, and externalize some values:
+//..
+//  MyOutStreamBuf                         buffer2;
+//  bslx::GenericOutStream&lt;MyOutStreamBuf&gt; outStream2(&amp;buffer2, 20131127);
+//  outStream2.putInt32(1);
+//  outStream2.putInt32(2);
+//  outStream2.putInt8(&#39;c&#39;);
+//  outStream2.putString(bsl::string(&quot;hello&quot;));
+//..
+// Finally, we compare the contents of the buffer to the expected value:
+//..
+//  assert(15 == buffer2.size());
+//  assert( 0 == bsl::memcmp(buffer2.data(),
+//                           &quot;\x00\x00\x00\x01\x00\x00\x00\x02&quot;&quot;c\x05&quot;&quot;hello&quot;,
+//                           15));
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLX_OUTSTREAMFUNCTIONS
+#include &lt;bslx_outstreamfunctions.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PERFORMANCEHINT
+#include &lt;bsls_performancehint.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include &lt;bsls_types.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CSTDDEF
+#include &lt;bsl_cstddef.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include &lt;bsl_string.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_VECTOR
+#include &lt;bsl_vector.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bslx {
+
+                        // ======================
+                        // class GenericOutStream
+                        // ======================
+
+template &lt;class STREAMBUF&gt;
+class GenericOutStream {
+    // This class provides output methods to externalize values, and C-style
+    // arrays of values, of the fundamental integral and floating-point types,
+    // as well as &#39;bsl::string&#39; values.  In particular, each &#39;put&#39; method of
+    // this class is guaranteed to write stream data that can be read by the
+    // corresponding &#39;get&#39; method of &#39;bslx::GenericInStream&#39;.  See the &#39;bslx&#39;
+    // package-level documentation for the definition of the BDEX &#39;OutStream&#39;
+    // protocol.
+
+    // PRIVATE TYPES
+    enum {
+        // Enumerate the platform-independent sizes (in bytes) of data types in
+        // wire format.  Note that the wire format size may differ from the
+        // size in memory.
+
+        k_SIZEOF_INT64   = 8,
+        k_SIZEOF_INT56   = 7,
+        k_SIZEOF_INT48   = 6,
+        k_SIZEOF_INT40   = 5,
+        k_SIZEOF_INT32   = 4,
+        k_SIZEOF_INT24   = 3,
+        k_SIZEOF_INT16   = 2,
+        k_SIZEOF_INT8    = 1,
+        k_SIZEOF_FLOAT64 = 8,
+        k_SIZEOF_FLOAT32 = 4
+    };
+
+    // DATA
+    STREAMBUF *d_streamBuf;        // held stream to write to
+
+    int        d_versionSelector;  // &#39;versionSelector&#39; to use with
+                                   // &#39;operator&lt;&lt;&#39; as per the &#39;bslx&#39;
+                                   // package-level documentation
+
+    int        d_validFlag;        // stream validity flag; &#39;true&#39; if stream is
+                                   // in valid state, &#39;false&#39; otherwise
+
+    // NOT IMPLEMENTED
+    GenericOutStream(const GenericOutStream&amp;);
+    GenericOutStream&amp; operator=(const GenericOutStream&amp;);
+
+  private:
+    // PRIVATE MANIPULATORS
+    void validate();
+        // Put this output stream into a valid state.  This function has no
+        // effect if this stream is already valid.
+
+  public:
+    // CREATORS
+    GenericOutStream(STREAMBUF *streamBuf, int versionSelector);
+        // Create an output byte stream that writes its output to the specified
+        // &#39;streamBuf&#39; and uses the specified (*compile*-time-defined)
+        // &#39;versionSelector&#39; as needed (see {Versioning}).  Note that the
+        // &#39;versionSelector&#39; is expected to be formatted as &quot;YYYYMMDD&quot;, a date
+        // representation.
+
+    ~GenericOutStream();
+        // Destroy this object.
+
+    // MANIPULATORS
+    GenericOutStream&amp; flush();
+        // If this stream is valid, invoke the &#39;pubsync&#39; method on the
+        // underlying stream supplied at construction of this object;
+        // otherwise, this function has no effect.
+
+    void invalidate();
+        // Put this output stream in an invalid state.  This function has no
+        // effect if this stream is already invalid.
+
+    GenericOutStream&amp; putLength(int length);
+        // If the specified &#39;length&#39; is less than 128, write to the stream
+        // supplied at construction the one-byte integer comprised of the
+        // least-significant one byte of the &#39;length&#39;; otherwise, write to the
+        // stream the four-byte, two&#39;s complement integer (in network byte
+        // order) comprised of the least-significant four bytes of the &#39;length&#39;
+        // (in host byte order) with the most-significant bit set.  Return a
+        // reference to this stream.  If this stream is initially invalid, this
+        // operation has no effect.  The behavior is undefined unless
+        // &#39;0 &lt;= length&#39;.
+
+    GenericOutStream&amp; putVersion(int version);
+        // Write to the stream supplied at construction the one-byte, two&#39;s
+        // complement unsigned integer comprised of the least-significant one
+        // byte of the specified &#39;version&#39;, and return a reference to this
+        // stream.  If this stream is initially invalid, this operation has no
+        // effect.
+
+                      // *** scalar integer values ***
+
+    GenericOutStream&amp; putInt64(bsls::Types::Int64 value);
+        // Write to the stream supplied at construction the eight-byte, two&#39;s
+        // complement integer (in network byte order) comprised of the
+        // least-significant eight bytes of the specified &#39;value&#39; (in host byte
+        // order), and return a reference to this stream.  If this stream is
+        // initially invalid, this operation has no effect.
+
+    GenericOutStream&amp; putUint64(bsls::Types::Uint64 value);
+        // Write to the stream supplied at construction the eight-byte, two&#39;s
+        // complement unsigned integer (in network byte order) comprised of the
+        // least-significant eight bytes of the specified &#39;value&#39; (in host byte
+        // order), and return a reference to this stream.  If this stream is
+        // initially invalid, this operation has no effect.
+
+    GenericOutStream&amp; putInt56(bsls::Types::Int64 value);
+        // Write to the stream supplied at construction the seven-byte, two&#39;s
+        // complement integer (in network byte order) comprised of the
+        // least-significant seven bytes of the specified &#39;value&#39; (in host byte
+        // order), and return a reference to this stream.  If this stream is
+        // initially invalid, this operation has no effect.
+
+    GenericOutStream&amp; putUint56(bsls::Types::Uint64 value);
+        // Write to the stream supplied at construction the seven-byte, two&#39;s
+        // complement unsigned integer (in network byte order) comprised of the
+        // least-significant seven bytes of the specified &#39;value&#39; (in host byte
+        // order), and return a reference to this stream.  If this stream is
+        // initially invalid, this operation has no effect.
+
+    GenericOutStream&amp; putInt48(bsls::Types::Int64 value);
+        // Write to the stream supplied at construction the six-byte, two&#39;s
+        // complement integer (in network byte order) comprised of the
+        // least-significant six bytes of the specified &#39;value&#39; (in host byte
+        // order), and return a reference to this stream.  If this stream is
+        // initially invalid, this operation has no effect.
+
+    GenericOutStream&amp; putUint48(bsls::Types::Uint64 value);
+        // Write to the stream supplied at construction the six-byte, two&#39;s
+        // complement unsigned integer (in network byte order) comprised of the
+        // least-significant six bytes of the specified &#39;value&#39; (in host byte
+        // order), and return a reference to this stream.  If this stream is
+        // initially invalid, this operation has no effect.
+
+    GenericOutStream&amp; putInt40(bsls::Types::Int64 value);
+        // Write to the stream supplied at construction the five-byte, two&#39;s
+        // complement integer (in network byte order) comprised of the
+        // least-significant five bytes of the specified &#39;value&#39; (in host byte
+        // order), and return a reference to this stream.  If this stream is
+        // initially invalid, this operation has no effect.
+
+    GenericOutStream&amp; putUint40(bsls::Types::Uint64 value);
+        // Write to the stream supplied at construction the five-byte, two&#39;s
+        // complement unsigned integer (in network byte order) comprised of the
+        // least-significant five bytes of the specified &#39;value&#39; (in host byte
+        // order), and return a reference to this stream.  If this stream is
+        // initially invalid, this operation has no effect.
+
+    GenericOutStream&amp; putInt32(int value);
+        // Write to the stream supplied at construction the four-byte, two&#39;s
+        // complement integer (in network byte order) comprised of the
+        // least-significant four bytes of the specified &#39;value&#39; (in host byte
+        // order), and return a reference to this stream.  If this stream is
+        // initially invalid, this operation has no effect.
+
+    GenericOutStream&amp; putUint32(unsigned int value);
+        // Write to the stream supplied at construction the four-byte, two&#39;s
+        // complement unsigned integer (in network byte order) comprised of the
+        // least-significant four bytes of the specified &#39;value&#39; (in host byte
+        // order), and return a reference to this stream.  If this stream is
+        // initially invalid, this operation has no effect.
+
+    GenericOutStream&amp; putInt24(int value);
+        // Write to the stream supplied at construction the three-byte, two&#39;s
+        // complement integer (in network byte order) comprised of the
+        // least-significant three bytes of the specified &#39;value&#39; (in host byte
+        // order), and return a reference to this stream.  If this stream is
+        // initially invalid, this operation has no effect.
+
+    GenericOutStream&amp; putUint24(unsigned int value);
+        // Write to the stream supplied at construction the three-byte, two&#39;s
+        // complement unsigned integer (in network byte order) comprised of the
+        // least-significant three bytes of the specified &#39;value&#39; (in host byte
+        // order), and return a reference to this stream.  If this stream is
+        // initially invalid, this operation has no effect.
+
+    GenericOutStream&amp; putInt16(int value);
+        // Write to the stream supplied at construction the two-byte, two&#39;s
+        // complement integer (in network byte order) comprised of the
+        // least-significant two bytes of the specified &#39;value&#39; (in host byte
+        // order), and return a reference to this stream.  If this stream is
+        // initially invalid, this operation has no effect.
+
+    GenericOutStream&amp; putUint16(unsigned int value);
+        // Write to the stream supplied at construction the two-byte, two&#39;s
+        // complement unsigned integer (in network byte order) comprised of the
+        // least-significant two bytes of the specified &#39;value&#39; (in host byte
+        // order), and return a reference to this stream.  If this stream is
+        // initially invalid, this operation has no effect.
+
+    GenericOutStream&amp; putInt8(int value);
+        // Write to the stream supplied at construction the one-byte, two&#39;s
+        // complement integer comprised of the least-significant one byte of
+        // the specified &#39;value&#39;, and return a reference to this stream.  If
+        // this stream is initially invalid, this operation has no effect.
+
+    GenericOutStream&amp; putUint8(unsigned int value);
+        // Write to the stream supplied at construction the one-byte, two&#39;s
+        // complement unsigned integer comprised of the least-significant one
+        // byte of the specified &#39;value&#39;, and return a reference to this
+        // stream.  If this stream is initially invalid, this operation has no
+        // effect.
+
+                      // *** scalar floating-point values ***
+
+    GenericOutStream&amp; putFloat64(double value);
+        // Write to the stream supplied at construction the eight-byte IEEE
+        // double-precision floating-point number (in network byte order)
+        // comprised of the most-significant eight bytes of the specified
+        // &#39;value&#39; (in host byte order), and return a reference to this stream.
+        // If this stream is initially invalid, this operation has no effect.
+        // Note that for non-conforming platforms, this operation may be lossy.
+
+    GenericOutStream&amp; putFloat32(float value);
+        // Write to the stream supplied at construction the four-byte IEEE
+        // single-precision floating-point number (in network byte order)
+        // comprised of the most-significant four bytes of the specified
+        // &#39;value&#39; (in host byte order), and return a reference to this stream.
+        // If this stream is initially invalid, this operation has no effect.
+        // Note that for non-conforming platforms, this operation may be lossy.
+
+                      // *** string values ***
+
+    GenericOutStream&amp; putString(const bsl::string&amp; value);
+        // Write to the stream supplied at construction the length of the
+        // specified &#39;value&#39; (see &#39;putLength&#39;) and an array of one-byte, two&#39;s
+        // complement unsigned integers comprised of the least-significant one
+        // byte of each character in the &#39;value&#39;, and return a reference to
+        // this stream.  If this stream is initially invalid, this operation
+        // has no effect.
+
+                      // *** arrays of integer values ***
+
+    GenericOutStream&amp; putArrayInt64(const bsls::Types::Int64 *values,
+                                    int                       numValues);
+        // Write to the stream supplied at construction the consecutive
+        // eight-byte, two&#39;s complement integers (in network byte order)
+        // comprised of the least-significant eight bytes of each of the
+        // specified &#39;numValues&#39; leading entries in the specified &#39;values&#39; (in
+        // host byte order), and return a reference to this stream.  If this
+        // stream is initially invalid, this operation has no effect.  The
+        // behavior is undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has
+        // sufficient contents.
+
+    GenericOutStream&amp; putArrayUint64(const bsls::Types::Uint64 *values,
+                                     int                        numValues);
+        // Write to the stream supplied at construction the consecutive
+        // eight-byte, two&#39;s complement unsigned integers (in network byte
+        // order) comprised of the least-significant eight bytes of each of the
+        // specified &#39;numValues&#39; leading entries in the specified &#39;values&#39; (in
+        // host byte order), and return a reference to this stream.  If this
+        // stream is initially invalid, this operation has no effect.  The
+        // behavior is undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has
+        // sufficient contents.
+
+    GenericOutStream&amp; putArrayInt56(const bsls::Types::Int64 *values,
+                                    int                       numValues);
+        // Write to the stream supplied at construction the consecutive
+        // seven-byte, two&#39;s complement integers (in network byte order)
+        // comprised of the least-significant seven bytes of each of the
+        // specified &#39;numValues&#39; leading entries in the specified &#39;values&#39; (in
+        // host byte order), and return a reference to this stream.  If this
+        // stream is initially invalid, this operation has no effect.  The
+        // behavior is undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has
+        // sufficient contents.
+
+    GenericOutStream&amp; putArrayUint56(const bsls::Types::Uint64 *values,
+                                     int                        numValues);
+        // Write to the stream supplied at construction the consecutive
+        // seven-byte, two&#39;s complement unsigned integers (in network byte
+        // order) comprised of the least-significant seven bytes of each of the
+        // specified &#39;numValues&#39; leading entries in the specified &#39;values&#39; (in
+        // host byte order), and return a reference to this stream.  If this
+        // stream is initially invalid, this operation has no effect.  The
+        // behavior is undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has
+        // sufficient contents.
+
+    GenericOutStream&amp; putArrayInt48(const bsls::Types::Int64 *values,
+                                    int                       numValues);
+        // Write to the stream supplied at construction the consecutive
+        // six-byte, two&#39;s complement integers (in network byte order)
+        // comprised of the least-significant six bytes of each of the
+        // specified &#39;numValues&#39; leading entries in the specified &#39;values&#39; (in
+        // host byte order), and return a reference to this stream.  If this
+        // stream is initially invalid, this operation has no effect.  The
+        // behavior is undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has
+        // sufficient contents.
+
+    GenericOutStream&amp; putArrayUint48(const bsls::Types::Uint64 *values,
+                                     int                        numValues);
+        // Write to the stream supplied at construction the consecutive
+        // six-byte, two&#39;s complement unsigned integers (in network byte order)
+        // comprised of the least-significant six bytes of each of the
+        // specified &#39;numValues&#39; leading entries in the specified &#39;values&#39; (in
+        // host byte order), and return a reference to this stream.  If this
+        // stream is initially invalid, this operation has no effect.  The
+        // behavior is undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has
+        // sufficient contents.
+
+    GenericOutStream&amp; putArrayInt40(const bsls::Types::Int64 *values,
+                                    int                       numValues);
+        // Write to the stream supplied at construction the consecutive
+        // five-byte, two&#39;s complement integers (in network byte order)
+        // comprised of the least-significant five bytes of each of the
+        // specified &#39;numValues&#39; leading entries in the specified &#39;values&#39; (in
+        // host byte order), and return a reference to this stream.  If this
+        // stream is initially invalid, this operation has no effect.  The
+        // behavior is undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has
+        // sufficient contents.
+
+    GenericOutStream&amp; putArrayUint40(const bsls::Types::Uint64 *values,
+                                     int                        numValues);
+        // Write to the stream supplied at construction the consecutive
+        // five-byte, two&#39;s complement unsigned integers (in network byte
+        // order) comprised of the least-significant five bytes of each of the
+        // specified &#39;numValues&#39; leading entries in the specified &#39;values&#39; (in
+        // host byte order), and return a reference to this stream.  If this
+        // stream is initially invalid, this operation has no effect.  The
+        // behavior is undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has
+        // sufficient contents.
+
+    GenericOutStream&amp; putArrayInt32(const int *values, int numValues);
+        // Write to the stream supplied at construction the consecutive
+        // four-byte, two&#39;s complement integers (in network byte order)
+        // comprised of the least-significant four bytes of each of the
+        // specified &#39;numValues&#39; leading entries in the specified &#39;values&#39; (in
+        // host byte order), and return a reference to this stream.  If this
+        // stream is initially invalid, this operation has no effect.  The
+        // behavior is undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has
+        // sufficient contents.
+
+    GenericOutStream&amp; putArrayUint32(const unsigned int *values,
+                                     int                 numValues);
+        // Write to the stream supplied at construction the consecutive
+        // four-byte, two&#39;s complement unsigned integers (in network byte
+        // order) comprised of the least-significant four bytes of each of the
+        // specified &#39;numValues&#39; leading entries in the specified &#39;values&#39; (in
+        // host byte order), and return a reference to this stream.  If this
+        // stream is initially invalid, this operation has no effect.  The
+        // behavior is undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has
+        // sufficient contents.
+
+    GenericOutStream&amp; putArrayInt24(const int *values, int numValues);
+        // Write to the stream supplied at construction the consecutive
+        // three-byte, two&#39;s complement integers (in network byte order)
+        // comprised of the least-significant three bytes of each of the
+        // specified &#39;numValues&#39; leading entries in the specified &#39;values&#39; (in
+        // host byte order), and return a reference to this stream.  If this
+        // stream is initially invalid, this operation has no effect.  The
+        // behavior is undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has
+        // sufficient contents.
+
+    GenericOutStream&amp; putArrayUint24(const unsigned int *values,
+                                     int                 numValues);
+        // Write to the stream supplied at construction the consecutive
+        // three-byte, two&#39;s complement unsigned integers (in network byte
+        // order) comprised of the least-significant three bytes of each of the
+        // specified &#39;numValues&#39; leading entries in the specified &#39;values&#39; (in
+        // host byte order), and return a reference to this stream.  If this
+        // stream is initially invalid, this operation has no effect.  The
+        // behavior is undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has
+        // sufficient contents.
+
+    GenericOutStream&amp; putArrayInt16(const short *values, int numValues);
+        // Write to the stream supplied at construction the consecutive
+        // two-byte, two&#39;s complement integers (in network byte order)
+        // comprised of the least-significant two bytes of each of the
+        // specified &#39;numValues&#39; leading entries in the specified &#39;values&#39; (in
+        // host byte order), and return a reference to this stream.  If this
+        // stream is initially invalid, this operation has no effect.  The
+        // behavior is undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has
+        // sufficient contents.
+
+    GenericOutStream&amp; putArrayUint16(const unsigned short *values,
+                                     int                   numValues);
+        // Write to the stream supplied at construction the consecutive
+        // two-byte, two&#39;s complement unsigned integers (in network byte order)
+        // comprised of the least-significant two bytes of each of the
+        // specified &#39;numValues&#39; leading entries in the specified &#39;values&#39; (in
+        // host byte order), and return a reference to this stream.  If this
+        // stream is initially invalid, this operation has no effect.  The
+        // behavior is undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has
+        // sufficient contents.
+
+    GenericOutStream&amp; putArrayInt8(const char        *values, int numValues);
+    GenericOutStream&amp; putArrayInt8(const signed char *values, int numValues);
+        // Write to the stream supplied at construction the consecutive
+        // one-byte, two&#39;s complement integers comprised of the
+        // least-significant one byte of each of the specified &#39;numValues&#39;
+        // leading entries in the specified &#39;values&#39;, and return a reference to
+        // this stream.  If this stream is initially invalid, this operation
+        // has no effect.  The behavior is undefined unless &#39;0 &lt;= numValues&#39;
+        // and &#39;values&#39; has sufficient contents.
+
+    GenericOutStream&amp; putArrayUint8(const char          *values,
+                                    int                  numValues);
+    GenericOutStream&amp; putArrayUint8(const unsigned char *values,
+                                    int                  numValues);
+        // Write to the stream supplied at construction the consecutive
+        // one-byte, two&#39;s complement unsigned integers comprised of the
+        // least-significant one byte of each of the specified &#39;numValues&#39;
+        // leading entries in the specified &#39;values&#39;, and return a reference to
+        // this stream.  If this stream is initially invalid, this operation
+        // has no effect.  The behavior is undefined unless &#39;0 &lt;= numValues&#39;
+        // and &#39;values&#39; has sufficient contents.
+
+                      // *** arrays of floating-point values ***
+
+    GenericOutStream&amp; putArrayFloat64(const double *values, int numValues);
+        // Write to the stream supplied at construction the consecutive
+        // eight-byte IEEE double-precision floating-point numbers (in network
+        // byte order) comprised of the most-significant eight bytes of each of
+        // the specified &#39;numValues&#39; leading entries in the specified &#39;values&#39;
+        // (in host byte order), and return a reference to this stream.  If
+        // this stream is initially invalid, this operation has no effect.  The
+        // behavior is undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has
+        // sufficient contents.  Note that for non-conforming platforms, this
+        // operation may be lossy.
+
+    GenericOutStream&amp; putArrayFloat32(const float *values, int numValues);
+        // Write to the stream supplied at construction the consecutive
+        // four-byte IEEE single-precision floating-point numbers (in network
+        // byte order) comprised of the most-significant four bytes of each of
+        // the specified &#39;numValues&#39; leading entries in the specified &#39;values&#39;
+        // (in host byte order), and return a reference to this stream.  If
+        // this stream is initially invalid, this operation has no effect.  The
+        // behavior is undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has
+        // sufficient contents.  Note that for non-conforming platforms, this
+        // operation may be lossy.
+
+    // ACCESSORS
+    operator const void *() const;
+        // Return a non-zero value if this stream is valid, and 0 otherwise.
+        // An invalid stream is a stream for which an output operation was
+        // detected to have failed or &#39;invalidate&#39; was called.
+
+    int bdexVersionSelector() const;
+        // Return the &#39;versionSelector&#39; to be used with &#39;operator&lt;&lt;&#39; for BDEX
+        // streaming as per the &#39;bslx&#39; package-level documentation.
+
+    bool isValid() const;
+        // Return &#39;true&#39; if this stream is valid, and &#39;false&#39; otherwise.  An
+        // invalid stream is a stream for which an output operation was
+        // detected to have failed or &#39;invalidate&#39; was called.
+};
+
+// FREE OPERATORS
+template &lt;class STREAMBUF, class TYPE&gt;
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+operator&lt;&lt;(GenericOutStream&lt;STREAMBUF&gt;&amp; stream, const TYPE&amp; value);
+    // Write the specified &#39;value&#39; to the specified output &#39;stream&#39; following
+    // the requirements of the BDEX protocol (see the &#39;bslx&#39; package-level
+    // documentation), and return a reference to &#39;stream&#39;.  The behavior is
+    // undefined unless &#39;TYPE&#39; is BDEX-compliant.
+
+// ============================================================================
+//                          INLINE DEFINITIONS
+// ============================================================================
+
+                        // ----------------------
+                        // class GenericOutStream
+                        // ----------------------
+
+// PRIVATE MANIPULATORS
+template &lt;class STREAMBUF&gt;
+inline
+void GenericOutStream&lt;STREAMBUF&gt;::validate()
+{
+    d_validFlag = true;
+}
+
+// CREATORS
+template &lt;class STREAMBUF&gt;
+inline
+GenericOutStream&lt;STREAMBUF&gt;::GenericOutStream(STREAMBUF *streamBuf,
+                                              int        versionSelector)
+: d_streamBuf(streamBuf)
+, d_versionSelector(versionSelector)
+, d_validFlag(true)
+{
+    BSLS_ASSERT_SAFE(streamBuf);
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericOutStream&lt;STREAMBUF&gt;::~GenericOutStream()
+{
+}
+
+// MANIPULATORS
+template &lt;class STREAMBUF&gt;
+inline
+GenericOutStream&lt;STREAMBUF&gt;&amp; GenericOutStream&lt;STREAMBUF&gt;::flush()
+{
+    if (isValid()) {
+        invalidate();
+        if (0 == d_streamBuf-&gt;pubsync()) {
+            validate();
+        }
+    }
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+void GenericOutStream&lt;STREAMBUF&gt;::invalidate()
+{
+    d_validFlag = false;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putLength(int length)
+{
+    BSLS_ASSERT_SAFE(0 &lt;= length);
+
+    if (length &gt; 127) {
+        putInt32(length | (1 &lt;&lt; 31));
+    }
+    else {
+        putInt8(length);
+    }
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putVersion(int version)
+{
+    return putUint8(version);
+}
+
+                      // *** scalar integer values ***
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putInt64(bsls::Types::Int64 value)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    invalidate();
+
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    const char *rawBytes = reinterpret_cast&lt;char *&gt;(&amp;value);
+    char        bytes[k_SIZEOF_INT64];
+
+    bytes[0] = rawBytes[7];
+    bytes[1] = rawBytes[6];
+    bytes[2] = rawBytes[5];
+    bytes[3] = rawBytes[4];
+    bytes[4] = rawBytes[3];
+    bytes[5] = rawBytes[2];
+    bytes[6] = rawBytes[1];
+    bytes[7] = rawBytes[0];
+#else
+    const char *bytes =
+              reinterpret_cast&lt;char *&gt;(&amp;value) + sizeof value - k_SIZEOF_INT64;
+#endif
+
+    if (k_SIZEOF_INT64 == d_streamBuf-&gt;sputn(bytes, k_SIZEOF_INT64)) {
+        validate();
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putUint64(bsls::Types::Uint64 value)
+{
+    return putInt64(static_cast&lt;bsls::Types::Int64&gt;(value));
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putInt56(bsls::Types::Int64 value)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    invalidate();
+
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    const char *rawBytes = reinterpret_cast&lt;char *&gt;(&amp;value);
+    char        bytes[k_SIZEOF_INT56];
+
+    bytes[0] = rawBytes[6];
+    bytes[1] = rawBytes[5];
+    bytes[2] = rawBytes[4];
+    bytes[3] = rawBytes[3];
+    bytes[4] = rawBytes[2];
+    bytes[5] = rawBytes[1];
+    bytes[6] = rawBytes[0];
+#else
+    const char *bytes =
+              reinterpret_cast&lt;char *&gt;(&amp;value) + sizeof value - k_SIZEOF_INT56;
+#endif
+
+    if (k_SIZEOF_INT56 == d_streamBuf-&gt;sputn(bytes, k_SIZEOF_INT56)) {
+        validate();
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putUint56(bsls::Types::Uint64 value)
+{
+    return putInt56(static_cast&lt;bsls::Types::Int64&gt;(value));
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putInt48(bsls::Types::Int64 value)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    invalidate();
+
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    const char *rawBytes = reinterpret_cast&lt;char *&gt;(&amp;value);
+    char        bytes[k_SIZEOF_INT48];
+
+    bytes[0] = rawBytes[5];
+    bytes[1] = rawBytes[4];
+    bytes[2] = rawBytes[3];
+    bytes[3] = rawBytes[2];
+    bytes[4] = rawBytes[1];
+    bytes[5] = rawBytes[0];
+#else
+    const char *bytes =
+              reinterpret_cast&lt;char *&gt;(&amp;value) + sizeof value - k_SIZEOF_INT48;
+#endif
+
+    if (k_SIZEOF_INT48 == d_streamBuf-&gt;sputn(bytes, k_SIZEOF_INT48)) {
+        validate();
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putUint48(bsls::Types::Uint64 value)
+{
+    return putInt48(static_cast&lt;bsls::Types::Int64&gt;(value));
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putInt40(bsls::Types::Int64 value)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    invalidate();
+
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    const char *rawBytes = reinterpret_cast&lt;char *&gt;(&amp;value);
+    char        bytes[k_SIZEOF_INT40];
+
+    bytes[0] = rawBytes[4];
+    bytes[1] = rawBytes[3];
+    bytes[2] = rawBytes[2];
+    bytes[3] = rawBytes[1];
+    bytes[4] = rawBytes[0];
+#else
+    const char *bytes =
+              reinterpret_cast&lt;char *&gt;(&amp;value) + sizeof value - k_SIZEOF_INT40;
+#endif
+
+    if (k_SIZEOF_INT40 == d_streamBuf-&gt;sputn(bytes, k_SIZEOF_INT40)) {
+        validate();
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putUint40(bsls::Types::Uint64 value)
+{
+    return putInt40(static_cast&lt;bsls::Types::Int64&gt;(value));
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putInt32(int value)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    invalidate();
+
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    const char *rawBytes = reinterpret_cast&lt;char *&gt;(&amp;value);
+    char        bytes[k_SIZEOF_INT32];
+
+    bytes[0] = rawBytes[3];
+    bytes[1] = rawBytes[2];
+    bytes[2] = rawBytes[1];
+    bytes[3] = rawBytes[0];
+#else
+    const char *bytes =
+              reinterpret_cast&lt;char *&gt;(&amp;value) + sizeof value - k_SIZEOF_INT32;
+#endif
+
+    if (k_SIZEOF_INT32 == d_streamBuf-&gt;sputn(bytes, k_SIZEOF_INT32)) {
+        validate();
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putUint32(unsigned int value)
+{
+    return putInt32(static_cast&lt;int&gt;(value));
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putInt24(int value)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    invalidate();
+
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    const char *rawBytes = reinterpret_cast&lt;char *&gt;(&amp;value);
+    char        bytes[k_SIZEOF_INT24];
+
+    bytes[0] = rawBytes[2];
+    bytes[1] = rawBytes[1];
+    bytes[2] = rawBytes[0];
+#else
+    const char *bytes =
+              reinterpret_cast&lt;char *&gt;(&amp;value) + sizeof value - k_SIZEOF_INT24;
+#endif
+
+    if (k_SIZEOF_INT24 == d_streamBuf-&gt;sputn(bytes, k_SIZEOF_INT24)) {
+        validate();
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putUint24(unsigned int value)
+{
+    return putInt24(static_cast&lt;int&gt;(value));
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putInt16(int value)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    invalidate();
+
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    const char *rawBytes = reinterpret_cast&lt;char *&gt;(&amp;value);
+    char        bytes[k_SIZEOF_INT16];
+
+    bytes[0] = rawBytes[1];
+    bytes[1] = rawBytes[0];
+#else
+    const char *bytes =
+              reinterpret_cast&lt;char *&gt;(&amp;value) + sizeof value - k_SIZEOF_INT16;
+#endif
+
+    if (k_SIZEOF_INT16 == d_streamBuf-&gt;sputn(bytes, k_SIZEOF_INT16)) {
+        validate();
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putUint16(unsigned int value)
+{
+    return putInt16(static_cast&lt;int&gt;(value));
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putInt8(int value)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    invalidate();
+
+    if (STREAMBUF::traits_type::eof() !=
+                                d_streamBuf-&gt;sputc(static_cast&lt;char&gt;(value))) {
+        validate();
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putUint8(unsigned int value)
+{
+    return putInt8(static_cast&lt;int&gt;(value));
+}
+
+                      // *** scalar floating-point values ***
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putFloat64(double value)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    invalidate();
+
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    const char *rawBytes = reinterpret_cast&lt;char *&gt;(&amp;value);
+    char        bytes[k_SIZEOF_FLOAT64];
+
+    bytes[0] = rawBytes[sizeof value - 1];
+    bytes[1] = rawBytes[sizeof value - 2];
+    bytes[2] = rawBytes[sizeof value - 3];
+    bytes[3] = rawBytes[sizeof value - 4];
+    bytes[4] = rawBytes[sizeof value - 5];
+    bytes[5] = rawBytes[sizeof value - 6];
+    bytes[6] = rawBytes[sizeof value - 7];
+    bytes[7] = rawBytes[sizeof value - 8];
+#else
+    const char *bytes = reinterpret_cast&lt;char *&gt;(&amp;value);
+#endif
+
+    if (k_SIZEOF_FLOAT64 == d_streamBuf-&gt;sputn(bytes, k_SIZEOF_FLOAT64)) {
+        validate();
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putFloat32(float value)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    invalidate();
+
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    const char *rawBytes = reinterpret_cast&lt;char *&gt;(&amp;value);
+    char        bytes[k_SIZEOF_FLOAT32];
+
+    bytes[0] = rawBytes[sizeof value - 1];
+    bytes[1] = rawBytes[sizeof value - 2];
+    bytes[2] = rawBytes[sizeof value - 3];
+    bytes[3] = rawBytes[sizeof value - 4];
+#else
+    const char *bytes = reinterpret_cast&lt;char *&gt;(&amp;value);
+#endif
+
+    if (k_SIZEOF_FLOAT32 == d_streamBuf-&gt;sputn(bytes, k_SIZEOF_FLOAT32)) {
+        validate();
+    }
+
+    return *this;
+}
+
+                      // *** string values ***
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putString(const bsl::string&amp; value)
+{
+    putLength(static_cast&lt;int&gt;(value.length()));
+    return putArrayUint8(value.data(), static_cast&lt;int&gt;(value.length()));
+}
+
+                      // *** arrays of integer values ***
+
+template &lt;class STREAMBUF&gt;
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putArrayInt64(const bsls::Types::Int64 *values,
+                                           int                       numValues)
+{
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 &lt;= numValues);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const bsls::Types::Int64 *end = values + numValues;
+    for (; values != end; ++values) {
+        putInt64(*values);
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putArrayUint64(
+                                          const bsls::Types::Uint64 *values,
+                                          int                        numValues)
+{
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 &lt;= numValues);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const bsls::Types::Uint64 *end = values + numValues;
+    for (; values != end; ++values) {
+        putUint64(*values);
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putArrayInt56(const bsls::Types::Int64 *values,
+                                           int                       numValues)
+{
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 &lt;= numValues);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const bsls::Types::Int64 *end = values + numValues;
+    for (; values != end; ++values) {
+        putInt56(*values);
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putArrayUint56(
+                                          const bsls::Types::Uint64 *values,
+                                          int                        numValues)
+{
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 &lt;= numValues);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const bsls::Types::Uint64 *end = values + numValues;
+    for (; values != end; ++values) {
+        putUint56(*values);
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putArrayInt48(const bsls::Types::Int64 *values,
+                                           int                       numValues)
+{
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 &lt;= numValues);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const bsls::Types::Int64 *end = values + numValues;
+    for (; values != end; ++values) {
+        putInt48(*values);
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putArrayUint48(
+                                          const bsls::Types::Uint64 *values,
+                                          int                        numValues)
+{
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 &lt;= numValues);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const bsls::Types::Uint64 *end = values + numValues;
+    for (; values != end; ++values) {
+        putUint48(*values);
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putArrayInt40(const bsls::Types::Int64 *values,
+                                           int                       numValues)
+{
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 &lt;= numValues);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const bsls::Types::Int64 *end = values + numValues;
+    for (; values != end; ++values) {
+        putInt40(*values);
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putArrayUint40(
+                                          const bsls::Types::Uint64 *values,
+                                          int                        numValues)
+{
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 &lt;= numValues);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const bsls::Types::Uint64 *end = values + numValues;
+    for (; values != end; ++values) {
+        putUint40(*values);
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putArrayInt32(const int *values, int numValues)
+{
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 &lt;= numValues);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const int *end = values + numValues;
+    for (; values != end; ++values) {
+        putInt32(*values);
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putArrayUint32(const unsigned int *values,
+                                            int                 numValues)
+{
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 &lt;= numValues);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const unsigned int *end = values + numValues;
+    for (; values != end; ++values) {
+        putUint32(*values);
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putArrayInt24(const int *values, int numValues)
+{
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 &lt;= numValues);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const int *end = values + numValues;
+    for (; values != end; ++values) {
+        putInt24(*values);
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putArrayUint24(const unsigned int *values,
+                                            int                 numValues)
+{
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 &lt;= numValues);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const unsigned int *end = values + numValues;
+    for (; values != end; ++values) {
+        putUint24(*values);
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putArrayInt16(const short *values, int numValues)
+{
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 &lt;= numValues);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const short *end = values + numValues;
+    for (; values != end; ++values) {
+        putInt16(*values);
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putArrayUint16(const unsigned short *values,
+                                            int                   numValues)
+{
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 &lt;= numValues);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const unsigned short *end = values + numValues;
+    for (; values != end; ++values) {
+        putUint16(*values);
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putArrayInt8(const char *values, int numValues)
+{
+    BSLS_ASSERT_SAFE(values);
+    BSLS_ASSERT_SAFE(0 &lt;= numValues);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    invalidate();
+
+    if (numValues == d_streamBuf-&gt;sputn(values, numValues)) {
+        validate();
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putArrayInt8(const signed char *values,
+                                          int                numValues)
+{
+    BSLS_ASSERT_SAFE(values);
+    BSLS_ASSERT_SAFE(0 &lt;= numValues);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    invalidate();
+
+    if (numValues == d_streamBuf-&gt;sputn(reinterpret_cast&lt;const char *&gt;(values),
+                                        numValues)) {
+        validate();
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putArrayUint8(const char *values, int numValues)
+{
+    BSLS_ASSERT_SAFE(values);
+    BSLS_ASSERT_SAFE(0 &lt;= numValues);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    invalidate();
+
+    if (numValues == d_streamBuf-&gt;sputn(values, numValues)) {
+        validate();
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putArrayUint8(const unsigned char *values,
+                                           int                  numValues)
+{
+    BSLS_ASSERT_SAFE(values);
+    BSLS_ASSERT_SAFE(0 &lt;= numValues);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    invalidate();
+
+    if (numValues == d_streamBuf-&gt;sputn(reinterpret_cast&lt;const char *&gt;(values),
+                                        numValues)) {
+        validate();
+    }
+
+    return *this;
+}
+
+                      // *** arrays of floating-point values ***
+
+template &lt;class STREAMBUF&gt;
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putArrayFloat64(const double *values,
+                                             int           numValues)
+{
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 &lt;= numValues);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const double *end = values + numValues;
+    for (; values != end; ++values) {
+        putFloat64(*values);
+    }
+
+    return *this;
+}
+
+template &lt;class STREAMBUF&gt;
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+GenericOutStream&lt;STREAMBUF&gt;::putArrayFloat32(const float *values,
+                                             int          numValues)
+{
+    BSLS_ASSERT(values);
+    BSLS_ASSERT(0 &lt;= numValues);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid() || 0 == numValues)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return *this;                                                 // RETURN
+    }
+
+    const float *end = values + numValues;
+    for (; values != end; ++values) {
+        putFloat32(*values);
+    }
+
+    return *this;
+}
+
+// ACCESSORS
+template &lt;class STREAMBUF&gt;
+inline
+GenericOutStream&lt;STREAMBUF&gt;::operator const void *() const
+{
+    return isValid() ? this : 0;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+int GenericOutStream&lt;STREAMBUF&gt;::bdexVersionSelector() const
+{
+    return d_versionSelector;
+}
+
+template &lt;class STREAMBUF&gt;
+inline
+bool GenericOutStream&lt;STREAMBUF&gt;::isValid() const
+{
+    return d_validFlag;
+}
+
+// FREE OPERATORS
+template &lt;class STREAMBUF, class TYPE&gt;
+inline
+GenericOutStream&lt;STREAMBUF&gt;&amp;
+operator&lt;&lt;(GenericOutStream&lt;STREAMBUF&gt;&amp; stream, const TYPE&amp; value)
+{
+    return OutStreamFunctions::bdexStreamOut(stream, value);
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2014 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

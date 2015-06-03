@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bdldfp_intelimpwrapper.h                                           -*-C++-*-
@@ -73,10 +73,11 @@ BSLS_IDENT(&quot;$Id$&quot;)
 // it is disabled in the wrapper-package for that compiler as well.  Also, to
 // prevent redefinition of the &#39;fexcept_t&#39; type, we signal that we behave like
 // &#39;__QNX__&#39; so that the intel library includes &#39;&lt;fenv.h&gt;&#39;.  As a result, if
-// we&#39;re not using GCC on linux, we pretend to be &quot;QNX&quot;, since the Intel
-// library has the right options chosen for that.
+// we&#39;re not using GCC or Clang on Linux, we pretend to be &quot;QNX&quot;, since the
+// Intel library has the right options chosen for that.
 
-#    if !(defined(BSLS_PLATFORM_OS_LINUX) &amp;&amp; defined(BSLS_PLATFORM_CMP_GCC)) \
+#    if !(defined(BSLS_PLATFORM_OS_LINUX) &amp;&amp; defined(BSLS_PLATFORM_CMP_GNU))  \
+     &amp;&amp; !(defined(BSLS_PLATFORM_OS_LINUX) &amp;&amp; defined(BSLS_PLATFORM_CMP_CLANG))\
      &amp;&amp; !defined(BSLS_PLATFORM_OS_WINDOWS)
 #      define __thread
 #      define __QNX__
@@ -91,18 +92,26 @@ BSLS_IDENT(&quot;$Id$&quot;)
 #      define _WCHAR_T_DEFINED
 #    endif
 
-#    ifdef BSLS_PLATFORM_CMP_GNU
+#    ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #      pragma GCC diagnostic push
 #      pragma GCC diagnostic ignored &quot;-Wconversion&quot;
+#      pragma GCC diagnostic ignored &quot;-Wint-to-pointer-cast&quot;
 #    endif
 
-     extern &quot;C&quot; {
-#     include &lt;bid_conf.h&gt;
-#     include &lt;bid_functions.h&gt;
-#     include &lt;bid_internal.h&gt;
-     }
 
-#    ifdef BSLS_PLATFORM_CMP_GNU
+// bid_internal.h exports a SWAP macro.
+#undef SWAP
+
+extern &quot;C&quot; {
+    #include &lt;bid_conf.h&gt;
+    #include &lt;bid_functions.h&gt;
+    #include &lt;bid_internal.h&gt;
+}
+
+#undef SWAP
+
+
+#    ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #      pragma GCC diagnostic pop
 #    endif
 

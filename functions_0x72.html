@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
@@ -110,9 +111,6 @@ Here is a list of all class members with links to the classes they belong to:
 <li>RandomAccessIterator()
 : <a class="el" href="classbslstl_1_1RandomAccessIterator.html#ad05e699a11b8fca70d259e5a71f4806c">bslstl::RandomAccessIterator&lt; T, ITER_IMP, TAG_TYPE &gt;</a>
 </li>
-<li>rarelyCalled()
-: <a class="el" href="structbsls_1_1PerformanceHint.html#a24cfc2b74b16655320457a994524ebc7">bsls::PerformanceHint</a>
-</li>
 <li>RawDeleterGuard()
 : <a class="el" href="classbslma_1_1RawDeleterGuard.html#a73eb92ef9ceb17e75048d9f166f5f030">bslma::RawDeleterGuard&lt; TYPE, ALLOCATOR &gt;</a>
 </li>
@@ -123,12 +121,14 @@ Here is a list of all class members with links to the classes they belong to:
 : <a class="el" href="group__bslstl__map.html#ga40ecec118238908e6968f0075fb89df9">bsl::map&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__multimap.html#gac27a5c5554a15de224ae518e0044cb58">bsl::multimap&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__multiset.html#ga84713eee80218d58fa095274afe9249d">bsl::multiset&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
+, <a class="el" href="classbdlt_1_1DayOfWeekSet.html#a286d8cda5cb53d149d8da93766bfc5d1">bdlt::DayOfWeekSet</a>
+, <a class="el" href="group__bslstl__multiset.html#ga66ec99d2cc7b7fbf0c1500233fa50ac7">bsl::multiset&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__set.html#ga04c3b2dcf67f139692c91738e5b801af">bsl::set&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__deque.html#ga8a2d30e8983d64afde5e338491a6d092">bsl::Deque_Base&lt; VALUE_TYPE &gt;</a>
 , <a class="el" href="group__bslstl__set.html#gaab77d60304cb4c95e6361dbbc9cd4f53">bsl::set&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__string.html#ga7e104ce3808ca8d5098737acae36dbfd">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__string.html#gaffa484d4e5e88729738f881a4d1afe6e">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__deque.html#ga004e15c67f3931784d74e51360ffcddb">bsl::Deque_Base&lt; VALUE_TYPE &gt;</a>
-, <a class="el" href="group__bslstl__string.html#ga9e47132aac1af1b16b2dd5ea0a2a8094">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__string.html#ga307d0b072c58066ba2a1a3b6c3b4e655">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__vector.html#ga6080200616b755699e352155c7572d98">bsl::Vector_ImpBase&lt; VALUE_TYPE &gt;</a>
 , <a class="el" href="group__bslstl__list.html#ga6d15e56f92de469716ddf36f684f523a">bsl::list&lt; VALUE, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__vector.html#ga0dd4792a346dae5157c7f4a4f7ee25f9">bsl::Vector_ImpBase&lt; VALUE_TYPE &gt;</a>
@@ -161,7 +161,8 @@ Here is a list of all class members with links to the classes they belong to:
 : <a class="el" href="classbslstl_1_1HashTable__ImplParameters.html#adc347e6da12c908c8e23f22a16ece29c">bslstl::HashTable_ImplParameters&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a>
 </li>
 <li>reference
-: <a class="el" href="group__bslstl__unorderedmultimap.html#gab6e7a120cd5af2267d60026f8fd3b58c">bsl::unordered_multimap&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;</a>
+: <a class="el" href="group__bslstl__unorderedmap.html#gab82f42c50a8ae07add49c554b900094a">bsl::unordered_map&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__unorderedmultimap.html#gab6e7a120cd5af2267d60026f8fd3b58c">bsl::unordered_multimap&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__unorderedmultiset.html#ga7a6d7b3ae4d8b19540906691478c6228">bsl::unordered_multiset&lt; KEY, HASH, EQUAL, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__unorderedset.html#ga2f1ca2fb7d20a15156e5e1f43caf6948">bsl::unordered_set&lt; KEY, HASH, EQUAL, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__vector.html#gac6e8391c59e60b5a4dfd48e956f3b1c9">bsl::Vector_ImpBase&lt; VALUE_TYPE &gt;</a>
@@ -171,6 +172,7 @@ Here is a list of all class members with links to the classes they belong to:
 , <a class="el" href="classbsltf_1_1StdTestAllocator.html#adba81b0c941043e629e0aa9d579762f5">bsltf::StdTestAllocator&lt; TYPE &gt;</a>
 , <a class="el" href="group__bsltf__testvaluesarray.html#ga19f61404a2251f38760b2952fb027c38">BloombergLP::bsltf::TestValuesArrayIterator&lt; VALUE &gt;</a>
 , <a class="el" href="group__bslstl__bitset.html#ga811ee22ffe70f7ebb2829f620f369cdb">bsl::bitset&lt; N &gt;</a>
+, <a class="el" href="classbdlc_1_1PackedIntArrayConstIterator.html#ae94089a76ee1a799fd8b197fef463f9c">bdlc::PackedIntArrayConstIterator&lt; TYPE &gt;</a>
 , <a class="el" href="classbslalg_1_1ContainerBase.html#ad089e9aec7423c38937242053b2c6707">bslalg::ContainerBase&lt; ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__allocator.html#ga1ed23ab2c67f7439afc1ccb171e1e9e0">bsl::allocator&lt; TYPE &gt;</a>
 , <a class="el" href="classbslstl_1_1BidirectionalIterator.html#a4933e301ad5dd0210e63dca328784f82">bslstl::BidirectionalIterator&lt; T, ITER_IMP, TAG_TYPE &gt;</a>
@@ -192,7 +194,9 @@ Here is a list of all class members with links to the classes they belong to:
 , <a class="el" href="group__bslstl__string.html#ga82e5bc8d9dfd8dbca6b982d0e2ff30c3">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;</a>
 , <a class="el" href="classbslstl_1_1StringRefImp.html#a7858e77bf43a5a656e0946214e690e3f">bslstl::StringRefImp&lt; CHAR_TYPE &gt;</a>
 , <a class="el" href="classbslstl_1_1TreeIterator.html#a6ab68b3863fcb8adb3da361026e572e7">bslstl::TreeIterator&lt; VALUE, NODE, DIFFERENCE_TYPE &gt;</a>
-, <a class="el" href="group__bslstl__unorderedmap.html#gab82f42c50a8ae07add49c554b900094a">bsl::unordered_map&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;</a>
+</li>
+<li>reference_wrapper()
+: <a class="el" href="group__bslstl__referencewrapper.html#gad6f5a740fc7a04c4b3d7242e88577566">bsl::reference_wrapper&lt; T &gt;</a>
 </li>
 <li>rehash()
 : <a class="el" href="structbslalg_1_1HashTableImpUtil.html#a335fdd93964409b863e0f4dfae2f77af">bslalg::HashTableImpUtil</a>
@@ -258,25 +262,32 @@ Here is a list of all class members with links to the classes they belong to:
 , <a class="el" href="classbslalg_1_1DequeIterator_3_01VALUE__TYPE_00_011_01_4.html#aa22c9f4673592470ee5161e7d9f05fc2">bslalg::DequeIterator&lt; VALUE_TYPE, 1 &gt;</a>
 </li>
 <li>remove()
-: <a class="el" href="structbslalg_1_1HashTableImpUtil.html#a31268c89db26b293e452f37fd27d6f1b">bslalg::HashTableImpUtil</a>
+: <a class="el" href="classbdlc_1_1PackedIntArray.html#ad9b73000fa9b2534c726269c452e456c">bdlc::PackedIntArray&lt; TYPE &gt;</a>
+, <a class="el" href="classbdlt_1_1DayOfWeekSet.html#a108380703790b0683e8b45de7eddd1b0">bdlt::DayOfWeekSet</a>
+, <a class="el" href="structbslalg_1_1HashTableImpUtil.html#a31268c89db26b293e452f37fd27d6f1b">bslalg::HashTableImpUtil</a>
 , <a class="el" href="structbslalg_1_1RbTreeUtil.html#a2bc7a8202d49085d78bddb803aeb8147">bslalg::RbTreeUtil</a>
 , <a class="el" href="classbslstl_1_1HashTable.html#aa685fb6a44c04fb6ae62cf9ab58b0fe7">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__list.html#ga7e9fcd8a5f57c36f26f5eaf29aae7479">bsl::list&lt; VALUE, ALLOCATOR &gt;</a>
+, <a class="el" href="classbdlc_1_1PackedIntArrayImp.html#ab78b99d5cb6ae74b6bf185b952eaaa61">bdlc::PackedIntArrayImp&lt; STORAGE &gt;</a>
 </li>
 <li>remove_if()
 : <a class="el" href="group__bslstl__list.html#ga68543b87d393c34790c387ca9c5dc59e">bsl::list&lt; VALUE, ALLOCATOR &gt;</a>
 </li>
 <li>removeAll()
-: <a class="el" href="classbslstl_1_1HashTable.html#afffb07f59df454ee2b4c5e1715f20a33">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a>
+: <a class="el" href="classbdlc_1_1PackedIntArrayImp.html#aeb4d62d2af698a040ef4c7e0b41e5159">bdlc::PackedIntArrayImp&lt; STORAGE &gt;</a>
+, <a class="el" href="classbdlc_1_1PackedIntArray.html#a3fa84b0fc87f469477a25671bb7aaf37">bdlc::PackedIntArray&lt; TYPE &gt;</a>
+, <a class="el" href="classbdlt_1_1DayOfWeekSet.html#ad755276f60c3e3efd90461d9df998ead">bdlt::DayOfWeekSet</a>
+, <a class="el" href="classbslstl_1_1HashTable.html#afffb07f59df454ee2b4c5e1715f20a33">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a>
 </li>
 <li>rend()
-: <a class="el" href="group__bslstl__deque.html#gac7d64233042c6b7815d196cc2eb67cb3">bsl::Deque_Base&lt; VALUE_TYPE &gt;</a>
+: <a class="el" href="classbdlt_1_1DayOfWeekSet.html#aa0098f71cfa35a71b0c7af43e24a6f83">bdlt::DayOfWeekSet</a>
+, <a class="el" href="group__bslstl__deque.html#gac7d64233042c6b7815d196cc2eb67cb3">bsl::Deque_Base&lt; VALUE_TYPE &gt;</a>
 , <a class="el" href="group__bslstl__list.html#ga33f0e03614b05890d7e21193e7429295">bsl::list&lt; VALUE, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__map.html#ga43caf47abb3bbd43e3b502587807a9fe">bsl::map&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__multimap.html#gaa96e4d4a288aad17c385c284b1ead6b2">bsl::multimap&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__multiset.html#ga8d336fba1428783905d0ac761f3c67aa">bsl::multiset&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__set.html#ga8134367e82cf7e21a14220b1d4649dc8">bsl::set&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__string.html#ga4e2cc41b80c0de97a63d1acd676226c2">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__string.html#gac2f55f183b220b72dc813603bb70b1c9">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__vector.html#gafe52ce718a880c32d4bd69ed3bc65d3b">bsl::Vector_ImpBase&lt; VALUE_TYPE &gt;</a>
 , <a class="el" href="group__bslstl__vector.html#ga4288784db009e96af1eff77d09b90fc1">bsl::vector&lt; VALUE_TYPE *, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__vector.html#ga2a3153ef2b2ca91c59a6fd0a90035e56">bsl::vector&lt; const VALUE_TYPE *, ALLOCATOR &gt;</a>
@@ -285,13 +296,19 @@ Here is a list of all class members with links to the classes they belong to:
 : <a class="el" href="structbslmf_1_1TypeRep.html#abefba7673f56b52724e425276546a445">bslmf::TypeRep&lt; TYPE &gt;</a>
 , <a class="el" href="structbslmf_1_1TypeRep_3_01TYPE_01_6_01_4.html#a2879851399bf35a529381f384c025913">bslmf::TypeRep&lt; TYPE &amp; &gt;</a>
 , <a class="el" href="group__bslstl__sharedptr.html#gaa2c9e02ec8be7cb54746f8a41b0b5c12">bsl::shared_ptr&lt; ELEMENT_TYPE &gt;</a>
-, <a class="el" href="group__bslstl__sharedptr.html#gac873ee69042167ce8d257e2a682a83dd">bsl::weak_ptr&lt; LHS_TYPE, RHS_TYPE &gt;</a>
+, <a class="el" href="group__bslstl__sharedptr.html#ga363c49165444b7f320feab8c3e24c940">bsl::weak_ptr&lt; ELEMENT_TYPE &gt;</a>
 </li>
 <li>replace()
-: <a class="el" href="group__bslstl__string.html#ga528bae64a7621e4204b98bfba8b0f3b8">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;</a>
+: <a class="el" href="classbdlc_1_1PackedIntArrayImp.html#ad95680fd0f206bf986b98ab47f2fcb2b">bdlc::PackedIntArrayImp&lt; STORAGE &gt;</a>
+, <a class="el" href="classbdlc_1_1PackedIntArray.html#afa23caa6a41790fc611e2fa2f70e504e">bdlc::PackedIntArray&lt; TYPE &gt;</a>
+, <a class="el" href="group__bslstl__string.html#gaf3a306078d04173ee5a87efc7dea85cb">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;</a>
 </li>
 <li>replaceBuffer()
 : <a class="el" href="classbdlma_1_1BufferManager.html#a08b80c042222f96fd4817ddf0ac43c9a">bdlma::BufferManager</a>
+</li>
+<li>requiredBytesPerElement()
+: <a class="el" href="structbdlc_1_1PackedIntArrayImp__Signed.html#a9c03f87cd11f732bb5ebe0e99d1463b3">bdlc::PackedIntArrayImp_Signed</a>
+, <a class="el" href="structbdlc_1_1PackedIntArrayImp__Unsigned.html#ae5c254c946e778f05650139634430f59">bdlc::PackedIntArrayImp_Unsigned</a>
 </li>
 <li>reserve()
 : <a class="el" href="group__bslstl__deque.html#gad3396d1bf4b1bdf01ee7648b9b0a5ac5">bsl::deque&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
@@ -307,47 +324,53 @@ Here is a list of all class members with links to the classes they belong to:
 : <a class="el" href="group__bslstl__deque.html#gaea05edb5c3b3fe1357d443d629fa3a0d">bsl::Deque_BlockCreator&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
 </li>
 <li>reserveCapacity()
-: <a class="el" href="classbdlma_1_1Multipool.html#a747345f6c1ad93c63482948f76ccec7c">bdlma::Multipool</a>
+: <a class="el" href="classbslx_1_1ByteOutStream.html#a84ddac9f28a79ff52f08a9eb9f3bb962">bslx::ByteOutStream</a>
 , <a class="el" href="classbdlma_1_1MultipoolAllocator.html#ac8e676f983259618bab71169c2c019d0">bdlma::MultipoolAllocator</a>
+, <a class="el" href="classbdlc_1_1PackedIntArrayImp.html#a7c39f1f88f462aa89b62bcb6d0a575e5">bdlc::PackedIntArrayImp&lt; STORAGE &gt;</a>
+, <a class="el" href="classbdlc_1_1PackedIntArray.html#a6bf7d55bcac06723e88e43144d23b36c">bdlc::PackedIntArray&lt; TYPE &gt;</a>
+, <a class="el" href="classbdlma_1_1Multipool.html#a747345f6c1ad93c63482948f76ccec7c">bdlma::Multipool</a>
 , <a class="el" href="classbdlma_1_1Pool.html#a2a8ab64992212d4f3abde7f47f2a5799">bdlma::Pool</a>
 , <a class="el" href="classbdlma_1_1SequentialAllocator.html#adfebba8f75439699174f6af02191afce">bdlma::SequentialAllocator</a>
 , <a class="el" href="classbdlma_1_1SequentialPool.html#a56a831290d4f1bacccbe44bc6331c3f4">bdlma::SequentialPool</a>
-, <a class="el" href="classbslx_1_1ByteOutStream.html#a49e092fac8de4ed0578d99e7ceccd25b">bslx::ByteOutStream</a>
-, <a class="el" href="classbslx_1_1TestOutStream.html#a76e6ec07318fa8fb5dc0153b0ab75961">bslx::TestOutStream</a>
+, <a class="el" href="classbslx_1_1TestOutStream.html#a69f30c1bc7462a4e3bc4e741fcead126">bslx::TestOutStream</a>
+</li>
+<li>reserveCapacityImp()
+: <a class="el" href="classbdlc_1_1PackedIntArrayImp.html#a7e6f398c36916f989a4ebe98e0f5d130">bdlc::PackedIntArrayImp&lt; STORAGE &gt;</a>
 </li>
 <li>reserveForNumElements()
 : <a class="el" href="classbslstl_1_1HashTable.html#aa036505276fa2bba893faed0b91ec468">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a>
 </li>
 <li>reserveNodes()
-: <a class="el" href="classbslstl_1_1TreeNodePool.html#a04392a833dba5d802f5de25d390796d0">bslstl::TreeNodePool&lt; VALUE, ALLOCATOR &gt;</a>
-, <a class="el" href="classbslstl_1_1BidirectionalNodePool.html#afc857cf4749719dc6b62f8af48fb457b">bslstl::BidirectionalNodePool&lt; VALUE, ALLOCATOR &gt;</a>
+: <a class="el" href="classbslstl_1_1BidirectionalNodePool.html#afc857cf4749719dc6b62f8af48fb457b">bslstl::BidirectionalNodePool&lt; VALUE, ALLOCATOR &gt;</a>
+, <a class="el" href="classbslstl_1_1TreeNodePool.html#a04392a833dba5d802f5de25d390796d0">bslstl::TreeNodePool&lt; VALUE, ALLOCATOR &gt;</a>
 </li>
 <li>reset()
-: <a class="el" href="classbslx_1_1TestInStream.html#a5558d85d074716136a8dcb3dd3de2b7d">bslx::TestInStream</a>
-, <a class="el" href="group__bslstl__sharedptr.html#gaa78169359c056e9f1e460428cda0ec0d">bsl::weak_ptr&lt; LHS_TYPE, RHS_TYPE &gt;</a>
-, <a class="el" href="classbsls_1_1Stopwatch.html#ad3041f7bc88c5448d58d8231d5d6bd06">bsls::Stopwatch</a>
-, <a class="el" href="group__bslstl__sharedptr.html#ga1a88d1f07d3287acb0a33871f005c6be">bsl::shared_ptr&lt; ELEMENT_TYPE &gt;</a>
-, <a class="el" href="classbslma_1_1AutoDeallocator.html#acea4ef485cfab2bec5778e31d24c245b">bslma::AutoDeallocator&lt; ALLOCATOR &gt;</a>
-, <a class="el" href="classbslalg_1_1BidirectionalLink.html#aec30a0d2923374260a5eeccb00704858">bslalg::BidirectionalLink</a>
+: <a class="el" href="classbslx_1_1ByteInStream.html#a70f7f25ce23bf12635e660b1cf39baff">bslx::ByteInStream</a>
+, <a class="el" href="classbslx_1_1TestInStream.html#a15d9f118faa0f50a41e1ae5d901d1318">bslx::TestInStream</a>
+, <a class="el" href="classbslma_1_1AutoRawDeleter.html#a549f962b207498a850b5533a428a7ec9">bslma::AutoRawDeleter&lt; TYPE, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__sharedptr.html#gad56d4c635e12daf994c79a264d45bd19">bsl::shared_ptr&lt; ELEMENT_TYPE &gt;</a>
+, <a class="el" href="classbslma_1_1RawDeleterProctor.html#adf5593a363440b417caccc4c648ca7cd">bslma::RawDeleterProctor&lt; TYPE, ALLOCATOR &gt;</a>
+, <a class="el" href="classbslalg_1_1RbTreeNode.html#a813387fca4ff5ca7389da1e38d60fa88">bslalg::RbTreeNode</a>
 , <a class="el" href="classbdlma_1_1AutoReleaser.html#a758a1d6dccd0719de4ce89eab8741596">bdlma::AutoReleaser&lt; ALLOCATOR &gt;</a>
 , <a class="el" href="classbdlma_1_1BufferManager.html#a30e237a410c1bbda3e7a3050e3abd90e">bdlma::BufferManager</a>
 , <a class="el" href="classbslalg_1_1AutoScalarDestructor.html#a221fe6482455a2638622a24db03b979e">bslalg::AutoScalarDestructor&lt; OBJECT_TYPE &gt;</a>
+, <a class="el" href="classbslalg_1_1BidirectionalLink.html#aec30a0d2923374260a5eeccb00704858">bslalg::BidirectionalLink</a>
 , <a class="el" href="structbslalg_1_1HashTableBucket.html#aee49bf0cdaa6765ea776783cc7ba53dc">bslalg::HashTableBucket</a>
 , <a class="el" href="classbslalg_1_1RbTreeAnchor.html#aff6b4eadd06a5bd0806499bd697a29a7">bslalg::RbTreeAnchor</a>
-, <a class="el" href="classbslalg_1_1RbTreeNode.html#a813387fca4ff5ca7389da1e38d60fa88">bslalg::RbTreeNode</a>
-, <a class="el" href="classbslma_1_1AutoDeallocator.html#a575d65660592593f4f960add1432cda1">bslma::AutoDeallocator&lt; ALLOCATOR &gt;</a>
+, <a class="el" href="classbslma_1_1AutoDeallocator.html#acea4ef485cfab2bec5778e31d24c245b">bslma::AutoDeallocator&lt; ALLOCATOR &gt;</a>
 , <a class="el" href="classbslma_1_1AutoDestructor.html#a0f22afbf47eb0bf898c46303d8b9382b">bslma::AutoDestructor&lt; TYPE &gt;</a>
-, <a class="el" href="classbslma_1_1AutoRawDeleter.html#a549f962b207498a850b5533a428a7ec9">bslma::AutoRawDeleter&lt; TYPE, ALLOCATOR &gt;</a>
 , <a class="el" href="classbslma_1_1DeallocatorProctor.html#ac068ad213c5eacce5f6361988dd6364f">bslma::DeallocatorProctor&lt; ALLOCATOR &gt;</a>
 , <a class="el" href="classbslma_1_1DestructorProctor.html#a797100bc6903ae9f3534c2822e5b7bf2">bslma::DestructorProctor&lt; TYPE &gt;</a>
-, <a class="el" href="classbslma_1_1RawDeleterProctor.html#adf5593a363440b417caccc4c648ca7cd">bslma::RawDeleterProctor&lt; TYPE, ALLOCATOR &gt;</a>
+, <a class="el" href="classbslma_1_1ManagedPtr.html#af96bb8356e57e2ab6037d45f7f594d86">bslma::ManagedPtr&lt; TARGET_TYPE &gt;</a>
 , <a class="el" href="classbslma_1_1TestAllocatorMonitor.html#af3854d9fa6a8818dc5bb845f0b92d5a6">bslma::TestAllocatorMonitor</a>
+, <a class="el" href="classbsls_1_1Stopwatch.html#ad3041f7bc88c5448d58d8231d5d6bd06">bsls::Stopwatch</a>
 , <a class="el" href="group__bslstl__bitset.html#ga6fc61fbd9acbea27f4f15e901e941ae1">bsl::bitset&lt; N &gt;</a>
 , <a class="el" href="group__bslstl__sharedptr.html#ga37f640bcf2343ba65ee81e87a794e35f">bsl::shared_ptr&lt; ELEMENT_TYPE &gt;</a>
+, <a class="el" href="group__bslstl__sharedptr.html#ga9d4ffeef0e33e4bbb6664605f39467af">bsl::weak_ptr&lt; ELEMENT_TYPE &gt;</a>
 , <a class="el" href="classbslstl_1_1StringRefImp.html#a2edb81333d59e1682968812069ae6458">bslstl::StringRefImp&lt; CHAR_TYPE &gt;</a>
-, <a class="el" href="classbslx_1_1ByteInStream.html#a70f7f25ce23bf12635e660b1cf39baff">bslx::ByteInStream</a>
+, <a class="el" href="classbslx_1_1ByteInStream.html#a2c864f363d3d03bf83ea366a88bb58e3">bslx::ByteInStream</a>
 , <a class="el" href="classbslx_1_1ByteOutStream.html#ae5ff47e2018b81aed6042c851edc5644">bslx::ByteOutStream</a>
-, <a class="el" href="classbslx_1_1TestInStream.html#a15d9f118faa0f50a41e1ae5d901d1318">bslx::TestInStream</a>
+, <a class="el" href="classbslx_1_1TestInStream.html#acb9666d532a16f1a427e42b65231eaf6">bslx::TestInStream</a>
 , <a class="el" href="classbslx_1_1TestOutStream.html#a70e0904e6f0c9804d1e0232654329b38">bslx::TestOutStream</a>
 </li>
 <li>resetCountsRaw()
@@ -366,122 +389,141 @@ Here is a list of all class members with links to the classes they belong to:
 : <a class="el" href="classbslma_1_1ExceptionGuard.html#aa72f724a28cd05128151af7f1c7d8818">bslma::ExceptionGuard&lt; OBJECT &gt;</a>
 </li>
 <li>resize()
-: <a class="el" href="group__bslstl__deque.html#gaf494586a13b90a8f56ab04aafae10efe">bsl::deque&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__list.html#ga7098a7468e7f7827d3b5c7393d21684d">bsl::list&lt; VALUE, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__string.html#ga25b862783d3d32a02bff9aa4c9e1a4c4">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;</a>
+: <a class="el" href="group__bslstl__deque.html#ga2a194837fcdf9bca06467069973d2d7f">bsl::deque&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__vector.html#gac5203d4410a4c7c3d1d2014d5542e0d9">bsl::Vector_Imp&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__vector.html#ga61a91e79364592b47b626313c961a6e5">bsl::vector&lt; VALUE_TYPE *, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__vector.html#ga22024042f45a5f1566f956156d9cecb3">bsl::vector&lt; const VALUE_TYPE *, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__deque.html#ga2a194837fcdf9bca06467069973d2d7f">bsl::deque&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__string.html#ga7cc4a9c33d8d7ce75014f4a550dcce91">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;</a>
+, <a class="el" href="classbdlc_1_1PackedIntArrayImp.html#ae168b7b0693e341e911551b8a25a14dc">bdlc::PackedIntArrayImp&lt; STORAGE &gt;</a>
+, <a class="el" href="classbdlc_1_1PackedIntArray.html#a44b2d90ab3ffe701e8bbf7cc774914fb">bdlc::PackedIntArray&lt; TYPE &gt;</a>
+, <a class="el" href="group__bslstl__deque.html#gaf494586a13b90a8f56ab04aafae10efe">bsl::deque&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__list.html#ga7098a7468e7f7827d3b5c7393d21684d">bsl::list&lt; VALUE, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__string.html#ga25b862783d3d32a02bff9aa4c9e1a4c4">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;</a>
 </li>
 <li>RESULT_SELECTOR
-: <a class="el" href="structbslalg_1_1HashTableImpUtil__ExtractKeyResult.html#a9c2e1ef1196b6ed26152115972aa0f03a58397482884824ab1560493dd84fbfe8">bslalg::HashTableImpUtil_ExtractKeyResult&lt; KEY_CONFIG &gt;</a>
+: <a class="el" href="structbslalg_1_1HashTableImpUtil__ExtractKeyResult.html#ac234a95c8ea728309100ec0ad5953b69a58397482884824ab1560493dd84fbfe8">bslalg::HashTableImpUtil_ExtractKeyResult&lt; KEY_CONFIG &gt;</a>
 </li>
 <li>result_type
 : <a class="el" href="group__bslstl__multimap.html#gadee89f11ce50c5b5352c243329e34f06">bsl::multimap&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;::value_compare</a>
-, <a class="el" href="group__bslstl__sharedptr.html#ga7616cc4e8610c55e5e215c9d352a1e0c">bsl::hash&lt; shared_ptr&lt; ELEMENT_TYPE &gt; &gt;</a>
-, <a class="el" href="group__bslstl__hash.html#gacfad0aed76f7af7a67d73b2673f87bce">bsl::hash&lt; int &gt;</a>
-, <a class="el" href="group__bslstl__hash.html#ga313b8db35282fccd4581263ebe116bda">bsl::hash&lt; unsigned char &gt;</a>
-, <a class="el" href="structbslh_1_1SeededHash.html#a776a6d97e4ccea325e68da4c6400312f">bslh::SeededHash&lt; SEED_GENERATOR, HASH_ALGORITHM &gt;</a>
-, <a class="el" href="group__bslstl__hash.html#ga04401e8d427f52c59f03788c53f5ebff">bsl::hash&lt; wchar_t &gt;</a>
-, <a class="el" href="group__bslstl__hash.html#ga054a78a337e1464e93507a6aaa3d793f">bsl::hash&lt; long long &gt;</a>
-, <a class="el" href="group__bslstl__hash.html#gaced1104fd69e7b4d2a953adfce37898c">bsl::hash&lt; unsigned long long &gt;</a>
-, <a class="el" href="group__bslstl__map.html#gaf9aa1ac64eadea406f70017915d5879d">bsl::map&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;::value_compare</a>
-, <a class="el" href="group__bslstl__hash.html#ga5528a188abf2c07b630d8f39b45702d5">bsl::hash&lt; long &gt;</a>
-, <a class="el" href="structbslh_1_1Hash.html#ac07162d7b81ac1f1ff86695febad7a2e">bslh::Hash&lt; HASH_ALGORITHM &gt;</a>
-, <a class="el" href="group__bslstl__hash.html#gaf78a39c5b2112271d15c495602109091">bsl::hash&lt; short &gt;</a>
-, <a class="el" href="group__bslstl__hash.html#ga889f9944d98561842e62eab7cb434d59">bsl::hash&lt; char &gt;</a>
-, <a class="el" href="classbslh_1_1SipHashAlgorithm.html#aaf6889081a535bfbd4259c25f42cd322">bslh::SipHashAlgorithm</a>
 , <a class="el" href="group__bslstl__hash.html#ga0fce4aba03c8d11f4b06fa6088a0b08f">bsl::hash&lt; bool &gt;</a>
 , <a class="el" href="classbslh_1_1DefaultHashAlgorithm.html#a0bd38f1b4f4d9a9c3cac53035501f9e9">bslh::DefaultHashAlgorithm</a>
 , <a class="el" href="classbslh_1_1DefaultSeededHashAlgorithm.html#a3ff628f0264ed8bcc8c7112fe2e406de">bslh::DefaultSeededHashAlgorithm</a>
+, <a class="el" href="structbslh_1_1Hash.html#ac07162d7b81ac1f1ff86695febad7a2e">bslh::Hash&lt; HASH_ALGORITHM &gt;</a>
 , <a class="el" href="classbslh_1_1SpookyHashAlgorithm.html#ae8c96e3282cecf452fd5d0210bf70817">bslh::SpookyHashAlgorithm</a>
-, <a class="el" href="group__bslstl__equalto.html#ga3114697ee28ca2e02e53219e70a34856">bsl::equal_to&lt; VALUE_TYPE &gt;</a>
 , <a class="el" href="group__bslstl__hash.html#ga001a8bf528cccf39d9e663e34454c10e">bsl::hash&lt; signed char &gt;</a>
+, <a class="el" href="group__bslstl__hash.html#ga313b8db35282fccd4581263ebe116bda">bsl::hash&lt; unsigned char &gt;</a>
+, <a class="el" href="group__bslstl__hash.html#ga04401e8d427f52c59f03788c53f5ebff">bsl::hash&lt; wchar_t &gt;</a>
 , <a class="el" href="group__bslstl__hash.html#ga5706dd45dc52b64c8385e5d86c2b7182">bsl::hash&lt; unsigned short &gt;</a>
-, <a class="el" href="group__bslstl__hash.html#ga9f7047490324e12dfd02ea3f037867c7">bsl::hash&lt; unsigned int &gt;</a>
 , <a class="el" href="group__bslstl__hash.html#ga7da1e1af882df7aebac8c3b715fed712">bsl::hash&lt; unsigned long &gt;</a>
+, <a class="el" href="group__bslstl__hash.html#gaced1104fd69e7b4d2a953adfce37898c">bsl::hash&lt; unsigned long long &gt;</a>
+, <a class="el" href="group__bslstl__equalto.html#ga3114697ee28ca2e02e53219e70a34856">bsl::equal_to&lt; VALUE_TYPE &gt;</a>
+, <a class="el" href="classbslh_1_1SipHashAlgorithm.html#aaf6889081a535bfbd4259c25f42cd322">bslh::SipHashAlgorithm</a>
+, <a class="el" href="group__bslstl__hash.html#gacfad0aed76f7af7a67d73b2673f87bce">bsl::hash&lt; int &gt;</a>
+, <a class="el" href="group__bslstl__hash.html#ga9f7047490324e12dfd02ea3f037867c7">bsl::hash&lt; unsigned int &gt;</a>
+, <a class="el" href="group__bslstl__hash.html#ga054a78a337e1464e93507a6aaa3d793f">bsl::hash&lt; long long &gt;</a>
+, <a class="el" href="structbsl_1_1owner__less_3_01shared__ptr_3_01ELEMENT__TYPE_01_4_01_4.html#a8621e6b88fff6189c2ed6df505f60aca">bsl::owner_less&lt; shared_ptr&lt; ELEMENT_TYPE &gt; &gt;</a>
+, <a class="el" href="structbsl_1_1owner__less_3_01weak__ptr_3_01ELEMENT__TYPE_01_4_01_4.html#ac24ae35d5679a073a31bc52664e84653">bsl::owner_less&lt; weak_ptr&lt; ELEMENT_TYPE &gt; &gt;</a>
+, <a class="el" href="group__bslstl__map.html#gaf9aa1ac64eadea406f70017915d5879d">bsl::map&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;::value_compare</a>
+, <a class="el" href="group__bslstl__hash.html#gaf78a39c5b2112271d15c495602109091">bsl::hash&lt; short &gt;</a>
+, <a class="el" href="group__bslstl__hash.html#ga5528a188abf2c07b630d8f39b45702d5">bsl::hash&lt; long &gt;</a>
+, <a class="el" href="structbslh_1_1SeededHash.html#a776a6d97e4ccea325e68da4c6400312f">bslh::SeededHash&lt; SEED_GENERATOR, HASH_ALGORITHM &gt;</a>
+, <a class="el" href="group__bslstl__hash.html#ga889f9944d98561842e62eab7cb434d59">bsl::hash&lt; char &gt;</a>
 </li>
 <li>ResultType
-: <a class="el" href="structbslmf_1_1MemberFunctionPointerTraits__NonConst_3_01BSLMF__RETURN_07TYPE_1_1_5_08_07ARG1_00bd4edf17928d170ee29227b6e550da5f.html#a47686dd905e855d1a3eba7d3fd89e743">bslmf::MemberFunctionPointerTraits_NonConst&lt; BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5)&gt;</a>
-, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07_08_4.html#a0d39b67a392971b53ce4b241d2853a68">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)()&gt;</a>
-, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_00_01A4_00_01A5_00_01A6_00_01A7_08_4.html#a5a757185c228e2b3f4ac1dbef6e83831">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3, A4, A5, A6, A7)&gt;</a>
-, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_00_01A4_00_05c0bbf10c9c0e4b29a60a9ee68c553cc.html#a7384895ad91ec371d9f9d2f9eca3e2be">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11)&gt;</a>
-, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_00_01A4_00_01A5_00_01A6_08_4.html#ad0461af29a03aef80addaa1b1eba0d44">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3, A4, A5, A6)&gt;</a>
-, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_00_01A4_00_05fcc2a54a2b514dd3b8afa590936f3e7.html#afe146d64253e80c8257cade974fde74d">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3, A4, A5, A6, A7, A8)&gt;</a>
-, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraitsImp_3_01PROTOTYPE_00_01BSLMF__RETURN_07TYPE_1_1_5_08_09d2e48152c89a20ade462e65f52e5a5b.html#ab1cf98e939e650a30ffd8b1e71b9800b">bslmf::MemberFunctionPointerTraitsImp&lt; PROTOTYPE, BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5) const  &gt;</a>
-, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraits__NonConst_3_01BSLMF__RETURN_07TYPE_1_1_5_08_07ARG1_0054243f2ea0896761cfcd8cd8b6c36632.html#a9d77f8a58467b8c5da23c367ccbd1b2d">bslmf::MemberFunctionPointerTraits_NonConst&lt; BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6)&gt;</a>
-, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraitsImp_3_01PROTOTYPE_00_01BSLMF__RETURN_07TYPE_1_1_5_08_088a7082c003cc5e66738d57b2b039027.html#a79ead5e3c0e64240dcbb2309c6e88015">bslmf::MemberFunctionPointerTraitsImp&lt; PROTOTYPE, BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9, ARG10, ARG11, ARG12) const  &gt;</a>
-, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraitsImp_3_01PROTOTYPE_00_01BSLMF__RETURN_07TYPE_1_1_5_08_00f685ffeb17f91808e9c84827cd4a2d5.html#a81458bdf3dadd23f59e28426abb0f601">bslmf::MemberFunctionPointerTraitsImp&lt; PROTOTYPE, BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9, ARG10, ARG11, ARG12, ARG13) const  &gt;</a>
-, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_00_01A4_00_09b0a6d936c7420bd9fd4eaa2dc694bbf.html#a0f6367f65897f22b7ab29e006e682608">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14)&gt;</a>
-, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraits__NonConst_3_01BSLMF__RETURN_07TYPE_1_1_5_08_07ARG1_00_01ARG2_00_01ARG3_08_4.html#a843ffac1b1718758e8ed072f6bf5a98a">bslmf::MemberFunctionPointerTraits_NonConst&lt; BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3)&gt;</a>
-, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraits__NonConst_3_01BSLMF__RETURN_07TYPE_1_1_5_08_07ARG1_00f6b453588d728662149ea8ec39502a78.html#a669167fd68c045dab2f5d751a60a0037">bslmf::MemberFunctionPointerTraits_NonConst&lt; BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7)&gt;</a>
-, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraits__NonConst_3_01BSLMF__RETURN_07TYPE_1_1_5_08_07ARG1_00a6a7055cef4a4e3fa66385b34e19ad92.html#a0765cb358eae7a70dcd5622bb7f86b2d">bslmf::MemberFunctionPointerTraits_NonConst&lt; BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9, ARG10, ARG11)&gt;</a>
-, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraits__NonConst_3_01BSLMF__RETURN_07TYPE_1_1_5_08_07ARG1_00ca0f8a0dd1eb5325dcc8448c1df0ae95.html#a5cbd9fd254203c41f05779c8e0a3b060">bslmf::MemberFunctionPointerTraits_NonConst&lt; BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4)&gt;</a>
-, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraitsImp_3_01PROTOTYPE_00_01BSLMF__RETURN_07TYPE_1_1_5_08_0706172ad199f26d208bc0b237bc7734c.html#a418cd4527dd45a7bbf6841e80cd3a28c">bslmf::MemberFunctionPointerTraitsImp&lt; PROTOTYPE, BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9, ARG10) const  &gt;</a>
-, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraitsImp_3_01PROTOTYPE_00_01BSLMF__RETURN_07TYPE_1_1_5_08_062d699ba2a1af412c414efffc54afd6c.html#accb5865dadabf7e803d271e637efce3b">bslmf::MemberFunctionPointerTraitsImp&lt; PROTOTYPE, BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9) const  &gt;</a>
-, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraitsImp_3_01PROTOTYPE_00_01BSLMF__RETURN_07TYPE_1_1_5_08_07_08_01const_01_01_4.html#a5be36ec72ed36a6af09ecca87abcc7c2">bslmf::MemberFunctionPointerTraitsImp&lt; PROTOTYPE, BSLMF_RETURN(TYPE::*)() const  &gt;</a>
-, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraitsImp_3_01PROTOTYPE_00_01BSLMF__RETURN_07TYPE_1_1_5_08_0146b8d64287564a3bc767efee2f87d13.html#af02d53f15bf24d87c92e12f505732702">bslmf::MemberFunctionPointerTraitsImp&lt; PROTOTYPE, BSLMF_RETURN(TYPE::*)(ARG1, ARG2) const  &gt;</a>
-, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraitsImp_3_01PROTOTYPE_00_01BSLMF__RETURN_07TYPE_1_1_5_08_05e6e283918f09ce1e5f16896f96e9bc9.html#a2fd19b172059c9066bdcf8ab0b2f14ad">bslmf::MemberFunctionPointerTraitsImp&lt; PROTOTYPE, BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4) const  &gt;</a>
-, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraitsImp_3_01PROTOTYPE_00_01BSLMF__RETURN_07TYPE_1_1_5_08_03046d52b5f29b06c5b184f637ba33dc1.html#a14bd04b788cb58315a39d623e49df4c5">bslmf::MemberFunctionPointerTraitsImp&lt; PROTOTYPE, BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8) const  &gt;</a>
-, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_00_01A4_00_0b97b4673fda4eae8799252c7052bd088.html#af8b52ce76a94c4e954b4f96112bdc771">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13)&gt;</a>
-, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraits__NonConst_3_01BSLMF__RETURN_07TYPE_1_1_5_08_07ARG1_00a72414582355e7806da28650aaf97479.html#a27d59e92f34b4a05d7ca7501cb78da5c">bslmf::MemberFunctionPointerTraits_NonConst&lt; BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9, ARG10)&gt;</a>
-, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraits__NonConst_3_01BSLMF__RETURN_07TYPE_1_1_5_08_07_08_4.html#ab323cbecd237ac9a15b331d0efc8210f">bslmf::MemberFunctionPointerTraits_NonConst&lt; BSLMF_RETURN(TYPE::*)()&gt;</a>
-, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_00_01A4_00_0e2a24604cbb42d08715d99b8fd7bfcae.html#ace6404ad8c185f98f6a5e884d2e9ab05">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3, A4, A5, A6, A7, A8, A9)&gt;</a>
-, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraitsImp_3_01PROTOTYPE_00_01BSLMF__RETURN_07TYPE_1_1_5_08_0013a926cd54291bb62dcb9f3efd0c559.html#a01c358bef0af72dd036bd7dc80c707b2">bslmf::MemberFunctionPointerTraitsImp&lt; PROTOTYPE, BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6) const  &gt;</a>
-, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_00_01A4_08_4.html#abc83d2d0d834dbf6561e12d1a97d67eb">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3, A4)&gt;</a>
-, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraitsImp_3_01PROTOTYPE_00_01BSLMF__RETURN_07TYPE_1_1_5_08_0baa55228547ee9771fddc5cb0000a7e5.html#a9a378acdfac51fc98d8ad3c9e789a92f">bslmf::MemberFunctionPointerTraitsImp&lt; PROTOTYPE, BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3) const  &gt;</a>
-, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_00_01A4_00_01A5_08_4.html#a97e58b0882623cd69f0cc4df0a7fe18e">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3, A4, A5)&gt;</a>
-, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_08_4.html#ac5a3d26e732eae13ffaa85884583a986">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3)&gt;</a>
-, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraitsImp_3_01PROTOTYPE_00_01BSLMF__RETURN_07TYPE_1_1_5_08_074ef4e1cd702cec059b808cd447b8722.html#a6c6055fc04d0f2ca09066e2c9ced86b6">bslmf::MemberFunctionPointerTraitsImp&lt; PROTOTYPE, BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7) const  &gt;</a>
-, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_08_4.html#a8e44939f94176514b0d614687af4bb34">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1)&gt;</a>
-, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraitsImp_3_01PROTOTYPE_00_01BSLMF__RETURN_07TYPE_1_1_5_08_0723782855c8e925b8de34926e0358593.html#a2e9756c1238749dbd08f4088472d6b21">bslmf::MemberFunctionPointerTraitsImp&lt; PROTOTYPE, BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9, ARG10, ARG11, ARG12, ARG13, ARG14) const  &gt;</a>
-, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraits__NonConst_3_01BSLMF__RETURN_07TYPE_1_1_5_08_07ARG1_0094587943df12a2fa6fc9e022c86bb11d.html#a0ea7f9e20862249e2041cf200707b631">bslmf::MemberFunctionPointerTraits_NonConst&lt; BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9, ARG10, ARG11, ARG12, ARG13)&gt;</a>
-, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_08_4.html#a1c47ad056a7b8145fae2c5e74cfcf065">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2)&gt;</a>
-, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraitsImp_3_01PROTOTYPE_00_01BSLMF__RETURN_07TYPE_1_1_5_08_07ARG1_08_01const_01_01_4.html#a8fe165af14b410fd0b07b12e7630c7c8">bslmf::MemberFunctionPointerTraitsImp&lt; PROTOTYPE, BSLMF_RETURN(TYPE::*)(ARG1) const  &gt;</a>
-, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraitsImp_3_01PROTOTYPE_00_01BSLMF__RETURN_07TYPE_1_1_5_08_0d6d54efda4db5a26bb70a23b348a211f.html#a93c51db15620f0825a6a720636466746">bslmf::MemberFunctionPointerTraitsImp&lt; PROTOTYPE, BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9, ARG10, ARG11) const  &gt;</a>
-, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_00_01A4_00_08498dcf9940d333554c1813d0f8f08da.html#a8868468783720e463b06f2cbedeff4e1">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12)&gt;</a>
-, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraits__NonConst_3_01BSLMF__RETURN_07TYPE_1_1_5_08_07ARG1_00bb86eb3b92db8883ecf6e25f4828fda1.html#aa8481fe9af2b6a9571faa5e8020cbec6">bslmf::MemberFunctionPointerTraits_NonConst&lt; BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9, ARG10, ARG11, ARG12, ARG13, ARG14)&gt;</a>
-, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraits__NonConst_3_01BSLMF__RETURN_07TYPE_1_1_5_08_07ARG1_004f6358cd784e6f763ab2aef1d2453090.html#aebb218f084acf558e76b64a74abb1b0a">bslmf::MemberFunctionPointerTraits_NonConst&lt; BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9, ARG10, ARG11, ARG12)&gt;</a>
-, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraits__NonConst_3_01BSLMF__RETURN_07TYPE_1_1_5_08_07ARG1_08_4.html#a1f6e7d526c5dbe813beec414bbfc9743">bslmf::MemberFunctionPointerTraits_NonConst&lt; BSLMF_RETURN(TYPE::*)(ARG1)&gt;</a>
+: <a class="el" href="structbslmf_1_1MemberFunctionPointerTraitsImp_3_01PROTOTYPE_00_01BSLMF__RETURN_07TYPE_1_1_5_08_00f685ffeb17f91808e9c84827cd4a2d5.html#a81458bdf3dadd23f59e28426abb0f601">bslmf::MemberFunctionPointerTraitsImp&lt; PROTOTYPE, BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9, ARG10, ARG11, ARG12, ARG13) const  &gt;</a>
 , <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_00_01A4_00_0ed030cf76b996c4426212cad6a0cc7d4.html#a6cf4c6da9bb9878060f0f044e71d6c29">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10)&gt;</a>
-, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraits__NonConst_3_01BSLMF__RETURN_07TYPE_1_1_5_08_07ARG1_0029f6389fb97845b0e932e721ef7a2309.html#a075e65ed562d61770e51660c3ebcd186">bslmf::MemberFunctionPointerTraits_NonConst&lt; BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9)&gt;</a>
-, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraits__NonConst_3_01BSLMF__RETURN_07TYPE_1_1_5_08_07ARG1_00_01ARG2_08_4.html#a8439c0a96ae857a12a375a7dfc9b701b">bslmf::MemberFunctionPointerTraits_NonConst&lt; BSLMF_RETURN(TYPE::*)(ARG1, ARG2)&gt;</a>
+, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_00_01A4_00_01A5_00_01A6_00_01A7_08_4.html#a5a757185c228e2b3f4ac1dbef6e83831">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3, A4, A5, A6, A7)&gt;</a>
+, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_00_01A4_00_03db0f84f4e759532d4dc43438c709516.html#a34e9a34a265c7c6787799bea25e7f371">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12...)&gt;</a>
+, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_8_8_8_08_4.html#adede5e8d653094659d7dcb67ea7812a4">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2...)&gt;</a>
+, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraitsImp_3_01PROTOTYPE_00_01BSLMF__RETURN_07TYPE_1_1_5_08_0706172ad199f26d208bc0b237bc7734c.html#a418cd4527dd45a7bbf6841e80cd3a28c">bslmf::MemberFunctionPointerTraitsImp&lt; PROTOTYPE, BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9, ARG10) const  &gt;</a>
+, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_08_4.html#a8e44939f94176514b0d614687af4bb34">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1)&gt;</a>
+, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_08_4.html#ac5a3d26e732eae13ffaa85884583a986">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3)&gt;</a>
+, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraits__NonConst_3_01BSLMF__RETURN_07TYPE_1_1_5_08_07ARG1_00ca0f8a0dd1eb5325dcc8448c1df0ae95.html#a5cbd9fd254203c41f05779c8e0a3b060">bslmf::MemberFunctionPointerTraits_NonConst&lt; BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4)&gt;</a>
+, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_00_01A4_00_0e2a24604cbb42d08715d99b8fd7bfcae.html#ace6404ad8c185f98f6a5e884d2e9ab05">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3, A4, A5, A6, A7, A8, A9)&gt;</a>
+, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_00_01A4_00_01A5_00_01A6_08_4.html#ad0461af29a03aef80addaa1b1eba0d44">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3, A4, A5, A6)&gt;</a>
+, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_00_01A4_00_09b0a6d936c7420bd9fd4eaa2dc694bbf.html#a0f6367f65897f22b7ab29e006e682608">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14)&gt;</a>
+, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraitsImp_3_01PROTOTYPE_00_01BSLMF__RETURN_07TYPE_1_1_5_08_09d2e48152c89a20ade462e65f52e5a5b.html#ab1cf98e939e650a30ffd8b1e71b9800b">bslmf::MemberFunctionPointerTraitsImp&lt; PROTOTYPE, BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5) const  &gt;</a>
+, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraitsImp_3_01PROTOTYPE_00_01BSLMF__RETURN_07TYPE_1_1_5_08_0d6d54efda4db5a26bb70a23b348a211f.html#a93c51db15620f0825a6a720636466746">bslmf::MemberFunctionPointerTraitsImp&lt; PROTOTYPE, BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9, ARG10, ARG11) const  &gt;</a>
+, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_08_4.html#a1c47ad056a7b8145fae2c5e74cfcf065">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2)&gt;</a>
+, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraitsImp_3_01PROTOTYPE_00_01BSLMF__RETURN_07TYPE_1_1_5_08_0723782855c8e925b8de34926e0358593.html#a2e9756c1238749dbd08f4088472d6b21">bslmf::MemberFunctionPointerTraitsImp&lt; PROTOTYPE, BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9, ARG10, ARG11, ARG12, ARG13, ARG14) const  &gt;</a>
 , <a class="el" href="structbslmf_1_1MemberFunctionPointerTraits__NonConst_3_01BSLMF__RETURN_07TYPE_1_1_5_08_07ARG1_00c44b4f0cce6c7921d76f900f97a72297.html#a6517a7c06b3274a9f19e3e31c02266fb">bslmf::MemberFunctionPointerTraits_NonConst&lt; BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8)&gt;</a>
+, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_00_01A4_00_08401097c70b324150bd9b8e48a382755.html#ac834860d3ff99f4881525adadcdb8843">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14...)&gt;</a>
+, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_00_01A4_8_8_8_08_4.html#a4f39809481f7b022975313b3f8b073d8">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3, A4...)&gt;</a>
+, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_00_01A4_00_01A5_00_01A6_00_01A7_8_8_8_08_4.html#afdc7186a000b00372f252497711496bc">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3, A4, A5, A6, A7...)&gt;</a>
+, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraitsImp_3_01PROTOTYPE_00_01BSLMF__RETURN_07TYPE_1_1_5_08_03046d52b5f29b06c5b184f637ba33dc1.html#a14bd04b788cb58315a39d623e49df4c5">bslmf::MemberFunctionPointerTraitsImp&lt; PROTOTYPE, BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8) const  &gt;</a>
+, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_00_01A4_00_01A5_00_01A6_8_8_8_08_4.html#ac256e4a783305725bd71627295aa5d74">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3, A4, A5, A6...)&gt;</a>
+, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraitsImp_3_01PROTOTYPE_00_01BSLMF__RETURN_07TYPE_1_1_5_08_0baa55228547ee9771fddc5cb0000a7e5.html#a9a378acdfac51fc98d8ad3c9e789a92f">bslmf::MemberFunctionPointerTraitsImp&lt; PROTOTYPE, BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3) const  &gt;</a>
+, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_00_01A4_00_09f73579708ec9e9f01e513446727a35c.html#a04136dd292e3cba65b6a0ca51b8cdcf6">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11...)&gt;</a>
+, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_00_01A4_00_0a66e855ab5d3e13d656e1fd51dd19b04.html#a1cd91475ae3a91973248253d6e947261">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10...)&gt;</a>
+, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraitsImp_3_01PROTOTYPE_00_01BSLMF__RETURN_07TYPE_1_1_5_08_0146b8d64287564a3bc767efee2f87d13.html#af02d53f15bf24d87c92e12f505732702">bslmf::MemberFunctionPointerTraitsImp&lt; PROTOTYPE, BSLMF_RETURN(TYPE::*)(ARG1, ARG2) const  &gt;</a>
+, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraits__NonConst_3_01BSLMF__RETURN_07TYPE_1_1_5_08_07ARG1_00_01ARG2_00_01ARG3_08_4.html#a843ffac1b1718758e8ed072f6bf5a98a">bslmf::MemberFunctionPointerTraits_NonConst&lt; BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3)&gt;</a>
+, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraits__NonConst_3_01BSLMF__RETURN_07TYPE_1_1_5_08_07ARG1_00bd4edf17928d170ee29227b6e550da5f.html#a47686dd905e855d1a3eba7d3fd89e743">bslmf::MemberFunctionPointerTraits_NonConst&lt; BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5)&gt;</a>
+, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_00_01A4_00_05c0bbf10c9c0e4b29a60a9ee68c553cc.html#a7384895ad91ec371d9f9d2f9eca3e2be">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11)&gt;</a>
+, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraits__NonConst_3_01BSLMF__RETURN_07TYPE_1_1_5_08_07ARG1_00a6a7055cef4a4e3fa66385b34e19ad92.html#a0765cb358eae7a70dcd5622bb7f86b2d">bslmf::MemberFunctionPointerTraits_NonConst&lt; BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9, ARG10, ARG11)&gt;</a>
+, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraitsImp_3_01PROTOTYPE_00_01BSLMF__RETURN_07TYPE_1_1_5_08_05e6e283918f09ce1e5f16896f96e9bc9.html#a2fd19b172059c9066bdcf8ab0b2f14ad">bslmf::MemberFunctionPointerTraitsImp&lt; PROTOTYPE, BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4) const  &gt;</a>
+, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_00_01A4_00_0e21f23ca93a02a9ab0c13d9057972532.html#a7fa4b9ac55615843198e8d206df441f7">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3, A4, A5, A6, A7, A8, A9...)&gt;</a>
+, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraitsImp_3_01PROTOTYPE_00_01BSLMF__RETURN_07TYPE_1_1_5_08_088a7082c003cc5e66738d57b2b039027.html#a79ead5e3c0e64240dcbb2309c6e88015">bslmf::MemberFunctionPointerTraitsImp&lt; PROTOTYPE, BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9, ARG10, ARG11, ARG12) const  &gt;</a>
+, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraits__NonConst_3_01BSLMF__RETURN_07TYPE_1_1_5_08_07ARG1_004f6358cd784e6f763ab2aef1d2453090.html#aebb218f084acf558e76b64a74abb1b0a">bslmf::MemberFunctionPointerTraits_NonConst&lt; BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9, ARG10, ARG11, ARG12)&gt;</a>
+, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraitsImp_3_01PROTOTYPE_00_01BSLMF__RETURN_07TYPE_1_1_5_08_074ef4e1cd702cec059b808cd447b8722.html#a6c6055fc04d0f2ca09066e2c9ced86b6">bslmf::MemberFunctionPointerTraitsImp&lt; PROTOTYPE, BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7) const  &gt;</a>
+, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_00_01A4_00_08498dcf9940d333554c1813d0f8f08da.html#a8868468783720e463b06f2cbedeff4e1">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12)&gt;</a>
+, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_8_8_8_08_4.html#adc85648820f533a04dd5c8443712ae14">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3...)&gt;</a>
+, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraitsImp_3_01PROTOTYPE_00_01BSLMF__RETURN_07TYPE_1_1_5_08_07ARG1_08_01const_01_01_4.html#a8fe165af14b410fd0b07b12e7630c7c8">bslmf::MemberFunctionPointerTraitsImp&lt; PROTOTYPE, BSLMF_RETURN(TYPE::*)(ARG1) const  &gt;</a>
+, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_8_8_8_08_4.html#a957f8209c5c3d22b5a97aea5811fd8b2">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1...)&gt;</a>
+, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraitsImp_3_01PROTOTYPE_00_01BSLMF__RETURN_07TYPE_1_1_5_08_0013a926cd54291bb62dcb9f3efd0c559.html#a01c358bef0af72dd036bd7dc80c707b2">bslmf::MemberFunctionPointerTraitsImp&lt; PROTOTYPE, BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6) const  &gt;</a>
+, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraits__NonConst_3_01BSLMF__RETURN_07TYPE_1_1_5_08_07ARG1_00_01ARG2_08_4.html#a8439c0a96ae857a12a375a7dfc9b701b">bslmf::MemberFunctionPointerTraits_NonConst&lt; BSLMF_RETURN(TYPE::*)(ARG1, ARG2)&gt;</a>
+, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraitsImp_3_01PROTOTYPE_00_01BSLMF__RETURN_07TYPE_1_1_5_08_07_08_01const_01_01_4.html#a5be36ec72ed36a6af09ecca87abcc7c2">bslmf::MemberFunctionPointerTraitsImp&lt; PROTOTYPE, BSLMF_RETURN(TYPE::*)() const  &gt;</a>
+, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_00_01A4_00_01A5_08_4.html#a97e58b0882623cd69f0cc4df0a7fe18e">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3, A4, A5)&gt;</a>
+, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_00_01A4_08_4.html#abc83d2d0d834dbf6561e12d1a97d67eb">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3, A4)&gt;</a>
+, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraits__NonConst_3_01BSLMF__RETURN_07TYPE_1_1_5_08_07ARG1_00a72414582355e7806da28650aaf97479.html#a27d59e92f34b4a05d7ca7501cb78da5c">bslmf::MemberFunctionPointerTraits_NonConst&lt; BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9, ARG10)&gt;</a>
+, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraits__NonConst_3_01BSLMF__RETURN_07TYPE_1_1_5_08_07ARG1_08_4.html#a1f6e7d526c5dbe813beec414bbfc9743">bslmf::MemberFunctionPointerTraits_NonConst&lt; BSLMF_RETURN(TYPE::*)(ARG1)&gt;</a>
+, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraits__NonConst_3_01BSLMF__RETURN_07TYPE_1_1_5_08_07ARG1_0029f6389fb97845b0e932e721ef7a2309.html#a075e65ed562d61770e51660c3ebcd186">bslmf::MemberFunctionPointerTraits_NonConst&lt; BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9)&gt;</a>
+, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_00_01A4_00_05fcc2a54a2b514dd3b8afa590936f3e7.html#afe146d64253e80c8257cade974fde74d">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3, A4, A5, A6, A7, A8)&gt;</a>
+, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07_8_8_8_08_4.html#af19c5236d8e4d83274dce132f64ada92">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(...)&gt;</a>
+, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraits__NonConst_3_01BSLMF__RETURN_07TYPE_1_1_5_08_07ARG1_0094587943df12a2fa6fc9e022c86bb11d.html#a0ea7f9e20862249e2041cf200707b631">bslmf::MemberFunctionPointerTraits_NonConst&lt; BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9, ARG10, ARG11, ARG12, ARG13)&gt;</a>
+, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraits__NonConst_3_01BSLMF__RETURN_07TYPE_1_1_5_08_07ARG1_00bb86eb3b92db8883ecf6e25f4828fda1.html#aa8481fe9af2b6a9571faa5e8020cbec6">bslmf::MemberFunctionPointerTraits_NonConst&lt; BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9, ARG10, ARG11, ARG12, ARG13, ARG14)&gt;</a>
+, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07_08_4.html#a0d39b67a392971b53ce4b241d2853a68">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)()&gt;</a>
+, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_00_01A4_00_03a68730ad3802024d1eebcbdbacf9f83.html#a3ae568e88130b88f177e1a685c0705d1">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3, A4, A5, A6, A7, A8...)&gt;</a>
+, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraits__NonConst_3_01BSLMF__RETURN_07TYPE_1_1_5_08_07ARG1_0054243f2ea0896761cfcd8cd8b6c36632.html#a9d77f8a58467b8c5da23c367ccbd1b2d">bslmf::MemberFunctionPointerTraits_NonConst&lt; BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6)&gt;</a>
+, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraits__NonConst_3_01BSLMF__RETURN_07TYPE_1_1_5_08_07ARG1_00f6b453588d728662149ea8ec39502a78.html#a669167fd68c045dab2f5d751a60a0037">bslmf::MemberFunctionPointerTraits_NonConst&lt; BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7)&gt;</a>
+, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_00_01A4_00_01A5_8_8_8_08_4.html#a3f7b1155a7233a0a7b18475a47a1e7c1">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3, A4, A5...)&gt;</a>
+, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraits__NonConst_3_01BSLMF__RETURN_07TYPE_1_1_5_08_07_08_4.html#ab323cbecd237ac9a15b331d0efc8210f">bslmf::MemberFunctionPointerTraits_NonConst&lt; BSLMF_RETURN(TYPE::*)()&gt;</a>
+, <a class="el" href="structbslmf_1_1MemberFunctionPointerTraitsImp_3_01PROTOTYPE_00_01BSLMF__RETURN_07TYPE_1_1_5_08_062d699ba2a1af412c414efffc54afd6c.html#accb5865dadabf7e803d271e637efce3b">bslmf::MemberFunctionPointerTraitsImp&lt; PROTOTYPE, BSLMF_RETURN(TYPE::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9) const  &gt;</a>
+, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_00_01A4_00_0b97b4673fda4eae8799252c7052bd088.html#af8b52ce76a94c4e954b4f96112bdc771">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13)&gt;</a>
+, <a class="el" href="structbslmf_1_1FunctionPointerTraits_3_01BSLMF__RETURN_07_5_08_07A1_00_01A2_00_01A3_00_01A4_00_0052689ead5de3cb6f0f804bdaa3aa10f.html#ac0b0b63d541119cc51b12dbd30e1bfae">bslmf::FunctionPointerTraits&lt; BSLMF_RETURN(*)(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13...)&gt;</a>
 </li>
 <li>reverse()
 : <a class="el" href="group__bslstl__list.html#ga77b4a81041a41048e87f93852ed9aaa3">bsl::list&lt; VALUE, ALLOCATOR &gt;</a>
 </li>
 <li>reverse_iterator
-: <a class="el" href="group__bslstl__vector.html#ga37a11cdffcc2935872a29b90a5b90f4b">bsl::Vector_ImpBase&lt; VALUE_TYPE &gt;</a>
-, <a class="el" href="group__bslstl__multimap.html#ga6f2b631c20e2946a39199e6e00a53fe6">bsl::multimap&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__multiset.html#gae46a5c1b724ee361ab715730a04ee343">bsl::multiset&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
+: <a class="el" href="group__bslstl__multimap.html#ga6f2b631c20e2946a39199e6e00a53fe6">bsl::multimap&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__set.html#gac2e33e570a360d8527a952105cb40f0b">bsl::set&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__deque.html#ga6669228a017636b079a4f050c21cdba3">bsl::Deque_Base&lt; VALUE_TYPE &gt;</a>
-, <a class="el" href="group__bslstl__string.html#ga0222d501ce939e1ea6577bd757683c05">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__multiset.html#gae46a5c1b724ee361ab715730a04ee343">bsl::multiset&lt; KEY, COMPARATOR, ALLOCATOR &gt;</a>
+, <a class="el" href="classbdlt_1_1DayOfWeekSet.html#a60771bc3b1d1657bae4bca4ac2352482">bdlt::DayOfWeekSet</a>
 , <a class="el" href="group__bslstl__list.html#gaf598f948bdd4e91919484812c11319fd">bsl::list&lt; VALUE, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__vector.html#gafa599b89b411e2432aa34da953455b14">bsl::Vector_Imp&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__deque.html#ga6669228a017636b079a4f050c21cdba3">bsl::Deque_Base&lt; VALUE_TYPE &gt;</a>
 , <a class="el" href="group__bslstl__map.html#ga7865b0af06c253a2dafdea698d41aad1">bsl::map&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__vector.html#ga4b85fe9e069f48f8c39db04ac4593b68">bsl::vector&lt; VALUE_TYPE *, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__vector.html#ga2d96c143e028e4314212bdba9ef9ef8a">bsl::vector&lt; const VALUE_TYPE *, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__deque.html#gaa07dc4420c5faf43d9ca3a89d5b24f7e">bsl::deque&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__vector.html#ga2d96c143e028e4314212bdba9ef9ef8a">bsl::vector&lt; const VALUE_TYPE *, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__vector.html#ga37a11cdffcc2935872a29b90a5b90f4b">bsl::Vector_ImpBase&lt; VALUE_TYPE &gt;</a>
+, <a class="el" href="group__bslstl__vector.html#gafa599b89b411e2432aa34da953455b14">bsl::Vector_Imp&lt; VALUE_TYPE, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__string.html#ga0222d501ce939e1ea6577bd757683c05">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__vector.html#ga4b85fe9e069f48f8c39db04ac4593b68">bsl::vector&lt; VALUE_TYPE *, ALLOCATOR &gt;</a>
 </li>
 <li>rfind()
-: <a class="el" href="group__bslstl__string.html#ga374222c5804a9217c8244fbee9bdf0fc">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;</a>
+: <a class="el" href="group__bslstl__string.html#ga322714096bbf89224b77fbe6b298411a">bsl::basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;</a>
 </li>
 <li>rightChild()
-: <a class="el" href="classbslalg_1_1RbTreeNode.html#a647d0b805ffb9b0aaccf33827715b91a">bslalg::RbTreeNode</a>
+: <a class="el" href="classbslalg_1_1RbTreeNode.html#a218face136b06dcb9d68b2d050f1c3f3">bslalg::RbTreeNode</a>
 </li>
 <li>rightmost()
-: <a class="el" href="structbslalg_1_1RbTreeUtil.html#a5d2046341e7a91511bfefef1a7051dbd">bslalg::RbTreeUtil</a>
+: <a class="el" href="structbslalg_1_1RbTreeUtil.html#a8dd94368c4acc530ddd6146aab5ef6fa">bslalg::RbTreeUtil</a>
 </li>
 <li>rootNode()
 : <a class="el" href="classbslalg_1_1RbTreeAnchor.html#a41fb67d0d4f85a8cdde601fbee37eeaa">bslalg::RbTreeAnchor</a>
 </li>
 <li>rotate()
-: <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a8d4b954c886bcf26a4558a0b8425b536">bslalg::ArrayPrimitives_Imp</a>
+: <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a5a72aa6b88982a74a3deabf28d4bb86f">bslalg::ArrayPrimitives_Imp</a>
 , <a class="el" href="structbslalg_1_1ArrayPrimitives.html#a8ae744e097db0b9b93b6d1b45c373f4e">bslalg::ArrayPrimitives</a>
-, <a class="el" href="structbslalg_1_1ArrayPrimitives__Imp.html#a5a72aa6b88982a74a3deabf28d4bb86f">bslalg::ArrayPrimitives_Imp</a>
 </li>
 <li>rotateLeft()
 : <a class="el" href="structbslalg_1_1RbTreeUtil.html#a3376917aed5c87b05450d5fc2e049db1">bslalg::RbTreeUtil</a>
@@ -493,20 +535,20 @@ Here is a list of all class members with links to the classes they belong to:
 : <a class="el" href="structbdldfp_1_1DecimalUtil.html#aefe31045f37882e8ca898b2514d6c1d7">bdldfp::DecimalUtil</a>
 </li>
 <li>round_error()
-: <a class="el" href="classstd_1_1numeric__limits_3_01BloombergLP_1_1bdldfp_1_1Decimal64_01_4.html#a450cbc0d4685460f04669a8c6ae48c4c">std::numeric_limits&lt; BloombergLP::bdldfp::Decimal64 &gt;</a>
+: <a class="el" href="classstd_1_1numeric__limits_3_01BloombergLP_1_1bdldfp_1_1Decimal128_01_4.html#aad33abf7c969aa724edb5e323ff205d5">std::numeric_limits&lt; BloombergLP::bdldfp::Decimal128 &gt;</a>
+, <a class="el" href="classstd_1_1numeric__limits_3_01BloombergLP_1_1bdldfp_1_1Decimal64_01_4.html#a450cbc0d4685460f04669a8c6ae48c4c">std::numeric_limits&lt; BloombergLP::bdldfp::Decimal64 &gt;</a>
 , <a class="el" href="classstd_1_1numeric__limits_3_01BloombergLP_1_1bdldfp_1_1Decimal32_01_4.html#ad3b243bc1d2e5f6b26aac7dc8f550c1d">std::numeric_limits&lt; BloombergLP::bdldfp::Decimal32 &gt;</a>
-, <a class="el" href="classstd_1_1numeric__limits_3_01BloombergLP_1_1bdldfp_1_1Decimal128_01_4.html#aad33abf7c969aa724edb5e323ff205d5">std::numeric_limits&lt; BloombergLP::bdldfp::Decimal128 &gt;</a>
 </li>
 <li>round_style
 : <a class="el" href="classbdldfp_1_1faux__numeric__limits_3_01BloombergLP_1_1bdldfp_1_1Decimal32_00_01DUMMY_01_4.html#a759459c9dced1a6c22d383325d149e7c">bdldfp::faux_numeric_limits&lt; BloombergLP::bdldfp::Decimal32, DUMMY &gt;</a>
-, <a class="el" href="classbdldfp_1_1faux__numeric__limits_3_01BloombergLP_1_1bdldfp_1_1Decimal64_00_01DUMMY_01_4.html#abbc5a54bc98624f3f12d886b206158b8">bdldfp::faux_numeric_limits&lt; BloombergLP::bdldfp::Decimal64, DUMMY &gt;</a>
 , <a class="el" href="classbdldfp_1_1faux__numeric__limits_3_01BloombergLP_1_1bdldfp_1_1Decimal128_00_01DUMMY_01_4.html#acd122394f6e7bf956a26bcade1e5183e">bdldfp::faux_numeric_limits&lt; BloombergLP::bdldfp::Decimal128, DUMMY &gt;</a>
+, <a class="el" href="classbdldfp_1_1faux__numeric__limits_3_01BloombergLP_1_1bdldfp_1_1Decimal64_00_01DUMMY_01_4.html#abbc5a54bc98624f3f12d886b206158b8">bdldfp::faux_numeric_limits&lt; BloombergLP::bdldfp::Decimal64, DUMMY &gt;</a>
 </li>
 <li>roundUp()
 : <a class="el" href="structbdlb_1_1BitUtil.html#a44e06a1a5868b3f2cf07b11d35e2db08">bdlb::BitUtil</a>
 </li>
 <li>roundUpToBinaryPower()
-: <a class="el" href="structbdlb_1_1BitUtil.html#a84ca0af7fd22722a8605ade77285747c">bdlb::BitUtil</a>
+: <a class="el" href="structbdlb_1_1BitUtil.html#a73ccf15bca27a3099ed36c4329a9c0d1">bdlb::BitUtil</a>
 </li>
 <li>roundUpToMaximalAlignment()
 : <a class="el" href="structbsls_1_1AlignmentUtil.html#ae5307e4b5ab0a4322c8cd4ccf48fbb9e">bsls::AlignmentUtil</a>
@@ -516,7 +558,7 @@ Here is a list of all class members with links to the classes they belong to:
 </li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:31 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:24 for BDE Release 2.23.1 Open-Source by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

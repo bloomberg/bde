@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bslmf_metaint.h                                                    -*-C++-*-
@@ -81,7 +81,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //..
 ///Example 2: Reading the &#39;VALUE&#39; member
 /// - - - - - - - - - - - - - - - - - -
-// In addition to forming new types, the value of the integral paramameter to
+// In addition to forming new types, the value of the integral parameter to
 // &#39;MetaInt&#39; is &quot;saved&quot; in the enum member &#39;VALUE&#39;, and is accessible for use
 // in compile-time or run-time operations.
 //..
@@ -112,6 +112,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 
 #ifndef INCLUDED_BSLMF_TAG
 #include &lt;bslmf_tag.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include &lt;bsls_compilerfeatures.h&gt;
 #endif
 
 namespace BloombergLP {

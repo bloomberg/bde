@@ -1,0 +1,177 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.23.1 OSS</title>
+<html>
+<pre>
+// bsls_systemtime.h                                                  -*-C++-*-
+#ifndef INCLUDED_BSLS_SYSTEMTIME
+#define INCLUDED_BSLS_SYSTEMTIME
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide utilities to retrieve the system time.
+//
+//@CLASSES:
+//   bsls::SystemTime: namespace for system-time functions
+//
+//@SEE_ALSO: bsls_timeinterval
+//
+//@DESCRIPTION: This component provides a &#39;struct&#39;, &#39;bsls::SystemTime&#39;, in
+// which are defined a series of static methods for retrieving the current
+// system time.  This component provides access to a monotonic clock and a
+// real-time (wall) clock.
+//
+///Reference Time Point
+///--------------------
+// The &#39;bsls::TimeInterval&#39; objects returned by functions in this component
+// identify a time by providing a time interval from some fixed reference time
+// point (or &quot;epoch&quot;).  The clock types supported by &#39;bsls_systemtime&#39; (see
+// &#39;bsls_systemclocktype&#39;) define a reference time point as described in the
+// table below:
+//..
+//  bsls::SystemClockType::Enum  Reference Time Point
+//  ---------------------------  --------------------
+//  e_REALTIME                   January 1, 1970 00:00.000 UTC (POSIX epoch)
+//  e_MONOTONIC                  platform-dependent
+//..
+// The &#39;e_MONOTONIC&#39; clock&#39;s reference time point is an unspecified,
+// platform-dependent, value.  This means that the monotonic clock cannot be
+// reliably used to determine the absolute wall clock time.  Monotonic clock
+// times are frequently used to specify a fixed point in the future relative to
+// the current (monotonic) clock time (e.g., for a timed-wait on a condition
+// variable).  Note that the monotonic clock time may be (though certainly is
+// not guaranteed to be) an arbitrary value relative to the process start time,
+// meaning that &#39;bsls::TimeInterval&#39; values from the monotonic clock should
+// *not* be shared between processes.
+//
+///Thread Safety
+///-------------
+// The functions provided by &#39;bsls::SystemTime&#39; are *thread-safe*.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Getting Current Wall Clock Time
+/// - - - - - - - - - - - - - - - - - - - - -
+// The following snippets of code illustrate how to use this utility component
+// to obtain the system time by calling &#39;now&#39; and &#39;nowRealtimeClock&#39;.
+//
+// First, we call &#39;nowRealtimeClock&#39;, and set &#39;t1&#39;, to the current time
+// according to the real-time clock:
+//..
+//  bsls::TimeInterval t1 = bsls::SystemTime::nowRealtimeClock();
+//
+//  assert(bsls::TimeInterval() != t1);
+//..
+// Next, we sleep for 1 second:
+//..
+//  sleep(1);
+//..
+// Now, we call &#39;now&#39;, and supply &#39;e_REALTIME&#39; to indicate a real-time clock
+// value should be returned, and then set &#39;t2&#39; to the current time according
+// to the real-time clock:
+//..
+//  bsls::TimeInterval t2 = bsls::SystemTime::now(
+//                                          bsls::SystemClockType::e_REALTIME);
+//
+//  assert(bsls::TimeInterval() != t2);
+//..
+// Finally, we verify the interval between &#39;t1&#39; and &#39;t2&#39; is close to 1 second:
+//..
+//  bsls::TimeInterval interval = t2 - t1;
+//
+//  assert(bsls::TimeInterval(.9) &lt;= interval &amp;&amp;
+//                                   interval &lt;= bsls::TimeInterval(1.1));
+//..
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_SYSTEMCLOCKTYPE
+#include &lt;bsls_systemclocktype.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
+#include &lt;bsls_timeinterval.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bsls {
+
+                            // =================
+                            // struct SystemTime
+                            // =================
+
+struct SystemTime {
+    // This &#39;struct&#39; provides a namespace for system-time-retrieval functions.
+
+  public:
+    // CLASS METHODS
+    static TimeInterval now(SystemClockType::Enum clockType);
+        // Return the &#39;TimeInterval&#39; value representing the current system
+        // time according to the specified &#39;clockType&#39;.  The returned value is
+        // the time interval between the reference time point defined for the
+        // supplied &#39;clockType&#39; (see {Reference Time Point}) and the current
+        // time.
+
+    static TimeInterval nowMonotonicClock();
+        // Return the &#39;TimeInterval&#39; value representing the current system time
+        // according to the monotonic clock.  The returned value is the time
+        // interval between the reference time point for the monotonic clock
+        // (see {Reference Time Point}) and the current time.
+
+    static TimeInterval nowRealtimeClock();
+        // Return the &#39;TimeInterval&#39; value representing the current system time
+        // according to the real-time clock.  The returned value is the time
+        // interval between the reference time point for the real-time clock
+        // (see {Reference Time Point}) and the current time.
+};
+
+// ============================================================================
+//                           INLINE DEFINITIONS
+// ============================================================================
+
+                            // ----------------
+                            // class SystemTime
+                            // ----------------
+
+// CLASS METHODS
+inline
+TimeInterval SystemTime::now(SystemClockType::Enum clockType)
+{
+    switch (clockType) {
+      case SystemClockType::e_MONOTONIC: return nowMonotonicClock();  // RETURN
+      case SystemClockType::e_REALTIME:  return nowRealtimeClock();   // RETURN
+    }
+    BSLS_ASSERT_OPT(&quot;Invalid clockType parameter value&quot; &amp;&amp; 0);
+    return TimeInterval();
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2014 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

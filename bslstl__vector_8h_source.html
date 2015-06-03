@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bslstl_vector.h                                                    -*-C++-*-
@@ -2203,6 +2203,7 @@ Vector_ImpBase&lt;VALUE_TYPE&gt;::data() const
 
 // CREATORS
 template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::Guard::Guard(VALUE_TYPE          *data,
                                                 std::size_t          capacity,
                                                 VectorContainerBase *container)
@@ -2213,6 +2214,7 @@ Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::Guard::Guard(VALUE_TYPE          *data,
 }
 
 template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::Guard::~Guard()
 {
     if (d_data_p) {
@@ -2222,6 +2224,7 @@ Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::Guard::~Guard()
 
 // MANIPULATORS
 template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 void Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::Guard::release()
 {
     d_data_p = 0;
@@ -2506,6 +2509,7 @@ Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::Vector_Imp(size_type         initialSiz
 
 template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
 template &lt;class INPUT_ITER&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::Vector_Imp(INPUT_ITER       first,
                                               INPUT_ITER       last,
                                               const ALLOCATOR&amp; basicAllocator)
@@ -2563,6 +2567,7 @@ Vector_Imp(const Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;&amp; original,
 }
 
 template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::~Vector_Imp()
 {
     if (this-&gt;d_dataBegin) {
@@ -2962,7 +2967,6 @@ void Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::pop_back()
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
 template &lt;class... Args&gt;
-inline
 VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator position,
                                                        Args&amp;&amp;...      args)
 {
@@ -3043,7 +3047,6 @@ VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator posi
 // The following section is automatically generated.  **DO NOT EDIT**
 // Generator command line: sim_cpp11_features.pl --var-args=5 bslstl_vector.h
 template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
-inline
 VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator position)
 {
     BSLS_ASSERT_SAFE(this-&gt;begin() &lt;= position);
@@ -3115,7 +3118,6 @@ VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator posi
 
 template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
 template &lt;class Args_1&gt;
-inline
 VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator position,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1)
 {
@@ -3193,7 +3195,6 @@ VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator posi
 template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
 template &lt;class Args_1,
           class Args_2&gt;
-inline
 VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator position,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2)
@@ -3277,7 +3278,6 @@ template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
 template &lt;class Args_1,
           class Args_2,
           class Args_3&gt;
-inline
 VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator position,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
@@ -3367,7 +3367,6 @@ template &lt;class Args_1,
           class Args_2,
           class Args_3,
           class Args_4&gt;
-inline
 VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator position,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
@@ -3463,7 +3462,6 @@ template &lt;class Args_1,
           class Args_3,
           class Args_4,
           class Args_5&gt;
-inline
 VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator position,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_1) args_1,
                               BSLS_COMPILERFEATURES_FORWARD_REF(Args_2) args_2,
@@ -3561,7 +3559,6 @@ VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator posi
 #else
 template &lt;class VALUE_TYPE, class ALLOCATOR&gt;
 template &lt;class... Args&gt;
-inline
 VALUE_TYPE* Vector_Imp&lt;VALUE_TYPE, ALLOCATOR&gt;::emplace(const_iterator position,
                                BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
 {
