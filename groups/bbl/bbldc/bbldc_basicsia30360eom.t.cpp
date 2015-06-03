@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
-// 'bbldc_BasicSia30360eom' methods.  First, create two 'bdlt::Date' variables
+// 'bbldc::BasicSia30360eom' methods.  First, create two 'bdlt::Date' variables
 // 'd1' and 'd2':
 //..
     const bdlt::Date d1(2004,  9, 30);

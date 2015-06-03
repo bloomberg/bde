@@ -35,11 +35,10 @@ BSLS_IDENT("$Id: $")
 // This example shows the definition and use of a simple concrete day-count
 // convention.  This functionality suffices to demonstrate the requisite steps
 // for having a working day-count convention:
-//..
-//  1. Define a concrete day-count type derived from 'bbldc_DayCountInterface'.
-//  2. Implement the pure virtual 'daysDiff' and 'yearsDiff' methods.
-//  3. Instantiate and use an object of the concrete type.
-//..
+//   * Define a concrete day-count type derived from 'bbldc_DayCountInterface'.
+//   * Implement the pure virtual 'daysDiff' and 'yearsDiff' methods.
+//   * Instantiate and use an object of the concrete type.
+//
 // First define the (derived) 'my_DayCountConvention' class and implement its
 // constructor inline (for convenience, directly within the derived-class
 // definition):

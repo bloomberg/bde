@@ -48,8 +48,8 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
-// 'bbldc::BsicSia30360neom' methods.  First, create two 'bdlt::Date' variables
-// 'd1' and 'd2':
+// 'bbldc::BasicSia30360neom' methods.  First, create two 'bdlt::Date'
+// variables 'd1' and 'd2':
 //..
 //  const bdlt::Date d1(2004,  9, 30);
 //  const bdlt::Date d2(2004, 12, 30);

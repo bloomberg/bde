@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
                               d1,
                               d2,
                               bbldc::DayCountConvention::e_ISDA_ACTUAL_ACTUAL);
-//  // Need fuzzy comparison since 'yearsDiff' is a double.
+    // Need fuzzy comparison since 'yearsDiff' is a double.
     ASSERT(0.1999 < yearsDiff && 0.2001 > yearsDiff);
 //..
       } break;
