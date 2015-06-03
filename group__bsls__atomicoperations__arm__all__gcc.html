@@ -93,7 +93,7 @@
 <dl class="user"><dt><b></b></dt><dd>IMPLEMENTATION NOTES: Wherever possible we use atomic intrinsics that both GCC 4.6+ and Clang 3.2+ support. Otherwise the inline assembly code is used that can be compiled both by GCC and Clang. This puts some restrictions on the assembly code because Clang doesn't support register pairs that represent a 64bit value. So instead of <code>ldrexd 1, H1, [3]</code> the exact registers have to be specified, as in <code>ldrexd r2, r3, [3]</code>. Note also that operations like <code>ldrexd</code> and <code>stdrexd</code> are supported only starting from <code>armv6zk</code>, so not every armv6 platform will work. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>For more details on ARM atomic pritives see the Linux kernel source code (arch/arm/include/asm/atomic.h) and the "C/C++11 mappings to processors" (<a href="http://www.cl.cam.ac.uk/~pes20/cpp/cpp0xmappings.html">http://www.cl.cam.ac.uk/~pes20/cpp/cpp0xmappings.html</a>), and the "ARM1156T2F-S Technical Reference Manual" (<a href="http://infocenter.arm.com/help/index.jsp?">http://infocenter.arm.com/help/index.jsp?</a> topic=/com.arm.doc.ddi0290g/Babebdcb.html), which contains documentation on the p15 coprocessor opcodes used in this component). </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:22 for BDE Release 2.23.1 Open-Source by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:22 for BDE Release 2.23.1 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>
