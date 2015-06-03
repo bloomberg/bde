@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: bsls_byteorderutil_impl Component</title>
+<title>BDE 2.23.1 OSS: bsls_byteorderutil_impl Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
@@ -52,6 +53,9 @@
   </div>
 </div>
 <div class="header">
+  <div class="summary">
+<a href="#namespaces">Namespaces</a> &#124;
+<a href="#define-members">Defines</a>  </div>
   <div class="headertitle">
 <h1>Component bsls_byteorderutil_impl<br/>
 <small>
@@ -63,7 +67,18 @@
 <p>Provide implementation of byte-order manipulation functions.  
 <a href="#_details">More...</a></p>
 <table class="memberdecls">
+<tr><td colspan="2"><h2><a name="namespaces"></a>
+Namespaces</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">namespace &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebsls.html">bsls</a></td></tr>
+<tr><td colspan="2"><h2><a name="define-members"></a>
+Defines</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bsls__byteorderutil__impl.html#gade0b120656a3fb37c48b403c2983bbf2">BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT</a>(expr)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bsls__byteorderutil__impl.html#ga13d0d38b80beeedf1b1b40fb40cafff6">BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS</a>&nbsp;&nbsp;&nbsp;1</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bsls__byteorderutil__impl.html#ga9f70ddac58438c56a936aa0b18912b96">BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16</a>(dstType, x)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bsls__byteorderutil__impl.html#ga64a4a2cddf65708756264c522e5e5ea9">BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32</a>(dstType, x)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bsls__byteorderutil__impl.html#gad79d75613c24793dd09ab94be9c6c82b">BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64</a>(dstType, x)</td></tr>
 </table>
+<hr/><a name="_details"></a><h2>Detailed Description</h2>
 <dl class="user"><dt><b>Outline</b></dt><dd><ul>
 <li>
 <a href="#1">Purpose</a> </li>
@@ -90,39 +105,161 @@
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="macros"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Macros: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><table class="doxtable">
-<tr>
-<td>BSLS_BYTEORDERUTIL_IMPL_CUSTOM_16 </td><td><code>customeSwap16</code> function is defined  </td></tr>
-<tr>
-<td>BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32 </td><td><code>customeSwap32</code> function is defined  </td></tr>
-<tr>
-<td>BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64 </td><td><code>customeSwap64</code> function is defined  </td></tr>
-<tr>
-<td>BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P16 </td><td><code>customeSwapP16</code> function is defined  </td></tr>
-<tr>
-<td>BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32 </td><td><code>customeSwapP32</code> function is defined  </td></tr>
-<tr>
-<td>BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64 </td><td><code>customeSwapP64</code> function is defined  </td></tr>
-</table>
-</dd></dl>
+<dl class="user"><dt><b></b></dt><dd>BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16(x) return <code>x</code> with bytes swapped BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32(x) return <code>x</code> with bytes swapped BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64(x) return <code>x</code> with bytes swapped BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16(&amp;x) return <code>x</code> with bytes swapped BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32(&amp;x) return <code>x</code> with bytes swapped BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(&amp;x) return <code>x</code> with bytes swapped <a class="el" href="group__bsls__byteorderutil__impl.html#ga9f70ddac58438c56a936aa0b18912b96">BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(x)</a> return <code>x</code> with bytes swapped <a class="el" href="group__bsls__byteorderutil__impl.html#ga64a4a2cddf65708756264c522e5e5ea9">BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32(x)</a> return <code>x</code> with bytes swapped <a class="el" href="group__bsls__byteorderutil__impl.html#gad79d75613c24793dd09ab94be9c6c82b">BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(x)</a> return <code>x</code> with bytes swapped </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="group__bsls__byteorderutil.html" title="Provide byte-order swapping functions.">Component bsls_byteorderutil</a>, <a class="el" href="group__bsls__byteorder.html" title="Provide byte-order manipulation macros.">Component bsls_byteorder</a> </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="4"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a namespace <code>struct</code>, <code>bsls::ByteOrderUtil_Impl</code>, for a number of high performance platform-specific static function implementations for functions and macros in the <code>bsls_byteorder</code> and <code>bsls_byteorderutil</code> components. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component is only intended to be used by <code>bsls_byteorderutil</code>. No other component should call anything in it directly. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The functions come in 3 groups: <ul>
-<li>
-<code>customSwapNN</code> -- take an <code>NN</code> bit value by value and return it with its byte order swapped.  </li>
-<li>
-<code>customSwapPNN</code> -- take a pointer to a constant <code>NN</code> bit value and return the dereferenced value with its byte order swapped.  </li>
-<li>
-<code>genericSwapNN</code> -- take an <code>NN</code> bit value by value and return it with its byte order swapped.  </li>
-</ul>
-the <code>customSwap*</code> functions are not always defined on all platforms. When they are defined the corresponding macro is defined to signal <code>bsls_byteorderutil</code> that it may use that function. If neither the <code>customeSwapNN</code> nor the <code>customSwapPNN</code> macros are defined, <code>bsls_byteorderutil</code> is to use the <code>genericSwapNN</code> function, which is always defined. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component provides a template class <code>ByteOrderUtil_Impl</code> and a set of macros suitable for swapping byte orders of all integral types. The <code>*_CUSTOMSWAP_*</code> macros use assembly language or compiler primitives, whereas the <code>*_GENERICSWAP_*</code> macros use C bitwise operations to perform the swap. The <code>*_CUSTOMSWAP_*</code> macros are not defined on all platforms; callers must perform an <code>#ifdef</code> to see if they are defined before calling them. At most one of <code>*_CUSTOMSWAP_NN</code> and <code>*_CUSTOMSWAP_PNN</code> are defined on any one platform for any value of <code>NN</code>, while <code>*_GENERICSWAP_NN</code> macros are defined on all platforms and are meant to be called when the other macros are not available, and are also used for benchmarking. </dd></dl>
+<hr/><h2>Define Documentation</h2>
+<a class="anchor" id="gade0b120656a3fb37c48b403c2983bbf2"></a><!-- doxytag: member="bsls_byteorderutil_impl.h::BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT" ref="gade0b120656a3fb37c48b403c2983bbf2" args="(expr)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT</td>
+          <td>(</td>
+          <td class="paramtype">&nbsp;</td>
+          <td class="paramname">expr</td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:28 for BDE Release 2.22.1.2 OSS by&nbsp;
+<div class="memdoc">
+<b>Value:</b><div class="fragment"><pre class="fragment">{ <span class="keyword">enum</span> { k_NOT_INFINITY = 1 / <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(expr) };               \
+        (void) k_NOT_INFINITY; }
+</pre></div>
+</div>
+</div>
+<a class="anchor" id="ga13d0d38b80beeedf1b1b40fb40cafff6"></a><!-- doxytag: member="bsls_byteorderutil_impl.h::BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS" ref="ga13d0d38b80beeedf1b1b40fb40cafff6" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS&nbsp;&nbsp;&nbsp;1</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ga9f70ddac58438c56a936aa0b18912b96"></a><!-- doxytag: member="bsls_byteorderutil_impl.h::BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16" ref="ga9f70ddac58438c56a936aa0b18912b96" args="(dstType, x)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16</td>
+          <td>(</td>
+          <td class="paramtype">&nbsp;</td>
+          <td class="paramname">dstType, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&nbsp;</td>
+          <td class="paramname">x</td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<b>Value:</b><div class="fragment"><pre class="fragment">{                                                                         \
+        <a class="code" href="group__bsls__byteorderutil__impl.html#gade0b120656a3fb37c48b403c2983bbf2">BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT</a>(2 == <span class="keyword">sizeof</span> x);           \
+        <a class="code" href="group__bsls__byteorderutil__impl.html#gade0b120656a3fb37c48b403c2983bbf2">BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT</a>(2 == <span class="keyword">sizeof</span>(dstType));    \
+                                                                              \
+        <span class="keywordflow">return</span> <span class="keyword">static_cast&lt;</span>dstType<span class="keyword">&gt;</span>(                                          \
+                        (<span class="keyword">static_cast&lt;</span><span class="keywordtype">unsigned</span> <span class="keywordtype">short</span><span class="keyword">&gt;</span>(x) &gt;&gt; 8) | (x &lt;&lt; 8));    \
+    }
+</pre></div>
+</div>
+</div>
+<a class="anchor" id="ga64a4a2cddf65708756264c522e5e5ea9"></a><!-- doxytag: member="bsls_byteorderutil_impl.h::BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32" ref="ga64a4a2cddf65708756264c522e5e5ea9" args="(dstType, x)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32</td>
+          <td>(</td>
+          <td class="paramtype">&nbsp;</td>
+          <td class="paramname">dstType, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&nbsp;</td>
+          <td class="paramname">x</td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<b>Value:</b><div class="fragment"><pre class="fragment">{                                                                         \
+        <a class="code" href="group__bsls__byteorderutil__impl.html#gade0b120656a3fb37c48b403c2983bbf2">BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT</a>(4 == <span class="keyword">sizeof</span> x);           \
+        <a class="code" href="group__bsls__byteorderutil__impl.html#gade0b120656a3fb37c48b403c2983bbf2">BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT</a>(4 == <span class="keyword">sizeof</span>(dstType));    \
+                                                                              \
+        <span class="keywordflow">return</span> <span class="keyword">static_cast&lt;</span>dstType<span class="keyword">&gt;</span>((x                           &lt;&lt; 24)       \
+                                 | ((x &amp; 0x0000ff00U)            &lt;&lt;  8)       \
+                                 | ((x &amp; 0x00ff0000U)            &gt;&gt;  8)       \
+                                 | (static_cast&lt;unsigned int&gt;(x) &gt;&gt; 24));     \
+    }
+</pre></div>
+</div>
+</div>
+<a class="anchor" id="gad79d75613c24793dd09ab94be9c6c82b"></a><!-- doxytag: member="bsls_byteorderutil_impl.h::BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64" ref="gad79d75613c24793dd09ab94be9c6c82b" args="(dstType, x)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64</td>
+          <td>(</td>
+          <td class="paramtype">&nbsp;</td>
+          <td class="paramname">dstType, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&nbsp;</td>
+          <td class="paramname">x</td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<b>Value:</b><div class="fragment"><pre class="fragment">{                                                                         \
+        <span class="keyword">typedef</span> BloombergLP::bsls::Types::Uint64 Uint64;                      \
+                                                                              \
+        <a class="code" href="group__bsls__byteorderutil__impl.html#gade0b120656a3fb37c48b403c2983bbf2">BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT</a>(8 == <span class="keyword">sizeof</span> x);           \
+        <a class="code" href="group__bsls__byteorderutil__impl.html#gade0b120656a3fb37c48b403c2983bbf2">BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT</a>(8 == <span class="keyword">sizeof</span>(dstType));    \
+                                                                              \
+        <span class="keywordflow">return</span> <span class="keyword">static_cast&lt;</span>dstType<span class="keyword">&gt;</span>(( x                          &lt;&lt; 56)       \
+                                  | ((x &amp; 0x000000000000ff00ULL) &lt;&lt; 40)       \
+                                  | ((x &amp; 0x0000000000ff0000ULL) &lt;&lt; 24)       \
+                                  | ((x &amp; 0x00000000ff000000ULL) &lt;&lt;  8)       \
+                                  | ((x &amp; 0x000000ff00000000ULL) &gt;&gt;  8)       \
+                                  | ((x &amp; 0x0000ff0000000000ULL) &gt;&gt; 24)       \
+                                  | ((x &amp; 0x00ff000000000000ULL) &gt;&gt; 40)       \
+                                  | (static_cast&lt;Uint64&gt;(x)      &gt;&gt; 56));     \
+    }
+</pre></div>
+</div>
+</div>
+</div>
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:22 for BDE Release 2.23.1 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: bslh_hash Component</title>
+<title>BDE 2.23.1 OSS: bslh_hash Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
@@ -113,25 +114,25 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This component provides a templated <code>struct</code>, <code><a class="el" href="structbslh_1_1Hash.html">bslh::Hash</a></code>, that defines a hash-functor that can be used with standard containers (a drop in replacement for <code><a class="el" href="structbsl_1_1hash.html">bsl::hash</a></code>), and which applies the supplied (template parameter) <code>HASH_ALGORITHM</code> to the attributes of the (template parameter) <code>TYPE</code> which have been identified as salient to hashing. The <code><a class="el" href="structbslh_1_1Hash.html">bslh::Hash</a></code> template parameter <code>HASH_ALGORITHM</code> must be a hashing algorithm that conforms the the requirements outlined below (see <a href="group__bslh__hash.html#requirements_for_regular_bslh_hashing_algorithms" class="el">Requirements for Regular <code>bslh</code> Hashing Algorithms</a>). Note that there are several hashing algorithms defined within the <code>bslh</code> package and some, such as those that require seeds, will not meet these requirements, meaning they cannot be used with <code><a class="el" href="structbslh_1_1Hash.html">bslh::Hash</a></code>. A call to <code>bslh::Hash::operator()</code> for a (template parameter) <code>TYPE</code> will call the <code>hashAppend</code> free function for <code>TYPE</code> and provide <code>hashAppend</code> an instance of the <code>HASH_ALGORITHM</code>. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component also contains <code>hashAppend</code> definitions for fundamental types, which are required by algorithms deinfed in <code>bslh</code>. Clients are expected to define a free-function <code>hashAppend</code> for each of the types they wish to be hashable (see <a href="group__hashAppend.html" class="el"><code>hashAppend</code></a> below). More information can be found in the package level documentation for <code>bslh</code> (internal users can also find information here {TEAM BDE:USING MODULAR HASHING&lt;GO&gt;}) </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component also contains <code>hashAppend</code> definitions for fundamental types, which are required by algorithms defined in <code>bslh</code>. Clients are expected to define a free-function <code>hashAppend</code> for each of the types they wish to be hashable (see <a href="group__hashAppend.html" class="el"><code>hashAppend</code></a> below). More information can be found in the package level documentation for <code>bslh</code> (internal users can also find information here {TEAM BDE:USING MODULAR HASHING&lt;GO&gt;}) </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="modularity"></a> <a class="anchor" id="description.modularity"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Modularity: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code><a class="el" href="structbslh_1_1Hash.html">bslh::Hash</a></code> provides a modular system for hashing. This modularity refers to the decoupling of the various tasks associated with hashing. Using this system, type implementers can identify attributes of their type that are salient to hashing, without having to write a hashing algorithm. Conversely, hashing algorithms can be written independant of types. Attributes that are salient to hashing are called out on a type using <code>hashAppend</code>. Hashing algorithms are written to operate on the attributes called out by <code>hashAppend</code>. Some default algorithms have been provided in the <code>bslh</code> package. This modularity allows type creators to avoid writing hashing algorithms, which can save work and avoid bad hashing algorithm implementations. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><code><a class="el" href="structbslh_1_1Hash.html">bslh::Hash</a></code> provides a modular system for hashing. This modularity refers to the decoupling of the various tasks associated with hashing. Using this system, type implementers can identify attributes of their type that are salient to hashing, without having to write a hashing algorithm. Conversely, hashing algorithms can be written independent of types. Attributes that are salient to hashing are called out on a type using <code>hashAppend</code>. Hashing algorithms are written to operate on the attributes called out by <code>hashAppend</code>. Some default algorithms have been provided in the <code>bslh</code> package. This modularity allows type creators to avoid writing hashing algorithms, which can save work and avoid bad hashing algorithm implementations. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="hashappend"></a> <a class="anchor" id="description.hashappend"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>hashAppend: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><code>hashAppend</code> is the function that is used to pass attributes that are salient to hashing into a hashing algorithm. A type must define a <code>hashAppend</code> overload that can be discovered through ADL in order to be hashed using this facility. A simple implementation of an overload for <code>hashAppend</code> might call <code>hashAppend</code> on each of the type's attributes that are salient to hashing. Note that when writing a <code>hashAppend</code> function, <code>using <a class="el" href="namespacebslh.html#a31a7b904ae7d10296832e8bb46b22aee">bslh::hashAppend</a>;</code> must be included as the first line of code in the function. The using statement ensures that ADL will always be able to find the fundamental type <code>hashAppend</code> functions, even when the (template parameter) type <code>HASH_ALGORITHM</code> is not implemented in <code>bslh</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Some types may require more subtle implementations for <code>hashAppend</code>, such as types containing C-strings which are salient to hashing. These C-strings must be passed directly into the (template parameter) type <code>HASH_ALGORITHM</code>, rather than calling <code>hashAppend</code> with the pointer as an argument. This special case exists because calling <code>hashAppend</code> with a pointer will hash the pointer rather than the data that is pointed to. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Within this component, <code>hashAppend</code> has been implemented for all of the fundamental types. When 'hashAppend is reached on a fundamental type, the hashing algorithm is no longer propagated, and instead a pointer to the beginning of the type in memory is passed to the algorithm, along with the length of the type. There are special cases with floating point numbers and bools where the data is tweaked before hashing to ensure that values that compare equal will be hashed with the same bit-wise representation. The algorithm will then incorporate the type into its internal state and return a finalized hash when requested. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Within this component, <code>hashAppend</code> has been implemented for all of the fundamental types. When 'hashAppend is reached on a fundamental type, the hashing algorithm is no longer propagated, and instead a pointer to the beginning of the type in memory is passed to the algorithm, along with the length of the type. There are special cases with floating point numbers and boolean values where the data is tweaked before hashing to ensure that values that compare equal will be hashed with the same bit-wise representation. The algorithm will then incorporate the type into its internal state and return a finalized hash when requested. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="hashing_algorithms"></a> <a class="anchor" id="description.hashing_algorithms"></a> <a class="anchor" id="3.3"></a> </dd></dl>
 <dl class="user"><dt><b>Hashing Algorithms: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>There are algorithms implemented in the <code>bslh</code> package that can be passed in and used as template parameters for <code><a class="el" href="structbslh_1_1Hash.html">bslh::Hash</a></code> or other structs like it. Some of these algorithms, such as <code><a class="el" href="classbslh_1_1SpookyHashAlgorithm.html">bslh::SpookyHashAlgorithm</a></code>, are named for the algorithm they implement. These named algorithms are intended for use by those who want a specific algorithm. There are other algorithms, such as <code><a class="el" href="classbslh_1_1DefaultHashAlgorithm.html">bslh::DefaultHashAlgorithm</a></code>, which wrap an unspecified algorithm and describe the properties of the wrapped algorithm. The descriptive algorithms are intended for use by those who need specific properties and want to be updated to a new algorithm when one is published with improvements to the desired properties. <code><a class="el" href="classbslh_1_1DefaultHashAlgorithm.html">bslh::DefaultHashAlgorithm</a></code> has the property of being a good default algorithm, specifically for use in a hash table. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>There are algorithms implemented in the <code>bslh</code> package that can be passed in and used as template parameters for <code><a class="el" href="structbslh_1_1Hash.html">bslh::Hash</a></code> or other <code>struct</code>s like it. Some of these algorithms, such as <code><a class="el" href="classbslh_1_1SpookyHashAlgorithm.html">bslh::SpookyHashAlgorithm</a></code>, are named for the algorithm they implement. These named algorithms are intended for use by those who want a specific algorithm. There are other algorithms, such as <code><a class="el" href="classbslh_1_1DefaultHashAlgorithm.html">bslh::DefaultHashAlgorithm</a></code>, which wrap an unspecified algorithm and describe the properties of the wrapped algorithm. The descriptive algorithms are intended for use by those who need specific properties and want to be updated to a new algorithm when one is published with improvements to the desired properties. <code><a class="el" href="classbslh_1_1DefaultHashAlgorithm.html">bslh::DefaultHashAlgorithm</a></code> has the property of being a good default algorithm, specifically for use in a hash table. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="requirements_for_regular_bslh_hashing_algorithms"></a> <a class="anchor" id="description.requirements_for_regular_bslh_hashing_algorithms"></a> <a class="anchor" id="3.4"></a> </dd></dl>
 <dl class="user"><dt><b>Requirements for Regular bslh Hashing Algorithms: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Users of this modular hashing system are free write their own hashing algorithms. In order to plug into <code><a class="el" href="structbslh_1_1Hash.html">bslh::Hash</a></code>, the user-implemented algorithms must implement the interface shown here: <br/>
+<dl class="user"><dt><b></b></dt><dd>Users of this modular hashing system are free to write their own hashing algorithms. In order to plug into <code><a class="el" href="structbslh_1_1Hash.html">bslh::Hash</a></code>, the user-implemented algorithms must implement the interface shown here: <br/>
 <br/>
 <div class="fragment"><pre class="fragment"> <span class="keyword">class </span>SomeHashAlgorithm
  {
@@ -157,12 +158,12 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_keying_a_hash_table_with_a_user_defined_type"></a> <a class="anchor" id="usage.example_1~3A_keying_a_hash_table_with_a_user_defined_type"></a> <a class="anchor" id="description.usage.example_1~3A_keying_a_hash_table_with_a_user_defined_type"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.5.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Keying a hash table with a user defined type: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Suppose we have a value semantic type, <code>Box</code>, that contains attributes that are salient to hashing as well as attributes that are not salient to hashing. Some of these attributes are themselves user defined types. We want to store objects of type <code>Box</code> in a hash table, so we need to be able to produce hash values that represent instances of <code>Box</code>. We don't want to write our own hashing or hash combine algorithm, because we know it is very difficult and labour intensive to write a proper hashing algorithm. In order to hash this <code>Box</code>, we will use the modular hashing system supplied in <code>bslh</code>. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>First, we define <code>Point</code>, a class that allows us to identify a loction on a two dimensional cartesian plane. <br/>
+<dl class="user"><dt><b></b></dt><dd>Suppose we have a value semantic type, <code>Box</code>, that contains attributes that are salient to hashing as well as attributes that are not salient to hashing. Some of these attributes are themselves user defined types. We want to store objects of type <code>Box</code> in a hash table, so we need to be able to produce hash values that represent instances of <code>Box</code>. We don't want to write our own hashing or hash combine algorithm, because we know it is very difficult and labor-intensive to write a proper hashing algorithm. In order to hash this <code>Box</code>, we will use the modular hashing system supplied in <code>bslh</code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>First, we define <code>Point</code>, a class that allows us to identify a location on a two dimensional Cartesian plane. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">class </span>Point {
       <span class="comment">// This class is a value semantic type that represents a two</span>
-      <span class="comment">// dimensional location on a cartesian plane.</span>
+      <span class="comment">// dimensional location on a Cartesian plane.</span>
 
     <span class="keyword">private</span>:
       <span class="keywordtype">int</span>    d_x;
@@ -215,7 +216,7 @@ Namespaces</h2></td></tr>
 <br/>
  Then, we define <code>operator==</code>. Notice how it checks only attributes that we would want to incorporate into the hashed value. Note that attributes that are salient to hashing tend to be the same as or a subset of the attributes that are checked in <code>operator==</code>. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#ae38909e0885ad40b01e80afb221e6737">operator==</a>(<span class="keyword">const</span> Point &amp;lhs, <span class="keyword">const</span> Point &amp;rhs)
+<div class="fragment"><pre class="fragment">  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> Point &amp;lhs, <span class="keyword">const</span> Point &amp;rhs)
       <span class="comment">// Return true if the specified &#39;lhs&#39; and &#39;rhs&#39; have the same value.</span>
       <span class="comment">// Two &#39;Point&#39; objects have the same value if they have the same x and</span>
       <span class="comment">// y coordinates.</span>
@@ -240,7 +241,7 @@ Namespaces</h2></td></tr>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">class </span>Box {
       <span class="comment">// This class is a value semantic type that represents a box drawn on</span>
-      <span class="comment">// to a cartesian plane.</span>
+      <span class="comment">// to a Cartesian plane.</span>
 
     <span class="keyword">private</span>:
       Point d_position;
@@ -257,7 +258,7 @@ Namespaces</h2></td></tr>
 
       Point getPosition() <span class="keyword">const</span>;
           <span class="comment">// Return a &#39;Point&#39; representing the upper left corner of this box</span>
-          <span class="comment">// on a cartesian plane</span>
+          <span class="comment">// on a Cartesian plane</span>
 
       <span class="keywordtype">int</span> getWidth() <span class="keyword">const</span>;
           <span class="comment">// Return the width of this box.</span>
@@ -287,7 +288,7 @@ Namespaces</h2></td></tr>
 <br/>
  Then, we define <code>operator==</code>. This time all of the data members are salient to equality. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#ae38909e0885ad40b01e80afb221e6737">operator==</a>(<span class="keyword">const</span> Box &amp;lhs, <span class="keyword">const</span> Box &amp;rhs)
+<div class="fragment"><pre class="fragment">  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> Box &amp;lhs, <span class="keyword">const</span> Box &amp;rhs)
       <span class="comment">// Return true if the specified &#39;lhs&#39; and &#39;rhs&#39; have the same value.</span>
       <span class="comment">// Two &#39;Box&#39; objects have the same value if they have the same length,</span>
       <span class="comment">// width, and position.</span>
@@ -409,7 +410,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:27 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:20 for BDE Release 2.23.1 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bsls_byteorderutil_impl.h                                          -*-C++-*-
@@ -18,36 +18,32 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //   bsls::ByteOrderUtil_Impl: namespace for swapping functions
 //
 //@MACROS:
-//   BSLS_BYTEORDERUTIL_IMPL_CUSTOM_16:  &#39;customeSwap16&#39;  function is defined
-//   BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32:  &#39;customeSwap32&#39;  function is defined
-//   BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64:  &#39;customeSwap64&#39;  function is defined
-//   BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P16: &#39;customeSwapP16&#39; function is defined
-//   BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32: &#39;customeSwapP32&#39; function is defined
-//   BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64: &#39;customeSwapP64&#39; function is defined
+//   BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16(x)   return &#39;x&#39; with bytes swapped
+//   BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32(x)   return &#39;x&#39; with bytes swapped
+//   BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64(x)   return &#39;x&#39; with bytes swapped
+//   BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16(&amp;x) return &#39;x&#39; with bytes swapped
+//   BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32(&amp;x) return &#39;x&#39; with bytes swapped
+//   BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(&amp;x) return &#39;x&#39; with bytes swapped
+//   BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(x)  return &#39;x&#39; with bytes swapped
+//   BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32(x)  return &#39;x&#39; with bytes swapped
+//   BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(x)  return &#39;x&#39; with bytes swapped
 //
 //@SEE ALSO: bsls_byteorderutil, bsls_byteorder
 //
-//@DESCRIPTION: This component provides a namespace &#39;struct&#39;,
-// &#39;bsls::ByteOrderUtil_Impl&#39;, for a number of high performance
-// platform-specific static function implementations for functions and macros
-// in the &#39;bsls_byteorder&#39; and &#39;bsls_byteorderutil&#39; components.
-//
-// This component is only intended to be used by &#39;bsls_byteorderutil&#39;.  No
-// other component should call anything in it directly.
-//
-// The functions come in 3 groups:
-//: o &#39;customSwapNN&#39; -- take an &#39;NN&#39; bit value by value and return it with its
-//:   byte order swapped.
-//: o &#39;customSwapPNN&#39; -- take a pointer to a constant &#39;NN&#39; bit value and return
-//:   the dereferenced value with its byte order swapped.
-//: o &#39;genericSwapNN&#39; -- take an &#39;NN&#39; bit value by value and return it with its
-//:   byte order swapped.
-// the &#39;customSwap*&#39; functions are not always defined on all platforms.  When
-// they are defined the corresponding macro is defined to signal
-// &#39;bsls_byteorderutil&#39; that it may use that function.  If neither the
-// &#39;customeSwapNN&#39; nor the &#39;customSwapPNN&#39; macros are defined,
-// &#39;bsls_byteorderutil&#39; is to use the &#39;genericSwapNN&#39; function, which is always
-// defined.
+//@DESCRIPTION: This component provides a template class &#39;ByteOrderUtil_Impl&#39;
+// and a set of macros suitable for swapping byte orders of all integral types.
+// The &#39;*_CUSTOMSWAP_*&#39; macros use assembly language or compiler primitives,
+// whereas the &#39;*_GENERICSWAP_*&#39; macros use C bitwise operations to perform the
+// swap.  The &#39;*_CUSTOMSWAP_*&#39; macros are not defined on all platforms; callers
+// must perform an &#39;#ifdef&#39; to see if they are defined before calling them.  At
+// most one of &#39;*_CUSTOMSWAP_NN&#39; and &#39;*_CUSTOMSWAP_PNN&#39; are defined on any one
+// platform for any value of &#39;NN&#39;, while &#39;*_GENERICSWAP_NN&#39; macros are defined
+// on all platforms and are meant to be called when the other macros are not
+// available, and are also used for benchmarking.
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include &lt;bsls_platform.h&gt;
@@ -55,20 +51,6 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 
 #ifndef INCLUDED_BSLS_TYPES
 #include &lt;bsls_types.h&gt;
-#endif
-
-#ifdef BSLS_PLATFORM_CMP_HP
-
-#ifndef INCLUDED_MACHINE_SYS_BUILTINS
-#include &lt;machine/sys/builtins.h&gt;  // &#39;_Asm_xchg&#39;
-#define INCLUDED_MACHINE_SYS_BUILTINS
-#endif
-
-#ifndef INCLUDED_MACHINE_SYS_INLINE
-#include &lt;machine/sys/inline.h&gt;    // &#39;_SZ_H&#39;, &#39;_SZ_W&#39;, &#39;_SZ_D&#39;
-#define INCLUDED_MACHINE_SYS_INLINE
-#endif
-
 #endif
 
 #ifdef BSLS_PLATFORM_CMP_MSVC
@@ -81,185 +63,155 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #endif
 
 namespace BloombergLP {
-
 namespace bsls {
 
-                          // =========================
-                          // struct ByteOrderUtil_Impl
-                          // =========================
+                         // =========================
+                         // struct ByteOrderUtil_Impl
+                         // =========================
 
-struct ByteOrderUtil_Impl {
-    // This &#39;struct&#39; is a namespace for the byte order swapping functions to
-    // support &#39;bsls_byteorderutil&#39; and &#39;bsls_byteorder&#39;.
+template &lt;class TYPE, Types::size_type WIDTH = sizeof(TYPE)&gt;
+struct ByteOrderUtil_Impl;
+
+template &lt;class TYPE&gt;
+struct ByteOrderUtil_Impl&lt;TYPE, 1&gt; {
+    // This &#39;class&#39; provides a namespace for functions used for reversing the
+    // byte order of values having integral type.
 
     // CLASS METHODS
-
-    // custom, platform-specific inline implementations, not defined on all
-    // platforms
-
-    static
-    unsigned short customSwap16(       unsigned short   x);
-        // Return the specified &#39;x&#39; with byte order swapped.
-
-    static
-    unsigned int   customSwap32(       unsigned int     x);
-        // Return the specified &#39;x&#39; with byte order swapped.
-
-    static
-    Types::Uint64  customSwap64(       Types::Uint64    x);
-        // Return the specified &#39;x&#39; with byte order swapped.
-
-    static
-    unsigned short customSwapP16( const unsigned short *x);
-        // Return the specified &#39;*x&#39; with byte order swapped.
-
-    static
-    unsigned int   customSwapP32( const unsigned int   *x);
-        // Return the specified &#39;*x&#39; with byte order swapped.
-
-    static
-    Types::Uint64  customSwapP64( const Types::Uint64  *x);
-        // Return the specified &#39;*x&#39; with byte order swapped.
-
-    // generic, non-platform-specific implementations, always defined on all
-    // platforms
-
-    static
-    unsigned short genericSwap16(      unsigned short   x);
-        // Return the specified &#39;*x&#39; with byte order swapped.
-
-    static
-    unsigned int   genericSwap32(      unsigned int     x);
-        // Return the specified &#39;*x&#39; with byte order swapped.
-
-    static
-    Types::Uint64  genericSwap64(      Types::Uint64    x);
-        // Return the specified &#39;*x&#39; with byte order swapped.
+    static TYPE swapBytes(TYPE x);
+        // Return the value that results from reversing the order of the bytes
+        // in the specified &#39;x&#39;.
 };
 
-                         // -------------------------
-                         // struct ByteOrderUtil_Impl
-                         // -------------------------
+template &lt;class TYPE&gt;
+struct ByteOrderUtil_Impl&lt;TYPE, 2&gt; {
+    // This &#39;class&#39; provides a namespace for functions used for reversing the
+    // byte order of values having integral type.
 
-#if defined(BSLS_PLATFORM_CMP_GNU) &amp;&amp; BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 40300
+    // CLASS METHODS
+    static TYPE swapBytes(TYPE x);
+        // Return the value that results from reversing the order of the bytes
+        // in the specified &#39;x&#39;.
+};
+
+template &lt;class TYPE&gt;
+struct ByteOrderUtil_Impl&lt;TYPE, 4&gt; {
+    // This &#39;class&#39; provides a namespace for functions used for reversing the
+    // byte order of values having integral type.
+
+    // CLASS METHODS
+    static TYPE swapBytes(TYPE x);
+        // Return the value that results from reversing the order of the bytes
+        // in the specified &#39;x&#39;.
+};
+
+template &lt;class TYPE&gt;
+struct ByteOrderUtil_Impl&lt;TYPE, 8&gt; {
+    // This &#39;class&#39; provides a namespace for functions used for reversing the
+    // byte order of values having integral type.
+
+    // CLASS METHODS
+    static TYPE swapBytes(TYPE x);
+        // Return the value that results from reversing the order of the bytes
+        // in the specified &#39;x&#39;.
+};
+
+}  // close package namespace
+
+// ============================================================================
+//                                  MACROS
+// ============================================================================
+
+// These macros are only intended to be used in this component and
+// &#39;bsls_byteorderutil&#39;.
+
+// We did benchmarks and found that many of the custom assembly implementations
+// below were slower than the generic implementation, so we disable the slow
+// ones unless &#39;BSLS_BYTEORDERUTIL_IMPL_ENABLE_COUNTERPRODUCTIVE_MACROS&#39; is
+// defined.
+
+               // -------------------------------------------------
+               // macro BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT
+               // -------------------------------------------------
+
+// We don&#39;t have access to &#39;BSLMF_ASSERT&#39; here in &#39;bsls&#39; -- do a crude
+// compile-time assert for use in &#39;bsls_byteorderutil&#39;.  This macro will
+// deliberately cause a compilation error if &#39;expr&#39; evaluates to &#39;false&#39;.
+// &#39;expr&#39; must be a compile-time expression.  Note that this macro can only be
+// called in a code body.  This macro is only intended to be used in this
+// component and &#39;bsls_byteorderutil&#39;.
+
+#if (defined(BSLS_ASSERT_SAFE_IS_ACTIVE) ||                                   \
+     defined(BSLS_ASSERT_IS_ACTIVE))
+
+# define BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(expr)                    \
+        { enum { k_NOT_INFINITY = 1 / static_cast&lt;int&gt;(expr) };               \
+        (void) k_NOT_INFINITY; }
+
+#else
+
+# define BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(expr)
+
+#endif
+
+#ifndef BSLS_BYTEORDERUTIL_IMPL_ENABLE_COUNTERPRODUCTIVE_MACROS
+#define BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS 1
+#endif
+
+#if (defined(BSLS_PLATFORM_CMP_GNU) &amp;&amp; BSLS_PLATFORM_CMP_VERSION &gt;= 40300)    \
+ || defined(BSLS_PLATFORM_CMP_CLANG)
 
 // ----------------------------------------------------------------------------
 // Advanced GNU
 
-// Let the 16-bit gnu implementation default to &#39;genericSwap16&#39; or other
-// platform-specific gnu implementations.
+// Let the 16-bit GNU implementation default to
+// &#39;BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16&#39; or other platform-specific GNU
+// implementations.
 
-#define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32 1
-#define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64 1
+#if !defined(BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS) ||     \
+    !defined(BSLS_PLATFORM_OS_SOLARIS)
 
-// LEVEL 0 METHODS
+#define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32(dstType, x)                     \
+    return static_cast&lt;dstType&gt;(__builtin_bswap32(static_cast&lt;int&gt;(x)))
 
-inline
-unsigned int
-ByteOrderUtil_Impl::customSwap32(unsigned int x)
-{
-    // generic GNU impl
+#endif
 
-    return __builtin_bswap32((int)x);
-}
+#if !defined(BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS) ||     \
+    !defined(BSLS_PLATFORM_OS_SOLARIS) ||                                     \
+    !defined(BSLS_PLATFORM_CPU_64_BIT) || !defined(BDE_BUILD_TARGET_OPT)
 
-inline
-Types::Uint64
-ByteOrderUtil_Impl::customSwap64(Types::Uint64 x)
-{
-    // generic GNU impl
+#define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64(dstType, x)                     \
+    return static_cast&lt;dstType&gt;(__builtin_bswap64(                            \
+                              static_cast&lt;BloombergLP::bsls::Types::Int64&gt;(x)))
 
-    return __builtin_bswap64((bsls::Types::Int64)x);
-}
+#endif
 
 #elif defined(BSLS_PLATFORM_CMP_MSVC)
 
 // ----------------------------------------------------------------------------
-// MSVC
+// Microsoft Visual C++
 
-#define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_16 1
-#define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32 1
-#define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64 1
+#if !defined(BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS)
 
-inline
-unsigned short
-ByteOrderUtil_Impl::customSwap16(unsigned short x)
-{
-    // msvc impl
+#define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16(dstType, x)                     \
+    return static_cast&lt;dstType&gt;(_byteswap_ushort(                             \
+                                               static_cast&lt;unsigned short&gt;(x)))
 
-    return _byteswap_ushort(x);
-}
+#endif
 
-inline
-unsigned int
-ByteOrderUtil_Impl::customSwap32(unsigned int x)
-{
-    // msvc impl
+#define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32(dstType, x)                     \
+    return static_cast&lt;dstType&gt;(_byteswap_ulong(static_cast&lt;unsigned int&gt;(x)))
 
-    // Note that &#39;ulong&#39; (unsigned long) is only 32 bit on MSVC, compiled
-    // 32 or 64 bit.
-
-    return _byteswap_ulong(x);
-}
-
-inline
-Types::Uint64
-ByteOrderUtil_Impl::customSwap64(Types::Uint64 x)
-{
-    // msvc impl
-
-    return _byteswap_uint64(x);
-}
-
-#elif defined(BSLS_PLATFORM_CPU_IA64) &amp;&amp; defined(BSLS_PLATFORM_CMP_HP)
-
-// ----------------------------------------------------------------------------
-// HPUX
-
-#define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_16 1
-#define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32 1
-#define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64 1
-
-inline
-unsigned short
-ByteOrderUtil_Impl::customSwap16(unsigned short x)
-{
-    // hpux impl
-
-    register Types::Uint64 y;
-    y = _Asm_shl(x, 48);
-    return _Asm_mux1(_MBTYPE_REV, y);
-}
-
-inline
-unsigned int
-ByteOrderUtil_Impl::customSwap32(unsigned int x)
-{
-    // hpux impl
-
-    register Types::Uint64 y;
-    y = _Asm_shl(x, 32);
-    return _Asm_mux1(_MBTYPE_REV, y);
-}
-
-inline
-Types::Uint64
-ByteOrderUtil_Impl::customSwap64(Types::Uint64 x)
-{
-    // hpux impl
-
-    return _Asm_mux1(_MBTYPE_REV, x);
-}
+#define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64(dstType, x)                     \
+    return static_cast&lt;dstType&gt;(_byteswap_uint64(                             \
+                             static_cast&lt;BloombergLP::bsls::Types::Uint64&gt;(x)))
 
 #elif defined(BSLS_PLATFORM_CPU_POWERPC) &amp;&amp; defined(BSLS_PLATFORM_CMP_IBM)    \
-    &amp;&amp; BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 0x0800
+    &amp;&amp; BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 0x0800 &amp;&amp;                               \
+     !defined(BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS)
 
 // ----------------------------------------------------------------------------
 // POWERPC-AIX
-
-#define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P16 1
-#define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32 1
-#define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64 1
 
 unsigned short
 bsls_byteOrderUtil_Impl_powerpc_swap_p16(const unsigned short *x);
@@ -299,7 +251,7 @@ unsigned long long bsls_byteOrderUtil_Impl_powerpc_swap_p64(
 //  addi r3,r3,4       // change r3 to point to the 4 lower-order bytes
 //  lwbrx r3,0,r3      // reverse the 4 lower-order bytes
 //..
-#pragma mc_func bsls_byteOrderUtil_Impl_powerpc_swap_p64                   \
+#pragma mc_func bsls_byteOrderUtil_Impl_powerpc_swap_p64                      \
                                             { &quot;7c801c2c&quot; &quot;38630004&quot; &quot;7c601c2c&quot;}
 #pragma reg_killed_by bsls_byteOrderUtil_Impl_powerpc_swap_p64 gr3,gr4
 
@@ -311,35 +263,32 @@ unsigned long long bsls_byteOrderUtil_Impl_powerpc_swap_p64(
 //  lwbrx r4,0,r4      // reverse the 4 lower-order bytes
 //  rldimi r3,r4,32,0  // rotate &#39;r4&#39; left and insert to &#39;r3&#39; with a mask
 //..
-#pragma mc_func bsls_byteOrderUtil_Impl_powerpc_swap_p64                   \
+#pragma mc_func bsls_byteOrderUtil_Impl_powerpc_swap_p64                      \
                                 { &quot;38830004&quot; &quot;7c601c2c&quot; &quot;7c80242c&quot; &quot;7883000e&quot; }
 #pragma reg_killed_by bsls_byteOrderUtil_Impl_powerpc_swap_p64 gr3,gr4,cr0
 
 #endif  // BSLS_PLATFORM_CPU_32_BIT else
 
-inline
-unsigned short ByteOrderUtil_Impl::customSwapP16(const unsigned short *x)
-{
-    // powerpc impl
+#define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16(dstType, x)                    \
+    {                                                                         \
+        BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(2 == sizeof *x);          \
+        return static_cast&lt;dstType&gt;(bsls_byteOrderUtil_Impl_powerpc_swap_p16( \
+                               reinterpret_cast&lt;const unsigned short *&gt;(x))); \
+    }
 
-    return bsls_byteOrderUtil_Impl_powerpc_swap_p16(x);
-}
+#define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32(dstType, x)                    \
+    {                                                                         \
+        BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(4 == sizeof *x);          \
+        return static_cast&lt;dstType&gt;(bsls_byteOrderUtil_Impl_powerpc_swap_p32( \
+                               reinterpret_cast&lt;const unsigned int *&gt;(x)));   \
+    }
 
-inline
-unsigned int ByteOrderUtil_Impl::customSwapP32(const unsigned int *x)
-{
-    // powerpc impl
-
-    return bsls_byteOrderUtil_Impl_powerpc_swap_p32(x);
-}
-
-inline
-Types::Uint64 ByteOrderUtil_Impl::customSwapP64(const Types::Uint64 *x)
-{
-    // powerpc impl
-
-    return bsls_byteOrderUtil_Impl_powerpc_swap_p64(x);
-}
+#define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(dstType, x)                    \
+    {                                                                         \
+        BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(8 == sizeof *x);          \
+        return static_cast&lt;dstType&gt;(bsls_byteOrderUtil_Impl_powerpc_swap_p64( \
+            reinterpret_cast&lt;const BloombergLP::bsls::Types::Uint64 *&gt;(x)));  \
+    }
 
 #endif  // BSLS_PLATFORM_CPU_POWERPC
 
@@ -348,103 +297,113 @@ Types::Uint64 ByteOrderUtil_Impl::customSwapP64(const Types::Uint64 *x)
 // ----------------------------------------------------------------------------
 // Sparc
 
-#if defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
 
-#define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P16 1
+#if !defined(BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS) ||     \
+    !defined(BDE_BUILD_TARGET_OPT)
 
 // LEVEL 1 METHODS
 
-inline
-unsigned short
-ByteOrderUtil_Impl::customSwapP16(const unsigned short *x)
-{
-    // sparc gnu impl
+// We have to use &quot;r&quot;(x) instead of &quot;m&quot;(*x) because certain instructions do not
+// support the &#39;m&#39; constraint.  The &#39;m&#39; constraint is the only way to tell the
+// compiler we are reading the value of &#39;*x&#39; and not just &#39;x&#39;.
 
-    // We have to use &quot;r&quot;(x) instead of &quot;m&quot;(*x) because certain instructions do
-    // not support the &#39;m&#39; constraint.  The &#39;m&#39; constraint is the only way to
-    // tell the compiler we are reading the value of &#39;*x&#39; and not just &#39;x&#39;.
+#define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16(dstType, x)                    \
+    {                                                                         \
+        BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(2 == sizeof *x);          \
+        register unsigned int y;                                              \
+        asm(&quot;lduha [%1] %2, %0&quot;                                               \
+          : &quot;=r&quot; (y)                                                          \
+          : &quot;r&quot; (x), &quot;i&quot;(0x88), &quot;m&quot; (                                         \
+                     *reinterpret_cast&lt;const unsigned short *&gt;(x)));          \
+                                                                              \
+        return static_cast&lt;dstType&gt;(y);                                       \
+    }
 
-    register unsigned int y;
-    asm(&quot;lduha [%1] %2, %0&quot;
-      : &quot;=r&quot; (y)
-      : &quot;r&quot; (x), &quot;i&quot;(0x88), &quot;m&quot; (*x));
+#endif // !disabled || !opt
 
-    return static_cast&lt;unsigned short&gt;(y);
-}
+#if !defined(BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS) &amp;&amp;     \
+    !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32) &amp;&amp;                        \
+    !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32)
 
-#if   !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32)                             \
-   &amp;&amp; !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64)                             \
-   &amp;&amp; !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32)                            \
-   &amp;&amp; !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64)
+// sparc GNU pre-4.03 impl
 
-#define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32 1
-#define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64 1
+#define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32(dstType, x)                    \
+    {                                                                         \
+        BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(4 == sizeof *x);          \
+        register unsigned int y;                                              \
+        asm(&quot;lduwa [%1] %2, %0&quot;                                               \
+          : &quot;=r&quot; (y)                                                          \
+          : &quot;r&quot; (x), &quot;i&quot;(0x88), &quot;m&quot; (                                         \
+                                *reinterpret_cast&lt;const unsigned int *&gt;(x))); \
+                                                                              \
+        return static_cast&lt;dstType&gt;(y);                                       \
+    }
 
-inline
-unsigned int
-ByteOrderUtil_Impl::customSwapP32(const unsigned int *x)
-{
-    // sparc gnu pre-4.03 impl
+#endif // not disabled, ...CUSTOMSWAP_32, CUSTOMSWAP_P32 not defined
 
-    register unsigned int y;
-    asm(&quot;lduwa [%1] %2, %0&quot;
-      : &quot;=r&quot; (y)
-      : &quot;r&quot; (x), &quot;i&quot;(0x88), &quot;m&quot; (*x));
-
-    return y;
-}
+#if   !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64)                         \
+   &amp;&amp; !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64)
 
 #if defined(BSLS_PLATFORM_CPU_64_BIT)
 
-inline
-Types::Uint64
-ByteOrderUtil_Impl::customSwapP64(const Types::Uint64 *x)
-{
-    // sparc gnu pre-4.03 impl
+// sparc GNU pre-4.03 impl
 
-    register Types::Uint64 y;
-    asm(&quot;ldxa [%1] %2, %0&quot;
-      : &quot;=r&quot; (y)
-      : &quot;r&quot; (x), &quot;i&quot;(0x88), &quot;m&quot; (*x));
-
-    return y;
-}
+#define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(dstType, x)                    \
+    {                                                                         \
+        BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(8 == sizeof *x);          \
+        register BloombergLP::bsls::Types::Uint64 y;                          \
+        asm(&quot;ldxa [%1] %2, %0&quot;                                                \
+          : &quot;=r&quot; (y)                                                          \
+          : &quot;r&quot; (x), &quot;i&quot;(0x88), &quot;m&quot; (                                         \
+            *reinterpret_cast&lt;const BloombergLP::bsls::Types::Uint64 *&gt;(x))); \
+                                                                              \
+        return static_cast&lt;dstType&gt;(y);                                       \
+    }
 
 #else
 
-inline
-Types::Uint64
-ByteOrderUtil_Impl::customSwapP64(const Types::Uint64 *x)
-{
-    // sparc gnu pre-4.03 impl
+// sparc GNU pre-4.03 impl
 
-    register Types::Uint64 y;
-    asm(&quot;ldxa [%1] %2, %0\n\t&quot;  // After the load, the full data is in &#39;%0&#39;.
-                                // But we have to split it into two registers
-                                // since we are running in 32-bit mode.
+//  asm(&quot;ldxa [%1] %2, %0\n\t&quot;  // After the load, the full data is in &#39;%0&#39;.
+//                              // But we have to split it into two registers
+//                              // since we are running in 32-bit mode.
+//
+//      &quot;srl   %0, 0, %R0\n\t&quot;  // The &#39;%R0&#39; specifies the lower-order bits of
+//                              // a pair register, while &#39;%0&#39; specifies the
+//                              // higher-order bits.  Move the lower-order
+//                              // bits of the result to &#39;%R0&#39;.
+//
+//      &quot;srlx  %0, 32, %0&quot;      // Shift the higher-order bits of the result.
+//    : &quot;=r&quot; (y)
+//    : &quot;r&quot; (x), &quot;i&quot;(0x88), &quot;m&quot; (*x));
 
-        &quot;srl   %0, 0, %R0\n\t&quot;  // The &#39;%R0&#39; specifies the lower-order bits of
-                                // a pair register, while &#39;%0&#39; specifies the
-                                // higher-order bits.  Move the lower-order
-                                // bits of the result to &#39;%R0&#39;.
-
-        &quot;srlx  %0, 32, %0&quot;      // Shift the higher-order bits of the result.
-      : &quot;=r&quot; (y)
-      : &quot;r&quot; (x), &quot;i&quot;(0x88), &quot;m&quot; (*x));
-
-    return y;
-}
+#define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(dstType, x)                    \
+    {                                                                         \
+        BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(8 == sizeof *x);          \
+        register BloombergLP::bsls::Types::Uint64 y;                          \
+        asm(&quot;ldxa [%1] %2, %0\n\t&quot;                                            \
+            &quot;srl   %0, 0, %R0\n\t&quot;                                            \
+            &quot;srlx  %0, 32, %0&quot;                                                \
+          : &quot;=r&quot; (y)                                                          \
+          : &quot;r&quot; (x), &quot;i&quot;(0x88), &quot;m&quot; (                                         \
+               *reinterpret_cast&lt;BloombergLP::bsls::Types::Uint64 *&gt;(x)));    \
+                                                                              \
+        return static_cast&lt;dstType&gt;(y);                                       \
+    }
 
 #endif  // BSLS_PLATFORM_CPU_64_BIT else
 
-#endif  // 32 &amp; 64 bit not defined
+#endif  // 64 bit not defined
 
-#else  // BSLS_PLATFORM_CMP_GNU else
+#else  // BSLS_PLATFORM_CMP_GNU || BSLS_PLATFORM_CMP_CLANG else
 
-// Commented out assembly implementation since &#39;genericSwap{16,32} is
-// probably faster than the function call for 16 and 32 bits.
+#if !defined(BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS) ||     \
+    !defined(BDE_BUILD_TARGET_OPT)
 
-#define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64 1
+// Solaris non-GNU assembly implementations must be out of line.  Removed 16-
+// and 32-bit implementations since the generic implementations, which are
+// always inline, are probably faster than a function call.
 
 extern &quot;C&quot; {
 unsigned long long bsls_byteOrderUtil_Impl_sparc_CC_swap_p64(
@@ -453,120 +412,191 @@ unsigned long long bsls_byteOrderUtil_Impl_sparc_CC_swap_p64(
     // .cpp file.
 }
 
-inline
-Types::Uint64 ByteOrderUtil_Impl::customSwapP64(const Types::Uint64 *x)
-{
-    // sparc CC impl
+#define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(dstType, x)                    \
+    {                                                                         \
+        BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(8 == sizeof *x);          \
+        return static_cast&lt;dstType&gt;(                                          \
+                   bsls_byteOrderUtil_Impl_sparc_CC_swap_p64(                 \
+                          reinterpret_cast&lt;const unsigned long long *&gt;(x)));  \
+    }
 
-    return bsls_byteOrderUtil_Impl_sparc_CC_swap_p64(x);
-}
+#endif  // !disabled || !opt
 
-#endif  // BSLS_PLATFORM_CMP_GNU else
+#endif  // BSLS_PLATFORM_CMP_GNU || BSLS_PLATFORM_CMP_CLANG else
 
-#elif (defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64))   \
-    &amp;&amp; defined(BSLS_PLATFORM_CMP_GNU)
+#elif  (defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64))  \
+    &amp;&amp; (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
+
+#if    !defined(BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS)
 
 // Note that 32 and 64 bit may have already been defined by the advanced GNU
 // case.
 
-#define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_16 1
+// x86 GNU impl
 
-// LEVEL 1 METHODS
+#define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16(dstType, x)                     \
+    {                                                                         \
+        register unsigned short y;                                            \
+        __asm__ (&quot;xchg %b0, %h0&quot; : &quot;=Q&quot; (y) : &quot;0&quot; (                           \
+                                        static_cast&lt;unsigned short&gt;(x)));     \
+                                                                              \
+        return static_cast&lt;dstType&gt;(y);                                       \
+    }
 
-inline
-unsigned short
-ByteOrderUtil_Impl::customSwap16(unsigned short x)
-{
-    // x86 gnu impl
+#endif // !disabled
 
-    register unsigned short y;
-    __asm__ (&quot;xchg %b0, %h0&quot; : &quot;=Q&quot; (y) : &quot;0&quot; (x));
-    return y;
-}
+#if   !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32)                         \
+   &amp;&amp; !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64)                         \
+   &amp;&amp; !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32)                        \
+   &amp;&amp; !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64)
 
-#if   !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32)                             \
-   &amp;&amp; !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64)                             \
-   &amp;&amp; !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32)                            \
-   &amp;&amp; !defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64)
+// x86 GNU pre-4.03 impl
 
-#define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32 1
-#define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64 1
-
-inline
-unsigned int
-ByteOrderUtil_Impl::customSwap32(unsigned int x)
-{
-    // x86 gnu pre-4.03 impl
-
-    register unsigned int y;
-    __asm__ (&quot;bswap %0&quot; : &quot;=r&quot; (y) : &quot;0&quot; (x));
-    return y;
-}
+#define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32(dstType, x)                     \
+    {                                                                         \
+        register unsigned int y;                                              \
+        __asm__ (&quot;bswap %0&quot; : &quot;=r&quot; (y) : &quot;0&quot; (static_cast&lt;unsigned int&gt;(x))); \
+                                                                              \
+        return static_cast&lt;dstType&gt;(y);                                       \
+    }
 
 #if BSLS_PLATFORM_CPU_32_BIT
 
-inline
-Types::Uint64
-ByteOrderUtil_Impl::customSwap64(Types::Uint64 x)
-{
-    // x86 gnu pre-4.03 impl
+// x86 GNU pre-4.03 impl
 
-    register unsigned int res, tmp;
-    __asm__ (&quot;bswap %0\n\t&quot;
-             &quot;bswap %1\n\t&quot;
-           : &quot;=r&quot; (res), &quot;=r&quot; (tmp)
-           : &quot;0&quot; ((unsigned) x), &quot;1&quot; ((unsigned) (x &gt;&gt; 32)));
-
-    return ((Types::Uint64)res &lt;&lt; 32ULL)
-          | (Types::Uint64)tmp;
-}
+#define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64(dstType, x)                     \
+    {                                                                         \
+        typedef BloombergLP::bsls::Types::Uint64 Uint64;                      \
+                                                                              \
+        BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(8 == sizeof x);           \
+                                                                              \
+        register unsigned int res, tmp;                                       \
+        __asm__ (&quot;bswap %0\n\t&quot;                                               \
+                 &quot;bswap %1\n\t&quot;                                               \
+               : &quot;=r&quot; (res), &quot;=r&quot; (tmp)                                       \
+               : &quot;0&quot; ((unsigned)x), &quot;1&quot; ((unsigned)(x &gt;&gt; 32)));               \
+                                                                              \
+        return static_cast&lt;dstType&gt;(((Uint64)res &lt;&lt; 32) | (Uint64)tmp);       \
+    }
 
 #else  // BSLS_PLATFORM_CPU_64_BIT
 
-inline
-Types::Uint64
-ByteOrderUtil_Impl::customSwap64(Types::Uint64 x)
-{
-    // x86 gnu pre-4.03 impl
+// x86 GNU pre-4.03 impl
 
-    register Types::Uint64 y;
-    __asm__ (&quot;bswap %0&quot; : &quot;=r&quot; (y) : &quot;0&quot; (x));
-    return y;
-}
+#define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64(dstType, x)                     \
+    {                                                                         \
+        typedef BloombergLP::bsls::Types::Uint64 Uint64;                      \
+                                                                              \
+        BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(8 == sizeof x);           \
+                                                                              \
+        register Uint64 y;                                                    \
+        __asm__ (&quot;bswap %0&quot; : &quot;=r&quot; (y) : &quot;0&quot; (x));                            \
+                                                                              \
+        return static_cast&lt;dstType&gt;(y);                                       \
+    }
 
 #endif  // 32 &amp; 64 not previously defined
 #endif  // BSLS_PLATFORM_CPU_32_BIT else
-#endif  // BSLS_PLATFORM_CMP_GNU &amp;&amp; X86
+#endif  // (BSLS_PLATFORM_CMP_GNU || BSLS_PLATFORM_CMP_CLANG) &amp;&amp; X86
 
+#define BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(dstType, x)                    \
+    {                                                                         \
+        BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(2 == sizeof x);           \
+        BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(2 == sizeof(dstType));    \
+                                                                              \
+        return static_cast&lt;dstType&gt;(                                          \
+                        (static_cast&lt;unsigned short&gt;(x) &gt;&gt; 8) | (x &lt;&lt; 8));    \
+    }
+
+#define BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32(dstType, x)                    \
+    {                                                                         \
+        BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(4 == sizeof x);           \
+        BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(4 == sizeof(dstType));    \
+                                                                              \
+        return static_cast&lt;dstType&gt;((x                           &lt;&lt; 24)       \
+                                 | ((x &amp; 0x0000ff00U)            &lt;&lt;  8)       \
+                                 | ((x &amp; 0x00ff0000U)            &gt;&gt;  8)       \
+                                 | (static_cast&lt;unsigned int&gt;(x) &gt;&gt; 24));     \
+    }
+
+#define BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(dstType, x)                    \
+    {                                                                         \
+        typedef BloombergLP::bsls::Types::Uint64 Uint64;                      \
+                                                                              \
+        BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(8 == sizeof x);           \
+        BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(8 == sizeof(dstType));    \
+                                                                              \
+        return static_cast&lt;dstType&gt;(( x                          &lt;&lt; 56)       \
+                                  | ((x &amp; 0x000000000000ff00ULL) &lt;&lt; 40)       \
+                                  | ((x &amp; 0x0000000000ff0000ULL) &lt;&lt; 24)       \
+                                  | ((x &amp; 0x00000000ff000000ULL) &lt;&lt;  8)       \
+                                  | ((x &amp; 0x000000ff00000000ULL) &gt;&gt;  8)       \
+                                  | ((x &amp; 0x0000ff0000000000ULL) &gt;&gt; 24)       \
+                                  | ((x &amp; 0x00ff000000000000ULL) &gt;&gt; 40)       \
+                                  | (static_cast&lt;Uint64&gt;(x)      &gt;&gt; 56));     \
+    }
+
+namespace bsls {
+
+// ============================================================================
+//                               INLINE DEFINITIONS
+// ============================================================================
+
+                            // -------------------------
+                            // struct ByteOrderUtil_Impl
+                            // -------------------------
+
+// CLASS METHODS
+template &lt;class TYPE&gt;
 inline
-unsigned short
-ByteOrderUtil_Impl::genericSwap16(unsigned short x)
+TYPE ByteOrderUtil_Impl&lt;TYPE, 1&gt;::swapBytes(TYPE x)
 {
-    return static_cast&lt;unsigned short&gt;((x &gt;&gt; 8) | (x &lt;&lt; 8));
+    return x;
 }
 
+template &lt;class TYPE&gt;
 inline
-unsigned int
-ByteOrderUtil_Impl::genericSwap32(unsigned int x)
+TYPE ByteOrderUtil_Impl&lt;TYPE, 2&gt;::swapBytes(TYPE x)
 {
-    return ( x               &lt;&lt; 24)
-         | ((x &amp; 0x0000ff00) &lt;&lt;  8)
-         | ((x &amp; 0x00ff0000) &gt;&gt;  8)
-         | ( x               &gt;&gt; 24);
+    // These macros all return a value of type &#39;TYPE&#39;.
+
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16( TYPE, x);
+#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16(TYPE, &amp;x);
+#else
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(TYPE, x);
+#endif
 }
 
+template &lt;class TYPE&gt;
 inline
-Types::Uint64
-ByteOrderUtil_Impl::genericSwap64(Types::Uint64 x)
+TYPE ByteOrderUtil_Impl&lt;TYPE, 4&gt;::swapBytes(TYPE x)
 {
-    return ( x                         &lt;&lt; 56)
-         | ((x &amp; 0x000000000000ff00LL) &lt;&lt; 40)
-         | ((x &amp; 0x0000000000ff0000LL) &lt;&lt; 24)
-         | ((x &amp; 0x00000000ff000000LL) &lt;&lt;  8)
-         | ((x &amp; 0x000000ff00000000LL) &gt;&gt;  8)
-         | ((x &amp; 0x0000ff0000000000LL) &gt;&gt; 24)
-         | ((x &amp; 0x00ff000000000000LL) &gt;&gt; 40)
-         | ( x                         &gt;&gt; 56);
+    // These macros all return a value of type &#39;TYPE&#39;.
+
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32( TYPE, x);
+#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32(TYPE, &amp;x);
+#else
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32(TYPE, x);
+#endif
+}
+
+template &lt;class TYPE&gt;
+inline
+TYPE ByteOrderUtil_Impl&lt;TYPE, 8&gt;::swapBytes(TYPE x)
+{
+    // These macros all return a value of type &#39;TYPE&#39;.
+
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64( TYPE, x);
+#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64)
+    BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(TYPE, &amp;x);
+#else
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(TYPE, x);
+#endif
 }
 
 }  // close package namespace

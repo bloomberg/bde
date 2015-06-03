@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: Struct bsls::Alignment</title>
+<title>BDE 2.23.1 OSS: Struct bsls::Alignment</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
@@ -83,6 +84,8 @@ Public Types</h2></td></tr>
 <a class="el" href="structbsls_1_1Alignment.html#af3fa512292007f79df13f954a7d4ed1ea21a8cce492020ee6035db3660094e91c">BSLS_NATURAL</a> =  1, 
 <a class="el" href="structbsls_1_1Alignment.html#af3fa512292007f79df13f954a7d4ed1ea604866d92919ce00cf4fe14de3e5e3d5">BSLS_BYTEALIGNED</a> =  2
  }</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p><a class="el" href="structbsls_1_1Types.html">Types</a> of alignment strategy. </p>
+ <a href="structbsls_1_1Alignment.html#af3fa512292007f79df13f954a7d4ed1e">More...</a><br/></td></tr>
 <tr><td colspan="2"><h2><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static const char *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1Alignment.html#a0d7028fee6087afc8bf54836802b6330">toAscii</a> (<a class="el" href="structbsls_1_1Alignment.html#af3fa512292007f79df13f954a7d4ed1e">Alignment::Strategy</a> value)</td></tr>
@@ -100,13 +103,15 @@ Static Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p><a class="el" href="structbsls_1_1Types.html">Types</a> of alignment strategy. </p>
 <dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
 <tr><td valign="top"><em><a class="anchor" id="af3fa512292007f79df13f954a7d4ed1ea356665390d9ba041cf57b43a9e3b3dd6"></a><!-- doxytag: member="BSLS_MAXIMUM" ref="af3fa512292007f79df13f954a7d4ed1ea356665390d9ba041cf57b43a9e3b3dd6" args="" -->BSLS_MAXIMUM</em>&nbsp;</td><td>
+<p>Align memory block based on the most restrictive alignment requirements of the host platform. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="af3fa512292007f79df13f954a7d4ed1ea21a8cce492020ee6035db3660094e91c"></a><!-- doxytag: member="BSLS_NATURAL" ref="af3fa512292007f79df13f954a7d4ed1ea21a8cce492020ee6035db3660094e91c" args="" -->BSLS_NATURAL</em>&nbsp;</td><td>
+<p>Align memory block on an address that is the largest power of two that evenly divides the size (in bytes) of the block. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="af3fa512292007f79df13f954a7d4ed1ea604866d92919ce00cf4fe14de3e5e3d5"></a><!-- doxytag: member="BSLS_BYTEALIGNED" ref="af3fa512292007f79df13f954a7d4ed1ea604866d92919ce00cf4fe14de3e5e3d5" args="" -->BSLS_BYTEALIGNED</em>&nbsp;</td><td>
+<p>Align memory block based on the least restrictive alignment requirements of the host platform (1-byte aligned). </p>
 </td></tr>
 </table>
 </dd>
@@ -150,7 +155,7 @@ Static Public Member Functions</h2></td></tr>
 <li><a class="el" href="bsls__alignment_8h_source.html">bsls_alignment.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:43 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:43 for BDE Release 2.23.1 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

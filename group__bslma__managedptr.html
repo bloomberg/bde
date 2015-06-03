@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: bslma_managedptr Component</title>
+<title>BDE 2.23.1 OSS: bslma_managedptr Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
@@ -78,9 +79,9 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#3">Description</a> <ul>
 <li>
-<a href="#3.1">Deleters</a> </li>
+<a href="#3.1">Factories</a> </li>
 <li>
-<a href="#3.2">Factories</a> </li>
+<a href="#3.2">Deleters</a> </li>
 <li>
 <a href="#3.3">Aliasing</a> </li>
 <li>
@@ -88,9 +89,9 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#3.5">Type Casting</a> <ul>
 <li>
-<a href="#3.5.1">Implicit Casting</a> </li>
+<a href="#3.5.1">Explicit Casting</a> </li>
 <li>
-<a href="#3.5.2">Explicit Casting</a> </li>
+<a href="#3.5.2">Implicit Casting</a> </li>
 </ul>
 </li>
 <li>
@@ -136,17 +137,23 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This component provides a proctor, <code><a class="el" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr</a></code>, similar to <code>bsl::auto_ptr</code>, that supports user-specified deleters. The proctor is responsible for the automatic destruction of the object referenced by the managed pointer. As a "smart pointer", this object offers an interface similar to a native pointer, supporting dereference operators (*, -&gt;), (in)equality comparison and testing as if it were a boolean value. However, like <code>bsl::auto_ptr</code> it has unusual "copy-semantics" that transfer ownership of the managed object, rather than making a copy. It should be noted that this signature does not satisfy the requirements for an element-type stored in any of the standard library containers. Note that this component will fail to compile when instantiated for a class that gives a false-positive for the type trait <code><a class="el" href="structbslmf_1_1IsPolymorphic.html">bslmf::IsPolymorphic</a></code>. See the <code>bslmf_ispolymporphic</code> component for more details. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="deleters"></a> <a class="anchor" id="description.deleters"></a> <a class="anchor" id="3.1"></a> </dd></dl>
-<dl class="user"><dt><b>Deleters: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>When a managed pointer is destroyed, the managed object is destroyed using the user supplied "deleter". A deleter is simply a function that is invoked with two arguments, a pointer to the object to be destroyed, and a pointer to a <code>cookie</code> that is supplied at the same time as the <code>deleter</code> and managed object. The meaning of the <code>cookie</code> depends on the deleter. Typically a deleter function will accept two <code>void *</code> pointers and internally cast them to the appropriate types for pointers to the <code>cookie</code> and managed object. This component still supports (deprecated) legacy deleters that expect to be passed pointers to the specific <code>cookie</code> and managed object types in use. This latter form of deleter is now deprecated as it relies on undefined behavior, casting such function pointers to the correct form (taking two <code>void *</code> arguments) and invoking the function with two <code>void *</code> pointer arguments. While this is undefined behavior, it is known to have the desired effect on all platforms currently in use. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="factories"></a> <a class="anchor" id="description.factories"></a> <a class="anchor" id="3.2"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="factories"></a> <a class="anchor" id="description.factories"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Factories: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>An object that will be managed by a <code>ManagedPtr</code> object is typically dynamically allocated and destroyed by a factory. For the purposes of this, component, a factory is any class that provides a <code>deleteObject</code> function taking a single argument of the (pointer) type of the managed pointer. E.g., <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> is a commonly used factory, and the currently installed default allocator is the factory that is assumed to be used if neither a factory nor deleter are specified when supplying a pointer to be managed. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>An object that will be managed by a <code>ManagedPtr</code> object is typically dynamically allocated and destroyed by a factory. For the purposes of this, component, a factory is any class that provides a <code>deleteObject</code> function taking a single argument of the (pointer) type of the managed pointer. E.g., <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> is a commonly used factory, and the currently installed default allocator is the factory that is assumed to be used if neither a factory nor deleter (see below) are specified when supplying a pointer to be managed. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="deleters"></a> <a class="anchor" id="description.deleters"></a> <a class="anchor" id="3.2"></a> </dd></dl>
+<dl class="user"><dt><b>Deleters: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>When a managed pointer is destroyed, the managed object is destroyed using the user supplied "deleter". A deleter is simply a function that is invoked with two <code>void *</code> arguments: a pointer to the object to be destroyed, and a pointer to a <code>cookie</code> that is supplied at the same time as the <code>deleter</code> and managed object. <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">typedef</span> void (*DeleterFunc)(<span class="keywordtype">void</span> *managedObject, <span class="keywordtype">void</span> *cookie);
+</pre></div><br/>
+<br/>
+ The meaning of the <code>cookie</code> depends on the specific deleter. Typically a deleter function will accept the two <code>void *</code> pointers and internally cast them to the appropriate types for pointers to the managed object and <code>cookie</code>. Note that there are no methods taking just a deleter, as the user must always supply a <code>cookie</code> to be passed when the deleter is actually invoked. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="aliasing"></a> <a class="anchor" id="description.aliasing"></a> <a class="anchor" id="3.3"></a> </dd></dl>
 <dl class="user"><dt><b>Aliasing: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>In a managed pointer, the pointer value (the value returned by the <code>ptr</code> method) and the pointer to the managed object need not have the same value. The <code>loadAlias</code> method allows a managed pointer to be created as an "alias" to another managed pointer (possibly of a different type), which we'll call the "original" managed pointer. When <code>ptr</code> is invoked on the alias, the aliased pointer value is returned, but when the managed pointer is destroyed, the original managed object will be passed to the deleter. (See also the documentation of the <code>alias</code> constructor or of the <code>loadAlias</code> method.) </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>In a managed pointer, the pointer value (the value returned by the <code>get</code> method) and the pointer to the managed object need not have the same value. The <code>loadAlias</code> method allows a managed pointer to be created as an "alias" to another managed pointer (possibly of a different type), which we'll call the "original" managed pointer. When <code>get</code> is invoked on the alias, the aliased pointer value is returned, but when the managed pointer is destroyed, the original managed object will be passed to the deleter. (See also the documentation of the <code>alias</code> constructor or of the <code>loadAlias</code> method.) </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="exception_safety"></a> <a class="anchor" id="description.exception_safety"></a> <a class="anchor" id="3.4"></a> </dd></dl>
 <dl class="user"><dt><b>Exception Safety: </b></dt><dd></dd></dl>
@@ -156,13 +163,30 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b>Type Casting: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><code>ManagedPtr</code> objects can be implicitly and explicitly cast to different types in the same way that native pointers can. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="implicit_casting"></a> <a class="anchor" id="type_casting.implicit_casting"></a> <a class="anchor" id="description.type_casting.implicit_casting"></a> <a class="anchor" id="3.5.1"></a> </dd></dl>
-<dl class="user"><dt><b>Implicit Casting: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>As with native pointers, a managed pointer of the type <code>B</code> that is derived from the type <code>A</code>, can be directly assigned to a <code>ManagedPtr</code> of <code>A</code>. Likewise a managed pointer of type <code>B</code> can be directly assigned to a <code>ManagedPtr</code> of <code>const B</code>. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="explicit_casting"></a> <a class="anchor" id="type_casting.explicit_casting"></a> <a class="anchor" id="description.type_casting.explicit_casting"></a> <a class="anchor" id="3.5.2"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="explicit_casting"></a> <a class="anchor" id="type_casting.explicit_casting"></a> <a class="anchor" id="description.type_casting.explicit_casting"></a> <a class="anchor" id="3.5.1"></a> </dd></dl>
 <dl class="user"><dt><b>Explicit Casting: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Through "aliasing", a managed pointer of any type can be explicitly cast to a managed pointer of any other type using any legal cast expression. See the <code>casting</code> example below for more details. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Through "aliasing", a managed pointer of any type can be explicitly cast to a managed pointer of any other type using any legal cast expression. See example 4 on <code>type casting</code> below for more details. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="implicit_casting"></a> <a class="anchor" id="type_casting.implicit_casting"></a> <a class="anchor" id="description.type_casting.implicit_casting"></a> <a class="anchor" id="3.5.2"></a> </dd></dl>
+<dl class="user"><dt><b>Implicit Casting: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>As with native pointers, a managed pointer of the type <code>B</code> that is derived from the type <code>A</code>, can be directly assigned to a <code>ManagedPtr</code> of <code>A</code>. Likewise a managed pointer of type <code>B</code> can be directly assigned to a <code>ManagedPtr</code> of <code>const B</code>. However, the rules for construction are a little more subtle, and apply when passing a <code><a class="el" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr</a></code> by value into a function, or returning as the result of a function. <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">class </span>A {};
+
+  <span class="keyword">class </span>B : <span class="keyword">public</span> A {};
+
+  <span class="keywordtype">void</span> test()
+  {
+      B *b_p = 0;
+      A *a_p = b_p;
+
+      <a class="code" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr&lt;B&gt;</a> b_mp1;
+      <a class="code" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr&lt;A&gt;</a> a_mp1(b_mp1);   <span class="comment">// direct-initialization is valid</span>
+      <a class="code" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr&lt;A&gt;</a> a_mp2 = b_mp1;  <span class="comment">// copy-initialization should fail</span>
+}
+</pre></div><br/>
+<br/>
+ Note that <code>std::auto_ptr</code> has the same restriction, and this failure will occur only on compilers that strictly conform to the C++ standard, such as recent gcc compilers or (in this case) IBM xlC. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.6"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
@@ -399,7 +423,7 @@ Namespaces</h2></td></tr>
 <div class="fragment"><pre class="fragment">      <span class="keywordflow">if</span> (g_verbose) bsl::cout &lt;&lt; <span class="stringliteral">&quot;Preceded by:&quot;</span>;
       <span class="keywordtype">int</span> i;
       <span class="keywordflow">for</span> (i = -1; i &gt;= -5; --i) {
-          <span class="keywordtype">double</span> quote = result.<a class="code" href="classbslma_1_1ManagedPtr.html#a806661d834efd84fb953db1c69d5fb53">ptr</a>()[i];
+          <span class="keywordtype">double</span> quote = result.<a class="code" href="classbslma_1_1ManagedPtr.html#a83325a674a64bd8c45607d2822df0d8e">get</a>()[i];
           <span class="keywordflow">if</span> (END_QUOTE == quote) {
               <span class="keywordflow">break</span>;
           }
@@ -409,14 +433,14 @@ Namespaces</h2></td></tr>
       <span class="keywordflow">if</span> (g_verbose) bsl::cout &lt;&lt; bsl::endl;
 </pre></div><br/>
 <br/>
- Then, to move the finger, e.g., to the last position printed, one must be careful to retain the ownership of the entire array. Using the statement <code>result.load(result.ptr()-i)</code> would be an error, because it would first compute the pointer value <code>result.ptr()-i</code> of the argument, then release the entire array before starting to manage what has now become an invalid pointer. Instead, <code>result</code> must retain its ownership to the entire array, which can be attained by: <br/>
+ Then, to move the finger, e.g., to the last position printed, one must be careful to retain the ownership of the entire array. Using the statement <code>result.load(result.get()-i)</code> would be an error, because it would first compute the pointer value <code>result.get()-i</code> of the argument, then release the entire array before starting to manage what has now become an invalid pointer. Instead, <code>result</code> must retain its ownership to the entire array, which can be attained by: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">      result.<a class="code" href="classbslma_1_1ManagedPtr.html#acf50f35b32c6b2a8d6638d21fa2df9b8">loadAlias</a>(result, result.<a class="code" href="classbslma_1_1ManagedPtr.html#a806661d834efd84fb953db1c69d5fb53">ptr</a>()-i);
+<div class="fragment"><pre class="fragment">      result.<a class="code" href="classbslma_1_1ManagedPtr.html#acf50f35b32c6b2a8d6638d21fa2df9b8">loadAlias</a>(result, result.<a class="code" href="classbslma_1_1ManagedPtr.html#a83325a674a64bd8c45607d2822df0d8e">get</a>()-i);
 </pre></div><br/>
 <br/>
  Finally, if we reset the result pointer, the entire array is deallocated: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">      result.<a class="code" href="classbslma_1_1ManagedPtr.html#ab929c98b414c3feabd00d8e4430b60d1">clear</a>();
+<div class="fragment"><pre class="fragment">      result.<a class="code" href="classbslma_1_1ManagedPtr.html#af96bb8356e57e2ab6037d45f7f594d86">reset</a>();
       assert(0 == ta.<a class="code" href="classbslma_1_1TestAllocator.html#af33e8b7b63178f9f1c62f55cd9da1273">numBlocksInUse</a>());
       assert(0 == ta.<a class="code" href="classbslma_1_1TestAllocator.html#a55ecf964b4e4c5d0795cd4aaf3029be3">numBytesInUse</a>());
 
@@ -537,9 +561,9 @@ Namespaces</h2></td></tr>
           }
 </pre></div><br/>
 <br/>
- Then, we <code>clear</code> the contents of a single managed pointer in the array, and assert that the factory <code>count</code> is appropriately reduced. <br/>
+ Then, we <code>reset</code> the contents of a single managed pointer in the array, and assert that the factory <code>count</code> is appropriately reduced. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">          pData[1].<a class="code" href="classbslma_1_1ManagedPtr.html#ab929c98b414c3feabd00d8e4430b60d1">clear</a>();
+<div class="fragment"><pre class="fragment">          pData[1].<a class="code" href="classbslma_1_1ManagedPtr.html#af96bb8356e57e2ab6037d45f7f594d86">reset</a>();
           assert(3 == cf.count());
 </pre></div><br/>
 <br/>
@@ -613,22 +637,22 @@ Namespaces</h2></td></tr>
           assert(!a_mp1 &amp;&amp; !b_mp3);
 
           <span class="comment">// constructor conversion init with nil</span>
-          <a class="code" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr&lt;A&gt;</a> a_mp4(b_mp3, b_mp3.ptr());
+          <a class="code" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr&lt;A&gt;</a> a_mp4(b_mp3, b_mp3.get());
           assert(!a_mp4 &amp;&amp; !b_mp3);
 
           <span class="comment">// constructor conversion init with nonnil</span>
           B *p_b5 = <span class="keyword">new</span> (localTa) B(&amp;numdels);
           <a class="code" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr&lt;B&gt;</a> b_mp5(p_b5, &amp;localTa);
-          <a class="code" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr&lt;A&gt;</a> a_mp5(b_mp5, b_mp5.ptr());
+          <a class="code" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr&lt;A&gt;</a> a_mp5(b_mp5, b_mp5.get());
           assert(a_mp5 &amp;&amp; !b_mp5);
-          assert(a_mp5.ptr() == p_b5);
+          assert(a_mp5.get() == p_b5);
 
           <span class="comment">// constructor conversion init with nonnil</span>
           B *p_b6 = <span class="keyword">new</span> (localTa) B(&amp;numdels);
           <a class="code" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr&lt;B&gt;</a> b_mp6(p_b6, &amp;localTa);
           <a class="code" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr&lt;A&gt;</a> a_mp6(b_mp6);
           assert(a_mp6 &amp;&amp; !b_mp6);
-          assert(a_mp6.ptr() == p_b6);
+          assert(a_mp6.get() == p_b6);
 
           <span class="keyword">struct </span>S {
               <span class="keywordtype">int</span> d_i[10];
@@ -650,13 +674,13 @@ Namespaces</h2></td></tr>
 <div class="fragment"><pre class="fragment">  <span class="keywordtype">void</span> explicitCastingExample() {
 
       <a class="code" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr&lt;A&gt;</a> a_mp;
-      <a class="code" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr&lt;B&gt;</a> b_mp1(a_mp, static_cast&lt;B*&gt;(a_mp.<a class="code" href="classbslma_1_1ManagedPtr.html#a806661d834efd84fb953db1c69d5fb53">ptr</a>()));
+      <a class="code" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr&lt;B&gt;</a> b_mp1(a_mp, static_cast&lt;B*&gt;(a_mp.<a class="code" href="classbslma_1_1ManagedPtr.html#a83325a674a64bd8c45607d2822df0d8e">get</a>()));
 </pre></div><br/>
 <br/>
  or even use the less safe "C"-style casts: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">      <span class="comment">// bslma::ManagedPtr&lt;A&gt; a_mp;</span>
-      <a class="code" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr&lt;B&gt;</a> b_mp2(a_mp, (B*)(a_mp.<a class="code" href="classbslma_1_1ManagedPtr.html#a806661d834efd84fb953db1c69d5fb53">ptr</a>()));
+      <a class="code" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr&lt;B&gt;</a> b_mp2(a_mp, (B*)(a_mp.<a class="code" href="classbslma_1_1ManagedPtr.html#a83325a674a64bd8c45607d2822df0d8e">get</a>()));
 
   } <span class="comment">// explicitCastingExample()</span>
 </pre></div><br/>
@@ -666,7 +690,7 @@ Namespaces</h2></td></tr>
 <div class="fragment"><pre class="fragment">  <span class="keywordtype">void</span> processPolymorphicObject(<a class="code" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr&lt;A&gt;</a> aPtr,
                                 <span class="keywordtype">bool</span> *castSucceeded)
   {
-      <a class="code" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr&lt;B&gt;</a> bPtr(aPtr, dynamic_cast&lt;B*&gt;(aPtr.<a class="code" href="classbslma_1_1ManagedPtr.html#a806661d834efd84fb953db1c69d5fb53">ptr</a>()));
+      <a class="code" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr&lt;B&gt;</a> bPtr(aPtr, dynamic_cast&lt;B*&gt;(aPtr.<a class="code" href="classbslma_1_1ManagedPtr.html#a83325a674a64bd8c45607d2822df0d8e">get</a>()));
       <span class="keywordflow">if</span> (bPtr) {
           assert(!aPtr);
           *castSucceeded = <span class="keyword">true</span>;
@@ -680,7 +704,7 @@ Namespaces</h2></td></tr>
 <br/>
  If the value of <code>aPtr</code> can be dynamically cast to <code>B*</code> then ownership is transferred to <code>bPtr</code>, otherwise <code>aPtr</code> is to be modified. As previously stated, the managed object will be destroyed correctly regardless of how it is cast. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:28 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:21 for BDE Release 2.23.1 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

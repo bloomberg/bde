@@ -1,16 +1,16 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
  bslh.txt
 
-@PURPOSE: Provide a framework for hashing types using swapable algorithms.
+@PURPOSE: Provide a framework for hashing types using swappable algorithms.
 
 @MNEMONIC: Basic Standard Library Hashing (bslh)
 
 @DESCRIPTION: The &#39;bslh&#39; package provides components for a more modular hashing
-implemenation than is found in the standard.  This implementation is based on
+implementation than is found in the standard.  This implementation is based on
 ISO C++ Proposal N3980.  An internal proposal for this is available at {TEAM
 BDE:MODULAR HASHING&lt;GO&gt;}.  This package provides hashing algorithms as well as
 &#39;Hash&#39; and &#39;SeededHash&#39; structs which allow different algorithms to be applied
@@ -25,7 +25,7 @@ and can be read and used without having read the other sections.
 /-----------------
 : o Terminology
 :   o Avalanche
-:   o Denial of Service (Dos)
+:   o Denial of Service (DoS)
 :   o Funneling
 :   o Salient to Hashing
 :
@@ -34,13 +34,13 @@ and can be read and used without having read the other sections.
 :   o Less Code Duplication
 :   o Easier to Make Types Hashable
 :   o Hash Combining
-:   o Swapable Algorithms
+:   o Swappable Algorithms
 :
 : o Type Implementers
-:   o hashAppend
+:   o &#39;hashAppend&#39;
 :   o Determining what to Hash
 :   o Hashing Other User Defined Types
-:   o Hashing Pointers (especially const char *)
+:   o Hashing Pointers (especially &#39;const char *&#39;)
 :   o Converting Existing Types
 :
 : o Type Users
@@ -93,7 +93,7 @@ linear searches.
 /- - - - -
 An undesirable property of hashing algorithms that results in a large number
 of collisions when the inputs differ by only a few bits.  Funneling is related
-to the avalanche property of a hashing algorithm and is essentialy the
+to the avalanche property of a hashing algorithm and is essentially the
 opposite of avalanche.  More information can be found at
 http://burtleburtle.net/bob/hash/evahash.html
 
@@ -112,17 +112,17 @@ There are numerous benefits to both type creators and users in this new system:
 /Better and More Predictable Performance
 /- - - - - - - - - - - - - - - - - - - -
 This modular hashing system allows users to use known good hashing algorithms
-to avoid performance issues.  The graph below depicts unordered_map (expected
+to avoid performance issues.  The graph below depicts &#39;unordered_map&#39; (expected
 case O(1)) taking longer to find elements that map.  This is a real-world
 benchmark.  Internal users can read more about these tests at {TEAM BDE:FLAT
 MAP&lt;GO&gt;}.  The anomalous behavior arose from the use of a poorly written,
 non-standard, hashing algorithm, which caused similar strings to hash to the
 same value resulting in many collisions:
 ..
-         Time to Find a pair&lt;string, string&gt; in Map vs Unordered Map
+         Time to Find a pair&lt;string, string&gt; in map vs unordered_map
 
    18 |
-      |                      O = Map   X = Unordered Map
+      |                      O = map   X = unordered_map
    16 |
 T     |                                                              X
 i  14 |                                                              |
@@ -160,7 +160,7 @@ writing a hashing algorithm for their type.  This required figuring out what
 constituted a good hash value and how to generate one with a given set of data
 members.  Thinking about what makes a good hash is no longer the job of the
 type implementer.  They simply have to declare what data members they want to
-contribute the the hash and then they are done.
+contribute the hash and then they are done.
 
 /Hash Combining
 / - - - - - - -
@@ -171,17 +171,18 @@ methods of hash combining such as XORing could result in huge numbers of
 collisions.  The new, modular hashing system offers &#39;hashAppend&#39; to combine an
 unlimited number of data members into one, good, hash.
 
-/Swapable Algorithms
+/Swappable Algorithms
 /- - - - - - - - - -
 In the standard C++03 hashing system, anyone who wanted to hash a type had to
 use the algorithm written by the type implementer, or they had to write their
-own algorithm in a fuctor (without access to private data members of course).
-Unfortuantely, hashing algorithms are not one size fits all.  In some cases, a
+own algorithm in a functor (without access to private data members of course).
+Unfortunately, hashing algorithms are not one size fits all.  In some cases, a
 fast identity hash is fine.  In other cases a slower hash that is secure
-against denial of service attacks is required.  The new, modular hashing system
-offers a suite of hashing algorithms that have been vetted and are know to have
-good characteristics for different situations.  Swapping out one algorithm for
-another only requires a type&#39;s users to change one line of code, as shown here:
+against Denial of Service (DoS) attacks is required.  The new, modular hashing
+system offers a suite of hashing algorithms that have been vetted and are know
+to have good characteristics for different situations.  Swapping out one
+algorithm for another only requires a type&#39;s users to change one line of code,
+as shown here:
 ..
 // Uses implicitly &#39;DefaultHashAlgorithm&#39;.
 bsl::unordered_map&lt;MyType, int, bslh::Hash&lt;&gt;&gt; unorderedMap;
@@ -219,7 +220,7 @@ algorithm.  An example implementation can be seen below:
 namespace BloombergLP {
 namespace NamespaceForBoxes {
 class Box {
-    // A value semantic type that represents a box drawn on to a cartesian
+    // A value semantic type that represents a box drawn on to a Cartesian
     // plane.
   private:
     Point d_position;
@@ -286,7 +287,7 @@ A few key features of the hashAppend fuction:
 :   algorithm functor with each invocation.
 
 This is the extent of the work for a type implementer.  Once a type implementer
-know what members need to contribure to a hash value, the type implementer
+knows what members need to contribute to a hash value, the type implementer
 simply calls &#39;hashAppend&#39; on members as shown above.  Those members will then
 be passed into and used by whatever algorithm a consumer of the type wants to
 apply.
@@ -485,8 +486,8 @@ and the section below shows what behavior can be expected from calling
 Note that when &#39;bsl::hash&lt;SomeType&gt;&#39; redirects to &#39;bslh::Hash&lt;&gt;&#39;,
 &#39;bslh::Hash&lt;&gt;&#39; is always using the defualt hashing algorithm.  This is fine for
 most use cases, but if we need to use a special algorithm, such as a secure one
-to prevent denial of service attacks in a hash table, we must directly use
-&#39;bslh::Hash&#39; in order to swap out the algorithm template parameter.
+to prevent Denial of Service (DoS) attacks in a hash table, we must directly
+use &#39;bslh::Hash&#39; in order to swap out the algorithm template parameter.
 
 /bslh::Hash
 / - - - - -
@@ -545,9 +546,9 @@ requirements of the algorithms in &#39;bslh&#39;:
 +-----------------------------------+-----------------------------------------+
 |&#39;bslh::SpookyHashAlgorithm&#39;        |      Y      |       N        |     N    |
 +-----------------------------------+-----------------------------------------+
-[*] &quot;Crypto&quot; is revering to the requirement on the seed, not the quality of the
+[*] &quot;Crypto&quot; is reverting to the requirement on the seed, not the quality of the
 algorithm.  I.e., &#39;bslh::SipHashAlgorithm&#39; is not a cryptographically secure
-algorithm, but it *is* a cryptographically strong pseudorandom function, *if*
+algorithm, but it *is* a cryptographically strong pseudo-random function, *if*
 it&#39;s provided a cryptographically secure seed (see &#39;bslh_siphashalgorithm&#39; for
 more information).
 ..
@@ -673,7 +674,7 @@ minimal numbers of bucket collisions will occur.
 For most purposes, the default supplied hashing algorithm will be best.  It has
 a good combination of speed and key distribution.  In cases where user input is
 directly included in the &#39;unordered_map&#39;, it is recommended to use a secure
-hashing algorithm instead, to prevent Denial of Service attacks where an
+hashing algorithm instead, to prevent Denial of Service (DoS) attacks where an
 attacker causes all of the keys to collide to the same bucket.  Make sure to
 read the component level documentation when looking for an algorithm, to be
 sure that a hashing algorithm has the right trade offs for your use case.
@@ -849,7 +850,7 @@ The supplied algorithm is suitable for general purpose use in a hash table.
 The underlying algorithm is subject to change in future releases.
 
 This class satisfies the requirements for regular &#39;bslh&#39; hashing algorithms,
-defined in bslh_hash.h.
+defined in &#39;bslh_hash.h&#39;.
 
 /&#39;bslh_defaultseededhashalgorithm&#39;
 /- - - - - - - - - - - - - - - - -
@@ -859,7 +860,7 @@ in a hash table.  The underlying algorithm is subject to change in future
 releases.
 
 This class satisfies the requirements for seeded &#39;bslh&#39; hashing algorithms,
-defined in bslh_seededhash.h.
+defined in &#39;bslh_seededhash.h&#39;.
 
 /&#39;bslh_hash&#39;
 /- - - - - -
@@ -875,7 +876,7 @@ are required to make the hashing algorithms in &#39;bslh&#39; work.
 This component provides a templated struct, &#39;bslh::SeededHash&#39;, which provides
 hashing functionality.  This struct is a drop in replacement for &#39;bsl::hash&#39;.
 It is similar to &#39;bslh::Hash&#39;, however, it is meant for hashes that require a
-seed.  It takes a seed generator and uses that to create seeds to give the the
+seed.  It takes a seed generator and uses that to create seeds to give the
 hashing algorithm.  &#39;bslh::SeededHash&#39; is a wrapper which adapts hashing
 algorithms from &#39;bslh&#39; to match the interface of &#39;bsl::hash&#39;.
 &#39;bslh::SeededHash&#39; is a universal hashing functor that will hash any type that
@@ -892,7 +893,7 @@ RNG.  A cryptographically secure RNG must be supplied in order for
 algorithm.
 
 This class satisfies the requirements for a seed generator, defined in
-bslh_seededhash.h.
+&#39;bslh_seededhash.h&#39;.
 
 /&#39;bslh_siphashalgorithm&#39;
 /- - - - - - - - - - - -
@@ -900,7 +901,7 @@ bslh_seededhash.h.
 algorithm designed for speed and security.  A primary use case for this
 algorithm is to provide an extra line of defense in hash tables (such as the
 underlying implementation of &#39;unordered_map&#39;) against malicious input that
-could cause denial of service (DOS) attacks.  It is based on one of the
+could cause Denial of Service (DoS) attacks.  It is based on one of the
 finalists for the SHA-3 cryptographic hash standard.  Full details of the hash
 function can be found here: https://131002.net/siphash/siphash.pdf This
 particular implementation has been derived from Howard Hinnant&#39;s work here:
@@ -909,26 +910,26 @@ of the original code as possible, including comment headers, has been
 preserved.
 
 This class satisfies the requirements for seeded &#39;bslh&#39; hashing algorithms,
-defined in bslh_seededhash.h.
+defined in &#39;bslh_seededhash.h&#39;.
 
 /&#39;bslh_spookyhashalgorithm&#39;
 / - - - - - - - - - - - - -
 &#39;bslh::SpookyHashAlgorithm&#39; implements the SpookyHash algorithm by Bob Jenkins.
 This algorithm is a general purpose algorithm that is known to quickly reach
-good avalanche performance and execute in time that is comprable to or faster
+good avalanche performance and execute in time that is comparable to or faster
 than other industry standard algorithms such as CityHash.  It is a good default
 choice for hashing values in unordered associative containers.  For more
 information, see: http://burtleburtle.net/bob/hash/spooky.html
 
 This class satisfies the requirements for regular &#39;bslh&#39; hashing algorithms and
-seeded &#39;bslh&#39; hashing algorithms, defined in bslh_hash.h and bslh_seededhash.h
-respectively.
+seeded &#39;bslh&#39; hashing algorithms, defined in &#39;bslh_hash.h&#39; and
+&#39;bslh_seededhash.h&#39; respectively.
 
 /&#39;bslh_spookyhashalgorithmimp&#39;
 /- - - - - - - - - - - - - - -
 &#39;bslh::SpookyHashAlgorithmImp&#39; provides BDE style encapsulation around Bob
-Jenkins cannonical SpookyHash implementation.  SpookyHash provides a way to
-hash contiguous data all at once, or discontiguous data in pieces.  More
+Jenkins canonical SpookyHash implementation.  SpookyHash provides a way to
+hash contiguous data all at once, or non-contiguous data in pieces.  More
 information is available at: http://burtleburtle.net/bob/hash/spooky.html
 </pre>
 </body>

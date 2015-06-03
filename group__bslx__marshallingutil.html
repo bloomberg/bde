@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: bslx_marshallingutil Component</title>
+<title>BDE 2.23.1 OSS: bslx_marshallingutil Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
@@ -110,7 +111,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a byte-array-based implementation for a suite of marshalling functions used to convert values (and arrays of values) of the following fundamental integer and floating-point types: <br/>
+<dl class="user"><dt><b></b></dt><dd>This component provides a byte-array-based implementation, <code><a class="el" href="structbslx_1_1MarshallingUtil.html">bslx::MarshallingUtil</a></code>, for a suite of marshalling functions used to convert values (and arrays of values) of the following fundamental integer and floating-point types: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">      C++ TYPE          REQUIRED CONTENT OF ANY PLATFORM-NEUTRAL FORMAT
       --------          -----------------------------------------------
@@ -206,7 +207,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b>IEEE 754 Double-Precision Format: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>A <code>double</code> is assumed to be <em>at</em> <em>least</em> 64 bits in size. The externalized byte representation of a 64-bit floating-point value is defined to conform to the IEEE double-precision format illustrated below. If the native representation of a 64-bit floating-point value does not match this format, a conversion process to and from this format is performed. This conversion may (of course) be lossy: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  sign bit    11-bit exponent             52-bit mantissa
+<div class="fragment"><pre class="fragment">  sign bit    11-bit exponent             52-bit significand
     /        /                           /
   +-+-----------+----------------------------------------------------+
   |s|e10......e0|m51...............................................m0|
@@ -219,7 +220,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b>IEEE 754 Single-Precision Format: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>A <code>float</code> is assumed to be <em>at</em> <em>least</em> 32 bits in size. The externalized byte representation of a 32-bit floating-point value is defined to conform to the IEEE single-precision format illustrated below. If the native representation of a 32-bit floating-point value does not match this format, a conversion process to and from this format is performed. This conversion may (of course) be lossy: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  sign bit    8-bit exponent        23-bit mantissa
+<div class="fragment"><pre class="fragment">  sign bit    8-bit exponent        23-bit significand
      /       /                     /
     +-+--------+-----------------------+
     |s|e7....e0|m22..................m0|
@@ -267,7 +268,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:31 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:24 for BDE Release 2.23.1 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

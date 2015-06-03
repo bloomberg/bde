@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bslscm_versiontag.h                                                -*-C++-*-
@@ -20,8 +20,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //@MACROS:
 //  BSL_VERSION_MAJOR: current release major version number
 //  BSL_VERSION_MINOR: current release minor version number
-//  BLS_MAKE_VERSION(MA, MI): create combined, 6-digit version number (MAMI00)
-//  BLS_VERSION: combined, 6-digit version number for current release
+//  BSL_MAKE_VERSION(MA, MI): create combined, 6-digit version number (MAMI00)
+//  BSL_VERSION: combined, 6-digit version number for current release
 //
 //@SEE_ALSO: bslscm_version
 //
@@ -54,12 +54,12 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #define BSL_VERSION_MAJOR    2
     // Provide the major version number of the current (latest) BSL release.
 
-#define BSL_VERSION_MINOR    22
+#define BSL_VERSION_MINOR    23
     // Provide the minor version number of the current (latest) BSL release.
 
 #define BSL_MAKE_VERSION(major, minor) ((major) * 10000 \
                                       + (minor) *   100)
-    // Construct a composite version number in the range [ 0 .. 999900 ] from
+    // Construct a composite version number in the range &#39;[0 .. 999900]&#39; from
     // the specified &#39;major&#39; and &#39;minor&#39; version numbers.  The resulting value,
     // when expressed as a 6-digit decimal string, has &quot;00&quot; as the two
     // lowest-order decimal digits, &#39;minor&#39; as the next two digits, and &#39;major&#39;
@@ -71,11 +71,11 @@ BSLS_IDENT(&quot;$Id: $&quot;)
     // integral constants, then the resulting expression is also a compile-time
     // integral constant.  Also note that the patch version number is
     // intentionally not included.  The behavior is undefined unless &#39;major&#39;
-    // and &#39;minor&#39; are integral values in the range [ 0 .. 99 ].
+    // and &#39;minor&#39; are integral values in the range &#39;[0 .. 99]&#39;.
 
 #define BSL_VERSION BSL_MAKE_VERSION(BSL_VERSION_MAJOR, \
                                      BSL_VERSION_MINOR)
-    // Construct a composite version number in the range [ 0 .. 999900 ] from
+    // Construct a composite version number in the range &#39;[0 .. 999900]&#39; from
     // the specified &#39;BSL_VERSION_MAJOR&#39; and &#39;BSL_VERSION_MINOR&#39; numbers
     // corresponding to the major and minor version numbers, respectively, of
     // the current (latest) BSL release.  Note that the patch version number is

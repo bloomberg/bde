@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: bslh_spookyhashalgorithmimp Component</title>
+<title>BDE 2.23.1 OSS: bslh_spookyhashalgorithmimp Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
@@ -106,7 +107,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code><a class="el" href="classbslh_1_1SpookyHashAlgorithmImp.html">bslh::SpookyHashAlgorithmImp</a></code> provides BDE style encapsulation around Bob Jenkins cannonical SpookyHash implementation. SpookyHash provides a way to hash contiguous data all at once, or discontiguous data in pieces. More information is available at: <a href="http://burtleburtle.net/bob/hash/spooky.html">http://burtleburtle.net/bob/hash/spooky.html</a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><code><a class="el" href="classbslh_1_1SpookyHashAlgorithmImp.html">bslh::SpookyHashAlgorithmImp</a></code> provides BDE style encapsulation around Bob Jenkins' canonical SpookyHash implementation. SpookyHash provides a way to hash contiguous data all at once, or discontiguous data in pieces. More information is available at: <a href="http://burtleburtle.net/bob/hash/spooky.html">http://burtleburtle.net/bob/hash/spooky.html</a> </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
@@ -133,7 +134,7 @@ Namespaces</h2></td></tr>
     <span class="keyword">public</span>:
       CheckedData(<span class="keyword">const</span> <span class="keywordtype">char</span> *data, <span class="keywordtype">size_t</span> length);
           <span class="comment">// Creates an instance of this class having the specified &#39;length&#39;</span>
-          <span class="comment">// bytes of &#39;data&#39;.  The behaviour is undefined unless &#39;data&#39; is</span>
+          <span class="comment">// bytes of &#39;data&#39;.  The behavior is undefined unless &#39;data&#39; is</span>
           <span class="comment">// initialized with at least &#39;length&#39; bytes, and remains valid for</span>
           <span class="comment">// the lifetime of this object.  Note that only a pointer to the</span>
           <span class="comment">// data will be maintained, it will not be copied.</span>
@@ -167,7 +168,7 @@ Namespaces</h2></td></tr>
   }
 </pre></div><br/>
 <br/>
- Next, we define <code>isDataValid</code>. We will generate a checksum from the contained data and then compare it to the checksum we generated when the class was created. If the two hashes match, then we can be reasonably certian that the data is still in a valid state (the chance of an accidental collision is very low). If the checksums do not match, we know that the data has been corrupted. We will not be able to restore it, but we will know not to trust it. <br/>
+ Next, we define <code>isDataValid</code>. We will generate a checksum from the contained data and then compare it to the checksum we generated when the class was created. If the two hashes match, then we can be reasonably certain that the data is still in a valid state (the chance of an accidental collision is very low). If the checksums do not match, we know that the data has been corrupted. We will not be able to restore it, but we will know not to trust it. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keywordtype">bool</span> CheckedData::isDataValid() {
       SpookyHashAlgorithmImp hashAlg(1, 2);
@@ -238,13 +239,13 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd>The third party code begins with the "SpookyHash" header below, and continues until the <a class="el" href="namespaceBloombergLP.html">BloombergLP</a> copyright notice. Changes made to the original code include: </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ol>
 <li>
-Added <a class="el" href="namespaceBloombergLP.html">BloombergLP</a> and bslh namespaces  </li>
+Added <code><a class="el" href="namespaceBloombergLP.html">BloombergLP</a></code> and <code>bslh</code> namespaces  </li>
 <li>
 Renamed <code>SpookyHash</code> to <code>SpookyHashAlgorithmImp</code>  </li>
 <li>
-Removed usage of <code>stdint.h</code> (which might not be availible on all platforms) and updated associated typedefs  </li>
+Removed usage of <code>stdint.h</code> (which might not be available on all platforms) and updated associated <code>typedef</code>s  </li>
 <li>
-Added include guards  </li>
+Added <code>include</code> guards  </li>
 <li>
 Made some methods private  </li>
 <li>
@@ -252,15 +253,15 @@ Reformatted comments and added comments  </li>
 <li>
 Updated indenting to BDE style  </li>
 <li>
-Moved typedefs within class  </li>
+Moved <code>typedef</code>s within class  </li>
 <li>
-Changed c style casts to static_casts  </li>
+Changed C-style casts to <code>static_cast</code>s  </li>
 </ol>
 <div class="hanging"> </div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> 10 Reordered methods according to BDE style</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> 11 Added inline to <code>Hash32</code> and <code>Hash64</code></div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> 12 Changed static constants to <code>enum</code>s to avoid storage overhead</div></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><div class="hanging"> 13 Added constructor in place of init</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> 13 Added constructor in place of <code>init</code></div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> 14 Made function names lower case (had to change <code>Final</code> to <code>finalize</code> and <code>Short</code> to <code>shortHash</code> to avoid using a keyword)</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div> </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><br/>
@@ -298,7 +299,7 @@ Changed c style casts to static_casts  </li>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:27 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:20 for BDE Release 2.23.1 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

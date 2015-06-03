@@ -1,0 +1,199 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.23.1 OSS</title>
+<html>
+<pre>
+// bslx_streambufoutstream.h                                          -*-C++-*-
+#ifndef INCLUDED_BSLX_STREAMBUFOUTSTREAM
+#define INCLUDED_BSLX_STREAMBUFOUTSTREAM
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Externalization of fundamental types to a &#39;bsl::streambuf&#39;.
+//
+//@CLASSES:
+//  bslx::StreambufOutStream: &#39;bsl::streambuf&#39; output for fundamentals
+//
+//@SEE_ALSO: bslx_streambufinstream, bslx_genericoutstream
+//
+//@DESCRIPTION: This component implements a &#39;bsl::streambuf&#39; output stream
+// class, &#39;bslx::StreambufOutStream&#39;, that provides platform-independent
+// output methods (&quot;externalization&quot;) on values, and arrays of values, of
+// fundamental types, and on &#39;bsl::string&#39;.
+//
+// This component is intended to be used in conjunction with the
+// &#39;bslx_streambufinstream&#39; &quot;unexternalization&quot; component.  Each output method
+// of &#39;bslx::StreambufOutStream&#39; writes a value or a homogeneous array of
+// values to a &#39;bsl::streambuf&#39;.  The values are formatted to be readable by
+// the corresponding &#39;bslx::StreambufInStream&#39; method.  In general, the user
+// cannot rely on any other mechanism to read data written by
+// &#39;bslx::StreambufOutStream&#39; unless that mechanism explicitly states its
+// ability to do so.
+//
+// The supported types and required content are listed in the &#39;bslx&#39;
+// package-level documentation under &quot;Supported Types&quot;.
+//
+// Note that the values are stored in big-endian (i.e., network byte order)
+// format.
+//
+// Note that output streams can be *invalidated* explicitly and queried for
+// *validity*.  Writing to an initially invalid stream has no effect.  Whenever
+// an output operation fails, the stream should be invalidated explicitly.
+//
+///Versioning
+///----------
+// BDEX provides two concepts that support versioning the BDEX serialization
+// format of a type: &#39;version&#39; and &#39;versionSelector&#39;.  A &#39;version&#39; is a 1-based
+// integer indicating one of the supported formats (e.g., format 1, format 2,
+// etc.).  A &#39;versionSelector&#39; is a value that is mapped to a &#39;version&#39; for a
+// type by the type&#39;s implementation of &#39;maxSupportedBdexVersion&#39;.
+//
+// Selecting a value for a &#39;versionSelector&#39; is required at two different
+// points: (1) when implementing a new &#39;version&#39; format within the
+// &#39;bdexStreamIn&#39; and &#39;bdexStreamOut&#39; methods of a type, and (2) when
+// implementing code that constructs a BDEX &#39;OutStream&#39;.  In both cases, the
+// value should be a *compile*-time-selected value.
+//
+// When a new &#39;version&#39; format is implemented within the &#39;bdexStreamIn&#39; and
+// &#39;bdexStreamOut&#39; methods of a type, a new mapping in
+// &#39;maxSupportedBdexVersion&#39; should be created to expose this new &#39;version&#39;
+// with a &#39;versionSelector&#39;.  A simple - and the recommended - approach is to
+// use a value having the pattern &quot;YYYYMMDD&quot;, where &quot;YYYYMMDD&quot; corresponds to
+// the &quot;go-live&quot; date of the corresponding &#39;version&#39; format.
+//
+// When constructing an &#39;OutStream&#39;, a simple approach is to use the current
+// date as a *compile*-time constant value.  In combination with the
+// recommended selection of &#39;versionSelector&#39; values for
+// &#39;maxSupportedBdexVersion&#39;, this will result in consistent and predictable
+// behavior while externalizing types.  Note that this recommendation is chosen
+// for its simplicity: to ensure the largest possible audience for an
+// externalized representation, clients can select the minimum date value that
+// will result in the desired version of all types externalized with
+// &#39;operator&lt;&lt;&#39; being selected.
+//
+// See the &#39;bslx&#39; package-level documentation for more detailed information
+// about versioning.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Externalization
+///- - - - - - - - - - - - - - - -
+// A &#39;bslx::StreambufOutStream&#39; can be used to externalize values in a
+// platform-neutral way.  Writing out fundamental C++ types and &#39;bsl::string&#39;
+// requires no additional work on the part of the client; the client can simply
+// use the stream directly.  The following code serializes a few representative
+// values using a &#39;bslx::StreambufOutStream&#39;, compares the contents of this
+// stream to the expected value, and then writes the contents of this stream&#39;s
+// buffer to &#39;stdout&#39;.
+//
+// First, we create a &#39;bslx::StreambufOutStream&#39; with an arbitrary value for
+// its &#39;versionSelector&#39; and externalize some values:
+//..
+//  bsl::stringbuf               buffer;
+//  bslx::StreambufOutStream outStream(&amp;buffer, 20131127);
+//  outStream.putInt32(1);
+//  outStream.putInt32(2);
+//  outStream.putInt8(&#39;c&#39;);
+//  outStream.putString(bsl::string(&quot;hello&quot;));
+//..
+// Then, we compare the contents of the stream to the expected value:
+//..
+//  bsl::string  theChars = buffer.str();
+//  ASSERT(15 == theChars.size());
+//  ASSERT( 0 == bsl::memcmp(theChars.data(),
+//                           &quot;\x00\x00\x00\x01\x00\x00\x00\x02&quot;&quot;c\x05&quot;&quot;hello&quot;,
+//                           15));
+//..
+// Finally, we print the stream&#39;s contents to &#39;bsl::cout&#39;.
+//..
+//  for (bsl::size_t i = 0; i &lt; theChars.size(); ++i) {
+//      if (bsl::isalnum(static_cast&lt;unsigned char&gt;(theChars[i]))) {
+//          bsl::cout &lt;&lt; &quot;nextByte (char): &quot; &lt;&lt; theChars[i] &lt;&lt; bsl::endl;
+//      }
+//      else {
+//          bsl::cout &lt;&lt; &quot;nextByte (int): &quot;
+//                    &lt;&lt; static_cast&lt;int&gt;(theChars[i])
+//                    &lt;&lt; bsl::endl;
+//      }
+//  }
+//..
+// Executing the above code results in the following output:
+//..
+//  nextByte (int): 0
+//  nextByte (int): 0
+//  nextByte (int): 0
+//  nextByte (int): 1
+//  nextByte (int): 0
+//  nextByte (int): 0
+//  nextByte (int): 0
+//  nextByte (int): 2
+//  nextByte (char): c
+//  nextByte (int): 5
+//  nextByte (char): h
+//  nextByte (char): e
+//  nextByte (char): l
+//  nextByte (char): l
+//  nextByte (char): o
+//..
+// See the &#39;bslx_streambufinstream&#39; component usage example for a more
+// practical example of using &#39;bslx&#39; streams.
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLX_GENERICOUTSTREAM
+#include &lt;bslx_genericoutstream.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_STREAMBUF
+#include &lt;bsl_streambuf.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bslx {
+
+                       // ========================
+                       // class StreambufOutStream
+                       // ========================
+
+typedef GenericOutStream&lt;bsl::streambuf&gt; StreambufOutStream;
+    // This class facilitates the externalization of values (and C-style arrays
+    // of values) of the fundamental integral and floating-point types in a
+    // data-independent, platform-neutral representation.  It is currently a
+    // &#39;typedef&#39; for &#39;bslx::GenericOutStream&lt;bsl::streambuf&gt;&#39;.
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2014 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

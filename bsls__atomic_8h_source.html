@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bsls_atomic.h                                                      -*-C++-*-
@@ -1006,17 +1006,17 @@ class AtomicPointer {
 
     TYPE *testAndSwap(const TYPE *compareValue, TYPE *swapValue);
         // Compare the value of this object to the specified &#39;compareValue&#39;.
-        // If they are equal, set the value of this atomic integer to the
+        // If they are equal, set the value of this atomic pointer to the
         // specified &#39;swapValue&#39;, otherwise leave this value unchanged.  Return
-        // the previous value of this atomic integer, whether or not the swap
+        // the previous value of this atomic pointer, whether or not the swap
         // occurred.  Note that the entire test-and-swap operation is performed
         // atomically.
 
     TYPE *testAndSwapAcqRel(const TYPE *compareValue, TYPE *swapValue);
         // Compare the value of this object to the specified &#39;compareValue&#39;.
-        // If they are equal, set the value of this atomic integer to the
+        // If they are equal, set the value of this atomic pointer to the
         // specified &#39;swapValue&#39;, otherwise leave this value unchanged.  Return
-        // the previous value of this atomic integer, whether or not the swap
+        // the previous value of this atomic pointer, whether or not the swap
         // occurred.  Note that the entire test-and-swap operation is performed
         // atomically and it provides the acquire/release memory ordering
         // guarantee.

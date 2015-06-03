@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bsls_assert.h                                                      -*-C++-*-
@@ -985,11 +985,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 // Suppose that we have a class such as &#39;MyDate&#39; (below) that, except for
 // checking its invariants, would have a trivial destructor.  By not declaring
-// a destructor at all, we are able to realize significant performance
-// advantages, but then we lose the ability to validate our invariants in
-// &quot;debug&quot; or &quot;safe&quot; mode.  What we want to do is to declare (and later define)
-// the destructor in precisely those build modes for which we would want to
-// assert invariants.
+// a destructor at all, we may realize performance advantages, but then we lose
+// the ability to validate our invariants in &quot;debug&quot; or &quot;safe&quot; mode.  What we
+// want to do is to declare (and later define) the destructor in precisely
+// those build modes for which we would want to assert invariants.
 //
 // An elided class &#39;MyDate&#39;, which is based on a serial-date implementation, is
 // provided for reference:
@@ -1069,12 +1068,15 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      return 1 &lt;= d_serialDate &amp;&amp; d_serialDate &lt;= 3652061;
 //  }
 //..
-// Like other aspects of &#39;BSLS_ASSERT_SAFE&#39;, the example above benignly
-// violates the one-definition rule for mixed-mode builds.  Note that all code
-// conditionally compiled based on &#39;BSLS_ASSERT_SAFE_IS_ACTIVE&#39;,
-// &#39;BSLS_ASSERT_IS_ACTIVE&#39;, and &#39;BSLS_ASSERT_OPT_IS_ACTIVE&#39; should be binary
-// compatible for mixed-mode builds.  If the conditionally-compiled code would
-// not be binary compatible, use &#39;BDE_BUILD_TARGET_SAFE_2&#39; instead.
+// Like other aspects of &#39;BSLS_ASSERT_SAFE&#39;, the example above violates the
+// one-definition rule for mixed-mode builds.  Note that all code conditionally
+// compiled based on &#39;BSLS_ASSERT_SAFE_IS_ACTIVE&#39;, &#39;BSLS_ASSERT_IS_ACTIVE&#39;, and
+// &#39;BSLS_ASSERT_OPT_IS_ACTIVE&#39; should be binary compatible for mixed-mode
+// builds.  If the conditionally-compiled code would not be binary compatible,
+// use &#39;BDE_BUILD_TARGET_SAFE_2&#39; instead.
+//
+// WARNING - In practice, declaring a destructor in some build modes but not
+// others has led to subtle and difficult-to-diagnose failures.  DON&#39;T DO IT!
 //
 // Finally, in very rare cases, we may want to put in (redundant) defensive
 // code (in the spirit of &#39;BSLS_ASSERT_OPT&#39;) that is not part of the

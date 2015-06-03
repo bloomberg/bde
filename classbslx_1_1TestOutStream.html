@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: Class bslx::TestOutStream</title>
+<title>BDE 2.23.1 OSS: Class bslx::TestOutStream</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
@@ -79,14 +80,14 @@
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslx_1_1TestOutStream.html#a2ac2c301e7dd9e3cc69d00cdce8f15e5">TestOutStream</a> (int serializationVersion, <a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator=0)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslx_1_1TestOutStream.html#a180b7f872d6505b82d83cad84bdef47e">TestOutStream</a> (int serializationVersion, int initialCapacity, <a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslx_1_1TestOutStream.html#a7c4f031d01d08e26340d1dd2305efe2d">TestOutStream</a> (int versionSelector, <a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslx_1_1TestOutStream.html#a0f1e01d6b55576577608bf5f6c11918a">TestOutStream</a> (int versionSelector, bsl::size_t initialCapacity, <a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator=0)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslx_1_1TestOutStream.html#a9efa46b6bdf387c01963ae74d1a265a5">~TestOutStream</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslx_1_1TestOutStream.html#a494de2710973ccbb96fdbcedf8d63d31">invalidate</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslx_1_1TestOutStream.html#a4b189fd3bc057323ff58839ce0fad81e">makeNextInvalid</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbslx_1_1TestOutStream.html">TestOutStream</a> &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslx_1_1TestOutStream.html#a6d9e2f5efe1496491368d0be72532dc8">putLength</a> (int length)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbslx_1_1TestOutStream.html">TestOutStream</a> &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslx_1_1TestOutStream.html#aeed8e1b9b65bbbbcc13b2bfc9e59e14d">putVersion</a> (int version)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslx_1_1TestOutStream.html#a76e6ec07318fa8fb5dc0153b0ab75961">reserveCapacity</a> (int newCapacity)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslx_1_1TestOutStream.html#a69f30c1bc7462a4e3bc4e741fcead126">reserveCapacity</a> (bsl::size_t newCapacity)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslx_1_1TestOutStream.html#a70e0904e6f0c9804d1e0232654329b38">reset</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbslx_1_1TestOutStream.html">TestOutStream</a> &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslx_1_1TestOutStream.html#af9e9af7d6aa95e84f4824702bf9b8434">putInt64</a> (<a class="el" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a> value)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbslx_1_1TestOutStream.html">TestOutStream</a> &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslx_1_1TestOutStream.html#aa5a989d81baaaf97f8823c72590a1995">putUint64</a> (<a class="el" href="structbsls_1_1Types.html#a62cdf73ffc20667bc9de36b07c9c25f0">bsls::Types::Uint64</a> value)</td></tr>
@@ -128,10 +129,10 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbslx_1_1TestOutStream.html">TestOutStream</a> &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslx_1_1TestOutStream.html#a66782be5f1046f0f1cfd8d86f4d8775b">putArrayFloat64</a> (const double *values, int numValues)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbslx_1_1TestOutStream.html">TestOutStream</a> &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslx_1_1TestOutStream.html#a2f40f31c6c4f015577a3fc3eee22196b">putArrayFloat32</a> (const float *values, int numValues)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslx_1_1TestOutStream.html#a351c7de8dcf603a102813931fd74275f">operator const void *</a> () const </td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslx_1_1TestOutStream.html#a1da96b87997d1cb343b61b16f3d49684">bdexSerializationVersion</a> () const </td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslx_1_1TestOutStream.html#a959853b3ab2db13d1095337f9358dc15">isValid</a> () const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslx_1_1TestOutStream.html#ace8bee7cdf0f7e2b28b51c5bc9b68623">bdexVersionSelector</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">const char *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslx_1_1TestOutStream.html#a4b1c0b8eb7d22f4627efd54770202a63">data</a> () const </td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslx_1_1TestOutStream.html#a12536150236629447554b01493f3bef4">length</a> () const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslx_1_1TestOutStream.html#a959853b3ab2db13d1095337f9358dc15">isValid</a> () const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">bsl::size_t&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslx_1_1TestOutStream.html#a15029840cde5d4010229263c52a96b50">length</a> () const </td></tr>
 <tr><td colspan="2"><h2><a name="friends"></a>
 Friends</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">bsl::ostream &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslx_1_1TestOutStream.html#ab2e61e763bcb9d2633ba5706df04725f">operator&lt;&lt;</a> (bsl::ostream &amp;, const <a class="el" href="classbslx_1_1TestOutStream.html">TestOutStream</a> &amp;)</td></tr>
@@ -139,7 +140,7 @@ Friends</h2></td></tr>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>This class implements output methods to externalize fundamental types and their associated type identification data. It stores the accumulated result in network byte order. See the <code>bslx</code> package-level documentation for the definition of the BDEX <code>OutStream</code> protocol. </p>
 <hr/><h2>Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="a2ac2c301e7dd9e3cc69d00cdce8f15e5"></a><!-- doxytag: member="bslx::TestOutStream::TestOutStream" ref="a2ac2c301e7dd9e3cc69d00cdce8f15e5" args="(int serializationVersion, bslma::Allocator *basicAllocator=0)" -->
+<a class="anchor" id="a7c4f031d01d08e26340d1dd2305efe2d"></a><!-- doxytag: member="bslx::TestOutStream::TestOutStream" ref="a7c4f031d01d08e26340d1dd2305efe2d" args="(int versionSelector, bslma::Allocator *basicAllocator=0)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -147,7 +148,7 @@ Friends</h2></td></tr>
           <td class="memname">bslx::TestOutStream::TestOutStream </td>
           <td>(</td>
           <td class="paramtype">int&nbsp;</td>
-          <td class="paramname"> <em>serializationVersion</em>, </td>
+          <td class="paramname"> <em>versionSelector</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -163,11 +164,11 @@ Friends</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Create an empty test output stream that will use the specified <code>serializationVersion</code> as needed (see the <code>bslx</code> package-level documentation for a description of <code>serializationVersion</code>). Optionally specify a <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is 0, the currently installed default allocator is used. </p>
+<p>Create an empty output byte stream that will use the specified (<em>compile</em>-time-defined) <code>versionSelector</code> as needed (see <a href="group__bslx__testoutstream.html#versioning" class="el">Versioning</a>). Optionally specify a <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is 0, the currently installed default allocator is used. Note that the <code>versionSelector</code> is expected to be formatted as "YYYYMMDD", a date representation. </p>
 
 </div>
 </div>
-<a class="anchor" id="a180b7f872d6505b82d83cad84bdef47e"></a><!-- doxytag: member="bslx::TestOutStream::TestOutStream" ref="a180b7f872d6505b82d83cad84bdef47e" args="(int serializationVersion, int initialCapacity, bslma::Allocator *basicAllocator=0)" -->
+<a class="anchor" id="a0f1e01d6b55576577608bf5f6c11918a"></a><!-- doxytag: member="bslx::TestOutStream::TestOutStream" ref="a0f1e01d6b55576577608bf5f6c11918a" args="(int versionSelector, bsl::size_t initialCapacity, bslma::Allocator *basicAllocator=0)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -175,12 +176,12 @@ Friends</h2></td></tr>
           <td class="memname">bslx::TestOutStream::TestOutStream </td>
           <td>(</td>
           <td class="paramtype">int&nbsp;</td>
-          <td class="paramname"> <em>serializationVersion</em>, </td>
+          <td class="paramname"> <em>versionSelector</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">int&nbsp;</td>
+          <td class="paramtype">bsl::size_t&nbsp;</td>
           <td class="paramname"> <em>initialCapacity</em>, </td>
         </tr>
         <tr>
@@ -197,7 +198,7 @@ Friends</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Create an empty test output stream having an initial buffer capacity of at least the specified <code>initialCapacity</code> (in bytes) and that will use the specified <code>serializationVersion</code> as needed (see the <code>bslx</code> package-level documentation for a description of <code>serializationVersion</code>). Optionally specify a <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is 0, the currently installed default allocator is used. The behavior is undefined unless <code>0 &lt;= initialCapacity</code>. </p>
+<p>Create an empty output byte stream having an initial buffer capacity of at least the specified <code>initialCapacity</code> (in bytes) and that will use the specified (<em>compile</em>-time-defined) <code>versionSelector</code> as needed (see <a href="group__bslx__testoutstream.html#versioning" class="el">Versioning</a>). Optionally specify a <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is 0, the currently installed default allocator is used. Note that the <code>versionSelector</code> is expected to be formatted as "YYYYMMDD", a date representation. </p>
 
 </div>
 </div>
@@ -294,14 +295,14 @@ Friends</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a76e6ec07318fa8fb5dc0153b0ab75961"></a><!-- doxytag: member="bslx::TestOutStream::reserveCapacity" ref="a76e6ec07318fa8fb5dc0153b0ab75961" args="(int newCapacity)" -->
+<a class="anchor" id="a69f30c1bc7462a4e3bc4e741fcead126"></a><!-- doxytag: member="bslx::TestOutStream::reserveCapacity" ref="a69f30c1bc7462a4e3bc4e741fcead126" args="(bsl::size_t newCapacity)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">void bslx::TestOutStream::reserveCapacity </td>
           <td>(</td>
-          <td class="paramtype">int&nbsp;</td>
+          <td class="paramtype">bsl::size_t&nbsp;</td>
           <td class="paramname"> <em>newCapacity</em></td>
           <td>&nbsp;)&nbsp;</td>
           <td></td>
@@ -309,7 +310,7 @@ Friends</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Set the internal buffer size of this stream to be at least the specified <code>newCapacity</code> (in bytes). The behavior is undefined unless <code>0 &lt;= newCapacity</code>. </p>
+<p>Set the internal buffer size of this stream to be at least the specified <code>newCapacity</code> (in bytes). </p>
 
 </div>
 </div>
@@ -1268,12 +1269,12 @@ Friends</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a1da96b87997d1cb343b61b16f3d49684"></a><!-- doxytag: member="bslx::TestOutStream::bdexSerializationVersion" ref="a1da96b87997d1cb343b61b16f3d49684" args="() const " -->
+<a class="anchor" id="ace8bee7cdf0f7e2b28b51c5bc9b68623"></a><!-- doxytag: member="bslx::TestOutStream::bdexVersionSelector" ref="ace8bee7cdf0f7e2b28b51c5bc9b68623" args="() const " -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int bslx::TestOutStream::bdexSerializationVersion </td>
+          <td class="memname">int bslx::TestOutStream::bdexVersionSelector </td>
           <td>(</td>
           <td class="paramname"></td>
           <td>&nbsp;)&nbsp;</td>
@@ -1282,7 +1283,25 @@ Friends</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Return the <code>serializationVersion</code> to be used with <code>operator&lt;&lt;</code> for BDEX streaming as per the <code>bslx</code> package-level documentation. </p>
+<p>Return the <code>versionSelector</code> to be used with <code>operator&lt;&lt;</code> for BDEX streaming as per the <code>bslx</code> package-level documentation. </p>
+
+</div>
+</div>
+<a class="anchor" id="a4b1c0b8eb7d22f4627efd54770202a63"></a><!-- doxytag: member="bslx::TestOutStream::data" ref="a4b1c0b8eb7d22f4627efd54770202a63" args="() const " -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* bslx::TestOutStream::data </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return the address of the contiguous, non-modifiable internal memory buffer of this stream. The address will remain valid as long as this array is not destroyed or modified (i.e., the current capacity is not exceeded). The behavior of accessing elements outside the range <code>[ <a class="el" href="classbslx_1_1TestOutStream.html#a4b1c0b8eb7d22f4627efd54770202a63">data()</a> .. <a class="el" href="classbslx_1_1TestOutStream.html#a4b1c0b8eb7d22f4627efd54770202a63">data()</a> + (<a class="el" href="classbslx_1_1TestOutStream.html#a15029840cde5d4010229263c52a96b50">length()</a> - 1) ]</code> is undefined. </p>
 
 </div>
 </div>
@@ -1304,30 +1323,12 @@ Friends</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a4b1c0b8eb7d22f4627efd54770202a63"></a><!-- doxytag: member="bslx::TestOutStream::data" ref="a4b1c0b8eb7d22f4627efd54770202a63" args="() const " -->
+<a class="anchor" id="a15029840cde5d4010229263c52a96b50"></a><!-- doxytag: member="bslx::TestOutStream::length" ref="a15029840cde5d4010229263c52a96b50" args="() const " -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const char* bslx::TestOutStream::data </td>
-          <td>(</td>
-          <td class="paramname"></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td> const</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<p>Return the address of the contiguous, non-modifiable internal memory buffer of this stream. The address will remain valid as long as this array is not destroyed or modified (i.e., the current capacity is not exceeded). The behavior of accessing elements outside the range <code>[ <a class="el" href="classbslx_1_1TestOutStream.html#a4b1c0b8eb7d22f4627efd54770202a63">data()</a> .. <a class="el" href="classbslx_1_1TestOutStream.html#a4b1c0b8eb7d22f4627efd54770202a63">data()</a> + (<a class="el" href="classbslx_1_1TestOutStream.html#a12536150236629447554b01493f3bef4">length()</a> - 1) ]</code> is undefined. </p>
-
-</div>
-</div>
-<a class="anchor" id="a12536150236629447554b01493f3bef4"></a><!-- doxytag: member="bslx::TestOutStream::length" ref="a12536150236629447554b01493f3bef4" args="() const " -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int bslx::TestOutStream::length </td>
+          <td class="memname">bsl::size_t bslx::TestOutStream::length </td>
           <td>(</td>
           <td class="paramname"></td>
           <td>&nbsp;)&nbsp;</td>
@@ -1373,7 +1374,7 @@ Friends</h2></td></tr>
 <li><a class="el" href="bslx__testoutstream_8h_source.html">bslx_testoutstream.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:45 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:46 for BDE Release 2.23.1 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

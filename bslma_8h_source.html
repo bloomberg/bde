@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
  bslma.txt
@@ -21,21 +21,19 @@
 
 /Hierarchical Synopsis
 /---------------------
- The &#39;bslma&#39; package currently has 33 components having 9 levels of physical
+ The &#39;bslma&#39; package currently has 28 components having 9 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
   9. bslma_managedptr
 
-  8. bslma_managedptr_members
+  8. bslma_managedptr_members                                         !PRIVATE!
 
-  7. bslma_managedptr_factorydeleter
-     bslma_sequentialallocator
+  7. bslma_managedptr_factorydeleter                                  !PRIVATE!
 
   6. bslma_autorawdeleter
      bslma_destructorproctor
-     bslma_sequentialpool
      bslma_sharedptrinplacerep
      bslma_sharedptroutofplacerep
      bslma_testallocatormonitor
@@ -47,8 +45,7 @@
      bslma_defaultallocatorguard
      bslma_destructorguard
      bslma_exceptionguard
-     bslma_infrequentdeleteblocklist
-     bslma_managedptr_pairproxy
+     bslma_managedptr_pairproxy                                       !PRIVATE!
      bslma_managedptrdeleter
      bslma_rawdeleterguard
      bslma_rawdeleterproctor
@@ -57,9 +54,7 @@
   4. bslma_default
      bslma_testallocator
 
-  3. bslma_bufferallocator
-     bslma_mallocfreeallocator
-     bslma_managedallocator
+  3. bslma_mallocfreeallocator
      bslma_newdeleteallocator
      bslma_testallocatorexception
      bslma_usesbslmaallocator
@@ -82,9 +77,6 @@
 :
 : &#39;bslma_autorawdeleter&#39;:
 :      Provide a range proctor to manage a sequence objects.
-:
-: &#39;bslma_bufferallocator&#39;:
-:      Support efficient memory allocations from a user-supplied buffer.
 :
 : &#39;bslma_deallocatorguard&#39;:
 :      Provide a guard to unconditionally manage a block of memory.
@@ -110,25 +102,19 @@
 : &#39;bslma_exceptionguard&#39;:
 :      Provide a check that objects throwing exceptions do not change.
 :
-: &#39;bslma_infrequentdeleteblocklist&#39;:
-:      Provide allocation and management of a sequence of memory blocks.
-:
 : &#39;bslma_mallocfreeallocator&#39;:
 :      Provide malloc/free adaptor to &#39;bslma::Allocator&#39; protocol.
-:
-: &#39;bslma_managedallocator&#39;:
-:      Provide a protocol for memory allocators that support &#39;release&#39;.
 :
 : &#39;bslma_managedptr&#39;:
 :      Provide a managed pointer class.
 :
-: &#39;bslma_managedptr_factorydeleter&#39;:
+: &#39;bslma_managedptr_factorydeleter&#39;:                                  !PRIVATE!
 :      Provide a basic deleter for the managed pointer class.
 :
-: &#39;bslma_managedptr_members&#39;:
+: &#39;bslma_managedptr_members&#39;:                                         !PRIVATE!
 :      Provide the internal state of a managed pointer class.
 :
-: &#39;bslma_managedptr_pairproxy&#39;:
+: &#39;bslma_managedptr_pairproxy&#39;:                                       !PRIVATE!
 :      Provide the internal state of a managed pointer class.
 :
 : &#39;bslma_managedptrdeleter&#39;:
@@ -142,12 +128,6 @@
 :
 : &#39;bslma_rawdeleterproctor&#39;:
 :      Provide a proctor to conditionally manage an object.
-:
-: &#39;bslma_sequentialallocator&#39;:
-:      Support fast memory allocation for objects of varying sizes.
-:
-: &#39;bslma_sequentialpool&#39;:
-:      Provide fast variable-size memory pool with allocation methods.
 :
 : &#39;bslma_sharedptrinplacerep&#39;:
 :      Provide an in-place implementation of &#39;bslma::SharedPtrRep&#39;.

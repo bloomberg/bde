@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bslx_testoutstream.h                                               -*-C++-*-
@@ -20,12 +20,13 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //@SEE_ALSO: bslx_testinstream, bslx_byteoutstream
 //
 //@DESCRIPTION: This component implements a byte-array-based output stream
-// class that provides platform-independent output methods (&quot;externalization&quot;)
-// on values, and arrays of values, of fundamental types, and on &#39;bsl::string&#39;.
-// This component also externalizes information to the stream that can be used
-// by the reader of the stream to verify, for these types, that the type of
-// data requested from the input stream matches what was written by this output
-// stream.  This component is meant for testing only.
+// class, &#39;bslx::TestOutStream&#39;, that provides platform-independent output
+// methods (&quot;externalization&quot;) on values, and arrays of values, of fundamental
+// types, and on &#39;bsl::string&#39;.  This component also externalizes information
+// to the stream that can be used by the reader of the stream to verify, for
+// these types, that the type of data requested from the input stream matches
+// what was written by this output stream.  This component is meant for testing
+// only.
 //
 // This component is intended to be used in conjunction with the
 // &#39;bslx_testinstream&#39; &quot;unexternalization&quot; component.  Each output method of
@@ -35,38 +36,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // on any other mechanism to read data written by &#39;bslx::TestOutStream&#39; unless
 // that mechanism explicitly states its ability to do so.
 //
-// The supported types and required content are listed in the table below.  All
-// of the fundamental types in the table may be output as scalar values or as
-// homogeneous arrays.  &#39;bsl::string&#39; is output as an &#39;int&#39; representing the
-// string&#39;s length and a homogeneous &#39;char&#39; array for the string&#39;s data.  Note
-// that &#39;Int64&#39; and &#39;Uint64&#39; denote &#39;bsls::Types::Int64&#39; and
-// &#39;bsls::Types::Uint64&#39;, which in turn are &#39;typedef&#39; names for the signed and
-// unsigned 64-bit integer types, respectively, on the host platform.
-//..
-//      C++ TYPE          REQUIRED CONTENT OF ANY PLATFORM-NEUTRAL FORMAT
-//      --------          -----------------------------------------------
-//      Int64             least significant 64 bits (signed)
-//      Uint64            least significant 64 bits (unsigned)
-//      int               least significant 32 bits (signed)
-//      unsigned int      least significant 32 bits (unsigned)
-//      short             least significant 16 bits (signed)
-//      unsigned short    least significant 16 bits (unsigned)
-//      char              least significant  8 bits (platform-dependent)
-//      signed char       least significant  8 bits (signed)
-//      unsigned char     least significant  8 bits (unsigned)
-//      double            IEEE standard 8-byte floating-point value
-//      float             IEEE standard 4-byte floating-point value
-//
-//      bsl::string       BDE implementation of the STL string class
-//..
-// This component also supports compact streaming of integer types.  In
-// particular, 64-bit integers can be streamed as 40-, 48-, 56-, or 64-bit
-// values, and 32-bit integers can be streamed as 24- or 32-bit values, at the
-// user&#39;s discretion.  In all cases, the least significant bytes of the
-// fundamental integer type are written to the stream.  Note that, for signed
-// types, this truncation may not preserve the sign of the streamed value; it
-// is the user&#39;s responsibility to choose output methods appropriate to the
-// data.
+// The supported types and required content are listed in the &#39;bslx&#39;
+// package-level documentation under &quot;Supported Types&quot;.
 //
 // Note that the values are stored in big-endian format (i.e., network byte
 // order).
@@ -74,6 +45,40 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // Note that output streams can be *invalidated* explicitly and queried for
 // *validity*.  Writing to an initially invalid stream has no effect.  Whenever
 // an output operation fails, the stream should be invalidated explicitly.
+//
+///Versioning
+///----------
+// BDEX provides two concepts that support versioning the BDEX serialization
+// format of a type: &#39;version&#39; and &#39;versionSelector&#39;.  A &#39;version&#39; is a 1-based
+// integer indicating one of the supported formats (e.g., format 1, format 2,
+// etc.).  A &#39;versionSelector&#39; is a value that is mapped to a &#39;version&#39; for a
+// type by the type&#39;s implementation of &#39;maxSupportedBdexVersion&#39;.
+//
+// Selecting a value for a &#39;versionSelector&#39; is required at two different
+// points: (1) when implementing a new &#39;version&#39; format within the
+// &#39;bdexStreamIn&#39; and &#39;bdexStreamOut&#39; methods of a type, and (2) when
+// implementing code that constructs a BDEX &#39;OutStream&#39;.  In both cases, the
+// value should be a *compile*-time-selected value.
+//
+// When a new &#39;version&#39; format is implemented within the &#39;bdexStreamIn&#39; and
+// &#39;bdexStreamOut&#39; methods of a type, a new mapping in
+// &#39;maxSupportedBdexVersion&#39; should be created to expose this new &#39;version&#39;
+// with a &#39;versionSelector&#39;.  A simple - and the recommended - approach is to
+// use a value having the pattern &quot;YYYYMMDD&quot;, where &quot;YYYYMMDD&quot; corresponds to
+// the &quot;go-live&quot; date of the corresponding &#39;version&#39; format.
+//
+// When constructing an &#39;OutStream&#39;, a simple approach is to use the current
+// date as a *compile*-time constant value.  In combination with the
+// recommended selection of &#39;versionSelector&#39; values for
+// &#39;maxSupportedBdexVersion&#39;, this will result in consistent and predictable
+// behavior while externalizing types.  Note that this recommendation is chosen
+// for its simplicity: to ensure the largest possible audience for an
+// externalized representation, clients can select the minimum date value that
+// will result in the desired version of all types externalized with
+// &#39;operator&lt;&lt;&#39; being selected.
+//
+// See the &#39;bslx&#39; package-level documentation for more detailed information
+// about versioning.
 //
 ///Usage
 ///-----
@@ -90,7 +95,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // to &#39;stdout&#39;.
 //
 // First, we create a &#39;bslx::TestOutStream&#39; with an arbitrary value for its
-// &#39;serializationVersion&#39; and externalize some values:
+// &#39;versionSelector&#39; and externalize some values:
 //..
 //  bslx::TestOutStream outStream(20131127);
 //  outStream.putInt32(1);
@@ -100,8 +105,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //..
 // Then, we compare the contents of the stream to the expected value:
 //..
-//  const char *theChars = outStream.data();
-//  int length = outStream.length();
+//  const char  *theChars = outStream.data();
+//  bsl::size_t  length   = outStream.length();
 //  assert(24 == length);
 //  assert( 0 == bsl::memcmp(theChars,
 //                           &quot;\xE6\x00\x00\x00\x01\xE6\x00\x00\x00\x02\xE0&quot;
@@ -110,7 +115,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //..
 // Finally, we print the stream&#39;s contents to &#39;bsl::cout&#39;.
 //..
-//  for (int i = 0; i &lt; length; ++i) {
+//  for (bsl::size_t i = 0; i &lt; length; ++i) {
 //      if(bsl::isalnum(static_cast&lt;unsigned char&gt;(theChars[i]))) {
 //          bsl::cout &lt;&lt; &quot;nextByte (char): &quot; &lt;&lt; theChars[i] &lt;&lt; bsl::endl;
 //      }
@@ -166,6 +171,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bsls_types.h&gt;
 #endif
 
+#ifndef INCLUDED_BSL_CSTDDEF
+#include &lt;bsl_cstddef.h&gt;
+#endif
+
 #ifndef INCLUDED_BSL_IOSFWD
 #include &lt;bsl_iosfwd.h&gt;
 #endif
@@ -206,26 +215,26 @@ class TestOutStream {
 
   public:
     // CREATORS
-    explicit TestOutStream(int               serializationVersion,
+    explicit TestOutStream(int               versionSelector,
                            bslma::Allocator *basicAllocator = 0);
-        // Create an empty test output stream that will use the specified
-        // &#39;serializationVersion&#39; as needed (see the &#39;bslx&#39; package-level
-        // documentation for a description of &#39;serializationVersion&#39;).
-        // Optionally specify a &#39;basicAllocator&#39; used to supply memory.  If
-        // &#39;basicAllocator&#39; is 0, the currently installed default allocator is
-        // used.
+        // Create an empty output byte stream that will use the specified
+        // (*compile*-time-defined) &#39;versionSelector&#39; as needed (see
+        // {Versioning}).  Optionally specify a &#39;basicAllocator&#39; used to supply
+        // memory.  If &#39;basicAllocator&#39; is 0, the currently installed default
+        // allocator is used.  Note that the &#39;versionSelector&#39; is expected to
+        // be formatted as &quot;YYYYMMDD&quot;, a date representation.
 
-    TestOutStream(int               serializationVersion,
-                  int               initialCapacity,
+    TestOutStream(int               versionSelector,
+                  bsl::size_t       initialCapacity,
                   bslma::Allocator *basicAllocator = 0);
-        // Create an empty test output stream having an initial buffer capacity
+        // Create an empty output byte stream having an initial buffer capacity
         // of at least the specified &#39;initialCapacity&#39; (in bytes) and that will
-        // use the specified &#39;serializationVersion&#39; as needed (see the &#39;bslx&#39;
-        // package-level documentation for a description of
-        // &#39;serializationVersion&#39;).  Optionally specify a &#39;basicAllocator&#39; used
-        // to supply memory.  If &#39;basicAllocator&#39; is 0, the currently installed
-        // default allocator is used.  The behavior is undefined unless
-        // &#39;0 &lt;= initialCapacity&#39;.
+        // use the specified (*compile*-time-defined) &#39;versionSelector&#39; as
+        // needed (see {Versioning}).  Optionally specify a &#39;basicAllocator&#39;
+        // used to supply memory.  If &#39;basicAllocator&#39; is 0, the currently
+        // installed default allocator is used.  Note that the
+        // &#39;versionSelector&#39; is expected to be formatted as &quot;YYYYMMDD&quot;, a date
+        // representation.
 
     ~TestOutStream();
         // Destroy this object.
@@ -266,10 +275,9 @@ class TestOutStream {
         // reset this marking and emit the invalid indicator instead of the
         // type indicator.
 
-    void reserveCapacity(int newCapacity);
+    void reserveCapacity(bsl::size_t newCapacity);
         // Set the internal buffer size of this stream to be at least the
-        // specified &#39;newCapacity&#39; (in bytes).  The behavior is undefined
-        // unless &#39;0 &lt;= newCapacity&#39;.
+        // specified &#39;newCapacity&#39; (in bytes).
 
     void reset();
         // Remove all content in this stream and validate this stream if it is
@@ -773,14 +781,9 @@ class TestOutStream {
         // An invalid stream is a stream for which an output operation was
         // detected to have failed or &#39;invalidate&#39; was called.
 
-    int bdexSerializationVersion() const;
-        // Return the &#39;serializationVersion&#39; to be used with &#39;operator&lt;&lt;&#39; for
-        // BDEX streaming as per the &#39;bslx&#39; package-level documentation.
-
-    bool isValid() const;
-        // Return &#39;true&#39; if this stream is valid, and &#39;false&#39; otherwise.  An
-        // invalid stream is a stream for which an output operation was
-        // detected to have failed or &#39;invalidate&#39; was called.
+    int bdexVersionSelector() const;
+        // Return the &#39;versionSelector&#39; to be used with &#39;operator&lt;&lt;&#39; for BDEX
+        // streaming as per the &#39;bslx&#39; package-level documentation.
 
     const char *data() const;
         // Return the address of the contiguous, non-modifiable internal memory
@@ -789,7 +792,12 @@ class TestOutStream {
         // is not exceeded).  The behavior of accessing elements outside the
         // range &#39;[ data() .. data() + (length() - 1) ]&#39; is undefined.
 
-    int length() const;
+    bool isValid() const;
+        // Return &#39;true&#39; if this stream is valid, and &#39;false&#39; otherwise.  An
+        // invalid stream is a stream for which an output operation was
+        // detected to have failed or &#39;invalidate&#39; was called.
+
+    bsl::size_t length() const;
         // Return the number of bytes in this stream.
 };
 
@@ -807,7 +815,7 @@ TestOutStream&amp; operator&lt;&lt;(TestOutStream&amp; stream, const TYPE&amp; v
     // undefined unless &#39;TYPE&#39; is BDEX-compliant.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                           INLINE DEFINITIONS
 // ============================================================================
 
                          // -------------------
@@ -828,10 +836,8 @@ void TestOutStream::makeNextInvalid()
 }
 
 inline
-void TestOutStream::reserveCapacity(int newCapacity)
+void TestOutStream::reserveCapacity(bsl::size_t newCapacity)
 {
-    BSLS_ASSERT_SAFE(0 &lt;= newCapacity);
-
     d_imp.reserveCapacity(newCapacity);
 }
 
@@ -858,15 +864,9 @@ TestOutStream::operator const void *() const
 }
 
 inline
-int TestOutStream::bdexSerializationVersion() const
+int TestOutStream::bdexVersionSelector() const
 {
-    return d_imp.bdexSerializationVersion();
-}
-
-inline
-bool TestOutStream::isValid() const
-{
-    return d_imp.isValid();
+    return d_imp.bdexVersionSelector();
 }
 
 inline
@@ -876,7 +876,13 @@ const char *TestOutStream::data() const
 }
 
 inline
-int TestOutStream::length() const
+bool TestOutStream::isValid() const
+{
+    return d_imp.isValid();
+}
+
+inline
+bsl::size_t TestOutStream::length() const
 {
     return d_imp.length();
 }
@@ -890,6 +896,16 @@ TestOutStream&amp; operator&lt;&lt;(TestOutStream&amp; stream, const TYPE&amp; v
 }
 
 }  // close package namespace
+}  // close enterprise namespace
+
+// TRAITS
+namespace BloombergLP {
+namespace bslma {
+
+template &lt;&gt;
+struct UsesBslmaAllocator&lt;bslx::TestOutStream&gt; : bsl::true_type {};
+
+}  // close &#39;bslma&#39; namespace
 }  // close enterprise namespace
 
 #endif

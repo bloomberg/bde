@@ -1,0 +1,244 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.23.1 OSS</title>
+<html>
+<pre>
+// bslstl_ownerless.h                                                 -*-C++-*-
+#ifndef INCLUDED_BSLSTL_OWNERLESS
+#define INCLUDED_BSLSTL_OWNERLESS
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
+
+//@PURPOSE: Provide an ordering for shared and weak pointers.
+//
+//@CLASSES:
+//  bsl::owner_less: ordering comparator for &#39;shared_ptr&#39; and &#39;weak_ptr&#39;
+//
+//@SEE_ALSO: bslstl_sharedptr
+//
+//@DESCRIPTION: This component provides the C+11 standard binary comparison
+// functor, &#39;bsl::owner_less&#39;, that determines the order of two smart pointer
+// objects by the relative order of the address of their &#39;bslma::SharedPtrRep&#39;
+// data.. Note that this class is an empty POD type.
+
+// Prevent &#39;bslstl&#39; headers from being included directly in &#39;BSL_OVERRIDES_STD&#39;
+// mode.  Doing so is unsupported, and is likely to cause compilation errors.
+#if defined(BSL_OVERRIDES_STD) &amp;&amp; !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#error &quot;include &lt;bsl_memory.h&gt; instead of &lt;bslstl_ownerless.h&gt; in \
+BSL_OVERRIDES_STD mode&quot;
+#endif
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_SHAREDPTR
+#include &lt;bslstl_sharedptr.h&gt;
+#endif
+
+namespace bsl {
+
+template &lt;class POINTER_TYPE&gt;
+struct owner_less;
+
+template &lt;class ELEMENT_TYPE&gt;
+struct owner_less&lt;weak_ptr&lt;ELEMENT_TYPE&gt; &gt;;
+
+template &lt;class ELEMENT_TYPE&gt;
+struct owner_less&lt;weak_ptr&lt;ELEMENT_TYPE&gt; &gt;;
+
+                        // C++11 Compatibility
+
+template &lt;class ELEMENT_TYPE&gt;
+struct owner_less&lt;shared_ptr&lt;ELEMENT_TYPE&gt; &gt; {
+
+    // STANDARD TYPEDEFS
+    typedef bool result_type;
+    typedef shared_ptr&lt;ELEMENT_TYPE&gt; first_argument_type;
+    typedef shared_ptr&lt;ELEMENT_TYPE&gt; second_argument_type;
+
+    //! owner_less() = default;
+        // Create an &#39;owner_less&#39; object.
+
+    //! owner_less(const owner_less&amp; original) = default;
+        // Create an &#39;owner_less&#39; object.  Note that as &#39;hash&#39; is an empty
+        // (stateless) type, this operation will have no observable effect.
+
+    //! ~owner_less() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! owner_less&amp; operator=(const owner_less&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as &#39;owner_less&#39; is an empty (stateless) type, this operation
+        // will have no observable effect.
+
+    // ACCESSORS
+    bool operator()(const shared_ptr&lt;ELEMENT_TYPE&gt;&amp; a,
+                    const shared_ptr&lt;ELEMENT_TYPE&gt;&amp; b) const;
+    bool operator()(const shared_ptr&lt;ELEMENT_TYPE&gt;&amp; a,
+                    const weak_ptr&lt;ELEMENT_TYPE&gt;&amp;   b) const;
+    bool operator()(const weak_ptr&lt;ELEMENT_TYPE&gt;&amp;   a,
+                    const shared_ptr&lt;ELEMENT_TYPE&gt;&amp; b) const;
+        // Return &#39;true&#39; if the address of the
+        // &#39;BloombergLP::bslma::SharedPtrRep&#39; object used by the specified &#39;a&#39;
+        // is ordered before the address of the
+        // &#39;BloombergLP::bslma::SharedPtrRep&#39; object used by the specified &#39;b&#39;
+        // under the total ordering supplied by
+        // &#39;std::less&lt;BloombergLP::bslma::SharedPtrRep *&gt;&#39;, and &#39;false&#39;
+        // otherwise.
+};
+
+template &lt;class ELEMENT_TYPE&gt;
+struct owner_less&lt;weak_ptr&lt;ELEMENT_TYPE&gt; &gt; {
+
+    // STANDARD TYPEDEFS
+    typedef bool result_type;
+    typedef weak_ptr&lt;ELEMENT_TYPE&gt; first_argument_type;
+    typedef weak_ptr&lt;ELEMENT_TYPE&gt; second_argument_type;
+
+    //! owner_less() = default;
+        // Create an &#39;owner_less&#39; object.
+
+    //! owner_less(const owner_less&amp; original) = default;
+        // Create an &#39;owner_less&#39; object.  Note that as &#39;hash&#39; is an empty
+        // (stateless) type, this operation will have no observable effect.
+
+    //! ~owner_less() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! owner_less&amp; operator=(const owner_less&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as &#39;owner_less&#39; is an empty (stateless) type, this operation
+        // will have no observable effect.
+
+    // ACCESSORS
+    bool operator()(const weak_ptr&lt;ELEMENT_TYPE&gt;&amp;   a,
+                    const weak_ptr&lt;ELEMENT_TYPE&gt;&amp;   b) const;
+    bool operator()(const shared_ptr&lt;ELEMENT_TYPE&gt;&amp; a,
+                    const weak_ptr&lt;ELEMENT_TYPE&gt;&amp;   b) const;
+    bool operator()(const weak_ptr&lt;ELEMENT_TYPE&gt;&amp;   a,
+                    const shared_ptr&lt;ELEMENT_TYPE&gt;&amp; b) const;
+        // Return &#39;true&#39; if the address of the
+        // &#39;BloombergLP::bslma::SharedPtrRep&#39; object used by the specified &#39;a&#39;
+        // is ordered before the address of the
+        // &#39;BloombergLP::bslma::SharedPtrRep&#39; object used by the specified &#39;b&#39;
+        // under the total ordering supplied by
+        // &#39;std::less&lt;BloombergLP::bslma::SharedPtrRep *&gt;&#39;, and &#39;false&#39;
+        // otherwise.
+};
+
+
+// ============================================================================
+//                           INLINE DEFINITIONS
+// ============================================================================
+
+                // --------------------------------------------
+                // struct owner_less&lt;shared_ptr&lt;ELEMENT_TYPE&gt; &gt;
+                // --------------------------------------------
+
+template &lt;class ELEMENT_TYPE&gt;
+inline
+bool owner_less&lt;shared_ptr&lt;ELEMENT_TYPE&gt; &gt;::operator()(
+                                       const shared_ptr&lt;ELEMENT_TYPE&gt;&amp; a,
+                                       const shared_ptr&lt;ELEMENT_TYPE&gt;&amp; b) const
+{
+    return a.owner_before(b);
+}
+
+template &lt;class ELEMENT_TYPE&gt;
+inline
+bool owner_less&lt;shared_ptr&lt;ELEMENT_TYPE&gt; &gt;::operator()(
+                                       const shared_ptr&lt;ELEMENT_TYPE&gt;&amp; a,
+                                       const weak_ptr&lt;ELEMENT_TYPE&gt;&amp;   b) const
+{
+    return a.owner_before(b);
+}
+
+template &lt;class ELEMENT_TYPE&gt;
+inline
+bool owner_less&lt;shared_ptr&lt;ELEMENT_TYPE&gt; &gt;::operator()(
+                                       const weak_ptr&lt;ELEMENT_TYPE&gt;&amp;   a,
+                                       const shared_ptr&lt;ELEMENT_TYPE&gt;&amp; b) const
+{
+    return a.owner_before(b);
+}
+
+                // ------------------------------------------
+                // struct owner_less&lt;weak_ptr&lt;ELEMENT_TYPE&gt; &gt;
+                // ------------------------------------------
+
+template &lt;class ELEMENT_TYPE&gt;
+inline
+bool owner_less&lt;weak_ptr&lt;ELEMENT_TYPE&gt; &gt;::operator()(
+                                        const weak_ptr&lt;ELEMENT_TYPE&gt;&amp; a,
+                                        const weak_ptr&lt;ELEMENT_TYPE&gt;&amp; b) const
+{
+    return a.owner_before(b);
+}
+
+template &lt;class ELEMENT_TYPE&gt;
+inline
+bool owner_less&lt;weak_ptr&lt;ELEMENT_TYPE&gt; &gt;::operator()(
+                                       const shared_ptr&lt;ELEMENT_TYPE&gt;&amp; a,
+                                       const weak_ptr&lt;ELEMENT_TYPE&gt;&amp;   b) const
+{
+    return a.owner_before(b);
+}
+
+template &lt;class ELEMENT_TYPE&gt;
+inline
+bool owner_less&lt;weak_ptr&lt;ELEMENT_TYPE&gt; &gt;::operator()(
+                                       const weak_ptr&lt;ELEMENT_TYPE&gt;&amp;   a,
+                                       const shared_ptr&lt;ELEMENT_TYPE&gt;&amp; b) const
+{
+    return a.owner_before(b);
+}
+
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for &#39;equal_to&#39;
+//: o &#39;equal_to&#39; is a stateless POD, trivially constructible, copyable, and
+//:   moveable.
+
+template&lt;class POINTER_TYPE&gt;
+struct is_trivially_default_constructible&lt;owner_less&lt;POINTER_TYPE&gt; &gt;
+: bsl::true_type
+{};
+
+template&lt;class POINTER_TYPE&gt;
+struct is_trivially_copyable&lt;owner_less&lt;POINTER_TYPE&gt; &gt;
+: bsl::true_type
+{};
+
+}  // close &#39;bsl&#39; namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2014 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

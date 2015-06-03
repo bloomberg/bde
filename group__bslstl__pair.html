@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: bslstl_pair Component</title>
+<title>BDE 2.23.1 OSS: bslstl_pair Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
@@ -132,6 +133,8 @@ Functions</h2></td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#gaa19d2c4a4e8788af13eab13f37c5e53e">bsl::operator&gt;=</a> (const pair&lt; T1, T2 &gt; &amp;lhs, const pair&lt; T1, T2 &gt; &amp;rhs)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;typename T1 , typename T2 &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#ga8dd0a3f8324bcc657bc448230e8f5b4b">bsl::swap</a> (pair&lt; T1, T2 &gt; &amp;a, pair&lt; T1, T2 &gt; &amp;b)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class HASHALG , class T1 , class T2 &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#ga7f8ed8637bd0597772928067e041cc26">bsl::hashAppend</a> (HASHALG &amp;hashAlg, const pair&lt; T1, T2 &gt; &amp;input)</td></tr>
 <tr><td colspan="2"><h2><a name="var-members"></a>
 Variables</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">T1&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__pair.html#gafff8113b0b2f4bbe5df93ce0ba30fad8">bsl::Pair_Imp::first</a></td></tr>
@@ -1363,6 +1366,36 @@ template&lt;typename T1 , typename T2 &gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="ga7f8ed8637bd0597772928067e041cc26"></a><!-- doxytag: member="bsl::hashAppend" ref="ga7f8ed8637bd0597772928067e041cc26" args="(HASHALG &amp;hashAlg, const pair&lt; T1, T2 &gt; &amp;input)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class HASHALG , class T1 , class T2 &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void bsl::hashAppend </td>
+          <td>(</td>
+          <td class="paramtype">HASHALG &amp;&nbsp;</td>
+          <td class="paramname"> <em>hashAlg</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const pair&lt; T1, T2 &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>input</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Pass the specified <code>input</code> to the specified <code>hashAlg</code> </p>
+
+</div>
+</div>
 <hr/><h2>Variable Documentation</h2>
 <a class="anchor" id="gafff8113b0b2f4bbe5df93ce0ba30fad8"></a><!-- doxytag: member="bsl::Pair_Imp::first" ref="gafff8113b0b2f4bbe5df93ce0ba30fad8" args="" -->
 <div class="memitem">
@@ -1485,7 +1518,7 @@ template&lt;typename T1 , typename T2 &gt; </div>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:29 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:23 for BDE Release 2.23.1 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

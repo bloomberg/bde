@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bslmf_isconvertible.h                                              -*-C++-*-
@@ -141,10 +141,25 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bslscm_version.h&gt;
 #endif
 
+#ifndef INCLUDED_BSLMF_ADDCONST
+#include &lt;bslmf_addconst.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ADDLVALUEREFERENCE
+#include &lt;bslmf_addlvaluereference.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ENABLEIF
+#include &lt;bslmf_enableif.h&gt;
+#endif
+
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include &lt;bslmf_integralconstant.h&gt;
 #endif
 
+#ifndef INCLUDED_BSLMF_ISFUNCTION
+#include &lt;bslmf_isfunction.h&gt;
+#endif
 #ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
 #include &lt;bslmf_isfundamental.h&gt;
 #endif
@@ -189,6 +204,13 @@ struct IsConvertible_Match {
     static no_type match(const volatile TYPE&amp;);
         // Return &#39;yes_type&#39; if the (template parameter) &#39;TYPE&#39; is
         // &#39;IsConvertible_Match&#39; and &#39;no_type&#39; otherwise.
+
+    template &lt;class TYPE&gt;
+    static
+    typename bsl::enable_if&lt;bsl::is_function&lt;TYPE&gt;::value, no_type&gt;::type
+        match(TYPE&amp;);
+        // Return &#39;yes_type&#39; if the (template parameter) &#39;TYPE&#39; is
+        // &#39;IsConvertible_Match&#39; and &#39;no_type&#39; otherwise.
 };
 
                          // ========================
@@ -196,7 +218,7 @@ struct IsConvertible_Match {
                          // ========================
 
 template &lt;class FROM_TYPE, class TO_TYPE
-#if defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
          , int IS_FROM_FUNDAMENTAL = IsFundamental&lt;FROM_TYPE&gt;::value
          , int IS_TO_FUNDAMENTAL   = IsFundamental&lt;TO_TYPE&gt;::value
 #endif
@@ -245,7 +267,7 @@ struct IsConvertible_Imp {
         // convertible to &#39;TO_TYPE&#39;, and &#39;bsl::false_type&#39; otherwise.
 };
 
-#if defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
 
 #define BSLMF_ISCONVERTIBLE_SAMETYPEVALUE(VALUE, FROM, TO, FROM_FUND, TO_FUND)\
 template &lt;class TYPE&gt;                                                         \
@@ -335,9 +357,10 @@ struct IsConvertible_Imp&lt;const FROM_TYPE, TO_TYPE, 1, 1&gt;
     // This partial specialization is instantiated when the &#39;const&#39; (template
     // parameter) fundamental &#39;FROM_TYPE&#39; is tested for convertibility to
     // another (template parameter) fundamental &#39;TO_TYPE&#39;.  This partial
-    // specialization derives from &#39;IsConvertible_Imp&lt;const FROM_TYPE, double,
-    // 0, 0&gt;&#39; to avoid any compilation warnings in case the &#39;TO_TYPE&#39; is an
-    // integral type and &#39;FROM_TYPE&#39; is a floating-point type.
+    // specialization derives from
+    // &#39;IsConvertible_Imp&lt;const FROM_TYPE, double, 0, 0&gt;&#39; to avoid any
+    // compilation warnings in case the &#39;TO_TYPE&#39; is an integral type and
+    // &#39;FROM_TYPE&#39; is a floating-point type.
 };
 
 template &lt;class FROM_TYPE, class TO_TYPE&gt;
@@ -358,8 +381,8 @@ struct IsConvertible_Imp&lt;FROM_TYPE, TO_TYPE, 0, 1&gt;
     // parameter) &#39;FROM_TYPE&#39; is a non-fundamental type, and the (template
     // parameter) &#39;TO_TYPE&#39; is a non-&#39;void&#39; fundamental type.  This partial
     // specialization derives from &#39;IsConvertible_Imp&lt;FROM_TYPE, double, 0, 0&gt;&#39;
-    // to avoid any compilation warnings in case that the &#39;FROM_TYPE&#39; is
-    // a floating-point type and the &#39;TO_TYPE&#39; is an integral type.
+    // to avoid any compilation warnings in case that the &#39;FROM_TYPE&#39; is a
+    // floating-point type and the &#39;TO_TYPE&#39; is an integral type.
 };
 
 template &lt;class FROM_TYPE, class TO_TYPE&gt;
@@ -391,8 +414,10 @@ namespace bsl {
 template &lt;class FROM_TYPE, class TO_TYPE&gt;
 struct is_convertible
     : BloombergLP::bslmf::IsConvertible_Imp&lt;
-                              FROM_TYPE,
-                              typename remove_cv&lt;TO_TYPE&gt;::type const&amp;&gt;::type {
+                   FROM_TYPE,
+                   typename add_lvalue_reference&lt;
+                     typename add_const&lt;
+                       typename remove_cv&lt;TO_TYPE&gt;::type&gt;::type&gt;::type&gt;::type {
     // This &#39;struct&#39; template implements the &#39;is_convertible&#39; meta-function
     // defined in the C++11 standard [meta.rel] to determine if the (template
     // parameter) &#39;FROM_TYPE&#39; is convertible to the (template parameter)
@@ -414,6 +439,28 @@ struct is_convertible&lt;FROM_TYPE, void&gt; : false_type {
     // This partial specialization deriving from &#39;bsl::false_type&#39; is
     // instantiated for the case where the (template parameter) &#39;FROM_TYPE&#39; is
     // a non-&#39;void&#39; type and is being converted to the &#39;void&#39; type.
+};
+
+template &lt;class FROM_TYPE&gt;
+struct is_convertible&lt;FROM_TYPE, const void&gt; : false_type {
+    // This partial specialization deriving from &#39;bsl::false_type&#39; is
+    // instantiated for the case where the (template parameter) &#39;FROM_TYPE&#39; is
+    // a non-&#39;void&#39; type and is being converted to the &#39;const void&#39; type.
+};
+
+template &lt;class FROM_TYPE&gt;
+struct is_convertible&lt;FROM_TYPE, volatile void&gt; : false_type {
+    // This partial specialization deriving from &#39;bsl::false_type&#39; is
+    // instantiated for the case where the (template parameter) &#39;FROM_TYPE&#39; is
+    // a non-&#39;void&#39; type and is being converted to the &#39;volatile void&#39; type.
+};
+
+template &lt;class FROM_TYPE&gt;
+struct is_convertible&lt;FROM_TYPE, const volatile void&gt; : false_type {
+    // This partial specialization deriving from &#39;bsl::false_type&#39; is
+    // instantiated for the case where the (template parameter) &#39;FROM_TYPE&#39; is
+    // a non-&#39;void&#39; type and is being converted to the &#39;const volatile void&#39;
+    // type.
 };
 
 template &lt;class FROM_TYPE, class TO_TYPE&gt;
@@ -469,14 +516,161 @@ struct is_convertible&lt;void, TO_TYPE&gt; : false_type {
 };
 
 template &lt;class TO_TYPE&gt;
+struct is_convertible&lt;const void, TO_TYPE&gt; : false_type {
+    // This partial specialization deriving from &#39;bsl::false_type&#39; is
+    // instantiated for the case where the &#39;const void&#39; type is being converted
+    // to the non-&#39;void&#39; (template parameter) &#39;TO_TYPE&#39;.
+};
+
+template &lt;class TO_TYPE&gt;
+struct is_convertible&lt;volatile void, TO_TYPE&gt; : false_type {
+    // This partial specialization deriving from &#39;bsl::false_type&#39; is
+    // instantiated for the case where the &#39;volatile void&#39; type is being
+    // converted to the non-&#39;void&#39; (template parameter) &#39;TO_TYPE&#39;.
+};
+
+template &lt;class TO_TYPE&gt;
+struct is_convertible&lt;const volatile void, TO_TYPE&gt; : false_type {
+    // This partial specialization deriving from &#39;bsl::false_type&#39; is
+    // instantiated for the case where the &#39;const volatile void&#39; type is being
+    // converted to the non-&#39;void&#39; (template parameter) &#39;TO_TYPE&#39;.
+};
+
+template &lt;class TO_TYPE&gt;
 struct is_convertible&lt;void, TO_TYPE&amp;&gt; : false_type {
     // This partial specialization deriving from &#39;bsl::false_type&#39; is
     // instantiated for the case where the &#39;void&#39; type is being converted to
-    // the (template parameter) &#39;TO_TYPE&#39;, which is a reference type.
+    // the non-&#39;void&#39; (template parameter) &#39;TO_TYPE&amp;&#39;.
+};
+
+template &lt;class TO_TYPE&gt;
+struct is_convertible&lt;const void, TO_TYPE&amp;&gt; : false_type {
+    // This partial specialization deriving from &#39;bsl::false_type&#39; is
+    // instantiated for the case where the &#39;const void&#39; type is being converted
+    // to the non-&#39;void&#39; (template parameter) &#39;TO_TYPE&amp;&#39;.
+};
+
+template &lt;class TO_TYPE&gt;
+struct is_convertible&lt;volatile void, TO_TYPE&amp;&gt; : false_type {
+    // This partial specialization deriving from &#39;bsl::false_type&#39; is
+    // instantiated for the case where the &#39;volatile void&#39; type is being
+    // converted to the non-&#39;void&#39; (template parameter) &#39;TO_TYPE&amp;&#39;.
+};
+
+template &lt;class TO_TYPE&gt;
+struct is_convertible&lt;const volatile void, TO_TYPE&amp;&gt; : false_type {
+    // This partial specialization deriving from &#39;bsl::false_type&#39; is
+    // instantiated for the case where the &#39;const volatile void&#39; type is being
+    // converted to the non-&#39;void&#39; (template parameter) &#39;TO_TYPE&amp;&#39;.
 };
 
 template &lt;&gt;
 struct is_convertible&lt;void, void&gt; : true_type {
+    // This partial specialization deriving from &#39;bsl::true_type&#39; is
+    // instantiated for the case where the &#39;void&#39; type is being converted to
+    // the &#39;void&#39; type.
+};
+
+template &lt;&gt;
+struct is_convertible&lt;void, const void&gt; : true_type {
+    // This partial specialization deriving from &#39;bsl::true_type&#39; is
+    // instantiated for the case where the &#39;void&#39; type is being converted to
+    // the &#39;void&#39; type.
+};
+
+template &lt;&gt;
+struct is_convertible&lt;void, volatile void&gt; : true_type {
+    // This partial specialization deriving from &#39;bsl::true_type&#39; is
+    // instantiated for the case where the &#39;void&#39; type is being converted to
+    // the &#39;void&#39; type.
+};
+
+template &lt;&gt;
+struct is_convertible&lt;void, const volatile void&gt; : true_type {
+    // This partial specialization deriving from &#39;bsl::true_type&#39; is
+    // instantiated for the case where the &#39;void&#39; type is being converted to
+    // the &#39;void&#39; type.
+};
+
+template &lt;&gt;
+struct is_convertible&lt;const void, void&gt; : true_type {
+    // This partial specialization deriving from &#39;bsl::true_type&#39; is
+    // instantiated for the case where the &#39;void&#39; type is being converted to
+    // the &#39;void&#39; type.
+};
+
+template &lt;&gt;
+struct is_convertible&lt;const void, const void&gt; : true_type {
+    // This partial specialization deriving from &#39;bsl::true_type&#39; is
+    // instantiated for the case where the &#39;void&#39; type is being converted to
+    // the &#39;void&#39; type.
+};
+
+template &lt;&gt;
+struct is_convertible&lt;const void, volatile void&gt; : true_type {
+    // This partial specialization deriving from &#39;bsl::true_type&#39; is
+    // instantiated for the case where the &#39;void&#39; type is being converted to
+    // the &#39;void&#39; type.
+};
+
+template &lt;&gt;
+struct is_convertible&lt;const void, const volatile void&gt; : true_type {
+    // This partial specialization deriving from &#39;bsl::true_type&#39; is
+    // instantiated for the case where the &#39;void&#39; type is being converted to
+    // the &#39;void&#39; type.
+};
+
+template &lt;&gt;
+struct is_convertible&lt;volatile void, void&gt; : true_type {
+    // This partial specialization deriving from &#39;bsl::true_type&#39; is
+    // instantiated for the case where the &#39;void&#39; type is being converted to
+    // the &#39;void&#39; type.
+};
+
+template &lt;&gt;
+struct is_convertible&lt;volatile void, const void&gt; : true_type {
+    // This partial specialization deriving from &#39;bsl::true_type&#39; is
+    // instantiated for the case where the &#39;void&#39; type is being converted to
+    // the &#39;void&#39; type.
+};
+
+template &lt;&gt;
+struct is_convertible&lt;volatile void, volatile void&gt; : true_type {
+    // This partial specialization deriving from &#39;bsl::true_type&#39; is
+    // instantiated for the case where the &#39;void&#39; type is being converted to
+    // the &#39;void&#39; type.
+};
+
+template &lt;&gt;
+struct is_convertible&lt;volatile void, const volatile void&gt; : true_type {
+    // This partial specialization deriving from &#39;bsl::true_type&#39; is
+    // instantiated for the case where the &#39;void&#39; type is being converted to
+    // the &#39;void&#39; type.
+};
+
+template &lt;&gt;
+struct is_convertible&lt;const volatile void, void&gt; : true_type {
+    // This partial specialization deriving from &#39;bsl::true_type&#39; is
+    // instantiated for the case where the &#39;void&#39; type is being converted to
+    // the &#39;void&#39; type.
+};
+
+template &lt;&gt;
+struct is_convertible&lt;const volatile void, const void&gt; : true_type {
+    // This partial specialization deriving from &#39;bsl::true_type&#39; is
+    // instantiated for the case where the &#39;void&#39; type is being converted to
+    // the &#39;void&#39; type.
+};
+
+template &lt;&gt;
+struct is_convertible&lt;const volatile void, volatile void&gt; : true_type {
+    // This partial specialization deriving from &#39;bsl::true_type&#39; is
+    // instantiated for the case where the &#39;void&#39; type is being converted to
+    // the &#39;void&#39; type.
+};
+
+template &lt;&gt;
+struct is_convertible&lt;const volatile void, const volatile void&gt; : true_type {
     // This partial specialization deriving from &#39;bsl::true_type&#39; is
     // instantiated for the case where the &#39;void&#39; type is being converted to
     // the &#39;void&#39; type.

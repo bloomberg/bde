@@ -1,0 +1,310 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.23.1 OSS</title>
+<html>
+<pre>
+// bdlt_datetimeutil.h                                                -*-C++-*-
+#ifndef INCLUDED_BDLT_DATETIMEUTIL
+#define INCLUDED_BDLT_DATETIMEUTIL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide common non-primitive operations on &#39;bdlt::Datetime&#39;.
+//
+//@CLASSES:
+//   bdlt::DatetimeUtil: non-primitive functions on &#39;bdlt::Datetime&#39;
+//
+//@SEE_ALSO: bdlt_datetime, bdlt_datetimeinterval, bdlt_epochutil
+//
+//@DESCRIPTION: This component provides non-primitive operations on
+// &#39;bdlt::Datetime&#39; objects.  In particular, &#39;bdlt::DatetimeUtil&#39; supplies
+// conversions of universal time to and from the C-standard &#39;struct&#39; &#39;tm&#39;
+// (which we alias as &#39;bsl::tm&#39;) representations.
+//
+// This utility component provides the following (static) methods:
+//..
+//   int convertFromTm(bdlt::Datetime *result, const tm&amp; timeStruct);
+//   bsl::tm convertToTm(const bdlt::Datetime&amp; datetime);
+//..
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Converting Between &#39;bsl::tm&#39; and &#39;bdlt::Datetime&#39;
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// When interfacing with legacy systems, we may encounter calls that represent
+// date/time information using the standard &#39;bsl::tm&#39;. In such cases, we have
+// to be able to convert that information to/from a &#39;bdlt::Datetime&#39; object in
+// order to interface with the rest of our systems.
+//
+// Suppose we have a legacy system that tracks last-access times in terms of
+// &#39;bsl::tm&#39;. We can use the &#39;convertToTm&#39; and &#39;convertFromTm&#39; routines from
+// this component to convert that information.
+//
+// First, we define a class, &#39;MyAccessTracker&#39;, that the legacy system uses to
+// manage last-access times (eliding the implementation for brevity):
+//..
+//  class MyAccessTracker {
+//      // This class provides a facility for tracking last access times
+//      // associated with usernames.
+//
+//      // LOCAL TYPE
+//      typedef bsl::map&lt;bsl::string, bsl::tm&gt;  TStringTmMap;
+//
+//      // DATA
+//      TStringTmMap                            m_accesses; // map names to
+//                                                          // accesses
+//
+//    public:
+//      // TRAITS
+//      BSLMF_NESTED_TRAIT_DECLARATION(MyAccessTracker,
+//                                     bslma::UsesBslmaAllocator);
+//
+//      // CREATORS
+//      explicit MyAccessTracker(bslma::Allocator *basicAllocator = 0);
+//          // Create an object which will track the last access time ...
+//
+//      // MANIPULATORS
+//      void updateLastAccess(const bsl::string&amp;  username,
+//                            const bsl::tm&amp;      accessTime);
+//          // Update the last access time for the specified &#39;username&#39; with
+//          // the specified &#39;accessTime&#39;.
+//
+//      // ACCESSORS
+//      int getLastAccess(bsl::tm *result, const bsl::string&amp; username) const;
+//          // Load into the specified &#39;result&#39; the last access time associated
+//          // with the specified &#39;username&#39;, if any.  Return 0 on success, and
+//          // non-0 (with no effect on &#39;result&#39;) if there&#39;s no access time
+//          // associated with &#39;username&#39;.
+//  };
+//..
+// Next, we define a utility to allow us to use &#39;bdlt::Datetime&#39; with our
+// legacy access tracker:
+//..
+//  class MyAccessTrackerUtil {
+//    public:
+//      static int getLastAccess(bdlt::Datetime         *result,
+//                               const MyAccessTracker&amp;  tracker,
+//                               const bsl::string&amp;      username);
+//          // Load into the specified &#39;result&#39; the last access time associated
+//          // with the specified &#39;username&#39; in the specified &#39;tracker&#39;, if
+//          // any.  Returns 0 on success, and non-0 (with no effect on
+//          // &#39;result&#39;) if there&#39;s no access time associated with &#39;username&#39;
+//          // or the associated access time cannot be converted to
+//          // &#39;bdlt::Datetime&#39;.
+//
+//      static void updateLastAccess(MyAccessTracker       *tracker,
+//                                   const bsl::string&amp;     username,
+//                                   const bdlt::Datetime&amp;  accessTime);
+//          // Update the instance pointed to by the specified &#39;tracker&#39; by
+//          // adding the specified &#39;username&#39; with its associated specified
+//          // &#39;accessTime&#39;.
+//  };
+//..
+// Then, we implement &#39;getLastAccess&#39;:
+//..
+//                          // -------------------------
+//                          // class MyAccessTrackerUtil
+//                          // -------------------------
+//
+//  int MyAccessTrackerUtil::getLastAccess(bdlt::Datetime         *result,
+//                                         const MyAccessTracker&amp;  tracker,
+//                                         const bsl::string&amp;      username)
+//  {
+//      BSLS_ASSERT(result);
+//
+//      bsl::tm legacyAccessTime;
+//
+//      int rc = tracker.getLastAccess(&amp;legacyAccessTime, username);
+//
+//      if (rc) {
+//          return rc;                                                // RETURN
+//      }
+//
+//      return bdlt::DatetimeUtil::convertFromTm(result, legacyAccessTime);
+//  }
+//..
+// Next, we implement &#39;updateLastAccess&#39;:
+//..
+//  void MyAccessTrackerUtil::updateLastAccess(
+//                                           MyAccessTracker       *tracker,
+//                                           const bsl::string&amp;     username,
+//                                           const bdlt::Datetime&amp;  accessTime)
+//  {
+//      BSLS_ASSERT(tracker);
+//
+//      bsl::tm legacyAccessTime;
+//
+//      legacyAccessTime = bdlt::DatetimeUtil::convertToTm(accessTime);
+//
+//      tracker-&gt;updateLastAccess(username, legacyAccessTime);
+//  }
+//..
+// Finally, we create an access tracker then interact with it using
+// &#39;bdlt::Datetime&#39; times.
+//..
+//  void exerciseTracker()
+//      // Exercise &#39;MyAccessTracker&#39; for pedagogical purposes.
+//  {
+//      MyAccessTracker accessTracker; // Datetime each user last accessed a
+//                                     // resource.
+//
+//      bsl::string    richtofenName = &quot;Baron von Richtofen&quot;;
+//      bdlt::Datetime richtofenDate(1918, 4, 21, 11, 0, 0);
+//      MyAccessTrackerUtil::updateLastAccess(&amp;accessTracker,
+//                                             richtofenName,
+//                                             richtofenDate);
+//
+//      // ... some time later ....
+//
+//      bdlt::Datetime lastAccessTime;
+//      int rc = MyAccessTrackerUtil::getLastAccess(&amp;lastAccessTime,
+//                                                   accessTracker,
+//                                                   richtofenName);
+//      assert(0 == rc);
+//      assert(lastAccessTime == richtofenDate);
+//
+//      // Do something with the retrieved date...
+//  }
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLT_DATETIME
+#include &lt;bdlt_datetime.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CTIME
+#include &lt;bsl_ctime.h&gt;            // &#39;bsl::tm&#39;
+#endif
+
+namespace BloombergLP {
+namespace bdlt {
+
+                            // ===================
+                            // struct DatetimeUtil
+                            // ===================
+
+struct DatetimeUtil {
+    // This utility &#39;struct&#39; provides a namespace for a suite of functions
+    // operating on objects of type &#39;Datetime&#39;.
+
+  public:
+    // CLASS METHODS
+    static int convertFromTm(Datetime *result, const bsl::tm&amp; timeStruct);
+        // Load into the specified &#39;result&#39; the value of the specified
+        // &#39;timeStruct&#39;.  Return 0 on success, and a non-zero value with no
+        // effect on &#39;result&#39; if &#39;timeStruct&#39; is invalid or otherwise cannot be
+        // represented as a &#39;Datetime&#39;.  Values in fields &#39;tm_wday&#39;, &#39;tm_yday&#39;,
+        // and &#39;tm_isdst&#39; are ignored.  The time 24:00:00 will be recognized,
+        // and leap seconds (i.e., values in &#39;tm_sec&#39; of 60 or 61) which can
+        // otherwise be represented as a &#39;Datetime&#39; will cause the conversion
+        // to succeed with the &#39;result&#39; &quot;rolling over&quot; into the zeroth second
+        // of next minute.  Note that time zones are irrelevant for this
+        // conversion.
+
+    static bsl::tm convertToTm(const Datetime&amp; datetime);
+        // Return the value of the specified &#39;datetime&#39; expressed as a
+        // &#39;bsl::tm&#39;.  Each field in the result is set to its proper value
+        // except &#39;tm_isdst&#39;, which is set to &#39;-1&#39; to indicate that no
+        // information on daylight saving time is available.  A time value of
+        // 24:00:00:00 will be converted to 0:00:00.  Note that time zones are
+        // irrelevant for this conversion.
+};
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                            // -------------------
+                            // struct DatetimeUtil
+                            // -------------------
+
+inline
+int DatetimeUtil::convertFromTm(Datetime       *result,
+                                const bsl::tm&amp;  timeStruct)
+{
+    BSLS_ASSERT_SAFE(result);
+
+    bool isLeapSecond = false;
+    int  seconds      = timeStruct.tm_sec;
+
+    if (seconds &gt; 59) {
+        // Start handling leap seconds by shifting to the previous non-leap
+        // second time.
+        isLeapSecond   = true;
+        seconds        = 59;
+    }
+
+    int rc = result-&gt;setDatetimeIfValid(timeStruct.tm_year + 1900,
+                                        timeStruct.tm_mon  + 1,
+                                        timeStruct.tm_mday,
+                                        timeStruct.tm_hour,
+                                        timeStruct.tm_min,
+                                        seconds);                   // msec = 0
+
+    if (isLeapSecond &amp;&amp; !rc) {
+        // Finish leap second handling by rolling over into second &#39;0&#39; in the
+        // next minute.
+        result-&gt;addSeconds(1);
+    }
+
+    return rc;
+}
+
+inline
+bsl::tm DatetimeUtil::convertToTm(const Datetime&amp; datetime)
+{
+    bsl::tm    result;
+
+    result.tm_sec   = datetime.second();
+    result.tm_min   = datetime.minute();
+    const int hour   = datetime.hour();
+    if (24 == hour) {
+        result.tm_hour = 0;
+    }
+    else {
+        result.tm_hour = hour;
+    }
+    result.tm_mday  = datetime.day();
+    result.tm_mon   = datetime.month() - 1;
+    result.tm_year  = datetime.year() - 1900;
+    result.tm_wday  = datetime.date().dayOfWeek() - 1;
+    result.tm_yday  = datetime.date().dayOfYear() - 1;
+    result.tm_isdst = -1;  // This information is unavailable.
+
+    return result;
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2014 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

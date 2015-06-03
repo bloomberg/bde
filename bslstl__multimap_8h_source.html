@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bslstl_multimap.h                                                  -*-C++-*-
@@ -15,11 +15,11 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //@PURPOSE: Provide an STL-compliant multimap class.
 //
 //@CLASSES:
-//   bsl::multimap STL-compatible multimap template
+//   bsl::multimap: STL-compatible multimap template
 //
 //@SEE_ALSO: bslstl_map, bslstl_multiset
 //
-//@DESCRIPTION: This component defines a single class template &#39;multimap&#39;,
+//@DESCRIPTION: This component defines a single class template &#39;bsl::multimap&#39;,
 // implementing the standard container holding an ordered sequence of key-value
 // pairs (possibly having duplicate keys), and presenting a mapping from the
 // keys (of a template parameter type, &#39;KEY&#39;) to their associated values (of
@@ -536,6 +536,14 @@ BSL_OVERRIDES_STD mode&quot;
 #include &lt;bslalg_typetraithasstliterators.h&gt;
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PERFORMANCEHINT
+#include &lt;bsls_performancehint.h&gt;
+#endif
+
 #ifndef INCLUDED_FUNCTIONAL
 #include &lt;functional&gt;
 #define INCLUDED_FUNCTIONAL
@@ -677,15 +685,15 @@ class multimap {
         COMPARATOR comp;  // we would not have elected to make this data
                           // member protected ourselves
 
-        value_compare(COMPARATOR c) : comp(c) {}
+        value_compare(COMPARATOR c);                                // IMPLICIT
             // Create a &#39;value_compare&#39; object that will delegate to the
             // specified &#39;comparator&#39; for comparisons.
 
       public:
         typedef bool result_type;
-            // This &#39;typedef&#39; is an alias for the result type of a call to
-            // the overload of &#39;operator()&#39; (the comparison function) provided
-            // by a &#39;multimap::value_compare&#39; object.
+            // This &#39;typedef&#39; is an alias for the result type of a call to the
+            // overload of &#39;operator()&#39; (the comparison function) provided by a
+            // &#39;multimap::value_compare&#39; object.
 
         typedef value_type first_argument_type;
             // This &#39;typedef&#39; is an alias for the type of the first parameter
@@ -697,19 +705,16 @@ class multimap {
             // of the overload of &#39;operator()&#39; (the comparison function)
             // provided by a &#39;multimap::value_compare&#39; object.
 
-        bool operator()(const value_type&amp; x, const value_type&amp; y) const
+        bool operator()(const value_type&amp; x, const value_type&amp; y) const;
             // Return &#39;true&#39; if the specified &#39;x&#39; object is ordered before the
             // specified &#39;y&#39; object, as determined by the comparator supplied
             // at construction.
-        {
-            return comp(x.first, y.first);
-        }
     };
 
   public:
     // CREATORS
-    explicit multimap(const COMPARATOR&amp; comparator = COMPARATOR(),
-                      const ALLOCATOR&amp;  basicAllocator  = ALLOCATOR())
+    explicit multimap(const COMPARATOR&amp; comparator     = COMPARATOR(),
+                      const ALLOCATOR&amp;  basicAllocator = ALLOCATOR())
         // Construct an empty multimap.  Optionally specify a &#39;comparator&#39; used
         // to order key-value pairs contained in this object.  If &#39;comparator&#39;
         // is not supplied, a default-constructed object of the (template
@@ -841,14 +846,13 @@ class multimap {
     iterator insert(const_iterator hint, const value_type&amp; value);
         // Insert the specified &#39;value&#39; into this multimap as close as possible
         // to the position just prior to the specified &#39;hint&#39; (in amortized
-        // constant time if the specified &#39;hint&#39; is a valid immediate successor
-        // to the key of &#39;value&#39;).  If &#39;hint&#39; is not a valid immediate
-        // successor to the key of &#39;value&#39;, this operation will have O[log(N)]
-        // complexity, where &#39;N&#39; is the size of this multimap.  The behavior is
-        // undefined unless &#39;hint&#39; is a valid iterator into this multimap.
-        // This method requires that the (template parameter) types &#39;KEY&#39; and
-        // &#39;VALUE&#39; both be &quot;copy-constructible&quot; (see {Requirements on &#39;KEY&#39; and
-        // &#39;VALUE&#39;}).
+        // constant time if the &#39;hint&#39; is a valid immediate successor to the
+        // key of &#39;value&#39;).  If &#39;hint&#39; is not a valid immediate successor to
+        // the key of &#39;value&#39;, this operation will have O[log(N)] complexity,
+        // where &#39;N&#39; is the size of this multimap.  The behavior is undefined
+        // unless &#39;hint&#39; is a valid iterator into this multimap.  This method
+        // requires that the (template parameter) types &#39;KEY&#39; and &#39;VALUE&#39; both
+        // be &quot;copy-constructible&quot; (see {Requirements on &#39;KEY&#39; and &#39;VALUE&#39;}).
 
     template &lt;class INPUT_ITERATOR&gt;
     void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
@@ -925,7 +929,7 @@ class multimap {
         // inserted into the ordered sequence maintained by this multimap,
         // while preserving its ordering.
 
-    bsl::pair&lt;iterator,iterator&gt; equal_range(const key_type&amp; x);
+    bsl::pair&lt;iterator,iterator&gt; equal_range(const key_type&amp; key);
         // Return a pair of iterators providing modifiable access to the
         // sequence of &#39;value_type&#39; objects in this multimap having the
         // specified &#39;key&#39;, where the the first iterator is positioned at the
@@ -1042,7 +1046,7 @@ class multimap {
         // while preserving its ordering.
 
     bsl::pair&lt;const_iterator,const_iterator&gt; equal_range(
-                                                      const key_type&amp; x) const;
+                                                    const key_type&amp; key) const;
         // Return a pair of iterators providing non-modifiable access to the
         // sequence of &#39;value_type&#39; objects in this multimap having the
         // specified &#39;key&#39;, where the the first iterator is positioned at the
@@ -1189,6 +1193,27 @@ multimap&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::DataWrapper::DataWrapper(
 : ::bsl::multimap&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::Comparator(comparator)
 , d_pool(basicAllocator)
 {
+}
+
+                             // -----------------------------
+                             // class multimap::value_compare
+                             // -----------------------------
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+multimap&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::value_compare::value_compare(
+                                                                  COMPARATOR c)
+: comp(c)
+{
+}
+
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
+inline
+bool multimap&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::value_compare::operator()(
+                                                     const value_type&amp; x,
+                                                     const value_type&amp; y) const
+{
+    return comp(x.first, y.first);
 }
 
                              // --------------
@@ -1485,7 +1510,7 @@ template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
 inline
 typename multimap&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::iterator
 multimap&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::erase(const_iterator first,
-                                           const_iterator last)
+                                                   const_iterator last)
 {
     while (first != last) {
         first = erase(first);
@@ -1499,7 +1524,7 @@ void multimap&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::swap(multimap&amp; other
 {
     if (AllocatorTraits::propagate_on_container_swap::value) {
         BloombergLP::bslalg::SwapUtil::swap(&amp;nodeFactory().allocator(),
-                                           &amp;other.nodeFactory().allocator());
+                                            &amp;other.nodeFactory().allocator());
         quickSwap(other);
     }
     else {
@@ -1764,7 +1789,7 @@ multimap&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;::equal_range(
     return bsl::pair&lt;const_iterator, const_iterator&gt;(startIt, endIt);
 }
 
-}  // close namespace bslstl
+}  // close namespace bsl
 
 template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
 inline
@@ -1852,10 +1877,7 @@ namespace BloombergLP {
 
 namespace bslalg {
 
-template &lt;typename KEY,
-          typename VALUE,
-          typename COMPARATOR,
-          typename ALLOCATOR&gt;
+template &lt;class KEY, class VALUE, class COMPARATOR, class ALLOCATOR&gt;
 struct HasStlIterators&lt;bsl::multimap&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt; &gt;
     : bsl::true_type
 {};
@@ -1864,10 +1886,7 @@ struct HasStlIterators&lt;bsl::multimap&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt;
 
 namespace bslma {
 
-template &lt;typename KEY,
-          typename VALUE,
-          typename COMPARATOR,
-          typename ALLOCATOR&gt;
+template &lt;class KEY,   class VALUE, class COMPARATOR, class ALLOCATOR&gt;
 struct UsesBslmaAllocator&lt;bsl::multimap&lt;KEY, VALUE, COMPARATOR, ALLOCATOR&gt; &gt;
     : bsl::is_convertible&lt;Allocator*, ALLOCATOR&gt;
 {};

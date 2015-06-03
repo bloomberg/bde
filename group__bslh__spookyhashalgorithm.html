@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: bslh_spookyhashalgorithm Component</title>
+<title>BDE 2.23.1 OSS: bslh_spookyhashalgorithm Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
@@ -112,12 +113,12 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code><a class="el" href="classbslh_1_1SpookyHashAlgorithm.html">bslh::SpookyHashAlgorithm</a></code> implements the SpookyHash algorithm by Bob Jenkins. This algorithm is a general purpose algorithm that is known to quickly reach good avalanche performance and execute in time that is comprable to or faster than other industry standard algorithms such as CityHash. It is a good default choice for hashing values in unordered associative containers. For more information, see: <a href="http://burtleburtle.net/bob/hash/spooky.html">http://burtleburtle.net/bob/hash/spooky.html</a> </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This class satisfies the requirements for regular <code>bslh</code> hashing algorithms and seeded <code>bslh</code> hashing algorithms, defined in <a class="el" href="bslh__hash_8h.html" title="Provide a struct to run bslh hash algorithms on supported types.">bslh_hash.h</a> and <a class="el" href="bslh__seededhash_8h.html" title="Provide a struct to run seeded bslh hash algorithms on types.">bslh_seededhash.h</a> respectively. More information can be found in the package level documentation for <code>bslh</code> (internal users can also find information here {TEAM BDE:USING MODULAR HASHING&lt;GO&gt;}) </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><code><a class="el" href="classbslh_1_1SpookyHashAlgorithm.html">bslh::SpookyHashAlgorithm</a></code> implements the SpookyHash algorithm by Bob Jenkins. This algorithm is a general purpose algorithm that is known to quickly reach good avalanche performance and execute in time that is comparable to or faster than other industry standard algorithms such as CityHash. It is a good default choice for hashing values in unordered associative containers. For more information, see: <a href="http://burtleburtle.net/bob/hash/spooky.html">http://burtleburtle.net/bob/hash/spooky.html</a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This class satisfies the requirements for regular <code>bslh</code> hashing algorithms and seeded <code>bslh</code> hashing algorithms, defined in <code><a class="el" href="bslh__hash_8h.html" title="Provide a struct to run bslh hash algorithms on supported types.">bslh_hash.h</a></code> and <code><a class="el" href="bslh__seededhash_8h.html" title="Provide a struct to run seeded bslh hash algorithms on types.">bslh_seededhash.h</a></code> respectively. More information can be found in the package level documentation for <code>bslh</code> (internal users can also find information here {TEAM BDE:USING MODULAR HASHING&lt;GO&gt;}) </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="security"></a> <a class="anchor" id="description.security"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Security: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>In this context "security" refers to the ability of the algorithm to produce hashes that are not predictable by an attacker. Security is a concern when an attacker may be able to provide malicious input into a hash table, thereby causing hashes to collide to buckets, which degrades performance. There are <em>no</em> security guarantees made by <code><a class="el" href="classbslh_1_1SpookyHashAlgorithm.html">bslh::SpookyHashAlgorithm</a></code>, meaning attackers may be able to engineer keys that will cause a Denial of Service (DoS) attack in hash tables using this algorithm. Note that even if an attacker does not know the seed used to initialize this algorithm, they may still be able to produce keys that will cause a DoS attack in hash tables using this algorithm. If security is required, an algorithm that documents better secure properties should be used, such as <code>bslh_siphashalgorithm</code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>In this context "security" refers to the ability of the algorithm to produce hashes that are not predictable by an attacker. Security is a concern when an attacker may be able to provide malicious input into a hash table, thereby causing hashes to collide to buckets, which degrades performance. There are <em>no</em> security guarantees made by <code><a class="el" href="classbslh_1_1SpookyHashAlgorithm.html">bslh::SpookyHashAlgorithm</a></code>, meaning attackers may be able to engineer keys that will cause a Denial of Service (DoS) attack in hash tables using this algorithm. Note that even if an attacker does not know the seed used to initialize this algorithm, they may still be able to produce keys that will cause a DoS attack in hash tables using this algorithm. If security is required, an algorithm that documents better secure properties should be used, such as <code><a class="el" href="classbslh_1_1SipHashAlgorithm.html">bslh::SipHashAlgorithm</a></code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="speed"></a> <a class="anchor" id="description.speed"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Speed: </b></dt><dd></dd></dl>
@@ -129,7 +130,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="hash_consistency"></a> <a class="anchor" id="description.hash_consistency"></a> <a class="anchor" id="3.4"></a> </dd></dl>
 <dl class="user"><dt><b>Hash Consistency: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This hash algorithm is endian-specific. It is designed for little endian machines, however, it will run on big endian machines. On big endian machines, the Performance and Security Guarantees still apply, however the hashes produced will be different from those produced by the canonical implementation. The creator of this algorithm acknowledges this and says that the big-endian hashes are just as good as the little-endian ones. It is not recommended to send hashes from <code>bslh::SpookyHashAlgorihtm</code> over a network becuase of the differances in hashes across architectures. It is also not recommended to write hashes from <code>bslh::SpookyHashAlgorihtm</code> to any memory accessible by multiple machines. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This hash algorithm is endian-specific. It is designed for little-endian machines, however, it will run on big-endian machines. On big-endian machines, the Performance and Security Guarantees still apply, however the hashes produced will be different from those produced by the canonical implementation. The creator of this algorithm acknowledges this and says that the big-endian hashes are just as good as the little-endian ones. It is not recommended to send hashes from <code>bslh::SpookyHashAlgorihtm</code> over a network because of the differences in hashes across architectures. It is also not recommended to write hashes from <code>bslh::SpookyHashAlgorihtm</code> to any memory accessible by multiple machines. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.5"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
@@ -247,7 +248,7 @@ Namespaces</h2></td></tr>
           <span class="keywordflow">return</span> &amp;d_callYear;
       }
 
-      <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#ae38909e0885ad40b01e80afb221e6737">operator==</a>(<span class="keyword">const</span> Future&amp; other) <span class="keyword">const</span>
+      <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> Future&amp; other) <span class="keyword">const</span>
           <span class="comment">// Compare this to the specified &#39;other&#39; object and return true if</span>
           <span class="comment">// they are equal</span>
       {
@@ -257,7 +258,7 @@ Namespaces</h2></td></tr>
       }
   };
 
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#a3be038ba34aba97e5c03f884da729377">operator!=</a>(<span class="keyword">const</span> Future&amp; lhs, <span class="keyword">const</span> Future&amp; rhs)
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aceb1a703f6f64327cd3cdcd03a557f4a">operator!=</a>(<span class="keyword">const</span> Future&amp; lhs, <span class="keyword">const</span> Future&amp; rhs)
       <span class="comment">// Compare compare the specified &#39;lhs&#39; and &#39;rhs&#39; objects and return</span>
       <span class="comment">// true if they are not equal</span>
   {
@@ -320,7 +321,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:27 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:20 for BDE Release 2.23.1 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

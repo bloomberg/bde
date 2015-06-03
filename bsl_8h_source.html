@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
  bsl.txt
@@ -32,20 +32,18 @@
 
 /Hierarchical Synopsis
 /---------------------
- The &#39;bsl&#39; package group currently has 15 packages having 12 levels of physical
+ The &#39;bsl&#39; package group currently has 13 packages having 11 levels of physical
  dependency.  The list below shows the hierarchical ordering of the packages.
  The order of packages within each level is not architecturally significant,
  just alphabetical.
 ..
-  12. bslx
+  11. bslx
 
-  11. bslim
+  10. bslim
 
-  10. bsl+stdhdrs
+   9. bsl+stdhdrs
 
-   9. bsl+bslhdrs
-
-   8. bslstp
+   8. bsl+bslhdrs
 
    7. bslstl
 
@@ -61,8 +59,7 @@
 
    2. bslscm
 
-   1. bslfwd
-      bsls
+   1. bsls
 ..
  Note that the &#39;bsl+stdhdrs&#39; package is only a compatibility layer for
  Bloomberg managed code.  It is not an essential package for the rest of the
@@ -89,11 +86,8 @@
 : &#39;bsldoc&#39;:
 :      Provide documentation of terms and concepts used throughout BDE.
 :
-: &#39;bslfwd&#39;:
-:      Provide compatibility for clients using single-level namespace
-:
 : &#39;bslh&#39;:
-:      Provide a framework for hashing types using swapable algorithms.
+:      Provide a framework for hashing types using swappable algorithms.
 :
 : &#39;bslim&#39;:
 :      Provide implementation mechanisms.
@@ -112,9 +106,6 @@
 :
 : &#39;bslstl&#39;:
 :      Provide replacement classes for STL constructs.
-:
-: &#39;bslstp&#39;:
-:      Provide replacement classes (adopted from STLport) for STL.
 :
 : &#39;bsltf&#39;:
 :      Provide a set of utilities and types to help with testing.

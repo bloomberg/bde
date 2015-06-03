@@ -1,0 +1,238 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.23.1 OSS</title>
+<html>
+<pre>
+// bdlt_intervalconversionutil.h                                      -*-C++-*-
+#ifndef INCLUDED_BDLT_INTERVALCONVERSIONUTIL
+#define INCLUDED_BDLT_INTERVALCONVERSIONUTIL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide functions to convert between time-interval representations.
+//
+//@CLASSES:
+//  bdlt::IntervalConversionUtil: functions to convert time intervals
+//
+//@SEE_ALSO: bdlt_datetimeinterval, bsls_timeinterval
+//
+//@DESCRIPTION: This component provides a utility &#39;struct&#39;,
+// &#39;bdlt::IntervalConversionUtil&#39;, that defines functions to convert between
+// C++ value types providing different representations of time intervals,
+// (e.g., &#39;bsls::TimeInterval&#39; and &#39;bdlt::DatetimeInterval&#39;).
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Interfacing With an API That Uses &#39;bsls::TimeInterval&#39;
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Some APIs, such as &#39;bsls::SystemTime&#39;, use &#39;bsls::TimeInterval&#39; in their
+// interface.  In order to use those APIs in components implemented in terms of
+// &#39;bdlt::DatetimeInterval&#39;, it is necessary to convert between the
+// &#39;bsls::TimeInterval&#39; and &#39;bdlt::DatetimeInterval&#39; representations for a time
+// interval.  This conversion can be accomplished conveniently using
+// &#39;bdlt::IntervalConversionUtil&#39;.
+//
+// Suppose we wish to pass the system time -- as returned by
+// &#39;bsls::SystemTime::nowRealtimeClock&#39; -- to a function that displays a time
+// that is represented as a &#39;bdlt::DatetimeInterval&#39; since the UNIX epoch.
+//
+// First, we include the declaration of the function that displays a
+// &#39;bdlt::DatetimeInterval&#39;:
+//..
+//  void displayTime(const bdlt::DatetimeInterval&amp; timeSinceEpoch);
+//..
+// Then, we obtain the current system time from &#39;bsls::SystemTime&#39;, and store
+// it in a &#39;bsls::TimeInterval&#39;:
+//..
+//  bsls::TimeInterval systemTime = bsls::SystemTime::nowRealtimeClock();
+//..
+// Now, we convert the &#39;bsls::TimeInterval&#39; into a &#39;bdlt::DatetimeInterval&#39;
+// using &#39;convertToDatetimeInterval&#39;:
+//..
+//  bdlt::DatetimeInterval timeSinceEpoch =
+//         bdlt::IntervalConversionUtil::convertToDatetimeInterval(systemTime);
+//
+//  assert(timeSinceEpoch.totalMilliseconds() ==
+//                                             systemTime.totalMilliseconds());
+//..
+// Finally, we display the time by passing the converted value to
+// &#39;displayTime&#39;:
+//..
+//  displayTime(timeSinceEpoch);
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLT_DATETIMEINTERVAL
+#include &lt;bdlt_datetimeinterval.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLT_TIMEUNITRATIO
+#include &lt;bdlt_timeunitratio.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_BUILDTARGET
+#include &lt;bsls_buildtarget.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
+#include &lt;bsls_timeinterval.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include &lt;bsls_types.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CLIMITS
+#include &lt;bsl_climits.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bdlt {
+
+                        // =============================
+                        // struct IntervalConversionUtil
+                        // =============================
+
+struct IntervalConversionUtil {
+    // This utility &#39;struct&#39;, &#39;IntervalConversionUtil&#39;, defines functions to
+    // convert between &#39;bsls::TimeInterval&#39; and &#39;bdlt::DatetimeInterval&#39;
+    // representations of time intervals.
+
+  private:
+    // PRIVATE TYPES
+    typedef TimeUnitRatio Ratio;
+
+    // PRIVATE CLASS DATA
+
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+                          // DatetimeInterval Limits
+
+    static const bsls::Types::Int64 k_DATETIME_INTERVAL_MILLISECONDS_MAX =
+                  INT_MAX
+                      * Ratio::k_MILLISECONDS_PER_DAY
+                      + Ratio::k_MILLISECONDS_PER_DAY
+                      - 1;
+
+    static const bsls::Types::Int64 k_DATETIME_INTERVAL_MILLISECONDS_MIN =
+                                    -1 * k_DATETIME_INTERVAL_MILLISECONDS_MAX
+                                       - Ratio::k_MILLISECONDS_PER_DAY;
+
+    static const bsls::Types::Int64 k_DATETIME_INTERVAL_SECONDS_MAX      =
+                                    k_DATETIME_INTERVAL_MILLISECONDS_MAX
+                                        / Ratio::k_MILLISECONDS_PER_SECOND;
+
+    static const bsls::Types::Int64 k_DATETIME_INTERVAL_SECONDS_MIN      =
+                                    k_DATETIME_INTERVAL_MILLISECONDS_MIN
+                                        / Ratio::k_MILLISECONDS_PER_SECOND;
+
+    static const bsls::Types::Int64 k_DATETIME_INTERVAL_NSEC_REMAINDER_MAX =
+                                    (Ratio::k_MILLISECONDS_PER_SECOND - 1)
+                                        * Ratio::k_NANOSECONDS_PER_MILLISECOND;
+
+    static const bsls::Types::Int64 k_DATETIME_INTERVAL_NSEC_REMAINDER_MIN =
+                                    (1 - Ratio::k_MILLISECONDS_PER_SECOND)
+                                        * Ratio::k_NANOSECONDS_PER_MILLISECOND;
+#endif
+
+  public:
+    // CLASS METHODS
+    static DatetimeInterval convertToDatetimeInterval(
+                                          const bsls::TimeInterval&amp;  interval);
+        // Return as a &#39;bdlt::DatetimeInterval&#39; the (approximate) value of the
+        // specified &#39;interval&#39; truncated toward zero, to millisecond
+        // resolution.  The behavior is undefined unless the value of
+        // &#39;interval&#39;, expressed with nanosecond precision, is within the range
+        // of time intervals supported by a &#39;DatetimeInterval&#39; -- i.e.,
+        // &#39;DT_MIN * 10^6 &lt;= TI_NSECS &lt;= DT_MAX * 10^6&#39;, where &#39;TI_NSECS&#39; is
+        // the total number of nanoseconds in &#39;interval&#39;, &#39;DT_MIN&#39; is the
+        // lowest (negative) value expressible by &#39;DatetimeInterval&#39;, and
+        // &#39;DT_MAX&#39; is the highest (positive) value expressible by
+        // &#39;DatetimeInterval&#39;.
+
+    static bsls::TimeInterval convertToTimeInterval(
+                                            const DatetimeInterval&amp;  interval);
+        // Return as a &#39;bsls::TimeInterval&#39; the value of the specified
+        // &#39;interval&#39;.
+};
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                       // -----------------------------
+                       // struct IntervalConversionUtil
+                       // -----------------------------
+
+// CLASS METHODS
+inline
+DatetimeInterval IntervalConversionUtil::convertToDatetimeInterval(
+                                            const bsls::TimeInterval&amp; interval)
+{
+    // Check that the value of &#39;interval&#39; is within the valid range supported
+    // by &#39;Dateinterval&#39;.  Note that if the value of &#39;interval&#39; is within the
+    // valid range, we can call &#39;bsls::TimeInterval::totalMilliseconds&#39; without
+    // invoking undefined behavior.
+
+    BSLS_ASSERT_SAFE(k_DATETIME_INTERVAL_SECONDS_MIN &lt; interval.seconds()
+                     || (   k_DATETIME_INTERVAL_SECONDS_MIN ==
+                                interval.seconds()
+                         &amp;&amp; k_DATETIME_INTERVAL_NSEC_REMAINDER_MIN &lt;=
+                                interval.nanoseconds()));
+
+    BSLS_ASSERT_SAFE(interval.seconds() &lt; k_DATETIME_INTERVAL_SECONDS_MAX
+                     || (   k_DATETIME_INTERVAL_SECONDS_MAX ==
+                                interval.seconds()
+                         &amp;&amp; interval.nanoseconds() &lt;=
+                                k_DATETIME_INTERVAL_NSEC_REMAINDER_MAX));
+
+    return DatetimeInterval(0,  // days
+                            0,  // hours
+                            0,  // minutes
+                            0,  // seconds
+                            interval.totalMilliseconds());
+}
+
+inline
+bsls::TimeInterval IntervalConversionUtil::convertToTimeInterval(
+                                              const DatetimeInterval&amp; interval)
+{
+    return bsls::TimeInterval(interval.totalSeconds(),
+                              interval.milliseconds() *
+                                  Ratio::k_NANOSECONDS_PER_MILLISECOND_32);
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2014 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

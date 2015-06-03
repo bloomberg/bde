@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bslstl_pair.h                                                      -*-C++-*-
@@ -286,6 +286,14 @@ BSL_OVERRIDES_STD mode&quot;
 
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include &lt;bsls_nativestd.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLSTL_HASH
+#include &lt;bslstl_hash.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLH_HASH
+#include &lt;bslh_hash.h&gt;
 #endif
 
 #ifndef INCLUDED_ALGORITHM
@@ -627,7 +635,12 @@ void swap(pair&lt;T1, T2&gt;&amp; a, pair&lt;T1, T2&gt;&amp; b);
     // each of the &#39;first&#39; and &#39;second&#39; pair fields.  Note that this method is
     // no-throw only if &#39;swap&#39; on each field is no-throw.
 
-}  // close namespace bsl
+// HASH SPECIALIZATIONS
+template &lt;class HASHALG, class T1, class T2&gt;
+void hashAppend(HASHALG&amp; hashAlg, const pair&lt;T1, T2&gt;&amp;  input);
+    // Pass the specified &#39;input&#39; to the specified &#39;hashAlg&#39;
+
+}   // close namespace bsl
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -961,6 +974,15 @@ inline
 void swap(pair&lt;T1, T2&gt;&amp; a, pair&lt;T1, T2&gt;&amp; b)
 {
     a.swap(b);
+}
+
+// HASH SPECIALIZATIONS
+template &lt;class HASHALG, class T1, class T2&gt;
+void hashAppend(HASHALG&amp; hashAlg, const pair&lt;T1, T2&gt;&amp;  input)
+{
+    using ::BloombergLP::bslh::hashAppend;
+    hashAppend(hashAlg, input.first);
+    hashAppend(hashAlg, input.second);
 }
 
 }  // close namespace bsl

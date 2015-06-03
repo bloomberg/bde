@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: bdldfp_decimalimputil Component</title>
+<title>BDE 2.23.1 OSS: bdldfp_decimalimputil Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
@@ -124,11 +125,11 @@ Namespaces</h2></td></tr>
  Then we call <code>makeDecimal32</code>, <code>makeDecimal64</code>, and <code>makeDecimal128</code> to construct a <code>Decimal32</code>, <code>Decimal64</code>, and <code>Decimal128</code> respectively. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <a class="code" href="classbdldfp_1_1DecimalImpUtil.html#ae96dfac46f9c40dc5a8f4203c6cf71fa">bdldfp::DecimalImpUtil::ValueType32</a>  d32 =
-            <a class="code" href="classbdldfp_1_1DecimalImpUtil.html#a3ea784ea98be249b1e5493b8e9bd66d4">bdldfp::DecimalImpUtil::makeDecimalRaw32</a>( coefficient, exponent);
+            <a class="code" href="classbdldfp_1_1DecimalImpUtil.html#a364c49bbd15238547de75fd4a3c1edfc">bdldfp::DecimalImpUtil::makeDecimalRaw32</a>( coefficient, exponent);
   <a class="code" href="classbdldfp_1_1DecimalImpUtil.html#a48f434ac05252ee1e162dfb251cd4074">bdldfp::DecimalImpUtil::ValueType64</a>  d64 =
-            <a class="code" href="classbdldfp_1_1DecimalImpUtil.html#a7bb74b8c82f1449118e42a3936bd2af0">bdldfp::DecimalImpUtil::makeDecimalRaw64</a>( coefficient, exponent);
+            <a class="code" href="classbdldfp_1_1DecimalImpUtil.html#aa193924280195f295713b0b7b28aff2c">bdldfp::DecimalImpUtil::makeDecimalRaw64</a>( coefficient, exponent);
   <a class="code" href="classbdldfp_1_1DecimalImpUtil.html#a6de4b246eeeb612445ad684a14f238da">bdldfp::DecimalImpUtil::ValueType128</a> d128 =
-            <a class="code" href="classbdldfp_1_1DecimalImpUtil.html#a1b19e9c98d977c41ff9df29548fe73c2">bdldfp::DecimalImpUtil::makeDecimalRaw128</a>(coefficient, exponent);
+            <a class="code" href="classbdldfp_1_1DecimalImpUtil.html#a142b0f3e260fbb5e1821ffa392f2e150">bdldfp::DecimalImpUtil::makeDecimalRaw128</a>(coefficient, exponent);
 
   ASSERT(<a class="code" href="classbdldfp_1_1DecimalImpUtil.html#a478f258dc49780832c9cb3657cbd7796">bdldfp::DecimalImpUtil::equal</a>(
                     <a class="code" href="classbdldfp_1_1DecimalImpUtil.html#a98dbf73b03dec085eb13b64e25b44bb0">bdldfp::DecimalImpUtil::binaryToDecimal32</a>( 42.5), d32));
@@ -202,7 +203,7 @@ Namespaces</h2></td></tr>
 <br/>
  Notice that arithmetic is unwieldy and hard to visualize. This is by design, as the DecimalImpUtil and subordinate components are not intended for public consumption, or direct use in decimal arithmetic. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:27 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:19 for BDE Release 2.23.1 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

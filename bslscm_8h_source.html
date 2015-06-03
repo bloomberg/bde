@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
  bslscm.txt
@@ -20,16 +20,22 @@
 
 /Hierarchical Synopsis
 /---------------------
- The &#39;bslscm&#39; package currently has 2 components having 2 levels of physical
+ The &#39;bslscm&#39; package currently has 3 components having 2 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
   2. bslscm_version
 
-  1. bslscm_versiontag
+  1. bslscm_patchversion
+     bslscm_versiontag
 ..
 
 /Component Synopsis
 /------------------
+: &#39;bslscm_patchversion&#39;:
+:      Provide common patch versioning information.
+:
 : &#39;bslscm_version&#39;:
 :      Provide source control management (versioning) information.
 :

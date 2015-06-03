@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: bslstl_unorderedmultiset Component</title>
+<title>BDE 2.23.1 OSS: bslstl_unorderedmultiset Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
@@ -155,7 +156,7 @@ const_iterator &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class=
 <tr><td class="memTemplParams" colspan="2">template&lt;class KEY , class HASH , class EQUAL , class ALLOCATOR &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmultiset.html#gae0f2b56046e1efc815e5637ed81ce7a8">bsl::operator!=</a> (const unordered_multiset&lt; KEY, HASH, EQUAL, ALLOCATOR &gt; &amp;lhs, const unordered_multiset&lt; KEY, HASH, EQUAL, ALLOCATOR &gt; &amp;rhs)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class KEY , class HASH , class EQUAL , class ALLOCATOR &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmultiset.html#gad7ead0881f1289594de31f274644e068">bsl::swap</a> (unordered_multiset&lt; KEY, HASH, EQUAL, ALLOCATOR &gt; &amp;x, unordered_multiset&lt; KEY, HASH, EQUAL, ALLOCATOR &gt; &amp;y)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__unorderedmultiset.html#gaeeaace5c7f41430040e55f54044dd311">bsl::swap</a> (unordered_multiset&lt; KEY, HASH, EQUAL, ALLOCATOR &gt; &amp;a, unordered_multiset&lt; KEY, HASH, EQUAL, ALLOCATOR &gt; &amp;b)</td></tr>
 <tr><td colspan="2"><h2><a name="friend-members"></a>
 Friends</h2></td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class KEY2 , class HASH2 , class EQUAL2 , class ALLOCATOR2 &gt; </td></tr>
@@ -184,13 +185,15 @@ Friends</h2></td></tr>
 <li>
 <a href="#3.4">Operations</a> </li>
 <li>
-<a href="#3.5">Unordered Multi-Set Configuration</a> </li>
+<a href="#3.5">Iterator, pointer and reference invalidation</a> </li>
 <li>
-<a href="#3.6">Practical Requirements on <code>HASH</code></a> </li>
+<a href="#3.6">Unordered Multi-Set Configuration</a> </li>
 <li>
-<a href="#3.7">Usage</a> <ul>
+<a href="#3.7">Practical Requirements on <code>HASH</code></a> </li>
 <li>
-<a href="#3.7.1">Example 1: Categorizing Data</a> </li>
+<a href="#3.8">Usage</a> <ul>
+<li>
+<a href="#3.8.1">Example 1: Categorizing Data</a> </li>
 </ul>
 </li>
 </ul>
@@ -214,7 +217,7 @@ Friends</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component defines a single class template, <code><a class="el" href="classbsl_1_1unordered__multiset.html">unordered_multiset</a></code>, implementing the standard container holding a collection of multiple keys with no guarantees on ordering (unless keys have the same value). </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component defines a single class template, <code><a class="el" href="classbsl_1_1unordered__multiset.html">bsl::unordered_multiset</a></code>, implementing the standard container holding a collection of multiple keys with no guarantees on ordering (unless keys have the same value). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>An instantiation of <code><a class="el" href="classbsl_1_1unordered__multiset.html">unordered_multiset</a></code> is an allocator-aware, value-semantic type whose salient attributes are its size (number of keys) and the set of keys the <code><a class="el" href="classbsl_1_1unordered__multiset.html">unordered_multiset</a></code> contains, without regard to their order. If <code><a class="el" href="classbsl_1_1unordered__multiset.html">unordered_multiset</a></code> is instantiated with a key type that is not itself value-semantic, then it will not retain all of its value-semantic qualities. In particular, if the key type cannot be tested for equality, then an <code><a class="el" href="classbsl_1_1unordered__multiset.html">unordered_multiset</a></code> containing that type cannot be tested for equality. It is even possible to instantiate <code><a class="el" href="classbsl_1_1unordered__multiset.html">unordered_multiset</a></code> with a key type that does not have an accessible copy-constructor, in which case the <code><a class="el" href="classbsl_1_1unordered__multiset.html">unordered_multiset</a></code> will not be copyable. Note that the equality comparison operator <code>operator==</code> for each element is used to determine when two <code><a class="el" href="classbsl_1_1unordered__multiset.html">unordered_multiset</a></code> objects have the same value, and not the equality comparator supplied at construction. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>An <code><a class="el" href="classbsl_1_1unordered__multiset.html">unordered_multiset</a></code> meets the requirements of an unordered associative container with forward iterators in the C++11 standard [unord]. The <code><a class="el" href="classbsl_1_1unordered__multiset.html">unordered_multiset</a></code> implemented here adheres to the C++11 standard, except that it may rehash when setting the <code>max_load_factor</code> in order to preserve the property that the value is always respected (which is a potentially throwing operation) and it does not have interfaces that take rvalue references, <code>initializer_list</code>, <code>emplace</code>, or operations taking a variadic number of template parameters. Note that excluded C++11 features are those that require (or are greatly simplified by) C++11 compiler support. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
@@ -376,26 +379,31 @@ Friends</h2></td></tr>
 <span class="stringliteral">  | a.rehash(k)                                        | Average: O[n]      |</span>
 <span class="stringliteral">  |                                                    | Worst:   O[n^2]    |</span>
 <span class="stringliteral">  +----------------------------------------------------+--------------------+</span>
-<span class="stringliteral">  | a.resize(k)                                        | Average: O[n]      |</span>
+<span class="stringliteral">  | a.reserve(k)                                       | Average: O[n]      |</span>
 <span class="stringliteral">  |                                                    | Worst:   O[n^2]    |</span>
 <span class="stringliteral">  +----------------------------------------------------+--------------------+</span>
 </pre></div><br/>
 <br/>
  </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="unordered_multi-set_configuration"></a> <a class="anchor" id="description.unordered_multi-set_configuration"></a> <a class="anchor" id="3.5"></a> </dd></dl>
-<dl class="user"><dt><b>Unordered Multi-Set Configuration: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The unordered multi-set has interfaces that can provide insight into and control of its inner workings. The syntax and semantics of these interfaces for <code>bslstl_unoroderedmultiset</code> are identical to those of <code>bslstl_unorderedmap</code>. See the discussion in <a href="group__bslstl__unorderedmap.html#unordered_map_configuration" class="el"><code>bslstl_unorderedmap</code>|Unordered Map Configuration</a> and the illustrative material in <a href="group__bslstl__unorderedmap.html#example_2" class="el"><code>bslstl_unorderedmap</code>|Example 2</a>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="iterator,_pointer_and_reference_invalidation"></a> <a class="anchor" id="description.iterator,_pointer_and_reference_invalidation"></a> <a class="anchor" id="3.5"></a> </dd></dl>
+<dl class="user"><dt><b>Iterator, pointer and reference invalidation: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>No method of <code><a class="el" href="classbsl_1_1unordered__multiset.html">unordered_multiset</a></code> invalidates a pointer or reference to an element in the set, unless it also erases that element, such as any <code>erase</code> overload, <code>clear</code>, or the destructor (that erases all elements). Pointers and references are stable through a rehash. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Iterators to elements in the container are invalidated by any rehash, so iterators may be invalidated by an <code>insert</code> or <code>emplace</code> call if it triggers a rehash (but not otherwise). Iterators to specific elements are also invalidated when that element is erased. Note that the <code>end</code> iterator is not an iterator referring to any element in the container, so may be invalidated by any non-'const' method. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="practical_requirements_on_hash"></a> <a class="anchor" id="description.practical_requirements_on_hash"></a> <a class="anchor" id="3.6"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="unordered_multi-set_configuration"></a> <a class="anchor" id="description.unordered_multi-set_configuration"></a> <a class="anchor" id="3.6"></a> </dd></dl>
+<dl class="user"><dt><b>Unordered Multi-Set Configuration: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The unordered multi-set has interfaces that can provide insight into and control of its inner workings. The syntax and semantics of these interfaces for <code>bslstl_unorderedmultiset</code> are identical to those of <code>bslstl_unorderedmap</code>. See the discussion in <a href="group__bslstl__unorderedmap.html#unordered_map_configuration" class="el"><code>bslstl_unorderedmap</code>|Unordered Map Configuration</a> and the illustrative material in <a href="group__bslstl__unorderedmap.html#example_2" class="el"><code>bslstl_unorderedmap</code>|Example 2</a>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="practical_requirements_on_hash"></a> <a class="anchor" id="description.practical_requirements_on_hash"></a> <a class="anchor" id="3.7"></a> </dd></dl>
 <dl class="user"><dt><b>Practical Requirements on HASH: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>An important factor in the performance an unordered multi-set (and any of the other unordered containers) is the choice of hash function. Please see the discussion in <a href="group__bslstl__unorderedmap.html#practical_requirements_on_hash" class="el"><code>bslstl_unorderedmap</code>|Practical Requirements on <code>HASH</code></a>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.7"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.8"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In this section we show intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_categorizing_data"></a> <a class="anchor" id="usage.example_1~3A_categorizing_data"></a> <a class="anchor" id="description.usage.example_1~3A_categorizing_data"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.7.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_categorizing_data"></a> <a class="anchor" id="usage.example_1~3A_categorizing_data"></a> <a class="anchor" id="description.usage.example_1~3A_categorizing_data"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.8.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Categorizing Data: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Unordered sets are useful in situations when there is no meaningful way to order key values, when the order of the values is irrelevant to the problem domain, and (even if there is a meaningful ordering) the value of ordering the results is outweighed by the higher performance provided by unordered sets (compared to ordered sets). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>One uses a multi-set (ordered or unordered) when there may be more than one instance of an element of a set and when that multiplicity must be preserved. </dd></dl>
@@ -2014,7 +2022,7 @@ template&lt;class KEY , class HASH , class EQUAL , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="gad7ead0881f1289594de31f274644e068"></a><!-- doxytag: member="bsl::swap" ref="gad7ead0881f1289594de31f274644e068" args="(unordered_multiset&lt; KEY, HASH, EQUAL, ALLOCATOR &gt; &amp;x, unordered_multiset&lt; KEY, HASH, EQUAL, ALLOCATOR &gt; &amp;y)" -->
+<a class="anchor" id="gaeeaace5c7f41430040e55f54044dd311"></a><!-- doxytag: member="bsl::swap" ref="gaeeaace5c7f41430040e55f54044dd311" args="(unordered_multiset&lt; KEY, HASH, EQUAL, ALLOCATOR &gt; &amp;a, unordered_multiset&lt; KEY, HASH, EQUAL, ALLOCATOR &gt; &amp;b)" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -2024,13 +2032,13 @@ template&lt;class KEY , class HASH , class EQUAL , class ALLOCATOR &gt; </div>
           <td class="memname">void bsl::swap </td>
           <td>(</td>
           <td class="paramtype">unordered_multiset&lt; KEY, HASH, EQUAL, ALLOCATOR &gt; &amp;&nbsp;</td>
-          <td class="paramname"> <em>x</em>, </td>
+          <td class="paramname"> <em>a</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">unordered_multiset&lt; KEY, HASH, EQUAL, ALLOCATOR &gt; &amp;&nbsp;</td>
-          <td class="paramname"> <em>y</em></td><td>&nbsp;</td>
+          <td class="paramname"> <em>b</em></td><td>&nbsp;</td>
         </tr>
         <tr>
           <td></td>
@@ -2108,7 +2116,7 @@ template&lt;class KEY2 , class HASH2 , class EQUAL2 , class ALLOCATOR2 &gt; </di
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:30 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:23 for BDE Release 2.23.1 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

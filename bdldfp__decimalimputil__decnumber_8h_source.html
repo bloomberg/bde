@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bdldfp_decimalimputil_decnumber.h                                  -*-C++-*-
@@ -589,38 +589,38 @@ struct DecimalImpUtil_DecNumber {
         //:
         //: o Otherwise return a &#39;Decimal128&#39; object representing &#39;value&#39;.
 
-    static ValueType32 makeDecimalRaw32(int mantissa, int exponent);
+    static ValueType32 makeDecimalRaw32(int significand, int exponent);
         // Create a &#39;ValueType32&#39; object representing a decimal floating point
-        // number consisting of the specified &#39;mantissa&#39; and &#39;exponent&#39;, with
-        // the sign given by &#39;mantissa&#39;.  The behavior is undefined unless
-        // &#39;abs(mantissa) &lt;= 9,999,999&#39; and &#39;-101 &lt;= exponent &lt;= 90&#39;.
+        // number consisting of the specified &#39;significand&#39; and &#39;exponent&#39;,
+        // with the sign given by &#39;significand&#39;.  The behavior is undefined
+        // unless &#39;abs(significand) &lt;= 9,999,999&#39; and &#39;-101 &lt;= exponent &lt;= 90&#39;.
 
-    static ValueType64 makeDecimalRaw64(unsigned long long int mantissa,
+    static ValueType64 makeDecimalRaw64(unsigned long long int significand,
                                                            int exponent);
-    static ValueType64 makeDecimalRaw64(         long long int mantissa,
+    static ValueType64 makeDecimalRaw64(         long long int significand,
                                                            int exponent);
-    static ValueType64 makeDecimalRaw64(unsigned           int mantissa,
+    static ValueType64 makeDecimalRaw64(unsigned           int significand,
                                                            int exponent);
-    static ValueType64 makeDecimalRaw64(                   int mantissa,
+    static ValueType64 makeDecimalRaw64(                   int significand,
                                                            int exponent);
         // Create a &#39;ValueType64&#39; object representing a decimal floating point
-        // number consisting of the specified &#39;mantissa&#39; and &#39;exponent&#39;, with
-        // the sign given by &#39;mantissa&#39;.  The behavior is undefined unless
-        // &#39;abs(mantissa) &lt;= 9,999,999,999,999,999&#39; and
+        // number consisting of the specified &#39;significand&#39; and &#39;exponent&#39;,
+        // with the sign given by &#39;significand&#39;.  The behavior is undefined
+        // unless &#39;abs(significand) &lt;= 9,999,999,999,999,999&#39; and
         // &#39;-398 &lt;= exponent &lt;= 369&#39;.
 
-    static ValueType128 makeDecimalRaw128(unsigned long long int mantissa,
+    static ValueType128 makeDecimalRaw128(unsigned long long int significand,
                                                              int exponent);
-    static ValueType128 makeDecimalRaw128(         long long int mantissa,
+    static ValueType128 makeDecimalRaw128(         long long int significand,
                                                              int exponent);
-    static ValueType128 makeDecimalRaw128(unsigned           int mantissa,
+    static ValueType128 makeDecimalRaw128(unsigned           int significand,
                                                              int exponent);
-    static ValueType128 makeDecimalRaw128(                   int mantissa,
+    static ValueType128 makeDecimalRaw128(                   int significand,
                                                              int exponent);
         // Create a &#39;ValueType128&#39; object representing a decimal floating point
-        // number consisting of the specified &#39;mantissa&#39; and &#39;exponent&#39;, with
-        // the sign given by &#39;mantissa&#39;.  The behavior is undefined unless
-        // &#39;-6176 &lt;= exponent &lt;= 6111&#39;.
+        // number consisting of the specified &#39;significand&#39; and &#39;exponent&#39;,
+        // with the sign given by &#39;significand&#39;.  The behavior is undefined
+        // unless &#39;-6176 &lt;= exponent &lt;= 6111&#39;.
 
                         // IEEE Scale B functions
 
@@ -694,22 +694,22 @@ struct DecimalImpUtil_DecNumber {
 
                         // Densely Packed Conversion Functions
 
-    static ValueType32  convertFromDenselyPacked(
+    static ValueType32  convertFromDPD(
                               DenselyPackedDecimalImpUtil::StorageType32  dpd);
-    static ValueType64  convertFromDenselyPacked(
+    static ValueType64  convertFromDPD(
                               DenselyPackedDecimalImpUtil::StorageType64  dpd);
-    static ValueType128 convertFromDenselyPacked(
+    static ValueType128 convertFromDPD(
                               DenselyPackedDecimalImpUtil::StorageType128 dpd);
         // Return a &#39;ValueTypeXX&#39; representing the specified &#39;dpd&#39;, which is
         // currently in Densely Packed Decimal (DPD) format.  This format is
         // compatible with the IBM compiler&#39;s native type, and the decNumber
         // library.
 
-    static DenselyPackedDecimalImpUtil::StorageType32  convertToDenselyPacked(
+    static DenselyPackedDecimalImpUtil::StorageType32  convertToDPD(
                                                            ValueType32  value);
-    static DenselyPackedDecimalImpUtil::StorageType64  convertToDenselyPacked(
+    static DenselyPackedDecimalImpUtil::StorageType64  convertToDPD(
                                                            ValueType64  value);
-    static DenselyPackedDecimalImpUtil::StorageType128 convertToDenselyPacked(
+    static DenselyPackedDecimalImpUtil::StorageType128 convertToDPD(
                                                            ValueType128 value);
         // Return a &#39;DenselyPackedDecimalImpUtil::StorageTypeXX&#39; representing
         // the specified &#39;value&#39; in Densely Packed Decimal (DPD) format.  This
@@ -723,24 +723,24 @@ struct DecimalImpUtil_DecNumber {
     // compile-time failure for this implementation.  A portable implementation
     // of this algorithm is forthcoming.
 
-  //static ValueType32  convertFromBinaryIntegral(
+  //static ValueType32  convertFromBID(
   //                         BinaryIntegralDecimalImpUtil::StorageType32  bid);
-  //static ValueType64  convertFromBinaryIntegral(
+  //static ValueType64  convertFromBID(
   //                         BinaryIntegralDecimalImpUtil::StorageType64  bid);
-  //static ValueType128 convertFromBinaryIntegral(
+  //static ValueType128 convertFromBID(
   //                         BinaryIntegralDecimalImpUtil::StorageType128 bid);
         // Return a &#39;ValueTypeXX&#39; representing the specified &#39;bid&#39;, which is
         // currently in Binary Integral Decimal (BID) format.  This format is
         // compatible with the Intel DFP implementation type.
 
   //static
-  //BinaryIntegralDecimalImpUtil::StorageType32  convertToBinaryIntegral(
+  //BinaryIntegralDecimalImpUtil::StorageType32  convertToBID(
   //                                                       ValueType32  value);
   //static
-  //BinaryIntegralDecimalImpUtil::StorageType64  convertToBinaryIntegral(
+  //BinaryIntegralDecimalImpUtil::StorageType64  convertToBID(
   //                                                       ValueType64  value);
   //static
-  //BinaryIntegralDecimalImpUtil::StorageType128 convertToBinaryIntegral(
+  //BinaryIntegralDecimalImpUtil::StorageType128 convertToBID(
   //                                                       ValueType128 value);
         // Return a &#39;BinaryIntegralDecimalImpUtil::StorageTypeXX&#39; representing
         // the specified &#39;value&#39; in Binary Integral Decimal (BID) format.  This
@@ -768,7 +768,7 @@ inline
 DecimalImpUtil_DecNumber::ValueType32
 DecimalImpUtil_DecNumber::int32ToDecimal32(int value)
 {
-    // *Not* all &#39;int&#39; values are valid mantissa&#39;s for a Decimal32.
+    // *Not* all &#39;int&#39; values are valid significands for a Decimal32.
 
     if (-9999999 &lt;= value &amp;&amp; value &lt;= 9999999) {
         DecimalImpUtil_DecNumber::ValueType32      result;
@@ -777,14 +777,14 @@ DecimalImpUtil_DecNumber::int32ToDecimal32(int value)
         bsl::memcpy(&amp;result, &amp;raw, sizeof(raw));
         return result;
     }
-    return roundToDecimal32((long long int)value);
+    return roundToDecimal32(static_cast&lt;long long&gt;(value));
 }
 
 inline
 DecimalImpUtil_DecNumber::ValueType64
 DecimalImpUtil_DecNumber::int32ToDecimal64(int value)
 {
-    // All &#39;int&#39; values are valid mantissa&#39;s for a Decimal64.
+    // All &#39;int&#39; values are valid significands for a Decimal64.
 
     DecimalImpUtil_DecNumber::ValueType64      result;
     DenselyPackedDecimalImpUtil::StorageType64 raw;
@@ -797,7 +797,7 @@ inline
 DecimalImpUtil_DecNumber::ValueType128
 DecimalImpUtil_DecNumber::int32ToDecimal128(int value)
 {
-    // All &#39;int&#39; values are valid mantissa&#39;s for a Decimal128.
+    // All &#39;int&#39; values are valid significands for a Decimal128.
 
     DecimalImpUtil_DecNumber::ValueType128      result;
     DenselyPackedDecimalImpUtil::StorageType128 raw;
@@ -811,7 +811,7 @@ inline
 DecimalImpUtil_DecNumber::ValueType32
 DecimalImpUtil_DecNumber::uint32ToDecimal32(unsigned int value)
 {
-    // *Not* all &#39;unsigned int&#39; values are valid mantissa&#39;s for a Decimal32.
+    // *Not* all &#39;unsigned int&#39; values are valid significands for a Decimal32.
 
     if (value &lt;= 9999999) {
         DecimalImpUtil_DecNumber::ValueType32      result;
@@ -820,14 +820,14 @@ DecimalImpUtil_DecNumber::uint32ToDecimal32(unsigned int value)
         bsl::memcpy(&amp;result, &amp;raw, sizeof(raw));
         return result;
     }
-    return roundToDecimal32((unsigned long long int)value);
+    return roundToDecimal32(static_cast&lt;unsigned long long&gt;(value));
 }
 
 inline
 DecimalImpUtil_DecNumber::ValueType64
 DecimalImpUtil_DecNumber::uint32ToDecimal64(unsigned int value)
 {
-    // All &#39;unsigned int&#39; values are valid mantissa&#39;s for a Decimal64.
+    // All &#39;unsigned int&#39; values are valid significands for a Decimal64.
 
     DecimalImpUtil_DecNumber::ValueType64      result;
     DenselyPackedDecimalImpUtil::StorageType64 raw;
@@ -840,7 +840,7 @@ inline
 DecimalImpUtil_DecNumber::ValueType128
 DecimalImpUtil_DecNumber::uint32ToDecimal128(unsigned int value)
 {
-    // All &#39;unsigned int&#39; values are valid mantissa&#39;s for a Decimal128.
+    // All &#39;unsigned int&#39; values are valid significands for a Decimal128.
 
     DecimalImpUtil_DecNumber::ValueType128      result;
     DenselyPackedDecimalImpUtil::StorageType128 raw;
@@ -855,7 +855,7 @@ inline
 DecimalImpUtil_DecNumber::ValueType32
 DecimalImpUtil_DecNumber::int64ToDecimal32(long long int value)
 {
-    // *Not* all &#39;int64&#39; values are valid mantissa&#39;s for a Decimal32.
+    // *Not* all &#39;int64&#39; values are valid significands for a Decimal32.
 
     if (-9999999 &lt;= value &amp;&amp; value &lt;= 9999999) {
         int intValue = static_cast&lt;int&gt;(value);
@@ -873,7 +873,7 @@ inline
 DecimalImpUtil_DecNumber::ValueType64
 DecimalImpUtil_DecNumber::int64ToDecimal64(long long int value)
 {
-    // *Not* all &#39;int64&#39; values are valid mantissa&#39;s for a Decimal64.
+    // *Not* all &#39;int64&#39; values are valid significands for a Decimal64.
 
     if (-9999999999999999LL &lt;= value &amp;&amp; value &lt;= 9999999999999999LL) {
         DecimalImpUtil_DecNumber::ValueType64      result;
@@ -889,7 +889,7 @@ inline
 DecimalImpUtil_DecNumber::ValueType128
 DecimalImpUtil_DecNumber::int64ToDecimal128(long long int value)
 {
-    // All &#39;int64&#39; values are valid mantissa&#39;s for a Decimal128.
+    // All &#39;int64&#39; values are valid significands for a Decimal128.
 
     DecimalImpUtil_DecNumber::ValueType128      result;
     DenselyPackedDecimalImpUtil::StorageType128 raw;
@@ -904,7 +904,7 @@ inline
 DecimalImpUtil_DecNumber::ValueType32
 DecimalImpUtil_DecNumber::uint64ToDecimal32(unsigned long long int value)
 {
-    // *Not* all &#39;Uint64&#39; values are valid mantissa&#39;s for a Decimal32.
+    // *Not* all &#39;Uint64&#39; values are valid significands for a Decimal32.
 
     if (value &lt;= 9999999) {
         int intValue = static_cast&lt;int&gt;(value);
@@ -921,7 +921,7 @@ inline
 DecimalImpUtil_DecNumber::ValueType64
 DecimalImpUtil_DecNumber::uint64ToDecimal64(unsigned long long int value)
 {
-    // *Not* all &#39;Uint64&#39; values are valid mantissa&#39;s for a Decimal64.
+    // *Not* all &#39;Uint64&#39; values are valid significands for a Decimal64.
 
     if (value &lt;= 9999999999999999LL) {
         DecimalImpUtil_DecNumber::ValueType64      result;
@@ -937,7 +937,7 @@ inline
 DecimalImpUtil_DecNumber::ValueType128
 DecimalImpUtil_DecNumber::uint64ToDecimal128(unsigned long long int value)
 {
-    // All &#39;Uint64&#39; values are valid mantissa&#39;s for a Decimal128.
+    // All &#39;Uint64&#39; values are valid significands for a Decimal128.
     DecimalImpUtil_DecNumber::ValueType128      result;
     DenselyPackedDecimalImpUtil::StorageType128 raw;
     raw = DenselyPackedDecimalImpUtil::makeDecimalRaw128(value, 0);
@@ -1042,9 +1042,7 @@ inline
 DecimalImpUtil_DecNumber::ValueType32
 DecimalImpUtil_DecNumber::negate(DecimalImpUtil_DecNumber::ValueType32 value)
 {
-    DecimalImpUtil_DecNumber::ValueType32 result;
-    decSingleCopyNegate(&amp;result, &amp;value);
-    return result;
+	return convertToDecimal32(negate(convertToDecimal64(value)));
 }
 
 inline
@@ -1304,14 +1302,14 @@ DecimalImpUtil_DecNumber::convertToDecimal128(
 
 inline
 DecimalImpUtil_DecNumber::ValueType32
-DecimalImpUtil_DecNumber::makeDecimalRaw32(int mantissa,
+DecimalImpUtil_DecNumber::makeDecimalRaw32(int significand,
                                            int exponent)
 {
     union {
         DecimalImpUtil_DecNumber::ValueType32      result;
         DenselyPackedDecimalImpUtil::StorageType32 raw;
     } rawAccess;
-    rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw32(mantissa,
+    rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw32(significand,
                                                                   exponent);
 
     return rawAccess.result;
@@ -1319,14 +1317,14 @@ DecimalImpUtil_DecNumber::makeDecimalRaw32(int mantissa,
 
 inline
 DecimalImpUtil_DecNumber::ValueType64
-DecimalImpUtil_DecNumber::makeDecimalRaw64(unsigned long long mantissa,
+DecimalImpUtil_DecNumber::makeDecimalRaw64(unsigned long long significand,
                                            int                exponent)
 {
     union {
         DecimalImpUtil_DecNumber::ValueType64      result;
         DenselyPackedDecimalImpUtil::StorageType64 raw;
     } rawAccess;
-    rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw64(mantissa,
+    rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw64(significand,
                                                                   exponent);
 
     return rawAccess.result;
@@ -1334,14 +1332,14 @@ DecimalImpUtil_DecNumber::makeDecimalRaw64(unsigned long long mantissa,
 
 inline
 DecimalImpUtil_DecNumber::ValueType64
-DecimalImpUtil_DecNumber::makeDecimalRaw64(long long mantissa,
+DecimalImpUtil_DecNumber::makeDecimalRaw64(long long significand,
                                            int       exponent)
 {
     union {
         DecimalImpUtil_DecNumber::ValueType64      result;
         DenselyPackedDecimalImpUtil::StorageType64 raw;
     } rawAccess;
-    rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw64(mantissa,
+    rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw64(significand,
                                                                   exponent);
 
     return rawAccess.result;
@@ -1349,14 +1347,14 @@ DecimalImpUtil_DecNumber::makeDecimalRaw64(long long mantissa,
 
 inline
 DecimalImpUtil_DecNumber::ValueType64
-DecimalImpUtil_DecNumber::makeDecimalRaw64(unsigned int mantissa,
+DecimalImpUtil_DecNumber::makeDecimalRaw64(unsigned int significand,
                                            int          exponent)
 {
     union {
         DecimalImpUtil_DecNumber::ValueType64      result;
         DenselyPackedDecimalImpUtil::StorageType64 raw;
     } rawAccess;
-    rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw64(mantissa,
+    rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw64(significand,
                                                                   exponent);
 
     return rawAccess.result;
@@ -1364,14 +1362,14 @@ DecimalImpUtil_DecNumber::makeDecimalRaw64(unsigned int mantissa,
 
 inline
 DecimalImpUtil_DecNumber::ValueType64
-DecimalImpUtil_DecNumber::makeDecimalRaw64(int mantissa,
+DecimalImpUtil_DecNumber::makeDecimalRaw64(int significand,
                                            int exponent)
 {
     union {
         DecimalImpUtil_DecNumber::ValueType64      result;
         DenselyPackedDecimalImpUtil::StorageType64 raw;
     } rawAccess;
-    rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw64(mantissa,
+    rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw64(significand,
                                                                   exponent);
 
     return rawAccess.result;
@@ -1379,12 +1377,13 @@ DecimalImpUtil_DecNumber::makeDecimalRaw64(int mantissa,
 
 inline
 DecimalImpUtil_DecNumber::ValueType128
-DecimalImpUtil_DecNumber::makeDecimalRaw128(unsigned long long mantissa,
+DecimalImpUtil_DecNumber::makeDecimalRaw128(unsigned long long significand,
                                             int                exponent)
 {
     DecimalImpUtil_DecNumber::ValueType128      result;
     DenselyPackedDecimalImpUtil::StorageType128 raw;
-    raw = DenselyPackedDecimalImpUtil::makeDecimalRaw128(mantissa, exponent);
+    raw = DenselyPackedDecimalImpUtil::makeDecimalRaw128(significand,
+                                                         exponent);
     bsl::memcpy(&amp;result, &amp;raw, sizeof(result));
 
     return result;
@@ -1392,12 +1391,13 @@ DecimalImpUtil_DecNumber::makeDecimalRaw128(unsigned long long mantissa,
 
 inline
 DecimalImpUtil_DecNumber::ValueType128
-DecimalImpUtil_DecNumber::makeDecimalRaw128(long long mantissa,
+DecimalImpUtil_DecNumber::makeDecimalRaw128(long long significand,
                                             int       exponent)
 {
     DecimalImpUtil_DecNumber::ValueType128      result;
     DenselyPackedDecimalImpUtil::StorageType128 raw;
-    raw = DenselyPackedDecimalImpUtil::makeDecimalRaw128(mantissa, exponent);
+    raw = DenselyPackedDecimalImpUtil::makeDecimalRaw128(significand,
+                                                         exponent);
     bsl::memcpy(&amp;result, &amp;raw, sizeof(result));
 
     return result;
@@ -1405,12 +1405,13 @@ DecimalImpUtil_DecNumber::makeDecimalRaw128(long long mantissa,
 
 inline
 DecimalImpUtil_DecNumber::ValueType128
-DecimalImpUtil_DecNumber::makeDecimalRaw128(unsigned int mantissa,
+DecimalImpUtil_DecNumber::makeDecimalRaw128(unsigned int significand,
                                             int          exponent)
 {
     DecimalImpUtil_DecNumber::ValueType128      result;
     DenselyPackedDecimalImpUtil::StorageType128 raw;
-    raw = DenselyPackedDecimalImpUtil::makeDecimalRaw128(mantissa, exponent);
+    raw = DenselyPackedDecimalImpUtil::makeDecimalRaw128(significand,
+                                                         exponent);
     bsl::memcpy(&amp;result, &amp;raw, sizeof(result));
 
     return result;
@@ -1418,12 +1419,13 @@ DecimalImpUtil_DecNumber::makeDecimalRaw128(unsigned int mantissa,
 
 inline
 DecimalImpUtil_DecNumber::ValueType128
-DecimalImpUtil_DecNumber::makeDecimalRaw128(int mantissa,
+DecimalImpUtil_DecNumber::makeDecimalRaw128(int significand,
                                             int exponent)
 {
     DecimalImpUtil_DecNumber::ValueType128      result;
     DenselyPackedDecimalImpUtil::StorageType128 raw;
-    raw = DenselyPackedDecimalImpUtil::makeDecimalRaw128(mantissa, exponent);
+    raw = DenselyPackedDecimalImpUtil::makeDecimalRaw128(significand,
+                                                         exponent);
     bsl::memcpy(&amp;result, &amp;raw, sizeof(result));
 
     return result;
@@ -1532,7 +1534,7 @@ DecimalImpUtil_DecNumber::format(
 
 inline
 DecimalImpUtil_DecNumber::ValueType32
-DecimalImpUtil_DecNumber::convertFromDenselyPacked(
+DecimalImpUtil_DecNumber::convertFromDPD(
                                 DenselyPackedDecimalImpUtil::StorageType32 dpd)
 {
     DecimalImpUtil_DecNumber::ValueType32 value;
@@ -1543,7 +1545,7 @@ DecimalImpUtil_DecNumber::convertFromDenselyPacked(
 
 inline
 DecimalImpUtil_DecNumber::ValueType64
-DecimalImpUtil_DecNumber::convertFromDenselyPacked(
+DecimalImpUtil_DecNumber::convertFromDPD(
                                 DenselyPackedDecimalImpUtil::StorageType64 dpd)
 {
     DecimalImpUtil_DecNumber::ValueType64 value;
@@ -1554,7 +1556,7 @@ DecimalImpUtil_DecNumber::convertFromDenselyPacked(
 
 inline
 DecimalImpUtil_DecNumber::ValueType128
-DecimalImpUtil_DecNumber::convertFromDenselyPacked(
+DecimalImpUtil_DecNumber::convertFromDPD(
                                DenselyPackedDecimalImpUtil::StorageType128 dpd)
 {
     DecimalImpUtil_DecNumber::ValueType128 value;
@@ -1565,7 +1567,7 @@ DecimalImpUtil_DecNumber::convertFromDenselyPacked(
 
 inline
 DenselyPackedDecimalImpUtil::StorageType32
-DecimalImpUtil_DecNumber::convertToDenselyPacked(
+DecimalImpUtil_DecNumber::convertToDPD(
                                    DecimalImpUtil_DecNumber::ValueType32 value)
 {
     DenselyPackedDecimalImpUtil::StorageType32 dpd;
@@ -1576,7 +1578,7 @@ DecimalImpUtil_DecNumber::convertToDenselyPacked(
 
 inline
 DenselyPackedDecimalImpUtil::StorageType64
-DecimalImpUtil_DecNumber::convertToDenselyPacked(
+DecimalImpUtil_DecNumber::convertToDPD(
                                    DecimalImpUtil_DecNumber::ValueType64 value)
 {
     DenselyPackedDecimalImpUtil::StorageType64 dpd;
@@ -1587,7 +1589,7 @@ DecimalImpUtil_DecNumber::convertToDenselyPacked(
 
 inline
 DenselyPackedDecimalImpUtil::StorageType128
-DecimalImpUtil_DecNumber::convertToDenselyPacked(
+DecimalImpUtil_DecNumber::convertToDPD(
                                   DecimalImpUtil_DecNumber::ValueType128 value)
 {
     DenselyPackedDecimalImpUtil::StorageType128 dpd;

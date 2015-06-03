@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: bslstl_unorderedmap Component</title>
+<title>BDE 2.23.1 OSS: bslstl_unorderedmap Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
@@ -193,17 +194,19 @@ Friends</h2></td></tr>
 <li>
 <a href="#3.4">Operations</a> </li>
 <li>
-<a href="#3.5">Unordered Map Configuration</a> </li>
+<a href="#3.5">Iterator, pointer and reference invalidation</a> </li>
 <li>
-<a href="#3.6">Practical Requirements on <code>HASH</code></a> </li>
+<a href="#3.6">Unordered Map Configuration</a> </li>
 <li>
-<a href="#3.7">Usage</a> <ul>
+<a href="#3.7">Practical Requirements on <code>HASH</code></a> </li>
 <li>
-<a href="#3.7.1">Example 1: Gathering Document Statistics</a> </li>
+<a href="#3.8">Usage</a> <ul>
 <li>
-<a href="#3.7.2">Example 2: Examining and Setting Unordered Map Configuration</a> </li>
+<a href="#3.8.1">Example 1: Gathering Document Statistics</a> </li>
 <li>
-<a href="#3.7.3">Example 3: Inverse Concordance</a> </li>
+<a href="#3.8.2">Example 2: Examining and Setting Unordered Map Configuration</a> </li>
+<li>
+<a href="#3.8.3">Example 3: Inverse Concordance</a> </li>
 </ul>
 </li>
 </ul>
@@ -227,7 +230,7 @@ Friends</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component defines a single class template <code><a class="el" href="classbsl_1_1unordered__map.html">unordered_map</a></code>, implementing the standard container holding a collection of unique keys, each mapped to an associated value with no guarantees on ordering. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component defines a single class template, <code><a class="el" href="classbsl_1_1unordered__map.html">bsl::unordered_map</a></code>, implementing the standard container holding a collection of unique keys, each mapped to an associated value with no guarantees on ordering. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>An instantiation of <code><a class="el" href="classbsl_1_1unordered__map.html">unordered_map</a></code> is an allocator-aware, value-semantic type whose salient attributes are its size (number of keys) and the set of key-value pairs the <code><a class="el" href="classbsl_1_1unordered__map.html">unordered_map</a></code> contains, without regard to their order. If <code><a class="el" href="classbsl_1_1unordered__map.html">unordered_map</a></code> is instantiated with a key type or mapped value-type that is not itself value-semantic, then it will not retain all of its value-semantic qualities. In particular, if the key or value type cannot be tested for equality, then an <code><a class="el" href="classbsl_1_1unordered__map.html">unordered_map</a></code> containing that type cannot be tested for equality. It is even possible to instantiate <code><a class="el" href="classbsl_1_1unordered__map.html">unordered_map</a></code> with types that do not have an accessible copy-constructor, in which case the <code><a class="el" href="classbsl_1_1unordered__map.html">unordered_map</a></code> will not be copyable. Note that the equality comparison operator for each key-value pair is used to determine when two <code><a class="el" href="classbsl_1_1unordered__map.html">unordered_map</a></code> objects have the same value, and not the instance of the <code>EQUAL</code> template parameter supplied at construction. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>An <code><a class="el" href="classbsl_1_1unordered__map.html">unordered_map</a></code> meets the requirements of an unordered associative container with forward iterators in the C++11 standard [unord]. The <code><a class="el" href="classbsl_1_1unordered__map.html">unordered_map</a></code> implemented here adheres to the C++11 standard, except that it may rehash when setting the <code>max_load_factor</code> in order to preserve the property that the value is always respected (which is a potentially throwing operation) and it does not have interfaces that take rvalue references, <code>initializer_list</code>, <code>emplace</code>, or operations taking a variadic number of template parameters. Note that excluded C++11 features are those that require (or are greatly simplified by) C++11 compiler support. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
@@ -401,28 +404,33 @@ Friends</h2></td></tr>
 <span class="stringliteral">  | a.rehash(k)                                        | Average: O[n]      |</span>
 <span class="stringliteral">  |                                                    | Worst:   O[n^2]    |</span>
 <span class="stringliteral">  +----------------------------------------------------+--------------------+</span>
-<span class="stringliteral">  | a.resize(k)                                        | Average: O[n]      |</span>
+<span class="stringliteral">  | a.reserve(k)                                       | Average: O[n]      |</span>
 <span class="stringliteral">  |                                                    | Worst:   O[n^2]    |</span>
 <span class="stringliteral">  +----------------------------------------------------+--------------------+</span>
 </pre></div><br/>
 <br/>
  </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="unordered_map_configuration"></a> <a class="anchor" id="description.unordered_map_configuration"></a> <a class="anchor" id="3.5"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="iterator,_pointer_and_reference_invalidation"></a> <a class="anchor" id="description.iterator,_pointer_and_reference_invalidation"></a> <a class="anchor" id="3.5"></a> </dd></dl>
+<dl class="user"><dt><b>Iterator, pointer and reference invalidation: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>No method of <code><a class="el" href="classbsl_1_1unordered__map.html">unordered_map</a></code> invalidates a pointer or reference to an element in the set, unless it also erases that element, such as any <code>erase</code> overload, <code>clear</code>, or the destructor (that erases all elements). Pointers and references are stable through a rehash. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Iterators to elements in the container are invalidated by any rehash, so iterators may be invalidated by an <code>insert</code> or <code>emplace</code> call if it triggers a rehash (but not otherwise). Iterators to specific elements are also invalidated when that element is erased. Note that the <code>end</code> iterator is not an iterator referring to any element in the container, so may be invalidated by any non-'const' method. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="unordered_map_configuration"></a> <a class="anchor" id="description.unordered_map_configuration"></a> <a class="anchor" id="3.6"></a> </dd></dl>
 <dl class="user"><dt><b>Unordered Map Configuration: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The unordered map has interfaces that can provide insight into and control of its inner workings. The unordered map is implemented using a hash table (see <a href="group__bslstl__hashtable.html" class="el"><code>bslstl_hashtable</code></a>), a dynamically sized array of "buckets". If two elements hash to the same bucket (termed a "collision"), then that bucket will house multiple elements. As elements are added to the unordered map, the number of buckets is increased (and the existing elements redistributed) to keep the average number of elements per bucket (the "loading factor") below the specified maximum (the "maximum load factor", 1 by default). <a href="group__bslstl__unorderedmap.html#example_2~3A_examining_and_setting_unordered_map_configuration" class="el">Example 2: Examining and Setting Unordered Map Configuration</a> illustrates the use of these interfaces. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="practical_requirements_on_hash"></a> <a class="anchor" id="description.practical_requirements_on_hash"></a> <a class="anchor" id="3.6"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="practical_requirements_on_hash"></a> <a class="anchor" id="description.practical_requirements_on_hash"></a> <a class="anchor" id="3.7"></a> </dd></dl>
 <dl class="user"><dt><b>Practical Requirements on HASH: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>An important factor in the performance an unordered map (and any of the other unordered containers) is the choice of hash function. In general, one wants the hash function to return uniformly distributed values that can be assigned to buckets (see <a href="group__bslstl__unorderedmap.html#unordered_map_configuration" class="el">Unordered Map Configuration</a>) with few collisions. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The <code>bsl</code> package provides general purpose, default hash functions for <code>bsl::string</code>, <code><a class="el" href="namespacebslstl.html#a10921a5e7fd9377149df174a1a12324f">bslstl::StringRef</a></code>, and the arithmetic types (e.g., <code>int</code>); however, custom defined hash functions may do better, especially if one has information about the distribution of keys; there is considerable literature on designing hash functions. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>When a user-defined class is used as a key, hasher must be provided (and equality functor, if equality is not otherwise defined). Two examples, <a href="group__bslstl__unorderedmap.html#example_3" class="el">Example 3</a> and <a href="group__bslstl__unorderedset.html#example_1" class="el"><code>bslstl_unorderedset</code>|Example 1</a>, address this issue by adapting the existing default hash functions for primitive types, an approach that may not always prove adequate. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.7"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.8"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In this section we show intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_gathering_document_statistics"></a> <a class="anchor" id="usage.example_1~3A_gathering_document_statistics"></a> <a class="anchor" id="description.usage.example_1~3A_gathering_document_statistics"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.7.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_gathering_document_statistics"></a> <a class="anchor" id="usage.example_1~3A_gathering_document_statistics"></a> <a class="anchor" id="description.usage.example_1~3A_gathering_document_statistics"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.8.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Gathering Document Statistics: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Unordered maps are useful in situations when there is no meaningful way to order the key values, when the order of the keys is irrelevant to the problem domain (see <a href="group__bslstl__unorderedmap.html#example_3" class="el">Example 3</a>), and (even if there is a meaningful ordering) the value of ordering the results is outweighed by the higher performance provided by unordered maps (compared to ordered maps). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Suppose one wished to gather statistics on the words appearing in a large set of documents on disk or in a data base. Gathering those statistics is intrusive (as one is competing for access to the documents with the regular users) and must be done as quickly as possible. Moreover, the set of unique words appearing in those documents may be high. The English language has in excess of a million words (albeit many appear infrequently), and, if the documents contain serial numbers, or Social Security numbers, or chemical formulas, etc. then the O[log(n)] insertion time of ordered maps may well be inadequate. The unordered map, having an O[1] typical insertion cost, is a viable alternative. In many problem domains, sorting, if needed, can be done after the data is gathered. </dd></dl>
@@ -512,7 +520,7 @@ Friends</h2></td></tr>
 </pre></div><br/>
 <br/>
  Next, we extract the words from our documents. Note that <code>strtok</code> modifies the document arrays (which were not made <code>const</code>). </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>For each iteration of the inner loop, that method looks for a map entry matching the given key value. On the first occurrence of a word, the map has no such entry, so one is created with a default value of the mapped value (0, just what we want in this case) and inserted into the map where is is found on any subsequent occurrences of the word. The <code>operator[]</code> method returns a reference providing modifiable access to the mapped value. Here, we the <code>++</code> operator to that reference to maintain a tally for the word. <br/>
+<dl class="user"><dt><b></b></dt><dd>For each iteration of the inner loop, that method looks for a map entry matching the given key value. On the first occurrence of a word, the map has no such entry, so one is created with a default value of the mapped value (0, just what we want in this case) and inserted into the map where is is found on any subsequent occurrences of the word. The <code>operator[]</code> method returns a reference providing modifiable access to the mapped value. Here, we apply the <code>++</code> operator to that reference to maintain a tally for the word. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> idx = 0; idx &lt; numDocuments; ++idx) {
       <span class="keywordflow">for</span> (<span class="keywordtype">char</span> *cur = strtok(documents[idx], delimiters);
@@ -586,7 +594,7 @@ Friends</h2></td></tr>
 <br/>
  Notice that "-" (used as an header underscore in our markup) appears in the word count. That could be eliminated by adding <code>-</code> to the set of delimiters; however, that would partition hyphenated words into separate words. In practice, one defines a "stop list" of common words (e.g., "the", "of", "and", "is") that one does not wish to tally. We could easily and "-" to the stop list. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_examining_and_setting_unordered_map_configuration"></a> <a class="anchor" id="usage.example_2~3A_examining_and_setting_unordered_map_configuration"></a> <a class="anchor" id="description.usage.example_2~3A_examining_and_setting_unordered_map_configuration"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.7.2"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_examining_and_setting_unordered_map_configuration"></a> <a class="anchor" id="usage.example_2~3A_examining_and_setting_unordered_map_configuration"></a> <a class="anchor" id="description.usage.example_2~3A_examining_and_setting_unordered_map_configuration"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.8.2"></a> </dd></dl>
 <dl class="user"><dt><b>Example 2: Examining and Setting Unordered Map Configuration: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Suppose we wish to examine (and possibly influence) the performance of an unordered map. The unordered map provides several interfaces that allow us to do so. Several of these were used in <a href="group__bslstl__unorderedmap.html#example_1" class="el">Example 1</a> (code repeated below): <br/>
 <br/>
@@ -730,7 +738,7 @@ Friends</h2></td></tr>
  Notice that the loading factor has been (roughly) cut in half; we have achieved our goal. Also notice that the bucket count is unchanged since construction; thus, there were no rehashes during the loading this unordered map. Finally, notice that the number of empty (unused) buckets is significantly higher, and there's been a modest decrease in the largest bucket size, but more instances of them. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Thus, the unordered map provides facilities by which we can make trade-offs in performance characteristics of the containers we create. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_3~3A_inverse_concordance"></a> <a class="anchor" id="usage.example_3~3A_inverse_concordance"></a> <a class="anchor" id="description.usage.example_3~3A_inverse_concordance"></a> <a class="anchor" id="example_3"></a> <a class="anchor" id="usage.example_3"></a> <a class="anchor" id="description.usage.example_3"></a> <a class="anchor" id="3.7.3"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_3~3A_inverse_concordance"></a> <a class="anchor" id="usage.example_3~3A_inverse_concordance"></a> <a class="anchor" id="description.usage.example_3~3A_inverse_concordance"></a> <a class="anchor" id="example_3"></a> <a class="anchor" id="usage.example_3"></a> <a class="anchor" id="description.usage.example_3"></a> <a class="anchor" id="3.8.3"></a> </dd></dl>
 <dl class="user"><dt><b>Example 3: Inverse Concordance: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>If one has a concordance for a set of documents (an index of the position of every unique word in those documents), then words of interest can be efficiently located. Suppose after locating a word of interest one also needs the surrounding words (for context). Searching in the original document requires re-tokenization (time consuming). Alternatively, one can use the concordance to create an inverse concordance to provide a fast lookup of the words at given locations in a document and then examine words near the word of interest. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, we define the types required (and convenient aliases) to create an unordered map from a word location to the corresponding word. The "key" value will be <code>WordLocation</code>, a pair of <code>int</code> values: the first being the document code number (arbitrarily assigned), and second the word offset in that document (the first word of the document is at offset 0). The "value" of each entry is a <code>bsl::string</code> containing the word at that location. <br/>
@@ -2401,7 +2409,7 @@ template&lt;class KEY2 , class VALUE2 , class HASH2 , class EQUAL2 , class ALLOC
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:30 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:23 for BDE Release 2.23.1 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

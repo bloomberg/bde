@@ -1,0 +1,264 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 2.23.1 OSS</title>
+<html>
+<pre>
+// bdlma_localsequentialallocator.h                                   -*-C++-*-
+#ifndef INCLUDED_BDLMA_LOCALSEQUENTIALALLOCATOR
+#define INCLUDED_BDLMA_LOCALSEQUENTIALALLOCATOR
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide an efficient managed allocator using a local buffer.
+//
+//@CLASSES:
+//  bdlma::LocalSequentialAllocator: allocator using a local buffer
+//
+//@SEE_ALSO: bdlma_bufferedsequentialallocator
+//
+//@DESCRIPTION: This component provides a concrete mechanism,
+// &#39;bdlma::LocalSequentialAllocator&#39;, that implements the
+// &#39;bdlma::ManagedAllocator&#39; protocol to very efficiently allocate
+// heterogeneous memory blocks (of varying, user-specified sizes) from a local
+// buffer.  Note that it derives from &#39;bdlma::BufferedSequentialAllocator&#39; so
+// that the implementations of &#39;allocate&#39;, &#39;deallocate&#39;, and &#39;release&#39; don&#39;t
+// need to be instantiated for each user-specified size.
+//..
+//    ,-------------------------------.
+//   ( bdlma::LocalSequentialAllocator )
+//    `-------------------------------&#39;
+//                    |        ctor
+//                    V
+//   ,----------------------------------.
+//  ( bdlma::BufferedSequentialAllocator )
+//   `----------------------------------&#39;
+//                    |        ctor/dtor
+//                    |        allocate
+//                    |        deallocate
+//                    |        release
+//                    V
+//        ,-----------------------.
+//       ( bdlma::ManagedAllocator )
+//        `-----------------------&#39;
+//                    |        release = 0
+//                    V
+//           ,----------------.
+//          ( bslma::Allocator )
+//           `----------------&#39;
+//                             allocate = 0
+//                             deallocate = 0
+//..
+// If an allocation request exceeds the remaining free memory space in the
+// local buffer, the allocator will fall back to a sequence of
+// dynamically-allocated buffers.  The &#39;release&#39; method releases all memory
+// allocated through the allocator, as does the destructor.  Note that, even
+// though a &#39;deallocate&#39; method is available, it has no effect: individually
+// allocated memory blocks cannot be separately deallocated.
+//
+// &#39;bdlma::LocalSequentialAllocator&#39; is typically used when users have a
+// reasonable estimation of the amount of memory needed.  This amount of memory
+// would then be created directly on the program stack, and used as the local
+// buffer by this allocator for very fast memory allocation.  Whilst the buffer
+// has sufficient capacity, memory allocations will not trigger *any* dynamic
+// memory allocation, will have optimal locality of reference, and will not
+// require deallocation upon destruction.
+//
+// Once the local buffer is exhausted, subsequent allocation requests require
+// dynamic memory allocation, and the performance of the allocator degrades.
+//
+// The main difference between a &#39;bdlma::LocalSequentialAllocator&#39; and a
+// &#39;bdlma::BufferedSequentialAllocator&#39; is that this class internally maintains
+// a buffer, rather than being given one at construction time.
+//
+///Usage
+///-----
+///Example 1: Recommended Usage
+/// - - - - - - - - - - - - - -
+// Suppose we have a function which takes a map of items to update in some
+// database:
+//..
+//  typedef bsl::string DatabaseKey;
+//  typedef bsl::string DatabaseValue;
+//
+//  void updateRecords_1(const bsl::map&lt;DatabaseKey, DatabaseValue&gt;&amp; values)
+//  {
+//      for (bsl::map&lt;DatabaseKey, DatabaseValue&gt;::const_iterator
+//               it = values.begin(), end = values.end();
+//           it != end;
+//           ++it) {
+//          bsl::stringbuf stringBuf;
+//          bsl::ostream   ostr(&amp;stringBuf);
+//
+//          ostr &lt;&lt; &quot;UPDATE myTable SET myValue = &#39;&quot; &lt;&lt; it-&gt;first &lt;&lt; &quot;&#39; WHERE &quot;
+//                  &quot;myKey = &#39;&quot; &lt;&lt; it-&gt;second &lt;&lt; &quot;&#39;&quot;;
+//
+//          // execute query using &#39;stringBuf.str()&#39;
+//      }
+//  }
+//..
+// We call this method a lot, and after profiling, we notice that it&#39;s
+// contributing a significant proportion of time, due to the allocations it is
+// making.  We decide to see whether a LocalSequentialAllocator would help.
+//
+// First, use a &#39;bslma::TestAllocator&#39; to track the typical memory usage:
+//..
+//  void updateRecords_2(const bsl::map&lt;DatabaseKey, DatabaseValue&gt;&amp; values)
+//  {
+//      bslma::TestAllocator ta;
+//
+//      for (bsl::map&lt;DatabaseKey, DatabaseValue&gt;::const_iterator
+//               it = values.begin(), end = values.end();
+//           it != end;
+//           ++it) {
+//          bsl::stringbuf stringBuf(&amp;ta);
+//          bsl::ostream   ostr(&amp;stringBuf);
+//
+//          ostr &lt;&lt; &quot;UPDATE myTable SET myValue = &#39;&quot; &lt;&lt; it-&gt;first &lt;&lt; &quot;&#39; WHERE &quot;
+//                  &quot;myKey = &#39;&quot; &lt;&lt; it-&gt;second &lt;&lt; &quot;&#39;&quot;;
+//
+//          // execute query using &#39;stringBuf.str()&#39;
+//
+//          bsl::cout &lt;&lt; &quot;In use: &quot; &lt;&lt; ta.numBytesInUse() &lt;&lt; &#39;\n&#39;;
+//      }
+//
+//      bsl::cout &lt;&lt; &quot;Max: &quot; &lt;&lt; ta.numBytesMax() &lt;&lt; &#39;\n&#39;;
+//  }
+//..
+// Then we run our program again, and observe the following output:
+//..
+//  In use: 77
+//  In use: 77
+//  In use: 77
+//  In use: 77
+//  In use: 77
+//  Max: 129
+//..
+// It looks like 129 is a good choice for the size of our allocator, so we go
+// with that:
+//..
+//  void updateRecords_3(const bsl::map&lt;DatabaseKey, DatabaseValue&gt;&amp; values)
+//  {
+//      bdlma::LocalSequentialAllocator&lt;129&gt; lsa;
+//
+//      for (bsl::map&lt;DatabaseKey, DatabaseValue&gt;::const_iterator
+//               it = values.begin(), end = values.end();
+//           it != end;
+//           ++it) {
+//          lsa.release();
+//
+//          bsl::stringbuf stringBuf(&amp;lsa);
+//          bsl::ostream   ostr(&amp;stringBuf);
+//
+//          ostr &lt;&lt; &quot;UPDATE myTable SET myValue = &#39;&quot; &lt;&lt; it-&gt;first &lt;&lt; &quot;&#39; WHERE &quot;
+//                  &quot;myKey = &#39;&quot; &lt;&lt; it-&gt;second &lt;&lt; &quot;&#39;&quot;;
+//
+//          // execute query using &#39;stringBuf.str()&#39;
+//      }
+//  }
+//..
+// Note that we release at the end of every iteration, as the deallocate method
+// is a no-op, so without this, subsequent memory would be allocated from the
+// default allocator (or the allocator passed to &#39;bsa&#39; at construction).
+//
+// Finally, we re-profile our code to determine whether the addition of a
+// &#39;LocalSequentialAllocator&#39; helped.
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLMA_BUFFEREDSEQUENTIALALLOCATOR
+#include &lt;bdlma_bufferedsequentialallocator.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslma { class Allocator; }
+
+namespace bdlma {
+
+                       // ==============================
+                       // class LocalSequentialAllocator
+                       // ==============================
+
+template &lt;int t_SIZE&gt;
+class LocalSequentialAllocator : public BufferedSequentialAllocator {
+    // This class implements the &#39;ManagedAllocator&#39; protocol to provide a fast
+    // allocator that dispenses heterogeneous blocks of memory (of varying,
+    // user-specified sizes) from a local buffer whose capacity is the
+    // specified &#39;t_SIZE&#39; (in bytes).  If an allocation request exceeds the
+    // remaining free memory space in the local buffer, memory will be supplied
+    // by an (optional) allocator supplied at construction; if no allocator is
+    // supplied, the currently installed default allocator is used.  This class
+    // is *exception* *neutral*; if memory cannot be allocated, the behavior is
+    // defined by the (optional) allocator supplied at construction.
+
+    // PRIVATE TYPES
+    typedef BufferedSequentialAllocator                          AllocatorBase;
+    typedef bsls::AlignmentToType&lt;
+                  bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT&gt;::Type AlignmentType;
+
+    // DATA
+    union {
+        // This anonymous union is &#39;bsls::AlignedBuffer&#39;, but typed out again
+        // so that extra template instantations are avoided.
+        char          d_buffer[t_SIZE];
+        AlignmentType d_align;
+    };
+
+  private:
+    // NOT IMPLEMENTED
+    //! LocalSequentialAllocator(const LocalSequentialAllocator&amp;) = delete;
+    //! LocalSequentialAllocator&amp; operator=(
+    //                               const LocalSequentialAllocator&amp;) = delete;
+
+  public:
+    // CREATORS
+    explicit LocalSequentialAllocator(bslma::Allocator *basicAllocator = 0);
+        // Create a local sequential allocator for allocating memory blocks
+        // from a local buffer having the specified &#39;t_SIZE&#39; (in bytes).
+        // Optionally specify a &#39;basicAllocator&#39; used to supply memory should
+        // the capacity of the local buffer be exhausted.  If &#39;basicAllocator&#39;
+        // is 0, the currently installed default allocator is used.
+
+    //! virtual ~LocalSequentialAllocator() = default;
+        // Destroy this local sequential allocator.  All memory allocated from
+        // this allocator is released.
+};
+
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                       // ------------------------------
+                       // class LocalSequentialAllocator
+                       // ------------------------------
+
+// CREATORS
+template &lt;int t_SIZE&gt;
+inline
+LocalSequentialAllocator&lt;t_SIZE&gt;::LocalSequentialAllocator(
+                                              bslma::Allocator *basicAllocator)
+: AllocatorBase(this-&gt;d_buffer, t_SIZE, basicAllocator)
+{
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2015
+//      All Rights Reserved.
+//      Property of Bloomberg L.P. (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

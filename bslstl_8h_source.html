@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
  bslstl.txt
@@ -22,11 +22,13 @@
 
 /Hierarchical Synopsis
 /---------------------
- The &#39;bslstl&#39; package currently has 52 components having 7 levels of physical
+ The &#39;bslstl&#39; package currently has 53 components having 8 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
+  8. bslstl_ownerless
+
   7. bslstl_queue
      bslstl_sharedptr
      bslstl_stack
@@ -36,7 +38,6 @@
      bslstl_multimap
      bslstl_multiset
      bslstl_set
-     bslstl_sstream
      bslstl_unorderedmap
      bslstl_unorderedmultimap
      bslstl_unorderedmultiset
@@ -70,6 +71,7 @@
      bslstl_treeiterator
 
   2. bslstl_iterator
+     bslstl_pair
      bslstl_sharedptrallocateinplacerep
      bslstl_sharedptrallocateoutofplacerep
      bslstl_simplepool
@@ -80,7 +82,7 @@
      bslstl_equalto
      bslstl_hash
      bslstl_iosfwd
-     bslstl_pair
+     bslstl_referencewrapper
      bslstl_stdexceptutil
      bslstl_stringrefdata
      bslstl_unorderedmapkeyconfiguration
@@ -161,6 +163,9 @@
 : &#39;bslstl_ostringstream&#39;:
 :      Provide a C++03-compatible &#39;ostringstream&#39; class.
 :
+: &#39;bslstl_ownerless&#39;:
+:      Provide an ordering for shared and weak pointers.
+:
 : &#39;bslstl_pair&#39;:
 :      Provide a simple &#39;struct&#39; with two members that may use allocators.
 :
@@ -172,6 +177,9 @@
 :
 : &#39;bslstl_randomaccessiterator&#39;:
 :      Provide a template to create STL-compliant random access iterators.
+:
+: &#39;bslstl_referencewrapper&#39;:
+:      Provide copyable, assignable object wrapper for references.
 :
 : &#39;bslstl_set&#39;:
 :      Provide an STL-compliant set class.
@@ -190,9 +198,6 @@
 :
 : &#39;bslstl_simplepool&#39;:
 :      Provide efficient allocation of memory blocks for a specific type.
-:
-: &#39;bslstl_sstream&#39;:
-:      Provide C++03-compatible &#39;stringstream&#39; classes.
 :
 : &#39;bslstl_stack&#39;:
 :      Provide an STL-compliant stack class.

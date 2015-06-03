@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: bslmf_nestedtraitdeclaration Component</title>
+<title>BDE 2.23.1 OSS: bslmf_nestedtraitdeclaration Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
@@ -62,7 +63,7 @@
 </div>
 <div class="contents">
 
-<p>Provide a way within a class to associate the class with traits.  
+<p>Provide a nested declaration to associate a class with a trait.  
 <a href="#_details">More...</a></p>
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="namespaces"></a>
@@ -74,13 +75,17 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#1">Purpose</a> </li>
 <li>
-<a href="#2">Classes</a> </li>
+<a href="#2">Macros</a> </li>
 <li>
-<a href="#3">Macros</a> </li>
+<a href="#3">Description</a> <ul>
 <li>
-<a href="#4">Description</a> <ul>
+<a href="#3.1">Relationship with "C++11-style" Type Traits</a> </li>
 <li>
-<a href="#4.1">Usage</a> </li>
+<a href="#3.2">Usage</a> <ul>
+<li>
+<a href="#3.2.1">Example 1: Testing a Type for a Custom Trait</a> </li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -88,37 +93,113 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="purpose"></a> <a class="anchor" id="1"></a> </dd></dl>
 <dl class="user"><dt><b>Purpose: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Provide a way within a class to associate the class with traits </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Provide a nested declaration to associate a class with a trait. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="classes"></a> <a class="anchor" id="2"></a> </dd></dl>
-<dl class="user"><dt><b>Classes: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><table class="doxtable">
-<tr>
-<td>NestedTraitDeclaration </td><td>A marker used to detect a nested trait declaration.  </td></tr>
-</table>
-</dd></dl>
-<dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="macros"></a> <a class="anchor" id="3"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="macros"></a> <a class="anchor" id="2"></a> </dd></dl>
 <dl class="user"><dt><b>Macros: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><table class="doxtable">
 <tr>
-<td>BSLMF_NESTED_TRAIT_DECLARATION </td><td>Associates a trait with a class  </td></tr>
+<td>BSLMF_NESTED_TRAIT_DECLARATION </td><td>macro that associates a trait with a class  </td></tr>
 <tr>
-<td>BSLMF_NESTED_TRAIT_DECLARATION_IF </td><td>Conditionally associates a trait  </td></tr>
+<td>BSLMF_NESTED_TRAIT_DECLARATION_IF </td><td>conditional macro to associates a trait  </td></tr>
 </table>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="group__bslmf__detectnestedtrait.html" title="Provide meta-function to test for nested trait.">Component bslmf_detectnestedtrait</a> </dd></dl>
+<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="group__bslmf__detectnestedtrait.html" title="Provide a facility for defining traits and detecting legacy traits.">Component bslmf_detectnestedtrait</a> </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="4"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component defines a pair of macros, <code>BSLMF_NESTED_TRAIT_DECLARATION</code> and <code>BSLMF_NESTED_TRAIT_DECLARATION_IF</code>, that can be used in association with the facilities provided by <code>bslmf_detectnestedtrait</code> to declare that a given class has a given trait. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Traits provide a mechanism for convenient compile-time discovery of information about a class, which is useful in particular for providing efficient specializations of generalized containers and algorithms without having to rely on knowledge of specific target classes. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The primary public interface of this component consists of two macros that provide a facility for declaring that a given class has a given trait. These macros embed the association between the type and the trait inside the class definition itself, hence the term "nested trait declaration". </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Note that the term "nested" is not meant to imply that this facility declares a nested type within the class namespace, only that the trait declaration appears as one of the public declarations that make up the class definition. For example, we could declare that a class, <code>xyza::Foo</code>, has the trait <code>abcd::BarTrait</code> in the following way: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">namespace </span>xyza {
+
+  <span class="keyword">class </span>Foo {
+      <span class="comment">// ... various implementation details ...</span>
+
+    <span class="keyword">public</span>:
+      <span class="comment">// TRAITS</span>
+      <a class="code" href="bslmf__nestedtraitdeclaration_8h.html#a6d33ff2982d65052e0c33136bf4d74e7">BSLMF_NESTED_TRAIT_DECLARATION</a>(Foo, abcd::BarTrait);
+
+      <span class="comment">// ... the rest of the public interface ...</span>
+  };
+
+  }  <span class="comment">// close namespace xyza</span>
+</pre></div><br/>
+<br/>
+ Two flavors of macro are provided: one for declaring unconditionally that a class has a trait, and another for declaring that the class has a trait if and only if a given compile-time expression evaluates to <code>true</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="relationship_with_~22c++11-style~22_type_traits"></a> <a class="anchor" id="description.relationship_with_~22c++11-style~22_type_traits"></a> <a class="anchor" id="3.1"></a> </dd></dl>
+<dl class="user"><dt><b>Relationship with "C++11-style" Type Traits: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Traits declared using this component are not automatically compatible mechanisms designed to detect "C++11-style" traits. For a full discussion of the relationship between nested traits and "C++11-style" traits, as well as best practices for defining, associating, and detecting traits, see the component documentation for <code>bslmf_detectnestedtrait</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="4.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This section illustrates intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_testing_a_type_for_a_custom_trait"></a> <a class="anchor" id="usage.example_1~3A_testing_a_type_for_a_custom_trait"></a> <a class="anchor" id="description.usage.example_1~3A_testing_a_type_for_a_custom_trait"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.2.1"></a> </dd></dl>
+<dl class="user"><dt><b>Example 1: Testing a Type for a Custom Trait: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>When writing generic infrastructure code, we often need to choose among multiple code paths based on the capabilities of the types on which we are operating. If those capabilities are reflected in a type's public interface, we may be able to use techniques such as SFINAE to choose the appropriate code path. However, SFINAE cannot detect all of a type's capabilities. In particular, SFINAE cannot detect constructors, memory allocation, thread-safety characteristics, and so on. Functions that depend on these capabilities must use another technique to determine the correct code path to use for a given type. We can solve this sort of problem by associating types with custom traits that indicate what capabilities are provided by a given type. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>First, assume that a compatible trait, <code>abcd::RequiresLockTrait</code>, has been defined that indicates that a type's methods must not be called unless a known lock it first acquired: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">namespace </span>abcd { <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE&gt; <span class="keyword">struct </span>RequiresLockTrait; }
+</pre></div><br/>
+<br/>
+ The implementation of <code>abcd::RequiresLockTrait</code> is not shown. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Then, in package <code>xyza</code>, we declare a type, <code>DoesNotRequireLockType</code>, that can be used without acquiring the lock: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">namespace </span>xyza {
+
+  <span class="keyword">class </span>DoesNotRequireLockType {
+      <span class="comment">// ...</span>
+
+    <span class="keyword">public</span>:
+      <span class="comment">// CREATORS</span>
+      DoesNotRequireLockType();
+          <span class="comment">// ...</span>
+  };
+</pre></div><br/>
+<br/>
+ Next, we declare a type, <code>RequiresLockType</code>, that does require the lock. We use the <code>BSLMF_NESTED_TRAIT_DECLARATION</code> macro to associate the type with the <code>abcd::RequiresLockTrait</code> trait: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">class </span>RequiresLockType {
+      <span class="comment">// ...</span>
+
+    <span class="keyword">public</span>:
+      <span class="comment">// TRAITS</span>
+      <a class="code" href="bslmf__nestedtraitdeclaration_8h.html#a6d33ff2982d65052e0c33136bf4d74e7">BSLMF_NESTED_TRAIT_DECLARATION</a>(RequiresLockType,
+                                     abcd::RequiresLockTrait);
+
+      <span class="comment">// CREATORS</span>
+      RequiresLockType();
+          <span class="comment">// ...</span>
+
+  };
+</pre></div><br/>
+<br/>
+ Notice that the macro declaration is performed within the scope of the class declaration, and must be done with public scope. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Now, we declare a templatized container type, <code>Container</code>, that is parameterized on some <code>ELEMENT</code> type. If <code>ELEMENT</code> requires a lock, then a <code>Container</code> of <code>ELEMENT</code>s will require a lock as well. This can be expressed using the <code>BSLMF_NESTED_TRAIT_DECLARATION_IF</code> macro, by providing <code>abcd::RequiresLockTrait&lt;ELEMENT&gt;value</code> as the condition for associating the trait with <code>Container</code>. <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> ELEMENT&gt;
+  <span class="keyword">struct </span>Container {
+      <span class="comment">// ...</span>
+
+    <span class="keyword">public</span>:
+      <span class="comment">// TRAITS</span>
+      <a class="code" href="bslmf__nestedtraitdeclaration_8h.html#afba4d34c00d363b3b83f2768fc5d0887">BSLMF_NESTED_TRAIT_DECLARATION_IF</a>(Container, abcd::RequiresLockTrait,
+                                    abcd::RequiresLockTrait&lt;ELEMENT&gt;::value);
+
+      <span class="comment">// ...</span>
+  };
+
+  } <span class="comment">// close package namespace</span>
+</pre></div><br/>
+<br/>
+ Finally, code interacting with <code>xyza::DoesNotRequireLockType</code>, <code>xyza::RequiresLockType</code> or <code>xyza::Container</code> objects will be able to choose the appropriate code path by checking for the <code>abcd::RequiresLockTrait</code> trait. See <code>bslmf_detectnestedtrait</code> for an example of how generic code would use such a trait. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:28 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:21 for BDE Release 2.23.1 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: Class bslma::ManagedPtr</title>
+<title>BDE 2.23.1 OSS: Class bslma::ManagedPtr</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
@@ -80,7 +81,7 @@
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="classbslma_1_1ManagedPtrDeleter.html#ac9c21bcd64e4ea48c8b1c62d3059eddc">ManagedPtrDeleter::Deleter</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtr.html#afda656bd737f271d5457db053d145f32">DeleterFunc</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="classbslma_1_1ManagedPtrDeleter.html#a1be897cc4bf64af791944bd9b8f42b75">ManagedPtrDeleter::Deleter</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtr.html#afda656bd737f271d5457db053d145f32">DeleterFunc</a></td></tr>
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtr.html#aa7d6dd0552680e0a14669c747638b89c">ManagedPtr</a> (<a class="el" href="namespacebsl.html#a15d68a87901fa9543f847ada4ee76fd3">bsl::nullptr_t</a>=0, <a class="el" href="namespacebsl.html#a15d68a87901fa9543f847ada4ee76fd3">bsl::nullptr_t</a>=0)</td></tr>
@@ -117,12 +118,14 @@ Public Member Functions</h2></td></tr>
 &lt; TARGET_TYPE, <br class="typebreak"/>
 <a class="el" href="classbslma_1_1ManagedPtrDeleter.html">ManagedPtrDeleter</a> &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtr.html#a826d9856966f92aefdbcc2ef2b019861">release</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">TARGET_TYPE *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtr.html#a6c1facdee268423bd611bc3e382ae1a9">release</a> (<a class="el" href="classbslma_1_1ManagedPtrDeleter.html">ManagedPtrDeleter</a> *deleter)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtr.html#af96bb8356e57e2ab6037d45f7f594d86">reset</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtr.html#a706df5bd259bd244636eae65003e858b">swap</a> (<a class="el" href="classbslma_1_1ManagedPtr.html">ManagedPtr</a> &amp;other)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtr.html#a6178b46544d9621a32b623062d32a74f">operator BoolType</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="structbslmf_1_1AddReference.html">bslmf::AddReference</a><br class="typebreak"/>
 &lt; TARGET_TYPE &gt;::Type&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtr.html#ad8629f0fbe9ae3088e9c07069a548b8f">operator*</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">TARGET_TYPE *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtr.html#a7a985054043e5ac19a51b6db8f4f4f6f">operator-&gt;</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classbslma_1_1ManagedPtrDeleter.html">ManagedPtrDeleter</a> &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtr.html#a3d979e298134421c44100723dadc56fd">deleter</a> () const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">TARGET_TYPE *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtr.html#a83325a674a64bd8c45607d2822df0d8e">get</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">TARGET_TYPE *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtr.html#a806661d834efd84fb953db1c69d5fb53">ptr</a> () const </td></tr>
 <tr><td colspan="2"><h2><a name="friends"></a>
 Friends</h2></td></tr>
@@ -143,7 +146,7 @@ Friends</h2></td></tr>
 template&lt;class TARGET_TYPE&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">typedef <a class="el" href="classbslma_1_1ManagedPtrDeleter.html#ac9c21bcd64e4ea48c8b1c62d3059eddc">ManagedPtrDeleter::Deleter</a> <a class="el" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr</a>&lt; TARGET_TYPE &gt;::<a class="el" href="classbslma_1_1ManagedPtr.html#afda656bd737f271d5457db053d145f32">DeleterFunc</a></td>
+          <td class="memname">typedef <a class="el" href="classbslma_1_1ManagedPtrDeleter.html#a1be897cc4bf64af791944bd9b8f42b75">ManagedPtrDeleter::Deleter</a> <a class="el" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr</a>&lt; TARGET_TYPE &gt;::<a class="el" href="classbslma_1_1ManagedPtr.html#afda656bd737f271d5457db053d145f32">DeleterFunc</a></td>
         </tr>
       </table>
 </div>
@@ -539,6 +542,7 @@ template&lt;class TARGET_TYPE&gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>[!DEPRECATED!] Use <code>reset</code> instead.</p>
 <p>Destroy the current managed object (if any) and reset this managed pointer as empty. </p>
 
 </div>
@@ -745,6 +749,26 @@ template&lt;class TARGET_TYPE&gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="af96bb8356e57e2ab6037d45f7f594d86"></a><!-- doxytag: member="bslma::ManagedPtr::reset" ref="af96bb8356e57e2ab6037d45f7f594d86" args="()" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TARGET_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr</a>&lt; TARGET_TYPE &gt;::reset </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Destroy the current managed object (if any) and reset this managed pointer as empty. </p>
+
+</div>
+</div>
 <a class="anchor" id="a706df5bd259bd244636eae65003e858b"></a><!-- doxytag: member="bslma::ManagedPtr::swap" ref="a706df5bd259bd244636eae65003e858b" args="(ManagedPtr &amp;other)" -->
 <div class="memitem">
 <div class="memproto">
@@ -846,6 +870,26 @@ template&lt;class TARGET_TYPE&gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="a83325a674a64bd8c45607d2822df0d8e"></a><!-- doxytag: member="bslma::ManagedPtr::get" ref="a83325a674a64bd8c45607d2822df0d8e" args="() const " -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class TARGET_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">TARGET_TYPE* <a class="el" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr</a>&lt; TARGET_TYPE &gt;::get </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return the address of the target object, or 0 if this managed pointer is empty. </p>
+
+</div>
+</div>
 <a class="anchor" id="a806661d834efd84fb953db1c69d5fb53"></a><!-- doxytag: member="bslma::ManagedPtr::ptr" ref="a806661d834efd84fb953db1c69d5fb53" args="() const " -->
 <div class="memitem">
 <div class="memproto">
@@ -862,6 +906,7 @@ template&lt;class TARGET_TYPE&gt; </div>
       </table>
 </div>
 <div class="memdoc">
+<p>[!DEPRECATED!]: Use <code>get</code> instead.</p>
 <p>Return the address of the target object, or 0 if this managed pointer is empty. </p>
 
 </div>
@@ -887,7 +932,7 @@ template&lt;class TARGET_TYPE&gt; </div>
 <li><a class="el" href="bslma__managedptr_8h_source.html">bslma_managedptr.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:37 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:34 for BDE Release 2.23.1 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

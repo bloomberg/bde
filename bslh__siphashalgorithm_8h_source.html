@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bslh_siphashalgorithm.h                                            -*-C++-*-
@@ -23,7 +23,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // SipHash is an algorithm designed for speed and security.  A primary use case
 // for this algorithm is to provide an extra line of defense in hash tables
 // (such as the hash table that is used to implement &#39;unordered_map&#39;) against
-// malicious input that could cause denial of service (DOS) attacks.  It is
+// malicious input that could cause Denial of Service (DoS) attacks.  It is
 // based on one of the finalists for the SHA-3 cryptographic hash standard.
 // Full details of the hash function can be found here:
 // https://131002.net/siphash/siphash.pdf This particular implementation has
@@ -33,9 +33,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // preserved.
 //
 // This class satisfies the requirements for seeded &#39;bslh&#39; hashing algorithms,
-// defined in bslh_seededhash.h.  More information can be found in the package
-// level documentation for &#39;bslh&#39; (internal users can also find information
-// here {TEAM BDE:USING MODULAR HASHING&lt;GO&gt;})
+// defined in &#39;bslh_seededhash.h&#39;.  More information can be found in the
+// package level documentation for &#39;bslh&#39; (internal users can also find
+// information here {TEAM BDE:USING MODULAR HASHING&lt;GO&gt;})
 //
 ///Security
 ///--------
@@ -50,24 +50,24 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // to find collisions by brute force, making the algorithm not
 // cryptographically secure.
 //
-// SipHash *is*, however, a cryptographically strong PRF (pseudorandom
+// SipHash *is*, however, a cryptographically strong PRF (pseudo-random
 // function).  This means, assuming a cryptographically secure random seed is
 // given, the output of this algorithm will be indistinguishable from a uniform
 // random distribution.  This property is enough for the algorithm to be able
-// to protect a hash table from malicious DOS attacks.
+// to protect a hash table from malicious Denial of Service (DoS) attacks.
 //
-///Denial of Service Protection
+///Denial of Service (DoS) Protection
 /// - - - - - - - - - - - - - -
 // Given a cryptographically secure seed, this algorithm will produce hashes
 // with a distribution that is indistinguishable from random.  This
 // distribution means that there is no way for an attacker to predict which
 // keys will cause collisions, meaning that this algorithm can help mitigate
-// denial of service attacks on a hash table.  Denial of service attacks occur
-// when an attacker deliberately degrades the performace of the hash table by
+// Denial of Service (DoS) attacks on a hash table.  DoS attacks occur when an
+// attacker deliberately degrades the performance of the hash table by
 // inserting data that will collide to the same bucket, causing an average
 // constant time lookup to become a linear search.  This protection is only
 // effective if the seed provided is a cryptographically secure random number
-// that is not availible to the attacker.
+// that is not available to the attacker.
 //
 ///Speed
 ///-----
@@ -76,7 +76,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // and used hashes such as SpookyHash.  This algorithm should only be used when
 // protection from malicious input is required.  Otherwise, an algorithm that
 // documents better performance properties should be used, such as
-// &#39;bslh_spookyhashalgorithm&#39;.
+// &#39;bslh::SpookyHashAlgorithm&#39;.
 //
 ///Hash Distribution
 ///-----------------
@@ -87,8 +87,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 ///Hash Consistency
 ///----------------
-// This hash algorithm is endian-specific.  The algorithm will run on big and
-// little endian machines and the above guarantees apply on both architectures,
+// This hash algorithm is endian-specific.  The algorithm will run on big- and
+// little-endian machines and the above guarantees apply on both architectures,
 // however, the hashes produced will be different.  Therefor it is not
 // recommended to send hashes from &#39;bslh::SipHashAlgorithm&#39; over a network.  It
 // is also not recommended to write hashes from &#39;bslh::SipHashAlgorithm&#39; to any
@@ -316,11 +316,11 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 ///Changes
 ///-------
-// The third party code begins with the &quot;siphash.h&quot; header below, and continues
+// The third party code begins with the &#39;siphash.h&#39; header below, and continues
 // until the TYPE TRAITS banner below.  Changes made to the original code
 // include:
 //
-//: 1 Adding BloombergLP and bslh namespaces
+//: 1 Adding &#39;BloombergLP&#39; and &#39;bslh&#39; namespaces
 //:
 //: 2 Renaming &#39;siphash&#39; to &#39;SipHashAlgorithm&#39;
 //:
@@ -332,14 +332,14 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //:   &#39;std::Uint64_t&#39;, explicit conversion operator, and an &#39;= default&#39;
 //:   constructor.
 //:
-//: 6 Added typedef to replace removed &#39;std::Uint64_t&#39;
+//: 6 Added &#39;typedef&#39; to replace removed &#39;std::Uint64_t&#39;
 //:
 //: 7 Added &#39;computeHash()&#39; to replace the removed explicit conversion
 //:
 //: 8 Added &#39;k_SEED_LENGTH&#39; and changed the constructor to accept a
-//:   &#39;const    char *&#39;
+//:   &#39;const char *&#39;
 //:
-//: 9 Added includes and include guards
+//: 9 Included headers and added &#39;include&#39; guards
 //:
 //: 10 Changed variables to use &#39;size_t&#39; rather than &#39;unsigned int&#39;
 //
@@ -452,7 +452,7 @@ class SipHashAlgorithm {
         // produced by &#39;computeHash()&#39;.  The behaviour is undefined unless
         // &#39;seed&#39; points to at least 16 bytes of initialized memory.  Note that
         // if data in &#39;seed&#39; is not random, all guarantees of security and
-        // denial of service protection are void.
+        // Denial of Service (DoS) protection are void.
 
     //! ~SipHashAlgorithm() = default;
         // Destroy this object.

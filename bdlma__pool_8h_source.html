@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bdlma_pool.h                                                       -*-C++-*-
@@ -565,11 +565,11 @@ inline
 void *operator new(bsl::size_t size, BloombergLP::bdlma::Pool&amp; pool)
 {
     using namespace BloombergLP;
-    typedef bsls::AlignmentUtil Util;
 
-    BSLS_ASSERT_SAFE(static_cast&lt;int&gt;(size) &lt;= pool.blockSize()
-                  &amp;&amp; Util::calculateAlignmentFromSize(size)
-                       &lt;= Util::calculateAlignmentFromSize(pool.blockSize()));
+    BSLS_ASSERT_SAFE(
+        static_cast&lt;int&gt;(size) &lt;= pool.blockSize() &amp;&amp; 
+        bsls::AlignmentUtil::calculateAlignmentFromSize(size)
+         &lt;= bsls::AlignmentUtil::calculateAlignmentFromSize(pool.blockSize()));
 
     static_cast&lt;void&gt;(size);  // suppress &quot;unused parameter&quot; warnings
     return pool.allocate();

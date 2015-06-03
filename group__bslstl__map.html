@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: bslstl_map Component</title>
+<title>BDE 2.23.1 OSS: bslstl_map Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
@@ -220,7 +221,7 @@ Variables</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component defines a single class template <code>map</code>, implementing the standard container holding an ordered sequence of key-value pairs (having unique keys), and presenting a mapping from the keys (of a template parameter type, <code>KEY</code>) to their associated values (of another template parameter type, <code>VALUE</code>). </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component defines a single class template <code><a class="el" href="classbsl_1_1map.html">bsl::map</a></code>, implementing the standard container holding an ordered sequence of key-value pairs (having unique keys), and presenting a mapping from the keys (of a template parameter type, <code>KEY</code>) to their associated values (of another template parameter type, <code>VALUE</code>). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>An instantiation of <code>map</code> is an allocator-aware, value-semantic type whose salient attributes are its size (number of key-value pairs) and the ordered sequence of key-value pairs the map contains. If <code>map</code> is instantiated with either a key type or mapped-value type that is not itself value-semantic, then it will not retain all of its value-semantic qualities. In particular, if a either the key or value type cannot be tested for equality, then a <code>map</code> containing that type cannot be tested for equality. It is even possible to instantiate <code>map</code> with a key or mapped-value type that does not have a copy-constructor, in which case the <code>map</code> will not be copyable. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>A map meets the requirements of an associative container with bidirectional iterators in the C++ standard [23.2.4]. The <code>map</code> implemented here adheres to the C++11 standard, except that it does not have interfaces that take rvalue references, <code>initializer_lists</code>, <code>emplace</code>, or operations taking a variadic number of template parameters. Note that excluded C++11 features are those that require (or are greatly simplified by) C++11 compiler support. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
@@ -853,12 +854,12 @@ template&lt;class KEY, class VALUE, class COMPARATOR = std::less&lt;KEY&gt;, cla
           <td class="paramtype">COMPARATOR&nbsp;</td>
           <td class="paramname"> <em>comparator</em></td>
           <td>&nbsp;)&nbsp;</td>
-          <td><code> [inline, protected, inherited]</code></td>
+          <td><code> [protected, inherited]</code></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a <code><a class="el" href="classbsl_1_1map_1_1value__compare.html">value_compare</a></code> object that will delegate to the specified <code>comparator</code> for comparisons. </p>
+<p>IMPLICIT: Create a <code><a class="el" href="classbsl_1_1map_1_1value__compare.html">value_compare</a></code> object that will delegate to the specified <code>comparator</code> for comparisons. </p>
 
 </div>
 </div>
@@ -883,14 +884,12 @@ template&lt;class KEY, class VALUE, class COMPARATOR = std::less&lt;KEY&gt;, cla
         <tr>
           <td></td>
           <td>)</td>
-          <td></td><td></td><td> const<code> [inline, inherited]</code></td>
+          <td></td><td></td><td> const<code> [inherited]</code></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>&lt; Return <code>true</code> if the specified <code>x</code> object is ordered before the specified <code>y</code> object, as determined by the comparator supplied at construction. </p>
-
-<p>References <a class="el" href="group__bslstl__map.html#ga58a4c27cba98257727a8d447989376ed">bsl::map&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;::value_compare::comp</a>.</p>
+<p>Return <code>true</code> if the specified <code>x</code> object is ordered before the specified <code>y</code> object, as determined by the comparator supplied at construction. </p>
 
 </div>
 </div>
@@ -2119,12 +2118,10 @@ template&lt;class KEY, class VALUE, class COMPARATOR = std::less&lt;KEY&gt;, cla
 <div class="memdoc">
 <p>we would not have elected to make this data </p>
 
-<p>Referenced by <a class="el" href="group__bslstl__map.html#gae876a33146ec50969a035a7365c74240">bsl::map&lt; KEY, VALUE, COMPARATOR, ALLOCATOR &gt;::value_compare::operator()()</a>.</p>
-
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:29 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:22 for BDE Release 2.23.1 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

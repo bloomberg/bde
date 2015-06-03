@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bslh_hash.h                                                        -*-C++-*-
@@ -34,7 +34,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // provide &#39;hashAppend&#39; an instance of the &#39;HASH_ALGORITHM&#39;.
 //
 // This component also contains &#39;hashAppend&#39; definitions for fundamental types,
-// which are required by algorithms deinfed in &#39;bslh&#39;.  Clients are expected to
+// which are required by algorithms defined in &#39;bslh&#39;.  Clients are expected to
 // define a free-function &#39;hashAppend&#39; for each of the types they wish to be
 // hashable (see {&#39;hashAppend&#39;} below).  More information can be found in the
 // package level documentation for &#39;bslh&#39; (internal users can also find
@@ -46,7 +46,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // to the decoupling of the various tasks associated with hashing.  Using this
 // system, type implementers can identify attributes of their type that are
 // salient to hashing, without having to write a hashing algorithm.
-// Conversely, hashing algorithms can be written independant of types.
+// Conversely, hashing algorithms can be written independent of types.
 // Attributes that are salient to hashing are called out on a type using
 // &#39;hashAppend&#39;.  Hashing algorithms are written to operate on the attributes
 // called out by &#39;hashAppend&#39;.  Some default algorithms have been provided in
@@ -79,15 +79,15 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // hashing algorithm is no longer propagated, and instead a pointer to the
 // beginning of the type in memory is passed to the algorithm, along with the
 // length of the type.  There are special cases with floating point numbers and
-// bools where the data is tweaked before hashing to ensure that values that
-// compare equal will be hashed with the same bit-wise representation.  The
-// algorithm will then incorporate the type into its internal state and return
-// a finalized hash when requested.
+// boolean values where the data is tweaked before hashing to ensure that
+// values that compare equal will be hashed with the same bit-wise
+// representation.  The algorithm will then incorporate the type into its
+// internal state and return a finalized hash when requested.
 //
 ///Hashing Algorithms
 ///------------------
 // There are algorithms implemented in the &#39;bslh&#39; package that can be passed in
-// and used as template parameters for &#39;bslh::Hash&#39; or other structs like it.
+// and used as template parameters for &#39;bslh::Hash&#39; or other &#39;struct&#39;s like it.
 // Some of these algorithms, such as &#39;bslh::SpookyHashAlgorithm&#39;, are named for
 // the algorithm they implement.  These named algorithms are intended for use
 // by those who want a specific algorithm.  There are other algorithms, such as
@@ -101,7 +101,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 ///Requirements for Regular &#39;bslh&#39; Hashing Algorithms
 ///--------------------------------------------------
-// Users of this modular hashing system are free write their own hashing
+// Users of this modular hashing system are free to write their own hashing
 // algorithms.  In order to plug into &#39;bslh::Hash&#39;, the user-implemented
 // algorithms must implement the interface shown here:
 //..
@@ -144,16 +144,16 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // want to store objects of type &#39;Box&#39; in a hash table, so we need to be able
 // to produce hash values that represent instances of &#39;Box&#39;.  We don&#39;t want to
 // write our own hashing or hash combine algorithm, because we know it is very
-// difficult and labour intensive to write a proper hashing algorithm.  In
+// difficult and labor-intensive to write a proper hashing algorithm.  In
 // order to hash this &#39;Box&#39;, we will use the modular hashing system supplied in
 // &#39;bslh&#39;.
 //
-// First, we define &#39;Point&#39;, a class that allows us to identify a loction on a
-// two dimensional cartesian plane.
+// First, we define &#39;Point&#39;, a class that allows us to identify a location on a
+// two dimensional Cartesian plane.
 //..
 //  class Point {
 //      // This class is a value semantic type that represents a two
-//      // dimensional location on a cartesian plane.
+//      // dimensional location on a Cartesian plane.
 //
 //    private:
 //      int    d_x;
@@ -237,7 +237,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //..
 //  class Box {
 //      // This class is a value semantic type that represents a box drawn on
-//      // to a cartesian plane.
+//      // to a Cartesian plane.
 //
 //    private:
 //      Point d_position;
@@ -254,7 +254,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //      Point getPosition() const;
 //          // Return a &#39;Point&#39; representing the upper left corner of this box
-//          // on a cartesian plane
+//          // on a Cartesian plane
 //
 //      int getWidth() const;
 //          // Return the width of this box.
@@ -575,7 +575,7 @@ hashAppend(HASH_ALGORITHM&amp; hashAlg, TYPE input);
     // into the internal state of the algorithm which is used to produce the
     // resulting hash value. Note that the &#39;enable_if&#39; meta-function is used to
     // enable this &#39;hashAppend&#39; function for only &#39;long double&#39;, because on
-    // some compilers &#39;long double&#39;s contain garabage and can not be hashed as
+    // some compilers &#39;long double&#39;s contain garbage and can not be hashed as
     // a continuous sequence of bytes.
 
 template &lt;class HASH_ALGORITHM, size_t N&gt;

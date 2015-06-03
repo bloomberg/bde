@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bslstl_set.h                                                       -*-C++-*-
@@ -19,9 +19,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //@SEE_ALSO: bslstl_multiset, bslstl_map
 //
-//@DESCRIPTION: This component defines a single class template &#39;set&#39;,
-// implementing the standard container holding an ordered sequence of
-// unique keys.
+//@DESCRIPTION: This component defines a single class template &#39;bsl::set&#39;,
+// implementing the standard container holding an ordered sequence of unique
+// keys.
 //
 // An instantiation of &#39;set&#39; is an allocator-aware, value-semantic type whose
 // salient attributes are its size (number of keys) and the ordered sequence of
@@ -522,6 +522,14 @@ BSL_OVERRIDES_STD mode&quot;
 #include &lt;bslalg_typetraithasstliterators.h&gt;
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PERFORMANCEHINT
+#include &lt;bsls_performancehint.h&gt;
+#endif
+
 #ifndef INCLUDED_FUNCTIONAL
 #include &lt;functional&gt;
 #define INCLUDED_FUNCTIONAL
@@ -575,8 +583,8 @@ class set {
         // that if the allocator is stateless, it takes up no space.
         //
         // TBD: This struct should eventually be replaced by the use of a
-        // general EBO-enabled component that provides a &#39;pair&#39;-like
-        // interface or a &#39;tuple&#39;.
+        // general EBO-enabled component that provides a &#39;pair&#39;-like interface
+        // or a &#39;tuple&#39;.
 
         NodeFactory d_pool;  // pool of &#39;Node&#39; objects
 
@@ -645,8 +653,8 @@ class set {
 
   public:
     // CREATORS
-    explicit set(const COMPARATOR&amp; comparator = COMPARATOR(),
-                 const ALLOCATOR&amp;  basicAllocator  = ALLOCATOR())
+    explicit set(const COMPARATOR&amp; comparator     = COMPARATOR(),
+                 const ALLOCATOR&amp;  basicAllocator = ALLOCATOR())
         // Construct an empty set.  Optionally specify a &#39;comparator&#39; used to
         // order keys contained in this object.  If &#39;comparator&#39; is not
         // supplied, a default-constructed object of the (template parameter)
@@ -927,9 +935,9 @@ class set {
 
     size_type max_size() const;
         // Return a theoretical upper bound on the largest number of elements
-        // that this set could possibly hold.  Note that there is no
-        // guarantee that the set can successfully grow to the returned size,
-        // or even close to that size without running out of resources.
+        // that this set could possibly hold.  Note that there is no guarantee
+        // that the set can successfully grow to the returned size, or even
+        // close to that size without running out of resources.
 
     key_compare key_comp() const;
         // Return the key-comparison functor (or function pointer) used by this
@@ -1345,8 +1353,8 @@ set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::insert(const value_type&amp; value)
 template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
 inline
 typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::iterator
-set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::insert(const_iterator   hint,
-                                       const value_type&amp; value)
+set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::insert(const_iterator    hint,
+                                        const value_type&amp; value)
 {
     BloombergLP::bslalg::RbTreeNode *hintNode =
                 const_cast&lt;BloombergLP::bslalg::RbTreeNode *&gt;(hint.node());
@@ -1429,7 +1437,7 @@ void set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::swap(set&amp; other)
 {
     if (AllocatorTraits::propagate_on_container_swap::value) {
         BloombergLP::bslalg::SwapUtil::swap(&amp;nodeFactory().allocator(),
-                                           &amp;other.nodeFactory().allocator());
+                                            &amp;other.nodeFactory().allocator());
         quickSwap(other);
     }
     else {
@@ -1477,8 +1485,8 @@ typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::iterator
 set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::find(const key_type&amp; key)
 {
     return iterator(BloombergLP::bslalg::RbTreeUtil::find(d_tree,
-                                             this-&gt;comparator(),
-                                             key));
+                                                          this-&gt;comparator(),
+                                                          key));
 }
 
 template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
@@ -1486,9 +1494,10 @@ inline
 typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::iterator
 set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::lower_bound(const key_type&amp; key)
 {
-    return iterator(BloombergLP::bslalg::RbTreeUtil::lowerBound(d_tree,
-                                                   this-&gt;comparator(),
-                                                   key));
+    return iterator(BloombergLP::bslalg::RbTreeUtil::lowerBound(
+                                                            d_tree,
+                                                            this-&gt;comparator(),
+                                                            key));
 }
 
 template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
@@ -1496,9 +1505,10 @@ inline
 typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::iterator
 set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::upper_bound(const key_type&amp; key)
 {
-    return iterator(BloombergLP::bslalg::RbTreeUtil::upperBound(d_tree,
-                                                   this-&gt;comparator(),
-                                                   key));
+    return iterator(BloombergLP::bslalg::RbTreeUtil::upperBound(
+                                                            d_tree,
+                                                            this-&gt;comparator(),
+                                                            key));
 }
 
 template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
@@ -1651,9 +1661,10 @@ inline
 typename set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::const_iterator
 set&lt;KEY, COMPARATOR, ALLOCATOR&gt;::lower_bound(const key_type&amp; key) const
 {
-    return iterator(BloombergLP::bslalg::RbTreeUtil::lowerBound(d_tree,
-                                                   this-&gt;comparator(),
-                                                   key));
+    return iterator(BloombergLP::bslalg::RbTreeUtil::lowerBound(
+                                                            d_tree,
+                                                            this-&gt;comparator(),
+                                                            key));
 }
 
 template &lt;class KEY, class COMPARATOR, class ALLOCATOR&gt;
@@ -1763,9 +1774,7 @@ namespace BloombergLP {
 
 namespace bslalg {
 
-template &lt;typename KEY,
-          typename COMPARATOR,
-          typename ALLOCATOR&gt;
+template &lt;class KEY,  class COMPARATOR,  class ALLOCATOR&gt;
 struct HasStlIterators&lt;bsl::set&lt;KEY, COMPARATOR, ALLOCATOR&gt; &gt;
     : bsl::true_type
 {};
@@ -1774,9 +1783,7 @@ struct HasStlIterators&lt;bsl::set&lt;KEY, COMPARATOR, ALLOCATOR&gt; &gt;
 
 namespace bslma {
 
-template &lt;typename KEY,
-          typename COMPARATOR,
-          typename ALLOCATOR&gt;
+template &lt;class KEY,  class COMPARATOR,  class ALLOCATOR&gt;
 struct UsesBslmaAllocator&lt;bsl::set&lt;KEY, COMPARATOR, ALLOCATOR&gt; &gt;
     : bsl::is_convertible&lt;Allocator*, ALLOCATOR&gt;
 {};

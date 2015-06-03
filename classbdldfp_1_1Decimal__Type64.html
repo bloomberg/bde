@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: Class bdldfp::Decimal_Type64</title>
+<title>BDE 2.23.1 OSS: Class bdldfp::Decimal_Type64</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
@@ -91,9 +92,9 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1Decimal__Type64.html#a885de22c4b96a5d83eb8088ec119a8a2">Decimal_Type64</a> (unsigned long other)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1Decimal__Type64.html#a544df768a557375da47d1c9c7d03e380">Decimal_Type64</a> (long long other)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1Decimal__Type64.html#a61ce9f2fbbe0e3c20bf5971cc5b135d0">Decimal_Type64</a> (unsigned long long other)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1Decimal__Type64.html#a6b8aa50f5eb8ca1daa92cfd10cab9569">Decimal64</a> (const <a class="el" href="classbdldfp_1_1Decimal__Type64.html">Decimal64</a> &amp;original)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1Decimal__Type64.html#a98bb9f9f2e179e8894e5f06ff9e9c697">~Decimal64</a> ()</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbdldfp_1_1Decimal__Type64.html">Decimal64</a> &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1Decimal__Type64.html#a312ebc5aae6b68c5a38eff2696cdc615">operator=</a> (const <a class="el" href="classbdldfp_1_1Decimal__Type64.html">Decimal64</a> &amp;rhs)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1Decimal__Type64.html#a9ced4689689fbaa2df36208a182d8b60">Decimal64_Type</a> (const Decimal64_Type &amp;original)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1Decimal__Type64.html#ab8ec184abc8e90e7b56739c82faae473">~Decimal64_Type</a> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">Decimal64_Type &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1Decimal__Type64.html#adc029ca0483a22faa4d7a328d8596e29">operator=</a> (const Decimal64_Type &amp;rhs)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbdldfp_1_1Decimal__Type64.html">Decimal_Type64</a> &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1Decimal__Type64.html#a1b1a25a5eb07695518559aada123233c">operator++</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbdldfp_1_1Decimal__Type64.html">Decimal_Type64</a> &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1Decimal__Type64.html#a5a5ed8a2a8b0d6ef2c87abfe8989b1d1">operator--</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbdldfp_1_1Decimal__Type64.html">Decimal_Type64</a> &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdldfp_1_1Decimal__Type64.html#ad02b86fa2ecc044752fd4691e0ca4646">operator+=</a> (<a class="el" href="classbdldfp_1_1Decimal__Type32.html">Decimal32</a> rhs)</td></tr>
@@ -153,7 +154,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a <code>Decimal64</code> object having the value positive zero, and 0 exponent (quantum 1e-15). </p>
+<p>Create a <code>Decimal64_Type</code> object having the value positive zero, and 0 exponent (quantum 1e-15). </p>
 
 </div>
 </div>
@@ -172,7 +173,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>IMPLICIT: Create a <code>Decimal64</code> object having the specified <code>value</code>. </p>
+<p>IMPLICIT: Create a <code>Decimal64_Type</code> object having the specified <code>value</code>. </p>
 
 </div>
 </div>
@@ -191,7 +192,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>IMPLICIT: Create a <code>Decimal64</code> object having the value of the specified <code>other</code> following the conversion rules defined by IEEE-754:</p>
+<p>IMPLICIT: Create a <code>Decimal64_Type</code> object having the value of the specified <code>other</code> following the conversion rules defined by IEEE-754:</p>
 <ul>
 <li>
 If <code>other</code> is NaN, initialize this object to a NaN.  </li>
@@ -220,7 +221,7 @@ Otherwise initialize this object to the value of the <code>other</code>.  </li>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a <code>Decimal64</code> object having the value closest to the value of the specified <code>other</code> following the conversion rules defined by IEEE-754:</p>
+<p>Create a <code>Decimal64_Type</code> object having the value closest to the value of the specified <code>other</code> following the conversion rules defined by IEEE-754:</p>
 <ul>
 <li>
 If <code>other</code> is NaN, initialize this object to a NaN.  </li>
@@ -273,7 +274,7 @@ Otherwise initialize this object to the value as the <code>other</code>.  </li>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a <code>Decimal64</code> object having the value closest to the value of the specified <code>other</code> following the conversion rules as defined by IEEE-754:</p>
+<p>Create a <code>Decimal64_Type</code> object having the value closest to the value of the specified <code>other</code> value. <em>Warning:</em> clients requiring a conversion for an exact decimal value should use <code>bdldfp_decimalconverutil</code> (see <em>WARNING</em>: Conversions from <code>float</code> and <code>double</code>}. This conversion follows the conversion rules as defined by IEEE-754:</p>
 <ul>
 <li>
 If <code>other</code> is NaN, initialize this object to a NaN.  </li>
@@ -398,7 +399,7 @@ Otherwise initialize this object to the value of the <code>other</code>.  </li>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a <code>Decimal64</code> object having the value closest to the value of the specified <code>other</code> following the conversion rules as defined by IEEE-754:</p>
+<p>Create a <code>Decimal64_Type</code> object having the value closest to the value of the specified <code>other</code> following the conversion rules as defined by IEEE-754:</p>
 <ul>
 <li>
 If <code>other</code> is zero then initialize this object to positive zero with a 0 exponent (quantum 1e-15).  </li>
@@ -413,12 +414,12 @@ Otherwise initialize this object to the value of the <code>other</code>.  </li>
 
 </div>
 </div>
-<a class="anchor" id="a98bb9f9f2e179e8894e5f06ff9e9c697"></a><!-- doxytag: member="bdldfp::Decimal_Type64::~Decimal64" ref="a98bb9f9f2e179e8894e5f06ff9e9c697" args="()" -->
+<a class="anchor" id="ab8ec184abc8e90e7b56739c82faae473"></a><!-- doxytag: member="bdldfp::Decimal_Type64::~Decimal64_Type" ref="ab8ec184abc8e90e7b56739c82faae473" args="()" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bdldfp::Decimal_Type64::~Decimal64 </td>
+          <td class="memname">bdldfp::Decimal_Type64::~Decimal64_Type </td>
           <td>(</td>
           <td class="paramname"></td>
           <td>&nbsp;)&nbsp;</td>
@@ -459,14 +460,14 @@ Otherwise initialize this object to the value of the <code>other</code>.  </li>
 
 </div>
 </div>
-<a class="anchor" id="a6b8aa50f5eb8ca1daa92cfd10cab9569"></a><!-- doxytag: member="bdldfp::Decimal_Type64::Decimal64" ref="a6b8aa50f5eb8ca1daa92cfd10cab9569" args="(const Decimal64 &amp;original)" -->
+<a class="anchor" id="a9ced4689689fbaa2df36208a182d8b60"></a><!-- doxytag: member="bdldfp::Decimal_Type64::Decimal64_Type" ref="a9ced4689689fbaa2df36208a182d8b60" args="(const Decimal64_Type &amp;original)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bdldfp::Decimal_Type64::Decimal64 </td>
+          <td class="memname">bdldfp::Decimal_Type64::Decimal64_Type </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="classbdldfp_1_1Decimal__Type64.html">Decimal64</a> &amp;&nbsp;</td>
+          <td class="paramtype">const Decimal64_Type &amp;&nbsp;</td>
           <td class="paramname"> <em>original</em></td>
           <td>&nbsp;)&nbsp;</td>
           <td></td>
@@ -474,7 +475,7 @@ Otherwise initialize this object to the value of the <code>other</code>.  </li>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a <code>Decimal64</code> object that is a copy of the specified <code>original</code> as defined by the <code>copy</code> operation of IEEE-754 2008:</p>
+<p>Create a <code>Decimal64_Type</code> object that is a copy of the specified <code>original</code> as defined by the <code>copy</code> operation of IEEE-754 2008:</p>
 <ul>
 <li>
 If <code>other</code> is NaN, initialize this object to a NaN.  </li>
@@ -485,14 +486,14 @@ Otherwise initialize this object to the value of the <code>other</code>.  </li>
 
 </div>
 </div>
-<a class="anchor" id="a312ebc5aae6b68c5a38eff2696cdc615"></a><!-- doxytag: member="bdldfp::Decimal_Type64::operator=" ref="a312ebc5aae6b68c5a38eff2696cdc615" args="(const Decimal64 &amp;rhs)" -->
+<a class="anchor" id="adc029ca0483a22faa4d7a328d8596e29"></a><!-- doxytag: member="bdldfp::Decimal_Type64::operator=" ref="adc029ca0483a22faa4d7a328d8596e29" args="(const Decimal64_Type &amp;rhs)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classbdldfp_1_1Decimal__Type64.html">Decimal64</a>&amp; bdldfp::Decimal_Type64::operator= </td>
+          <td class="memname">Decimal64_Type&amp; bdldfp::Decimal_Type64::operator= </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="classbdldfp_1_1Decimal__Type64.html">Decimal64</a> &amp;&nbsp;</td>
+          <td class="paramtype">const Decimal64_Type &amp;&nbsp;</td>
           <td class="paramname"> <em>rhs</em></td>
           <td>&nbsp;)&nbsp;</td>
           <td></td>
@@ -1381,7 +1382,7 @@ Otherwise set this object to the result of dividing the number represented by th
 <li><a class="el" href="bdldfp__decimal_8h_source.html">bdldfp_decimal.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:31 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:25 for BDE Release 2.23.1 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

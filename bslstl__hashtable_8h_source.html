@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bslstl_hashtable.h                                                 -*-C++-*-
@@ -2313,7 +2313,7 @@ class HashTable {
 
     float loadFactor() const;
         // Return the current load factor for this table.  The load factor is
-        // the statical mean number of elements per bucket.
+        // the statistical mean number of elements per bucket.
 
     float maxLoadFactor() const;
         // Return the maximum load factor permitted by this hash table object,
@@ -2558,6 +2558,13 @@ struct HashTable_Util {
         // a function is not a null pointer value.
 
     template&lt;class ALLOCATOR&gt;
+    static void destroyBucketArray(bslalg::HashTableBucket *data,
+                                   native_std::size_t       bucketArraySize,
+                                   const ALLOCATOR&amp;         allocator);
+        // Destroy the specified &#39;data&#39; array of the specified length
+        // &#39;bucketArraySize&#39;, that was allocated by the specified &#39;allocator&#39;.
+
+    template&lt;class ALLOCATOR&gt;
     static void initAnchor(bslalg::HashTableAnchor *anchor,
                            native_std::size_t       bucketArraySize,
                            const ALLOCATOR&amp;         allocator);
@@ -2566,13 +2573,6 @@ struct HashTable_Util {
         // specified &#39;allocator&#39;.  The behavior is undefined unless
         // &#39;0 &lt; bucketArraySize&#39; and &#39;0 == anchor-&gt;bucketArraySize()&#39;.  Note
         // that this operation has no effect on &#39;anchor-&gt;listRootAddress()&#39;.
-
-    template&lt;class ALLOCATOR&gt;
-    static void destroyBucketArray(bslalg::HashTableBucket *data,
-                                   native_std::size_t       bucketArraySize,
-                                   const ALLOCATOR&amp;         allocator);
-        // Destroy the specified &#39;data&#39; array of the specified length
-        // &#39;bucketArraySize&#39;, that was allocated by the specified &#39;allocator&#39;.
 };
 
                    // ==============================
@@ -2980,8 +2980,8 @@ void HashTable_NodeProctor&lt;FACTORY&gt;::release()
 template &lt;class FACTORY&gt;
 inline
 HashTable_ArrayProctor&lt;FACTORY&gt;::HashTable_ArrayProctor(
-                                           FACTORY                 *factory,
-                                           bslalg::HashTableAnchor *anchor)
+                                              FACTORY                 *factory,
+                                              bslalg::HashTableAnchor *anchor)
 : d_factory(factory)
 , d_anchor(anchor)
 {
@@ -3043,6 +3043,39 @@ void HashTable_Util::assertNotNullPointer(TYPE * &amp; ptr)
 
 template &lt;class ALLOCATOR&gt;
 inline
+void HashTable_Util::destroyBucketArray(
+                                     bslalg::HashTableBucket  *data,
+                                     native_std::size_t        bucketArraySize,
+                                     const ALLOCATOR&amp;          allocator)
+{
+    BSLS_ASSERT_SAFE(data);
+    BSLS_ASSERT_SAFE(
+                  (1  &lt; bucketArraySize
+                     &amp;&amp; HashTable_ImpDetails::defaultBucketAddress() != data)
+               || (1 == bucketArraySize
+                     &amp;&amp; HashTable_ImpDetails::defaultBucketAddress() == data));
+
+    typedef ::bsl::allocator_traits&lt;ALLOCATOR&gt;               ParamAllocTraits;
+    typedef typename ParamAllocTraits::template
+                      rebind_traits&lt;bslalg::HashTableBucket&gt; BucketAllocTraits;
+    typedef typename BucketAllocTraits::allocator_type       ArrayAllocator;
+    typedef ::bsl::allocator_traits&lt;ArrayAllocator&gt;       ArrayAllocatorTraits;
+    typedef typename ArrayAllocatorTraits::size_type         SizeType;
+
+    BSLS_ASSERT_SAFE(
+               bucketArraySize &lt;= native_std::numeric_limits&lt;SizeType&gt;::max());
+
+    if (HashTable_ImpDetails::defaultBucketAddress() != data) {
+        ArrayAllocator reboundAllocator(allocator);
+        ArrayAllocatorTraits::deallocate(
+                                       reboundAllocator,
+                                       data,
+                                       static_cast&lt;SizeType&gt;(bucketArraySize));
+    }
+}
+
+template &lt;class ALLOCATOR&gt;
+inline
 void HashTable_Util::initAnchor(bslalg::HashTableAnchor *anchor,
                                 native_std::size_t       bucketArraySize,
                                 const ALLOCATOR&amp;         allocator)
@@ -3086,39 +3119,6 @@ void HashTable_Util::initAnchor(bslalg::HashTableAnchor *anchor,
     native_std::fill_n(data, bucketArraySize, bslalg::HashTableBucket());
 
     anchor-&gt;setBucketArrayAddressAndSize(data, newArraySize);
-}
-
-template &lt;class ALLOCATOR&gt;
-inline
-void HashTable_Util::destroyBucketArray(
-                                     bslalg::HashTableBucket  *data,
-                                     native_std::size_t        bucketArraySize,
-                                     const ALLOCATOR&amp;          allocator)
-{
-    BSLS_ASSERT_SAFE(data);
-    BSLS_ASSERT_SAFE(
-                  (1  &lt; bucketArraySize
-                     &amp;&amp; HashTable_ImpDetails::defaultBucketAddress() != data)
-               || (1 == bucketArraySize
-                     &amp;&amp; HashTable_ImpDetails::defaultBucketAddress() == data));
-
-    typedef ::bsl::allocator_traits&lt;ALLOCATOR&gt;               ParamAllocTraits;
-    typedef typename ParamAllocTraits::template
-                      rebind_traits&lt;bslalg::HashTableBucket&gt; BucketAllocTraits;
-    typedef typename BucketAllocTraits::allocator_type       ArrayAllocator;
-    typedef ::bsl::allocator_traits&lt;ArrayAllocator&gt;       ArrayAllocatorTraits;
-    typedef typename ArrayAllocatorTraits::size_type         SizeType;
-
-    BSLS_ASSERT_SAFE(
-               bucketArraySize &lt;= native_std::numeric_limits&lt;SizeType&gt;::max());
-
-    if (HashTable_ImpDetails::defaultBucketAddress() != data) {
-        ArrayAllocator reboundAllocator(allocator);
-        ArrayAllocatorTraits::deallocate(
-                                       reboundAllocator,
-                                       data,
-                                       static_cast&lt;SizeType&gt;(bucketArraySize));
-    }
 }
 
                 //-------------------------------
@@ -3434,7 +3434,7 @@ HashTable&lt;KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR&gt;::copyDataStructure(
                                                        newNode,
                                                        hashCode);
     }
-    while ((cursor = cursor-&gt;nextLink()));
+    while (0 != (cursor = cursor-&gt;nextLink()));
 
     // release the proctor
 
@@ -3596,7 +3596,7 @@ HashTable&lt;KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR&gt;::removeAllImp()
             d_parameters.nodeFactory().deleteNode(
                                                 static_cast&lt;NodeType *&gt;(root));
         }
-        while((root = next));
+        while(0 != (root = next));
     }
 }
 
@@ -4098,7 +4098,7 @@ HashTable&lt;KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR&gt;::findEndOfRange(
                                                                         KeyRef;
     KeyRef k = ImpUtil::extractKey&lt;KEY_CONFIG&gt;(first);
 
-    while ((first = first-&gt;nextLink()) &amp;&amp;
+    while (0 != (first = first-&gt;nextLink()) &amp;&amp;
            d_parameters.comparator()(k,ImpUtil::extractKey&lt;KEY_CONFIG&gt;(first)))
     {
         // This loop body is intentionally left blank.
@@ -4391,8 +4391,8 @@ bool bslstl::operator==(
 template &lt;class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR&gt;
 inline
 bool bslstl::operator!=(
-       const bslstl::HashTable&lt;KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR&gt;&amp; a,
-       const bslstl::HashTable&lt;KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR&gt;&amp; b)
+         const bslstl::HashTable&lt;KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR&gt;&amp; a,
+         const bslstl::HashTable&lt;KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR&gt;&amp; b)
 {
     return !(a == b);
 }

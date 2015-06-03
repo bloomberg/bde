@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.22.1.2 OSS: bslh_siphashalgorithm Component</title>
+<title>BDE 2.23.1 OSS: bslh_siphashalgorithm Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -44,6 +44,7 @@
   <div class="tabs">
     <ul class="tablist">
       <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
+      <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
       <li><a href="components.html"><span>Components</span></a></li>
       <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
@@ -81,7 +82,7 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#3.1">Security</a> <ul>
 <li>
-<a href="#3.1.1">Denial of Service Protection</a> </li>
+<a href="#3.1.1">Denial of Service (DoS) Protection</a> </li>
 </ul>
 </li>
 <li>
@@ -121,22 +122,22 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code><a class="el" href="classbslh_1_1SipHashAlgorithm.html">bslh::SipHashAlgorithm</a></code> implements the SipHash algorithm. SipHash is an algorithm designed for speed and security. A primary use case for this algorithm is to provide an extra line of defense in hash tables (such as the hash table that is used to implement <code>unordered_map</code>) against malicious input that could cause denial of service (DOS) attacks. It is based on one of the finalists for the SHA-3 cryptographic hash standard. Full details of the hash function can be found here: <a href="https://131002.net/siphash/siphash.pdf">https://131002.net/siphash/siphash.pdf</a> This particular implementation has been derived from Howard Hinnant's work here: <a href="https://github.com/HowardHinnant/hash_append/blob/master/siphash.h">https://github.com/HowardHinnant/hash_append/blob/master/siphash.h</a> and as much of the original code as possible, including comment headers, has been preserved. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This class satisfies the requirements for seeded <code>bslh</code> hashing algorithms, defined in <a class="el" href="bslh__seededhash_8h.html" title="Provide a struct to run seeded bslh hash algorithms on types.">bslh_seededhash.h</a>. More information can be found in the package level documentation for <code>bslh</code> (internal users can also find information here {TEAM BDE:USING MODULAR HASHING&lt;GO&gt;}) </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><code><a class="el" href="classbslh_1_1SipHashAlgorithm.html">bslh::SipHashAlgorithm</a></code> implements the SipHash algorithm. SipHash is an algorithm designed for speed and security. A primary use case for this algorithm is to provide an extra line of defense in hash tables (such as the hash table that is used to implement <code>unordered_map</code>) against malicious input that could cause Denial of Service (DoS) attacks. It is based on one of the finalists for the SHA-3 cryptographic hash standard. Full details of the hash function can be found here: <a href="https://131002.net/siphash/siphash.pdf">https://131002.net/siphash/siphash.pdf</a> This particular implementation has been derived from Howard Hinnant's work here: <a href="https://github.com/HowardHinnant/hash_append/blob/master/siphash.h">https://github.com/HowardHinnant/hash_append/blob/master/siphash.h</a> and as much of the original code as possible, including comment headers, has been preserved. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This class satisfies the requirements for seeded <code>bslh</code> hashing algorithms, defined in <code><a class="el" href="bslh__seededhash_8h.html" title="Provide a struct to run seeded bslh hash algorithms on types.">bslh_seededhash.h</a></code>. More information can be found in the package level documentation for <code>bslh</code> (internal users can also find information here {TEAM BDE:USING MODULAR HASHING&lt;GO&gt;}) </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="security"></a> <a class="anchor" id="description.security"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Security: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>SipHash is <em>not</em> a cryptographically secure hash. In the paper linked above, the creators of this hash function describe it as "Cryptographically
  Strong", but explicitly avoid calling it cryptographically secure. In order to be cryptographically secure, and algorithm must, among other things, provide "collision resistance". "Collision resistance" means that it should be difficult to find two different messages m1 and m2 such that <code>hash(m1) == hash(m2)</code>. Because of the limited sized output (only 2^64 possibilities) and the fast execution time of the algorithm, it is feasible to find collisions by brute force, making the algorithm not cryptographically secure. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>SipHash <em>is</em>, however, a cryptographically strong PRF (pseudorandom function). This means, assuming a cryptographically secure random seed is given, the output of this algorithm will be indistinguishable from a uniform random distribution. This property is enough for the algorithm to be able to protect a hash table from malicious DOS attacks. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>SipHash <em>is</em>, however, a cryptographically strong PRF (pseudo-random function). This means, assuming a cryptographically secure random seed is given, the output of this algorithm will be indistinguishable from a uniform random distribution. This property is enough for the algorithm to be able to protect a hash table from malicious Denial of Service (DoS) attacks. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="denial_of_service_protection"></a> <a class="anchor" id="security.denial_of_service_protection"></a> <a class="anchor" id="description.security.denial_of_service_protection"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
-<dl class="user"><dt><b>Denial of Service Protection: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Given a cryptographically secure seed, this algorithm will produce hashes with a distribution that is indistinguishable from random. This distribution means that there is no way for an attacker to predict which keys will cause collisions, meaning that this algorithm can help mitigate denial of service attacks on a hash table. Denial of service attacks occur when an attacker deliberately degrades the performace of the hash table by inserting data that will collide to the same bucket, causing an average constant time lookup to become a linear search. This protection is only effective if the seed provided is a cryptographically secure random number that is not availible to the attacker. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="denial_of_service_(dos)_protection"></a> <a class="anchor" id="security.denial_of_service_(dos)_protection"></a> <a class="anchor" id="description.security.denial_of_service_(dos)_protection"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
+<dl class="user"><dt><b>Denial of Service (DoS) Protection: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Given a cryptographically secure seed, this algorithm will produce hashes with a distribution that is indistinguishable from random. This distribution means that there is no way for an attacker to predict which keys will cause collisions, meaning that this algorithm can help mitigate Denial of Service (DoS) attacks on a hash table. DoS attacks occur when an attacker deliberately degrades the performance of the hash table by inserting data that will collide to the same bucket, causing an average constant time lookup to become a linear search. This protection is only effective if the seed provided is a cryptographically secure random number that is not available to the attacker. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="speed"></a> <a class="anchor" id="description.speed"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Speed: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This algorithm is designed to be fast in comparison to other algorithms making similar guarantees. It is still slower than other commonly accepted and used hashes such as SpookyHash. This algorithm should only be used when protection from malicious input is required. Otherwise, an algorithm that documents better performance properties should be used, such as <code>bslh_spookyhashalgorithm</code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This algorithm is designed to be fast in comparison to other algorithms making similar guarantees. It is still slower than other commonly accepted and used hashes such as SpookyHash. This algorithm should only be used when protection from malicious input is required. Otherwise, an algorithm that documents better performance properties should be used, such as <code><a class="el" href="classbslh_1_1SpookyHashAlgorithm.html">bslh::SpookyHashAlgorithm</a></code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="hash_distribution"></a> <a class="anchor" id="description.hash_distribution"></a> <a class="anchor" id="3.3"></a> </dd></dl>
 <dl class="user"><dt><b>Hash Distribution: </b></dt><dd></dd></dl>
@@ -144,7 +145,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="hash_consistency"></a> <a class="anchor" id="description.hash_consistency"></a> <a class="anchor" id="3.4"></a> </dd></dl>
 <dl class="user"><dt><b>Hash Consistency: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This hash algorithm is endian-specific. The algorithm will run on big and little endian machines and the above guarantees apply on both architectures, however, the hashes produced will be different. Therefor it is not recommended to send hashes from <code><a class="el" href="classbslh_1_1SipHashAlgorithm.html">bslh::SipHashAlgorithm</a></code> over a network. It is also not recommended to write hashes from <code><a class="el" href="classbslh_1_1SipHashAlgorithm.html">bslh::SipHashAlgorithm</a></code> to any memory accessible by multiple machines. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This hash algorithm is endian-specific. The algorithm will run on big- and little-endian machines and the above guarantees apply on both architectures, however, the hashes produced will be different. Therefor it is not recommended to send hashes from <code><a class="el" href="classbslh_1_1SipHashAlgorithm.html">bslh::SipHashAlgorithm</a></code> over a network. It is also not recommended to write hashes from <code><a class="el" href="classbslh_1_1SipHashAlgorithm.html">bslh::SipHashAlgorithm</a></code> to any memory accessible by multiple machines. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.5"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
@@ -262,7 +263,7 @@ Namespaces</h2></td></tr>
           <span class="keywordflow">return</span> &amp;d_callYear;
       }
 
-      <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#ae38909e0885ad40b01e80afb221e6737">operator==</a>(<span class="keyword">const</span> Future&amp; other) <span class="keyword">const</span>
+      <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> Future&amp; other) <span class="keyword">const</span>
           <span class="comment">// Compare this to the specified &#39;other&#39; object and return true if</span>
           <span class="comment">// they are equal</span>
       {
@@ -272,7 +273,7 @@ Namespaces</h2></td></tr>
       }
   };
 
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#a3be038ba34aba97e5c03f884da729377">operator!=</a>(<span class="keyword">const</span> Future&amp; lhs, <span class="keyword">const</span> Future&amp; rhs)
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aceb1a703f6f64327cd3cdcd03a557f4a">operator!=</a>(<span class="keyword">const</span> Future&amp; lhs, <span class="keyword">const</span> Future&amp; rhs)
       <span class="comment">// Compare compare the specified &#39;lhs&#39; and &#39;rhs&#39; objects and return</span>
       <span class="comment">// true if they are not equal</span>
   {
@@ -341,10 +342,10 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="changes"></a> <a class="anchor" id="description.changes"></a> <a class="anchor" id="3.6"></a> </dd></dl>
 <dl class="user"><dt><b>Changes: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The third party code begins with the "siphash.h" header below, and continues until the TYPE TRAITS banner below. Changes made to the original code include: </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The third party code begins with the <code>siphash.h</code> header below, and continues until the TYPE TRAITS banner below. Changes made to the original code include: </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ol>
 <li>
-Adding <a class="el" href="namespaceBloombergLP.html">BloombergLP</a> and bslh namespaces  </li>
+Adding <code><a class="el" href="namespaceBloombergLP.html">BloombergLP</a></code> and <code>bslh</code> namespaces  </li>
 <li>
 Renaming <code>siphash</code> to <code>SipHashAlgorithm</code>  </li>
 <li>
@@ -354,13 +355,13 @@ Added comments  </li>
 <li>
 Removed C++11 features including class member initializer, <code>noexcept</code>, <code>std::Uint64_t</code>, explicit conversion operator, and an <code>= default</code> constructor.  </li>
 <li>
-Added typedef to replace removed <code>std::Uint64_t</code>  </li>
+Added <code>typedef</code> to replace removed <code>std::Uint64_t</code>  </li>
 <li>
 Added <code>computeHash()</code> to replace the removed explicit conversion  </li>
 <li>
 Added <code>k_SEED_LENGTH</code> and changed the constructor to accept a <code>const char *</code>  </li>
 <li>
-Added includes and include guards  </li>
+Included headers and added <code>include</code> guards  </li>
 </ol>
 <div class="hanging"> </div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> 10 Changed variables to use <code>size_t</code> rather than <code>unsigned int</code></div></dd></dl>
@@ -378,7 +379,7 @@ Added includes and include guards  </li>
 <dl class="user"><dt><b></b></dt><dd>You should have received a copy of the CC0 Public Domain Dedication along with this software. If not, see &lt;<a href="http://creativecommons.org/publicdomain/zero/1.0/">http://creativecommons.org/publicdomain/zero/1.0/</a>&gt;. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>----------------------------------------------------------------------------- </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Nov 3 2014 19:27:27 for BDE Release 2.22.1.2 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:20 for BDE Release 2.23.1 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

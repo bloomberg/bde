@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bslstl_unorderedmultimap.h                                         -*-C++-*-
@@ -20,7 +20,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //@SEE_ALSO: bsl+stdhdrs
 //
 //@DESCRIPTION: This component defines a single class template,
-// &#39;unordered_multimap&#39;, implementing the standard container holding a
+// &#39;bsl::unordered_multimap&#39;, implementing the standard container holding a
 // collection of (possibly repeated) keys, each mapped to an associated value
 // (with minimal guarantees on ordering).
 //
@@ -253,10 +253,24 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  | a.rehash(k)                                        | Average: O[n]      |
 //  |                                                    | Worst:   O[n^2]    |
 //  +----------------------------------------------------+--------------------+
-//  | a.resize(k)                                        | Average: O[n]      |
+//  | a.reserve(k)                                       | Average: O[n]      |
 //  |                                                    | Worst:   O[n^2]    |
 //  +----------------------------------------------------+--------------------+
 //..
+//
+///Iterator, pointer and reference invalidation
+///--------------------------------------------
+// No method of &#39;unordered_multimap&#39; invalidates a pointer or reference to an
+// element in the set, unless it also erases that element, such as any &#39;erase&#39;
+// overload, &#39;clear&#39;, or the destructor (that erases all elements).  Pointers
+// and references are stable through a rehash.
+//
+// Iterators to elements in the container are invalidated by any rehash, so
+// iterators may be invalidated by an &#39;insert&#39; or &#39;emplace&#39; call if it triggers
+// a rehash (but not otherwise).  Iterators to specific elements are also
+// invalidated when that element is erased.  Note that the &#39;end&#39; iterator is
+// not an iterator referring to any element in the container, so may be
+// invalidated by any non-&#39;const&#39; method.
 //
 ///Unordered Multi-Map Configuration
 ///---------------------------------
@@ -1022,8 +1036,8 @@ bool operator!=(
     // &#39;VALUE&#39;}).
 
 template &lt;class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR&gt;
-void swap(unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;&amp; x,
-          unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;&amp; y);
+void swap(unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;&amp; a,
+          unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;&amp; b);
     // Swap both the value and the comparator of the specified &#39;a&#39; object with
     // the value and comparator of the specified &#39;b&#39; object.  Additionally if
     // &#39;bslstl::AllocatorTraits&lt;ALLOCATOR&gt;::propagate_on_container_swap&#39; is
@@ -1183,8 +1197,8 @@ unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;::erase(
 template &lt;class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR&gt;
 typename unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;::iterator
 unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;::erase(
-                                                         const_iterator first,
-                                                         const_iterator last)
+                                                          const_iterator first,
+                                                          const_iterator last)
 {
 #if defined BDE_BUILD_TARGET_SAFE_2
     if (first != last) {
@@ -1551,10 +1565,10 @@ bool bsl::operator!=(
 
 template &lt;class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR&gt;
 inline
-void bsl::swap(bsl::unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;&amp; x,
-               bsl::unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;&amp; y)
+void bsl::swap(bsl::unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;&amp; a,
+               bsl::unordered_multimap&lt;KEY, VALUE, HASH, EQUAL, ALLOCATOR&gt;&amp; b)
 {
-    x.swap(y);
+    a.swap(b);
 }
 
 // ============================================================================

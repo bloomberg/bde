@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bslstl_allocator.h                                                 -*-C++-*-
@@ -470,7 +470,7 @@ class allocator {
 
     // CREATORS
     allocator();
-        // Construct a proxy object which will forward allocation calls to the
+        // Create a proxy object which will forward allocation calls to the
         // object pointed to by &#39;bslma::Default::defaultAllocator()&#39;.
         // Postcondition:
         //..
@@ -489,8 +489,8 @@ class allocator {
         // &#39;original&#39;.  Postcondition: &#39;this-&gt;mechanism() == rhs.mechanism()&#39;.
 
     template &lt;class ANY_TYPE&gt;
-    allocator(const allocator&lt;ANY_TYPE&gt;&amp; rhs);
-        // Construct a proxy object sharing the same mechanism object as the
+    allocator(const allocator&lt;ANY_TYPE&gt;&amp; rhs);                  
+        // Create a proxy object sharing the same mechanism object as the
         // specified &#39;rhs&#39;.  The newly constructed allocator will compare equal
         // to &#39;rhs&#39;, even though they are instantiated on different types.
         // Postcondition: &#39;this-&gt;mechanism() == rhs.mechanism()&#39;.

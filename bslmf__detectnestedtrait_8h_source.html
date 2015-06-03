@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bslmf_detectnestedtrait.h                                          -*-C++-*-
@@ -12,17 +12,326 @@
 #endif
 BSLS_IDENT(&quot;$Id: $&quot;)
 
-//@PURPOSE: Provide meta-function to test for nested trait.
+//@PURPOSE: Provide a facility for defining traits and detecting legacy traits.
 //
 //@CLASSES:
-//   bslmf::DetectNestedTrait: meta-function
+//   bslmf::DetectNestedTrait: meta-function to test a nested trait
 //
-//@SEE_ALSO:
+//@SEE_ALSO: bslmf_nestedtraitdeclaration
 //
-//@DESCRIPTION:
+//@DESCRIPTION: This component defines a meta-function,
+// &#39;bslmf::DetectNestedTrait&#39;, that facilitates the creation of traits that can
+// be associated with a type using the nested trait mechanism in
+// &#39;bslmf_declarenestedtrait&#39;.  Such traits are referred to as &quot;nested traits&quot;
+// because their association with a type is embedded within the type&#39;s
+// definition.  &#39;bslmf::DetectNestedTrait&#39; and can also be used to detect
+// traits created using older legacy traits definitions mechanisms used at
+// Bloomberg.
+//
+// Please note:
+//: 1. The use of &#39;bslmf::DetectNestedTrait&#39; to detect traits is *deprecated*.
+//:    Clients should detect traits using the C++11 idiom (see
+//:    {Nested Trait Idiom vs. C++11 Trait Idiom} below)
+//:
+//: 2. Clients are encouraged to use a C++11 idiom for defining traits.
+//:    However, authors of traits who want trait users to be able to take
+//:    advantage of &#39;bslmf_nestedtraitdeclaration&#39; must define traits that
+//:    inherit from &#39;bslmf::DetectNestedTrait&#39; (see
+//:    {Writing a User-Defined Trait} below).
+//
+///Nested Trait Idiom vs. C++11 Trait Idiom
+///----------------------------------------
+// BDE supports two idioms for defining traits and associating them with types.
+// The older idiom uses &#39;bslmf::DetectNestedTrait&#39; to define traits, and the
+// &#39;BSLMF_NESTED_TRAIT_DECLARATION*&#39; macros to associate traits with types.
+// This idiom is called the &quot;nested trait&quot; idiom.
+//
+// The newer idiom is familiar to users of C++11 traits, and is referred to
+// here as the &quot;C++11 trait&quot; idiom.  In the C++11 trait idiom, a trait is a
+// template that derives its truth value from &#39;bsl::true_type&#39; or
+// &#39;bsl::false_type&#39;, and is associated with a type by providing a
+// specialization of the trait for the associated type.
+//
+// For example, a minimal C++11 trait, &#39;abcd::C11Trait&#39;, could be defined as:
+//..
+//  namespace abcd {
+//
+//  template &lt;class TYPE&gt;
+//  struct C11Trait : bsl::false_type {
+//  };
+//
+//  }  // close namespace abcd
+//..
+// &#39;abcd::C11Trait&#39; would then be associated with a class, &#39;xyza::SomeClass&#39;,
+// by specializing the trait for that class:
+//..
+//  namespace xyza {
+//
+//  class SomeClass {
+//      // The definition of &#39;SomeClass&#39; does not affect the trait mechanism.
+//
+//      // ...
+//  };
+//
+//  }  // close namespace xyza
+//
+//  namespace abcd {
+//
+//  template &lt;&gt;
+//  struct C11Trait&lt;xyza::SomeClass&gt; : bsl::true_type {
+//  };
+//
+//  }  // close namespace abcd
+//..
+// Note that the specialization is defined in the same namespace as the
+// original trait.
+//
+// Both idioms detect the association of a trait with a class in the same way:
+// by inspecting the trait&#39;s &#39;value&#39; member.
+//..
+//  assert(true  == abcd::C11Trait&lt;xyza::SomeClass&gt;::value);
+//  assert(false == abcd::C11Trait&lt;xyza::Foo&gt;::value);
+//  assert(true  == abcd::BarTrait&lt;xyza::Foo&gt;::value);
+//  assert(false == abcd::BarTrait&lt;xyza::SomeClass&gt;::value);
+//..
+// The C++11 trait idiom is the standard idiom for new code in BDE.
+//
+///Writing a User-Defined Trait
+///----------------------------
+// On systems that do not require compatibility with the nested trait idiom,
+// new traits should be written according to the C++11 trait idiom.
+//
+// On systems that support the nested trait idiom, any new user-defined trait
+// should derive its truth value from &#39;bslmf::DetectNestedTrait&#39; following the
+// Curiously Recurring Template Pattern.  This will allow the trait to be
+// detected by directly inspecting the trait&#39;s &#39;value&#39; member, regardless of
+// whether the trait is associated with a type through the nested trait idiom
+// or through the C++11 trait idiom.
+//
+// Therefore, the simplest maximally-compatible trait would look like this:
+//..
+//  template &lt;class TYPE&gt;
+//  struct MyTrait : bslmf::DetectNestedTrait&lt;TYPE, MyTrait&gt;::type {};
+//..
+// A trait having more complex default logic could derive from
+// &#39;bsl::integral_constant&#39; using the &#39;value&#39; member of
+// &#39;bslmf::DetectNestedTrait&#39;, such as:
+//..
+//  template &lt;class TYPE&gt;
+//  struct ComplexTrait : bsl::integral_constant&lt;bool,
+//                          bslmf::DetectNestedTrait&lt;TYPE, ComplexTrait&gt;::value
+//                          || SomeOtherTrait&lt;TYPE&gt;::value&gt; {
+//  };
+//..
+// These are the only recommended uses of
+// &#39;bslmf::DetectNestedTrait&lt;TYPE, TRAIT&gt;::type&#39; and
+// &#39;bslmf::DetectNestedTrait&lt;TYPE, TRAIT&gt;::value&#39;.
+//
+///Detecting Legacy Traits
+///-----------------------
+// If a trait, &#39;TRAIT&#39;, has been associated with a type, &#39;TYPE&#39;, using one of
+// the &#39;BSLMF_NESTED_TRAIT_DECLARATION*&#39; macros then
+// &#39;bslmf::DetectNestedTrait&lt;TYPE, TRAIT&gt;&#39; derives from &#39;bsl::true_type&#39;.
+// Otherwise, &#39;bslmf::DetectNestedTrait&lt;TYPE, TRAIT&gt;&#39; derives from
+// &#39;bsl::false_type&#39;.
+//
+// Therefore, if a trait &#39;abcd::BarTrait&#39; has been associated with a class
+// &#39;xyza::Foo&#39; in the following way:
+//..
+//  namespace xyza {
+//
+//  class Foo {
+//      // ... various implementation details ...
+//
+//    public:
+//      // TRAITS
+//      BSLMF_NESTED_TRAIT_DECLARATION(Foo, abcd::BarTrait);
+//
+//      // ... the rest of the public interface ...
+//  };
+//
+//  }  // close namespace xyza
+//..
+// then &#39;bslmf::DetectNestedTrait&lt;TYPE, TRAIT&gt;::value&#39; will evaluate to &#39;true&#39;
+// and &#39;bslmf::DetectNestedTrait&lt;TYPE, TRAIT&gt;::type&#39; will be &#39;bsl::true_type&#39;.
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Defining a Custom Trait
+/// - - - - - - - - - - - - - - - - -
+// When writing generic infrastructure code, we often need to choose among
+// multiple code paths based on the capabilities of the types on which we are
+// operating.  If those capabilities are reflected in a type&#39;s public
+// interface, we may be able to use techniques such as SFINAE to choose the
+// appropriate code path.  However, SFINAE cannot detect all of a type&#39;s
+// capabilities.  In particular, SFINAE cannot detect constructors, memory
+// allocation, thread-safety characteristics, and so on.  Functions that depend
+// on these capabilities must use another technique to determine the correct
+// code path to use for a given type.  We can solve this sort of problem by
+// associating types with custom traits that indicate what capabilities are
+// provided by a given type.
+//
+// First, in package &#39;abcd&#39;, define a trait, &#39;RequiresLockTrait&#39;, that
+// indicates that a type&#39;s methods must not be called unless a known lock it
+// first acquired:
+//..
+//  namespace abcd {
+//
+//  template &lt;class TYPE&gt;
+//  struct RequiresLockTrait :
+//                    bslmf::DetectNestedTrait&lt;TYPE, RequiresLockTrait&gt;::type {
+//  };
+//
+//  } // close package namespace
+//..
+// Notice that &#39;RequiresLockTrait&#39; derives from
+// &#39;bslmf::DetectNestedTrait&lt;TYPE, RequiresLockTrait&gt;::type&#39; using the
+// curiously recurring template pattern.
+//
+// Then, in package &#39;xyza&#39;, we declare a type, &#39;DoesNotRequireALockType&#39;, that
+// can be used without acquiring the lock:
+//..
+//  namespace xyza {
+//
+//  class DoesNotRequireLockType {
+//      // ...
+//
+//    public:
+//      // CREATORS
+//      DoesNotRequireLockType();
+//          // ...
+//  };
+//..
+// Next, we declare a type, &#39;RequiresLockTypeA&#39;, that does require the lock.
+// We use the &#39;BSLMF_NESTED_TRAIT_DECLARATION&#39; macro to associate the type with
+// the &#39;abcd::RequiresLockTrait&#39; trait:
+//..
+//  class RequiresLockTypeA {
+//      // ...
+//
+//    public:
+//      // TRAITS
+//      BSLMF_NESTED_TRAIT_DECLARATION(RequiresLockTypeA,
+//                                     abcd::RequiresLockTrait);
+//
+//      // CREATORS
+//      RequiresLockTypeA();
+//          // ...
+//
+//  };
+//..
+// Notice that the macro declaration is performed within the scope of the class
+// declaration, and must be done with public scope.
+//
+// Then, we declare a templatized container type, &#39;Container&#39;, that is
+// parameterized on some &#39;ELEMENT&#39; type.  If &#39;ELEMENT&#39; requires a lock, then a
+// &#39;Container&#39; of &#39;ELEMENT&#39;s will require a lock as well.  This can be
+// expressed using the &#39;BSLMF_NESTED_TRAIT_DECLARATION_IF&#39; macro, by providing
+// &#39;abcd::RequiresLockTrait&lt;ELEMENT&gt;::value&#39; as the condition for associating
+// the trait with &#39;Container&#39;.
+//..
+//  template &lt;class ELEMENT&gt;
+//  struct Container {
+//      // ...
+//
+//    public:
+//      // TRAITS
+//      BSLMF_NESTED_TRAIT_DECLARATION_IF(Container, abcd::RequiresLockTrait,
+//                                    abcd::RequiresLockTrait&lt;ELEMENT&gt;::value);
+//
+//      // ...
+//  };
+//..
+// Next, we show that traits based on &#39;bslmf::DetectNestedTrait&#39; can be
+// associated with a type using &quot;C++11-style&quot; trait association.  To do this,
+// we declare a type, &#39;RequiresLockTypeB&#39;, that also requires the lock, but
+// does not used the &#39;BSLMF_NESTED_TRAIT_DECLARATION&#39; macro:
+//..
+//  class RequiresLockTypeB {
+//      // ...
+//
+//    public:
+//      // CREATORS
+//      RequiresLockTypeB();
+//          // ...
+//
+//  };
+//
+//  } // close package namespace
+//..
+// Then, we associate &#39;RequiresLockTypeB&#39; with &#39;abcd::RequiresLockTrait&#39; by
+// directly specializing &#39;abcd::RequiresLockTrait&lt;xyza::RequiresLockTypeB&gt;&#39;.
+// This is the standard way of associating a type with a trait since C++11:
+//..
+//  namespace abcd {
+//
+//  template &lt;&gt;
+//  struct RequiresLockTrait&lt;xyza::RequiresLockTypeB&gt; : bsl::true_type {
+//  };
+//
+//  } // close namespace abcd
+//..
+// Now, we can write a function that inspects
+// &#39;abcd::RequiresLockTrait&lt;TYPE&gt;::value&#39; to test whether or not various types
+// are associated with &#39;abcd::RequiresLockTrait&#39;:
+//..
+//  void example1()
+//  {
+//      assert(false ==
+//             abcd::RequiresLockTrait&lt;xyza::DoesNotRequireLockType&gt;::value);
+//
+//      assert(true  ==
+//             abcd::RequiresLockTrait&lt;xyza::RequiresLockTypeA&gt;::value);
+//
+//      assert(true  ==
+//             abcd::RequiresLockTrait&lt;xyza::RequiresLockTypeB&gt;::value);
+//
+//      assert(false ==
+//             abcd::RequiresLockTrait&lt;
+//                     xyza::Container&lt;xyza::DoesNotRequireLockType&gt; &gt;::value);
+//
+//      assert(true  ==
+//             abcd::RequiresLockTrait&lt;
+//                          xyza::Container&lt;xyza::RequiresLockTypeA&gt; &gt;::value);
+//
+//      assert(true  ==
+//             abcd::RequiresLockTrait&lt;
+//                          xyza::Container&lt;xyza::RequiresLockTypeB&gt; &gt;::value);
+//
+//      // ...
+//  }
+//..
+// Finally, we demonstrate that the trait can be tested at compilation time, by
+// writing a function that tests the trait within the context of a compile-time
+// &#39;BSLMF_ASSERT&#39;:
+//..
+//  void example2()
+//  {
+//      BSLMF_ASSERT(false ==
+//             abcd::RequiresLockTrait&lt;xyza::DoesNotRequireLockType&gt;::value);
+//
+//      BSLMF_ASSERT(true  ==
+//             abcd::RequiresLockTrait&lt;xyza::RequiresLockTypeA&gt;::value);
+//
+//      BSLMF_ASSERT(true  ==
+//             abcd::RequiresLockTrait&lt;xyza::RequiresLockTypeB&gt;::value);
+//
+//      BSLMF_ASSERT(false ==
+//             abcd::RequiresLockTrait&lt;
+//                     xyza::Container&lt;xyza::DoesNotRequireLockType&gt; &gt;::value);
+//
+//      BSLMF_ASSERT(true  ==
+//             abcd::RequiresLockTrait&lt;
+//                          xyza::Container&lt;xyza::RequiresLockTypeA&gt; &gt;::value);
+//
+//      BSLMF_ASSERT(true  ==
+//             abcd::RequiresLockTrait&lt;
+//                          xyza::Container&lt;xyza::RequiresLockTypeB&gt; &gt;::value);
+//
+//  }
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include &lt;bslscm_version.h&gt;
@@ -108,9 +417,8 @@ template &lt;class TYPE, template &lt;class T&gt; class TRAIT&gt;
 struct DetectNestedTrait : DetectNestedTrait_Imp&lt;TYPE, TRAIT&gt;::Type {
     // Metafunction to detect whether the specified &#39;TRAIT&#39; parameter is
     // associated with the specified &#39;TYPE&#39; parameter using the nested type
-    // trait mechanism.  Inherits from &#39;true_type&#39; iff &#39;TYPE&#39; is convertible
-    // to &#39;NestedTraitDeclaration&lt;TYPE, TRAIT&gt;&#39; and from &#39;false_type&#39;
-    // otherwise.
+    // trait mechanism.  Inherits from &#39;true_type&#39; iff &#39;TYPE&#39; is convertible to
+    // &#39;NestedTraitDeclaration&lt;TYPE, TRAIT&gt;&#39; and from &#39;false_type&#39; otherwise.
 };
 
 }  // close package namespace

@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bslstl_stringref.h                                                 -*-C++-*-
@@ -490,9 +490,9 @@ class StringRefImp : public StringRefData&lt;CHAR_TYPE&gt; {
     const CHAR_TYPE *data() const;
         // Return the address of the first character of the string bound to
         // this string reference such that &#39;[data(), data()+length())&#39; is a
-        // valid half-open range of characters.  Return 0 for an empty string
-        // reference object.  Note that the range of characters may not be
-        // null-terminated and may contain embedded null characters.
+        // valid half-open range of characters. Note that the range of
+        // characters might not be null-terminated and may contain embedded
+        // null characters.
 
     bool isEmpty() const;
         // Return &#39;true&#39; if this object represents an empty string value, and
@@ -1362,7 +1362,7 @@ bslstl::operator&lt;&lt;(std::basic_ostream&lt;CHAR_TYPE&gt;&amp; stream,
     typedef typename std::basic_ostream&lt;char_type&gt;::ios_base    ios_base;
     typedef typename bslstl::StringRefImp&lt;char_type&gt;::size_type size_type;
 
-    size_type width = stream.width();
+    size_type width = static_cast&lt;size_type&gt;(stream.width());
     size_type len = stringRef.length();
 
     if (len &lt; width) {

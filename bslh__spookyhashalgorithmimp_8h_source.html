@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.22.1.2 OSS</title>
+<title>BDE 2.23.1 OSS</title>
 <html>
 <pre>
 // bslh_spookyhashalgorithmimp.h                                      -*-C++-*-
@@ -20,7 +20,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //@SEE_ALSO: bslh_hash, bslh_spookyhashalgorithm
 //
 //@DESCRIPTION: &#39;bslh::SpookyHashAlgorithmImp&#39; provides BDE style encapsulation
-// around Bob Jenkins cannonical SpookyHash implementation.  SpookyHash
+// around Bob Jenkins&#39; canonical SpookyHash implementation.  SpookyHash
 // provides a way to hash contiguous data all at once, or discontiguous data in
 // pieces.  More information is available at:
 // http://burtleburtle.net/bob/hash/spooky.html
@@ -58,7 +58,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //    public:
 //      CheckedData(const char *data, size_t length);
 //          // Creates an instance of this class having the specified &#39;length&#39;
-//          // bytes of &#39;data&#39;.  The behaviour is undefined unless &#39;data&#39; is
+//          // bytes of &#39;data&#39;.  The behavior is undefined unless &#39;data&#39; is
 //          // initialized with at least &#39;length&#39; bytes, and remains valid for
 //          // the lifetime of this object.  Note that only a pointer to the
 //          // data will be maintained, it will not be copied.
@@ -97,7 +97,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // Next, we define &#39;isDataValid&#39;.  We will generate a checksum from the
 // contained data and then compare it to the checksum we generated when the
 // class was created.  If the two hashes match, then we can be reasonably
-// certian that the data is still in a valid state (the chance of an accidental
+// certain that the data is still in a valid state (the chance of an accidental
 // collision is very low).  If the checksums do not match, we know that the
 // data has been corrupted.  We will not be able to restore it, but we will
 // know not to trust it.
@@ -173,14 +173,14 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // continues until the BloombergLP copyright notice.  Changes made to the
 // original code include:
 //
-//: 1 Added BloombergLP and bslh namespaces
+//: 1 Added &#39;BloombergLP&#39; and &#39;bslh&#39; namespaces
 //:
 //: 2 Renamed &#39;SpookyHash&#39; to &#39;SpookyHashAlgorithmImp&#39;
 //:
-//: 3 Removed usage of &#39;stdint.h&#39; (which might not be availible on all
-//:   platforms) and updated associated typedefs
+//: 3 Removed usage of &#39;stdint.h&#39; (which might not be available on all
+//:   platforms) and updated associated &#39;typedef&#39;s
 //:
-//: 4 Added include guards
+//: 4 Added &#39;include&#39; guards
 //:
 //: 5 Made some methods private
 //:
@@ -188,9 +188,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //:
 //: 7 Updated indenting to BDE style
 //:
-//: 8 Moved typedefs within class
+//: 8 Moved &#39;typedef&#39;s within class
 //:
-//: 9 Changed c style casts to static_casts
+//: 9 Changed C-style casts to &#39;static_cast&#39;s
 //:
 //: 10 Reordered methods according to BDE style
 //:
@@ -198,7 +198,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //:
 //: 12 Changed static constants to &#39;enum&#39;s to avoid storage overhead
 //:
-//: 13 Added constructor in place of init
+//: 13 Added constructor in place of &#39;init&#39;
 //:
 //: 14 Made function names lower case (had to change &#39;Final&#39; to &#39;finalize&#39; and
 //:    &#39;Short&#39; to &#39;shortHash&#39; to avoid using a keyword)
@@ -278,7 +278,7 @@ class SpookyHashAlgorithmImp {
     enum { k_BUFFER_SIZE = k_BLOCK_SIZE * 2 };
         // Size of buffer of unhashed data, in bytes.
 
-    static const Uint64 sc_const = 0xdeadbeefdeadbeefLL;
+    static const Uint64 sc_const = 0xdeadbeefdeadbeefULL;
         // A non-zero, odd, constant that has an irregular distribution of 1&#39;s
         // and 0&#39;s to be used in hashing calculations.
 
@@ -415,7 +415,7 @@ class SpookyHashAlgorithmImp {
         // algorithm will be modified, meaning that calling final multiple
         // times will result in different hash values being returned.  The
         // returned hash will be the same as if &#39;Hash128&#39; had been called will
-        // all of the accumulated data in one block.  The behaviour is
+        // all of the accumulated data in one block.  The behavior is
         // undefined unless both &#39;hash1&#39; and &#39;hash2&#39; point to 8 bytes of
         // modifiable memory.  Note that a value will be returned even if
         // &#39;update&#39; has not been called.
