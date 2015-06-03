@@ -17,9 +17,9 @@ Important new features include:
       * [`bdlt::Date`](https://github.com/bloomberg/bde/blob/master/groups/bdl/bdlt/bdlt_date.h)
       * [`bdlt::Datetime`](https://github.com/bloomberg/bde/blob/master/groups/bdl/bdlt/bdlt_datetime.h)
       * [`bdlt::CurrentTime`](https://github.com/bloomberg/bde/blob/master/groups/bdl/bdlt/bdlt_currenttime.h)
-  * [`bslx`](https://github.com/bloomberg/bde/blob/master/groups/bsl/bslx/doc/bslx.txt) A package providing a framework and protocol of externalizing and unexternalizing value types.
-  * [`bdlma_localsequentialallocator`](https://github.com/bloomberg/bde/blob/master/groups/bdl/bdlma/bdlma_localsequentialallocator.h)An aide to creating stack-based buffered-sequential allocators.
-  * [`bdlb_guid`](https://github.com/bloomberg/bde/blob/master/groups/bdl/bdlb/bdlb_guid.h) and [`bdlb_guidutil`](https://github.com/bloomberg/bde/blob/master/groups/bdl/bdlb/bdlb_guid.h) provide for creating and manipulating GUIDs (globally unique identifiers).  Per [RFC 4122](https://www.ietf.org/rfc/rfc4122.txt)
+  * [`bslx`](https://github.com/bloomberg/bde/blob/master/groups/bsl/bslx/doc/bslx.txt) -  A package that provides a framework for externalizing and unexternalizing value types.
+  * [`bdlma_localsequentialallocator`](https://github.com/bloomberg/bde/blob/master/groups/bdl/bdlma/bdlma_localsequentialallocator.h) - An aide to creating stack-based buffered-sequential allocators.
+  * [`bdlb_guid`](https://github.com/bloomberg/bde/blob/master/groups/bdl/bdlb/bdlb_guid.h) and [`bdlb_guidutil`](https://github.com/bloomberg/bde/blob/master/groups/bdl/bdlb/bdlb_guid.h) - Provide classes for creating and Globally Unique IDentifiers (GUIDs, version 4 per [RFC 4122](https://www.ietf.org/rfc/rfc4122.txt))
 
 See [BDE 2.23 Release Notes](https://github.com/bloomberg/bde/wiki/BDE-2.23-Release-Notes).
 
