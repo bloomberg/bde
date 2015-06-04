@@ -251,6 +251,10 @@ bsl-internal-bdemeta:
 	find groups -type d \( -name 'package' -or -name 'group' \) \
 	  -exec mkdir -p debian/bsl-internal-bdemeta/$(BLOOMBERG_BDEMETA_ROOT)/{} \; \
 	  -exec sh -c "cp "{}"/* debian/bsl-internal-bdemeta/$(BLOOMBERG_BDEMETA_ROOT)/"{}"/" \;
+	mkdir -p debian/bsl-internal-bdemeta/$(BLOOMBERG_BDEMETA_ROOT)/thirdparty/decnumber/package
+	touch debian/bsl-internal-bdemeta/$(BLOOMBERG_BDEMETA_ROOT)/thirdparty/decnumber/package/decnumber.dep
+	mkdir -p debian/bsl-internal-bdemeta/$(BLOOMBERG_BDEMETA_ROOT)/thirdparty/inteldfp/package
+	touch debian/bsl-internal-bdemeta/$(BLOOMBERG_BDEMETA_ROOT)/thirdparty/inteldfp/package/inteldfp.dep
 	dpkg-gencontrol -pbsl-internal-bdemeta \
 	     -Pdebian/bsl-internal-bdemeta
 	dpkg-deb -b debian/bsl-internal-bdemeta ../
