@@ -326,7 +326,7 @@ int main(int argc, char *argv[]) {
                                                                          E4,
                                                                          1.0));
 
-            // verify 1752 and out of range
+            // verify out of range
 
             bsl::vector<bdlt::Date>        mL;
             const bsl::vector<bdlt::Date>& L = mL;
