@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a functor enabling C strings as associative container keys.
 //
 //@CLASSES:
-//  CStringLess: functor enabling C strings as associative container keys
+//  bdlb::CStringLess: functor enabling C strings as associative container keys
 //
 //@SEE_ALSO: bsl_map, bsl_set
 //
@@ -26,9 +26,9 @@ BSLS_IDENT("$Id: $")
 ///-----
 // Suppose we need a container to store set of unique c-strings. The following
 // code illustrates how to use 'bdlb::CStringLess' as a comparator for standard
-// container 'set'. Default comparator compares pointer's values, so identical
+// container 'set'.  Default comparator compares pointer's values, so identical
 // strings, placed in different memory sectors, will be added to 'set'
-// container in spite of expected uniqueness of container's contents. Whereas
+// container in spite of expected uniqueness of container's contents.  Whereas
 // 'bdlb::CStringLess' will discern no difference between such strings.
 //
 // First, we create several c-strings:
@@ -119,7 +119,7 @@ struct CStringLess {
 
     //! CStringLess(const CStringLess& original) = default;
         // Create a 'CStringLess' object.  Note that as 'CStringLess' is an
-        // empty (stateless) type, this operation havs no observable effect.
+        // empty (stateless) type, this operation has no observable effect.
 
         //! ~CStringLess() = default;
         // Destroy this object.
@@ -140,7 +140,7 @@ struct CStringLess {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                           INLINE DEFINITIONS
 // ============================================================================
 
                           // ------------------

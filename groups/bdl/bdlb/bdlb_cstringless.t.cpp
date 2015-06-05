@@ -1,5 +1,4 @@
 // bdlb_cstringless.t.cpp                                             -*-C++-*-
-
 #include <bdlb_cstringless.h>
 
 #include <bslalg_hastrait.h>
@@ -31,14 +30,15 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// 'bdlb::CStringLess' provides a stateless type and thus very little to test.  One
-// test case is sufficient to test that every method can be instafor defining an ordering on
-// null-terminated character strings.
+// 'bdlb::CStringLess' provides a stateless type and thus very little to test.
+// The primary concern is that function call operator compares c-strings
+// correctly.  CREATORS can be tested only for mechanical functioning.  And BSL
+// traits presence should be checked as we declare that 'bdlb::CStringLess' is
+// an empty POD.
 // The tests for this component are table based, i.e., testing actual results
-// against a table of expected results.  Most tests construct objects and
-// compare them to each other and expected results.
+// against a table of expected results.
 //
-// // Global Concerns:
+// Global Concerns:
 //: o No memory is ever allocated from the global allocator.
 //: o No memory is ever allocated from the default allocator.
 //: o Precondition violations are detected in appropriate build modes.
@@ -52,9 +52,8 @@ using namespace bsl;
 // [ 1] BREATHING TEST
 // [ 7] USAGE EXAMPLE
 // [ 4] Standard typedefs
-// [ 5] Bitwise-movable trait
-// [ 5] IsPod trait
-// [ 6] QoI: Is an empty type
+// [ 5] BSL Traits
+// [ 6] QoI: Support for empty base optimization
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -168,9 +167,9 @@ int main(int argc, char *argv[])
 ///-----
 // Suppose we need a container to store set of unique c-strings. The following
 // code illustrates how to use 'bdlb::CStringLess' as a comparator for standard
-// container 'set'. Default comparator compares pointer's values, so identical
+// container 'set'.  Default comparator compares pointer's values, so identical
 // strings, placed in different memory sectors, will be added to 'set'
-// container in spite of expected uniqueness of container's contents. Whereas
+// container in spite of expected uniqueness of container's contents.  Whereas
 // 'bdlb::CStringLess' will discern no difference between such strings.
 //
 // First, we create several c-strings:
@@ -209,7 +208,7 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // QoI: Is an empty type
+        // TESTING QOI: IS AN EMPTY TYPE
         //   As a quality of implementation issue, the class has no state and
         //   should support the use of the empty base class optimization on
         //   compilers that support it.
@@ -231,11 +230,11 @@ int main(int argc, char *argv[])
         //:   data member's sizes. (C-2)
         //
         // Testing:
-        //   QoI: Support for empty base optiization
+        //   QoI: Support for empty base optimization
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING QoI: Is an empty type" << endl
+                          << "TESTING QOI: IS AN EMPTY TYPE" << endl
                           << "=============================" << endl;
 
         struct TwoInts {
@@ -259,7 +258,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TYPE TRAITS
+        // TESTING BSL TRAITS
         //   The functor is an empty POD, and should have the appropriate BSL
         //   type traits to reflect this.
         //
@@ -285,7 +284,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // STANDARD TYPEDEFS
+        // TESTING STANDARD TYPEDEFS
         //   Verify that the class offers the three typedefs required of a
         //   standard adaptable binary function.
         //
@@ -304,9 +303,7 @@ int main(int argc, char *argv[])
         //:   type using 'bsl::is_same'. (C-1..3)
         //
         // Testing:
-        //   typedef first_arguent_type
-        //   typedef second_arguent_type
-        //   typedef result_type
+        //  Standard typedefs
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -332,7 +329,7 @@ int main(int argc, char *argv[])
         //: 3 The function call returns 'true' or 'false' indicating whether
         //:   the two supplied string arguments are supplied in lexical order.
         //:
-        //: 4 QAsserted precondition violations are detected when enabled.
+        //: 4 Asserted precondition violations are detected when enabled.
         //:
         //: 5 No memory is allocated from the default allocator.
         //
@@ -354,13 +351,13 @@ int main(int argc, char *argv[])
         //:   allocator.  (C-5)
         //
         // Testing:
-        //   operator()(const char*, const char *) const
+        //   operator()(const char *, const char *) const
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "IMPLICITLY DEFINED OPERATIONS" << endl
-                          << "=============================" << endl;
-         if (verbose) cout <<
+                          << "FUNCTION CALL OPERATOR" << endl
+                          << "======================" << endl;
+        if (verbose) cout <<
             "\nCreate a test allocator and install it as the default." << endl;
 
         bslma::TestAllocator         da("default", veryVeryVeryVerbose);
@@ -416,7 +413,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // IMPLICITLY DEFINED CONSTRUCTORS, DESTRUCTOR AND ASSIGNMENT OPERATOR
+        // IMPLICITLY DEFINED OPERATIONS
         //   Ensure that the four implicitly declared and defined special
         //   member functions are publicly callable and have no unexpected side
         //   effects such as allocating memory.  As there is no observable
