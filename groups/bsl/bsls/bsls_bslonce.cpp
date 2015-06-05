@@ -2,7 +2,7 @@
 #include <bsls_bslonce.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bsls_bsldoonce_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bsls_bslonce_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>   // for testing only
