@@ -15,7 +15,7 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Bill Chapman (bchapman2)
 //
 //@DESCRIPTION: This component provides a namespace for the 'enum' type
-// 'bdlt_DayOfWeek::Enum', which enumerates the set of days of the week.
+// 'bdlt::DayOfWeek::Enum', which enumerates the set of days of the week.
 //
 ///Enumerators
 ///-----------
