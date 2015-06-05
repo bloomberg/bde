@@ -1,12 +1,11 @@
  bbl.txt
 
-@PURPOSE: Provide a comprehensive foundation for component-based development.
+@PURPOSE: Provide a foundation for component-based business logic development.
 
 @MNEMONIC: Basic Business Library (bbl)
 
 @DESCRIPTION: The 'bbl' ("Basic Business Library") package group contains
- various packages that provide platform-specific classes, meta-functions,
- defensive programming mechanisms, a framework for business tasks.
+ a package that provides a solution to a business task.
 
 /Hierarchical Synopsis
 /---------------------
@@ -15,15 +14,15 @@
  The order of packages within each level is not architecturally significant,
  just alphabetical.
 ..
-   2. bbldcu
+   2. bbldc
 
    1. bblscm
 ..
 
 /Package Synopsis
 /----------------
-: 'bbldcu':
-:      Provide simple day-count implementations.
+: 'bbldc':
+:      Provide day-count convention implementations.
 :
 : 'bblscm':
 :      Provide versioning information for BDE library components.
@@ -31,16 +30,15 @@
 /Package Overview
 /----------------
  The following provides a brief overview of the packages within the 'bbl'
- package group, arranged in alphabetical order.  Note that several packages,
- especially at lower levels in the physical hierarchy, are primarily intended
- for use by other packages within 'bbl'.  The descriptions here are still very
- brief; see the respective Package Level documents for more details and usage
- examples.
+ package group, arranged in alphabetical order.  The descriptions here are
+ still very brief; see the respective Package Level documents for more details
+ and usage examples.
 
-/'bbldcu'
+/'bbldc'
 / - - - -
- {'bbldcu'} provides simple day-count implementations; for conventions only
- requiring the start and end dates to compute 'daysDiff' and 'yearsDiff'.
+ {'bbldc'} provides day-count convention implementations, an enumeration based
+ set of dispatch components, and an abstract interface with templated adapters
+ for the day-count convention implementations.
 
 /'bblscm'
 / - - - -

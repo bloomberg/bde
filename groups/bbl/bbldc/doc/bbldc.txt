@@ -1,16 +1,27 @@
  bbldc.txt
 
-@PURPOSE: Provide basic day count implementations.
+@PURPOSE: Provide day-count convention implementations.
 
-@DESCRIPTION: The 'bbldc' package provides basic day count implementations; for
- conventions that only need two dates for the 'daysDiff' and 'yearsDiff'
- methods.
+@MNEMONIC: Basic Business Library Day-Count (bbldc)
+
+@DESCRIPTION: The 'bbldc' package provides day-count convention
+ implementations, an enumeration based set of dispatch components, and an
+ abstract interface with templated adapters for the day-count convention
+ implementations.
 
 /Hierarchical Synopsis
 /---------------------
- 'bbldc' package currently has 7 components having one level of dependency.
- The table below shows the hierarchical ordering of the components:
+ 'bbldc' package currently has 14 components having 2 levels of physical
+ dependency. The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+
 ..
+  2. bbldc_basicdaycount
+     bbldc_basicdaycountadapter
+     bbldc_perioddaycount
+     bbldc_perioddaycountadapter
+
   1. bbldc_basicactual360
      bbldc_basicactual365fixed
      bbldc_basicisdaactualactual
@@ -18,17 +29,51 @@
      bbldc_basicpsa30360eom
      bbldc_basicsia30360eom
      bbldc_basicsia30360neom
+     bbldc_daycountconvention
+     bbldc_daycountinterface
+     bbldc_periodicmaactualactual
 ..
 
 /Component Synopsis
 /------------------
- The following is a brief synopsis of the components in 'bbldc':
-..
-  bbldc_basicactual360             - Actual/360 convention
-  bbldc_basicactual365fixed        - Actual/365 (fixed) convention
-  bbldc_basicisdaactualactual      - ISDA Actual/Actual convention
-  bbldc_basicisma30360             - ISMA 30/360 convention
-  bbldc_basicpsa30360eom           - PSA 30/360 end-of-month convention
-  bbldc_basicsia30360eom           - SIA 30/360 end-of-month convention
-  bbldc_basicsia30360neom          - SIA 30/360 no-end-of-month convention
-..
+: 'bbldc_basicactual360':
+:      Provide stateless functions for the Actual/360 convention.
+:
+: 'bbldc_basicactual365fixed':
+:      Provide stateless functions for the Actual/365 (fixed) convention.
+:
+: 'bbldc_basicdaycount':
+:      Support for day-count calculations of 'enum'-specified conventions.
+:
+: 'bbldc_basicdaycountadapter':
+:      Provide a parameterized day-count convention implementation.
+:
+: 'bbldc_basicisdaactualactual':
+:      Provide stateless functions for the ISDA Actual/Actual convention.
+:
+: 'bbldc_basicisma30360':
+:      Provide stateless functions for the ISMA 30/360 convention.
+:
+: 'bbldc_basicpsa30360eom':
+:      Provide stateless functions for PSA 30/360 end-of-month convention.
+:
+: 'bbldc_basicsia30360eom':
+:      Provide stateless functions for SIA 30/360 end-of-month convention.
+:
+: 'bbldc_basicsia30360neom':
+:      Provide stateless functions for the SIA-30/360-neom convention.
+:
+: 'bbldc_daycountconvention':
+:      Provide an enumeration of 'bbldc' day-count conventions.
+:
+: 'bbldc_daycountinterface':
+:      Provide an interface for day-count calculations.
+:
+: 'bbldc_perioddaycount':
+:      Support for day-count calculations of 'enum'-specified conventions.
+:
+: 'bbldc_perioddaycountadapter':
+:      Provide a parameterized day-count convention implementation.
+:
+: 'bbldc_periodicmaactualactual':
+:      Provide stateless functions for period based ICMA Actual/Actual.
