@@ -21,11 +21,11 @@ namespace bsls {
 namespace {
 
 struct bsls_TimeInterval_Assertions {
-    char assertion1[-3 / 2 == -1];  // Ensure that the compiler maintains the
-    char assertion2[-5 % 4 == -1];  // sign of the remainder (the resulting
-                                    // sign is compiler implementation defined,
-                                    // though our current production compilers
-                                    // maintain the sign).
+    char assertion1[-3 / 2 == -1 ? 1 : -1];
+    char assertion2[-5 % 4 == -1 ? 1 : -1];
+        // Ensure that the compiler maintains the sign of the remainder (the
+        // resulting sign is compiler implementation defined, though our
+        // current production compilers maintain the sign).
 };
 
 }  // close unnamed namespace
