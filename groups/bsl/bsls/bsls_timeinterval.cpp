@@ -4,13 +4,10 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bsls_timeinterval_cpp,"$Id$ $CSID$")
 
-#include <bsls_assert.h>
 #include <bsls_asserttest.h>   // for testing only
 #include <bsls_bsltestutil.h>  // for testing only
-
 #include <bsls_platform.h>
 
-#include <limits.h>
 #include <ostream>
 
 // BDE_VERIFY pragma: push

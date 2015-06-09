@@ -9,7 +9,7 @@
 #include <bsls_platform.h>
 
 #include <algorithm>
-#include <iostream>
+#include <ostream>
 #include <iterator>
 #include <sstream>
 #include <string>
@@ -105,7 +105,7 @@ using namespace std;
 // [17] Int64 totalNanoseconds() const;
 // [17] double totalSecondsAsDouble() const;
 // [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
-// [ 5] STREAM& print(STREAM&, int, int) const;
+// [ 5] ostream& print(ostream&, int, int) const;
 //
 // FREE OPERATORS
 // [20] TimeInterval operator+(const Obj& lhs, const Obj& rhs);
@@ -133,7 +133,7 @@ using namespace std;
 // [15] bool operator<=(const TimeInterval&, const TimeInterval&);
 // [15] bool operator<=(const TimeInterval&, double);
 // [15] bool operator>=(double, const TimeInterval&);
-// [ 5] STREAM& operator<<(STREAM&, const TimeInterval&);
+// [ 5] ostream& operator<<(ostream&, const TimeInterval&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] TESTING TEST-DRIVER MACHINERY
@@ -233,70 +233,36 @@ const int k_BDEX_SIZEOF_INT64 = 8;
 //                        HELPER CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
-namespace outputSuppression {
-
-struct Guard {
-    // This mechanism optionally redirects to a 'stringstream' all output
-    // intended for 'cout'.  Redirection begins when the object is created, and
-    // continues until the object is destroyed.
-
-    bool                      d_isRedirecting;
-    native_std::stringstream  d_redirect;
-    native_std::streambuf    *d_originalBuffer;
-
-    Guard(bool doRedirect);
-        // Create a 'Guard' object, and, if the specified 'doRedirect' flag is
-        // 'true', redirect to an internal 'stringstream'
-        // all output intended for 'cout'.
-
-    ~Guard();
-        // Destroy this object.
-};
-
-Guard::Guard(bool doRedirect)
-: d_isRedirecting(doRedirect)
-, d_originalBuffer(native_std::cout.rdbuf())
-{
-    if (d_isRedirecting) {
-        native_std::cout.rdbuf(d_redirect.rdbuf());
-    }
-}
-
-Guard::~Guard() {
-    if (d_isRedirecting) {
-        native_std::cout.rdbuf(d_originalBuffer);
-    }
-}
-
-}  // close namespace outputSuppression
-
 // ----------------------------------------------------------------------------
-//                    GENERIC STREAMING OPERATOR SUPPORT
+//                   GENERIC STREAMING OPERATOR SIMULATION
 // ----------------------------------------------------------------------------
 
 namespace testadl {
 
 struct CustomStream {
+    int d_counter;
 };
 
 template <class OBJECT_TYPE>
 CustomStream& operator<<(CustomStream& stream, const OBJECT_TYPE& /* object */)
 {
-    // ...
+    ++stream.d_counter;
+
     return stream;
 }
 
 template <class OBJECT_TYPE>
-native_std::ostream& operator<<(native_std::ostream& stream, const OBJECT_TYPE& /* object */)
+native_std::ostream& operator<<(native_std::ostream& stream,
+                                const OBJECT_TYPE&   /* object */)
 {
-    // ...
     return stream;
 }
 
 struct UserType {
 };
 
-native_std::ostream& operator<<(native_std::ostream& stream, const UserType& /* object */)
+native_std::ostream& operator<<(native_std::ostream& stream,
+                                const UserType&      /* object */)
 {
     return stream;
 }
@@ -1075,10 +1041,50 @@ int main(int argc, char *argv[])
       case 23: {
         // --------------------------------------------------------------------
         // TESTING: DRQS 65043434
+        //   The previous implementation of 'operator<<' for
+        //   'bsls::TimeInterval' was templatized on the *stream* type to avoid
+        //   a dependency on 'bsl::ostream' (which would have been a
+        //   levelization violation).  Ticket DRQS 65043434 reported that this
+        //   signature caused ambiguity in ADL lookup in the presence of
+        //   facilities that provide a streaming operator templatized on the
+        //   *object* type.  Facilities that provide such a fall-back streaming
+        //   operator include Google Test, BDEX, and various logging
+        //   frameworks.
         //
         // Concerns:
+        //:  1 'bsls::operator<<' for 'bsls::TimeInterval' can be unambiguously
+        //:    called in a scope that can also see a generic 'operator<<' that
+        //:    is templatized on the 'object' parameter.
+        //:
+        //:  2 Invoking 'operator<<' with arguments of types
+        //:    'bsl::ostream' and 'bsls::TimeInterval' calls the function
+        //:    provided by 'bsls_timeinterval'.
+        //:
+        //:  3 Invoking a generic 'operator<<' that does not provide a
+        //:    specialization for 'bsls::TimeInterval' will call the generic
+        //:    function.
         //
         // Plan:
+        //:  1 Define generic streaming operators templatized on the 'object'
+        //:    type, and attempt to use them to stream objects of type
+        //:    'bsls::TimeInterval'.  Under the old implementation of
+        //:    'bsls::operator<<' for 'bsls::TimeInterval', these calls will
+        //:    not compile.  Under the new implementation, these calls will
+        //:    compile.  (C-1)
+        //:
+        //:  2 Define a streaming operator that accepts arbitrary
+        //:    objects to be streamed to an 'bsl::ostream', and that does not
+        //:    modify the stream.  Confirm that streaming a
+        //:    'bsls::TimeInterval' to a 'bsl::ostream' does change the stream,
+        //:    thereby confirming that the correct streaming operator is
+        //:    selected.  (C-2)
+        //:
+        //:  3 Define a streaming operator that accepts arbitrary
+        //:    objects to be streamed to a user-defined stream, with some
+        //:    observable side-effect.  Confirm that streaming a
+        //:    'bsls::TimeInterval' to such a 'bsl::ostream' causes the
+        //:    side-effect, thereby confirming that the correct streaming
+        //:    operator is selected.  (C-3)
         //
         // Testing:
         //   CONCERN: DRQS 65043434
@@ -1095,18 +1101,39 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nStreaming to native_std::ostream\n");
         {
-            native_std::cout << interval;
-            native_std::cout << integer;
-            native_std::cout << object;
+            native_std::ostringstream out;
+            native_std::ostream& stream = out;
+
+            native_std::string::size_type lastLength = 0;
+            ASSERT(lastLength == out.str().length());
+
+            stream << interval;
+            ASSERT(lastLength < out.str().length());
+            lastLength = out.str().length();
+
+            stream << integer;
+            ASSERT(lastLength < out.str().length());
+            lastLength = out.str().length();
+
+            stream << object;
+            ASSERT(lastLength == out.str().length());
         }
 
         if (verbose) printf("\nStreaming to custom stream\n");
         {
             CustomStream stream;
+            stream.d_counter = 0;
+
+            ASSERT(0 == stream.d_counter);
 
             stream << interval;
+            ASSERT(1 == stream.d_counter);
+
             stream << integer;
+            ASSERT(2 == stream.d_counter);
+
             stream << object;
+            ASSERT(3 == stream.d_counter);
         }
       } break;
       case 22: {
@@ -5655,14 +5682,13 @@ int main(int argc, char *argv[])
         }
       } break;
       case 5: {
-#if 0
         // --------------------------------------------------------------------
         // PRINT AND OUTPUT OPERATOR (<<)
         //   Ensure that the value of the object can be formatted appropriately
         //   on an 'ostream' in some standard, human-readable form.
         //
         // Concerns:
-        //: 1 The 'print' method writes the value to the specified 'STREAM'.
+        //: 1 The 'print' method writes the value to the specified 'ostream'.
         //:
         //: 2 The 'print' method writes the value in the intended format.
         //:
@@ -5670,7 +5696,7 @@ int main(int argc, char *argv[])
         //:
         //: 4 The 'print' method's signature and return type are standard.
         //:
-        //: 5 The 'print' method returns the supplied 'STREAM'.
+        //: 5 The 'print' method returns the supplied 'ostream'.
         //:
         //: 6 The optional 'level' and 'spacesPerLevel' parameters have the
         //:   correct default values (0 and 4, respectively).
@@ -5722,8 +5748,8 @@ int main(int argc, char *argv[])
         //:   arguments to 0 and -1, respectively.
         //
         // Testing:
-        //   STREAM& print(STREAM&, int, int) const;
-        //   STREAM& operator<<(STREAM&, const TimeInterval&);
+        //   ostream& print(ostream&, int, int) const;
+        //   ostream& operator<<(ostream&, const TimeInterval&);
         // --------------------------------------------------------------------
 
 
@@ -5734,8 +5760,10 @@ int main(int argc, char *argv[])
                              "the output 'operator<<' to variables.\n");
         {
 
-            typedef native_std::ostream& (Obj::*funcPtr)(native_std::ostream&, int, int) const;
-            typedef native_std::ostream& (*operatorPtr)(native_std::ostream&, const Obj&);
+            typedef native_std::ostream& (Obj::*funcPtr)(
+                                         native_std::ostream&, int, int) const;
+            typedef native_std::ostream& (*operatorPtr)(
+                                             native_std::ostream&, const Obj&);
 
             // Verify that the signatures and return types are standard.
 
@@ -5829,6 +5857,9 @@ int main(int argc, char *argv[])
                 const int         NSECS = DATA[ti].d_nsecs;
                 const char *const EXP   = DATA[ti].d_expected;
 
+                typedef native_std::ostringstream       OSStream;
+                typedef native_std::ostream             OStream;
+
                 Obj mX(SECS, NSECS); const Obj& X = mX;
 
                 if (veryVerbose) {
@@ -5838,10 +5869,11 @@ int main(int argc, char *argv[])
                 // Test with no default arguments.
 
                 {
-                    TestStream out;
-                    TestStream *mR = &X.print(out, L, SPL);
+                    OSStream out;
+                    OStream *mR = &X.print(out, L, SPL);
 
-                    const char *RESULT = out.stringValue();
+                    const native_std::string RESULT_STRING = out.str();
+                    const char *RESULT = RESULT_STRING.c_str();
 
                     ASSERTV(LINE,  mR,     &X, mR == &out);
                     ASSERTV(LINE, EXP, RESULT, 0  == strcmp(EXP, RESULT));
@@ -5852,10 +5884,11 @@ int main(int argc, char *argv[])
 
 
                 if (4 == SPL) {
-                    TestStream out;
-                    TestStream *mR = &X.print(out, L);
+                    OSStream out;
+                    OStream *mR = &X.print(out, L);
 
-                    const char *RESULT = out.stringValue();
+                    const native_std::string RESULT_STRING = out.str();
+                    const char *RESULT = RESULT_STRING.c_str();
 
                     ASSERTV(LINE,  mR,     &X, mR == &out);
                     ASSERTV(LINE, EXP, RESULT, 0  == strcmp(EXP, RESULT));
@@ -5866,10 +5899,11 @@ int main(int argc, char *argv[])
 
 
                 if (0 == L && 4 == SPL) {
-                    TestStream out;
-                    TestStream *mR = &X.print(out);
+                    OSStream out;
+                    OStream *mR = &X.print(out);
 
-                    const char *RESULT = out.stringValue();
+                    const native_std::string RESULT_STRING = out.str();
+                    const char *RESULT = RESULT_STRING.c_str();
 
                     ASSERTV(LINE,  mR,     &X, mR == &out);
                     ASSERTV(LINE, EXP, RESULT, 0  == strcmp(EXP, RESULT));
@@ -5903,15 +5937,18 @@ int main(int argc, char *argv[])
                 const int                NSECS    = DATA[di].d_nsecs;
                 const char *const        EXPECTED = DATA[di].d_expected;
 
+                typedef native_std::ostringstream       OSStream;
+                typedef native_std::ostream             OStream;
 
                 Obj mX;  const Obj& X = mX;
                 mX.setIntervalRaw(SECONDS, NSECS);
 
-                TestStream out;
+                OSStream out;
 
-                TestStream *mR = &(out << X);
+                OStream *mR = &(out << X);
 
-                const char *RESULT = out.stringValue();
+                const native_std::string RESULT_STRING = out.str();
+                const char *RESULT = RESULT_STRING.c_str();
 
                 if (veryVerbose) { T_; P_(EXPECTED); P(RESULT); }
 
@@ -5921,15 +5958,17 @@ int main(int argc, char *argv[])
 
                 // Compare with 'print(stream, 0, -1)
                 {
-                    TestStream expected;
+                    OSStream printResult;
+                    const native_std::string PRINT_RESULT_STRING = out.str();
+                    const char *PRINT_RESULT = PRINT_RESULT_STRING.c_str();
 
-                    X.print(expected, 0, -1);
+                    X.print(printResult, 0, -1);
 
-                    ASSERTV(LINE, 0 == strcmp(expected.stringValue(), RESULT));
+                    ASSERTV(LINE, PRINT_RESULT, RESULT,
+                                            0 == strcmp(PRINT_RESULT, RESULT));
                 }
             }
         }
-#endif
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -6006,40 +6045,15 @@ int main(int argc, char *argv[])
         }
       } break;
       case 3: {
-#if 0
         // --------------------------------------------------------------------
         // TESTING TEST-DRIVER MACHINERY
         //   Test the test-driver machinery used in this test-driver
         //
         // Concerns:
-        //: 1 That a newly constructed 'TestStream' returns an empty string
-        //:   for 'stringValue' and has a 'length' of 0.
-        //:
-        //: 2 That streaming a string into 'TestStream' appends the supplied
-        //:   string to 'stringValue' and the strings length to 'length'.
-        //:
-        //: 3 That streaming an integer into 'TestStream' appends the supplied
-        //:   integer to 'stringValue' and the strings length to 'length'.
-        //:
-        //: 4 That 'TestStream' unambiguously streams 'char', 'int' and 'Int64'
-        //:   types.
-        //:
-        //: 5 That streaming a string or 'int' into 'TestStream' that would
-        //:   exceed its capacity will BSLS_ASSERT_OPT(false);
+        //   N/A
         //
         // Plan:
-        //: 1 Construct a test-stream and test its property. (C-1)
-        //:
-        //: 2 Create a test-stream and write a series of C-strings to it and
-        //:   verify the 'length' and 'stringValue' properties. (C-2)
-        //:
-        //: 2 Create a test-stream and write a series of integral values of
-        //:   different types to it and verify the 'length' and 'stringValue'
-        //:   properties. (C-3..4)
-        //:
-        //: 4 Using the negative testing infrastructure, verify that an
-        //:   assertion is fired when appending either an integer or string
-        //    that would exceed the buffer capacity of the test stream. (C-5)
+        //   N/A
         //
         // Testing:
         //   TESTING TEST-DRIVER MACHINERY
@@ -6048,96 +6062,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING TEST-DRIVER MACHINERY"
                             "\n=============================\n");
 
-        if (verbose) printf(
-                "\nVerify default constructed 'TestStream'.\n");
-        {
-            TestStream mX; const TestStream& X = mX;
-            ASSERTV(X.length(),      0 == X.length());
-            ASSERTV(X.stringValue(), 0 != X.stringValue());
-            ASSERTV(X.stringValue(), 0 == *X.stringValue());
-
-            if (veryVerbose) { T_; P(X.stringValue()); }
-        }
-
-        if (verbose) printf(
-                "\nVerify writing a string to a 'TestStream'.\n");
-        {
-            TestStream mX; const TestStream& X = mX;
-            TestStream *mR = 0;
-
-            mR = &(mX << "12345");
-
-            ASSERTV(&X == mR);
-
-            ASSERTV(X.length(),      5 == X.length());
-            ASSERTV(X.stringValue(), 0 == strcmp(X.stringValue(), "12345"));
-
-
-            mR = &(mX << "678");
-
-            ASSERTV(&X == mR);
-
-            ASSERTV(X.length(),      8 == X.length());
-            ASSERTV(X.stringValue(), 0 == strcmp(X.stringValue(), "12345678"));
-
-            if (veryVerbose) { T_; P(X.stringValue()); }
-        }
-
-
-        if (verbose) printf(
-                "\nVerify writing an integrals to a 'TestStream'.\n");
-        {
-            TestStream mX; const TestStream& X = mX;
-            TestStream *mR = 0;
-
-            mR = &(mX << static_cast<int>(123));
-
-            ASSERTV(&X == mR);
-
-            ASSERTV(X.length(),      3 == X.length());
-            ASSERTV(X.stringValue(), 0 == strcmp(X.stringValue(), "123"));
-
-
-            mR = &(mX << static_cast<bsls::Types::Int64>(45));
-
-            ASSERTV(&X == mR);
-
-            ASSERTV(X.length(),      5 == X.length());
-            ASSERTV(X.stringValue(), 0 == strcmp(X.stringValue(), "12345"));
-
-            mR = &(mX << '6');
-
-            ASSERTV(&X == mR);
-
-            ASSERTV(X.length(),      6 == X.length());
-            ASSERTV(X.stringValue(), 0 == strcmp(X.stringValue(), "123456"));
-
-
-            if (veryVerbose) { T_; P(X.stringValue()); }
-        }
-
-        if (verbose) printf(
-                "\nVerify writing beyond the capacity of test stream\n");
-        {
-
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
-
-
-            char DATA[TestStream::k_CAPACITY];
-            memset(DATA, 'A', TestStream::k_CAPACITY - 1);
-            DATA[TestStream::k_CAPACITY - 1]  = 0;
-
-            TestStream mX; const TestStream& X = mX;
-
-            ASSERT_OPT_PASS(mX << DATA);
-
-            ASSERT_OPT_FAIL(mX << 11);
-            ASSERT_OPT_FAIL(mX << "11");
-
-            if (veryVerbose) { T_; P(X.stringValue()); }
-        };
-#endif
       } break;
       case 2: {
         // --------------------------------------------------------------------
