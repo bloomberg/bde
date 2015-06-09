@@ -271,141 +271,38 @@ Guard::~Guard() {
 }  // close namespace outputSuppression
 
 // ----------------------------------------------------------------------------
-//                     GTEST UNIVERSAL PRINT SIMULATION
+//                    GENERIC STREAMING OPERATOR SUPPORT
 // ----------------------------------------------------------------------------
 
-namespace testharness {
-namespace detail {
+namespace testadl {
 
-template <typename Streamable>
-native_std::ostream& operator<<(native_std::ostream&     stream,
-                                const Streamable& object);
-    // Print a representation of the specified 'object' to the specified
-    // 'stream'.
-
-}  // close namespace detail
-
-template <typename Object>
-void print(const Object& object, native_std::ostream& stream);
-    // Print a representation of the specified 'object' to the specified
-    // 'stream'.
-
-}  // close namespace testharness
-
-namespace library {
-
-struct NonStreamingType {
-    int d_x;
+struct CustomStream {
 };
 
-struct StreamingType {
-    int d_x;
-};
-
-native_std::ostream& operator<<(native_std::ostream& stream,
-                                const StreamingType& object);
-    // Print to the specified 'stream' the value of "x" for the specified
-    // 'object'.
-
-}  // close namespace library
-
-template <typename Streamable>
-native_std::ostream& testharness::detail::operator<<(
-                                                  native_std::ostream&  stream,
-                                                  const Streamable&     object)
+template <class OBJECT_TYPE>
+CustomStream& operator<<(CustomStream& stream, const OBJECT_TYPE& /* object */)
 {
-    struct aux {
-        static void printString(native_std::ostream&       stream,
-                                const native_std::string&  s     )
-        {
-            native_std::copy(s.begin(),
-                      s.end(),
-                      native_std::ostream_iterator<char>(stream));
-        }
-    };
-
-    aux::printString(stream, "[Object at ");
-    const void *address = &object;
-    stream << address;
-    aux::printString(stream, ": ");
-    stream << sizeof object;
-    aux::printString(stream, " bytes]");
-
+    // ...
     return stream;
 }
 
-template <typename Object>
-void testharness::print(const Object& object, native_std::ostream& stream)
+template <class OBJECT_TYPE>
+native_std::ostream& operator<<(native_std::ostream& stream, const OBJECT_TYPE& /* object */)
 {
-    using testharness::detail::operator<<;
-
-    stream << object;
-}
-
-native_std::ostream& library::operator<<(native_std::ostream&           stream,
-                                         const library::StreamingType&  object)
-{
-    return stream << object.d_x;
-}
-
-// ----------------------------------------------------------------------------
-//                           LOG RECORD SIMULATION
-// ----------------------------------------------------------------------------
-
-namespace logger {
-
-struct Stream {
-    int d_count;
-
-    Stream() : d_count(0) {}
-};
-
-template <typename Streamable>
-Stream& operator<<(Stream&           stream,
-                   const Streamable& object);
-
-}  // close namespace logger
-
-namespace application {
-
-struct StreamableType {
-    int d_x;
-};
-
-native_std::ostream& operator<<(native_std::ostream&  stream,
-                                const StreamableType& object);
-    // Print to the specified 'stream' the value of "x" for the specified
-    // 'object'.
-
-logger::Stream& operator<<(logger::Stream&        stream,
-                           const StreamableType&  object);
-
-}  // close namespace application
-
-template <typename Streamable>
-logger::Stream& logger::operator<<(logger::Stream&    stream,
-                                   const Streamable&  /* object */)
-{
-    ++stream.d_count;
-
+    // ...
     return stream;
 }
 
-native_std::ostream& application::operator<<(
-                                    native_std::ostream&                stream,
-                                    const application::StreamableType&  object)
-{
-    return stream << object.d_x;
-}
+struct UserType {
+};
 
-logger::Stream& application::operator<<(
-                                    logger::Stream&                     stream,
-                                    const application::StreamableType&  object)
+native_std::ostream& operator<<(native_std::ostream& stream, const UserType& /* object */)
 {
-    stream.d_count += object.d_x;
-
     return stream;
 }
+
+}  // close namespace testadl
+
 
 // ----------------------------------------------------------------------------
 //                           BSLS_TESTUTIL SUPPORT
@@ -1306,66 +1203,26 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING: DRQS 65043434"
                             "\n======================\n");
 
+        const bsls::TimeInterval interval;
+        const int                integer  = 42;
+        const testadl::UserType  object;
 
-        if (verbose) printf("\nSimulating GTest Universal Printer\n");
+        using namespace testadl;
+
+        if (verbose) printf("\nStreaming to native_std::ostream\n");
         {
-            outputSuppression::Guard outputSuppressionGuard(!veryVeryVerbose);
-
-            using native_std::cout;
-            using native_std::endl;
-
-            library::NonStreamingType a = { 42 };
-            library::StreamingType    b = { 7 };
-            bsls::TimeInterval        interval;
-
-            // Printing with 'print'
-
-            testharness::print(a, cout);
-            cout << endl;
-
-            testharness::print(b, cout);
-            cout << endl;
-
-            testharness::print(interval, cout);
-            cout << endl;
-
-            // Printing with 'operator<<'
-
-            // Should not compile:
-            // cout << a << endl;
-
-            cout << b << endl;
-
-            cout << interval << endl;
+            native_std::cout << interval;
+            native_std::cout << integer;
+            native_std::cout << object;
         }
 
-        if (verbose) printf("\nSimulating Logger\n");
+        if (verbose) printf("\nStreaming to custom stream\n");
         {
-            outputSuppression::Guard outputSuppressionGuard(!veryVeryVerbose);
+            CustomStream stream;
 
-            using native_std::cout;
-            using native_std::endl;
-
-            application::StreamableType b = { 7 };
-            bsls::TimeInterval          interval;
-
-            // Streaming to ostream
-
-            cout << b << endl;
-
-            cout << interval << endl;
-
-            // Streaming to logger::Stream
-
-            logger::Stream stream;
-
-            ASSERTV(stream.d_count, 0 == stream.d_count);
-            stream << b;
-            ASSERTV(stream.d_count, 7 == stream.d_count);
-
-            ASSERTV(stream.d_count, 7 == stream.d_count);
             stream << interval;
-            ASSERTV(stream.d_count, 8 == stream.d_count);
+            stream << integer;
+            stream << object;
         }
       } break;
       case 22: {
