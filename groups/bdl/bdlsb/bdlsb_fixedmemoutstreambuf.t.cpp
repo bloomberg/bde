@@ -158,12 +158,12 @@ bsl::ostream& operator<<(bsl::ostream& stream,
 bsl::ostream& operator<<(bsl::ostream& stream,
                          const Obj&    streamBuffer)
 {
-    const int   len  = streamBuffer.length();
-    const char *data = streamBuffer.data();
+    const long int  len  = streamBuffer.length();
+    const char     *data = streamBuffer.data();
 
     bsl::ios::fmtflags flags = stream.flags();
     stream << bsl::hex;
-    for (int i = 0; i < len; ++i) {
+    for (long int i = 0; i < len; ++i) {
         if (0 < i && 0 != i % 8) stream << ' ';
 
         if (0 == i % 8) { // print new line and address after 8 bytes
@@ -225,9 +225,9 @@ int main(int argc, char *argv[])
 // Unlike most implementations of the 'bsl::basic_streambuf' concept,
 // 'bdlsb::FixedMemOutStreamBuf' gives the user direct access to the stream's
 // storage, both through the 'data' accessor and through the buffer originally
-// supplied to the constructor.  [This can be useful in many contexts, such as
-// when we need to perform extra security validation on buffer during the
-// streaming process.]
+// supplied to the constructor.  Note that this can be useful in many contexts,
+// such as when we need to perform extra security validation on buffer during
+// the streaming process.
 //
 // First, we create an array to provide storage for the stream buffer, and
 // construct a 'bdlsb::FixedMemOutStreamBuf' on that array:
@@ -247,7 +247,7 @@ int main(int argc, char *argv[])
 //..
 // Next, we use 'buffer' to construct a 'bsl::ostream':
 //..
-  bsl::ostream stream(buffer);
+  bsl::ostream stream(&buffer);
 //..
 // Now, we output some data to the 'stream':
 //..
@@ -266,20 +266,26 @@ int main(int argc, char *argv[])
 // Unlike most implementations of the 'bsl::basic_streambuf' concept,
 // 'bdlsb::FixedMemOutStreamBuf' uses limited size of buffer, provided to the
 // constructor together with storage's address.  That limit won't be exceeded
-// even in case of superfluous data.  This can be useful if memory allocation
-// should be strictly controlled.
+// even in case of superfluous data.  Remained symbols will be ignored.  Note
+// that this can be useful if memory allocation should be strictly controlled.
 //
-// First, we create an array to provide storage for the stream buffer, and
-// construct a 'bdlsb::FixedMemOutStreamBuf' on that array:
+// First, we create an array to provide storage for the stream buffer, fill it
+// with some data and construct a 'bdlsb::FixedMemOutStreamBuf' on the part of
+// that array:
 //..
-  char                        smallStorage[8];
-  bdlsb::FixedMemOutStreamBuf smallBuffer(smallStorage, sizeof(smallStorage));
+  char smallStorage[16];
+  memset(smallStorage, 'Z', 16);
+
+  bdlsb::FixedMemOutStreamBuf smallBuffer(smallStorage,
+                                          sizeof(smallStorage) - 8);
 //..
-// Next, we write some characters to the buffer and check results:
+// Next, we write some characters to the buffer and check that it handles them
+// correctly and superfluous data is ignored:
 //..
   bsl::streamsize returnedSize = smallBuffer.sputn("The answer is 42.", 17);
   ASSERT(8 == returnedSize);
   ASSERT(8 == smallBuffer.length());
+  ASSERT('Z' == smallStorage[smallBuffer.length()]);
 //..
 // Then, we reset position indicator to the beginning of storage:
 //..
@@ -376,9 +382,6 @@ int main(int argc, char *argv[])
                           << "TESTING 'seek' METHODS" << endl
                           << "======================" << endl;
 
-        if (verbose) cout << "\nTesting seekoff from beginning and end."
-                          << endl;
-
         const io_openmode PUT = bsl::ios_base::out;
         const io_openmode GET = bsl::ios_base::in;
         const io_seekdir  CUR = bsl::ios_base::cur;
@@ -388,6 +391,17 @@ int main(int argc, char *argv[])
         char mFILL[INIT_BUFSIZE];
         memset(mFILL, 'a', sizeof mFILL);
 
+        if (verbose) cout << "\nTesting seekoff with no buffer." << endl;
+        {
+            Obj           mSB(0, 0);
+            Obj::pos_type ret;
+
+            ret = mSB.pubseekoff(1, BEG, PUT);
+            ASSERT(-1 == ret);
+        }
+
+        if (verbose) cout << "\nTesting seekoff from beginning and end."
+                          << endl;
         {
             static const struct {
                 int           d_line;          // line number
@@ -436,9 +450,9 @@ int main(int argc, char *argv[])
                { L_,  GET,                   -1, END,                   -1  },
                { L_,  GET,                   -1, CUR,                   -1  },
             };
-            const int DATA_LEN = sizeof DATA / sizeof *DATA;
+            const unsigned long int DATA_LEN = sizeof DATA / sizeof *DATA;
 
-            for (int i = 0; i < DATA_LEN; ++i ) {
+            for (unsigned long int i = 0; i < DATA_LEN; ++i ) {
                 const int LINE      = DATA[i].d_line;
                 const int FINAL_POS = (0 <= DATA[i].d_retVal ?
                                        DATA[i].d_retVal : INIT_BUFSIZE);
@@ -500,9 +514,9 @@ int main(int argc, char *argv[])
                { L_,                  0,  INIT_BUFSIZE,       INIT_BUFSIZE  },
                { L_,                  1,  INIT_BUFSIZE,                 -1  },
             };
-            const int DATA_LEN = sizeof DATA / sizeof *DATA;
+            const unsigned long int DATA_LEN = sizeof DATA / sizeof *DATA;
 
-            for (int i = 0; i < DATA_LEN; ++i ) {
+            for (unsigned long int i = 0; i < DATA_LEN; ++i ) {
                 const int LINE      = DATA[i].d_line;
                 const int FINAL_POS = (0 <= DATA[i].d_retVal ?
                                        DATA[i].d_retVal :
@@ -538,9 +552,9 @@ int main(int argc, char *argv[])
                { L_,   INIT_BUFSIZE/2,  INIT_BUFSIZE/2,  INIT_BUFSIZE/2  },
                { L_,   INIT_BUFSIZE/2,    INIT_BUFSIZE,  INIT_BUFSIZE/2  },
             };
-            const int DATA_LEN = sizeof DATA / sizeof *DATA;
+            const unsigned long int DATA_LEN = sizeof DATA / sizeof *DATA;
 
-            for (int i = 0; i < DATA_LEN; ++i ) {
+            for (unsigned long int i = 0; i < DATA_LEN; ++i ) {
                 const int LINE      = DATA[i].d_line;
                 const int FINAL_POS = (0 <= DATA[i].d_retVal ?
                                        DATA[i].d_retVal :
@@ -591,9 +605,18 @@ int main(int argc, char *argv[])
                           << "TESTING 'sputn' METHOD" << endl
                           << "======================" << endl;
 
+        if (verbose) cout << "\nTesting sputn with no buffer." << endl;
         {
-            if (verbose) cout << "\nTesting sputn." << endl;
+            Obj              mSB(0, 0);
+            const char      *source = "a";
+            bsl::streamsize  retResult;
 
+            retResult = mSB.sputn(source, strlen(source));
+            ASSERT(0 == retResult);
+        }
+
+        if (verbose) cout << "\nTesting sputn." << endl;
+        {
             const struct TestData {
                 int         d_line;          // line number
                 const char *d_outStr;        // string to output
@@ -620,11 +643,11 @@ int main(int argc, char *argv[])
               { L_,  "abc",      2,   "a",   "aa",      2,    1  }
             };
 
-            const int DATA_LEN = sizeof DATA / sizeof *DATA;
+            const unsigned long int DATA_LEN = sizeof DATA / sizeof *DATA;
 
             // This segment verifies correct behavior across different initial
             // buffer states (buffer length x buffer contents.)
-            for(int i = 0; i < DATA_LEN; ++i ) {
+            for(unsigned long int i = 0; i < DATA_LEN; ++i ) {
                 const int LINE      = DATA[i].d_line;
 
                 char *bytes = new char[DATA[i].d_strCap];
@@ -635,8 +658,9 @@ int main(int argc, char *argv[])
                     mSB.sputc(DATA[i].d_initialCont[j]);
                 }
                 if (veryVerbose) { T_ cout << "Initial contents: "; P(mSB)};
-                int retResult = mSB.sputn(DATA[i].d_outStr,
-                                          strlen(DATA[i].d_outStr));
+                bsl::streamsize retResult;
+                retResult = mSB.sputn(DATA[i].d_outStr,
+                                      strlen(DATA[i].d_outStr));
                 ASSERTV(LINE, 0 == strncmp(bytes,
                                            DATA[i].d_result,
                                            strlen(DATA[i].d_result )) );
@@ -748,11 +772,11 @@ int main(int argc, char *argv[])
                { L_,    's',      2,   "ab",   "ab",      2,   -1  },
             };
 
-            const int DATA_LEN = sizeof DATA / sizeof *DATA;
+            const unsigned long int DATA_LEN = sizeof DATA / sizeof *DATA;
 
             // This segment verifies correct behavior across different initial
             // buffer states (buffer length x buffer contents.)
-            for(int i = 0; i < DATA_LEN; ++i ) {
+            for(unsigned long int i = 0; i < DATA_LEN; ++i ) {
                 const int   LINE = DATA[i].d_line;
                 char      *bytes = new char[DATA[i].d_strCap];
 
@@ -790,10 +814,10 @@ int main(int argc, char *argv[])
         //: 3 Output operator works on references to 'const' object.
         //
         // Plan:
-        //  1 For each of a small representative set of object values use
-        //    'stringstream' to write that object's value to two separate
-        //    strings.  Compare the contents of these strings with the literal
-        //    expected output format and verify that they are equal. (C-1..3)
+        //:  1 For each of a small representative set of object values use
+        //:    'stringstream' to write that object's value to two separate
+        //:    strings.  Compare the contents of these strings with the literal
+        //:    expected output format and verify that they are equal. (C-1..3)
         //
         // Testing:
         //   ostream& operator<<(ostream&, const FixedMemOutStreamBuf&);
