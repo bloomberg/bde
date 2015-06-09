@@ -410,18 +410,18 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_isconvertible.h>
 #endif
 
-#ifndef INCLUDED_BSLS_NATIVESTD
-#include <bsls_nativestd.h>
-#endif
-
 #ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
 #endif
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSLS_NATIVESTD
+#include <bsls_nativestd.h>
+#endif
 
 #ifndef INCLUDED_UTILITY
-#include <utility>         // 'std::forward'
+#include <utility>
 #define INCLUDED_UTILITY
 #endif
 
