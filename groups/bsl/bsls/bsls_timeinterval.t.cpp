@@ -1102,7 +1102,7 @@ int main(int argc, char *argv[])
 
         const bsls::TimeInterval interval;
         const int                integer = 42;
-        const testadl::UserType  object;
+        const testadl::UserType  object  = {};
 
         using namespace testadl;
 
@@ -1128,8 +1128,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nStreaming to custom stream\n");
         {
-            CustomStream stream;
-            stream.d_counter = 0;
+            CustomStream stream = { 0 };
 
             stream << interval;
             ASSERT(1 == stream.d_counter);
