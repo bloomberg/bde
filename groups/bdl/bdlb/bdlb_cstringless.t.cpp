@@ -31,10 +31,11 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // 'bdlb::CStringLess' provides a stateless type and thus very little to test.
-// The primary concern is that function call operator compares c-strings
+// The primary concern is that function call operator compares C-strings
 // correctly.  CREATORS can be tested only for mechanical functioning.  And BSL
 // traits presence should be checked as we declare that 'bdlb::CStringLess' is
 // an empty POD.
+//
 // The tests for this component are table based, i.e., testing actual results
 // against a table of expected results.
 //
@@ -44,10 +45,10 @@ using namespace bsl;
 //: o Precondition violations are detected in appropriate build modes.
 // ----------------------------------------------------------------------------
 // [ 3] operator()(const char *, const char *) const
-// [ 2] bdlb::CStringLess()
-// [ 2] bdlb::CStringLess(const bdlb::CStringLess)
-// [ 2] ~bdlb::CStringLess()
-// [ 2] bdlb::CStringLess& operator=(const bdlb::CStringLess&)
+// [ 2] CStringLess()
+// [ 2] CStringLess(const bdlb::CStringLess)
+// [ 2] ~CStringLess()
+// [ 2] CStringLess& operator=(const bdlb::CStringLess&)
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 7] USAGE EXAMPLE
@@ -165,23 +166,33 @@ int main(int argc, char *argv[])
                           << "=============" << endl;
 ///Usage
 ///-----
-// Suppose we need a container to store set of unique c-strings. The following
-// code illustrates how to use 'bdlb::CStringLess' as a comparator for standard
-// container 'set'.  Default comparator compares pointer's values, so identical
-// strings, placed in different memory sectors, will be added to 'set'
-// container in spite of expected uniqueness of container's contents.  Whereas
-// 'bdlb::CStringLess' will discern no difference between such strings.
+// This section illustrates intended use of this component.
 //
-// First, we create several c-strings:
+///Example 1: Basic Use of 'bdlb::CStringLess'
+/// - - - - - - - - - - - - - - - - - - - - -
+// Suppose we need a container to store set of unique C-strings. The following
+// code illustrates how to use 'bdlb::CStringLess' as a comparator for the
+// standard container 'set', to create a set of unique C-string values.
+//
+// Note that the default comparator for 'const char *' (i.e.,
+// 'bsl::less<const char *>') compares the supplied addresses, rather than the
+// contents of the C-strings to which those address typically refer.  As a
+// result, when using the default comparator, identical C-string values located
+// at different addresses, will be successfully added to a 'set' container.
+// 'bdlb::CStringLess' compares the values of the C-strings ensuring that a
+// 'set', using 'CstringLess' as a comparator, is a set of unique string
+// values.
+//
+// First, we create several C-strings:
 //..
-  const char newYork[]= "NY";
-  const char losAngeles[] = "LA";
-  const char newJersey[] = "NJ";
-  const char sanFrancisco[] = "SF";
+  const char newYork[]        = "NY";
+  const char losAngeles[]     = "LA";
+  const char newJersey[]      = "NJ";
+  const char sanFrancisco[]   = "SF";
   const char anotherNewYork[] = "NY";
 //..
-// Next, we create two containers, one with default comparator and another with
-// an 'bdlb::CStringLess' used as comparator:
+// Next, we create two containers, one with default comparator and another
+// using 'bdlb::CstringLess' as a comparator:
 //..
   bsl::set<const char *>                    defaultComparatorContainer;
   bsl::set<const char *, bdlb::CStringLess> userComparatorContainer;
@@ -200,7 +211,9 @@ int main(int argc, char *argv[])
   userComparatorContainer.insert(sanFrancisco);
   userComparatorContainer.insert(anotherNewYork);
 //..
-// Finally, we observe different container's sizes:
+// Finally, we observe that the container created with 'CStringLess'
+// ('userComparatorContainer') contains the correct number of unique C-string
+// values (4), while the container using the default comparator does not:
 //..
   ASSERT(5 == defaultComparatorContainer.size());
   ASSERT(4 == userComparatorContainer.size());
@@ -208,7 +221,7 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING QOI: IS AN EMPTY TYPE
+        // TESTING QoI: 'CStringLess' IS AN EMPTY TYPE
         //   As a quality of implementation issue, the class has no state and
         //   should support the use of the empty base class optimization on
         //   compilers that support it.
@@ -233,12 +246,14 @@ int main(int argc, char *argv[])
         //   QoI: Support for empty base optimization
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING QOI: IS AN EMPTY TYPE" << endl
-                          << "=============================" << endl;
+        if (verbose) cout
+                      << endl
+                      << "TESTING QOI: 'CStringLess' IS AN EMPTY TYPE" << endl
+                      << "===========================================" << endl;
 
         struct TwoInts {
             int a;
+
             int b;
         };
 
@@ -381,11 +396,11 @@ int main(int argc, char *argv[])
             {  L_,     "abc",  "z",    true,       false   },
             {  L_,     "abc",  "abc",  false,      false   }
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const long unsigned int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         const bdlb::CStringLess compare = bdlb::CStringLess();
 
-        for (int i = 0; i != NUM_DATA; ++i) {
+        for (long unsigned int i = 0; i != NUM_DATA; ++i) {
             const int   LINE     = DATA[i].d_line;
             const char *LHS      = DATA[i].d_lhs;
             const char *RHS      = DATA[i].d_rhs;
@@ -418,7 +433,7 @@ int main(int argc, char *argv[])
         //   member functions are publicly callable and have no unexpected side
         //   effects such as allocating memory.  As there is no observable
         //   state to inspect, there is little to verify other than that the
-        //   expected expressions all compile, and
+        //   expected expressions all compile.
         //
         // Concerns:
         //: 1 Objects can be created using the default constructor.
@@ -457,10 +472,10 @@ int main(int argc, char *argv[])
         //:   allocator.  (C-7)
         //
         // Testing:
-        //   bdlb::CStringLess()
-        //   bdlb::CStringLess(const bdlb::CStringLess)
-        //   ~bdlb::CStringLess()
-        //   bdlb::CStringLess& operator=(const bdlb::CStringLess&)
+        //   CStringLess()
+        //   CStringLess(const bdlb::CStringLess)
+        //   ~CStringLess()
+        //   CStringLess& operator=(const bdlb::CStringLess&)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -473,16 +488,18 @@ int main(int argc, char *argv[])
         bslma::TestAllocator         da("default", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard dag(&da);
 
-        if (verbose) cout << "Value initialization" << endl;
-        const bdlb::CStringLess obj1 = bdlb::CStringLess();
+        {
+            if (verbose) cout << "Value initialization" << endl;
+            const bdlb::CStringLess obj1 = bdlb::CStringLess();
 
 
-        if (verbose) cout << "Copy initialization" << endl;
-        bdlb::CStringLess obj2 = obj1;
+            if (verbose) cout << "Copy initialization" << endl;
+            bdlb::CStringLess obj2 = obj1;
 
-        if (verbose) cout << "Copy assignment" << endl;
-        obj2 = obj1;
-        obj2 = obj2 = obj1;
+            if (verbose) cout << "Copy assignment" << endl;
+            obj2 = obj1;
+            obj2 = obj2 = obj1;
+        }
 
         ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
 

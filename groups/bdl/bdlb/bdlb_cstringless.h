@@ -7,40 +7,50 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a functor enabling C strings as associative container keys.
+//@PURPOSE: Provide a functor enabling C-strings as associative container keys.
 //
 //@CLASSES:
-//  bdlb::CStringLess: functor enabling C strings as associative container keys
+//  bdlb::CStringLess: functor enabling C-strings as associative container keys
 //
 //@SEE_ALSO: bsl_map, bsl_set
 //
-//@DESCRIPTION: This component provides a functor to compare two
-// null-terminated strings using a case-sensitive string comparison, rather
-// than simply comparing the two addresses (as the 'std::less' functor would
-// do).  This lexicographical ordering makes 'CStringLess' suitable for
-// supporting C strings as keys in associative containers.  Note that the
-// container behavior would be undefined if the strings referenced by such
-// pointers were to change value.
+//@DESCRIPTION: This component provides a 'struct', 'bdlb::CStringLess', that
+// defines a functor that compares two null-terminated strings using a
+// case-sensitive string comparison, rather than simply comparing the two
+// addresses (as the 'std::less' functor would do).  This lexicographical
+// ordering makes 'CStringLess' suitable for supporting C strings as keys in
+// associative containers.  Note that the container behavior would be undefined
+// if the strings referenced by such pointers were to change value.
 //
 ///Usage
 ///-----
-// Suppose we need a container to store set of unique c-strings. The following
-// code illustrates how to use 'bdlb::CStringLess' as a comparator for standard
-// container 'set'.  Default comparator compares pointer's values, so identical
-// strings, placed in different memory sectors, will be added to 'set'
-// container in spite of expected uniqueness of container's contents.  Whereas
-// 'bdlb::CStringLess' will discern no difference between such strings.
+// This section illustrates intended use of this component.
 //
-// First, we create several c-strings:
+///Example 1: Basic Use of 'bdlb::CStringLess'
+/// - - - - - - - - - - - - - - - - - - - - -
+// Suppose we need a container to store set of unique C-strings. The following
+// code illustrates how to use 'bdlb::CStringLess' as a comparator for the
+// standard container 'set', to create a set of unique C-string values.
+//
+// Note that the default comparator for 'const char *' (i.e.,
+// 'bsl::less<const char *>') compares the supplied addresses, rather than the
+// contents of the C-strings to which those address typically refer.  As a
+// result, when using the default comparator, identical C-string values located
+// at different addresses, will be successfully added to a 'set' container.
+// 'bdlb::CStringLess' compares the values of the C-strings ensuring that a
+// 'set', using 'CstringLess' as a comparator, is a set of unique string
+// values.
+//
+// First, we create several C-strings:
 //..
-//  const char newYork[]= "NY";
-//  const char losAngeles[] = "LA";
-//  const char newJersey[] = "NJ";
-//  const char sanFrancisco[] = "SF";
+//  const char newYork[]        = "NY";
+//  const char losAngeles[]     = "LA";
+//  const char newJersey[]      = "NJ";
+//  const char sanFrancisco[]   = "SF";
 //  const char anotherNewYork[] = "NY";
 //..
-// Next, we create two containers, one with default comparator and another with
-// an 'bdlb::CStringLess' used as comparator:
+// Next, we create two containers, one with default comparator and another
+// using 'bdlb::CstringLess' as a comparator:
 //..
 //  bsl::set<const char *>                    defaultComparatorContainer;
 //  bsl::set<const char *, bdlb::CStringLess> userComparatorContainer;
@@ -59,7 +69,9 @@ BSLS_IDENT("$Id: $")
 //  userComparatorContainer.insert(sanFrancisco);
 //  userComparatorContainer.insert(anotherNewYork);
 //..
-// Finally, we observe different container sizes:
+// Finally, we observe that the container created with 'CStringLess'
+// ('userComparatorContainer') contains the correct number of unique C-string
+// values (4), while the container using the default comparator does not:
 //..
 //  assert(5 == defaultComparatorContainer.size());
 //  assert(4 == userComparatorContainer.size());
@@ -108,10 +120,9 @@ struct CStringLess {
     typedef bool result_type;
 
     // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(CStringLess, bsl::is_trivially_copyable);
     BSLMF_NESTED_TRAIT_DECLARATION(CStringLess,
                                    bsl::is_trivially_default_constructible);
-    BSLMF_NESTED_TRAIT_DECLARATION(CStringLess,
-                                   bsl::is_trivially_copyable);
 
     // CREATORS
     //! CStringLess() = default;
@@ -121,13 +132,13 @@ struct CStringLess {
         // Create a 'CStringLess' object.  Note that as 'CStringLess' is an
         // empty (stateless) type, this operation has no observable effect.
 
-        //! ~CStringLess() = default;
+    //! ~CStringLess() = default;
         // Destroy this object.
 
     // MANIPULATORS
     //! CStringLess& operator=(const CStringLess& rhs) = default;
         // Assign to this object the value of the specified 'rhs' object, and
-        // a return a reference providing modifiable access to this object.
+        // return a reference providing modifiable access to this object.
         // Note that as 'CStringLess' is an empty (stateless) type, this
         // operation has no observable effect.
 
