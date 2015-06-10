@@ -165,9 +165,10 @@ void TimeInterval::setInterval(bsls::Types::Int64 seconds,
 
 }
 
-native_std::ostream& TimeInterval::print(native_std::ostream& stream,
-                            int     level,
-                            int     spacesPerLevel) const
+native_std::ostream& TimeInterval::print(
+                                     native_std::ostream& stream,
+                                     int                  level,
+                                     int                  spacesPerLevel) const
 {
     if (level > 0 && spacesPerLevel != 0) {
         // If 'level <= 0' the value will not be indented, otherwise the
@@ -195,8 +196,8 @@ native_std::ostream& TimeInterval::print(native_std::ostream& stream,
 
 }  // close package namespace
 
-native_std::ostream& bsls::operator<<(native_std::ostream& stream,
-                                     const bsls::TimeInterval& timeInterval)
+native_std::ostream& bsls::operator<<(native_std::ostream&      stream,
+                                      const bsls::TimeInterval& timeInterval)
 {
     return timeInterval.print(stream, 0, -1);
 }

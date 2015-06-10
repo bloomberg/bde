@@ -137,8 +137,9 @@ using namespace std;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] TESTING TEST-DRIVER MACHINERY
-// [23] USAGE EXAMPLE
+// [24] USAGE EXAMPLE
 // [ 8] Reserved for 'swap' testing.
+// [23] CONCERN: DRQS 65043434
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -245,6 +246,8 @@ struct CustomStream {
 
 template <class OBJECT_TYPE>
 CustomStream& operator<<(CustomStream& stream, const OBJECT_TYPE& /* object */)
+    // Increment the internal counter of the specified 'stream', and return a
+    // reference providing modifiable access to the 'stream'.
 {
     ++stream.d_counter;
 
@@ -254,6 +257,8 @@ CustomStream& operator<<(CustomStream& stream, const OBJECT_TYPE& /* object */)
 template <class OBJECT_TYPE>
 native_std::ostream& operator<<(native_std::ostream& stream,
                                 const OBJECT_TYPE&   /* object */)
+    // Return a reference providing modifiable access to the specified
+    // 'stream'.
 {
     return stream;
 }
@@ -263,6 +268,8 @@ struct UserType {
 
 native_std::ostream& operator<<(native_std::ostream& stream,
                                 const UserType&      /* object */)
+    // Return a reference providing modifiable access to the specified
+    // 'stream'.
 {
     return stream;
 }
@@ -1094,7 +1101,7 @@ int main(int argc, char *argv[])
                             "\n======================\n");
 
         const bsls::TimeInterval interval;
-        const int                integer  = 42;
+        const int                integer = 42;
         const testadl::UserType  object;
 
         using namespace testadl;
@@ -1102,7 +1109,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nStreaming to native_std::ostream\n");
         {
             native_std::ostringstream out;
-            native_std::ostream& stream = out;
+            native_std::ostream&      stream = out;
 
             native_std::string::size_type lastLength = 0;
             ASSERT(lastLength == out.str().length());
@@ -1123,8 +1130,6 @@ int main(int argc, char *argv[])
         {
             CustomStream stream;
             stream.d_counter = 0;
-
-            ASSERT(0 == stream.d_counter);
 
             stream << interval;
             ASSERT(1 == stream.d_counter);

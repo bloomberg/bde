@@ -479,8 +479,8 @@ class TimeInterval {
         // containers.
 
     native_std::ostream& print(native_std::ostream& stream,
-                  int     level          = 0,
-                  int     spacesPerLevel = 4) const;
+                               int                  level          = 0,
+                               int                  spacesPerLevel = 4) const;
         // Write the value of this object to the specified output 'stream' in a
         // human-readable format, and return a reference providing modifiable
         // access to 'stream'.  Optionally specify an initial indentation
