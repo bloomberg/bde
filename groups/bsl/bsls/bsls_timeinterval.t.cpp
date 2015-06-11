@@ -9,8 +9,8 @@
 #include <bsls_platform.h>
 
 #include <algorithm>
-#include <ostream>
 #include <iterator>
+#include <ostream>
 #include <sstream>
 #include <string>
 
@@ -1108,22 +1108,21 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nStreaming to native_std::ostream\n");
         {
-            native_std::ostringstream out;
-            native_std::ostream&      stream = out;
+            native_std::ostringstream stream;
 
             native_std::string::size_type lastLength = 0;
-            ASSERT(lastLength == out.str().length());
+            ASSERT(lastLength == stream.str().length());
 
             stream << interval;
-            ASSERT(lastLength < out.str().length());
-            lastLength = out.str().length();
+            ASSERT(lastLength < stream.str().length());
+            lastLength = stream.str().length();
 
             stream << integer;
-            ASSERT(lastLength < out.str().length());
-            lastLength = out.str().length();
+            ASSERT(lastLength < stream.str().length());
+            lastLength = stream.str().length();
 
             stream << object;
-            ASSERT(lastLength == out.str().length());
+            ASSERT(lastLength == stream.str().length());
         }
 
         if (verbose) printf("\nStreaming to custom stream\n");
