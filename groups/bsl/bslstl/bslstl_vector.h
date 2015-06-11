@@ -1034,14 +1034,14 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     template <class... Args> void emplace_back(Args&&... args);
         // Append a new element to the end of this vector, constructed directly
-        // in place from the specified 'args'. The 'args' are passed to the
+        // in place from the specified 'args'.  The 'args' are passed to the
         // constructor using "perfect forwarding", meaning move semantics will
-        // be utilized for rvalued elements that implement them. The
+        // be utilized for rvalued elements that implement them.  The
         // combination of constructing in place and "perfect forwarding" means
-        // that when move semantics are availible, elements in 'args' will not
-        // be copied at all. When move semantics are not availible, elements in
-        // 'args' will be copied only once. This method provides the strong
-        // exception safety guarentee, so the state of this object will not be
+        // that when move semantics are available, elements in 'args' will not
+        // be copied at all.  When move semantics are not available, elements
+        // in 'args' will be copied only once.  This method provides the strong
+        // exception safety guarantee, so the state of this object will not be
         // changed if an exception is thrown (such as when allocating memory,
         // or from operations of 'VALUE_TYPE').
 
@@ -1098,7 +1098,7 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // This method provides the strong exception safety guarantee, so the
         // state of this object will not be changed if an exception is thrown
         // (such as when allocating memory, or from operations of
-        // 'VALUE_TYPE'). This method requires that the (template parameter)
+        // 'VALUE_TYPE').  This method requires that the (template parameter)
         // type 'VALUE_TYPE' be "copy-constructible" (see {Requirements on
         // 'VALUE_TYPE'}).
 
