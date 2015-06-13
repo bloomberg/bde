@@ -122,6 +122,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_removeconst.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_REMOVECVQ
+#include <bslmf_removecv.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_REMOVEREFERENCE
 #include <bslmf_removereference.h>
 #endif
@@ -857,8 +861,10 @@ struct Function_NothrowWrapperUtil {
     enum { IS_WRAPPED = false };
          // True for specializations of 'Function_NothrowWrapper', else false.
 
-    static FUNC&       unwrap(FUNC&       f) { return f; }
-    static FUNC const& unwrap(FUNC const& f) { return f; }
+    static FUNC&       unwrap(typename bsl::remove_cv<FUNC>::type&       f)
+        { return f; }
+    static FUNC const& unwrap(typename bsl::remove_cv<FUNC>::type const& f)
+        { return f; }
 };
     
 template <class FUNC>
