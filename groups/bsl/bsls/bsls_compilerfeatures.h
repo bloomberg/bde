@@ -48,7 +48,7 @@ BSLS_IDENT("$Id: $")
 //:    This macro is defined if the '[[noreturn]]' attribute is supported by
 //:    the current compiler settings for this platform.
 //:
-//: 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR' 
+//: 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR'
 //:     This macro is defined if 'constexpr' is supported by the current
 //:     compiler settings for this platform.
 //:
@@ -57,7 +57,7 @@ BSLS_IDENT("$Id: $")
 //:    settings for this platform.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS'
-//:    This macro is defined if deleted fucntions are supported by the current 
+//:    This macro is defined if deleted fucntions are supported by the current
 //:    compiler settings for this platform.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE'
@@ -71,7 +71,7 @@ BSLS_IDENT("$Id: $")
 //: 'BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT'
 //:    This macro is defined if 'include_next' is supported by the current
 //:    compiler settings for this platform.
-//: 
+//:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT'
 //:    This macro is defined if 'noexcept' is supported by the current compiler
 //:    settings for this platform.
@@ -159,8 +159,8 @@ BSLS_IDENT("$Id: $")
 //:   Oracle CC 12.4
 //
 ///BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
-///- - - - - - - - - - - - - - - - - - - - 
-// This macro is defined in the compilier supports the 'constexpr' reserved 
+///- - - - - - - - - - - - - - - - - - - -
+// This macro is defined in the compilier supports the 'constexpr' reserved
 // keyword.
 //
 //: Compiler support:
@@ -233,7 +233,7 @@ BSLS_IDENT("$Id: $")
 //
 ///BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
 /// - - - - - - - - - - - - - - - - - - -
-// This macro is defined if the compiler supports the 'noexcept' reserved 
+// This macro is defined if the compiler supports the 'noexcept' reserved
 // keyword.
 //
 //: Compiler support:
