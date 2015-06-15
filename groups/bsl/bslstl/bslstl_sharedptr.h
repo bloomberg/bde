@@ -3990,25 +3990,24 @@ namespace bsl {
 // CREATORS
 template<class ELEMENT_TYPE>
 inline
-   //constexpr enable_shared_from_this<T>::enable_shared_from_this():
-                                                  //d_weak_this()// noexcept {}
+// constexpr
 bsl::enable_shared_from_this<ELEMENT_TYPE>::enable_shared_from_this()
-                                                 :d_weak_this(){}// noexcept {}
+                                                 : d_weak_this() {} // noexcept
 
 template<class ELEMENT_TYPE>
 inline
 bsl::enable_shared_from_this<ELEMENT_TYPE>::enable_shared_from_this(
-                   enable_shared_from_this const& original) {}//noexcept{}
+                   enable_shared_from_this const& original) {} // noexcept
 
 template<class ELEMENT_TYPE>
 inline
-    bsl::enable_shared_from_this<ELEMENT_TYPE>::~enable_shared_from_this(){}
+    bsl::enable_shared_from_this<ELEMENT_TYPE>::~enable_shared_from_this() {}
 
 // MANIPULATORS
 template<class ELEMENT_TYPE>
 inline
 bsl::enable_shared_from_this<ELEMENT_TYPE>& bsl::enable_shared_from_this
-     <ELEMENT_TYPE>::operator=(enable_shared_from_this const& rhs) {//noexcept{
+     <ELEMENT_TYPE>::operator=(enable_shared_from_this const&) {
     return *this;
 }
 
