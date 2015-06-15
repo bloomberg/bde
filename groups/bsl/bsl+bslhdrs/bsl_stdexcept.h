@@ -32,7 +32,6 @@ BSLS_IDENT("$Id: $")
 namespace bsl
 {
     // Import selected symbols into bsl namespace
-
     using native_std::domain_error;
     using native_std::invalid_argument;
     using native_std::length_error;
@@ -43,9 +42,12 @@ namespace bsl
     using native_std::runtime_error;
     using native_std::underflow_error;
 
+    // Make std::exception available even though it comes from <exception>
+    // because, as a base class of the above, it may be assumed complete.
+    using native_std::exception;
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     using native_std::bad_exception;
-    using native_std::exception;
     using native_std::set_terminate;
     using native_std::set_unexpected;
     using native_std::terminate;
