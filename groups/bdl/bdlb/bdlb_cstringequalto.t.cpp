@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
 // of null-terminated character strings are equal.
 //
 // First, we create few sequences with null-terminated character strings,
-// making sure that their elements will have different memory addresses:
+// making sure that their elements have different memory addresses:
 //..
     const char hello1[] = { 'h', 'e', 'l', 'l', 'o', 0};
     const char hello2[] = { 'h', 'e', 'l', 'l', 'o', 0};
