@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Herve Bronnimann (hbronnim)
 //
-//@DESCRIPTION: This component provides utilies to destroy arrays with a
+//@DESCRIPTION: This component provides utilities to destroy arrays with a
 // uniform interface, but selecting a different implementation according to the
 // traits possessed by the underlying type.
 //
@@ -215,14 +215,14 @@ void ArrayDestructionPrimitives::destroy(TARGET_TYPE *begin,
 
 }  // close package namespace
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslalg::ArrayDestructionPrimitives bslalg_ArrayDestructionPrimitives;
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

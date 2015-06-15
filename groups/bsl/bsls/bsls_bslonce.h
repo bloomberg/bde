@@ -28,8 +28,8 @@ BSLS_IDENT("$Id: $")
 // sections using a spin-lock.  Equivalent components that are more robust and
 // efficient will be provided at a higher level (see 'bcemt_once').
 //
-// A 'bsls::Bslnce' object can be statically initialized using the
-// 'BSLS_BSLONCE_INTIALIZER' macro.
+// A 'bsls::BslOnce' object can be statically initialized using the
+// 'BSLS_BSLONCE_INITIALIZER' macro.
 //
 ///Usage
 ///-----
@@ -105,10 +105,10 @@ struct BslOnce {
      // This 'struct' provides a simple data type for ensuring a block of code
      // is executed (only) once.  Note that this is defined as a 'struct' to
      // allow constant initialization in a global or static context using
-     // BSLS_BSLONCE_INTIALIZER.
+     // 'BSLS_BSLONCE_INITIALIZER'.
 
   public:
-     // PUBLID DATA
+     // PUBLIC DATA
      bsls::AtomicOperations::AtomicTypes::Int d_onceState;
                            // The state of the one-time block of code managed
                            // by this object (must be one of the 'State'

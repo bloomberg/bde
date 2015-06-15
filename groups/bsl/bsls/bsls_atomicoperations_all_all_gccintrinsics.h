@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Implement atomic operations using gcc '__atomic_*' intrinsics.
 //
 //@CLASSES:
-//  bsls::AtomicOperations_ALL_ALL_GCCIntrinsics: gcc '__atomic_*' instrinsics
+//  bsls::AtomicOperations_ALL_ALL_GCCIntrinsics: gcc '__atomic_*' intrinsics
 //
 //@DESCRIPTION: This component provides classes necessary to implement
 // atomics in 32bit/64bit mode using GCC and clang compiler intrinsics.

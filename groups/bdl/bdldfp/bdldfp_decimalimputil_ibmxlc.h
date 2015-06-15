@@ -548,38 +548,38 @@ struct DecimalImpUtil_IbmXlc {
 
                         // makeDecimalRaw functions
 
-    static ValueType32  makeDecimalRaw32(int mantissa, int exponent);
+    static ValueType32  makeDecimalRaw32(int significand, int exponent);
         // Create a 'ValueType32' object representing a decimal floating point
-        // number consisting of the specified 'mantissa' and 'exponent', with
-        // the sign given by 'mantissa'.  The behavior is undefined unless
-        // 'abs(mantissa) <= 9,999,999' and '-101 <= exponent <= 90'.
+        // number consisting of the specified 'significand' and 'exponent',
+        // with the sign given by 'significand'.  The behavior is undefined
+        // unless 'abs(significand) <= 9,999,999' and '-101 <= exponent <= 90'.
 
-    static ValueType64 makeDecimalRaw64(unsigned long long int mantissa,
+    static ValueType64 makeDecimalRaw64(unsigned long long int significand,
                                                            int exponent);
-    static ValueType64 makeDecimalRaw64(         long long int mantissa,
+    static ValueType64 makeDecimalRaw64(         long long int significand,
                                                            int exponent);
-    static ValueType64 makeDecimalRaw64(unsigned           int mantissa,
+    static ValueType64 makeDecimalRaw64(unsigned           int significand,
                                                            int exponent);
-    static ValueType64 makeDecimalRaw64(                   int mantissa,
+    static ValueType64 makeDecimalRaw64(                   int significand,
                                                            int exponent);
         // Create a 'ValueType64' object representing a decimal floating point
-        // number consisting of the specified 'mantissa' and 'exponent', with
-        // the sign given by 'mantissa'.  The behavior is undefined unless
-        // 'abs(mantissa) <= 9,999,999,999,999,999' and
+        // number consisting of the specified 'significand' and 'exponent',
+        // with the sign given by 'significand'.  The behavior is undefined
+        // unless 'abs(significand) <= 9,999,999,999,999,999' and
         // '-398 <= exponent <= 369'.
 
-    static ValueType128 makeDecimalRaw128(unsigned long long int mantissa,
+    static ValueType128 makeDecimalRaw128(unsigned long long int significand,
                                                              int exponent);
-    static ValueType128 makeDecimalRaw128(         long long int mantissa,
+    static ValueType128 makeDecimalRaw128(         long long int significand,
                                                              int exponent);
-    static ValueType128 makeDecimalRaw128(unsigned           int mantissa,
+    static ValueType128 makeDecimalRaw128(unsigned           int significand,
                                                              int exponent);
-    static ValueType128 makeDecimalRaw128(                   int mantissa,
+    static ValueType128 makeDecimalRaw128(                   int significand,
                                                              int exponent);
         // Create a 'ValueType128' object representing a decimal floating point
-        // number consisting of the specified 'mantissa' and 'exponent', with
-        // the sign given by 'mantissa'.  The behavior is undefined unless
-        // '-6176 <= exponent <= 6111'.
+        // number consisting of the specified 'significand' and 'exponent',
+        // with the sign given by 'significand'.  The behavior is undefined
+        // unless '-6176 <= exponent <= 6111'.
 
                         // IEEE Scale B functions
 
@@ -1129,99 +1129,99 @@ DecimalImpUtil_IbmXlc::binaryToDecimal128(double input)
 
 inline
 DecimalImpUtil_IbmXlc::ValueType32
-DecimalImpUtil_IbmXlc::makeDecimalRaw32(int mantissa,
+DecimalImpUtil_IbmXlc::makeDecimalRaw32(int significand,
                                         int exponent)
 {
     DecimalImpUtil_IbmXlc::ValueType32 result;
-    result = DecimalImpUtil_IbmXlc::int32ToDecimal32(mantissa);
+    result = DecimalImpUtil_IbmXlc::int32ToDecimal32(significand);
     result = DecimalImpUtil_IbmXlc::scaleB(result, exponent);
     return result;
 }
 
 inline
 DecimalImpUtil_IbmXlc::ValueType64
-DecimalImpUtil_IbmXlc::makeDecimalRaw64(unsigned long long mantissa,
+DecimalImpUtil_IbmXlc::makeDecimalRaw64(unsigned long long significand,
                                         int                exponent)
 {
     DecimalImpUtil_IbmXlc::ValueType64 result;
-    result = DecimalImpUtil_IbmXlc::uint64ToDecimal64(mantissa);
+    result = DecimalImpUtil_IbmXlc::uint64ToDecimal64(significand);
     result = DecimalImpUtil_IbmXlc::scaleB(result, exponent);
     return result;
 }
 
 inline
 DecimalImpUtil_IbmXlc::ValueType64
-DecimalImpUtil_IbmXlc::makeDecimalRaw64(long long mantissa,
+DecimalImpUtil_IbmXlc::makeDecimalRaw64(long long significand,
                                         int       exponent)
 {
     DecimalImpUtil_IbmXlc::ValueType64 result;
-    result = DecimalImpUtil_IbmXlc::int64ToDecimal64(mantissa);
+    result = DecimalImpUtil_IbmXlc::int64ToDecimal64(significand);
     result = DecimalImpUtil_IbmXlc::scaleB(result, exponent);
     return result;
 }
 
 inline
 DecimalImpUtil_IbmXlc::ValueType64
-DecimalImpUtil_IbmXlc::makeDecimalRaw64(unsigned int mantissa,
+DecimalImpUtil_IbmXlc::makeDecimalRaw64(unsigned int significand,
                                         int          exponent)
 {
     DecimalImpUtil_IbmXlc::ValueType64 result;
-    result = DecimalImpUtil_IbmXlc::uint32ToDecimal64(mantissa);
+    result = DecimalImpUtil_IbmXlc::uint32ToDecimal64(significand);
     result = DecimalImpUtil_IbmXlc::scaleB(result, exponent);
     return result;
 }
 
 inline
 DecimalImpUtil_IbmXlc::ValueType64 DecimalImpUtil_IbmXlc::makeDecimalRaw64(
-                                                                  int mantissa,
-                                                                  int exponent)
+                                                               int significand,
+                                                               int exponent)
 {
     DecimalImpUtil_IbmXlc::ValueType64 result;
-    result = DecimalImpUtil_IbmXlc::int32ToDecimal64(mantissa);
+    result = DecimalImpUtil_IbmXlc::int32ToDecimal64(significand);
     result = DecimalImpUtil_IbmXlc::scaleB(result, exponent);
     return result;
 }
 
 inline
 DecimalImpUtil_IbmXlc::ValueType128
-DecimalImpUtil_IbmXlc::makeDecimalRaw128(unsigned long long mantissa,
+DecimalImpUtil_IbmXlc::makeDecimalRaw128(unsigned long long significand,
                                          int                exponent)
 {
     DecimalImpUtil_IbmXlc::ValueType128 result;
-    result = DecimalImpUtil_IbmXlc::uint64ToDecimal128(mantissa);
+    result = DecimalImpUtil_IbmXlc::uint64ToDecimal128(significand);
     result = DecimalImpUtil_IbmXlc::scaleB(result, exponent);
     return result;
 }
 
 inline
 DecimalImpUtil_IbmXlc::ValueType128
-DecimalImpUtil_IbmXlc::makeDecimalRaw128(long long mantissa,
+DecimalImpUtil_IbmXlc::makeDecimalRaw128(long long significand,
                                          int       exponent)
 {
     DecimalImpUtil_IbmXlc::ValueType128 result;
-    result = DecimalImpUtil_IbmXlc::int64ToDecimal128(mantissa);
+    result = DecimalImpUtil_IbmXlc::int64ToDecimal128(significand);
     result = DecimalImpUtil_IbmXlc::scaleB(result, exponent);
     return result;
 }
 
 inline
 DecimalImpUtil_IbmXlc::ValueType128
-DecimalImpUtil_IbmXlc::makeDecimalRaw128(unsigned int mantissa,
+DecimalImpUtil_IbmXlc::makeDecimalRaw128(unsigned int significand,
                                          int          exponent)
 {
     DecimalImpUtil_IbmXlc::ValueType128 result;
-    result = DecimalImpUtil_IbmXlc::uint32ToDecimal128(mantissa);
+    result = DecimalImpUtil_IbmXlc::uint32ToDecimal128(significand);
     result = DecimalImpUtil_IbmXlc::scaleB(result, exponent);
     return result;
 }
 
 inline
 DecimalImpUtil_IbmXlc::ValueType128
-DecimalImpUtil_IbmXlc::makeDecimalRaw128(int mantissa,
+DecimalImpUtil_IbmXlc::makeDecimalRaw128(int significand,
                                          int exponent)
 {
     DecimalImpUtil_IbmXlc::ValueType128 result;
-    result = DecimalImpUtil_IbmXlc::uint32ToDecimal128(mantissa);
+    result = DecimalImpUtil_IbmXlc::uint32ToDecimal128(significand);
     result = DecimalImpUtil_IbmXlc::scaleB(result, exponent);
     return result;
 }

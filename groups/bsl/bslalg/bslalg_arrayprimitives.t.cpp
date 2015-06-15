@@ -127,8 +127,8 @@ void aSsErT(bool b, const char *s, int i)
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-#pragma bde_verify push     // Relax formatting rules for clearer exposition
-#pragma bde_verify -FABC01  // Functions in descriptive order, not alphabetic
+// BDE_VERIFY pragma: push    // Relax formatting rules for clearer exposition
+// BDE_VERIFY pragma: -FABC01 // Functions in descriptive order, not alphabetic
 
 namespace {
 
@@ -310,10 +310,10 @@ namespace BloombergLP {
 namespace bslma {
 template <class TYPE>
 struct UsesBslmaAllocator<MyVector<TYPE> > : bsl::true_type {};
-} // close traits namespace
-} // close enterprise namespace
+}  // close traits namespace
+}  // close enterprise namespace
 
-#pragma bde_verify pop  // End of usage example relaxation
+// BDE_VERIFY pragma: pop  // End of usage example relaxation
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS/TYPES FOR TESTING
@@ -3458,7 +3458,7 @@ void testUninitializedFillNBCT(TYPE value)
 //-----------------------------------------------------------------------------
 struct Base {
     int x;
-   
+
     Base()
     : x('a') {
     }
@@ -3466,7 +3466,7 @@ struct Base {
 
 struct Derived : Base {
     int y;
-   
+
     Derived()
     : Base()
     , y('b') {
@@ -3755,7 +3755,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         BSLMF_ASSERT(!(bslalg::ArrayPrimitives_CanBitwiseCopy<Derived,
                                                               Base>::value));
-                  
+
         Derived derivedArray[10] = {};
         Derived *begin = derivedArray;
         Derived *end = begin + 10;

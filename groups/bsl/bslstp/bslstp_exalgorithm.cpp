@@ -1,12 +1,12 @@
 // bslstp_exalgorithm.cpp                                             -*-C++-*-
-#ifndef BDE_OMIT_TRANSITIONAL // STP
+#ifndef BDE_OPENSOURCE_PUBLICATION // STP
 
 #include <bslstp_exalgorithm.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#endif  // BDE_OMIT_TRANSITIONAL -- STP
+#endif  // BDE_OPENSOURCE_PUBLICATION -- STP
 
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.

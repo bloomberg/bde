@@ -116,7 +116,7 @@ struct IsPointerToMember : bsl::is_member_pointer<TYPE>::type
 }  // close package namespace
 }  // close enterprise namespace
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -138,7 +138,7 @@ struct IsPointerToMember : bsl::is_member_pointer<TYPE>::type
 #endif
 #define bslmf_IsPointerToMemberData bslmf::IsPointerToMemberData
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 #endif
 

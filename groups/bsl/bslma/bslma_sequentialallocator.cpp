@@ -1,5 +1,5 @@
 // bslma_sequentialallocator.cpp                                      -*-C++-*-
-#ifndef BDE_OMIT_TRANSITIONAL // DEPRECATED
+#ifndef BDE_OPENSOURCE_PUBLICATION // DEPRECATED
 
 #include <bslma_sequentialallocator.h>
 
@@ -26,7 +26,7 @@ SequentialAllocator::~SequentialAllocator()
 
 }  // close enterprise namespace
 
-#endif // BDE_OMIT_TRANSITIONAL -- DEPRECATED
+#endif // BDE_OPENSOURCE_PUBLICATION -- DEPRECATED
 
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.

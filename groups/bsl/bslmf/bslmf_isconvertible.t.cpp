@@ -1346,7 +1346,15 @@ int main(int argc, char *argv[])
 
         ASSERT(true  == (bsl::is_convertible<void, void>::value));
         ASSERT(false == (bsl::is_convertible<void, int >::value));
+        ASSERT(false == (bsl::is_convertible<void, int&>::value));
         ASSERT(false == (bsl::is_convertible<int,  void>::value));
+        ASSERT(false == (bsl::is_convertible<int&, void>::value));
+
+        ASSERT(true  == (bsl::is_convertible<void, const void>::value));
+        ASSERT(false == (bsl::is_convertible<const void, int >::value));
+        ASSERT(false == (bsl::is_convertible<const void, int&>::value));
+        ASSERT(false == (bsl::is_convertible<int,  const void>::value));
+        ASSERT(false == (bsl::is_convertible<int&, const void>::value));
 
         // C-9: Test derived-to-base convertibility
 
@@ -1412,6 +1420,63 @@ int main(int argc, char *argv[])
          (bsl::is_convertible<const    int (*)[], volatile int (*)[]>::value));
         ASSERT(false ==
          (bsl::is_convertible<volatile int (*)[], const    int (*)[]>::value));
+
+        
+        // C-13: Test function references decay to function pointers
+
+        ASSERT(false == (bsl::is_convertible<void(), void>::VALUE));
+        ASSERT(false == (bsl::is_convertible<void(), int>::VALUE));
+        ASSERT(false == (bsl::is_convertible<void(), const void>::VALUE));
+        ASSERT(false == (bsl::is_convertible<void(), volatile int>::VALUE));
+        ASSERT(false == (bsl::is_convertible<void,         void()>::VALUE));
+        ASSERT(false == (bsl::is_convertible<int,          void()>::VALUE));
+        ASSERT(false == (bsl::is_convertible<const void,   void()>::VALUE));
+        ASSERT(false == (bsl::is_convertible<volatile int, void()>::VALUE));
+
+        ASSERT(true  == (bslmf::IsConvertible<void    (), void    ()>::value));
+        ASSERT(true  == (bslmf::IsConvertible<void    (), void (&)()>::value));
+        ASSERT(true  == (bslmf::IsConvertible<void    (), void (*)()>::value));
+        ASSERT(true  == (bslmf::IsConvertible<void (&)(), void (&)()>::value));
+        ASSERT(true  == (bslmf::IsConvertible<void (&)(), void (*)()>::value));
+        ASSERT(false == (bslmf::IsConvertible<void (*)(), void    ()>::value));
+        ASSERT(false == (bslmf::IsConvertible<void (*)(), void (&)()>::value));
+        ASSERT(true  == (bslmf::IsConvertible<void (&)(), void    ()>::value));
+
+        ASSERT(false == (bsl::is_convertible<void(...), void>::VALUE));
+        ASSERT(false == (bsl::is_convertible<void(...), int>::VALUE));
+        ASSERT(false == (bsl::is_convertible<void(...), const void>::VALUE));
+        ASSERT(false == (bsl::is_convertible<void(...), volatile int>::VALUE));
+        ASSERT(false == (bsl::is_convertible<void,         void(...)>::VALUE));
+        ASSERT(false == (bsl::is_convertible<int,          void(...)>::VALUE));
+        ASSERT(false == (bsl::is_convertible<const void,   void(...)>::VALUE));
+        ASSERT(false == (bsl::is_convertible<volatile int, void(...)>::VALUE));
+
+        ASSERT(true  == (bslmf::IsConvertible<void    (...), void    (...)>::value));
+        ASSERT(true  == (bslmf::IsConvertible<void    (...), void (&)(...)>::value));
+        ASSERT(true  == (bslmf::IsConvertible<void    (...), void (*)(...)>::value));
+        ASSERT(true  == (bslmf::IsConvertible<void (&)(...), void (&)(...)>::value));
+        ASSERT(true  == (bslmf::IsConvertible<void (&)(...), void (*)(...)>::value));
+        ASSERT(false == (bslmf::IsConvertible<void (*)(...), void    (...)>::value));
+        ASSERT(false == (bslmf::IsConvertible<void (*)(...), void (&)(...)>::value));
+        ASSERT(true  == (bslmf::IsConvertible<void (&)(...), void    (...)>::value));
+
+        ASSERT(false == (bslmf::IsConvertible<void    (...), void    ()>::value));
+        ASSERT(false == (bslmf::IsConvertible<void    (...), void (&)()>::value));
+        ASSERT(false == (bslmf::IsConvertible<void    (...), void (*)()>::value));
+        ASSERT(false == (bslmf::IsConvertible<void (&)(...), void (&)()>::value));
+        ASSERT(false == (bslmf::IsConvertible<void (&)(...), void (*)()>::value));
+        ASSERT(false == (bslmf::IsConvertible<void (*)(...), void    ()>::value));
+        ASSERT(false == (bslmf::IsConvertible<void (*)(...), void (&)()>::value));
+        ASSERT(false == (bslmf::IsConvertible<void (&)(...), void    ()>::value));
+
+        ASSERT(false == (bslmf::IsConvertible<void    (), void    (...)>::value));
+        ASSERT(false == (bslmf::IsConvertible<void    (), void (&)(...)>::value));
+        ASSERT(false == (bslmf::IsConvertible<void    (), void (*)(...)>::value));
+        ASSERT(false == (bslmf::IsConvertible<void (&)(), void (&)(...)>::value));
+        ASSERT(false == (bslmf::IsConvertible<void (&)(), void (*)(...)>::value));
+        ASSERT(false == (bslmf::IsConvertible<void (*)(), void    (...)>::value));
+        ASSERT(false == (bslmf::IsConvertible<void (*)(), void (&)(...)>::value));
+        ASSERT(false == (bslmf::IsConvertible<void (&)(), void    (...)>::value));
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

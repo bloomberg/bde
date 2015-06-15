@@ -1,5 +1,5 @@
 // bslma_infrequentdeleteblocklist.cpp                                -*-C++-*-
-#ifndef BDE_OMIT_TRANSITIONAL // DEPRECATED
+#ifndef BDE_OPENSOURCE_PUBLICATION // DEPRECATED
 
 #include <bslma_infrequentdeleteblocklist.h>
 
@@ -56,7 +56,7 @@ void InfrequentDeleteBlockList::release()
 
 }  // close enterprise namespace
 
-#endif // BDE_OMIT_TRANSITIONAL -- DEPRECATED
+#endif // BDE_OPENSOURCE_PUBLICATION -- DEPRECATED
 
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.

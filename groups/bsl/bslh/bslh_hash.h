@@ -570,7 +570,7 @@ hashAppend(HASH_ALGORITHM& hashAlg, TYPE input);
     // into the internal state of the algorithm which is used to produce the
     // resulting hash value. Note that the 'enable_if' meta-function is used to
     // enable this 'hashAppend' function for only 'long double', because on
-    // some compilers 'long double's contain garabage and can not be hashed as
+    // some compilers 'long double's contain garbage and can not be hashed as
     // a continuous sequence of bytes.
 
 template <class HASH_ALGORITHM, size_t N>

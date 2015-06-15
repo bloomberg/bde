@@ -136,7 +136,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_datetimeinterval.h>
 #endif
 
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
 #ifndef INCLUDED_BDLT_DELEGATINGDATEIMPUTIL
 #include <bdlt_delegatingdateimputil.h>
 #endif
@@ -184,23 +184,25 @@ struct EpochUtil {
   private:
     // CLASS DATA
     static const Datetime *s_epoch_p;  // pointer to epoch time value
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
     static const Datetime *s_posixEpoch_p;
                                        // pointer to POSIX epoch time value
 
     // PRIVATE CLASS METHODS
-    static void logIfProblematicDateValue(
-                       const char                               *fileName,
-                       int                                       lineNumber,
-                       const Date&                               date,
-                       bsls::AtomicOperations::AtomicTypes::Int *count);
+    static void logIfProblematicDateValue(const char  *fileName,
+                                          int          lineNumber,
+                                          int          locationId,
+                                          const Date&  date);
         // Log a message to 'stderr' that includes the specified 'fileName' and
-        // 'lineNumber', and increment the specified 'count', if the specified
-        // 'date' is deemed to represent a problematic date value.  A date
-        // value is problematic if it is prior to 1752/09/14 when in POSIX mode
-        // (1752/09/16 when in proleptic Gregorian mode).  Note that actual
-        // generation of log messages may be throttled to limit spew to
-        // 'stderr', but the count is always incremented.
+        // 'lineNumber', and increment the internal 'count' associated with the
+        // specified unique 'locationId', if the specified 'date' is deemed to
+        // represent a problematic date value.  A date value is problematic if
+        // it is prior to 1752/09/14 when in POSIX mode (1752/09/16 when in
+        // proleptic Gregorian mode).  The behavior is undefined unless
+        // '0 <= locationId <= 31' and 'locationId' is uniquely associated with
+        // the 'fileName'/'lineNumber' pair.  Note that actual generation of
+        // log messages may be throttled to limit spew to 'stderr', but the
+        // internal count for the 'locationId' is always incremented.
 #endif
 
   public:
@@ -378,7 +380,7 @@ struct EpochUtil {
 inline
 const Datetime& EpochUtil::epoch()
 {
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
     return *s_epoch_p;
 #else
     return DelegatingDateImpUtil::isProlepticGregorianMode()
@@ -447,7 +449,7 @@ int EpochUtil::convertToTimeT(bsl::time_t     *result,
 inline
 Datetime EpochUtil::convertFromTimeT64(TimeT64 time)
 {
-#ifdef BDE_OMIT_TRANSITIONAL
+#ifdef BDE_OPENSOURCE_PUBLICATION
     BSLS_ASSERT_SAFE(-62135596800LL <= time);  // January    1, 0001 00:00:00
 #else
     if (DelegatingDateImpUtil::isProlepticGregorianMode()) {
@@ -462,11 +464,12 @@ Datetime EpochUtil::convertFromTimeT64(TimeT64 time)
     Datetime datetime(epoch());
     datetime.addSeconds(time);
 
-#ifndef BDE_OMIT_TRANSITIONAL
-    static bsls::AtomicOperations::AtomicTypes::Int count = { 0 };
+#ifndef BDE_OPENSOURCE_PUBLICATION
+    enum { locationId = 0 };
 
     EpochUtil::logIfProblematicDateValue(__FILE__, __LINE__,
-                                         datetime.date(), &count);
+                                         static_cast<int>(locationId),
+                                         datetime.date());
 #endif
 
     return datetime;
@@ -477,7 +480,7 @@ int EpochUtil::convertFromTimeT64(Datetime *result, TimeT64 time)
 {
     BSLS_ASSERT_SAFE(result);
 
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
     if (( DelegatingDateImpUtil::isProlepticGregorianMode() &&
                                                       -62135596800LL > time)
      || (!DelegatingDateImpUtil::isProlepticGregorianMode() &&
@@ -492,11 +495,12 @@ int EpochUtil::convertFromTimeT64(Datetime *result, TimeT64 time)
     *result = epoch();
     result->addSeconds(time);
 
-#ifndef BDE_OMIT_TRANSITIONAL
-    static bsls::AtomicOperations::AtomicTypes::Int count = { 0 };
+#ifndef BDE_OPENSOURCE_PUBLICATION
+    enum { locationId = 1 };
 
     EpochUtil::logIfProblematicDateValue(__FILE__, __LINE__,
-                                         result->date(), &count);
+                                         static_cast<int>(locationId),
+                                         result->date());
 #endif
 
     return 0;
@@ -506,11 +510,12 @@ inline
 EpochUtil::TimeT64
 EpochUtil::convertToTimeT64(const Datetime& datetime)
 {
-#ifndef BDE_OMIT_TRANSITIONAL
-    static bsls::AtomicOperations::AtomicTypes::Int count = { 0 };
+#ifndef BDE_OPENSOURCE_PUBLICATION
+    enum { locationId = 2 };
 
     EpochUtil::logIfProblematicDateValue(__FILE__, __LINE__,
-                                         datetime.date(), &count);
+                                         static_cast<int>(locationId),
+                                         datetime.date());
 #endif
     return TimeT64(((datetime - epoch()).totalMilliseconds()
                                              - datetime.millisecond()) / 1000);

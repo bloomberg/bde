@@ -641,7 +641,7 @@ class TestAllocator : public Allocator {
         // either '0 < numBlocksInUse()' or '0 < numBytesInUse()', return an
         // arbitrary negative number; else return 0.
 
-#ifndef BDE_OMIT_TRANSITIONAL  // DEPRECATED
+#ifndef BDE_OPENSOURCE_PUBLICATION  // DEPRECATED
     void *lastAllocateAddress() const;
         // Return the allocated memory address of the most recent memory
         // request.  Return 0 if the request was invalid (e.g., allocate non-
@@ -683,7 +683,7 @@ class TestAllocator : public Allocator {
         // regardless of the validity of the request.
         //
         // DEPRECATED: use 'numDeallocations' instead.
-#endif  // BDE_OMIT_TRANSITIONAL
+#endif  // BDE_OPENSOURCE_PUBLICATION
 };
 
 }  // close package namespace
@@ -985,7 +985,7 @@ bsls::Types::Int64 TestAllocator::numMismatches() const
     return d_numMismatches.loadRelaxed();
 }
 
-#ifndef BDE_OMIT_TRANSITIONAL  // DEPRECATED
+#ifndef BDE_OPENSOURCE_PUBLICATION  // DEPRECATED
 inline
 void *TestAllocator::lastAllocateAddress() const
 {
@@ -1024,11 +1024,11 @@ bsls::Types::Int64 TestAllocator::numDeallocation() const
     return numDeallocations();
 }
 
-#endif  // BDE_OMIT_TRANSITIONAL
+#endif  // BDE_OPENSOURCE_PUBLICATION
 
 }  // close package namespace
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -1048,7 +1048,7 @@ typedef bslma::TestAllocator bslma_TestAllocator;
 #define END_BSLMA_EXCEPTION_TEST BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 #endif
 
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

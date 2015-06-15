@@ -14,7 +14,7 @@ BSLS_IDENT_RCSID(bdlt_date_cpp,"$Id$ $CSID$")
 
 #include <bsl_c_stdio.h>   // 'snprintf'
 
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
 #include <bdlb_bitutil.h>
 #endif
 
@@ -31,7 +31,7 @@ static const char *const months[] = {
                                   // class Date
                                   // ----------
 
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
 
 // In the POSIX calendar, the first day after 1752/09/02 is 1752/09/14.  With
 // 639798 for the "magic" serial date value, '>' is the appropriate comparison
@@ -43,25 +43,35 @@ const int MAGIC_SERIAL = 639798;  // 1752/09/02 POSIX
 // To limit spewing to 'stderr', log an occurrence of a problematic date value
 // or operation only if the associated logging context count is 1, 8, or 256.
 
-const int LOG_THROTTLE_MASK = 1 + 8 + 256;
+const int LOG_THROTTLE_MASK = 1 | 8 | 256;
+
+// CLASS DATA
+bool Date::s_loggingEnabledFlag = false;  // *off* by default
 
 // PRIVATE CLASS METHODS
-void Date::logIfProblematicDateAddition(
-                       const char                               *fileName,
-                       int                                       lineNumber,
-                       int                                       serialDate,
-                       int                                       numDays,
-                       bsls::AtomicOperations::AtomicTypes::Int *count)
+void Date::logIfProblematicDateAddition(const char *fileName,
+                                        int         lineNumber,
+                                        int         locationId,
+                                        int         serialDate,
+                                        int         numDays)
 {
-    if (serialDate > MAGIC_SERIAL && (serialDate + numDays) > MAGIC_SERIAL) {
+    if (!Date::isLoggingEnabled()
+     || (serialDate > MAGIC_SERIAL && (serialDate + numDays) > MAGIC_SERIAL)) {
         return;                                                       // RETURN
     }
 
-    const int tmpCount = bsls::AtomicOperations::addIntNvRelaxed(count, 1);
+    static bsls::AtomicOperations::AtomicTypes::Int counts[32] = { 0 };
 
-    if (1 == bdlb::BitUtil::numBitsSet(
-                             static_cast<bdlb::BitUtil::uint32_t>(tmpCount))
-     && (LOG_THROTTLE_MASK & tmpCount)) {
+    if (locationId < 0 || locationId > 31) {
+        return;                                                       // RETURN
+    }
+
+    const int tmpCount
+             = bsls::AtomicOperations::addIntNvRelaxed(&counts[locationId], 1);
+
+    if ((LOG_THROTTLE_MASK & tmpCount)
+     && 1 == bdlb::BitUtil::numBitsSet(
+                             static_cast<bdlb::BitUtil::uint32_t>(tmpCount))) {
 
         int year, month, day;
         DelegatingDateImpUtil::serialToYmd(&year, &month, &day, serialDate);
@@ -76,18 +86,25 @@ void Date::logIfProblematicDateAddition(
     }
 }
 
-void Date::logIfProblematicDateDifference(
-                       const char                               *fileName,
-                       int                                       lineNumber,
-                       int                                       lhsSerialDate,
-                       int                                       rhsSerialDate,
-                       bsls::AtomicOperations::AtomicTypes::Int *count)
+void Date::logIfProblematicDateDifference(const char *fileName,
+                                          int         lineNumber,
+                                          int         locationId,
+                                          int         lhsSerialDate,
+                                          int         rhsSerialDate)
 {
-    if (lhsSerialDate > MAGIC_SERIAL && rhsSerialDate > MAGIC_SERIAL) {
+    if (!Date::isLoggingEnabled()
+     || (lhsSerialDate > MAGIC_SERIAL && rhsSerialDate > MAGIC_SERIAL)) {
         return;                                                       // RETURN
     }
 
-    const int tmpCount = bsls::AtomicOperations::addIntNvRelaxed(count, 1);
+    static bsls::AtomicOperations::AtomicTypes::Int counts[32] = { 0 };
+
+    if (locationId < 0 || locationId > 31) {
+        return;                                                       // RETURN
+    }
+
+    const int tmpCount
+             = bsls::AtomicOperations::addIntNvRelaxed(&counts[locationId], 1);
 
     if (1 == bdlb::BitUtil::numBitsSet(
                              static_cast<bdlb::BitUtil::uint32_t>(tmpCount))
@@ -112,17 +129,24 @@ void Date::logIfProblematicDateDifference(
     }
 }
 
-void Date::logIfProblematicDateValue(
-                       const char                               *fileName,
-                       int                                       lineNumber,
-                       int                                       serialDate,
-                       bsls::AtomicOperations::AtomicTypes::Int *count)
+void Date::logIfProblematicDateValue(const char *fileName,
+                                     int         lineNumber,
+                                     int         locationId,
+                                     int         serialDate)
 {
-    if (serialDate > MAGIC_SERIAL || 1 == serialDate) {
+    if (!Date::isLoggingEnabled()
+     || (serialDate > MAGIC_SERIAL || 1 == serialDate)) {
         return;                                                       // RETURN
     }
 
-    const int tmpCount = bsls::AtomicOperations::addIntNvRelaxed(count, 1);
+    static bsls::AtomicOperations::AtomicTypes::Int counts[32] = { 0 };
+
+    if (locationId < 0 || locationId > 31) {
+        return;                                                       // RETURN
+    }
+
+    const int tmpCount
+             = bsls::AtomicOperations::addIntNvRelaxed(&counts[locationId], 1);
 
     if (1 == bdlb::BitUtil::numBitsSet(
                              static_cast<bdlb::BitUtil::uint32_t>(tmpCount))
@@ -141,6 +165,21 @@ void Date::logIfProblematicDateValue(
     }
 }
 
+// CLASS METHODS
+void Date::disableLogging()
+{
+    s_loggingEnabledFlag = false;
+
+    BSLS_LOG_SIMPLE("'bdlt::Date' logging disabled");
+}
+
+void Date::enableLogging()
+{
+    s_loggingEnabledFlag = true;
+
+    BSLS_LOG_SIMPLE("'bdlt::Date' logging enabled");
+}
+
 #endif
 
 // MANIPULATORS
@@ -154,11 +193,14 @@ int Date::addDaysIfValid(int numDays)
         return k_FAILURE;                                             // RETURN
     }
 
-#ifndef BDE_OMIT_TRANSITIONAL
-    static bsls::AtomicOperations::AtomicTypes::Int count = { 0 };
+#ifndef BDE_OPENSOURCE_PUBLICATION
+    // Using maximum location 31 to minimize chance of a conflict with header
+    // location values.
+    enum { locationId = 31 };
 
     Date::logIfProblematicDateAddition(__FILE__, __LINE__,
-                                       d_serialDate, numDays, &count);
+                                       static_cast<int>(locationId),
+                                       d_serialDate, numDays);
 #endif
 
     d_serialDate = tmpSerialDate;

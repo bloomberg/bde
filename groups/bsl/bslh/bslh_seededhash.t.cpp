@@ -539,13 +539,16 @@ int main(int argc, char *argv[])
 
                 Obj hash = Obj();
                 const u64 result = hash(VALUE);
+                size_t truncResult = size_t(result);
+                size_t truncExpect = size_t(HASH);
                 if (veryVerbose) printf(
-                                 "Hashing: %i, Expecting: "U64", Got: "U64"\n",
-                                 VALUE, HASH, result);
-                LOOP_ASSERT(LINE, result == HASH);
+                             "Hashing: %i, Expecting: " U64 ", Got: " U64 "\n",
+                             VALUE, u64(truncExpect), u64(truncResult));
+                LOOP_ASSERT(LINE, truncResult == truncExpect);
 
                 const Obj constHash = Obj();
-                LOOP_ASSERT(LINE, constHash(VALUE) == HASH);
+                size_t constTruncResult = size_t(constHash(VALUE));
+                LOOP_ASSERT(LINE, constTruncResult == truncExpect);
             }
         }
 

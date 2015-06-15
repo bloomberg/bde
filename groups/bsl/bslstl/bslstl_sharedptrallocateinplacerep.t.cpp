@@ -44,7 +44,7 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACROS
+//                     STANDARD BSL ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 // NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
 // FUNCTIONS, INCLUDING IOSTREAMS.
@@ -53,21 +53,26 @@ namespace {
 
 int testStatus = 0;
 
-void aSsErT(bool b, const char *s, int i)
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
 }  // close unnamed namespace
 
 // ============================================================================
-//                      STANDARD BDE TEST DRIVER MACROS
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
 #define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
@@ -76,13 +81,12 @@ void aSsErT(bool b, const char *s, int i)
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -799,12 +803,12 @@ void TestHarness<ALLOCATOR>::testCase2(bool verbose,
     (void)veryVeryVerbose;
 
     bslma::TestAllocator ta("Tese case 2", veryVeryVeryVerbose);
-    ALLOCATOR alloc_base(&ta);
+    ALLOCATOR            alloc_base(&ta);
 
-    Obj_Alloc alloc1(alloc_base);
+    Obj_Alloc   alloc1(alloc_base);
     TCObj_Alloc alloc2(&ta);
 
-    bsls::Types::Int64 numAllocations = ta.numAllocations();
+    bsls::Types::Int64 numAllocations   = ta.numAllocations();
     bsls::Types::Int64 numDeallocations = ta.numDeallocations();
     {
         static const MyInplaceTestObject EXP;
@@ -815,7 +819,7 @@ void TestHarness<ALLOCATOR>::testCase2(bool verbose,
         TCObj *xPtr = TCObj::makeRep(alloc_base);
 
 //        TCObj* xPtr = new(ta) TCObj(&ta);
-        TCObj& x = *xPtr;
+        TCObj&       x = *xPtr;
         const TCObj& X = *xPtr;
 
         ASSERT(++numAllocations == ta.numAllocations());
@@ -961,18 +965,19 @@ void TestHarness<ALLOCATOR>::testCase4(bool verbose,
     (void)veryVeryVerbose;
 
     bslma::TestAllocator ta("Tese case 4", veryVeryVeryVerbose);
-    ALLOCATOR alloc_base(&ta);
+    ALLOCATOR            alloc_base(&ta);
 
-    Obj_Alloc alloc1(alloc_base);
+    Obj_Alloc   alloc1(alloc_base);
     TCObj_Alloc alloc2(&ta);
 
-    bsls::Types::Int64 numAllocations = ta.numAllocations();
+    bsls::Types::Int64 numAllocations   = ta.numAllocations();
     bsls::Types::Int64 numDeallocations = ta.numDeallocations();
     {
         bsls::Types::Int64 numDeletes = 0;
-        Obj *xPtr = Obj::makeRep(alloc_base);
-        Obj& x = *xPtr;
-        const Obj& X = *xPtr;
+
+        Obj        *xPtr = Obj::makeRep(alloc_base);
+        Obj&        x    = *xPtr;
+        const Obj&  X    = *xPtr;
 
         ASSERT(++numAllocations == ta.numAllocations());
         ASSERT(0 == numDeletes);
@@ -1027,18 +1032,19 @@ void TestHarness<ALLOCATOR>::testCase5(bool verbose,
     (void)veryVeryVerbose;
 
     bslma::TestAllocator ta("Tese case 5", veryVeryVeryVerbose);
-    ALLOCATOR alloc_base(&ta);
+    ALLOCATOR            alloc_base(&ta);
 
-    Obj_Alloc alloc1(alloc_base);
+    Obj_Alloc   alloc1(alloc_base);
     TCObj_Alloc alloc2(&ta);
 
-    bsls::Types::Int64 numAllocations = ta.numAllocations();
+    bsls::Types::Int64 numAllocations   = ta.numAllocations();
     bsls::Types::Int64 numDeallocations = ta.numDeallocations();
     {
         bsls::Types::Int64 numDeletes = 0;
-        Obj *xPtr = Obj::makeRep(alloc_base);
-        Obj& x = *xPtr;
-        const Obj& X = *xPtr;
+
+        Obj        *xPtr = Obj::makeRep(alloc_base);
+        Obj&        x    = *xPtr;
+        const Obj&  X    = *xPtr;
 
         ASSERT(++numAllocations == ta.numAllocations());
 
@@ -1072,9 +1078,10 @@ void TestHarness<ALLOCATOR>::testCase5(bool verbose,
                         "\n-----------------------------------------\n");
     {
         bsls::Types::Int64 numDeletes = 0;
-        Obj *xPtr = Obj::makeRep(alloc_base);
-        Obj& x = *xPtr;
-        const Obj& X = *xPtr;
+
+        Obj        *xPtr = Obj::makeRep(alloc_base);
+        Obj&        x    = *xPtr;
+        const Obj&  X    = *xPtr;
 
         ASSERT(++numAllocations == ta.numAllocations());
 
@@ -1123,17 +1130,18 @@ void TestHarness<ALLOCATOR>::testCase6(bool verbose,
     (void)veryVeryVerbose;
 
     bslma::TestAllocator ta("Tese case 5", veryVeryVeryVerbose);
-    ALLOCATOR alloc_base(&ta);
+    ALLOCATOR            alloc_base(&ta);
 
-    Obj_Alloc alloc1(alloc_base);
+    Obj_Alloc   alloc1(alloc_base);
     TCObj_Alloc alloc2(&ta);
 
-    bsls::Types::Int64 numAllocations = ta.numAllocations();
+    bsls::Types::Int64 numAllocations   = ta.numAllocations();
     bsls::Types::Int64 numDeallocations = ta.numDeallocations();
     {
         bsls::Types::Int64 numDeletes = 0;
-        Obj *xPtr = Obj::makeRep(alloc_base);
-        Obj& x = *xPtr;
+
+        Obj  *xPtr = Obj::makeRep(alloc_base);
+        Obj&  x    = *xPtr;
 
         ASSERT(0 == x.getDeleter(typeid(int)));
 
@@ -1173,8 +1181,8 @@ int main(int argc, char *argv[])
     ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
 
     bslma::TestAllocator ta(veryVeryVeryVerbose);
-    bsls::Types::Int64 numDeallocations;
-    bsls::Types::Int64 numAllocations;
+    bsls::Types::Int64   numDeallocations;
+    bsls::Types::Int64   numAllocations;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 

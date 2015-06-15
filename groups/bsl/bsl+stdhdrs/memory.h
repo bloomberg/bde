@@ -20,6 +20,12 @@
  * it to <string.h>
  */
 
+#if !defined(__cplusplus)
+
+#include <string.h>
+
+#else  /* defined(__cplusplus) */
+
 #include <bsl_cstring.h>
 
 using std::memmove;
@@ -27,6 +33,8 @@ using std::memcpy;
 using std::memchr;
 using std::memcmp;
 using std::memset;
+
+#endif  /* __cplusplus */
 
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.

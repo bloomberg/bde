@@ -63,7 +63,7 @@ bsl::ostream& DatetimeInterval::print(bsl::ostream& stream,
     return stream;
 }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 
 // DEPRECATED METHODS
 bsl::ostream& DatetimeInterval::streamOut(bsl::ostream& stream) const
@@ -71,7 +71,7 @@ bsl::ostream& DatetimeInterval::streamOut(bsl::ostream& stream) const
     return stream << *this;
 }
 
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 
 }  // close package namespace
 }  // close enterprise namespace

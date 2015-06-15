@@ -78,7 +78,7 @@ BSLS_IDENT("$Id: $")
 //..
 ///Example 2: Reading the 'VALUE' member
 /// - - - - - - - - - - - - - - - - - -
-// In addition to forming new types, the value of the integral paramameter to
+// In addition to forming new types, the value of the integral parameter to
 // 'MetaInt' is "saved" in the enum member 'VALUE', and is accessible for use
 // in compile-time or run-time operations.
 //..
@@ -249,7 +249,7 @@ struct MetaInt<1> : public bsl::true_type {
     // value, 'true' or 'false', according to the Boolean value of 'V'.  The
     // expression, 'expr', is not evaluated at run-time.
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -259,7 +259,7 @@ struct MetaInt<1> : public bsl::true_type {
 #endif
 #define bslmf_MetaInt bslmf::MetaInt
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 // ===========================================================================
 //                            INLINE FUNCTIONS
