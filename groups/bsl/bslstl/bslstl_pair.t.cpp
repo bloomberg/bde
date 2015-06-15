@@ -593,6 +593,19 @@ void swapTestHelper()
     p2.second.assertSwapCalled();
 }
 
+
+                           // =================================
+                           // Hash<my_String> (hashAppend test)
+                           // =================================
+
+// HASH SPECIALIZATIONS
+template <class HASHALG>
+void hashAppend(HASHALG& hashAlg, const my_String& input)
+{
+    using bslh::hashAppend;
+    hashAlg(input.c_str(), std::strlen(input.c_str()));
+}
+
 //=============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
@@ -619,21 +632,23 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 Hashes different inputs differently
-        //
+        //:
         //: 2 Hashes equal inputs identically
-        //
+        //:
         //: 3 Works for const and non-const pairs, members
+        //:
+        //: 4 'hashAppend' for 'pair' correctly uses 'hashAppend' implemented
+        //:   for the pair's template parameter types.
         //
         // Plan:
         //: 1 Create pairs, some equal and some not, some const, some not.
-        //
-        //: 2 Hash them all
-        //
-        //: 3 Compare hashes, identifying those that should be equal and those
-        //:   that should not. (C-1,2)
-        //
-        //: 4 Call with different mixes of constness, to verify that all
-        //:   compile. (C-3)
+        //:   Hash them all. Compare hashes, identifying those that should be
+        //:   equal and those that should not.  Call with different mixes of
+        //:   constness, to verify that all compile. (C-1..3)
+        //:
+        //: 2 Create a 'hashAppend' for 'my_String', create a set of pairs
+        //:   using 'my_String' values, and verify that pairs having the same
+        //:   'my_String' value produce the same hash code. (C-4)
         //
         // Testing:
         //     hashAppend(HASHALG& hashAlg, const pair<T1,T2>&  input);
@@ -644,81 +659,130 @@ int main(int argc, char *argv[])
         typedef ::BloombergLP::bslh::Hash<> Hasher;
         typedef Hasher::result_type         HashType;
 
-        bsl::pair<int,const char*> p1(1, "hello");  // P-1
-        bsl::pair<int,const char*> p2(1, "hello");
-        bsl::pair<int,const char*> p3(100, "hello");
-        bsl::pair<int,const char*> p4(1, "goodbye");
-        bsl::pair<int,const char*> p5(1, "goodbye");
-        bsl::pair<int,const char*> p6(100, "goodbye");
+        {
+            const char *ptr1 = "hello";
+            const char *ptr2 = "goodbye";
 
-        bsl::pair<const int, const char *> p7(1, "hello");  // P-4
-        const bsl::pair<int,const char * const> p8(1, "hello");
+            bsl::pair<int,const char*> p1(1,   ptr1);  // P-1
+            bsl::pair<int,const char*> p2(1,   ptr1);
+            bsl::pair<int,const char*> p3(100, ptr1);
+            bsl::pair<int,const char*> p4(1,   ptr2);
+            bsl::pair<int,const char*> p5(1,   ptr2);
+            bsl::pair<int,const char*> p6(100, ptr2);
 
-        Hasher hasher;  // P-2
-        HashType a1 = hasher(p1), a2 = hasher(p2), a3 = hasher(p3),
-                 a4 = hasher(p4), a5 = hasher(p5), a6 = hasher(p6),
-                 a7 = hasher(p7), a8 = hasher(p8);
+            bsl::pair<const int, const char *>      p7(1, ptr1);  // P-4
+            const bsl::pair<int,const char * const> p8(1, ptr1);
 
-        if (veryVerbose) {
-            printf("\tHash of (%d,\"%s\") is %llx\n",
-                                 p1.first, p1.second, (unsigned long long) a1);
-            printf("\tHash of (%d,\"%s\") is %llx\n",
-                                 p2.first, p2.second, (unsigned long long) a2);
-            printf("\tHash of (%d,\"%s\") is %llx\n",
-                                 p3.first, p3.second, (unsigned long long) a3);
-            printf("\tHash of (%d,\"%s\") is %llx\n",
-                                 p4.first, p4.second, (unsigned long long) a4);
-            printf("\tHash of (%d,\"%s\") is %llx\n",
-                                 p5.first, p5.second, (unsigned long long) a5);
-            printf("\tHash of (%d,\"%s\") is %llx\n",
-                                 p6.first, p6.second, (unsigned long long) a6);
-            printf("\tHash of (%d,\"%s\") is %llx\n",
-                                 p7.first, p7.second, (unsigned long long) a7);
-            printf("\tHash of (%d,\"%s\") is %llx\n",
-                                 p8.first, p8.second, (unsigned long long) a8);
-        }
+            Hasher hasher;  // P-2
+            HashType a1 = hasher(p1), a2 = hasher(p2), a3 = hasher(p3),
+                     a4 = hasher(p4), a5 = hasher(p5), a6 = hasher(p6),
+                     a7 = hasher(p7), a8 = hasher(p8);
+
+            if (veryVerbose) {
+                printf("\tHash of (%d,\"%s\") is %llx\n",
+                       p1.first, p1.second, (unsigned long long) a1);
+                printf("\tHash of (%d,\"%s\") is %llx\n",
+                       p2.first, p2.second, (unsigned long long) a2);
+                printf("\tHash of (%d,\"%s\") is %llx\n",
+                       p3.first, p3.second, (unsigned long long) a3);
+                printf("\tHash of (%d,\"%s\") is %llx\n",
+                       p4.first, p4.second, (unsigned long long) a4);
+                printf("\tHash of (%d,\"%s\") is %llx\n",
+                       p5.first, p5.second, (unsigned long long) a5);
+                printf("\tHash of (%d,\"%s\") is %llx\n",
+                       p6.first, p6.second, (unsigned long long) a6);
+                printf("\tHash of (%d,\"%s\") is %llx\n",
+                       p7.first, p7.second, (unsigned long long) a7);
+                printf("\tHash of (%d,\"%s\") is %llx\n",
+                       p8.first, p8.second, (unsigned long long) a8);
+            }
 
             // P-3
 
-        ASSERT(a1 == a2);
-        ASSERT(a1 != a3);
-        ASSERT(a1 != a4);
-        ASSERT(a1 != a5);
-        ASSERT(a1 != a6);
-        if (veryVerbose) {
-            printf("\tp1=p2: %d, p1/p3: %d, p1/p4: %d, p1/p5: %d, p1/p6: %d\n",
-                                   int(a1 == a2), int(a1 != a3), int(a1 != a4),
-                                   int(a1 != a5), int(a1 != a6));
-        }
-        ASSERT(a2 != a3);
-        ASSERT(a2 != a4);
-        ASSERT(a2 != a5);
-        ASSERT(a2 != a6);
-        if (veryVerbose) {
-            printf("\tp2/p3: %d, p2/p4: %d, p2/p5: %d, p2/p6: %d\n",
+            ASSERT(a1 == a2);
+            ASSERT(a1 != a3);
+            ASSERT(a1 != a4);
+            ASSERT(a1 != a5);
+            ASSERT(a1 != a6);
+            if (veryVerbose) {
+                printf(
+                  "\tp1=p2: %d, p1/p3: %d, p1/p4: %d, p1/p5: %d, p1/p6: %d\n",
+                  int(a1 == a2), int(a1 != a3), int(a1 != a4),
+                  int(a1 != a5), int(a1 != a6));
+            }
+            ASSERT(a2 != a3);
+            ASSERT(a2 != a4);
+            ASSERT(a2 != a5);
+            ASSERT(a2 != a6);
+            if (veryVerbose) {
+                printf(
+                   "\tp2/p3: %d, p2/p4: %d, p2/p5: %d, p2/p6: %d\n",
                    int(a2 != a3), int(a2 != a4), int(a2 != a5), int(a2 != a6));
-        }
-        ASSERT(a3 != a4);
-        ASSERT(a3 != a5);
-        ASSERT(a3 != a6);
-        if (veryVerbose) {
-            printf("\tp3/p4: %d, p3/p5: %d, p3/p6: %d\n",
-                                  int(a3 != a4), int(a3 != a5), int(a3 != a6));
-        }
-        ASSERT(a4 == a5);
-        ASSERT(a4 != a6);
-        if (veryVerbose) {
-            printf("\tp4=p5: %d, p4/p6: %d\n", int(a4 == a5), int(a4 != a6));
-        }
-        ASSERT(a5 != a6);
-        if (veryVerbose) {
-            printf("\tp5/p6: %d\n", int(a5 != a6));
-        }
+            }
+            ASSERT(a3 != a4);
+            ASSERT(a3 != a5);
+            ASSERT(a3 != a6);
+            if (veryVerbose) {
+                printf(
+                   "\tp3/p4: %d, p3/p5: %d, p3/p6: %d\n",
+                   int(a3 != a4), int(a3 != a5), int(a3 != a6));
+            }
+            ASSERT(a4 == a5);
+            ASSERT(a4 != a6);
+            if (veryVerbose) {
+                printf(
+                   "\tp4=p5: %d, p4/p6: %d\n",
+                   int(a4 == a5), int(a4 != a6));
+            }
+            ASSERT(a5 != a6);
+            if (veryVerbose) {
+                printf(
+                    "\tp5/p6: %d\n",
+                    int(a5 != a6));
+            }
 
-        ASSERT(a7 == a8);
-        ASSERT(a1 == a8);
-        if (veryVerbose) {
-            printf("\tp7=p8: %d, p1=p8: %d\n", int(a7 == a8), int(a1 == a8));
+            ASSERT(a7 == a8);
+            ASSERT(a1 == a8);
+            if (veryVerbose) {
+                printf(
+                    "\tp7=p8: %d, p1=p8: %d\n",
+                    int(a7 == a8), int(a1 == a8));
+            }
+        }
+        if (verbose) {
+            printf("\tTesting hash on a pair with a user-defined type");
+        }
+        {
+            bsl::pair<int, my_String> p1(1,   "stringA");  // P-1
+            bsl::pair<int, my_String> p2(1,   "stringA");
+            bsl::pair<int, my_String> p3(100, "stringA");
+            bsl::pair<int, my_String> p4(1,   "stringB");
+            bsl::pair<int, my_String> p5(1,   "stringB");
+            bsl::pair<int, my_String> p6(100, "stringB");
+
+            Hasher hasher;  // P-2
+            HashType a1 = hasher(p1), a2 = hasher(p2), a3 = hasher(p3),
+                     a4 = hasher(p4), a5 = hasher(p5), a6 = hasher(p6);
+
+            ASSERT(a1 == a2);
+            ASSERT(a1 != a3);
+            ASSERT(a1 != a4);
+            ASSERT(a1 != a5);
+            ASSERT(a1 != a6);
+
+            ASSERT(a2 != a3);
+            ASSERT(a2 != a4);
+            ASSERT(a2 != a5);
+            ASSERT(a2 != a6);
+
+            ASSERT(a3 != a4);
+            ASSERT(a3 != a5);
+            ASSERT(a3 != a6);
+
+            ASSERT(a4 == a5);
+            ASSERT(a4 != a6);
+
+            ASSERT(a5 != a6);
         }
 
       } break;

@@ -544,7 +544,7 @@ TestAllocatorMonitor::validateArgument(const TestAllocator *allocator)
 inline
 void TestAllocatorMonitor::reset(const TestAllocator *testAllocator)
 {
-    // This method is alled inline by c'tor, hence it should precede it.
+    // This method is called inline by c'tor, hence it should precede it.
 
     if (testAllocator) {
         d_testAllocator_p = testAllocator;
@@ -647,14 +647,14 @@ bsls::Types::Int64 TestAllocatorMonitor::numBlocksTotalChange() const
 
 }  // close package namespace
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslma::TestAllocatorMonitor bslma_TestAllocatorMonitor;
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

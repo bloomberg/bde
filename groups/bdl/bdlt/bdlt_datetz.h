@@ -274,7 +274,7 @@ class DateTz {
         // valid on entry, this operation has no effect.  Note that the format
         // is not fully specified, and can change without notice.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
     Datetime gmtStartTime() const;
         // !DEPRECATED!: replaced by 'utcStartTime'.
@@ -301,7 +301,7 @@ class DateTz {
         // on success, and a non-zero value with no effect on this 'DateTz'
         // object otherwise.
 
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 
 };
 
@@ -479,7 +479,7 @@ STREAM& DateTz::bdexStreamOut(STREAM& stream, int version) const
     return stream;
 }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 // DEPRECATED
 inline
 Datetime DateTz::gmtStartTime() const
@@ -503,7 +503,7 @@ int DateTz::validateAndSetDateTz(const Date& localDate, int offset)
     return -1;
 }
 
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 
 }  // close package namespace
 

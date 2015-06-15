@@ -409,7 +409,7 @@ class DatetimeInterval {
         // valid on entry, this operation has no effect.  Note that the format
         // is not fully specified, and can change without notice.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
     // DEPRECATED METHODS
     static int maxSupportedBdexVersion();
@@ -418,6 +418,8 @@ class DatetimeInterval {
         // Return the most current BDEX streaming version number supported by
         // this class.
 
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
     static int maxSupportedVersion();
         // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
         //
@@ -430,7 +432,7 @@ class DatetimeInterval {
         // Format this datetime interval to the specified output 'stream', and
         // return a reference to 'stream'.
 
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 
 };
 
@@ -802,7 +804,7 @@ STREAM& DatetimeInterval::bdexStreamOut(STREAM& stream, int version) const
     return stream;
 }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
 // DEPRECATED METHODS
 inline
@@ -811,13 +813,15 @@ int DatetimeInterval::maxSupportedBdexVersion()
     return maxSupportedBdexVersion(0);
 }
 
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 inline
 int DatetimeInterval::maxSupportedVersion()
 {
     return maxSupportedBdexVersion(0);
 }
 
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 
 }  // close package namespace
 

@@ -6,6 +6,7 @@
 
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
+#include <string.h>     // 'strcmp', 'strlen'
 
 
 using namespace BloombergLP;
@@ -398,9 +399,6 @@ int main(int argc, char *argv[])
                           << "Testing 64-Bit Integer Constant Support" << endl
                           << "=======================================" << endl;
 
-#if defined(BSLS_PLATFORM_NO_64_BIT_LITERALS)
-        if (veryVerbose) cout << "No 64-bit integer constants."        << endl;
-#else
         if (veryVerbose) cout << "64-bit integer constants supported." << endl;
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -414,11 +412,19 @@ int main(int argc, char *argv[])
         T i, iHi, iLo, iTest;
         U u, uHi, uLo, uTest;
 
+#if !defined(BSLS_PLATFORM_NO_64_BIT_LITERALS)
         i = 9223372036854775807;  // 0x7FFFFFFFFFFFFFFF
         u = 9223372036854775809;  // 0x8000000000000001
 
         ASSERT(i == 0x7FFFFFFFFFFFFFFF);
         ASSERT(u == 0x8000000000000001);
+#else
+        i = 9223372036854775807LL;   // 0x7FFFFFFFFFFFFFFF
+        u = 9223372036854775809uLL;  // 0x8000000000000001
+
+        ASSERT(i == 0x7FFFFFFFFFFFFFFFLL);
+        ASSERT(u == 0x8000000000000001uLL);
+#endif
 
         // Generate test values in 32-bit parts.
 
@@ -433,7 +439,6 @@ int main(int argc, char *argv[])
         ASSERT(                u == uTest);
         ASSERT((u & 0x0FFFFFFFF) == uLo);
         ASSERT(          u >> 32 == uHi);
-#endif
 
       } break;
       case 2: {
@@ -529,6 +534,9 @@ int main(int argc, char *argv[])
 #define MACRO_TESTGT(X, Y)                                    \
         ASSERT(Y <= X);                                       \
         if (veryVerbose) cout << "\t"#X" = " << X << endl;
+
+#define STRINGIFY2(a) #a
+#define STRINGIFY(a) STRINGIFY2(a)
 
         #if defined(BSLS_PLATFORM_CMP_IBM)
             MACRO_TESTGT(BSLS_PLATFORM_CMP_IBM, 0);
@@ -666,6 +674,22 @@ int main(int argc, char *argv[])
             MACRO_TESTEQ(BSLS_PLATFORM_IS_LITTLE_ENDIAN, 1);
         #endif
 
+        if (veryVerbose) cout << endl << "Print inlining symbol:" << endl;
+
+        if (veryVerbose) cout << "\t"
+                              << STRINGIFY2(BSLS_PLATFORM_AGGRESSIVE_INLINE)
+                              << " = \""
+                              << STRINGIFY(BSLS_PLATFORM_AGGRESSIVE_INLINE)
+                              << "\""
+                              << endl;
+
+        #if (defined(BSLS_PLATFORM_CMP_AIX) || defined(BSLS_PLATFORM_CMP_SUN))\
+            && !defined(BDE_BUILD_TARGET_AGGRESSIVE_INLINE)
+        ASSERT(0 == strlen(STRINGIFY(BSLS_PLATFORM_AGGRESSIVE_INLINE)));
+        #else
+        ASSERT(0 == strcmp(STRINGIFY(BSLS_PLATFORM_AGGRESSIVE_INLINE),
+                                     "inline"));
+        #endif
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

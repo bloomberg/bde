@@ -16,6 +16,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_PLATFORM_OS_*: operating system type, sub-type, and version
 //  BSLS_PLATFORM_CPU_* instruction set, instruction width, and version
 //  BSLS_PLATFORM_CMP_*: compiler vendor, and version
+//  BSLS_PLATFORM_AGGRESSIVE_INLINE: inline code for speed over text size
 //
 //@AUTHOR: John Lakos (jlakos)
 //
@@ -79,6 +80,15 @@ BSLS_IDENT("$Id: $")
 //   @_CMP_SUN
 //
 //  =============================================================
+//
+//  =============================================================
+//                              INLINING
+//  -------------------------------------------------------------
+//     Flag
+//  -----------------
+//   @_AGGRESSIVE_INLINE
+//
+//  =============================================================
 //..
 // These macros are configured automatically, where possible.  At a minimum,
 // the generic operating system type (i.e., either 'BSLS_PLATFORM_OS_UNIX' or
@@ -89,6 +99,14 @@ BSLS_IDENT("$Id: $")
 // discrimination is required (e.g., based on sub-type or version of a specific
 // operating system, processor, or compiler).  Note that supplying a minor
 // version number implies that the major version is also defined.
+//
+// The aggressive inlining macro 'BSLS_PLATFORM_AGGRESSIVE_INLINE' is defined
+// as the 'inline' keyword on all compilers except 'BSLS_PLATFROM_CMP_IBM' and
+// 'BSLS_PLATFORM_CMP_SUN', where it is left empty.  This is required for some
+// of our legacy applications where substantially growing the text size is not
+// possible.  Even on those platforms, the symbol will be defined as 'inline'
+// if 'BDE_BUILD_TARGET_AGGRESSIVE_INLINE' is passed in via the '-D' option of
+// the compiler.
 //
 ///Usage
 ///-----
@@ -617,7 +635,17 @@ struct bsls_Platform_Assert;
         #endif
     #elif defined(__arm__)
         #define BSLS_PLATFORM_CPU_ARM 1
-        #if defined(__ARM_ARCH_5T__)        \
+        #if defined(__ARM_ARCH)
+            #if __ARM_ARCH == 6
+                #define BSLS_PLATFORM_CPU_ARM_V6
+            #elif __ARM_ARCH == 7
+                #define BSLS_PLATFORM_CPU_ARM_V7
+            #elif __ARM_ARCH == 8
+                #define BSLS_PLATFORM_CPU_ARM_V8
+            #elif __ARM_ARCH == 9
+                #define BSLS_PLATFORM_CPU_ARM_V9
+            #endif
+        #elif defined(__ARM_ARCH_5T__)        \
             || defined(__ARM_ARCH_5TE__)    \
             || defined(__ARM_ARCH_5TEJ__)
             #define BSLS_PLATFORM_CPU_ARM_V5
@@ -822,7 +850,7 @@ struct bsls_Platform_Assert;
 
                         // Miscellaneous Platform Macros
 
-#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+#if defined(BSLS_PLATFORM_CMP_GNU)
     #define BSLS_PLATFORM_NO_64_BIT_LITERALS 1
 #endif
 
@@ -831,9 +859,17 @@ struct bsls_Platform_Assert;
 #endif
 
 #if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40600)  \
- || defined(BSLS_PLATFORM_CMP_CLANG)
-    #define BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC 1
+                                    || defined(BSLS_PLATFORM_CMP_CLANG)
+     #define BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC 1
 #endif
+
+#if !(defined(BSLS_PLATFORM_CMP_AIX) || defined(BSLS_PLATFORM_CMP_SUN)) \
+                                && !defined(BDE_BUILD_TARGET_AGGRESSIVE_INLINE)
+    #define BSLS_PLATFORM_AGGRESSIVE_INLINE inline
+#else
+    #define BSLS_PLATFORM_AGGRESSIVE_INLINE
+#endif
+
 // ----------------------------------------------------------------------------
 
                                  // Validation
@@ -1080,7 +1116,7 @@ struct Platform {
 }  // close package namespace
 #endif  // __cplusplus
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
                       // ======================
@@ -1109,7 +1145,7 @@ typedef bsls::Platform bsls_Platform;
     // This alias is defined for backward compatibility.
 #endif
 
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 #ifdef __cplusplus
 }  // close enterprise namespace

@@ -46,7 +46,7 @@ BSLS_IDENT("$Id: $")
 // The behavior of the timer on windows platforms depends on the interaction of
 // operating system, BIOS, and processor, and certain combinations of the three
 // (particularly older ones) are vulnerable to timer inaccuracy.  For example,
-// frequently the 'QueryPerformanceCounter' function that 'TmeUtil' uses on
+// frequently the 'QueryPerformanceCounter' function that 'TimeUtil' uses on
 // Windows will utilize the CPU's timestamp counter (TSC), and CPUs with speed
 // scaling mechanisms such as SpeedStep (frequently used for power management)
 // will generally see the clock speed vary with the CPU frequency.  However,
@@ -306,14 +306,14 @@ struct TimeUtil {
 
 }  // close package namespace
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bsls::TimeUtil bsls_TimeUtil;
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

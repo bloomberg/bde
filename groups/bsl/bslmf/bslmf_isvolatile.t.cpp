@@ -156,12 +156,53 @@ int main(int argc, char *argv[])
         ASSERT(false == is_volatile<TestType>::value);
         ASSERT(false == is_volatile<TestType const>::value);
 
+        ASSERT(false == is_volatile<int &>::value);
+        ASSERT(false == is_volatile<const int &>::value);
+        ASSERT(false == is_volatile<volatile int &>::value);
+
+        ASSERT(false == is_volatile<void>::value);
+        ASSERT(false == is_volatile<void const>::value);
+
+        ASSERT(false == is_volatile<volatile int()>::value);
+        ASSERT(false == is_volatile<volatile int(&)()>::value);
+        ASSERT(false == is_volatile<volatile int(*)()>::value);
+
+        ASSERT(false == is_volatile<int[4]>::value);
+        ASSERT(false == is_volatile<const int[4]>::value);
+
+        ASSERT(false == is_volatile<int[4][2]>::value);
+        ASSERT(false == is_volatile<const int[4][2]>::value);
+
+        ASSERT(false == is_volatile<int[]>::value);
+        ASSERT(false == is_volatile<const int[]>::value);
+
+        ASSERT(false == is_volatile<int[][2]>::value);
+        ASSERT(false == is_volatile<const int[][2]>::value);
+
         // C-2
         ASSERT(true == is_volatile<int volatile>::value);
         ASSERT(true == is_volatile<int const volatile>::value);
 
         ASSERT(true == is_volatile<TestType volatile>::value);
         ASSERT(true == is_volatile<TestType const volatile>::value);
+
+        ASSERT(true == is_volatile<void volatile>::value);
+        ASSERT(true == is_volatile<void const volatile>::value);
+
+        ASSERT(true == is_volatile<int *volatile>::value);
+        ASSERT(true == is_volatile<int(* volatile)()>::value);
+
+        ASSERT(true == is_volatile<volatile int[4]>::value);
+        ASSERT(true == is_volatile<const volatile int[4]>::value);
+
+        ASSERT(true == is_volatile<volatile int[4][2]>::value);
+        ASSERT(true == is_volatile<const volatile int[4][2]>::value);
+
+        ASSERT(true == is_volatile<volatile int[]>::value);
+        ASSERT(true == is_volatile<const volatile int[]>::value);
+
+        ASSERT(true == is_volatile<volatile int[][2]>::value);
+        ASSERT(true == is_volatile<const volatile int[][2]>::value);
 
       } break;
       default: {

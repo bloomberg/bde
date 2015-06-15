@@ -127,7 +127,6 @@ int main(int argc, char *argv[])
         Optional<int> value;
         ASSERT(bool(value) == false);
         if (value) { /*... */ }
-
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT) \
  || defined(FAIL_USAGE_EXPLICIT)
         bool flag = value;
@@ -187,9 +186,11 @@ int main(int argc, char *argv[])
         };
 
         FinalFunctionBase finalFunctionBase;
-        ASSERT(finalFunctionBase.f() == 0);
+        ASSERT(finalFunctionBase.f()    == 0);
+
         FinalFunctionDerived finalFunctionDerived;
         ASSERT(finalFunctionDerived.f() == 1);
+
         FinalFunctionFailure finalFunctionFailure;
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_FINAL)
         ASSERT(finalFunctionFailure.f() == 1);
@@ -297,7 +298,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Define a base class with a 'virtual' function and two derived
-        //   classes which override the function correclty and incorrectly.  In
+        //   classes which override the function correctly and incorrectly.  In
         //   both cases use the 'BSLS_CPP11_OVERRIDE' macro and determine if
         //   the compilation is successful.  The incorrect use is guarded by a
         //   the macro 'FAIL_OVERRIDE' to restrict compilation failure to
@@ -441,15 +442,16 @@ int main(int argc, char *argv[])
 
         FinalFunctionBase finalFunctionBase;
         ASSERT(finalFunctionBase.f() == 0);
+
         FinalFunctionDerived finalFunctionDerived;
         ASSERT(finalFunctionDerived.f() == 1);
+
         FinalFunctionFailure finalFunctionFailure;
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_FINAL)
         ASSERT(finalFunctionFailure.f() == 1);
 #else
         ASSERT(finalFunctionFailure.f() == 2);
 #endif
-
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -516,7 +518,7 @@ int main(int argc, char *argv[])
         //   1) Marking a conversion operator 'explicit' using
         //      'BSLS_CPP11_EXPLICIT' needs to allow explicit conversions.
         //
-        //   2) Marking a conersion operator 'explicit' using
+        //   2) Marking a conversion operator 'explicit' using
         //      'BSLS_CPP11_EXPLICIT' should prevent attempts of implicit
         //      conversion when compiling with C++11 mode. When compiling with
         //      C++03 mode compilation will succeed.

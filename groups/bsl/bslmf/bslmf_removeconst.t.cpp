@@ -162,8 +162,20 @@ int main(int argc, char *argv[])
         ASSERT((is_same<remove_const<int>::type, int>::value));
         ASSERT((is_same<remove_const<int *>::type, int *>::value));
         ASSERT((is_same<remove_const<TestType>::type, TestType>::value));
-        ASSERT((is_same<remove_const<int const *>::type,
-                                                         int const *>::value));
+        ASSERT((is_same<remove_const<int const *>::type, int const *>::value));
+        ASSERT((is_same<remove_const<int const &>::type, int const &>::value));
+        ASSERT((is_same<remove_const<int const()>::type, int const()>::value));
+        ASSERT((is_same<remove_const<int[5]>::type, int[5]>::value));
+        ASSERT((is_same<remove_const<int[5][2]>::type, int[5][2]>::value));
+        ASSERT((is_same<remove_const<int[5][2][3]>::type,
+                                     int[5][2][3]>::value));
+        ASSERT((is_same<remove_const<int[]>::type, int[]>::value));
+        ASSERT((is_same<remove_const<int[][2]>::type, int[][2]>::value));
+        ASSERT((is_same<remove_const<int[][2][3]>::type, int[][2][3]>::value));
+
+        ASSERT((is_same<remove_const<void>::type, void>::value));
+        ASSERT((is_same<remove_const<volatile void>::type,
+                                     volatile void>::value));
 
         // C-2
         ASSERT((is_same<remove_const<int const>::type, int>::value));
@@ -177,6 +189,24 @@ int main(int argc, char *argv[])
         ASSERT((is_same<remove_const<TestType const volatile>::type,
                                                    TestType volatile>::value));
 
+        ASSERT((is_same<remove_const<const int[5]>::type,
+                                           int[5]>::value));
+        ASSERT((is_same<remove_const<const int[5][2]>::type,
+                                           int[5][2]>::value));
+        ASSERT((is_same<remove_const<const int[5][2][3]>::type,
+                                           int[5][2][3]>::value));
+
+        ASSERT((is_same<remove_const<const int[]>::type,
+                                           int[]>::value));
+        ASSERT((is_same<remove_const<const int[][2]>::type,
+                                           int[][2]>::value));
+        ASSERT((is_same<remove_const<const int[][2][3]>::type,
+                                           int[][2][3]>::value));
+
+        ASSERT((is_same<remove_const<const void>::type,
+                                           void>::value));
+        ASSERT((is_same<remove_const<const volatile void>::type,
+                                           volatile void>::value));
       } break;
       default: {
 

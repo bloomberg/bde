@@ -54,6 +54,10 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_versiontag.h> // BSL_VERSION_MAJOR, BSL_VERSION_MINOR
 #endif
 
+#ifdef BDE_OPENSOURCE_PUBLICATION  // internal policy enforcement
+#error "BDE_OPENSOURCE_PUBLICATION incompatible with internal code base"
+#endif  // BDE_OPENSOURCE_PUBLICATION -- internal policy enforcement
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // This macro controls whether we allow features which we must continue to
     // support for our clients but do not want to rely on in our own code base.
@@ -114,14 +118,14 @@ BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(const char *,
                                           bslscm_version_assertion,
                                           bslscm::Version::BSLSCM_S_VERSION);
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslscm::Version bslscm_Version;
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

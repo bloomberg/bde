@@ -91,7 +91,9 @@ using namespace std;
 //
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 8] USAGE EXAMPLE
+// [ 7] SEQUENTIAL CONSISTENCY MEMORY ORDERING GUARANTEE TEST
+// [ 8] ACQUIRE/RELEASE MEMORY ORDERING GUARANTEE TEST
+// [ 9] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -1123,7 +1125,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 9: {
+      case 10: {
         // TESTING USAGE Examples
         //
         // Plan:
@@ -1136,7 +1138,7 @@ int main(int argc, char *argv[])
             my_CountedHandle<double> handle(NULL);
         }
       } break;
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING MEMORY ORDERING OF ATOMIC OPERATIONS USED IN SHARED POINTER
         //
@@ -1166,49 +1168,73 @@ int main(int argc, char *argv[])
 
         testCaseSharedPtr(iterations);
       } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
-        // TESTING MEMORY ORDERING GUARANTEES OF ATOMIC OPERATIONS
+        // TESTING ACQUIRE/RELEASE MEMORY ORDERING GUARANTEE
         //
         // Concerns:
-        //   Atomic operations with specific memory ordering guarantees do
-        //   indeed implement those memory orderings.
+        //   Atomic operations with acquire/release memory ordering guarantee
+        //   do indeed exhibit that memory ordering.
         //
         // Plan:
         //  1. Implement a classical lock free algorithm, the Peterson's lock,
         //     which has been studied well enough to know the exact atomic
         //     operations it needs.
         //  2. Construct a test function which will read and write to some
-        //     shared data protected by the Peterson's lock, and verified the
+        //     shared data protected by the Peterson's lock, and verify the
         //     consistency of the shared data.
         //  3. Start two threads, execute the test function in a loop in both
         //     threads and verify that the consistency of the shared data is
         //     not violated.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting memory ordering guarantees"
-                          << "\n=================================="
+        if (verbose) cout << "\nTesting acquire/release guarantee"
+                          << "\n================================="
                           << endl;
 
         int iterations = getTestCaseIterations(petersonsLockLoopTest);
         if (veryVerbose) cout << "\tRunning the test loop for "
                               << iterations << " iterations" << endl;
 
-        if (verbose) cout << "\tTesting sequential consistency" << endl;
+        if (verbose) cout << "\t\twith bsls::AtomicInt" << endl;
+        testCaseMemOrder<PetersonsLock, bsls::AtomicInt>(iterations);
+
+        if (verbose) cout << "\t\twith bsls::AtomicInt64" << endl;
+        testCaseMemOrder<PetersonsLock, bsls::AtomicInt64>(iterations);
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // TESTING SEQUENTIAL CONSISTENCY MEMORY ORDERING GUARANTEE
+        //
+        // Concerns:
+        //   Atomic operations with sequential consistency memory ordering
+        //   guarantee do indeed exhibit that memory ordering.
+        //
+        // Plan:
+        //  1. Implement a classical lock free algorithm, the Peterson's lock,
+        //     which has been studied well enough to know the exact atomic
+        //     operations it needs.
+        //  2. Construct a test function which will read and write to some
+        //     shared data protected by the Peterson's lock, and verify the
+        //     consistency of the shared data.
+        //  3. Start two threads, execute the test function in a loop in both
+        //     threads and verify that the consistency of the shared data is
+        //     not violated.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting sequential consistency guarantee"
+                          << "\n========================================"
+                          << endl;
+
+        int iterations = getTestCaseIterations(petersonsLockLoopTest);
+        if (veryVerbose) cout << "\tRunning the test loop for "
+                              << iterations << " iterations" << endl;
 
         if (verbose) cout << "\t\twith bsls::AtomicInt" << endl;
         testCaseMemOrder<PetersonsLockSeqCst, bsls::AtomicInt>(iterations);
 
         if (verbose) cout << "\t\twith bsls::AtomicInt64" << endl;
         testCaseMemOrder<PetersonsLockSeqCst, bsls::AtomicInt64>(iterations);
-
-        if (verbose) cout << "\tTesting acquire/release" << endl;
-
-        if (verbose) cout << "\t\twith bsls::AtomicInt" << endl;
-        testCaseMemOrder<PetersonsLock, bsls::AtomicInt>(iterations);
-
-        if (verbose) cout << "\t\twith bsls::AtomicInt64" << endl;
-        testCaseMemOrder<PetersonsLock, bsls::AtomicInt64>(iterations);
       } break;
       case 6: {
         // --------------------------------------------------------------------

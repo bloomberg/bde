@@ -39,8 +39,8 @@ using namespace std;
 // [ 1] Uint64
 // [ 2] size_type
 //-----------------------------------------------------------------------------
-// [ 4] operator<<(ostream&, const bsls::Types::Uint64&);
-// [ 3] operator<<(ostream&, const bsls::Types::Int64&);
+// [ 3] 'snprintf' with const bsls::Types::Int64&
+// [ 4] 'snprintf' with const bsls::Types::Uint64&
 //-----------------------------------------------------------------------------
 // [ 5] USAGE EXAMPLE
 //=============================================================================
@@ -191,24 +191,23 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING OUTPUT (<<) OPERATOR FOR UNSIGNED INT64 TYPE:
+        // TESTING OUTPUT OPERATOR FOR UNSIGNED INT64 TYPE:
         //   The test is performed to insure that the 'typedef'd Uint64 behaves
         //   properly.
         //
         // Plan:
         //   For each of a small representative set of object values, ordered
-        //   by increasing length, use 'ostrstream' to write that object's
-        //   value to two separate character buffers each with different
-        //   initial values.  Compare the contents of these buffers with the
-        //   literal expected output format and verify that the characters
-        //   beyond the null characters are unaffected in both buffers.
-        //   On platforms that support 64-bit integer constants, test those
-        //   constants directly.  Additionally generated the same 64-bit
-        //   constants by logically combining two 32-bit constants and test
-        //   those as well.
+        //   by increasing length, use 'snprintf' to write that object's value
+        //   to two separate character buffers each with different initial
+        //   values.  Compare the contents of these buffers with the literal
+        //   expected output format and verify that the characters beyond the
+        //   null characters are unaffected in both buffers.  On platforms that
+        //   support 64-bit integer constants, test those constants directly.
+        //   Additionally generate the same 64-bit constants by logically
+        //   combining two 32-bit constants and test those as well.
         //
         // Testing:
-        //   'operator<<' with const bsls::Types::Uint64&
+        //   'snprintf' with const bsls::Types::Uint64&
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -223,28 +222,33 @@ int main(int argc, char *argv[])
             T           d_spec;       // specification string
             const char *d_fmt_p;      // expected output format
         } DATA[] = {
-            //line  spec               output format
-            //----  -----------------  -------------------------
-            { L_,    0,                 "0"                    },
-            { L_,    1,                 "1"                    },
-            { L_,   0x7F,               "127"                  },
-            { L_,   0x80,               "128"                  },
-            { L_,   0xFF,               "255"                  },
-            { L_,   0x100,              "256"                  },
-            { L_,   0x7FFF,             "32767"                },
-            { L_,   0x8000,             "32768"                },
-            { L_,   0xFFFF,             "65535"                },
-            { L_,   0x10000,            "65536"                },
-            { L_,   0x7FFFFFFF,         "2147483647"           },
-            { L_,   0x80000000,         "2147483648"           },
-            { L_,   0xFFFFFFFF,         "4294967295"           },
+            //line  spec                  output format
+            //----  --------------------  --------------------------
+            { L_,    0,                    "0"                    },
+            { L_,    1,                    "1"                    },
+            { L_,   0x7F,                  "127"                  },
+            { L_,   0x80,                  "128"                  },
+            { L_,   0xFF,                  "255"                  },
+            { L_,   0x100,                 "256"                  },
+            { L_,   0x7FFF,                "32767"                },
+            { L_,   0x8000,                "32768"                },
+            { L_,   0xFFFF,                "65535"                },
+            { L_,   0x10000,               "65536"                },
+            { L_,   0x7FFFFFFF,            "2147483647"           },
+            { L_,   0x80000000,            "2147483648"           },
+            { L_,   0xFFFFFFFF,            "4294967295"           },
 #if !defined(BSLS_PLATFORM_NO_64_BIT_LITERALS)
-            { L_,   0x100000000,        "4294967296"           },
-            { L_,   0x7FFFFFFFFFFFFFFF, "9223372036854775807"  },
-            { L_,   0x8000000000000000, "9223372036854775808"  },
-            { L_,   0xFFFFFFFFFFFFFFFF, "18446744073709551615" },  // unsigned
+            { L_,   0x100000000,           "4294967296"           },
+            { L_,   0x7FFFFFFFFFFFFFFF,    "9223372036854775807"  },
+            { L_,   0x8000000000000000,    "9223372036854775808"  },
+            { L_,   0xFFFFFFFFFFFFFFFF,    "18446744073709551615" },// unsigned
+#else
+            { L_,   0x100000000uLL,        "4294967296"           },
+            { L_,   0x7FFFFFFFFFFFFFFFuLL, "9223372036854775807"  },
+            { L_,   0x8000000000000000uLL, "9223372036854775808"  },
+            { L_,   0xFFFFFFFFFFFFFFFFuLL, "18446744073709551615" },// unsigned
 #endif
-            { L_,   (T) (S) -1,         "18446744073709551615" },  // unsigned
+            { L_,   (T) (S) -1,            "18446744073709551615" },// unsigned
         };
 
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -363,24 +367,23 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING OUTPUT (<<) OPERATOR FOR SIGNED INT64 TYPE:
+        // TESTING OUTPUT OPERATOR FOR SIGNED INT64 TYPE:
         //   The test is performed to insure that the 'typedef'd Int64 behaves
         //   properly.
         //
         // Plan:
         //   For each of a small representative set of object values, ordered
-        //   by increasing length, use 'ostrstream' to write that object's
-        //   value to two separate character buffers each with different
-        //   initial values.  Compare the contents of these buffers with the
-        //   literal expected output format and verify that the characters
-        //   beyond the null characters are unaffected in both buffers.
-        //   On platforms that support 64-bit integer constants, test those
-        //   constants directly.  Additionally generated the same 64-bit
-        //   constants by logically combining two 32-bit constants and test
-        //   those as well.
+        //   by increasing length, use 'snprintf' to write that object's value
+        //   to two separate character buffers each with different initial
+        //   values.  Compare the contents of these buffers with the literal
+        //   expected output format and verify that the characters beyond the
+        //   null characters are unaffected in both buffers.  On platforms that
+        //   support 64-bit integer constants, test those constants directly.
+        //   Additionally generate the same 64-bit constants by logically
+        //   combining two 32-bit constants and test those as well.
         //
         // Testing:
-        //   'operator<<' with const bsls::Types::Int64&
+        //   'snprintf' with const bsls::Types::Int64&
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -394,28 +397,33 @@ int main(int argc, char *argv[])
             T           d_spec;       // specification string
             const char *d_fmt_p;      // expected output format
         } DATA[] = {
-            //line  spec               output format
-            //----  -----------------  -------------------------
-            { L_,    0,                 "0"                    },
-            { L_,    1,                 "1"                    },
-            { L_,   0x7F,               "127"                  },
-            { L_,   0x80,               "128"                  },
-            { L_,   0xFF,               "255"                  },
-            { L_,   0x100,              "256"                  },
-            { L_,   0x7FFF,             "32767"                },
-            { L_,   0x8000,             "32768"                },
-            { L_,   0xFFFF,             "65535"                },
-            { L_,   0x10000,            "65536"                },
-            { L_,   0x7FFFFFFF,         "2147483647"           },
-            { L_,   0x80000000,         "2147483648"           },
-            { L_,   0xFFFFFFFF,         "4294967295"           },
+            //line  spec                  output format
+            //----  --------------------  -------------------------
+            { L_,    0,                   "0"                    },
+            { L_,    1,                   "1"                    },
+            { L_,   0x7F,                 "127"                  },
+            { L_,   0x80,                 "128"                  },
+            { L_,   0xFF,                 "255"                  },
+            { L_,   0x100,                "256"                  },
+            { L_,   0x7FFF,               "32767"                },
+            { L_,   0x8000,               "32768"                },
+            { L_,   0xFFFF,               "65535"                },
+            { L_,   0x10000,              "65536"                },
+            { L_,   0x7FFFFFFF,           "2147483647"           },
+            { L_,   0x80000000,           "2147483648"           },
+            { L_,   0xFFFFFFFF,           "4294967295"           },
 #if !defined(BSLS_PLATFORM_NO_64_BIT_LITERALS)
-            { L_,   0x100000000,        "4294967296"           },
-            { L_,   0x7FFFFFFFFFFFFFFF, "9223372036854775807"  },
-            { L_,   0x8000000000000000, "-9223372036854775808" },
-            { L_,   0xFFFFFFFFFFFFFFFF, "-1"                   },  // signed
+            { L_,   0x100000000,          "4294967296"           },
+            { L_,   0x7FFFFFFFFFFFFFFF,   "9223372036854775807"  },
+            { L_,   0x8000000000000000,   "-9223372036854775808" },
+            { L_,   0xFFFFFFFFFFFFFFFF,   "-1"                   },  // signed
+#else
+            { L_,   0x100000000LL,        "4294967296"           },
+            { L_,   0x7FFFFFFFFFFFFFFFLL, "9223372036854775807"  },
+            { L_,   0x8000000000000000LL, "-9223372036854775808" },
+            { L_,   0xFFFFFFFFFFFFFFFFLL, "-1"                   },  // signed
 #endif
-            { L_,   -1,                 "-1"                   },  // signed
+            { L_,   -1,                   "-1"                   },  // signed
         };
 
         const int NUM_DATA = sizeof DATA / sizeof *DATA;

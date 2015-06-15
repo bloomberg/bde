@@ -238,7 +238,7 @@ int main(int argc, char *argv[])
                                << "====================" << std::endl;
 
         if (verbose) std::cout <<
-            "\nTesting macro in unbracketed conext and absence of using"
+            "\nTesting macro in unbracketed context and absence of using"
             "namespace BloombergLP" << std::endl;
 
         // Input values

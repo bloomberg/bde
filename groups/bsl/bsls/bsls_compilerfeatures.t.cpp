@@ -2,8 +2,8 @@
 
 #include <bsls_compilerfeatures.h>
 
-#include <cstdio>      // 'printf'
-#include <cstdlib>     // 'atoi'
+#include <stdio.h>      // 'printf'
+#include <stdlib.h>     // 'atoi'
 #include <iostream>
 
 using namespace BloombergLP;
@@ -247,6 +247,7 @@ struct PackSize<T> {
 // [12] BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 // [13] BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
 // [14] BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+// [15] BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
 //=============================================================================
 
 int main(int argc, char *argv[])
@@ -259,6 +260,33 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
+      case 15: {
+        // --------------------------------------------------------------------
+        // TESTING BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
+        //
+        // Concerns:
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS' is defined
+        //:    only when the compiler is able to compile code with the
+        //:    alignas specifier.
+        //
+        // Plan:
+        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS' is defined
+        //:   then compile code that uses the align as specifier.
+        //
+        // Testing:
+        //   BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
+        // --------------------------------------------------------------------
+
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS)
+        if (verbose) printf("Testing 'alignas' skipped\n"
+                            "===========================\n");
+#else
+        if (verbose) printf("Testing 'alignas' specifier\n"
+                            "====================================\n");
+
+        int alignas(8) foo;
+#endif
+      } break;
       case 14: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
