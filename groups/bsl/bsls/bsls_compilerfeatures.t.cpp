@@ -117,7 +117,19 @@ template class ExternTemplateClass<char>;
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
 
-void noexceptTest() noexcept{
+void noexceptTest1() noexcept {
+}
+
+void noexceptTest2() noexcept(true) {
+}
+
+void noexceptTest3() noexcept(noexcept(noexceptTest1())) {
+}
+
+void notNoexceptTest1() noexcept(false) {
+}
+
+void notNoexceptTest2() noexcept(noexcept(notNoexceptTest1())) {
 }
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
@@ -436,7 +448,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT' is defined then
-        //:   compile code that uses 'noexcpt' in various contexts.
+        //:   compile code that uses 'noexecpt' in various contexts.
         //
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
@@ -447,8 +459,14 @@ int main(int argc, char *argv[])
 #else
           if (verbose) printf("Testing noexcept\n"
                               "================\n");
-          noexceptTest();
-
+          noexceptTest1();
+          noexceptTest2();
+          notNoexceptTest();
+          ASSERT(noexcept(noexceptTest1()));
+          ASSERT(noexcept(noexceptTest2()));
+          ASSERT(noexcept(noexceptTest3()));
+          ASSERT(noexcept(notNoexceptTest1()));
+          ASSERT(noexcept(notNoexceptTest2()));
 #endif
       } break;
       case 7: {
@@ -623,6 +641,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("Testing constexpr\n"
                             "=================\n");
         constexpr int v = A(true).m;
+        ASSERT(v == 42);
 #endif
 
       } break;
