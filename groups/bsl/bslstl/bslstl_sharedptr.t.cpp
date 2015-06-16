@@ -89,17 +89,15 @@ using namespace BloombergLP;
 // bsl::enable_shared_from_this
 //-----------------------------
 // CREATORS
-// [35] enable_shared_from_this();// noexcept;
-// [35] enable_shared_from_this(
-//                        enable_shared_from_this const& original);// noexcept;
+// [35] enable_shared_from_this()
+// [35] enable_shared_from_this(const enable_shared_from_this&)
 // MANIPULATORS
-// [35] ~enable_shared_from_this();
-// [35] enable_shared_from_this& operator=(
-//                              enable_shared_from_this const& rhs);//noexcept;
+// [35] ~enable_shared_from_this()
+// [35] enable_shared_from_this& operator=(const enable_shared_from_this&)
 //
 // ACCESSORS
-// [35] bsl::shared_ptr<T> shared_from_this();
-// [35] bsl::shared_ptr<T const> shared_from_this() const;
+// [35] shared_ptr<T> shared_from_this()
+// [35] shared_ptr<const T> shared_from_this() const
 //
 // bsl::shared_ptr
 //----------------
@@ -2228,9 +2226,7 @@ struct shareThis: bsl::enable_shared_from_this<shareThis>
 {
     int value;
 
-    shareThis(int value = 0){
-        this->value = value;
-    }
+    shareThis(int xvalue = 0) : value(xvalue) {}
 
     bsl::shared_ptr<shareThis> getptr() {
         return shared_from_this();
@@ -3642,7 +3638,7 @@ int main(int argc, char *argv[])
       } break;
       case 35:{
         // --------------------------------------------------------------------
-        // TESTING 'enable_shared_from_this constructors'
+        // TESTING 'enable_shared_from_this' CONSTRUCTORS
         //
         // Concerns:
         //   1) Shared_ptr constructors are able to identify correctly the
@@ -3659,12 +3655,12 @@ int main(int argc, char *argv[])
         //   ensure that the use_count() of the shared_pointer has incermented
         //
         // Testing:
-        //   constexpr enable_shared_from_this() noexcept;
-        //   enable_shared_from_this(
-        //                   enable_shared_from_this const& original) noexcept;
-        //   bsl::shared_ptr<ELEMENT_TYPE> shared_from_this();
-        //   bsl::shared_ptr<ELEMENT_TYPE const> shared_from_this() const;
-        //   enable_shared_from_this& operator=
+        //   enable_shared_from_this()
+        //   enable_shared_from_this(const enable_shared_from_this&)
+        //   ~enable_shared_from_this()
+        //   enable_shared_from_this& operator=(const enable_shared_from_this&)
+        //   shared_ptr<T> shared_from_this()
+        //   shared_ptr<const T> shared_from_this() const
         // --------------------------------------------------------------------
           typedef bsl::shared_ptr<shareThis> SharedPtr;
           bslma::TestAllocator ta;
