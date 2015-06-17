@@ -26,10 +26,10 @@ using namespace BloombergLP;
 using namespace bsl;
 
 // ============================================================================
-//                             TEST PLAN
+//                                TEST PLAN
 // ----------------------------------------------------------------------------
-//                              Overview
-//                              --------
+//                                Overview
+//                                --------
 // 'bdlb::CStringLess' provides a stateless type and thus very little to test.
 // The primary concern is that function call operator compares C-strings
 // correctly.  CREATORS can be tested only for mechanical functioning.  And BSL
@@ -46,7 +46,7 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 // [ 3] operator()(const char *, const char *) const
 // [ 2] CStringLess()
-// [ 2] CStringLess(const bdlb::CStringLess)
+// [ 2] CStringLess(const bdlb::CStringLess&)
 // [ 2] ~CStringLess()
 // [ 2] CStringLess& operator=(const bdlb::CStringLess&)
 // ----------------------------------------------------------------------------
@@ -79,7 +79,7 @@ void aSsErT(bool condition, const char *message, int line)
 }  // close unnamed namespace
 
 // ============================================================================
-//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+//                STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
@@ -101,7 +101,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+//                    NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
@@ -117,14 +117,14 @@ void aSsErT(bool condition, const char *message, int line)
 typedef bdlb::CStringLess Obj;
 
 // ============================================================================
-//                                 TYPE TRAITS
+//                              TYPE TRAITS
 // ----------------------------------------------------------------------------
 
 BSLMF_ASSERT(bsl::is_trivially_copyable<Obj>::value);
 BSLMF_ASSERT(bsl::is_trivially_default_constructible<Obj>::value);
 
 // ============================================================================
-//                            MAIN PROGRAM
+//                              MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
@@ -253,7 +253,6 @@ int main(int argc, char *argv[])
 
         struct TwoInts {
             int a;
-
             int b;
         };
 
@@ -473,7 +472,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   CStringLess()
-        //   CStringLess(const bdlb::CStringLess)
+        //   CStringLess(const bdlb::CStringLess&)
         //   ~CStringLess()
         //   CStringLess& operator=(const bdlb::CStringLess&)
         // --------------------------------------------------------------------
