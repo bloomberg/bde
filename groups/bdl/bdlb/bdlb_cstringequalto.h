@@ -7,20 +7,20 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a functor enabling C-strings as unordered containers keys.
+//@PURPOSE: Provide a standard compatible equality predicate for C-strings.
 //
 //@CLASSES:
 //  bdlb::CStringEqualTo: functor enabling C-strings as 'unordered_map' keys
 //
 //@SEE_ALSO:
 //
-//@DESCRIPTION: This component provides a functor, 'bdlb::CStringEqualTo', to
-// compare two null-terminated strings using a case-sensitive string
-// comparison, rather than simply comparing the two addresses (as the
-// 'std::equal_to' functor would do).  This comparison functor is suitable for
-// supporting C-strings as keys in unordered associative containers.  Note that
-// the container behavior would be undefined if the strings referenced by such
-// pointers were to change value.
+//@DESCRIPTION: This component provides a 'struct', 'bdlb::CStringEqualTo',
+// that defines a functor that checks two null-terminated strings for equality
+// using a case-sensitive string comparison, rather than simply comparing the
+// two addresses (as the 'std::equal_to' functor would do).  This comparison
+// functor is suitable for supporting C-strings as keys in unordered
+// associative containers.  Note that the container behavior would be undefined
+// if the strings referenced by such pointers were to change value.
 //
 ///Usage
 ///-----
@@ -29,8 +29,9 @@ BSLS_IDENT("$Id: $")
 // Example 1: Basic Use of 'bdlb::CStringEqualTo'
 /// - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to create and use a
-// 'bdlb::CStringEqualTo' object as a binary predicate to test that two ranges
-// of null-terminated character strings are equal.
+// 'bdlb::CStringEqualTo' object as a binary predicate for the standard library
+// function 'bsl::equal' to test that two ranges of null-terminated character
+// strings are equal.
 //
 // First, we create few sequences with null-terminated character strings,
 // making sure that their elements have different memory addresses:
@@ -38,34 +39,21 @@ BSLS_IDENT("$Id: $")
 //  const char hello1[] = { 'h', 'e', 'l', 'l', 'o', 0};
 //  const char hello2[] = { 'h', 'e', 'l', 'l', 'o', 0};
 //
-//  const char* arrayA[4] = { "abcd",
-//                            "bcd",
-//                            "x",
-//                            hello1 };
-//  const char* arrayB[4] = { "abcd",
-//                            "bcd",
-//                            "x",
-//                            "Hello" };
-//  const char* arrayC[4] = { "abcd",
-//                            "bcd",
-//                            "x",
-//                            hello2 };
+//  const char* arrayA[3] = { "A", "B", hello1 };
+//  const char* arrayB[3] = { "A", "B", hello2 };
 //..
 // Now, use bdlb::CStringEqualTo() as a binary predicate to compare sequences:
 //..
-//  bool equalAB    = bsl::equal(arrayA, arrayA+4, arrayB,
-//                               bdlb::CStringEqualTo());
-//  bool equalAC    = bsl::equal(arrayA, arrayA+4, arrayC,
-//                               bdlb::CStringEqualTo());
-//  bool equalACBsl = bsl::equal(arrayA, arrayA+4, arrayC,
-//                               bsl::equal_to,const char *>());
+//  bool bdlbEqualTo = bsl::equal(arrayA, arrayA+3, arrayB,
+//                                bdlb::CStringEqualTo());
+//  bool bslEqualTo  = bsl::equal(arrayA, arrayA+3, arrayB,
+//                                bsl::equal_to<const char *>());
 //..
 // Finally, we observe that 'bdlb::CStringEqualTo' compares character string by
 // their values, while default comparator compares addresses:
 //..
-//  assert( false == equalAB );
-//  assert( true  == equalAC );
-//  assert( false == equalACBsl );
+//  assert( true  == bdlbEqualTo );
+//  assert( false == bslEqualTo );
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION

@@ -128,10 +128,6 @@ typedef bdlb::CStringEqualTo Obj;
 BSLMF_ASSERT(bsl::is_trivially_copyable<Obj>::value);
 BSLMF_ASSERT(bsl::is_trivially_default_constructible<Obj>::value);
 
-//=============================================================================
-//                             USAGE EXAMPLE
-//-----------------------------------------------------------------------------
-
 // ============================================================================
 //                            MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -184,8 +180,9 @@ int main(int argc, char *argv[])
 // Example 1: Basic Use of 'bdlb::CStringEqualTo'
 /// - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to create and use a
-// 'bdlb::CStringEqualTo' object as a binary predicate to test that two ranges
-// of null-terminated character strings are equal.
+// 'bdlb::CStringEqualTo' object as a binary predicate for the standard library
+// function 'bsl::equal' to test that two ranges of null-terminated character
+// strings are equal.
 //
 // First, we create few sequences with null-terminated character strings,
 // making sure that their elements have different memory addresses:
@@ -193,39 +190,26 @@ int main(int argc, char *argv[])
     const char hello1[] = { 'h', 'e', 'l', 'l', 'o', 0};
     const char hello2[] = { 'h', 'e', 'l', 'l', 'o', 0};
 
-    const char* arrayA[4] = { "abcd",
-                              "bcd",
-                              "x",
-                              hello1 };
-    const char* arrayB[4] = { "abcd",
-                              "bcd",
-                              "x",
-                              "Hello" };
-    const char* arrayC[4] = { "abcd",
-                              "bcd",
-                              "x",
-                              hello2 };
+    const char* arrayA[3] = { "A", "B", hello1 };
+    const char* arrayB[3] = { "A", "B", hello2 };
 //..
 // Now, use bdlb::CStringEqualTo() as a binary predicate to compare sequences:
 //..
-    bool equalAB    = bsl::equal(arrayA, arrayA+4, arrayB,
-                                 bdlb::CStringEqualTo());
-    bool equalAC    = bsl::equal(arrayA, arrayA+4, arrayC,
-                                 bdlb::CStringEqualTo());
-    bool equalACBsl = bsl::equal(arrayA, arrayA+4, arrayC,
-                                 bsl::equal_to<const char *>());
+    bool bdlbEqualTo = bsl::equal(arrayA, arrayA+3, arrayB,
+                                  bdlb::CStringEqualTo());
+    bool bslEqualTo  = bsl::equal(arrayA, arrayA+3, arrayB,
+                                  bsl::equal_to<const char *>());
 //..
 // Finally, we observe that 'bdlb::CStringEqualTo' compares character string by
 // their values, while default comparator compares addresses:
 //..
-    ASSERT( false == equalAB );
-    ASSERT( true  == equalAC );
-    ASSERT( false == equalACBsl );
+    ASSERT( true  == bdlbEqualTo );
+    ASSERT( false == bslEqualTo );
 //..
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // QOI: IS AN EMPTY TYPE
+        // TESTING QoI: 'CStringEqualTo' IS AN EMPTY TYPE
         //   As a quality of implementation issue, the class has no state and
         //   should support the use of the empty base class optimization on
         //   compilers that support it.
@@ -250,9 +234,10 @@ int main(int argc, char *argv[])
         //   QoI: Support for empty base optimization
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "QOI: IS AN EMPTY TYPE" << endl
-                          << "=====================" << endl;
+        if (verbose) cout
+                   << endl
+                   << "TESTING QoI: 'CStringEqualTo' IS AN EMPTY TYPE" << endl
+                   << "==============================================" << endl;
 
         struct TwoInts {
             int a;
