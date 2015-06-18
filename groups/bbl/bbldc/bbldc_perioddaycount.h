@@ -10,12 +10,17 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Support for day-count calculations of 'enum'-specified conventions.
 //
 //@CLASSES:
-//  bbldc::PeriodDayCount: 'enum'-specified day count calculation procedures
+//  bbldc::PeriodDayCount: 'enum'-specified day-count calculation procedures
+//
+//@SEE_ALSO: bbldc_daycountconvention, bbldc_periodicmaactualactual
 //
 //@DESCRIPTION: This component provides a 'struct', 'bbldc::PeriodDayCount',
-// that defines a suite of date-related functions, used to compute the day
-// count and the year fraction between two dates as prescribed by the
-// enumerated day-count convention.
+// that defines a suite of date-related functions used to compute the day
+// count and the year fraction between two dates as prescribed by an
+// enumerated day-count convention.  Specifically, the 'daysDiff' and
+// 'yearsDiff' methods defined in 'bbldc::PeriodDayCount' take a trailing
+// 'DayCountConvention::Enum' argument indicating which particular period-based
+// day-count convention to apply.
 //
 ///Usage
 ///-----
@@ -24,20 +29,20 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
-// 'bbldcm::PeriodIcmaActualActual' methods.  First, create two 'bdlt::Date'
-// variables 'd1' and 'd2':
+// 'bbldc::PeriodDayCount' methods.  First, create two 'bdlt::Date' variables,
+// 'd1' and 'd2':
 //..
 //  const bdlt::Date d1(2003, 10, 19);
 //  const bdlt::Date d2(2003, 12, 31);
 //..
-// Then, create a schedule of period dates 'sched' corresponding to a
+// Then, create a schedule of period dates, 'sched', corresponding to a
 // quarterly payment ('periodYearDiff == 0.25'):
 //..
 //  bsl::vector<bdlt::Date> sched;
 //  sched.push_back(bdlt::Date(2003, 10, 1));
 //  sched.push_back(bdlt::Date(2004,  1, 1));
 //..
-// Now, compute the day count between these two dates according to the Period
+// Now, compute the day count between the 'd1' and 'd2' according to the Period
 // ICMA Actual/Actual day-count convention:
 //..
 //  const int daysDiff = bbldc::PeriodDayCount::daysDiff(
@@ -46,7 +51,7 @@ BSLS_IDENT("$Id: $")
 //                     bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL);
 //  assert(73 == daysDiff);
 //..
-// Finally, compute the year fraction between these two dates according to the
+// Finally, compute the year fraction between the two dates according to the
 // Period ICMA Actual/Actual day-count convention:
 //..
 //  const double yearsDiff = bbldc::PeriodDayCount::yearsDiff(
@@ -55,7 +60,7 @@ BSLS_IDENT("$Id: $")
 //                     sched,
 //                     0.25,
 //                     bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL);
-//  // Need fuzzy comparison since 'yearsDiff' is a double.
+//  // Need fuzzy comparison since 'yearsDiff' is a 'double'.
 //  assert(yearsDiff > 0.1983 && yearsDiff < 0.1985);
 //..
 
@@ -91,11 +96,10 @@ struct PeriodDayCount {
                         const bdlt::Date&        endDate,
                         DayCountConvention::Enum convention);
         // Return the (signed) number of days between the specified 'beginDate'
-        // and 'endDate' according to the specified enumerated day-count
-        // 'convention'.  The behavior is undefined unless
-        // 'isSupported(convention)'.  If 'beginDate <= endDate' then the
-        // result is non-negative.  Note that reversing the order of
-        // 'beginDate' and 'endDate' negates the result.
+        // and 'endDate' according to the specified day-count 'convention'.
+        // The behavior is undefined unless 'isSupported(convention)'.  If
+        // 'beginDate <= endDate' then the result is non-negative.  Note that
+        // reversing the order of 'beginDate' and 'endDate' negates the result.
 
     static bool isSupported(DayCountConvention::Enum convention);
         // Return 'true' if the specified 'convention' is valid for use in
@@ -107,17 +111,17 @@ struct PeriodDayCount {
                             double                         periodYearDiff,
                             DayCountConvention::Enum       convention);
         // Return the (signed fractional) number of years between the specified
-        // 'beginDate' and 'endDate' according to the specified enumerated
-        // day-count 'convention' with periods starting on the specified
-        // 'periodDate' and each period having a value of the specified
-        // 'periodYearDiff' years (i.e., 0.25 for quarterly periods).  If
+        // 'beginDate' and 'endDate' according to the specified day-count
+        // 'convention' with periods starting on the specified 'periodDate'
+        // values and each period having a duration of the specified
+        // 'periodYearDiff' years (e.g., 0.25 for quarterly periods).  If
         // 'beginDate <= endDate' then the result is non-negative.  The
         // behavior is undefined unless 'periodDate.size() >= 2', the values
         // contained in 'periodDate' are unique and sorted from minimum to
         // maximum, 'min(beginDate, endDate) >= periodDate.front()',
         // 'max(beginDate, endDate) <= periodDate.back()', and
         // 'isSupported(convention)'.  Note that reversing the order of
-        // 'beginDate' and 'endDate' negates the result; specifically
+        // 'beginDate' and 'endDate' negates the result; specifically,
         // '|yearsDiff(b,e,pd,pyd,c) + yearsDiff(e,b,pd,pyd,c)| <= 1.0e-15'
         // for all dates 'b' and 'e', periods 'pd', and year fraction per
         // period 'pyd'.

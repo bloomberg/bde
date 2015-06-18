@@ -2,7 +2,7 @@
 #include <bbldc_basicdaycountadapter.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bbldc_daycountadapter_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bbldc_basicdaycountadapter_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 namespace bbldc {

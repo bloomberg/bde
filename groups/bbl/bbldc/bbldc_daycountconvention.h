@@ -14,8 +14,8 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a namespace,
 // 'bbldc::DayCountConvention', for the 'enum' type
-// 'bbldc::DayCountConvention::Enum', which enumerates a list of day-count
-// conventions.
+// 'bbldc::DayCountConvention::Enum', that enumerates the list of day-count
+// conventions supported by the 'bbldc' package.
 //
 ///Enumerators
 ///-----------
@@ -67,8 +67,8 @@ BSLS_IDENT("$Id: $")
 #include <bblscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSL_OSTREAM
-#include <bsl_ostream.h>
+#ifndef INCLUDED_BSL_IOSFWD
+#include <bsl_iosfwd.h>
 #endif
 
 namespace BloombergLP {
@@ -93,9 +93,9 @@ struct DayCountConvention {
 
         e_ACTUAL_360                = 0,
         e_ACTUAL_365_FIXED          = 1,
-        e_DEPRECATED_1              = 2,
+        // 2 is deprecated
         e_ISDA_ACTUAL_ACTUAL        = 3,
-        e_DEPRECATED_2              = 4,
+        // 4 is deprecated
         e_ISMA_30_360               = 5,
         e_PSA_30_360_EOM            = 6,
         e_SIA_30_360_EOM            = 7,
@@ -158,9 +158,9 @@ struct DayCountConvention {
         // negative, format the entire output on one line, suppressing all but
         // the initial indentation (as governed by 'level').  The behavior is
         // undefined unless 'value' is in the range
-        // '[ e_ACTUAL_360 .. e_SAT ]'.   See 'toAscii' for what constitutes
-        // the string representation of a 'bbldc::DayCountConvention::Enum'
-        // value.
+        // '[e_ACTUAL_360 .. e_PERIOD_ICMA_ACTUAL_ACTUAL]'.   See 'toAscii' for
+        // what constitutes the string representation of a
+        // 'bbldc::DayCountConvention::Enum' value.
 
     static const char *toAscii(Enum convention);
         // Return the abbreviated character-string representation of the
@@ -178,7 +178,7 @@ struct DayCountConvention {
         // Note that specifying a 'convention' that does not match any of the
         // enumerators will result in an unspecified string representation
         // being returned that is distinct from the values returned for any
-        // valid enumeration.
+        // valid enumerator.
 };
 
 // FREE OPERATORS

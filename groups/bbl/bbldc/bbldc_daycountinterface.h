@@ -7,24 +7,26 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide an interface for day-count calculations.
+//@PURPOSE: Provide a protocol for day-count calculations.
 //
 //@CLASSES:
-//  bbldc::DayCountInterface: interface for day-count calculations
+//  bbldc::DayCountInterface: protocol for day-count calculations
 //
-//@DESCRIPTION: This component provides an interface,
+//@SEE_ALSO: bbldc_basicdaycountadapter, bbldc_perioddaycountadapter
+//
+//@DESCRIPTION: This component provides a protocol,
 // 'bbldc::DayCountInterface', for implementing an arbitrary day-count
-// convention.  Concrete implementations of this interface may implement, e.g.,
+// convention.  Concrete implementations of this protocol may implement, say
 // the ISMA 30/360 day-count convention, or a custom day-count convention
 // appropriate for some niche market.
 //
-// Several of the components in 'bbldc' already provide individual day-count
-// convention support through interfaces that happen to be functionally
-// identical to this contained abstract interface, except that they do not
-// inherit from 'bbldc_DayCountInterface'.  In conjunction with the adapter
-// components (i.e., 'bbldc::BasicDayCountAdapter'), this component interface
-// is intended for allowing run-time binding of these and other similar
-// day-count implementations.
+// Several of the components in 'bbldc' provide individual day-count convention
+// support through protocols that are functionally identical to the abstract
+// interface provided by this component, except that they do not inherit from
+// 'bbldc::DayCountInterface'.  In conjunction with the adapter components
+// (i.e., 'bbldc_basicdaycountadapter'), 'bbldc::DayCountInterface' is intended
+// to allow run-time binding of these and other similar day-count
+// implementations.
 //
 ///Usage
 ///-----
@@ -35,9 +37,9 @@ BSLS_IDENT("$Id: $")
 // This example shows the definition and use of a simple concrete day-count
 // convention.  This functionality suffices to demonstrate the requisite steps
 // for having a working day-count convention:
-//   * Define a concrete day-count type derived from 'bbldc_DayCountInterface'.
-//   * Implement the pure virtual 'daysDiff' and 'yearsDiff' methods.
-//   * Instantiate and use an object of the concrete type.
+//: * Define a concrete day-count type derived from 'bbldc::DayCountInterface'.
+//: * Implement the pure virtual 'daysDiff' and 'yearsDiff' methods.
+//: * Instantiate and use an object of the concrete type.
 //
 // First define the (derived) 'my_DayCountConvention' class and implement its
 // constructor inline (for convenience, directly within the derived-class
@@ -69,7 +71,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Next, we implement the (virtual) 'daysDiff' and 'yearsDiff' methods, which
 // incorporate the "policy" of what it means for this day-count convention to
-// calculate these values.
+// calculate these values:
 //..
 //  int my_DayCountConvention::daysDiff(const bdlt::Date& beginDate,
 //                                      const bdlt::Date& endDate) const
@@ -83,30 +85,28 @@ BSLS_IDENT("$Id: $")
 //      return static_cast<double>((endDate - beginDate) / 365.0);
 //  }
 //..
-// Then, create two 'bdlt::Date' variables 'd1' and 'd2' to use with the
-// 'my_DayCountConvention' object and its day-count convention methods.
+// Then, create two 'bdlt::Date' variables, 'd1' and 'd2', to use with the
+// 'my_DayCountConvention' object and its day-count convention methods:
 //..
 //  const bdlt::Date d1(2003, 10, 19);
 //  const bdlt::Date d2(2003, 12, 31);
 //..
-// Next, we obtain a 'bbldc_DayCountInterface' reference from an instantiated
+// Next, we obtain a 'bbldc::DayCountInterface' reference from an instantiated
 // 'my_DayCountConvention':
 //..
 //  my_DayCountConvention           myDcc;
 //  const bbldc::DayCountInterface& dcc = myDcc;
 //..
-// Now, we compute the day-count between these two dates:
+// Now, we compute the day count between the two dates:
 //..
 //  const int daysDiff = dcc.daysDiff(d1, d2);
 //  assert(73 == daysDiff);
 //..
-// Finally, we compute the year fraction between these two dates:
+// Finally, we compute the year fraction between the two dates:
 //..
 //  const double yearsDiff = dcc.yearsDiff(d1, d2);
-//  // Need fuzzy comparison since 'yearsDiff' is a double.  Expect
-//  // '0.2 == yearsDiff'.
-//  assert(0.1999 < yearsDiff);
-//  assert(0.2001 > yearsDiff);
+//  // Need fuzzy comparison since 'yearsDiff' is a 'double'.
+//  assert(0.1999 < yearsDiff && 0.2001 > yearsDiff);
 //..
 
 #ifndef INCLUDED_BBLSCM_VERSION
@@ -124,7 +124,7 @@ namespace bbldc {
                          // =======================
 
 class DayCountInterface {
-    // This 'class' provides an interface for determining values based on dates
+    // This 'class' provides a protocol for determining values based on dates
     // according to derived implementations of specific day-count conventions.
 
   public:
@@ -145,7 +145,7 @@ class DayCountInterface {
         // Return the (signed fractional) number of years between the specified
         // 'beginDate' and 'endDate'.  If 'beginDate <= endDate', then the
         // result is non-negative.  Note that reversing the order of
-        // 'beginDate' and 'endDate' negates the result; specifically
+        // 'beginDate' and 'endDate' negates the result; specifically,
         // '|yearsDiff(b, e) + yearsDiff(e, b)| <= 1.0e-15' for all dates 'b'
         // and 'e'.
 };

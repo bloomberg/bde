@@ -66,13 +66,14 @@ bool BasicDayCount::isSupported(DayCountConvention::Enum convention)
     bool rv = true;
 
     switch (convention) {
-      case DayCountConvention::e_ACTUAL_360: break;
-      case DayCountConvention::e_ACTUAL_365_FIXED: break;
-      case DayCountConvention::e_ISDA_ACTUAL_ACTUAL: break;
-      case DayCountConvention::e_ISMA_30_360: break;
-      case DayCountConvention::e_PSA_30_360_EOM: break;
-      case DayCountConvention::e_SIA_30_360_EOM: break;
-      case DayCountConvention::e_SIA_30_360_NEOM: break;
+      case DayCountConvention::e_ACTUAL_360:
+      case DayCountConvention::e_ACTUAL_365_FIXED:
+      case DayCountConvention::e_ISDA_ACTUAL_ACTUAL:
+      case DayCountConvention::e_ISMA_30_360:
+      case DayCountConvention::e_PSA_30_360_EOM:
+      case DayCountConvention::e_SIA_30_360_EOM:
+      case DayCountConvention::e_SIA_30_360_NEOM: {
+      } break;
       default: {
         rv = false;
       } break;

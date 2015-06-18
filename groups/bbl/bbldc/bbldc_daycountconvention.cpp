@@ -5,13 +5,15 @@
 BSLS_IDENT_RCSID(bbldc_daycountconvention_cpp,"$Id$ $CSID$")
 
 #include <bslim_printer.h>
+
 #include <bslmf_assert.h>
-#include <bsls_assert.h>
+
+#include <bsl_iostream.h>
 
 namespace BloombergLP {
 
-BSLMF_ASSERT(  bbldc::DayCountConvention::e_ACTUAL_360
-             < bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL);
+BSLMF_ASSERT(bbldc::DayCountConvention::e_ACTUAL_360
+           < bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL);
 
 namespace bbldc {
 

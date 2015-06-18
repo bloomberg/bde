@@ -13,7 +13,7 @@ BSLS_IDENT("$Id: $")
 //  bbldc::BasicIsma30360: ISMA 30/360 convention stateless functions
 //
 //@DESCRIPTION: This component provides a 'struct', 'bbldc::BasicIsma30360',
-// that serves as a namespace for defining a suite of date-related functions,
+// that serves as a namespace for defining a suite of date-related functions
 // used to compute the day count and year fraction between two dates as per the
 // ISMA 30/360 day-count convention.  In this day-count convention (also known
 // as "European 30/360"), each year is assumed to have 12 months and 360 days,
@@ -48,17 +48,17 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use 'bbldc::BasicIsma30360'
-// methods.  First, create two 'bdlt::Date' variables 'd1' and 'd2':
+// methods.  First, create two 'bdlt::Date' variables, 'd1' and 'd2':
 //..
 //  const bdlt::Date d1(2004,  9, 30);
 //  const bdlt::Date d2(2004, 12, 31);
 //..
-// Then, compute the day count between these two dates:
+// Then, compute the day count between the two dates:
 //..
 //  const int daysDiff = bbldc::BasicIsma30360::daysDiff(d1, d2);
 //  assert(90 == daysDiff);
 //..
-// Finally, compute the year fraction between these two dates:
+// Finally, compute the year fraction between the two dates:
 //..
 //  const double yearsDiff = bbldc::BasicIsma30360::yearsDiff(d1, d2);
 //  assert(0.25 == yearsDiff);
@@ -101,7 +101,7 @@ struct BasicIsma30360 {
         // 'beginDate' and 'endDate' according to the ISMA 30/360 day-count
         // convention.  If 'beginDate <= endDate', then the result is
         // non-negative.  Note that reversing the order of 'beginDate' and
-        // 'endDate' negates the result; specifically
+        // 'endDate' negates the result; specifically,
         // '|yearsDiff(b, e) + yearsDiff(e, b)| <= 1.0e-15' for all dates 'b'
         // and 'e'.
 };

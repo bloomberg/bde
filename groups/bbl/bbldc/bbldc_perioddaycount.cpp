@@ -13,10 +13,13 @@ BSLS_IDENT_RCSID(bbldc_perioddaycount_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bbldc {
 
+// STATIC HELPER FUNCTIONS
+
 template <class ITER>
 static bool isSortedAndUnique(const ITER& begin, const ITER& end)
     // Return 'true' if all values between the specified 'begin' and 'end'
-    // iterators are unique and sorted from minimum to maximum value.
+    // iterators are unique and sorted from minimum to maximum value, and
+    // 'false' otherwise.
 {
     if (begin == end) {
         return true;                                                  // RETURN
@@ -24,10 +27,6 @@ static bool isSortedAndUnique(const ITER& begin, const ITER& end)
 
     ITER prev = begin;
     ITER at   = begin + 1;
-
-    if (at == end) {
-        return true;                                                  // RETURN
-    }
 
     while (at != end) {
         if (*prev >= *at) {
@@ -68,7 +67,8 @@ bool PeriodDayCount::isSupported(DayCountConvention::Enum convention)
     bool rv = true;
 
     switch (convention) {
-      case DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL: break;
+      case DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL: {
+      } break;
       default: {
         rv = false;
       } break;

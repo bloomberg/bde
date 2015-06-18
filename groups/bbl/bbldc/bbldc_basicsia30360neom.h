@@ -13,7 +13,7 @@ BSLS_IDENT("$Id: $")
 //  bbldc::BasicSia30360neom: SIA-30/360-neom convention stateless functions
 //
 //@DESCRIPTION: This component provides a 'struct', 'bbldc::BasicSia30360neom',
-// that serves as a namespace for defining a suite of date-related functions,
+// that serves as a namespace for defining a suite of date-related functions
 // used to compute the day count and year fraction between two dates as
 // prescribed by the Standard Industry Association (SIA) 30/360 no-end-of-month
 // day-count convention.  In this day-count convention (also known as "US
@@ -49,17 +49,17 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
 // 'bbldc::BasicSia30360neom' methods.  First, create two 'bdlt::Date'
-// variables 'd1' and 'd2':
+// variables, 'd1' and 'd2':
 //..
 //  const bdlt::Date d1(2004,  9, 30);
 //  const bdlt::Date d2(2004, 12, 30);
 //..
-// Then, compute the day count between these two dates:
+// Then, compute the day count between the two dates:
 //..
 //  const int daysDiff = bbldc::BasicSia30360neom::daysDiff(d1, d2);
 //  assert(90 == daysDiff);
 //..
-// Finally, compute the year fraction between these two dates:
+// Finally, compute the year fraction between the two dates:
 //..
 //  const double yearsDiff = bbldc::BasicSia30360neom::yearsDiff(d1, d2);
 //  assert(0.25 == yearsDiff);
@@ -103,7 +103,7 @@ struct BasicSia30360neom {
         // 'beginDate' and 'endDate' according to the SIA 30/360
         // no-end-of-month day-count convention.  If 'beginDate <= endDate',
         // then the result is non-negative.  Note that reversing the order of
-        // 'beginDate' and 'endDate' negates the result; specifically
+        // 'beginDate' and 'endDate' negates the result; specifically,
         // '|yearsDiff(b, e) + yearsDiff(e, b)| <= 1.0e-15' for all dates 'b'
         // and 'e'.
 };

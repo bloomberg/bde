@@ -14,10 +14,10 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a 'struct',
 // 'bbldc::BasicIsdaActualActual', that serves as a namespace for defining a
-// suite of date-related functions, used to compute the day count and the year
+// suite of date-related functions used to compute the day count and the year
 // fraction between two dates as per the ISDA Actual/Actual day-count
 // convention.  In this day-count convention, the day count between two dates
-// is exactly the number of days occuring in the time period.
+// is exactly the number of days occurring in the time period.
 //
 ///Usage
 ///-----
@@ -27,17 +27,17 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
 // 'bbldc::BasicIsdaActualActual' methods.  First, create two 'bdlt::Date'
-// variables 'd1' and 'd2':
+// variables, 'd1' and 'd2':
 //..
 //  const bdlt::Date d1(2003, 10, 19);
 //  const bdlt::Date d2(2003, 12, 31);
 //..
-// Then, compute the day count between these two dates:
+// Then, compute the day count between the two dates:
 //..
 //  const int daysDiff = bbldc::BasicIsdaActualActual::daysDiff(d1, d2);
 //  assert(73 == daysDiff);
 //..
-// Finally, compute the year fraction between these two dates:
+// Finally, compute the year fraction between the two dates:
 //..
 //  const double yearsDiff = bbldc::BasicIsdaActualActual::yearsDiff(d1, d2);
 //  // Need fuzzy comparison since 'yearsDiff' is a 'double'.
@@ -79,7 +79,7 @@ struct BasicIsdaActualActual {
         // 'beginDate' and 'endDate' according to the ISDA Actual/Actual
         // day-count convention.  If 'beginDate <= endDate', then the result is
         // non-negative.  Note that reversing the order of 'beginDate' and
-        // 'endDate' negates the result; specifically
+        // 'endDate' negates the result; specifically,
         // '|yearsDiff(b, e) + yearsDiff(e, b)| <= 1.0e-15' for all dates 'b'
         // and 'e'.
 };

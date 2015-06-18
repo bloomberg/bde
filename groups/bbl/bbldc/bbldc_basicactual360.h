@@ -13,7 +13,7 @@ BSLS_IDENT("$Id: $")
 //  bbldc::BasicActual360: Actual/360 convention stateless functions
 //
 //@DESCRIPTION: This component provides a 'struct', 'bbldc::BasicActual360',
-// that serves as a namespace for defining a suite of date-related functions,
+// that serves as a namespace for defining a suite of date-related functions
 // used to compute the day count and the year fraction between two dates as per
 // the Actual/360 day-count convention.  In this day-count convention, we
 // simply measure the number of days occurring in a time period, and to
@@ -51,7 +51,7 @@ BSLS_IDENT("$Id: $")
 //  daysDiff = bbldc::BasicActual360::daysDiff(dB, dC);
 //  assert( 61 == daysDiff);
 //..
-// Finally, compute the year fraction between some of these dates:
+// Finally, compute the year fraction between some of the dates:
 //..
 //  double yearsDiff;
 //  yearsDiff = bbldc::BasicActual360::yearsDiff(dA, dC);
@@ -95,7 +95,7 @@ struct BasicActual360 {
         // 'beginDate' and 'endDate' according to the Actual/360 day-count
         // convention.  If 'beginDate <= endDate' then the result is
         // non-negative.  Note that reversing the order of 'beginDate' and
-        // 'endDate' negates the result; specifically
+        // 'endDate' negates the result; specifically,
         // '|yearsDiff(b, e) + yearsDiff(e, b)| <= 1.0e-15' for all dates 'b'
         // and 'e'.
 };

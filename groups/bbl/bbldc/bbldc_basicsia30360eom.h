@@ -13,10 +13,10 @@ BSLS_IDENT("$Id: $")
 //  bbldc::BasicSia30360eom: SIA 30/360 eom convention stateless functions
 //
 //@DESCRIPTION: This component provides a 'struct', 'bbldc::BasicSia30360eom',
-// that serves as a namespace for defining a suite of date-related functions,
+// that serves as a namespace for defining a suite of date-related functions
 // used to compute the day count and year fraction between two dates as
 // prescribed by the Standard Industry Association (SIA) 30/360 day-count
-// convention with end of month (eom) adjustments.  In this day-count
+// convention with end-of-month (eom) adjustments.  In this day-count
 // convention (also known as "US 30/360" or just "30/360"), each year is
 // assumed to have 12 months and 360 days, with each month consisting of
 // exactly 30 days.  Special end-of-month rule adjustments *are* made to
@@ -54,18 +54,18 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
-// 'bbldc::BasicSia30360eom' methods.  First, create two 'bdlt::Date' variables
-// 'd1' and 'd2':
+// 'bbldc::BasicSia30360eom' methods.  First, create two 'bdlt::Date'
+// variables, 'd1' and 'd2':
 //..
 //  const bdlt::Date d1(2004,  9, 30);
 //  const bdlt::Date d2(2004, 12, 31);
 //..
-// Then, compute the day count between these two dates:
+// Then, compute the day count between the two dates:
 //..
 //  const int daysDiff = bbldc::BasicSia30360eom::daysDiff(d1, d2);
 //  assert(90 == daysDiff);
 //..
-// Finally, compute the year fraction between these two dates:
+// Finally, compute the year fraction between the two dates:
 //..
 //  const double yearsDiff = bbldc::BasicSia30360eom::yearsDiff(d1, d2);
 //  assert(0.25 == yearsDiff);
@@ -109,7 +109,7 @@ struct BasicSia30360eom {
         // 'beginDate' and 'endDate' according to the SIA 30/360 end-of-month
         // day-count convention.  If 'beginDate <= endDate', then the result is
         // non-negative.  Note that reversing the order of 'beginDate' and
-        // 'endDate' negates the result; specifically
+        // 'endDate' negates the result; specifically,
         // '|yearsDiff(b, e) + yearsDiff(e, b)| <= 1.0e-15' for all dates 'b'
         // and 'e'.
 };

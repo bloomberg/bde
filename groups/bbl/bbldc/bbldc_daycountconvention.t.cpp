@@ -1170,11 +1170,11 @@ int main(int argc, char *argv[])
             // --  ------------------------------  -----  ---------------
             {  L_, Obj::e_ACTUAL_360,                  1, "ACTUAL_360"       },
             {  L_, Obj::e_ACTUAL_365_FIXED,            1, "ACTUAL_365_FIXED" },
-            {  L_, Obj::e_DEPRECATED_1,                0,
+            {  L_, 2,                                  0,
                                                   "(* Unknown Enumerator *)" },
             {  L_, Obj::e_ISDA_ACTUAL_ACTUAL,          1,
                                                         "ISDA_ACTUAL_ACTUAL" },
-            {  L_, Obj::e_DEPRECATED_2,                0,
+            {  L_, 4,                                  0,
                                                   "(* Unknown Enumerator *)" },
             {  L_, Obj::e_ISMA_30_360,                 1, "ISMA_30_360"      },
             {  L_, Obj::e_PSA_30_360_EOM,              1, "PSA_30_360_EOM"   },

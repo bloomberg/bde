@@ -17,11 +17,11 @@ BSLS_IDENT("$Id: $")
 // 'bbldc::DayCountInterface' protocol.  The template argument can be any type
 // supporting the following two class methods.
 //..
-//  int daysDiff(const bdet_Date& beginDate,
-//               const bdet_Date& endDate) const;
+//  int daysDiff(const bdlt::Date& beginDate,
+//               const bdlt::Date& endDate) const;
 //
-//  double yearsDiff(const bdet_Date&               beginDate,
-//                   const bdet_Date&               endDate,
+//  double yearsDiff(const bdlt::Date&              beginDate,
+//                   const bdlt::Date&              endDate,
 //                   const bsl::vector<bdlt::Date>& periodDate,
 //                   double                         periodYearDiff) const;
 //..
@@ -29,9 +29,9 @@ BSLS_IDENT("$Id: $")
 // support for run-time polymorphic choice of day-count conventions (via
 // conventional use of a base-class pointer or reference) without having to
 // implement each derived type explicitly.  In this sense,
-// 'bbldc::PeriodDayCountAdapter' adapts the various concrete day-count
-// convention classes (e.g., 'bbldc::PeriodIcmaActualActual') to a run-time
-// binding mechanism.
+// 'bbldc::PeriodDayCountAdapter' adapts the various concrete period-based
+// day-count convention classes (e.g., 'bbldc::PeriodIcmaActualActual') to a
+// run-time binding mechanism.
 //
 ///Usage
 ///-----
@@ -41,7 +41,7 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example shows the procedure for using 'bbldc::PeriodDayCountAdapter' to
 // adapt the 'bbldc::PeriodIcmaActualActual' day-count convention to the
-// 'bbldc::DayCountInterface' and then the use of the day-count methods.
+// 'bbldc::DayCountInterface', and then the use of the day-count methods.
 // First, we create a schedule of period dates 'sched' corresponding to a
 // quarterly payment ('periodYearDiff == 0.25'):
 //..
@@ -52,27 +52,28 @@ BSLS_IDENT("$Id: $")
 // Then, we define an instance of the adapted day-count convention and obtain
 // a reference to the 'bbldc::DayCountInterface':
 //..
-//  bbldc::PeriodDayCountAdapter<bbldc::PeriodIcmaActualActual> myDcc(sched,
-//                                                                    0.25);
-//  bbldc::DayCountInterface&                                   dcc = myDcc;
+//  const bbldc::PeriodDayCountAdapter<bbldc::PeriodIcmaActualActual>
+//                                                                 myDcc(sched,
+//                                                                       0.25);
+//  const bbldc::DayCountInterface&                                dcc = myDcc;
 //..
-// Next, create two 'bdlt::Date' variables 'd1' and 'd2' with which to use the
-// day-count convention methods.
+// Next, create two 'bdlt::Date' variables, 'd1' and 'd2', with which to use
+// the day-count convention methods:
 //..
 //  const bdlt::Date d1(2003, 10, 19);
 //  const bdlt::Date d2(2003, 12, 31);
 //..
-// Now, use the base-class reference to compute the day count between these two
+// Now, use the base-class reference to compute the day count between the two
 // dates:
 //..
 //  const int daysDiff = dcc.daysDiff(d1, d2);
 //  assert(73 == daysDiff);
 //..
 // Finally, use the base-class reference to compute the year fraction between
-// these two dates:
+// the two dates:
 //..
 //  const double yearsDiff = dcc.yearsDiff(d1, d2);
-//  // Need fuzzy comparison since 'yearsDiff' is a double.
+//  // Need fuzzy comparison since 'yearsDiff' is a 'double'.
 //  assert(yearsDiff > 0.1983 && yearsDiff < 0.1985);
 //..
 
@@ -88,8 +89,20 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_date.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSL_ITERATOR
+#include <bsl_iterator.h>
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR
@@ -97,6 +110,9 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
+
+namespace bdlt {  class Date;  }
+
 namespace bbldc {
 
                        // ===========================
@@ -107,29 +123,34 @@ template <class CONVENTION>
 class PeriodDayCountAdapter : public DayCountInterface {
     // This 'class' provides an "adapter" from the specified 'CONVENTION' to
     // the 'bbldc::DayCountInterface' that can be used for determining values
-    // based on dates according to the 'CONVENTION' day-count convention.
+    // based on dates according to the day-count 'CONVENTION'.
 
     // DATA
     bsl::vector<bdlt::Date> d_periodDate;      // period starting dates
 
     double                  d_periodYearDiff;  // years for each period
 
+  private:
     // PRIVATE ACCESSORS
     bool isSortedAndUnique(const bsl::vector<bdlt::Date>& periodDate) const;
         // Return 'true' if all values contained in the specified 'periodDate'
-        // are unique and sorted from minimum to maximum value.
+        // are unique and sorted from minimum to maximum value, and 'false'
+        // otherwise.
 
   public:
     // CREATORS
-    PeriodDayCountAdapter(const bsl::vector<bdlt::Date>& periodDate,
-                          double                         periodYearDiff);
-        // Create a day-count adapter that will use the specified 'periodDate'
-        // and 'periodYearDiff' during invocations of 'yearsDiff'.  The
+    PeriodDayCountAdapter(const bsl::vector<bdlt::Date>&  periodDate,
+                          double                          periodYearDiff,
+                          bslma::Allocator               *basicAllocator = 0);
+        // Create a day-count adapter that uses the specified 'periodDate' and
+        // 'periodYearDiff' during invocations of 'yearsDiff'.  The
         // 'periodDate' provides the period starting dates and 'periodYearDiff'
-        // defines the years for each period (i.e., 0.25 for quarterly
-        // periods).  The behavior is undefined unless 'periodDate.size() >= 2'
-        // and the values contained in 'periodDate' are unique and sorted from
-        // minimum to maximum.
+        // defines the duration of each period (e.g., 0.25 for quarterly
+        // periods).  Optionally specify a 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.  The behavior is undefined unless
+        // 'periodDate.size() >= 2' and the values contained in 'periodDate'
+        // are unique and sorted from minimum to maximum.
 
     virtual ~PeriodDayCountAdapter();
         // Destroy this object.
@@ -150,7 +171,7 @@ class PeriodDayCountAdapter : public DayCountInterface {
         // construction, 'min(beginDate, endDate) >= periodDate.front()', and
         // 'max(beginDate, endDate) <= periodDate.back()'.  Note that reversing
         // the order of 'beginDate' and 'endDate' negates the result;
-        // specifically '|yearsDiff(b, e) + yearsDiff(e, b)| <= 1.0e-15' for
+        // specifically, '|yearsDiff(b, e) + yearsDiff(e, b)| <= 1.0e-15' for
         // all dates 'b' and 'e'.
 };
 
@@ -166,8 +187,6 @@ class PeriodDayCountAdapter : public DayCountInterface {
 template <class CONVENTION>
 bool PeriodDayCountAdapter<CONVENTION>::isSortedAndUnique(
                                const bsl::vector<bdlt::Date>& periodDate) const
-    // Return 'true' if all values contained in 'periodDate' are unique and
-    // sorted from minimum to maximum value.
 {
     bsl::vector<bdlt::Date>::const_iterator begin = periodDate.begin();
     bsl::vector<bdlt::Date>::const_iterator end   = periodDate.end();
@@ -178,10 +197,6 @@ bool PeriodDayCountAdapter<CONVENTION>::isSortedAndUnique(
 
     bsl::vector<bdlt::Date>::const_iterator prev = begin;
     bsl::vector<bdlt::Date>::const_iterator at   = begin + 1;
-
-    if (at == end) {
-        return true;                                                  // RETURN
-    }
 
     while (at != end) {
         if (*prev >= *at) {
@@ -197,12 +212,13 @@ bool PeriodDayCountAdapter<CONVENTION>::isSortedAndUnique(
 template <class CONVENTION>
 inline
 PeriodDayCountAdapter<CONVENTION>::PeriodDayCountAdapter(
-                                 const bsl::vector<bdlt::Date>& periodDate,
-                                 double                         periodYearDiff)
-: d_periodDate(periodDate)
+                                const bsl::vector<bdlt::Date>&  periodDate,
+                                double                          periodYearDiff,
+                                bslma::Allocator               *basicAllocator)
+: d_periodDate(periodDate, basicAllocator)
 , d_periodYearDiff(periodYearDiff)
 {
-    BSLS_ASSERT(d_periodDate.size() >= 2);
+    BSLS_ASSERT_SAFE(d_periodDate.size() >= 2);
 
     BSLS_ASSERT_SAFE(isSortedAndUnique(d_periodDate));
 }
@@ -229,10 +245,12 @@ double PeriodDayCountAdapter<CONVENTION>::yearsDiff(
                                                const bdlt::Date& beginDate,
                                                const bdlt::Date& endDate) const
 {
-    BSLS_ASSERT(beginDate >  endDate || (   beginDate >= d_periodDate.front()
-                                         && endDate   <= d_periodDate.back()));
-    BSLS_ASSERT(beginDate <= endDate || (   endDate   >= d_periodDate.front()
-                                         && beginDate <= d_periodDate.back()));
+    BSLS_ASSERT_SAFE(beginDate  >  endDate
+                  || (beginDate >= d_periodDate.front()
+                   && endDate   <= d_periodDate.back()));
+    BSLS_ASSERT_SAFE(beginDate  <= endDate
+                  || (endDate   >= d_periodDate.front()
+                   && beginDate <= d_periodDate.back()));
 
     return CONVENTION::yearsDiff(beginDate,
                                  endDate,
@@ -241,6 +259,17 @@ double PeriodDayCountAdapter<CONVENTION>::yearsDiff(
 }
 
 }  // close package namespace
+}  // close enterprise namespace
+
+// TRAITS
+namespace BloombergLP {
+namespace bslma {
+
+template <class CONVENTION>
+struct UsesBslmaAllocator<bbldc::PeriodDayCountAdapter<CONVENTION> >
+                                                           : bsl::true_type {};
+
+}  // close namespace bslma
 }  // close enterprise namespace
 
 #endif

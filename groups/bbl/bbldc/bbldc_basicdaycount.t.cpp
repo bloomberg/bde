@@ -98,6 +98,8 @@ const bbldc::DayCountConvention::Enum ACTUAL_360 =
                                        bbldc::DayCountConvention::e_ACTUAL_360;
 const bbldc::DayCountConvention::Enum ACTUAL_365_FIXED =
                                  bbldc::DayCountConvention::e_ACTUAL_365_FIXED;
+const bbldc::DayCountConvention::Enum INVALID_CONVENTION =
+                               static_cast<bbldc::DayCountConvention::Enum>(2);
 const bbldc::DayCountConvention::Enum ISDA_ACTUAL_ACTUAL =
                                bbldc::DayCountConvention::e_ISDA_ACTUAL_ACTUAL;
 const bbldc::DayCountConvention::Enum ISMA_30_360 =
@@ -339,10 +341,9 @@ int main(int argc, char *argv[])
                                      bdlt::Date(2012, 1, 1),
                                      bbldc::DayCountConvention::e_ACTUAL_360));
 
-            ASSERT_OPT_FAIL(Util::yearsDiff(
-                                   bdlt::Date(2012, 1, 1),
-                                   bdlt::Date(2012, 1, 1),
-                                   bbldc::DayCountConvention::e_DEPRECATED_1));
+            ASSERT_OPT_FAIL(Util::yearsDiff(bdlt::Date(2012, 1, 1),
+                                            bdlt::Date(2012, 1, 1),
+                                            INVALID_CONVENTION));
         }
       } break;
       case 2: {
@@ -511,10 +512,9 @@ int main(int argc, char *argv[])
                                      bdlt::Date(2012, 1, 1),
                                      bbldc::DayCountConvention::e_ACTUAL_360));
 
-            ASSERT_OPT_FAIL(Util::daysDiff(
-                                   bdlt::Date(2012, 1, 1),
-                                   bdlt::Date(2012, 1, 1),
-                                   bbldc::DayCountConvention::e_DEPRECATED_1));
+            ASSERT_OPT_FAIL(Util::daysDiff(bdlt::Date(2012, 1, 1),
+                                           bdlt::Date(2012, 1, 1),
+                                           INVALID_CONVENTION));
         }
       } break;
       case 1: {

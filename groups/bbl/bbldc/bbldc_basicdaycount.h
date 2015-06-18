@@ -10,12 +10,17 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Support for day-count calculations of 'enum'-specified conventions.
 //
 //@CLASSES:
-//  bbldc::BasicDayCount: 'enum'-specified day count calculation procedures
+//  bbldc::BasicDayCount: 'enum'-specified day-count calculation procedures
+//
+//@SEE_ALSO: bbldc_daycountconvention
 //
 //@DESCRIPTION: This component provides a 'struct', 'bbldc::BasicDayCount',
-// that defines a suite of date-related functions, used to compute the day
-// count and the year fraction between two dates as prescribed by the
-// enumerated day-count convention.
+// that defines a suite of date-related functions used to compute the day
+// count and the year fraction between two dates as prescribed by an
+// enumerated day-count convention.  Specifically, the 'daysDiff' and
+// 'yearsDiff' methods defined in 'bbldc::BasicDayCount' take a trailing
+// 'DayCountConvention::Enum' argument indicating which particular day-count
+// convention to apply.
 //
 ///Usage
 ///-----
@@ -23,14 +28,13 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// The following snippets of code illustrate how to use
-// 'bbldcu::IsdaActualActual' methods.  First, create two 'bdlt::Date'
-// variables 'd1' and 'd2':
+// The following snippets of code illustrate how to use 'bbldc::BasicDayCount'
+// methods.  First, create two 'bdlt::Date' variables, 'd1' and 'd2':
 //..
 //  const bdlt::Date d1(2003, 10, 19);
 //  const bdlt::Date d2(2003, 12, 31);
 //..
-// Then, compute the day count between these two dates according to the ISDA
+// Now, compute the day count between 'd1' and 'd2' according to the ISDA
 // Actual/Actual convention:
 //..
 //  const int daysDiff = bbldc::BasicDayCount::daysDiff(
@@ -39,14 +43,14 @@ BSLS_IDENT("$Id: $")
 //                            bbldc::DayCountConvention::e_ISDA_ACTUAL_ACTUAL);
 //  assert(73 == daysDiff);
 //..
-// Finally, compute the year fraction between these two dates according to the
+// Finally, compute the year fraction between the two dates according to the
 // ISDA Actual/Actual convention:
 //..
 //  const double yearsDiff = bbldc::BasicDayCount::yearsDiff(
 //                            d1,
 //                            d2,
 //                            bbldc::DayCountConvention::e_ISDA_ACTUAL_ACTUAL);
-//  // Need fuzzy comparison since 'yearsDiff' is a double.
+//  // Need fuzzy comparison since 'yearsDiff' is a 'double'.
 //  assert(0.1999 < yearsDiff && 0.2001 > yearsDiff);
 //..
 
@@ -78,11 +82,10 @@ struct BasicDayCount {
                         const bdlt::Date&        endDate,
                         DayCountConvention::Enum convention);
         // Return the (signed) number of days between the specified 'beginDate'
-        // and 'endDate' according to the specified enumerated day-count
-        // 'convention'.  The behavior is undefined unless
-        // 'isSupported(convention)'.  If 'beginDate <= endDate' then the
-        // result is non-negative.  Note that reversing the order of
-        // 'beginDate' and 'endDate' negates the result.
+        // and 'endDate' according to the specified day-count 'convention'.
+        // The behavior is undefined unless 'isSupported(convention)'.  If
+        // 'beginDate <= endDate' then the result is non-negative.  Note that
+        // reversing the order of 'beginDate' and 'endDate' negates the result.
 
     static bool isSupported(DayCountConvention::Enum convention);
         // Return 'true' if the specified 'convention' is valid for use in
@@ -92,11 +95,11 @@ struct BasicDayCount {
                             const bdlt::Date&        endDate,
                             DayCountConvention::Enum convention);
         // Return the (signed fractional) number of years between the specified
-        // 'beginDate' and 'endDate' according to the specified enumerated
-        // day-count 'convention'.  If 'beginDate <= endDate' then the result
-        // is non-negative.  The behavior is undefined unless
+        // 'beginDate' and 'endDate' according to the specified day-count
+        // 'convention'.  If 'beginDate <= endDate' then the result is
+        // non-negative.  The behavior is undefined unless
         // 'isSupported(convention)'.  Note that reversing the order of
-        // 'beginDate' and 'endDate' negates the result; specifically
+        // 'beginDate' and 'endDate' negates the result; specifically,
         // '|yearsDiff(b, e, c) + yearsDiff(e, b, c)| <= 1.0e-15' for all dates
         // 'b' and 'e', and day-count conventions 'c'.
 };

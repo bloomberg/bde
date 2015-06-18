@@ -5,7 +5,8 @@
 @MNEMONIC: Basic Business Library (bbl)
 
 @DESCRIPTION: The 'bbl' ("Basic Business Library") package group contains
- a package that provides a solution to a business task.
+ a package that provides a solution for computing day count and year fraction
+ for various day-count conventions.
 
 /Hierarchical Synopsis
 /---------------------
@@ -36,9 +37,9 @@
 
 /'bbldc'
 / - - - -
- {'bbldc'} provides day-count convention implementations, an enumeration based
- set of dispatch components, and an abstract interface with templated adapters
- for the day-count convention implementations.
+ {'bbldc'} provides day-count convention implementations, an enumeration-based
+ set of dispatch components, and an abstract interface with parameterized
+ adapters for the day-count convention implementations.
 
 /'bblscm'
 / - - - -

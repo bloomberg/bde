@@ -7,17 +7,17 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide stateless functions for period based ICMA Actual/Actual.
+//@PURPOSE: Provide stateless functions for period-based ICMA Actual/Actual.
 //
 //@CLASSES:
 //  bbldc::PeriodIcmaActualActual: ICMA Act/Act convention stateless functions
 //
 //@DESCRIPTION: This component provides a 'struct',
 // 'bbldc::PeriodIcmaActualActual', that serves as a namespace for defining a
-// suite of date-related functions, used to compute the day count and the year
+// suite of date-related functions used to compute the day count and the year
 // fraction between two dates as per the period ICMA Actual/Actual day-count
 // convention.  In this day-count convention, the day count between two dates
-// is exactly the number of days occuring in the time period.
+// is exactly the number of days occurring in the time period.
 //
 ///Usage
 ///-----
@@ -27,30 +27,30 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
 // 'bbldc::PeriodIcmaActualActual' methods.  First, create two 'bdlt::Date'
-// variables 'd1' and 'd2':
+// variables, 'd1' and 'd2':
 //..
 //  const bdlt::Date d1(2003, 10, 19);
 //  const bdlt::Date d2(2003, 12, 31);
 //..
-// Then, create a schedule of period dates 'sched' corresponding to a
+// Then, create a schedule of period dates, 'sched', corresponding to a
 // quarterly payment ('periodYearDiff == 0.25'):
 //..
 //  bsl::vector<bdlt::Date> sched;
 //  sched.push_back(bdlt::Date(2003, 10, 1));
 //  sched.push_back(bdlt::Date(2004,  1, 1));
 //..
-// Next, compute the day count between these two dates:
+// Next, compute the day count between 'd1' and 'd2':
 //..
 //  const int daysDiff = bbldc::PeriodIcmaActualActual::daysDiff(d1, d2);
 //  assert(73 == daysDiff);
 //..
-// Finally, compute the year fraction between these two dates:
+// Finally, compute the year fraction between the two dates:
 //..
 //  const double yearsDiff = bbldc::PeriodIcmaActualActual::yearsDiff(d1,
 //                                                                    d2,
 //                                                                    sched,
 //                                                                    0.25);
-//  // Need fuzzy comparison since 'yearsDiff' is a double.
+//  // Need fuzzy comparison since 'yearsDiff' is a 'double'.
 //  assert(yearsDiff > 0.1983 && yearsDiff < 0.1985);
 //..
 
@@ -94,15 +94,15 @@ struct PeriodIcmaActualActual {
         // Return the (signed fractional) number of years between the specified
         // 'beginDate' and 'endDate' according to the period ICMA Actual/Actual
         // day-count convention with periods starting on the specified
-        // 'periodDate' and each period having a value of the specified
-        // 'periodYearDiff' years (i.e., 0.25 for quarterly periods).  If
-        // 'beginDate <= endDate', then the result is non-negative.  The
+        // 'periodDate' values and each period having a duration of the
+        // specified 'periodYearDiff' years (e.g., 0.25 for quarterly periods).
+        // If 'beginDate <= endDate', then the result is non-negative.  The
         // behavior is undefined unless 'periodDate.size() >= 2', the values
         // contained in 'periodDate' are unique and sorted from minimum to
         // maximum, 'min(beginDate, endDate) >= periodDate.front()', and
         // 'max(beginDate, endDate) <= periodDate.back()'.  Note that
         // reversing the order of 'beginDate' and 'endDate' negates the result;
-        // specifically
+        // specifically,
         // '|yearsDiff(b, e, pd, pyd) + yearsDiff(e, b, pd, pyd)| <= 1.0e-15'
         // for all dates 'b' and 'e', periods 'pd', and year fraction per
         // period 'pyd'.

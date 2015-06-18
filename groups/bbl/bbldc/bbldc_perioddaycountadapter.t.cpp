@@ -317,11 +317,11 @@ int main(int argc, char *argv[]) {
                    bbldc::PeriodDayCountAdapter<bbldc::PeriodIcmaActualActual>(
                                                                          E2,
                                                                          1.0));
-            ASSERT_FAIL(
+            ASSERT_SAFE_FAIL(
                    bbldc::PeriodDayCountAdapter<bbldc::PeriodIcmaActualActual>(
                                                                          E3,
                                                                          1.0));
-            ASSERT_FAIL(
+            ASSERT_SAFE_FAIL(
                    bbldc::PeriodDayCountAdapter<bbldc::PeriodIcmaActualActual>(
                                                                          E4,
                                                                          1.0));
@@ -340,20 +340,20 @@ int main(int argc, char *argv[]) {
 
             const bbldc::DayCountInterface& protocol = mX;
 
-            ASSERT_PASS(protocol.yearsDiff(bdlt::Date(1751, 1, 1),
-                                           bdlt::Date(1753, 1, 1)));
+            ASSERT_SAFE_PASS(protocol.yearsDiff(bdlt::Date(1751, 1, 1),
+                                                bdlt::Date(1753, 1, 1)));
 
-            ASSERT_FAIL(protocol.yearsDiff(bdlt::Date(1740, 1, 1),
-                                           bdlt::Date(1753, 1, 1)));
+            ASSERT_SAFE_FAIL(protocol.yearsDiff(bdlt::Date(1740, 1, 1),
+                                                bdlt::Date(1753, 1, 1)));
 
-            ASSERT_FAIL(protocol.yearsDiff(bdlt::Date(1753, 1, 1),
-                                           bdlt::Date(1740, 1, 1)));
+            ASSERT_SAFE_FAIL(protocol.yearsDiff(bdlt::Date(1753, 1, 1),
+                                                bdlt::Date(1740, 1, 1)));
 
-            ASSERT_FAIL(protocol.yearsDiff(bdlt::Date(1753, 1, 1),
-                                           bdlt::Date(1780, 1, 1)));
+            ASSERT_SAFE_FAIL(protocol.yearsDiff(bdlt::Date(1753, 1, 1),
+                                                bdlt::Date(1780, 1, 1)));
 
-            ASSERT_FAIL(protocol.yearsDiff(bdlt::Date(1780, 1, 1),
-                                           bdlt::Date(1753, 1, 1)));
+            ASSERT_SAFE_FAIL(protocol.yearsDiff(bdlt::Date(1780, 1, 1),
+                                                bdlt::Date(1753, 1, 1)));
         }
       } break;
       default: {

@@ -14,10 +14,10 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a 'struct',
 // 'bbldc::BasicActual365Fixed', that serves as a namespace for defining a
-// suite of date-related functions, used to compute the day count and year
+// suite of date-related functions used to compute the day count and year
 // fraction between two dates as per the Actual/365 (fixed) day-count
 // convention.  In this day-count convention, we simply measure the number of
-// days occuring in a time period, and to calculate years, divide that by 365.
+// days occurring in a time period, and to calculate years, divide that by 365.
 // Note that this means the number of years between January 1, 2004 and January
 // 1, 2005 comes out to about 1.00274.  No end-of-month rule adjustments are
 // made.  Given 'beginDate' and 'endDate':
@@ -53,7 +53,7 @@ BSLS_IDENT("$Id: $")
 //  daysDiff = bbldc::BasicActual365Fixed::daysDiff(dB, dC);
 //  assert( 61 == daysDiff);
 //..
-// Finally, compute the year fraction between some of these dates:
+// Finally, compute the year fraction between some of the dates:
 //..
 //  double yearsDiff;
 //  yearsDiff = bbldc::BasicActual365Fixed::yearsDiff(dA, dC);
@@ -98,7 +98,7 @@ struct BasicActual365Fixed {
         // 'beginDate' and 'endDate' according to the Actual/365 fixed
         // day-count convention.  If 'beginDate <= endDate', then the result is
         // non-negative.  Note that reversing the order of 'beginDate' and
-        // 'endDate' negates the result; specifically
+        // 'endDate' negates the result; specifically,
         // '|yearsDiff(b, e) + yearsDiff(e, b)| <= 1.0e-15' for all dates 'b'
         // and 'e'.
 };
