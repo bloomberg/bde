@@ -81,10 +81,10 @@ void aSsErT(bool condition, const char *message, int line)
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
-int main(int argc, char *argv[]) {
-
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
+int main(int argc, char *argv[])
+{
+    int  test    = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose = argc > 2;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 

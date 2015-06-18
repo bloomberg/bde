@@ -92,24 +92,18 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bbldc::BasicDayCount Util;
+typedef bbldc::BasicDayCount            Util;
+typedef bbldc::DayCountConvention::Enum Enum;
 
-const bbldc::DayCountConvention::Enum ACTUAL_360 =
-                                       bbldc::DayCountConvention::e_ACTUAL_360;
-const bbldc::DayCountConvention::Enum ACTUAL_365_FIXED =
-                                 bbldc::DayCountConvention::e_ACTUAL_365_FIXED;
-const bbldc::DayCountConvention::Enum INVALID_CONVENTION =
-                               static_cast<bbldc::DayCountConvention::Enum>(2);
-const bbldc::DayCountConvention::Enum ISDA_ACTUAL_ACTUAL =
+const Enum ACTUAL_360         = bbldc::DayCountConvention::e_ACTUAL_360;
+const Enum ACTUAL_365_FIXED   = bbldc::DayCountConvention::e_ACTUAL_365_FIXED;
+const Enum INVALID_CONVENTION = static_cast<Enum>(2);
+const Enum ISDA_ACTUAL_ACTUAL =
                                bbldc::DayCountConvention::e_ISDA_ACTUAL_ACTUAL;
-const bbldc::DayCountConvention::Enum ISMA_30_360 =
-                                      bbldc::DayCountConvention::e_ISMA_30_360;
-const bbldc::DayCountConvention::Enum PSA_30_360_EOM =
-                                   bbldc::DayCountConvention::e_PSA_30_360_EOM;
-const bbldc::DayCountConvention::Enum SIA_30_360_EOM =
-                                   bbldc::DayCountConvention::e_SIA_30_360_EOM;
-const bbldc::DayCountConvention::Enum SIA_30_360_NEOM =
-                                  bbldc::DayCountConvention::e_SIA_30_360_NEOM;
+const Enum ISMA_30_360        = bbldc::DayCountConvention::e_ISMA_30_360;
+const Enum PSA_30_360_EOM     = bbldc::DayCountConvention::e_PSA_30_360_EOM;
+const Enum SIA_30_360_EOM     = bbldc::DayCountConvention::e_SIA_30_360_EOM;
+const Enum SIA_30_360_NEOM    = bbldc::DayCountConvention::e_SIA_30_360_NEOM;
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -117,9 +111,9 @@ const bbldc::DayCountConvention::Enum SIA_30_360_NEOM =
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
+    int  test        = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose     = argc > 2;
+    bool veryVerbose = argc > 3;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -197,7 +191,7 @@ int main(int argc, char *argv[])
         //:   loop over the elements of S, apply the method to dates having the
         //:   values d1 and d2 using convention C and confirm the result using
         //:   the value D with a fuzzy comparison (since the return value is a
-        //:   floating point number).  (C-1)
+        //:   floating-point number).  (C-1)
         //:
         //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
         //
@@ -212,17 +206,15 @@ int main(int argc, char *argv[])
 
         {
             static const struct {
-                int    d_lineNum;                       // source line number
-
-                bbldc::DayCountConvention::Enum d_type; // convention to use
-
-                int    d_year1;                         // beginDate year
-                int    d_month1;                        // beginDate month
-                int    d_day1;                          // beginDate day
-                int    d_year2;                         // endDate year
-                int    d_month2;                        // endDate month
-                int    d_day2;                          // endDate day
-                double d_numYears;                      // result # of years
+                int    d_lineNum;    // source line number
+                Enum   d_type;      // convention to use
+                int    d_year1;     // beginDate year
+                int    d_month1;    // beginDate month
+                int    d_day1;      // beginDate day
+                int    d_year2;     // endDate year
+                int    d_month2;    // endDate month
+                int    d_day2;      // endDate day
+                double d_numYears;  // result # of years
             } DATA[] = {
 
     //                          - - -first - - -  - - - second - -
@@ -259,11 +251,9 @@ int main(int argc, char *argv[])
 
             {
                 for (int i = 0; i < NUM_DATA; ++i) {
-                    const bbldc::DayCountConvention::Enum CONV1 =
-                                                                DATA[i].d_type;
+                    const Enum CONV1 = DATA[i].d_type;
                     for (int j = i + 1; j < NUM_DATA; ++j) {
-                        const bbldc::DayCountConvention::Enum CONV2 =
-                                                                DATA[j].d_type;
+                        const Enum CONV2 = DATA[j].d_type;
                         if (CONV1 != CONV2) {
                             int hasUnique = 0;
                             for (int ii = 0; ii < NUM_DATA; ++ii) {
@@ -300,20 +290,15 @@ int main(int argc, char *argv[])
             for (di = 0; di < NUM_DATA; ++di) {
                 const int    LINE      = DATA[di].d_lineNum;
                 const double NUM_YEARS = DATA[di].d_numYears;
+                const Enum   CONV      = DATA[di].d_type;
 
-                const bbldc::DayCountConvention::Enum CONV = DATA[di].d_type;
+                const bdlt::Date X(DATA[di].d_year1,
+                                   DATA[di].d_month1,
+                                   DATA[di].d_day1);
 
-                bdlt::Date x(DATA[di].d_year1,
-                             DATA[di].d_month1,
-                             DATA[di].d_day1);
-
-                const bdlt::Date& X = x;
-
-                bdlt::Date y(DATA[di].d_year2,
-                             DATA[di].d_month2,
-                             DATA[di].d_day2);
-
-                const bdlt::Date& Y = y;
+                const bdlt::Date Y(DATA[di].d_year2,
+                                   DATA[di].d_month2,
+                                   DATA[di].d_day2);
 
                 if (veryVerbose) {
                     T_ P_(X) P_(Y) P(CONV);
@@ -377,17 +362,15 @@ int main(int argc, char *argv[])
 
         {
             static const struct {
-                int d_lineNum;                          // source line number
-
-                bbldc::DayCountConvention::Enum d_type; // convention to use
-
-                int d_year1;                            // beginDate year
-                int d_month1;                           // beginDate month
-                int d_day1;                             // beginDate day
-                int d_year2;                            // endDate year
-                int d_month2;                           // endDate month
-                int d_day2;                             // endDate day
-                int d_numDays;                          // result # of days
+                int  d_lineNum;  // source line number
+                Enum d_type;     // convention to use
+                int  d_year1;    // beginDate year
+                int  d_month1;   // beginDate month
+                int  d_day1;     // beginDate day
+                int  d_year2;    // endDate year
+                int  d_month2;   // endDate month
+                int  d_day2;     // endDate day
+                int  d_numDays;  // result # of days
             } DATA[] = {
 
     //                          - - -first - - -  - - - second - -
@@ -427,11 +410,9 @@ int main(int argc, char *argv[])
 
             {
                 for (int i = 0; i < NUM_DATA; ++i) {
-                    const bbldc::DayCountConvention::Enum CONV1 =
-                                                                DATA[i].d_type;
+                    const Enum CONV1 = DATA[i].d_type;
                     for (int j = i + 1; j < NUM_DATA; ++j) {
-                        const bbldc::DayCountConvention::Enum CONV2 =
-                                                                DATA[j].d_type;
+                        const Enum CONV2 = DATA[j].d_type;
                         if (CONV1 != CONV2) {
                             if (CONV1 == ACTUAL_360 ||
                                 CONV1 == ACTUAL_365_FIXED ||
@@ -473,22 +454,17 @@ int main(int argc, char *argv[])
 
             int di;
             for (di = 0; di < NUM_DATA ; ++di) {
-                const int LINE     = DATA[di].d_lineNum;
-                const int NUM_DAYS = DATA[di].d_numDays;
+                const int  LINE     = DATA[di].d_lineNum;
+                const int  NUM_DAYS = DATA[di].d_numDays;
+                const Enum CONV     = DATA[di].d_type;
 
-                const bbldc::DayCountConvention::Enum CONV = DATA[di].d_type;
+                const bdlt::Date X(DATA[di].d_year1,
+                                   DATA[di].d_month1,
+                                   DATA[di].d_day1);
 
-                bdlt::Date x(DATA[di].d_year1,
-                             DATA[di].d_month1,
-                             DATA[di].d_day1);
-
-                const bdlt::Date& X = x;
-
-                bdlt::Date y(DATA[di].d_year2,
-                             DATA[di].d_month2,
-                             DATA[di].d_day2);
-
-                const bdlt::Date& Y = y;
+                const bdlt::Date Y(DATA[di].d_year2,
+                                   DATA[di].d_month2,
+                                   DATA[di].d_day2);
 
                 if (veryVerbose) {
                     T_ P_(X) P_(Y) P(CONV);
@@ -539,8 +515,7 @@ int main(int argc, char *argv[])
                           << "=====================" << endl;
 
         for (int i = 0; i < 1000; ++i) {
-            const bbldc::DayCountConvention::Enum convention =
-                               static_cast<bbldc::DayCountConvention::Enum>(i);
+            const Enum convention = static_cast<Enum>(i);
             ASSERT((   ACTUAL_360         == convention
                     || ACTUAL_365_FIXED   == convention
                     || ISDA_ACTUAL_ACTUAL == convention

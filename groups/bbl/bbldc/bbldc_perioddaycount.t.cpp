@@ -103,9 +103,9 @@ const bbldc::DayCountConvention::Enum PERIOD_ICMA_ACTUAL_ACTUAL =
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
+    int  test        = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose     = argc > 2;
+    bool veryVerbose = argc > 3;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -192,7 +192,7 @@ int main(int argc, char *argv[])
         //:   loop over the elements of S, apply the method to dates having the
         //:   values d1 and d2 using convention C and confirm the result using
         //:   the value D with a fuzzy comparison (since the return value is a
-        //:   floating point number).  (C-1)
+        //:   floating-point number).  (C-1)
         //:
         //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
         //
@@ -291,17 +291,13 @@ int main(int argc, char *argv[])
 
                 const bbldc::DayCountConvention::Enum CONV = DATA[di].d_type;
 
-                bdlt::Date x(DATA[di].d_year1,
-                             DATA[di].d_month1,
-                             DATA[di].d_day1);
+                const bdlt::Date X(DATA[di].d_year1,
+                                   DATA[di].d_month1,
+                                   DATA[di].d_day1);
 
-                const bdlt::Date& X = x;
-
-                bdlt::Date y(DATA[di].d_year2,
-                             DATA[di].d_month2,
-                             DATA[di].d_day2);
-
-                const bdlt::Date& Y = y;
+                const bdlt::Date Y(DATA[di].d_year2,
+                                   DATA[di].d_month2,
+                                   DATA[di].d_day2);
 
                 if (veryVerbose) {
                     T_ P_(X) P_(Y) P(CONV);

@@ -119,11 +119,11 @@ typedef bslx::TestOutStream Out;
 
 int main(int argc, char *argv[])
 {
-    const int                 test = argc > 1 ? atoi(argv[1]) : 0;
-    const bool             verbose = argc > 2;
-    const bool         veryVerbose = argc > 3;
-    const bool     veryVeryVerbose = argc > 4;
-    const bool veryVeryVeryVerbose = argc > 5;
+    int  test                = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose             = argc > 2;
+    bool veryVerbose         = argc > 3;
+    bool veryVeryVerbose     = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
