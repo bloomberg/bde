@@ -7,10 +7,6 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
-#endif
-
 //@PURPOSE: Provide a pure input iterator for an empty range.
 //
 //@CLASSES:
@@ -18,8 +14,9 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlb_nulloutputiterator
 //
-//@DESCRIPTION: This components provides a class template defining an input
-// iterator type, 'bdlb::NullInputIterator', with the following attributes:
+//@DESCRIPTION: This components provides a mechanism,
+// 'bdlb::NullInputIterator', that defines an input iterator with the following
+// attributes:
 //..
 //  o For a given type, 'T', all objects of type 'NullInputIterator<T>'
 //    compare equal.  Thus, any pair of such iterators constitute an
@@ -34,8 +31,12 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Use of 'bdlb::NullInputIterator'
+/// - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following example we use a 'bdlb::NullInputIterator' to test that
-// function compiles when instantiated with a pure input iterator.
+// 'sum' function compiles when instantiated with a pure input iterator.
 //
 // First, we define a function 'sum' that accepts two input iterators and
 // returns sum of all elements in range specified by them.
@@ -73,6 +74,10 @@ BSLS_IDENT("$Id: $")
 //      return 0;
 //  }
 //..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include <bdlscm_version.h>
+#endif
 
 #ifndef INCLUDED_BSL_ITERATOR
 #include <bsl_iterator.h>

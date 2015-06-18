@@ -1,10 +1,13 @@
 // bdlb_nullinputiterator.t.cpp                                       -*-C++-*-
-
 #include <bdlb_nullinputiterator.h>
+
+#include <bdls_testutil.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_iterator.h>
+
+#include <bslmf_issame.h> // for testing only
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
@@ -22,24 +25,25 @@ using namespace bsl;
 // usage example completes the test by proving that it works in idiomatic use.
 // ----------------------------------------------------------------------------
 // CREATORS
-// [1] NullInputIterator();
-// [1] NullInputIterator(const NullInputIterator& rhs);
-// [1] ~NullInputIterator();
+// [ 2] NullInputIterator();
+// [ 2] NullInputIterator(const NullInputIterator& rhs);
+// [ 2] ~NullInputIterator();
 //
 // MANIPULATORS
-// [1] NullInputIterator& operator=(const NullInputIterator& rhs);
-// [1] NullInputIterator& operator++();
-// [1] NullInputIterator& operator++(int);
+// [ 2] NullInputIterator& operator=(const NullInputIterator& rhs);
+// [ 2] NullInputIterator& operator++();
+// [ 2] NullInputIterator& operator++(int);
 //
 // ACCESSORS
-// [1] TYPE* operator->() const;
-// [1] TYPE operator*() const;
+// [ 2] TYPE* operator->() const;
+// [ 2] TYPE operator*() const;
 //
 // FREE OPERATORS
-// [1] bool operator==(NullInputIterator&, NullInputIterator&);
-// [1] bool operator!=(NullInputIterator&, NullInputIterator&);
+// [ 2] bool operator==(NullInputIterator&, NullInputIterator&);
+// [ 2] bool operator!=(NullInputIterator&, NullInputIterator&);
 // ----------------------------------------------------------------------------
-// [2] USAGE EXAMPLE
+// [ 1] BREATHING TEST
+// [ 3] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -64,26 +68,26 @@ void aSsErT(bool condition, const char *message, int line)
 }  // close unnamed namespace
 
 // ============================================================================
-//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
-#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
 
-#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -111,7 +115,11 @@ class MyClass {
     // A simple test class that can instantiated and copied to help test the
     // instantiation of 'bdlb::NullInputIterator' on a user-defined type.
 
+    // DATA
+    int d_value;
+
   public:
+    // CREATORS
     MyClass(int v = 0) : d_value(v) { }
     MyClass(const MyClass& rhs) : d_value(rhs.d_value) { }
     ~MyClass() { }
@@ -119,12 +127,14 @@ class MyClass {
     int value() const { return d_value; }
 
   private:
-    // The type used to instantiate 'bdlb::NullInputIterator' does not need to
-    // be assignable, although it must be copy-constructible.  We disable the
-    // assignment operator to ensure that we don't depend on it.
+    // MANIPULATORS
     MyClass& operator=(const MyClass& rhs);
+        // The type used to instantiate 'bdlb::NullInputIterator' does not need
+        // to be assignable, although it must be copy-constructible.  We
+        // disable the assignment operator to ensure that we don't depend on
+        // it.
 
-    int d_value;
+
 };
 
 //=============================================================================
@@ -137,38 +147,38 @@ class MyClass {
 // First, we define a function 'sum' that accepts two input iterators and
 // returns sum of all elements in range specified by them.
 //..
-  template <class IN_ITER>
-  typename bsl::iterator_traits<IN_ITER>::value_type
-  sum(IN_ITER first, IN_ITER last)
-  {
-      typename bsl::iterator_traits<IN_ITER>::value_type total = 0;
-      while (first != last) {
-          total += *first++;
-      }
-      return total;
-  }
+    template <class IN_ITER>
+    typename bsl::iterator_traits<IN_ITER>::value_type
+    sum(IN_ITER first, IN_ITER last)
+    {
+        typename bsl::iterator_traits<IN_ITER>::value_type total = 0;
+        while (first != last) {
+            total += *first++;
+        }
+        return total;
+    }
 //..
 // Now, we define a function 'testSum' that first verifies that 'sum' correctly
 // accumulates a sum, and then verifies, using 'bdlb::NullInputIterator', that
 // 'sum' can be instantiated on an iterator that strictly matches the
 // requirements of a null input iterator:
 //..
-  int testSum()
-  {
-      static const int myArray[6] = { 2, 3, 5, 7, 11, 0 };
+    int testSum()
+    {
+        static const int myArray[6] = { 2, 3, 5, 7, 11, 0 };
 
-      // Verify that 'sum' correctly computes the sum using random access
-      // iterators (pointers).
-      int r1 = sum(&myArray[0], &myArray[5]);
-      ASSERT(28 == r1);
+        // Verify that 'sum' correctly computes the sum using random access
+        // iterators (pointers).
+        int r1 = sum(&myArray[0], &myArray[5]);
+        ASSERT(28 == r1);
 
-      // Verify that 'sum' can be instantiated using a pure input iterator.
-      typedef bdlb::NullInputIterator<unsigned> iterType;
-      unsigned r2 = sum(iterType(), iterType());
-      ASSERT(0 == r2);
+        // Verify that 'sum' can be instantiated using a pure input iterator.
+        typedef bdlb::NullInputIterator<unsigned> iterType;
+        unsigned r2 = sum(iterType(), iterType());
+        ASSERT(0 == r2);
 
-      return 0;
-  }
+        return 0;
+    }
 //..
 
 //=============================================================================
@@ -177,10 +187,11 @@ class MyClass {
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    // int veryVerbose = argc > 3;
-    // int veryVeryVerbose = argc > 4;
+    const int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    const bool             verbose = argc > 2;
+    const bool         veryVerbose = argc > 3;
+    const bool     veryVeryVerbose = argc > 4;
+    const bool veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
@@ -202,8 +213,9 @@ int main(int argc, char *argv[])
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nUSAGE EXAMPLE"
-                          << "\n=============" << endl;
+        if (verbose) cout << endl
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
 
         testSum();
 
@@ -254,50 +266,79 @@ int main(int argc, char *argv[])
         //   bool operator!=(NullInputIterator&, NullInputIterator&);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nBASIC TEST"
-                          << "\n==============" << endl;
+        if (verbose) cout << endl
+                          << "BASIC TEST" << endl
+                          << "==========" << endl;
+        if (veryVerbose) cout << "\tTesting basic type" << endl;
+        {
+            typedef bdlb::NullInputIterator<int> Obj;
 
-        const bdlb::NullInputIterator<int> NI1;
-        bdlb::NullInputIterator<int>       ni2(NI1);
-        ni2 = NI1;
-        ASSERT(NI1 == ni2);
-        ASSERT(! (NI1 != ni2));
-        ASSERT(NI1 == bdlb::NullInputIterator<int>())
-        bsl::iterator_traits<bdlb::NullInputIterator<int> > TI1;
-        ASSERT(sizeof TI1 >= 0);
+            const Obj NI1;
+            Obj       ni2(NI1);
+            ni2 = NI1;
+            ASSERT(NI1 == ni2);
+            ASSERT(! (NI1 != ni2));
+            ASSERT(NI1 == Obj());
 
-        const bdlb::NullInputIterator<MyClass> NC1;
-        bdlb::NullInputIterator<MyClass>       nc2(NC1);
-        nc2 = NC1;
-        ASSERT(NC1 == nc2);
-        ASSERT(! (NC1 != nc2));
-        ASSERT(NC1 == bdlb::NullInputIterator<MyClass>())
-        bsl::iterator_traits<bdlb::NullInputIterator<MyClass> > TC1;
-        ASSERT(sizeof TC1 >= 0);
+            typedef bsl::iterator_traits<Obj> ObjTraits;
+            BSLMF_ASSERT((bsl::is_same<ObjTraits::iterator_category,
+                                       bsl::input_iterator_tag>::value));
+            BSLMF_ASSERT((bsl::is_same<ObjTraits::value_type, int>::value));
+        }
+
+        if (veryVerbose) cout << "\tTesting user-defined type" << endl;
+        {
+            typedef bdlb::NullInputIterator<MyClass> Obj;
+
+            const Obj NC1;
+            Obj       nc2(NC1);
+            nc2 = NC1;
+            ASSERT(NC1 == nc2);
+            ASSERT(! (NC1 != nc2));
+            ASSERT(NC1 == Obj());
+
+            typedef bsl::iterator_traits<Obj> ObjTraits;
+            BSLMF_ASSERT((bsl::is_same<ObjTraits::iterator_category,
+                                       bsl::input_iterator_tag>::value));
+            BSLMF_ASSERT((bsl::is_same<ObjTraits::value_type,
+                                       MyClass>::value));
+        }
 
         if (verbose) cout << "\nNegative Testing" << endl;
         {
             bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
-            ASSERT_SAFE_FAIL(++ni2);
-            ASSERT_SAFE_FAIL(ni2++);
-            ASSERT_SAFE_FAIL(int i = *ni2);
+            bdlb::NullInputIterator<int> ni;
+            ASSERT_SAFE_FAIL(++ni);
+            ASSERT_SAFE_FAIL(ni++);
+            ASSERT_SAFE_FAIL(*ni);
 
-            ASSERT_SAFE_FAIL(MyClass c = *nc2);
-            ASSERT_SAFE_FAIL(++nc2);
-            ASSERT_SAFE_FAIL(nc2++);
-            ASSERT_SAFE_FAIL(int v = nc2->value());
+            bdlb::NullInputIterator<MyClass> nc;
+            ASSERT_SAFE_FAIL(MyClass c = *nc);
+            ASSERT_SAFE_FAIL(++nc);
+            ASSERT_SAFE_FAIL(nc++);
+            ASSERT_SAFE_FAIL(nc->value());
         }
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
+        //
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
+        //
+        // Plan:
+        //
+        // Testing:
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nBREATHING TEST"
-                          << "\n==============" << endl;
-
+        if (verbose) cout << endl
+                          << "BREATHING TEST" << endl
+                          << "==============" << endl;
       } break;
 
       default: {
