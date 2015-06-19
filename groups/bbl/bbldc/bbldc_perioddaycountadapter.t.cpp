@@ -8,6 +8,9 @@
 
 #include <bdlt_date.h>
 
+#include <bslma_default.h>
+#include <bslma_testallocator.h>
+
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 
@@ -28,10 +31,11 @@ using namespace bsl;
 // general plan is that the methods are tested with two different
 // template parameters to ensure the methods forward correctly.
 // ----------------------------------------------------------------------------
-// [ 1] PeriodDayCountAdapter(periodDate, periodYearDiff);
+// [ 1] PeriodDayCountAdapter(periodDate, periodYearDiff, basicAllocator);
 // [ 1] ~PeriodDayCountAdapter();
 // [ 1] int daysDiff(beginDate, endDate) const;
 // [ 1] double yearsDiff(beginDate, endDate) const;
+// [ 1] bslma::Allocator *allocator() const;
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
@@ -97,10 +101,19 @@ void aSsErT(bool condition, const char *message, int line)
 
 int main(int argc, char *argv[])
 {
-    int  test    = argc > 1 ? atoi(argv[1]) : 0;
-    bool verbose = argc > 2;
+    int  test        = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose     = argc > 2;
+    bool veryVerbose = argc > 3;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    // CONCERN: In no case does memory come from the global allocator.
+
+    bslma::TestAllocator globalAllocator("global", veryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
+
+    bslma::TestAllocator defaultAllocator("default", veryVerbose);
+    bslma::Default::setDefaultAllocator(&defaultAllocator);
 
     switch (test) { case 0:
       case 2: {
@@ -186,7 +199,12 @@ int main(int argc, char *argv[])
         //:
         //: 4 The destructor works as expected.
         //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        //: 5 The constructor has the internal memory management system hooked
+        //:   up properly so that *all* internally allocated memory draws from
+        //:   the same user-supplied allocator whenever one is specified and
+        //:   the 'allocator' accessor return value is as expected.
+        //:
+        //: 6 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Construct an adapted object of a class (which is derived from
@@ -198,13 +216,18 @@ int main(int argc, char *argv[])
         //: 2 The destructor is empty so the concern is trivially satisfied.
         //:   (C-4)
         //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-5)
+        //: 3 Create an object using the constructor with and without passing
+        //:   in an allocator and verify the allocator is stored using the
+        //:   'allocator' accessor.
+        //:
+        //: 4 Verify defensive checks are triggered for invalid values.  (C-6)
         //
         // Testing:
-        //   PeriodDayCountAdapter(periodDate, periodYearDiff);
+        //   PeriodDayCountAdapter(periodDate, periodYearDiff, basicAllocator);
         //   ~PeriodDayCountAdapter();
         //   int daysDiff(beginDate, endDate) const;
         //   double yearsDiff(beginDate, endDate) const;
+        //   bslma::Allocator *allocator() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -250,6 +273,32 @@ int main(int argc, char *argv[])
 
                 double diff2 = 2.9998 - protocol.yearsDiff(DATE3, DATE4);
                 ASSERT(-0.00005 <= diff2 && diff2 <= 0.00005);
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'allocator'" << endl;
+        {
+            {
+                bbldc::PeriodDayCountAdapter<bbldc::PeriodIcmaActualActual>
+                                                             mX(SCHEDULE, 1.0);
+
+                const
+                   bbldc::PeriodDayCountAdapter<bbldc::PeriodIcmaActualActual>&
+                                                                        X = mX;
+
+                ASSERT(&defaultAllocator == X.allocator());
+            }
+            {
+                bslma::TestAllocator sa("supplied", veryVerbose);
+
+                bbldc::PeriodDayCountAdapter<bbldc::PeriodIcmaActualActual>
+                                                        mX(SCHEDULE, 1.0, &sa);
+
+                const
+                   bbldc::PeriodDayCountAdapter<bbldc::PeriodIcmaActualActual>&
+                                                                        X = mX;
+
+                ASSERT(&sa == X.allocator());
             }
         }
 
@@ -363,6 +412,11 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
+
+    // CONCERN: In no case does memory come from the global allocator.
+
+    LOOP_ASSERT(globalAllocator.numBlocksTotal(),
+                0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;

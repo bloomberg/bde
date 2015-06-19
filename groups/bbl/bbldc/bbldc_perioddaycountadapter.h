@@ -137,6 +137,9 @@ class PeriodDayCountAdapter : public DayCountInterface {
         // are unique and sorted from minimum to maximum value, and 'false'
         // otherwise.
 
+    // NOT IMPLEMENTED
+    PeriodDayCountAdapter();
+
   public:
     // CREATORS
     PeriodDayCountAdapter(const bsl::vector<bdlt::Date>&  periodDate,
@@ -173,6 +176,11 @@ class PeriodDayCountAdapter : public DayCountInterface {
         // the order of 'beginDate' and 'endDate' negates the result;
         // specifically, '|yearsDiff(b, e) + yearsDiff(e, b)| <= 1.0e-15' for
         // all dates 'b' and 'e'.
+
+                                  // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this adapter to supply memory.
 };
 
 // ============================================================================
@@ -256,6 +264,15 @@ double PeriodDayCountAdapter<CONVENTION>::yearsDiff(
                                  endDate,
                                  d_periodDate,
                                  d_periodYearDiff);
+}
+
+                                  // Aspects
+
+template <class CONVENTION>
+inline
+bslma::Allocator *PeriodDayCountAdapter<CONVENTION>::allocator() const
+{
+    return d_periodDate.get_allocator().mechanism();
 }
 
 }  // close package namespace
