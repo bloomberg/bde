@@ -69,17 +69,17 @@ static int computeDaysDiff(const bdlt::Date& beginDate,
 }
 
                          // -----------------------
-                         // struct BasicSia30360eom
+                         // struct BasicSia30360Eom
                          // -----------------------
 
 // CLASS METHODS
-int BasicSia30360eom::daysDiff(const bdlt::Date& beginDate,
+int BasicSia30360Eom::daysDiff(const bdlt::Date& beginDate,
                                const bdlt::Date& endDate)
 {
     return computeDaysDiff(beginDate, endDate);
 }
 
-double BasicSia30360eom::yearsDiff(const bdlt::Date& beginDate,
+double BasicSia30360Eom::yearsDiff(const bdlt::Date& beginDate,
                                    const bdlt::Date& endDate)
 {
     return static_cast<double>(computeDaysDiff(beginDate, endDate)) / 360.0;

@@ -6,7 +6,9 @@
 
 #include <bdlt_date.h>
 
-#include <bsl_cstdlib.h>     // atoi()
+#include <bsls_protocoltest.h>
+
+#include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
@@ -16,15 +18,18 @@ using namespace bsl;
 // ============================================================================
 //                              TEST PLAN
 // ----------------------------------------------------------------------------
-//                              OVERVIEW
+//                              Overview
 //                              --------
-// We are testing a pure protocol class.  We need to verify that (1) a
-// concrete derived class compiles and links, and (2) that a usage example
-// obtains the behavior specified by the protocol from the concrete subclass.
+// The component under test defines a protocol class the purpose of which is to
+// provide an interface for loading calendars.
+//
+// Global Concerns:
+//: o The test driver is robust w.r.t. reuse in other, similar components.
+//: o It is possible to create a concrete implementation the protocol.
 // ----------------------------------------------------------------------------
 // [ 1] virtual ~DayCountInterface();
-// [ 1] virtual int daysDiff(beginDate, endDate);
-// [ 1] virtual double yearsDiff(beginDate, endDate);
+// [ 1] virtual int daysDiff(beginDate, endDate) = 0;
+// [ 1] virtual double yearsDiff(beginDate, endDate) = 0;
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
@@ -136,6 +141,28 @@ double my_Convention::yearsDiff(const bdlt::Date& beginDate,
     return 0.0;
 }
 
+// ============================================================================
+//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
+
+namespace {
+
+typedef bbldc::DayCountInterface ProtocolClass;
+
+struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
+    int daysDiff(const bdlt::Date& beginDate,
+                 const bdlt::Date& endDate) const {
+        return markDone();
+    }
+
+    double yearsDiff(const bdlt::Date& beginDate,
+                     const bdlt::Date& endDate) const {
+        return markDone();
+    }
+};
+
+}
+
 //=============================================================================
 //                             USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -210,8 +237,9 @@ typedef bbldc::DayCountInterface Obj;
 
 int main(int argc, char *argv[])
 {
-    int  test    = argc > 1 ? atoi(argv[1]) : 0;
-    bool verbose = argc > 2;
+    int  test        = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose     = argc > 2;
+    bool veryVerbose = argc > 3;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -266,61 +294,73 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // PROTOCOL TEST
-        //   Verify the interface works as expected.
+        // PROTOCOL TEST:
+        //   Ensure this class is a properly defined protocol.
         //
         // Concerns:
-        //: 1 A subclass of the 'bbldc::DayCountInterface' class compiles and
-        //:   links when all virtual functions are defined.
+        //: 1 The protocol is abstract: no objects of it can be created.
         //:
-        //: 2 The functions are in fact virtual.
+        //: 2 The protocol has no data members.
+        //:
+        //: 3 The protocol has a virtual destructor.
+        //:
+        //: 4 All methods of the protocol are pure virtual.
+        //:
+        //: 5 All methods of the protocol are publicly accessible.
         //
         // Plan:
-        //: 1 Construct an object of a class derived from
-        //:   'bbldc::DayCountInterface' and bind a 'bbldc::DayCountInterface'
-        //:   reference to the object.  Using the base class reference, invoke
-        //:   the 'daysDiff' and 'yearsDiff' methods and the destructor.
-        //:   Verify that the correct implementations of the methods are
-        //:   called.  (C-1..2)
+        //: 1 Define a concrete derived implementation, 'ProtocolClassTestImp',
+        //:   of the protocol.
+        //:
+        //: 2 Create an object of the 'bsls::ProtocolTest' class template
+        //:   parameterized by 'ProtocolClassTestImp', and use it to verify
+        //:   that:
+        //:
+        //:   1 The protocol is abstract. (C-1)
+        //:
+        //:   2 The protocol has no data members. (C-2)
+        //:
+        //:   3 The protocol has a virtual destructor. (C-3)
+        //:
+        //: 3 Use the 'BSLS_PROTOCOLTEST_ASSERT' macro to verify that
+        //:   non-creator methods of the protocol are:
+        //:
+        //:   1 virtual, (C-4)
+        //:
+        //:   2 publicly accessible. (C-5)
         //
         // Testing:
         //   virtual ~DayCountInterface();
-        //   virtual int daysDiff(beginDate, endDate);
-        //   virtual double yearsDiff(beginDate, endDate);
+        //   virtual int daysDiff(beginDate, endDate) = 0;
+        //   virtual double yearsDiff(beginDate, endDate) = 0;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "PROTOCOL TEST" << endl
                                   << "=============" << endl;
 
+        if (verbose) cout << "\nCreate a test object.\n";
 
-        if (verbose) cout << "\nTesting 'daysDiff(beginDate, endDate)'\n";
-        {
-            my_Convention mX;  const my_Convention& X = mX;
+        bsls::ProtocolTest<ProtocolClassTestImp> testObj(veryVerbose);
 
-            const bbldc::DayCountInterface& protocol = X;
+        if (verbose) cout << "\nVerify that the protocol is abstract.\n";
 
-            ASSERT(1 == protocol.daysDiff(bdlt::Date(), bdlt::Date() + 1));
-        }
+        ASSERT(testObj.testAbstract());
 
-        if (verbose) cout << "\nTesting 'yearsDiff(beginDate, endDate)'\n";
-        {
-            my_Convention mX;  const my_Convention& X = mX;
+        if (verbose) cout << "\nVerify that there are no data members.\n";
 
-            const bbldc::DayCountInterface& protocol = X;
+        ASSERT(testObj.testNoDataMembers());
 
-            ASSERT(2.0 == protocol.yearsDiff(bdlt::Date(), bdlt::Date() + 1));
-        }
+        if (verbose) cout << "\nVerify that the destructor is virtual.\n";
 
-        if (verbose) cout << "\nTesting destructor" << endl;
-        {
-            bbldc::DayCountInterface *protocol = new my_Convention;
+        ASSERT(testObj.testVirtualDestructor());
 
-            ASSERT(0 == my_ConventionDestructorCalled);
+        if (verbose) cout << "\nVerify that methods are public and virtual.\n";
 
-            delete protocol;
+        BSLS_PROTOCOLTEST_ASSERT(testObj, daysDiff(bdlt::Date(2012, 1, 1),
+                                                   bdlt::Date(2012, 1, 1)));
 
-            ASSERT(1 == my_ConventionDestructorCalled);
-        }
+        BSLS_PROTOCOLTEST_ASSERT(testObj, yearsDiff(bdlt::Date(2012, 1, 1),
+                                                    bdlt::Date(2012, 1, 1)));
 
       } break;
       default: {

@@ -54,13 +54,13 @@
 : 'bbldc_basicisma30360':
 :      Provide stateless functions for the ISMA 30/360 convention.
 :
-: 'bbldc_basicpsa30360eom':
+: 'bbldc_basicpsa30360Eom':
 :      Provide stateless functions for PSA 30/360 end-of-month convention.
 :
-: 'bbldc_basicsia30360eom':
+: 'bbldc_basicsia30360Eom':
 :      Provide stateless functions for SIA 30/360 end-of-month convention.
 :
-: 'bbldc_basicsia30360neom':
+: 'bbldc_basicsia30360Neom':
 :      Provide stateless functions for the SIA-30/360-neom convention.
 :
 : 'bbldc_daycountconvention':

@@ -18,8 +18,8 @@
 #include <bslx_testoutstream.h>
 #include <bslx_versionfunctions.h>
 
-#include <bsl_cstdlib.h>     // atoi()
-#include <bsl_cstring.h>     // strcmp()
+#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstring.h>     // 'strcmp'
 #include <bsl_iostream.h>
 #include <bsl_set.h>
 #include <bsl_sstream.h>
@@ -33,7 +33,17 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// Standard enumeration test plan.
+// The component under test provides an enumeration that lists the day-count
+// conventions and assigns them sequential values that start at 1.
+//
+// We will therefore follow our standard 3-step approach to testing enumeration
+// types.
+//
+// Global Concerns:
+//: o No methods or free operators allocate memory.
+//
+// Global Assumptions:
+//: o All CLASS METHODS and the '<<' free operator are 'const' thread-safe.
 // ----------------------------------------------------------------------------
 // TYPES
 // [ 1] enum Enum { ... };
@@ -1184,11 +1194,11 @@ int main(int argc, char *argv[])
                                                  "PERIOD_ICMA_ACTUAL_ACTUAL" },
 #if !defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
             {  L_, 0,                                  0,
-                                                    "(* Unknown Enumerator *)" },
+                                                  "(* Unknown Enumerator *)" },
             {  L_, ABOVE_ENUM_RANGE,                   0,
-                                                    "(* Unknown Enumerator *)" },
+                                                  "(* Unknown Enumerator *)" },
             {  L_, 19,                                 0,
-                                                    "(* Unknown Enumerator *)" },
+                                                  "(* Unknown Enumerator *)" },
 #endif
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;

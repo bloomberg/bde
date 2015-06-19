@@ -27,7 +27,7 @@ BSLS_IDENT("$Id: $")
 // for run-time polymorphic choice of day-count conventions (via conventional
 // use of a base-class pointer or reference) without having to implement each
 // derived type explicitly.  In this sense, 'bbldc::BasicDayCountAdapter'
-// adapts the various concrete day-count convention classes (e.g.,
+// adapts the various concrete "basic" day-count convention classes (e.g.,
 // 'bbldc::BasicIsma30360') to a run-time binding mechanism.
 //
 ///Usage

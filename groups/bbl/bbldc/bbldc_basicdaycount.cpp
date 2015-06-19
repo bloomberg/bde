@@ -44,13 +44,13 @@ int BasicDayCount::daysDiff(const bdlt::Date&        beginDate,
         numDays = bbldc::BasicIsma30360::daysDiff(beginDate, endDate);
       } break;
       case DayCountConvention::e_PSA_30_360_EOM: {
-        numDays = bbldc::BasicPsa30360eom::daysDiff(beginDate, endDate);
+        numDays = bbldc::BasicPsa30360Eom::daysDiff(beginDate, endDate);
       } break;
       case DayCountConvention::e_SIA_30_360_EOM: {
-        numDays = bbldc::BasicSia30360eom::daysDiff(beginDate, endDate);
+        numDays = bbldc::BasicSia30360Eom::daysDiff(beginDate, endDate);
       } break;
       case DayCountConvention::e_SIA_30_360_NEOM: {
-        numDays = bbldc::BasicSia30360neom::daysDiff(beginDate, endDate);
+        numDays = bbldc::BasicSia30360Neom::daysDiff(beginDate, endDate);
       } break;
       default: {
         BSLS_ASSERT_OPT(0 && "Unrecognized convention");
@@ -102,13 +102,13 @@ double BasicDayCount::yearsDiff(const bdlt::Date&        beginDate,
         numYears = bbldc::BasicIsma30360::yearsDiff(beginDate, endDate);
       } break;
       case DayCountConvention::e_PSA_30_360_EOM: {
-        numYears = bbldc::BasicPsa30360eom::yearsDiff(beginDate, endDate);
+        numYears = bbldc::BasicPsa30360Eom::yearsDiff(beginDate, endDate);
       } break;
       case DayCountConvention::e_SIA_30_360_EOM: {
-        numYears = bbldc::BasicSia30360eom::yearsDiff(beginDate, endDate);
+        numYears = bbldc::BasicSia30360Eom::yearsDiff(beginDate, endDate);
       } break;
       case DayCountConvention::e_SIA_30_360_NEOM: {
-        numYears = bbldc::BasicSia30360neom::yearsDiff(beginDate, endDate);
+        numYears = bbldc::BasicSia30360Neom::yearsDiff(beginDate, endDate);
       } break;
       default: {
         BSLS_ASSERT_OPT(0 && "Unrecognized convention");

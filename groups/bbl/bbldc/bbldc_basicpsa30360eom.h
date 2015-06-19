@@ -10,9 +10,9 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide stateless functions for PSA 30/360 end-of-month convention.
 //
 //@CLASSES:
-//  bbldc::BasicPsa30360eom: PSA 30/360 eom convention stateless functions
+//  bbldc::BasicPsa30360Eom: PSA 30/360 eom convention stateless functions
 //
-//@DESCRIPTION: This component provides a 'struct', 'bbldc::BasicPsa30360eom',
+//@DESCRIPTION: This component provides a 'struct', 'bbldc::BasicPsa30360Eom',
 // that serves as a namespace for defining a suite of date-related functions
 // used to compute the day count and year fraction between two dates as
 // prescribed by the Public Securities Association (PSA) 30/360 day-count
@@ -41,6 +41,8 @@ BSLS_IDENT("$Id: $")
 //
 // Reference: PSA Standard Formulas, page SF-17
 //
+// The year fraction is simply the day count divided by 360.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -48,7 +50,7 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
-// 'bbldc::BasicPsa30360eom' methods.  First, create two 'bdlt::Date'
+// 'bbldc::BasicPsa30360Eom' methods.  First, create two 'bdlt::Date'
 // variables, 'd1' and 'd2':
 //..
 //  const bdlt::Date d1(2004,  9, 30);
@@ -56,12 +58,12 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, compute the day count between the two dates:
 //..
-//  const int daysDiff = bbldc::BasicPsa30360eom::daysDiff(d1, d2);
+//  const int daysDiff = bbldc::BasicPsa30360Eom::daysDiff(d1, d2);
 //  assert(90 == daysDiff);
 //..
 // Finally, compute the year fraction between the two dates:
 //..
-//  const double yearsDiff = bbldc::BasicPsa30360eom::yearsDiff(d1, d2);
+//  const double yearsDiff = bbldc::BasicPsa30360Eom::yearsDiff(d1, d2);
 //  assert(0.25 == yearsDiff);
 //..
 
@@ -80,10 +82,10 @@ class Date;
 namespace bbldc {
 
                          // =======================
-                         // struct BasicPsa30360eom
+                         // struct BasicPsa30360Eom
                          // =======================
 
-struct BasicPsa30360eom {
+struct BasicPsa30360Eom {
     // This 'struct' provides a namespace for a suite of pure functions that
     // compute values based on dates according to the PSA 30/360 end-of-month
     // day-count convention.

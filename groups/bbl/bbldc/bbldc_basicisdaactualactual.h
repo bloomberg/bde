@@ -17,7 +17,9 @@ BSLS_IDENT("$Id: $")
 // suite of date-related functions used to compute the day count and the year
 // fraction between two dates as per the ISDA Actual/Actual day-count
 // convention.  In this day-count convention, the day count between two dates
-// is exactly the number of days occurring in the time period.
+// is exactly the number of days occurring in the time period and the year
+// fraction between two dates is the number of full calendar years between the
+// dates plus front-stub and back-stub adjustments.
 //
 ///Usage
 ///-----

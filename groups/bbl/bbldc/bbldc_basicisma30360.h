@@ -41,6 +41,8 @@ BSLS_IDENT("$Id: $")
 // Note that in this day-count convention, dates ('De' and 'Dl') are adjusted
 // independently of each other.
 //
+// The year fraction is simply the day count divided by 360.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.

@@ -75,7 +75,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                     GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bbldc::BasicSia30360eom Util;
+typedef bbldc::BasicSia30360Eom Util;
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
-// 'bbldc::BasicSia30360eom' methods.  First, create two 'bdlt::Date' variables
+// 'bbldc::BasicSia30360Eom' methods.  First, create two 'bdlt::Date' variables
 // 'd1' and 'd2':
 //..
     const bdlt::Date d1(2004,  9, 30);
@@ -127,12 +127,12 @@ int main(int argc, char *argv[])
 //..
 // Then, compute the day count between these two dates:
 //..
-    const int daysDiff = bbldc::BasicSia30360eom::daysDiff(d1, d2);
+    const int daysDiff = bbldc::BasicSia30360Eom::daysDiff(d1, d2);
     ASSERT(90 == daysDiff);
 //..
 // Finally, compute the year fraction between these two dates:
 //..
-    const double yearsDiff = bbldc::BasicSia30360eom::yearsDiff(d1, d2);
+    const double yearsDiff = bbldc::BasicSia30360Eom::yearsDiff(d1, d2);
     ASSERT(0.25 == yearsDiff);
 //..
       } break;

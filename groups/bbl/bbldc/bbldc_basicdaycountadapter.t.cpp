@@ -11,7 +11,7 @@
 
 #include <bsls_asserttest.h>
 
-#include <bsl_cstdlib.h>     // atoi()
+#include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
@@ -20,12 +20,13 @@ using namespace bsl;
 // ============================================================================
 //                              TEST PLAN
 // ----------------------------------------------------------------------------
-//                              OVERVIEW
+//                              Overview
 //                              --------
-// The component under test consists of two forwarding methods to a templatized
-// class containing static member functions that compute the day-count and year
-// fraction between two dates.  The general plan is that the methods are tested
-// with two different templatizations to ensure the methods forward correctly.
+// The component under test consists of two forwarding methods that forward
+// to static member function implementations within the template parameter
+// class that compute the day count and year fraction between two dates.  The
+// general plan is that the methods are tested with two different
+// template parameters to ensure the methods forward correctly.
 // ----------------------------------------------------------------------------
 // [ 1] int daysDiff(beginDate, endDate) const;
 // [ 1] double yearsDiff(beginDate, endDate) const;

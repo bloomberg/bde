@@ -10,9 +10,9 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide stateless functions for SIA 30/360 end-of-month convention.
 //
 //@CLASSES:
-//  bbldc::BasicSia30360eom: SIA 30/360 eom convention stateless functions
+//  bbldc::BasicSia30360Eom: SIA 30/360 eom convention stateless functions
 //
-//@DESCRIPTION: This component provides a 'struct', 'bbldc::BasicSia30360eom',
+//@DESCRIPTION: This component provides a 'struct', 'bbldc::BasicSia30360Eom',
 // that serves as a namespace for defining a suite of date-related functions
 // used to compute the day count and year fraction between two dates as
 // prescribed by the Standard Industry Association (SIA) 30/360 day-count
@@ -47,6 +47,8 @@ BSLS_IDENT("$Id: $")
 // Reference: Standard Securities Calculation Methods (1996)
 //            ISBN 1-882936-01-9
 //
+// The year fraction is simply the day count divided by 360.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -54,7 +56,7 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
-// 'bbldc::BasicSia30360eom' methods.  First, create two 'bdlt::Date'
+// 'bbldc::BasicSia30360Eom' methods.  First, create two 'bdlt::Date'
 // variables, 'd1' and 'd2':
 //..
 //  const bdlt::Date d1(2004,  9, 30);
@@ -62,12 +64,12 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, compute the day count between the two dates:
 //..
-//  const int daysDiff = bbldc::BasicSia30360eom::daysDiff(d1, d2);
+//  const int daysDiff = bbldc::BasicSia30360Eom::daysDiff(d1, d2);
 //  assert(90 == daysDiff);
 //..
 // Finally, compute the year fraction between the two dates:
 //..
-//  const double yearsDiff = bbldc::BasicSia30360eom::yearsDiff(d1, d2);
+//  const double yearsDiff = bbldc::BasicSia30360Eom::yearsDiff(d1, d2);
 //  assert(0.25 == yearsDiff);
 //..
 
@@ -86,10 +88,10 @@ class Date;
 namespace bbldc {
 
                          // =======================
-                         // struct BasicSia30360eom
+                         // struct BasicSia30360Eom
                          // =======================
 
-struct BasicSia30360eom {
+struct BasicSia30360Eom {
     // This 'struct' provides a namespace for a suite of pure functions that
     // compute values based on dates according to the SIA 30/360 end-of-month
     // day-count convention.
