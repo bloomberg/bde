@@ -117,33 +117,33 @@ int main(int argc, char *argv[])
 // This section illustrates intended use of this component.
 //
 ///Example 1: Adapting 'bbldc::BasicIsma30360'
-///- - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - -
 // This example shows the procedure for using 'bbldc::BasicDayCountAdapter' to
 // adapt the 'bbldc::BasicIsma30360' day-count convention to the
-// 'bbld::DayCountInterface' and then the use of the day-count methods.
+// 'bbldc::DayCountInterface', and then the use of the day-count methods.
 // First, we define an instance of the adapted day-count convention and obtain
 // a reference to the 'bbldc::DayCountInterface':
 //..
-    bbldc::BasicDayCountAdapter<bbldc::BasicIsma30360> myDcc;
-    bbldc::DayCountInterface&                          dcc = myDcc;
+    const bbldc::BasicDayCountAdapter<bbldc::BasicIsma30360> myDcc;
+    const bbldc::DayCountInterface&                          dcc = myDcc;
 //..
-// Then, create two 'bdlt::Date' variables 'd1' and 'd2' with which to use the
-// day-count convention methods.
+// Then, create two 'bdlt::Date' variables, 'd1' and 'd2', with which to use
+// the day-count convention methods:
 //..
     const bdlt::Date d1(2003, 10, 18);
     const bdlt::Date d2(2003, 12, 31);
 //..
-// Now, use the base-class reference to compute the day-count between these two
+// Now, use the base-class reference to compute the day count between the two
 // dates:
 //..
     const int daysDiff = dcc.daysDiff(d1, d2);
     ASSERT(72 == daysDiff);
 //..
 // Finally, use the base-class reference to compute the year fraction between
-// these two dates:
+// the two dates:
 //..
     const double yearsDiff = dcc.yearsDiff(d1, d2);
-    // Need fuzzy comparison since 'yearsDiff' is a double.
+    // Need fuzzy comparison since 'yearsDiff' is a 'double'.
     ASSERT(0.1999 < yearsDiff && 0.2001 > yearsDiff);
 //..
       } break;

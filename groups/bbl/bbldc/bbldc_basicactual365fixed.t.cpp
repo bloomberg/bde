@@ -138,7 +138,7 @@ int main(int argc, char *argv[])
     daysDiff = bbldc::BasicActual365Fixed::daysDiff(dB, dC);
     ASSERT( 61 == daysDiff);
 //..
-// Finally, compute the year fraction between some of these dates:
+// Finally, compute the year fraction between some of the dates:
 //..
     double yearsDiff;
     yearsDiff = bbldc::BasicActual365Fixed::yearsDiff(dA, dC);

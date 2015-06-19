@@ -119,17 +119,17 @@ int main(int argc, char *argv[])
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use 'bbldc::BasicIsma30360'
-// methods.  First, create two 'bdlt::Date' variables 'd1' and 'd2':
+// methods.  First, create two 'bdlt::Date' variables, 'd1' and 'd2':
 //..
     const bdlt::Date d1(2004,  9, 30);
     const bdlt::Date d2(2004, 12, 31);
 //..
-// Then, compute the day count between these two dates:
+// Then, compute the day count between the two dates:
 //..
     const int daysDiff = bbldc::BasicIsma30360::daysDiff(d1, d2);
     ASSERT(90 == daysDiff);
 //..
-// Finally, compute the year fraction between these two dates:
+// Finally, compute the year fraction between the two dates:
 //..
     const double yearsDiff = bbldc::BasicIsma30360::yearsDiff(d1, d2);
     ASSERT(0.25 == yearsDiff);

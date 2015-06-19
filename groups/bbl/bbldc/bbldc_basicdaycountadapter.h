@@ -45,8 +45,8 @@ BSLS_IDENT("$Id: $")
 //  const bbldc::BasicDayCountAdapter<bbldc::BasicIsma30360> myDcc;
 //  const bbldc::DayCountInterface&                          dcc = myDcc;
 //..
-// Then, create two 'bdlt::Date' variables, 'd1' and 'd2', with which to use the
-// day-count convention methods:
+// Then, create two 'bdlt::Date' variables, 'd1' and 'd2', with which to use
+// the day-count convention methods:
 //..
 //  const bdlt::Date d1(2003, 10, 18);
 //  const bdlt::Date d2(2003, 12, 31);

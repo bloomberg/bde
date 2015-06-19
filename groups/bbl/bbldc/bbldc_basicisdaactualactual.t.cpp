@@ -122,17 +122,17 @@ int main(int argc, char *argv[])
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
 // 'bbldc::BasicIsdaActualActual' methods.  First, create two 'bdlt::Date'
-// variables 'd1' and 'd2':
+// variables, 'd1' and 'd2':
 //..
     const bdlt::Date d1(2003, 10, 19);
     const bdlt::Date d2(2003, 12, 31);
 //..
-// Then, compute the day count between these two dates:
+// Then, compute the day count between the two dates:
 //..
     const int daysDiff = bbldc::BasicIsdaActualActual::daysDiff(d1, d2);
     ASSERT(73 == daysDiff);
 //..
-// Finally, compute the year fraction between these two dates:
+// Finally, compute the year fraction between the two dates:
 //..
     const double yearsDiff = bbldc::BasicIsdaActualActual::yearsDiff(d1, d2);
     // Need fuzzy comparison since 'yearsDiff' is a 'double'.

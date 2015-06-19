@@ -140,20 +140,20 @@ int main(int argc, char *argv[])
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
-// 'bbldcm::PeriodIcmaActualActual' methods.  First, create two 'bdlt::Date'
-// variables 'd1' and 'd2':
+// 'bbldc::PeriodDayCount' methods.  First, create two 'bdlt::Date' variables,
+// 'd1' and 'd2':
 //..
     const bdlt::Date d1(2003, 10, 19);
     const bdlt::Date d2(2003, 12, 31);
 //..
-// Then, create a schedule of period dates 'sched' corresponding to a
+// Then, create a schedule of period dates, 'sched', corresponding to a
 // quarterly payment ('periodYearDiff == 0.25'):
 //..
     bsl::vector<bdlt::Date> sched;
     sched.push_back(bdlt::Date(2003, 10, 1));
     sched.push_back(bdlt::Date(2004,  1, 1));
 //..
-// Now, compute the day count between these two dates according to the Period
+// Now, compute the day count between 'd1' and 'd2' according to the Period
 // ICMA Actual/Actual day-count convention:
 //..
     const int daysDiff = bbldc::PeriodDayCount::daysDiff(
@@ -162,7 +162,7 @@ int main(int argc, char *argv[])
                        bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL);
     ASSERT(73 == daysDiff);
 //..
-// Finally, compute the year fraction between these two dates according to the
+// Finally, compute the year fraction between the two dates according to the
 // Period ICMA Actual/Actual day-count convention:
 //..
     const double yearsDiff = bbldc::PeriodDayCount::yearsDiff(
@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
                        sched,
                        0.25,
                        bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL);
-    // Need fuzzy comparison since 'yearsDiff' is a double.
+    // Need fuzzy comparison since 'yearsDiff' is a 'double'.
     ASSERT(yearsDiff > 0.1983 && yearsDiff < 0.1985);
 //..
       } break;

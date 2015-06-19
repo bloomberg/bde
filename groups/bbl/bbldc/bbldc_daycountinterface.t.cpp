@@ -176,9 +176,9 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
 // This example shows the definition and use of a simple concrete day-count
 // convention.  This functionality suffices to demonstrate the requisite steps
 // for having a working day-count convention:
-//   * Define a concrete day-count type derived from 'bbldc_DayCountInterface'.
-//   * Implement the pure virtual 'daysDiff' and 'yearsDiff' methods.
-//   * Instantiate and use an object of the concrete type.
+//: * Define a concrete day-count type derived from 'bbldc::DayCountInterface'.
+//: * Implement the pure virtual 'daysDiff' and 'yearsDiff' methods.
+//: * Instantiate and use an object of the concrete type.
 //
 // First define the (derived) 'my_DayCountConvention' class and implement its
 // constructor inline (for convenience, directly within the derived-class
@@ -210,7 +210,7 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
 //..
 // Next, we implement the (virtual) 'daysDiff' and 'yearsDiff' methods, which
 // incorporate the "policy" of what it means for this day-count convention to
-// calculate these values.
+// calculate these values:
 //..
     int my_DayCountConvention::daysDiff(const bdlt::Date& beginDate,
                                         const bdlt::Date& endDate) const
@@ -266,30 +266,28 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-// Then, create two 'bdlt::Date' variables 'd1' and 'd2' to use with the
-// 'my_DayCountConvention' object and its day-count convention methods.
+// Then, create two 'bdlt::Date' variables, 'd1' and 'd2', to use with the
+// 'my_DayCountConvention' object and its day-count convention methods:
 //..
     const bdlt::Date d1(2003, 10, 19);
     const bdlt::Date d2(2003, 12, 31);
 //..
-// Next, we obtain a 'bbldc_DayCountInterface' reference from an instantiated
+// Next, we obtain a 'bbldc::DayCountInterface' reference from an instantiated
 // 'my_DayCountConvention':
 //..
     my_DayCountConvention           myDcc;
     const bbldc::DayCountInterface& dcc = myDcc;
 //..
-// Now, we compute the day-count between these two dates:
+// Now, we compute the day count between the two dates:
 //..
     const int daysDiff = dcc.daysDiff(d1, d2);
     ASSERT(73 == daysDiff);
 //..
-// Finally, we compute the year fraction between these two dates:
+// Finally, we compute the year fraction between the two dates:
 //..
     const double yearsDiff = dcc.yearsDiff(d1, d2);
-    // Need fuzzy comparison since 'yearsDiff' is a double.  Expect
-    // '0.2 == yearsDiff'.
-    ASSERT(0.1999 < yearsDiff);
-    ASSERT(0.2001 > yearsDiff);
+    // Need fuzzy comparison since 'yearsDiff' is a 'double'.
+    ASSERT(0.1999 < yearsDiff && 0.2001 > yearsDiff);
 //..
       } break;
       case 1: {

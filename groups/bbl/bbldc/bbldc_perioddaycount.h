@@ -42,7 +42,7 @@ BSLS_IDENT("$Id: $")
 //  sched.push_back(bdlt::Date(2003, 10, 1));
 //  sched.push_back(bdlt::Date(2004,  1, 1));
 //..
-// Now, compute the day count between the 'd1' and 'd2' according to the Period
+// Now, compute the day count between 'd1' and 'd2' according to the Period
 // ICMA Actual/Actual day-count convention:
 //..
 //  const int daysDiff = bbldc::PeriodDayCount::daysDiff(

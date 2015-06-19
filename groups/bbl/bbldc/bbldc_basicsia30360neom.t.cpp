@@ -120,17 +120,17 @@ int main(int argc, char *argv[])
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
 // 'bbldc::BasicSia30360Neom' methods.  First, create two 'bdlt::Date'
-// variables 'd1' and 'd2':
+// variables, 'd1' and 'd2':
 //..
     const bdlt::Date d1(2004,  9, 30);
     const bdlt::Date d2(2004, 12, 30);
 //..
-// Then, compute the day count between these two dates:
+// Then, compute the day count between the two dates:
 //..
     const int daysDiff = bbldc::BasicSia30360Neom::daysDiff(d1, d2);
     ASSERT(90 == daysDiff);
 //..
-// Finally, compute the year fraction between these two dates:
+// Finally, compute the year fraction between the two dates:
 //..
     const double yearsDiff = bbldc::BasicSia30360Neom::yearsDiff(d1, d2);
     ASSERT(0.25 == yearsDiff);

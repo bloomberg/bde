@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example shows the procedure for using 'bbldc::PeriodDayCountAdapter' to
 // adapt the 'bbldc::PeriodIcmaActualActual' day-count convention to the
-// 'bbldc::DayCountInterface' and then the use of the day-count methods.
+// 'bbldc::DayCountInterface', and then the use of the day-count methods.
 // First, we create a schedule of period dates 'sched' corresponding to a
 // quarterly payment ('periodYearDiff == 0.25'):
 //..
@@ -144,27 +144,28 @@ int main(int argc, char *argv[])
 // Then, we define an instance of the adapted day-count convention and obtain
 // a reference to the 'bbldc::DayCountInterface':
 //..
-    bbldc::PeriodDayCountAdapter<bbldc::PeriodIcmaActualActual> myDcc(sched,
-                                                                      0.25);
-    bbldc::DayCountInterface&                                   dcc = myDcc;
+    const bbldc::PeriodDayCountAdapter<bbldc::PeriodIcmaActualActual>
+                                                                   myDcc(sched,
+                                                                         0.25);
+    const bbldc::DayCountInterface&                                dcc = myDcc;
 //..
-// Next, create two 'bdlt::Date' variables 'd1' and 'd2' with which to use the
-// day-count convention methods.
+// Next, create two 'bdlt::Date' variables, 'd1' and 'd2', with which to use
+// the day-count convention methods:
 //..
     const bdlt::Date d1(2003, 10, 19);
     const bdlt::Date d2(2003, 12, 31);
 //..
-// Now, use the base-class reference to compute the day count between these two
+// Now, use the base-class reference to compute the day count between the two
 // dates:
 //..
     const int daysDiff = dcc.daysDiff(d1, d2);
     ASSERT(73 == daysDiff);
 //..
 // Finally, use the base-class reference to compute the year fraction between
-// these two dates:
+// the two dates:
 //..
     const double yearsDiff = dcc.yearsDiff(d1, d2);
-    // Need fuzzy comparison since 'yearsDiff' is a double.
+    // Need fuzzy comparison since 'yearsDiff' is a 'double'.
     ASSERT(yearsDiff > 0.1983 && yearsDiff < 0.1985);
 //..
       } break;

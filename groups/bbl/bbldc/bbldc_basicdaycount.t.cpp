@@ -146,14 +146,13 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// The following snippets of code illustrate how to use
-// 'bbldcu::IsdaActualActual' methods.  First, create two 'bdlt::Date'
-// variables 'd1' and 'd2':
+// The following snippets of code illustrate how to use 'bbldc::BasicDayCount'
+// methods.  First, create two 'bdlt::Date' variables, 'd1' and 'd2':
 //..
     const bdlt::Date d1(2003, 10, 19);
     const bdlt::Date d2(2003, 12, 31);
 //..
-// Then, compute the day count between these two dates according to the ISDA
+// Now, compute the day count between 'd1' and 'd2' according to the ISDA
 // Actual/Actual convention:
 //..
     const int daysDiff = bbldc::BasicDayCount::daysDiff(
@@ -162,14 +161,14 @@ int main(int argc, char *argv[])
                               bbldc::DayCountConvention::e_ISDA_ACTUAL_ACTUAL);
     ASSERT(73 == daysDiff);
 //..
-// Finally, compute the year fraction between these two dates according to the
+// Finally, compute the year fraction between the two dates according to the
 // ISDA Actual/Actual convention:
 //..
     const double yearsDiff = bbldc::BasicDayCount::yearsDiff(
                               d1,
                               d2,
                               bbldc::DayCountConvention::e_ISDA_ACTUAL_ACTUAL);
-    // Need fuzzy comparison since 'yearsDiff' is a double.
+    // Need fuzzy comparison since 'yearsDiff' is a 'double'.
     ASSERT(0.1999 < yearsDiff && 0.2001 > yearsDiff);
 //..
       } break;
