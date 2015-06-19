@@ -15,10 +15,9 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlb_nullinputiterator
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
-//@DESCRIPTION: This component provides a class template defining an output
-// iterator type, 'bdlb::NullOutputIterator', with the following attributes:
+//@DESCRIPTION: This component provides a mechanism,
+// 'bdlb::NullOutputIterator', that defines an output iterator with the
+// following attributes:
 //: o Meets exactly the requirements for an output iterator according to the
 //:   C++ Standard (C++98, Section 24.1.2 [lib.output.iterators]).
 //: o De-referencing an iterator and assigning to the returned value has no
@@ -29,10 +28,15 @@ BSLS_IDENT("$Id: $")
 // side-effects, discarding the normal output.  It is also useful for testing
 // whether a template function will compile when presented with a pure output
 // iterator.  This component also provides a template
-// 'bdlb::NullOutputIteratorAssignmentProxy' allowing assignment from any type.
+// 'bdlb::NullOutputIteratorAssignmentProxy' for the object returned by
+// iterator dereferencing operator. Assigning to this object has no effect.
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+// Example 1: Basic Use of 'bdlb::NullOutputIterator'
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following example we use a 'bdlb::NullOutputIterator' to enable us to
 // call a function to capture its return code, while ignoring the output
 // provided through an iterator.
@@ -59,9 +63,17 @@ BSLS_IDENT("$Id: $")
 //..
 //  int average(int values[], int numValues)
 //  {
-//      int sum = runningSum(values, values + numValues,
-//                           bdlb::NullOutputIterator<int>()) / numValues;
+//      // ... input validation elided ...
+//      return runningSum(values, values + numValues,
+//                        bdlb::NullOutputIterator<int>()) / numValues;
 //  }
+//..
+// Finally, we invoke function 'average' on user array and validate result.
+//..
+//  const int myArray[5] = { 3, 4, 5, 7, 11 };
+//
+//  int averageValue = average(myArray, 5);
+//  assert( averageValue == 6 );
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION

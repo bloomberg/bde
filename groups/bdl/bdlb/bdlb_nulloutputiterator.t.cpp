@@ -17,20 +17,26 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// bdlb::NullOutputIterator has no state and thus very little to test.  One
-// test case is sufficient to test that every method can be instantiated.  The
+// bdlb::NullOutputIterator and bdlb::NullOutputIteratorAssignmentProxy have no
+// state and thus very little to test.  Two test cases are sufficient to test
+// that every class can be instantiated and its methods can be called.  The
 // usage example completes the test by proving that it works in idiomatic use.
 // ----------------------------------------------------------------------------
-// [ 2] NullOutputIterator();
-// [ 2] NullOutputIterator(const NullOutputIterator& rhs);
-// [ 2] ~NullOutputIterator();
-// [ 2] NullOutputIterator& operator=(const NullOutputIterator& rhs);
-// [ 2] AssignmentProxy operator*();
-// [ 2] NullOutputIterator& operator++();
-// [ 2] NullOutputIterator& operator++(int);
+// bdlb::NullOutputIteratorAssignmentProxy
+// [ 2] NullOutputIteratorAssignmentProxy();
+// [ 2] ~NullOutputIteratorAssignmentProxy();
+// [ 2] void operator=(const TYPE& rhs);
+// bdlb::NullOutputIterator
+// [ 3] NullOutputIterator();
+// [ 3] NullOutputIterator(const NullOutputIterator& rhs);
+// [ 3] ~NullOutputIterator();
+// [ 3] NullOutputIterator& operator=(const NullOutputIterator& rhs);
+// [ 3] AssignmentProxy operator*();
+// [ 3] NullOutputIterator& operator++();
+// [ 3] NullOutputIterator& operator++(int);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 3] USAGE EXAMPLE
+// [ 4] USAGE EXAMPLE 1
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -85,27 +91,17 @@ void aSsErT(bool condition, const char *message, int line)
 //-----------------------------------------------------------------------------
 
 class MyClass {
-    // A simple test class that can instantiated and copied to help test the
-    // instantiation of 'bdlb::NullOutputIterator' on a user-defined type.
-
-  public:
-    // CREATORS
-    MyClass(int v = 0) : d_member(v) { }
-    MyClass(const MyClass& rhs) : d_member(rhs.d_member) { }
-    ~MyClass() { }
-    MyClass& operator=(const MyClass& rhs) {
-        d_member = rhs.d_member;
-        return *this;
-    }
-
-  private:
-    int d_member;
+    // A helper test class that helps testing the instantiation of
+    // 'bdlb::NullOutputIterator' on a user-defined type.
 };
 
 //=============================================================================
 //                             USAGE EXAMPLE
 //-----------------------------------------------------------------------------
+// This section illustrates intended use of this component.
 //
+// Example 1: Basic Use of 'bdlb::NullOutputIterator'
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following example we use a 'bdlb::NullOutputIterator' to enable us to
 // call a function to capture its return code, while ignoring the output
 // provided through an iterator.
@@ -132,8 +128,9 @@ class MyClass {
 //..
     int average(const int values[], int numValues)
     {
+        // ... input validation elided ...
         return runningSum(values, values + numValues,
-                                  bdlb::NullOutputIterator<int>()) / numValues;
+                          bdlb::NullOutputIterator<int>()) / numValues;
     }
 //..
 
@@ -155,9 +152,9 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE
+        // USAGE EXAMPLE 1
         //   Extracted from component header file.
         //
         // Concerns:
@@ -170,25 +167,28 @@ int main(int argc, char *argv[])
         //:   (C-1)
         //
         // Testing:
-        //   USAGE EXAMPLE
+        //   USAGE EXAMPLE 1
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "USAGE EXAMPLE" << endl
-                          << "=============" << endl;
+                          << "USAGE EXAMPLE 1" << endl
+                          << "===============" << endl;
 
 
         {
-            const int myArray[5] = { 3, 4, 5, 7, 11 };
+// Finally, we invoke function 'average' on user array and validate result.
+//..
+    const int myArray[5] = { 3, 4, 5, 7, 11 };
 
-            int averageValue = average(myArray, 5);
-            ASSERT( averageValue == 6 );
+    int averageValue = average(myArray, 5);
+    ASSERT( averageValue == 6 );
+//..
         }
       } break;
 
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
-        // BASIC TEST
+        // BASIC TEST 'bdlb::NullOutputIterator'
         //   This case exercises all methods.
         //
         // Concerns:
@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
         //:
         //: 2 The copy constructor can create a copy of the object.
         //:
-        //: 4 Assignment assigns the value of the original object.
+        //: 3 Assignment assigns the value of the original object.
         //:
         //: 4 The template can be instantiated for both basic types and
         //:   user-defined classes.
@@ -217,8 +217,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "BASIC TEST" << endl
-                          << "==========" << endl;
+                          << "BASIC TEST 'bdlb::NullOutputIterator'" << endl
+                          << "=====================================" << endl;
 
         if (veryVerbose) cout << "\tTesting basic type" << endl;
         {
@@ -245,7 +245,7 @@ int main(int argc, char *argv[])
             const Obj NO1;
             Obj       nO1(NO1);
             nO1 = NO1;
-            const MyClass C(7);
+            const MyClass C = {};
             *nO1 = C;
             ++nO1;
             nO1++;
@@ -258,15 +258,73 @@ int main(int argc, char *argv[])
         }
 
       } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // BASIC TEST 'bdlb::NullOutputIteratorAssignmentProxy'
+        //   This case exercises all methods.
+        //
+        // Concerns:
+        //: 1 The default constructor can create an object.
+        //:
+        //: 2 The copy constructor can create a copy of the object.
+        //:
+        //: 3 Assignment assigns the value of the original object.
+        //:
+        //: 4 The template can be instantiated for both basic types and
+        //:   user-defined classes.
+        //:
+        //: 5 The template correctly defines the iterator traits.
+        //
+        // Plan:
+        //: 1 Manually call different methods of the object. (C-1..5)
+        //
+        // Testing:
+        //   NullOutputIteratorAssignmentProxy();
+        //   ~NullOutputIteratorAssignmentProxy();
+        //   void operator=(const TYPE& rhs);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+             << "BASIC TEST 'bdlb::NullOutputIteratorAssignmentProxy'" << endl
+             << "====================================================" << endl;
+
+        if (veryVerbose) cout << "\tTesting basic type" << endl;
+        {
+            typedef bdlb::NullOutputIteratorAssignmentProxy<int> Obj;
+
+            const Obj NO1 = {};
+            Obj       nO1(NO1);
+            const int I = 5;
+            nO1 = I;
+        }
+
+        if (veryVerbose) cout << "\tTesting user-defined type" << endl;
+        {
+            typedef bdlb::NullOutputIteratorAssignmentProxy<MyClass> Obj;
+
+            const Obj NO1 = {};
+            Obj       nO1(NO1);
+            nO1 = NO1;
+            const MyClass C = {};
+            nO1 = C;
+        }
+
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
-        //   This component does not use breathing test case.
+        //   This case exercises (but does not fully test) basic functionality.
+        //
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
+        //
+        // Plan:
+        //: 1 Developer test sandbox. (C-1)
         //
         // Testing:
         //   BREATHING TEST
         // --------------------------------------------------------------------
-
         if (verbose) cout << endl
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
