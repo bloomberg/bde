@@ -71,7 +71,6 @@ float.h         float.h.SUNWCCh
 iso646.h        iso646.h.SUNWCCh
 limits.h        limits.h.SUNWCCh
 locale.h        locale.h.SUNWCCh
-math.h          math.h.SUNWCCh
 pthread.h
 signal.h        signal.h.SUNWCCh
 stdarg.h        stdarg.h.SUNWCCh
