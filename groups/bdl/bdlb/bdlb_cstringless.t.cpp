@@ -221,7 +221,7 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING QoI: 'CStringLess' IS AN EMPTY TYPE
+        // TESTING QOI: 'CStringLess' IS AN EMPTY TYPE
         //   As a quality of implementation issue, the class has no state and
         //   should support the use of the empty base class optimization on
         //   compilers that support it.
