@@ -51,8 +51,9 @@ BSLS_IDENT("$Id: $")
 // First, we create an array to provide storage for the stream buffer, and
 // construct a 'bdlsb::FixedMemOutStreamBuf' on that array:
 //..
-//  char                        storage[64];
-//  bdlsb::FixedMemOutStreamBuf buffer(storage, sizeof(storage));
+//  const unsigned int          STORAGE_SIZE = 64;
+//  char                        storage[STORAGE_SIZE];
+//  bdlsb::FixedMemOutStreamBuf buffer(storage, STORAGE_SIZE);
 //..
 // Notice that 'storage' is on the stack.  'bdlsb::FixedMemOutStreamBuf' can be
 // easily used without resorting to dynamic memory allocation.
@@ -60,7 +61,7 @@ BSLS_IDENT("$Id: $")
 // Then, we observe that 'buffer' already has a capacity of 64.  Note that this
 // capacity is fixed at construction:
 //..
-//  assert(64 == buffer.capacity());
+//  assert(STORAGE_SIZE == buffer.capacity());
 //  assert( 0 == buffer.length());
 //  assert(buffer.data() == storage);
 //..
@@ -76,34 +77,37 @@ BSLS_IDENT("$Id: $")
 // supplied to 'buffer':
 //..
 //  assert(17 == buffer.length());
-//  assert(buffer.length() < sizeof(storage));
+//  assert(buffer.length() < STORAGE_SIZE);
 //  assert(0 == strncmp("The answer is 42.", storage, 17));
 //..
 //
 ///Example 2: Fixed buffer's size illustration
 /// - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Unlike most implementations of the 'bsl::basic_streambuf' concept,
-// 'bdlsb::FixedMemOutStreamBuf' uses limited size of buffer, provided to the
-// constructor together with storage's address.  That limit won't be exceeded
-// even in case of superfluous data.  Remained symbols will be ignored.  Note
-// that this can be useful if memory allocation should be strictly controlled.
+// 'bdlsb::FixedMemOutStreamBuf' uses a buffer of limited size, provided to the
+// constructor together with the address of the storage buffer.  That limit
+// will not be exceeded even in case of superfluous data.  Symbols beyond this
+// limit will be ignored.  Note that this can be useful if memory allocation
+// should be strictly controlled.
 //
 // First, we create an array to provide storage for the stream buffer, fill it
 // with some data and construct a 'bdlsb::FixedMemOutStreamBuf' on the part of
 // that array:
 //..
-//  char smallStorage[16];
-//  memset(smallStorage, 'Z', 16);
+//  const unsigned int SMALL_STORAGE_SIZE = 16;
+//  const unsigned int SMALL_BUFFER_CAPACITY = SMALL_STORAGE_SIZE/2;
+//  char               smallStorage[SMALL_STORAGE_SIZE];
+//  memset(smallStorage, 'Z', SMALL_STORAGE_SIZE);
 //
 //  bdlsb::FixedMemOutStreamBuf smallBuffer(smallStorage,
-//                                          sizeof(smallStorage) - 8);
+//                                          SMALL_BUFFER_CAPACITY);
 //..
 // Next, we write some characters to the buffer and check that it handles them
 // correctly and superfluous data is ignored:
 //..
 //  bsl::streamsize returnedSize = smallBuffer.sputn("The answer is 42.", 17);
-//  assert(8 == returnedSize);
-//  assert(8 == smallBuffer.length());
+//  assert(SMALL_BUFFER_CAPACITY == returnedSize);
+//  assert(SMALL_BUFFER_CAPACITY == smallBuffer.length());
 //  assert('Z' == smallStorage[smallBuffer.length()]);
 //..
 // Then, we reset position indicator to the beginning of storage:
@@ -111,18 +115,18 @@ BSLS_IDENT("$Id: $")
 //  smallBuffer.pubseekpos(0,bsl::ios_base::out);
 //  assert(0 == smallBuffer.length());
 //..
-// Now, we write another characters in numbers less then storage capacity:
+// Now, we write another string, containing fewer characters than the storage
+// capacity:
 //..
 //  returnedSize = smallBuffer.sputn("Truth.", 6);
 //..
-// Finally, we observe that given string had been successfully placed to
+// Finally, we observe that given string has been successfully placed to
 // buffer:
 //..
 //  assert(6 == returnedSize);
 //  assert(6 == smallBuffer.length());
 //  assert(0 == strncmp("Truth.", smallStorage, 6));
 //..
-
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -202,7 +206,7 @@ class FixedMemOutStreamBuf : public bsl::streambuf {
         // Reinitialize this stream buffer to use the specified character
         // 'buffer' having the specified 'length'.  Return the address of this
         // modifiable stream buffer.  The behavior is undefined unless
-        // 'buffer != 0 && length > 0' or 'buffer == 0 && length == 0'.  Upon
+        // 'length == 0' or 'length > 0 && buffer != 0'.  Upon
         // re-initialization for use of the new buffer, the length and next
         // output location are reset to zero.  Note that 'buffer' is held but
         // not owned.
@@ -213,7 +217,7 @@ class FixedMemOutStreamBuf : public bsl::streambuf {
                          bsl::streamsize  length);
         // Create an empty stream buffer that uses the specified character
         // 'buffer' of the specified 'length'.  The behavior is undefined
-        // unless 'buffer != 0 && length > 0' or 'buffer == 0 && length == 0'.
+        // unless 'length == 0' or 'length > 0 && buffer != 0'.
         // Note that 'buffer' is held but not owned.
 
     ~FixedMemOutStreamBuf();
@@ -221,8 +225,8 @@ class FixedMemOutStreamBuf : public bsl::streambuf {
 
     // MANIPULATORS
     char *data();
-        // Return the address of the modifiable character buffer held by this
-        // stream buffer (supplied at construction).
+        // Return a pointer providing modifiable access to the character buffer
+        // held by this stream buffer (supplied at construction).
 
     // ACCESSORS
     bsl::streamsize capacity() const;
@@ -231,8 +235,8 @@ class FixedMemOutStreamBuf : public bsl::streambuf {
         // written.
 
     const char *data() const;
-        // Return the address of the non-modifiable character buffer held by
-        // this stream buffer (supplied at construction).
+        // Return a pointer providing non-modifiable access to the character
+        // buffer held by this stream buffer (supplied at construction).
 
     bsl::streamsize length() const;
         // Return the number of characters from the beginning of the buffer to
