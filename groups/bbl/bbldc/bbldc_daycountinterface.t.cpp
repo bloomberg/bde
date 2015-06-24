@@ -21,11 +21,11 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // The component under test defines a protocol class the purpose of which is to
-// provide an interface for loading calendars.
+// provide an interface for computing day count and year fraction.
 //
 // Global Concerns:
 //: o The test driver is robust w.r.t. reuse in other, similar components.
-//: o It is possible to create a concrete implementation the protocol.
+//: o It is possible to create a concrete implementation of the protocol.
 // ----------------------------------------------------------------------------
 // [ 1] virtual ~DayCountInterface();
 // [ 1] virtual int daysDiff(beginDate, endDate) = 0;
@@ -165,7 +165,7 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
     }
 };
 
-}
+}  // close unnamed namespace
 
 //=============================================================================
 //                             USAGE EXAMPLE
@@ -296,7 +296,7 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // PROTOCOL TEST:
+        // PROTOCOL TEST
         //   Ensure this class is a properly defined protocol.
         //
         // Concerns:

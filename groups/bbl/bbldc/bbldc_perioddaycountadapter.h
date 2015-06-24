@@ -42,7 +42,7 @@ BSLS_IDENT("$Id: $")
 // This example shows the procedure for using 'bbldc::PeriodDayCountAdapter' to
 // adapt the 'bbldc::PeriodIcmaActualActual' day-count convention to the
 // 'bbldc::DayCountInterface', and then the use of the day-count methods.
-// First, we create a schedule of period dates 'sched' corresponding to a
+// First, we create a schedule of period dates, 'sched', corresponding to a
 // quarterly payment ('periodYearDiff == 0.25'):
 //..
 //  bsl::vector<bdlt::Date> sched;
@@ -97,6 +97,10 @@ BSLS_IDENT("$Id: $")
 #include <bslma_usesbslmaallocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -138,7 +142,7 @@ class PeriodDayCountAdapter : public DayCountInterface {
         // otherwise.
 
     // NOT IMPLEMENTED
-    PeriodDayCountAdapter();
+    PeriodDayCountAdapter(const PeriodDayCountAdapter& original);
 
   public:
     // CREATORS
@@ -146,14 +150,14 @@ class PeriodDayCountAdapter : public DayCountInterface {
                           double                          periodYearDiff,
                           bslma::Allocator               *basicAllocator = 0);
         // Create a day-count adapter that uses the specified 'periodDate' and
-        // 'periodYearDiff' during invocations of 'yearsDiff'.  The
-        // 'periodDate' provides the period starting dates and 'periodYearDiff'
-        // defines the duration of each period (e.g., 0.25 for quarterly
-        // periods).  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  The behavior is undefined unless
-        // 'periodDate.size() >= 2' and the values contained in 'periodDate'
-        // are unique and sorted from minimum to maximum.
+        // 'periodYearDiff' during invocations of 'yearsDiff'.  'periodDate'
+        // provides the period starting dates and 'periodYearDiff' defines the
+        // duration of each period (e.g., 0.25 for quarterly periods).
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.  The behavior is undefined unless 'periodDate.size() >= 2' and
+        // the values contained in 'periodDate' are unique and sorted from
+        // minimum to maximum.
 
     virtual ~PeriodDayCountAdapter();
         // Destroy this object.

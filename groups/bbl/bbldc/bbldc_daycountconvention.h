@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 //  e_PSA_30_360_EOM             Convention is PSA 30/360 end-of-month.
 //  e_SIA_30_360_EOM             Convention is SIA 30/360 end-of-month.
 //  e_SIA_30_360_NEOM            Convention is SIA 30/360 no-end-of-month.
-//  e_PERIOD_ICMA_ACTUAL_ACTUAL  Convention is period based ICMA Actual/Actual.
+//  e_PERIOD_ICMA_ACTUAL_ACTUAL  Convention is period-based ICMA Actual/Actual.
 //..
 //
 ///Usage

@@ -16,15 +16,15 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a protocol,
 // 'bbldc::DayCountInterface', for implementing an arbitrary day-count
-// convention.  Concrete implementations of this protocol may implement, say
+// convention.  Concrete implementations of this protocol may implement, say,
 // the ISMA 30/360 day-count convention, or a custom day-count convention
 // appropriate for some niche market.
 //
 // Several of the components in 'bbldc' provide individual day-count convention
-// support through protocols that are functionally identical to the abstract
+// support through interfaces that are functionally identical to the abstract
 // interface provided by this component, except that they do not inherit from
 // 'bbldc::DayCountInterface'.  In conjunction with the adapter components
-// (i.e., 'bbldc_basicdaycountadapter'), 'bbldc::DayCountInterface' is intended
+// (e.g., 'bbldc_basicdaycountadapter'), 'bbldc::DayCountInterface' is intended
 // to allow run-time binding of these and other similar day-count
 // implementations.
 //

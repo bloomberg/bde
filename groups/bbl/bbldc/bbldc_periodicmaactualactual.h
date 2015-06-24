@@ -15,7 +15,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a 'struct',
 // 'bbldc::PeriodIcmaActualActual', that serves as a namespace for defining a
 // suite of date-related functions used to compute the day count and the year
-// fraction between two dates as per the period ICMA Actual/Actual day-count
+// fraction between two dates as per the ICMA Actual/Actual day-count
 // convention.  In this day-count convention, the day count between two dates
 // is exactly the number of days occurring in the time period and the year
 // fraction is the number of full periods multiplied by the period weighting
@@ -77,14 +77,14 @@ namespace bbldc {
 
 struct PeriodIcmaActualActual {
     // This 'struct' provides a namespace for a suite of pure functions that
-    // compute values based on dates according to the period ICMA Actual/Actual
+    // compute values based on dates according to the ICMA Actual/Actual
     // day-count convention.
 
     // CLASS METHODS
     static int daysDiff(const bdlt::Date& beginDate,
                         const bdlt::Date& endDate);
         // Return the (signed) number of days between the specified 'beginDate'
-        // and 'endDate' according to the period ICMA Actual/Actual day-count
+        // and 'endDate' according to the ICMA Actual/Actual day-count
         // convention.  If 'beginDate <= endDate', then the result is
         // non-negative.  Note that reversing the order of 'beginDate' and
         // 'endDate' negates the result.
@@ -94,7 +94,7 @@ struct PeriodIcmaActualActual {
                             const bsl::vector<bdlt::Date>& periodDate,
                             double                         periodYearDiff);
         // Return the (signed fractional) number of years between the specified
-        // 'beginDate' and 'endDate' according to the period ICMA Actual/Actual
+        // 'beginDate' and 'endDate' according to the ICMA Actual/Actual
         // day-count convention with periods starting on the specified
         // 'periodDate' values and each period having a duration of the
         // specified 'periodYearDiff' years (e.g., 0.25 for quarterly periods).

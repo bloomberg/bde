@@ -205,7 +205,7 @@ int main(int argc, char *argv[])
 
         {
             static const struct {
-                int    d_lineNum;    // source line number
+                int    d_lineNum;   // source line number
                 Enum   d_type;      // convention to use
                 int    d_year1;     // beginDate year
                 int    d_month1;    // beginDate month

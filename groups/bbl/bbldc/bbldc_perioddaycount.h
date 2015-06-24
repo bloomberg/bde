@@ -42,8 +42,8 @@ BSLS_IDENT("$Id: $")
 //  sched.push_back(bdlt::Date(2003, 10, 1));
 //  sched.push_back(bdlt::Date(2004,  1, 1));
 //..
-// Now, compute the day count between 'd1' and 'd2' according to the Period
-// ICMA Actual/Actual day-count convention:
+// Now, compute the day count between 'd1' and 'd2' according to the ICMA
+// Actual/Actual day-count convention:
 //..
 //  const int daysDiff = bbldc::PeriodDayCount::daysDiff(
 //                     d1,
@@ -52,7 +52,7 @@ BSLS_IDENT("$Id: $")
 //  assert(73 == daysDiff);
 //..
 // Finally, compute the year fraction between the two dates according to the
-// Period ICMA Actual/Actual day-count convention:
+// ICMA Actual/Actual day-count convention:
 //..
 //  const double yearsDiff = bbldc::PeriodDayCount::yearsDiff(
 //                     d1,

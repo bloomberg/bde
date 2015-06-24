@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
 // This example shows the procedure for using 'bbldc::PeriodDayCountAdapter' to
 // adapt the 'bbldc::PeriodIcmaActualActual' day-count convention to the
 // 'bbldc::DayCountInterface', and then the use of the day-count methods.
-// First, we create a schedule of period dates 'sched' corresponding to a
+// First, we create a schedule of period dates, 'sched', corresponding to a
 // quarterly payment ('periodYearDiff == 0.25'):
 //..
     bsl::vector<bdlt::Date> sched;

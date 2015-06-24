@@ -8,7 +8,7 @@ BSLS_IDENT_RCSID(bbldc_daycountconvention_cpp,"$Id$ $CSID$")
 
 #include <bslmf_assert.h>
 
-#include <bsl_iostream.h>
+#include <bsl_ostream.h>
 
 namespace BloombergLP {
 

@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
         //:   periods P, and the difference in years D}.  For the method under
         //:   test, in a loop over the elements of S, apply the method to dates
         //:   having the values d1 and d2 with the periods P and 1.0 for the
-        //:   'periofYearDiff' and confirm the result using the value D with a
+        //:   'periodYearDiff' and confirm the result using the value D with a
         //:   fuzzy comparison (since the return value is a floating-point
         //:   number).   (C-1)
         //:
