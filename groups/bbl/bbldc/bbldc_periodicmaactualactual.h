@@ -19,7 +19,12 @@ BSLS_IDENT("$Id: $")
 // convention.  In this day-count convention, the day count between two dates
 // is exactly the number of days occurring in the time period and the year
 // fraction is the number of full periods multiplied by the period weighting
-// ('periodYearDiff') plus front-stub and back-stub adjustments.
+// ('periodYearDiff') plus front-stub and back-stub adjustments.  The periods
+// are defined by the 'periodDate' elements representing, say, bond coupon
+// payment dates with the first period starting on 'periodDate[0]' and ending
+// on 'periodDate[1], the second period starting on 'periodDate[1]' and ending
+// on 'periodDate[2], and the 'i'-th period starting on 'periodDate[i - 1]' and
+// ending on 'periodDate[i]'.
 //
 ///Usage
 ///-----
