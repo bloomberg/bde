@@ -36,7 +36,7 @@ using namespace bsl;
 // [ 3] NullOutputIterator& operator++(int);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 4] USAGE EXAMPLE 1
+// [ 4] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -93,6 +93,20 @@ void aSsErT(bool condition, const char *message, int line)
 class MyClass {
     // A helper test class that helps testing the instantiation of
     // 'bdlb::NullOutputIterator' on a user-defined type.
+    // Note that the class is not required to have default constructor, copy
+    // constructor or assignment operator to be used as a value type for the
+    // 'bdlb::NullOutputIterator'.
+
+    int d_value;
+
+    // NOT IMPLEMENTED
+    MyClass(const MyClass&);
+    MyClass& operator=(const MyClass&);
+
+  public:
+    explicit MyClass(int value):d_value(value) {}
+
+    // ... rest of the class definition elided ...
 };
 
 //=============================================================================
@@ -100,8 +114,8 @@ class MyClass {
 //-----------------------------------------------------------------------------
 // This section illustrates intended use of this component.
 //
-// Example 1: Basic Use of 'bdlb::NullOutputIterator'
-/// - - - - - - - - - - - - - - - - - - - - - - - - -
+// Example: Basic Use of 'bdlb::NullOutputIterator'
+/// - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following example we use a 'bdlb::NullOutputIterator' to enable us to
 // call a function to capture its return code, while ignoring the output
 // provided through an iterator.
@@ -133,6 +147,16 @@ class MyClass {
                           bdlb::NullOutputIterator<int>()) / numValues;
     }
 //..
+// Finally, we invoke function 'average' on user array and validate result.
+//..
+    void usageExample()
+    {
+        const int myArray[5] = { 3, 4, 5, 7, 11 };
+
+        int averageValue = average(myArray, 5);
+        ASSERT( averageValue == 6 );
+    }
+//..
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -154,7 +178,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 4: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE 1
+        // USAGE EXAMPLE
         //   Extracted from component header file.
         //
         // Concerns:
@@ -167,22 +191,16 @@ int main(int argc, char *argv[])
         //:   (C-1)
         //
         // Testing:
-        //   USAGE EXAMPLE 1
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "USAGE EXAMPLE 1" << endl
-                          << "===============" << endl;
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
 
 
         {
-// Finally, we invoke function 'average' on user array and validate result.
-//..
-    const int myArray[5] = { 3, 4, 5, 7, 11 };
-
-    int averageValue = average(myArray, 5);
-    ASSERT( averageValue == 6 );
-//..
+            usageExample();
         }
       } break;
 
@@ -224,10 +242,11 @@ int main(int argc, char *argv[])
         {
             typedef bdlb::NullOutputIterator<int> Obj;
 
+            const int   I = 5;
             const Obj NO1;
             Obj       nO1(NO1);
-            nO1 = NO1;
-            const int I = 5;
+
+            nO1  = NO1;
             *nO1 = I;
             ++nO1;
             nO1++;
@@ -242,10 +261,11 @@ int main(int argc, char *argv[])
         {
             typedef bdlb::NullOutputIterator<MyClass> Obj;
 
-            const Obj NO1;
-            Obj       nO1(NO1);
-            nO1 = NO1;
-            const MyClass C = {};
+            const MyClass C(42);
+            const Obj   NO1;
+            Obj         nO1(NO1);
+
+            nO1  = NO1;
             *nO1 = C;
             ++nO1;
             nO1++;
@@ -266,17 +286,13 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The default constructor can create an object.
         //:
-        //: 2 The copy constructor can create a copy of the object.
+        //: 2 Assignment assigns the value of the original object.
         //:
-        //: 3 Assignment assigns the value of the original object.
-        //:
-        //: 4 The template can be instantiated for both basic types and
+        //: 3 The template can be instantiated for both basic types and
         //:   user-defined classes.
         //:
-        //: 5 The template correctly defines the iterator traits.
-        //
         // Plan:
-        //: 1 Manually call different methods of the object. (C-1..5)
+        //: 1 Manually call different methods of the object. (C-1..3)
         //
         // Testing:
         //   NullOutputIteratorAssignmentProxy();
@@ -292,9 +308,8 @@ int main(int argc, char *argv[])
         {
             typedef bdlb::NullOutputIteratorAssignmentProxy<int> Obj;
 
-            const Obj NO1 = {};
-            Obj       nO1(NO1);
             const int I = 5;
+            Obj     nO1;
             nO1 = I;
         }
 
@@ -302,10 +317,8 @@ int main(int argc, char *argv[])
         {
             typedef bdlb::NullOutputIteratorAssignmentProxy<MyClass> Obj;
 
-            const Obj NO1 = {};
-            Obj       nO1(NO1);
-            nO1 = NO1;
-            const MyClass C = {};
+            const MyClass C(13);
+            Obj         nO1;
             nO1 = C;
         }
 

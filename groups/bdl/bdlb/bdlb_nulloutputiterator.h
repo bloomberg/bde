@@ -11,7 +11,7 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bdlb::NullOutputIterator: output iterator template that discards the output
-//  bdlb::NullOutputIteratorAssignmentProxy: proxy for assignment
+//  bdlb::NullOutputIterator::AssignmentProxy: proxy for assignment
 //
 //@SEE_ALSO: bdlb_nullinputiterator
 //
@@ -28,15 +28,37 @@ BSLS_IDENT("$Id: $")
 // side-effects, discarding the normal output.  It is also useful for testing
 // whether a template function will compile when presented with a pure output
 // iterator.  This component also provides a template
-// 'bdlb::NullOutputIteratorAssignmentProxy' for the object returned by
-// iterator dereferencing operator. Assigning to this object has no effect.
+// 'bdlb::NullOutputIterator::AssignmentProxy', that is used as the return type
+// of 'bdlb::NullOutputIterator::operator*'.  The 'AssignmentProxy' provides an
+// 'operator=' that does nothing, so that the result of the iterator's
+// 'operator*' can be assigned to even if the value type of the
+// 'bdlb::NullOutputIterator' does not provide a default constructor:
+//..
+//  class ValueType {
+//      // ... data members ...
+//
+//    public:
+//      ValueType(int value) { ... implementation elided ... }
+//
+//      // ... rest of class definition elided ...
+//
+//  };
+//
+//  ValueType v(42);
+//  bdlb::NullOutputIterator<ValueType> i;
+//
+//  // With a non-proxy return type for 'operator*' it would be difficult to
+//  // provide a value for the lefthand side of this expression:
+//
+//  *i = v;
+//..
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-// Example 1: Basic Use of 'bdlb::NullOutputIterator'
-/// - - - - - - - - - - - - - - - - - - - - - - - - -
+// Example: Basic Use of 'bdlb::NullOutputIterator'
+/// - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following example we use a 'bdlb::NullOutputIterator' to enable us to
 // call a function to capture its return code, while ignoring the output
 // provided through an iterator.
@@ -70,10 +92,13 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally, we invoke function 'average' on user array and validate result.
 //..
-//  const int myArray[5] = { 3, 4, 5, 7, 11 };
+//  void usageExample()
+//  {
+//      const int myArray[5] = { 3, 4, 5, 7, 11 };
 //
-//  int averageValue = average(myArray, 5);
-//  assert( averageValue == 6 );
+//      int averageValue = average(myArray, 5);
+//      assert( averageValue == 6 );
+//  }
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION
@@ -100,7 +125,7 @@ class NullOutputIteratorAssignmentProxy {
     // MANIPULATORS
     void operator=(const TYPE& rhs);
         // Assign to this object the value of the specified 'rhs'. The operator
-        // has not effect.
+        // has no effect.
 };
 
                         // ========================
