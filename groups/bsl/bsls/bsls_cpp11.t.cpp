@@ -2,7 +2,7 @@
 
 #include <bsls_cpp11.h>
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 
 // Warning: the following 'using' declarations interfere with the testing of
@@ -22,7 +22,7 @@
 // [ 4] BSLS_CPP11_FINAL (function)
 // [ 5] BSLS_CPP11_NOEXCEPT
 // [ 5] BSLS_CPP11_NOEXCEPT_SPECIFICATION
-// [ 5] BSLS_CPP11_NOEXCEPT_OPERATION
+// [ 5] BSLS_CPP11_NOEXCEPT_OPERATOR
 // [ 6] BSLS_CPP11_OVERRIDE
 //-----------------------------------------------------------------------------
 // [ 7] MACRO SAFETY
@@ -75,24 +75,15 @@ namespace
             // The conversion operators returns the object's value.
     };
 }  // close unnamed namespace
-void noThrow() BSLS_CPP11_NOEXCEPT{
-#ifndef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
-    throw 1;
-#endif
-}
-void willThrow(){
-    throw 1;
-}
-void mayThrow_withNoexcept_willThrow() BSLS_CPP11_NOEXCEPT_OPERATION(
-        BSLS_CPP11_NOEXCEPT_OPERATION(willThrow())){
-    throw 1;
-}
-void mayThrow_withNoexcept_noThrow() BSLS_CPP11_NOEXCEPT_OPERATION(
-        BSLS_CPP11_NOEXCEPT_OPERATION(noThrow())){
-#ifndef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
-    throw 1;
-#endif
-}
+
+void noThrow1() BSLS_CPP11_NOEXCEPT                           {}
+void noThrow2() BSLS_CPP11_NOEXCEPT_SPECIFICATION(true)       {}
+void noThrow3() BSLS_CPP11_NOEXCEPT_SPECIFICATION(
+                    BSLS_CPP11_NOEXCEPT_OPERATOR(noThrow1())) {}
+void throws1()  BSLS_CPP11_NOEXCEPT_SPECIFICATION(false)      {}
+void throws2()  BSLS_CPP11_NOEXCEPT_SPECIFICATION(
+                    BSLS_CPP11_NOEXCEPT_OPERATOR(throws1()))  {}
+
 //=============================================================================
 //                                MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -350,47 +341,54 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING BSLS_CPP11_NOEXCEPT, BSLS_CPP11_NOEXCEPT_SPECIFICATION
-    	// BSLS_CPP11_NOEXCEPT_OPERATION(expr)
+        // TESTING BSLS_CPP11_NOEXCEPT, BSLS_CPP11_NOEXCEPT_SPECIFICATION(pred)
+        // BSLS_CPP11_NOEXCEPT_OPERATOR(expr)
         //
         // Concerns:
         //   1) Marking a function 'noexcept' using 'BSLS_CPP11_NOEXCEPT' or
-        //      BSLS_CPP11_NOEXCEPT_OPERATION(expr) or
-        //      BSLS_CPP11_NOEXCEPT_SPECIFICATION should result in a successful
-        //      compilation in C++03 mode.
-    	//
-        //   2) Marking a function'noexcet' using 'BSLS_CPP11_NOEXCEPT' or
-        //      BSLS_CPP11_NOEXCEPT_OPERATION(expr) or
-        //      BSLS_CPP11_NOEXCEPT_SPECIFICATION should make the program
-        //      terminate if the function throws an exception in cpp11 mode.
-    	//
+        //      'BSLS_CPP11_NOEXCEPT_SPECIFICATION(pred)' or
+        //      'BSLS_CPP11_NOEXCEPT_SPECIFICATION(
+        //          BSLS_CPP11_NOEXCEPT_OPERATOR(expr))' should result in a
+        //      successful compilation in C++03 mode.
+        //
+        //   2) Marking a function 'noexcept' or 'noexcept(bool)' using
+        //      'BSLS_CPP11_NOEXCEPT' or
+        //      'BSLS_CPP11_NOEXCEPT_SPECIFICATION(pred)' or
+        //      'BSLS_CPP11_NOEXCEPT_SPECIFICATION(
+        //          BSLS_CPP11_NOEXCEPT_OPERATOR(expr))' should be detectable
+        //      using 'BSLS_CPP11_NOEXCEPT_OPERATOR(function(...))`.
+        //
         // Plan:
         //   Define a function marking it 'noexcept' using the various forms of
-        //   the macro. Test these functions ensuring that the test driver
-        //   terminates if noexcept(function()) is true and the function throws
-        //   an exception.
-        //   Since the correct behaviour will case the program to terminate, it
-        //   is rather difficult to create test cases that actaully tests the
-        //   feature and still have the test driver pass. As such, these tests
-        //   must be manually checked to ensure that the program terminates if
-        //   the noThrow and mayThrow_withNoexcept_noThrow functions cause 
-        //   exceptions.
+        //   the macro. Then use `BSLS_CPP11_NOEXCEPT_OPERATOR(function(...))`
+        //   to check that the function's 'noexcept' specification matches
+        //   the expected specification.
         // --------------------------------------------------------------------
         if (verbose){
-            std::cout << std::endl
-                      << "TESTING: BSLS_CPP11_NOEXCEPT" << std::endl
-                      << "============================" << std::endl;
-    	}
+            std::cout << '\n'
+                      << "TESTING: BSLS_CPP11_NOEXCEPT\n"
+                      << "============================\n";
+        }
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+        const bool hasNoexceptSupport = true;
+#else
+        const bool hasNoexceptSupport = false;
+#endif
 
-        try{
-            noThrow();
-        }catch(...){}
-        try{
-            mayThrow_withNoexcept_willThrow();
-        }catch(...){}
-        try{
-            mayThrow_withNoexcept_noThrow();
-        }catch(...){}
+        const bool isNoThrow1 = BSLS_CPP11_NOEXCEPT_OPERATOR(noThrow1());
+        ASSERT(isNoThrow1 == hasNoexceptSupport);
+
+        const bool isNoThrow2 = BSLS_CPP11_NOEXCEPT_OPERATOR(noThrow2());
+        ASSERT(isNoThrow2 == hasNoexceptSupport);
+
+        const bool isNoThrow3 = BSLS_CPP11_NOEXCEPT_OPERATOR(noThrow3());
+        ASSERT(isNoThrow3 == hasNoexceptSupport);
+
+        const bool isNoThrow4 = BSLS_CPP11_NOEXCEPT_OPERATOR(throws1());
+        ASSERT(isNoThrow4 == false);
+
+        const bool isNoThrow5 = BSLS_CPP11_NOEXCEPT_OPERATOR(throws2());
+        ASSERT(isNoThrow5 == false);
 
       } break;
       case 4: {

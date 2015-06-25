@@ -164,10 +164,10 @@ BSLS_IDENT("$Id: $")
 // keyword.
 //
 //: Compiler support:
-//:   gcc 4.6
+//:   gcc 4.7
 //:   clang 3.1
-//:   xlC 12.1
-//:   Oracle CC 13
+//:   xlC 13
+//:   Oracle CC 12.4
 //
 ///BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 /// - - - - - - - - - - - - - - - - - - -
@@ -190,7 +190,7 @@ BSLS_IDENT("$Id: $")
 //:   clang 2.9
 //:   MSVC 2013
 //:   xlC 13.1
-//:   Oracle CC 13
+//:   Oracle CC 12.4
 //
 ///BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
 ///- - - - - - - - - - - - - - - - - - - - - - -
@@ -226,7 +226,7 @@ BSLS_IDENT("$Id: $")
 // BSL_OVERRIDES_STD macro.
 //
 //: Compiler support:
-//:   gcc (any)
+//:   gcc 4.7
 //:   clang (any)
 //:   xlC 8
 //:   Oracle CC 12.4
@@ -332,11 +332,12 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-
 // gcc
 // https://wiki.apache.org/stdcxx/C%2B%2B0xCompilerSupport
 #if defined(BSLS_PLATFORM_CMP_GNU)
+#if BSLS_PLATFORM_CMP_VERSION >= 40600
 #define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+#endif
 #endif
 // gcc -std=c++11 or -std=c++0x or -std=gnu++11 or -std=gnu++0x
 #if defined(BSLS_PLATFORM_CMP_GNU) && defined(__GXX_EXPERIMENTAL_CXX0X__)
@@ -358,11 +359,11 @@ BSLS_IDENT("$Id: $")
 #endif
 #if BSLS_PLATFORM_CMP_VERSION >= 40600
 #define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
-#define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
 #define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
 #endif
 #if BSLS_PLATFORM_CMP_VERSION >= 40700
 #define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+#define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
 #define BSLS_COMPILERFEATURES_SUPPORT_FINAL
 #define BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
 #endif

@@ -61,6 +61,12 @@ struct A {
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
 
+// libc++ #define's decltype when it is not provided by the compiler.
+// Our test should not depend on this #define.
+#if defined(decltype)
+#undef decltype
+#endif
+
 namespace {
 
 char testFuncForDecltype(int);

@@ -16,8 +16,8 @@ BSLS_IDENT("$Id: $")
 //  BSLS_CPP11_EXPLICIT: C++11 'explicit' for conversion operators
 //  BSLS_CPP11_FINAL: C++11 'final' keyword
 //  BSLS_CPP11_NOEXCEPT: C++11 'noexcept' keyword
-//  BSLS_CPP11_NOEXCEPT_SPECIFICATION: C++11 'noexcept' keyword
-//  BSLS_CPP11_NOEXCEPT_OPERATION(expr): C++11 'noexcept' operation
+//  BSLS_CPP11_NOEXCEPT_SPECIFICATION: C++11 'noexcept' function qualifier
+//  BSLS_CPP11_NOEXCEPT_OPERATOR(expr): C++11 'noexcept' operation
 //  BSLS_CPP11_OVERRIDE: C++11 'override' keyword
 //
 //@DESCRIPTION: This component provides definitions to use C++11 features in
@@ -32,7 +32,7 @@ BSLS_IDENT("$Id: $")
 // The following are the macros provided by this component.
 //
 //  'BSLS_CPP11_CONSTEXPR'
-//	  This macro inserts the keyword 'constexpr' when compiling with C++11 mode
+//    This macro inserts the keyword 'constexpr' when compiling with C++11 mode
 //    and inserts nothing when compiling with C++03 mode.
 //
 //  'BSLS_CPP11_EXPLICIT'
@@ -43,19 +43,19 @@ BSLS_IDENT("$Id: $")
 //    This macro inserts the keyword 'final' when compiling with C++11 mode
 //    and inserts nothing when compiling with C++03 mode.
 //
-//	'BSLS_CPP11_NOEXCEPT'
-//	  This macro inserts the keyword 'noexcept' when compiling with C++11 mode
+//  'BSLS_CPP11_NOEXCEPT'
+//    This macro inserts the keyword 'noexcept' when compiling with C++11 mode
 //    and inserts nothing when compiling with C++03 mode.
 //
-//	'BSLS_CPP11_NOEXCEPT_SPECIFICATION'
-//	  This macro inserts the keyword 'noexcept' when compiling with C++11 mode
-//    and inserts nothing when compiling with C++03 mode. This macro is used to
-//	  specify which version of noexcept is intended when multipule noexcepts 
-//    are used in a single statement.
+//  'BSLS_CPP11_NOEXCEPT_SPECIFICATION'
+//    This macro inserts the keyword 'noexcept(bool)' when compiling with C++11
+//    mode and inserts nothing when compiling with C++03 mode. This macro is
+//    used to specify which version of noexcept is intended when multipule
+//    noexcepts are used in a single statement.
 //
-//	'BSLS_CPP11_NOEXCEPT_OPERATION(expr)'
-//	  This macro inserts the operation 'noexcept(expr)' when compiling with 
-//    C++11 mode and inserts nothing when compiling with C++03 mode.
+//  'BSLS_CPP11_NOEXCEPT_OPERATOR(expr)'
+//    This macro inserts the operation 'noexcept(expr)' when compiling with 
+//    C++11 mode and inserts 'false' when compiling with C++03 mode.
 //
 //  'BSLS_CPP11_OVERRIDE'
 //    This macro inserts the keyword 'override' when compiling with C++11 mode
@@ -222,12 +222,12 @@ BSLS_IDENT("$Id: $")
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
 #define BSLS_CPP11_NOEXCEPT noexcept
-#define BSLS_CPP11_NOEXCEPT_SPECIFICATION noexcept
-#define BSLS_CPP11_NOEXCEPT_OPERATION(expr) noexcept(expr)
+#define BSLS_CPP11_NOEXCEPT_SPECIFICATION(...) noexcept(__VA_ARGS__)
+#define BSLS_CPP11_NOEXCEPT_OPERATOR(...)      noexcept(__VA_ARGS__)
 #else
-#define BSLS_CPP11_NOEXCEPT 
-#define BSLS_CPP11_NOEXCEPT_SPECIFICATION 
-#define BSLS_CPP11_NOEXCEPT_OPERATION(expr)
+#define BSLS_CPP11_NOEXCEPT
+#define BSLS_CPP11_NOEXCEPT_SPECIFICATION(...)
+#define BSLS_CPP11_NOEXCEPT_OPERATOR(...) false
 #endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
