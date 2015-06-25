@@ -5,12 +5,13 @@
 #include <bsls_asserttest.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_cctype.h>
+#include <bsl_cstddef.h>
+#include <bsl_cstring.h>
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
-#include <bsl_string.h>
 #include <bsl_sstream.h>
-#include <bsl_cctype.h>
-#include <bsl_cstring.h>
+#include <bsl_string.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -158,12 +159,12 @@ bsl::ostream& operator<<(bsl::ostream& stream,
 bsl::ostream& operator<<(bsl::ostream& stream,
                          const Obj&    streamBuffer)
 {
-    const long int  len  = streamBuffer.length();
-    const char     *data = streamBuffer.data();
+    const bsl::streamsize  len  = streamBuffer.length();
+    const char            *data = streamBuffer.data();
 
     bsl::ios::fmtflags flags = stream.flags();
     stream << bsl::hex;
-    for (long int i = 0; i < len; ++i) {
+    for (bsl::streamsize i = 0; i < len; ++i) {
         if (0 < i && 0 != i % 8) stream << ' ';
 
         if (0 == i % 8) { // print new line and address after 8 bytes
@@ -232,8 +233,9 @@ int main(int argc, char *argv[])
 // First, we create an array to provide storage for the stream buffer, and
 // construct a 'bdlsb::FixedMemOutStreamBuf' on that array:
 //..
-  char                        storage[64];
-  bdlsb::FixedMemOutStreamBuf buffer(storage, sizeof(storage));
+    const unsigned int          STORAGE_SIZE = 64;
+    char                        storage[STORAGE_SIZE];
+    bdlsb::FixedMemOutStreamBuf buffer(storage, STORAGE_SIZE);
 //..
 // Notice that 'storage' is on the stack.  'bdlsb::FixedMemOutStreamBuf' can be
 // easily used without resorting to dynamic memory allocation.
@@ -241,67 +243,71 @@ int main(int argc, char *argv[])
 // Then, we observe that 'buffer' already has a capacity of 64.  Note that this
 // capacity is fixed at construction:
 //..
-  ASSERT(64 == buffer.capacity());
-  ASSERT( 0 == buffer.length());
-  ASSERT(buffer.data() == storage);
+    ASSERT(STORAGE_SIZE == buffer.capacity());
+    ASSERT( 0 == buffer.length());
+    ASSERT(buffer.data() == storage);
 //..
 // Next, we use 'buffer' to construct a 'bsl::ostream':
 //..
-  bsl::ostream stream(&buffer);
+    bsl::ostream stream(&buffer);
 //..
 // Now, we output some data to the 'stream':
 //..
-  stream << "The answer is " << 42 << ".";
+    stream << "The answer is " << 42 << ".";
 //..
 // Finally, we observe that the data is present in the storage array that we
 // supplied to 'buffer':
 //..
-  ASSERT(17 == buffer.length());
-  ASSERT(buffer.length() < sizeof(storage));
-  ASSERT(0 == strncmp("The answer is 42.", storage, 17));
+    ASSERT(17 == buffer.length());
+    ASSERT(buffer.length() < STORAGE_SIZE);
+    ASSERT(0 == strncmp("The answer is 42.", storage, 17));
 //..
 //
 ///Example 2: Fixed buffer's size illustration
 /// - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Unlike most implementations of the 'bsl::basic_streambuf' concept,
-// 'bdlsb::FixedMemOutStreamBuf' uses limited size of buffer, provided to the
-// constructor together with storage's address.  That limit won't be exceeded
-// even in case of superfluous data.  Remained symbols will be ignored.  Note
-// that this can be useful if memory allocation should be strictly controlled.
+// 'bdlsb::FixedMemOutStreamBuf' uses a buffer of limited size, provided to the
+// constructor together with the address of the storage buffer.  That limit
+// will not be exceeded even in case of superfluous data.  Symbols beyond this
+// limit will be ignored.  Note that this can be useful if memory allocation
+// should be strictly controlled.
 //
 // First, we create an array to provide storage for the stream buffer, fill it
 // with some data and construct a 'bdlsb::FixedMemOutStreamBuf' on the part of
 // that array:
 //..
-  char smallStorage[16];
-  memset(smallStorage, 'Z', 16);
+    const unsigned int SMALL_STORAGE_SIZE = 16;
+    const unsigned int SMALL_BUFFER_CAPACITY = SMALL_STORAGE_SIZE/2;
+    char               smallStorage[SMALL_STORAGE_SIZE];
+    memset(smallStorage, 'Z', SMALL_STORAGE_SIZE);
 
-  bdlsb::FixedMemOutStreamBuf smallBuffer(smallStorage,
-                                          sizeof(smallStorage) - 8);
+    bdlsb::FixedMemOutStreamBuf smallBuffer(smallStorage,
+                                            SMALL_BUFFER_CAPACITY);
 //..
 // Next, we write some characters to the buffer and check that it handles them
 // correctly and superfluous data is ignored:
 //..
-  bsl::streamsize returnedSize = smallBuffer.sputn("The answer is 42.", 17);
-  ASSERT(8 == returnedSize);
-  ASSERT(8 == smallBuffer.length());
-  ASSERT('Z' == smallStorage[smallBuffer.length()]);
+    bsl::streamsize returnedSize = smallBuffer.sputn("The answer is 42.", 17);
+    ASSERT(SMALL_BUFFER_CAPACITY == returnedSize);
+    ASSERT(SMALL_BUFFER_CAPACITY == smallBuffer.length());
+    ASSERT('Z' == smallStorage[smallBuffer.length()]);
 //..
 // Then, we reset position indicator to the beginning of storage:
 //..
-  smallBuffer.pubseekpos(0,bsl::ios_base::out);
-  ASSERT(0 == smallBuffer.length());
+    smallBuffer.pubseekpos(0,bsl::ios_base::out);
+    ASSERT(0 == smallBuffer.length());
 //..
-// Now, we write another characters in numbers less then storage capacity:
+// Now, we write another string, containing fewer characters than the storage
+// capacity:
 //..
-  returnedSize = smallBuffer.sputn("Truth.", 6);
+    returnedSize = smallBuffer.sputn("Truth.", 6);
 //..
-// Finally, we observe that given string had been successfully placed to
+// Finally, we observe that given string has been successfully placed to
 // buffer:
 //..
-  ASSERT(6 == returnedSize);
-  ASSERT(6 == smallBuffer.length());
-  ASSERT(0 == strncmp("Truth.", smallStorage, 6));
+    ASSERT(6 == returnedSize);
+    ASSERT(6 == smallBuffer.length());
+    ASSERT(0 == strncmp("Truth.", smallStorage, 6));
 //..
       } break;
 
@@ -450,9 +456,9 @@ int main(int argc, char *argv[])
                { L_,  GET,                   -1, END,                   -1  },
                { L_,  GET,                   -1, CUR,                   -1  },
             };
-            const unsigned long int DATA_LEN = sizeof DATA / sizeof *DATA;
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
-            for (unsigned long int i = 0; i < DATA_LEN; ++i ) {
+            for (size_t i = 0; i < DATA_LEN; ++i ) {
                 const int LINE      = DATA[i].d_line;
                 const int FINAL_POS = (0 <= DATA[i].d_retVal ?
                                        DATA[i].d_retVal : INIT_BUFSIZE);
@@ -514,9 +520,9 @@ int main(int argc, char *argv[])
                { L_,                  0,  INIT_BUFSIZE,       INIT_BUFSIZE  },
                { L_,                  1,  INIT_BUFSIZE,                 -1  },
             };
-            const unsigned long int DATA_LEN = sizeof DATA / sizeof *DATA;
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
-            for (unsigned long int i = 0; i < DATA_LEN; ++i ) {
+            for (size_t i = 0; i < DATA_LEN; ++i ) {
                 const int LINE      = DATA[i].d_line;
                 const int FINAL_POS = (0 <= DATA[i].d_retVal ?
                                        DATA[i].d_retVal :
@@ -552,9 +558,9 @@ int main(int argc, char *argv[])
                { L_,   INIT_BUFSIZE/2,  INIT_BUFSIZE/2,  INIT_BUFSIZE/2  },
                { L_,   INIT_BUFSIZE/2,    INIT_BUFSIZE,  INIT_BUFSIZE/2  },
             };
-            const unsigned long int DATA_LEN = sizeof DATA / sizeof *DATA;
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
-            for (unsigned long int i = 0; i < DATA_LEN; ++i ) {
+            for (size_t i = 0; i < DATA_LEN; ++i ) {
                 const int LINE      = DATA[i].d_line;
                 const int FINAL_POS = (0 <= DATA[i].d_retVal ?
                                        DATA[i].d_retVal :
@@ -643,11 +649,11 @@ int main(int argc, char *argv[])
               { L_,  "abc",      2,   "a",   "aa",      2,    1  }
             };
 
-            const unsigned long int DATA_LEN = sizeof DATA / sizeof *DATA;
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
             // This segment verifies correct behavior across different initial
             // buffer states (buffer length x buffer contents.)
-            for(unsigned long int i = 0; i < DATA_LEN; ++i ) {
+            for(size_t i = 0; i < DATA_LEN; ++i ) {
                 const int LINE      = DATA[i].d_line;
 
                 char *bytes = new char[DATA[i].d_strCap];
@@ -772,11 +778,11 @@ int main(int argc, char *argv[])
                { L_,    's',      2,   "ab",   "ab",      2,   -1  },
             };
 
-            const unsigned long int DATA_LEN = sizeof DATA / sizeof *DATA;
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
             // This segment verifies correct behavior across different initial
             // buffer states (buffer length x buffer contents.)
-            for(unsigned long int i = 0; i < DATA_LEN; ++i ) {
+            for(size_t i = 0; i < DATA_LEN; ++i ) {
                 const int   LINE = DATA[i].d_line;
                 char      *bytes = new char[DATA[i].d_strCap];
 
@@ -963,9 +969,8 @@ int main(int argc, char *argv[])
         //:   bound as well as a lower bound. (C-3)
         //:
         //: 5 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid year/month/day attribute values, but not
-        //:   triggered for adjacent valid ones (using the 'BSLS_ASSERTTEST_*'
-        //:   macros).  (C-5)
+        //:   triggered for invalid attribute values, but not triggered for
+        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros). (C-5)
         //
         // Testing:
         //   FixedMemOutStreamBuf(char *buffer, bsl::streamsize length);
