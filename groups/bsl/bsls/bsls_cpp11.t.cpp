@@ -74,15 +74,27 @@ namespace
         operator bool() const { return d_value; }
             // The conversion operators returns the object's value.
     };
+
+    template <class, bool Pred>
+    struct TestMetafunction {
+        enum { value = Pred };
+    };
+
+    void noThrow1() BSLS_CPP11_NOEXCEPT                           {}
+    void noThrow2() BSLS_CPP11_NOEXCEPT_SPECIFICATION(true)       {}
+    void noThrow3() BSLS_CPP11_NOEXCEPT_SPECIFICATION(
+                        BSLS_CPP11_NOEXCEPT_OPERATOR(noThrow1())) {}
+    void noThrow4() BSLS_CPP11_NOEXCEPT_SPECIFICATION(
+                        TestMetafunction<void, true>::value)      {}
+    void throws1()  BSLS_CPP11_NOEXCEPT_SPECIFICATION(false)      {}
+    void throws2()  BSLS_CPP11_NOEXCEPT_SPECIFICATION(
+                        BSLS_CPP11_NOEXCEPT_OPERATOR(throws1()))  {}
+    void throws3()  BSLS_CPP11_NOEXCEPT_SPECIFICATION(
+                        TestMetafunction<void, false>::value)     {}
+
+
 }  // close unnamed namespace
 
-void noThrow1() BSLS_CPP11_NOEXCEPT                           {}
-void noThrow2() BSLS_CPP11_NOEXCEPT_SPECIFICATION(true)       {}
-void noThrow3() BSLS_CPP11_NOEXCEPT_SPECIFICATION(
-                    BSLS_CPP11_NOEXCEPT_OPERATOR(noThrow1())) {}
-void throws1()  BSLS_CPP11_NOEXCEPT_SPECIFICATION(false)      {}
-void throws2()  BSLS_CPP11_NOEXCEPT_SPECIFICATION(
-                    BSLS_CPP11_NOEXCEPT_OPERATOR(throws1()))  {}
 
 //=============================================================================
 //                                MAIN PROGRAM
@@ -358,11 +370,18 @@ int main(int argc, char *argv[])
         //          BSLS_CPP11_NOEXCEPT_OPERATOR(expr))' should be detectable
         //      using 'BSLS_CPP11_NOEXCEPT_OPERATOR(function(...))`.
         //
+        //   3) The `BSLS_CPP11_NOEXCEPT_SPECIFICATION(pred)` and
+        //       'BSLS_CPP11_NOEXCEPT_OPERATOR(expr)' macros both allow commas
+        //       in template parameter lists.
+        //
         // Plan:
         //   Define a function marking it 'noexcept' using the various forms of
         //   the macro. Then use `BSLS_CPP11_NOEXCEPT_OPERATOR(function(...))`
         //   to check that the function's 'noexcept' specification matches
         //   the expected specification.
+        //
+        // NOTE: The test functions are called only to prevent
+        //  '-Wunused-function' warning.
         // --------------------------------------------------------------------
         if (verbose){
             std::cout << '\n'
@@ -375,20 +394,33 @@ int main(int argc, char *argv[])
         const bool hasNoexceptSupport = false;
 #endif
 
+        noThrow1();
         const bool isNoThrow1 = BSLS_CPP11_NOEXCEPT_OPERATOR(noThrow1());
         ASSERT(isNoThrow1 == hasNoexceptSupport);
 
+        noThrow2();
         const bool isNoThrow2 = BSLS_CPP11_NOEXCEPT_OPERATOR(noThrow2());
         ASSERT(isNoThrow2 == hasNoexceptSupport);
 
+        noThrow3();
         const bool isNoThrow3 = BSLS_CPP11_NOEXCEPT_OPERATOR(noThrow3());
         ASSERT(isNoThrow3 == hasNoexceptSupport);
 
-        const bool isNoThrow4 = BSLS_CPP11_NOEXCEPT_OPERATOR(throws1());
-        ASSERT(isNoThrow4 == false);
+        noThrow4();
+        const bool isNoThrow4 = BSLS_CPP11_NOEXCEPT_OPERATOR(noThrow4());
+        ASSERT(isNoThrow4 == hasNoexceptSupport);
 
-        const bool isNoThrow5 = BSLS_CPP11_NOEXCEPT_OPERATOR(throws2());
+        throws1();
+        const bool isNoThrow5 = BSLS_CPP11_NOEXCEPT_OPERATOR(throws1());
         ASSERT(isNoThrow5 == false);
+
+        throws2();
+        const bool isNoThrow6 = BSLS_CPP11_NOEXCEPT_OPERATOR(throws2());
+        ASSERT(isNoThrow6 == false);
+
+        throws3();
+        const bool isNoThrow7 = BSLS_CPP11_NOEXCEPT_OPERATOR(throws3());
+        ASSERT(isNoThrow7 == false);
 
       } break;
       case 4: {
