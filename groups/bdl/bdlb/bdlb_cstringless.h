@@ -7,10 +7,10 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a functor enabling C-strings as associative container keys.
+//@PURPOSE: Provide a standard compatible less-than predicate for C-strings.
 //
 //@CLASSES:
-//  bdlb::CStringLess: functor enabling C-strings as associative container keys
+//  bdlb::CStringLess: a standard compatible less-than predicate for C-strings.
 //
 //@SEE_ALSO: bsl_map, bsl_set
 //
