@@ -242,10 +242,11 @@ int main(int argc, char *argv[])
         {
             typedef bdlb::NullOutputIterator<int> Obj;
 
+            const int   I = 5;
             const Obj NO1;
             Obj       nO1(NO1);
-            nO1 = NO1;
-            const int I = 5;
+
+            nO1  = NO1;
             *nO1 = I;
             ++nO1;
             nO1++;
@@ -260,10 +261,11 @@ int main(int argc, char *argv[])
         {
             typedef bdlb::NullOutputIterator<MyClass> Obj;
 
-            const Obj NO1;
-            Obj       nO1(NO1);
-            nO1 = NO1;
             const MyClass C(42);
+            const Obj   NO1;
+            Obj         nO1(NO1);
+
+            nO1  = NO1;
             *nO1 = C;
             ++nO1;
             nO1++;
@@ -306,8 +308,8 @@ int main(int argc, char *argv[])
         {
             typedef bdlb::NullOutputIteratorAssignmentProxy<int> Obj;
 
-            Obj nO1;
             const int I = 5;
+            Obj     nO1;
             nO1 = I;
         }
 
@@ -315,10 +317,8 @@ int main(int argc, char *argv[])
         {
             typedef bdlb::NullOutputIteratorAssignmentProxy<MyClass> Obj;
 
-            Obj nO1;
             const MyClass C(13);
-            //MyClass C1(C);
-            nO1 = C;
+            Obj         nO1;
             nO1 = C;
         }
 
