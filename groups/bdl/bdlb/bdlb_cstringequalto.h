@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a standard compatible equality predicate for C-strings.
 //
 //@CLASSES:
-//  bdlb::CStringEqualTo: functor enabling C-strings as 'unordered_map' keys
+//  bdlb::CStringEqualTo: a standard compatible C-string equality predicate
 //
 //@SEE_ALSO:
 //
@@ -50,7 +50,7 @@ BSLS_IDENT("$Id: $")
 //                                bsl::equal_to<const char *>());
 //..
 // Finally, we observe that 'bdlb::CStringEqualTo' compares character string by
-// their values, while default comparator compares addresses:
+// their values, while the default comparator compares addresses:
 //..
 //  assert( true  == bdlbEqualTo );
 //  assert( false == bslEqualTo );
