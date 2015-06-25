@@ -142,7 +142,7 @@ class PeriodDayCountAdapter : public DayCountInterface {
         // otherwise.
 
     // NOT IMPLEMENTED
-    PeriodDayCountAdapter(const PeriodDayCountAdapter& original);
+    PeriodDayCountAdapter(const PeriodDayCountAdapter&);
 
   public:
     // CREATORS
