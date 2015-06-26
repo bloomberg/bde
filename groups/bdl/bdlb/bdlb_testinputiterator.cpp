@@ -1,8 +1,8 @@
-// bdlb_nullinputiterator.cpp                                         -*-C++-*-
-#include <bdlb_nullinputiterator.h>
+// bdlb_testinputiterator.cpp                                         -*-C++-*-
+#include <bdlb_testinputiterator.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlb_nullinputiterator_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdlb_testinputiterator_cpp,"$Id$ $CSID$")
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
