@@ -37,7 +37,7 @@ using namespace bsl;
 // [ 3] TestInputIterator& operator++(int);
 //
 // ACCESSORS
-// [ 3] TYPE* operator->() const;
+// [ 3] TYPE *operator->() const;
 // [ 3] TYPE operator*() const;
 //
 // FREE OPERATORS
@@ -145,12 +145,18 @@ class MyClass {
 //=============================================================================
 //                           USAGE EXAMPLE
 //-----------------------------------------------------------------------------
+
+///Usage
+///-----
+// This section illustrates intended use of this component.
 //
-// In the following example we use a 'bdlb::TestInputIterator' to test that
-// function compiles when instantiated with a pure input iterator.
+///Example 1: Basic Use of 'bdlb::TestInputIterator'
+///- - - - - - - - - - - - - - - - - - - - - - - - -
+// In the following example we use a 'bdlb::TestInputIterator' to test that an
+// aggregation function compiles when instantiated with a pure input iterator.
 //
 // First, we define a function 'sum' that accepts two input iterators and
-// returns sum of all elements in range specified by them.
+// returns the sum of all elements in range specified by them.
 //..
     template <class IN_ITER>
     typename bsl::iterator_traits<IN_ITER>::value_type
@@ -166,7 +172,7 @@ class MyClass {
 // Now, we define a function 'testSum' that first verifies that 'sum' correctly
 // accumulates a sum, and then verifies, using 'bdlb::TestInputIterator', that
 // 'sum' can be instantiated on an iterator that strictly matches the
-// requirements of a null input iterator:
+// requirements of an empty input iterator:
 //..
     int testSum()
     {
@@ -253,9 +259,11 @@ int main(int argc, char *argv[])
         //   bool operator==(TestInputIterator&, TestInputIterator&);
         //   bool operator!=(TestInputIterator&, TestInputIterator&);
         // --------------------------------------------------------------------
+
         if (verbose) cout << endl
                           << "EQUALITY-COMPARISON OPERATORS" << endl
                           << "=============================" << endl;
+
         if (veryVerbose) cout << "\tTesting different objects" << endl;
         {
             bdlb::TestInputIterator<MyClass> nc1;
@@ -298,7 +306,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   TestInputIterator& operator++();
         //   TestInputIterator& operator++(int);
-        //   TYPE* operator->() const;
+        //   TYPE *operator->() const;
         //   TYPE operator*() const;
         // --------------------------------------------------------------------
 
@@ -306,7 +314,8 @@ int main(int argc, char *argv[])
                           << "UNSUPPORTED OPERATIONS" << endl
                           << "======================" << endl;
 
-        if (verbose) cout << "\nNegative Testing of operations itself" << endl;
+        if (verbose) cout <<
+                            "\nNegative Testing of direct invocation." << endl;
         {
             bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);

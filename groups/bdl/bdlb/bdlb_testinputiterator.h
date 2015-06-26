@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlb::TestInputIterator: empty input iterator template
 //
-//@SEE_ALSO: bdlb_nulloutputiterator
-//
 //@DESCRIPTION: This components provides a mechanism,
 // 'bdlb::TestInputIterator', that defines an input iterator with the following
 // attributes:
@@ -36,8 +34,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Basic Use of 'bdlb::TestInputIterator'
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
-// In the following example we use a 'bdlb::TestInputIterator' to test that
-// 'sum' function compiles when instantiated with a pure input iterator.
+// In the following example we use a 'bdlb::TestInputIterator' to test that an
+// aggregation function compiles when instantiated with a pure input iterator.
 //
 // First, we define a function 'sum' that accepts two input iterators and
 // returns the sum of all elements in range specified by them.
@@ -56,7 +54,7 @@ BSLS_IDENT("$Id: $")
 // Now, we define a function 'testSum' that first verifies that 'sum' correctly
 // accumulates a sum, and then verifies, using 'bdlb::TestInputIterator', that
 // 'sum' can be instantiated on an iterator that strictly matches the
-// requirements of a null input iterator:
+// requirements of an empty input iterator:
 //..
 //  int testSum()
 //  {
@@ -98,13 +96,14 @@ namespace bdlb {
 template <class TYPE>
 class TestInputIterator : public bsl::iterator<bsl::input_iterator_tag, TYPE> {
     // Provide an input iterator that iterates over an empty sequence.  All
-    // null iterators compare equal.  Since the iteration sequence is empty,
-    // incrementing or de-referencing this iterator yields undefined behavior.
+    // 'TestInputIterator' objects compare equal.  Since the iteration sequence
+    // is empty, incrementing or de-referencing this iterator yields undefined
+    // behavior.
 
   public:
     // CREATORS
     TestInputIterator();
-        // Construct a null input iterator.
+        // Construct an empty input iterator.
 
     TestInputIterator(const TestInputIterator& original);
         // Construct a copy of the specified 'original' object.
