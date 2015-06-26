@@ -1,27 +1,24 @@
-// bdlb_nullinputiterator.h                                           -*-C++-*-
-#ifndef INCLUDED_BDLB_NULLINPUTITERATOR
-#define INCLUDED_BDLB_NULLINPUTITERATOR
+// bdlb_testinputiterator.h                                           -*-C++-*-
+#ifndef INCLUDED_BDLB_TESTINPUTITERATOR
+#define INCLUDED_BDLB_TESTINPUTITERATOR
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
-#endif
-
 //@PURPOSE: Provide a pure input iterator for an empty range.
 //
 //@CLASSES:
-//  bdlb::NullInputIterator: input iterator template that discards the input
+//  bdlb::TestInputIterator: empty input iterator template
 //
 //@SEE_ALSO: bdlb_nulloutputiterator
 //
-//@DESCRIPTION: This components provides a class template defining an input
-// iterator type, 'bdlb::NullInputIterator', with the following attributes:
+//@DESCRIPTION: This components provides a mechanism,
+// 'bdlb::TestInputIterator', that defines an input iterator with the following
+// attributes:
 //..
-//  o For a given type, 'T', all objects of type 'NullInputIterator<T>'
+//  o For a given type, 'T', all objects of type 'TestInputIterator<T>'
 //    compare equal.  Thus, any pair of such iterators constitute an
 //    empty range.
 //  o Dereferencing or incrementing the iterator is undefined behavior, since
@@ -29,16 +26,21 @@ BSLS_IDENT("$Id: $")
 //  o Exactly meets the requirements for an input iterator according to the
 //    C++ Standard (C++98, Section 24.1.1 [lib.input.iterators]).
 //..
-// This iterator type is typically used to test that a function or template
-// class compiles when instantiated with a pure input iterator.
+// This iterator type is typically used to check algorithms for compatibility
+// with input iterators.  The goal is to make sure that their code is able to
+// work even with the most restrictive input iterator.
 //
 ///Usage
 ///-----
-// In the following example we use a 'bdlb::NullInputIterator' to test that
-// function compiles when instantiated with a pure input iterator.
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Use of 'bdlb::TestInputIterator'
+///- - - - - - - - - - - - - - - - - - - - - - - - -
+// In the following example we use a 'bdlb::TestInputIterator' to test that
+// 'sum' function compiles when instantiated with a pure input iterator.
 //
 // First, we define a function 'sum' that accepts two input iterators and
-// returns sum of all elements in range specified by them.
+// returns the sum of all elements in range specified by them.
 //..
 //  template <class IN_ITER>
 //  typename bsl::iterator_traits<IN_ITER>::value_type
@@ -52,7 +54,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // Now, we define a function 'testSum' that first verifies that 'sum' correctly
-// accumulates a sum, and then verifies, using 'bdlb::NullInputIterator', that
+// accumulates a sum, and then verifies, using 'bdlb::TestInputIterator', that
 // 'sum' can be instantiated on an iterator that strictly matches the
 // requirements of a null input iterator:
 //..
@@ -66,13 +68,17 @@ BSLS_IDENT("$Id: $")
 //      assert(28 == r1);
 //
 //      // Verify that 'sum' can be instantiated using a pure input iterator.
-//      typedef bdlb::NullInputIterator<unsigned> iterType;
+//      typedef bdlb::TestInputIterator<unsigned> iterType;
 //      unsigned r2 = sum(iterType(), iterType());
 //      assert(0 == r2);
 //
 //      return 0;
 //  }
 //..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include <bdlscm_version.h>
+#endif
 
 #ifndef INCLUDED_BSL_ITERATOR
 #include <bsl_iterator.h>
@@ -86,68 +92,69 @@ namespace BloombergLP {
 namespace bdlb {
 
                         // =======================
-                        // class NullInputIterator
+                        // class TestInputIterator
                         // =======================
 
 template <class TYPE>
-class NullInputIterator : public bsl::iterator<bsl::input_iterator_tag, TYPE> {
+class TestInputIterator : public bsl::iterator<bsl::input_iterator_tag, TYPE> {
     // Provide an input iterator that iterates over an empty sequence.  All
     // null iterators compare equal.  Since the iteration sequence is empty,
     // incrementing or de-referencing this iterator yields undefined behavior.
 
   public:
     // CREATORS
-    NullInputIterator();
+    TestInputIterator();
         // Construct a null input iterator.
 
-    NullInputIterator(const NullInputIterator& original);
+    TestInputIterator(const TestInputIterator& original);
         // Construct a copy of the specified 'original' object.
 
-    ~NullInputIterator();
+    ~TestInputIterator();
         // Destroy this object.
 
     // MANIPULATORS
-    NullInputIterator& operator=(const NullInputIterator& rhs);
+    TestInputIterator& operator=(const TestInputIterator& rhs);
         // Assign to this object the value of the specified 'rhs' and return a
         // reference to this modifiable object.
 
-    NullInputIterator& operator++();
+    TestInputIterator& operator++();
         // The behavior is undefined for this method.  Note that this method
         // signature matches the requirements of an input iterator, but a
-        // 'NullInputIterator' always represents the end position in a range.
+        // 'TestInputIterator' always represents the end position in a range.
 
 
-    NullInputIterator& operator++(int);
+    TestInputIterator& operator++(int);
         // The behavior is undefined for this method.  Note that this method
         // signature matches the requirements of an input iterator, but a
-        // 'NullInputIterator' always represents the end position in a range.
+        // 'TestInputIterator' always represents the end position in a range.
 
     // ACCESSORS
-    TYPE* operator->() const;
+    TYPE *operator->() const;
         // The behavior is undefined for this method.  Note that this method
         // signature matches the requirements of an input iterator, but a
-        // 'NullInputIterator' always represents the end position in a range.
+        // 'TestInputIterator' always represents the end position in a range.
 
     TYPE operator*() const;
         // The behavior is undefined for this method.  Note that this method
         // signature matches the requirements of an input iterator, but a
-        // 'NullInputIterator' always represents the end position in a range.
+        // 'TestInputIterator' always represents the end position in a range.
 };
 
 // FREE OPERATORS
 template <class TYPE>
 inline
-bool operator==(const NullInputIterator<TYPE>& lhs,
-                const NullInputIterator<TYPE>& rhs);
-    // Return 'true' since the specified 'lhs' iterator always has the same
-    // value as the specified 'rhs' iterator.
+bool operator==(const TestInputIterator<TYPE>& lhs,
+                const TestInputIterator<TYPE>& rhs);
+    // Return 'true'.  Note that all iterators represent the end position in a
+    // range, and therefore all iterators have the same value.
 
 template <class TYPE>
 inline
-bool operator!=(const NullInputIterator<TYPE>& lhs,
-                const NullInputIterator<TYPE>& rhs);
-    // Return 'false' since the specified 'lhs' iterator always has the same
-    // value as the specified 'rhs' iterator.
+bool operator!=(const TestInputIterator<TYPE>& lhs,
+                const TestInputIterator<TYPE>& rhs);
+    // Return 'false'.  Note that all iterators represent the end position in a
+    // range, and therefore all iterators have the same value.
+
 
 // ============================================================================
 //                              INLINE DEFINITIONS
@@ -156,34 +163,34 @@ bool operator!=(const NullInputIterator<TYPE>& lhs,
 // CREATORS
 template<class TYPE>
 inline
-NullInputIterator<TYPE>::NullInputIterator()
+TestInputIterator<TYPE>::TestInputIterator()
 {
 }
 
 template<class TYPE>
 inline
-NullInputIterator<TYPE>::NullInputIterator(const NullInputIterator&)
+TestInputIterator<TYPE>::TestInputIterator(const TestInputIterator&)
 {
 }
 
 template<class TYPE>
 inline
-NullInputIterator<TYPE>::~NullInputIterator()
+TestInputIterator<TYPE>::~TestInputIterator()
 {
 }
 
 // MANIPULATORS
 template<class TYPE>
 inline
-NullInputIterator<TYPE>&
-NullInputIterator<TYPE>::operator=(const NullInputIterator&)
+TestInputIterator<TYPE>&
+TestInputIterator<TYPE>::operator=(const TestInputIterator&)
 {
     return *this;
 }
 
 template<class TYPE>
 inline
-NullInputIterator<TYPE>& NullInputIterator<TYPE>::operator++()
+TestInputIterator<TYPE>& TestInputIterator<TYPE>::operator++()
 {
     BSLS_ASSERT(false);
     return *this;
@@ -191,7 +198,7 @@ NullInputIterator<TYPE>& NullInputIterator<TYPE>::operator++()
 
 template<class TYPE>
 inline
-NullInputIterator<TYPE>& NullInputIterator<TYPE>::operator++(int)
+TestInputIterator<TYPE>& TestInputIterator<TYPE>::operator++(int)
 {
     BSLS_ASSERT(false);
     return *this;
@@ -200,7 +207,7 @@ NullInputIterator<TYPE>& NullInputIterator<TYPE>::operator++(int)
 // ACCESSORS
 template<class TYPE>
 inline
-TYPE *NullInputIterator<TYPE>::operator->() const
+TYPE *TestInputIterator<TYPE>::operator->() const
 {
     BSLS_ASSERT(false);
     return 0;
@@ -208,7 +215,7 @@ TYPE *NullInputIterator<TYPE>::operator->() const
 
 template<class TYPE>
 inline
-TYPE NullInputIterator<TYPE>::operator*() const
+TYPE TestInputIterator<TYPE>::operator*() const
 {
     BSLS_ASSERT(false);
     return *this->operator->();
@@ -219,16 +226,16 @@ TYPE NullInputIterator<TYPE>::operator*() const
 // FREE OPERATORS
 template <class TYPE>
 inline
-bool bdlb::operator==(const NullInputIterator<TYPE>&,
-                      const NullInputIterator<TYPE>&)
+bool bdlb::operator==(const TestInputIterator<TYPE>&,
+                      const TestInputIterator<TYPE>&)
 {
     return true;
 }
 
 template <class TYPE>
 inline
-bool bdlb::operator!=(const NullInputIterator<TYPE>&,
-                      const NullInputIterator<TYPE>&)
+bool bdlb::operator!=(const TestInputIterator<TYPE>&,
+                      const TestInputIterator<TYPE>&)
 {
     return false;
 }
