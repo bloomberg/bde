@@ -102,7 +102,7 @@ struct is_volatile<TYPE volatile> : true_type {
 // Last tested against VC 2015 (Release Candidate).
 
 template <class TYPE>
-struct is_volatile<const TYPE[]> : true_type {
+struct is_volatile<volatile TYPE[]> : true_type {
      // This partial specialization of 'is_volatile', for when the (template
      // parameter) 'TYPE' is 'volatile'-qualified, derives from
      // 'bsl::true_type'.  Note that this single specialization is sufficient
@@ -110,7 +110,7 @@ struct is_volatile<const TYPE[]> : true_type {
 };
 
 template <class TYPE, size_t LENGTH>
-struct is_volatile<const TYPE[LENGTH]> : true_type {
+struct is_volatile<volatile TYPE[LENGTH]> : true_type {
      // This partial specialization of 'is_volatile', for when the (template
      // parameter) 'TYPE' is 'volatile'-qualified, derives from
      // 'bsl::true_type'.  Note that this single specialization is sufficient
