@@ -114,8 +114,8 @@ class MyClass {
 //-----------------------------------------------------------------------------
 // This section illustrates intended use of this component.
 //
-// Example: Basic Use of 'bdlb::NullOutputIterator'
-/// - - - - - - - - - - - - - - - - - - - - - - - -
+/// Example 1: Basic Use of 'bdlb::NullOutputIterator'
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following example we use a 'bdlb::NullOutputIterator' to enable us to
 // call a function to capture its return code, while ignoring the output
 // provided through an iterator.
@@ -286,10 +286,10 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The default constructor can create an object.
         //:
-        //: 2 Assignment assigns the value of the original object.
-        //:
-        //: 3 The template can be instantiated for both basic types and
+        //: 2 The template can be instantiated for both basic types and
         //:   user-defined classes.
+        //:
+        //: 3 Assignment operator compiles.
         //:
         // Plan:
         //: 1 Manually call different methods of the object. (C-1..3)
