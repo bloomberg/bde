@@ -75,6 +75,10 @@ BSLS_IDENT("$Id: $")
 
 namespace bsl {
 
+#if !defined(BSLS_PLATFORM_CMP_MSVC)     \
+   || BSLS_PLATFORM_CMP_VERSION <  1500  \
+   || BSLS_PLATFORM_CMP_VERSION >= 1800  
+
 template <class TYPE>
 struct remove_reference {
     // This 'struct' template implements the 'remove_reference' meta-function
@@ -116,6 +120,91 @@ struct remove_reference<TYPE&&> {
 
 #endif
 
+#else  // Microsoft version check
+// The early Microsoft compiler support for rvalue-references has a bug
+// that cannot disambiguate between 'T&&' and 'T&' when 'T' is a function
+// type.  The bug is fixed for Visual C++2013, and is not a concern before
+// rvalue-reference support was adding in VC2010.  This elaborate
+// set of specializations works around that by first matching only the
+// lvalue-reference types, and stripping that reference qualifier.  The
+// second specialization then matches rvalue-references, which works
+// for the majority of types, such as object types.  However, there is
+// an additional bug that rvalue-references to function types will not
+// match this specialization either, so we add an lvalue-reference to
+// the type qualifier and dispatch again to the original template,
+// which will now safely strip the reference qualifier and return the
+// correct function type.  Conversely, if the original type were not
+// a reference, this will also match and strip the added reference to
+// retrieve thte original type.  The final wrinkle is that we cannot
+// add an lvalue-reference to a non-referenceable type such as 'void'.
+// This is resolved by providing explicit specializations for the
+// four cv-qualified 'void' types.  That just leaves the awkward
+// function types with a trailing cv-ref qualifier such as
+// 'void () const'.  Such types are not supported by the current
+// workarounds.
+
+template <class T>
+struct remove_reference;
+    // This 'struct' template implements the 'remove_reference' meta-function
+    // defined in the C++11 standard [meta.trans.ref], providing an alias,
+    // 'type', that returns the result.  'type' has the same type as the
+    // (template parameter) 'TYPE' except with reference-ness removed.  Note
+    // that this generic default template provides a 'type' that is an alias to
+    // 'TYPE' for when 'TYPE' is not a reference.  A template specialization is
+    // provided (below) that removes reference-ness for when 'TYPE' is a
+    // reference.
+
+}
+
+namespace BloombergLP {
+namespace bslmf {
+
+template <class T>
+struct RemoveReference_Rval {
+    typedef typename bsl::remove_reference<T&>::type type;
+};
+
+template <class T>
+struct RemoveReference_Rval<T&&> {
+    typedef T type;
+};
+
+}
+}
+
+namespace bsl {
+
+template <class T>
+struct remove_reference {
+    typedef typename BloombergLP::bslmf::RemoveReference_Rval<T>::type type;
+};
+
+template <class T>
+struct remove_reference<T&> {
+    typedef T type;
+};
+
+template <>
+struct remove_reference<void> {
+    typedef void type;
+};
+
+template <>
+struct remove_reference<const void> {
+    typedef const void type;
+};
+
+template <>
+struct remove_reference<volatile void> {
+    typedef volatile void type;
+};
+
+template <>
+struct remove_reference<const volatile void> {
+    typedef const volatile void type;
+};
+
+#endif
 }  // close namespace bsl
 
 namespace BloombergLP {

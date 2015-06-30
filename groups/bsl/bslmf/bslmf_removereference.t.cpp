@@ -219,14 +219,9 @@ int main(int argc, char *argv[])
         ASSERT_SAME2(  Fi,  Fi);
         ASSERT_SAME2( FRi, FRi);
 
-#if !defined(BSLS_PLATFORM_CMP_MSVC)
-        // Rvalue reference template specialization of RemoveReference<TYPE>
-        // breaks for function reference types on MSVC 16: both TYPE& and
-        // TYPE&& match, when only TYPE& should.
         ASSERT_SAME2(  RF,   F);
         ASSERT_SAME2( RFi,  Fi);
         ASSERT_SAME2(RFRi, FRi);
-#endif
 
         ASSERT_SAME2(RA, A);
 
@@ -257,11 +252,9 @@ int main(int argc, char *argv[])
         ASSERT_REMOVE_REF2(Class&&,  Class);
         ASSERT_REMOVE_REF2(int Class::*&&, int Class::*);
 
-#if !defined(BSLS_PLATFORM_CMP_MSVC)
         ASSERT_SAME2(RRF,   F);
         ASSERT_SAME2(RRPF,  PF);
         ASSERT_SAME2(RRFRi, FRi);
-#endif
 
         ASSERT_SAME2(RRA, A);
 #endif
@@ -326,14 +319,9 @@ int main(int argc, char *argv[])
         ASSERT_SAME( Fi,  Fi);
         ASSERT_SAME(FRi, FRi);
 
-#if !defined(BSLS_PLATFORM_CMP_MSVC)
-        // Rvalue reference template specialization of RemoveReference<TYPE>
-        // breaks for function reference types on MSVC 16: both TYPE& and
-        // TYPE&& match, when only TYPE& should.
         ASSERT_SAME( RF,  F);
         ASSERT_SAME( RFi, Fi);
         ASSERT_SAME(RFRi, FRi);
-#endif
 
         ASSERT_SAME(A,  A);
 
@@ -346,11 +334,9 @@ int main(int argc, char *argv[])
         ASSERT_REMOVE_REF(Class&&,  Class);
         ASSERT_REMOVE_REF(int Class::*&&, int Class::*);
 
-#if !defined(BSLS_PLATFORM_CMP_MSVC)
         ASSERT_SAME(RRF,   F);
         ASSERT_SAME(RRPF,  PF);
         ASSERT_SAME(RRFRi, FRi);
-#endif
 
         ASSERT_SAME(RRA, A);
   #endif
