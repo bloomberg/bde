@@ -402,7 +402,7 @@ Decimal64 DecimalConvertUtil::decimal64FromDouble(double binary)
     // digits can convert to the same double).  Since we want to deal with
     // original numbers that may have as many as 9 decimal places, we scale by
     // 1e9, and therefore the original number must be less than 1e7.
-    if (binary != 0 && -1e7 < binary && binary < 1e7) {
+    if (binary != 0 && -1e6 < binary && binary < 1e6) {
         long long n =
             static_cast<long long>(binary * 1e9 + copysign(.5, binary));
         int scale = -9;
