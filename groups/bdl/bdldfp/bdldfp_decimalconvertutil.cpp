@@ -19,6 +19,7 @@ BSLS_IDENT_RCSID(bdldfp_decimalconvertutil_cpp,"$Id$ $CSID$")
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <ctype.h>
+#include <bsl_cmath.h>
 
 namespace BloombergLP {
 namespace bdldfp {
@@ -391,6 +392,30 @@ Decimal32 DecimalConvertUtil::decimal32FromDouble(double binary)
 Decimal64 DecimalConvertUtil::decimal64FromDouble(double binary)
 {
     Decimal64 rv;
+
+    // Attempt the "Olkin-Farber" method for speed.  Multiply the double by a
+    // power of 10, round it to an integer, then use the faster scaled
+    // conversion to decimal to produce a hoped-for result.  The conversion is
+    // correct if the result converts back to the original binary, provided
+    // that the intermediate integer has no more than 15 (DBL_DIG) significant
+    // digits (because no two decimal numbers with 15 or fewer significant
+    // digits can convert to the same double).  Since we want to deal with
+    // original numbers that may have as many as 9 decimal places, we scale by
+    // 1e9, and therefore the original number must be less than 1e7.
+    if (binary != 0 && -1e7 < binary && binary < 1e7) {
+        long long n =
+            static_cast<long long>(binary * 1e9 + copysign(.5, binary));
+        int scale = -9;
+        while ((n & 1) == 0 && n % 10 == 0 && scale < 0) {
+            n /= 10;
+            ++scale;
+        }
+        rv = DecimalUtil::makeDecimalRaw64(n, scale);
+        double test = DecimalConvertUtil::decimalToDouble(rv);
+        if (test == binary) {
+            return rv;                                                // RETURN
+        }
+    }
     restoreDecimalFromBinary(&rv, binary);
     return rv;
 }
