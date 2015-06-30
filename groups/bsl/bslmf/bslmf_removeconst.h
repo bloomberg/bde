@@ -160,16 +160,16 @@ struct remove_const<const TYPE[]> {
 // overload resolution for functions (taking arrays by reference).  Given the
 // function dispatch behavior being correct, we choose to work around this
 // compiler bug, rather than try to report compiler behavior, as the compiler
-// itself is inconsistent depeoning on how the trait might be used.  This also
-// corresponds to how Microsft itself implements the trait in VC2010 and later.
-// Last tested against VC 2015 (Release Candidate).
+// itself is inconsistent depending on how the trait might be used.  This also
+// corresponds to how Microsoft itself implements the trait in VC2010 and
+// later.  Last tested against VC 2015 (Release Candidate).
 
 template <class TYPE>
 struct remove_const<TYPE[]> {
      // This partial specialization of 'bsl::remove_volatile', for when the
-     // (template parameter) 'TYPE' is an array type.  On Microsoft compilers, it is
-     // necessary to separately 'remove_volatile' on the element type, and then
-     // reconstruct the array dimensions.
+     // (template parameter) 'TYPE' is an array type.  On Microsoft compilers,
+     // it is necessary to separately 'remove_volatile' on the element type,
+     // and then reconstruct the array dimensions.
 
     // PUBLIC TYPES
     typedef typename remove_const<TYPE>::type type[];
@@ -180,9 +180,9 @@ struct remove_const<TYPE[]> {
 template <class TYPE, size_t LENGTH>
 struct remove_const<TYPE[LENGTH]> {
      // This partial specialization of 'bsl::remove_volatile', for when the
-     // (template parameter) 'TYPE' is an array type.  On Microsoft compilers, it is
-     // necessary to separately 'remove_volatile' on the element type, and then
-     // reconstruct the array dimensions.
+     // (template parameter) 'TYPE' is an array type.  On Microsoft compilers,
+     // it is necessary to separately 'remove_volatile' on the element type,
+     // and then reconstruct the array dimensions.
 
     // PUBLIC TYPES
     typedef typename remove_const<TYPE>::type type[LENGTH];
