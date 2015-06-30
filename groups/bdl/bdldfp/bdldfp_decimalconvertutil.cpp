@@ -20,6 +20,7 @@ BSLS_IDENT_RCSID(bdldfp_decimalconvertutil_cpp,"$Id$ $CSID$")
 #include <bsl_cstring.h>
 #include <ctype.h>
 #include <bsl_cmath.h>
+#include <bsl_cfloat.h>
 
 namespace BloombergLP {
 namespace bdldfp {
@@ -401,16 +402,45 @@ Decimal64 DecimalConvertUtil::decimal64FromDouble(double binary)
     // digits (because no two decimal numbers with 15 or fewer significant
     // digits can convert to the same double).  Since we want to deal with
     // original numbers that may have as many as 9 decimal places, we scale by
-    // 1e9, and therefore the original number must be less than 1e7.
+    // 1e9, and therefore the magnitude of the original number must be less
+    // than 1e6.
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+#   define copysign _copysign
+#endif
     if (binary != 0 && -1e6 < binary && binary < 1e6) {
-        long long n =
-            static_cast<long long>(binary * 1e9 + copysign(.5, binary));
+        double d = binary * 1e9;
+        long long n = static_cast<long long>(d + copysign(.5, d));  // round
         int scale = -9;
+
+        // Divide powers of 10 out of n to avoid unpleasant scaling artifacts.
+        // E.g., we want .001 to appear to have 3 digits, not 9.  We do a quick
+        // check for trailing 0 bits before the more expensive % check since
+        // each factor of 10 has a corresponding factor of 2.  We also try to
+        // lop off factors of 1000 first if they're present.
+        while ((n & 7) == 0 && n % 1000 == 0 && scale < 0) {
+            n /= 1000;
+            scale += 3;
+        }
         while ((n & 1) == 0 && n % 10 == 0 && scale < 0) {
             n /= 10;
             ++scale;
         }
+
         rv = DecimalUtil::makeDecimalRaw64(n, scale);
+
+        // Compute the ratio of the fractional part of the scaled binary number
+        // to its integer part.  If it is sufficiently small, then the next
+        // higher and next lower values of the computed decimal number will be
+        // a poorer match for the binary, and we don't have to bother to check
+        // the back conversion.  Decimal64 hold 16 digits, so a range of 1e-17
+        // will do.
+        double dn, r;
+        r = modf(d, &dn);
+        if ((dn != 0 && r / dn < 1e-17) || r == 0) {
+            return rv;                                                // RETURN
+        }
+
+        // Otherwise, see if the decimal converts bcak to the original value.
         double test = DecimalConvertUtil::decimalToDouble(rv);
         if (test == binary) {
             return rv;                                                // RETURN
