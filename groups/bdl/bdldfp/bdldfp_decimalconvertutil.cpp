@@ -400,7 +400,7 @@ Decimal64 DecimalConvertUtil::decimal64FromDouble(double binary)
     // correct if the result converts back to the original binary, provided
     // that the intermediate integer has no more than 15 (DBL_DIG) significant
     // digits (because no two decimal numbers with 15 or fewer significant
-    // digits can convert to the same double).  Since we want to deal with
+    // digits can convert to the same double).  Since we want to optimize for
     // original numbers that may have as many as 9 decimal places, we scale by
     // 1e9, and therefore the magnitude of the original number must be less
     // than 1e6.
@@ -428,19 +428,28 @@ Decimal64 DecimalConvertUtil::decimal64FromDouble(double binary)
 
         rv = DecimalUtil::makeDecimalRaw64(n, scale);
 
+        // Decimal64 values hold 16 significant digits, so given a Decimal64
+        // value 'V = M * 10^E with 1 <= M < 10', its successor is
+        // 'Vnext = (M + 10^-15) * 10^E' and the ratio of their difference to
+        // the value is '10^(E-15) / (M * 10^E) = 10^-15 / M >= 10^-16'.
+        //
+        // We are concerned that the Decimal64 value we have computed for the
+        // 'binary' value may be wrong, i.e., that its successor or predecessor
+        // may be closer in value to 'binary'.  If so, that difference comes
+        // from the fractional portion of the scaled 'binary'.  If we can
+        // determine that the fractional portion is too small to push the value
+        // up or down, then we do not need to verify by back conversion.
+        //
         // Compute the ratio of the fractional part of the scaled binary number
-        // to its integer part.  If it is sufficiently small, then the next
-        // higher and next lower values of the computed decimal number will be
-        // a poorer match for the binary, and we don't have to bother to check
-        // the back conversion.  Decimal64 hold 16 digits, so a range of 1e-17
-        // will do.
+        // to its integer part.  If it's small enough (using 1e-17, generously
+        // below the 1e-16 computed above), skip the verification.
         double dn, r;
         r = modf(d, &dn);
         if ((dn != 0 && r / dn < 1e-17) || r == 0) {
             return rv;                                                // RETURN
         }
 
-        // Otherwise, see if the decimal converts bcak to the original value.
+        // Otherwise, see if the decimal converts back to the original value.
         double test = DecimalConvertUtil::decimalToDouble(rv);
         if (test == binary) {
             return rv;                                                // RETURN
