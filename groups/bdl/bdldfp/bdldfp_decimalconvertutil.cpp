@@ -394,7 +394,7 @@ Decimal64 DecimalConvertUtil::decimal64FromDouble(double binary)
 {
     Decimal64 rv;
 
-    // Attempt the "Olkin-Farber" method for speed.  Multiply the double by a
+    // Try the "Olkin-Farber-Rosen" method for speed.  Multiply the double by a
     // power of 10, round it to an integer, then use the faster scaled
     // conversion to decimal to produce a hoped-for result.  The conversion is
     // correct if the result converts back to the original binary, provided
