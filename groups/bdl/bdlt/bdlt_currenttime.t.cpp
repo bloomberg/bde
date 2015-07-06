@@ -146,7 +146,7 @@ bsls::TimeInterval getClientOffset(const bdlt::Datetime&)
 bool within1Sec(bdlt::Datetime a, bdlt::Datetime b)
    // Return 'true' if 'a' and 'b' are within one second of each other.
 {
-    return abs((a - b).totalSeconds()) < 1;
+    return (a - b).totalSeconds() == 0;
 }
 
 
@@ -639,8 +639,7 @@ int main(int argc, char *argv[])
             ASSERT(within1Sec(local, datetimeTz.localDatetime()));
         }
         if (verbose) { cout << "Test with  a test clock value" << endl; }
-        {
-            
+        {           
             Util::setCurrentTimeCallback(getClientTime);
             bdlt::LocalTimeOffset::setLocalTimeOffsetCallback(getClientOffset);
             
