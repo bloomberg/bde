@@ -6650,6 +6650,9 @@ int main(int argc, char* argv[])
             { L_, 9.9990689927606503236037228e-194, "999906899276065", -193 },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+#   define strtoll _strtoi64
+#endif
         for (int i = 0; i < NUM_DATA; ++i) {
             int         LINE        = DATA[i].d_line;
             double      BINARY      = DATA[i].d_binary;
