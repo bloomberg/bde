@@ -237,7 +237,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("Testing 'alignas' specifier\n"
                             "====================================\n");
 
-        int alignas(8) foo;
+        alignas(8) int foo;
 #endif
       } break;
 
