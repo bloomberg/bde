@@ -4,9 +4,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>      // print, fprintf
-#include <stdlib.h>     // atoi
-#include <string.h>
+#include <stdio.h>      // 'printf', 'fprintf'
+#include <stdlib.h>     // 'atoi'
 
 using namespace BloombergLP;
 
@@ -77,7 +76,6 @@ int main(int argc, char *argv[])
     bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
 
-    (void)aSsErT;               // suppress warning
     (void)veryVerbose;          // suppress warning
     (void)veryVeryVerbose;      // suppress warning
     (void)veryVeryVeryVerbose;  // suppress warning

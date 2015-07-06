@@ -4,8 +4,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>   // print, fprintf
-#include <stdlib.h>  // atoi
+#include <stdio.h>      // 'printf', 'fprintf'
+#include <stdlib.h>     // 'atoi'
 
 using namespace BloombergLP;
 
