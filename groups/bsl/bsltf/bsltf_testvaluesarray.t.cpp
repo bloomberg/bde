@@ -82,7 +82,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 // ============================================================================
-//                      USAGE EXAMPLE
+//                              USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 ///Example 1: Testing a Simple Template Function
@@ -152,14 +152,17 @@ void aSsErT(bool condition, const char *message, int line)
 //                                 MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
-int main(int argc, char *argv[]) {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+int main(int argc, char *argv[])
+{
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
 
-    (void) veryVerbose;
-    (void) veryVeryVerbose;
+    (void)veryVerbose;          // suppress warning
+    (void)veryVeryVerbose;      // suppress warning
+    (void)veryVeryVeryVerbose;  // suppress warning
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -167,9 +170,19 @@ int main(int argc, char *argv[]) {
       case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
+        //
+        // Concerns
+        //: 1 The usage example compiles and runs correctly.
+        //
+        // Plan:
+        //: 1 Compile and run the usage example (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
-          if (verbose) printf("\nUSAGE EXAMPLE"
-                              "\n=============\n");
+
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
 
 // Finally, we invoke the test function to verify our function is implemented
 // correctly.  The test function to run without triggering the 'assert'
@@ -177,7 +190,7 @@ int main(int argc, char *argv[]) {
 //..
     runTest<char>();
 //..
-      }
+      } break;
       case 2: {
         // --------------------------------------------------------------------
         //

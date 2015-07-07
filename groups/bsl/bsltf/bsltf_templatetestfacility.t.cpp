@@ -118,7 +118,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-static int verbose, veryVerbose, veryVeryVerbose, veryVeryVeryVerbose;
+static bool verbose, veryVerbose, veryVeryVerbose, veryVeryVeryVerbose;
 
 //=============================================================================
 //                                USAGE EXAMPLE
@@ -691,10 +691,10 @@ void TestHelper<TYPE>::test7Helper()
 
 int main(int argc, char *argv[])
 {
-    int test            = argc > 1 ? atoi(argv[1]) : 0;
-    verbose             = argc > 2;
-    veryVerbose         = argc > 3;
-    veryVeryVerbose     = argc > 4;
+    int            test = argc > 1 ? atoi(argv[1]) : 0;
+                verbose = argc > 2;
+            veryVerbose = argc > 3;
+        veryVeryVerbose = argc > 4;
     veryVeryVeryVerbose = argc > 5;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
