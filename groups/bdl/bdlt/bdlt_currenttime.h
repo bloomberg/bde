@@ -142,6 +142,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_datetime.h>
 #endif
 
+#ifndef INCLUDED_BDLT_DATETIMETZ
+#include <bdlt_datetimetz.h>
+#endif
+
 #ifndef INCLUDED_BDLT_EPOCHUTIL
 #include <bdlt_epochutil.h>
 #endif
@@ -208,6 +212,9 @@ struct CurrentTime {
         // Return the 'Datetime' value representing the current date/time in
         // Coordinated Universal Time (UTC) as provided by the installed
         // callback function.
+
+    static DatetimeTz asDatetimeTz();
+        // Return the 'DatetimeTz' value representing the current time.
 
                         // ** callback functions **
 
