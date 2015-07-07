@@ -1,6 +1,6 @@
-// bbldc_basicdaycount.t.cpp                                          -*-C++-*-
+// bbldc_basicdaycountutil.t.cpp                                      -*-C++-*-
 
-#include <bbldc_basicdaycount.h>
+#include <bbldc_basicdaycountutil.h>
 
 #include <bdls_testutil.h>
 
@@ -92,7 +92,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bbldc::BasicDayCount            Util;
+typedef bbldc::BasicDayCountUtil        Util;
 typedef bbldc::DayCountConvention::Enum Enum;
 
 const Enum ACTUAL_360         = bbldc::DayCountConvention::e_ACTUAL_360;
@@ -146,8 +146,9 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// The following snippets of code illustrate how to use 'bbldc::BasicDayCount'
-// methods.  First, create two 'bdlt::Date' variables, 'd1' and 'd2':
+// The following snippets of code illustrate how to use
+// 'bbldc::BasicDayCountUtil' methods.  First, create two 'bdlt::Date'
+// variables, 'd1' and 'd2':
 //..
     const bdlt::Date d1(2003, 10, 19);
     const bdlt::Date d2(2003, 12, 31);
@@ -155,7 +156,7 @@ int main(int argc, char *argv[])
 // Now, compute the day count between 'd1' and 'd2' according to the ISDA
 // Actual/Actual convention:
 //..
-    const int daysDiff = bbldc::BasicDayCount::daysDiff(
+    const int daysDiff = bbldc::BasicDayCountUtil::daysDiff(
                               d1,
                               d2,
                               bbldc::DayCountConvention::e_ISDA_ACTUAL_ACTUAL);
@@ -164,7 +165,7 @@ int main(int argc, char *argv[])
 // Finally, compute the year fraction between the two dates according to the
 // ISDA Actual/Actual convention:
 //..
-    const double yearsDiff = bbldc::BasicDayCount::yearsDiff(
+    const double yearsDiff = bbldc::BasicDayCountUtil::yearsDiff(
                               d1,
                               d2,
                               bbldc::DayCountConvention::e_ISDA_ACTUAL_ACTUAL);

@@ -17,10 +17,10 @@
  just alphabetical.
 
 ..
-  2. bbldc_basicdaycount
-     bbldc_basicdaycountadapter
-     bbldc_perioddaycount
+  2. bbldc_basicdaycountadapter
+     bbldc_basicdaycountutil
      bbldc_perioddaycountadapter
+     bbldc_perioddaycountutil
 
   1. bbldc_basicactual360
      bbldc_basicactual365fixed
@@ -42,11 +42,11 @@
 : 'bbldc_basicactual365fixed':
 :      Provide stateless functions for the Actual/365 (fixed) convention.
 :
-: 'bbldc_basicdaycount':
-:      Support for day-count calculations of 'enum'-specified conventions.
-:
 : 'bbldc_basicdaycountadapter':
 :      Provide a parameterized day-count convention implementation.
+:
+: 'bbldc_basicdaycountutil':
+:      Support for day-count calculations of 'enum'-specified conventions.
 :
 : 'bbldc_basicisdaactualactual':
 :      Provide stateless functions for the ISDA Actual/Actual convention.
@@ -69,11 +69,11 @@
 : 'bbldc_daycountinterface':
 :      Provide a protocol for day-count calculations.
 :
-: 'bbldc_perioddaycount':
-:      Support for day-count calculations of 'enum'-specified conventions.
-:
 : 'bbldc_perioddaycountadapter':
 :      Provide a parameterized day-count convention implementation.
+:
+: 'bbldc_perioddaycountutil':
+:      Support for day-count calculations of 'enum'-specified conventions.
 :
 : 'bbldc_periodicmaactualactual':
 :      Provide stateless functions for period-based ICMA Actual/Actual.

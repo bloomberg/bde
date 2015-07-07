@@ -1,5 +1,5 @@
-// bbldc_basicdaycount.cpp                                            -*-C++-*-
-#include <bbldc_basicdaycount.h>
+// bbldc_basicdaycountutil.cpp                                        -*-C++-*-
+#include <bbldc_basicdaycountutil.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bbldc_basicdaycount_cpp,"$Id$ $CSID$")
@@ -19,14 +19,14 @@ BSLS_IDENT_RCSID(bbldc_basicdaycount_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bbldc {
 
-                         // --------------------
-                         // struct BasicDayCount
-                         // --------------------
+                       // ------------------------
+                       // struct BasicDayCountUtil
+                       // ------------------------
 
 // CLASS METHODS
-int BasicDayCount::daysDiff(const bdlt::Date&        beginDate,
-                            const bdlt::Date&        endDate,
-                            DayCountConvention::Enum convention)
+int BasicDayCountUtil::daysDiff(const bdlt::Date&        beginDate,
+                                const bdlt::Date&        endDate,
+                                DayCountConvention::Enum convention)
 {
     int numDays;
 
@@ -61,7 +61,7 @@ int BasicDayCount::daysDiff(const bdlt::Date&        beginDate,
     return numDays;
 }
 
-bool BasicDayCount::isSupported(DayCountConvention::Enum convention)
+bool BasicDayCountUtil::isSupported(DayCountConvention::Enum convention)
 {
     bool rv = true;
 
@@ -82,9 +82,9 @@ bool BasicDayCount::isSupported(DayCountConvention::Enum convention)
     return rv;
 }
 
-double BasicDayCount::yearsDiff(const bdlt::Date&        beginDate,
-                                const bdlt::Date&        endDate,
-                                DayCountConvention::Enum convention)
+double BasicDayCountUtil::yearsDiff(const bdlt::Date&        beginDate,
+                                    const bdlt::Date&        endDate,
+                                    DayCountConvention::Enum convention)
 {
     double numYears;
 

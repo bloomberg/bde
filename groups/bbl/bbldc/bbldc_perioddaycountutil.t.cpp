@@ -1,6 +1,6 @@
-// bbldc_perioddaycount.t.cpp                                         -*-C++-*-
+// bbldc_perioddaycountutil.t.cpp                                     -*-C++-*-
 
-#include <bbldc_perioddaycount.h>
+#include <bbldc_perioddaycountutil.h>
 
 #include <bdls_testutil.h>
 
@@ -92,7 +92,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bbldc::PeriodDayCount           Util;
+typedef bbldc::PeriodDayCountUtil       Util;
 typedef bbldc::DayCountConvention::Enum Enum;
 
 const Enum PERIOD_ICMA_ACTUAL_ACTUAL =
@@ -140,8 +140,8 @@ int main(int argc, char *argv[])
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
-// 'bbldc::PeriodDayCount' methods.  First, create two 'bdlt::Date' variables,
-// 'd1' and 'd2':
+// 'bbldc::PeriodDayCountUtil' methods.  First, create two 'bdlt::Date'
+// variables, 'd1' and 'd2':
 //..
     const bdlt::Date d1(2003, 10, 19);
     const bdlt::Date d2(2003, 12, 31);
@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
 // Now, compute the day count between 'd1' and 'd2' according to the ICMA
 // Actual/Actual day-count convention:
 //..
-    const int daysDiff = bbldc::PeriodDayCount::daysDiff(
+    const int daysDiff = bbldc::PeriodDayCountUtil::daysDiff(
                        d1,
                        d2,
                        bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL);
@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
 // Finally, compute the year fraction between the two dates according to the
 // ICMA Actual/Actual day-count convention:
 //..
-    const double yearsDiff = bbldc::PeriodDayCount::yearsDiff(
+    const double yearsDiff = bbldc::PeriodDayCountUtil::yearsDiff(
                        d1,
                        d2,
                        sched,
