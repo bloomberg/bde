@@ -584,6 +584,10 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_types.h>
 #endif
 
+#ifndef INCLUDED_BSLS_UTIL
+#include <bsls_util.h>
+#endif
+
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>
 #define INCLUDED_CSTDDEF
@@ -2728,14 +2732,15 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(Args&&...args)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this->d_capacity > this->size())) {
         BloombergLP::bslalg::ScalarPrimitives::construct(
-                                                   this->d_dataEnd,
-                                                   std::forward<Args>(args)...,
-                                                   this->bslmaAllocator());
+                               this->d_dataEnd,
+                               BloombergLP::bsls::Util::forward<Args>(args)...,
+                               this->bslmaAllocator());
         ++this->d_dataEnd;
     }
     else {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        emplace(this->d_dataEnd, std::forward<Args>(args)...);
+        emplace(this->d_dataEnd,
+                BloombergLP::bsls::Util::forward<Args>(args)...);
     }
 }
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
@@ -3007,9 +3012,9 @@ VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
         // Construct the new element.
 
         BloombergLP::bslalg::ScalarPrimitives::construct(
-                                                   temp.d_dataBegin + index,
-                                                   std::forward<Args>(args)...,
-                                                   this->bslmaAllocator());
+                               temp.d_dataBegin + index,
+                               BloombergLP::bsls::Util::forward<Args>(args)...,
+                               this->bslmaAllocator());
         guard.moveBegin(-1);
 
         // Move '[0, pos)' to 'temp' array.
@@ -3027,11 +3032,11 @@ VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
     }
     else {
         BloombergLP::bslalg::ArrayPrimitives::emplace(
-                                                  pos,
-                                                  this->end(),
-                                                  1,
-                                                  this->bslmaAllocator(),
-                                                  std::forward<Args>(args)...);
+                              pos,
+                              this->end(),
+                              1,
+                              this->bslmaAllocator(),
+                              BloombergLP::bsls::Util::forward<Args>(args)...);
         this->d_dataEnd += 1;
     }
 

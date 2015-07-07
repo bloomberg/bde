@@ -408,14 +408,18 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_isconvertible.h>
 #endif
 
+#ifndef INCLUDED_BSLS_UTIL
+#include <bsls_util.h>
+#endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
 #endif
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-
 #ifndef INCLUDED_UTILITY
-#include <utility>         // 'std::forward'
+#include <utility>
 #define INCLUDED_UTILITY
 #endif
 
@@ -1002,10 +1006,10 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                                             CTOR_ARGS&&...   ctorArgs)
 {
     BloombergLP::bslalg::ScalarPrimitives::construct(
-                                  elementAddr,
-                                  native_std::forward<CTOR_ARGS_0>(ctorArgs_0),
-                                  native_std::forward<CTOR_ARGS>(ctorArgs)...,
-                                  mechanism(basicAllocator, IsBslma()));
+                     elementAddr,
+                     BloombergLP::bsls::Util::forward<CTOR_ARGS_0>(ctorArgs_0),
+                     BloombergLP::bsls::Util::forward<CTOR_ARGS>(ctorArgs)...,
+                     mechanism(basicAllocator, IsBslma()));
 }
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
