@@ -22,13 +22,17 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test consists of two forwarding methods that forward
-// to static member function implementations within the template parameter
-// class that compute the day count and year fraction between two dates.  The
-// general plan is that the methods are tested with two different
-// template parameters to ensure the methods forward correctly.
+// The component under test consists of two forwarding methods that forward to
+// static member function implementations within the template parameter class
+// that compute the day count and year fraction between two dates and two
+// methods to complete the protocol implementation.  The general plan is that
+// the methods are tested with two different template parameters to ensure the
+// forwarding methods forward correctly and the other methods return the
+// expected value.
 // ----------------------------------------------------------------------------
 // [ 1] int daysDiff(beginDate, endDate) const;
+// [ 1] const bdlt::Date& firstDate() const;
+// [ 1] const bdlt::Date& lastDate() const;
 // [ 1] double yearsDiff(beginDate, endDate) const;
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
@@ -170,6 +174,8 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   int daysDiff(beginDate, endDate) const;
+        //   const bdlt::Date& firstDate() const;
+        //   const bdlt::Date& lastDate() const;
         //   double yearsDiff(beginDate, endDate) const;
         // --------------------------------------------------------------------
 
@@ -185,8 +191,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'daysDiff(date1, date2)'" << endl;
         {
             {
-                bbldc::BasicDateRangeDayCountAdapter<bbldc::BasicIsdaActualActual>
-                                                                            mX;
+                bbldc::BasicDateRangeDayCountAdapter<
+                                              bbldc::BasicIsdaActualActual> mX;
 
                 const bbldc::DateRangeDayCount& protocol = mX;
 
@@ -204,11 +210,33 @@ int main(int argc, char *argv[])
             }
         }
 
+        if (verbose) cout << "\nTesting 'firstDate' and 'lastDate'" << endl;
+        {
+            {
+                bbldc::BasicDateRangeDayCountAdapter<
+                                              bbldc::BasicIsdaActualActual> mX;
+
+                const bbldc::DateRangeDayCount& protocol = mX;
+
+                ASSERT(bdlt::Date(   1,  1,  1)  == protocol.firstDate());
+                ASSERT(bdlt::Date(9999, 12, 31)  == protocol.lastDate());
+            }
+
+            {
+                bbldc::BasicDateRangeDayCountAdapter<bbldc::BasicIsma30360> mX;
+
+                const bbldc::DateRangeDayCount& protocol = mX;
+
+                ASSERT(bdlt::Date(   1,  1,  1)  == protocol.firstDate());
+                ASSERT(bdlt::Date(9999, 12, 31)  == protocol.lastDate());
+            }
+        }
+
         if (verbose) cout << "\nTesting 'yearsDiff(date1, date2)'" << endl;
         {
             {
-                bbldc::BasicDateRangeDayCountAdapter<bbldc::BasicIsdaActualActual>
-                                                                            mX;
+                bbldc::BasicDateRangeDayCountAdapter<
+                                              bbldc::BasicIsdaActualActual> mX;
 
                 bbldc::DateRangeDayCount& protocol = mX;
 

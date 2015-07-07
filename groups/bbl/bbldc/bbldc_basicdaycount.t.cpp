@@ -28,8 +28,8 @@ using namespace bsl;
 //: o It is possible to create a concrete implementation of the protocol.
 // ----------------------------------------------------------------------------
 // [ 1] virtual ~BasicDayCount();
-// [ 1] virtual int daysDiff(beginDate, endDate) = 0;
-// [ 1] virtual double yearsDiff(beginDate, endDate) = 0;
+// [ 1] virtual int daysDiff(beginDate, endDate) const = 0;
+// [ 1] virtual double yearsDiff(beginDate, endDate) const = 0;
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
@@ -333,8 +333,8 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   virtual ~BasicDayCount();
-        //   virtual int daysDiff(beginDate, endDate) = 0;
-        //   virtual double yearsDiff(beginDate, endDate) = 0;
+        //   virtual int daysDiff(beginDate, endDate) const = 0;
+        //   virtual double yearsDiff(beginDate, endDate) const = 0;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "PROTOCOL TEST" << endl

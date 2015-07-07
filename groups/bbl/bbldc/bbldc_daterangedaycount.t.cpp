@@ -28,8 +28,10 @@ using namespace bsl;
 //: o It is possible to create a concrete implementation of the protocol.
 // ----------------------------------------------------------------------------
 // [ 1] virtual ~DateRangeDayCount();
-// [ 1] virtual int daysDiff(beginDate, endDate) = 0;
-// [ 1] virtual double yearsDiff(beginDate, endDate) = 0;
+// [ 1] virtual int daysDiff(beginDate, endDate) const = 0;
+// [ 1] virtual const Date& firstDate() const = 0;
+// [ 1] virtual const Date& lastDate() const = 0;
+// [ 1] virtual double yearsDiff(beginDate, endDate) const = 0;
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
@@ -176,12 +178,14 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
     }
 
     const bdlt::Date& firstDate() const {
-        static bdlt::Date firstDate(1, 1, 1);
+        static bdlt::Date firstDate(9999, 12, 31);
+        markDone();
         return firstDate;
     }
 
     const bdlt::Date& lastDate() const {
         static bdlt::Date lastDate(9999, 12, 31);
+        markDone();
         return lastDate;
     }
 
@@ -378,8 +382,10 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   virtual ~DateRangeDayCount();
-        //   virtual int daysDiff(beginDate, endDate) = 0;
-        //   virtual double yearsDiff(beginDate, endDate) = 0;
+        //   virtual int daysDiff(beginDate, endDate) const = 0;
+        //   virtual const Date& firstDate() const = 0;
+        //   virtual const Date& lastDate() const = 0;
+        //   virtual double yearsDiff(beginDate, endDate) const = 0;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "PROTOCOL TEST" << endl
@@ -405,6 +411,10 @@ int main(int argc, char *argv[])
 
         BSLS_PROTOCOLTEST_ASSERT(testObj, daysDiff(bdlt::Date(2012, 1, 1),
                                                    bdlt::Date(2012, 1, 1)));
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, firstDate());
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, lastDate());
 
         BSLS_PROTOCOLTEST_ASSERT(testObj, yearsDiff(bdlt::Date(2012, 1, 1),
                                                     bdlt::Date(2012, 1, 1)));

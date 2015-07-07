@@ -25,13 +25,13 @@ BSLS_IDENT("$Id: $")
 //                   const bsl::vector<bdlt::Date>& periodDate,
 //                   double                         periodYearDiff) const;
 //..
-// The template class 'bbldc::PeriodDateRangeDayCountAdapter' provides convenient
-// support for run-time polymorphic choice of day-count conventions (via
-// conventional use of a base-class pointer or reference) without having to
-// implement each derived type explicitly.  In this sense,
-// 'bbldc::PeriodDateRangeDayCountAdapter' adapts the various concrete period-based
-// day-count convention classes (e.g., 'bbldc::PeriodIcmaActualActual') to a
-// run-time binding mechanism.
+// The template class 'bbldc::PeriodDateRangeDayCountAdapter' provides
+// convenient support for run-time polymorphic choice of day-count conventions
+// (via conventional use of a base-class pointer or reference) without having
+// to implement each derived type explicitly.  In this sense,
+// 'bbldc::PeriodDateRangeDayCountAdapter' adapts the various concrete
+// period-based day-count convention classes (e.g.,
+// 'bbldc::PeriodIcmaActualActual') to a run-time binding mechanism.
 //
 ///Usage
 ///-----
@@ -39,11 +39,12 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Adapting 'bbldc::PeriodIcmaActualActual'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example shows the procedure for using 'bbldc::PeriodDateRangeDayCountAdapter' to
-// adapt the 'bbldc::PeriodIcmaActualActual' day-count convention to the
-// 'bbldc::DateRangeDayCount', and then the use of the day-count methods.
-// First, we create a schedule of period dates, 'sched', corresponding to a
-// quarterly payment ('periodYearDiff == 0.25'):
+// This example shows the procedure for using
+// 'bbldc::PeriodDateRangeDayCountAdapter' to adapt the
+// 'bbldc::PeriodIcmaActualActual' day-count convention to the
+// 'bbldc::DateRangeDayCount' protocol, and then the use of the day-count
+// methods.  First, we create a schedule of period dates, 'sched',
+// corresponding to a quarterly payment ('periodYearDiff == 0.25'):
 //..
 //  bsl::vector<bdlt::Date> sched;
 //  sched.push_back(bdlt::Date(2003, 10, 1));
@@ -143,9 +144,10 @@ class PeriodDateRangeDayCountAdapter : public DateRangeDayCount {
 
   public:
     // CREATORS
-    PeriodDateRangeDayCountAdapter(const bsl::vector<bdlt::Date>&  periodDate,
-                          double                          periodYearDiff,
-                          bslma::Allocator               *basicAllocator = 0);
+    PeriodDateRangeDayCountAdapter(
+                           const bsl::vector<bdlt::Date>&  periodDate,
+                           double                          periodYearDiff,
+                           bslma::Allocator               *basicAllocator = 0);
         // Create a day-count adapter that uses the specified 'periodDate' and
         // 'periodYearDiff' during invocations of 'yearsDiff'.  'periodDate'
         // provides the period starting dates and 'periodYearDiff' defines the
@@ -200,9 +202,9 @@ class PeriodDateRangeDayCountAdapter : public DateRangeDayCount {
 //                             INLINE DEFINITIONS
 // ============================================================================
 
-                       // ---------------------------
-                       // class PeriodDateRangeDayCountAdapter
-                       // ---------------------------
+                   // ------------------------------------
+                   // class PeriodDateRangeDayCountAdapter
+                   // ------------------------------------
 
 // PRIVATE ACCESSORS
 template <class CONVENTION>

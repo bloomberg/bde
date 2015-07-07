@@ -15,7 +15,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a parameterized (template)
 // implementation, 'bbldc::BasicDateRangeDayCountAdapter', of the
 // 'bbldc::DateRangeDayCount' protocol.  The template argument can be any type
-// supporting the following four class methods.
+// supporting the following two class methods.
 //..
 //  int daysDiff(const bdlt::Date& beginDate,
 //               const bdlt::Date& endDate) const;

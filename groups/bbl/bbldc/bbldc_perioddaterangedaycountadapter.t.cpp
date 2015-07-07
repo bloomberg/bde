@@ -34,6 +34,8 @@ using namespace bsl;
 // [ 1] PeriodDateRangeDayCountAdapter(pD, pYD, bA);
 // [ 1] ~PeriodDateRangeDayCountAdapter();
 // [ 1] int daysDiff(beginDate, endDate) const;
+// [ 1] const bdlt::Date& firstDate() const;
+// [ 1] const bdlt::Date& lastDate() const;
 // [ 1] double yearsDiff(beginDate, endDate) const;
 // [ 1] bslma::Allocator *allocator() const;
 // ----------------------------------------------------------------------------
@@ -144,11 +146,12 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Adapting 'bbldc::PeriodIcmaActualActual'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example shows the procedure for using 'bbldc::PeriodDateRangeDayCountAdapter' to
-// adapt the 'bbldc::PeriodIcmaActualActual' day-count convention to the
-// 'bbldc::DateRangeDayCount', and then the use of the day-count methods.
-// First, we create a schedule of period dates, 'sched', corresponding to a
-// quarterly payment ('periodYearDiff == 0.25'):
+// This example shows the procedure for using
+// 'bbldc::PeriodDateRangeDayCountAdapter' to adapt the
+// 'bbldc::PeriodIcmaActualActual' day-count convention to the
+// 'bbldc::DateRangeDayCount' protocol, and then the use of the day-count
+// methods.  First, we create a schedule of period dates, 'sched',
+// corresponding to a quarterly payment ('periodYearDiff == 0.25'):
 //..
     bsl::vector<bdlt::Date> sched;
     sched.push_back(bdlt::Date(2003, 10, 1));
@@ -226,6 +229,8 @@ int main(int argc, char *argv[])
         //   PeriodDateRangeDayCountAdapter(pD, pYD, bA);
         //   ~PeriodDateRangeDayCountAdapter();
         //   int daysDiff(beginDate, endDate) const;
+        //   const bdlt::Date& firstDate() const;
+        //   const bdlt::Date& lastDate() const;
         //   double yearsDiff(beginDate, endDate) const;
         //   bslma::Allocator *allocator() const;
         // --------------------------------------------------------------------
@@ -257,6 +262,19 @@ int main(int argc, char *argv[])
 
                 ASSERT( 394 == protocol.daysDiff(DATE1, DATE2));
                 ASSERT(1095 == protocol.daysDiff(DATE3, DATE4));
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'firstDate' and 'lastDate'" << endl;
+        {
+            {
+                bbldc::PeriodDateRangeDayCountAdapter<
+                              bbldc::PeriodIcmaActualActual> mX(SCHEDULE, 1.0);
+
+                const bbldc::DateRangeDayCount& protocol = mX;
+
+                ASSERT(SCHEDULE.front() == protocol.firstDate());
+                ASSERT(SCHEDULE.back()  == protocol.lastDate());
             }
         }
 

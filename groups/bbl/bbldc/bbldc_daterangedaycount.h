@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a protocol,
 // 'bbldc::DateRangeDayCount', for implementing an arbitrary day-count
 // convention.  Concrete implementations of this protocol may implement, say,
-// the ISMA 30/360 day-count convention, or a custom day-count convention
+// the BUS-252 day-count convention, or a custom day-count convention
 // appropriate for some niche market.
 //
 // Several of the components in 'bbldc' provide individual day-count convention
