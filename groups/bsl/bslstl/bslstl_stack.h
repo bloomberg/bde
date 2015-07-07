@@ -288,6 +288,10 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_compilerfeatures.h>
 #endif
 
+#ifndef INCLUDED_BSLS_UTIL
+#include <bsls_util.h>
+#endif
+
 #ifndef INCLUDED_ALGORITHM
 #include <algorithm>
 #define INCLUDED_ALGORITHM
@@ -723,7 +727,7 @@ template <class... Args>
 inline
 void stack<VALUE, CONTAINER>::emplace(Args&&... args)
 {
-    d_container.emplace_back(std::forward<Args>(args)...);
+    d_container.emplace_back(BloombergLP::bsls::Util::forward<Args>(args)...);
 }
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
