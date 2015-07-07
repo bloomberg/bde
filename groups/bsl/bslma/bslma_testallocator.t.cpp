@@ -9,9 +9,9 @@
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 
-#include <cstdio>               // 'printf'
-#include <cstdlib>              // 'atoi'
-#include <cstring>              // 'memset', 'strlen'
+#include <stdio.h>              // 'printf'
+#include <stdlib.h>             // 'atoi'
+#include <string.h>             // 'memset', 'strlen'
 #include <iostream>
 #ifdef BSLS_PLATFORM_OS_UNIX
 #include <unistd.h>             // 'pipe', 'close', 'dup'
@@ -103,24 +103,34 @@ using namespace std;
 // [11] Ensure that over and underruns are properly caught.
 // [13] Ensure that 'allocate' and 'deallocate' are thread-safe.
 
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
-static void aSsErT(int c, const char *s, int i)
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
+}  // close unnamed namespace
+
 // ============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
 #define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
@@ -129,13 +139,12 @@ static void aSsErT(int c, const char *s, int i)
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -565,7 +574,7 @@ int main(int argc, char *argv[])
     bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     // Additional code for usage test:
     bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
@@ -1593,7 +1602,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Make sure name is correct."
                           << endl;
 
-        ASSERT(0 == std::memcmp(NAME, a.name(), length));
+        ASSERT(0 == memcmp(NAME, a.name(), length));
       } break;
       case 5: {
         // --------------------------------------------------------------------

@@ -8,10 +8,11 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_bsltestutil.h>
 #include <bsls_types.h>
 
-#include <cstdlib>     // 'atoi'
-#include <cstring>     // 'strlen'
+#include <stdlib.h>     // 'atoi'
+#include <string.h>     // 'strlen'
 #include <iostream>
 
 using namespace BloombergLP;
@@ -65,56 +66,48 @@ using namespace std;
 // [ 3] CONCERN: All accessor methods are declared 'const'.
 // [ *] CONCERN: There is no memory allocation from any allocator.
 
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static int testStatus = 0;
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+}  // close unnamed namespace
 
 // ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) {                                                    \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) {                                                 \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": "                 \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define LOOP3_ASSERT(I,J,K,X) {                                               \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t"     \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) {                                             \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n";                    \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) {                                           \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" <<  \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" <<                  \
-       #M << ": " << M << "\n";                                               \
-       aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
-#define T_ cout << "\t" << flush;             // Print tab w/o newline.
-#define L_ __LINE__                           // current Line number
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -227,7 +220,7 @@ typedef bslma::TestAllocatorMonitor Tam;
     {
         BSLS_ASSERT_SAFE(value);
 
-        size_t size = std::strlen(value) + 1;
+        size_t size = strlen(value) + 1;
         if (size > d_capacity) {
             char *newMemory = (char *) d_allocator_p->allocate(size);
             d_allocator_p->deallocate(d_description_p);
@@ -235,7 +228,7 @@ typedef bslma::TestAllocatorMonitor Tam;
             d_capacity      = size;
 
         }
-        std::memcpy(d_description_p, value, size);
+        memcpy(d_description_p, value, size);
     }
 //..
 // Notice that the implementation of the manipulator allocates/deallocates
@@ -266,7 +259,7 @@ int main(int argc, char *argv[])
     bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
     // CONCERN: In no case does memory come from the global allocator.
 
@@ -449,7 +442,7 @@ int main(int argc, char *argv[])
 //..
 
             obj.setDescription("a");
-            ASSERT(0 == std::strcmp("a", obj.description()));
+            ASSERT(0 == strcmp("a", obj.description()));
 
             ASSERT(oam2.isTotalSame());  // no allocations
 //..
@@ -481,7 +474,7 @@ int main(int argc, char *argv[])
             ASSERT(sizeof(DESCRIPTION1) < sizeof(DESCRIPTION2));
 
             obj.setDescription(DESCRIPTION2);
-            ASSERT(0 == std::strcmp(DESCRIPTION2, obj.description()));
+            ASSERT(0 == strcmp(DESCRIPTION2, obj.description()));
 
             ASSERT(oam2.isTotalUp());    // The object allocator used.
 
@@ -519,7 +512,7 @@ int main(int argc, char *argv[])
             ASSERT(sizeof(DESCRIPTION2) < sizeof(DESCRIPTION3));
 
             obj.setDescription(DESCRIPTION3);
-            ASSERT(0 == std::strcmp(DESCRIPTION3, obj.description()));
+            ASSERT(0 == strcmp(DESCRIPTION3, obj.description()));
 
             ASSERT(oam3.isTotalUp());    // The object allocator used.
 
