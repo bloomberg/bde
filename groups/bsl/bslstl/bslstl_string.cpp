@@ -4,6 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <cstdio>
+
 // IMPLEMENTATION NOTES:
 // This string class implements a "short string optimization" which optimizes
 // the handling of short strings (strings shorter than a certain length) by
@@ -40,6 +42,549 @@ std::size_t bsl::hashBasicString(const wstring& str)
 {
     return hashBasicString<wchar_t, char_traits<wchar_t>, allocator<wchar_t> >(
                                                                           str);
+}
+
+int bsl::stoi(const string& str, std::size_t* pos, int base){
+    char* ptr;
+    int original_errno = errno;
+
+    errno = 0;
+    long value = std::strtol(str.c_str(), &ptr, base);
+
+    if (errno == ERANGE) {
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoi");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoi");
+    }
+
+    if (pos){
+        *pos = static_cast<size_t>(ptr - str.c_str());
+    }
+
+    errno = original_errno;
+    return value;
+}
+
+int bsl::stoi(const wstring& str, std::size_t* pos, int base){
+    wchar_t* ptr;
+    int original_errno = errno;
+
+    errno = 0;
+    long value = std::wcstol(str.c_str(), &ptr, base);
+
+    if (errno == ERANGE){
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoi");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoi");
+    }
+
+    if (pos) {
+        *pos = static_cast<size_t>(ptr - str.c_str());
+    }
+
+    errno = original_errno;
+    return value;
+}
+
+long bsl::stol(const string& str, std::size_t* pos, int base){
+    char* ptr;
+    int original_errno = errno;
+
+    errno = 0;
+    long value = std::strtol(str.c_str(), &ptr, base);
+
+    if (errno == ERANGE){
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stol");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stol");
+    }
+
+    if (pos){
+        *pos = static_cast<size_t>(ptr - str.c_str());
+    }
+
+    errno = original_errno;
+    return value;
+}
+
+long bsl::stol(const wstring& str, std::size_t* pos, int base){
+    wchar_t* ptr;
+    int original_errno = errno;
+
+    errno = 0;
+    long value = std::wcstol(str.c_str(), &ptr, base);
+
+    if (errno == ERANGE){
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stol");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stol");
+    }
+
+    if (pos) {
+        *pos = static_cast<size_t>(ptr - str.c_str());
+    }
+
+    errno = original_errno;
+    return value;
+}
+
+unsigned long bsl::stoul(const string& str, std::size_t* pos, int base){
+    char* ptr;
+    int original_errno = errno;
+
+    errno = 0;
+    unsigned long value = std::strtoul(str.c_str(), &ptr, base);
+
+    if (errno == ERANGE){
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoul");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoul");
+    }
+
+    if (pos){
+        *pos = ptr - str.c_str();
+    }
+
+    errno = original_errno;
+    return value;
+}
+
+unsigned long bsl::stoul(const wstring& str,
+                                                   std::size_t* pos, int base){
+    wchar_t* ptr;
+    int original_errno = errno;
+
+    errno = 0;
+    unsigned long value = std::wcstoul(str.c_str(), &ptr, base);
+
+    if (errno == ERANGE){
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoul");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoul");
+    }
+
+    if (pos) {
+        *pos = ptr - str.c_str();
+    }
+
+    errno = original_errno;
+    return value;
+}
+
+#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
+long long bsl::stoll(const string& str, std::size_t* pos, int base){
+    char* ptr;
+    int original_errno = errno;
+
+    errno = 0;
+    long long value = strtoll(str.c_str(), &ptr, base);
+
+    if (errno == ERANGE){
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoll");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoll");
+    }
+
+    if (pos) {
+        *pos = ptr - str.c_str();
+    }
+
+    errno = original_errno;
+    return value;
+}
+
+long long bsl::stoll(const wstring& str, std::size_t* pos, int base){
+    wchar_t* ptr;
+    int original_errno = errno;
+
+    errno = 0;
+    long long value = wcstoll(str.c_str(), &ptr, base);
+
+    if (errno == ERANGE){
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoll");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoll");
+    }
+
+    if (pos) {
+        *pos = ptr - str.c_str();
+    }
+
+    errno = original_errno;
+    return value;
+}
+
+unsigned long long bsl::stoull(const string& str, std::size_t* pos, int base){
+    char* ptr;
+    int original_errno = errno;
+
+    errno = 0;
+    unsigned long long value = strtoull(str.c_str(), &ptr, base);
+
+    if (errno == ERANGE){
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoull");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoull");
+    }
+
+    if (pos) {
+        *pos = ptr - str.c_str();
+    }
+
+    errno = original_errno;
+    return value;
+}
+
+unsigned long long bsl::stoull(const wstring& str, std::size_t* pos, int base){
+    wchar_t* ptr;
+    int original_errno = errno;
+
+    errno = 0;
+    unsigned long long value = wcstoull(str.c_str(), &ptr, base);
+
+    if (errno == ERANGE){
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoull");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stoull");
+    }
+
+    if (pos) {
+        *pos = ptr - str.c_str();
+    }
+
+    errno = original_errno;
+    return value;
+}
+#endif
+
+float bsl::stof(const string& str, std::size_t* pos){
+    char* ptr;
+    int original_errno = errno;
+
+    errno = 0;
+    float value = std::strtod(str.c_str(), &ptr);
+
+    if (errno == ERANGE){
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stof");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stof");
+    }
+
+    if (pos) {
+        *pos = ptr - str.c_str();
+    }
+
+    errno = original_errno;
+    return value;
+}
+
+float bsl::stof(const wstring& str, std::size_t* pos){
+    wchar_t* ptr;
+    int original_errno = errno;
+
+    errno = 0;
+    float value = std::wcstod(str.c_str(), &ptr);
+
+    if (errno == ERANGE){
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stof");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stof");
+    }
+
+    if (pos) {
+        *pos = ptr - str.c_str();
+    }
+
+    errno = original_errno;
+    return value;
+}
+
+double bsl::stod(const string& str, std::size_t* pos){
+    char* ptr;
+    int original_errno = errno;
+
+    errno = 0;
+    double value = std::strtod(str.c_str(), &ptr);
+
+    if (errno == ERANGE){
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stod");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stod");
+    }
+
+    if (pos) {
+        *pos = ptr - str.c_str();
+    }
+
+    errno = original_errno;
+    return value;
+}
+
+double bsl::stod(const wstring& str, std::size_t* pos){
+    wchar_t* ptr;
+    int original_errno = errno; 
+
+    errno = 0;
+    double value = std::wcstod(str.c_str(), &ptr);
+
+    if (errno == ERANGE){
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stod");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stod");
+    }
+
+    if (pos) {
+        *pos = ptr - str.c_str();
+    }
+
+    errno = original_errno;
+    return value;
+}
+
+#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
+long double bsl::stold(const string& str, std::size_t* pos){
+    char* ptr;
+    int original_errno = errno;
+
+    errno = 0;
+    long double value = strtold(str.c_str(), &ptr);
+
+    if (errno == ERANGE){
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stold");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stold");
+    }
+
+    if (pos) {
+        *pos = ptr - str.c_str();
+    }
+
+    errno = original_errno;
+    return value;
+}
+
+long double bsl::stold(const wstring& str, std::size_t* pos){
+    wchar_t* ptr;
+    int original_errno = errno;
+
+    errno = 0;
+    long double value = wcstold(str.c_str(), &ptr);
+
+    if (errno == ERANGE){
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stold");
+    }
+    else if (ptr == str.c_str()){
+        BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument("stold");
+    }
+
+    if (pos) {
+        *pos = ptr - str.c_str();
+    }
+
+    errno = original_errno;
+    return value;
+}
+#endif
+
+bsl::string bsl::to_string(int value) {
+    BSLS_ASSERT(std::numeric_limits<int>::digits * 100/332 +
+                std::numeric_limits<int>::is_signed + 1 <
+                bsl::string::SHORT_BUFFER_LENGTH);
+
+    bsl::string str;
+    int len = sprintf(str.dataPtr(), "%d", value);
+
+    BSLS_ASSERT_SAFE(len < bsl::string::SHORT_BUFFER_LENGTH);
+
+    str.d_length = len;
+    return str;
+}
+
+bsl::string bsl::to_string(unsigned value) {
+    BSLS_ASSERT(std::numeric_limits<unsigned>::digits * 100/332 +
+                std::numeric_limits<unsigned>::is_signed + 1 <
+                bsl::string::SHORT_BUFFER_LENGTH);
+
+    bsl::string str;
+    int len = sprintf(str.dataPtr(), "%u", value);
+
+    BSLS_ASSERT_SAFE(len < bsl::string::SHORT_BUFFER_LENGTH);
+
+    str.d_length = len;
+    return str;
+}
+
+bsl::string bsl::to_string(long value) {
+    BSLS_ASSERT(std::numeric_limits<long>::digits * 100/332 +
+                std::numeric_limits<long>::is_signed + 1 <
+                bsl::string::SHORT_BUFFER_LENGTH);
+
+    bsl::string str;
+    int len = sprintf(str.dataPtr(), "%ld", value);
+
+    BSLS_ASSERT_SAFE(len < bsl::string::SHORT_BUFFER_LENGTH);
+
+    str.d_length = len;
+    return str;
+}
+
+bsl::string bsl::to_string(unsigned long value) {
+    BSLS_ASSERT(std::numeric_limits<unsigned long >::digits * 100/332 +
+                std::numeric_limits<unsigned long >::is_signed + 1 <
+                bsl::string::SHORT_BUFFER_LENGTH);
+
+    bsl::string str;
+    int len = sprintf(str.dataPtr(), "%lu", value);
+
+    BSLS_ASSERT_SAFE(len < bsl::string::SHORT_BUFFER_LENGTH);
+
+    str.d_length = len;
+    return str;
+}
+
+bsl::string bsl::to_string(long long value) {
+    char tempBuf[e_MAX_INT64_STRLEN10];
+    int len = sprintf(tempBuf, "%lld", value);
+
+    BSLS_ASSERT_SAFE(len < e_MAX_INT64_STRLEN10);
+    return string (tempBuf, len);
+}
+
+bsl::string bsl::to_string(unsigned long long value) {
+    char tempBuf[e_MAX_INT64_STRLEN10];
+    int len = sprintf(tempBuf, "%llu", value);
+
+    BSLS_ASSERT_SAFE(len < e_MAX_INT64_STRLEN10);
+    return string (tempBuf, len);
+}
+
+bsl::string bsl::to_string(float value) {
+    char tempBuf[e_MAX_FLOAT_STRLEN10];
+    int len = sprintf(tempBuf, "%f", value);
+
+    BSLS_ASSERT_SAFE(len < e_MAX_FLOAT_STRLEN10);
+    return string (tempBuf, len);
+}
+
+bsl::string bsl::to_string(double value) {
+    char tempBuf[e_MAX_DOUBLE_STRLEN10];
+    int len = sprintf(tempBuf, "%f", value);
+
+    BSLS_ASSERT_SAFE(len < e_MAX_DOUBLE_STRLEN10);
+    return string (tempBuf, len);
+}
+
+bsl::string bsl::to_string(long double value) {
+    char tempBuf[e_MAX_LONGDOUBLE_STRLEN10];
+    int len = sprintf(tempBuf, "%Lf", value);
+
+    BSLS_ASSERT_SAFE(len < e_MAX_LONGDOUBLE_STRLEN10);
+    return string (tempBuf, len);
+}
+
+bsl::wstring bsl::to_wstring(int value) {
+    wchar_t tempBuf[e_MAX_INT_STRLEN10];
+    int len = swprintf(tempBuf,
+                       sizeof tempBuf / sizeof *tempBuf,
+                       L"%d", value);
+
+    BSLS_ASSERT_SAFE(len < e_MAX_INT_STRLEN10);
+    return wstring (tempBuf, len);
+}
+
+bsl::wstring bsl::to_wstring(long value) {
+    wchar_t tempBuf[e_MAX_INT64_STRLEN10];
+    int len = swprintf(tempBuf,
+                       sizeof tempBuf / sizeof *tempBuf,
+                       L"%ld", value);
+
+    BSLS_ASSERT_SAFE(len < e_MAX_INT64_STRLEN10);
+    return wstring (tempBuf, len);
+}
+
+bsl::wstring bsl::to_wstring(long long value) {
+    wchar_t tempBuf[e_MAX_INT64_STRLEN10];
+    int len = swprintf(tempBuf,
+                       sizeof tempBuf / sizeof *tempBuf,
+                       L"%lld", value);
+
+    BSLS_ASSERT_SAFE(len < e_MAX_INT64_STRLEN10);
+    return wstring (tempBuf, len);
+}
+
+bsl::wstring bsl::to_wstring(unsigned value) {
+    wchar_t tempBuf[e_MAX_INT_STRLEN10];
+    int len = swprintf(tempBuf,
+                       sizeof tempBuf / sizeof *tempBuf,
+                       L"%u", value);
+
+    BSLS_ASSERT_SAFE(len < e_MAX_INT_STRLEN10);
+    return wstring (tempBuf, len);
+}
+
+bsl::wstring bsl::to_wstring(unsigned long value) {
+    wchar_t tempBuf[e_MAX_INT64_STRLEN10];
+    int len = swprintf(tempBuf,
+                       sizeof tempBuf / sizeof *tempBuf,
+                       L"%lu", value);
+
+    BSLS_ASSERT_SAFE(len < e_MAX_INT64_STRLEN10);
+    return wstring (tempBuf, len);
+}
+
+bsl::wstring bsl::to_wstring(unsigned long long value) {
+    wchar_t tempBuf[e_MAX_INT64_STRLEN10];
+    int len = swprintf(tempBuf,
+                       sizeof tempBuf / sizeof *tempBuf,
+                       L"%llu", value);
+
+    BSLS_ASSERT_SAFE(len < e_MAX_INT64_STRLEN10);
+    return wstring (tempBuf, len);
+}
+
+bsl::wstring bsl::to_wstring(float value) {
+    wchar_t tempBuf[e_MAX_FLOAT_STRLEN10];
+    int len = swprintf(tempBuf,
+                       sizeof tempBuf / sizeof *tempBuf,
+                       L"%f", value);
+
+    BSLS_ASSERT_SAFE(len < e_MAX_FLOAT_STRLEN10);
+    return wstring (tempBuf, len);
+}
+
+bsl::wstring bsl::to_wstring(double value) {
+    wchar_t tempBuf[e_MAX_DOUBLE_STRLEN10];
+    int len = swprintf(tempBuf,
+                       sizeof tempBuf / sizeof *tempBuf,
+                       L"%f", value);
+
+    BSLS_ASSERT_SAFE(len < e_MAX_DOUBLE_STRLEN10);
+    return wstring (tempBuf, len);
+}
+
+bsl::wstring bsl::to_wstring(long double value) {
+    wchar_t tempBuf[e_MAX_LONGDOUBLE_STRLEN10];
+    int len = swprintf(tempBuf,
+                       sizeof tempBuf / sizeof *tempBuf,
+                       L"%Lf", value);
+
+    BSLS_ASSERT_SAFE(len < e_MAX_LONGDOUBLE_STRLEN10);
+    return wstring (tempBuf, len);
 }
 
 #endif
