@@ -1,4 +1,4 @@
-// bbldc_basicdaterangedaycountadapter.cpp                             -*-C++-*-
+// bbldc_basicdaterangedaycountadapter.cpp                            -*-C++-*-
 #include <bbldc_basicdaterangedaycountadapter.h>
 
 #include <bsls_ident.h>

@@ -209,7 +209,7 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
 // convention.  This functionality suffices to demonstrate the requisite steps
 // for having a working day-count convention:
 //: * Define a concrete day-count type derived from 'bbldc::DateRangeDayCount'.
-//: * Implement the pure virtual 'daysDiff' and 'yearsDiff' methods.
+//: * Implement the four pure virtual methods.
 //: * Instantiate and use an object of the concrete type.
 //
 // First define the (derived) 'my_DayCountConvention' class and implement its
@@ -247,9 +247,9 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
 
     my_DayCountConvention::~my_DayCountConvention() { }
 //..
-// Next, we implement the (virtual) 'daysDiff' and 'yearsDiff' methods, which
-// incorporate the "policy" of what it means for this day-count convention to
-// calculate these values:
+// Next, we implement the (virtual) 'daysDiff', 'firstDate', 'lastDate', and
+// 'yearsDiff' methods, which incorporate the "policy" of what it means for
+// this day-count convention to calculate these values:
 //..
     int my_DayCountConvention::daysDiff(const bdlt::Date& beginDate,
                                         const bdlt::Date& endDate) const
@@ -270,7 +270,7 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
     double my_DayCountConvention::yearsDiff(const bdlt::Date& beginDate,
                                             const bdlt::Date& endDate) const
     {
-        return static_cast<double>((endDate - beginDate) / 365.0);
+        return static_cast<double>(endDate - beginDate) / 365.0;
     }
 //..
 

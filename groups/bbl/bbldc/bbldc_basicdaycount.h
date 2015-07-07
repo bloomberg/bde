@@ -93,7 +93,7 @@ BSLS_IDENT("$Id: $")
 // Next, we obtain a 'bbldc::BasicDayCount' reference from an instantiated
 // 'my_DayCountConvention':
 //..
-//  my_DayCountConvention           myDcc;
+//  my_DayCountConvention       myDcc;
 //  const bbldc::BasicDayCount& dcc = myDcc;
 //..
 // Now, we compute the day count between the two dates:

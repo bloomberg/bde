@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a parameterized day-count convention implementation.
 //
 //@CLASSES:
-//  bbldc::BasicDateRangeDayCountAdapter: 'bbldc::DateRangeDayCount' realization
+//  bbldc::BasicDateRangeDayCountAdapter: 'bbldc::DateRangeDayCount' adapter
 //
 //@DESCRIPTION: This component provides a parameterized (template)
 // implementation, 'bbldc::BasicDateRangeDayCountAdapter', of the
@@ -23,10 +23,10 @@ BSLS_IDENT("$Id: $")
 //  double yearsDiff(const bdlt::Date& beginDate,
 //                   const bdlt::Date& endDate) const;
 //..
-// The template class 'bbldc::BasicDateRangeDayCountAdapter' provides convenient
-// support for run-time polymorphic choice of day-count conventions (via
-// conventional use of a base-class pointer or reference) without having to
-// implement each derived type explicitly.  In this sense,
+// The template class 'bbldc::BasicDateRangeDayCountAdapter' provides
+// convenient support for run-time polymorphic choice of day-count conventions
+// (via conventional use of a base-class pointer or reference) without having
+// to implement each derived type explicitly.  In this sense,
 // 'bbldc::BasicDateRangeDayCountAdapter' adapts the various concrete "basic"
 // day-count convention classes (e.g., 'bbldc::BasicIsma30360') to a run-time
 // binding mechanism.
@@ -39,9 +39,9 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - - - - - - - - - - -
 // This example shows the procedure for using
 // 'bbldc::BasicDateRangeDayCountAdapter' to adapt the 'bbldc::BasicIsma30360'
-// day-count convention to the 'bbldc::DateRangeDayCount' protocol, and then the
-// use of the day-count methods.  First, we define an instance of the adapted
-// day-count convention and obtain a reference to the
+// day-count convention to the 'bbldc::DateRangeDayCount' protocol, and then
+// the use of the day-count methods.  First, we define an instance of the
+// adapted day-count convention and obtain a reference to the
 // 'bbldc::DateRangeDayCount':
 //..
 //  const bbldc::BasicDateRangeDayCountAdapter<bbldc::BasicIsma30360> myDcc;

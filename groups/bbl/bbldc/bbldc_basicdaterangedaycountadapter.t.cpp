@@ -1,4 +1,4 @@
-// bbldc_basicdaterangedaycountadapter.t.cpp                         -*-C++-*-
+// bbldc_basicdaterangedaycountadapter.t.cpp                          -*-C++-*-
 
 #include <bbldc_basicdaterangedaycountadapter.h>
 
@@ -120,9 +120,10 @@ int main(int argc, char *argv[])
 ///- - - - - - - - - - - - - - - - - - - - - -
 // This example shows the procedure for using
 // 'bbldc::BasicDateRangeDayCountAdapter' to adapt the 'bbldc::BasicIsma30360'
-// day-count convention to the 'bbldc::BasicDayCount' protocol, and then the
-// use of the day-count methods.  First, we define an instance of the adapted
-// day-count convention and obtain a reference to the 'bbldc::BasicDayCount':
+// day-count convention to the 'bbldc::DateRangeDayCount' protocol, and then
+// the use of the day-count methods.  First, we define an instance of the
+// adapted day-count convention and obtain a reference to the
+// 'bbldc::DateRangeDayCount':
 //..
     const bbldc::BasicDateRangeDayCountAdapter<bbldc::BasicIsma30360> myDcc;
 
