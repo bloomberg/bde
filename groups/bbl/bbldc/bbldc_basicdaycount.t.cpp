@@ -1,6 +1,6 @@
-// bbldc_daycountinterface.t.cpp                                      -*-C++-*-
+// bbldc_basicdaycount.t.cpp                                          -*-C++-*-
 
-#include <bbldc_daycountinterface.h>
+#include <bbldc_basicdaycount.h>
 
 #include <bdls_testutil.h>
 
@@ -27,7 +27,7 @@ using namespace bsl;
 //: o The test driver is robust w.r.t. reuse in other, similar components.
 //: o It is possible to create a concrete implementation of the protocol.
 // ----------------------------------------------------------------------------
-// [ 1] virtual ~DayCountInterface();
+// [ 1] virtual ~BasicDayCount();
 // [ 1] virtual int daysDiff(beginDate, endDate) = 0;
 // [ 1] virtual double yearsDiff(beginDate, endDate) = 0;
 // ----------------------------------------------------------------------------
@@ -84,7 +84,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 int my_ConventionDestructorCalled;
 
-class my_Convention : public bbldc::DayCountInterface {
+class my_Convention : public bbldc::BasicDayCount {
 
   public:
     // CREATORS
@@ -147,7 +147,7 @@ double my_Convention::yearsDiff(const bdlt::Date& beginDate,
 
 namespace {
 
-typedef bbldc::DayCountInterface ProtocolClass;
+typedef bbldc::BasicDayCount ProtocolClass;
 
 struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
     int daysDiff(const bdlt::Date& beginDate,
@@ -180,7 +180,7 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
 // This example shows the definition and use of a simple concrete day-count
 // convention.  This functionality suffices to demonstrate the requisite steps
 // for having a working day-count convention:
-//: * Define a concrete day-count type derived from 'bbldc::DayCountInterface'.
+//: * Define a concrete day-count type derived from 'bbldc::BasicDayCount'.
 //: * Implement the pure virtual 'daysDiff' and 'yearsDiff' methods.
 //: * Instantiate and use an object of the concrete type.
 //
@@ -190,7 +190,7 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
 //..
     // my_daycountconvention.h
 
-    class my_DayCountConvention : public bbldc::DayCountInterface {
+    class my_DayCountConvention : public bbldc::BasicDayCount {
       public:
         my_DayCountConvention() { }
         virtual ~my_DayCountConvention();
@@ -233,7 +233,7 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bbldc::DayCountInterface Obj;
+typedef bbldc::BasicDayCount Obj;
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -276,11 +276,11 @@ int main(int argc, char *argv[])
     const bdlt::Date d1(2003, 10, 19);
     const bdlt::Date d2(2003, 12, 31);
 //..
-// Next, we obtain a 'bbldc::DayCountInterface' reference from an instantiated
+// Next, we obtain a 'bbldc::BasicDayCount' reference from an instantiated
 // 'my_DayCountConvention':
 //..
-    my_DayCountConvention           myDcc;
-    const bbldc::DayCountInterface& dcc = myDcc;
+    my_DayCountConvention       myDcc;
+    const bbldc::BasicDayCount& dcc = myDcc;
 //..
 // Now, we compute the day count between the two dates:
 //..
@@ -332,7 +332,7 @@ int main(int argc, char *argv[])
         //:   2 publicly accessible. (C-5)
         //
         // Testing:
-        //   virtual ~DayCountInterface();
+        //   virtual ~BasicDayCount();
         //   virtual int daysDiff(beginDate, endDate) = 0;
         //   virtual double yearsDiff(beginDate, endDate) = 0;
         // --------------------------------------------------------------------

@@ -14,13 +14,13 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bbldc_daycountconvention, bbldc_periodicmaactualactual
 //
-//@DESCRIPTION: This component provides a 'struct', 'bbldc::PeriodDayCountUtil',
-// that defines a suite of date-related functions used to compute the day
-// count and the year fraction between two dates as prescribed by an
-// enumerated day-count convention.  Specifically, the 'daysDiff' and
-// 'yearsDiff' methods defined in 'bbldc::PeriodDayCountUtil' take a trailing
-// 'DayCountConvention::Enum' argument indicating which particular period-based
-// day-count convention to apply.
+//@DESCRIPTION: This component provides a 'struct',
+// 'bbldc::PeriodDayCountUtil', that defines a suite of date-related functions
+// used to compute the day count and the year fraction between two dates as
+// prescribed by an enumerated day-count convention.  Specifically, the
+// 'daysDiff' and 'yearsDiff' methods defined in 'bbldc::PeriodDayCountUtil'
+// take a trailing 'DayCountConvention::Enum' argument indicating which
+// particular period-based day-count convention to apply.
 //
 ///Usage
 ///-----

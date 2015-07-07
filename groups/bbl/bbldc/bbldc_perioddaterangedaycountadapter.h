@@ -1,6 +1,6 @@
-// bbldc_perioddaycountadapter.h                                      -*-C++-*-
-#ifndef INCLUDED_BBLDC_PERIODDAYCOUNTADAPTER
-#define INCLUDED_BBLDC_PERIODDAYCOUNTADAPTER
+// bbldc_perioddaterangedaycountadapter.h                             -*-C++-*-
+#ifndef INCLUDED_BBLDC_PERIODDATERANGEDAYCOUNTADAPTER
+#define INCLUDED_BBLDC_PERIODDATERANGEDAYCOUNTADAPTER
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,11 +10,11 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a parameterized day-count convention implementation.
 //
 //@CLASSES:
-//  bbldc::PeriodDayCountAdapter: 'bbldc::DayCountInterface' realization
+//  bbldc::PeriodDateRangeDayCountAdapter: 'bbldc::DateRangeDayCount' adapter
 //
 //@DESCRIPTION: This component provides a parameterized (template)
-// implementation, 'bbldc::PeriodDayCountAdapter', of the
-// 'bbldc::DayCountInterface' protocol.  The template argument can be any type
+// implementation, 'bbldc::PeriodDateRangeDayCountAdapter', of the
+// 'bbldc::DateRangeDayCount' protocol.  The template argument can be any type
 // supporting the following two class methods.
 //..
 //  int daysDiff(const bdlt::Date& beginDate,
@@ -25,11 +25,11 @@ BSLS_IDENT("$Id: $")
 //                   const bsl::vector<bdlt::Date>& periodDate,
 //                   double                         periodYearDiff) const;
 //..
-// The template class 'bbldc::PeriodDayCountAdapter' provides convenient
+// The template class 'bbldc::PeriodDateRangeDayCountAdapter' provides convenient
 // support for run-time polymorphic choice of day-count conventions (via
 // conventional use of a base-class pointer or reference) without having to
 // implement each derived type explicitly.  In this sense,
-// 'bbldc::PeriodDayCountAdapter' adapts the various concrete period-based
+// 'bbldc::PeriodDateRangeDayCountAdapter' adapts the various concrete period-based
 // day-count convention classes (e.g., 'bbldc::PeriodIcmaActualActual') to a
 // run-time binding mechanism.
 //
@@ -39,9 +39,9 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Adapting 'bbldc::PeriodIcmaActualActual'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example shows the procedure for using 'bbldc::PeriodDayCountAdapter' to
+// This example shows the procedure for using 'bbldc::PeriodDateRangeDayCountAdapter' to
 // adapt the 'bbldc::PeriodIcmaActualActual' day-count convention to the
-// 'bbldc::DayCountInterface', and then the use of the day-count methods.
+// 'bbldc::DateRangeDayCount', and then the use of the day-count methods.
 // First, we create a schedule of period dates, 'sched', corresponding to a
 // quarterly payment ('periodYearDiff == 0.25'):
 //..
@@ -50,12 +50,12 @@ BSLS_IDENT("$Id: $")
 //  sched.push_back(bdlt::Date(2004,  1, 1));
 //..
 // Then, we define an instance of the adapted day-count convention and obtain
-// a reference to the 'bbldc::DayCountInterface':
+// a reference to the 'bbldc::DateRangeDayCount':
 //..
-//  const bbldc::PeriodDayCountAdapter<bbldc::PeriodIcmaActualActual>
+//  const bbldc::PeriodDateRangeDayCountAdapter<bbldc::PeriodIcmaActualActual>
 //                                                                 myDcc(sched,
 //                                                                       0.25);
-//  const bbldc::DayCountInterface&                                dcc = myDcc;
+//  const bbldc::DateRangeDayCount&                                dcc = myDcc;
 //..
 // Next, create two 'bdlt::Date' variables, 'd1' and 'd2', with which to use
 // the day-count convention methods:
@@ -81,8 +81,8 @@ BSLS_IDENT("$Id: $")
 #include <bblscm_version.h>
 #endif
 
-#ifndef INCLUDED_BBLDC_DAYCOUNTINTERFACE
-#include <bbldc_daycountinterface.h>
+#ifndef INCLUDED_BBLDC_DATERANGEDAYCOUNT
+#include <bbldc_daterangedaycount.h>
 #endif
 
 #ifndef INCLUDED_BDLT_DATE
@@ -114,19 +114,16 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
-namespace bdlt {  class Date;  }
-
 namespace bbldc {
 
-                       // ===========================
-                       // class PeriodDayCountAdapter
-                       // ===========================
+                   // ====================================
+                   // class PeriodDateRangeDayCountAdapter
+                   // ====================================
 
 template <class CONVENTION>
-class PeriodDayCountAdapter : public DayCountInterface {
+class PeriodDateRangeDayCountAdapter : public DateRangeDayCount {
     // This 'class' provides an "adapter" from the specified 'CONVENTION' to
-    // the 'bbldc::DayCountInterface' that can be used for determining values
+    // the 'bbldc::DateRangeDayCount' that can be used for determining values
     // based on dates according to the day-count 'CONVENTION'.
 
     // DATA
@@ -142,11 +139,11 @@ class PeriodDayCountAdapter : public DayCountInterface {
         // otherwise.
 
     // NOT IMPLEMENTED
-    PeriodDayCountAdapter(const PeriodDayCountAdapter&);
+    PeriodDateRangeDayCountAdapter(const PeriodDateRangeDayCountAdapter&);
 
   public:
     // CREATORS
-    PeriodDayCountAdapter(const bsl::vector<bdlt::Date>&  periodDate,
+    PeriodDateRangeDayCountAdapter(const bsl::vector<bdlt::Date>&  periodDate,
                           double                          periodYearDiff,
                           bslma::Allocator               *basicAllocator = 0);
         // Create a day-count adapter that uses the specified 'periodDate' and
@@ -159,7 +156,7 @@ class PeriodDayCountAdapter : public DayCountInterface {
         // the values contained in 'periodDate' are unique and sorted from
         // minimum to maximum.
 
-    virtual ~PeriodDayCountAdapter();
+    virtual ~PeriodDateRangeDayCountAdapter();
         // Destroy this object.
 
     // ACCESSORS
@@ -168,6 +165,18 @@ class PeriodDayCountAdapter : public DayCountInterface {
         // and 'endDate' as per the 'CONVENTION' template policy.  If
         // 'beginDate <= endDate', then the result is non-negative.  Note that
         // reversing the order of 'beginDate' and 'endDate' negates the result.
+
+    const bdlt::Date& firstDate() const;
+        // Return a reference providing non-modifiable access to
+        // 'periodDate.front()' for the 'periodDate' provided at construction.
+        // Note that this value is the earliest date in the valid range of this
+        // day-count convention.
+
+    const bdlt::Date& lastDate() const;
+        // Return a reference providing non-modifiable access to
+        // 'periodDate.back()' for the 'periodDate' provided at construction.
+        // Note that this value is the latest date in the valid range of this
+        // day-count convention.
 
     double yearsDiff(const bdlt::Date& beginDate,
                      const bdlt::Date& endDate) const;
@@ -192,12 +201,12 @@ class PeriodDayCountAdapter : public DayCountInterface {
 // ============================================================================
 
                        // ---------------------------
-                       // class PeriodDayCountAdapter
+                       // class PeriodDateRangeDayCountAdapter
                        // ---------------------------
 
 // PRIVATE ACCESSORS
 template <class CONVENTION>
-bool PeriodDayCountAdapter<CONVENTION>::isSortedAndUnique(
+bool PeriodDateRangeDayCountAdapter<CONVENTION>::isSortedAndUnique(
                                const bsl::vector<bdlt::Date>& periodDate) const
 {
     bsl::vector<bdlt::Date>::const_iterator begin = periodDate.begin();
@@ -223,7 +232,7 @@ bool PeriodDayCountAdapter<CONVENTION>::isSortedAndUnique(
 // CREATORS
 template <class CONVENTION>
 inline
-PeriodDayCountAdapter<CONVENTION>::PeriodDayCountAdapter(
+PeriodDateRangeDayCountAdapter<CONVENTION>::PeriodDateRangeDayCountAdapter(
                                 const bsl::vector<bdlt::Date>&  periodDate,
                                 double                          periodYearDiff,
                                 bslma::Allocator               *basicAllocator)
@@ -237,14 +246,14 @@ PeriodDayCountAdapter<CONVENTION>::PeriodDayCountAdapter(
 
 template <class CONVENTION>
 inline
-PeriodDayCountAdapter<CONVENTION>::~PeriodDayCountAdapter()
+PeriodDateRangeDayCountAdapter<CONVENTION>::~PeriodDateRangeDayCountAdapter()
 {
 }
 
 // ACCESSORS
 template <class CONVENTION>
 inline
-int PeriodDayCountAdapter<CONVENTION>::daysDiff(
+int PeriodDateRangeDayCountAdapter<CONVENTION>::daysDiff(
                                                const bdlt::Date& beginDate,
                                                const bdlt::Date& endDate) const
 {
@@ -253,7 +262,21 @@ int PeriodDayCountAdapter<CONVENTION>::daysDiff(
 
 template <class CONVENTION>
 inline
-double PeriodDayCountAdapter<CONVENTION>::yearsDiff(
+const bdlt::Date& PeriodDateRangeDayCountAdapter<CONVENTION>::firstDate() const
+{
+    return d_periodDate.front();
+}
+
+template <class CONVENTION>
+inline
+const bdlt::Date& PeriodDateRangeDayCountAdapter<CONVENTION>::lastDate() const
+{
+    return d_periodDate.back();
+}
+
+template <class CONVENTION>
+inline
+double PeriodDateRangeDayCountAdapter<CONVENTION>::yearsDiff(
                                                const bdlt::Date& beginDate,
                                                const bdlt::Date& endDate) const
 {
@@ -274,7 +297,7 @@ double PeriodDayCountAdapter<CONVENTION>::yearsDiff(
 
 template <class CONVENTION>
 inline
-bslma::Allocator *PeriodDayCountAdapter<CONVENTION>::allocator() const
+bslma::Allocator *PeriodDateRangeDayCountAdapter<CONVENTION>::allocator() const
 {
     return d_periodDate.get_allocator().mechanism();
 }
@@ -287,7 +310,7 @@ namespace BloombergLP {
 namespace bslma {
 
 template <class CONVENTION>
-struct UsesBslmaAllocator<bbldc::PeriodDayCountAdapter<CONVENTION> >
+struct UsesBslmaAllocator<bbldc::PeriodDateRangeDayCountAdapter<CONVENTION> >
                                                            : bsl::true_type {};
 
 }  // close namespace bslma

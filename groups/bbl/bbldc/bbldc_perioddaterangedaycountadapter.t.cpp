@@ -1,6 +1,6 @@
-// bbldc_perioddaycountadapter.t.cpp                                  -*-C++-*-
+// bbldc_perioddaterangedaycountadapter.t.cpp                         -*-C++-*-
 
-#include <bbldc_perioddaycountadapter.h>
+#include <bbldc_perioddaterangedaycountadapter.h>
 
 #include <bbldc_periodicmaactualactual.h>
 
@@ -31,8 +31,8 @@ using namespace bsl;
 // general plan is that the methods are tested with two different
 // template parameters to ensure the methods forward correctly.
 // ----------------------------------------------------------------------------
-// [ 1] PeriodDayCountAdapter(periodDate, periodYearDiff, basicAllocator);
-// [ 1] ~PeriodDayCountAdapter();
+// [ 1] PeriodDateRangeDayCountAdapter(pD, pYD, bA);
+// [ 1] ~PeriodDateRangeDayCountAdapter();
 // [ 1] int daysDiff(beginDate, endDate) const;
 // [ 1] double yearsDiff(beginDate, endDate) const;
 // [ 1] bslma::Allocator *allocator() const;
@@ -144,9 +144,9 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Adapting 'bbldc::PeriodIcmaActualActual'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example shows the procedure for using 'bbldc::PeriodDayCountAdapter' to
+// This example shows the procedure for using 'bbldc::PeriodDateRangeDayCountAdapter' to
 // adapt the 'bbldc::PeriodIcmaActualActual' day-count convention to the
-// 'bbldc::DayCountInterface', and then the use of the day-count methods.
+// 'bbldc::DateRangeDayCount', and then the use of the day-count methods.
 // First, we create a schedule of period dates, 'sched', corresponding to a
 // quarterly payment ('periodYearDiff == 0.25'):
 //..
@@ -155,12 +155,12 @@ int main(int argc, char *argv[])
     sched.push_back(bdlt::Date(2004,  1, 1));
 //..
 // Then, we define an instance of the adapted day-count convention and obtain
-// a reference to the 'bbldc::DayCountInterface':
+// a reference to the 'bbldc::DateRangeDayCount':
 //..
-    const bbldc::PeriodDayCountAdapter<bbldc::PeriodIcmaActualActual>
+    const bbldc::PeriodDateRangeDayCountAdapter<bbldc::PeriodIcmaActualActual>
                                                                    myDcc(sched,
                                                                          0.25);
-    const bbldc::DayCountInterface&                                dcc = myDcc;
+    const bbldc::DateRangeDayCount&                                dcc = myDcc;
 //..
 // Next, create two 'bdlt::Date' variables, 'd1' and 'd2', with which to use
 // the day-count convention methods:
@@ -192,7 +192,7 @@ int main(int argc, char *argv[])
         //:   (all virtual functions are defined).
         //:
         //: 2 The functions are in fact virtual and accessible from the
-        //:  'bbldc::DayCountInterface'.
+        //:  'bbldc::DateRangeDayCount'.
         //:
         //: 3 The values bound at construction are correctly forwarded to the
         //:   methods.
@@ -208,7 +208,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Construct an adapted object of a class (which is derived from
-        //:  'bbldc::DayCountInterface') and bind a 'bbldc::DayCountInterface'
+        //:  'bbldc::DateRangeDayCount') and bind a 'bbldc::DateRangeDayCount'
         //:  reference to the object.  Using the base class reference, invoke
         //:  the 'daysDiff' and 'yearsDiff' methods.  Verify that the correct
         //:  implementations of the methods are called.  (C-1..3)
@@ -223,8 +223,8 @@ int main(int argc, char *argv[])
         //: 4 Verify defensive checks are triggered for invalid values.  (C-6)
         //
         // Testing:
-        //   PeriodDayCountAdapter(periodDate, periodYearDiff, basicAllocator);
-        //   ~PeriodDayCountAdapter();
+        //   PeriodDateRangeDayCountAdapter(pD, pYD, bA);
+        //   ~PeriodDateRangeDayCountAdapter();
         //   int daysDiff(beginDate, endDate) const;
         //   double yearsDiff(beginDate, endDate) const;
         //   bslma::Allocator *allocator() const;
@@ -250,10 +250,10 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'daysDiff'" << endl;
         {
             {
-                bbldc::PeriodDayCountAdapter<bbldc::PeriodIcmaActualActual>
-                                                             mX(SCHEDULE, 1.0);
+                bbldc::PeriodDateRangeDayCountAdapter<
+                              bbldc::PeriodIcmaActualActual> mX(SCHEDULE, 1.0);
 
-                const bbldc::DayCountInterface& protocol = mX;
+                const bbldc::DateRangeDayCount& protocol = mX;
 
                 ASSERT( 394 == protocol.daysDiff(DATE1, DATE2));
                 ASSERT(1095 == protocol.daysDiff(DATE3, DATE4));
@@ -263,10 +263,10 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'yearsDiff'" << endl;
         {
             {
-                bbldc::PeriodDayCountAdapter<bbldc::PeriodIcmaActualActual>
-                                                             mX(SCHEDULE, 1.0);
+                bbldc::PeriodDateRangeDayCountAdapter<
+                              bbldc::PeriodIcmaActualActual> mX(SCHEDULE, 1.0);
 
-                const bbldc::DayCountInterface& protocol = mX;
+                const bbldc::DateRangeDayCount& protocol = mX;
 
                 double diff1 = 1.0769 - protocol.yearsDiff(DATE1, DATE2);
                 ASSERT(-0.00005 <= diff1 && diff1 <= 0.00005);
@@ -279,24 +279,22 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'allocator'" << endl;
         {
             {
-                bbldc::PeriodDayCountAdapter<bbldc::PeriodIcmaActualActual>
-                                                             mX(SCHEDULE, 1.0);
+                bbldc::PeriodDateRangeDayCountAdapter<
+                              bbldc::PeriodIcmaActualActual> mX(SCHEDULE, 1.0);
 
-                const
-                   bbldc::PeriodDayCountAdapter<bbldc::PeriodIcmaActualActual>&
-                                                                        X = mX;
+                const bbldc::PeriodDateRangeDayCountAdapter<
+                                        bbldc::PeriodIcmaActualActual>& X = mX;
 
                 ASSERT(&defaultAllocator == X.allocator());
             }
             {
                 bslma::TestAllocator sa("supplied", veryVerbose);
 
-                bbldc::PeriodDayCountAdapter<bbldc::PeriodIcmaActualActual>
-                                                        mX(SCHEDULE, 1.0, &sa);
+                bbldc::PeriodDateRangeDayCountAdapter<
+                         bbldc::PeriodIcmaActualActual> mX(SCHEDULE, 1.0, &sa);
 
-                const
-                   bbldc::PeriodDayCountAdapter<bbldc::PeriodIcmaActualActual>&
-                                                                        X = mX;
+                const bbldc::PeriodDateRangeDayCountAdapter<
+                                        bbldc::PeriodIcmaActualActual>& X = mX;
 
                 ASSERT(&sa == X.allocator());
             }
@@ -356,26 +354,16 @@ int main(int argc, char *argv[])
             bsl::vector<bdlt::Date>        mE4;
             const bsl::vector<bdlt::Date>& E4 = mE4;
 
-            ASSERT_PASS(
-                   bbldc::PeriodDayCountAdapter<bbldc::PeriodIcmaActualActual>(
-                                                                         A,
-                                                                         1.0));
-            ASSERT_SAFE_FAIL(
-                   bbldc::PeriodDayCountAdapter<bbldc::PeriodIcmaActualActual>(
-                                                                         E1,
-                                                                         1.0));
-            ASSERT_SAFE_FAIL(
-                   bbldc::PeriodDayCountAdapter<bbldc::PeriodIcmaActualActual>(
-                                                                         E2,
-                                                                         1.0));
-            ASSERT_SAFE_FAIL(
-                   bbldc::PeriodDayCountAdapter<bbldc::PeriodIcmaActualActual>(
-                                                                         E3,
-                                                                         1.0));
-            ASSERT_SAFE_FAIL(
-                   bbldc::PeriodDayCountAdapter<bbldc::PeriodIcmaActualActual>(
-                                                                         E4,
-                                                                         1.0));
+            ASSERT_PASS(bbldc::PeriodDateRangeDayCountAdapter<
+                                       bbldc::PeriodIcmaActualActual>(A, 1.0));
+            ASSERT_SAFE_FAIL(bbldc::PeriodDateRangeDayCountAdapter<
+                                      bbldc::PeriodIcmaActualActual>(E1, 1.0));
+            ASSERT_SAFE_FAIL(bbldc::PeriodDateRangeDayCountAdapter<
+                                      bbldc::PeriodIcmaActualActual>(E2, 1.0));
+            ASSERT_SAFE_FAIL(bbldc::PeriodDateRangeDayCountAdapter<
+                                      bbldc::PeriodIcmaActualActual>(E3, 1.0));
+            ASSERT_SAFE_FAIL(bbldc::PeriodDateRangeDayCountAdapter<
+                                      bbldc::PeriodIcmaActualActual>(E4, 1.0));
 
             // verify out of range
 
@@ -386,10 +374,10 @@ int main(int argc, char *argv[])
                 mL.push_back(bdlt::Date(1760, 2, 5));
             }
 
-            bbldc::PeriodDayCountAdapter<bbldc::PeriodIcmaActualActual>
-                                                                    mX(L, 1.0);
+            bbldc::PeriodDateRangeDayCountAdapter<
+                                     bbldc::PeriodIcmaActualActual> mX(L, 1.0);
 
-            const bbldc::DayCountInterface& protocol = mX;
+            const bbldc::DateRangeDayCount& protocol = mX;
 
             ASSERT_SAFE_PASS(protocol.yearsDiff(bdlt::Date(1751, 1, 1),
                                                 bdlt::Date(1753, 1, 1)));

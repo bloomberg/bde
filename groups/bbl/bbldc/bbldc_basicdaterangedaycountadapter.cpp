@@ -1,8 +1,8 @@
-// bbldc_perioddaycountadapter.cpp                                    -*-C++-*-
-#include <bbldc_perioddaycountadapter.h>
+// bbldc_basicdaterangedaycountadapter.cpp                             -*-C++-*-
+#include <bbldc_basicdaterangedaycountadapter.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bbldc_perioddaycountadapter_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bbldc_basicdaterangedaycountadapter_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 namespace bbldc {
