@@ -550,7 +550,7 @@ int main(int argc, char* argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // GAY CONVERSION TEST
+        // DTOA CONVERSION TEST
         //
         // Concerns:
         //: 1 Conversion from double to Decimal64 gives valid results.
@@ -566,8 +566,8 @@ int main(int argc, char* argv[])
         //   unsigned char *decimal64FromDouble(double);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nGAY CONVERSION TEST"
-                             "\n===================\n";
+        if (verbose) cout << "\nDTOA CONVERSION TEST"
+                             "\n====================\n";
 
         static const struct {
             int         d_line;         // line number
