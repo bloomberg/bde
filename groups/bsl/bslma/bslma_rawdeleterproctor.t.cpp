@@ -117,7 +117,7 @@ class my_Pool {
 
   public:
     // CREATORS
-    my_Pool(int *counter) : d_counter_p(counter) {}
+    explicit my_Pool(int *counter) : d_counter_p(counter) {}
         // Create this object holding the specified (global) counter.
 
     // MANIPULATORS
@@ -134,7 +134,7 @@ class my_Class {
 
   public:
     // CREATORS
-    my_Class(int *counter) : d_counter_p(counter) {}
+    explicit my_Class(int *counter) : d_counter_p(counter) {}
         // Create this object using the address of the specified 'counter' to
         // be held.
 
@@ -153,7 +153,7 @@ class myParent {
 class myChild : public myParent {
     my_Class c;
   public:
-    myChild(int *counter = 0) : c(counter) {}
+    explicit myChild(int *counter = 0) : c(counter) {}
     ~myChild() {}
 };
 
@@ -182,7 +182,7 @@ class myRightBase : virtual public myVirtualBase {
 class myMostDerived : public myLeftBase, public myRightBase {
     my_Class c;
   public:
-    myMostDerived(int *counter = 0) : c(counter) {}
+    explicit myMostDerived(int *counter = 0) : c(counter) {}
     ~myMostDerived() {}
 };
 

@@ -305,7 +305,7 @@ class my_AllocatingClass {
     // counter it *holds* (provided at construction) in the destructor.
 
     // DATA
-    int              *d_counter_p;   // counter to be incremented at destruction
+    int              *d_counter_p;   // counter to increment at destruction
     void             *d_memory_p;    // dummy piece of memory
     bslma::Allocator *d_allocator_p; // allocator (held, not owned)
 

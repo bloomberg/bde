@@ -919,9 +919,9 @@ int main(int argc, char *argv[])
         // Plan:
         //   Call 'defaultAllocator' in the first substantive line of the test
         //   case to lock the default allocator to its initial setting, namely
-        //   the 'bslma::NewDeleteAllocator' singleton.  Verify that the default
-        //   allocator is locked by calling 'setDefaultAllocator' and asserting
-        //   that the call fails.
+        //   the 'bslma::NewDeleteAllocator' singleton.  Verify that the
+        //   default allocator is locked by calling 'setDefaultAllocator' and
+        //   asserting that the call fails.
         //
         // Testing:
         //   bslma::Allocator *defaultAllocator();
@@ -948,10 +948,10 @@ int main(int argc, char *argv[])
         // Plan:
         //   Call 'allocator', without an argument, in the first substantive
         //   line of the test case to verify that the default allocator is
-        //   initially the address of the 'bslma::NewDeleteAllocator' singleton.
-        //   Subsequently, use 'setDefaultAllocatorRaw' to set the default
-        //   allocator to various values and verify that 'allocator', when
-        //   called without an argument, returns the expected result.
+        //   initially the address of the 'bslma::NewDeleteAllocator'
+        //   singleton.  Subsequently, use 'setDefaultAllocatorRaw' to set the
+        //   default allocator to various values and verify that 'allocator',
+        //   when called without an argument, returns the expected result.
         //   Regularly call 'allocator' *with* an argument throughout the test
         //   case, and verify that the argument is returned and that the
         //   setting of the default allocator is not affected.  Note that
@@ -1044,7 +1044,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nNegative testing\n");
 
-        bsls::AssertFailureHandlerGuard guard(&bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard guard;
 
         ASSERT_FAIL(Obj::setDefaultAllocator(0));
         ASSERT_PASS(Obj::setDefaultAllocator(U));
@@ -1098,7 +1098,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nNegative testing\n");
 
-        bsls::AssertFailureHandlerGuard guard(&bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard guard;
 
         ASSERT_FAIL(Obj::setDefaultAllocatorRaw(0));
         ASSERT_PASS(Obj::setDefaultAllocatorRaw(U));

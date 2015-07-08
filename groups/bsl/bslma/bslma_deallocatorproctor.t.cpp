@@ -550,10 +550,10 @@ int main(int argc, char *argv[])
         //   currently managed by this proctor.
         //
         // Plan:
-        //   Initialize a 'bslma::DeallocatorProctor' with static memory address
-        //   and a 'TestAllocator'.  Call 'release' on the proctor before it
-        //   goes out of scope.  Verify that 'deallocate' method of the
-        //   'TestAllocator' is not called.
+        //   Initialize a 'bslma::DeallocatorProctor' with static memory
+        //   address and a 'TestAllocator'.  Call 'release' on the proctor
+        //   before it goes out of scope.  Verify that 'deallocate' method of
+        //   the 'TestAllocator' is not called.
         //
         // Testing:
         //   void release();
@@ -656,7 +656,8 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(i, 0 == Z.numBytesInUse());
         }
 
-        if (verbose) printf("\tTesting constructor with null memory address.\n");
+        if (verbose) printf(
+                          "\tTesting constructor with null memory address.\n");
 
         {
             ASSERT(0 == Z.numBytesInUse());

@@ -339,7 +339,6 @@ int main(int argc, char *argv[])
 
         ASSERT(bslma::UsesBslmaAllocator<ConvertibleToAny>::value);
       } break;
-
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;

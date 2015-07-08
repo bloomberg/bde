@@ -13,7 +13,6 @@
 #include <new>
 
 using namespace BloombergLP;
-//using namespace std;
 
 //=============================================================================
 //                                 TEST PLAN

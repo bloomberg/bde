@@ -3,16 +3,14 @@
 #include <bslma_testallocatorexception.h>
 
 #include <bslma_allocator.h>
+
 #include <bsls_bsltestutil.h>
 
-#include <string.h>     // memset()
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
-
-#include <iostream>
+#include <string.h>     // 'memcpy'
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                                  TEST PLAN
@@ -75,6 +73,8 @@ void aSsErT(bool condition, const char *message, int line)
 #define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
 #define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
+
+#define ZU           BSLS_BSLTESTUTIL_FORMAT_ZU
 
 //=============================================================================
 //                                USAGE EXAMPLE
@@ -232,14 +232,15 @@ void my_ShortArray::increaseSize()
      d_size = proposedNewSize;                        // we're committed
 }
 
-ostream& operator<<(ostream& stream, const my_ShortArray& array)
+void debugprint(const my_ShortArray& array)
 {
-    stream << '[';
+    printf("[");
     const int len = array.length();
     for (int i = 0; i < len; ++i) {
-        stream << ' ' << array[i];
+        printf(" %d", array[i]);
     }
-    return stream << " ]" << flush;
+    printf(" ]");
+    fflush(stdout);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -249,12 +250,12 @@ ostream& operator<<(ostream& stream, const my_ShortArray& array)
 #define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN {                          \
     {                                                                       \
         static int firstTime = 1;                                           \
-        if (veryVerbose && firstTime) cout <<                               \
-            "### BSLMA EXCEPTION TEST -- (ENABLED) --" << endl;             \
+        if (veryVerbose && firstTime) printf(                               \
+            "### BSLMA EXCEPTION TEST -- (ENABLED) --\n");                  \
         firstTime = 0;                                                      \
     }                                                                       \
-    if (veryVeryVerbose) cout <<                                            \
-        "### Begin bslma exception test." << endl;                          \
+    if (veryVeryVerbose) printf(                                            \
+        "### Begin bslma exception test.\n");                               \
     int bslmaExceptionCounter = 0;                                          \
     static int bslmaExceptionLimit = 100;                                   \
     testAllocator.setAllocationLimit(bslmaExceptionCounter);                \
@@ -265,15 +266,14 @@ ostream& operator<<(ostream& stream, const my_ShortArray& array)
         } catch (bslma::TestAllocatorException& e) {                        \
             if ((veryVerbose && bslmaExceptionLimit) || veryVeryVerbose) {  \
                 --bslmaExceptionLimit;                                      \
-                cout << "(*** " << bslmaExceptionCounter << ')';            \
-                if (veryVeryVerbose) { cout << " BEDMA_EXCEPTION: "         \
-                    << "alloc limit = " << bslmaExceptionCounter << ", "    \
-                    << "last alloc size = " << e.numBytes();                \
+                printf("(*** %d)", bslmaExceptionCounter);                  \
+                if (veryVeryVerbose) { printf(" BEDMA_EXCEPTION: "          \
+                       "alloc limit = %d, last alloc size = " ZU "\n",      \
+                        bslmaExceptionCounter, e.numBytes());               \
                 }                                                           \
                 else if (0 == bslmaExceptionLimit) {                        \
-                    cout << " [ Note: 'bslmaExceptionLimit' reached. ]";    \
+                    printf(" [ Note: 'bslmaExceptionLimit' reached. ]\n");  \
                 }                                                           \
-                cout << endl;                                               \
             }                                                               \
             testAllocator.setAllocationLimit(++bslmaExceptionCounter);      \
             continue;                                                       \
@@ -281,15 +281,15 @@ ostream& operator<<(ostream& stream, const my_ShortArray& array)
         testAllocator.setAllocationLimit(-1);                               \
         break;                                                              \
     } while (1);                                                            \
-    if (veryVeryVerbose) cout <<                                            \
-        "### End bslma exception test." << endl;                            \
+    if (veryVeryVerbose) printf(                                            \
+        "### End bslma exception test.\n");                                 \
 }
 #else
 #define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN                            \
 {                                                                           \
     static int firstTime = 1;                                               \
-    if (verbose && firstTime) { cout <<                                     \
-        "### BSLMA EXCEPTION TEST -- (NOT ENABLED) --" << endl;             \
+    if (verbose && firstTime) { printf(                                     \
+        "### BSLMA EXCEPTION TEST -- (NOT ENABLED) --\n");                  \
         firstTime = 0;                                                      \
     }                                                                       \
 }
@@ -345,8 +345,8 @@ int main(int argc, char *argv[])
         //   Make sure main usage example compiles and works.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "USAGE TEST" << endl
-                                  << "==========" << endl;
+        if (verbose) printf("\nUSAGE TEST"
+                            "\n==========\n");
 
         struct {
             int d_line;
@@ -388,10 +388,10 @@ int main(int argc, char *argv[])
         //   int numBytes() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "BASIC TEST" << endl
-                                  << "==========" << endl;
+        if (verbose) printf("\nBASIC TEST"
+                            "\n==========\n");
 
-        if (verbose) cout << "Testing ctor and accessor." << endl;
+        if (verbose) printf("Testing ctor and accessor.\n");
         {
             const my_Allocator::size_type NUM_BYTES[] = { 0, 1, 5, 100 };
             const int NUM_TEST = sizeof NUM_BYTES / sizeof *NUM_BYTES;
@@ -402,14 +402,15 @@ int main(int argc, char *argv[])
         }
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
+
     return testStatus;
 }
 

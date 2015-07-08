@@ -13,10 +13,8 @@
 
 #include <stdlib.h>     // 'atoi'
 #include <string.h>     // 'strlen'
-#include <iostream>
 
 using namespace BloombergLP;
-using namespace std;
 
 // ============================================================================
 //                             TEST PLAN
@@ -287,9 +285,8 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "USAGE EXAMPLE" << endl
-                          << "=============" << endl;
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
 
 // Then, we design a test-driver for 'MyClass'.  Our allocator-related concerns
 // for 'MyClass' include:
@@ -371,7 +368,7 @@ int main(int argc, char *argv[])
 // of the allocators as the global and default allocators:
 //..
     {
-        if (verbose) cout << "Setup global and default allocators" << endl;
+        if (verbose) printf("Setup global and default allocators\n");
 
         bslma::TestAllocator        ga("global",  veryVeryVeryVerbose);
         bslma::TestAllocator        da("default", veryVeryVeryVerbose);
@@ -385,7 +382,7 @@ int main(int argc, char *argv[])
 // then, immediately destroy it.  The object allocator monitor, 'oam', shows
 // that the allocator was not used.
 //..
-        if (verbose) cout << "No allocation by Default Constructor " << endl;
+        if (verbose) printf("No allocation by Default Constructor \n");
 
         bslma::TestAllocator        oa("object", veryVeryVeryVerbose);
         bslma::TestAllocatorMonitor oam(&oa);
@@ -401,7 +398,7 @@ int main(int argc, char *argv[])
 // means that the object cannot store the data within its own footprint and
 // must allocate memory.)
 //..
-        if (verbose) cout << "Exercise object" << endl;
+        if (verbose) printf("Exercise object\n");
 
         {
             MyClass obj(&oa);
@@ -410,7 +407,7 @@ int main(int argc, char *argv[])
                                       "abcdefghijklmnopqrstuvwyz";
             ASSERT(sizeof(obj) < sizeof(DESCRIPTION1));
 
-            if (veryVerbose) cout << "\tPrimary Manipulator Allocates" << endl;
+            if (veryVerbose) printf("\tPrimary Manipulator Allocates\n");
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                 if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
@@ -427,8 +424,7 @@ int main(int argc, char *argv[])
 // the that state.  Confirm that the basic accessor (the 'description' method)
 // does not use the allocator.
 //..
-            if (veryVerbose) cout << "\tBasic Accessor does not allocate"
-                                  << endl;
+            if (veryVerbose) printf("\tBasic Accessor does not allocate\n");
 
             bslma::TestAllocatorMonitor oam2(&oa); // Captures state of 'oa'
                                                    // with outstanding
@@ -528,16 +524,14 @@ int main(int argc, char *argv[])
 //..
         }
 
-        if (veryVerbose) cout << "\tAll memory returned object allocator"
-                              << endl;
+        if (veryVerbose) printf("\tAll memory returned object allocator\n");
 
         ASSERT(oam.isInUseSame());
 //..
 // Finally, we check that none of these operations used the default or global
 // allocators.
 //..
-        if (verbose) cout << "Global and Default allocators never used"
-                          << endl;
+        if (verbose) printf("Global and Default allocators never used\n");
 
         ASSERT(gam.isTotalSame());
         ASSERT(dam.isTotalSame());
@@ -564,8 +558,8 @@ int main(int argc, char *argv[])
         //   void reset();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING: reset\n"
-                             "==============\n";
+        if (verbose) printf("\nTESTING: reset"
+                            "\n==============\n");
 
         Ta oa;
         void *ptrs[10];
@@ -714,12 +708,10 @@ int main(int argc, char *argv[])
         //   bool isTotalUp() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "ACCESSORS" << endl
-                          << "=========" << endl;
+        if (verbose) printf("\nACCESSORS"
+                            "\n=========\n");
 
-        if (veryVerbose) cout << "\tSetup Test Allocator and Monitor."
-                              << endl;
+        if (veryVerbose) printf("\tSetup Test Allocator and Monitor.\n");
 
         Ta ta("testAllocator", veryVeryVeryVerbose);
 
@@ -738,7 +730,7 @@ int main(int argc, char *argv[])
 
         Tam tam(&ta);
 
-        if (veryVerbose) cout << "\tCheck Initial State." << endl;
+        if (veryVerbose) printf("\tCheck Initial State.\n");
 
         ASSERT( tam.isTotalSame());  // Same Total
         ASSERT(!tam.isTotalUp());
@@ -750,7 +742,7 @@ int main(int argc, char *argv[])
         ASSERT( tam.isMaxSame());    // Same Max
         ASSERT(!tam.isMaxUp());
 
-        if (veryVerbose) cout << "\tStatics track blocks not bytes." << endl;
+        if (veryVerbose) printf("\tStatics track blocks not bytes.\n");
 
         ta.deallocate(prior3); prior3 = 0;
 
@@ -777,8 +769,8 @@ int main(int argc, char *argv[])
         ASSERT( tam.isMaxSame());    // Same Max
         ASSERT(!tam.isMaxUp());
 
-        if (veryVerbose) cout << "\t\"TotalUp\" and \"MaxUp\" remain 'true'."
-                              << endl;
+        if (veryVerbose) printf(
+                               "\t\"TotalUp\" and \"MaxUp\" remain 'true'.\n");
 
         void *post2 = ta.allocate(sizeMedium);
 
@@ -804,9 +796,8 @@ int main(int argc, char *argv[])
         ASSERT(!tam.isMaxSame());
         ASSERT( tam.isMaxUp());      // Up Max
 
-        if (veryVerbose) cout
-                          << "\t\"inUse\" reported w.r.t. initial block count"
-                          << endl;
+        if (veryVerbose) printf(
+                          "\t\"inUse\" reported w.r.t. initial block count\n");
 
         ta.deallocate(post2); post2 = 0;
         ta.deallocate(post3); post3 = 0;
@@ -888,7 +879,7 @@ int main(int argc, char *argv[])
         ASSERT(!tam.isMaxSame());
         ASSERT( tam.isMaxUp());      // Up Max
 
-        if (veryVerbose) cout << "Clean up." << endl;
+        if (veryVerbose) printf("Clean up.\n");
 
         ta.deallocate(final1); final1 = 0;
         ta.deallocate(final2); final2 = 0;
@@ -951,11 +942,10 @@ int main(int argc, char *argv[])
         //   ~bslma::TestAllocatorMonitor();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "CTOR & DTOR" << endl
-                          << "===========" << endl;
+        if (verbose) printf("\nCTOR & DTOR"
+                            "\n===========\n");
 
-        if (verbose) cout << "\nCtor, Associated Ta, & Dtor." << endl;
+        if (verbose) printf("\nCtor, Associated Ta, & Dtor.\n");
         {
             Ta  ta("testAllocator", veryVeryVeryVerbose);
             Tam tam(&ta);
@@ -977,7 +967,7 @@ int main(int argc, char *argv[])
             ASSERT(tam.isMaxUp());
         }
 
-        if (verbose) cout << "\nProper State Saved on Construction." << endl;
+        if (verbose) printf("\nProper State Saved on Construction.\n");
         {
             Ta    ta1("ta1", veryVeryVeryVerbose);  // Do not use yet.
             Ta    ta2("ta2", veryVeryVeryVerbose);
@@ -1030,12 +1020,12 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nNegative Testing." << endl;
+        if (verbose) printf("\nNegative Testing.\n");
         {
             bsls::AssertFailureHandlerGuard hG(
                     bsls::AssertTest::failTestDriver);
 
-            if (veryVerbose) cout << "\t'constructor'" << endl;
+            if (veryVerbose) printf("\t'constructor'\n");
             {
                 Ta ta("testAllocator", veryVeryVeryVerbose);
                 ASSERT_SAFE_PASS((Tam)(&ta));
@@ -1068,9 +1058,8 @@ int main(int argc, char *argv[])
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "BREATHING TEST" << endl
-                          << "==============" << endl;
+        if (verbose) printf("\nBREATHING TEST"
+                            "\n==============\n");
 
         bslma::TestAllocator        ta("test allocator", veryVeryVeryVerbose);
         bslma::TestAllocatorMonitor tamA(&ta);
@@ -1107,7 +1096,7 @@ int main(int argc, char *argv[])
 
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
@@ -1123,8 +1112,9 @@ int main(int argc, char *argv[])
                 0 == defaultAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
+
     return testStatus;
 }
 

@@ -875,9 +875,9 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   For concern 1, create three arrays of 'my_Class' objects of equal
-        //   length.  Next, initialize two 'bslma::AutoDestructor' proctors, one
-        //   with the first array and one with the second.  Invoke 'reset' on
-        //   the second proctor with the third array before both proctors go
+        //   length.  Next, initialize two 'bslma::AutoDestructor' proctors,
+        //   one with the first array and one with the second.  Invoke 'reset'
+        //   on the second proctor with the third array before both proctors go
         //   out of scope.  Once the proctors go out of scope, verify that only
         //   the first and third array's objects are destroyed.
         //

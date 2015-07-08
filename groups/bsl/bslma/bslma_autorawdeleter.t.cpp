@@ -38,9 +38,9 @@ using namespace BloombergLP;
 // which the method is invoked.  We then initialize the proctor object with
 // this allocator and verify that when the proctor is destroyed the expected
 // memory addresses are recorded in the allocator.  Note that since
-// 'TestAllocator' is not derived from 'bslma::Allocator' and does not implement
-// an 'allocate' method, we ensure that this proctor works with any 'ALLOCATOR'
-// object that supports the required 'deallocate' method.
+// 'TestAllocator' is not derived from 'bslma::Allocator' and does not
+// implement an 'allocate' method, we ensure that this proctor works with any
+// 'ALLOCATOR' object that supports the required 'deallocate' method.
 //-----------------------------------------------------------------------------
 // [3] bslma::AutoRawDeleter<TYPE, ALLOCATOR>(origin, allocator, length = 0);
 // [3] ~bslma::AutoRawDeleter<TYPE, ALLOCATOR>();
