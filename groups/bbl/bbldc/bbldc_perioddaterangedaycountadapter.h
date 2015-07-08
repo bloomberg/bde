@@ -17,13 +17,12 @@ BSLS_IDENT("$Id: $")
 // 'bbldc::DateRangeDayCount' protocol.  The template argument can be any type
 // supporting the following two class methods.
 //..
-//  int daysDiff(const bdlt::Date& beginDate,
-//               const bdlt::Date& endDate) const;
+//  int daysDiff(const bdlt::Date& beginDate, const bdlt::Date& endDate);
 //
 //  double yearsDiff(const bdlt::Date&              beginDate,
 //                   const bdlt::Date&              endDate,
 //                   const bsl::vector<bdlt::Date>& periodDate,
-//                   double                         periodYearDiff) const;
+//                   double                         periodYearDiff);
 //..
 // The template class 'bbldc::PeriodDateRangeDayCountAdapter' provides
 // convenient support for run-time polymorphic choice of day-count conventions
@@ -32,6 +31,12 @@ BSLS_IDENT("$Id: $")
 // 'bbldc::PeriodDateRangeDayCountAdapter' adapts the various concrete
 // period-based day-count convention classes (e.g.,
 // 'bbldc::PeriodIcmaActualActual') to a run-time binding mechanism.
+//
+// The 'bbldc::DateRangeDayCount' protocol requires two methods, 'firstDate'
+// and 'lastDate', that define a date range for which this object is valid; to
+// reflect the valid range of, say, a calendar required for the computations.
+// For "period" day-count implementations, the valid date range is from the
+// first to the last period date..
 //
 ///Usage
 ///-----
@@ -123,9 +128,10 @@ namespace bbldc {
 
 template <class CONVENTION>
 class PeriodDateRangeDayCountAdapter : public DateRangeDayCount {
-    // This 'class' provides an "adapter" from the specified 'CONVENTION' to
-    // the 'bbldc::DateRangeDayCount' that can be used for determining values
-    // based on dates according to the day-count 'CONVENTION'.
+    // This 'class' provides an "adapter" from the specified 'CONVENTION', that
+    // requires a set of periods to compute the year fraction, to the
+    // 'bbldc::DateRangeDayCount' protocol that can be used for determining
+    // values based on dates according to the day-count 'CONVENTION'.
 
     // DATA
     bsl::vector<bdlt::Date> d_periodDate;      // period starting dates
@@ -172,13 +178,13 @@ class PeriodDateRangeDayCountAdapter : public DateRangeDayCount {
         // Return a reference providing non-modifiable access to
         // 'periodDate.front()' for the 'periodDate' provided at construction.
         // Note that this value is the earliest date in the valid range of this
-        // day-count convention.
+        // day-count convention adaptation.
 
     const bdlt::Date& lastDate() const;
         // Return a reference providing non-modifiable access to
         // 'periodDate.back()' for the 'periodDate' provided at construction.
         // Note that this value is the latest date in the valid range of this
-        // day-count convention.
+        // day-count convention adaptation.
 
     double yearsDiff(const bdlt::Date& beginDate,
                      const bdlt::Date& endDate) const;
@@ -186,9 +192,10 @@ class PeriodDateRangeDayCountAdapter : public DateRangeDayCount {
         // 'beginDate' and 'endDate' as per the 'CONVENTION' template policy.
         // If 'beginDate <= endDate', then the result is non-negative.  The
         // behavior is undefined unless, for the 'periodDate' provided at
-        // construction, 'min(beginDate, endDate) >= periodDate.front()', and
-        // 'max(beginDate, endDate) <= periodDate.back()'.  Note that reversing
-        // the order of 'beginDate' and 'endDate' negates the result;
+        // construction,
+        // 'periodDate.front() <= beginDate <= periodDate.back()', and
+        // 'periodDate.front() <= endDate <= periodDate.back()'.  Note that
+        // reversing the order of 'beginDate' and 'endDate' negates the result;
         // specifically, '|yearsDiff(b, e) + yearsDiff(e, b)| <= 1.0e-15' for
         // all dates 'b' and 'e'.
 
@@ -282,12 +289,10 @@ double PeriodDateRangeDayCountAdapter<CONVENTION>::yearsDiff(
                                                const bdlt::Date& beginDate,
                                                const bdlt::Date& endDate) const
 {
-    BSLS_ASSERT_SAFE(beginDate  >  endDate
-                  || (beginDate >= d_periodDate.front()
-                   && endDate   <= d_periodDate.back()));
-    BSLS_ASSERT_SAFE(beginDate  <= endDate
-                  || (endDate   >= d_periodDate.front()
-                   && beginDate <= d_periodDate.back()));
+    BSLS_ASSERT_SAFE(d_periodDate.front() <= beginDate);
+    BSLS_ASSERT_SAFE(                        beginDate <= d_periodDate.back());
+    BSLS_ASSERT_SAFE(d_periodDate.front() <= endDate);
+    BSLS_ASSERT_SAFE(                        endDate   <= d_periodDate.back());
 
     return CONVENTION::yearsDiff(beginDate,
                                  endDate,

@@ -22,11 +22,11 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test consists of two forwarding methods that forward
-// to static member function implementations within the template parameter
-// class that compute the day count and year fraction between two dates.  The
-// general plan is that the methods are tested with two different
-// template parameters to ensure the methods forward correctly.
+// The component under test consists of two forwarding methods that forward to
+// static member function implementations within the template parameter class
+// that compute the day count and year fraction between two dates.  The general
+// plan is that the methods are tested with two different template parameters
+// to ensure the methods forward correctly.
 // ----------------------------------------------------------------------------
 // [ 1] int daysDiff(beginDate, endDate) const;
 // [ 1] double yearsDiff(beginDate, endDate) const;
@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
         //:   (all virtual functions are defined).
         //:
         //: 2 The functions are in fact virtual and accessible from the
-        //:  'bbldc::BasicDayCount'.
+        //:  'bbldc::BasicDayCount' base class.
         //
         // Plan:
         //: 1 Construct an adapted object of a class (which is derived from

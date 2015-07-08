@@ -5,8 +5,8 @@
 @MNEMONIC: Basic Business Library Day-Count (bbldc)
 
 @DESCRIPTION: The 'bbldc' package provides day-count convention
- implementations, an enumeration-based set of dispatch components, and an
- abstract interface with parameterized adapters for the day-count convention
+ implementations, an enumeration-based set of dispatch components, and two
+ abstract interfaces with parameterized adapters for the day-count convention
  implementations.
 
 /Hierarchical Synopsis

@@ -17,11 +17,9 @@ BSLS_IDENT("$Id: $")
 // 'bbldc::BasicDayCount' protocol.  The template argument can be any type
 // supporting the following two class methods.
 //..
-//  int daysDiff(const bdlt::Date& beginDate,
-//               const bdlt::Date& endDate) const;
+//  int daysDiff(const bdlt::Date& beginDate, const bdlt::Date& endDate);
 //
-//  double yearsDiff(const bdlt::Date& beginDate,
-//                   const bdlt::Date& endDate) const;
+//  double yearsDiff(const bdlt::Date& beginDate, const bdlt::Date& endDate);
 //..
 // The template class 'bbldc::BasicBasicDayCountAdapter' provides convenient
 // support for run-time polymorphic choice of day-count conventions (via
@@ -87,8 +85,8 @@ namespace bbldc {
 template <class CONVENTION>
 class BasicBasicDayCountAdapter : public BasicDayCount {
     // This 'class' provides an "adapter" from the specified 'CONVENTION' to
-    // the 'bbldc::BasicDayCount' that can be used for determining values
-    // based on dates according to the day-count 'CONVENTION'.
+    // the 'bbldc::BasicDayCount' protocol that can be used for determining
+    // values based on dates according to the day-count 'CONVENTION'.
 
   public:
     // ACCESSORS

@@ -163,14 +163,15 @@ int main(int argc, char *argv[])
         //:   (all virtual functions are defined).
         //:
         //: 2 The functions are in fact virtual and accessible from the
-        //:  'bbldc::DateRangeDayCount'.
+        //:  'bbldc::DateRangeDayCount' base class.
         //
         // Plan:
         //: 1 Construct an adapted object of a class (which is derived from
         //:  'bbldc::DateRangeDayCount') and bind a 'bbldc::DateRangeDayCount'
         //:  reference to the object.  Using the base class reference, invoke
-        //:  the 'daysDiff' and 'yearsDiff' methods.  Verify that the correct
-        //:  implementations of the methods are called.  (C-1..2)
+        //:  the 'daysDiff', 'firstDate', 'lastDate', and 'yearsDiff' methods.
+        //:  Verify that the correct implementations of the methods are called.
+        //:  (C-1..2)
         //
         // Testing:
         //   int daysDiff(beginDate, endDate) const;

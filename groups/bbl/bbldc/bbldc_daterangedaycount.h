@@ -12,7 +12,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bbldc::DateRangeDayCount: protocol for date-range limited day-counts
 //
-//@SEE_ALSO: bbldc_basicdaycountadapter, bbldc_perioddaycountadapter
+//@SEE_ALSO: bbldc_basicdaterangedaycountadapter,
+//           bbldc_perioddaterangedaycountadapter
 //
 //@DESCRIPTION: This component provides a protocol,
 // 'bbldc::DateRangeDayCount', for implementing an arbitrary day-count
@@ -24,9 +25,13 @@ BSLS_IDENT("$Id: $")
 // support through interfaces that are functionally identical to the abstract
 // interface provided by this component, except that they do not inherit from
 // 'bbldc::DateRangeDayCount'.  In conjunction with the adapter components
-// (e.g., 'bbldc_basicdaycountadapter'), 'bbldc::DateRangeDayCount' is intended
-// to allow run-time binding of these and other similar day-count
+// (e.g., 'bbldc_basicdaterangedaycountadapter'), 'bbldc::DateRangeDayCount' is
+// intended to allow run-time binding of these and other similar day-count
 // implementations.
+//
+// This protocol requires two methods, 'firstDate' and 'lastDate', that define
+// a date range for which this object is valid; to reflect the valid range of,
+// say, a calendar required for the computations.
 //
 ///Usage
 ///-----
@@ -38,10 +43,12 @@ BSLS_IDENT("$Id: $")
 // convention.  This functionality suffices to demonstrate the requisite steps
 // for having a working day-count convention:
 //: * Define a concrete day-count type derived from 'bbldc::DateRangeDayCount'.
+//:
 //: * Implement the four pure virtual methods.
+//:
 //: * Instantiate and use an object of the concrete type.
 //
-// First define the (derived) 'my_DayCountConvention' class and implement its
+// First, define the (derived) 'my_DayCountConvention' class and implement its
 // constructor inline (for convenience, directly within the derived-class
 // definition):
 //..
@@ -78,7 +85,8 @@ BSLS_IDENT("$Id: $")
 //..
 // Next, we implement the (virtual) 'daysDiff', 'firstDate', 'lastDate', and
 // 'yearsDiff' methods, which incorporate the "policy" of what it means for
-// this day-count convention to calculate these values:
+// this day-count convention to calculate day count, year fraction, and the
+// valid range of the convention instance:
 //..
 //  int my_DayCountConvention::daysDiff(const bdlt::Date& beginDate,
 //                                      const bdlt::Date& endDate) const
@@ -143,6 +151,9 @@ namespace bbldc {
 class DateRangeDayCount {
     // This 'class' provides a protocol for determining values based on dates
     // according to derived implementations of specific day-count conventions.
+    // The methods 'firstDate' and 'lastDate' define a date range for which
+    // this object is valid; to reflect the valid range of, say, a calendar
+    // required for the computations.
 
   public:
     // CREATORS

@@ -2,7 +2,7 @@
 #include <bbldc_basicdaycountutil.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bbldc_basicdaycount_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bbldc_basicdaycountutil_cpp,"$Id$ $CSID$")
 
 #include <bbldc_basicactual360.h>
 #include <bbldc_basicactual365fixed.h>

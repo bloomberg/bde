@@ -17,11 +17,9 @@ BSLS_IDENT("$Id: $")
 // 'bbldc::DateRangeDayCount' protocol.  The template argument can be any type
 // supporting the following two class methods.
 //..
-//  int daysDiff(const bdlt::Date& beginDate,
-//               const bdlt::Date& endDate) const;
+//  int daysDiff(const bdlt::Date& beginDate, const bdlt::Date& endDate);
 //
-//  double yearsDiff(const bdlt::Date& beginDate,
-//                   const bdlt::Date& endDate) const;
+//  double yearsDiff(const bdlt::Date& beginDate, const bdlt::Date& endDate);
 //..
 // The template class 'bbldc::BasicDateRangeDayCountAdapter' provides
 // convenient support for run-time polymorphic choice of day-count conventions
@@ -30,6 +28,12 @@ BSLS_IDENT("$Id: $")
 // 'bbldc::BasicDateRangeDayCountAdapter' adapts the various concrete "basic"
 // day-count convention classes (e.g., 'bbldc::BasicIsma30360') to a run-time
 // binding mechanism.
+//
+// The 'bbldc::DateRangeDayCount' protocol requires two methods, 'firstDate'
+// and 'lastDate', that define a date range for which this object is valid; to
+// reflect the valid range of, say, a calendar required for the computations.
+// For "basic" day-count implementations, the valid date range is identical to
+// the range of 'bdlt::Date'.
 //
 ///Usage
 ///-----
@@ -90,8 +94,8 @@ namespace bbldc {
 template <class CONVENTION>
 class BasicDateRangeDayCountAdapter : public DateRangeDayCount {
     // This 'class' provides an "adapter" from the specified 'CONVENTION' to
-    // the 'bbldc::DateRangeDayCount' that can be used for determining values
-    // based on dates according to the day-count 'CONVENTION'.
+    // the 'bbldc::DateRangeDayCount' protocol that can be used for determining
+    // values based on dates according to the day-count 'CONVENTION'.
 
   public:
     // ACCESSORS
@@ -104,12 +108,12 @@ class BasicDateRangeDayCountAdapter : public DateRangeDayCount {
     const bdlt::Date& firstDate() const;
         // Return a reference providing non-modifiable access to a 'bdlt::Date'
         // with the value 1/1/1.  Note that this value is the earliest date in
-        // the valid range of this day-count convention.
+        // the valid range of the adapted day-count convention.
 
     const bdlt::Date& lastDate() const;
         // Return a reference providing non-modifiable access to a 'bdlt::Date'
         // with the value 9999/12/31.  Note that this value is the latest date
-        // in the valid range of this day-count convention.
+        // in the valid range of the adapted day-count convention.
 
     double yearsDiff(const bdlt::Date& beginDate,
                      const bdlt::Date& endDate) const;

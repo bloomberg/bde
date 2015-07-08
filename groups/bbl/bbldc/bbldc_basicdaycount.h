@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bbldc::BasicDayCount: protocol for basic day-count calculations
 //
-//@SEE_ALSO: bbldc_basicdaycountadapter, bbldc_perioddaycountadapter
+//@SEE_ALSO: bbldc_basicbasicdaycountadapter
 //
 //@DESCRIPTION: This component provides a protocol,
 // 'bbldc::BasicDayCount', for implementing an arbitrary day-count convention.
@@ -24,8 +24,8 @@ BSLS_IDENT("$Id: $")
 // support through interfaces that are functionally identical to the abstract
 // interface provided by this component, except that they do not inherit from
 // 'bbldc::BasicDayCount'.  In conjunction with the adapter components (e.g.,
-// 'bbldc_basicdaycountadapter'), 'bbldc::BasicDayCount' is intended to allow
-// run-time binding of these and other similar day-count implementations.
+// 'bbldc_basicbasicdaycountadapter'), 'bbldc::BasicDayCount' is intended to
+// allow run-time binding of these and other similar day-count implementations.
 //
 ///Usage
 ///-----
@@ -37,10 +37,12 @@ BSLS_IDENT("$Id: $")
 // convention.  This functionality suffices to demonstrate the requisite steps
 // for having a working day-count convention:
 //: * Define a concrete day-count type derived from 'bbldc::BasicDayCount'.
+//:
 //: * Implement the pure virtual 'daysDiff' and 'yearsDiff' methods.
+//:
 //: * Instantiate and use an object of the concrete type.
 //
-// First define the (derived) 'my_DayCountConvention' class and implement its
+// First, define the (derived) 'my_DayCountConvention' class and implement its
 // constructor inline (for convenience, directly within the derived-class
 // definition):
 //..
@@ -70,7 +72,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Next, we implement the (virtual) 'daysDiff' and 'yearsDiff' methods, which
 // incorporate the "policy" of what it means for this day-count convention to
-// calculate these values:
+// calculate day count and year fraction:
 //..
 //  int my_DayCountConvention::daysDiff(const bdlt::Date& beginDate,
 //                                      const bdlt::Date& endDate) const

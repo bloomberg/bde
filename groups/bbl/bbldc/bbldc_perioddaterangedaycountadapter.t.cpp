@@ -25,11 +25,13 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test consists of two forwarding methods that forward
-// to static member function implementations within the template parameter
-// class that compute the day count and year fraction between two dates.  The
-// general plan is that the methods are tested with two different
-// template parameters to ensure the methods forward correctly.
+// The component under test consists of two forwarding methods that forward to
+// static member function implementations within the template parameter class
+// that compute the day count and year fraction between two dates and two
+// methods to complete the protocol implementation.  The general plan is that
+// the methods are tested with two different template parameters to ensure the
+// forwarding methods forward correctly and the other methods return the
+// expected value.
 // ----------------------------------------------------------------------------
 // [ 1] PeriodDateRangeDayCountAdapter(pD, pYD, bA);
 // [ 1] ~PeriodDateRangeDayCountAdapter();
@@ -195,7 +197,7 @@ int main(int argc, char *argv[])
         //:   (all virtual functions are defined).
         //:
         //: 2 The functions are in fact virtual and accessible from the
-        //:  'bbldc::DateRangeDayCount'.
+        //:  'bbldc::DateRangeDayCount' base class.
         //:
         //: 3 The values bound at construction are correctly forwarded to the
         //:   methods.
@@ -213,8 +215,9 @@ int main(int argc, char *argv[])
         //: 1 Construct an adapted object of a class (which is derived from
         //:  'bbldc::DateRangeDayCount') and bind a 'bbldc::DateRangeDayCount'
         //:  reference to the object.  Using the base class reference, invoke
-        //:  the 'daysDiff' and 'yearsDiff' methods.  Verify that the correct
-        //:  implementations of the methods are called.  (C-1..3)
+        //:  the 'daysDiff', 'firstDate', 'lastDate', and 'yearsDiff' methods.
+        //:  Verify that the correct implementations of the methods are called.
+        //:  (C-1..3)
         //:
         //: 2 The destructor is empty so the concern is trivially satisfied.
         //:   (C-4)
