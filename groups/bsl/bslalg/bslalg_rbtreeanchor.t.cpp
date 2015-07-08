@@ -11,14 +11,13 @@
 
 #include <algorithm>
 
+#include <ctype.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 using namespace BloombergLP;
-using namespace std;
 using namespace bslalg;
 
 //=============================================================================
@@ -90,25 +89,34 @@ using namespace bslalg;
 //-----------------------------------------------------------------------------
 //=============================================================================
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(bool b, const char *s, int i) {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+}  // close unnamed namespace
+
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
 #define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
@@ -117,13 +125,12 @@ static void aSsErT(bool b, const char *s, int i) {
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -454,7 +461,7 @@ int main(int argc, char *argv[])
 
         ASSERTV(0, X.numNodes(), 0 == X.numNodes());
 
-      }
+      } break;
       case 5: {
         // --------------------------------------------------------------------
         // ACCESSOR 'sentinel':
@@ -524,7 +531,7 @@ int main(int argc, char *argv[])
                 X.sentinel()->rightChild() == X.firstNode());
         ASSERTV(mX.sentinel()->rightChild(), mX.firstNode(),
                 mX.sentinel()->rightChild() == mX.firstNode());
-      }
+      } break;
       case 4: {
         // --------------------------------------------------------------------
         // BASIC ACCESSORS
@@ -630,7 +637,7 @@ int main(int argc, char *argv[])
 
             ASSERTV(A3, X.numNodes(), A3 == X.numNodes());
         }
-      }
+      } break;
       case 3: {
         // --------------------------------------------------------------------
         // VALUE CTOR & MANIPULATOR 'reset'
@@ -741,7 +748,7 @@ int main(int argc, char *argv[])
             ASSERTV(FIRST, X.firstNode(), FIRST == X.firstNode());
             ASSERTV(NUMNODES, X.numNodes(), NUMNODES == X.numNodes());
         }
-      }
+      } break;
       case 2: {
         // --------------------------------------------------------------------
         // DEFAULT CTOR & PRIMARY MANIPULATORS
@@ -915,7 +922,7 @@ int main(int argc, char *argv[])
             ASSERTV(B2, X.firstNode(), B2 == X.firstNode());
             ASSERTV(B3, X.numNodes(), B3 == X.numNodes());
         }
-      }
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST

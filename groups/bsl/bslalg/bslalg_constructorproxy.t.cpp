@@ -7,8 +7,12 @@
 #include <bslma_default.h>                       // for testing only
 #include <bslma_testallocator.h>                 // for testing only
 
+#include <bsls_bsltestutil.h>
+
 #include <iostream>
-#include <cstdlib>
+
+#include <stdio.h>      // 'printf'
+#include <stdlib.h>     // 'atoi'
 
 using namespace BloombergLP;
 using namespace std;
@@ -51,61 +55,48 @@ using namespace std;
 // [ 2] USAGE EXAMPLE 1
 // [ 3] USAGE EXAMPLE 2
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print tab w/o newline
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -117,7 +108,7 @@ static int g_objectCount = 0;  // Global counter for number of objects
                                // the constructor proxy did not construct or
                                // destroy the objects correctly.
 
-template <typename TYPE>
+template <class TYPE>
 class TestType_Other_Template {
     // Template for generating the 'TestType_Other' type.  The 'TestType_Other'
     // type can be used to construct 'TestType_YesAllocator' and
@@ -168,7 +159,7 @@ class TestType_Other_Template {
     }
 };
 
-template <typename TYPE>
+template <class TYPE>
 class TestType_YesAllocator_Template {
     // Template for generating the 'TestType_YesAllocator' type.  The
     // 'TestType_YesAllocator' type simulates a class that uses 'bslma'
@@ -245,13 +236,13 @@ class TestType_YesAllocator_Template {
 // TRAITS
 namespace BloombergLP {
 namespace bslma {
-template <typename TYPE>
+template <class TYPE>
 struct UsesBslmaAllocator<TestType_YesAllocator_Template<TYPE> >
     : bsl::true_type {};
 }
 }
 
-template <typename TYPE>
+template <class TYPE>
 class TestType_NoAllocator_Template {
     // Template for generating the 'TestType_NoAllocator' type.  The
     // 'TestType_NoAllocator' type simulates a class that does not use 'bslma'
@@ -460,7 +451,7 @@ namespace UsageExample2 {
 //
 // The 'MyContainer' class below contains an object of a templated 'TYPE':
 //..
-//  template <typename TYPE>
+//  template <class TYPE>
 //  class MyContainer {
 //      // A class that contains an object of the specified 'TYPE'.
 //
@@ -489,7 +480,7 @@ namespace UsageExample2 {
 // tricky without a constructor proxy.  One possible implementation is as
 // follows:
 //..
-//  template <typename TYPE>
+//  template <class TYPE>
 //  MyContainer<TYPE>::MyContainer(bslma::Allocator *basicAllocator)
 //  {
 //  }
@@ -502,7 +493,7 @@ namespace UsageExample2 {
 // Another possible implementation for the 'MyContainer' constructor is as
 // follows:
 //..
-//  template <typename TYPE>
+//  template <class TYPE>
 //  MyContainer<TYPE>::MyContainer(bslma::Allocator *basicAllocator)
 //  : d_object(basicAllocator)
 //  {
@@ -523,7 +514,7 @@ namespace UsageExample2 {
 
 namespace WithoutAllocatorTrait {
 
-template <typename TYPE>
+template <class TYPE>
 class MyContainer {
     // A class that contains an object of the specified 'TYPE'.
 
@@ -550,20 +541,20 @@ class MyContainer {
 //..
 // The constructor for 'MyContainer' can now be implemented as follows:
 //..
-template <typename TYPE>
+template <class TYPE>
 MyContainer<TYPE>::MyContainer(bslma::Allocator *basicAllocator)
 : d_proxy(basicAllocator)
 {
 }
 
-template <typename TYPE>
+template <class TYPE>
 MyContainer<TYPE>::~MyContainer()
 {
 }
 //..
 //  The 'getObject' method of 'MyContainer' can be implemented as follows:
 //..
-template <typename TYPE>
+template <class TYPE>
 const TYPE& MyContainer<TYPE>::getObject() const
 {
     return d_proxy.object();
@@ -685,7 +676,7 @@ namespace UsageExample2 {
 
 namespace WithAllocatorTrait {
 
-template <typename TYPE>
+template <class TYPE>
 class MyContainer {
     // A class that contains an object of the specified 'TYPE' and declares
     // the 'bslma::UsesBslmaAllocator' trait.
@@ -718,7 +709,7 @@ class MyContainer {
 // TRAITS
 namespace BloombergLP {
 namespace bslma {
-template <typename TYPE>
+template <class TYPE>
 struct UsesBslmaAllocator<UsageExample2::
                           WithAllocatorTrait::MyContainer<TYPE> >
     : bsl::true_type {};
@@ -729,18 +720,18 @@ namespace UsageExample2 {
 
 namespace WithAllocatorTrait {
 
-template <typename TYPE>
+template <class TYPE>
 MyContainer<TYPE>::MyContainer(bslma::Allocator *basicAllocator)
 : d_proxy(basicAllocator)
 {
 }
 
-template <typename TYPE>
+template <class TYPE>
 MyContainer<TYPE>::~MyContainer()
 {
 }
 
-template <typename TYPE>
+template <class TYPE>
 const TYPE& MyContainer<TYPE>::getObject() const
 {
     return d_proxy.object();
