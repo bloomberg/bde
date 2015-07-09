@@ -444,14 +444,14 @@ std::size_t AlignmentUtil::roundUpToMaximalAlignment(std::size_t size)
 
 }  // close package namespace
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bsls::AlignmentUtil bsls_AlignmentUtil;
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

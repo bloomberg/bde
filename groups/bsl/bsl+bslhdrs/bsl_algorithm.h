@@ -134,11 +134,11 @@ namespace bsl {
 #include <bslstl_algorithmworkaround.h>
 #endif
 
-#ifndef BDE_OMIT_TRANSITIONAL // STP
+#ifndef BDE_OPENSOURCE_PUBLICATION // STP
 #ifndef BSL_OVERRIDES_STD
 #include <bslstp_exalgorithm.h>
 #endif
-#endif  // BDE_OMIT_TRANSITIONAL -- STP
+#endif  // BDE_OPENSOURCE_PUBLICATION -- STP
 
 #endif
 

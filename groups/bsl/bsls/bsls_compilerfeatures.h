@@ -20,6 +20,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES: flag for rvalue references
 //  BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT: flag for 'static_assert'
 //  BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES: flag for variadic params.
+//  BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS: flag for 'alignas'.
 //
 //@SEE_ALSO: bsls_platform
 //
@@ -90,6 +91,10 @@ BSLS_IDENT("$Id: $")
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES'
 //:    This macro is defined if variadic template parameters are supported by
+//:    the current compiler settings for this platform.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS'
+//:    This macro is defined if 'alignas' alignment specifier is supported by
 //:    the current compiler settings for this platform.
 //
 ///Usage
@@ -269,7 +274,7 @@ BSLS_IDENT("$Id: $")
 //:   xlC 11.1
 //:   Oracle CC 12.4
 //
-///BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES 
+///BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 /// - - - - - - - - - - - - - - - - - - - - - - - -
 // This macro is defined if the compiler supports the ability to express a
 // template that accepts an arbitrary number of parameters in a type-safe
@@ -282,6 +287,17 @@ BSLS_IDENT("$Id: $")
 //:   xlC 11.1
 //:   Oracle CC 12.4
 //..
+//
+///BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
+///- - - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports the 'alignas' alignment
+// specifier.
+//
+//: Compiler support:
+//:   gcc 4.8
+//:   clang 3.0
+//
+// This feature is not yet supported in Visual Studio, xlc, CC.
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
@@ -322,6 +338,7 @@ BSLS_IDENT("$Id: $")
 #if BSLS_PLATFORM_CMP_VERSION >= 40800
 #define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
 // gcc supports __attribute__((noreturn)) in earlier versions
+#define BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
 #endif
 #endif
 
@@ -361,6 +378,8 @@ BSLS_IDENT("$Id: $")
 // clang 3.1
 #if __has_feature(cxx_generalized_initializers)
 #define BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+#if __has_feature(cxx_alignas)
+#define BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
 #endif
 // clang 3.3
 #if __has_feature(cxx_decltype)
@@ -377,9 +396,9 @@ BSLS_IDENT("$Id: $")
 // http://msdn.microsoft.com/en-us/library/hh567368.aspx
 // http://blogs.msdn.com/b/vcblog/archive/2014/06/11/c-11-14-feature-tables-for-visual-studio-14-ctp1.aspx
 // MSVC enables C++11 features automatically in versions that provide the
-// feature.  Features can not be disabled. 
+// feature.  Features can not be disabled.
 //
-//: * extern template is not supported. It is documented as being 
+//: * extern template is not supported. It is documented as being
 //:   "supported" but behaves in a non-conforming manner.
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #if BSLS_PLATFORM_CMP_VERSION >= 1600  // Microsoft Visual Studio 2010
@@ -506,9 +525,12 @@ BSLS_IDENT("$Id: $")
     // with '(V)', the classic way to forward arguments safely.
 
 #else
-// Use real perfect-forwarding; no workaround needed.
+// Use real perfect-forwarding; no workaround needed.  Note that the explicit
+// 'BloombergLP' qualification is needed for 'bsls::Util' when it is used from
+// within namespace 'bsl', the BDE standard library implementation.
 #   define BSLS_COMPILERFEATURES_FORWARD_REF(T) T&&
-#   define BSLS_COMPILERFEATURES_FORWARD(T,V)   native_std::forward<T>(V)
+#   define BSLS_COMPILERFEATURES_FORWARD(T,V)       \
+        ::BloombergLP::bsls::Util::forward<T>(V)
 #endif
 
 #endif

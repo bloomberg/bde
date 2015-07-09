@@ -45,7 +45,7 @@ BSLS_IDENT("$Id: $")
 //..
 // The copy constructor for the type being inserted may throw, so we need to
 // have a guard object which allows us to make some guarantee about the state
-// of the array after the guard is destroyed.  What we want to guarantee is 
+// of the array after the guard is destroyed.  What we want to guarantee is
 // that there are as many valid objects at the start of the array as before
 // with no other valid objects in existence.
 //
@@ -322,9 +322,9 @@ class AutoArrayMoveDestructor {
         // destruction, moves the range '[ begin, middle )' to the specified
         // 'destination' and destroys the '[ middle, end )' range.  The
         // behavior is undefined unless 'begin', 'middle', and 'end' refer to
-        // a contiguous sequence of initialized 'OBJECT_TYPE' objects, where 
+        // a contiguous sequence of initialized 'OBJECT_TYPE' objects, where
         // 'begin <= middle <= end', and 'destination' refers to a contiguous
-        // sequence of (uninitialized) memory of sufficent size to hold 
+        // sequence of (uninitialized) memory of sufficient size to hold
         // 'end - begin' 'OBJECT_TYPE' objects (which must not overlap
         // '[begin, end)').
 
@@ -446,7 +446,7 @@ OBJECT_TYPE *AutoArrayMoveDestructor<OBJECT_TYPE>::destination() const
 
 }  // close package namespace
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -456,7 +456,7 @@ OBJECT_TYPE *AutoArrayMoveDestructor<OBJECT_TYPE>::destination() const
 #endif
 #define bslalg_AutoArrayMoveDestructor bslalg::AutoArrayMoveDestructor
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

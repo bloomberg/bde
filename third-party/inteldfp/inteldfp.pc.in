@@ -1,6 +1,6 @@
 prefix=@prefix@
-libdir=${prefix}/@lib_dir@
-includedir=${prefix}/include/inteldfp
+libdir=@libdir@
+includedir=@includedir@
 
 Name: Intel Decimal Floating-Point Math Library
 Description:

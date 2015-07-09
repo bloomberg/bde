@@ -4,9 +4,10 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlt_epochutil_cpp,"$Id$ $CSID$")
 
-#ifndef BDE_OMIT_TRANSITIONAL
-#include <bsl_cstdio.h>    // 'fprintf'
+#ifndef BDE_OPENSOURCE_PUBLICATION
+#include <bdlt_date.h>
 #include <bdlb_bitutil.h>
+#include <bsls_log.h>
 #endif
 
 namespace BloombergLP {
@@ -29,7 +30,7 @@ namespace bdlt {
 
 static const int epochData[2] = { 719163, 0 };
                                  // 719163 is 1970/01/01 in Proleptic Gregorian
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
 static const int posixEpochData[2]
                               = { 719165, 0 };
                                  // 719165 is 1970/01/01 in POSIX
@@ -43,7 +44,7 @@ static const int posixEpochData[2]
 
 const bdlt::Datetime *EpochUtil::s_epoch_p =
                            reinterpret_cast<const bdlt::Datetime *>(epochData);
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
 const bdlt::Datetime *EpochUtil::s_posixEpoch_p =
                       reinterpret_cast<const bdlt::Datetime *>(posixEpochData);
 
@@ -51,35 +52,44 @@ const bdlt::Datetime *EpochUtil::s_posixEpoch_p =
 // 639798 for the "magic" serial date value, '>' is the appropriate comparison
 // operator to use in the 'logIfProblematicDateValue' function.
 
-static const int MAGIC_SERIAL = 639798;  // 1752/09/02 POSIX
-                                         // 1752/09/15 proleptic Gregorian
+const int MAGIC_SERIAL = 639798;  // 1752/09/02 POSIX
+                                  // 1752/09/15 proleptic Gregorian
+
+// To limit spewing to 'stderr', log an occurrence of a problematic date value
+// only if the associated logging context count is 1, 8, or 256.
+
+const int LOG_THROTTLE_MASK = 1 | 8 | 256;
 
 // PRIVATE CLASS METHODS
-void EpochUtil::logIfProblematicDateValue(
-                       const char                               *fileName,
-                       int                                       lineNumber,
-                       const Date&                               date,
-                       bsls::AtomicOperations::AtomicTypes::Int *count)
+void EpochUtil::logIfProblematicDateValue(const char  *fileName,
+                                          int          lineNumber,
+                                          int          locationId,
+                                          const Date&  date)
 {
-    if (date > *reinterpret_cast<const Date *>(&MAGIC_SERIAL)) {
+    if (!Date::isLoggingEnabled()
+     || (date > *reinterpret_cast<const Date *>(&MAGIC_SERIAL))) {
         return;                                                       // RETURN
     }
 
-    const int tmpCount = bsls::AtomicOperations::addIntNvRelaxed(count, 1);
+    static bsls::AtomicOperations::AtomicTypes::Int counts[32] = { 0 };
 
-    // To limit spewing to 'stderr', log an occurrence of a problematic date
-    // value only if its associated count is a power of 2.
+    if (locationId < 0 || locationId > 31) {
+        return;                                                       // RETURN
+    }
 
-    if (1 == bdlb::BitUtil::numBitsSet(
+    const int tmpCount
+             = bsls::AtomicOperations::addIntNvRelaxed(&counts[locationId], 1);
+
+    if ((LOG_THROTTLE_MASK & tmpCount)
+     && 1 == bdlb::BitUtil::numBitsSet(
                              static_cast<bdlb::BitUtil::uint32_t>(tmpCount))) {
 
-        bsl::fprintf(stderr,
-                     "%s:%d WARNING: problematic date value detected: "
-                     "%d/%d/%d [%d times].  "
-                     "Please contact BDE (DRQS Group 101).\n",
-                     fileName, lineNumber,
-                     date.year(), date.month(), date.day(),
-                     tmpCount);
+        bsls::Log::logFormattedMessage(fileName, lineNumber,
+                                       "WARNING: bad 'Date' value: "
+                                       "%d/%d/%d [%d] "
+                                       "(see {TEAM 481627583<GO>})",
+                                       date.year(), date.month(), date.day(),
+                                       tmpCount);
     }
 }
 

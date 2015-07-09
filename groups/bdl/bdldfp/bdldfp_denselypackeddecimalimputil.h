@@ -102,43 +102,44 @@ struct DenselyPackedDecimalImpUtil {
         // 'unsigned int' type values, as it is intended for use with raw bit
         // manipulation functions.
 
-    static StorageType32 makeDecimalRaw32(int mantissa, int exponent);
+    static StorageType32 makeDecimalRaw32(int significand, int exponent);
         // Return a 'StorageType32' object representing a decimal floating
-        // point number consisting of the specified 'mantissa' and 'exponent',
-        // with the sign given by the 'mantissa'.  If 'mantissa' is 0, the
-        // result is 0 but the quanta of the result is unspecified.  The
-        // behavior is undefined unless 'abs(mantissa) <= 9,999,999' and
-        // '-101 <= exponent <= 90'.
+        // point number consisting of the specified 'significand' and
+        // 'exponent', with the sign given by the 'significand'.  If
+        // 'significand' is 0, the result is 0 but the quanta of the result is
+        // unspecified.  The behavior is undefined unless
+        // 'abs(significand) <= 9,999,999' and '-101 <= exponent <= 90'.
 
-    static StorageType64 makeDecimalRaw64(unsigned long long int mantissa,
+    static StorageType64 makeDecimalRaw64(unsigned long long int significand,
                                                              int exponent);
-    static StorageType64 makeDecimalRaw64(         long long int mantissa,
+    static StorageType64 makeDecimalRaw64(         long long int significand,
                                                              int exponent);
-    static StorageType64 makeDecimalRaw64(unsigned           int mantissa,
+    static StorageType64 makeDecimalRaw64(unsigned           int significand,
                                                              int exponent);
-    static StorageType64 makeDecimalRaw64(                   int mantissa,
+    static StorageType64 makeDecimalRaw64(                   int significand,
                                                              int exponent);
         // Create a 'StorageType64' object representing a decimal floating
-        // point number consisting of the specified 'mantissa' and 'exponent',
-        // with the sign given by the 'mantissa'.  If 'mantissa' is 0, the
-        // result is 0 but the quanta of the result is unspecified.  The
-        // behavior is undefined unless
-        // 'abs(mantissa) <= 9,999,999,999,999,999' and
+        // point number consisting of the specified 'significand' and
+        // 'exponent', with the sign given by the 'significand'.  If
+        // 'significand' is 0, the result is 0 but the quanta of the result is
+        // unspecified.  The behavior is undefined unless
+        // 'abs(significand) <= 9,999,999,999,999,999' and
         // '-398 <= exponent <= 369'.
 
-    static StorageType128 makeDecimalRaw128(unsigned long long int mantissa,
+    static StorageType128 makeDecimalRaw128(unsigned long long int significand,
                                                                int exponent);
-    static StorageType128 makeDecimalRaw128(         long long int mantissa,
+    static StorageType128 makeDecimalRaw128(         long long int significand,
                                                                int exponent);
-    static StorageType128 makeDecimalRaw128(unsigned           int mantissa,
+    static StorageType128 makeDecimalRaw128(unsigned           int significand,
                                                                int exponent);
-    static StorageType128 makeDecimalRaw128(                   int mantissa,
+    static StorageType128 makeDecimalRaw128(                   int significand,
                                                                int exponent);
         // Create a 'StorageType128' object representing a decimal floating
-        // point number consisting of the specified 'mantissa' and 'exponent',
-        // with the sign given by the 'mantissa'.  If 'mantissa' is 0, the
-        // result is 0 but the quanta of the result is unspecified.  The
-        // behavior is undefined unless '-6176 <= exponent <= 6111'.
+        // point number consisting of the specified 'significand' and
+        // 'exponent', with the sign given by the 'significand'.  If
+        // 'significand' is 0, the result is 0 but the quanta of the result is
+        // unspecified.  The behavior is undefined unless
+        // '-6176 <= exponent <= 6111'.
 };
 
 }  // close package namespace

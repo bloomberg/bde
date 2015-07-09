@@ -818,7 +818,7 @@ int main(int argc, char *argv[])
         //: 2 Call 'enter', then 'leave' on a newly constructed object and
         //:   verify subsequent calls to 'enter' return 'false' (C-2)
         //:
-        //: 3 Call 'enter' on an object that has been incorectly initialized
+        //: 3 Call 'enter' on an object that has been incorrectly initialized
         //:   and verify that it throws in an appropriate build mode.  (C-3)
         //
         // Testing:

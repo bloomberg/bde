@@ -25,6 +25,8 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslstl_forwarditerator.h>   // for testing only
 #include <bslstl_iterator.h>          // for testing only
 
+#include <string.h>  // for 'memcpy'
+
 namespace bsl {
 
 namespace {
@@ -72,21 +74,10 @@ std::size_t Vector_Util::computeNewCapacity(std::size_t newLength,
 
 void Vector_Util::swap(void *a, void *b)
 {
-    Vector_Base& aVector = *(Vector_Base *)a;
-    Vector_Base& bVector = *(Vector_Base *)b;
-    Vector_Base  tmpVector;
-
-    tmpVector.d_dataBegin = bVector.d_dataBegin;
-    tmpVector.d_dataEnd   = bVector.d_dataEnd;
-    tmpVector.d_capacity  = bVector.d_capacity;
-
-    bVector.d_dataBegin = aVector.d_dataBegin;
-    bVector.d_dataEnd   = aVector.d_dataEnd;
-    bVector.d_capacity  = aVector.d_capacity;
-
-    aVector.d_dataBegin = tmpVector.d_dataBegin;
-    aVector.d_dataEnd   = tmpVector.d_dataEnd;
-    aVector.d_capacity  = tmpVector.d_capacity;
+    char c[sizeof(Vector_Base)];
+    memcpy(c, a, sizeof(Vector_Base));
+    memcpy(a, b, sizeof(Vector_Base));
+    memcpy(b, c, sizeof(Vector_Base));
 }
 
 }  // close namespace bsl

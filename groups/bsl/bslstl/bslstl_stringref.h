@@ -1359,7 +1359,7 @@ bslstl::operator<<(std::basic_ostream<CHAR_TYPE>& stream,
     typedef typename std::basic_ostream<char_type>::ios_base    ios_base;
     typedef typename bslstl::StringRefImp<char_type>::size_type size_type;
 
-    size_type width = stream.width();
+    size_type width = static_cast<size_type>(stream.width());
     size_type len = stringRef.length();
 
     if (len < width) {
@@ -1399,7 +1399,7 @@ void bslstl::hashAppend(HASHALG& hashAlg,
 
 }  // close enterprise namespace
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -1421,7 +1421,7 @@ void bslstl::hashAppend(HASHALG& hashAlg,
 #endif
 #define bslstl_StringRef bslstl::StringRef
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 
 #endif

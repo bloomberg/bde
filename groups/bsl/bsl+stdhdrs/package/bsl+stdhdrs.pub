@@ -98,6 +98,7 @@ iso646.h        iso646.h.SUNWCCh
                 istream.h.SUNWCCh
 limits.h        limits.h.SUNWCCh
 locale.h        locale.h.SUNWCCh
+math.h          math.h.SUNWCCh
 pthread.h
 signal.h        signal.h.SUNWCCh
 stdarg.h        stdarg.h.SUNWCCh
@@ -110,3 +111,20 @@ time.h          time.h.SUNWCCh
 wchar.h         wchar.h.SUNWCCh
 wctype.h        wctype.h.SUNWCCh
 setjmp.h        setjmp.h.SUNWCCh
+
+# Non-standard legacy files
+# These form a compatibility layer for code with non-standard expectations that
+# is unlikely to be cleaned up - mostly old deprecated libraries with no desire
+# to update, even something as simple as fixing an #include.
+exception.h     exception.h.SUNWCCh
+fstream.h       fstream.h.SUNWCCh
+iomanip.h       iomanip.h.SUNWCCh
+ios.h           ios.h.SUNWCCh
+iosfwd.h        iosfwd.h.SUNWCCh
+iostream.h      iostream.h.SUNWCCh
+memory.h        memory.h.SUNWCCh
+new.h           new.h.SUNWCCh
+ostream.h       ostream.h.SUNWCCh
+streambuf.h     streambuf.h.SUNWCCh
+strstream.h     strstream.h.SUNWCCh
+typeinfo.h      typeinfo.h.SUNWCCh

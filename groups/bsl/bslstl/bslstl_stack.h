@@ -286,6 +286,14 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_enableif.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
+#ifndef INCLUDED_BSLS_UTIL
+#include <bsls_util.h>
+#endif
+
 #ifndef INCLUDED_ALGORITHM
 #include <algorithm>
 #define INCLUDED_ALGORITHM
@@ -302,16 +310,20 @@ class Stack_HasAllocatorType {
     // 'CONTAINER::allocator_type' is present, and remove them from the
     // constructor overload set otherwise.
 
+    // TYPES
     typedef char YesType;
     struct NoType { char a[2]; };
 
+    // CLASS METHODS
     template <typename TYPE>
     static YesType match(const typename TYPE::allocator_type *);
     template <typename TYPE>
     static NoType match(...);
+        // The return type of 'match' is 'YesType' if 'TYPE' has an allocator
+        // type, and 'NoType' otherwise.
 
   public:
-    enum { VALUE = (1 == sizeof(match<CONTAINER>(0))) };
+    enum { VALUE = (sizeof(YesType) == sizeof(match<CONTAINER>(0))) };
 };
 
 template <class VALUE, class CONTAINER = deque<VALUE> >
@@ -424,8 +436,8 @@ class stack {
 
     explicit
     stack(stack&&          original);
-
         // TBD
+
     template <class ALLOCATOR>
     stack(stack&&          original,
           const ALLOCATOR& basicAllocator,
@@ -717,7 +729,7 @@ template <class... Args>
 inline
 void stack<VALUE, CONTAINER>::emplace(Args&&... args)
 {
-    d_container.emplace_back(std::forward<Args>(args)...);
+    d_container.emplace_back(BloombergLP::bsls::Util::forward<Args>(args)...);
 }
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE

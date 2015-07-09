@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Herve Bronnimann (hbronnim), Arthur Chiu (achiu)
 //
-//@DESCRIPTION: This component provides utilies to initialize, destroy, move,
+//@DESCRIPTION: This component provides utilities to initialize, destroy, move,
 // and otherwise perform various primitive manipulations on deques with a
 // uniform interface, but selecting a different implementation according to the
 // various traits possessed by the underlying type, and selecting a simpler
@@ -2235,7 +2235,7 @@ void DequePrimitives_DequeMoveGuard<VALUE_TYPE, BLOCK_LENGTH>::release()
 
 }  // close package namespace
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -2245,7 +2245,7 @@ void DequePrimitives_DequeMoveGuard<VALUE_TYPE, BLOCK_LENGTH>::release()
 #endif
 #define bslalg_DequePrimitives bslalg::DequePrimitives
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

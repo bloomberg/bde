@@ -2,7 +2,6 @@
 
 #include <bslmf_enableif.h>
 
-#include <bslmf_isconvertible.h>  // for testing only
 #include <bslmf_isfundamental.h>  // for testing only
 #include <bslmf_ispolymorphic.h>  // for testing only
 #include <bslmf_issame.h>         // for testing only
@@ -77,12 +76,12 @@ static void aSsErT(bool b, const char *s, int i)
 //                GLOBAL TYPES AND FUNCTIONS FOR USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-#pragma bde_verify push    // Usage examples relax rules for didactic clarity
-#pragma bde_verify -CC01   // C-style casts are permitted for readability
-#pragma bde_verify -FABC01 // Functions ordered for expository purpose in usage
-#pragma bde_verify -FD01   // Function contracts replaced by expository text
+// BDE_VERIFY pragma: push    // Usage examples relax rules for doc clarity
+// BDE_VERIFY pragma: -CC01   // C-style casts are permitted for readability
+// BDE_VERIFY pragma: -FABC01 // Functions ordered for expository purpose
+// BDE_VERIFY pragma: -FD01   // Function contracts replaced by expository text
 
-#pragma bde_verify set ok_unquoted from
+// BDE_VERIFY pragma: set ok_unquoted from
 
 ///Usage
 ///-----
@@ -485,7 +484,7 @@ static void aSsErT(bool b, const char *s, int i)
     }
 //..
 
-#pragma pop  // end of usage example-example relaxed rules
+// BDE_VERIFY pragma: pop  // end of usage example-example relaxed rules
 
 //=============================================================================
 //                    GLOBAL TEST TYPES AND FUNCTIONS

@@ -104,13 +104,15 @@ using namespace bsl;
 // [15] Time operator+(const Time&, const DatetimeInterval&);
 // [15] Time operator+(const DatetimeInterval&, const Time&);
 // [15] Time operator-(const Time&, const DatetimeInterval&);
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 // DEPRECATED
 // [10] static int maxSupportedBdexVersion();
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 // [10] static int maxSupportedVersion();
 // [17] int validateAndSetTime(h, m = 0, s = 0, ms = 0);
 // [ 5] ostream& streamOut(ostream& stream) const;
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] Obj& gg(Obj *object, const char *spec);
@@ -309,9 +311,9 @@ if (veryVerbose)
         //
         // Testing:
         //   int setTimeIfValid(int hr, int min = 0, int sec = 0, int ms = 0);
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
         //   int validateAndSetTime(h, m = 0, s = 0, ms = 0);
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -411,7 +413,7 @@ if (veryVerbose)
             ASSERT( 0 == X.millisecond());
         }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 
         if (verbose) cout << "\nTesting 'validateAndSetTime'." << endl;
         {
@@ -506,7 +508,7 @@ if (veryVerbose)
             ASSERT( 0 == X.millisecond());
         }
 
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
       } break;
       case 16: {
         // --------------------------------------------------------------------
@@ -1664,10 +1666,12 @@ if (veryVerbose)
         //   static int maxSupportedBdexVersion(int versionSelector);
         //   STREAM& bdexStreamIn(STREAM& stream, int version);
         //   STREAM& bdexStreamOut(STREAM& stream, int version) const;
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
         //   static int maxSupportedBdexVersion();
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
         //   static int maxSupportedVersion();
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
         // --------------------------------------------------------------------
 
         // Allocator to use instead of the default allocator.
@@ -2248,19 +2252,21 @@ if (veryVerbose)
             }
         }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
         if (verbose) {
             cout << "\nTesting deprecated methods." << endl;
         }
         {
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
             ASSERT(Obj::maxSupportedVersion()
                                            == Obj::maxSupportedBdexVersion(0));
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
             ASSERT(Obj::maxSupportedBdexVersion()
                                            == Obj::maxSupportedBdexVersion(0));
         }
 
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -2503,9 +2509,9 @@ if (veryVerbose)
         // Testing:
         //   ostream& print(ostream& os, int level = 0, int spl = 4) const;
         //   ostream& operator<<(ostream& stream, const Time& time);
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
         //   ostream& streamOut(ostream& stream) const;
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2645,7 +2651,7 @@ if (veryVerbose)
             }
         }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 
         if (verbose) cout << "\nTesting 'streamOut'." << endl;
         {
@@ -2705,7 +2711,7 @@ if (veryVerbose)
             }
         }
 
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
       } break;
       case 4: {
         // --------------------------------------------------------------------

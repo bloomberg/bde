@@ -92,15 +92,15 @@ void aSsErT(bool b, const char *s, int i) {
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-namespace TestCase1 {
+namespace UsageExample1Case {
 
 const int TESTSIZE = 10000000;  // test size used for timing
 int global;                     // uninitialized on purpose to prevent compiler
                                 // optimization
 
-}  // close namespace TestCase1
+}  // close namespace UsageExample1Case
 
-namespace TestCase3 {
+namespace UsageExample3Case {
 
 const int SIZE = 10 * 1024 * 1024;  // big enough so not all data sits in cache
 
@@ -127,7 +127,7 @@ volatile int array4[SIZE]; // for 'addWithoutPrefetch
 #pragma GCC diagnostic pop
 #endif
 
-}  // close namespace TestCase3
+}  // close namespace UsageExample3Case
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -245,7 +245,7 @@ class Stopwatch {
 //                  GLOBAL TEST CASES
 //-----------------------------------------------------------------------------
 
-namespace TestCase1 {
+namespace UsageExample1Case {
 
 volatile int count1 = 0;
 volatile int count2 = 0;
@@ -288,10 +288,13 @@ void testUsageExample1(int argc, bool assert)
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
+    double tolerance = 0.02;
+
     (void) assert;
     (void) verbose;
     (void) veryVerbose;
     (void) veryVeryVerbose;
+    (void) tolerance;
 
     Stopwatch timer;
 
@@ -365,8 +368,6 @@ void testUsageExample1(int argc, bool assert)
     // 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY' expands into something
     // meaningful.
 
-    double tolerance = 0.02;
-
     if (assert) {
         LOOP2_ASSERT(likelyTime, unlikelyTime,
                      likelyTime + tolerance > unlikelyTime);
@@ -375,11 +376,12 @@ void testUsageExample1(int argc, bool assert)
 #endif
 
 #endif
+
 }
 
-}  // close namespace TestCase1
+}  // close namespace UsageExample1Case
 
-namespace TestCase3 {
+namespace UsageExample3Case {
 
 void init(volatile int *arrayA, volatile int *arrayB)
 {
@@ -470,13 +472,15 @@ void testUsageExample3(int argc, bool assert)
         printf("Adding without prefetch\n");
     }
 
-    TestCase3::init(TestCase3::array1, TestCase3::array2);
+    UsageExample3Case::init(UsageExample3Case::array1, 
+                            UsageExample3Case::array2);
 
     Stopwatch timer;
     timer.start();
 
     for(int i = 0; i < TESTSIZE; ++i) {
-        TestCase3::addWithoutPrefetch(TestCase3::array1, TestCase3::array2);
+        UsageExample3Case::addWithoutPrefetch(UsageExample3Case::array1,
+                                              UsageExample3Case::array2);
     }
 
     timer.stop();
@@ -490,12 +494,13 @@ void testUsageExample3(int argc, bool assert)
         printf("Adding with prefetch\n");
     }
 
-    TestCase3::init(TestCase3::array3, TestCase3::array4);
+    UsageExample3Case::init(UsageExample3Case::array3, 
+                            UsageExample3Case::array4);
 
     timer.reset();
     timer.start();
 
-    for(int i = 0; i < TestCase3::TESTSIZE; ++i) {
+    for(int i = 0; i < UsageExample3Case::TESTSIZE; ++i) {
         addWithPrefetch(array3, array4);
     }
 
@@ -537,7 +542,90 @@ void testUsageExample3(int argc, bool assert)
 
 }
 
-}  // close namespace TestCase3
+}  // close namespace UsageExample3Case
+
+namespace ReorderingFenceTestCase {
+
+void testReorderingFence(int argc)
+{
+    int verbose = argc > 2;
+    int veryVerbose = argc > 3;
+    int veryVeryVerbose = argc > 4;
+
+    // suppress 'unused parameter' compiler warnings:
+    (void) verbose;
+    (void) veryVeryVerbose;
+
+    enum {
+        CHUNK_SIZE = 1000
+    };
+    double    rateWithFence;
+    double    rateWithoutFence;
+
+    if (veryVerbose) {
+        printf("With BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE\n");
+    }
+    {
+        Stopwatch timer;
+        timer.start();
+
+        double elapsedTime = 0;
+        int    iterations  = 0;
+        int    numChunks   = 0;
+        while (elapsedTime <= .4) {
+            for (int i = 0; i < CHUNK_SIZE; ++i) {
+                iterations++;
+                BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE;
+            }
+            ++numChunks;
+            elapsedTime = timer.elapsedTime();
+        }
+
+        rateWithFence = numChunks/elapsedTime;
+    }
+
+    if (veryVerbose) {
+        printf("\trate = %f\n", rateWithFence);
+    }
+
+
+    if (veryVerbose) {
+        printf("Without BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE\n");
+    }
+    {
+        Stopwatch timer;
+        timer.start();
+
+        double elapsedTime = 0;
+        int    iterations  = 0;
+        int    numChunks   = 0;
+        while (elapsedTime <= .4) {
+            for (int i = 0; i < CHUNK_SIZE; ++i) {
+                iterations++;
+            }
+            ++numChunks;
+            elapsedTime = timer.elapsedTime();
+        }
+
+        rateWithoutFence = numChunks/elapsedTime;
+    }
+    if (veryVerbose) {
+        printf("\trate = %f\n", rateWithoutFence);
+    }
+
+#if defined(BDE_BUILD_TARGET_OPT) &&                                          \
+  !(defined(BSLS_PLATFORM_CMP_SUN) && (BSLS_PLATFORM_CMP_VERSION < 0x5110))
+
+    // Perform this test only for optimized builds.  Also older Sun compilers
+    // do not support this fence.
+
+    LOOP2_ASSERT(rateWithFence, rateWithoutFence,
+                 rateWithFence < rateWithoutFence);
+#endif
+}
+
+}  // close namespace ReorderingFenceTestCase
+
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -555,7 +643,9 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 4: {
+
+
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 3
         //   This will test the usage example 3 provided in the component
@@ -577,10 +667,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING USAGE EXAMPLE 3"
                             "\n=======================\n");
 
-        TestCase3::testUsageExample3(argc, false);
+        UsageExample3Case::testUsageExample3(argc, false);
 
       } break;
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //   This will test the usage example 2 provided in the component
@@ -617,7 +707,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //   This will test the usage example 1 provided in the component
@@ -640,8 +730,42 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING USAGE EXAMPLE 1"
                             "\n=======================\n");
 
+
         ASSERT(true);
-        TestCase1::testUsageExample1(argc, false);
+        UsageExample1Case::testUsageExample1(argc, true);
+
+      } break;
+
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING: BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE
+        //
+        // Concerns:
+        //: 1 'OPTIMIZATION_FENCE' compiles on all platforms.
+        //:
+        //: 2 On platforms on which it is reasonably implemented,
+        //:   'OPTIMIZATION_FENCE' impedes compiler optimizations on optimized
+        //:   builds.
+        //
+        // Plan:
+        //: 1 Perform a simple loop incrementing a counter for a set period of
+        //:   time, both with and without the use of the 'OPTMIZATION_FENCE'.
+        //:   Use a timer to verify the rate of increments using the
+        //:   'OPTIMIZATION_FENCE' is slower.  Note that in practice, on
+        //:   platforms on which the fence is reasonably implemented (*not*
+        //:   older versions of Sun CC), the iteration with the
+        //:   'OPTIMIZATION_FENCE" is very noticeably slower (several times
+        //:   slower).
+        //
+        // Testing:
+        //   BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+            "\nTESTING: BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE"
+            "\n================================================\n");
+
+        ReorderingFenceTestCase::testReorderingFence(argc);
 
       } break;
       case 1: {
@@ -768,13 +892,13 @@ int main(int argc, char *argv[])
             printf("Usage Example 1:\n");
         }
 
-        TestCase1::testUsageExample1(argc, true);
+        UsageExample1Case::testUsageExample1(argc, true);
 
         if (veryVerbose) {
             printf("Usage Example 3:\n");
         }
 
-        TestCase3::testUsageExample3(argc, true);
+        UsageExample3Case::testUsageExample3(argc, true);
 
       } break;
       case -2: {

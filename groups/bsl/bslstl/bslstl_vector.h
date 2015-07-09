@@ -586,6 +586,10 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_types.h>
 #endif
 
+#ifndef INCLUDED_BSLS_UTIL
+#include <bsls_util.h>
+#endif
+
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>
 #define INCLUDED_CSTDDEF
@@ -1036,14 +1040,14 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     template <class... Args> void emplace_back(Args&&... args);
         // Append a new element to the end of this vector, constructed directly
-        // in place from the specified 'args'. The 'args' are passed to the
+        // in place from the specified 'args'.  The 'args' are passed to the
         // constructor using "perfect forwarding", meaning move semantics will
-        // be utilized for rvalued elements that implement them. The
+        // be utilized for rvalued elements that implement them.  The
         // combination of constructing in place and "perfect forwarding" means
-        // that when move semantics are availible, elements in 'args' will not
-        // be copied at all. When move semantics are not availible, elements in
-        // 'args' will be copied only once. This method provides the strong
-        // exception safety guarentee, so the state of this object will not be
+        // that when move semantics are available, elements in 'args' will not
+        // be copied at all.  When move semantics are not available, elements
+        // in 'args' will be copied only once.  This method provides the strong
+        // exception safety guarantee, so the state of this object will not be
         // changed if an exception is thrown (such as when allocating memory,
         // or from operations of 'VALUE_TYPE').
 
@@ -1100,7 +1104,7 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // This method provides the strong exception safety guarantee, so the
         // state of this object will not be changed if an exception is thrown
         // (such as when allocating memory, or from operations of
-        // 'VALUE_TYPE'). This method requires that the (template parameter)
+        // 'VALUE_TYPE').  This method requires that the (template parameter)
         // type 'VALUE_TYPE' be "copy-constructible" (see {Requirements on
         // 'VALUE_TYPE'}).
 
@@ -2200,7 +2204,7 @@ Vector_ImpBase<VALUE_TYPE>::data() const
 
 // CREATORS
 template <class VALUE_TYPE, class ALLOCATOR>
-inline
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 Vector_Imp<VALUE_TYPE, ALLOCATOR>::Guard::Guard(VALUE_TYPE          *data,
                                                 std::size_t          capacity,
                                                 VectorContainerBase *container)
@@ -2211,7 +2215,7 @@ Vector_Imp<VALUE_TYPE, ALLOCATOR>::Guard::Guard(VALUE_TYPE          *data,
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
-inline
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 Vector_Imp<VALUE_TYPE, ALLOCATOR>::Guard::~Guard()
 {
     if (d_data_p) {
@@ -2221,7 +2225,7 @@ Vector_Imp<VALUE_TYPE, ALLOCATOR>::Guard::~Guard()
 
 // MANIPULATORS
 template <class VALUE_TYPE, class ALLOCATOR>
-inline
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 void Vector_Imp<VALUE_TYPE, ALLOCATOR>::Guard::release()
 {
     d_data_p = 0;
@@ -2506,7 +2510,7 @@ Vector_Imp<VALUE_TYPE, ALLOCATOR>::Vector_Imp(size_type         initialSize,
 
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class INPUT_ITER>
-inline
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 Vector_Imp<VALUE_TYPE, ALLOCATOR>::Vector_Imp(INPUT_ITER       first,
                                               INPUT_ITER       last,
                                               const ALLOCATOR& basicAllocator)
@@ -2564,7 +2568,7 @@ Vector_Imp(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& original,
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
-inline
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 Vector_Imp<VALUE_TYPE, ALLOCATOR>::~Vector_Imp()
 {
     if (this->d_dataBegin) {
@@ -2730,14 +2734,15 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(Args&&...args)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this->d_capacity > this->size())) {
         BloombergLP::bslalg::ScalarPrimitives::construct(
-                                                   this->d_dataEnd,
-                                                   std::forward<Args>(args)...,
-                                                   this->bslmaAllocator());
+                               this->d_dataEnd,
+                               BloombergLP::bsls::Util::forward<Args>(args)...,
+                               this->bslmaAllocator());
         ++this->d_dataEnd;
     }
     else {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        emplace(this->d_dataEnd, std::forward<Args>(args)...);
+        emplace(this->d_dataEnd,
+                BloombergLP::bsls::Util::forward<Args>(args)...);
     }
 }
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
@@ -3009,9 +3014,9 @@ VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
         // Construct the new element.
 
         BloombergLP::bslalg::ScalarPrimitives::construct(
-                                                   temp.d_dataBegin + index,
-                                                   std::forward<Args>(args)...,
-                                                   this->bslmaAllocator());
+                               temp.d_dataBegin + index,
+                               BloombergLP::bsls::Util::forward<Args>(args)...,
+                               this->bslmaAllocator());
         guard.moveBegin(-1);
 
         // Move '[0, pos)' to 'temp' array.
@@ -3029,11 +3034,11 @@ VALUE_TYPE* Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
     }
     else {
         BloombergLP::bslalg::ArrayPrimitives::emplace(
-                                                  pos,
-                                                  this->end(),
-                                                  1,
-                                                  this->bslmaAllocator(),
-                                                  std::forward<Args>(args)...);
+                              pos,
+                              this->end(),
+                              1,
+                              this->bslmaAllocator(),
+                              BloombergLP::bsls::Util::forward<Args>(args)...);
         this->d_dataEnd += 1;
     }
 

@@ -65,7 +65,7 @@ BSLS_IDENT("$Id: $")
 // arbitrary size.  A pool is a concrete data structure used to organize and
 // supply memory according to specific needs (e.g., a consistent size).
 // Concrete allocators may use pools in their implementations, and pools will
-// aways take a base 'bslma::Allocator' protocol in their interface.  You can
+// always take a base 'bslma::Allocator' protocol in their interface.  You can
 // think of an allocator as a stream of memory that flows into a pool of
 // memory.  Memory is allocated from the pool until it is dry; only then does
 // new memory flow into the pool from the allocator.
@@ -470,14 +470,14 @@ class Allocator {
 
 }  // close package namespace
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslma::Allocator bslma_Allocator;
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 
@@ -589,7 +589,7 @@ void Allocator::deleteObjectRaw(const TYPE *object)
 
 }  // close package namespace
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -600,7 +600,7 @@ typedef bslma::Allocator bslma_Allocator;
 #ifndef bdema_Allocator
 #define bdema_Allocator bslma::Allocator
 #endif
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

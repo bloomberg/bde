@@ -1,12 +1,12 @@
 // bsls_platformutil.cpp                                              -*-C++-*-
-#ifndef BDE_OMIT_TRANSITIONAL // DEPRECATED
+#ifndef BDE_OPENSOURCE_PUBLICATION // DEPRECATED
 
 #include <bsls_platformutil.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#endif  // BDE_OMIT_TRANSITIONAL -- DEPRECATED
+#endif  // BDE_OPENSOURCE_PUBLICATION -- DEPRECATED
 
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.

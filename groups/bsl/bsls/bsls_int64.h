@@ -37,7 +37,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // Do not use this component; use 'bsls_types' instead.
 
-#ifdef BDE_OMIT_TRANSITIONAL // DEPRECATED
+#ifdef BDE_OPENSOURCE_PUBLICATION // DEPRECATED
 #error "bsls_int64 is deprecated"
 #endif
 
