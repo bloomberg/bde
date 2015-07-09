@@ -104,11 +104,11 @@ struct ClassWithDeletedOps {
     ClassWithDeletedOps(const ClassWithDeletedOps &) = delete;
     ClassWithDeletedOps& operator=(ClassWithDeletedOps &) = delete;
 #if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1800)
-    // MSVC 1800 does not support default move constructors/assignments
+    // MSVC 1800 does not support deleted move constructors/assignments
     ClassWithDeletedOps(ClassWithDeletedOps &&) = delete;
     ClassWithDeletedOps & operator=(ClassWithDeletedOps &&) = delete;
 #endif
-  ~ClassWithDeletedOps() = delete;
+    ~ClassWithDeletedOps() = delete;
 };
 #endif  //BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
 
