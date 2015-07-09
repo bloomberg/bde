@@ -1,8 +1,8 @@
-// bbldc_perioddaycount.cpp                                           -*-C++-*-
-#include <bbldc_perioddaycount.h>
+// bbldc_perioddaycountutil.cpp                                       -*-C++-*-
+#include <bbldc_perioddaycountutil.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bbldc_perioddaycount_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bbldc_perioddaycountutil_cpp,"$Id$ $CSID$")
 
 #include <bbldc_periodicmaactualactual.h>
 
@@ -38,14 +38,14 @@ static bool isSortedAndUnique(const ITER& begin, const ITER& end)
     return true;
 }
 
-                        // ---------------------
-                        // struct PeriodDayCount
-                        // ---------------------
+                      // -------------------------
+                      // struct PeriodDayCountUtil
+                      // -------------------------
 
 // CLASS METHODS
-int PeriodDayCount::daysDiff(const bdlt::Date&        beginDate,
-                             const bdlt::Date&        endDate,
-                             DayCountConvention::Enum convention)
+int PeriodDayCountUtil::daysDiff(const bdlt::Date&        beginDate,
+                                 const bdlt::Date&        endDate,
+                                 DayCountConvention::Enum convention)
 {
     int numDays;
 
@@ -62,7 +62,7 @@ int PeriodDayCount::daysDiff(const bdlt::Date&        beginDate,
     return numDays;
 }
 
-bool PeriodDayCount::isSupported(DayCountConvention::Enum convention)
+bool PeriodDayCountUtil::isSupported(DayCountConvention::Enum convention)
 {
     bool rv = true;
 
@@ -77,7 +77,8 @@ bool PeriodDayCount::isSupported(DayCountConvention::Enum convention)
     return rv;
 }
 
-double PeriodDayCount::yearsDiff(const bdlt::Date&              beginDate,
+double PeriodDayCountUtil::yearsDiff(
+                                 const bdlt::Date&              beginDate,
                                  const bdlt::Date&              endDate,
                                  const bsl::vector<bdlt::Date>& periodDate,
                                  double                         periodYearDiff,
