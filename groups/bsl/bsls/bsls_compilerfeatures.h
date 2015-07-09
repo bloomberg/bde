@@ -56,8 +56,12 @@ BSLS_IDENT("$Id: $")
 //:    This macro is defined if 'decltype' is supported by the current compiler
 //:    settings for this platform.
 //:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS'
+//:    This macro is defined if defaulted functions are supported by the current
+//:    compiler settings for this platform.
+//
 //: 'BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS'
-//:    This macro is defined if deleted fucntions are supported by the current
+//:    This macro is defined if deleted functions are supported by the current
 //:    compiler settings for this platform.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE'
@@ -180,6 +184,18 @@ BSLS_IDENT("$Id: $")
 //:   xlC 11.1
 //:   Oracle CC 12.4
 //
+///BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports syntax to introduce defaulted
+// functions.
+//
+//: Compiler support:
+//:   gcc 4.4
+//:   clang 2.9
+//:   MSVC 2013
+//:   xlC 13.1
+//:   Oracle CC 12.4
+//:
 ///BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // This macro is defined if the compiler supports syntax to introduce deleted
@@ -350,6 +366,7 @@ BSLS_IDENT("$Id: $")
 #define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 #endif
 #if BSLS_PLATFORM_CMP_VERSION >= 40400
+#define BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
 #define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
 #endif
 #if BSLS_PLATFORM_CMP_VERSION >= 40500
@@ -386,6 +403,9 @@ BSLS_IDENT("$Id: $")
 // clang 2.9
 #if __has_feature(cxx_rvalue_references)
 #define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+#endif
+#if __has_feature(cxx_defaulted_functions)
+#define BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
 #endif
 #if __has_feature(cxx_deleted_functions)
 #define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
@@ -452,6 +472,7 @@ BSLS_IDENT("$Id: $")
 #define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 #define BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
 #define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+#define BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
 #define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
 #endif
 // MSVC has __declspec(noreturn)
@@ -475,6 +496,7 @@ BSLS_IDENT("$Id: $")
 #define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 #endif
 #if defined(__IBMCPP_DEFAULTED_AND_DELETED_FUNCTIONS)
+#define BSLS_COMPILEFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
 #define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
 #endif
 #if defined(__IBMCPP_EXPLICIT)
@@ -523,6 +545,7 @@ BSLS_IDENT("$Id: $")
 #define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 #define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
 #define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+#define BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
 #define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
 #define BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
 #define BSLS_COMPILERFEATURES_SUPPORT_FINAL
