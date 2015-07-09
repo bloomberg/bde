@@ -1,6 +1,6 @@
-// bbldc_basicdaycountadapter.t.cpp                                   -*-C++-*-
+// bbldc_basicbasicdaycountadapter.t.cpp                              -*-C++-*-
 
-#include <bbldc_basicdaycountadapter.h>
+#include <bbldc_basicbasicdaycountadapter.h>
 
 #include <bbldc_basicisdaactualactual.h>
 #include <bbldc_basicisma30360.h>
@@ -22,11 +22,11 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test consists of two forwarding methods that forward
-// to static member function implementations within the template parameter
-// class that compute the day count and year fraction between two dates.  The
-// general plan is that the methods are tested with two different
-// template parameters to ensure the methods forward correctly.
+// The component under test consists of two forwarding methods that forward to
+// static member function implementations within the template parameter class
+// that compute the day count and year fraction between two dates.  The general
+// plan is that the methods are tested with two different template parameters
+// to ensure the methods forward correctly.
 // ----------------------------------------------------------------------------
 // [ 1] int daysDiff(beginDate, endDate) const;
 // [ 1] double yearsDiff(beginDate, endDate) const;
@@ -118,14 +118,14 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Adapting 'bbldc::BasicIsma30360'
 ///- - - - - - - - - - - - - - - - - - - - - -
-// This example shows the procedure for using 'bbldc::BasicDayCountAdapter' to
-// adapt the 'bbldc::BasicIsma30360' day-count convention to the
-// 'bbldc::DayCountInterface', and then the use of the day-count methods.
-// First, we define an instance of the adapted day-count convention and obtain
-// a reference to the 'bbldc::DayCountInterface':
+// This example shows the procedure for using
+// 'bbldc::BasicBasicDayCountAdapter' to adapt the 'bbldc::BasicIsma30360'
+// day-count convention to the 'bbldc::BasicDayCount' protocol, and then the
+// use of the day-count methods.  First, we define an instance of the adapted
+// day-count convention and obtain a reference to the 'bbldc::BasicDayCount':
 //..
-    const bbldc::BasicDayCountAdapter<bbldc::BasicIsma30360> myDcc;
-    const bbldc::DayCountInterface&                          dcc = myDcc;
+    const bbldc::BasicBasicDayCountAdapter<bbldc::BasicIsma30360> myDcc;
+    const bbldc::BasicDayCount&                                   dcc = myDcc;
 //..
 // Then, create two 'bdlt::Date' variables, 'd1' and 'd2', with which to use
 // the day-count convention methods:
@@ -157,11 +157,11 @@ int main(int argc, char *argv[])
         //:   (all virtual functions are defined).
         //:
         //: 2 The functions are in fact virtual and accessible from the
-        //:  'bbldc::DayCountInterface'.
+        //:  'bbldc::BasicDayCount' base class.
         //
         // Plan:
         //: 1 Construct an adapted object of a class (which is derived from
-        //:  'bbldc::DayCountInterface') and bind a 'bbldc::DayCountInterface'
+        //:  'bbldc::BasicDayCount') and bind a 'bbldc::BasicDayCount'
         //:  reference to the object.  Using the base class reference, invoke
         //:  the 'daysDiff' and 'yearsDiff' methods.  Verify that the correct
         //:  implementations of the methods are called.  (C-1..2)
@@ -183,18 +183,19 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'daysDiff(date1, date2)'" << endl;
         {
             {
-                bbldc::BasicDayCountAdapter<bbldc::BasicIsdaActualActual> mX;
+                bbldc::BasicBasicDayCountAdapter<bbldc::BasicIsdaActualActual>
+                                                                            mX;
 
-                const bbldc::DayCountInterface& protocol = mX;
+                const bbldc::BasicDayCount& protocol = mX;
 
                 ASSERT( 16 == protocol.daysDiff(DATE1, DATE2));
                 ASSERT(366 == protocol.daysDiff(DATE3, DATE4));
             }
 
             {
-                bbldc::BasicDayCountAdapter<bbldc::BasicIsma30360> mX;
+                bbldc::BasicBasicDayCountAdapter<bbldc::BasicIsma30360> mX;
 
-                const bbldc::DayCountInterface& protocol = mX;
+                const bbldc::BasicDayCount& protocol = mX;
 
                 ASSERT( 15 == protocol.daysDiff(DATE1, DATE2));
                 ASSERT(361 == protocol.daysDiff(DATE3, DATE4));
@@ -204,9 +205,10 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'yearsDiff(date1, date2)'" << endl;
         {
             {
-                bbldc::BasicDayCountAdapter<bbldc::BasicIsdaActualActual> mX;
+                bbldc::BasicBasicDayCountAdapter<bbldc::BasicIsdaActualActual>
+                                                                            mX;
 
-                bbldc::DayCountInterface& protocol = mX;
+                bbldc::BasicDayCount& protocol = mX;
 
                 double diff1 = 0.0438 - protocol.yearsDiff(DATE1, DATE2);
                 ASSERT(-0.00005 <= diff1 && diff1 <= 0.00005);
@@ -216,21 +218,9 @@ int main(int argc, char *argv[])
             }
 
             {
-                bbldc::BasicDayCountAdapter<bbldc::BasicIsma30360> mX;
+                bbldc::BasicBasicDayCountAdapter<bbldc::BasicIsma30360> mX;
 
-                bbldc::DayCountInterface& protocol = mX;
-
-                double diff1 = 0.0417 - protocol.yearsDiff(DATE1, DATE2);
-                ASSERT(-0.00005 <= diff1 && diff1 <= 0.00005);
-
-                double diff2 = 1.0028 - protocol.yearsDiff(DATE3, DATE4);
-                ASSERT(-0.00005 <= diff2 && diff2 <= 0.00005);
-            }
-
-            {
-                bbldc::BasicDayCountAdapter<bbldc::BasicIsma30360> mX;
-
-                bbldc::DayCountInterface& protocol = mX;
+                bbldc::BasicDayCount& protocol = mX;
 
                 double diff1 = 0.0417 - protocol.yearsDiff(DATE1, DATE2);
                 ASSERT(-0.00005 <= diff1 && diff1 <= 0.00005);

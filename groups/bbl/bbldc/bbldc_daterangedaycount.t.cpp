@@ -1,6 +1,6 @@
-// bbldc_daycountinterface.t.cpp                                      -*-C++-*-
+// bbldc_daterangedaycount.t.cpp                                      -*-C++-*-
 
-#include <bbldc_daycountinterface.h>
+#include <bbldc_daterangedaycount.h>
 
 #include <bdls_testutil.h>
 
@@ -27,9 +27,11 @@ using namespace bsl;
 //: o The test driver is robust w.r.t. reuse in other, similar components.
 //: o It is possible to create a concrete implementation of the protocol.
 // ----------------------------------------------------------------------------
-// [ 1] virtual ~DayCountInterface();
-// [ 1] virtual int daysDiff(beginDate, endDate) = 0;
-// [ 1] virtual double yearsDiff(beginDate, endDate) = 0;
+// [ 1] virtual ~DateRangeDayCount();
+// [ 1] virtual int daysDiff(beginDate, endDate) const = 0;
+// [ 1] virtual const Date& firstDate() const = 0;
+// [ 1] virtual const Date& lastDate() const = 0;
+// [ 1] virtual double yearsDiff(beginDate, endDate) const = 0;
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
@@ -84,7 +86,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 int my_ConventionDestructorCalled;
 
-class my_Convention : public bbldc::DayCountInterface {
+class my_Convention : public bbldc::DateRangeDayCount {
 
   public:
     // CREATORS
@@ -99,6 +101,14 @@ class my_Convention : public bbldc::DayCountInterface {
         // and 'endDate'.  If 'beginDate <= endDate' then the result is
         // non-negative.  Note that reversing the order of 'beginDate' and
         // 'endDate' negates the result.
+
+    const bdlt::Date& firstDate() const;
+        // Return a reference providing non-modifiable access to the earliest
+        // date in the valid range of this day-count convention.
+
+    const bdlt::Date& lastDate() const;
+        // Return a reference providing non-modifiable access to the latest
+        // date in the valid range of this day-count convention.
 
     double yearsDiff(const bdlt::Date& beginDate,
                      const bdlt::Date& endDate) const;
@@ -130,6 +140,16 @@ int my_Convention::daysDiff(const bdlt::Date& beginDate,
     return 0;
 }
 
+const bdlt::Date& my_Convention::firstDate() const {
+    static bdlt::Date date(1, 1, 1);
+    return date;
+}
+
+const bdlt::Date& my_Convention::lastDate() const {
+    static bdlt::Date date(9999, 12, 31);
+    return date;
+}
+
 double my_Convention::yearsDiff(const bdlt::Date& beginDate,
                                 const bdlt::Date& endDate) const {
     if (beginDate < endDate) {
@@ -147,7 +167,7 @@ double my_Convention::yearsDiff(const bdlt::Date& beginDate,
 
 namespace {
 
-typedef bbldc::DayCountInterface ProtocolClass;
+typedef bbldc::DateRangeDayCount ProtocolClass;
 
 struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
     int daysDiff(const bdlt::Date& beginDate,
@@ -155,6 +175,18 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
         beginDate;
         endDate;
         return markDone();
+    }
+
+    const bdlt::Date& firstDate() const {
+        static bdlt::Date firstDate(9999, 12, 31);
+        markDone();
+        return firstDate;
+    }
+
+    const bdlt::Date& lastDate() const {
+        static bdlt::Date lastDate(9999, 12, 31);
+        markDone();
+        return lastDate;
     }
 
     double yearsDiff(const bdlt::Date& beginDate,
@@ -180,8 +212,8 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
 // This example shows the definition and use of a simple concrete day-count
 // convention.  This functionality suffices to demonstrate the requisite steps
 // for having a working day-count convention:
-//: * Define a concrete day-count type derived from 'bbldc::DayCountInterface'.
-//: * Implement the pure virtual 'daysDiff' and 'yearsDiff' methods.
+//: * Define a concrete day-count type derived from 'bbldc::DateRangeDayCount'.
+//: * Implement the four pure virtual methods.
 //: * Instantiate and use an object of the concrete type.
 //
 // First define the (derived) 'my_DayCountConvention' class and implement its
@@ -190,13 +222,20 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
 //..
     // my_daycountconvention.h
 
-    class my_DayCountConvention : public bbldc::DayCountInterface {
+    class my_DayCountConvention : public bbldc::DateRangeDayCount {
+        bdlt::Date d_firstDate;
+        bdlt::Date d_lastDate;
       public:
-        my_DayCountConvention() { }
+        my_DayCountConvention()
+                           : d_firstDate(1, 1, 1), d_lastDate(9999, 12, 31) { }
         virtual ~my_DayCountConvention();
         virtual int daysDiff(const bdlt::Date& beginDate,
                              const bdlt::Date& endDate) const;
             // Return the (signed) number of days between the specified ...
+        virtual const bdlt::Date& firstDate() const;
+            // Return a reference providing non-modifiable access to the ...
+        virtual const bdlt::Date& lastDate() const;
+            // Return a reference providing non-modifiable access to the ...
         virtual double yearsDiff(const bdlt::Date& beginDate,
                                  const bdlt::Date& endDate) const;
             // Return the (signed fractional) number of years between the ...
@@ -212,9 +251,9 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
 
     my_DayCountConvention::~my_DayCountConvention() { }
 //..
-// Next, we implement the (virtual) 'daysDiff' and 'yearsDiff' methods, which
-// incorporate the "policy" of what it means for this day-count convention to
-// calculate these values:
+// Next, we implement the (virtual) 'daysDiff', 'firstDate', 'lastDate', and
+// 'yearsDiff' methods, which incorporate the "policy" of what it means for
+// this day-count convention to calculate these values:
 //..
     int my_DayCountConvention::daysDiff(const bdlt::Date& beginDate,
                                         const bdlt::Date& endDate) const
@@ -222,10 +261,20 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
         return endDate - beginDate;
     }
 
+    const bdlt::Date& my_DayCountConvention::firstDate() const
+    {
+        return d_firstDate;
+    }
+
+    const bdlt::Date& my_DayCountConvention::lastDate() const
+    {
+        return d_lastDate;
+    }
+
     double my_DayCountConvention::yearsDiff(const bdlt::Date& beginDate,
                                             const bdlt::Date& endDate) const
     {
-        return static_cast<double>((endDate - beginDate) / 365.0);
+        return static_cast<double>(endDate - beginDate) / 365.0;
     }
 //..
 
@@ -233,7 +282,7 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bbldc::DayCountInterface Obj;
+typedef bbldc::DateRangeDayCount Obj;
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -276,11 +325,11 @@ int main(int argc, char *argv[])
     const bdlt::Date d1(2003, 10, 19);
     const bdlt::Date d2(2003, 12, 31);
 //..
-// Next, we obtain a 'bbldc::DayCountInterface' reference from an instantiated
+// Next, we obtain a 'bbldc::DateRangeDayCount' reference from an instantiated
 // 'my_DayCountConvention':
 //..
     my_DayCountConvention           myDcc;
-    const bbldc::DayCountInterface& dcc = myDcc;
+    const bbldc::DateRangeDayCount& dcc = myDcc;
 //..
 // Now, we compute the day count between the two dates:
 //..
@@ -332,9 +381,11 @@ int main(int argc, char *argv[])
         //:   2 publicly accessible. (C-5)
         //
         // Testing:
-        //   virtual ~DayCountInterface();
-        //   virtual int daysDiff(beginDate, endDate) = 0;
-        //   virtual double yearsDiff(beginDate, endDate) = 0;
+        //   virtual ~DateRangeDayCount();
+        //   virtual int daysDiff(beginDate, endDate) const = 0;
+        //   virtual const Date& firstDate() const = 0;
+        //   virtual const Date& lastDate() const = 0;
+        //   virtual double yearsDiff(beginDate, endDate) const = 0;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "PROTOCOL TEST" << endl
@@ -360,6 +411,10 @@ int main(int argc, char *argv[])
 
         BSLS_PROTOCOLTEST_ASSERT(testObj, daysDiff(bdlt::Date(2012, 1, 1),
                                                    bdlt::Date(2012, 1, 1)));
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, firstDate());
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, lastDate());
 
         BSLS_PROTOCOLTEST_ASSERT(testObj, yearsDiff(bdlt::Date(2012, 1, 1),
                                                     bdlt::Date(2012, 1, 1)));
