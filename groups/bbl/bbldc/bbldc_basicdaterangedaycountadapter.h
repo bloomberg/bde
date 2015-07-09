@@ -30,10 +30,10 @@ BSLS_IDENT("$Id: $")
 // binding mechanism.
 //
 // The 'bbldc::DateRangeDayCount' protocol requires two methods, 'firstDate'
-// and 'lastDate', that define a date range for which this object is valid; to
-// reflect the valid range of, say, a calendar required for the computations.
-// For "basic" day-count implementations, the valid date range is identical to
-// the range of 'bdlt::Date'.
+// and 'lastDate', that define a date range for which calculations are valid,
+// to reflect the valid range of, say, a calendar required for the
+// computations.  For "basic" day-count implementations, the valid date range
+// is identical to the range of 'bdlt::Date'.
 //
 ///Usage
 ///-----

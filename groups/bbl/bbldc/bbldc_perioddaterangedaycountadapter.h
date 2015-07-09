@@ -33,10 +33,10 @@ BSLS_IDENT("$Id: $")
 // 'bbldc::PeriodIcmaActualActual') to a run-time binding mechanism.
 //
 // The 'bbldc::DateRangeDayCount' protocol requires two methods, 'firstDate'
-// and 'lastDate', that define a date range for which this object is valid; to
-// reflect the valid range of, say, a calendar required for the computations.
-// For "period" day-count implementations, the valid date range is from the
-// first to the last period date..
+// and 'lastDate', that define a date range for which calculations are valid,
+// to reflect the valid range of, say, a calendar required for the
+// computations.  For "period" day-count implementations, the valid date range
+// is from the first to the last period date.
 //
 ///Usage
 ///-----
@@ -192,9 +192,8 @@ class PeriodDateRangeDayCountAdapter : public DateRangeDayCount {
         // 'beginDate' and 'endDate' as per the 'CONVENTION' template policy.
         // If 'beginDate <= endDate', then the result is non-negative.  The
         // behavior is undefined unless, for the 'periodDate' provided at
-        // construction,
-        // 'periodDate.front() <= beginDate <= periodDate.back()', and
-        // 'periodDate.front() <= endDate <= periodDate.back()'.  Note that
+        // construction, 'periodDate.front() <= beginDate <= periodDate.back()'
+        // and 'periodDate.front() <= endDate <= periodDate.back()'.  Note that
         // reversing the order of 'beginDate' and 'endDate' negates the result;
         // specifically, '|yearsDiff(b, e) + yearsDiff(e, b)| <= 1.0e-15' for
         // all dates 'b' and 'e'.

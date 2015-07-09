@@ -30,8 +30,8 @@ BSLS_IDENT("$Id: $")
 // implementations.
 //
 // This protocol requires two methods, 'firstDate' and 'lastDate', that define
-// a date range for which this object is valid; to reflect the valid range of,
-// say, a calendar required for the computations.
+// a date range for which calculations are valid, to reflect the valid range
+// of, say, a calendar required for the computations.
 //
 ///Usage
 ///-----
@@ -152,7 +152,7 @@ class DateRangeDayCount {
     // This 'class' provides a protocol for determining values based on dates
     // according to derived implementations of specific day-count conventions.
     // The methods 'firstDate' and 'lastDate' define a date range for which
-    // this object is valid; to reflect the valid range of, say, a calendar
+    // calculations are valid, to reflect the valid range of, say, a calendar
     // required for the computations.
 
   public:
