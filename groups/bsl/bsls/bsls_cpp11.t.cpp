@@ -78,6 +78,7 @@ namespace
     template <class, bool Pred>
     struct TestMetafunction {
         enum { value = Pred };
+          // Used to construct 'void foo() noexcept(expr-with-commas)'
     };
 
     void noThrow1() BSLS_CPP11_NOEXCEPT                           {}
@@ -91,6 +92,10 @@ namespace
                         BSLS_CPP11_NOEXCEPT_OPERATOR(throws1()))  {}
     void throws3()  BSLS_CPP11_NOEXCEPT_SPECIFICATION(
                         TestMetafunction<void, false>::value)     {}
+    template <class, class>
+    void throws4() BSLS_CPP11_NOEXCEPT_SPECIFICATION(false)       {}
+      // 'throws4<T, U>()` is used to test the operator
+      // 'noexcept(expr-with-commas)'
 
 
 }  // close unnamed namespace
@@ -421,6 +426,12 @@ int main(int argc, char *argv[])
         throws3();
         const bool isNoThrow7 = BSLS_CPP11_NOEXCEPT_OPERATOR(throws3());
         ASSERT(isNoThrow7 == false);
+
+        throws4<void, void>();
+        const bool isNoThrow8 = BSLS_CPP11_NOEXCEPT_OPERATOR(
+                                                        throws4<void, void>());
+        ASSERT(isNoThrow8 == false);
+
 
       } break;
       case 4: {

@@ -82,18 +82,18 @@ auto my_max(T t, U u) -> decltype(t > u ? t : u)
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS)
-struct deletedFunction {
-    deletedFunction() = default;
-    deletedFunction(const deletedFunction&) = delete;
+struct ClassWithDefaultAndDeleteOps {
+    ClassWithDefaultAndDeleteOps() = default;
+    ClassWithDefaultAndDeleteOps(const ClassWithDefaultAndDeleteOps &) = delete;
 
 #if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1800)
     // MSVC 1800 does not support default move constructors/assignments
-    deletedFunction(deletedFunction&&) = default;
-    deletedFunction& operator=(deletedFunction&&) = default;
+    ClassWithDefaultAndDeleteOps(ClassWithDefaultAndDeleteOps &&) = default;
+    ClassWithDefaultAndDeleteOps & operator=(ClassWithDefaultAndDeleteOps &&) = default;
 #endif
 
-    deletedFunction& operator=(const deletedFunction&) = delete;
-    ~deletedFunction() = default;
+    ClassWithDefaultAndDeleteOps & operator=(const ClassWithDefaultAndDeleteOps &) = delete;
+    ~ClassWithDefaultAndDeleteOps() = default;
 };
 #endif  //BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
 
@@ -495,12 +495,13 @@ int main(int argc, char *argv[])
                               "================\n");
           noexceptTest1();
           noexceptTest2();
-          notNoexceptTest();
+          notNoexceptTest1();
+          notNoexceptTest2();
           ASSERT(noexcept(noexceptTest1()));
           ASSERT(noexcept(noexceptTest2()));
           ASSERT(noexcept(noexceptTest3()));
-          ASSERT(noexcept(notNoexceptTest1()));
-          ASSERT(noexcept(notNoexceptTest2()));
+          ASSERT(noexcept(notNoexceptTest1()) == false);
+          ASSERT(noexcept(notNoexceptTest2()) == false);
 #endif
       } break;
       case 7: {
@@ -614,7 +615,7 @@ int main(int argc, char *argv[])
 #else
         if (verbose) printf("Testing deleted functions template\n"
                             "==================================\n");
-        deletedFunction* p;
+        ClassWithDefaultAndDeleteOps* p;
 #endif
       }break;
       case 3: {

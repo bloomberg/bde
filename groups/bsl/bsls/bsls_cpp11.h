@@ -47,15 +47,16 @@ BSLS_IDENT("$Id: $")
 //    This macro inserts the keyword 'noexcept' when compiling with C++11 mode
 //    and inserts nothing when compiling with C++03 mode.
 //
-//  'BSLS_CPP11_NOEXCEPT_SPECIFICATION'
-//    This macro inserts the keyword 'noexcept(bool)' when compiling with C++11
-//    mode and inserts nothing when compiling with C++03 mode. This macro is
-//    used to specify which version of noexcept is intended when multipule
-//    noexcepts are used in a single statement.
+//  'BSLS_CPP11_NOEXCEPT_SPECIFICATION(BOOL_EXPRESSION)'
+//    This macro inserts the exception specification 'noexcept(BOOL_EXPRESSION)'
+//    when compiling with C++11 mode and inserts nothing when compiling with
+//    C++03 mode. This macro is used to specify which version of noexcept is
+//    intended when multiple 'noexcept's are used in a single statement.
 //
 //  'BSLS_CPP11_NOEXCEPT_OPERATOR(expr)'
-//    This macro inserts the operation 'noexcept(expr)' when compiling with 
-//    C++11 mode and inserts 'false' when compiling with C++03 mode.
+//    This macro inserts the operation 'noexcept(expr)' when compiling with
+//    C++11 mode and inserts the literal 'false' when compiling with C++03
+//    mode.
 //
 //  'BSLS_CPP11_OVERRIDE'
 //    This macro inserts the keyword 'override' when compiling with C++11 mode
