@@ -38,7 +38,7 @@
 /'bbldc'
 / - - - -
  {'bbldc'} provides day-count convention implementations, an enumeration-based
- set of dispatch components, and an abstract interface with parameterized
+ set of dispatch components, and two abstract interfaces with parameterized
  adapters for the day-count convention implementations.
 
 /'bblscm'

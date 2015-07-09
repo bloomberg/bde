@@ -1,6 +1,6 @@
-// bbldc_basicdaycountadapter.h                                       -*-C++-*-
-#ifndef INCLUDED_BBLDC_BASICDAYCOUNTADAPTER
-#define INCLUDED_BBLDC_BASICDAYCOUNTADAPTER
+// bbldc_basicbasicdaycountadapter.h                                  -*-C++-*-
+#ifndef INCLUDED_BBLDC_BASICBASICDAYCOUNTADAPTER
+#define INCLUDED_BBLDC_BASICBASICDAYCOUNTADAPTER
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,25 +10,24 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a parameterized day-count convention implementation.
 //
 //@CLASSES:
-//  bbldc::BasicDayCountAdapter: 'bbldc::DayCountInterface' realization
+//  bbldc::BasicBasicDayCountAdapter: 'bbldc::BasicDayCount' realization
 //
 //@DESCRIPTION: This component provides a parameterized (template)
-// implementation, 'bbldc::BasicDayCountAdapter', of the
-// 'bbldc::DayCountInterface' protocol.  The template argument can be any type
+// implementation, 'bbldc::BasicBasicDayCountAdapter', of the
+// 'bbldc::BasicDayCount' protocol.  The template argument can be any type
 // supporting the following two class methods.
 //..
-//  int daysDiff(const bdlt::Date& beginDate,
-//               const bdlt::Date& endDate) const;
+//  int daysDiff(const bdlt::Date& beginDate, const bdlt::Date& endDate);
 //
-//  double yearsDiff(const bdlt::Date& beginDate,
-//                   const bdlt::Date& endDate) const;
+//  double yearsDiff(const bdlt::Date& beginDate, const bdlt::Date& endDate);
 //..
-// The template class 'bbldc::BasicDayCountAdapter' provides convenient support
-// for run-time polymorphic choice of day-count conventions (via conventional
-// use of a base-class pointer or reference) without having to implement each
-// derived type explicitly.  In this sense, 'bbldc::BasicDayCountAdapter'
-// adapts the various concrete "basic" day-count convention classes (e.g.,
-// 'bbldc::BasicIsma30360') to a run-time binding mechanism.
+// The template class 'bbldc::BasicBasicDayCountAdapter' provides convenient
+// support for run-time polymorphic choice of day-count conventions (via
+// conventional use of a base-class pointer or reference) without having to
+// implement each derived type explicitly.  In this sense,
+// 'bbldc::BasicBasicDayCountAdapter' adapts the various concrete "basic"
+// day-count convention classes (e.g., 'bbldc::BasicIsma30360') to a run-time
+// binding mechanism.
 //
 ///Usage
 ///-----
@@ -36,14 +35,14 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Adapting 'bbldc::BasicIsma30360'
 ///- - - - - - - - - - - - - - - - - - - - - -
-// This example shows the procedure for using 'bbldc::BasicDayCountAdapter' to
-// adapt the 'bbldc::BasicIsma30360' day-count convention to the
-// 'bbldc::DayCountInterface', and then the use of the day-count methods.
-// First, we define an instance of the adapted day-count convention and obtain
-// a reference to the 'bbldc::DayCountInterface':
+// This example shows the procedure for using
+// 'bbldc::BasicBasicDayCountAdapter' to adapt the 'bbldc::BasicIsma30360'
+// day-count convention to the 'bbldc::BasicDayCount' protocol, and then the
+// use of the day-count methods.  First, we define an instance of the adapted
+// day-count convention and obtain a reference to the 'bbldc::BasicDayCount':
 //..
-//  const bbldc::BasicDayCountAdapter<bbldc::BasicIsma30360> myDcc;
-//  const bbldc::DayCountInterface&                          dcc = myDcc;
+//  const bbldc::BasicBasicDayCountAdapter<bbldc::BasicIsma30360> myDcc;
+//  const bbldc::BasicDayCount&                                   dcc = myDcc;
 //..
 // Then, create two 'bdlt::Date' variables, 'd1' and 'd2', with which to use
 // the day-count convention methods:
@@ -69,8 +68,8 @@ BSLS_IDENT("$Id: $")
 #include <bblscm_version.h>
 #endif
 
-#ifndef INCLUDED_BBLDC_DAYCOUNTINTERFACE
-#include <bbldc_daycountinterface.h>
+#ifndef INCLUDED_BBLDC_BASICDAYCOUNT
+#include <bbldc_basicdaycount.h>
 #endif
 
 namespace BloombergLP {
@@ -79,15 +78,15 @@ namespace bdlt {  class Date;  }
 
 namespace bbldc {
 
-                        // ==========================
-                        // class BasicDayCountAdapter
-                        // ==========================
+                     // ===============================
+                     // class BasicBasicDayCountAdapter
+                     // ===============================
 
 template <class CONVENTION>
-class BasicDayCountAdapter : public DayCountInterface {
+class BasicBasicDayCountAdapter : public BasicDayCount {
     // This 'class' provides an "adapter" from the specified 'CONVENTION' to
-    // the 'bbldc::DayCountInterface' that can be used for determining values
-    // based on dates according to the day-count 'CONVENTION'.
+    // the 'bbldc::BasicDayCount' protocol that can be used for determining
+    // values based on dates according to the day-count 'CONVENTION'.
 
   public:
     // ACCESSORS
@@ -112,14 +111,15 @@ class BasicDayCountAdapter : public DayCountInterface {
 //                             INLINE DEFINITIONS
 // ============================================================================
 
-                          // ---------------------
-                          // class DayCountAdapter
-                          // ---------------------
+                     // -------------------------------
+                     // class BasicBasicDayCountAdapter
+                     // -------------------------------
 
 // ACCESSORS
 template <class CONVENTION>
 inline
-int BasicDayCountAdapter<CONVENTION>::daysDiff(const bdlt::Date& beginDate,
+int BasicBasicDayCountAdapter<CONVENTION>::daysDiff(
+                                               const bdlt::Date& beginDate,
                                                const bdlt::Date& endDate) const
 {
     return CONVENTION::daysDiff(beginDate, endDate);
@@ -128,8 +128,9 @@ int BasicDayCountAdapter<CONVENTION>::daysDiff(const bdlt::Date& beginDate,
 template <class CONVENTION>
 inline
 double
-BasicDayCountAdapter<CONVENTION>::yearsDiff(const bdlt::Date& beginDate,
-                                            const bdlt::Date& endDate) const
+BasicBasicDayCountAdapter<CONVENTION>::yearsDiff(
+                                               const bdlt::Date& beginDate,
+                                               const bdlt::Date& endDate) const
 {
     return CONVENTION::yearsDiff(beginDate, endDate);
 }

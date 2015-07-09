@@ -7,49 +7,105 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Support for day-count calculations of 'enum'-specified conventions.
+//@PURPOSE: Provide a protocol for basic day-count calculations.
 //
 //@CLASSES:
-//  bbldc::BasicDayCount: 'enum'-specified day-count calculation procedures
+//  bbldc::BasicDayCount: protocol for basic day-count calculations
 //
-//@SEE_ALSO: bbldc_daycountconvention
+//@SEE_ALSO: bbldc_basicbasicdaycountadapter
 //
-//@DESCRIPTION: This component provides a 'struct', 'bbldc::BasicDayCount',
-// that defines a suite of date-related functions used to compute the day
-// count and the year fraction between two dates as prescribed by an
-// enumerated day-count convention.  Specifically, the 'daysDiff' and
-// 'yearsDiff' methods defined in 'bbldc::BasicDayCount' take a trailing
-// 'DayCountConvention::Enum' argument indicating which particular day-count
-// convention to apply.
+//@DESCRIPTION: This component provides a protocol,
+// 'bbldc::BasicDayCount', for implementing an arbitrary day-count convention.
+// Concrete implementations of this protocol may implement, say, the ISMA
+// 30/360 day-count convention, or a custom day-count convention appropriate
+// for some niche market.
+//
+// Several of the components in 'bbldc' provide individual day-count convention
+// support through interfaces that are functionally identical to the abstract
+// interface provided by this component, except that they do not inherit from
+// 'bbldc::BasicDayCount'.  In conjunction with the adapter components (e.g.,
+// 'bbldc_basicbasicdaycountadapter'), 'bbldc::BasicDayCount' is intended to
+// allow run-time binding of these and other similar day-count implementations.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Computing Day Count and Year Fraction
-///- - - - - - - - - - - - - - - - - - - - - - - -
-// The following snippets of code illustrate how to use 'bbldc::BasicDayCount'
-// methods.  First, create two 'bdlt::Date' variables, 'd1' and 'd2':
+///Example 1: Definition and Use of a Concrete Day-Count Convention
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This example shows the definition and use of a simple concrete day-count
+// convention.  This functionality suffices to demonstrate the requisite steps
+// for having a working day-count convention:
+//: * Define a concrete day-count type derived from 'bbldc::BasicDayCount'.
+//:
+//: * Implement the pure virtual 'daysDiff' and 'yearsDiff' methods.
+//:
+//: * Instantiate and use an object of the concrete type.
+//
+// First, define the (derived) 'my_DayCountConvention' class and implement its
+// constructor inline (for convenience, directly within the derived-class
+// definition):
+//..
+//  // my_daycountconvention.h
+//
+//  class my_DayCountConvention : public bbldc::BasicDayCount {
+//    public:
+//      my_DayCountConvention() { }
+//      virtual ~my_DayCountConvention();
+//      virtual int daysDiff(const bdlt::Date& beginDate,
+//                           const bdlt::Date& endDate) const;
+//          // Return the (signed) number of days between the specified ...
+//      virtual double yearsDiff(const bdlt::Date& beginDate,
+//                               const bdlt::Date& endDate) const;
+//          // Return the (signed fractional) number of years between the ...
+//  };
+//..
+// Then, implement the destructor.  Note, however, that we always implement a
+// virtual destructor (non-inline) in the .cpp file (to indicate the *unique*
+// location of the class's virtual table):
+//..
+//  // my_daycountconvention.cpp
+//
+//  // ...
+//
+//  my_DayCountConvention::~my_DayCountConvention() { }
+//..
+// Next, we implement the (virtual) 'daysDiff' and 'yearsDiff' methods, which
+// incorporate the "policy" of what it means for this day-count convention to
+// calculate day count and year fraction:
+//..
+//  int my_DayCountConvention::daysDiff(const bdlt::Date& beginDate,
+//                                      const bdlt::Date& endDate) const
+//  {
+//      return endDate - beginDate;
+//  }
+//
+//  double my_DayCountConvention::yearsDiff(const bdlt::Date& beginDate,
+//                                          const bdlt::Date& endDate) const
+//  {
+//      return static_cast<double>((endDate - beginDate) / 365.0);
+//  }
+//..
+// Then, create two 'bdlt::Date' variables, 'd1' and 'd2', to use with the
+// 'my_DayCountConvention' object and its day-count convention methods:
 //..
 //  const bdlt::Date d1(2003, 10, 19);
 //  const bdlt::Date d2(2003, 12, 31);
 //..
-// Now, compute the day count between 'd1' and 'd2' according to the ISDA
-// Actual/Actual convention:
+// Next, we obtain a 'bbldc::BasicDayCount' reference from an instantiated
+// 'my_DayCountConvention':
 //..
-//  const int daysDiff = bbldc::BasicDayCount::daysDiff(
-//                            d1,
-//                            d2,
-//                            bbldc::DayCountConvention::e_ISDA_ACTUAL_ACTUAL);
+//  my_DayCountConvention       myDcc;
+//  const bbldc::BasicDayCount& dcc = myDcc;
+//..
+// Now, we compute the day count between the two dates:
+//..
+//  const int daysDiff = dcc.daysDiff(d1, d2);
 //  assert(73 == daysDiff);
 //..
-// Finally, compute the year fraction between the two dates according to the
-// ISDA Actual/Actual convention:
+// Finally, we compute the year fraction between the two dates:
 //..
-//  const double yearsDiff = bbldc::BasicDayCount::yearsDiff(
-//                            d1,
-//                            d2,
-//                            bbldc::DayCountConvention::e_ISDA_ACTUAL_ACTUAL);
+//  const double yearsDiff = dcc.yearsDiff(d1, d2);
 //  // Need fuzzy comparison since 'yearsDiff' is a 'double'.
 //  assert(0.1999 < yearsDiff && 0.2001 > yearsDiff);
 //..
@@ -58,50 +114,41 @@ BSLS_IDENT("$Id: $")
 #include <bblscm_version.h>
 #endif
 
-#ifndef INCLUDED_BBLDC_DAYCOUNTCONVENTION
-#include <bbldc_daycountconvention.h>
-#endif
-
 namespace BloombergLP {
 
 namespace bdlt { class Date; }
 
 namespace bbldc {
 
-                         // ====================
-                         // struct BasicDayCount
-                         // ====================
+                           // ===================
+                           // class BasicDayCount
+                           // ===================
 
-struct BasicDayCount {
-    // This 'struct' provides a namespace for a suite of pure functions that
-    // compute values based on dates according to enumerated day-count
-    // conventions.
+class BasicDayCount {
+    // This 'class' provides a protocol for determining values based on dates
+    // according to derived implementations of specific day-count conventions.
 
-    // CLASS METHODS
-    static int daysDiff(const bdlt::Date&        beginDate,
-                        const bdlt::Date&        endDate,
-                        DayCountConvention::Enum convention);
+  public:
+    // CREATORS
+    virtual ~BasicDayCount();
+        // Destroy this object.
+
+    // ACCESSORS
+    virtual int daysDiff(const bdlt::Date& beginDate,
+                         const bdlt::Date& endDate) const = 0;
         // Return the (signed) number of days between the specified 'beginDate'
-        // and 'endDate' according to the specified day-count 'convention'.
-        // The behavior is undefined unless 'isSupported(convention)'.  If
-        // 'beginDate <= endDate' then the result is non-negative.  Note that
-        // reversing the order of 'beginDate' and 'endDate' negates the result.
+        // and 'endDate'.  If 'beginDate <= endDate', then the result is
+        // non-negative.  Note that reversing the order of 'beginDate' and
+        // 'endDate' negates the result.
 
-    static bool isSupported(DayCountConvention::Enum convention);
-        // Return 'true' if the specified 'convention' is valid for use in
-        // 'daysDiff' and 'yearsDiff', and 'false' otherwise.
-
-    static double yearsDiff(const bdlt::Date&        beginDate,
-                            const bdlt::Date&        endDate,
-                            DayCountConvention::Enum convention);
+    virtual double yearsDiff(const bdlt::Date& beginDate,
+                             const bdlt::Date& endDate) const = 0;
         // Return the (signed fractional) number of years between the specified
-        // 'beginDate' and 'endDate' according to the specified day-count
-        // 'convention'.  If 'beginDate <= endDate' then the result is
-        // non-negative.  The behavior is undefined unless
-        // 'isSupported(convention)'.  Note that reversing the order of
+        // 'beginDate' and 'endDate'.  If 'beginDate <= endDate', then the
+        // result is non-negative.  Note that reversing the order of
         // 'beginDate' and 'endDate' negates the result; specifically,
-        // '|yearsDiff(b, e, c) + yearsDiff(e, b, c)| <= 1.0e-15' for all dates
-        // 'b' and 'e', and day-count conventions 'c'.
+        // '|yearsDiff(b, e) + yearsDiff(e, b)| <= 1.0e-15' for all dates 'b'
+        // and 'e'.
 };
 
 }  // close package namespace

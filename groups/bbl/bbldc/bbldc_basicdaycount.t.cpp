@@ -6,8 +6,7 @@
 
 #include <bdlt_date.h>
 
-#include <bsls_assert.h>
-#include <bsls_asserttest.h>
+#include <bsls_protocoltest.h>
 
 #include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_iostream.h>
@@ -21,16 +20,18 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test consists of static member functions that compute
-// the day and year difference between two dates for a specified convention.
-// The standard table-based test case implementation is used to verify the
-// functionality of these methods.
+// The component under test defines a protocol class the purpose of which is to
+// provide an interface for computing day count and year fraction.
+//
+// Global Concerns:
+//: o The test driver is robust w.r.t. reuse in other, similar components.
+//: o It is possible to create a concrete implementation of the protocol.
 // ----------------------------------------------------------------------------
-// [ 2] int daysDiff(beginDate, endDate, convention);
-// [ 1] bool isSupported(convention);
-// [ 3] double yearsDiff(beginDate, endDate, convention);
+// [ 1] virtual ~BasicDayCount();
+// [ 1] virtual int daysDiff(beginDate, endDate) const = 0;
+// [ 1] virtual double yearsDiff(beginDate, endDate) const = 0;
 // ----------------------------------------------------------------------------
-// [ 4] USAGE EXAMPLE
+// [ 2] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -77,33 +78,162 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BDLS_TESTUTIL_L_  // current Line number
 
-// ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
-// ----------------------------------------------------------------------------
+//=============================================================================
+//                       CONCRETE DERIVED TYPES
+//-----------------------------------------------------------------------------
 
-#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
-#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
-#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
-#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
-#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
-#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+int my_ConventionDestructorCalled;
+
+class my_Convention : public bbldc::BasicDayCount {
+
+  public:
+    // CREATORS
+    my_Convention();
+        // Create this object.
+
+    ~my_Convention();
+        // Destroy this object.
+
+    int daysDiff(const bdlt::Date& beginDate, const bdlt::Date& endDate) const;
+        // Return the (signed) number of days between the specified 'beginDate'
+        // and 'endDate'.  If 'beginDate <= endDate' then the result is
+        // non-negative.  Note that reversing the order of 'beginDate' and
+        // 'endDate' negates the result.
+
+    double yearsDiff(const bdlt::Date& beginDate,
+                     const bdlt::Date& endDate) const;
+        // Return the (signed fractional) number of years between the specified
+        // 'beginDate' and 'endDate' according to the Actual/360 convention.
+        // If 'beginDate <= endDate' then the result is non-negative.  Note
+        // that reversing the order of 'beginDate' and 'endDate' negates the
+        // result; specifically
+        // '|yearsDiff(b, e) + yearsDiff(e, b)| <= 1.0e-15' for all dates 'b'
+        // and 'e'.
+};
+
+my_Convention::my_Convention()  {
+    my_ConventionDestructorCalled = 0;
+}
+
+my_Convention::~my_Convention() {
+    my_ConventionDestructorCalled = 1;
+}
+
+int my_Convention::daysDiff(const bdlt::Date& beginDate,
+                            const bdlt::Date& endDate) const {
+    if (beginDate < endDate) {
+        return  1;                                                    // RETURN
+    }
+    if (beginDate > endDate) {
+        return -1;                                                    // RETURN
+    }
+    return 0;
+}
+
+double my_Convention::yearsDiff(const bdlt::Date& beginDate,
+                                const bdlt::Date& endDate) const {
+    if (beginDate < endDate) {
+        return  2.0;                                                  // RETURN
+    }
+    if (beginDate > endDate) {
+        return -2.0;                                                  // RETURN
+    }
+    return 0.0;
+}
 
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bbldc::BasicDayCount            Util;
-typedef bbldc::DayCountConvention::Enum Enum;
+namespace {
 
-const Enum ACTUAL_360         = bbldc::DayCountConvention::e_ACTUAL_360;
-const Enum ACTUAL_365_FIXED   = bbldc::DayCountConvention::e_ACTUAL_365_FIXED;
-const Enum INVALID_CONVENTION = static_cast<Enum>(2);
-const Enum ISDA_ACTUAL_ACTUAL =
-                               bbldc::DayCountConvention::e_ISDA_ACTUAL_ACTUAL;
-const Enum ISMA_30_360        = bbldc::DayCountConvention::e_ISMA_30_360;
-const Enum PSA_30_360_EOM     = bbldc::DayCountConvention::e_PSA_30_360_EOM;
-const Enum SIA_30_360_EOM     = bbldc::DayCountConvention::e_SIA_30_360_EOM;
-const Enum SIA_30_360_NEOM    = bbldc::DayCountConvention::e_SIA_30_360_NEOM;
+typedef bbldc::BasicDayCount ProtocolClass;
+
+struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
+    int daysDiff(const bdlt::Date& beginDate,
+                 const bdlt::Date& endDate) const {
+        beginDate;
+        endDate;
+        return markDone();
+    }
+
+    double yearsDiff(const bdlt::Date& beginDate,
+                     const bdlt::Date& endDate) const {
+        beginDate;
+        endDate;
+        return markDone();
+    }
+};
+
+}  // close unnamed namespace
+
+//=============================================================================
+//                             USAGE EXAMPLE
+//-----------------------------------------------------------------------------
+
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Definition and Use of a Concrete Day-Count Convention
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This example shows the definition and use of a simple concrete day-count
+// convention.  This functionality suffices to demonstrate the requisite steps
+// for having a working day-count convention:
+//: * Define a concrete day-count type derived from 'bbldc::BasicDayCount'.
+//: * Implement the pure virtual 'daysDiff' and 'yearsDiff' methods.
+//: * Instantiate and use an object of the concrete type.
+//
+// First define the (derived) 'my_DayCountConvention' class and implement its
+// constructor inline (for convenience, directly within the derived-class
+// definition):
+//..
+    // my_daycountconvention.h
+
+    class my_DayCountConvention : public bbldc::BasicDayCount {
+      public:
+        my_DayCountConvention() { }
+        virtual ~my_DayCountConvention();
+        virtual int daysDiff(const bdlt::Date& beginDate,
+                             const bdlt::Date& endDate) const;
+            // Return the (signed) number of days between the specified ...
+        virtual double yearsDiff(const bdlt::Date& beginDate,
+                                 const bdlt::Date& endDate) const;
+            // Return the (signed fractional) number of years between the ...
+    };
+//..
+// Then, implement the destructor.  Note, however, that we always implement a
+// virtual destructor (non-inline) in the .cpp file (to indicate the *unique*
+// location of the class's virtual table):
+//..
+    // my_daycountconvention.cpp
+
+    // ...
+
+    my_DayCountConvention::~my_DayCountConvention() { }
+//..
+// Next, we implement the (virtual) 'daysDiff' and 'yearsDiff' methods, which
+// incorporate the "policy" of what it means for this day-count convention to
+// calculate these values:
+//..
+    int my_DayCountConvention::daysDiff(const bdlt::Date& beginDate,
+                                        const bdlt::Date& endDate) const
+    {
+        return endDate - beginDate;
+    }
+
+    double my_DayCountConvention::yearsDiff(const bdlt::Date& beginDate,
+                                            const bdlt::Date& endDate) const
+    {
+        return static_cast<double>((endDate - beginDate) / 365.0);
+    }
+//..
+
+//=============================================================================
+//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//-----------------------------------------------------------------------------
+
+typedef bbldc::BasicDayCount Obj;
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -118,7 +248,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 4: {
+      case 2: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -140,390 +270,100 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-///Usage
-///-----
-// This section illustrates intended use of this component.
-//
-///Example 1: Computing Day Count and Year Fraction
-///- - - - - - - - - - - - - - - - - - - - - - - -
-// The following snippets of code illustrate how to use 'bbldc::BasicDayCount'
-// methods.  First, create two 'bdlt::Date' variables, 'd1' and 'd2':
+// Then, create two 'bdlt::Date' variables, 'd1' and 'd2', to use with the
+// 'my_DayCountConvention' object and its day-count convention methods:
 //..
     const bdlt::Date d1(2003, 10, 19);
     const bdlt::Date d2(2003, 12, 31);
 //..
-// Now, compute the day count between 'd1' and 'd2' according to the ISDA
-// Actual/Actual convention:
+// Next, we obtain a 'bbldc::BasicDayCount' reference from an instantiated
+// 'my_DayCountConvention':
 //..
-    const int daysDiff = bbldc::BasicDayCount::daysDiff(
-                              d1,
-                              d2,
-                              bbldc::DayCountConvention::e_ISDA_ACTUAL_ACTUAL);
+    my_DayCountConvention       myDcc;
+    const bbldc::BasicDayCount& dcc = myDcc;
+//..
+// Now, we compute the day count between the two dates:
+//..
+    const int daysDiff = dcc.daysDiff(d1, d2);
     ASSERT(73 == daysDiff);
 //..
-// Finally, compute the year fraction between the two dates according to the
-// ISDA Actual/Actual convention:
+// Finally, we compute the year fraction between the two dates:
 //..
-    const double yearsDiff = bbldc::BasicDayCount::yearsDiff(
-                              d1,
-                              d2,
-                              bbldc::DayCountConvention::e_ISDA_ACTUAL_ACTUAL);
+    const double yearsDiff = dcc.yearsDiff(d1, d2);
     // Need fuzzy comparison since 'yearsDiff' is a 'double'.
     ASSERT(0.1999 < yearsDiff && 0.2001 > yearsDiff);
 //..
       } break;
-      case 3: {
-        // --------------------------------------------------------------------
-        // TESTING 'yearsDiff'
-        //   Verify the method correctly computes the number of years between
-        //   two dates for the provided convention.
-        //
-        // Concerns:
-        //: 1 The 'yearsDiff' method produces the correct results for the
-        //:   provided convention.
-        //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
-        //
-        // Plan:
-        //: 1 Specify a set S of {convention C, pairs of dates (d1, d2), and
-        //:   their difference in years D}.  For the method under test, in a
-        //:   loop over the elements of S, apply the method to dates having the
-        //:   values d1 and d2 using convention C and confirm the result using
-        //:   the value D with a fuzzy comparison (since the return value is a
-        //:   floating-point number).  (C-1)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
-        //
-        // Testing:
-        //   double yearsDiff(beginDate, endDate, convention);
-        // --------------------------------------------------------------------
-
-
-        if (verbose) cout << endl
-                          << "TESTING 'yearsDiff'" << endl
-                          << "===================" << endl;
-
-        {
-            static const struct {
-                int    d_lineNum;   // source line number
-                Enum   d_type;      // convention to use
-                int    d_year1;     // beginDate year
-                int    d_month1;    // beginDate month
-                int    d_day1;      // beginDate day
-                int    d_year2;     // endDate year
-                int    d_month2;    // endDate month
-                int    d_day2;      // endDate day
-                double d_numYears;  // result # of years
-            } DATA[] = {
-
-    //                          - - -first - - -  - - - second - -
-    //line  type                year  mnth  day  year  mnth  day  numYears
-    //----  ------------------  ----  ----  ---  ----  ----  ---  --------
-    { L_,   ACTUAL_360,         1993,   12,  15, 1993,   12,  31, 0.0444444 },
-    { L_,   ACTUAL_360,         2003,    2,  28, 2004,    2,  29, 1.01667   },
-
-    { L_,   ACTUAL_365_FIXED,   1993,   12,  15, 1993,   12,  31, 0.0438356 },
-    { L_,   ACTUAL_365_FIXED,   2003,    2,  28, 2004,    2,  29, 1.00274   },
-
-    { L_,   ISDA_ACTUAL_ACTUAL, 1993,   12,  15, 1993,   12,  31, 0.0438356 },
-    { L_,   ISDA_ACTUAL_ACTUAL, 2003,    2,  28, 2004,    2,  29, 1.0023    },
-
-    { L_,   ISMA_30_360,        1993,   12,  15, 1993,   12,  31, 0.0416667 },
-    { L_,   ISMA_30_360,        2003,    2,  28, 2004,    2,  29, 1.00278   },
-
-    { L_,   PSA_30_360_EOM,     1993,   12,  15, 1993,   12,  31, 0.0444444 },
-    { L_,   PSA_30_360_EOM,     2003,    2,  28, 2004,    2,  29, 0.997222  },
-
-    { L_,   SIA_30_360_EOM,     1993,   12,  15, 1993,   12,  31, 0.0444444 },
-    { L_,   SIA_30_360_EOM,     2003,    2,  28, 2004,    2,  29, 1.0000    },
-
-    { L_,   SIA_30_360_NEOM,    1993,   12,  15, 1993,   12,  31, 0.0444444 },
-    { L_,   SIA_30_360_NEOM,    2003,    2,  28, 2004,    2,  29, 1.00278   },
-            };
-
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            if (verbose) cout <<
-                "\nTesting: 'yearsDiff(beginDate, endDate, type)'" << endl;
-
-            // Ensure the test data differentiates each convention type.
-
-            {
-                for (int i = 0; i < NUM_DATA; ++i) {
-                    const Enum CONV1 = DATA[i].d_type;
-                    for (int j = i + 1; j < NUM_DATA; ++j) {
-                        const Enum CONV2 = DATA[j].d_type;
-                        if (CONV1 != CONV2) {
-                            int hasUnique = 0;
-                            for (int ii = 0; ii < NUM_DATA; ++ii) {
-                                if (CONV1 == DATA[ii].d_type) {
-                                  for (int jj = 0; jj < NUM_DATA; ++jj) {
-                                      if (CONV2 == DATA[jj].d_type) {
-                        //---------------^
-                        if (DATA[ii].d_year1    == DATA[jj].d_year1 &&
-                            DATA[ii].d_month1   == DATA[jj].d_month1 &&
-                            DATA[ii].d_day1     == DATA[jj].d_day1 &&
-                            DATA[ii].d_year2    == DATA[jj].d_year2 &&
-                            DATA[ii].d_month2   == DATA[jj].d_month2 &&
-                            DATA[ii].d_day2     == DATA[jj].d_day2 &&
-                            DATA[ii].d_numYears != DATA[jj].d_numYears) {
-                            hasUnique = 1;
-                        }
-                        //---------------v
-                                      }
-                                  }
-                                }
-                            }
-                            if (!hasUnique && veryVerbose) {
-                                bsl::cout << CONV1
-                                          << " is not distinguished from "
-                                          << CONV2 << bsl::endl;
-                            }
-                            LOOP2_ASSERT(CONV1, CONV2, hasUnique);
-                        }
-                    }
-                }
-            }
-
-            int di;
-            for (di = 0; di < NUM_DATA; ++di) {
-                const int    LINE      = DATA[di].d_lineNum;
-                const double NUM_YEARS = DATA[di].d_numYears;
-                const Enum   CONV      = DATA[di].d_type;
-
-                const bdlt::Date X(DATA[di].d_year1,
-                                   DATA[di].d_month1,
-                                   DATA[di].d_day1);
-
-                const bdlt::Date Y(DATA[di].d_year2,
-                                   DATA[di].d_month2,
-                                   DATA[di].d_day2);
-
-                if (veryVerbose) {
-                    T_ P_(X) P_(Y) P(CONV);
-                    T_ T_ T_ T_ T_ T_ T_ P(NUM_YEARS);
-                    T_ T_ T_ T_ T_ T_ T_;
-                }
-
-                const double RESULT = Util::yearsDiff(X, Y, CONV);
-
-                if (veryVerbose) { P(RESULT); }
-                const double diff = NUM_YEARS - RESULT;
-                LOOP3_ASSERT(LINE,
-                             NUM_YEARS,
-                             RESULT,
-                             -0.00005 <= diff && diff <= 0.00005);
-            }
-        }
-
-        { // negative testing
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
-
-            ASSERT_OPT_PASS(Util::yearsDiff(
-                                     bdlt::Date(2012, 1, 1),
-                                     bdlt::Date(2012, 1, 1),
-                                     bbldc::DayCountConvention::e_ACTUAL_360));
-
-            ASSERT_OPT_FAIL(Util::yearsDiff(bdlt::Date(2012, 1, 1),
-                                            bdlt::Date(2012, 1, 1),
-                                            INVALID_CONVENTION));
-        }
-      } break;
-      case 2: {
-        // --------------------------------------------------------------------
-        // TESTING 'daysDiff'
-        //   Verify the method correctly computes the number of days between
-        //   two dates for the provided convention.
-        //
-        // Concerns:
-        //: 1 The 'daysDiff' method produces the correct results for the
-        //:   provided convention.
-        //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
-        //
-        // Plan:
-        //: 1 Specify a set S of {convention C, pairs of dates (d1, d2), and
-        //:   their difference in days D}.  For the method under test, in a
-        //:   loop over the elements of S, apply the method to dates having the
-        //:   values d1 and d2 using convention C and confirm the result using
-        //:   the value D.  (C-1)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
-        //
-        // Testing:
-        //   int daysDiff(beginDate, endDate, convention);
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "TESTING 'daysDiff'" << endl
-                          << "==================" << endl;
-
-        {
-            static const struct {
-                int  d_lineNum;  // source line number
-                Enum d_type;     // convention to use
-                int  d_year1;    // beginDate year
-                int  d_month1;   // beginDate month
-                int  d_day1;     // beginDate day
-                int  d_year2;    // endDate year
-                int  d_month2;   // endDate month
-                int  d_day2;     // endDate day
-                int  d_numDays;  // result # of days
-            } DATA[] = {
-
-    //                          - - -first - - -  - - - second - -
-    //line  type                year  month  day  year  month  day  numDays
-    //----  ------------------  ----  -----  ---  ----  -----  ---  -------
-
-    { L_,   ISDA_ACTUAL_ACTUAL, 1993,    12,  15, 1993,    12,  31,      16 },
-    { L_,   ISDA_ACTUAL_ACTUAL, 2003,     2,  28, 2004,     2,  29,     366 },
-
-    { L_,   ACTUAL_360,         1993,    12,  15, 1993,    12,  31,      16 },
-    { L_,   ACTUAL_360,         2003,     2,  28, 2004,     2,  29,     366 },
-
-    { L_,   ACTUAL_365_FIXED,   1993,    12,  15, 1993,    12,  31,      16 },
-    { L_,   ACTUAL_365_FIXED,   2003,     2,  28, 2004,     2,  29,     366 },
-
-    { L_,   ISMA_30_360,        1993,    12,  15, 1993,    12,  31,      15 },
-    { L_,   ISMA_30_360,        2003,     2,  28, 2004,     2,  29,     361 },
-
-    { L_,   SIA_30_360_EOM,     1993,    12,  15, 1993,    12,  31,      16 },
-    { L_,   SIA_30_360_EOM,     2003,     2,  28, 2004,     2,  29,     360 },
-
-    { L_,   SIA_30_360_NEOM,    1993,    12,  15, 1993,    12,  31,      16 },
-    { L_,   SIA_30_360_NEOM,    2003,     2,  28, 2004,     2,  29,     361 },
-
-    { L_,   PSA_30_360_EOM,     1993,    12,  15, 1993,    12,  31,      16 },
-    { L_,   PSA_30_360_EOM,     2003,     2,  28, 2004,     2,  29,     359 },
-            };
-
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            if (verbose) cout <<
-                "\nTesting: 'daysDiff(beginDate, endDate, type)'" << endl;
-
-            // Ensure the test data differentiates each convention type.  Note:
-            // this part of the test is getting inappropriate as we add more
-            // conventions, some of which count days identically.
-
-            {
-                for (int i = 0; i < NUM_DATA; ++i) {
-                    const Enum CONV1 = DATA[i].d_type;
-                    for (int j = i + 1; j < NUM_DATA; ++j) {
-                        const Enum CONV2 = DATA[j].d_type;
-                        if (CONV1 != CONV2) {
-                            if (CONV1 == ACTUAL_360 ||
-                                CONV1 == ACTUAL_365_FIXED ||
-                                CONV2 == ACTUAL_360 ||
-                                CONV2 == ACTUAL_365_FIXED) {
-                                continue;
-                            }
-
-                            int hasUnique = 0;
-                            for (int ii = 0; ii < NUM_DATA; ++ii) {
-                                if (CONV1 == DATA[ii].d_type) {
-                                  for (int jj = 0; jj < NUM_DATA; ++jj) {
-                                      if (CONV2 == DATA[jj].d_type) {
-                        //---------------^
-                        if (DATA[ii].d_year1   == DATA[jj].d_year1 &&
-                            DATA[ii].d_month1  == DATA[jj].d_month1 &&
-                            DATA[ii].d_day1    == DATA[jj].d_day1 &&
-                            DATA[ii].d_year2   == DATA[jj].d_year2 &&
-                            DATA[ii].d_month2  == DATA[jj].d_month2 &&
-                            DATA[ii].d_day2    == DATA[jj].d_day2 &&
-                            DATA[ii].d_numDays != DATA[jj].d_numDays) {
-                            hasUnique = 1;
-                        }
-                        //---------------v
-                                      }
-                                  }
-                                }
-                            }
-                            if (!hasUnique && veryVerbose) {
-                                bsl::cout << CONV1
-                                          << " is not distinguished from "
-                                          << CONV2 << bsl::endl;
-                            }
-                            LOOP2_ASSERT(CONV1, CONV2, hasUnique);
-                        }
-                    }
-                }
-            }
-
-            int di;
-            for (di = 0; di < NUM_DATA ; ++di) {
-                const int  LINE     = DATA[di].d_lineNum;
-                const int  NUM_DAYS = DATA[di].d_numDays;
-                const Enum CONV     = DATA[di].d_type;
-
-                const bdlt::Date X(DATA[di].d_year1,
-                                   DATA[di].d_month1,
-                                   DATA[di].d_day1);
-
-                const bdlt::Date Y(DATA[di].d_year2,
-                                   DATA[di].d_month2,
-                                   DATA[di].d_day2);
-
-                if (veryVerbose) {
-                    T_ P_(X) P_(Y) P(CONV);
-                    T_ T_ T_ T_ T_ T_ T_ P(NUM_DAYS);
-                    T_ T_ T_ T_ T_ T_ T_;
-                }
-
-                const int RESULT = Util::daysDiff(X, Y, CONV);
-
-                if (veryVerbose) { P(RESULT); }
-                LOOP_ASSERT(LINE, NUM_DAYS == RESULT);
-            }
-        }
-
-        { // negative testing
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
-
-            ASSERT_OPT_PASS(Util::daysDiff(
-                                     bdlt::Date(2012, 1, 1),
-                                     bdlt::Date(2012, 1, 1),
-                                     bbldc::DayCountConvention::e_ACTUAL_360));
-
-            ASSERT_OPT_FAIL(Util::daysDiff(bdlt::Date(2012, 1, 1),
-                                           bdlt::Date(2012, 1, 1),
-                                           INVALID_CONVENTION));
-        }
-      } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'isSupported'
-        //   Verify the method correctly indicates whether or not the provided
-        //   convention is supported by this component.
+        // PROTOCOL TEST
+        //   Ensure this class is a properly defined protocol.
         //
         // Concerns:
-        //: 1 The 'isSupported' method produces the correct results for the
-        //:   provided convention.
+        //: 1 The protocol is abstract: no objects of it can be created.
+        //:
+        //: 2 The protocol has no data members.
+        //:
+        //: 3 The protocol has a virtual destructor.
+        //:
+        //: 4 All methods of the protocol are pure virtual.
+        //:
+        //: 5 All methods of the protocol are publicly accessible.
         //
         // Plan:
-        //: 1 Directly test the return value of the method.  (C-1)
+        //: 1 Define a concrete derived implementation, 'ProtocolClassTestImp',
+        //:   of the protocol.
+        //:
+        //: 2 Create an object of the 'bsls::ProtocolTest' class template
+        //:   parameterized by 'ProtocolClassTestImp', and use it to verify
+        //:   that:
+        //:
+        //:   1 The protocol is abstract. (C-1)
+        //:
+        //:   2 The protocol has no data members. (C-2)
+        //:
+        //:   3 The protocol has a virtual destructor. (C-3)
+        //:
+        //: 3 Use the 'BSLS_PROTOCOLTEST_ASSERT' macro to verify that
+        //:   non-creator methods of the protocol are:
+        //:
+        //:   1 virtual, (C-4)
+        //:
+        //:   2 publicly accessible. (C-5)
         //
         // Testing:
-        //   bool isSupported(convention);
+        //   virtual ~BasicDayCount();
+        //   virtual int daysDiff(beginDate, endDate) const = 0;
+        //   virtual double yearsDiff(beginDate, endDate) const = 0;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING 'isSupported'" << endl
-                          << "=====================" << endl;
+        if (verbose) cout << endl << "PROTOCOL TEST" << endl
+                                  << "=============" << endl;
 
-        for (int i = 0; i < 1000; ++i) {
-            const Enum convention = static_cast<Enum>(i);
-            ASSERT((   ACTUAL_360         == convention
-                    || ACTUAL_365_FIXED   == convention
-                    || ISDA_ACTUAL_ACTUAL == convention
-                    || ISMA_30_360        == convention
-                    || PSA_30_360_EOM     == convention
-                    || SIA_30_360_EOM     == convention
-                    || SIA_30_360_NEOM    == convention)
-                   == Util::isSupported(convention));
-        }
+        if (verbose) cout << "\nCreate a test object.\n";
+
+        bsls::ProtocolTest<ProtocolClassTestImp> testObj(veryVerbose);
+
+        if (verbose) cout << "\nVerify that the protocol is abstract.\n";
+
+        ASSERT(testObj.testAbstract());
+
+        if (verbose) cout << "\nVerify that there are no data members.\n";
+
+        ASSERT(testObj.testNoDataMembers());
+
+        if (verbose) cout << "\nVerify that the destructor is virtual.\n";
+
+        ASSERT(testObj.testVirtualDestructor());
+
+        if (verbose) cout << "\nVerify that methods are public and virtual.\n";
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, daysDiff(bdlt::Date(2012, 1, 1),
+                                                   bdlt::Date(2012, 1, 1)));
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, yearsDiff(bdlt::Date(2012, 1, 1),
+                                                    bdlt::Date(2012, 1, 1)));
+
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT == FOUND." << endl;
