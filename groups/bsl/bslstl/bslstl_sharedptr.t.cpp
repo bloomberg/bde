@@ -2222,11 +2222,14 @@ struct PerformanceTester
         // the level of feedback on allocator operations.
 };
 
-struct shareThis: bsl::enable_shared_from_this<shareThis>
+struct shareThis : bsl::enable_shared_from_this<shareThis>
 {
-    int value;
+    shareThis() {}
+    virtual ~shareThis() {}
+};
 
-    shareThis(int xvalue = 0) : value(xvalue) {}
+struct shareThisDerived : shareThis
+{
 };
 
 // Traits for test types:
@@ -3631,8 +3634,8 @@ int main(int argc, char *argv[])
     ASSERT(intWeakPtr2.expired());
     ASSERT(!intWeakPtr2.lock());
         }
-      } break;
-      case 35:{
+    } break;
+    case 35:{
         // --------------------------------------------------------------------
         // TESTING 'enable_shared_from_this' CONSTRUCTORS
         //
@@ -3644,11 +3647,13 @@ int main(int argc, char *argv[])
         //      initalize weak_this_ weak_ptr correctly.
         //   3) Calling shared_from_this() will create a new reference to the
         //      shared_ptr.
+        //   2) shared_ptr<const T> constructors are able to initialize
+        //      enable_shared_from_this<T>::d_weak_this.
         //
         // Plan:
         //   Create a shared_ptrs from a class with enable_shared_from_this as
         //   the base class. From this shared pointer call share_from_this and
-        //   ensure that the use_count() of the shared_pointer has incermented
+        //   ensure that the use_count() of the shared_pointer has incermented.
         //
         // Testing:
         //   enable_shared_from_this()
@@ -3658,84 +3663,105 @@ int main(int argc, char *argv[])
         //   shared_ptr<T> shared_from_this()
         //   shared_ptr<const T> shared_from_this() const
         // --------------------------------------------------------------------
-          typedef bsl::shared_ptr<shareThis> SharedPtr;
-          bslma::TestAllocator ta;
-          MyTestDeleter d1(&ta);
-          if (verbose) printf("\nTESTING 'enable_share_from_this<T>()'"
+        typedef bsl::shared_ptr<shareThis> SharedPtr;
+        typedef bsl::shared_ptr<const shareThis> ConstSharedPtr;
+        typedef bsl::shared_ptr<shareThisDerived> SharedPtrDerived;
+        typedef bsl::shared_ptr<const shareThisDerived> ConstSharedPtrDerived;
+        bslma::TestAllocator ta;
+        MyTestDeleter d1(&ta);
+        if (verbose) printf("\nTESTING 'enable_share_from_this<T>()'"
                             "\n======================================\n");
-
-          if (verbose) printf("\nTesting enable_share_from_this<T> constructor"
-                            "\n===========================================\n");
-
-              SharedPtr sp1(new shareThis);
-              ASSERT(sp1.use_count() == 1);
-
-              SharedPtr spc1 (new shareThis);
-              ASSERT(spc1.use_count() == 1);
-              SharedPtr spc2(spc1);
-              ASSERT(spc1.use_count() == 2);
-
-              SharedPtr spa1(new (ta) shareThis, &ta);
-              ASSERT(spa1.use_count() == 1);
-
-              SharedPtr spad1(new (ta) shareThis, d1, &ta);
-              ASSERT(spad1.use_count() == 1);
-
-              bsltf::StdStatefulAllocator<TObj, false, false, false, false>
+        {
+            SharedPtr ptr(new shareThis);
+            ASSERT(ptr.use_count() == 1);
+            ConstSharedPtr ptr_cp = ptr->shared_from_this();
+            ASSERT(ptr.get() == ptr_cp.get());
+            ASSERT(ptr.use_count() == 2);
+        }
+        {
+            ConstSharedPtr ptr(static_cast<const shareThis*>(new shareThis));
+            ASSERT(ptr.use_count() == 1);
+            ConstSharedPtr ptr_cp = ptr->shared_from_this();
+            ASSERT(ptr.get() == ptr_cp.get());
+            ASSERT(ptr.use_count() == 2);
+        }
+        {
+            SharedPtrDerived ptr(new shareThisDerived);
+            ASSERT(ptr.use_count() == 1);
+            SharedPtr ptr_cp = ptr->shared_from_this();
+            ASSERT(ptr.get() == ptr_cp.get());
+            ASSERT(ptr.use_count() == 2);
+        }
+        {
+            ConstSharedPtrDerived ptr(static_cast<const shareThisDerived*>(
+                                                        new shareThisDerived));
+            ASSERT(ptr.use_count() == 1);
+            ConstSharedPtr ptr_cp = ptr->shared_from_this();
+            ASSERT(ptr.get() == ptr_cp.get());
+            ASSERT(ptr.use_count() == 2);
+        }
+        {
+            SharedPtr ptr(new shareThis);
+            SharedPtr ptr_cp(ptr);
+            ASSERT(ptr.use_count() == 2);
+            SharedPtr ptr_cp2 = ptr->shared_from_this();
+            ASSERT(ptr.use_count() == 3);
+            ASSERT(ptr.get() == ptr_cp2.get());
+        }
+        {
+            SharedPtr ptr(new (ta) shareThis, &ta);
+            ASSERT(ptr.use_count() == 1);
+            SharedPtr ptr_cp = ptr->shared_from_this();
+            ASSERT(ptr.get() == ptr_cp.get());
+            ASSERT(ptr.use_count() == 2);
+        }
+        {
+            SharedPtr ptr(new (ta) shareThis, d1, &ta);
+            ASSERT(ptr.use_count() == 1);
+            SharedPtr ptr_cp = ptr->shared_from_this();
+            ASSERT(ptr.get() == ptr_cp.get());
+            ASSERT(ptr.use_count() == 2);
+        }
+        {
+            bsltf::StdStatefulAllocator<TObj, false, false, false, false>
                                                                  stdalloc(&ta);
-              SharedPtr spasd1(new (ta) shareThis, d1, stdalloc);
-              ASSERT(spasd1.use_count() == 1);
-
-              SharedPtr spms1 = bsl::make_shared<shareThis>(5);
-              ASSERT(spms1.use_count() == 1);
-
-              std::auto_ptr<shareThis> autoToShared(new shareThis);
-              SharedPtr auto_sp1 (autoToShared, &ta);
-              ASSERT(auto_sp1.use_count() == 1);
-
-              bslma::ManagedPtr<shareThis> managedToShared(new shareThis);
-              SharedPtr managed_sp1 (managedToShared);
-              ASSERT(managed_sp1.use_count() == 1);
-
-          if (verbose) printf("\nTesting share_from_this()"
-                            "\n===========================\n");
-              SharedPtr sp2 = sp1->shared_from_this();
-              ASSERT(sp2.use_count() == 2);
-
-              SharedPtr spc3 = spc2->shared_from_this();
-              ASSERT(spc3.use_count() == 3);
-
-              SharedPtr spa2 = spa1->shared_from_this();
-              ASSERT(spa2.use_count() == 2);
-
-              SharedPtr spad2 = spad1->shared_from_this();
-              ASSERT(spad2.use_count() == 2);
-
-              SharedPtr spasd2 = spasd1->shared_from_this();
-              ASSERT(spasd2.use_count() == 2);
-
-              SharedPtr spms2 = spms1->shared_from_this();
-              ASSERT(spms2.use_count() == 2);
-
-              SharedPtr auto_sp2 = auto_sp1->shared_from_this();
-              ASSERT(auto_sp1.use_count() == 2);
-
-              SharedPtr managed_sp2 = managed_sp1->shared_from_this();
-              ASSERT(managed_sp1.use_count() == 2);
-
-          if (verbose) printf("\nTesting enable_share_from_this& operator="
-                              "\n=========================================\n");
-              SharedPtr shareThis_sp1 =
-                                                bsl::make_shared<shareThis>(5);
-              ASSERT(shareThis_sp1 -> value == 5);
-              SharedPtr shareThis_sp2 =
-                                                bsl::make_shared<shareThis>(2);
-              ASSERT(shareThis_sp2 -> value == 2);
-
-              *shareThis_sp1 = *shareThis_sp2;
-              ASSERT(shareThis_sp1 -> value == 2);
-
-      } break;
+            SharedPtr ptr(new (ta) shareThis, d1, stdalloc);
+            ASSERT(ptr.use_count() == 1);
+            SharedPtr ptr_cp = ptr->shared_from_this();
+            ASSERT(ptr.get() == ptr_cp.get());
+            ASSERT(ptr.use_count() == 2);
+        }
+        {
+            SharedPtr ptr = bsl::make_shared<shareThis>();
+            ASSERT(ptr.use_count() == 1);
+            SharedPtr ptr_cp = ptr->shared_from_this();
+            ASSERT(ptr.get() == ptr_cp.get());
+            ASSERT(ptr.use_count() == 2);
+        }
+        {
+            SharedPtr ptr = bsl::allocate_shared<shareThis>(&ta);
+            ASSERT(ptr.use_count() == 1);
+            SharedPtr ptr_cp = ptr->shared_from_this();
+            ASSERT(ptr.get() == ptr_cp.get());
+            ASSERT(ptr.use_count() == 2);
+        }
+        {
+            std::auto_ptr<shareThis> autoPtr(new shareThis);
+            SharedPtr ptr(autoPtr);
+            ASSERT(ptr.use_count() == 1);
+            SharedPtr ptr_cp = ptr->shared_from_this();
+            ASSERT(ptr.get() == ptr_cp.get());
+            ASSERT(ptr.use_count() == 2);
+        }
+        {
+            bslma::ManagedPtr<shareThis> managedPtr(new shareThis);
+            SharedPtr ptr(managedPtr);
+            ASSERT(ptr.use_count() == 1);
+            SharedPtr ptr_cp = ptr->shared_from_this();
+            ASSERT(ptr.get() == ptr_cp.get());
+            ASSERT(ptr.use_count() == 2);
+        }
+    } break;
       case 34: {
         // --------------------------------------------------------------------
         // TESTING 'allocate_shared<T>(A *, ...)'

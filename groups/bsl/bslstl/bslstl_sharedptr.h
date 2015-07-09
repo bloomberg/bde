@@ -1664,6 +1664,8 @@ class shared_ptr {
     template <class COMPATIBLE_TYPE>
     friend class shared_ptr;
 
+    friend struct BloombergLP::bslstl::SharedPtr_ImpUtil;
+
   private:
     // PRIVATE CLASS METHODS
     template <class INPLACE_REP>
@@ -3578,6 +3580,8 @@ class weak_ptr {
         // members while constructing a weak pointer from a weak pointer of a
         // different type.
 
+    friend struct BloombergLP::bslstl::SharedPtr_ImpUtil;
+
   public:
     // TYPES
     typedef ELEMENT_TYPE element_type;
@@ -3736,7 +3740,7 @@ class enable_shared_from_this {
 
   private:
     // DATA
-    bsl::weak_ptr<ELEMENT_TYPE> d_weakThis;
+    mutable bsl::weak_ptr<ELEMENT_TYPE> d_weakThis;
 
   protected:
 
@@ -3802,8 +3806,8 @@ struct SharedPtr_ImpUtil {
 
     template<class SHARED_TYPE, class ENABLE_TYPE>
     static void setEnableSharedFromThisSelfReference(
-                         bsl::shared_ptr<SHARED_TYPE>* sp,
-                         bsl::enable_shared_from_this<ENABLE_TYPE>* shareable);
+                   bsl::shared_ptr<SHARED_TYPE>* sp,
+                   const bsl::enable_shared_from_this<ENABLE_TYPE>* shareable);
         // Set the 'd_weakThis' data member of the specified '*sharable' to the
         // specified '*sp'.  This function shall be called only by 'shared_ptr'
         // constructors that expect to construct shared pointers from classes
@@ -5346,11 +5350,13 @@ namespace bslstl {
 template <class SHARED_TYPE, class ENABLE_TYPE>
 inline
 void SharedPtr_ImpUtil::setEnableSharedFromThisSelfReference(
-                          bsl::shared_ptr<SHARED_TYPE>* sp,
-                          bsl::enable_shared_from_this<ENABLE_TYPE>* shareable)
+                    bsl::shared_ptr<SHARED_TYPE>* sp,
+                    const bsl::enable_shared_from_this<ENABLE_TYPE>* shareable)
 {
     if (shareable) {
-        shareable->d_weakThis = *sp;
+        shareable->d_weakThis.d_ptr_p = const_cast<ENABLE_TYPE*>(
+                static_cast<ENABLE_TYPE const*>(sp->d_ptr_p));
+        shareable->d_weakThis.d_rep_p = sp->d_rep_p;
     }
 }
 
