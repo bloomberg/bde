@@ -378,6 +378,7 @@ BSLS_IDENT("$Id: $")
 // clang 3.1
 #if __has_feature(cxx_generalized_initializers)
 #define BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+#endif
 #if __has_feature(cxx_alignas)
 #define BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
 #endif
