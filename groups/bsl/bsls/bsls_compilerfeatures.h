@@ -573,9 +573,12 @@ BSLS_IDENT("$Id: $")
     // with '(V)', the classic way to forward arguments safely.
 
 #else
-// Use real perfect-forwarding; no workaround needed.
+// Use real perfect-forwarding; no workaround needed.  Note that the explicit
+// 'BloombergLP' qualification is needed for 'bsls::Util' when it is used from
+// within namespace 'bsl', the BDE standard library implementation.
 #   define BSLS_COMPILERFEATURES_FORWARD_REF(T) T&&
-#   define BSLS_COMPILERFEATURES_FORWARD(T,V)   native_std::forward<T>(V)
+#   define BSLS_COMPILERFEATURES_FORWARD(T,V)       \
+        ::BloombergLP::bsls::Util::forward<T>(V)
 #endif
 
 #endif
