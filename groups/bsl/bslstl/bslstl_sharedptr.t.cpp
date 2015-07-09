@@ -2227,10 +2227,6 @@ struct shareThis: bsl::enable_shared_from_this<shareThis>
     int value;
 
     shareThis(int xvalue = 0) : value(xvalue) {}
-
-    bsl::shared_ptr<shareThis> getptr() {
-        return shared_from_this();
-    }
 };
 
 // Traits for test types:
@@ -3642,8 +3638,8 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   1) Shared_ptr constructors are able to identify correctly the
-        //      enable_shared_from_this base class and initalize the weak_this_
-        //      weak ptr.
+        //      enable_shared_from_this (possibly indirect) base class and
+        //      initalize the d_weak_this weak ptr.
         //   2) Converting from a managedPtr or auto_ptr to a shared_ptr will
         //      initalize weak_this_ weak_ptr correctly.
         //   3) Calling shared_from_this() will create a new reference to the
@@ -3703,28 +3699,28 @@ int main(int argc, char *argv[])
 
           if (verbose) printf("\nTesting share_from_this()"
                             "\n===========================\n");
-              SharedPtr sp2 = sp1->getptr();
+              SharedPtr sp2 = sp1->shared_from_this();
               ASSERT(sp2.use_count() == 2);
 
-              SharedPtr spc3 = spc2->getptr();
+              SharedPtr spc3 = spc2->shared_from_this();
               ASSERT(spc3.use_count() == 3);
 
-              SharedPtr spa2 = spa1->getptr();
+              SharedPtr spa2 = spa1->shared_from_this();
               ASSERT(spa2.use_count() == 2);
 
-              SharedPtr spad2 = spad1->getptr();
+              SharedPtr spad2 = spad1->shared_from_this();
               ASSERT(spad2.use_count() == 2);
 
-              SharedPtr spasd2 = spasd1->getptr();
+              SharedPtr spasd2 = spasd1->shared_from_this();
               ASSERT(spasd2.use_count() == 2);
 
-              SharedPtr spms2 = spms1->getptr();
+              SharedPtr spms2 = spms1->shared_from_this();
               ASSERT(spms2.use_count() == 2);
 
-              SharedPtr auto_sp2 = auto_sp1->getptr();
+              SharedPtr auto_sp2 = auto_sp1->shared_from_this();
               ASSERT(auto_sp1.use_count() == 2);
 
-              SharedPtr managed_sp2 = managed_sp1->getptr();
+              SharedPtr managed_sp2 = managed_sp1->shared_from_this();
               ASSERT(managed_sp1.use_count() == 2);
 
           if (verbose) printf("\nTesting enable_share_from_this& operator="
