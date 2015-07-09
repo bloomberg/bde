@@ -84,17 +84,17 @@ auto my_max(T t, U u) -> decltype(t > u ? t : u)
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
 struct ClassWithDefaultOps {
-  ClassWithDefaultOps(int xvalue) : value(xvalue) {}
-  ClassWithDefaultOps() = default;
-  ClassWithDefaultOps(const ClassWithDefaultOps &) = default;
-  ClassWithDefaultOps& operator=(const ClassWithDefaultOps &) = default;
+    ClassWithDefaultOps(int value) : d_value(value) {}
+    ClassWithDefaultOps() = default;
+    ClassWithDefaultOps(const ClassWithDefaultOps &) = default;
+    ClassWithDefaultOps& operator=(const ClassWithDefaultOps &) = default;
 #if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1800)
-  // MSVC 1800 does not support default move constructors/assignments
-  ClassWithDefaultOps(ClassWithDefaultOps &&) = default;
-  ClassWithDefaultOps & operator=(ClassWithDefaultOps &&) = default;
+    // MSVC 1800 does not support default move constructors/assignments
+    ClassWithDefaultOps(ClassWithDefaultOps &&) = default;
+    ClassWithDefaultOps & operator=(ClassWithDefaultOps &&) = default;
 #endif
-  ~ClassWithDefaultOps() = default;
-  int value;
+    ~ClassWithDefaultOps() = default;
+    int d_value;
 };
 #endif  //BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
 
@@ -516,8 +516,8 @@ int main(int argc, char *argv[])
           ASSERT(noexcept(noexceptTest1()));
           ASSERT(noexcept(noexceptTest2()));
           ASSERT(noexcept(noexceptTest3()));
-          ASSERT(noexcept(notNoexceptTest1()) == false);
-          ASSERT(noexcept(notNoexceptTest2()) == false);
+          ASSERT(false == noexcept(notNoexceptTest1()));
+          ASSERT(false == noexcept(notNoexceptTest2()));
 #endif
       } break;
       case 8: {
@@ -666,20 +666,20 @@ int main(int argc, char *argv[])
 
         // test copy construction
         const ClassWithDefaultOps copied(original);
-        ASSERT(copied.value == 42);
+        ASSERT(42 == copied.d_value);
 
         // test copy assignment
         defaulted = original;
-        ASSERT(defaulted.value == 42);
+        ASSERT(42 == defaulted.d_value);
 
         // test move construction
-        const ClassWithDefaultOps movedinto((ClassWithDefaultOps(42));
-        ASSERT(movedinto.value == 42);
+        const ClassWithDefaultOps movedInto(ClassWithDefaultOps(42));
+        ASSERT(42 == movedInto.d_value);
 
         // test move assignment
-        defaulted.value = 0;
+        defaulted.d_value = 0;
         defaulted = ClassWithDefaultOps(42);
-        ASSERT(defaulted.value == 42);
+        ASSERT(42 == defaulted.d_value);
 #endif
       } break;
       case 3: {

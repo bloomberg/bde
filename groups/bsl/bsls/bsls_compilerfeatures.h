@@ -57,8 +57,8 @@ BSLS_IDENT("$Id: $")
 //:    settings for this platform.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS'
-//:    This macro is defined if defaulted functions are supported by the current
-//:    compiler settings for this platform.
+//:    This macro is defined if defaulted functions are supported by the
+//:    current compiler settings for this platform.
 //
 //: 'BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS'
 //:    This macro is defined if deleted functions are supported by the current
