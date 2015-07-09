@@ -1,20 +1,11 @@
-// bbldc_daycountinterface.cpp                                        -*-C++-*-
-#include <bbldc_daycountinterface.h>
+// bbldc_basicbasicdaycountadapter.cpp                                -*-C++-*-
+#include <bbldc_basicbasicdaycountadapter.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bbldc_daycountinterface_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bbldc_basicbasicdaycountadapter_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 namespace bbldc {
-
-                         // -----------------------
-                         // class DayCountInterface
-                         // -----------------------
-
-// CREATORS
-DayCountInterface::~DayCountInterface()
-{
-}
 
 }  // close package namespace
 }  // close enterprise namespace

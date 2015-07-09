@@ -106,8 +106,8 @@ struct PeriodIcmaActualActual {
         // If 'beginDate <= endDate', then the result is non-negative.  The
         // behavior is undefined unless 'periodDate.size() >= 2', the values
         // contained in 'periodDate' are unique and sorted from minimum to
-        // maximum, 'min(beginDate, endDate) >= periodDate.front()', and
-        // 'max(beginDate, endDate) <= periodDate.back()'.  Note that
+        // maximum, 'periodDate.front() <= beginDate <= periodDate.back()', and
+        // 'periodDate.front() <= endDate <= periodDate.back()'.  Note that
         // reversing the order of 'beginDate' and 'endDate' negates the result;
         // specifically,
         // '|yearsDiff(b, e, pd, pyd) + yearsDiff(e, b, pd, pyd)| <= 1.0e-15'
