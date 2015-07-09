@@ -276,6 +276,33 @@ void restoreDecimalFromBinary(DECIMAL_TYPE *dfp, BINARY_TYPE bfp)
     }
 }
 
+template <class INTEGER_TYPE>
+inline void reduce(INTEGER_TYPE *pn, int *pscale)
+    // Divide the value of the specified '*pn' by 10 and increment '*pscale'
+    // as few times as needed to either make '*pn' not be divisible by 10 or to
+    // make '*pscale' non-negative.
+{
+    INTEGER_TYPE n = *pn;
+    int scale = *pscale;
+
+    // Do a quick check for trailing 0 bits before the more expensive % check
+    // since each factor of 10 has a corresponding factor of 2.  Try to lop off
+    // factors of 1000 first if they're present.
+
+    while ((n & 7) == 0 && n % 1000 == 0 && scale <= -3) {
+        n /= 1000;
+        scale += 3;
+    }
+
+    while ((n & 1) == 0 && n % 10 == 0 && scale <= -1) {
+        n /= 10;
+        ++scale;
+    }
+
+    *pn = n;
+    *pscale = scale;
+}
+
 }  // close unnamed namespace
 
                         // Network format converters
@@ -413,18 +440,8 @@ Decimal64 DecimalConvertUtil::decimal64FromDouble(double binary)
         int scale = -9;
 
         // Divide powers of 10 out of n to avoid unpleasant scaling artifacts.
-        // E.g., we want .001 to appear to have 3 digits, not 9.  We do a quick
-        // check for trailing 0 bits before the more expensive % check since
-        // each factor of 10 has a corresponding factor of 2.  We also try to
-        // lop off factors of 1000 first if they're present.
-        while ((n & 7) == 0 && n % 1000 == 0 && scale < 0) {
-            n /= 1000;
-            scale += 3;
-        }
-        while ((n & 1) == 0 && n % 10 == 0 && scale < 0) {
-            n /= 10;
-            ++scale;
-        }
+        // E.g., we want .001 to appear to have 3 digits, not 9.
+        reduce(&n, &scale);
 
         rv = DecimalUtil::makeDecimalRaw64(n, scale);
 
@@ -476,6 +493,65 @@ Decimal32 DecimalConvertUtil::decimal32FromFloat(float binary)
 Decimal64 DecimalConvertUtil::decimal64FromFloat(float binary)
 {
     Decimal64 rv;
+
+    // Try the "Olkin-Farber-Rosen" method for speed.  Multiply the double by a
+    // power of 10, round it to an integer, then use the faster scaled
+    // conversion to decimal to produce a hoped-for result.  The conversion is
+    // correct if the result converts back to the original binary, provided
+    // that the intermediate integer has no more than 6 (FLT_DIG) significant
+    // digits (because no two decimal numbers with 6 or fewer significant
+    // digits can convert to the same float).
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+#   define copysign _copysign
+#endif
+    if (binary != 0 && -1e06 < binary && binary < 1e06) {
+        int   scale;
+        float d;
+        float a = fabsf(binary);
+
+             if (a < 1e0f) { scale = -6; d = binary * 1e6f; }
+        else if (a < 1e1f) { scale = -5; d = binary * 1e5f; }
+        else if (a < 1e2f) { scale = -4; d = binary * 1e4f; }
+        else if (a < 1e3f) { scale = -3; d = binary * 1e3f; }
+        else if (a < 1e4f) { scale = -2; d = binary * 1e2f; }
+        else if (a < 1e5f) { scale = -1; d = binary * 1e1f; }
+        else               { scale =  0; d = binary       ; }
+
+        int   n = static_cast<int>(d + copysignf(.5, d));  // round
+        float diff = d - float(n);
+
+        reduce(&n, &scale);
+        rv = DecimalUtil::makeDecimalRaw64(n, scale);
+
+        // We have generated a Decimal64 with six significant digits, and are
+        // concerned that it may be wrong, i.e., that the next higher or lower
+        // six-digit Decimal64 may be closer in value to 'binary'.
+        //
+        // Suppose our generated number is 'V = M * 10^E, 1 <= M < 10'.  Its
+        // six-significant-digit successor is 'V+ = (M + 10^-5) * 10^E' and the
+        // relative difference of the two is
+        // '(V+ - V) / V = 10^(E-5) / (M * 10^E) > 10^-6'.  If we can determine
+        // that the relative difference between the fractional portion of the
+        // scaled 'binary' and its integer part is too small to push the
+        // decimal value up or down in the sixth significant digit, then we do
+        // not need to verify by back conversion.
+        //
+        // Compute the ratio of the fractional part of the scaled binary number
+        // to its integer part.  If it's small enough (using 1e-7, generously
+        // below the 1e-6 computed above), skip the verification.
+
+        if (fabsf(diff / d) < 1e-7f) {
+            return rv;                                                // RETURN
+        }
+
+        // Otherwise, see if the decimal converts back to the original
+        // value.
+        float test = DecimalConvertUtil::decimalToFloat(rv);
+        if (test == binary) {
+            return rv;                                                // RETURN
+        }
+    }
     restoreDecimalFromBinary(&rv, binary);
     return rv;
 }

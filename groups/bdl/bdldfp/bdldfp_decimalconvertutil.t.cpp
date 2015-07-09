@@ -8076,17 +8076,43 @@ int main(int argc, char* argv[])
         if (verbose) bsl::cout << "\nDECIMAL ORIGIN CONVERSION TEST"
                                << "\n==============================\n";
 
-        for (int e = -9; e <= 0; ++e) {
-            for (int n = -99999999; n <= 99999999; ++n) {
-                char buf[30];
-                sprintf(buf, "%de%d", n, e);
-                double b = strtod(buf, 0);
-                Decimal64 d = Util::decimal64FromDouble(b);
-                double t = Util::decimalToDouble(d);
-                ASSERTV(e, n, d, b, t, b == t);
-                if (verbose) {
-                    if (rand() % 5000 == 0 && rand() % 5000 == 0) {
-                        P_(e) P_(n) P_(d) P(b)
+        if (verbose) {
+            bsl::cout << "float\n";
+        }
+        {
+            for (int e = -6; e <= 0; ++e) {
+                for (int n = -999999; n <= 999999; ++n) {
+                    char buf[30];
+                    sprintf(buf, "%de%d", n, e);
+                    float b = strtof(buf, 0);
+                    Decimal64 d = Util::decimal64FromFloat(b);
+                    float t = Util::decimalToFloat(d);
+                    ASSERTV(e, n, d, b, t, b == t);
+                    if (verbose) {
+                        if (rand() % 500 == 0 && rand() % 500 == 0) {
+                            P_(e) P_(n) P_(d) P(b)
+                        }
+                    }
+                }
+            }
+        }
+
+        if (verbose) {
+            bsl::cout << "double\n";
+        }
+        {
+            for (int e = -9; e <= 0; ++e) {
+                for (int n = -99999999; n <= 99999999; ++n) {
+                    char buf[30];
+                    sprintf(buf, "%de%d", n, e);
+                    double b = strtod(buf, 0);
+                    Decimal64 d = Util::decimal64FromDouble(b);
+                    double t = Util::decimalToDouble(d);
+                    ASSERTV(e, n, d, b, t, b == t);
+                    if (verbose) {
+                        if (rand() % 5000 == 0 && rand() % 5000 == 0) {
+                            P_(e) P_(n) P_(d) P(b)
+                        }
                     }
                 }
             }
@@ -8114,11 +8140,20 @@ int main(int argc, char* argv[])
 
         for (int i = 2; i < argc; ++i) {
             const char *s = argv[i];
-            double b = strtod(s, 0);
-            Decimal64 d = Util::decimal64FromDouble(b);
-            double t = Util::decimalToDouble(d);
-            ASSERTV(s, d, b, t, b == t);
-            P_(s) P_(d) P(b)
+            {
+                float b = strtof(s, 0);
+                Decimal64 d = Util::decimal64FromFloat(b);
+                float t = Util::decimalToFloat(d);
+                ASSERTV(s, d, b, t, b == t);
+                P_(s) P_(d) P_(b) Q("float") 
+            }
+            {
+                double b = strtod(s, 0);
+                Decimal64 d = Util::decimal64FromDouble(b);
+                double t = Util::decimalToDouble(d);
+                ASSERTV(s, d, b, t, b == t);
+                P_(s) P_(d) P_(b) Q("double") 
+            }
         }
       } break;
       default: {
