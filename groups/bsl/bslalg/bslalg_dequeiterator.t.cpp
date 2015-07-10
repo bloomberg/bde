@@ -117,10 +117,7 @@ debugprint(const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& iter)
 //=============================================================================
 //                  GLOBAL VARIABLES AND TYPES FOR TESTING
 //-----------------------------------------------------------------------------
-
-int verbose;
-int veryVerbose;
-int veryVeryVerbose;
+static bool verbose = false;
 
 char* globalArena1[65536];  // needed for 'blocks' in 'getValues' below
 char* globalArena2[1024];   // needed for 'blockPtrs' in 'getValues' below
@@ -518,10 +515,15 @@ void TestDriver<VALUE_TYPE, BLOCK_LENGTH>::testCase1()
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-        verbose = argc > 2;
-        veryVerbose = argc > 3;
-        veryVeryVerbose = argc > 4;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+                     verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
+
+    (void)veryVerbose;          // suppress warning
+    (void)veryVeryVerbose;      // suppress warning
+    (void)veryVeryVeryVerbose;  // suppress warning
 
     setbuf(stdout, NULL);    // Use unbuffered output
 

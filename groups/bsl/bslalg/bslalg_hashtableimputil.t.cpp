@@ -584,7 +584,7 @@ bool HashSet<KEY, HASHER, EQUAL>::insert(const KEY& key)
     }
 
     if (static_cast<double>(bucketArraySize()) * d_maxLoadFactor <
-                                                               d_numNodes + 1) {
+                                                              d_numNodes + 1) {
         grow();
     }
 
@@ -661,11 +661,13 @@ native_std::size_t StringHash::operator()(const char *string) const
 
 int main(int argc, char *argv[])
 {
-    int  test                = argc > 1 ? atoi(argv[1]) : 0;
-    bool verbose             = argc > 2;
-    bool veryVerbose         = argc > 3;
-    bool veryVeryVerbose     = argc > 4;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
+
+    setbuf(stdout, NULL);    // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 

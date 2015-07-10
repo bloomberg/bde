@@ -485,6 +485,8 @@ int main(int argc, char *argv[])
     bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
 
+    setbuf(stdout, NULL);    // Use unbuffered output
+
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     // CONCERN: This test driver is reusable w/other, similar components.
@@ -493,6 +495,9 @@ int main(int argc, char *argv[])
 
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
+
+    // Confirm no static initialization locked the global allocator
+    ASSERT(&globalAllocator == bslma::Default::globalAllocator());
 
     switch (test) { case 0:
       case 10: {

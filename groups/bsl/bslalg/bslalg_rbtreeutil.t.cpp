@@ -156,10 +156,9 @@ typedef RbTreeNode::Color Color;
 const RbTreeNode::Color RED   = RbTreeNode::BSLALG_RED;
 const RbTreeNode::Color BLACK = RbTreeNode::BSLALG_BLACK;
 
-static bool verbose;
-static bool veryVerbose;
-static bool veryVeryVerbose;
-static bool veryVeryVeryVerbose;
+static bool         verbose = false;
+static bool     veryVerbose = false;
+static bool veryVeryVerbose = false;
 
 // ============================================================================
 //                         GLOBAL CLASSES FOR TESTING
@@ -3073,7 +3072,8 @@ void TestDriver<VALUE>::testCase8()
     //   7 That 'isWellFormed' returns 'false' if the node count is not the
     //     number of nodes in the tree.
 
-    if (veryVerbose) printf("\tTest that numNodes is not a correct count.\n");
+    if (veryVerbose) printf(
+                             "\tTest that numNodes is not a correct count.\n");
 
     for (int i = 0; i < NUM_VALUES; ++i) {
         const int   LINE        = VALUES[i].d_line;
@@ -3246,7 +3246,8 @@ void TestDriver<VALUE>::testCase9()
         }
     }
 
-    if (veryVerbose) printf("\tinsert every possible combination of [0..6]\n");
+    if (veryVerbose) printf(
+                            "\tinsert every possible combination of [0..6]\n");
     {
         int       VALUES[]   = { 0, 1, 2, 3, 4, 5, 6 };
         const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
@@ -3471,7 +3472,8 @@ void TestDriver<VALUE>::testCase10()
         }
     }
 
-    if (veryVerbose) printf("\tTest finding nodes in the set of test trees\n");
+    if (veryVerbose) printf(
+                            "\tTest finding nodes in the set of test trees\n");
     {
         const TreeSpec *VALUES     = TREE_VALUES;
         const int       NUM_VALUES = NUM_TREE_VALUES;
@@ -5697,11 +5699,15 @@ void TestDriver<VALUE>::testCase21()
 
 int main(int argc, char *argv[])
 {
-    int  test = argc > 1 ? atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
-    veryVeryVeryVerbose = argc > 5;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+                     verbose = argc > 2;
+                 veryVerbose = argc > 3;
+             veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
+
+    (void)veryVeryVeryVerbose;  // suppress warning
+
+    setbuf(stdout, NULL);    // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -5853,7 +5859,7 @@ int main(int argc, char *argv[])
         //: 4 The optional 'level' and 'spacesPerLevel' parameters have the
         //:   correct default values.
         //
-        //Plan
+        // Plan:
         //: 1 Create a series of test trees, with varying values for level and
         //:   spacesPerLevel, and their expected print output.  Print to a
         //:   temporary file and verify the output matches the expected
@@ -5999,7 +6005,7 @@ int main(int argc, char *argv[])
         //: 6 QoI: Asserted precondition violations are detected when
         //:   enabled.
         //
-        // Plan
+        // Plan:
         //: 1 Create a series of test trees with a selected rotation node, and
         //:   an expected result for the rotation.  Verify a left-rotation
         //:   generates the expected result, and that the tree is correctly

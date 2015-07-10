@@ -1091,16 +1091,19 @@ ConstructTestArgAlloc<14>   VA14(14);
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
 
-    setbuf(stdout, 0);    // Use unbuffered output
+    (void)veryVeryVerbose;      // suppress warning
+
+    setbuf(stdout, NULL);    // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
-    bslma::TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 7: {
@@ -1128,9 +1131,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING swap"
                             "\n============\n");
 
-        bslma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
         bslma::TestAllocator *const TA = &testAllocator;
-        bslma::TestAllocator testAllocator2(veryVeryVerbose);
+        bslma::TestAllocator testAllocator2(veryVeryVeryVerbose);
         bslma::TestAllocator *const TA1 = &testAllocator;
         bslma::TestAllocator *const TA2 = &testAllocator2;
         int                 dummyAllocator;  // Dummy, non-bslma allocator
@@ -1280,7 +1283,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING destructiveMove"
                             "\n=======================\n");
 
-        bslma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
         bslma::TestAllocator *const TA = &testAllocator;
         int                  dummyAllocator;  // Dummy, non-bslma allocator
         int                  *const XA = &dummyAllocator;
@@ -1391,7 +1394,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING construct"
                             "\n=================\n");
 
-        bslma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
         bslma::TestAllocator *const TA = &testAllocator;
         int                  dummyAllocator;  // Dummy, non-bslma allocator
         int                  *const XA = &dummyAllocator;
@@ -1768,7 +1771,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING copyConstruct"
                             "\n=====================\n");
 
-        bslma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
         bslma::TestAllocator *const TA = &testAllocator;
         int                  dummyAllocator;  // Dummy, non-bslma allocator
         int                  *const XA = &dummyAllocator;
@@ -1853,7 +1856,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING defaultConstruct"
                             "\n========================\n");
 
-        bslma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
         bslma::TestAllocator *const TA = &testAllocator;
         int                  dummyAllocator;  // dummy, non-bslma allocator
         int                  *const XA = &dummyAllocator;
@@ -1993,7 +1996,7 @@ int main(int argc, char *argv[])
         my_Class2 v2(2);        ASSERT(2 == v2.value());
 
         my_ClassDef rawBuf;
-        bslma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
         bslma::Allocator *const theAlloc = &testAllocator;
 
         std::memset(&rawBuf, 92, sizeof(rawBuf));

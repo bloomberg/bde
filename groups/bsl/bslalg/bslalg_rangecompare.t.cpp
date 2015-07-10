@@ -2104,16 +2104,31 @@ void timeLexicographicalAlgorithm(const char *typeName,
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
 
-    setbuf(stdout, NULL);    // Use unbuffered output.
+    (void)veryVeryVerbose;      // suppress warning
+
+    setbuf(stdout, NULL);    // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
-    bslma::TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
+
+    // Confirm no static initialization locked the global allocator
+    ASSERT(&globalAllocator == bslma::Default::globalAllocator());
+
+    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+    bslma::Default::setDefaultAllocator(&da);
+
+    // Confirm no static initialization locked the default allocator
+    ASSERT(&da == bslma::Default::defaultAllocator());
+
+    bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 5: {
@@ -2525,7 +2540,7 @@ int main(int argc, char *argv[])
             NUM_ITER    = 4
         };
 
-        bslma::TestAllocator  testAllocator(veryVeryVerbose);
+        bslma::TestAllocator  testAllocator(veryVeryVeryVerbose);
         const int rawBufferSize = (argc > 2) ? atoi(argv[2]) : BUFFER_SIZE;
         const int numIter = (argc > 3) ? atoi(argv[3]) : NUM_ITER;
         char *rawBuffer1 = (char *)testAllocator.allocate(rawBufferSize);

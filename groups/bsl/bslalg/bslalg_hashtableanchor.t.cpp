@@ -174,11 +174,6 @@ void aSsErT(bool condition, const char *message, int line)
 //                       GLOBAL TEST VALUES
 // ----------------------------------------------------------------------------
 
-static bool             verbose;
-static bool         veryVerbose;
-static bool     veryVeryVerbose;
-static bool veryVeryVeryVerbose;
-
 // ============================================================================
 //                     GLOBAL CONSTANTS USED FOR TESTING
 // ----------------------------------------------------------------------------
@@ -400,7 +395,7 @@ bool PtrHashSet::find(Node **node, Bucket **bucket, const void *ptr) const
 
     Node *& nodePtrRef = *node;
     native_std::size_t index = reinterpret_cast<UintPtr>(ptr)
-                                                            % bucketArraySize();
+                                                           % bucketArraySize();
     Bucket& bucketRef = bucketArrayAddress()[index];
     *bucket = &bucketRef;
     if (bucketRef.first()) {
@@ -501,7 +496,7 @@ bool PtrHashSet::insert(void *ptr)
     }
 
     if (static_cast<double>(bucketArraySize()) * d_maxLoadFactor <
-                                                               d_numNodes + 1) {
+                                                              d_numNodes + 1) {
         grow();
         bool found = find(&insertionPoint, &bucket, ptr);
         (void) found; // Supress unused variable warnings in non-safe builds.
@@ -553,11 +548,15 @@ native_std::size_t PtrHashSet::size() const
 
 int main(int argc, char *argv[])
 {
-    int  test           = argc > 1 ? atoi(argv[1]) : 0;
-    verbose             = argc > 2;
-    veryVerbose         = argc > 3;
-    veryVeryVerbose     = argc > 4;
-    veryVeryVeryVerbose = argc > 5;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
+
+    (void)veryVeryVerbose;      // suppress warning
+
+    setbuf(stdout, NULL);    // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -568,8 +567,14 @@ int main(int argc, char *argv[])
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
+    // Confirm no static initialization locked the global allocator
+    ASSERT(&globalAllocator == bslma::Default::globalAllocator());
+
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
     bslma::Default::setDefaultAllocator(&defaultAllocator);
+
+    // Confirm no static initialization locked the default allocator
+    ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 11: {

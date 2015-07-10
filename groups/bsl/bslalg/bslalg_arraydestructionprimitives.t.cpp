@@ -101,6 +101,8 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS/TYPES FOR TESTING
 //-----------------------------------------------------------------------------
 
+static bool g_veryVerbose = false;
+
 typedef bslalg::ArrayDestructionPrimitives  Obj;
 
 // TYPES
@@ -116,8 +118,6 @@ typedef bsls::Types::Int64      Int64;
 typedef bsls::Types::Uint64     Uint64;
 
 // STATIC DATA
-static int verbose, veryVerbose, veryVeryVerbose;
-
 const int MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
 static int numDefaultCtorCalls = 0;
@@ -584,7 +584,7 @@ void testDestroy(bool bitwiseCopyableFlag)
         const char *const EXP   = DATA_2[ti].d_expected;
         ASSERT(MAX_SIZE >= (int)strlen(SPEC));
 
-        if (veryVerbose) {
+        if (g_veryVerbose) {
             printf("LINE = %d, SPEC = %s, "
                    "BEGIN = %d, NE = %d, EXP = %s\n",
                    LINE, SPEC, BEGIN, NE, EXP);
@@ -676,17 +676,21 @@ int MyInteger::getValue() const
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
 
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
+    g_veryVerbose = veryVerbose;
+
+    (void)veryVeryVerbose;      // suppress warning
 
     setbuf(stdout, NULL);    // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
-    bslma::TestAllocator  testAllocator(veryVeryVerbose);
+    bslma::TestAllocator  testAllocator(veryVeryVeryVerbose);
     Z = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.

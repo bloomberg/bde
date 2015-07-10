@@ -91,12 +91,6 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
-
-int verbose = 0;
-int veryVerbose = 0;
-int veryVeryVerbose = 0;
-
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -150,7 +144,8 @@ unsigned traitBits()
             ? TRAIT_HASSTLITERATORS
             : 0;
 
-    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitHasPointerSemantics>::VALUE
+    result |= bslalg::HasTrait<TYPE,
+                               bslalg::TypeTraitHasPointerSemantics>::VALUE
             ? TRAIT_HASPOINTERSEMANTICS
             : 0;
 
@@ -263,10 +258,15 @@ struct UsesBslmaAllocator<ConvertibleToAnyWithTraits> : bsl::true_type {
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
+
+    (void)veryVerbose;          // suppress warning
+    (void)veryVeryVerbose;      // suppress warning
+    (void)veryVeryVeryVerbose;  // suppress warning
 
     setbuf(stdout, NULL);    // Use unbuffered output
 

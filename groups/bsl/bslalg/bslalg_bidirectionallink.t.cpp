@@ -430,11 +430,13 @@ void MyList<PAYLOAD>::popBack()
 
 int main(int argc, char *argv[])
 {
-    int  test                = argc > 1 ? atoi(argv[1]) : 0;
-    bool verbose             = argc > 2;
-    bool veryVerbose         = argc > 3;
-    bool veryVeryVerbose     = argc > 4;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
+
+    setbuf(stdout, NULL);    // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -443,10 +445,16 @@ int main(int argc, char *argv[])
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
+    // Confirm no static initialization locked the global allocator
+    ASSERT(&globalAllocator == bslma::Default::globalAllocator());
+
     // CONCERN: In no case is memory allocated from the default allocator.
 
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
     bslma::Default::setDefaultAllocator(&defaultAllocator);
+
+    // Confirm no static initialization locked the default allocator
+    ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
 
     int expectedDefaultAllocations = 0;
 

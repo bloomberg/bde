@@ -91,7 +91,6 @@ void aSsErT(bool condition, const char *message, int line)
 // ============================================================================
 //                     GLOBAL CONSTANTS USED FOR TESTING
 // ----------------------------------------------------------------------------
-static int verbose, veryVerbose, veryVeryVerbose, veryVeryVeryVerbose;
 static int numTestFunctionCalls;
 // ============================================================================
 //                               TEST APPARATUS
@@ -213,11 +212,17 @@ bool intCompareFunction(const int lhs, const int rhs)
 
 int main(int argc, char *argv[])
 {
-    int test                = argc > 1 ? atoi(argv[1]) : 0;
-    verbose             = argc > 2;
-    veryVerbose         = argc > 3;
-    veryVeryVerbose     = argc > 4;
-    veryVeryVeryVerbose = argc > 5;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
+
+    (void)veryVerbose;          // suppress warning
+    (void)veryVeryVerbose;      // suppress warning
+    (void)veryVeryVeryVerbose;  // suppress warning
+
+    setbuf(stdout, NULL);    // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
