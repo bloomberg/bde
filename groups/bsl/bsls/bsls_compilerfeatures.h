@@ -257,7 +257,7 @@ BSLS_IDENT("$Id: $")
 // BSL_OVERRIDES_STD macro.
 //
 //: Compiler support:
-//:   gcc 4.7
+//:   gcc (any)
 //:   clang (any)
 //:   xlC 8
 //:   Oracle CC 12.4
@@ -366,9 +366,7 @@ BSLS_IDENT("$Id: $")
 // gcc
 // https://wiki.apache.org/stdcxx/C%2B%2B0xCompilerSupport
 #if defined(BSLS_PLATFORM_CMP_GNU)
-#if BSLS_PLATFORM_CMP_VERSION >= 40600
 #define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
-#endif
 #endif
 // gcc -std=c++11 or -std=c++0x or -std=gnu++11 or -std=gnu++0x
 #if defined(BSLS_PLATFORM_CMP_GNU) && defined(__GXX_EXPERIMENTAL_CXX0X__)
