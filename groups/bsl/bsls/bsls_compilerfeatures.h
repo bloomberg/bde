@@ -48,9 +48,21 @@ BSLS_IDENT("$Id: $")
 //:    This macro is defined if the '[[noreturn]]' attribute is supported by
 //:    the current compiler settings for this platform.
 //:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR'
+//:     This macro is defined if 'constexpr' is supported by the current
+//:     compiler settings for this platform.
+//:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE'
 //:    This macro is defined if 'decltype' is supported by the current compiler
 //:    settings for this platform.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS'
+//:    This macro is defined if defaulted functions are supported by the
+//:    current compiler settings for this platform.
+//
+//: 'BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS'
+//:    This macro is defined if deleted functions are supported by the current
+//:    compiler settings for this platform.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE'
 //:     This macro is defined if 'extern template' is supported by the current
@@ -67,6 +79,10 @@ BSLS_IDENT("$Id: $")
 //: 'BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT'
 //:    This macro is defined if 'include_next' is supported by the current
 //:    compiler settings for this platform.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT'
+//:    This macro is defined if 'noexcept' is supported by the current compiler
+//:    settings for this platform.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_NULLPTR'
 //:    This macro is defined if 'nullptr' is supported by the current compiler
@@ -150,6 +166,17 @@ BSLS_IDENT("$Id: $")
 //:   xlC 12.1
 //:   Oracle CC 12.4
 //
+///BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+///- - - - - - - - - - - - - - - - - - - -
+// This macro is defined in the compilier supports the 'constexpr' reserved
+// keyword.
+//
+//: Compiler support:
+//:   gcc 4.7
+//:   clang 3.1
+//:   xlC 13
+//:   Oracle CC 12.4
+//
 ///BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 /// - - - - - - - - - - - - - - - - - - -
 // This macro is defined if the compiler supports the 'decltype' reserved word.
@@ -159,6 +186,30 @@ BSLS_IDENT("$Id: $")
 //:   clang 3.3
 //:   MSVC 2010
 //:   xlC 11.1
+//:   Oracle CC 12.4
+//
+///BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports syntax to introduce defaulted
+// functions.
+//
+//: Compiler support:
+//:   gcc 4.4
+//:   clang 2.9
+//:   MSVC 2013
+//:   xlC 13.1
+//:   Oracle CC 12.4
+//:
+///BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports syntax to introduce deleted
+// functions.
+//
+//: Compiler support:
+//:   gcc 4.4
+//:   clang 2.9
+//:   MSVC 2013
+//:   xlC 13.1
 //:   Oracle CC 12.4
 //
 ///BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
@@ -206,10 +257,19 @@ BSLS_IDENT("$Id: $")
 // BSL_OVERRIDES_STD macro.
 //
 //: Compiler support:
-//:   gcc (any)
+//:   gcc 4.7
 //:   clang (any)
 //:   xlC 8
 //:   Oracle CC 12.4
+//
+///BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+/// - - - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports the 'noexcept' reserved
+// keyword.
+//
+//: Compiler support:
+//:   gcc 4.6
+//:   clang 3.0
 //
 ///BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
 ///- - - - - - - - - - - - - - - - - - -
@@ -303,11 +363,12 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-
 // gcc
 // https://wiki.apache.org/stdcxx/C%2B%2B0xCompilerSupport
 #if defined(BSLS_PLATFORM_CMP_GNU)
+#if BSLS_PLATFORM_CMP_VERSION >= 40600
 #define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+#endif
 #endif
 // gcc -std=c++11 or -std=c++0x or -std=gnu++11 or -std=gnu++0x
 #if defined(BSLS_PLATFORM_CMP_GNU) && defined(__GXX_EXPERIMENTAL_CXX0X__)
@@ -320,6 +381,8 @@ BSLS_IDENT("$Id: $")
 #define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 #endif
 #if BSLS_PLATFORM_CMP_VERSION >= 40400
+#define BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+#define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
 #define BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
 #endif
 #if BSLS_PLATFORM_CMP_VERSION >= 40500
@@ -329,9 +392,11 @@ BSLS_IDENT("$Id: $")
 #endif
 #if BSLS_PLATFORM_CMP_VERSION >= 40600
 #define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+#define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
 #endif
 #if BSLS_PLATFORM_CMP_VERSION >= 40700
 #define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+#define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
 #define BSLS_COMPILERFEATURES_SUPPORT_FINAL
 #define BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
 #endif
@@ -355,6 +420,12 @@ BSLS_IDENT("$Id: $")
 #if __has_feature(cxx_rvalue_references)
 #define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 #endif
+#if __has_feature(cxx_defaulted_functions)
+#define BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+#endif
+#if __has_feature(cxx_deleted_functions)
+#define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+#endif
 #if __has_feature(cxx_static_assert)
 #define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
 #endif
@@ -364,6 +435,13 @@ BSLS_IDENT("$Id: $")
 // clang 3.0
 #if __has_feature(cxx_alias_templates)
 #define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+#endif
+#if __has_feature(cxx_noexcept)
+#define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#endif
+// clang 3.1
+#if __has_feature(cxx_constexpr)
+#define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
 #endif
 #if __has_feature(cxx_explicit_conversions)
 #define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
@@ -415,6 +493,8 @@ BSLS_IDENT("$Id: $")
 #define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 #define BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
 #define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+#define BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+#define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
 #endif
 // MSVC has __declspec(noreturn)
 // (see bsls_bslexceptionutil.h bslstl_stdexceptutil.h)
@@ -430,8 +510,15 @@ BSLS_IDENT("$Id: $")
 // xlC_r -qlanglvl=extended    (include next, extern template, noreturn)
 // xlC_r -qlanglvl=extended0x  (additional features)
 #if defined(BSLS_PLATFORM_CMP_IBM)
+#if defined(__IBMCPP_CONSTEXPR)
+#define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+#endif
 #if defined(__IBMCPP_DECLTYPE)
 #define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+#endif
+#if defined(__IBMCPP_DEFAULTED_AND_DELETED_FUNCTIONS)
+#define BSLS_COMPILEFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+#define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
 #endif
 #if defined(__IBMCPP_EXPLICIT)
 #define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
@@ -463,6 +550,7 @@ BSLS_IDENT("$Id: $")
 #endif
 // (not yet supported in xlC)
 //#define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+//#define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
 #endif
 
 
@@ -476,11 +564,15 @@ BSLS_IDENT("$Id: $")
 #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION >= 0x5130 \
  && __cplusplus >= 201103L
 #define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+#define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
 #define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+#define BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+#define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
 #define BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
 #define BSLS_COMPILERFEATURES_SUPPORT_FINAL
 #define BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
 #define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+#define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
 #define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
 #define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 #define BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE

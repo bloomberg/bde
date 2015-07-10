@@ -50,7 +50,22 @@ template <typename T> using alias_template2 = alias_base<char, T>;
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
+
+int x; // not constant
+struct A {
+    constexpr A(bool b) : m(b?42:x) { }
+    int m;
+};
+#endif // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
+
+// libc++ #define's decltype when it is not provided by the compiler.
+// Our test should not depend on this #define.
+#if defined(decltype)
+#undef decltype
+#endif
 
 namespace {
 
@@ -65,6 +80,37 @@ auto my_max(T t, U u) -> decltype(t > u ? t : u)
 }  // close unnamed namespace
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+struct ClassWithDefaultOps {
+    ClassWithDefaultOps(int value) : d_value(value) {}
+    ClassWithDefaultOps() = default;
+    ClassWithDefaultOps(const ClassWithDefaultOps &) = default;
+    ClassWithDefaultOps& operator=(const ClassWithDefaultOps &) = default;
+#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1800)
+    // MSVC 1800 does not support default move constructors/assignments
+    ClassWithDefaultOps(ClassWithDefaultOps &&) = default;
+    ClassWithDefaultOps & operator=(ClassWithDefaultOps &&) = default;
+#endif
+    ~ClassWithDefaultOps() = default;
+    int d_value;
+};
+#endif  //BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS)
+struct ClassWithDeletedOps {
+    ClassWithDeletedOps() = delete;
+    ClassWithDeletedOps(const ClassWithDeletedOps &) = delete;
+    ClassWithDeletedOps& operator=(ClassWithDeletedOps &) = delete;
+#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1800)
+    // MSVC 1800 does not support deleted move constructors/assignments
+    ClassWithDeletedOps(ClassWithDeletedOps &&) = delete;
+    ClassWithDeletedOps & operator=(ClassWithDeletedOps &&) = delete;
+#endif
+    ~ClassWithDeletedOps() = delete;
+};
+#endif  //BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE)
 
@@ -89,6 +135,25 @@ template class ExternTemplateClass<char>;
 #include_next<cstdio>
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+
+void noexceptTest1() noexcept {
+}
+
+void noexceptTest2() noexcept(true) {
+}
+
+void noexceptTest3() noexcept(noexcept(noexceptTest1())) {
+}
+
+void notNoexceptTest1() noexcept(false) {
+}
+
+void notNoexceptTest2() noexcept(noexcept(notNoexceptTest1())) {
+}
+
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
 
@@ -190,19 +255,22 @@ struct PackSize<T> {
 // supported.
 //-----------------------------------------------------------------------------
 // [ 1] BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-// [ 2] BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-// [ 3] BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
-// [ 4] BSLS_COMPILERFEATURES_SUPPORT_FINAL
-// [ 5] BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
-// [ 6] BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
-// [ 7] BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
-// [ 8] BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
-// [ 9] BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
-// [10] BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-// [11] BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
-// [12] BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
-// [13] BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
-
+// [ 2] BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+// [ 3] BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+// [ 4] BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+// [ 5] BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+// [ 6] BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
+// [ 7] BSLS_COMPILERFEATURES_SUPPORT_FINAL
+// [ 8] BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+// [ 9] BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+// [10] BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+// [11] BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+// [12] BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+// [13] BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
+// [14] BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+// [15] BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+// [16] BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+// [17] BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
 //=============================================================================
 
 int main(int argc, char *argv[])
@@ -215,7 +283,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 13: {
+      case 17: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
         //
@@ -242,7 +310,7 @@ int main(int argc, char *argv[])
         int alignas(8) foo;
 #endif
       } break;
-      case 12: {
+      case 16: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
         //
@@ -270,7 +338,7 @@ int main(int argc, char *argv[])
         ASSERT((PackSize<int, char, double, void>::VALUE == 4));
 #endif
       } break;
-      case 11: {
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
         //
@@ -297,7 +365,7 @@ int main(int argc, char *argv[])
         static_assert(1,    "static_assert with int");
 #endif
       } break;
-      case 10: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         //
@@ -324,7 +392,7 @@ int main(int argc, char *argv[])
         RvalueTest obj(my_factory<RvalueTest>(RvalueArg()));
 #endif
       } break;
-      case 9: {
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
         //
@@ -355,7 +423,7 @@ int main(int argc, char *argv[])
         struct Override: OverrideBase { void f() const override {} };
 #endif
       } break;
-      case 8: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
         //
@@ -393,7 +461,7 @@ int main(int argc, char *argv[])
         ASSERT(result);
 #endif
       } break;
-      case 7: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
         //
@@ -421,7 +489,39 @@ int main(int argc, char *argv[])
         OverloadForNullptr(nullptr);
 #endif
       } break;
-      case 6: {
+      case 10:{
+        // --------------------------------------------------------------------
+        // TESTING BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+        //
+        // Concerns:
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT' is defined only when 
+        //:    the compiler is able to compile code with 'noexcept'.
+        //
+        // Plan:
+        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT' is defined then
+        //:   compile code that uses 'noexecpt' in various contexts.
+        //
+        // Testing:
+        //   BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+        // --------------------------------------------------------------------
+#if !defined (BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+          if (verbose) printf("Testing noexcept skipped\n"
+                              "========================\n");
+#else
+          if (verbose) printf("Testing noexcept\n"
+                              "================\n");
+          noexceptTest1();
+          noexceptTest2();
+          notNoexceptTest1();
+          notNoexceptTest2();
+          ASSERT(noexcept(noexceptTest1()));
+          ASSERT(noexcept(noexceptTest2()));
+          ASSERT(noexcept(noexceptTest3()));
+          ASSERT(false == noexcept(notNoexceptTest1()));
+          ASSERT(false == noexcept(notNoexceptTest2()));
+#endif
+      } break;
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
         //
@@ -446,7 +546,7 @@ int main(int argc, char *argv[])
                             "====================\n");
 #endif
       } break;
-      case 5: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
         //
@@ -473,7 +573,7 @@ int main(int argc, char *argv[])
         std::initializer_list<int> il = {10,20,30,40,50};
 #endif
       } break;
-      case 4: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_FINAL
         //
@@ -505,7 +605,7 @@ int main(int argc, char *argv[])
 #endif
 
       } break;
-      case 3: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
         //
@@ -534,7 +634,82 @@ int main(int argc, char *argv[])
 #endif
 
       } break;
-      case 2: {
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+        //
+        // Concerns:
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS' is defined only
+        //:   when the compiler is actually able to compile code with deleted
+        //:   functions.
+        //
+        // Plan:
+        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS' is defined
+        //:   then compile code that uses this feature to delete functions in
+        //:   classes.
+        //
+        // Testing:
+        //   BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+        // --------------------------------------------------------------------
+
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS)
+        if (verbose) printf("Testing deleted functions skipped\n"
+                            "=================================\n");
+#else
+        if (verbose) printf("Testing deleted functions template\n"
+                            "==================================\n");
+        ClassWithDeletedOps* p;
+#endif
+      }break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+        //
+        // Concerns:
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS' is defined
+        //:   only when the compiler is actually able to compile code with
+        //:   defaulted functions.
+        //
+        // Plan:
+        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS' is defined
+        //:   then compile code that uses this feature to defaulted functions
+        //:   in classes.
+        //
+        // Testing:
+        //   BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+        // --------------------------------------------------------------------
+
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+        if (verbose) printf("Testing defaulted functions skipped\n"
+                            "=================================\n");
+#else
+        if (verbose) printf("Testing defaulted functions template\n"
+              "==================================\n");
+
+        const ClassWithDefaultOps original(42);
+
+        // test default construction.
+        ClassWithDefaultOps defaulted;
+
+        // test copy construction
+        const ClassWithDefaultOps copied(original);
+        ASSERT(42 == copied.d_value);
+
+        // test copy assignment
+        defaulted = original;
+        ASSERT(42 == defaulted.d_value);
+
+        // test move construction
+        const ClassWithDefaultOps movedInto(ClassWithDefaultOps(42));
+        ASSERT(42 == movedInto.d_value);
+
+        // test move assignment
+        defaulted.d_value = 0;
+        defaulted = ClassWithDefaultOps(42);
+        ASSERT(42 == defaulted.d_value);
+#endif
+      } break;
+      case 3: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
         //
@@ -565,6 +740,34 @@ int main(int argc, char *argv[])
         auto maxVal = my_max(short(10), 'a');
         ASSERT(sizeof(maxVal) == sizeof(int));
         ASSERT(maxVal == 'a');
+#endif
+
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+        //
+        // Concerns:
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR' is defined only when
+        //    the compiler is actually able to compile code with constexpr.
+        //
+        // Plan:
+        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR' is defined then
+        //:   compile code that uses this feature to define constant 
+        //:   expressions functions.
+        //
+        // Testing:
+        //   BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+        // --------------------------------------------------------------------
+
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
+        if (verbose) printf("Testing constexpr skipped\n"
+                            "=========================\n");
+#else
+        if (verbose) printf("Testing constexpr\n"
+                            "=================\n");
+        constexpr int v = A(true).m;
+        ASSERT(v == 42);
 #endif
 
       } break;
