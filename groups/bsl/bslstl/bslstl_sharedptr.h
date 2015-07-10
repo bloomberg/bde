@@ -4888,7 +4888,7 @@ template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
 inline
 bsl::shared_ptr<ELEMENT_TYPE> bsl::allocate_shared(ALLOC *a, ARGS&&... args)
 {
-    return allocate_shared<ELEMENT_TYPE>(
+    return bsl::allocate_shared<ELEMENT_TYPE>(
                               bsl::allocator<ELEMENT_TYPE>(a),
                               BloombergLP::bsls::Util::forward<ARGS>(args)...);
 }
@@ -4897,7 +4897,7 @@ template<class ELEMENT_TYPE, class... ARGS>
 inline
 bsl::shared_ptr<ELEMENT_TYPE> bsl::make_shared(ARGS&&... args)
 {
-    return allocate_shared<ELEMENT_TYPE>(
+    return bsl::allocate_shared<ELEMENT_TYPE>(
                               BloombergLP::bslma::Default::allocator(),
                               BloombergLP::bsls::Util::forward<ARGS>(args)...);
 }
@@ -4922,15 +4922,15 @@ inline
 bsl::shared_ptr<ELEMENT_TYPE>
 bsl::allocate_shared(ALLOC *a, const ARGS&... args)
 {
-    return allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
-                                         args...);
+    return bsl::allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
+                                              args...);
 }
 
 template<class ELEMENT_TYPE, class... ARGS>
 inline
 bsl::shared_ptr<ELEMENT_TYPE> bsl::make_shared(const ARGS&... args)
 {
-    return allocate_shared<ELEMENT_TYPE>(
+    return bsl::allocate_shared<ELEMENT_TYPE>(
                               BloombergLP::bslma::Default::allocator(),
                               args...);
 }
@@ -5461,7 +5461,7 @@ inline
 bsl::shared_ptr<ELEMENT_TYPE>
 bsl::allocate_shared(ALLOC *a)
 {
-    return allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a));
+    return bsl::allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a));
 }
 
 template <class ELEMENT_TYPE, class ALLOC, class A1>
@@ -5469,8 +5469,8 @@ inline
 bsl::shared_ptr<ELEMENT_TYPE>
 bsl::allocate_shared(ALLOC *a, const A1& a1)
 {
-    return allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
-                                         a1);
+    return bsl::allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
+                                              a1);
 }
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2>
@@ -5478,9 +5478,9 @@ inline
 bsl::shared_ptr<ELEMENT_TYPE>
 bsl::allocate_shared(ALLOC *a, const A1& a1, const A2& a2)
 {
-    return allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
-                                         a1,
-                                         a2);
+    return bsl::allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
+                                              a1,
+                                              a2);
 }
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3>
@@ -5488,10 +5488,10 @@ inline
 bsl::shared_ptr<ELEMENT_TYPE>
 bsl::allocate_shared(ALLOC *a, const A1& a1, const A2& a2, const A3& a3)
 {
-    return allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
-                                         a1,
-                                         a2,
-                                         a3);
+    return bsl::allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
+                                              a1,
+                                              a2,
+                                              a3);
 }
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
@@ -5504,11 +5504,11 @@ bsl::allocate_shared(ALLOC     *a,
                      const A3&  a3,
                      const A4&  a4)
 {
-    return allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
-                                         a1,
-                                         a2,
-                                         a3,
-                                         a4);
+    return bsl::allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
+                                              a1,
+                                              a2,
+                                              a3,
+                                              a4);
 }
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
@@ -5522,12 +5522,12 @@ bsl::allocate_shared(ALLOC     *a,
                      const A4&  a4,
                      const A5&  a5)
 {
-    return allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
-                                         a1,
-                                         a2,
-                                         a3,
-                                         a4,
-                                         a5);
+    return bsl::allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
+                                              a1,
+                                              a2,
+                                              a3,
+                                              a4,
+                                              a5);
 }
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
@@ -5542,13 +5542,13 @@ bsl::allocate_shared(ALLOC     *a,
                      const A5&  a5,
                      const A6&  a6)
 {
-    return allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
-                                         a1,
-                                         a2,
-                                         a3,
-                                         a4,
-                                         a5,
-                                         a6);
+    return bsl::allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
+                                              a1,
+                                              a2,
+                                              a3,
+                                              a4,
+                                              a5,
+                                              a6);
 }
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
@@ -5564,14 +5564,14 @@ bsl::allocate_shared(ALLOC     *a,
                      const A6&  a6,
                      const A7&  a7)
 {
-    return allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
-                                         a1,
-                                         a2,
-                                         a3,
-                                         a4,
-                                         a5,
-                                         a6,
-                                         a7);
+    return bsl::allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
+                                              a1,
+                                              a2,
+                                              a3,
+                                              a4,
+                                              a5,
+                                              a6,
+                                              a7);
 }
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
@@ -5588,15 +5588,15 @@ bsl::allocate_shared(ALLOC     *a,
                      const A7&  a7,
                      const A8&  a8)
 {
-    return allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
-                                         a1,
-                                         a2,
-                                         a3,
-                                         a4,
-                                         a5,
-                                         a6,
-                                         a7,
-                                         a8);
+    return bsl::allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
+                                              a1,
+                                              a2,
+                                              a3,
+                                              a4,
+                                              a5,
+                                              a6,
+                                              a7,
+                                              a8);
 }
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
@@ -5614,16 +5614,16 @@ bsl::allocate_shared(ALLOC     *a,
                      const A8&  a8,
                      const A9&  a9)
 {
-    return allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
-                                         a1,
-                                         a2,
-                                         a3,
-                                         a4,
-                                         a5,
-                                         a6,
-                                         a7,
-                                         a8,
-                                         a9);
+    return bsl::allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
+                                              a1,
+                                              a2,
+                                              a3,
+                                              a4,
+                                              a5,
+                                              a6,
+                                              a7,
+                                              a8,
+                                              a9);
 }
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
@@ -5643,17 +5643,17 @@ bsl::allocate_shared(ALLOC      *a,
                      const A9&   a9,
                      const A10&  a10)
 {
-    return allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
-                                         a1,
-                                         a2,
-                                         a3,
-                                         a4,
-                                         a5,
-                                         a6,
-                                         a7,
-                                         a8,
-                                         a9,
-                                         a10);
+    return bsl::allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
+                                              a1,
+                                              a2,
+                                              a3,
+                                              a4,
+                                              a5,
+                                              a6,
+                                              a7,
+                                              a8,
+                                              a9,
+                                              a10);
 }
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
@@ -5674,7 +5674,7 @@ bsl::allocate_shared(ALLOC      *a,
                      const A10&  a10,
                      const A11&  a11)
 {
-    return allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
+    return bsl::allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
                                          a1,
                                          a2,
                                          a3,
@@ -5707,19 +5707,19 @@ bsl::allocate_shared(ALLOC      *a,
                      const A11&  a11,
                      const A12&  a12)
 {
-    return allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
-                                         a1,
-                                         a2,
-                                         a3,
-                                         a4,
-                                         a5,
-                                         a6,
-                                         a7,
-                                         a8,
-                                         a9,
-                                         a10,
-                                         a11,
-                                         a12);
+    return bsl::allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
+                                              a1,
+                                              a2,
+                                              a3,
+                                              a4,
+                                              a5,
+                                              a6,
+                                              a7,
+                                              a8,
+                                              a9,
+                                              a10,
+                                              a11,
+                                              a12);
 }
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
@@ -5742,20 +5742,20 @@ bsl::allocate_shared(ALLOC      *a,
                      const A12&  a12,
                      const A13&  a13)
 {
-    return allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
-                                         a1,
-                                         a2,
-                                         a3,
-                                         a4,
-                                         a5,
-                                         a6,
-                                         a7,
-                                         a8,
-                                         a9,
-                                         a10,
-                                         a11,
-                                         a12,
-                                         a13);
+    return bsl::allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
+                                              a1,
+                                              a2,
+                                              a3,
+                                              a4,
+                                              a5,
+                                              a6,
+                                              a7,
+                                              a8,
+                                              a9,
+                                              a10,
+                                              a11,
+                                              a12,
+                                              a13);
 }
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
@@ -5779,37 +5779,37 @@ bsl::allocate_shared(ALLOC      *a,
                      const A13&  a13,
                      const A14&  a14)
 {
-    return allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
-                                         a1,
-                                         a2,
-                                         a3,
-                                         a4,
-                                         a5,
-                                         a6,
-                                         a7,
-                                         a8,
-                                         a9,
-                                         a10,
-                                         a11,
-                                         a12,
-                                         a13,
-                                         a14);
+    return bsl::allocate_shared<ELEMENT_TYPE>(bsl::allocator<ELEMENT_TYPE>(a),
+                                              a1,
+                                              a2,
+                                              a3,
+                                              a4,
+                                              a5,
+                                              a6,
+                                              a7,
+                                              a8,
+                                              a9,
+                                              a10,
+                                              a11,
+                                              a12,
+                                              a13,
+                                              a14);
 }
 
 template <class ELEMENT_TYPE>
 inline
 bsl::shared_ptr<ELEMENT_TYPE> bsl::make_shared()
 {
-    return
-       allocate_shared<ELEMENT_TYPE>(BloombergLP::bslma::Default::allocator());
+    return bsl::allocate_shared<ELEMENT_TYPE>(
+                                     BloombergLP::bslma::Default::allocator());
 }
 
 template <class ELEMENT_TYPE, class A1>
 inline
 bsl::shared_ptr<ELEMENT_TYPE> bsl::make_shared(const A1& a1)
 {
-    return
-        allocate_shared<ELEMENT_TYPE>(BloombergLP::bslma::Default::allocator(),
+    return bsl::allocate_shared<ELEMENT_TYPE>(
+                                      BloombergLP::bslma::Default::allocator(),
                                       a1);
 }
 
@@ -5817,8 +5817,8 @@ template <class ELEMENT_TYPE, class A1, class A2>
 inline
 bsl::shared_ptr<ELEMENT_TYPE> bsl::make_shared(const A1& a1, const A2& a2)
 {
-    return
-        allocate_shared<ELEMENT_TYPE>(BloombergLP::bslma::Default::allocator(),
+    return bsl::allocate_shared<ELEMENT_TYPE>(
+                                      BloombergLP::bslma::Default::allocator(),
                                       a1,
                                       a2);
 }
@@ -5828,8 +5828,8 @@ inline
 bsl::shared_ptr<ELEMENT_TYPE>
 bsl::make_shared(const A1& a1, const A2& a2, const A3& a3)
 {
-    return
-        allocate_shared<ELEMENT_TYPE>(BloombergLP::bslma::Default::allocator(),
+    return bsl::allocate_shared<ELEMENT_TYPE>(
+                                      BloombergLP::bslma::Default::allocator(),
                                       a1,
                                       a2,
                                       a3);
@@ -5840,8 +5840,8 @@ inline
 bsl::shared_ptr<ELEMENT_TYPE>
 bsl::make_shared(const A1& a1, const A2& a2, const A3& a3, const A4& a4)
 {
-    return
-        allocate_shared<ELEMENT_TYPE>(BloombergLP::bslma::Default::allocator(),
+    return bsl::allocate_shared<ELEMENT_TYPE>(
+                                      BloombergLP::bslma::Default::allocator(),
                                       a1,
                                       a2,
                                       a3,
@@ -5857,8 +5857,8 @@ bsl::make_shared(const A1& a1,
                  const A4& a4,
                  const A5& a5)
 {
-    return
-        allocate_shared<ELEMENT_TYPE>(BloombergLP::bslma::Default::allocator(),
+    return bsl::allocate_shared<ELEMENT_TYPE>(
+                                      BloombergLP::bslma::Default::allocator(),
                                       a1,
                                       a2,
                                       a3,
@@ -5877,8 +5877,8 @@ bsl::make_shared(const A1& a1,
                  const A5& a5,
                  const A6& a6)
 {
-    return
-        allocate_shared<ELEMENT_TYPE>(BloombergLP::bslma::Default::allocator(),
+    return bsl::allocate_shared<ELEMENT_TYPE>(
+                                      BloombergLP::bslma::Default::allocator(),
                                       a1,
                                       a2,
                                       a3,
@@ -5899,8 +5899,8 @@ bsl::make_shared(const A1& a1,
                  const A6& a6,
                  const A7& a7)
 {
-    return
-        allocate_shared<ELEMENT_TYPE>(BloombergLP::bslma::Default::allocator(),
+    return bsl::allocate_shared<ELEMENT_TYPE>(
+                                      BloombergLP::bslma::Default::allocator(),
                                       a1,
                                       a2,
                                       a3,
@@ -5923,8 +5923,8 @@ bsl::make_shared(const A1& a1,
                  const A7& a7,
                  const A8& a8)
 {
-    return
-        allocate_shared<ELEMENT_TYPE>(BloombergLP::bslma::Default::allocator(),
+    return bsl::allocate_shared<ELEMENT_TYPE>(
+                                      BloombergLP::bslma::Default::allocator(),
                                       a1,
                                       a2,
                                       a3,
@@ -5949,8 +5949,8 @@ bsl::make_shared(const A1& a1,
                  const A8& a8,
                  const A9& a9)
 {
-    return
-        allocate_shared<ELEMENT_TYPE>(BloombergLP::bslma::Default::allocator(),
+    return bsl::allocate_shared<ELEMENT_TYPE>(
+                                      BloombergLP::bslma::Default::allocator(),
                                       a1,
                                       a2,
                                       a3,
@@ -5977,8 +5977,8 @@ bsl::make_shared(const A1&  a1,
                  const A9&  a9,
                  const A10& a10)
 {
-    return
-        allocate_shared<ELEMENT_TYPE>(BloombergLP::bslma::Default::allocator(),
+    return bsl::allocate_shared<ELEMENT_TYPE>(
+                                      BloombergLP::bslma::Default::allocator(),
                                       a1,
                                       a2,
                                       a3,
@@ -6007,8 +6007,8 @@ bsl::make_shared(const A1&  a1,
                  const A10& a10,
                  const A11& a11)
 {
-    return
-        allocate_shared<ELEMENT_TYPE>(BloombergLP::bslma::Default::allocator(),
+    return bsl::allocate_shared<ELEMENT_TYPE>(
+                                      BloombergLP::bslma::Default::allocator(),
                                       a1,
                                       a2,
                                       a3,
@@ -6040,8 +6040,8 @@ bsl::make_shared(const A1&  a1,
                  const A11& a11,
                  const A12& a12)
 {
-    return
-        allocate_shared<ELEMENT_TYPE>(BloombergLP::bslma::Default::allocator(),
+    return bsl::allocate_shared<ELEMENT_TYPE>(
+                                      BloombergLP::bslma::Default::allocator(),
                                       a1,
                                       a2,
                                       a3,
@@ -6075,8 +6075,8 @@ bsl::make_shared(const A1&  a1,
                  const A12& a12,
                  const A13& a13)
 {
-    return
-        allocate_shared<ELEMENT_TYPE>(BloombergLP::bslma::Default::allocator(),
+    return bsl::allocate_shared<ELEMENT_TYPE>(
+                                      BloombergLP::bslma::Default::allocator(),
                                       a1,
                                       a2,
                                       a3,
@@ -6112,8 +6112,8 @@ bsl::make_shared(const A1&  a1,
                  const A13& a13,
                  const A14& a14)
 {
-    return
-        allocate_shared<ELEMENT_TYPE>(BloombergLP::bslma::Default::allocator(),
+    return bsl::allocate_shared<ELEMENT_TYPE>(
+                                      BloombergLP::bslma::Default::allocator(),
                                       a1,
                                       a2,
                                       a3,
