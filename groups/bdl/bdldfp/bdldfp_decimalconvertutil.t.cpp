@@ -8080,7 +8080,7 @@ int main(int argc, char* argv[])
             bsl::cout << "float\n";
         }
         {
-            for (int e = -6; e <= 0; ++e) {
+            for (int e = -9; e <= 4; ++e) {
                 for (int n = -999999; n <= 999999; ++n) {
                     char buf[30];
                     sprintf(buf, "%de%d", n, e);

@@ -28,7 +28,8 @@ namespace bdldfp {
 namespace {
                         // Reverse Memory
 
-static void memrev(void *buffer, size_t count)
+inline
+void memrev(void *buffer, size_t count)
     // Reverse the order of the first specified 'count' bytes, at the beginning
     // of the specified 'buffer'.  'count % 2' must be zero.
 {
@@ -38,6 +39,7 @@ static void memrev(void *buffer, size_t count)
 
                         // Mem copy with reversal functions
 
+inline
 unsigned char *memReverseIfNeeded(void *buffer, size_t count)
     // Reverse the first specified 'count' bytes from the specified 'buffer`,
     // if the host endian is different from network endian, and return the
@@ -53,6 +55,7 @@ unsigned char *memReverseIfNeeded(void *buffer, size_t count)
                         // Decimal-network conversion functions
 
 template <class DECIMAL_TYPE>
+inline
 const unsigned char *decimalFromNetworkT(DECIMAL_TYPE        *decimal,
                                          const unsigned char *buffer)
     // Construct into the specified 'decimal', the base-10 value represented by
@@ -72,6 +75,7 @@ const unsigned char *decimalFromNetworkT(DECIMAL_TYPE        *decimal,
 
 
 template <class DECIMAL_TYPE>
+inline
 unsigned char *decimalToNetworkT(unsigned char *buffer, DECIMAL_TYPE decimal)
     // Construct into the specified 'buffer', the network-ordered byte
     // representation of the base-10 value of the specified 'decimal', and,
@@ -120,11 +124,13 @@ struct StdioFormat<double> {
                         // class StdioFormat
                         // -----------------
 
+inline
 const char* StdioFormat<float>::format()
 {
     return "%.6g";
 }
 
+inline
 const char* StdioFormat<double>::format()
 {
     return "%.15g";
@@ -187,16 +193,19 @@ struct DecimalTraits<bdldfp::Decimal128> {
                         // class DecimalTraits
                         // ===================
 
+inline
 Decimal32 DecimalTraits<Decimal32>::make(int significand, int exponent)
 {
     return bdldfp::DecimalUtil::makeDecimalRaw32(significand, exponent);
 }
 
+inline
 Decimal64 DecimalTraits<Decimal64>::make(long long significand, int exponent)
 {
     return bdldfp::DecimalUtil::makeDecimalRaw64(significand, exponent);
 }
 
+inline
 Decimal128 DecimalTraits<Decimal128>::make(long long significand, int exponent)
 {
     return bdldfp::DecimalUtil::makeDecimalRaw128(significand, exponent);
@@ -417,6 +426,7 @@ Decimal32 DecimalConvertUtil::decimal32FromDouble(double binary)
     restoreDecimalFromBinary(&rv, binary);
     return rv;
 }
+
 Decimal64 DecimalConvertUtil::decimal64FromDouble(double binary)
 {
     Decimal64 rv;
@@ -475,6 +485,7 @@ Decimal64 DecimalConvertUtil::decimal64FromDouble(double binary)
     restoreDecimalFromBinary(&rv, binary);
     return rv;
 }
+
 Decimal128 DecimalConvertUtil::decimal128FromDouble(double binary)
 {
     Decimal128 rv;
@@ -490,11 +501,12 @@ Decimal32 DecimalConvertUtil::decimal32FromFloat(float binary)
     restoreDecimalFromBinary(&rv, binary);
     return rv;
 }
+
 Decimal64 DecimalConvertUtil::decimal64FromFloat(float binary)
 {
     Decimal64 rv;
 
-    // Try the "Olkin-Farber-Rosen" method for speed.  Multiply the double by a
+    // Try the "Olkin-Farber-Rosen" method for speed.  Multiply the float by a
     // power of 10, round it to an integer, then use the faster scaled
     // conversion to decimal to produce a hoped-for result.  The conversion is
     // correct if the result converts back to the original binary, provided
@@ -503,22 +515,48 @@ Decimal64 DecimalConvertUtil::decimal64FromFloat(float binary)
     // digits can convert to the same float).
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-#   define copysign _copysign
+    #if BSLS_PLATFORM_CMP_VERSION >= 1800
+        #define copysignf _copysignf
+    #else
+        #define copysignf _copysign
+    #endif
 #endif
+
     if (binary != 0 && -1e06 < binary && binary < 1e06) {
         int   scale;
         float d;
         float a = fabsf(binary);
 
-             if (a < 1e0f) { scale = -6; d = binary * 1e6f; }
-        else if (a < 1e1f) { scale = -5; d = binary * 1e5f; }
-        else if (a < 1e2f) { scale = -4; d = binary * 1e4f; }
-        else if (a < 1e3f) { scale = -3; d = binary * 1e3f; }
-        else if (a < 1e4f) { scale = -2; d = binary * 1e2f; }
-        else if (a < 1e5f) { scale = -1; d = binary * 1e1f; }
-        else               { scale =  0; d = binary       ; }
+        if (a < 1e3f) {
+            if (a < 1e1f) {
+                if (a < 1e0f) {
+                    scale = -6;
+                    d = binary * 1e6f;
+                } else {
+                    scale = -5;
+                    d = binary * 1e5f;
+                }
+            } else if (a < 1e2f) {
+                scale = -4;
+                d = binary * 1e4f;
+            } else {
+                scale = -3;
+                d = binary * 1e3f;
+            }
+        } else if (a < 1e5f) {
+            if (a < 1e4f) {
+                scale = -2;
+                d = binary * 1e2f;
+            } else {
+                scale = -1;
+                d = binary * 1e1f;
+            }
+        } else {
+            scale = 0;
+            d = binary;
+        }
 
-        int   n = static_cast<int>(d + copysignf(.5, d));  // round
+        int   n    = static_cast<int>(d + copysignf(.5, d));  // round
         float diff = d - float(n);
 
         reduce(&n, &scale);
@@ -538,10 +576,10 @@ Decimal64 DecimalConvertUtil::decimal64FromFloat(float binary)
         // not need to verify by back conversion.
         //
         // Compute the ratio of the fractional part of the scaled binary number
-        // to its integer part.  If it's small enough (using 1e-7, generously
+        // to its integer part.  If it's small enough (using 5e-7, generously
         // below the 1e-6 computed above), skip the verification.
 
-        if (fabsf(diff / d) < 1e-7f) {
+        if (fabsf(diff / d) < 5e-7f) {
             return rv;                                                // RETURN
         }
 
@@ -555,6 +593,7 @@ Decimal64 DecimalConvertUtil::decimal64FromFloat(float binary)
     restoreDecimalFromBinary(&rv, binary);
     return rv;
 }
+
 Decimal128 DecimalConvertUtil::decimal128FromFloat(float binary)
 {
     Decimal128 rv;
