@@ -54,6 +54,7 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_STDDEF_H
 #include <stddef.h>
+#define INCLUDED_STDDEF_H
 #endif
 
 namespace bsl {
@@ -147,8 +148,43 @@ struct remove_volatile<volatile TYPE[]> {
         // This 'typedef' is an alias to the same type as the (template
         // parameter) 'TYPE[]' except with the 'volatile'-qualifier removed.
 };
-#endif
+#elif defined(BSLS_PLATFORM_CMP_MSVC)
+// The Microsoft compiler does not recognize array-types as cv-qualified when
+// the element type is cv-qualified when performing matching for partial
+// template specialization, but does get the correct result when performing
+// overload resolution for functions (taking arrays by reference).  Given the
+// function dispatch behavior being correct, we choose to work around this
+// compiler bug, rather than try to report compiler behavior, as the compiler
+// itself is inconsistent depending on how the trait might be used.  This also
+// corresponds to how Microsoft itself implements the trait in VC2010 and
+// later.  Last tested against VC 2015 (Release Candidate).
 
+template <class TYPE>
+struct remove_volatile<TYPE[]> {
+     // This partial specialization of 'bsl::remove_volatile', for when the
+     // (template parameter) 'TYPE' is an array type.  On Microsoft compilers,
+     // it is necessary to separately 'remove_volatile' on the element type,
+     // and then reconstruct the array dimensions.
+
+    // PUBLIC TYPES
+    typedef typename remove_volatile<TYPE>::type type[];
+        // This 'typedef' is an alias to the same type as the (template
+        // parameter) 'TYPE[]' except with the 'volatile'-qualifier removed.
+};
+
+template <class TYPE, size_t LENGTH>
+struct remove_volatile<TYPE[LENGTH]> {
+     // This partial specialization of 'bsl::remove_volatile', for when the
+     // (template parameter) 'TYPE' is an array type.  On Microsoft compilers,
+     // it is necessary to separately 'remove_volatile' on the element type,
+     // and then reconstruct the array dimensions.
+
+    // PUBLIC TYPES
+    typedef typename remove_volatile<TYPE>::type type[LENGTH];
+        // This 'typedef' is an alias to the same type as the (template
+        // parameter) 'TYPE[N]' except with the 'volatile'-qualifier removed.
+};
+#endif
 }  // close namespace bsl
 
 #endif

@@ -51,6 +51,15 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
+#ifndef INCLUDED_STDDEF_H
+#include <stddef.h>
+#define INCLUDED_STDDEF_H
+#endif
+
 namespace bsl {
 
                          // ===============
@@ -73,10 +82,40 @@ struct is_const : false_type {
                          // ===========================
 
 template <class TYPE>
-struct is_const<TYPE const> : true_type {
+struct is_const<const TYPE> : true_type {
      // This partial specialization of 'is_const', for when the (template
      // parameter) 'TYPE' is 'const'-qualified, derives from 'bsl::true_type'.
 };
+
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+// The Microsoft compiler does not recognize array-types as cv-qualified when
+// the element type is cv-qualified when performing matching for partial
+// template specialization, but does get the correct result when performing
+// overload resolution for functions (taking arrays by reference).  Given the
+// function dispatch behavior being correct, we choose to work around this
+// compiler bug, rather than try to report compiler behavior, as the compiler
+// itself is inconsistent depeoning on how the trait might be used.  This also
+// corresponds to how Microsft itself implements the trait in VC2010 and later.
+// Last tested against VC 2015 (Release Candidate).
+
+template <class TYPE>
+struct is_const<const TYPE[]> : true_type {
+     // This partial specialization of 'is_const', for when the (template
+     // parameter) 'TYPE' is 'const'-qualified, derives from 'bsl::true_type'.
+     // Note that this single specialization is sufficient to work around the
+     // MSVC issue, even for multidimensional arrays.
+};
+
+template <class TYPE, size_t LENGTH>
+struct is_const<const TYPE[LENGTH]> : true_type {
+     // This partial specialization of 'is_const', for when the (template
+     // parameter) 'TYPE' is 'const'-qualified, derives from 'bsl::true_type'.
+     // Note that this single specialization is sufficient to work around the
+     // MSVC issue, even for multidimensional arrays.
+};
+
+#endif
 
 }  // close namespace bsl
 
