@@ -9,8 +9,6 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <iostream>
-
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
 
@@ -795,8 +793,8 @@ int main(int argc, char *argv[])
         //   Usage Example 2
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Usage Example 2"
-                          << "\n=======================" << endl;
+        if (verbose) printf("\nTesting Usage Example 2"
+                            "\n=======================\n");
 
         UsageExample2::WithoutAllocatorTrait::run1();
         UsageExample2::WithoutAllocatorTrait::run2();
@@ -818,8 +816,8 @@ int main(int argc, char *argv[])
         //   Usage Example 1
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Usage Example 1"
-                          << "\n=======================" << endl;
+        if (verbose) printf("\nTesting Usage Example 1"
+                            "\n=======================\n");
 
         UsageExample1::run();
       } break;
@@ -874,8 +872,8 @@ int main(int argc, char *argv[])
         //   const TYPE& object() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nConstructor Proxy Test"
-                          << "\n======================" << endl;
+        if (verbose) printf("\nConstructor Proxy Test"
+                            "\n======================\n");
 
         bslma::TestAllocator  testAllocator;
         bslma::Allocator     *ALLOCATOR = &testAllocator;
@@ -885,10 +883,10 @@ int main(int argc, char *argv[])
 
         ASSERT(VALUE != DEFAULT);
 
-        if (verbose) cout << "\n1. Constructing without value." << endl;
+        if (verbose) printf("\n1. Constructing without value." "\n");
         {
-            if (veryVerbose) cout << "\ta) 'TYPE' = 'TestType_YesAllocator'."
-                                  << endl;
+            if (veryVerbose) printf(
+                                   "\ta) 'TYPE' = 'TestType_YesAllocator'.\n");
             {
                 typedef Obj_YesAllocator Obj;
 
@@ -906,8 +904,7 @@ int main(int argc, char *argv[])
                 ASSERT(ALLOCATOR == X.object().allocator());
             }
 
-            if (veryVerbose) cout << "\tb) 'TYPE' = 'TestType_NoAllocator'."
-                                  << endl;
+            if (veryVerbose) printf("\tb) 'TYPE' = 'TestType_NoAllocator'.\n");
             {
                 typedef Obj_NoAllocator Obj;
 
@@ -924,12 +921,12 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\n2. Constructing with 'bslalg::ConstructorProxy"
-                          << "<OTHER>'." << endl;
+        if (verbose) printf(
+                "\n2. Constructing with 'bslalg::ConstructorProxy<OTHER>'.\n");
         {
-            if (veryVerbose) cout << "\ta) 'TYPE'  = 'TestType_YesAllocator'."
-                          << endl << "\t   'OTHER' = 'TestType_YesAllocator'."
-                          << endl;
+            if (veryVerbose) printf("\ta) 'TYPE'  = 'TestType_YesAllocator'."
+                                  "\n\t   'OTHER' = 'TestType_YesAllocator'."
+                                  "\n");
             {
                 typedef TestType_YesAllocator Type;
                 typedef TestType_YesAllocator OtherType;
@@ -953,9 +950,9 @@ int main(int argc, char *argv[])
                 ASSERT(ALLOCATOR == X.object().allocator());
             }
 
-            if (veryVerbose) cout << "\tb) 'TYPE'  = 'TestType_YesAllocator'."
-                          << endl << "\t   'OTHER' = 'TestType_Other'."
-                          << endl;
+            if (veryVerbose) printf("\tb) 'TYPE'  = 'TestType_YesAllocator'."
+                                  "\n\t   'OTHER' = 'TestType_Other'."
+                                  "\n");
             {
                 typedef TestType_YesAllocator Type;
                 typedef TestType_Other        OtherType;
@@ -979,9 +976,9 @@ int main(int argc, char *argv[])
                 ASSERT(ALLOCATOR == X.object().allocator());
             }
 
-            if (veryVerbose) cout << "\tc) 'TYPE'  = 'TestType_NoAllocator'."
-                          << endl << "\t   'OTHER' = 'TestType_NoAllocator'."
-                          << endl;
+            if (veryVerbose) printf("\tc) 'TYPE'  = 'TestType_NoAllocator'."
+                                  "\n\t   'OTHER' = 'TestType_NoAllocator'."
+                                  "\n");
             {
                 typedef TestType_NoAllocator Type;
                 typedef TestType_NoAllocator OtherType;
@@ -1003,9 +1000,9 @@ int main(int argc, char *argv[])
                 ASSERT( X.object().value() == DEFAULT);
             }
 
-            if (veryVerbose) cout << "\td) 'TYPE'  = 'TestType_NoAllocator'."
-                          << endl << "\t   'OTHER' = 'TestType_Other'."
-                          << endl;
+            if (veryVerbose) printf("\td) 'TYPE'  = 'TestType_NoAllocator'."
+                                  "\n\t   'OTHER' = 'TestType_Other'."
+                                  "\n");
             {
                 typedef TestType_NoAllocator Type;
                 typedef TestType_Other       OtherType;
@@ -1028,11 +1025,11 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\n3. Constructing with 'OTHER'." << endl;
+        if (verbose) printf("\n3. Constructing with 'OTHER'." "\n");
         {
-            if (veryVerbose) cout << "\ta) 'TYPE'  = 'TestType_YesAllocator'."
-                          << endl << "\t   'OTHER' = 'TestType_YesAllocator'."
-                          << endl;
+            if (veryVerbose) printf("\ta) 'TYPE'  = 'TestType_YesAllocator'."
+                                  "\n\t   'OTHER' = 'TestType_YesAllocator'."
+                                  "\n");
             {
                 typedef TestType_YesAllocator          Type;
                 typedef TestType_YesAllocator          OtherType;
@@ -1054,9 +1051,9 @@ int main(int argc, char *argv[])
                 ASSERT(ALLOCATOR == X.object().allocator());
             }
 
-            if (veryVerbose) cout << "\tb) 'TYPE'  = 'TestType_YesAllocator'."
-                          << endl << "\t   'OTHER' = 'TestType_Other'."
-                          << endl;
+            if (veryVerbose) printf("\tb) 'TYPE'  = 'TestType_YesAllocator'."
+                                  "\n\t   'OTHER' = 'TestType_Other'."
+                                  "\n");
             {
                 typedef TestType_YesAllocator          Type;
                 typedef TestType_Other                 OtherType;
@@ -1078,9 +1075,9 @@ int main(int argc, char *argv[])
                 ASSERT(ALLOCATOR == X.object().allocator());
             }
 
-            if (veryVerbose) cout << "\tc) 'TYPE'  = 'TestType_NoAllocator'."
-                          << endl << "\t   'OTHER' = 'TestType_NoAllocator'."
-                          << endl;
+            if (veryVerbose) printf("\tc) 'TYPE'  = 'TestType_NoAllocator'."
+                                  "\n\t   'OTHER' = 'TestType_NoAllocator'."
+                                  "\n");
             {
                 typedef TestType_NoAllocator           Type;
                 typedef TestType_NoAllocator           OtherType;
@@ -1100,9 +1097,9 @@ int main(int argc, char *argv[])
                 ASSERT( X.object().value() == DEFAULT);
             }
 
-            if (veryVerbose) cout << "\td) 'TYPE'  = 'TestType_NoAllocator'."
-                          << endl << "\t   'OTHER' = 'TestType_Other'."
-                          << endl;
+            if (veryVerbose) printf("\td) 'TYPE'  = 'TestType_NoAllocator'."
+                                  "\n\t   'OTHER' = 'TestType_Other'."
+                                  "\n");
             {
                 typedef TestType_NoAllocator           Type;
                 typedef TestType_Other                 OtherType;
