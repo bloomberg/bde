@@ -50,9 +50,9 @@ BSLS_IDENT("$Id: $")
 
 #ifdef BSLS_PLATFORM_CMP_MSVC
 
-#ifndef INCLUDED_STDLIB
+#ifndef INCLUDED_STDLIB_H
 #include <stdlib.h>        // '_byteswap_*'
-#define INCLUDED_STDLIB
+#define INCLUDED_STDLIB_H
 #endif
 
 #endif
