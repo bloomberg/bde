@@ -57,6 +57,32 @@
 #include <valarray>
 #include <vector>
 
+#ifdef BSL_TEST_CPP11_HEADERS
+
+#include <array>
+#include <atomic>
+#include <cfenv>
+#include <chrono>
+#include <cinttypes>
+#include <condition_variable>
+#include <cstdbool>
+#include <cstdint>
+#include <ctgmath>
+#include <cuchar>
+#include <future>
+#include <initializer_list>
+#include <mutex>
+#include <random>
+#include <ratio>
+#include <regex>
+#include <scoped_allocator>
+#include <system_error>
+#include <thread>
+#include <tuple>
+#include <typeindex>
+
+#endif
+
 #ifndef std
 # error std was expected to be a macro
 #endif

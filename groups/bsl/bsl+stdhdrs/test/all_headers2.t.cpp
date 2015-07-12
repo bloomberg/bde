@@ -57,6 +57,33 @@
 #include <bitset>
 #include <algorithm>
 
+#ifdef BSL_TEST_CPP11_HEADERS
+
+#include <typeindex>
+#include <tuple>
+#include <thread>
+#include <system_error>
+#include <scoped_allocator>
+#include <regex>
+#include <ratio>
+#include <random>
+#include <mutex>
+#include <initializer_list>
+#include <future>
+#include <cuchar>
+#include <ctgmath>
+#include <cstdint>
+#include <cstdbool>
+#include <condition_variable>
+#include <cinttypes>
+#include <chrono>
+#include <cfenv>
+#include <atomic>
+#include <array>
+
+#endif
+
+
 #ifndef std
 # error std was expected to be a macro
 #endif
