@@ -2,7 +2,7 @@
 
 #include <bsls_cpp11.h>
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 
 // Warning: the following 'using' declarations interfere with the testing of
@@ -16,13 +16,17 @@
 //                                  Overview
 //                                  --------
 //-----------------------------------------------------------------------------
-// [ 1] BSLS_CPP11_EXPLICIT
-// [ 2] BSLS_CPP11_FINAL (class)
-// [ 3] BSLS_CPP11_FINAL (function)
-// [ 4] BSLS_CPP11_OVERRIDE
+// [ 1] BSLS_CPP11_CONSTEXPR
+// [ 2] BSLS_CPP11_EXPLICIT
+// [ 3] BSLS_CPP11_FINAL (class)
+// [ 4] BSLS_CPP11_FINAL (function)
+// [ 5] BSLS_CPP11_NOEXCEPT
+// [ 5] BSLS_CPP11_NOEXCEPT_SPECIFICATION
+// [ 5] BSLS_CPP11_NOEXCEPT_OPERATOR
+// [ 6] BSLS_CPP11_OVERRIDE
 //-----------------------------------------------------------------------------
-// [ 5] MACRO SAFETY
-// [ 6] USAGE EXAMPLE
+// [ 7] MACRO SAFETY
+// [ 8] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -70,7 +74,32 @@ namespace
         operator bool() const { return d_value; }
             // The conversion operators returns the object's value.
     };
+
+    template <class, bool Pred>
+    struct TestMetafunction {
+        enum { value = Pred };
+          // Used to construct 'void foo() noexcept(expr-with-commas)'
+    };
+
+    void noThrow1() BSLS_CPP11_NOEXCEPT                           {}
+    void noThrow2() BSLS_CPP11_NOEXCEPT_SPECIFICATION(true)       {}
+    void noThrow3() BSLS_CPP11_NOEXCEPT_SPECIFICATION(
+                        BSLS_CPP11_NOEXCEPT_OPERATOR(noThrow1())) {}
+    void noThrow4() BSLS_CPP11_NOEXCEPT_SPECIFICATION(
+                        TestMetafunction<void, true>::value)      {}
+    void throws1()  BSLS_CPP11_NOEXCEPT_SPECIFICATION(false)      {}
+    void throws2()  BSLS_CPP11_NOEXCEPT_SPECIFICATION(
+                        BSLS_CPP11_NOEXCEPT_OPERATOR(throws1()))  {}
+    void throws3()  BSLS_CPP11_NOEXCEPT_SPECIFICATION(
+                        TestMetafunction<void, false>::value)     {}
+    template <class, class>
+    void throws4() BSLS_CPP11_NOEXCEPT_SPECIFICATION(false)       {}
+      // 'throws4<T, U>()` is used to test the operator
+      // 'noexcept(expr-with-commas)'
+
+
 }  // close unnamed namespace
+
 
 //=============================================================================
 //                                MAIN PROGRAM
@@ -84,7 +113,7 @@ int main(int argc, char *argv[])
     std::cout << "TEST " << __FILE__ << " CASE " << test << std::endl;
 
     switch (test) { case 0:
-      case 6: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         // Concerns:
@@ -208,9 +237,8 @@ int main(int argc, char *argv[])
         OverrideFailure overrideFailure;
         ASSERT(overrideFailure.f() == 2);
         ASSERT(static_cast<const OverrideBase&>(overrideFailure).f() == 0);
-
       } break;
-      case 5: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING MACRO SAFETY
         //
@@ -261,7 +289,7 @@ int main(int argc, char *argv[])
         ASSERT(object.test());
         ASSERT(bool(object));
       } break;
-      case 4: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING: BSLS_CPP11_OVERRIDE
         //
@@ -326,8 +354,87 @@ int main(int argc, char *argv[])
         OverrideFail fail;
         ASSERT(fail.f() == 2);
         ASSERT(static_cast<const Base&>(fail).f() == 0);
+
       } break;
-      case 3: {
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING BSLS_CPP11_NOEXCEPT, BSLS_CPP11_NOEXCEPT_SPECIFICATION(pred)
+        // BSLS_CPP11_NOEXCEPT_OPERATOR(expr)
+        //
+        // Concerns:
+        //   1) Marking a function 'noexcept' using 'BSLS_CPP11_NOEXCEPT' or
+        //      'BSLS_CPP11_NOEXCEPT_SPECIFICATION(pred)' or
+        //      'BSLS_CPP11_NOEXCEPT_SPECIFICATION(
+        //          BSLS_CPP11_NOEXCEPT_OPERATOR(expr))' should result in a
+        //      successful compilation in C++03 mode.
+        //
+        //   2) Marking a function 'noexcept' or 'noexcept(bool)' using
+        //      'BSLS_CPP11_NOEXCEPT' or
+        //      'BSLS_CPP11_NOEXCEPT_SPECIFICATION(pred)' or
+        //      'BSLS_CPP11_NOEXCEPT_SPECIFICATION(
+        //          BSLS_CPP11_NOEXCEPT_OPERATOR(expr))' should be detectable
+        //      using 'BSLS_CPP11_NOEXCEPT_OPERATOR(function(...))`.
+        //
+        //   3) The `BSLS_CPP11_NOEXCEPT_SPECIFICATION(pred)` and
+        //       'BSLS_CPP11_NOEXCEPT_OPERATOR(expr)' macros both allow commas
+        //       in template parameter lists.
+        //
+        // Plan:
+        //   Define a function marking it 'noexcept' using the various forms of
+        //   the macro. Then use `BSLS_CPP11_NOEXCEPT_OPERATOR(function(...))`
+        //   to check that the function's 'noexcept' specification matches
+        //   the expected specification.
+        //
+        // NOTE: The test functions are called only to prevent
+        //  '-Wunused-function' warning.
+        // --------------------------------------------------------------------
+        if (verbose){
+            std::cout << '\n'
+                      << "TESTING: BSLS_CPP11_NOEXCEPT\n"
+                      << "============================\n";
+        }
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+        const bool hasNoexceptSupport = true;
+#else
+        const bool hasNoexceptSupport = false;
+#endif
+
+        noThrow1();
+        const bool isNoThrow1 = BSLS_CPP11_NOEXCEPT_OPERATOR(noThrow1());
+        ASSERT(isNoThrow1 == hasNoexceptSupport);
+
+        noThrow2();
+        const bool isNoThrow2 = BSLS_CPP11_NOEXCEPT_OPERATOR(noThrow2());
+        ASSERT(isNoThrow2 == hasNoexceptSupport);
+
+        noThrow3();
+        const bool isNoThrow3 = BSLS_CPP11_NOEXCEPT_OPERATOR(noThrow3());
+        ASSERT(isNoThrow3 == hasNoexceptSupport);
+
+        noThrow4();
+        const bool isNoThrow4 = BSLS_CPP11_NOEXCEPT_OPERATOR(noThrow4());
+        ASSERT(isNoThrow4 == hasNoexceptSupport);
+
+        throws1();
+        const bool isNoThrow5 = BSLS_CPP11_NOEXCEPT_OPERATOR(throws1());
+        ASSERT(isNoThrow5 == false);
+
+        throws2();
+        const bool isNoThrow6 = BSLS_CPP11_NOEXCEPT_OPERATOR(throws2());
+        ASSERT(isNoThrow6 == false);
+
+        throws3();
+        const bool isNoThrow7 = BSLS_CPP11_NOEXCEPT_OPERATOR(throws3());
+        ASSERT(isNoThrow7 == false);
+
+        throws4<void, void>();
+        const bool isNoThrow8 = BSLS_CPP11_NOEXCEPT_OPERATOR(
+                                                        throws4<void, void>());
+        ASSERT(isNoThrow8 == false);
+
+
+      } break;
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING BSLS_CPP11_FINAL (function)
         //
@@ -387,7 +494,7 @@ int main(int argc, char *argv[])
         ASSERT(finalFunctionFailure.f() == 2);
 #endif
       } break;
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // TESTING: BSLS_CPP11_FINAL (class)
         //
@@ -442,8 +549,9 @@ int main(int argc, char *argv[])
         ASSERT(finalValue.value() == 1);
         FinalClassDerived derivedValue(2);
         ASSERT(derivedValue.anotherValue() == 4);
+
       } break;
-      case 1: {
+      case 2: {
         // --------------------------------------------------------------------
         // TESTING: BSLS_CPP11_EXPLICIT
         //
@@ -484,6 +592,44 @@ int main(int argc, char *argv[])
  || defined(FAIL_EXPLICIT)
         int implicitResult = explicitObject;
         ASSERT(implicitResult == 3);
+#endif
+      } break;
+      case 1:{
+        // --------------------------------------------------------------------
+        // TESTING BSLS_CPP11_CONSTEXPR
+        //
+        // Concerns:
+        //   1) Marking a function 'constexpr' using 'BSLS_CPP11_CONSTEXPR'
+        //      should result in a successful compilation.
+        //
+        //   2) Marking a function 'constexpr' using 'BSLS_CPP11_CONSTEXPR'
+        //      should make the test driver not compile if the use of the 
+        //      resulting constexpr function is used illegally.
+        //
+        // Plan:
+        //   Define a struct marking its various member functions as constexprs
+        //   functions. Verify that if the constexpr member functions are not
+        //   used appropriately the program will fail to compile in cpp11 mode.
+        //
+        //   Since the correct behaviour will case the program to not compile,
+        //   it is rather difficult to create test cases that actaully tests
+        //   the feature and still have the test driver pass. As such, this
+        //   tests must be manually checked to ensure that the program does not
+        //   compile if testStruct is not used correctly.
+        // --------------------------------------------------------------------
+          struct testStruct {
+              BSLS_CPP11_CONSTEXPR testStruct (int i) : value(i){}
+              BSLS_CPP11_CONSTEXPR operator int() const {return value; }
+              BSLS_CPP11_CONSTEXPR operator long() const {return 1.0; }
+              private:
+                  int value;
+          };
+
+          BSLS_CPP11_CONSTEXPR testStruct B (15);
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
+          BSLS_CPP11_CONSTEXPR int X (B);
+#else
+          int X (B);
 #endif
       } break;
       default: {
