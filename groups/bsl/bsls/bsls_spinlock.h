@@ -27,12 +27,12 @@ BSLS_IDENT("$: $")
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Executing a custom functor type
-///- - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Maintaining Static Count/Max Values
+///- - - - - - - - - - - - - - - - - - - - - - - 
 // Suppose that we want to determine the maximum number of threads executing
 // a block of code concurrently. Note that such a use case naturally calls
 // for a statically initialized lock and the critical region involves
-// a few integer operations; spinlock may be suitable.
+// a few integer operations; SpinLock may be suitable.
 //
 // First, we define a type to manage the count within a scope:
 //..
