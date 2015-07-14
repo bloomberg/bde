@@ -143,6 +143,18 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_timetz.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITBITWISEMOVEABLE
+#include <bslalg_typetraitbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITUSESBSLMALLOCATOR
+#include <bslalg_typetraitusesbslmaallocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_OBJECTBUFFER
 #include <bsls_objectbuffer.h>
 #endif
