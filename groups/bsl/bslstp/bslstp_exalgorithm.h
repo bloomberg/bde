@@ -55,7 +55,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This component is for internal use only.
 
-#ifdef BDE_OMIT_TRANSITIONAL // STP
+#ifdef BDE_OPENSOURCE_PUBLICATION // STP
 #error "bslstp_exalgorithm is not for publication"
 #endif
 

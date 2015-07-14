@@ -424,10 +424,14 @@ BSLS_IDENT("$Id$ $CSID$")
 #define INCLUDED_CWCHAR
 #endif
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 #ifndef INCLUDED_UTILITY
 #include <utility>  // 'std::forward'
 #define INCLUDED_UTILITY
 #endif
+
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
 # define BSLALG_ARRAYPRIMITIVES_CANNOT_REMOVE_POINTER_FROM_FUNCTION_POINTER
@@ -1999,7 +2003,7 @@ void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
                                  numElements,
                                  allocator,
                                  (bslmf::MetaInt<k_VALUE>*)0,
-                                 std::forward<Args>(args)...);
+                                 bsls::Util::forward<Args>(args)...);
 }
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -3022,7 +3026,7 @@ void ArrayPrimitives_Imp::emplace(
                              numElements,
                              allocator,
                              (bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS>*)0,
-                             std::forward<Args>(args)...);
+                             bsls::Util::forward<Args>(args)...);
 }
 
 template <class TARGET_TYPE, class ALLOCATOR, class... Args>
@@ -3070,7 +3074,7 @@ void ArrayPrimitives_Imp::emplace(
 
     while (guard.middle() != guard.end()) {
         ScalarPrimitives::construct(guard.destination(),
-                                    std::forward<Args>(args)...,
+                                    bsls::Util::forward<Args>(args)...,
                                     allocator);
         guard.advance();
     }
@@ -3092,7 +3096,7 @@ void ArrayPrimitives_Imp::emplace(
 
         while (toEnd != destBegin) {
             ScalarPrimitives::construct(--destBegin,
-                                        std::forward<Args>(args)...,
+                                        bsls::Util::forward<Args>(args)...,
                                         allocator);
             endGuard.moveBegin(-1);
         }
@@ -3145,8 +3149,9 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         // allocator argument to 0) if it takes an allocator; hence the
         // constructor proxy.
 
-        ConstructorProxy<TARGET_TYPE> tempValue(std::forward<Args>(args)...,
-                                                bslma::Default::allocator());
+        ConstructorProxy<TARGET_TYPE> tempValue(
+                                            bsls::Util::forward<Args>(args)...,
+                                            bslma::Default::allocator());
 
         //..
         //  Transformation: ABCDEFG[EFG] => ABCABCD[EFG].
@@ -3189,7 +3194,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
         TARGET_TYPE *addr = toEnd + remElements - 1;
         for (; addr != toEnd - 1; --addr) {
             ScalarPrimitives::construct(addr,
-                                        std::forward<Args>(args)...,
+                                        bsls::Util::forward<Args>(args)...,
                                         allocator);
             guard.moveBegin(-1);
         }
@@ -5238,14 +5243,14 @@ void ArrayPrimitives_Imp::rotate(TARGET_TYPE                *begin,
 
 }  // close package namespace
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslalg::ArrayPrimitives bslalg_ArrayPrimitives;
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

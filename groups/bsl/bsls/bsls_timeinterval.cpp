@@ -12,8 +12,8 @@ BSLS_IDENT_RCSID(bsls_timeinterval_cpp,"$Id$ $CSID$")
 
 #include <limits.h>
 
-#pragma bde_verify push
-#pragma bde_verify -FABC01
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -FABC01
 
 namespace BloombergLP {
 namespace bsls {
@@ -21,11 +21,11 @@ namespace bsls {
 namespace {
 
 struct bsls_TimeInterval_Assertions {
-    char assertion1[-3 / 2 == -1];  // Ensure that the compiler maintains the
-    char assertion2[-5 % 4 == -1];  // sign of the remainder (the resulting
-                                    // sign is compiler implementation defined,
-                                    // though our current production compilers
-                                    // maintain the sign).
+    char assertion1[-3 / 2 == -1 ? 1 : -1];
+    char assertion2[-5 % 4 == -1 ? 1 : -1];
+        // Ensure that the compiler maintains the sign of the remainder (the
+        // resulting sign is compiler implementation defined, though our
+        // current production compilers maintain the sign).
 };
 
 }  // close unnamed namespace
@@ -169,7 +169,7 @@ void TimeInterval::setInterval(bsls::Types::Int64 seconds,
 }  // close package namespace
 }  // close enterprise namespace
 
-#pragma bde_verify pop
+// BDE_VERIFY pragma: pop
 
 // ----------------------------------------------------------------------------
 // Copyright 2014 Bloomberg Finance L.P.

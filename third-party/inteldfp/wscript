@@ -259,13 +259,6 @@ def build(bld):
         'LIBRARY/float128/sqrt_tab_t.c'
     ]
 
-    if 'BDE_THIRD_PARTY_CFLAGS' in bld.env:
-        bde_cflags = bld.env['BDE_THIRD_PARTY_CFLAGS']
-        is_bde = True
-    else:
-        bde_cflags = []
-        is_bde = False
-
     cflags = []
     platform = Utils.unversioned_sys_platform()
     if platform != 'win32':
@@ -295,56 +288,51 @@ def build(bld):
                '-DDECIMAL_GLOBAL_EXCEPTION_FLAGS=0']
 
     prefix  = bld.env['PREFIX']
-    if 'install_lib_dir' in bld.env:
-        lib_dir = bld.env['install_lib_dir']
-        lib_suffix = bld.env['lib_suffix']
+    bde_key = 'bde_thirdparty_inteldfp_config'
+    if bde_key in bld.env:
+        config = bld.env[bde_key]
+        is_bde = True
     else:
-        lib_dir = 'lib'
-        lib_suffix = ''
+        config = {}
+        config['cflags'] = []
+        config['lib_target'] = 'inteldfp'
+        config['lib_install_path'] = os.path.join(prefix, 'lib')
+        config['h_install_path'] = os.path.join(prefix, 'include', 'inteldfp')
+        config['pc_install_path'] = os.path.join(prefix, 'lib', 'pkgconfig')
+        config['pc_libdir'] = '${prefix}/lib'
+        config['pc_includedir'] = '${prefix}/include/inteldfp'
+        is_bde = False
 
-    if not bld.targets or 'inteldfp' in bld.targets.split(','):
-        lib_install_path = os.path.join(prefix, lib_dir)
-        pc_install_path = os.path.join(prefix, lib_dir, 'pkgconfig')
-    else:
-        lib_install_path = None
-        pc_install_path = None
-
-    bld(name = 'inteldfp_lib',
-        target = 'inteldfp' + lib_suffix,
-        source = source_files,
-        features = ['c', 'cstlib'],
-        export_includes = 'LIBRARY/src',
-        libs = '-linteldfp',
-        cflags = bde_cflags + cflags,
-        install_path = lib_install_path
-    )
-
-    bld(name = 'inteldfp_pc',
-        target = 'inteldfp' + lib_suffix + '.pc',
-        source = 'inteldfp.pc.in',
+    bld(name='inteldfp_pc',
+        target=config['lib_target'] + '.pc',
+        source='inteldfp.pc.in',
         features = ['subst'],
-        prefix = prefix,
-        lib_dir = lib_dir,
-        libs = '-linteldfp' + lib_suffix,
-        cflags = ' '.join(cflags),
-        install_path = pc_install_path
+        prefix=prefix,
+        libdir=config['pc_libdir'],
+        includedir=config['pc_includedir'],
+        libs='-l' + config['lib_target'],
+        cflags='',
+        install_path = config['pc_install_path']
     )
+
+    bld(name='inteldfp_lib',
+        target=config['lib_target'],
+        source=source_files,
+        export_includes='LIBRARY/src',
+        features=['c', 'cstlib'],
+        cflags=config['cflags'] + cflags,
+        install_path=config['lib_install_path'],
+        depends_on=['inteldfp_pc']
+    )
+
+    if config['h_install_path']:
+        bld.install_files(config['h_install_path'],
+                        bld.path.ant_glob('LIBRARY/src/*.h'))
 
     if is_bde:
-        from bdewafbuild import install_files
-        install_files(bld, 'inteldfp_inst',
-                      os.path.join(prefix, 'include', 'inteldfp'),
-                      bld.path.ant_glob('LIBRARY/src/*.h'))
-
-        depends_on = ['inteldfp_lib', 'inteldfp_pc']
-        if bld.cmd == 'install':
-            depends_on += ['inteldfp_inst']
-
-        bld(name       = 'inteldfp',
-            depends_on = depends_on)
-    else:
-        bld.install_files(os.path.join(prefix, 'include', 'inteldfp'),
-                          bld.path.ant_glob('LIBRARY/src/*.h'))
+        depends_on=['inteldfp_lib', ]
+        bld(name='inteldfp',
+            depends_on=['inteldfp_lib'])
 
 
 # ----------------------------------------------------------------------------

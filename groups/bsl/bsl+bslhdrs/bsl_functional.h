@@ -74,9 +74,9 @@ namespace bsl
 
 #ifndef BSL_OVERRIDES_STD
 
-#ifndef BDE_OMIT_TRANSITIONAL // STP
+#ifndef BDE_OPENSOURCE_PUBLICATION // STP
 #include <bslstp_exfunctional.h>
-#endif  // BDE_OMIT_TRANSITIONAL -- STP
+#endif  // BDE_OPENSOURCE_PUBLICATION -- STP
 
 #include <bslstl_equalto.h>
 #include <bslstl_function.h>

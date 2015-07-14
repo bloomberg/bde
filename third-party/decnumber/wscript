@@ -33,69 +33,70 @@ def build(bld):
         'decimal32.c'
     ]
 
-    if 'BDE_THIRD_PARTY_CFLAGS' in bld.env:
-        bde_cflags = bld.env['BDE_THIRD_PARTY_CFLAGS']
-        is_bde = True
-    else:
-        bde_cflags = []
-        is_bde = False
-
     if sys.byteorder == 'big':
         cflags = ["-DDECLITEND=0"]
     else:
         assert(sys.byteorder == 'little')
         cflags = ["-DDECLITEND=1"]
 
+    # As reported here: https://github.com/bloomberg/bde/pull/148
+    #
+    # The C files in bdl+decnumber must be built in -std=gnu89 mode with
+    # Clang to work around a Clang bug when handling GNU-style C89 inlines
+    # in C99 compilation mode. This bug is documented in the upstream LLVM
+    # bug-tracker here: http://llvm.org/bugs/show_bug.cgi?id=5960
+    #
+    # Without this change clang/linux builds will fail with multiply defined
+    # symbols.
+
+    if (-1 != bld.env['CC'][0].find('clang')):
+        cflags += ['-std=gnu89']
+
     prefix  = bld.env['PREFIX']
-    if 'install_lib_dir' in bld.env:
-        lib_dir = bld.env['install_lib_dir']
-        lib_suffix = bld.env['lib_suffix']
+    bde_key = 'bde_thirdparty_decnumber_config'
+    if bde_key in bld.env:
+        config = bld.env[bde_key]
+        is_bde = True
     else:
-        lib_dir = 'lib'
-        lib_suffix = ''
+        config = {}
+        config['cflags'] = []
+        config['lib_target'] = 'decnumber'
+        config['lib_install_path'] = os.path.join(prefix, 'lib')
+        config['h_install_path'] = os.path.join(prefix, 'include', 'decnumber')
+        config['pc_install_path'] = os.path.join(prefix, 'lib', 'pkgconfig')
+        config['pc_libdir'] = '${prefix}/lib'
+        config['pc_includedir'] = '${prefix}/include/decnumber'
+        is_bde = False
 
-    if not bld.targets or 'decnumber' in bld.targets.split(','):
-        lib_install_path = os.path.join(prefix, lib_dir)
-        pc_install_path = os.path.join(prefix, lib_dir, 'pkgconfig')
-    else:
-        lib_install_path = None
-        pc_install_path = None
-
-    bld.stlib(source=source_files,
-              target='decnumber' + lib_suffix,
-              export_includes='.',
-              name='decnumber_lib',
-              cflags=bde_cflags + cflags,
-              install_path = lib_install_path
-              )
-
-    bld(name = "decnumber_pc",
-        target = 'decnumber' + lib_suffix + '.pc',
-        source = 'decnumber.pc.in',
-        features = ['subst'],
-        prefix = prefix,
-        lib_dir = lib_dir,
-        libs = '-ldecnumber' + lib_suffix,
-        cflags = ' '.join(cflags),
-        install_path = pc_install_path
+    bld(name="decnumber_pc",
+        target=config['lib_target'] + '.pc',
+        source='decnumber.pc.in',
+        features=['subst'],
+        prefix=prefix,
+        libdir=config['pc_libdir'],
+        includedir=config['pc_includedir'],
+        libs='-l' + config['lib_target'],
+        cflags='',
+        install_path=config['pc_install_path']
     )
 
-    if is_bde:
-        from bdewafbuild import install_files
-        install_files(bld, 'decnumber_inst',
-                      os.path.join(prefix, 'include', 'decnumber'),
-                      bld.path.ant_glob('*.h'))
+    bld(name='decnumber_lib',
+        target=config['lib_target'],
+        source=source_files,
+        export_includes='.',
+        features=['c', 'cstlib'],
+        cflags=config['cflags'] + cflags,
+        install_path=config['lib_install_path'],
+        depends_on=['decnumber_pc'],
+    )
 
-        depends_on = ['decnumber_lib', 'decnumber_pc']
-        if bld.cmd == 'install':
-            depends_on += ['decnumber_inst']
-
-        bld(name       = 'decnumber',
-            depends_on = depends_on)
-
-    else:
-        bld.install_files(os.path.join(prefix, 'include', 'decnumber'),
+    if config['h_install_path']:
+        bld.install_files(config['h_install_path'],
                           bld.path.ant_glob('*.h'))
+
+    if is_bde:
+        bld(name       = 'decnumber',
+            depends_on = 'decnumber_lib')
 
 
 # ----------------------------------------------------------------------------

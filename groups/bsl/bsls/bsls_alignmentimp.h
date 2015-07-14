@@ -285,7 +285,7 @@ struct AlignmentImpCalc <long double> {
     // in glibc returns memory aligned to 8-bytes, not 16-bytes.  8-byte
     // alignment is sufficient for proper long double operation on POWER even
     // though 16-byte alignment is more optimal (and is required for vector
-    // instructions).  
+    // instructions).
     //
     // Note: the optional tcmalloc library returns memory aligned to 16-bytes.
 
@@ -471,7 +471,7 @@ struct AlignmentImpMatch {
 
 #undef BSLS_ALIGNMENTIMP_MATCH_FUNC
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
@@ -502,7 +502,7 @@ typedef bsls::AlignmentImpMatch bsls_AlignmentImpMatch;
 #endif
 #define bsls_AlignmentImpCalc bsls::AlignmentImpCalc
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

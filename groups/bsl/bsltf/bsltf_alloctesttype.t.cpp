@@ -73,29 +73,39 @@ using namespace BloombergLP::bsltf;
 // [ 6] bool operator!=(lhs, rhs);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [14] USAGE EXAMPLE
-// [12] TYPE TRAITS
-// [13] ASSERTING ON BITWISE MOVE
+// [13] USAGE EXAMPLE
+// [11] CONCERN: The object has the necessary type traits
+// [12] CONCERN: Bitwise-moved objects assert on destruction
 // [ *] CONCERN: In no case does memory come from the global allocator.
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
-static int testStatus = 0;
 
-static void aSsErT(bool b, const char *s, int i) {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+}  // close unnamed namespace
+
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
 #define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
@@ -104,13 +114,12 @@ static void aSsErT(bool b, const char *s, int i) {
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -132,7 +141,6 @@ typedef bsltf::AllocTestType Obj;
 // ============================================================================
 //                     GLOBAL CONSTANTS USED FOR TESTING
 // ----------------------------------------------------------------------------
-
 
 struct DefaultValueRow {
     int d_line;  // source line number
@@ -156,8 +164,34 @@ const DefaultValueRow DEFAULT_VALUES[] =
 };
 const int DEFAULT_NUM_VALUES = sizeof DEFAULT_VALUES / sizeof *DEFAULT_VALUES;
 
+// ============================================================================
+//                     GLOBAL FUNCTIONS USED FOR TESTING
+// ----------------------------------------------------------------------------
+
+static
+void exitHandler(const char *, const char *, int)
+    // Call 'exit' with the current 'testStatus' of this test driver.  This
+    // function is intended to be used as an assertion handler, registered with
+    // 'bsls_assert'.  To check that an assertion is triggered (when expected)
+    // in a destructor, we need a code path that can exit the process directly
+    // without returning control to the test handler.  In C++11, destructors
+    // are expected to have 'noexcept(true)' exception specifications, which is
+    // the new default, so we cannot rely on the regular assert test handler
+    // that indicates an expected assertion by throwing an exception.  Note
+    // that the expected effect is 'exit(0)' as 'testStatus' should be zero for
+    // a passing test driver.  However, we do not want to lose reporting any
+    // other error detected in the current test case, so return the value of
+    // 'testStatus'.
+{
+    if (testStatus > 0) {
+        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
+    }
+
+    exit(testStatus);
+}
+
 //=============================================================================
-//                                USAGE EXAMPLE
+//                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 ///Usage
@@ -192,7 +226,7 @@ void printTypeTraits()
 //..
 
 //=============================================================================
-//                                 MAIN PROGRAM
+//                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
@@ -211,8 +245,25 @@ int main(int argc, char *argv[]) {
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 13: {
-          if (verbose) printf("\nUSAGE EXAMPLE"
-                              "\n=============\n");
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
+
 // Now, we invoke the 'printTypeTraits' function template using 'AllocTestType'
 // as the parameterized 'TYPE':
 //..
@@ -226,9 +277,28 @@ int main(int argc, char *argv[]) {
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // ASSERTING ON BITWISE MOVE
+        // TESTING ASSERTION ON BITWISE MOVE
+        //   The 'AllocTestType' object is specifically designed to NOT be
+        //   bitwise-moveable, so that it can be used to verify code is
+        //   correctly testing the 'bslmf::IsBitwiseMoveable' trait before
+        //   using such a technique.  The destructor for this class is mined
+        //   with a check that the current value of 'this' is the same as when
+        //   the object was first created.  If this test fails, an ASSERT_OPT
+        //   is triggered.  In C++03 we might test for this using the familiar
+        //   'bsls_asserttest' facility, but in C++11 destructors become
+        //   implicitly 'noexcept', and throwing a testing exception from the
+        //   assertion handler will cause 'terminate' to be called for
+        //   violating the exception specification.  Therefore, this test case
+        //   will install a custom assert handler directly before calling the
+        //   destructor of a (illegally) bitwise-moved object, that calls
+        //   'exit(0)' to indicate success, honoring the contract than an
+        //   assertion handler should not return to the caller.  As this will
+        //   end the process, it must be the last test in this test case, on a
+        //   successful run.  Following the destructor, we must ASSERT to
+        //   signal an error that the destructor was *not* supposed to return
+        //   control back to the test case.
         //
-        // Concern:
+        // Concerns:
         //: 1 Bitwise moving this object will cause the destructor to raise an
         //:   assertion.
         //
@@ -236,15 +306,23 @@ int main(int argc, char *argv[]) {
         //: 1 Create an memory buffer and create a new object with
         //:   placement-new.
         //:
-        //: 2 Bitwise-move the created object to another location in the
-        //:   buffer.  Explicitly call the object's destructor and verify that
-        //:   an assertion occurs.  (C-1)
+        //: 2 Install an assertion handler that will call 'exit' if triggered.
+        //:
+        //: 3 Bitwise-move the created object to another location in the
+        //:   buffer.  Explicitly call the object's destructor, which should
+        //:   exit via the assertion handler..  (C-1)
+        //:
+        //: 4 ASSERT after destruction to highlight an error if the destructor
+        //:   returns.
         //
         // Testing:
-        //   ~AllocTestType()
+        //   CONCERN: Bitwise-moved objects assert on destruction
         // --------------------------------------------------------------------
 
+        if (verbose) printf("\nTESTING ASSERTION ON BITWISE MOVE"
+                            "\n=================================\n");
         {
+
 
             bslma::TestAllocator         da("default", veryVeryVeryVerbose);
             bslma::DefaultAllocatorGuard dag(&da);
@@ -256,30 +334,36 @@ int main(int argc, char *argv[]) {
             new (arr) Obj();
             arr[0].~Obj();
 
-#if defined(BDE_BUILD_TARGET_EXC)
-            // When exceptions are disabled, the statement passed to
-            // 'ASSERT_OPT_FAIL' will not execute, leading to a memory leak in
-            // the block below.  So we only run the block when exceptions are
-            // enabled.
+            // The next test has an unusual code-path, and will directly call
+            // 'exit' from an assertion handler on success.  It must be the
+            // last part of this test case, as it will exit the process on
+            // success without returning control to this test case.
 
+            if (verbose) printf("\n");
             {
-                bsls::AssertTestHandlerGuard hG;
+                bsls::AssertFailureHandlerGuard hG(&exitHandler);
 
                 new (arr) Obj();
                 memmove(arr+1, arr, sizeof(Obj));
-                ASSERT_OPT_FAIL(arr[1].~Obj());
+                arr[1].~Obj();     // This should 'exit' if asserts are enabled
+
+                ASSERTV("The preceding destructor should 'exit' the process",
+                        false);
             }
-#endif
 
             scratch.deallocate(reinterpret_cast<void*>(arr));
         }
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TYPE TRAITS
+        // TESTING TYPE TRAITS
+        //   Ensure that 'AllocTestType' has the necessary trait values to
+        //   guarantee its expected behavior.
         //
-        // Concern:
-        //: 1 The object has the necessary type traits.
+        // Concerns:
+        //: 1 The object has the 'bslma::UsesBslmaAllocator' trait.
+        //:
+        //: 2 The object is not bitwise-moveable.
         //
         // Plan:
         //: 1 Use 'BSLMF_ASSERT' to verify all the type traits exists.  (C-1)
@@ -287,7 +371,12 @@ int main(int argc, char *argv[]) {
         // Testing:
         //   CONCERN: The object has the necessary type traits
         // --------------------------------------------------------------------
-        BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
+
+        if (verbose) printf("\nTESTING TYPE TRAITS"
+                            "\n===================\n");
+
+        BSLMF_ASSERT( bslma::UsesBslmaAllocator<Obj>::value);
+        BSLMF_ASSERT(!bslmf::IsBitwiseMoveable<Obj>::value);
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -674,8 +763,8 @@ int main(int argc, char *argv[]) {
 
             if (veryVerbose) { T_ P_(LINE) P(DATA) }
 
-
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
             const Obj Z(DATA, &scratch);
             const Obj ZZ(DATA, &scratch);
 
@@ -748,8 +837,8 @@ int main(int argc, char *argv[]) {
                 ASSERTV(LINE, CONFIG,
                              &oa == X.allocator());
 
-                // Also invoke the object's 'allocator' accessor, as well
-                // as that of 'Z'.
+                // Also invoke the object's 'allocator' accessor, as well as
+                // that of 'Z'.
 
                 ASSERTV(LINE, CONFIG, &oa, X.allocator(),
                              &oa == X.allocator());

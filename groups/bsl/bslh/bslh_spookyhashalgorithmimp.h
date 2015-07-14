@@ -273,7 +273,7 @@ class SpookyHashAlgorithmImp {
     enum { k_BUFFER_SIZE = k_BLOCK_SIZE * 2 };
         // Size of buffer of unhashed data, in bytes.
 
-    static const Uint64 sc_const = 0xdeadbeefdeadbeefLL;
+    static const Uint64 sc_const = 0xdeadbeefdeadbeefULL;
         // A non-zero, odd, constant that has an irregular distribution of 1's
         // and 0's to be used in hashing calculations.
 

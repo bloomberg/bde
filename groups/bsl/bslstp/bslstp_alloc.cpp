@@ -1,4 +1,4 @@
-#ifndef BDE_OMIT_TRANSITIONAL // STP
+#ifndef BDE_OPENSOURCE_PUBLICATION // STP
 
 #include <bslstp_alloc.h>
 #include <bslstl_allocator.h>
@@ -13,4 +13,4 @@ template class _STLP_alloc_proxy<char *,char, allocator<char> >;
 
 }  // close namespace bsl
 
-#endif  // BDE_OMIT_TRANSITIONAL -- STP
+#endif  // BDE_OPENSOURCE_PUBLICATION -- STP

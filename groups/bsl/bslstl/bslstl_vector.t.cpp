@@ -5206,7 +5206,7 @@ void TestDriver<TYPE,ALLOC>::testCase15()
 
             if (LENGTH) {
                 TYPE element;
-                makeElement(&element, SPEC[0]);
+                makeElement(BSLS_UTIL_ADDRESSOF(element), SPEC[0]);
                 const TYPE& ELEM = element;
                 LOOP_ASSERT(LINE, ELEM == X.front());
                 mX.front() = DEFAULT_VALUE;
@@ -5227,7 +5227,7 @@ void TestDriver<TYPE,ALLOC>::testCase15()
 
             for (size_t j = 0; j < LENGTH; ++j) {
                 TYPE element;
-                makeElement(&element, SPEC[j]);
+                makeElement(BSLS_UTIL_ADDRESSOF(element), SPEC[j]);
                 const TYPE& ELEM = element;
                 LOOP_ASSERT(LINE, ELEM == X[j]);
                 mX[j] = DEFAULT_VALUE;
@@ -8138,7 +8138,7 @@ void TestDriver<TYPE,ALLOC>::testCase4()
 
                 for (size_t j = 0; j < LENGTH; j++) {
                     TYPE element;
-                    makeElement(&element, ELEMS[j]);
+                    makeElement(BSLS_UTIL_ADDRESSOF(element), ELEMS[j]);
                     const TYPE& ELEM = element;
                     mY[j]    = ELEM;
                     mZ.at(j) = ELEM;
@@ -8338,7 +8338,7 @@ void TestDriver<TYPE,ALLOC>::testCase3()
             LOOP_ASSERT(LINE, LENGTH == Y.size());
             for (size_t i = 0; i < LENGTH; ++i) {
                 TYPE element;
-                makeElement(&element, ELEMS[i]);
+                makeElement(BSLS_UTIL_ADDRESSOF(element), ELEMS[i]);
                 const TYPE& ELEM = element;
                 LOOP2_ASSERT(LINE, i, ELEM == X[i]);
                 LOOP2_ASSERT(LINE, i, ELEM == Y[i]);

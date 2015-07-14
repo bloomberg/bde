@@ -134,7 +134,7 @@ bool differentBits(const TYPE lhs, const TYPE rhs)
     // representation.  Note that this function adapts 'memcmp' to facilitate
     // comparing r-value temporaries.
 {
-    return memcmp(&lhs, &rhs, sizeof(TYPE));
+    return bsl::memcmp(&lhs, &rhs, sizeof(TYPE));
 }
 
 

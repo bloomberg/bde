@@ -1,5 +1,5 @@
 // bslma_bufferallocator.cpp                                          -*-C++-*-
-#ifndef BDE_OMIT_TRANSITIONAL // DEPRECATED
+#ifndef BDE_OPENSOURCE_PUBLICATION // DEPRECATED
 
 #include <bslma_bufferallocator.h>
 
@@ -38,7 +38,7 @@ void *allocateFromBufferImp(int                               *cursor,
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < alignment);
     BSLS_ASSERT(alignment <= bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
-    BSLS_ASSERT(0 == alignment & (alignment - 1));  // alignment is power of 2
+    BSLS_ASSERT(0 == (alignment & (alignment - 1))); // alignment is power of 2
 
     int offset = bsls::AlignmentUtil::calculateAlignmentOffset(
                                                               buffer + *cursor,
@@ -104,7 +104,7 @@ void *BufferAllocator::allocateFromBuffer(int       *cursor,
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < alignment);
     BSLS_ASSERT(alignment <= bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
-    BSLS_ASSERT(0 == alignment & (alignment - 1));  // alignment is power of 2
+    BSLS_ASSERT(0 == (alignment & (alignment - 1))); // alignment is power of 2
 
 
     return 0 >= size
@@ -190,7 +190,7 @@ void BufferAllocator::print() const
 
 }  // close enterprise namespace
 
-#endif // BDE_OMIT_TRANSITIONAL -- DEPRECATED
+#endif // BDE_OPENSOURCE_PUBLICATION -- DEPRECATED
 
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.

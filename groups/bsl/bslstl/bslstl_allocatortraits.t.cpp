@@ -1642,13 +1642,13 @@ int main(int argc, char *argv[])
             ALLOC a;                                                         \
             typedef allocator_traits<ALLOC> AT;                              \
             ASSERT(AT::select_on_container_copy_construction(a) == a);       \
-        } break;
+        }
 
 #define TEST_SOCCC_DFLT(ALLOC) {                                             \
             ALLOC a;                                                         \
             typedef allocator_traits<ALLOC> AT;                              \
             ASSERT(AT::select_on_container_copy_construction(a) == ALLOC()); \
-        } break;
+        }
 
         typedef AttribClass5Alloc<NonBslmaAllocator<int> > AC5AllocNonBslma;
         typedef AttribClass5Alloc<BslmaAllocator<int> >    AC5AllocBslma;

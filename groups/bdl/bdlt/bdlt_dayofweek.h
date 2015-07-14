@@ -15,7 +15,7 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Bill Chapman (bchapman2)
 //
 //@DESCRIPTION: This component provides a namespace for the 'enum' type
-// 'bdlt_DayOfWeek::Enum', which enumerates the set of days of the week.
+// 'bdlt::DayOfWeek::Enum', which enumerates the set of days of the week.
 //
 ///Enumerators
 ///-----------
@@ -95,7 +95,7 @@ struct DayOfWeek {
         e_FRI,     e_FRIDAY    = e_FRI,
         e_SAT,     e_SATURDAY  = e_SAT
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
       , SUN       = e_SUN
       , MON       = e_MON
       , TUE       = e_TUE
@@ -111,6 +111,8 @@ struct DayOfWeek {
       , FRIDAY    = e_FRIDAY
       , SATURDAY  = e_SATURDAY
 
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
       , BDET_SUN = e_SUN, BDET_SUNDAY    = e_SUN
       , BDET_MON = e_MON, BDET_MONDAY    = e_MON
       , BDET_TUE = e_TUE, BDET_TUESDAY   = e_TUE
@@ -118,10 +120,10 @@ struct DayOfWeek {
       , BDET_THU = e_THU, BDET_THURSDAY  = e_THU
       , BDET_FRI = e_FRI, BDET_FRIDAY    = e_FRI
       , BDET_SAT = e_SAT, BDET_SATURDAY  = e_SAT
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
     };
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
     typedef Enum Day;
 #endif
 
@@ -200,7 +202,7 @@ struct DayOfWeek {
         // being returned that is distinct from the values returned for any
         // valid enumeration.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
     static int maxSupportedBdexVersion();
         // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
@@ -208,7 +210,7 @@ struct DayOfWeek {
         // Return the most current BDEX streaming version number supported by
         // this struct.
 
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 };
 
 // FREE OPERATORS
@@ -319,7 +321,7 @@ int DayOfWeek::maxSupportedBdexVersion(int /* versionSelector */)
     return 1;
 }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
 inline
 int DayOfWeek::maxSupportedBdexVersion()
@@ -327,7 +329,7 @@ int DayOfWeek::maxSupportedBdexVersion()
     return maxSupportedBdexVersion(0);
 }
 
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 
 }  // close package namespace
 
@@ -363,7 +365,7 @@ int bdlt::maxSupportedBdexVersion(const bdlt::DayOfWeek::Enum *,
     return bdlt::DayOfWeek::maxSupportedBdexVersion(versionSelector);
 }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
 // BDEX STREAMING SUPPORT
 
@@ -403,7 +405,7 @@ int maxSupportedVersion(bdlt::DayOfWeek::Enum)
 
 }  // close namespace bdex_VersionFunctions
 
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 
 }  // close enterprise namespace
 

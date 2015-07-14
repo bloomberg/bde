@@ -2667,7 +2667,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   For an empty string, non-empty string and substring, use
-        //   'ostrstream' to write that object's value to a character buffer
+        //   'ostringstream' to write that object's value to a character buffer
         //   and then compare the contents of that buffer with the expected
         //   output format.
         //
