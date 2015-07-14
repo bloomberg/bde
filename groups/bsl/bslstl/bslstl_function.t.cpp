@@ -3860,6 +3860,14 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nMOVE CONSTRUCTORS"
                             "\n=================\n");
 
+        // Test that small-object buffer and total footprint are as expected.
+        typedef bsls::AlignmentUtil::MaxAlignedType MaxAlignedType;
+        LOOP3_ASSERT(sizeof(SmallObjectBuffer), sizeof(void*),
+                     sizeof(MaxAlignedType),
+                     sizeof(SmallObjectBuffer) == 6 * sizeof(void*));
+        LOOP3_ASSERT(sizeof(Obj), sizeof(void*), sizeof(MaxAlignedType),
+                     sizeof(Obj) == 10 * sizeof(void*));
+
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
         // Null functors
@@ -5975,7 +5983,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2014-2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

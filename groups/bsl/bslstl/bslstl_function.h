@@ -261,7 +261,7 @@ class Function_SmallObjectOptimization {
 
 public:
     union InplaceBuffer {
-        // This 'struct' defines the storage area for a functor
+        // This 'union' defines the storage area for a functor
         // representation.  The design uses the "small-object optimization" in
         // an attempt to avoid allocations for objects that are no larger than
         // 'InplaceBuffer'.  When using the in-place representation, the
@@ -275,18 +275,23 @@ public:
         // Note that union members other than 'd_object_p' are just fillers to
         // make sure that a function or member function pointer can fit
         // without allocation and that alignment is respected.  The 'd_minbuf'
-        // member ensures that 'InplaceBuffer' is at least large enough so that
-        // modestly-complex functors (e.g., functors that own embedded
+        // member ensures that 'InplaceBuffer' is at least large enough so
+        // that modestly-complex functors (e.g., functors that own embedded
         // arguments, such as 'bdef_Bind' objects) to be constructed in-place
         // without triggering further allocation.  The benefit of avoiding
         // allocation for those function objects is balanced against the waste
         // of space when used with smaller function objects.
+        //
+        // The size of this 'union' was chosen so that the inplace buffer will
+        // be 6 pointers in size and the total footprint of a 'bsl::function'
+        // object on most platforms will be 10 pointers, which matches the
+        // sizes of previous implementations of 'bdef_Function'.
 
         void                *d_object_p;     // pointer to external rep
         void               (*d_func_p)();    // pointer to function
         void        (Dummy::*d_memFunc_p)(); // pointer to member function
         MaxAlignedType       d_align;        // force align
-        void                *d_minbuf[4];    // force minimum size
+        void                *d_minbuf[6];    // force minimum size
     };
 
     static const std::size_t k_NON_SOO_SMALL_SIZE = ~sizeof(InplaceBuffer);
@@ -601,6 +606,8 @@ class Function_Rep {
                                      // 'd_allocator_p' has been set to a
                                      // fully-constructed allocator.
 
+    void (*d_invoker_p)();           // Pointer to invoker function
+
     // The 'isInplace function is public in BDE legacy mode and private
     // otherwise.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -649,33 +656,42 @@ class function<RET(ARGS...)> :
     // PRIVATE TYPES
     typedef RET Invoker(const Function_Rep* rep,
                         typename bslmf::ForwardingType<ARGS>::Type... args);
+        // A function of this type is used to invoke the wrapped functor.
 
-    // PRIVATE DATA
-    Invoker *d_invoker_p;
+    // Verify the assumption that all function pointers are the same size.
+    BSLMF_ASSERT(sizeof(Invoker*) == sizeof(d_invoker_p));
 
     // PRIVATE MEMBER FUNCTIONS
+    void setInvoker(Invoker *p);
+        // Set the invoker to the address in the specified 'p' argument.
+
+    Invoker *invoker() const;
+        // Return the current invoker.
+
     template <class FUNC>
-    static Invoker *getInvoker(const FUNC&,
+    static Invoker *invokerForFunc(const FUNC&,
                              bslmf::SelectTraitCase<bslmf::IsFunctionPointer>);
-        // Return the invoker for a pointer to (non-member) function.
+        // Return the invoker for an invocable of
+        // pointer-to-(non-member)function.
 
     template <class FUNC>
-    static Invoker *getInvoker(const FUNC&,
+    static Invoker *invokerForFunc(const FUNC&,
                        bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>);
-        // Return the invoker for a pointer to member function.
+        // Return the invoker for an invocable of pointer-to-member-function
+        // type.
 
     template <class FUNC>
-    static Invoker *getInvoker(const FUNC&,
+    static Invoker *invokerForFunc(const FUNC&,
                                bslmf::SelectTraitCase<Soo::IsInplaceFunc>);
-        // Return the invoker for an in-place functor.
+        // Return the invoker for an invocable of in-place functor type.
 
     template <class FUNC>
-    static Invoker *getInvoker(const FUNC&, bslmf::SelectTraitCase<>);
-        // Return the invoker for an out-of-place functor.
+    static Invoker *invokerForFunc(const FUNC&, bslmf::SelectTraitCase<>);
+        // Return the invoker for an invocable of out-of-place functor type.
 
     template <class FUNC>
-    static Invoker *getInvoker(const FUNC&);
-        // Return the invoker for the specified 'FUNC' type.
+    static Invoker *invokerForFunc(const FUNC&);
+        // Return the invoker for an invocable of the specified 'FUNC' type.
 
     template <class FUNC>
     static RET functionPtrInvoker(const Function_Rep *rep, 
@@ -1552,6 +1568,7 @@ bsl::Function_Rep::Function_Rep()
     d_funcManager_p   = NULL;
     d_allocator_p     = NULL;
     d_allocManager_p  = NULL;
+    d_invoker_p       = NULL;
 }
 
 template<class TP>
@@ -1638,10 +1655,25 @@ bsl::function<RET(ARGS...)>::outofplaceFunctorInvoker(const Function_Rep *rep,
 }
 
 template <class RET, class... ARGS>
+inline
+void bsl::function<RET(ARGS...)>::setInvoker(Invoker *p)
+{
+    d_invoker_p = reinterpret_cast<void (*)()>(p);
+}
+
+template <class RET, class... ARGS>
+inline
+typename bsl::function<RET(ARGS...)>::Invoker *
+bsl::function<RET(ARGS...)>::invoker() const
+{
+    return reinterpret_cast<Invoker*>(d_invoker_p);
+}
+
+template <class RET, class... ARGS>
 template <class FUNC>
 inline
 typename bsl::function<RET(ARGS...)>::Invoker *
-bsl::function<RET(ARGS...)>::getInvoker(const FUNC& f,
+bsl::function<RET(ARGS...)>::invokerForFunc(const FUNC& f,
                              bslmf::SelectTraitCase<bslmf::IsFunctionPointer>)
 {
     if (f) {
@@ -1655,7 +1687,7 @@ bsl::function<RET(ARGS...)>::getInvoker(const FUNC& f,
 template <class RET, class... ARGS>
 template <class FUNC>
 typename bsl::function<RET(ARGS...)>::Invoker *
-bsl::function<RET(ARGS...)>::getInvoker(const FUNC& f,
+bsl::function<RET(ARGS...)>::invokerForFunc(const FUNC& f,
                         bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>)
 {
     if (f) {
@@ -1669,7 +1701,7 @@ bsl::function<RET(ARGS...)>::getInvoker(const FUNC& f,
 template <class RET, class... ARGS>
 template <class FUNC>
 typename bsl::function<RET(ARGS...)>::Invoker *
-bsl::function<RET(ARGS...)>::getInvoker(const FUNC&,
+bsl::function<RET(ARGS...)>::invokerForFunc(const FUNC&,
                                     bslmf::SelectTraitCase<Soo::IsInplaceFunc>)
 {
     return &inplaceFunctorInvoker<FUNC>;
@@ -1678,7 +1710,8 @@ bsl::function<RET(ARGS...)>::getInvoker(const FUNC&,
 template <class RET, class... ARGS>
 template <class FUNC>
 typename bsl::function<RET(ARGS...)>::Invoker *
-bsl::function<RET(ARGS...)>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
+bsl::function<RET(ARGS...)>::invokerForFunc(const FUNC&,
+                                            bslmf::SelectTraitCase<>)
 {
     return &outofplaceFunctorInvoker<FUNC>;
 }
@@ -1686,7 +1719,7 @@ bsl::function<RET(ARGS...)>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
 template <class RET, class... ARGS>
 template <class FUNC>
 typename bsl::function<RET(ARGS...)>::Invoker *
-bsl::function<RET(ARGS...)>::getInvoker(const FUNC& f)
+bsl::function<RET(ARGS...)>::invokerForFunc(const FUNC& f)
 {
     typedef Function_SmallObjectOptimization Soo;
 
@@ -1714,9 +1747,9 @@ bsl::function<RET(ARGS...)>::getInvoker(const FUNC& f)
                          bslmf::SelectTraitCase<Soo::IsInplaceFunc>,
                          UwFuncSelection>::type FuncSelection;
 
-    // Dispatch to the correct variant of 'getInvoker'
-    return getInvoker(Function_NothrowWrapperUtil<FUNC>::unwrap(f),
-                      FuncSelection());
+    // Dispatch to the correct variant of 'invokerForFunc'
+    return invokerForFunc(Function_NothrowWrapperUtil<FUNC>::unwrap(f),
+                          FuncSelection());
 }
 
 // CREATORS
@@ -1725,7 +1758,7 @@ bsl::function<RET(ARGS...)>::function() BSLS_NOTHROW_SPEC
 {
     d_allocator_p     = bslma::Default::defaultAllocator();
     d_allocManager_p  = &unownedAllocManager;
-    d_invoker_p       = NULL;
+    setInvoker(NULL);
 }
 
 template <class RET, class... ARGS>
@@ -1733,14 +1766,14 @@ bsl::function<RET(ARGS...)>::function(nullptr_t) BSLS_NOTHROW_SPEC
 {
     d_allocator_p     = bslma::Default::defaultAllocator();
     d_allocManager_p  = &unownedAllocManager;
-    d_invoker_p       = NULL;
+    setInvoker(NULL);
 }
 
 template <class RET, class... ARGS>
 inline
 bsl::function<RET(ARGS...)>::function(const function& other)
 {
-    d_invoker_p = other.d_invoker_p;
+    setInvoker(other.invoker());
     copyInit(bslma::Default::defaultAllocator(), other);
 }
 
@@ -1748,14 +1781,14 @@ template <class RET, class... ARGS>
 template<class FUNC>
 bsl::function<RET(ARGS...)>::function(FUNC func)
 {
-    d_invoker_p = getInvoker(func);
+    setInvoker(invokerForFunc(func));
 
-    std::size_t sooFuncSize = d_invoker_p ? Soo::SooFuncSize<FUNC>::VALUE : 0;
+    std::size_t sooFuncSize = invoker() ? Soo::SooFuncSize<FUNC>::VALUE : 0;
 
     initRep(sooFuncSize, bslma::Default::defaultAllocator(),
             integral_constant<AllocCategory, e_BSLMA_ALLOC_PTR>());
 
-    if (d_invoker_p) {
+    if (invoker()) {
         d_funcManager_p = getFunctionManager<FUNC>();
         d_funcManager_p(e_MOVE_CONSTRUCT, this, &func);
     }
@@ -1765,7 +1798,7 @@ template <class RET, class... ARGS>
 template<class ALLOC>
 bsl::function<RET(ARGS...)>::function(allocator_arg_t, const ALLOC& alloc)
 {
-    d_invoker_p     = NULL;
+    setInvoker(NULL);
 
     typedef Function_AllocTraits<ALLOC> Traits;
     initRep(0, typename Traits::Type(alloc), typename Traits::Category());
@@ -1776,7 +1809,7 @@ template<class ALLOC>
 bsl::function<RET(ARGS...)>::function(allocator_arg_t, const ALLOC& alloc,
                                       nullptr_t)
 {
-    d_invoker_p     = NULL;
+    setInvoker(NULL);
 
     typedef Function_AllocTraits<ALLOC> Traits;
     initRep(0, typename Traits::Type(alloc), typename Traits::Category());
@@ -1789,7 +1822,7 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t,
                                       const ALLOC&    alloc,
                                       const function& other)
 {
-    d_invoker_p = other.d_invoker_p;
+    setInvoker(other.invoker());
     copyInit(alloc, other);
 }
 
@@ -1801,18 +1834,18 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t,
 {
     typedef Function_AllocTraits<ALLOC> AllocTraits;
 
-    d_invoker_p = getInvoker(func);
+    setInvoker(invokerForFunc(func));
 
-    std::size_t sooFuncSize = d_invoker_p ? Soo::SooFuncSize<FUNC>::VALUE : 0;
+    std::size_t sooFuncSize = invoker() ? Soo::SooFuncSize<FUNC>::VALUE : 0;
 
     initRep(sooFuncSize, typename AllocTraits::Type(alloc),
             typename AllocTraits::Category());
 
-    if (d_invoker_p) {
+    if (invoker()) {
         d_funcManager_p = getFunctionManager<FUNC>();
         d_funcManager_p(e_MOVE_CONSTRUCT, this, &func);
     }
-   else {
+    else {
         // Empty 'function' object
         d_funcManager_p = NULL;
     }
@@ -1823,9 +1856,9 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t,
 template <class RET, class... ARGS>
 bsl::function<RET(ARGS...)>::function(function&& other)
 {
-    d_invoker_p = other.d_invoker_p;
+    setInvoker(other.invoker());
     moveInit(other);
-    other.d_invoker_p = NULL;
+    other.setInvoker(NULL);
 }
 
 template <class RET, class... ARGS>
@@ -1836,10 +1869,10 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t,
 {
     typedef Function_AllocTraits<ALLOC> AllocTraits;
 
-    d_invoker_p = other.d_invoker_p;
+    setInvoker(other.invoker());
     if (other.equalAlloc(alloc, typename AllocTraits::Category())) {
         moveInit(other);
-        other.d_invoker_p = NULL; // 'other' is now empty.
+        other.setInvoker(NULL); // 'other' is now empty.
     }
     else {
         copyInit(typename AllocTraits::Type(alloc), other);
@@ -1853,7 +1886,7 @@ inline
 bsl::function<RET(ARGS...)>::~function()
 {
     // Assert class invariants
-    BSLS_ASSERT(d_invoker_p || ! d_funcManager_p);
+    BSLS_ASSERT(invoker() || ! d_funcManager_p);
     BSLS_ASSERT(d_allocator_p);
 
     // Destroying the functor is not done in the base class destructor because
@@ -1872,7 +1905,7 @@ bsl::function<RET(ARGS...)>&
 bsl::function<RET(ARGS...)>::operator=(const function& rhs)
 {
     Function_Rep::assign(const_cast<function*>(&rhs), e_COPY_CONSTRUCT);
-    d_invoker_p = rhs.d_invoker_p;
+    setInvoker(rhs.invoker());
 
     return *this;
 }
@@ -1898,7 +1931,7 @@ bsl::function<RET(ARGS...)>::operator=(function&& rhs)
     }
     else {
         Function_Rep::assign(&rhs, e_MOVE_CONSTRUCT);
-        d_invoker_p = rhs.d_invoker_p;
+        setInvoker(rhs.invoker());
     }
 
     return *this;
@@ -1918,7 +1951,7 @@ bsl::function<RET(ARGS...)>::operator=(FUNC&& func)
             typename bsl::remove_reference<FUNC>::type
         >::type FuncType;
 
-    Invoker *invoker_p = getInvoker(func);
+    Invoker *invoker_p = invokerForFunc(func);
     tempRep.d_funcManager_p = invoker_p ? getFunctionManager<FuncType>() :NULL;
 
     // Initialize tempRep using allocator from 'this'
@@ -1946,7 +1979,7 @@ bsl::function<RET(ARGS...)>::operator=(FUNC&& func)
         tempRep.d_funcManager_p(e_DESTROY, &tempRep, PtrOrSize_t());
     }
 
-    d_invoker_p = invoker_p;
+    setInvoker(invoker_p);
 
     return *this;
 }
@@ -1955,7 +1988,7 @@ template <class RET, class... ARGS>
 bsl::function<RET(ARGS...)>&
 bsl::function<RET(ARGS...)>::operator=(nullptr_t)
 {
-    d_invoker_p = NULL;
+    setInvoker(NULL);
     makeEmpty();
     return *this;
 }
@@ -1969,12 +2002,12 @@ bsl::function<RET(ARGS...)>::operator=(nullptr_t)
 template <class RET, class... ARGS>
 void bsl::function<RET(ARGS...)>::swap(function& other) BSLS_NOTHROW_SPEC
 {
-    Invoker *thisInvoker  = this->d_invoker_p;
-    Invoker *otherInvoker = other.d_invoker_p;
+    Invoker *thisInvoker  = this->invoker();
+    Invoker *otherInvoker = other.invoker();
 
     Function_Rep::swap(other);
-    this->d_invoker_p = otherInvoker;
-    other.d_invoker_p = thisInvoker;
+    this->setInvoker(otherInvoker);
+    other.setInvoker(thisInvoker);
 }
 
 template <class RET, class... ARGS>
@@ -1982,8 +2015,8 @@ RET bsl::function<RET(ARGS...)>::operator()(ARGS... args) const
 {
 #ifdef BDE_BUILD_TARGET_EXC
 
-    if (d_invoker_p) {
-        return d_invoker_p(this, args...);
+    if (invoker()) {
+        return invoker()(this, args...);
     }
     else {
         BSLS_THROW(bad_function_call());
@@ -1991,8 +2024,8 @@ RET bsl::function<RET(ARGS...)>::operator()(ARGS... args) const
 
 #else
     // Non-exception build
-    BSLS_ASSERT_OPT(d_invoker_p);
-    return d_invoker_p(this, args...);
+    BSLS_ASSERT_OPT(invoker());
+    return invoker()(this, args...);
 #endif
 }
 
@@ -2005,7 +2038,7 @@ bsl::function<RET(ARGS...)>::operator bool() const BSLS_NOTHROW_SPEC
 {
     // If there is an invoker, then this function is non-empty (return true);
     // otherwise it is empty (return false).
-    return d_invoker_p;
+    return invoker();
 }
 #else
 template <class RET, class... ARGS>
@@ -2014,7 +2047,7 @@ bsl::function<RET(ARGS...)>::operator UnspecifiedBool() const BSLS_NOTHROW_SPEC
 {
     // If there is an invoker, then this function is non-empty (return true);
     // otherwise it is empty (return false).
-    return UnspecifiedBoolUtil::makeValue(d_invoker_p);
+    return UnspecifiedBoolUtil::makeValue(invoker());
 }
 #endif // BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 
