@@ -1,0 +1,146 @@
+// ball_scopedattributes.h                                            -*-C++-*-
+#ifndef INCLUDED_BALL_SCOPEDATTRIBUTES
+#define INCLUDED_BALL_SCOPEDATTRIBUTES
+
+#ifndef INCLUDED_BSLS_IDENT
+#include <bsls_ident.h>
+#endif
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Provide a class to add and remove attributes automatically.
+//
+//@CLASSES:
+//  ball::ScopedAttributes: helper for safely managing attributes
+//
+//@SEE_ALSO: ball_attributecontext, ball_attribute
+//
+//@AUTHOR: Gang Chen (gchen20)
+//
+//@DESCRIPTION: This component provides an object, 'ball::ScopedAttributes',
+// that serves as a "scoped helper" to safely manage 'ball::AttributeContainer'
+// objects for the current attribute context.  A 'ball::ScopedAttributes'
+// object, upon construction, will install a 'ball::AttributeContainer' object
+// in the current attribute context and, more importantly, automatically
+// remove that 'ball::AttributeContainer' object from the current attribute
+// context upon destruction.
+//
+// Note that the 'ball::AttributeContainer' supplied at construction
+// must remain valid and *unmodified* for the lifetime of this object.
+//
+///USAGE
+///-----
+// In the following code fragment, we will use a 'ball::ScopedAttributes' to
+// install a 'ball::AttributeContainer' in the current context.
+//
+// We first create the current attribute context and two attributes:
+//..
+//  ball::AttributeContext *context = ball::AttributeContext::getContext();
+//
+//  ball::Attribute a1("uuid", 4044457);
+//  ball::Attribute a2("name", "Gang Chen");
+//  assert(false == context->hasAttribute(a1));
+//  assert(false == context->hasAttribute(a2));
+//..
+// Now we create an 'AttributeSet' and add the two attributes to this set,
+// then we use a 'ball::ScopedAttributes to install these attributes in the
+// current thread's attribute context.
+//
+// Note that we use the 'AttributeSet' implementation of the
+// 'ball::AttributeContainer' protocol defined in the component documentation
+// for 'ball_attributecontainer' (the 'bael' package provides a similar class
+// in the 'ball_defaultattributecontainer' component).
+//..
+//  {
+//      AttributeSet attributes;
+//      attributes.insert(a1);
+//      attributes.insert(a2);
+//      ball::ScopedAttributes attributeGuard(&attributes);
+//      assert(true == context->hasAttribute(a1));
+//      assert(true == context->hasAttribute(a2));
+//..
+// When 'attributeGuard' goes out of scope and is destroyed, 'attributes'
+// are removed from the current thread's attribute context, which prevents the
+// attribute context from referring to an invalid memory address (on the
+// stack).
+//..
+//  }
+//
+//  assert(!context->hasAttribute(a1));
+//  assert(!context->hasAttribute(a2));
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include <bdlscm_version.h>
+#endif
+
+#ifndef INCLUDED_BALL_ATTRIBUTECONTEXT
+#include <ball_attributecontext.h>
+#endif
+
+namespace BloombergLP {
+
+
+namespace ball {class AttributeContainer;
+
+                        // ===========================
+                        // class ScopedAttributes
+                        // ===========================
+
+class ScopedAttributes {
+    // This class installs a 'AttributeContainer' object in the current
+    // attribute context on construction, and removes it on destruction.  Note
+    // that the 'AttributeContainer' supplied at construction must remain
+    // valid and *unmodified* for the lifetime of this object.
+
+    const AttributeContext::iterator  d_it ;   // refers to attributes
+
+    // NOT IMPLEMENTED
+    ScopedAttributes(const ScopedAttributes&);
+    ScopedAttributes& operator=(const ScopedAttributes&);
+
+  public:
+    // CREATORS
+    ScopedAttributes(const AttributeContainer* attributes);
+        // Create a 'ScopedAttributes' object having the specified
+        // 'attributes'.  Note that 'attributes' must remain valid and
+        // *unmodified* for the lifetime of this object.
+
+    ~ScopedAttributes();
+        // Remove the associated attributes from the current attribute context.
+};
+
+// ===========================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ===========================================================================
+
+                        // ---------------------------
+                        // class ScopedAttributes
+                        // ---------------------------
+
+// CREATORS
+inline
+ScopedAttributes::ScopedAttributes(
+                                    const AttributeContainer* attributes)
+: d_it(AttributeContext::getContext()->addAttributes(attributes))
+{
+}
+
+inline
+ScopedAttributes::~ScopedAttributes()
+{
+    AttributeContext::getContext()->removeAttributes(d_it);
+}
+}  // close package namespace
+
+}  // close namespace BloombergLP
+
+#endif
+
+// ---------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2007
+//      All Rights Reserved.
+//      Property of Bloomberg L.P. (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ----------------------------- END-OF-FILE ---------------------------------

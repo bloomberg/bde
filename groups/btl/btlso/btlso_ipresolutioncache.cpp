@@ -1,0 +1,350 @@
+// btlso_ipresolutioncache.cpp                                        -*-C++-*-
+#include <btlso_ipresolutioncache.h>
+
+#include <bsls_ident.h>
+BSLS_IDENT_RCSID("btlso_ipresolutioncache.cpp","$Id$ $CSID$")
+
+#include <bdlmtt_lockguard.h>
+
+#include <bsls_assert.h>
+
+#include <bsl_algorithm.h>
+
+#include <bslma_default.h>
+
+#include <bdlt_currenttime.h>
+
+namespace BloombergLP {
+
+static
+int createCacheData(
+           btlso::IpResolutionCache_Entry::DataPtr         *result,
+           const char                                     *hostname,
+           int                                            *errorCode,
+           const bdlt::Datetime&                            currentTime,
+           btlso::IpResolutionCache::ResolveByNameCallback  resolverCallback,
+           bslma::Allocator                               *basicAllocator)
+    // Load, into the specified 'result', a shared pointer to a newly created
+    // 'bteso::IpResolutionCache_Data' object (using the specified
+    // 'basicAllocator' to supply memory) containing the IPv4 addresses of the
+    // host having the specified 'hostname' (retrieved using the specified
+    // 'resolverCallback') and having the specified 'currentTime' as the load
+    // time, and load into the specified 'errorCode', the error code of
+    // 'resolverCallback' if it fails.  The behavior is undefined if
+    // 'resolverCallback' is empty.
+{
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(hostname);
+    BSLS_ASSERT(resolverCallback);
+    BSLS_ASSERT(basicAllocator);
+
+    bsl::vector<btlso::IPv4Address> hostAddresses;
+
+    int rc = resolverCallback(&hostAddresses, hostname, INT_MAX, errorCode);
+    if (0 != rc) {
+        return rc;                                                    // RETURN
+    }
+
+    result->createInplace(basicAllocator,
+                          hostAddresses,
+                          currentTime,
+                          basicAllocator);
+    return 0;
+}
+
+namespace btlso {
+                        // ==================================
+                        // class IpResolutionCache_Data
+                        // ==================================
+
+class IpResolutionCache_Data {
+    // This class provides storage for a set of IP addresses and a
+    // 'bdlt::Datetime' to indicate the time these addresses were populated.
+
+    // DATA
+    bsl::vector<IPv4Address> d_addresses;     // set of IP addresses
+
+    bdlt::Datetime                  d_creationTime;  // time at which this
+                                                    // object is created
+  private:
+    // NOT IMPLEMENTED
+    IpResolutionCache_Data(const IpResolutionCache_Data&);
+    IpResolutionCache_Data& operator=(
+                                          const IpResolutionCache_Data&);
+
+  public:
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(IpResolutionCache,
+                                 bslalg::TypeTraitUsesBslmaAllocator);
+
+    // CREATOR
+    IpResolutionCache_Data(
+                    const bsl::vector<IPv4Address>&  ipAddresses,
+                    const bdlt::Datetime&                   creationTime,
+                    bslma::Allocator                      *basicAllocator = 0);
+        // Create an object storing the specified 'ipAddresses', and having the
+        // specified 'creationTime'.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
+
+    // ACCESSORS
+    const bsl::vector<IPv4Address>& addresses() const;
+        // Return a reference providing non-modifiable access to the IP
+        // addresses stored in this object.
+
+    const bdlt::Datetime& creationTime() const;
+        // Return a reference providing non-modifiable access to the time this
+        // object was created.
+};
+
+                        // ----------------------------------
+                        // class IpResolutionCache_Data
+                        // ----------------------------------
+
+// CREATORS
+IpResolutionCache_Data::IpResolutionCache_Data(
+                     const bsl::vector<IPv4Address>&  addresses,
+                     const bdlt::Datetime&                   creationTime,
+                     bslma::Allocator                      *basicAllocator)
+: d_addresses(addresses, basicAllocator)
+, d_creationTime(creationTime)
+{
+}
+
+// ACCESSORS
+const bsl::vector<IPv4Address>& IpResolutionCache_Data::addresses()
+                                                                          const
+{
+    return d_addresses;
+}
+
+const bdlt::Datetime& IpResolutionCache_Data::creationTime() const
+{
+    return d_creationTime;
+}
+
+                        // ------------------------------
+                        // class IpResolutionCache
+                        // ------------------------------
+
+// CREATORS
+IpResolutionCache::IpResolutionCache(
+                                              bslma::Allocator *basicAllocator)
+: d_cache(basicAllocator)
+, d_timeToLive(0, 1)
+, d_rwLock()
+, d_resolverCallback(ResolveUtil::defaultResolveByNameCallback())
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+
+IpResolutionCache::IpResolutionCache(
+                                       ResolveByNameCallback  resolverCallback,
+                                       bslma::Allocator      *basicAllocator)
+: d_cache(basicAllocator)
+, d_timeToLive(0, 1)
+, d_rwLock()
+, d_resolverCallback(resolverCallback)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    BSLS_ASSERT(resolverCallback);
+}
+
+// MANIPULATORS
+int IpResolutionCache::getCacheData(
+                             IpResolutionCache_Entry::DataPtr *result,
+                             const char                             *hostname,
+                             int                                    *errorCode)
+{
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(hostname);
+    BSLS_ASSERT(errorCode);
+
+    IpResolutionCache_Entry::DataPtr dataPtr;
+    IpResolutionCache_Entry *entry = 0;
+
+    const bdlt::Datetime now = bdlt::CurrentTime::utc();
+
+    {
+        bdlmtt::ReadLockGuard<bdlmtt::RWMutex> readLockGuard(&d_rwLock);
+
+        AddressMap::iterator it = d_cache.find(hostname);
+        if (d_cache.end() == it) {
+            // The IP addresses of 'hostname' has never been cached.
+
+            bdlmtt::ReadLockGuardUnlock<bdlmtt::RWMutex>
+                                                    readUnlockGuard(&d_rwLock);
+
+            // Acquire write lock to create entry for the map.
+
+            bdlmtt::WriteLockGuard<bdlmtt::RWMutex> writeLockGuard(&d_rwLock);
+
+            entry = &d_cache[hostname];
+
+            // Read lock is re-acquired on the destruction of 'readLockGuard'.
+        }
+        else {
+            entry = &it->second;
+        }
+
+        dataPtr = entry->data();
+        if (dataPtr.get()) {
+            // Check if the data is expired and, if it is, try to acquire the
+            // 'updatingLock' of 'entry' to indicate this thread is refreshing
+            // the data.
+
+            if (0 == d_timeToLive.totalSeconds()
+             || now < dataPtr->creationTime() + d_timeToLive
+             || 0 != entry->updatingLock().tryLock()) {
+                // Data is not expired or another thread is already refreshing
+                // the data.  Return existing data.
+
+                *result = dataPtr;
+                return 0;                                             // RETURN
+            }
+        }
+        else {
+            // Data has never been loaded.
+
+            {
+                bdlmtt::ReadLockGuardUnlock<bdlmtt::RWMutex>
+                                                    readUnlockGuard(&d_rwLock);
+
+                // Lock the entry's 'updatingLock' to indicate the data is
+                // being acquired.
+
+                entry->updatingLock().lock();
+            }
+
+            dataPtr = entry->data();
+            if (0 != dataPtr.get()) {
+                // Another thread updated the entry during acquisition of the
+                // lock.
+
+                entry->updatingLock().unlock();
+
+                *result = dataPtr;
+                return 0;                                             // RETURN
+            }
+        }
+    }
+
+    // Either the data does not exist or has expired, and we have already
+    // acquired the 'updatingLock' for the entry (indicating this thread
+    // should update the entry).
+
+    bdlmtt::LockGuard<bdlmtt::Mutex> updatingLockGuard(&entry->updatingLock(),
+                                                   true);
+    dataPtr = entry->data();
+
+    int rc = createCacheData(&dataPtr,
+                             hostname,
+                             errorCode,
+                             now,
+                             d_resolverCallback,
+                             d_allocator_p);
+
+    if (0 != rc) {
+        return rc;                                                    // RETURN
+    }
+
+    bdlmtt::WriteLockGuard<bdlmtt::RWMutex> writeLockGuard(&d_rwLock);
+
+    entry->setData(dataPtr);
+    *result = dataPtr;
+    return 0;
+}
+
+int IpResolutionCache::resolveAddress(
+                               bsl::vector<IPv4Address> *result,
+                               const char                     *hostname,
+                               int                             maxNumAddresses,
+                               int                            *errorCode)
+{
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(hostname);
+    BSLS_ASSERT(1 <= maxNumAddresses);
+
+    IpResolutionCache_Entry::DataPtr dataPtr;
+
+    int localErrorCode;
+    if (0 == errorCode) {
+        errorCode = &localErrorCode;
+    }
+
+    int rc = getCacheData(&dataPtr, hostname, errorCode);
+    if (0 != rc) {
+        return rc;                                                    // RETURN
+    }
+
+    int size = bsl::min(maxNumAddresses, (int)dataPtr->addresses().size());
+    result->resize(size);
+
+    bsl::copy(dataPtr->addresses().begin(),
+              dataPtr->addresses().begin() + size,
+              result->begin());
+    return 0;
+}
+
+void IpResolutionCache::removeAll()
+{
+    bdlmtt::WriteLockGuard<bdlmtt::RWMutex> writeLockGuard(&d_rwLock);
+
+    for (AddressMap::iterator it = d_cache.begin();
+                              it != d_cache.end();
+                              ++it) {
+        it->second.reset();
+    }
+}
+
+// ACCESSORS
+int IpResolutionCache::lookupAddressRaw(
+                         bsl::vector<IPv4Address> *result,
+                         const char                     *hostname,
+                         int                             maxNumAddresses) const
+{
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(hostname);
+    BSLS_ASSERT(1 <= maxNumAddresses);
+
+    enum {
+        // Return values
+
+        SUCCESS = 0,
+        FAILURE = -1
+    };
+
+    IpResolutionCache_Entry::DataPtr dataPtr;
+
+    {
+        bdlmtt::ReadLockGuard<bdlmtt::RWMutex> readLockGuard(&d_rwLock);
+        AddressMap::const_iterator it = d_cache.find(hostname);
+        if (d_cache.end() == it) {
+            return FAILURE;                                           // RETURN
+        }
+        dataPtr = it->second.data();
+    }
+
+    if (0 == dataPtr.get()) {
+        return FAILURE;                                               // RETURN
+    }
+
+    int size = bsl::min(maxNumAddresses, (int)dataPtr->addresses().size());
+    result->resize(size);
+    bsl::copy(dataPtr->addresses().begin(),
+              dataPtr->addresses().begin() + size,
+              result->begin());
+    return SUCCESS;
+}
+}  // close package namespace
+
+}  // close namespace BloombergLP
+
+// ----------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2011
+//      All Rights Reserved.
+//      Property of Bloomberg L.P. (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ----------------------------- END-OF-FILE ----------------------------------

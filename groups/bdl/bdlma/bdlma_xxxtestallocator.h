@@ -1,0 +1,753 @@
+// bdlma_xxxtestallocator.h                                              -*-C++-*-
+#ifndef INCLUDED_BDLMA_XXXTESTALLOCATOR
+#define INCLUDED_BDLMA_XXXTESTALLOCATOR
+
+#ifndef INCLUDED_BSLS_IDENT
+#include <bsls_ident.h>
+#endif
+BSLS_IDENT("$Id: $")
+
+//@PURPOSE: Provide concrete test allocator that maintains blocks and bytes.
+//
+//@DEPRECATED: Use 'bslma_testallocator' instead.
+//
+//@CLASSES:
+//   bdlma::TestAllocator: support new/delete style allocation with malloc/free
+//
+//@SEE_ALSO: bslma_testallocator
+//
+//@AUTHOR: John Lakos (jlakos)
+//
+//@DESCRIPTION: This component provides an allocator, 'bdlma::TestAllocator'
+// and implements the 'bslma::Allocator' protocol and bypasses global operators
+// 'new' and 'delete', instead calling the 'C' library functions 'malloc' and
+// 'free' directly.  If exceptions are enabled, this allocator can be
+// configured to throw an exception after the number of allocation requests
+// exceeds some specified limit.  This allocator also maintains a count of the
+// number of outstanding blocks (and bytes) that are currently in use, the
+// cumulative number of blocks (and bytes) that have been allocated, and the
+// maximum number of blocks (and bytes) that have been in use at any one time.
+// An overloaded 'operator<<' formats these values to its 'ostream'
+// (right-hand-side argument) stream.
+//..
+//   ,-------------------.
+//  ( bdlma::TestAllocator )
+//   `-------------------'
+//             |         ctor/dtor
+//             |         numBlocksInUse/numBytesInUse
+//             |         numBlocksMax/numBytesMax
+//             |         numBlocksTotal/numBytesTotal
+//             |         numMismatches/numBoundsErrors
+//             |         setAllocationLimit/allocationLimit
+//             |         setQuiet/isQuiet
+//             |         setVerbose/isVerbose
+//             V
+//     ,----------------.
+//    ( bslma::Allocator )
+//     `----------------'
+//                     allocate
+//                     deallocate
+//..
+// Note that allocation using this component is deliberately incompatible with
+// the default global 'new' ('malloc') and 'delete' ('free').  Using 'delete'
+// to free memory supplied by this allocator will corrupt the dynamic memory
+// manager and also cause a memory leak (and will be reported by purify as
+// freeing mismatched memory, freeing unallocated memory, and as a memory
+// leak).  Using 'deallocate' to free memory supplied by global 'new' will
+// almost always abort immediately (unless quiet mode is set for the purpose of
+// testing this component itself).
+//
+///MODES
+///-----
+// The test allocator's behavior is controlled by three basic *mode* flags:
+//
+// VERBOSE MODE: (Default 0) Specifies that each allocation and deallocation
+// should be printed to standard output.  In verbose mode all state variables
+// will be displayed at destruction.
+//
+// QUIET MODE: (Default 0) Specifies that mismatched memory and memory leaks
+// should *not* be reported, and should not cause the process to terminate when
+// detected.  Note that this mode is used primarily for testing the test
+// allocator itself; behavior that would otherwise abort now quietly increments
+// the 'numMismatches' counter.
+//
+// NO-ABORT MODE: (Default 0) Specifies that all abort statements are replaced
+// by return statements without suppressing diagnostics.  Although the internal
+// state values are independent, Quiet Mode implies the behavior of No-Abort
+// mode in all cases.  Note that this mode is used primarily for visual
+// inspection of unusual error diagnostics in this component's test drivers (in
+// verbose mode only).
+//
+// Taking the default mode settings, memory allocation/deallocation will not be
+// displayed individually, but in the event of a mismatched deallocation or a
+// memory leak, the problem will be announced, any relevant state of the object
+// will be displayed, and the program will abort.
+//
+///ALLOCATION LIMIT
+///----------------
+// If exceptions are enabled at compile time, the test allocator can be
+// configured to throw an exception after a specified number of allocation
+// requests is exceeded.  If the allocation limit is less than zero (default),
+// then the allocator never throws an exception.  Note that a non-negative
+// allocation limit is decremented after each allocation attempt, and throws
+// only when the current allocation limit transitions from 0 to -1; no
+// additional exceptions will be thrown until the allocation limit is again
+// reset to a non-negative value.
+//
+///USAGE
+///-----
+// The 'bdlma::TestAllocator' object defined in this component can be used to
+// test other objects that take a 'bslma::Allocator' (e.g., at construction).
+// The following code example illustrates how to verify that an object under
+// test (e.g., 'my_ShortArray') is exception neutral:
+//..
+//  // my_shortarray.t.cpp
+//  #include <my_shortarray.h>
+//  #include <bdlma_xxxtestallocator.h>
+//  #include <bslma_testallocator.h>
+//  #include <bslma_testallocatorexception.h>
+//
+//  // ...
+//
+//  static
+//  int areEqual(const short *array1, const short *array2, int numElement)
+//      // Return 1 if the specified initial 'numElement' in the specified
+//      // 'array1' and 'array2' have the same values, and 0 otherwise.
+//  {
+//      for (int i = 0; i < numElement; ++i) {
+//          if (array1[i] != array2[i]) return 0;
+//      }
+//      return 1;
+//  }
+//
+//  int main(int argc, char *argv[]) {
+//      int test = argc > 1 ? atoi(argv[1]) : 0;
+//      int verbose = argc > 2;
+//      int veryVerbose = argc > 3;
+//      int veryVeryVerbose = argc > 4;
+//
+//      bdlma::TestAllocator testAllocator(veryVeryVerbose);
+//
+//      switch (test) { case 0:
+//
+//        // ...
+//
+//        case 6: {
+//          struct {
+//              int d_line;
+//              int d_numElem;
+//              short d_exp[NUM_VALUES];
+//          } DATA[] = {
+//              { L_, 0, {} },
+//              { L_, 1, { V0 } },
+//              { L_, 5, { V0, V1, V2, V3, V4 } }
+//          };
+//
+//          const int NUM_DATA = sizeof DATA / sizeof *DATA;
+//
+//          for (int ti = 0; ti < NUM_DATA; ++ti) {
+//              const int    LINE     = DATA[ti].d_line;
+//              const int    NUM_ELEM = DATA[ti].d_numElem;
+//              const short *EXP      = DATA[ti].d_exp;
+//
+//              BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+//                  my_ShortArray mA(&testAllocator);
+//                  const my_ShortArray& A = mA;
+//                  for (int ei = 0; ei < NUM_ELEM; ++ei) {
+//                      mA.append(VALUES[ei]);
+//                  }
+//                  if (veryVerbose) { P_(ti); P_(NUM_ELEM); P(A); }
+//                  LOOP2_ASSERT(LINE, ti, areEqual(EXP, A, NUM_ELEM));
+//              } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+//          }
+//
+//          if (veryVerbose) bsl::cout << testAllocator << bsl::endl;
+//        } break;
+//
+//        // ...
+//
+//      }
+//
+//      // ...
+//  }
+//..
+// Note that the 'BDE_BUILD_TARGET_EXC' macro is defined at compile-time to
+// indicate that exceptions are enabled.
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include <bdlscm_version.h>
+#endif
+
+#ifndef INCLUDED_BDLMTT_LOCKGUARD
+#include <bdlmtt_lockguard.h>
+#endif
+
+#ifndef INCLUDED_BDLMTT_XXXTHREAD
+#include <bdlmtt_xxxthread.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_TESTALLOCATOR
+#include <bslma_testallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include <bsl_iosfwd.h>
+#endif
+
+namespace BloombergLP {
+
+namespace bdlma {
+                        // =========================
+                        // class TestAllocator
+                        // =========================
+
+class TestAllocator : public bslma::Allocator {
+    // This class provides an allocator that DOES NOT USE global operators
+    // 'new' or 'delete' at all, but instead uses 'malloc' and 'free' directly.
+    // This allocator object also tracks the number of blocks (and bytes) that
+    // are currently in use from this allocator, the cumulative number of
+    // blocks (and bytes) that have be allocated by this allocator, and the
+    // maximum number of blocks (and bytes) that have ever been in use from
+    // this allocator at any one time.  Note that the number of bytes in use is
+    // defined to be the number requested (e.g., if 5 bytes are requested and,
+    // for whatever reason, 8 are returned, only 5 bytes are considered to be
+    // in use).
+
+    // DATA
+    bslma::TestAllocator d_imp;    // thread unsafe test allocator
+
+    mutable bdlmtt::Mutex  d_mutex;  // mutex used to synchronize access to this
+                                   // object
+
+    // FRIENDS
+    friend bsl::ostream& operator<<(bsl::ostream&, const TestAllocator&);
+
+    // NOT IMPLEMENTED
+    TestAllocator(const TestAllocator&);
+    TestAllocator& operator=(const TestAllocator&);
+
+  public:
+    // CREATORS
+    explicit
+    TestAllocator(bslma::Allocator *basicAllocator = 0);
+        // Create a test allocator.  Optionally specify a 'basicAllocator' used
+        // to supply memory.  If 'basicAllocator' is 0, the
+        // 'bslma::MallocFreeAllocator' singleton is used.
+
+    explicit
+    TestAllocator(bool              verboseFlag,
+                        bslma::Allocator *basicAllocator = 0);
+        // Create a test allocator with the specified 'verboseFlag' -- i.e.,
+        // whether this test allocator should write allocation/deallocation
+        // messages to 'stdout'.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the
+        // 'bslma::MallocFreeAllocator' singleton is used.
+
+    TestAllocator(const char       *name,
+                        bool              verboseFlag,
+                        bslma::Allocator *basicAllocator = 0);
+        // Create a test allocator having the specified 'name' with the
+        // specified 'verboseFlag' -- i.e., whether this test allocator should
+        // write allocation/deallocation messages to 'stdout'.  The 'name' is
+        // included in messages written to 'stdout' to distinguish this test
+        // allocator from other test allocators that may be used in the same
+        // program.  Optionally specify a 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is 0, the 'bslma::MallocFreeAllocator'
+        // singleton is used.  The behavior is undefined unless the lifetime of
+        // 'name' exceeds that of this test allocator.
+
+    ~TestAllocator();
+        // Destroy this allocator.  In verbose mode, print all contained state
+        // values of this allocator object to 'stdout'.  Except in quiet mode,
+        // automatically report any memory leaks or mismatched deallocations to
+        // 'stdout'.  Abort if either 'numBlocksInUse' or 'numBytesInUse'
+        // return non-zero unless in no-abort mode or quiet mode.  Note that,
+        // in all cases, destroying this object has no effect on outstanding
+        // memory blocks allocated from this test allocator (and may result in
+        // memory leaks -- e.g., if the (default) 'bslma::MallocFreeAllocator'
+        // singleton was used).
+
+    // MANIPULATORS
+    void *allocate(size_type size);
+        // Return a newly allocated block of memory of the specified positive
+        // 'size' (in bytes).  If 'size' is 0, a null pointer is returned with
+        // no other other effect (e.g., on allocation/deallocation statistics).
+        // Otherwise, invoke the 'allocate' method of the allocator supplied at
+        // construction, increment the number of currently (and cumulatively)
+        // allocated blocks and increase the number of currently allocated
+        // bytes by 'size'.  Update all other fields accordingly.
+
+    void deallocate(void *address);
+        // Return the memory block at the specified 'address' back to this
+        // allocator.  If 'address' is 0, this function has no effect (e.g.,
+        // on allocation/deallocation statistics).  Otherwise, if the memory at
+        // 'address' is consistent with being allocated from this test
+        // allocator, decrement the number of currently allocated blocks,
+        // and decrease the number of currently allocated bytes by the size
+        // (in bytes) originally requested for this block.  Although
+        // technically undefined behavior, if the memory can be determined
+        // not to have been allocated from this test allocator, increment the
+        // number of mismatches, and -- unless in quiet mode -- immediately
+        // report the details of the mismatch to 'stdout' (e.g., as an
+        // 'bsl::hex' memory dump) and abort.
+
+    void setNoAbort(bool flagValue);
+        // Set the no-abort mode for this test allcoator to the specified
+        // (boolean) 'flagValue'.  'If flagValue' is 'true', aborting on fatal
+        // errors is suppressed, and the functions simply return.  Diagnostics
+        // are not affected.  Note that this function is provided primarily to
+        // enable visual testing of bizarre error messages in this component.
+
+    void setQuiet(bool flagValue);
+        // Set the quiet mode for this test allocator to the specified
+        // (boolean) 'flagValue'.  If 'flagValue' is 'true', mismatched
+        // allocation, overrun/underrun errors, and memory leak messages will
+        // not be displayed to 'stdout' and the process will not abort as a
+        // result of such conditions.  Note that the default mode is *not*
+        // quiet.  Also note that this function is provided primarily to enable
+        // testing of this component; in quiet mode, situations that would
+        // otherwise abort will just quietly increment the 'numMismatches'
+        // and/or 'numBoundsErrors' counters.
+
+    void setVerbose(bool flagValue);
+        // Set the verbose mode for this test allocator to the specified
+        // (boolean) 'flagValue'.  If 'flagValue' is 'true', all
+        // allocation/deallocation events will be reported automatically on
+        // 'stdout', as will accumulated statistics upon destruction of this
+        // object.  Note that the default mode is *not* verbose.
+
+    void setAllocationLimit(bsls::Types::Int64 limit);
+        // Set the number of valid allocation requests before an exception is
+        // to be thrown to the specified 'limit'.  If 'limit' is less than 0,
+        // no exception is to be thrown.  By default, no exception is
+        // scheduled.
+
+    // ACCESSORS
+    bool isNoAbort() const;
+        // Return 'true' if this allocator is currently in no-abort mode, and
+        // 'false' otherwise.  In no-abort mode all diagnostic messages are
+        // printed, but all aborts are replaced by return statements.  Note
+        // that quiet mode implies no-abort mode.
+
+    bool isQuiet() const;
+        // Return 'true' if this allocator is currently in quiet mode, and
+        // 'false' otherwise.  In quiet mode, messages about mismatched
+        // deallocations, overrun/underrun errors, and memory leaks will be not
+        // displayed to 'stdout' and will not cause the program to abort.
+
+    bool isVerbose() const;
+        // Return 'true' if this allocator is currently in verbose mode, and
+        // 'false' otherwise.  In verbose mode, all allocation/deallocation
+        // events will be reported on 'stdout', as will summary statistics
+        // upon destruction of this object.
+
+    bsls::Types::Int64 numBytesInUse() const;
+        // Return the number of bytes currently allocated from this object.
+        // Note that 'numBytesInUse() <= numBytesMax()'.
+
+    bsls::Types::Int64 numBlocksInUse() const;
+        // Return the number of blocks currently allocated from this object.
+        // Note that 'numBlocksInUse() <= numBlocksMax()'.
+
+    bsls::Types::Int64 numBytesMax() const;
+        // Return the maximum number of bytes ever allocated from this object
+        // at any one time.  Note that
+        // 'numBytesInUse() <= numBytesMax() <= numBytesTotal()'.
+
+    bsls::Types::Int64 numBlocksMax() const;
+        // Return the maximum number of blocks ever allocated from this object
+        // at any one time.  Note that
+        // 'numBlocksInUse() <= numBlocksMax() <= numBlocksTotal()'.
+
+    bsls::Types::Int64 numBytesTotal() const;
+        // Return the cumulative number of bytes ever allocated from this
+        // object.  Note that 'numBytesMax() <= numBytesTotal()'.
+
+    bsls::Types::Int64 numBlocksTotal() const;
+        // Return the cumulative number of blocks ever allocated from this
+        // object.  Note that 'numBlocksMax() <= numBlocksTotal()'.
+
+    bsls::Types::Int64 numMismatches() const;
+        // Return the number of mismatched memory deallocations that have
+        // occurred since this object was created.  A memory deallocation is
+        // *mismatched* if that memory was not allocated directly from this
+        // allocator.
+
+    bsls::Types::Int64 numBoundsErrors() const;
+        // Return the number of times memory deallocations have detected that
+        // pad areas at the front or back of the user segment had been
+        // overwritten.
+
+    int status() const;
+        // Return 0 on success, and non-zero otherwise.  If there have been any
+        // mismatched memory deallocations or over/under runs, return the
+        // number of such errors that have occurred as a positive number, if
+        // the number of blocks and bytes are not both 0, return an arbitrary
+        // negative number; else return 0.  Note that this function is used to
+        // define the criteria for an abort at destruction if quiet mode has
+        // not been set.
+
+    bsls::Types::Int64 allocationLimit() const;
+        // Return the current number of allocation requests left before an
+        // exception is thrown.  A negative value indicated that no exception
+        // is scheduled.
+
+    size_type lastAllocatedNumBytes() const;
+        // Return the number of bytes of the most recent memory request.  Note
+        // that this number is always recorded regardless of the validity of
+        // the request.
+
+    size_type lastDeallocatedNumBytes() const;
+        // Return the number of bytes of the most recent memory deallocation
+        // request.  Return 0 if the request was invalid (e.g., deallocate
+        // memory not allocated through this allocator).
+
+    void *lastAllocatedAddress() const;
+        // Return the allocated memory address of the most recent memory
+        // request.  Return 0 if the request was invalid (e.g., allocate non-
+        // positive number of bytes).
+
+    void *lastDeallocatedAddress() const;
+        // Return the memory address of the last memory deallocation request.
+        // Note that the address is always recorded regardless of the validity
+        // of the request.
+
+    bsls::Types::Int64 numAllocations() const;
+        // Return the cumulative number of allocation requests.  Note that this
+        // number is incremented for every 'allocate' invocation, regardless of
+        // the validity of the request.
+
+    bsls::Types::Int64 numDeallocations() const;
+        // Return the cumulative number of deallocation requests.  Note that
+        // this number is incremented for every 'deallocate' invocation,
+        // regardless of the validity of the request.
+
+    const char *name() const;
+        // Return the name of this test allocator, or 0 if no name was
+        // specified at construction.
+
+    void print() const;
+        // Write the accumulated state information held in this allocator to
+        // 'stdout' in some reasonable (multi-line) format.
+
+// TBD #ifndef BDE_OMIT_DEPRECATED
+
+    void *lastAllocateAddress() const;
+        // Return the allocated memory address of the most recent memory
+        // request.  Return 0 if the request was invalid (e.g., allocate non-
+        // positive number of bytes).
+        //
+        // DEPRECATED: use 'lastAllocatedAddress' instead.
+
+    size_type lastAllocateNumBytes() const;
+        // Return the number of bytes of the most recent memory request.  Note
+        // that this number is always recorded regardless of the validity of
+        // the request.
+        //
+        // DEPRECATED: use 'lastAllocatedNumBytes' instead.
+
+    void *lastDeallocateAddress() const;
+        // Return the memory address of the last memory deallocation request.
+        // Note that the address is always recorded regardless of the validity
+        // of the request.
+        //
+        // DEPRECATED: use 'lastDeallocatedAddress' instead.
+
+    size_type lastDeallocateNumBytes() const;
+        // Return the number of bytes of the most recent memory deallocation
+        // request.  Return 0 if the request was invalid (e.g., deallocating
+        // memory not allocated through this allocator).
+        //
+        // DEPRECATED: use 'lastDeallocatedNumBytes' instead.
+
+    bsls::Types::Int64 numAllocation() const;
+        // Return the cumulative number of allocation requests.  Note that this
+        // number is incremented for every 'allocate' invocation, regardless of
+        // the validity of the request.
+        //
+        // DEPRECATED: use 'numAllocations' instead.
+
+    bsls::Types::Int64 numDeallocation() const;
+        // Return the cumulative number of deallocation requests.  Note that
+        // this number is incremented for every 'deallocate' invocation,
+        // regardless of the validity of the request.
+        //
+        // DEPRECATED: use 'numDeallocations' instead.
+
+// TBD #endif  // BDE_OMIT_DEPRECATED
+};
+
+bsl::ostream& operator<<(bsl::ostream& stream, const TestAllocator& rhs);
+    // Write the accumulated state information held in the specified 'rhs'
+    // allocator to the specified 'stream' in some reasonable (multi-line)
+    // format, and return a reference to 'stream'.  Note that there is a slight
+    // difference between 'operator<<' and the 'print' method.  The 'print'
+    // method prints out the indices of the currently allocated memory blocks,
+    // while 'operator<<' does not.
+
+// ===========================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ===========================================================================
+
+                        // -------------------------
+                        // class TestAllocator
+                        // -------------------------
+
+// CREATORS
+inline
+TestAllocator::TestAllocator(bslma::Allocator *basicAllocator)
+: d_imp(basicAllocator)
+{
+}
+
+inline
+TestAllocator::TestAllocator(bool              verboseFlag,
+                                         bslma::Allocator *basicAllocator)
+: d_imp(verboseFlag, basicAllocator)
+{
+}
+
+inline
+TestAllocator::TestAllocator(const char       *name,
+                                         bool              verboseFlag,
+                                         bslma::Allocator *basicAllocator)
+: d_imp(name, verboseFlag, basicAllocator)
+{
+}
+
+inline
+TestAllocator::~TestAllocator()
+{
+}
+
+// MANIPULATORS
+inline
+void *TestAllocator::allocate(size_type size)
+{
+    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    return d_imp.allocate(size);
+}
+
+inline
+void TestAllocator::deallocate(void *address)
+{
+    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    d_imp.deallocate(address);
+}
+
+inline
+void TestAllocator::setNoAbort(bool flagValue)
+{
+    d_imp.setNoAbort(flagValue);
+}
+
+inline
+void TestAllocator::setQuiet(bool flagValue)
+{
+    d_imp.setQuiet(flagValue);
+}
+
+inline
+void TestAllocator::setVerbose(bool flagValue)
+{
+    d_imp.setVerbose(flagValue);
+}
+
+inline
+void TestAllocator::setAllocationLimit(bsls::Types::Int64 limit)
+{
+    d_imp.setAllocationLimit(limit);
+}
+
+// ACCESSORS
+inline
+bool TestAllocator::isNoAbort() const
+{
+    return d_imp.isNoAbort();
+}
+
+inline
+bool TestAllocator::isQuiet() const
+{
+    return d_imp.isQuiet();
+}
+
+inline
+bool TestAllocator::isVerbose() const
+{
+    return d_imp.isVerbose();
+}
+
+inline
+bsls::Types::Int64 TestAllocator::numBlocksInUse() const
+{
+    return d_imp.numBlocksInUse();
+}
+
+inline
+bsls::Types::Int64 TestAllocator::numBytesInUse() const
+{
+    return d_imp.numBytesInUse();
+}
+
+inline
+bsls::Types::Int64 TestAllocator::numBlocksMax() const
+{
+    return d_imp.numBlocksMax();
+}
+
+inline
+bsls::Types::Int64 TestAllocator::numBytesMax() const
+{
+    return d_imp.numBytesMax();
+}
+
+inline
+bsls::Types::Int64 TestAllocator::numBlocksTotal() const
+{
+    return d_imp.numBlocksTotal();
+}
+
+inline
+bsls::Types::Int64 TestAllocator::numBytesTotal() const
+{
+    return d_imp.numBytesTotal();
+}
+
+inline
+bsls::Types::Int64 TestAllocator::numMismatches() const
+{
+    return d_imp.numMismatches();
+}
+
+inline
+bsls::Types::Int64 TestAllocator::numBoundsErrors() const
+{
+    return d_imp.numBoundsErrors();
+}
+
+inline
+int TestAllocator::status() const
+{
+    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    return d_imp.status();
+}
+
+inline
+bsls::Types::Int64 TestAllocator::allocationLimit() const
+{
+    return d_imp.allocationLimit();
+}
+
+inline
+TestAllocator::size_type
+TestAllocator::lastAllocatedNumBytes() const
+{
+    return d_imp.lastAllocatedNumBytes();
+}
+
+inline
+TestAllocator::size_type
+TestAllocator::lastDeallocatedNumBytes() const
+{
+    return d_imp.lastDeallocatedNumBytes();
+}
+
+inline
+void *TestAllocator::lastAllocatedAddress() const
+{
+    return d_imp.lastAllocatedAddress();
+}
+
+inline
+void *TestAllocator::lastDeallocatedAddress() const
+{
+    return d_imp.lastDeallocatedAddress();
+}
+
+inline
+bsls::Types::Int64 TestAllocator::numAllocations() const
+{
+    return d_imp.numAllocations();
+}
+
+inline
+bsls::Types::Int64 TestAllocator::numDeallocations() const
+{
+    return d_imp.numDeallocations();
+}
+
+inline
+const char *TestAllocator::name() const
+{
+    return d_imp.name();
+}
+
+inline void TestAllocator::print() const
+{
+    bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_mutex);
+    d_imp.print();
+}
+
+// TBD #ifndef BDE_OMIT_DEPRECATED
+inline
+void *TestAllocator::lastAllocateAddress() const
+{
+    return lastAllocatedAddress();
+}
+
+inline
+TestAllocator::size_type
+TestAllocator::lastAllocateNumBytes() const
+{
+    return lastAllocatedNumBytes();
+}
+
+inline
+void *TestAllocator::lastDeallocateAddress() const
+{
+    return lastDeallocatedAddress();
+}
+
+inline
+TestAllocator::size_type
+TestAllocator::lastDeallocateNumBytes() const
+{
+    return lastDeallocatedNumBytes();
+}
+
+inline
+bsls::Types::Int64 TestAllocator::numAllocation() const
+{
+    return numAllocations();
+}
+
+inline
+bsls::Types::Int64 TestAllocator::numDeallocation() const
+{
+    return numDeallocations();
+}
+}  // close package namespace
+
+// TBD #endif  // BDE_OMIT_DEPRECATED
+
+}  // close namespace BloombergLP
+
+#endif
+
+// ---------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2010
+//      All Rights Reserved.
+//      Property of Bloomberg L.P. (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ----------------------------- END-OF-FILE ---------------------------------
