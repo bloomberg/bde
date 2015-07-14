@@ -198,6 +198,8 @@ class SpinLockGuard {
 inline
 void SpinLock::lock() {
     do {
+        // Implementation note: the outer if block is not logically
+        // necessary but may reduce memory barrier costs when spinning.
         if (BSLS_UNLOCKED == AtomicOperations::getIntAcquire(&d_state)) {
             if (BSLS_UNLOCKED == AtomicOperations::swapIntAcqRel(&d_state,
                                                                  BSLS_LOCKED))
@@ -211,6 +213,7 @@ void SpinLock::lock() {
 inline
 int SpinLock::tryLock(int numRetries) {
     do {
+        // See lock() for implementation note.
         if (BSLS_UNLOCKED == AtomicOperations::getIntAcquire(&d_state)) {
             if (BSLS_UNLOCKED == AtomicOperations::swapIntAcqRel(&d_state,
                                                                  BSLS_LOCKED))
