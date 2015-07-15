@@ -1604,8 +1604,8 @@ BSL_OVERRIDES_STD mode"
 namespace BloombergLP {
 namespace bslstl {
     struct SharedPtr_ImpUtil;
-        // Forward declaration of SharedPtr_ImpUtil. This is needed because
-        // this struct is a friend of enable_shared_from_this in the bsl
+        // Forward declaration of 'SharedPtr_ImpUtil'. This is needed because
+        // this struct is a friend of 'enable_shared_from_this' in the 'bsl'
         // namespace.
 }
 }
@@ -3716,15 +3716,15 @@ class weak_ptr {
                     //==============================
 template<class ELEMENT_TYPE>
 class enable_shared_from_this {
-    // This class allows an object that is currently managed by a shared_ptr
+    // This class allows an object that is currently managed by a 'shared_ptr'
     // to safely generate a copy of the managing 'shared_ptr' object.
     // Inheriting from 'enable_shared_from_this<ELEMENT_TYPE>' provides the
     // (template parameter) 'ELEMENT_TYPE' type with a member function
-    // 'share_from_this'. If an object of type 'ELEMENT_TYPE' is owned by a
+    // 'share_from_this'. If an object of type 'ELEMENT_TYPE' is managed by a
     // 'shared_ptr' then calling 'shared_from_this' will return
     // a 'shared_ptr<ELEMENT_TYPE>' that shares ownership of that object.  It
-    // is undefined to call 'shared_from_this' on an object unless that object
-    // is owned by a 'shared_ptr'.
+    // is undefined behavior to call 'shared_from_this' on an object unless
+    // that object is managed by a 'shared_ptr'.
     //
     // The intended use of 'enable_shared_from_this' is that the templated type
     // parameter 'ELEMENT_TYPE' inherits directly from the
@@ -3764,13 +3764,13 @@ class enable_shared_from_this {
   public:
     // MANIPULATORS
     bsl::shared_ptr<ELEMENT_TYPE> shared_from_this();
-        // Return a 'shared_ptr<ELEMENT_TYPE>' that shares ownership of with
+        // Return a 'shared_ptr<ELEMENT_TYPE>' that shares ownership with
         // the 'shared_ptr' object that owns '*this'.  The behavior is
         // undefined unless '*this' is currently managed by a 'shared_ptr'
         // object.
 
     bsl::shared_ptr<const ELEMENT_TYPE> shared_from_this() const;
-        // Return a 'shared_ptr<ELEMENT_TYPE>' that shares ownership of with
+        // Return a 'shared_ptr<ELEMENT_TYPE>' that shares ownership with
         // the 'shared_ptr' object that owns '*this'.  The behavior is
         // undefined unless '*this' is currently managed by a 'shared_ptr'
         // object.
