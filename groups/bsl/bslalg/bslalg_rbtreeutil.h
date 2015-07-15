@@ -691,9 +691,9 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_STDIO
+#ifndef INCLUDED_STDIO_H
 #include <stdio.h>
-#define INCLUDED_STDIO
+#define INCLUDED_STDIO_H
 #endif
 
 namespace BloombergLP {

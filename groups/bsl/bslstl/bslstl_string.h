@@ -668,9 +668,9 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_ERRNO
+#ifndef INCLUDED_ERRNO_H
 #include <errno.h>
-#define INCLUDED_ERRNO
+#define INCLUDED_ERRNO_H
 #endif
 
 #ifndef INCLUDED_ISTREAM
