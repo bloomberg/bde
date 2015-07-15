@@ -6,7 +6,7 @@
 #include <bdlmca_blob.h>
 #include <bdlmca_poolallocator.h>
 #include <bdlmca_pooledblobbufferfactory.h>
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 #include <bdlmtt_threadgroup.h>
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
@@ -681,7 +681,7 @@ int main(int argc, char *argv[])
           "\t                      bslma::Allocator       *basicAllocator = 0)"
                  << endl;
          }
-         bdlma::TestAllocator ta;
+         bslma::TestAllocator ta;
 
          bdlcc::SharedObjectPool<ConstructorTestHelp1a,
                    bdlcc::ObjectPoolFunctors::DefaultCreator,
@@ -841,7 +841,7 @@ int main(int argc, char *argv[])
             SECONDS_TO_RUN=6
          };
 
-         bdlma::TestAllocator alloc;
+         bslma::TestAllocator alloc;
          {
             TestRun<FastBlobPool> test(NUM_THREADS, NUM_BLOBS_PER_ITER,
                                        SECONDS_TO_RUN, &alloc);

@@ -9,7 +9,7 @@
 #include <ball_loggermanager.h>
 #include <ball_severity.h>
 
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 #include <bdlmtt_barrier.h>
 #include <bdlmt_fixedthreadpool.h>
 
@@ -1596,10 +1596,10 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "TEST CONCURRENCY" << endl
                                   << "================" << endl;
 
-        bdlma::TestAllocator defaultAllocator;
+        bslma::TestAllocator defaultAllocator;
         bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
-        bdlma::TestAllocator testAllocator;
+        bslma::TestAllocator testAllocator;
         {
             balm::MetricsManager manager(&testAllocator);
             {

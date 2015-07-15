@@ -5,7 +5,7 @@
 #include <bdlmtt_barrier.h>
 #include <bdlmtt_lockguard.h>
 #include <bdlmtt_semaphore.h>
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 #include <bdlmtt_xxxthread.h>
 #include <bdlmtt_threadgroup.h>
 #include <bdlmtt_xxxatomictypes.h>
@@ -689,8 +689,8 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bdlma::TestAllocator taDefault(veryVeryVeryVerbose);
-    bdlma::TestAllocator ta(veryVeryVeryVerbose);  // passed to
+    bslma::TestAllocator taDefault(veryVeryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVeryVerbose);  // passed to
                                                   // multipriority queue
 
     bslma::DefaultAllocatorGuard guard(&taDefault);
@@ -707,7 +707,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Incorporate the usage example from the header file into the test
         //   driver.  Make use of existing test apparatus by instantiating
-        //   objects with a 'bdlma::TestAllocator' object where applicable.
+        //   objects with a 'bslma::TestAllocator' object where applicable.
         //   Additionally, replace all calls to 'assert' in the usage example
         //   with calls to 'ASSERT'.  This now becomes the source, which is
         //   then "copied" back to the header file by reversing the above
@@ -724,7 +724,7 @@ int main(int argc, char *argv[])
             NUM_THREADS = 8
         };
 
-        bdlma::TestAllocator ta;
+        bslma::TestAllocator ta;
 
         MyWorkRequest item;
         MyWorkData workData;
@@ -781,7 +781,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Incorporate the usage example from the header file into the test
         //   driver.  Make use of existing test apparatus by instantiating
-        //   objects with a 'bdlma::TestAllocator' object where applicable.
+        //   objects with a 'bslma::TestAllocator' object where applicable.
         //   Additionally, replace all calls to 'assert' in the usage example
         //   with calls to 'ASSERT'.  This now becomes the source, which is
         //   then "copied" back to the header file by reversing the above
@@ -1003,8 +1003,8 @@ int main(int argc, char *argv[])
         //   Standard use of the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros.
         // --------------------------------------------------------------------
 
-        bdlma::TestAllocator testAllocator(veryVeryVeryVerbose);
-        bdlma::TestAllocator silentTa;   // always silent
+        bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
+        bslma::TestAllocator silentTa;   // always silent
 
         bsl::list<int> numAllocList(&silentTa);
 
@@ -1192,9 +1192,9 @@ int main(int argc, char *argv[])
             N_PRIORITIES = 8
         };
 
-        bdlma::TestAllocator taDefault(veryVeryVeryVerbose);
-        bdlma::TestAllocator taString(veryVeryVeryVerbose);
-        bdlma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator taDefault(veryVeryVeryVerbose);
+        bslma::TestAllocator taString(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
 
         bslma::DefaultAllocatorGuard guard(&taDefault);
 

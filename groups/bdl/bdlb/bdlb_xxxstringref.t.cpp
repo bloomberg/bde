@@ -1,9 +1,9 @@
 // bdlb_xxxstringref.t.cpp           -*-C++-*-
 
 namespace BloombergLP {
-
-class bdlb::StringRef;        // Test that the class can be forward declared.
-
+namespace bdlb {
+class StringRef;        // Test that the class can be forward declared.
+}  // close package namespace
 }  // close enterprise namespace
 
 #include <bdlb_xxxstringref.h>
@@ -166,6 +166,9 @@ static const char *NULL_STRING      = 0;
 static const char *EMPTY_STRING     = "";
 static const char *NON_EMPTY_STRING = "Tangled Up in Blue - Bob Dylan";
 
+namespace BloombergLP {
+namespace bdlb {
+
 struct StringProducer {
     operator bsl::string() const
     {
@@ -179,6 +182,12 @@ struct StringRefProducer {
         return bdlb::StringRef("woof");
     }
 };
+
+}  // close package namespace
+}  // close enterprise namespace
+
+typedef BloombergLP::bdlb::StringProducer    StringProducer;
+typedef BloombergLP::bdlb::StringRefProducer StringRefProducer;
 
 //==========================================================================
 //              HELPER FUNCTIONS FOR TESTING USAGE EXAMPLE

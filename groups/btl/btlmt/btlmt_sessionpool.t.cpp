@@ -8,7 +8,7 @@
 
 #include <bdlmca_blobutil.h>
 #include <bdlmca_pooledblobbufferfactory.h>
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 #include <bdlmtt_xxxthread.h>
 #include <bdlmtt_barrier.h>
 #include <bdlmtt_semaphore.h>
@@ -1893,7 +1893,7 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
-    bdlma::TestAllocator ta("ta", veryVeryVerbose);
+    bslma::TestAllocator ta("ta", veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 16: {
@@ -1955,7 +1955,7 @@ int main(int argc, char *argv[])
         using namespace BTEMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
 
         bslma::DefaultAllocatorGuard defaultAllocGuard(&ta);
-        bdlma::TestAllocator pa("poolAllocator", veryVeryVerbose);
+        bslma::TestAllocator pa("poolAllocator", veryVeryVerbose);
 
         btlmt::ChannelPoolConfiguration config;
         config.setMaxThreads(4);
@@ -3072,7 +3072,7 @@ int main(int argc, char *argv[])
 
         using namespace BTEMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
 
-        bdlma::TestAllocator da("default", veryVeryVerbose);
+        bslma::TestAllocator da("default", veryVeryVerbose);
         bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
 
         TestFactory factory(true, 0, &ta);
@@ -3135,7 +3135,7 @@ int main(int argc, char *argv[])
 
         using namespace BTEMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
 
-        bdlma::TestAllocator da("default", veryVeryVerbose);
+        bslma::TestAllocator da("default", veryVeryVerbose);
         bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
 
         TestFactory factory(false, 0, &ta);

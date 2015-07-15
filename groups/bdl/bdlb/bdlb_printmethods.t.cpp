@@ -29,10 +29,10 @@ using namespace bsl;  // automatically added by script
 // and suppress indentation [9].  Finally, test the usage example to make sure
 // it compiles and runs [10].
 //-----------------------------------------------------------------------------
-// [ 4] bdeu::PrintMethods_Imp<TYPE, bdlb::HasPrintMethod>::print(...);
-// [ 6] bdeu::PrintMethods_Imp<TYPE, bslalg::HasStlIterators>::print(...);
-// [ 5] bdeu::PrintMethods_Imp<TYPE, bslmf::IsPair>::print(...);
-// [ 3] bdeu::PrintMethods_Imp<TYPE, bsl::false_type>::print(...);
+// [ 4] bdlb::PrintMethods_Imp<TYPE, bdlb::HasPrintMethod>::print(...);
+// [ 6] bdlb::PrintMethods_Imp<TYPE, bslalg::HasStlIterators>::print(...);
+// [ 5] bdlb::PrintMethods_Imp<TYPE, bslmf::IsPair>::print(...);
+// [ 3] bdlb::PrintMethods_Imp<TYPE, bsl::false_type>::print(...);
 // [ 7] bdlb::PrintMethods::print(..., const TYPE&, ...);
 // [ 2] bdlb::PrintMethods::print(..., const vector<char, ALLOC>, ...);
 //-----------------------------------------------------------------------------
@@ -507,14 +507,16 @@ class TestType_NoTraits {
 // template.
 namespace BloombergLP {
 
-template <> struct bdlb::HasPrintMethod<TestType_PrintMethod> :
+namespace bdlb {
+template <> struct HasPrintMethod<TestType_PrintMethod> :
     bsl::true_type { };
-template <> struct bdlb::HasPrintMethod<TestType_PrintMethod_Pair> :
+template <> struct HasPrintMethod<TestType_PrintMethod_Pair> :
     bsl::true_type { };
-template <> struct bdlb::HasPrintMethod<TestType_PrintMethod_STLIterators> :
+template <> struct HasPrintMethod<TestType_PrintMethod_STLIterators> :
     bsl::true_type { };
-template <> struct bdlb::HasPrintMethod<TestType_PrintMethod_STLIterators_Pair>:
+template <> struct HasPrintMethod<TestType_PrintMethod_STLIterators_Pair>:
     bsl::true_type { };
+}
 
 namespace bslalg {
 template <> struct HasStlIterators<TestType_STLIterators> :
@@ -535,7 +537,7 @@ template <> struct IsPair<TestType_PrintMethod_STLIterators_Pair> :
     bsl::true_type { };
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 //=============================================================================
 //                               USAGE EXAMPLE
@@ -609,8 +611,8 @@ template <> struct IsPair<TestType_PrintMethod_STLIterators_Pair> :
 //  myWrapperForInt.print(bsl::cout);  // Error: 'int' has no corresponding
 //                                     // 'print' method.
 //..
-// The solution is to use the 'bdlb::PrintMethods::print' method, which provides
-// generic printing capabilities, as follows:
+// The solution is to use the 'bdlb::PrintMethods::print' method, which
+// provides generic printing capabilities, as follows:
 //..
     template <typename TYPE>
     bsl::ostream& MyWrapper<TYPE>::print(bsl::ostream& stream,
@@ -1201,7 +1203,7 @@ int main(int argc, char *argv[])
         //   method for the contained elements.
         //
         // Testing:
-        //   bdeu::PrintMethods_Imp<TYPE, BDEU_STL_ITERATORS>::print(...);
+        //   bdlb::PrintMethods_Imp<TYPE, BDEU_STL_ITERATORS>::print(...);
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -1319,7 +1321,7 @@ int main(int argc, char *argv[])
 
                 stringstream ss;
 
-                ostream& ret = bdeu::PrintMethods_Imp<Type,
+                ostream& ret = bdlb::PrintMethods_Imp<Type,
                                                      BdeuPrintMethod>::print(
                                                              ss,
                                                              VALUE,
@@ -1377,7 +1379,7 @@ int main(int argc, char *argv[])
 
                     stringstream ss;
 
-                    ostream& ret = bdeu::PrintMethods_Imp<
+                    ostream& ret = bdlb::PrintMethods_Imp<
                                         Type,
                                         BdeuPrintMethod>::print(ss,
                                                                 VALUE,
@@ -1396,7 +1398,7 @@ int main(int argc, char *argv[])
 
                     stringstream ss;
 
-                    ostream& ret = bdeu::PrintMethods_Imp<
+                    ostream& ret = bdlb::PrintMethods_Imp<
                                         Type,
                                         BdeuPrintMethod>::print(ss,
                                                                 VALUE,
@@ -1438,7 +1440,7 @@ int main(int argc, char *argv[])
                                                "]\n";
 
                 stringstream ss;
-                ostream& ret = bdeu::PrintMethods_Imp<Type,
+                ostream& ret = bdlb::PrintMethods_Imp<Type,
                                                      BdeuPrintMethod>::print(
                                                                          ss,
                                                                          VALUE,
@@ -1457,7 +1459,7 @@ int main(int argc, char *argv[])
                                                "]";
 
                 stringstream ss;
-                ostream& ret = bdeu::PrintMethods_Imp<Type,
+                ostream& ret = bdlb::PrintMethods_Imp<Type,
                                                      BdeuPrintMethod>::print(
                                                                         ss,
                                                                         VALUE,
@@ -1508,7 +1510,7 @@ int main(int argc, char *argv[])
                                                "]\n";
 
                 stringstream ss;
-                ostream& ret = bdeu::PrintMethods_Imp<Type,
+                ostream& ret = bdlb::PrintMethods_Imp<Type,
                                                      BdeuPrintMethod>::print(
                                                                          ss,
                                                                          VALUE,
@@ -1524,7 +1526,7 @@ int main(int argc, char *argv[])
                 const char EXPECTED_OUTPUT[] = "[ [ 2 6 23 ] [ 54 2 ] ]";
 
                 stringstream ss;
-                ostream& ret = bdeu::PrintMethods_Imp<Type,
+                ostream& ret = bdlb::PrintMethods_Imp<Type,
                                                      BdeuPrintMethod>::print(
                                                                         ss,
                                                                         VALUE,
@@ -1564,7 +1566,7 @@ int main(int argc, char *argv[])
                                                "]\n";
 
                 stringstream ss;
-                ostream& ret = bdeu::PrintMethods_Imp<Type,
+                ostream& ret = bdlb::PrintMethods_Imp<Type,
                                                      BdeuPrintMethod>::print(
                                                                          ss,
                                                                          VALUE,
@@ -1580,7 +1582,7 @@ int main(int argc, char *argv[])
                 const char EXPECTED_OUTPUT[] = "[ [ 45 1.23 ] [ 21 97.54 ] ]";
 
                 stringstream ss;
-                ostream& ret = bdeu::PrintMethods_Imp<Type,
+                ostream& ret = bdlb::PrintMethods_Imp<Type,
                                                      BdeuPrintMethod>::print(
                                                                         ss,
                                                                         VALUE,
@@ -1615,7 +1617,7 @@ int main(int argc, char *argv[])
 
                 stringstream ss;
 
-                ostream& ret = bdeu::PrintMethods_Imp<Type,
+                ostream& ret = bdlb::PrintMethods_Imp<Type,
                                                      BdeuPrintMethod>::print(
                                                              ss,
                                                              VALUE,
@@ -1649,7 +1651,7 @@ int main(int argc, char *argv[])
 
                 stringstream ss;
 
-                ostream& ret = bdeu::PrintMethods_Imp<Type,
+                ostream& ret = bdlb::PrintMethods_Imp<Type,
                                                      BdeuPrintMethod>::print(
                                                              ss,
                                                              VALUE,
@@ -1681,10 +1683,9 @@ int main(int argc, char *argv[])
 
             ss.setstate(ios_base::badbit);
 
-            ostream& ret = bdeu::PrintMethods_Imp<Type, BdeuPrintMethod>::print(
-                                                                        ss,
-                                                                        VALUE,
-                                                                        0, -1);
+            ostream& ret =
+                bdlb::PrintMethods_Imp<Type, BdeuPrintMethod>::print(
+                    ss, VALUE, 0, -1);
 
             ASSERT(&ss == &ret);
             LOOP_ASSERT(ss.str(), "" == ss.str());
@@ -1714,7 +1715,7 @@ int main(int argc, char *argv[])
         //   method for the contained elements.
         //
         // Testing:
-        //   bdeu::PrintMethods_Imp<TYPE, BDEU_PAIR>::print(...);
+        //   bdlb::PrintMethods_Imp<TYPE, BDEU_PAIR>::print(...);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting 'BDEU_PAIR' Print Implementation"
@@ -1830,7 +1831,7 @@ int main(int argc, char *argv[])
 
                 stringstream ss;
 
-                ostream& ret = bdeu::PrintMethods_Imp<Type,
+                ostream& ret = bdlb::PrintMethods_Imp<Type,
                                                      BdeuPrintMethod>::print(
                                                              ss,
                                                              VALUE,
@@ -1868,7 +1869,7 @@ int main(int argc, char *argv[])
                                                "]\n";
 
                 stringstream ss;
-                ostream& ret = bdeu::PrintMethods_Imp<Type,
+                ostream& ret = bdlb::PrintMethods_Imp<Type,
                                                      BdeuPrintMethod>::print(
                                                                          ss,
                                                                          VALUE,
@@ -1887,7 +1888,7 @@ int main(int argc, char *argv[])
                                                "]";
 
                 stringstream ss;
-                ostream& ret = bdeu::PrintMethods_Imp<Type,
+                ostream& ret = bdlb::PrintMethods_Imp<Type,
                                                      BdeuPrintMethod>::print(
                                                                         ss,
                                                                         VALUE,
@@ -1934,7 +1935,7 @@ int main(int argc, char *argv[])
                                                "]\n";
 
                 stringstream ss;
-                ostream& ret = bdeu::PrintMethods_Imp<Type,
+                ostream& ret = bdlb::PrintMethods_Imp<Type,
                                                      BdeuPrintMethod>::print(
                                                                          ss,
                                                                          VALUE,
@@ -1950,7 +1951,7 @@ int main(int argc, char *argv[])
                 const char EXPECTED_OUTPUT[] = "[ [ 2 6 23 ] [ 54 2 ] ]";
 
                 stringstream ss;
-                ostream& ret = bdeu::PrintMethods_Imp<Type,
+                ostream& ret = bdlb::PrintMethods_Imp<Type,
                                                      BdeuPrintMethod>::print(
                                                                         ss,
                                                                         VALUE,
@@ -1987,7 +1988,7 @@ int main(int argc, char *argv[])
                                                "]\n";
 
                 stringstream ss;
-                ostream& ret = bdeu::PrintMethods_Imp<Type,
+                ostream& ret = bdlb::PrintMethods_Imp<Type,
                                                      BdeuPrintMethod>::print(
                                                                          ss,
                                                                          VALUE,
@@ -2003,7 +2004,7 @@ int main(int argc, char *argv[])
                 const char EXPECTED_OUTPUT[] = "[ [ 45 21 ] [ 1.23 97.54 ] ]";
 
                 stringstream ss;
-                ostream& ret = bdeu::PrintMethods_Imp<Type,
+                ostream& ret = bdlb::PrintMethods_Imp<Type,
                                                      BdeuPrintMethod>::print(
                                                                         ss,
                                                                         VALUE,
@@ -2034,7 +2035,7 @@ int main(int argc, char *argv[])
 
                 stringstream ss;
 
-                ostream& ret = bdeu::PrintMethods_Imp<Type,
+                ostream& ret = bdlb::PrintMethods_Imp<Type,
                                                      BdeuPrintMethod>::print(
                                                              ss,
                                                              VALUE,
@@ -2072,7 +2073,7 @@ int main(int argc, char *argv[])
 
                 stringstream ss;
 
-                ostream& ret = bdeu::PrintMethods_Imp<Type,
+                ostream& ret = bdlb::PrintMethods_Imp<Type,
                                                      BdeuPrintMethod>::print(
                                                              ss,
                                                              VALUE,
@@ -2113,10 +2114,9 @@ int main(int argc, char *argv[])
 
             ss.setstate(ios_base::badbit);
 
-            ostream& ret = bdeu::PrintMethods_Imp<Type, BdeuPrintMethod>::print(
-                                                                        ss,
-                                                                        VALUE,
-                                                                        0, -1);
+            ostream& ret =
+                bdlb::PrintMethods_Imp<Type, BdeuPrintMethod>::print(
+                    ss, VALUE, 0, -1);
 
             ASSERT(&ss == &ret);
             LOOP_ASSERT(ss.str(), "" == ss.str());
@@ -2137,7 +2137,7 @@ int main(int argc, char *argv[])
         //   'spacesPerLevel'.
         //
         // Testing:
-        //   bdeu::PrintMethods_Imp<TYPE, BdeuPrintMethod>::print(...);
+        //   bdlb::PrintMethods_Imp<TYPE, BdeuPrintMethod>::print(...);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting 'BdeuPrintMethod' Print Implementation"
@@ -2196,11 +2196,9 @@ int main(int argc, char *argv[])
 
             stringstream ss;
 
-            ostream& ret = bdeu::PrintMethods_Imp<Type, BdeuPrintMethod>::print(
-                                                             ss,
-                                                             VALUE,
-                                                             LEVEL,
-                                                             SPACES_PER_LEVEL);
+            ostream& ret =
+                bdlb::PrintMethods_Imp<Type, BdeuPrintMethod>::print(
+                    ss, VALUE, LEVEL, SPACES_PER_LEVEL);
 
             LOOP_ASSERT(LINE, &ss == &ret);
             LOOP_ASSERT(LINE, &ss == VALUE.stream());
@@ -2226,7 +2224,7 @@ int main(int argc, char *argv[])
         //   spacesPerLevel values.  Check that the results are as expected.
         //
         // Testing:
-        //   bdeu::PrintMethods_Imp<TYPE, BDEU_STREAM_OPERATOR>::print(...);
+        //   bdlb::PrintMethods_Imp<TYPE, BDEU_STREAM_OPERATOR>::print(...);
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -2298,7 +2296,7 @@ int main(int argc, char *argv[])
 
                 stringstream ss;
 
-                ostream& ret = bdeu::PrintMethods_Imp<Type,
+                ostream& ret = bdlb::PrintMethods_Imp<Type,
                                                      BdeuPrintMethod>::print(
                                                              ss,
                                                              VALUE,
@@ -2331,7 +2329,7 @@ int main(int argc, char *argv[])
 
                 stringstream ss;
 
-                ostream& ret = bdeu::PrintMethods_Imp<Type,
+                ostream& ret = bdlb::PrintMethods_Imp<Type,
                                                      BdeuPrintMethod>::print(
                                                              ss,
                                                              VALUE,
@@ -2365,7 +2363,7 @@ int main(int argc, char *argv[])
 
                 stringstream ss;
 
-                ostream& ret = bdeu::PrintMethods_Imp<Type,
+                ostream& ret = bdlb::PrintMethods_Imp<Type,
                                                      BdeuPrintMethod>::print(
                                                              ss,
                                                              VALUE,
@@ -2389,10 +2387,9 @@ int main(int argc, char *argv[])
 
             ss.setstate(ios_base::badbit);
 
-            ostream& ret = bdeu::PrintMethods_Imp<Type, BdeuPrintMethod>::print(
-                                                                        ss,
-                                                                        VALUE,
-                                                                        0, -1);
+            ostream& ret =
+                bdlb::PrintMethods_Imp<Type, BdeuPrintMethod>::print(
+                    ss, VALUE, 0, -1);
 
             ASSERT(&ss == &ret);
             LOOP_ASSERT(ss.str(), "" == ss.str());

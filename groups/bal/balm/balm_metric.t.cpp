@@ -8,7 +8,7 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 #include <bdlmtt_barrier.h>
 #include <bdlmt_fixedthreadpool.h>
 #include <bdlf_bind.h>
@@ -447,14 +447,14 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "TEST CONCURRENCY: 'balm::Metric'" << endl
                                   << "===============================" << endl;
 
-        bdlma::TestAllocator defaultAllocator;
+        bslma::TestAllocator defaultAllocator;
 
         balm::MetricsManager mgr(Z);
         Registry&   registry   = mgr.metricRegistry();
         Repository& repository = mgr.collectorRepository();
         balm::Metric metric(repository.getDefaultCollector("Test", "Test"));
 
-        bdlma::TestAllocator testAllocator;
+        bslma::TestAllocator testAllocator;
         {
             MetricConcurrencyTest tester(10, &metric,
                                          &registry,  &testAllocator);

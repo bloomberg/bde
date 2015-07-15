@@ -2,7 +2,7 @@
 
 #include <bdlcc_skiplist.h>
 
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 #include <bdlmtt_lockguard.h>
 #include <bdlmtt_barrier.h>
 #include <bdlmtt_xxxthread.h>
@@ -15,7 +15,6 @@
 #include <bdlt_currenttime.h>
 #include <bdlt_intervalconversionutil.h>
 #include <bdlt_datetime.h>
-#include <bdetu_time.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 
@@ -318,10 +317,9 @@ class SimpleScheduler
             if (0 == d_list.front(&firstItem)) {
                 // The list is not empty.
 
-                bsls::TimeInterval when;
-                bdlt::IntervalConversionUtil::convertToTimeInterval(&when,
-                               firstItem.key() -
-                               bdlt::CurrentTime::utc());
+                bsls::TimeInterval when =
+                    bdlt::IntervalConversionUtil::convertToTimeInterval(
+                                   firstItem.key() - bdlt::CurrentTime::utc());
                 if (when.totalSecondsAsDouble() <= 0) {
                     // Execute now and remove from schedule, then iterate.
 
@@ -877,8 +875,8 @@ int main(int argc, char *argv[])
 
         const int numParameters = sizeof(parameters) / sizeof(Parameters);
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
-        bdlma::TestAllocator da(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator da(veryVeryVerbose);
         bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
         {
             bdlcc::SkipList<bsl::string, bsl::string> mA(&ta), mB(&ta);
@@ -971,8 +969,8 @@ int main(int argc, char *argv[])
         //   * skipping a removed item returns BCEC_NOT_FOUND
         //   * reference counting is correct
         // ----------------------------------------------------
-        bdlma::TestAllocator ta(veryVeryVerbose);
-        bdlma::TestAllocator da(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator da(veryVeryVerbose);
         bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
         typedef bdlcc::SkipList<int, bsl::string> SkipList;
         {
@@ -1124,7 +1122,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        bdlma::TestAllocator ta;
+        bslma::TestAllocator ta;
         {
             SkipList mX(&ta);
             bdlmtt::ThreadGroup tg;
@@ -1214,7 +1212,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        bdlma::TestAllocator ta;
+        bslma::TestAllocator ta;
         {
             SkipList mX(&ta);
 
@@ -1316,7 +1314,7 @@ int main(int argc, char *argv[])
                           << "Node deallocation thread safety test" << endl
                           << "====================================" << endl;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             typedef bdlcc::SkipList<int, int> SkipList;
             SkipList list(&ta);
@@ -1353,8 +1351,8 @@ int main(int argc, char *argv[])
                           << "findR test" << endl
                           << "==============" << endl;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
-        bdlma::TestAllocator da(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator da(veryVeryVerbose);
         bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
         typedef bdlcc::SkipList<int, bsl::string> SkipList;
         {
@@ -1391,8 +1389,8 @@ int main(int argc, char *argv[])
                           << "=============" << endl;
 
         {
-            bdlma::TestAllocator ta(veryVeryVerbose);
-            bdlma::TestAllocator da(veryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator da(veryVeryVerbose);
             bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
             typedef bdlcc::SkipList<int, bsl::string> SkipList;
             {
@@ -1598,8 +1596,8 @@ int main(int argc, char *argv[])
                           << "removeAll test" << endl
                           << "==============" << endl;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
-        bdlma::TestAllocator da(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator da(veryVeryVerbose);
         bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
         typedef bdlcc::SkipList<int, bsl::string> SkipList;
         {
@@ -1674,8 +1672,8 @@ int main(int argc, char *argv[])
                           << "find test" << endl
                           << "==============" << endl;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
-        bdlma::TestAllocator da(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator da(veryVeryVerbose);
         bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
         typedef bdlcc::SkipList<int, bsl::string> SkipList;
         {
@@ -1748,8 +1746,8 @@ int main(int argc, char *argv[])
                           << "iteration test" << endl
                           << "==============" << endl;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
-        bdlma::TestAllocator da(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator da(veryVeryVerbose);
         bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
         typedef bdlcc::SkipList<int, bsl::string> SkipList;
         {
@@ -1794,8 +1792,8 @@ int main(int argc, char *argv[])
                           << "iteration test" << endl
                           << "==============" << endl;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
-        bdlma::TestAllocator da(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator da(veryVeryVerbose);
         bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
         typedef bdlcc::SkipList<int, bsl::string> SkipList;
         {
@@ -1844,8 +1842,8 @@ int main(int argc, char *argv[])
                           << "=============" << endl;
 
         {
-            bdlma::TestAllocator ta(veryVeryVerbose);
-            bdlma::TestAllocator da(veryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator da(veryVeryVerbose);
             bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
             typedef bdlcc::SkipList<int,int> Obj;
             typedef Obj::PairHandle H;
@@ -1996,8 +1994,8 @@ int main(int argc, char *argv[])
                           << "===============" << endl;
 
         {
-            bdlma::TestAllocator ta(veryVeryVerbose);
-            bdlma::TestAllocator da(veryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator da(veryVeryVerbose);
             bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
 
             typedef bdlcc::SkipList<int,bsl::string> SkipList;

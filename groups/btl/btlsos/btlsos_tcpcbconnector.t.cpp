@@ -10,7 +10,7 @@
 #include <btlso_socketimputil.h>            // cleanup, startup
 
 #include <bdlmtt_xxxthread.h>                   // thread management util
-#include <bdlma_xxxtestallocator.h>            // thread-safe allocator
+#include <bslma_testallocator.h>            // thread-safe allocator
 
 #include <bdlt_currenttime.h>
 #include <bsls_timeinterval.h>
@@ -768,7 +768,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bdlma::TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
     testAllocator.setNoAbort(1);
     btlso::InetStreamSocketFactory<btlso::IPv4Address> factory(&testAllocator);
 

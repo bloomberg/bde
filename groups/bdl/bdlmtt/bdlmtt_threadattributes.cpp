@@ -22,14 +22,12 @@ namespace bdlmtt {
 // does not break compilation, they should be removed in BDE 2.24.
 
 // CLASS METHODS
-int ThreadAttributes::getMaxSchedPriority(
-                               ThreadAttributes::SchedulingPolicy policy)
+int ThreadAttributes::getMaxSchedPriority(ThreadAttributes::SchedulingPolicy)
 {
     return BCEMT_UNSET_PRIORITY;
 }
 
-int ThreadAttributes::getMinSchedPriority(
-                               ThreadAttributes::SchedulingPolicy policy)
+int ThreadAttributes::getMinSchedPriority(ThreadAttributes::SchedulingPolicy)
 {
     return BCEMT_UNSET_PRIORITY;
 }

@@ -12,7 +12,7 @@
 #include <bdlmtt_barrier.h>                      // for testing only
 #include <bdlmtt_xxxthread.h>                       // for testing only
 
-#include <bdlma_xxxtestallocator.h>                // for testing only
+#include <bslma_testallocator.h>                // for testing only
 
 #include <bdlmtt_xxxatomictypes.h>                   // for testing only
 
@@ -1290,7 +1290,7 @@ int main(int argc, char *argv[])
         int numPublished       = 0;
         int numBufferedRecords = 0;
 
-        bdlma::TestAllocator             ta;
+        bslma::TestAllocator             ta;
         ball::TestObserver               to(bsl::cout, &ta);
         const ball::TestObserver        *TO = &to;
         ball::LoggerManagerConfiguration lmc;
@@ -2215,7 +2215,7 @@ int main(int argc, char *argv[])
 
         ball::DefaultObserver            observer(cout);
         ball::LoggerManagerConfiguration configuration;
-        static bdlma::TestAllocator      ta(veryVeryVerbose);
+        static bslma::TestAllocator      ta(veryVeryVerbose);
 
         ball::LoggerManagerScopedGuard guard(&observer, configuration, &ta);
         manager = &Obj::singleton();
@@ -2267,7 +2267,7 @@ int main(int argc, char *argv[])
         configuration.setTriggerMarkers(
                BloombergLP::ball::LoggerManagerConfiguration::BAEL_NO_MARKERS);
 
-        static bdlma::TestAllocator      ta(veryVeryVerbose);
+        static bslma::TestAllocator      ta(veryVeryVerbose);
         ball::LoggerManagerScopedGuard guard(&observer, configuration, &ta);
         Obj& localManager = Obj::singleton();
         manager = &localManager;

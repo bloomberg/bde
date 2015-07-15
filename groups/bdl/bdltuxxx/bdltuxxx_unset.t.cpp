@@ -10,8 +10,6 @@
 #include <bsls_objectbuffer.h>
 #include <bsl_vector.h>
 
-#include <bdet_datetimeinterval.h>
-
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 

@@ -2,7 +2,7 @@
 
 #include <bdlmca_xxxpooledbufferchainstreambuf.h>
 
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -180,7 +180,7 @@ int main(int argc, char *argv[]) {
                  << "========================" << endl;
         }
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {}
         //ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
@@ -223,7 +223,7 @@ int main(int argc, char *argv[]) {
                  << "==================================" << endl;
         }
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             const struct {
                 int d_line;          // source line number
@@ -361,7 +361,7 @@ int main(int argc, char *argv[]) {
                  << "=======================================" << endl;
         }
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             const struct {
                 int d_line;          // source line number
@@ -459,7 +459,7 @@ int main(int argc, char *argv[]) {
                  << "========================" << endl;
         }
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             enum {
                 BUFFER_SIZE_A = 16,    // buffer size for factory "A"
@@ -585,7 +585,7 @@ int main(int argc, char *argv[]) {
                  << "=======================" << endl;
         }
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {}
         //ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
@@ -641,7 +641,7 @@ int main(int argc, char *argv[]) {
                  << "========================================" << endl;
         }
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             const struct {
                 int d_line;          // source line number
@@ -730,7 +730,7 @@ int main(int argc, char *argv[]) {
                  << "==============" << endl;
         }
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             enum { MAX_BUFFER_SIZE = 10 };
             for(int i = 0; i < MAX_BUFFER_SIZE; ++i) {
@@ -808,7 +808,7 @@ int main(int argc, char *argv[]) {
                  << "================" << endl;
         }
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // Test Initialization

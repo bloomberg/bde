@@ -8,7 +8,6 @@
 #include <bsl_climits.h>
 #include <bsl_limits.h>
 #include <bsl_iostream.h>
-#include <bdlpuxxx_typesparser.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -21,8 +20,6 @@
 #include <bdlmca_blob.h>                       // for testing only
 #include <bdlmca_pooledblobbufferfactory.h>    // for testing only
 #include <bdlmca_blobstreambuf.h>              // for testing only
-
-#include <bdlaggxxx_aggregate.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -279,16 +276,13 @@ int main(int argc, char *argv[])
     baljsn::Tokenizer tokenizer;
     tokenizer.reset(&isb);
 //..
-// Next, we will create a 'bdlaggxxx::Aggregate' representing an employee:
+// Next, we will create an address record type and object.
 //..
-    bsl::shared_ptr<bdlmxxx::Schema> schema(new bdlmxxx::Schema);
-//
-    bdlmxxx::RecordDef *addressRecord = schema->createRecord("Address");
-    addressRecord->appendField(bdlmxxx::ElemType::BDEM_STRING, "street");
-    addressRecord->appendField(bdlmxxx::ElemType::BDEM_STRING, "state");
-    addressRecord->appendField(bdlmxxx::ElemType::BDEM_INT, "zipcode");
-//
-    bdlaggxxx::Aggregate address(schema, "Address");
+    struct Address {
+        bsl::string d_street;
+        bsl::string d_state;
+        int         d_zipcode;
+    } address = { "", "", 0 };
 //..
 // Then, we will traverse the JSON data one node at a time:
 //..
@@ -330,24 +324,17 @@ int main(int argc, char *argv[])
 
         // Extract the simple type with the data
 
-        if (bdlmxxx::ElemType::BDEM_STRING == address.fieldType(elementName)) {
-
-            bsl::string data;
-            rc = baljsn::ParserUtil::getValue(&data, nodeValue);
+        if (elementName == "street") {
+            rc = baljsn::ParserUtil::getValue(&address.d_street, nodeValue);
             ASSERT(!rc);
-
-            // Populate the element with the read value
-
-            address.setField(elementName, data);
         }
-        else if (bdlmxxx::ElemType::BDEM_INT == address.fieldType(elementName)) {
-            int data;
-            rc = baljsn::ParserUtil::getValue(&data, nodeValue);
+        else if (elementName == "state") {
+            rc = baljsn::ParserUtil::getValue(&address.d_state, nodeValue);
             ASSERT(!rc);
-
-            // Populate the element with the read value
-
-            address.setField(elementName, data);
+        }
+        else if (elementName == "zipcode") {
+            rc = baljsn::ParserUtil::getValue(&address.d_zipcode, nodeValue);
+            ASSERT(!rc);
         }
 
         rc = tokenizer.advanceToNextToken();
@@ -357,9 +344,9 @@ int main(int argc, char *argv[])
 //..
 // Finally, we will verify that the 'address' aggregate has the correct values:
 //..
-    ASSERT("Lexington Ave" == address["street"].asString());
-    ASSERT("New York"      == address["state"].asString());
-    ASSERT(10022           == address["zipcode"].asInt());
+    ASSERT("Lexington Ave" == address.d_street);
+    ASSERT("New York"      == address.d_state);
+    ASSERT(10022           == address.d_zipcode);
 //..
       } break;
       case 13: {

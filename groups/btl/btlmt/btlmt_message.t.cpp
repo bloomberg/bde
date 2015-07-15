@@ -3,7 +3,7 @@
 #include <btlmt_message.h>
 
 #include <bdlcc_queue.h>
-#include <bdlma_xxxtestallocator.h>                // for testing only
+#include <bslma_testallocator.h>                // for testing only
 #include <bdlmca_pool.h>
 //#include <bdlmca_defaultdeleter.h>
 #include <bdlmca_blob.h>
@@ -224,7 +224,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bdlma::TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 9: {
@@ -340,7 +340,7 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < NUM_DATA; ++i) {
             if (veryVerbose) P(i);
-            bdlma::TestAllocator localAllocator(veryVeryVerbose);
+            bslma::TestAllocator localAllocator(veryVeryVerbose);
             bdlmca::PooledBufferChainFactory factory(BUFFER_LENGTH,
                                                    &localAllocator);
 
@@ -405,7 +405,7 @@ int main(int argc, char *argv[])
             << "TESTING btlmt::Message ON BLOB MESSAGES" << endl
             << "======================================" << endl;
 
-        bdlma::TestAllocator testAllocator;
+        bslma::TestAllocator testAllocator;
         enum { CHUNK_SIZE = 32 };
         bdlmca::PooledBlobBufferFactory factory(CHUNK_SIZE, &testAllocator);
 
@@ -458,7 +458,7 @@ int main(int argc, char *argv[])
             << "TESTING btlmt::Message ON DATA MESSAGES" << endl
             << "======================================" << endl;
 
-        bdlma::TestAllocator testAllocator;
+        bslma::TestAllocator testAllocator;
         enum { CHUNK_SIZE = 32 };
         bdlmca::PooledBufferChainFactory factory(CHUNK_SIZE, &testAllocator);
 
@@ -526,7 +526,7 @@ int main(int argc, char *argv[])
         enum { BUFFER_LENGTH = 64 };
 
         for (int i = 0; i < NUM_DATA; ++i) {
-            bdlma::TestAllocator localAllocator(veryVeryVerbose);
+            bslma::TestAllocator localAllocator(veryVeryVerbose);
             bdlmca::Pool myPool(BUFFER_LENGTH, &localAllocator);
             DefaultDeleter<bdlmca::PooledBufferChain>
                 deleter(&localAllocator);
@@ -627,7 +627,7 @@ int main(int argc, char *argv[])
             ASSERT(TEST_VOID_DATA == mY.voidPtrData());
         }
         {
-            bdlma::TestAllocator   localTestAllocator(veryVeryVerbose);
+            bslma::TestAllocator   localTestAllocator(veryVeryVerbose);
             enum { NUM_BYTES = 64 }; // some number
             bdlmca::Pool myPool(NUM_BYTES, &localTestAllocator);
             DefaultDeleter<bdlmca::PooledBufferChain>
@@ -697,7 +697,7 @@ int main(int argc, char *argv[])
             ASSERT(TEST_VOID_DATA == mX.voidPtrData());
         }
         {
-            bdlma::TestAllocator   localTestAllocator(veryVeryVerbose);
+            bslma::TestAllocator   localTestAllocator(veryVeryVerbose);
             enum { NUM_BYTES = 64 }; // some number
             bdlmca::Pool myPool(NUM_BYTES, &localTestAllocator);
             DefaultDeleter<bdlmca::PooledBufferChain>

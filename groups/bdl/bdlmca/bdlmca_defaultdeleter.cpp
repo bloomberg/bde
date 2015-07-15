@@ -4,7 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlmca_defaultdeleter_cpp,"$Id$ $CSID$")
 
-#include <bdlma_xxxtestallocator.h>    // for testing only
+#include <bslma_testallocator.h>    // for testing only
 #include <bsl_memory.h>        // for testing only
 
 // ---------------------------------------------------------------------------

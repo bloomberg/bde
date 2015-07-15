@@ -7,6 +7,7 @@
 #include <bdlmtt_barrier.h>
 
 #include <bdlt_datetimeutil.h>
+#include <bdlt_epochutil.h>
 
 #include <bslma_default.h>
 #include <bsls_types.h>
@@ -545,8 +546,7 @@ int main(int argc, char *argv[])
         bslma::Allocator *alloc = bslma::Default::defaultAllocator();
         ball::FixedSizeRecordBuffer rb(MAX_TOTAL_SIZE, alloc);
 
-        bdlt::Datetime now;
-        bdetu_Datetime::convertFromTimeT(&now, time(0));
+        bdlt::Datetime now = bdlt::EpochUtil::convertFromTimeT(time(0));
         int pid = 1, tid = 2;
         ball::Record *R =  buildRecord(now,
                                       pid,
@@ -639,8 +639,7 @@ int main(int argc, char *argv[])
         bslma::Allocator *alloc = bslma::Default::defaultAllocator();
         ball::FixedSizeRecordBuffer rb(MAX_TOTAL_SIZE, alloc);
 
-        bdlt::Datetime now;
-        bdetu_Datetime::convertFromTimeT(&now, time(0));
+        bdlt::Datetime now = bdlt::EpochUtil::convertFromTimeT(time(0));
         int pid = 1, tid = 2;
         ball::Record *R1 = buildRecord(now,
                                       pid,
@@ -817,8 +816,7 @@ int main(int argc, char *argv[])
         bslma::Allocator *alloc = bslma::Default::defaultAllocator();
         ball::FixedSizeRecordBuffer rb(MAX_TOTAL_SIZE, alloc);
 
-        bdlt::Datetime now;
-        bdetu_Datetime::convertFromTimeT(&now, time(0));
+        bdlt::Datetime now = bdlt::EpochUtil::convertFromTimeT(time(0));
         int pid = 1, tid = 2;
         ball::Record *R1 = buildRecord(now,
                                       pid,
@@ -957,8 +955,7 @@ int main(int argc, char *argv[])
         bslma::Allocator *alloc = bslma::Default::defaultAllocator();
         ball::FixedSizeRecordBuffer rb(MAX_TOTAL_SIZE, alloc);
 
-        bdlt::Datetime now;
-        bdetu_Datetime::convertFromTimeT(&now, time(0));
+        bdlt::Datetime now = bdlt::EpochUtil::convertFromTimeT(time(0));
         int pid = 1, tid = 2;
         ball::Record *R1 = buildRecord(now,
                                       pid,
@@ -1054,8 +1051,7 @@ int main(int argc, char *argv[])
 
         using namespace TestCase10;
 
-        bdlt::Datetime now;
-        bdetu_Datetime::convertFromTimeT(&now, time(0));
+        bdlt::Datetime now = bdlt::EpochUtil::convertFromTimeT(time(0));
         int pid = 1, tid = 2;
         ball::Record *R = buildRecord(now,
                                       pid,
@@ -1153,8 +1149,7 @@ int main(int argc, char *argv[])
 
         using namespace TestCase8;
 
-        bdlt::Datetime now;
-        bdetu_Datetime::convertFromTimeT(&now, time(0));
+        bdlt::Datetime now = bdlt::EpochUtil::convertFromTimeT(time(0));
         int pid = 1, tid = 2;
         ball::Record *R1 = buildRecord(now,
                                       pid,
@@ -1257,8 +1252,7 @@ int main(int argc, char *argv[])
         bslma::Allocator *alloc = bslma::Default::defaultAllocator();
         ball::FixedSizeRecordBuffer rb(MAX_TOTAL_SIZE, alloc);
 
-        bdlt::Datetime now;
-        bdetu_Datetime::convertFromTimeT(&now, time(0));
+        bdlt::Datetime now = bdlt::EpochUtil::convertFromTimeT(time(0));
         int pid = 1, tid = 2;
         ball::Record *R1 = buildRecord(now,
                                       pid,
@@ -1349,8 +1343,7 @@ int main(int argc, char *argv[])
         bslma::Allocator *alloc = bslma::Default::defaultAllocator();
         ball::FixedSizeRecordBuffer rb(MAX_TOTAL_SIZE, alloc);
 
-        bdlt::Datetime now;
-        bdetu_Datetime::convertFromTimeT(&now, time(0));
+        bdlt::Datetime now = bdlt::EpochUtil::convertFromTimeT(time(0));
         int pid = 1, tid = 2;
         ball::Record *R1 = buildRecord(now,
                                       pid,
@@ -1451,8 +1444,7 @@ int main(int argc, char *argv[])
         bslma::Allocator *alloc = bslma::Default::defaultAllocator();
         ball::FixedSizeRecordBuffer rb(MAX_TOTAL_SIZE, alloc);
 
-        bdlt::Datetime now;
-        bdetu_Datetime::convertFromTimeT(&now, time(0));
+        bdlt::Datetime now = bdlt::EpochUtil::convertFromTimeT(time(0));
         int pid = 1, tid = 2;
         ball::Record *R1 = buildRecord(now,
                                       pid,
@@ -1593,8 +1585,7 @@ int main(int argc, char *argv[])
         bslma::Allocator *alloc = bslma::Default::defaultAllocator();
         ball::FixedSizeRecordBuffer rb(MAX_TOTAL_SIZE, alloc);
 
-        bdlt::Datetime now;
-        bdetu_Datetime::convertFromTimeT(&now, time(0));
+        bdlt::Datetime now = bdlt::EpochUtil::convertFromTimeT(time(0));
         int pid = 1, tid = 2;
         ball::Record *R1 = buildRecord(now,
                                       pid,
@@ -1744,8 +1735,7 @@ int main(int argc, char *argv[])
         bslma::Allocator *alloc = bslma::Default::defaultAllocator();
         ball::FixedSizeRecordBuffer rb(MAX_TOTAL_SIZE, alloc);
 
-        bdlt::Datetime now;
-        bdetu_Datetime::convertFromTimeT(&now, time(0));
+        bdlt::Datetime now = bdlt::EpochUtil::convertFromTimeT(time(0));
         int pid = 1, tid = 2;
         ball::Record *R1 = buildRecord(now,
                                       pid,
@@ -1918,8 +1908,7 @@ int main(int argc, char *argv[])
         bslma::Allocator *alloc = bslma::Default::defaultAllocator();
         ball::FixedSizeRecordBuffer rb(MAX_TOTAL_SIZE, alloc);
 
-        bdlt::Datetime now;
-        bdetu_Datetime::convertFromTimeT(&now, time(0));
+        bdlt::Datetime now = bdlt::EpochUtil::convertFromTimeT(time(0));
         int pid = 1, tid = 2;
         ball::Record *R1 = buildRecord(now,
                                       pid,

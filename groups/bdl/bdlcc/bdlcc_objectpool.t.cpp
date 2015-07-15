@@ -3,7 +3,7 @@
 #include <bdlcc_objectpool.h>
 
 #include <bdlcc_fixedqueue.h>
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 #include <bdlmtt_barrier.h>
 #include <bdlmtt_lockguard.h>
 #include <bdlmtt_threadgroup.h>
@@ -1254,7 +1254,7 @@ int main(int argc, char *argv[])
             cout << "bdlmca::Factory test" << endl;
          }
 
-         bdlma::TestAllocator ta;
+         bslma::TestAllocator ta;
 
          bdlcc::ObjectPool<ConstructorTestHelp1a,
                    bdlcc::ObjectPoolFunctors::DefaultCreator,
@@ -1283,7 +1283,7 @@ int main(int argc, char *argv[])
             cout << "Constructor Overloads test" << endl;
          }
 
-         bdlma::TestAllocator ta;
+         bslma::TestAllocator ta;
 
          bdlcc::ObjectPool<ConstructorTestHelp1a,
                    bdlcc::ObjectPoolFunctors::DefaultCreator,
@@ -1429,7 +1429,7 @@ int main(int argc, char *argv[])
                           << "TESTING ALLOCATOR PROPAGATION" << endl
                           << "=============================" << endl;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
         bdlcc::ObjectPool<UsesAllocatorType> pool1(-1, &ta);
         UsesAllocatorType *ptr1 = pool1.getObject();
@@ -1480,7 +1480,7 @@ int main(int argc, char *argv[])
         }
 
         // server using object pool
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         bdlcc::ObjectPool<my_DatabaseConnection> pool(-1, &ta);
         connectionPool = &pool;
 
@@ -1512,7 +1512,7 @@ int main(int argc, char *argv[])
                           << "============================================"
                           << endl;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
            struct Parameters {
               int d_numThreads;
@@ -1583,10 +1583,10 @@ int main(int argc, char *argv[])
 
         using namespace BCEC_OBJECTPOOL_TEST_CASE_12;
 
-        bdlma::TestAllocator defaultAlloc(veryVeryVerbose);
+        bslma::TestAllocator defaultAlloc(veryVeryVerbose);
         bslma::DefaultAllocatorGuard taGuard(&defaultAlloc);
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
         {
             bdlf::Function<void(*)(void *, bslma::Allocator *)> objectCreator(
@@ -1630,7 +1630,7 @@ int main(int argc, char *argv[])
 
         using namespace BCEC_OBJECTPOOL_TEST_CASE_11;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         bslma::DefaultAllocatorGuard taGuard(&ta);
 
         if (verbose) cout << "\tWith 'getObject'" << endl
@@ -1805,7 +1805,7 @@ int main(int argc, char *argv[])
 
         using namespace BCEC_OBJECTPOOL_TEST_CASE_9;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         bdlcc::ObjectPool<Counter> p(-1, &ta);
         pool = &p;
 
@@ -1850,7 +1850,7 @@ int main(int argc, char *argv[])
 
         using namespace BCEC_OBJECTPOOL_TEST_CASE_8;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         bdlcc::ObjectPool<my_Class> p(-1, &ta);
         pool = &p;
 
@@ -1892,7 +1892,7 @@ int main(int argc, char *argv[])
 
         using namespace BCEC_OBJECTPOOL_TEST_CASE_7;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         bdlcc::ObjectPool<my_Class> p(-1, &ta);
         pool = &p;
 
@@ -1936,7 +1936,7 @@ int main(int argc, char *argv[])
 
         using namespace BCEC_OBJECTPOOL_TEST_CASE_6;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         bdlcc::ObjectPool<my_Class> p(-1, &ta);
         pool = &p;
 
@@ -1984,7 +1984,7 @@ int main(int argc, char *argv[])
 
         using namespace BCEC_OBJECTPOOL_TEST_CASE_5;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         bdlcc::ObjectPool<my_Class> p(-1, &ta);
         pool = &p;
 
@@ -2033,7 +2033,7 @@ int main(int argc, char *argv[])
 
         using namespace BCEC_OBJECTPOOL_TEST_CASE_4;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         bdlcc::ObjectPool<my_Class> p(-1, &ta);
         pool = &p;
 
@@ -2086,7 +2086,7 @@ int main(int argc, char *argv[])
 
         using namespace BCEC_OBJECTPOOL_TEST_CASE_3;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         bdlcc::ObjectPool<my_Class> p(-1, &ta);
         pool = &p;
 
@@ -2310,7 +2310,7 @@ int main(int argc, char *argv[])
         int nA; // number of available objects
 
         {
-            bdlma::TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVerbose);
             bdlcc::ObjectPool<my_Class> pool(-1, &ta);
 
             nC = pool.numObjects();
@@ -2338,7 +2338,7 @@ int main(int argc, char *argv[])
         } // let pool be destroyed
 
         {
-            bdlma::TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVerbose);
             bdlcc::ObjectPool<my_Class> pool(-2, &ta);
 
             nC = pool.numObjects();
@@ -2366,7 +2366,7 @@ int main(int argc, char *argv[])
         } // let pool be destroyed
 
         {
-            bdlma::TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVerbose);
             bdlcc::ObjectPool<my_Class> pool(1, &ta);
 
             nC = pool.numObjects();
@@ -2388,7 +2388,7 @@ int main(int argc, char *argv[])
         } // let pool be destroyed
 
         {
-            bdlma::TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVerbose);
             bdlcc::ObjectPool<my_Class> pool(-1, &ta);
 
             pool.reserveCapacity(2);
@@ -2411,7 +2411,7 @@ int main(int argc, char *argv[])
         } // let pool be destroyed
 
         {
-            bdlma::TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVerbose);
             bdlcc::ObjectPool<my_Class> pool(-1, &ta);
 
             pool.reserveCapacity(0);

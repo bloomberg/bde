@@ -13,7 +13,7 @@
 #include <ball_testobserver.h>
 
 #include <bdlmca_blob.h>
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 #include <bdlmtt_threadutil.h>
 #include <bdlmtt_xxxatomictypes.h>
 
@@ -24,9 +24,9 @@
 
 #include <bdlsb_memoutstreambuf.h>
 
-#include <bdlt_datetimeutil.h>
-
 #include <bdlt_datetime.h>
+#include <bdlt_datetimeutil.h>
+#include <bdlt_epochutil.h>
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -1004,8 +1004,7 @@ int main(int argc, char *argv[])
             const char *ticker  = "SUNW";
             double      price   = 5.65;
 
-            BloombergLP::bdlt::Datetime now;
-            BloombergLP::bdetu_Datetime::convertFromTimeT(&now, time(0));
+            bdlt::Datetime now = bdlt::EpochUtil::convertFromTimeT(time(0));
 
             BALL_LOG_SET_CATEGORY("EQUITY.NASD")
             // Logging with category "EQUITY.NASD" from here on.
@@ -1569,7 +1568,7 @@ int main(int argc, char *argv[])
             bsl::cout << "\tTesting macro correctness with a logger manager."
                       << bsl::endl;
         {
-            BloombergLP::bdlma::TestAllocator ta(veryVeryVerbose);
+            BloombergLP::bslma::TestAllocator ta(veryVeryVerbose);
             BloombergLP::ball::LoggerManagerConfiguration lmc;
             lmc.setDefaultThresholdLevelsIfValid(
                   BloombergLP::ball::Severity::BAEL_TRACE,  // record level
@@ -1640,7 +1639,7 @@ int main(int argc, char *argv[])
             bsl::cout << "\tTesting macro correctness with a logger manager."
                       << bsl::endl;
         {
-            BloombergLP::bdlma::TestAllocator ta(veryVeryVerbose);
+            BloombergLP::bslma::TestAllocator ta(veryVeryVerbose);
             BloombergLP::ball::LoggerManagerConfiguration lmc;
             lmc.setDefaultThresholdLevelsIfValid(
                   BloombergLP::ball::Severity::BAEL_TRACE,  // record level
@@ -1709,7 +1708,7 @@ int main(int argc, char *argv[])
             bsl::cout << "\tTesting macro correctness with a logger manager."
                       << bsl::endl;
         {
-            BloombergLP::bdlma::TestAllocator ta(veryVeryVerbose);
+            BloombergLP::bslma::TestAllocator ta(veryVeryVerbose);
             BloombergLP::ball::LoggerManagerConfiguration lmc;
             lmc.setDefaultThresholdLevelsIfValid(
                   BloombergLP::ball::Severity::BAEL_TRACE,  // record level
@@ -1777,7 +1776,7 @@ int main(int argc, char *argv[])
             bsl::cout << "\tTesting macro correctness with a logger manager."
                       << bsl::endl;
         {
-            BloombergLP::bdlma::TestAllocator ta(veryVeryVerbose);
+            BloombergLP::bslma::TestAllocator ta(veryVeryVerbose);
             BloombergLP::ball::LoggerManagerConfiguration lmc;
             lmc.setDefaultThresholdLevelsIfValid(
                BloombergLP::ball::Severity::BAEL_TRACE,  // record level
@@ -3097,7 +3096,7 @@ int main(int argc, char *argv[])
         configuration.setDefaultRecordBufferSizeIfValid(REC_BUF_LIMIT);
         configuration.setTriggerMarkers(
                BloombergLP::ball::LoggerManagerConfiguration::BAEL_NO_MARKERS);
-        BloombergLP::bdlma::TestAllocator ta(veryVeryVerbose);
+        BloombergLP::bslma::TestAllocator ta(veryVeryVerbose);
 
         BloombergLP::ball::LoggerManagerScopedGuard guard(&observer,
                                                          configuration,

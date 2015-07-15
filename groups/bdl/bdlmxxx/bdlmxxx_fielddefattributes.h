@@ -147,6 +147,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_objectbuffer.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif

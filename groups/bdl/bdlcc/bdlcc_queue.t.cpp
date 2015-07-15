@@ -2,7 +2,7 @@
 
 #include <bdlcc_queue.h>
 
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 #include <bdlmtt_barrier.h>
 #include <bdlmtt_lockguard.h>
 #include <bdlmtt_semaphore.h>
@@ -174,6 +174,16 @@ static const int MICRO_DECI_SEC =    10000;
 //=============================================================================
 //                  SUPPORT CLASSES AND FUNCTIONS USED FOR TESTING
 //-----------------------------------------------------------------------------
+
+namespace BloombergLP {
+namespace bslma {
+bsl::ostream& operator<<(bsl::ostream& out, const TestAllocator& ta)
+{
+    ta.print();
+    return out;
+}
+}
+}
 
 Element randElement(int *seed)
 {
@@ -1672,7 +1682,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bdlma::TestAllocator da(veryVeryVeryVerbose);
+    bslma::TestAllocator da(veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard defaultAllocatorGuard(&da);
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -1732,7 +1742,7 @@ int main(int argc, char *argv[])
                           << "=========================================="
                           << endl;
 
-        bdlma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             if (verbose)
                 cout << "Exercising default c'tor and basic methods" << endl;
@@ -1977,7 +1987,7 @@ int main(int argc, char *argv[])
 
         using namespace BCEC_QUEUE_TEST_CASE_11;
 
-        bdlma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
 
         Obj mX(4, &ta);
         vector<Element> v;
@@ -2057,7 +2067,7 @@ int main(int argc, char *argv[])
 
         using namespace BCEC_QUEUE_TEST_CASE_10;
 
-        bdlma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
 
         Obj mX(&ta);
         Element e = TestClass12::VALID_VAL;
@@ -2326,7 +2336,7 @@ int main(int argc, char *argv[])
         Element VB =- 5.7;
         Element VC = 1234.99;
 
-        bdlma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             Obj mX(&ta);
 
@@ -2396,7 +2406,7 @@ int main(int argc, char *argv[])
                 "========================================================"
                                                               "============\n";
 
-        bdlma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             const int HIGH_WATER_MARK = 2;
             const int T = 1 * MICRO_DECI_SEC;
@@ -2566,7 +2576,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tWith 'timedPushBack'" << endl;
         for (int i = 0; i< NUM_VALUES; ++i)
         {
-            bdlma::TestAllocator ta(veryVeryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVeryVerbose);
             {
                 const int HIGH_WATER_MARK = VALUES[i].d_highWaterMark;
                 const int INSERTIONS = VALUES[i].d_insertions;
@@ -2643,7 +2653,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tWith 'timedPushFront'" << endl;
         for (int i = 0; i< NUM_VALUES; ++i)
         {
-            bdlma::TestAllocator ta(veryVeryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVeryVerbose);
             {
                 const int HIGH_WATER_MARK = VALUES[i].d_highWaterMark;
                 const int INSERTIONS = VALUES[i].d_insertions;
@@ -2772,7 +2782,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tWith 'pushBack'" << endl;
         for (int i = 0; i< NUM_VALUES; ++i)
         {
-            bdlma::TestAllocator ta(veryVeryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVeryVerbose);
             {
                 const int LINE            = VALUES[i].d_lineNum;
                 const int HIGH_WATER_MARK = VALUES[i].d_highWaterMark;
@@ -2829,7 +2839,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\tWith 'push_front'" << endl;
         for (int i = 0; i< NUM_VALUES; ++i)
         {
-            bdlma::TestAllocator ta(veryVeryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVeryVerbose);
             {
                 const int LINE            = VALUES[i].d_lineNum;
                 const int HIGH_WATER_MARK = VALUES[i].d_highWaterMark;
@@ -2911,7 +2921,7 @@ int main(int argc, char *argv[])
                        << "==========================================" << endl;
 
         if (verbose) cout << "\tWith 'timedPopBack'" << endl;
-        bdlma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             const int T = 1 * MICRO_DECI_SEC; // in microseconds
             bsls::TimeInterval T4(4 * DECI_SEC);            // .4s
@@ -3056,7 +3066,7 @@ int main(int argc, char *argv[])
                           << "================================" << endl;
 
         if (verbose) cout << "\tWith 'popBack'" << endl;
-        bdlma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             const int T = 1 * MICRO_DECI_SEC; // in microseconds
             Obj x(&ta);
@@ -3209,7 +3219,7 @@ int main(int argc, char *argv[])
 
         int seed = 123456789;
 
-        bdlma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
 
         if (verbose) cout << "\t1. Explicit Pushes and Pops\n";
         {
@@ -3407,7 +3417,7 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        bdlma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             if (verbose)
                 cout << "Exercising default c'tor and basic methods" << endl;

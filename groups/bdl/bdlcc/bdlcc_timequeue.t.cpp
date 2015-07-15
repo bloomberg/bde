@@ -2,7 +2,7 @@
 
 #include <bdlcc_timequeue.h>
 
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 #include <bdlmtt_lockguard.h>
 #include <bdlmtt_barrier.h>
 #include <bdlmtt_xxxthread.h>
@@ -10,7 +10,6 @@
 
 #include <bdlf_bind.h>
 #include <bdlt_currenttime.h>
-#include <bdetu_time.h>
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -276,6 +275,16 @@ bool operator!=(const TestString& lhs, const TestString& rhs)
     return !(lhs == rhs);
 }
 
+namespace BloombergLP {
+namespace bslma {
+bsl::ostream& operator<<(bsl::ostream& out, const TestAllocator& ta)
+{
+    ta.print();
+    return out;
+}
+}
+}
+
 //=============================================================================
 //                          CASE 11 RELATED ENTITIES
 //-----------------------------------------------------------------------------
@@ -291,7 +300,7 @@ typedef bsl::string DATA;
 typedef bdlcc::TimeQueue<DATA> TimeQueue;
 typedef bdlcc::TimeQueueItem<DATA> TimeQueueItem;
 
-bdlma::TestAllocator ta(veryVeryVerbose);
+bslma::TestAllocator ta(veryVeryVerbose);
 TimeQueue timequeue(&ta);
 
 bdlmtt::Barrier barrier(NUM_THREADS + 1);
@@ -1066,8 +1075,8 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bdlma::TestAllocator ta(veryVeryVerbose);
-    bdlma::TestAllocator defaultAlloc(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator defaultAlloc(veryVeryVerbose);
     bslma::DefaultAllocatorGuard defaultAllocGuard(&defaultAlloc);
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -1459,7 +1468,7 @@ int main(int argc, char *argv[])
                  << "Testing Concern: 'bdema' allocator model" << endl
                  << "========================================" << endl;
 
-        bdlma::TestAllocator ta2(veryVeryVerbose);
+        bslma::TestAllocator ta2(veryVeryVerbose);
         const TestString VA("A", &ta2);
         const TestString VB("B", &ta2);
         const TestString VC("C", &ta2);
@@ -2876,7 +2885,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tWith allocators.\n";
         {
-            bdlma::TestAllocator ta2(veryVeryVerbose);
+            bslma::TestAllocator ta2(veryVeryVerbose);
 
             typedef bdlcc::TimeQueueItem<TestString> Obj;
             const bsls::TimeInterval  TIME(1);
@@ -2924,7 +2933,7 @@ int main(int argc, char *argv[])
                 ASSERT(NUM_ALLOC2          == ta2.numAllocations());
             }
 
-            bdlma::TestAllocator ta3(veryVeryVerbose);
+            bslma::TestAllocator ta3(veryVeryVerbose);
             const int NUM_ALLOC = ta.numAllocations();
 
             if (verbose) cout << "\t\tCopy constructor.\n";

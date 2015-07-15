@@ -124,6 +124,7 @@ void FileObserver::disablePublishInLocalTime()
     d_publishInLocalTime = false;
     d_stdoutFormatter.disablePublishInLocalTime();
     d_logFileFormatter.disablePublishInLocalTime();
+    d_fileObserver2.disablePublishInLocalTime();
 
     // Unfortunately, this is necessary because 'd_fileObserver2' has a *copy*
     // of the log file formatter.
@@ -169,6 +170,7 @@ void FileObserver::enablePublishInLocalTime()
     d_publishInLocalTime = true;
     d_stdoutFormatter.enablePublishInLocalTime();
     d_logFileFormatter.enablePublishInLocalTime();
+    d_fileObserver2.enablePublishInLocalTime();
 
     // Unfortunately, this is necessary because 'd_fileObserver2' has a *copy*
     // of the log file formatter.

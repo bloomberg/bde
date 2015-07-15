@@ -3,7 +3,7 @@
 
 #include <bdlmtt_configuration.h>
 
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 
 #include <bdlf_function.h>
 #include <bdlf_bind.h>
@@ -661,7 +661,7 @@ int main(int argc, char *argv[])
     bdlmtt::Configuration::setDefaultThreadStackSize(
                      bdlmtt::Configuration::recommendedDefaultThreadStackSize());
 
-    bdlma::TestAllocator  testAllocator(veryVeryVerbose);
+    bslma::TestAllocator  testAllocator(veryVeryVerbose);
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 

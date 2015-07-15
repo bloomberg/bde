@@ -13,7 +13,7 @@
 #include <ball_severity.h>
 #include <ball_loggermanager.h>
 
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 #include <bdlmtt_barrier.h>
 #include <bdlmtt_xxxthread.h>
 #include <bdlmtt_threadgroup.h>
@@ -262,7 +262,7 @@ int main(int argc, char *argv[])
                  NUM_PRIORITY_LEVELS = 2 };
           int numIterations = 0;
           Case2Thread *threadData[NUM_THREADS];
-          bdlma::TestAllocator ta(veryVeryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVeryVerbose);
           {
              Obj mappingManager (MAPPING_LIMIT, NUM_PRIORITY_LEVELS, &ta);
              balj::MappingManager::Handle pageHandles[NUM_PAGES];
@@ -414,7 +414,7 @@ int main(int argc, char *argv[])
               P(tmpname);
               P(PAGESIZE_BYTES);
           }
-          bdlma::TestAllocator ta(veryVeryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVeryVerbose);
           {
 
               Obj mappingManager (MAPPING_LIMIT, NUM_PRIORITY_LEVELS, &ta);

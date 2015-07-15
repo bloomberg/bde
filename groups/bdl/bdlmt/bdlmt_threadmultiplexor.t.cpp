@@ -11,7 +11,7 @@
 #include <bdlmtt_xxxatomictypes.h>
 
 #include <bslma_managedptr.h>
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 #include <bsl_iostream.h>
 #include <bsl_streambuf.h>
 
@@ -455,7 +455,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Single-Processor Test" << endl
                           << "=====================" << endl;
 
-        bdlma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             using namespace TEST_CASE_6;
             enum {
@@ -513,7 +513,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Large Queue Test" << endl
                           << "================" << endl;
 
-        bdlma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             enum {
                 NUM_THREADS   = 7,       // total number of threads
@@ -626,7 +626,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "FEW THREADS TEST" << endl
                           << "================" << endl;
 
-        bdlma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             enum {
                 NUM_THREADS   = 3,   // total number of threads
@@ -687,7 +687,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "SMALL QUEUE TEST" << endl
                           << "================" << endl;
 
-        bdlma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             enum {
                 NUM_THREADS    = 7, // total number of threads
@@ -763,7 +763,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Usage Example Test" << endl
                           << "==================" << endl;
 
-        bdlma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
 
         using namespace TEST_CASE_USAGE_EXAMPLE;
         usageExample(&ta);
@@ -791,7 +791,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Breathing Test" << endl
                           << "==============" << endl;
 
-        bdlma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             bdlmt::ThreadMultiplexor mX(2, 3, &ta);
 

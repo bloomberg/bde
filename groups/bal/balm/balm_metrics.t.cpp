@@ -5,7 +5,7 @@
 #include <balm_metricsample.h>
 #include <balm_publisher.h>
 
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 #include <bdlmtt_barrier.h>
 #include <bdlmt_fixedthreadpool.h>
 
@@ -1414,9 +1414,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl <<
             "Test BALM_METRICS_UPDATE warning messages" << endl;
 
-        bdlma::TestAllocator defaultAllocator;
+        bslma::TestAllocator defaultAllocator;
         bslma::DefaultAllocatorGuard guard(&defaultAllocator);
-        bdlma::TestAllocator testAllocator;
+        bslma::TestAllocator testAllocator;
 
         balm::DefaultMetricsManagerScopedGuard scopedGuard(&testAllocator);
         balm::MetricsManager& mgr = *DefaultManager::instance();
@@ -1615,9 +1615,9 @@ int main(int argc, char *argv[])
 
         typedef TlsIntMacroConcurrencyTest TestClass;
 
-        bdlma::TestAllocator defaultAllocator;
+        bslma::TestAllocator defaultAllocator;
         bslma::DefaultAllocatorGuard guard(&defaultAllocator);
-        bdlma::TestAllocator testAllocator;
+        bslma::TestAllocator testAllocator;
 
         balm::DefaultMetricsManagerScopedGuard scopedGuard(&testAllocator);
         balm::MetricsManager &mgr = *DefaultManager::instance();
@@ -1646,9 +1646,9 @@ int main(int argc, char *argv[])
 
         typedef DynamicIntMacroConcurrencyTest TestClass;
 
-        bdlma::TestAllocator defaultAllocator;
+        bslma::TestAllocator defaultAllocator;
         bslma::DefaultAllocatorGuard guard(&defaultAllocator);
-        bdlma::TestAllocator testAllocator;
+        bslma::TestAllocator testAllocator;
 
         balm::DefaultMetricsManagerScopedGuard scopedGuard(&testAllocator);
         balm::MetricsManager &mgr = *DefaultManager::instance();
@@ -1677,9 +1677,9 @@ int main(int argc, char *argv[])
 
         typedef StandardIntMacroConcurrencyTest TestClass;
 
-        bdlma::TestAllocator defaultAllocator;
+        bslma::TestAllocator defaultAllocator;
         bslma::DefaultAllocatorGuard guard(&defaultAllocator);
-        bdlma::TestAllocator testAllocator;
+        bslma::TestAllocator testAllocator;
 
         balm::DefaultMetricsManagerScopedGuard scopedGuard(&testAllocator);
         balm::MetricsManager &mgr = *DefaultManager::instance();
@@ -1714,9 +1714,9 @@ int main(int argc, char *argv[])
 
         typedef TlsMacroConcurrencyTest TestClass;
 
-        bdlma::TestAllocator defaultAllocator;
+        bslma::TestAllocator defaultAllocator;
         bslma::DefaultAllocatorGuard guard(&defaultAllocator);
-        bdlma::TestAllocator testAllocator;
+        bslma::TestAllocator testAllocator;
 
         balm::DefaultMetricsManagerScopedGuard scopedGuard(&testAllocator);
         balm::MetricsManager &mgr = *DefaultManager::instance();
@@ -1745,9 +1745,9 @@ int main(int argc, char *argv[])
 
         typedef DynamicMacroConcurrencyTest TestClass;
 
-        bdlma::TestAllocator defaultAllocator;
+        bslma::TestAllocator defaultAllocator;
         bslma::DefaultAllocatorGuard guard(&defaultAllocator);
-        bdlma::TestAllocator testAllocator;
+        bslma::TestAllocator testAllocator;
 
         balm::DefaultMetricsManagerScopedGuard scopedGuard(&testAllocator);
         balm::MetricsManager &mgr = *DefaultManager::instance();
@@ -1776,9 +1776,9 @@ int main(int argc, char *argv[])
 
         typedef StandardMacroConcurrencyTest TestClass;
 
-        bdlma::TestAllocator defaultAllocator;
+        bslma::TestAllocator defaultAllocator;
         bslma::DefaultAllocatorGuard guard(&defaultAllocator);
-        bdlma::TestAllocator testAllocator;
+        bslma::TestAllocator testAllocator;
 
         balm::DefaultMetricsManagerScopedGuard scopedGuard(&testAllocator);
         balm::MetricsManager &mgr = *DefaultManager::instance();

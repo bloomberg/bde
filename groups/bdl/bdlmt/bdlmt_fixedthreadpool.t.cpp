@@ -1,6 +1,6 @@
 // bdlmt_fixedthreadpool.t.cpp          -*-C++-*-
 #include <bdlmt_fixedthreadpool.h>
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 
 #include <bdlimpxxx_fuzzy.h>
 
@@ -124,7 +124,7 @@ typedef bdlmt::FixedThreadPool Obj;
 //                              DEFAULT ALLOCATOR
 //-----------------------------------------------------------------------------
 
-bdlma::TestAllocator taDefault;
+bslma::TestAllocator taDefault;
 
 //=============================================================================
 //                         HELPER CLASSES AND FUNCTIONS  FOR TESTING
@@ -658,7 +658,7 @@ int main(int argc, char *argv[])
     int veryVeryVerbose = argc > 4;
 
     bslma::DefaultAllocatorGuard guard(&taDefault);
-    bdlma::TestAllocator  testAllocator(veryVeryVerbose);
+    bslma::TestAllocator  testAllocator(veryVeryVerbose);
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -676,10 +676,10 @@ int main(int argc, char *argv[])
 
         using namespace BCEP_FIXEDTHREADPOOL_CASE_14;
 
-        bdlma::TestAllocator defaultAllocator;
+        bslma::TestAllocator defaultAllocator;
         bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
-        bdlma::TestAllocator testAllocator;
+        bslma::TestAllocator testAllocator;
         for (int numThreads = 1; numThreads < 12; ++numThreads) {
             ConcurrencyTest tester(numThreads, &defaultAllocator);
             tester.runTest();

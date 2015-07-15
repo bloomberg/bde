@@ -18,7 +18,7 @@
 
 #include <bdlmtt_barrier.h>                  // Barrier
 #include <bdlmtt_xxxthread.h>                   // thread management util
-#include <bdlma_xxxtestallocator.h>            // thread-safe allocator
+#include <bslma_testallocator.h>            // thread-safe allocator
 #include <bsl_typeinfo.h>
 
 #ifdef BSLS_PLATFORM_OS_UNIX

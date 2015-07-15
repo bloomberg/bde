@@ -8,7 +8,7 @@
 #include <btls_iovecutil.h>                     // for testing only
 
 #include <bsls_platform.h>                      // for testing only
-#include <bdlma_xxxtestallocator.h>                // for testing only
+#include <bslma_testallocator.h>                // for testing only
 #include <bdlmtt_xxxatomictypes.h>                   // for testing only
 
 #include <bdlf_function.h>
@@ -236,7 +236,7 @@ using namespace bsl;  // automatically added by script
             MAX_CONNECTIONS = 10000
         };
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         bdlmca::PooledBufferChainFactory factory(1024, &ta);
 
         // Configure the channel queue pool.
@@ -538,7 +538,7 @@ void testUsageExample(btlso::IPv4Address serverAddress,
     };
     const int NUM_THREADS = numChannels;
 
-    bdlma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
 
     // Configure the channel queue pool.
 
@@ -653,7 +653,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bdlma::TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 40: {
@@ -681,7 +681,7 @@ int main(int argc, char *argv[])
           , MSG_LENGTH   = 327
         };
 
-        bdlma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
         bsls::TimeInterval endTime(bdlt::CurrentTime::now());
         endTime += bsls::TimeInterval(20.0);  // 20s from now
 
@@ -738,7 +738,7 @@ int main(int argc, char *argv[])
           , MSG_LENGTH   = 327
         };
 
-        bdlma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
         bsls::TimeInterval endTime(bdlt::CurrentTime::now());
         endTime += bsls::TimeInterval(20.0);  // 20s from now
 
@@ -795,7 +795,7 @@ int main(int argc, char *argv[])
           , MSG_LENGTH   = 327
         };
 
-        bdlma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
         bsls::TimeInterval endTime(bdlt::CurrentTime::now());
         endTime += bsls::TimeInterval(20.0);  // 20s from now
 

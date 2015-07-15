@@ -44,7 +44,7 @@ BSLS_IDENT("$Id: $")
 //                      "        \"zipcode\" : 10022\n"
 //                      "    }";
 //..
-// Next, we will construct and populate a 'streambuf' with this data:
+// Next, we will construct populate a 'streambuf' with this data:
 //..
 //  bdlsb::FixedMemInStreamBuf isb(INPUT, bsl::strlen(INPUT));
 //..
@@ -54,87 +54,77 @@ BSLS_IDENT("$Id: $")
 //  baljsn::Tokenizer tokenizer;
 //  tokenizer.reset(&isb);
 //..
-// Next, we will create a 'bdlaggxxx::Aggregate' representing an employee:
+// Next, we will create an address record type and object.
 //..
-//  bsl::shared_ptr<bdlmxxx::Schema> schema(new bdlmxxx::Schema);
-//
-//  bdlmxxx::RecordDef *addressRecord = schema->createRecord("Address");
-//  addressRecord->appendField(bdlmxxx::ElemType::BDEM_STRING, "street");
-//  addressRecord->appendField(bdlmxxx::ElemType::BDEM_STRING, "state");
-//  addressRecord->appendField(bdlmxxx::ElemType::BDEM_INT, "zipcode");
-//
-//  bdlaggxxx::Aggregate address(schema, "Address");
+//  struct Address {
+//      bsl::string d_street;
+//      bsl::string d_state;
+//      int         d_zipcode;
+//  } address = { "", "", 0 };
 //..
 // Then, we will traverse the JSON data one node at a time:
 //..
 //  // Read '{'
 //
 //  int rc = tokenizer.advanceToNextToken();
-//  assert(!rc);
+//  ASSERT(!rc);
 //
 //  baljsn::Tokenizer::TokenType token = tokenizer.tokenType();
-//  assert(baljsn::Tokenizer::BAEJSN_START_OBJECT == token);
+//  ASSERT(baljsn::Tokenizer::BAEJSN_START_OBJECT == token);
 //
 //  rc = tokenizer.advanceToNextToken();
-//  assert(!rc);
+//  ASSERT(!rc);
 //  token = tokenizer.tokenType();
 //
 //  // Continue reading elements till '}' is encountered
 //
 //  while (baljsn::Tokenizer::BAEJSN_END_OBJECT != token) {
-//      assert(baljsn::Tokenizer::BAEJSN_ELEMENT_NAME == token);
+//      ASSERT(baljsn::Tokenizer::BAEJSN_ELEMENT_NAME == token);
 //
 //      // Read element name
 //
 //      bslstl::StringRef nodeValue;
 //      rc = tokenizer.value(&nodeValue);
-//      assert(!rc);
+//      ASSERT(!rc);
 //
 //      bsl::string elementName = nodeValue;
 //
 //      // Read element value
 //
 //      int rc = tokenizer.advanceToNextToken();
-//      assert(!rc);
+//      ASSERT(!rc);
 //
 //      token = tokenizer.tokenType();
-//      assert(baljsn::Tokenizer::BAEJSN_ELEMENT_VALUE == token);
+//      ASSERT(baljsn::Tokenizer::BAEJSN_ELEMENT_VALUE == token);
 //
 //      rc = tokenizer.value(&nodeValue);
-//      assert(!rc);
+//      ASSERT(!rc);
 //
 //      // Extract the simple type with the data
 //
-//      if (bdlmxxx::ElemType::BDEM_STRING == address.fieldType(elementName)) {
-//
-//          bsl::string data;
-//          rc = baejsn::Parserutil::getValue(&data, nodeValue);
-//          assert(!rc);
-//
-//          // Populate the element with the read value
-//
-//          address.setField(elementName, data);
+//      if (elementName == "street") {
+//          rc = baljsn::ParserUtil::getValue(&address.d_street, nodeValue);
+//          ASSERT(!rc);
 //      }
-//      else if (bdlmxxx::ElemType::BDEM_INT == address.fieldType(elementName)) {
-//          int data;
-//          rc = baejsn::Parserutil::getValue(&data, nodeValue);
-//          assert(!rc);
-//
-//          // Populate the element with the read value
-//
-//          address.setField(elementName, data);
+//      else if (elementName == "state") {
+//          rc = baljsn::ParserUtil::getValue(&address.d_state, nodeValue);
+//          ASSERT(!rc);
+//      }
+//      else if (elementName == "zipcode") {
+//          rc = baljsn::ParserUtil::getValue(&address.d_zipcode, nodeValue);
+//          ASSERT(!rc);
 //      }
 //
 //      rc = tokenizer.advanceToNextToken();
-//      assert(!rc);
+//      ASSERT(!rc);
 //      token = tokenizer.tokenType();
 //  }
 //..
 // Finally, we will verify that the 'address' aggregate has the correct values:
 //..
-//  assert("Lexington Ave" == address["street"].asString());
-//  assert("New York"      == address["state"].asString());
-//  assert(10022           == address["zipcode"].asInt());
+//  ASSERT("Lexington Ave" == address.d_street);
+//  ASSERT("New York"      == address.d_state);
+//  ASSERT(10022           == address.d_zipcode);
 //..
 
 #ifndef INCLUDED_BALSCM_VERSION

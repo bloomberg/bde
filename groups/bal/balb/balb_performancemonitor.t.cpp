@@ -12,7 +12,7 @@
 
 #include <bdlt_currenttime.h>
 
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 #include <bdlmtt_xxxthread.h>
 
 #include <bslma_newdeleteallocator.h>
@@ -484,7 +484,7 @@ int main(int argc, char *argv[])
                  << endl;
         }
 
-        bdlma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             // Instantiate a scheduler used by the performance monitor to
             // schedule collection events.
@@ -572,7 +572,7 @@ int main(int argc, char *argv[])
                  << endl;
         }
 
-        bdlma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             {
                 balb::PerformanceMonitor perfmon(&ta);
@@ -652,7 +652,7 @@ int main(int argc, char *argv[])
         case -2: allocator = &mmapAllocator;      break;
         }
 
-        bdlma::TestAllocator ta(veryVeryVeryVerbose, allocator);
+        bslma::TestAllocator ta(veryVeryVeryVerbose, allocator);
 
         bslma::Default::setDefaultAllocator(&ta);
         bslma::Default::setGlobalAllocator(&ta);

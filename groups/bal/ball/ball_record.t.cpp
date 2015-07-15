@@ -8,6 +8,7 @@
 #include <bdlmxxx_table.h>                         // for testing only
 
 #include <bdlt_datetimeutil.h>                     // for testing only
+#include <bdlt_epochutil.h>                     // for testing only
 #include <bdltuxxx_unset.h>                        // for testing only
 
 #include <bdlxxxx_instreamfunctions.h>             // for testing only
@@ -539,8 +540,7 @@ void logInformation(ostream& logStream,
     ball::RecordAttributes& attributes = record.fixedFields();
 
     // set various attributes
-    bdlt::Datetime now;
-    bdetu_Datetime::convertFromTimeT(&now, time(0));
+    bdlt::Datetime now = bdlt::EpochUtil::convertFromTimeT(time(0));
     attributes.setTimestamp(now);
 
     attributes.setProcessID(getPid());
@@ -971,8 +971,7 @@ int main(int argc, char *argv[])
                                                      ball::Severity::BAEL_INFO,
                                                      "Ticker Summary");
 
-            bdlt::Datetime now;
-            bdetu_Datetime::convertFromTimeT(&now, time(0));
+            bdlt::Datetime now = bdlt::EpochUtil::convertFromTimeT(time(0));
             fixedFields.setTimestamp(now);
 
             static bdlmxxx::List userFields(listSchema, 5);
@@ -2148,8 +2147,7 @@ int main(int argc, char *argv[])
                        "EQUITY.NASD",
                        ball::Severity::BAEL_INFO,
                        "Ticker Summary");
-        bdlt::Datetime now;
-        bdetu_Datetime::convertFromTimeT(&now, time(0));
+        bdlt::Datetime now = bdlt::EpochUtil::convertFromTimeT(time(0));
         FA.setTimestamp(now);
 
         if (verbose) { P(FA) ; }
@@ -2165,7 +2163,7 @@ int main(int argc, char *argv[])
                        ball::Severity::BAEL_TRACE,
                        "User Session Info");
 
-        bdetu_Datetime::convertFromTimeT(&now, time(0));
+        now = bdlt::EpochUtil::convertFromTimeT(time(0));
         FB.setTimestamp(now);
 
         if (verbose) { P(FB) ; }

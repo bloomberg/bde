@@ -3,15 +3,15 @@
 #include <ball_categorymanager.h>
 
 #include <bdlmtt_barrier.h>
+#include <bdlmtt_lockguard.h>
 #include <bdlmtt_xxxthread.h>
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 
 #include <bdlxxxx_testinstream.h>
 #include <bdlxxxx_testinstreamexception.h>
 #include <bdlxxxx_testoutstream.h>
 
 #include <bslma_defaultallocatorguard.h>
-#include <bdema_strallocator.h>
 #include <bdlb_xxxbitutil.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
@@ -696,7 +696,7 @@ int main(int argc, char *argv[])
         bsl::vector<bdlmtt::ThreadUtil::Handle> handles;
         handles.resize(NUM_THREADS);
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         Obj                 mX(&ta);
         bdlmtt::Barrier       barrier(NUM_THREADS);
         RuleThreadTestArgs  args = { &mX, &barrier };
@@ -1515,7 +1515,7 @@ int main(int argc, char *argv[])
             categoryNames[i] = bitset2string(bsl::bitset<32>(i));
         }
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         Obj                 mX(&ta);
         bdlmtt::Barrier       barrier(NUM_THREADS);
 

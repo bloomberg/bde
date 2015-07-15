@@ -5,7 +5,7 @@
 #include <ball_severity.h>
 #include <ball_categorymanager.h>
 
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 
 #include <bslma_defaultallocatorguard.h>
 
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bdlma::TestAllocator          da("da", veryVeryVeryVerbose);
+    bslma::TestAllocator          da("da", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard guard(&da);
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -198,7 +198,7 @@ int main(int argc, char *argv[])
                  << "--------------" << endl;
         }
 
-        bdlma::TestAllocator ta("ta", veryVeryVeryVerbose);
+        bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
         {
             ball::CategoryManager testManager;
             ball::AttributeContext::initialize(&testManager);

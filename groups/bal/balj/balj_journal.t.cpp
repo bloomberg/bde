@@ -17,7 +17,7 @@
 #include <bdlmca_blob.h>
 #include <bdlmca_blobutil.h>
 #include <bdlmca_pooledblobbufferfactory.h>
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 #include <bdlmtt_barrier.h>
 #include <bdlmtt_lockguard.h>
 #include <bdlmtt_semaphore.h>
@@ -31,6 +31,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_stopwatch.h>
+#include <bsls_systemtime.h>
 #include <bsls_timeutil.h>
 #include <bsls_types.h>
 
@@ -303,9 +304,9 @@ public:
       bsls::Types::Int64 elapsed;
       enum {MICROSECS_PER_SEC     = 1000000};
 
-      bdlt::CurrentTime::loadSystemTimeDefault(&start);
+      start = bsls::SystemTime::nowRealtimeClock();
       d_plan->execute(d_journal);
-      bdlt::CurrentTime::loadSystemTimeDefault(&stop);
+      stop = bsls::SystemTime::nowRealtimeClock();
       elapsed = (stop - start).totalMicroseconds();
 
       *d_elapsedSec = elapsed / (double)MICROSECS_PER_SEC;
@@ -1409,7 +1410,7 @@ int main(int argc, char *argv[]) {
           balj::MappingManager mappingManager(MAPPING_LIMIT,
                                               NUM_PRIO);
 
-          bdlma::TestAllocator ta; // must use thread-safe allocator
+          bslma::TestAllocator ta; // must use thread-safe allocator
           {
              balj_Journal mX(&mappingManager, &ta);
              char filename1[MAX_TMPFILENAME];
@@ -1491,7 +1492,7 @@ int main(int argc, char *argv[]) {
                   << "========================" << endl;
           }
 
-          bdlma::TestAllocator ta;
+          bslma::TestAllocator ta;
 
           {
               enum { NUM_JOURNALS = 32 };
@@ -1510,7 +1511,7 @@ int main(int argc, char *argv[]) {
                   << "========================" << endl;
           }
 
-          bdlma::TestAllocator ta;
+          bslma::TestAllocator ta;
 
           {
               // TBD: reopen in safe/not-safe modes
@@ -1597,7 +1598,7 @@ int main(int argc, char *argv[]) {
              {DEF_ByPB, 8190, 8, 200000, 800000, 1}
           };
 
-          bdlma::TestAllocator ta;
+          bslma::TestAllocator ta;
           for (int a = 0; a < sizeof(parameters) / sizeof(Parameters); ++a) {
              const Parameters& p = parameters[a];
 
@@ -1803,7 +1804,7 @@ int main(int argc, char *argv[]) {
              {64, 128, 1000000, 30000},
           };
 
-          bdlma::TestAllocator ta;
+          bslma::TestAllocator ta;
           for (int a = 0; a < sizeof(parameters) / sizeof(Parameters); ++a) {
              const Parameters& p = parameters[a];
 
@@ -1881,7 +1882,7 @@ int main(int argc, char *argv[]) {
           balj::MappingManager mappingManager(MAPPING_LIMIT,
                                               NUM_PRIO);
 
-          bdlma::TestAllocator ta;
+          bslma::TestAllocator ta;
           {
              if (verbose) {
                 cout << "First Phase: Fixed Test Sequence" << endl;
@@ -2069,7 +2070,7 @@ int main(int argc, char *argv[]) {
 
           char commandBuffer[512];
 
-          bdlma::TestAllocator ta;
+          bslma::TestAllocator ta;
           for (int a = 0; a < sizeof(parameters) / sizeof(Parameters); ++a) {
              const Parameters& p = parameters[a];
 
@@ -2312,7 +2313,7 @@ int main(int argc, char *argv[]) {
              P(NUM_RECORDS);
           }
 
-          bdlma::TestAllocator ta;
+          bslma::TestAllocator ta;
           {
              Obj mX(&mappingManager, &ta);
 
@@ -2390,7 +2391,7 @@ int main(int argc, char *argv[]) {
                                               NUM_PRIO);
 
           double rate1Avg=0, rate2Avg=0, rate3Avg=0;
-          bdlma::TestAllocator ta;
+          bslma::TestAllocator ta;
           {
              for (int a = 0; a < NUM_LOOPS; ++a) {
                 Obj mX(&mappingManager, &ta);
@@ -2403,14 +2404,14 @@ int main(int argc, char *argv[]) {
 
                 H handle;
                 bsls::TimeInterval start, stop;
-                bdlt::CurrentTime::loadSystemTimeDefault(&start);
+                start = bsls::SystemTime::nowRealtimeClock();
                 // PHASE 1: Add all records, timed,
                 //          and then remove them all in order
                 for (int i = 0; i < NUM_ITERATIONS; ++i) {
                    mX.addRecord(&handle, (void*)record,
                                 lengths[i % NUM_LENGTHS]);
                 }
-                bdlt::CurrentTime::loadSystemTimeDefault(&stop);
+                stop = bsls::SystemTime::nowRealtimeClock();
                 bsls::Types::Int64 elapsed =
                    (stop - start).totalMicroseconds();
                 double rate1 = ((double)NUM_ITERATIONS / elapsed) *
@@ -2427,13 +2428,13 @@ int main(int argc, char *argv[]) {
                 //PHASE 2: Add all records, timed, then remove 3/4 of them
                 //         in a random order
 
-                bdlt::CurrentTime::loadSystemTimeDefault(&start);
+                start = bsls::SystemTime::nowRealtimeClock();
                 for (int i = 0; i < NUM_ITERATIONS; ++i) {
                    ASSERT(0 == mX.addRecord(&handle, (void*)record,
                                             lengths[i % NUM_LENGTHS]));
                    handles.push_back(handle);
                 }
-                bdlt::CurrentTime::loadSystemTimeDefault(&stop);
+                stop = bsls::SystemTime::nowRealtimeClock();
                 elapsed = (stop - start).totalMicroseconds();
                 double rate2 = ((double)NUM_ITERATIONS / elapsed) *
                    MICROSECS_PER_SEC;
@@ -2447,14 +2448,14 @@ int main(int argc, char *argv[]) {
 
                 // PHASE 3: add all records, timed
 
-                bdlt::CurrentTime::loadSystemTimeDefault(&start);
+                start = bsls::SystemTime::nowRealtimeClock();
                 for (int i = 0; i < NUM_ITERATIONS; ++i) {
                    H handle;
                    ASSERT(0 == mX.addRecord(&handle, (void*)record,
                                             lengths[i % NUM_LENGTHS]));
                    handles.push_back(handle);
                 }
-                bdlt::CurrentTime::loadSystemTimeDefault(&stop);
+                stop = bsls::SystemTime::nowRealtimeClock();
                 elapsed = (stop - start).totalMicroseconds();
                 double rate3 = ((double)NUM_ITERATIONS / elapsed) *
                    MICROSECS_PER_SEC;
@@ -2517,7 +2518,7 @@ int main(int argc, char *argv[]) {
           char filename[MAX_TMPFILENAME];
           getTmpFileName(filename, 8);
           for (int i = 0; i < 2; ++i) {
-             bdlma::TestAllocator ta;
+             bslma::TestAllocator ta;
              {
                 Obj mX(&mappingManager, &ta);
 
@@ -2558,7 +2559,7 @@ int main(int argc, char *argv[]) {
              ASSERT(0 < ta.numAllocations());
              ASSERT(0 == ta.numBytesInUse());
           }
-          bdlma::TestAllocator ta;
+          bslma::TestAllocator ta;
           {
              Obj mX(&mappingManager, &ta);
 
@@ -2724,7 +2725,7 @@ int main(int argc, char *argv[]) {
           snprintf(buffer, 512, "cp -f %s %s", filename, filename2);
           system(buffer);
 
-          bdlma::TestAllocator ta;
+          bslma::TestAllocator ta;
           {
              Obj mX(&mappingManager, &ta);
              const int USER_DATA_SIZE = (
@@ -2892,7 +2893,7 @@ int main(int argc, char *argv[]) {
           snprintf(buffer, 512, "cp -f %s %s", filename, filename2);
           system(buffer);
 
-          bdlma::TestAllocator ta;
+          bslma::TestAllocator ta;
           {
              Obj mX(&mappingManager, &ta);
              ASSERT(0 == mX.open(filename2, MODE_RO));
@@ -2994,7 +2995,7 @@ int main(int argc, char *argv[]) {
           balj::MappingManager mappingManager(MAPPING_LIMIT,
                                               NUM_PRIO);
 
-          bdlma::TestAllocator ta; // must use thread-safe allocator
+          bslma::TestAllocator ta; // must use thread-safe allocator
           {
              H h1, h2, h3;
              const char *BUF1 = "abcdefghi";
@@ -3073,7 +3074,7 @@ int main(int argc, char *argv[]) {
           }
 
           balj::MappingManager mappingManager(MAPPING_LIMIT, NUM_PRIO);
-          bdlma::TestAllocator ta; // must use thread-safe allocator
+          bslma::TestAllocator ta; // must use thread-safe allocator
           struct Parameters {
              int d_bufferSize;
              int d_bytesPerBlock;
@@ -3254,7 +3255,7 @@ int main(int argc, char *argv[]) {
              balj::MappingManager mappingManager(p.d_mappingLimit,
                                                  p.d_numPriorities);
 
-             bdlma::TestAllocator ta; // must use thread-safe allocator
+             bslma::TestAllocator ta; // must use thread-safe allocator
              {
                 H h1, h2, h3;
                 char *buf1[2], *buf2[2], *buf3[2];
@@ -3370,7 +3371,7 @@ int main(int argc, char *argv[]) {
                   MAPPING_LIMIT,
                   balj_Journal::BAECS_NUM_PRIORITIES);
 
-          bdlma::TestAllocator ta; // must use thread-safe allocator
+          bslma::TestAllocator ta; // must use thread-safe allocator
           {
              balj_Journal mX(&mappingManager, &ta);
              char filename[MAX_TMPFILENAME];
@@ -3452,7 +3453,7 @@ int main(int argc, char *argv[]) {
         char filename[MAX_TMPFILENAME];
         getTmpFileName(filename, 1);
 
-        bdlma::TestAllocator ta(veryVeryVerbose); // must use thread-safe
+        bslma::TestAllocator ta(veryVeryVerbose); // must use thread-safe
                                                  // allocator
         {
            balj_Journal mX(&mappingMgr, &ta);
@@ -3804,7 +3805,7 @@ int main(int argc, char *argv[]) {
               MAPPING_LIMIT = (1 << 20) * 100
           }; // 100 MB
           balj::MappingManager mappingManager(MAPPING_LIMIT, NUM_PRIO);
-          bdlma::TestAllocator ta;
+          bslma::TestAllocator ta;
           balj_Journal mX(&mappingManager, &ta);
           system("cp -f bad.mmap bad.mmap.test");
           int rc = mX.create("bad.mmap.test", MODE_RW);
@@ -3818,7 +3819,7 @@ int main(int argc, char *argv[]) {
               MAPPING_LIMIT = (1 << 20) * 100
           }; // 100 MB
           balj::MappingManager mappingManager(MAPPING_LIMIT, NUM_PRIO);
-          bdlma::TestAllocator ta;
+          bslma::TestAllocator ta;
           balj_Journal mX(&mappingManager, &ta);
 
           enum { NUM_RECORDS = 4096 };
@@ -3855,7 +3856,7 @@ int main(int argc, char *argv[]) {
           }
 
           balj::MappingManager mappingManager(MAPPING_LIMIT, NUM_PRIO);
-          bdlma::TestAllocator ta;
+          bslma::TestAllocator ta;
           balj_Journal mX(&mappingManager, &ta);
           mX.open(argv[2], MODE_RO);
           mX.validate(true);
@@ -3867,7 +3868,7 @@ int main(int argc, char *argv[]) {
           }; // 100 MB
           balj::MappingManager mappingManager(MAPPING_LIMIT, NUM_PRIO);
 
-          bdlma::TestAllocator ta; // must use thread-safe allocator
+          bslma::TestAllocator ta; // must use thread-safe allocator
           {
              balj_Journal mX(&mappingManager, &ta);
 

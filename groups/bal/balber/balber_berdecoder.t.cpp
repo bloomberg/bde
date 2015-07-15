@@ -4,7 +4,6 @@
 
 #include <balber_berencoder.h>        // for testing only
 
-#include <bdeimp_dateutil.h>
 #include <bdlt_serialdateimputil.h>
 
 #include <bdlat_attributeinfo.h>
@@ -101,7 +100,7 @@ static void aSsErT(int c, const char *s, int i) {
 //-----------------------------------------------------------------------------
 
 typedef bdlt::SerialDateImpUtil ProlepticDateUtil;
-typedef bdeimp::DateUtil          DateUtil;
+typedef bdlt::PosixDateImpUtil  DateUtil;
 
 
 enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
@@ -11540,7 +11539,7 @@ int main(int argc, char *argv[])
                 const int DAY   = DAYS[k];
 
                 if (DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                 && ProlepticDateUtil::isValidCalendarDate(YEAR, MONTH, DAY)) {
+                 && ProlepticDateUtil::isValidYearMonthDay(YEAR, MONTH, DAY)) {
 
                     if (veryVerbose) { P_(YEAR) P_(MONTH) P(DAY) }
 
@@ -11878,7 +11877,7 @@ int main(int argc, char *argv[])
                 const int DAY   = DAYS[dk];
 
                 if (DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                 && ProlepticDateUtil::isValidCalendarDate(YEAR, MONTH, DAY)) {
+                 && ProlepticDateUtil::isValidYearMonthDay(YEAR, MONTH, DAY)) {
 
                     const int HOURS[] = { 0, 12, 23 };
                     const int NUM_HOURS = sizeof HOURS / sizeof *HOURS;

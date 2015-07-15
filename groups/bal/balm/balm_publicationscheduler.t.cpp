@@ -18,7 +18,7 @@
 
 #include <bdlmtt_barrier.h>
 #include <bdlmt_fixedthreadpool.h>
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 
 #include <bsl_ostream.h>
 #include <bsl_cstring.h>
@@ -1380,10 +1380,10 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "TEST CONCURRENCY" << endl
                                   << "================" << endl;
 
-        bdlma::TestAllocator defaultAllocator;
+        bslma::TestAllocator defaultAllocator;
         bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
-        bdlma::TestAllocator testAllocator;
+        bslma::TestAllocator testAllocator;
 
         bdlmt::TimerEventScheduler  timer(&testAllocator);
         balm::MetricsManager       manager(&testAllocator);

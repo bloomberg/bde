@@ -2,7 +2,7 @@
 
 #include <bdlcc_fixedqueueindexmanager.h>
 
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 #include <bdlmtt_threadutil.h>
 #include <bdlmtt_barrier.h>
 
@@ -3194,7 +3194,7 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             Obj mX(1, &ta);
             ASSERT(mX.isEnabled());

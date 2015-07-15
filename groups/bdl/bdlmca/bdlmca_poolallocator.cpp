@@ -4,7 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlmca_poolallocator_cpp,"$Id$ $CSID$")
 
-#include <bdlma_xxxtestallocator.h>    // for testing only
+#include <bslma_testallocator.h>    // for testing only
 #include <bdlmtt_xxxthread.h>
 
 #include <bslma_default.h>
