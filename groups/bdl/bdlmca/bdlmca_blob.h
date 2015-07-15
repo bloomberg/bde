@@ -389,18 +389,9 @@ BSLS_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
-// #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-// BAS currently relies on this transitive include. (DRQS 62446892)
-
-#ifndef INCLUDED_BSL_MEMORY
-#include <bsl_memory.h>
-#endif
-
-// #endif
-
 namespace BloombergLP {
-
 namespace bdlmca {
+
                            // ======================
                            // class BlobBuffer
                            // ======================
@@ -866,6 +857,7 @@ bool bdlmca::operator!=(const BlobBuffer& lhs, const BlobBuffer& rhs)
 }
 
 namespace bdlmca {
+
                               // ================
                               // class Blob
                               // ================
@@ -918,8 +910,8 @@ int Blob::totalSize() const
 {
     return d_totalSize;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close namespace BloombergLP
 
 #endif

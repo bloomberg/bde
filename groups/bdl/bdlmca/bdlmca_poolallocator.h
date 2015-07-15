@@ -725,17 +725,6 @@ class PoolAllocator : public bslma::Allocator {
         // Return the size (in bytes) of the memory blocks allocated from this
         // allocator.  Note that all blocks dispensed by this allocator have
         // the same size.
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-
-    int objectSize() const;
-        // Return the size (in bytes) of the memory blocks allocated from this
-        // allocator.  Note that all blocks dispensed by this allocator have
-        // the same size.
-        //
-        // DEPRECATED: Use 'blockSize' instead.
-
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
 // ============================================================================
@@ -752,20 +741,8 @@ int PoolAllocator::blockSize() const
 {
     return d_blockSize;
 }
+
 }  // close package namespace
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-
-namespace bdlmca {
-inline
-int PoolAllocator::objectSize() const
-{
-    return blockSize();
-}
-}  // close package namespace
-
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-
 }  // close namespace BloombergLP
 
 #endif

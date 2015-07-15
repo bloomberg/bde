@@ -253,14 +253,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlmtt_mutex.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICTYPES
-#include <bdlmtt_xxxatomictypes.h>
-#endif
-
-#ifndef INCLUDED_BDLMTT_XXXATOMICUTIL
-#include <bdlmtt_xxxatomicutil.h>
-#endif
-
 #ifndef INCLUDED_BDLMA_INFREQUENTDELETEBLOCKLIST
 #include <bdlma_infrequentdeleteblocklist.h>
 #endif
@@ -281,6 +273,14 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
+#include <bsls_atomicoperations.h>
+#endif
+
 #ifndef INCLUDED_BSLS_BLOCKGROWTH
 #include <bsls_blockgrowth.h>
 #endif
@@ -293,21 +293,9 @@ BSLS_IDENT("$Id: $")
 #include <bsl_cstddef.h>
 #endif
 
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BDLMTT_LOCKGUARD
-#include <bdlmtt_lockguard.h>
-#endif
-
-#ifndef INCLUDED_BDLMTT_XXXTHREAD
-#include <bdlmtt_xxxthread.h>
-#endif
-
-#endif
-
 namespace BloombergLP {
-
 namespace bdlmca {
+
                         // ================
                         // class Pool
                         // ================
@@ -331,8 +319,8 @@ class Pool {
         // type from static methods defined in 'bdema_pool.cpp'.
 
         union {
-            bdlmtt::AtomicUtil::Int                d_refCount;
-            bsls::AlignmentUtil::MaxAlignedType d_dummy;
+            bsls::AtomicOperations::AtomicTypes::Int d_refCount;
+            bsls::AlignmentUtil::MaxAlignedType      d_dummy;
         };
         Link  *volatile d_next_p;   // pointer to next link
     };
@@ -352,7 +340,7 @@ class Pool {
     bsls::BlockGrowth::Strategy
                      d_growthStrategy;
                                    // growth strategy of the chunk size
-    bdlmtt::AtomicPointer<Link>
+    bsls::AtomicPointer<Link>
                      d_freeList;   // linked list of free memory blocks
     bdlma::InfrequentDeleteBlockList
                      d_blockList;  // memory manager for allocated memory
@@ -397,21 +385,6 @@ class Pool {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.  The behavior is undefined unless '1 <= blockSize' and
         // '1 <= maxBlocksPerChunk'.
-
-    Pool(int                         blockSize,
-               int                         maxBlocksPerChunk,
-               bslma::Allocator           *basicAllocator = 0);
-        // [!DEPRECATED!] Create a memory pool that returns blocks of
-        // contiguous memory of the specified 'blockSize' (in bytes) for each
-        // 'allocate' method invocation, and, if the specified
-        // 'maxBlocksPerChunk' is positive, grow the pool with internal memory
-        // chunks of constant 'blockSize * maxBlocksPerChunk' bytes,
-        // alternatively, if 'maxBlocksPerChunk' is negative, grow the internal
-        // chunk size geometrically up to 'blockSize * abs(maxBlocksPerChunk)'
-        // bytes.  Optionally specify a 'basicAllocator' used to supply memory.
-        // If 'basicAllocator' is 0, the currently installed default allocator
-        // is used.  The behavior is undefined unless '1 <= blockSize' and
-        // '0 != maxBlocksPerChunk'.
 
     ~Pool();
         // Destroy this pool, releasing all associated memory back to the
@@ -460,19 +433,9 @@ class Pool {
         // Return the size (in bytes) of the memory blocks allocated from this
         // pool object.  Note that all blocks dispensed by this pool have the
         // same size.
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    int objectSize() const;
-        // Return the size (in bytes) of the memory blocks allocated from this
-        // pool object.  Note that all blocks dispensed by this pool have the
-        // same size.
-        //
-        // DEPRECATED: use 'blockSize' instead.
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-
 };
-}  // close package namespace
 
+}  // close package namespace
 }  // close namespace BloombergLP
 
 // Note that the 'new' and 'delete' operators are declared outside the
@@ -583,17 +546,6 @@ int Pool::blockSize() const
     return d_blockSize;
 }
 }  // close package namespace
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-
-namespace bdlmca {inline
-int Pool::objectSize() const
-{
-    return d_blockSize;
-}
-}  // close package namespace
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-
 }  // close namespace BloombergLP
 
 // FREE OPERATORS

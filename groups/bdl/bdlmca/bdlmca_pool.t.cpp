@@ -656,7 +656,9 @@ void bench(Control *control)
 
 void runtest(int numIterations, int numObjects, int numThreads)
 {
-    bdlmca::Pool pool(sizeof(Item), numThreads * numObjects);
+    bdlmca::Pool pool(sizeof(Item),
+                      bsls::BlockGrowth::BSLS_CONSTANT,
+                      numThreads * numObjects);
 
     bdlmtt::Barrier barrier(numThreads);
 
@@ -810,90 +812,6 @@ int main(int argc, char *argv[]) {
         }
       } break;
       case 12: {
-        // --------------------------------------------------------------------
-        // TESTING (DEPRECATED) ALTERNATIVE CONSTRUCTOR
-        //
-        // Concerns:
-        //   That the alternative 'bdlmca::Pool'  constructor uses the correct
-        //   default argument values for the unspecified parameters.
-        //
-        // Plan:
-        //   Create one pool using the alternative constructor, and one pool
-        //   using the primary constructor with the correct default argument
-        //   values, and verify they behave the same.
-        //
-        // Testing:
-        //   bdlmca::Pool(int, int, bslma::allocator *);
-        // --------------------------------------------------------------------
-
-        if (verbose)
-            cout << endl
-                 << "TESTING (DEPRECATED) ALTERNATIVE CONSTRUCTOR" << endl
-                 << "============================================" << endl;
-
-        if (verbose) cout << endl << " bdlmca::Pool(int, int, ...)" << endl
-                                  << "==========================" << endl;
-
-        struct {
-            int  d_line;
-            int  d_objectSize;
-            int  d_maxBlocksPerChunk;
-            bool d_geometric;
-        } DATA[] = {
-            //line    object                          geometric
-            //no.     size      maxBlocksPerChunk            growth
-            //----    ------    --------------------  ------
-            { L_,       1,                         5, false },
-            { L_,       5,                        10, false },
-            { L_,      12,                         1, false },
-            { L_,      24,                         5, false },
-            { L_,      32,      MAX_BLOCKS_PER_CHUNK, false },
-            { L_,       1,                         5,  true },
-            { L_,       5,                        10,  true },
-            { L_,      12,                         1,  true },
-            { L_,      24,                         5,  true },
-            { L_,      32,      MAX_BLOCKS_PER_CHUNK,  true }
-        };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-        const int NUM_REQUESTS = 100;
-        bslma::TestAllocator taX;    const bslma::TestAllocator& TAX   = taX;
-        bslma::TestAllocator taExp;  const bslma::TestAllocator& TAEXP = taExp;
-
-        for (int di = 0; di < NUM_DATA; ++di) {
-            bsls::BlockGrowth::Strategy strategy =
-                DATA[di].d_geometric
-                  ? bsls::BlockGrowth::BSLS_GEOMETRIC
-                  : bsls::BlockGrowth::BSLS_CONSTANT;
-
-            const int LINE = DATA[di].d_line;
-            const int OBJECT_SIZE      = DATA[di].d_objectSize;
-            const int BLOCKS_PER_CHUNK = DATA[di].d_maxBlocksPerChunk;
-            const int NUM_OBJECTS      =
-                                 (strategy == bsls::BlockGrowth::BSLS_CONSTANT)
-                                 ? BLOCKS_PER_CHUNK
-                                 : -BLOCKS_PER_CHUNK;
-            {
-                Obj mX(OBJECT_SIZE, NUM_OBJECTS, &taX);
-                Obj mExp(OBJECT_SIZE, strategy, BLOCKS_PER_CHUNK, &taExp);
-
-                for (int ai = 0; ai < NUM_REQUESTS; ++ai) {
-                    mX.allocate();
-                    mExp.allocate();
-                }
-
-                int numAllocations = TAX.numAllocations();
-                int numBytes       = TAX.lastAllocatedNumBytes();
-                if (veryVerbose) { TAB; P_(numAllocations); TAB; P(numBytes); }
-                LOOP2_ASSERT(numAllocations,
-                             TAEXP.numAllocations(),
-                             TAEXP.numAllocations() == numAllocations);
-                LOOP2_ASSERT(numBytes,
-                             TAEXP.lastAllocatedNumBytes(),
-                             TAEXP.lastAllocatedNumBytes() == numBytes);
-
-            }
-        }
       } break;
       case 11: {
         // --------------------------------------------------------------------
