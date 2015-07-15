@@ -5954,12 +5954,12 @@ int main(int argc, char *argv[])
         ASSERT(ptrNil != ptr1);
 
             // COMPARISON SHR PTR TO BOOL
-        ASSERT(ptrNil == false);
-        ASSERT(ptr1 != false);
+        ASSERT(static_cast<bool>(ptrNil) == false);
+        ASSERT(static_cast<bool>(ptr1)   != false);
 
             // COMPARISON BOOL TO SHR PTR
-        ASSERT(false == ptrNil);
-        ASSERT(false != ptr1);
+        ASSERT(false == static_cast<bool>(ptrNil));
+        ASSERT(false != static_cast<bool>(ptr1));
         ASSERT(true  && ptr1);
 
             // COMPARISON SHR PTR TO NULL POINTER LITERAL
@@ -7657,7 +7657,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == X.rep());
             ASSERT(0 == X.use_count());
             ASSERT(false == X.unique());
-            ASSERT(false == X);
+            ASSERT(!X);
 
             if (verbose) printf("\nNegative Testing.\n");
             {
@@ -7687,7 +7687,7 @@ int main(int argc, char *argv[])
             ASSERT(static_cast<void *>(p) == X.rep()->originalPtr());
             ASSERT(1 == X.use_count());
             ASSERT(true == X.unique());
-            ASSERT(false != X);
+            ASSERT(X);
             ASSERT(p == X.operator->());
             ASSERT(p == &X.operator*());
             ASSERT(p == &X.operator[](0));
