@@ -617,8 +617,7 @@ AtomicPointer<TYPE>::AtomicPointer(TYPE *value)
 
 template <class TYPE>
 inline
-AtomicPointer<TYPE>::AtomicPointer(
-                                      const AtomicPointer<TYPE>& original)
+AtomicPointer<TYPE>::AtomicPointer(const AtomicPointer<TYPE>& original)
     : AtomicPointerImp(original.loadRelaxed())
 {
 }
@@ -629,7 +628,7 @@ inline
 AtomicPointer<TYPE>&
 AtomicPointer<TYPE>::operator=(const AtomicPointer<TYPE>& rhs)
 {
-    AtomicPointer::operator=(rhs.loadRelaxed());
+    bsls::AtomicPointer<TYPE>::operator=(rhs.loadRelaxed());
     return *this;
 }
 
@@ -638,7 +637,7 @@ inline
 AtomicPointer<TYPE>&
 AtomicPointer<TYPE>::operator=(TYPE *value)
 {
-    AtomicPointer::operator=(value);
+    bsls::AtomicPointer<TYPE>::operator=(value);
     return *this;
 }
 
@@ -646,7 +645,7 @@ template <class TYPE>
 inline
 TYPE *AtomicPointer<TYPE>::swap(TYPE *swapValue)
 {
-    return AtomicPointer::swap(swapValue);
+    return bsls::AtomicPointer<TYPE>::swap(swapValue);
 }
 
 template <class TYPE>
