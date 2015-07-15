@@ -371,7 +371,7 @@ template <class TYPE>
 inline
 bdlmtt::AtomicPointer<TYPE>::operator TYPE*() const
 {
-    return AtomicPointer::operator TYPE*();
+    return bsls::AtomicPointer<TYPE>::operator TYPE*();
 }
 
 namespace bdlmtt {
@@ -654,14 +654,14 @@ inline
 TYPE *AtomicPointer<TYPE>::testAndSwap(const TYPE *compareValue,
                                             TYPE       *swapValue)
 {
-    return AtomicPointer::testAndSwap(compareValue, swapValue);
+    return bsls::AtomicPointer<TYPE>::testAndSwap(compareValue, swapValue);
 }
 
 template <class TYPE>
 inline
 void AtomicPointer<TYPE>::relaxedStore(TYPE *value)
 {
-    AtomicPointer::storeRelaxed(value);
+    bsls::AtomicPointer<TYPE>::storeRelaxed(value);
 }
 
 // ACCESSORS
@@ -669,21 +669,21 @@ template <class TYPE>
 inline
 TYPE& AtomicPointer<TYPE>::operator*() const
 {
-    return AtomicPointer::operator*();
+    return bsls::AtomicPointer<TYPE>::operator*();
 }
 
 template <class TYPE>
 inline
 TYPE *AtomicPointer<TYPE>::operator->() const
 {
-    return AtomicPointer::operator->();
+    return bsls::AtomicPointer<TYPE>::operator->();
 }
 
 template <class TYPE>
 inline
 TYPE *AtomicPointer<TYPE>::relaxedLoad() const
 {
-    return AtomicPointer::loadRelaxed();
+    return bsls::AtomicPointer<TYPE>::loadRelaxed();
 }
 
                      // -------------------------
