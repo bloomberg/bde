@@ -454,6 +454,7 @@ if (veryVerbose)
         if (verbose) cout << "\nVerify '<<' operator signature." << endl;
 
         {
+            using namespace baltzo;
             typedef bsl::ostream& (*FuncPtr)(bsl::ostream&, Enum);
 
             const FuncPtr FP = &operator<<;

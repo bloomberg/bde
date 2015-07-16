@@ -526,6 +526,7 @@ int main(int argc, char *argv[])
 
         // Verify '<<' operator signature.
         {
+            using namespace btlmt;
             typedef bsl::ostream& (*FuncPtr)(bsl::ostream&, Obj::Enum);
 
             const FuncPtr FP = &operator<<;

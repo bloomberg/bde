@@ -2157,6 +2157,7 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
                 "\nAssign the address of each operator to a variable." << endl;
         {
+            using namespace balst;
             typedef bool (*operatorPtr)(const Obj&, const Obj&);
 
             // Verify that the signatures and return types are standard.
@@ -2456,6 +2457,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nAssign the addresses of 'print' and "
                              "the output 'operator<<' to variables." << endl;
         {
+            using namespace balst;
             typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
             typedef ostream& (*operatorPtr)(ostream&, const Obj&);
 

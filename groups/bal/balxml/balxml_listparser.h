@@ -145,7 +145,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlb_chartype.h>
 #endif
 
-#if 0
 #ifndef INCLUDED_BDLAGGXXX_AGGREGATE
 #include <bdlaggxxx_aggregate.h>
 #endif
@@ -156,7 +155,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDLAGGXXX_ERRORATTRIBUTES
 #include <bdlaggxxx_errorattributes.h>
-#endif
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -280,7 +278,6 @@ int ListParser<TYPE>::appendElement(const char *data, int dataLength)
      return BAEXML_SUCCESS;
 }
 
-#if 0
 template <>
 inline
 int ListParser<bdlaggxxx::Aggregate>::appendElement(const char *data,
@@ -334,7 +331,6 @@ int ListParser<bdlaggxxx::AggregateRaw>::appendElement(const char *data,
 
      return BAEXML_SUCCESS;
 }
-#endif
 
 // CREATORS
 

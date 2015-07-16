@@ -250,6 +250,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nAssign the addresses of 'print' and "
                              "the output 'operator<<' to variables." << endl;
         {
+            using namespace btls5;
             typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
             typedef ostream& (*operatorPtr)(ostream&, const Obj&);
 

@@ -255,6 +255,16 @@ void printVector(const bsl::vector<TYPE>& vec, const char *name)
 #define MTLOOP2_ASSERT(I,J,X) { \
   if (!(X)) { MTCOUT; P_(I); P(J); aSsErT(1, #X, __LINE__); cout << MTFLUSH; }}
 
+namespace BloombergLP {
+namespace bslma {
+bsl::ostream& operator<<(bsl::ostream& out, const TestAllocator& ta)
+{
+    ta.print();
+    return out;
+}
+}
+}
+
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------

@@ -25,7 +25,6 @@
 #include <bdlt_currenttime.h>
 #include <bdlt_time.h>
 #include <bdlt_currenttime.h>
-#include <bdetu_time.h>
 #include <btlso_socketimputil.h>
 
 #include <bdlf_function.h>

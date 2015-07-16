@@ -887,17 +887,12 @@ int main(int argc, char *argv[])
 //..
     bdlt::Time edtTime(7, 0, 0);  // UTC transition time
     bdlt::Time estTime(6, 0, 0);  // UTC transition time
+    static const int edtDays[5] = { 11,  9,  8, 14, 13 };
+    static const int estDays[5] = {  4,  2,  1,  7,  6 };
     for (int year = 2007; year < 2012; ++year) {
-        int edtDay =
-                  bdlt::DateUtil::weekdayInMonth(year,
-                                                  3,
-                                                  bdlt::DayOfWeek::e_SUNDAY,
-                                                  2);
-        int estDay =
-                  bdlt::DateUtil::weekdayInMonth(year,
-                                                  11,
-                                                  bdlt::DayOfWeek::e_SUNDAY,
-                                                  1);
+        int edtDay = edtDays[year - 2007];
+        int estDay = estDays[year - 2007];
+
         bdlt::Datetime edtTransition(bdlt::Date(year, 3,  edtDay), edtTime);
         bdlt::Datetime estTransition(bdlt::Date(year, 11, estDay), estTime);
 
@@ -1012,6 +1007,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nAssign the address of print "
                              "and output operator to a variable." << endl;
         {
+            using namespace baltzo;
             typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
             typedef ostream& (*operatorPtr)(ostream&, const Obj&);
 
