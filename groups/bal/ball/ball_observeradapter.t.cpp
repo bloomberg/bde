@@ -7,6 +7,7 @@
 #include <ball_transmission.h>                  // for testing only
 
 #include <bdlt_datetimeutil.h>                     // for testing only
+#include <bdlt_epochutil.h>                     // for testing only
 #include <bdlxxxx_testinstream.h>                  // for testing only
 #include <bdlxxxx_testinstreamexception.h>         // for testing only
 #include <bdlxxxx_testoutstream.h>                 // for testing only
@@ -187,7 +188,7 @@ int main(int argc, char *argv[])
                 out.seekp(0);
                 const int NUM_MESSAGES = 3;
                 for (int n = 0; n < NUM_MESSAGES; ++n) {
-                    bdetu_Datetime::convertFromTimeT(&now, time(0));
+                    now = bdlt::EpochUtil::convertFromTimeT(time(0));
                     fixed.setTimestamp(now);
                     fixed.setProcessID(201 + n);
                     fixed.setThreadID(31 + n);

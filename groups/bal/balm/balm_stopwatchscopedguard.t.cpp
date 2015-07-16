@@ -4,7 +4,7 @@
 #include <balm_metricsample.h>
 #include <balm_publisher.h>
 
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 #include <bdlmtt_barrier.h>
 #include <bdlmt_fixedthreadpool.h>
 

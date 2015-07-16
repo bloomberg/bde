@@ -1,7 +1,7 @@
 // bdlmt_multiqueuethreadpool.t.cpp        -*-C++-*-
 #include <bdlmt_multiqueuethreadpool.h>
 
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 #include <bdlmtt_barrier.h>
 #include <bdlmtt_xxxthread.h>
 
@@ -666,7 +666,7 @@ enum {
 #endif
 };
 
-void testDrainQueueAndDrain(bdlma::TestAllocator *ta, int concurrency)
+void testDrainQueueAndDrain(bslma::TestAllocator *ta, int concurrency)
 {
     enum {
         MIN_THREADS = 1,
@@ -859,7 +859,7 @@ int main(int argc, char *argv[]) {
                  << "=======================" << endl;
         }
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             bsl::string WORDS[] = {
                 "a", "b", "c", "d", "e", "f", "g", "h",
@@ -938,7 +938,7 @@ int main(int argc, char *argv[]) {
             JOB_COUNT = (X_END - X_START) * (Y_END - Y_START)
         };
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
         bcemt_Attribute threadAttrs;
         threadAttrs.setStackSize(1 << 20);      // one megabyte
@@ -978,7 +978,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "Complex test of drainQueue and drain\n";
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
         enum {
 #ifndef BSLS_PLATFORM_OS_CYGWIN
@@ -1085,7 +1085,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "Simple test of drainQueue and drain 2\n";
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
         testDrainQueueAndDrain(&ta, NUM_QUEUES + 1);
       } break;
@@ -1131,7 +1131,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << "Simple test of drainQueue and drain\n";
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
         testDrainQueueAndDrain(&ta, 1);
       }  break;
@@ -1157,7 +1157,7 @@ int main(int argc, char *argv[]) {
             cout << "Testing numProcessed and numProcessedReset" << endl
                  << "==========================================" << endl;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             enum {
 #ifndef BSLS_PLATFORM_OS_CYGWIN
@@ -1287,7 +1287,7 @@ int main(int argc, char *argv[]) {
                 << "===========================================" << endl;
         }
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             enum {
                 MIN_THREADS = 2,
@@ -1390,7 +1390,7 @@ int main(int argc, char *argv[]) {
                 << "=================================================" << endl;
         }
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             enum {
                 MIN_THREADS = 1,
@@ -1450,7 +1450,7 @@ int main(int argc, char *argv[]) {
                 << endl;
         }
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
         enum {
             MIN_THREADS = 1,
@@ -1581,7 +1581,7 @@ int main(int argc, char *argv[]) {
            << endl;
         }
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             const struct {
                 int d_line;          // source line number
@@ -1738,7 +1738,7 @@ int main(int argc, char *argv[]) {
                  << endl;
         }
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             enum {
                 MIN_THREADS = 2,
@@ -1828,7 +1828,7 @@ int main(int argc, char *argv[]) {
                  << "================================" << endl;
         }
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             enum {
                 MIN_THREADS = 2,
@@ -1994,7 +1994,7 @@ int main(int argc, char *argv[]) {
         }
 
         for(int k=0; k<100; ++k){
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             enum {
                 MIN_THREADS = 3,
@@ -2127,7 +2127,7 @@ int main(int argc, char *argv[]) {
                  << "=======================" << endl;
         }
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             enum {
                 MIN_THREADS = 16,
@@ -2303,7 +2303,7 @@ int main(int argc, char *argv[]) {
         enum { NUM_JOBS = 1000 };  // for testing 'stop' and 'shutdown'
 
         bdlmtt::AtomicInt counter;
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             enum {
                 MIN_THREADS = 2,
@@ -2594,7 +2594,7 @@ int main(int argc, char *argv[]) {
                  << "==============" << endl;
         }
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             enum {
                 MIN_THREADS = 2,
@@ -2704,7 +2704,7 @@ int main(int argc, char *argv[]) {
         bdlmtt::ThreadAttributes attr;
         attr.setStackSize(bsl::numeric_limits<int>::max());
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
         Obj mX(attr, 2, 2, 1000, &ta);
 

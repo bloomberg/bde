@@ -5,7 +5,7 @@
 #include <btls5_networkdescriptionutil.h>
 
 #include <bdlcc_fixedqueue.h>
-#include <bdlma_xxxtestallocator.h>            // thread-safe allocator
+#include <bslma_testallocator.h>            // thread-safe allocator
 #include <bdlmtt_threadutil.h>               // for sleep
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
@@ -424,7 +424,7 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-        bdlma::TestAllocator da("defaultAllocator", veryVeryVerbose);
+        bslma::TestAllocator da("defaultAllocator", veryVeryVerbose);
         bslma::DefaultAllocatorGuard guard(&da);
 
         btlso::Endpoint destination;
@@ -480,7 +480,7 @@ int main(int argc, char *argv[])
 
         // install a 'TestAllocator' as defalt to check for memory leaks
 
-        bdlma::TestAllocator ta("test1", veryVeryVerbose);
+        bslma::TestAllocator ta("test1", veryVeryVerbose);
         bslma::DefaultAllocatorGuard guard(&ta);
 
         btlso::Endpoint destination;
@@ -564,7 +564,7 @@ int main(int argc, char *argv[])
 
         // install a 'TestAllocator' as defalt to check for memory leaks
 
-        bdlma::TestAllocator ta("test1", veryVeryVerbose);
+        bslma::TestAllocator ta("test1", veryVeryVerbose);
         bslma::DefaultAllocatorGuard guard(&ta);
 
         btlso::Endpoint destination;
@@ -643,12 +643,12 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nACCESSOR: socks5Servers"
                              "\n=======================\n" << bsl::flush;
 
-        bdlma::TestAllocator da("defaultAllocator", veryVeryVerbose);
+        bslma::TestAllocator da("defaultAllocator", veryVeryVerbose);
         bslma::DefaultAllocatorGuard guard(&da);
 
         const btls5::Credentials credentials("gooduser", "goodpass");
 
-        bdlma::TestAllocator ta("testAllocator", veryVeryVerbose);
+        bslma::TestAllocator ta("testAllocator", veryVeryVerbose);
 
         btlso::InetStreamSocketFactory<btlso::IPv4Address> factory(&ta);
         btlmt::TcpTimerEventManager eventManager(&ta);
@@ -695,7 +695,7 @@ int main(int argc, char *argv[])
                           << "CANCEL TEST" << endl
                           << "===========" << endl;
 
-        bdlma::TestAllocator da("defaultAllocator", veryVeryVerbose);
+        bslma::TestAllocator da("defaultAllocator", veryVeryVerbose);
         bslma::DefaultAllocatorGuard guard(&da);
 
         btlso::Endpoint destination;
@@ -851,7 +851,7 @@ int main(int argc, char *argv[])
                           << "OVERLAPPED CONNECTIONS" << endl
                           << "======================" << endl;
 
-        bdlma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+        bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
         bslma::Default::setDefaultAllocator(&defaultAllocator);
 
         btls5::TestServerArgs args;  // reused for all servers
@@ -1136,7 +1136,7 @@ int main(int argc, char *argv[])
                           << "TIMEOUT TEST" << endl
                           << "============" << endl;
 
-        bdlma::TestAllocator da("defaultAllocator", veryVeryVerbose);
+        bslma::TestAllocator da("defaultAllocator", veryVeryVerbose);
         bslma::DefaultAllocatorGuard guard(&da);
 
         btlso::Endpoint destination;
@@ -1333,7 +1333,7 @@ int main(int argc, char *argv[])
 
         // install a 'TestAllocator' as defalt to check for memory leaks
 
-        bdlma::TestAllocator ta("test1", veryVeryVerbose);
+        bslma::TestAllocator ta("test1", veryVeryVerbose);
         bslma::DefaultAllocatorGuard guard(&ta);
 
         btlso::Endpoint destination;
@@ -1481,7 +1481,7 @@ int main(int argc, char *argv[])
                           << "OVERLAPPED CONNECTIONS ON ONE CONNECTOR" << endl
                           << "=======================================" << endl;
 
-        bdlma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+        bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
         bslma::Default::setDefaultAllocatorRaw(&defaultAllocator);
 
         btls5::TestServerArgs args;  // reused for all servers

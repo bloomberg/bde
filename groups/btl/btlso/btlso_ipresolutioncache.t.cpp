@@ -24,7 +24,7 @@
 #include <bdlmtt_once.h>
 #include <bdlmtt_barrier.h>
 
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 
 #include <bsl_climits.h>     // 'INT_MIN', 'INT_MAX'
 #include <bsls_asserttest.h>
@@ -940,8 +940,8 @@ int main(int argc, char *argv[])
 
         using namespace BTESO_IPRESOLUTIONCACHE_CONCURRENCY;
 
-        // A 'bdlma::TestAllocator' is required for thread safe allocations.
-        bdlma::TestAllocator testAllocator;
+        // A 'bslma::TestAllocator' is required for thread safe allocations.
+        bslma::TestAllocator testAllocator;
 
         enum {
 #ifdef BSLS_PLATFORM_OS_LINUX

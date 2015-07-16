@@ -3,7 +3,7 @@
 
 #include <balst_stacktrace.h>
 
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 #include <bdlmtt_barrier.h>
 #include <bdlmtt_threadutil.h>
 
@@ -121,7 +121,7 @@ using bsl::flush;
 //        global 'new' (actually, since we override 'new' to call 'malloc'
 //        for the sake of other tests, we can only check 'malloc').
 //      o Attempt to free blocks created by 'bslma::TestAllocator' and
-//        'bdlma::TestAllocator'
+//        'bslma::TestAllocator'
 //      o Pass a pointer that is not pointer-aligned, triggering alignment
 //        error detection
 // [13] Calling 'release' successfully frees all allocated blocks
@@ -1862,7 +1862,7 @@ int main(int argc, char *argv[])
         //: 4 Freeing a 'new[]' allocated block by an STTA
         //: 5 Freeing a 'new' allocated block by an STTA
         //: 6 Freeing a 'bslma::TestAllocator' allocated block by an STTA
-        //: 7 Freeing a 'bdlma::TestAllocator' allocated block by an STTA
+        //: 7 Freeing a 'bslma::TestAllocator' allocated block by an STTA
         //: 8 Freeing a misaligned segment
         //
         // Plan:
@@ -2209,7 +2209,7 @@ int main(int argc, char *argv[])
 
             if (verbose) Q(Check freeing of seg alloced with bcema::TA);
             {
-                bdlma::TestAllocator taBce;
+                bslma::TestAllocator taBce;
                 void *ptr;
                 unsigned int numBlocks;
 

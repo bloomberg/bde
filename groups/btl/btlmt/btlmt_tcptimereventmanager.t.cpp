@@ -9,7 +9,7 @@
 
 #include <btlso_defaulteventmanager.h>
 
-#include <bdlma_xxxtestallocator.h>                // for testing only
+#include <bslma_testallocator.h>                // for testing only
 #include <bdlmt_threadpool.h>
 #include <bdlmtt_barrier.h>
 #include <bdlmtt_xxxatomictypes.h>
@@ -61,7 +61,7 @@ static int verbose = 0,
            veryVeryVerbose = 0;
 
 bdlmtt::Mutex         coutMutex;
-bdlma::TestAllocator defaultAllocator;
+bslma::TestAllocator defaultAllocator;
 
 static void aSsErT(int c, const char *s, int i)
 {
@@ -711,7 +711,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test
          << " STARTED " << bdlt::CurrentTime::utc() << endl;;
 
-    bdlma::TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     testAllocator_p = &testAllocator;
     int rc = btlso::SocketImpUtil::startup();

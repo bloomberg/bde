@@ -1,7 +1,7 @@
 // balm_integercollector.t.cpp  -*-C++-*-
 #include <balm_integercollector.h>
 
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 #include <bdlmtt_barrier.h>
 #include <bdlmt_fixedthreadpool.h>
 #include <bdlf_bind.h>
@@ -319,10 +319,10 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "TEST CONCURRENCY" << endl
                                   << "================" << endl;
 
-        bdlma::TestAllocator defaultAllocator;
+        bslma::TestAllocator defaultAllocator;
         bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
-        bdlma::TestAllocator testAllocator;
+        bslma::TestAllocator testAllocator;
         balm::IntegerCollector mX(METRIC_A);
         {
             ConcurrencyTest tester(10, &mX, &defaultAllocator);

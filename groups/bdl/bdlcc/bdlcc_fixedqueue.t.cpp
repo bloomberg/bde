@@ -9,7 +9,7 @@
 #include <bdlmtt_configuration.h>
 #include <bdlmtt_lockguard.h>
 #include <bdlmtt_qlock.h>
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 #include <bdlmtt_timedsemaphore.h>
 #include <bdlmtt_threadgroup.h>
 #include <bdlmtt_turnstile.h>
@@ -1055,7 +1055,7 @@ int main(int argc, char *argv[])
                           << "Basic exception guarantee test" << endl
                           << "==============================" << endl;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
         if (verbose) {
             cout << endl
@@ -1677,7 +1677,7 @@ int main(int argc, char *argv[])
         enum { NUM_ENTRIES = NUM_VALUES * NUM_PUSHER_THREADS };
         char reserved[NUM_ENTRIES];
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
         bdlmtt::Barrier barrier(NUM_PUSHER_THREADS+1);
 
@@ -1752,7 +1752,7 @@ int main(int argc, char *argv[])
         enum { NUM_ENTRIES = NUM_VALUES * NUM_PUSHER_THREADS };
         char reserved[NUM_ENTRIES];
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
         for (int i = 0; i < NUM_ITERATIONS; ++i) {
             bdlmtt::Barrier barrier(NUM_PUSHER_THREADS+1);

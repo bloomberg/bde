@@ -9,6 +9,7 @@
 #include <bdlt_currenttime.h>
 
 #include <bsls_stopwatch.h>
+#include <bsls_systemtime.h>
 
 #include <bsl_cerrno.h>
 #include <bsl_cstdlib.h>

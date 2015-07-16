@@ -16,7 +16,7 @@
 #include <bdlf_memfn.h>
 #include <bdlf_placeholder.h>
 
-#include <bdlma_xxxtestallocator.h>            // thread-safe allocator
+#include <bslma_testallocator.h>            // thread-safe allocator
 #include <bdlmtt_xxxthread.h>                   // thread management util
 
 #include <bsls_timeinterval.h>
@@ -1247,7 +1247,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bdlma::TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
     testAllocator.setNoAbort(1);
     btlso::InetStreamSocketFactory<btlso::IPv4Address> factory(&testAllocator);
 

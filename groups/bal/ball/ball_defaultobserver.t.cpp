@@ -7,7 +7,7 @@
 #include <ball_recordattributes.h>             // for testing only
 
 #include <bdlt_datetime.h>                     // for testing only
-#include <bdlt_datetimeutil.h>                    // for testing only
+#include <bdlt_epochutil.h>                    // for testing only
 
 #include <bsls_platform.h>                     // for testing only
 
@@ -190,27 +190,25 @@ int main(int argc, char *argv[])
         {
             Obj X(bsl::cout);
 
-            bdlt::Datetime         now;
             ball::RecordAttributes fixed;
-            bdlmxxx::List             emptyList;
+            bdlmxxx::List          emptyList;
 
-            bdetu_Datetime::convertFromTimeT(&now, time(0));
+            bdlt::Datetime now = bdlt::EpochUtil::convertFromTimeT(time(0));
             fixed.setTimestamp(now);
             fixed.setProcessID(100);
             fixed.setThreadID(0);
             X.publish(ball::Record(fixed, emptyList),
-                      ball::Context(ball::Transmission::BAEL_PASSTHROUGH, 0, 1));
+                    ball::Context(ball::Transmission::BAEL_PASSTHROUGH, 0, 1));
         }
 
         if (verbose) cout << "Publish a single message." << endl;
         {
             Obj X(&bsl::cout);
 
-            bdlt::Datetime         now;
             ball::RecordAttributes fixed;
-            bdlmxxx::List             emptyList;
+            bdlmxxx::List          emptyList;
 
-            bdetu_Datetime::convertFromTimeT(&now, time(0));
+            bdlt::Datetime now = bdlt::EpochUtil::convertFromTimeT(time(0));
             fixed.setTimestamp(now);
             fixed.setProcessID(100);
             fixed.setThreadID(0);
@@ -225,13 +223,13 @@ int main(int argc, char *argv[])
         {
             Obj X(bsl::cout);
 
-            bdlt::Datetime         now;
             ball::RecordAttributes fixed;
-            bdlmxxx::List             emptyList;
+            bdlmxxx::List          emptyList;
 
             const int NUM_MESSAGES = 3;
             for (int n = 0; n < NUM_MESSAGES; ++n) {
-                bdetu_Datetime::convertFromTimeT(&now, time(0));
+                bdlt::Datetime now =
+                                    bdlt::EpochUtil::convertFromTimeT(time(0));
                 fixed.setTimestamp(now);
                 fixed.setProcessID(201 + n);
                 fixed.setThreadID(31 + n);
@@ -246,13 +244,13 @@ int main(int argc, char *argv[])
         {
             Obj X(&bsl::cout);
 
-            bdlt::Datetime         now;
             ball::RecordAttributes fixed;
-            bdlmxxx::List             emptyList;
+            bdlmxxx::List          emptyList;
 
             const int NUM_MESSAGES = 3;
             for (int n = 0; n < NUM_MESSAGES; ++n) {
-                bdetu_Datetime::convertFromTimeT(&now, time(0));
+                bdlt::Datetime now =
+                                    bdlt::EpochUtil::convertFromTimeT(time(0));
                 fixed.setTimestamp(now);
                 fixed.setProcessID(201 + n);
                 fixed.setThreadID(31 + n);

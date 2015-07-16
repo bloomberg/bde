@@ -7,7 +7,7 @@
 #include <bsl_sstream.h>
 
 using namespace BloombergLP;
-using namespace BloombergLP::baea;
+using namespace BloombergLP::balb;
 
 //=============================================================================
 //                                 TEST PLAN

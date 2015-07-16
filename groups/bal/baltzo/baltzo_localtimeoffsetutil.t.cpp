@@ -55,7 +55,7 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 // CLASS METHODS
                         // *** local time offset methods ***
-// [ 6] int loadLocalTimeOffset(int *result, const bdlt::Datetime& utc);
+// [ 6] int localTimeOffset(int *result, const bdlt::Datetime& utc);
 // [ 4] bdlt::CurrentTime::LLTOC setLoadLocalTimeOffsetCallback();
 
                         // *** configure methods ***
@@ -1089,8 +1089,8 @@ extern "C" void *workerThread(void *arg)
 
     p->d_barrier_p->wait();
 
-    baltzo::LocalTimeOffsetUtil::loadLocalTimeOffset(&p->d_offset,
-                                                    p->d_utcDatetime);
+    p->d_offset = baltzo::LocalTimeOffsetUtil::localTimeOffset(
+                                               p->d_utcDatetime).totalSeconds();
     return 0;
 }
 
@@ -1156,13 +1156,13 @@ namespace UsageExample1 {
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using 'loadLocalTimeOffset' as the Local Time Offset Callback
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Using 'localTimeOffset' as the Local Time Offset Callback
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we must quickly generate time stamp values in local time (e.g., on
 // records for a high frequency logger) and the default performance of the
 // relevant methods of 'bdlt::CurrentTime' is inadequate.  Further suppose that
 // we must do so arbitrary time values and time zones.  Those requirements can
-// be met by installing the 'loadLocalTimeOffset' method of
+// be met by installing the 'localTimeOffset' method of
 // 'baltzo::LocalTimeOffsetUtil' as the local time callback used by
 // 'bdlt::CurrentTime'.
 //
@@ -1189,14 +1189,14 @@ void main1()
 // one after then time zone information has been set.
 //
 // Then, use the 'setLoadLocalTimeOffsetCallback' method to set the
-// 'loadLocalTimeOffset' of 'baltzo::LocalTimeOffsetUtil' as the local time
+// 'localTimeOffset' of 'baltzo::LocalTimeOffsetUtil' as the local time
 // offset callback used in 'bdlt::CurrentTime'.
 //..
-    bdlt::CurrentTime::LoadLocalTimeOffsetCallback previousCallback =
+    bdlt::LocalTimeOffset::LocalTimeOffsetCallback previousCallback =
                   baltzo::LocalTimeOffsetUtil::setLoadLocalTimeOffsetCallback();
 
-    ASSERT(&baltzo::LocalTimeOffsetUtil::loadLocalTimeOffset
-        == bdlt::CurrentTime::currentLoadLocalTimeOffsetCallback());
+    ASSERT(&baltzo::LocalTimeOffsetUtil::localTimeOffset
+        == bdlt::LocalTimeOffset::localTimeOffsetCallback());
 //..
 // Notice that previously installed callback was saved so we can restore it, if
 // needed.
@@ -1205,10 +1205,9 @@ void main1()
 // For example, we can check the time offset in New York for three dates of
 // interest:
 //..
-    int offsetInSeconds;
-
-    bdlt::LocalTimeOffset::localTimeOffset(&offsetInSeconds,
-                                          bdlt::Datetime(2013,  2, 26));
+    int offsetInSeconds =
+        bdlt::LocalTimeOffset::localTimeOffset(bdlt::Datetime(2013, 2, 26))
+                                                               .totalSeconds();
     ASSERT(        0 == status);
     ASSERT(-5 * 3600 == offsetInSeconds);
     ASSERT(        1 == baltzo::LocalTimeOffsetUtil::updateCount());
@@ -1216,15 +1215,17 @@ void main1()
     baltzo::LocalTimeOffsetUtil::loadTimezone(&timezone);
     ASSERT(        0 == strcmp("America/New_York", timezone.c_str()));
 
-    bdlt::LocalTimeOffset::localTimeOffset(&offsetInSeconds,
-                                          bdlt::Datetime(2013,  7,  4));
+    offsetInSeconds =
+        bdlt::LocalTimeOffset::localTimeOffset(bdlt::Datetime(2013, 7, 4))
+                                                               .totalSeconds();
     ASSERT(-4 * 3600 == offsetInSeconds);
     ASSERT(        2 == baltzo::LocalTimeOffsetUtil::updateCount());
     baltzo::LocalTimeOffsetUtil::loadTimezone(&timezone);
     ASSERT(        0 == strcmp("America/New_York", timezone.c_str()));
 
-    bdlt::LocalTimeOffset::localTimeOffset(&offsetInSeconds,
-                                          bdlt::Datetime(2013, 12, 21));
+    offsetInSeconds =
+        bdlt::LocalTimeOffset::localTimeOffset(bdlt::Datetime(2013, 12, 21))
+                                                               .totalSeconds();
     ASSERT(-5 * 3600 == offsetInSeconds);
     ASSERT(        3 == baltzo::LocalTimeOffsetUtil::updateCount());
     baltzo::LocalTimeOffsetUtil::loadTimezone(&timezone);
@@ -1237,10 +1238,9 @@ void main1()
 //
 // Finally, we restore the original local time callback.
 //..
-    previousCallback = bdlt::CurrentTime::setLoadLocalTimeOffsetCallback(
+    previousCallback = bdlt::LocalTimeOffset::setLocalTimeOffsetCallback(
                                                              previousCallback);
-    ASSERT(previousCallback
-        == &baltzo::LocalTimeOffsetUtil::loadLocalTimeOffset);
+    ASSERT(previousCallback == &baltzo::LocalTimeOffsetUtil::localTimeOffset);
 //..
 }
 }  // close namespace UsageExample1
@@ -1364,7 +1364,7 @@ int main(int argc, char *argv[])
         //:   in reverse order.  (C-2..3)
         //
         // Testing:
-        //  int loadLocalTimeOffset(int *result, const bdlt::Datetime& utc);
+        //  int localTimeOffset(int *result, const bdlt::Datetime& utc);
         //  int updateCount();
         // --------------------------------------------------------------------
 
@@ -1395,8 +1395,8 @@ int main(int argc, char *argv[])
                     status = Util::configure(TIMEZONE, UTC);
                     ASSERT(0 == status);
 
-                    int reportedOffset;
-                    Util::loadLocalTimeOffset(&reportedOffset, UTC);
+                    int reportedOffset =
+                                     Util::localTimeOffset(UTC).totalSeconds();
                     ASSERT(expected.descriptor().utcOffsetInSeconds()
                         == reportedOffset);
                 }
@@ -1456,8 +1456,8 @@ int main(int argc, char *argv[])
                 if (veryVeryVerbose) { T_ P(ti) }
                 if (veryVerbose) { T_ P_(LINE) P_(UTC_DATETIME) P(EXP_OFFSET) }
 
-                int reportedOffset;
-                Util::loadLocalTimeOffset(&reportedOffset, UTC_DATETIME);
+                int reportedOffset =
+                            Util::localTimeOffset(UTC_DATETIME).totalSeconds();
                 ASSERT(EXP_OFFSET == reportedOffset);
 
                 bsl::string timezone; Util::loadTimezone(&timezone);
@@ -1493,8 +1493,8 @@ int main(int argc, char *argv[])
                 if (veryVeryVerbose) { T_ P(ti) }
                 if (veryVerbose) { T_ P_(LINE) P_(UTC_DATETIME) P(EXP_OFFSET) }
 
-                int reportedOffset;
-                Util::loadLocalTimeOffset(&reportedOffset, UTC_DATETIME);
+                int reportedOffset =
+                            Util::localTimeOffset(UTC_DATETIME).totalSeconds();
                 ASSERT(EXP_OFFSET == reportedOffset);
 
                 bsl::string timezone; Util::loadTimezone(&timezone);
@@ -1616,7 +1616,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 The 'setLoadLocalTimeOffsetCallback' method sets the
-        //:   'loadLocalTimeOffset' method as the current local time offset
+        //:   'localTimeOffset' method as the current local time offset
         //:   callback used by 'bdlt::CurrentTime'.
         //:
         //: 2 The 'setLoadLocalTimeOffsetCallback' method returns the installed
@@ -1640,16 +1640,16 @@ int main(int argc, char *argv[])
                           << "SETTING THE LOCAL TIME OFFSET CALLBACK" << endl
                           << "======================================" << endl;
 
-        const bdlt::CurrentTime::LoadLocalTimeOffsetCallback initialCallback =
-                        bdlt::CurrentTime::currentLoadLocalTimeOffsetCallback();
-        ASSERT(&Util::loadLocalTimeOffset != initialCallback);
+        const bdlt::LocalTimeOffset::LocalTimeOffsetCallback initialCallback =
+                              bdlt::LocalTimeOffset::localTimeOffsetCallback();
+        ASSERT(&Util::localTimeOffset != initialCallback);
 
 
-        const bdlt::CurrentTime::LoadLocalTimeOffsetCallback previousCallback =
+        const bdlt::LocalTimeOffset::LocalTimeOffsetCallback previousCallback =
                                         Util::setLoadLocalTimeOffsetCallback();
         ASSERT(initialCallback == previousCallback);
-        ASSERT(&Util::loadLocalTimeOffset
-            == bdlt::CurrentTime::currentLoadLocalTimeOffsetCallback());
+        ASSERT(&Util::localTimeOffset
+            == bdlt::LocalTimeOffset::localTimeOffsetCallback());
 
       } break;
       case 3: {
@@ -2027,14 +2027,14 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // THREAD SAFETY
         //   The primary concern is the thread-safety of the
-        //   'loadLocalTimeOffset' method.  The other public methods will
+        //   'localTimeOffset' method.  The other public methods will
         //   typically be called once near the start of a process, and before
         //   multiple threads are launched.  Since the limit on thread creation
         //   vary significantly with platform, this test is designed to be run
         //   interactively (i.e., the test has a negative test number).
         //
         // Concerns:
-        //: 1 Concurrent threads calling the 'loadLocalTimeOffset' method each
+        //: 1 Concurrent threads calling the 'localTimeOffset' method each
         //:   receive the correct result and return value indicating success.
         //:
         //: 2 When needed, the cached local time zone information is updated
@@ -2047,7 +2047,7 @@ int main(int argc, char *argv[])
         //: 2 Launch multiple threads (where the number is determined by a
         //:   command-line argument) that each wait at a common barrier until
         //:   all the threads have been created, and then invoke the
-        //:   'loadLocalTimeOffset' method requesting the offset for the start
+        //:   'localTimeOffset' method requesting the offset for the start
         //:   of daylight saving time.
         //:
         //: 3 Compare the values obtained by each thread with the expected
@@ -2184,14 +2184,13 @@ int main(int argc, char *argv[])
 
         // Confirm that the callback is working
 
-        int offset;
-        Util::loadLocalTimeOffset(&offset, newYearsDay);
+        int offset = Util::localTimeOffset(newYearsDay).totalSeconds();
 
         bsls::Stopwatch stopwatch;
         stopwatch.start(true);
 
         for (int i = 0;  i < numIterations; ++i) {
-            Util::loadLocalTimeOffset(&offset, newYearsDay);
+            offset = Util::localTimeOffset(newYearsDay).totalSeconds();
         }
 
         double systemTime;
@@ -2243,8 +2242,7 @@ int main(int argc, char *argv[])
 
         // Confirm that the callback is working
 
-        int offset;
-        Util::loadLocalTimeOffset(&offset, newYearsDay);
+        int offset = Util::localTimeOffset(newYearsDay).totalSeconds();
 
         const int numIterations2 = numIterations/2;
 
@@ -2252,8 +2250,8 @@ int main(int argc, char *argv[])
         stopwatch.start(true);
 
         for (int i = 0;  i < numIterations2; ++i) {
-            Util::loadLocalTimeOffset(&offset, startOfDst);
-            Util::loadLocalTimeOffset(&offset, newYearsDay);
+            offset = Util::localTimeOffset(startOfDst).totalSeconds();
+            offset = Util::localTimeOffset(newYearsDay).totalSeconds();
         }
 
         stopwatch.stop();

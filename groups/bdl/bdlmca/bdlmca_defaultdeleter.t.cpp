@@ -1,6 +1,6 @@
 // bdlmca_defaultdeleter.t.cpp        -*-C++-*-
 #include <bdlmca_defaultdeleter.h>
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 #include <bsl_memory.h>
 
 #include <bslma_default.h>
@@ -76,7 +76,7 @@ int main(int argc, char *argv[]) {
         // TEST USAGE
         // --------------------------------------------------------------------
 
-        bdlma::TestAllocator ta;
+        bslma::TestAllocator ta;
 
         int destructorFlag;
         my_Obj *object = new(ta) my_Obj(&destructorFlag);
@@ -114,7 +114,7 @@ int main(int argc, char *argv[]) {
         }
         if (verbose) cout << "\tUsing user-installed allocator" << endl;
         {
-            bdlma::TestAllocator testAllocator(veryVeryVerbose);
+            bslma::TestAllocator testAllocator(veryVeryVerbose);
             bslma::Allocator *allocator = &testAllocator;
             int destructorFlag;
             my_Obj *object =

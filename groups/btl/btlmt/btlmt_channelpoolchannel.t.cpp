@@ -10,7 +10,7 @@
 #include <bdlmca_blob.h>
 #include <bdlmca_blobutil.h>
 #include <bdlmca_pooledblobbufferfactory.h>
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 #include <bdlmtt_xxxthread.h>
 #include <bdlmtt_barrier.h>
 
@@ -888,12 +888,12 @@ int main(int argc, char *argv[])
             bdlmca::PooledBufferChainFactory pbcf(1024);
             bdlmca::PooledBlobBufferFactory  pbbf(1024);
 
-            bdlma::TestAllocator ca;
+            bslma::TestAllocator ca;
             bdlmca::PoolAllocator pa(&ca);
 
             btlmt::ChannelPool cp(channelCb, dataCb, poolCb, config, &ca);
 
-            bdlma::TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVerbose);
             bslma::DefaultAllocatorGuard dag(&ta);
 
             Obj mX(0, &cp, &pbcf, &pbbf, &pa, &ca);  const Obj& X = mX;
@@ -1104,7 +1104,7 @@ int main(int argc, char *argv[])
         typedef btlso::StreamSocket<btlso::IPv4Address>            Socket;
 
         for (int k = 0; k < 2; ++k) {
-            bdlma::TestAllocator     ta(veryVeryVerbose);
+            bslma::TestAllocator     ta(veryVeryVerbose);
             my_Server               server(config, (bool) k, &ta);
             const btlso::IPv4Address ADDRESS("127.0.0.1", server.portNumber());
 

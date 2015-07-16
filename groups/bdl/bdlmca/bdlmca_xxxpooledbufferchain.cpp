@@ -5,7 +5,7 @@
 BSLS_IDENT_RCSID(bdlmca_xxxpooledbufferchain_cpp,"$Id$ $CSID$")
 
 #include <bsl_memory.h>           // for testing only
-#include <bdlma_xxxtestallocator.h>       // for testing only
+#include <bslma_testallocator.h>       // for testing only
 #include <bsls_assert.h>
 
 #include <bsl_cstring.h>

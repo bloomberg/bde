@@ -416,7 +416,7 @@ typedef FixedString<LFP, true> LargeStringAlloc;
 
 namespace BloombergLP {
 
-namespace bdetu {// Specialized null values for FixedString types:
+namespace bdltuxxx {// Specialized null values for FixedString types:
 template <>
 inline SmallString Unset<SmallString>::unsetValue()
     // Return the null value for the type 'char'.

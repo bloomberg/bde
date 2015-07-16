@@ -14,7 +14,7 @@
 #include <btlso_socketimputil.h>
 #include <btlso_streamsocket.h>
 
-#include <bdlma_xxxtestallocator.h>            // thread-safe allocator
+#include <bslma_testallocator.h>            // thread-safe allocator
 #include <bdlmtt_xxxthread.h>                   // thread management util
 
 #include <bsls_timeinterval.h>
@@ -508,10 +508,10 @@ int main(int argc, char *argv[]) {
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
-    bdlma::TestAllocator da("default", veryVeryVeryVerbose);
+    bslma::TestAllocator da("default", veryVeryVeryVerbose);
     bslma::Default::setDefaultAllocator(&da);
 
-    bdlma::TestAllocator testAllocator("test", veryVeryVeryVerbose);
+    bslma::TestAllocator testAllocator("test", veryVeryVeryVerbose);
     testAllocator.setNoAbort(1);
     btlso::InetStreamSocketFactory<btlso::IPv4Address> factory(&testAllocator);
 
@@ -1888,7 +1888,7 @@ int main(int argc, char *argv[]) {
                   const int  CAPACITY      = VALUES[i].d_capacity;
                   const int  QUEUE_SIZE    = VALUES[i].d_queueSize;
 
-                  bdlma::TestAllocator localAllocator("test case 2: main loop",
+                  bslma::TestAllocator localAllocator("test case 2: main loop",
                                                      veryVeryVeryVerbose);
                   bslma::Allocator *allocator = USE_ALLOCATOR
                                               ? &localAllocator

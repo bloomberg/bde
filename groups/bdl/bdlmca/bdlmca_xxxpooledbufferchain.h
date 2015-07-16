@@ -53,7 +53,7 @@ BSLS_IDENT("$Id: $")
 // factory:
 //..
 //  enum { BUFFER_SIZE = 8192 };
-//  bdlma::TestAllocator ta;
+//  bslma::TestAllocator ta;
 //  bdlmca::PooledBufferChainFactory factory(BUFFER_SIZE);
 //..
 // Now, allocate a buffer chain.  For simplicity, we allocate it with initial

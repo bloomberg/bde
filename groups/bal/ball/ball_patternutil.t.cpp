@@ -6,6 +6,7 @@
 #include <bsl_new.h>         // placement 'new' syntax
 #include <bsl_iostream.h>
 
+#include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
 #include <bdlt_currenttime.h>
 
@@ -417,7 +418,7 @@ int main(int argc, char *argv[])
         bsls::TimeInterval startTime;
         bsls::TimeInterval endTime;
 
-        bdlt::CurrentTime::loadSystemTimeDefault(&startTime);
+        startTime = bsls::SystemTime::nowRealtimeClock();
 
         for (int j = 0; j < 10000; ++j) {
             for (int i = 0; i < NUM_DATA; ++i) {
@@ -425,14 +426,14 @@ int main(int argc, char *argv[])
             }
         }
 
-        bdlt::CurrentTime::loadSystemTimeDefault(&endTime);
+        endTime = bsls::SystemTime::nowRealtimeClock();
 
         if (verbose) cout << "\nElapsed time for 'ball::PatternUtil::isMatch': "
                           << (endTime.totalMicroseconds()
                               - startTime.totalMicroseconds()) / 1000000.0
                           << endl;
 
-        bdlt::CurrentTime::loadSystemTimeDefault(&startTime);
+        startTime = bsls::SystemTime::nowRealtimeClock();
 
         for (int j = 0; j < 10000; ++j) {
             for (int i = 0; i < NUM_DATA; ++i) {
@@ -440,7 +441,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        bdlt::CurrentTime::loadSystemTimeDefault(&endTime);
+        endTime = bsls::SystemTime::nowRealtimeClock();
 
         if (verbose) cout << "\nElapsed time for state-machine-based "
                           << "'isMatch': "

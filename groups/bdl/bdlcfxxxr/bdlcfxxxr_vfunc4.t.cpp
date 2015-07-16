@@ -1,10 +1,11 @@
 // bdlcfxxxr_vfunc4.t.cpp              -*-C++-*-
 
 #include <bdlcfxxxr_vfunc4.h>
-#include <bdlma_xxxtestallocator.h>     // for testing only
+#include <bslma_testallocator.h>     // for testing only
 #include <bslma_allocator.h>
 #include <bslma_default.h>           // for testing only
 #include <bdlmtt_barrier.h>           // for testing only
+#include <bdlmtt_threadutil.h>           // for testing only
 
 #include <bsl_iostream.h>
 #include <bsl_c_stdlib.h>     // atoi()
@@ -33,7 +34,7 @@ using namespace bsl;  // automatically added by script
 // 'decrement' method.  We will use a composition of the 'increment' and
 // 'decrement' functions to retrieve the value of 'd_count'.
 //
-// We will use the API provided by bdlma::TestAllocator to verify that
+// We will use the API provided by bslma::TestAllocator to verify that
 // 'deleteObject' deallocates memory as expected.
 //
 // In order to test 'bdlcfxxxr::Vfunc4' we have to implement a concrete class
@@ -223,7 +224,7 @@ int main(int argc, char *argv[])
     int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
-    bdlma::TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
     switch (test) { case 0:  // Zero is always the leading case.
       case 4: {
         // --------------------------------------------------------------------
@@ -308,7 +309,7 @@ int main(int argc, char *argv[])
             args.d_obj_p->increment();
 
             bdlmtt::ThreadUtil::Handle threadHandles[NTHREADS];
-            bcemt_Attribute attributes;
+            bdlmtt::ThreadAttributes   attributes;
 
             for (int i=0; i<NTHREADS;++i) {
                 bdlmtt::ThreadUtil::create(&threadHandles[i], attributes,
@@ -344,7 +345,7 @@ int main(int argc, char *argv[])
         //    5. 'dtor' is defined as a virtual method.
         //
         // Plan
-        //   1.   Create a class instance that uses a 'bdlma::TestAllocator' to
+        //   1.   Create a class instance that uses a 'bslma::TestAllocator' to
         //        initialize 'd_allocator_p'.  Check the value of 'd_count'
         //        using global 'getCount' function.
         //   2.   Verify that 'd_count' equals '0' using 'getCount' function.
@@ -352,7 +353,7 @@ int main(int argc, char *argv[])
         //        'd_count' is >= '0'.
         //   3,5. Invoke 'deleteObject'.  (a) Verify that it destroys the
         //        object by calling its destructor.  (b) Verify that the
-        //        memory was freed by 'bdlma::TestAllocator'.
+        //        memory was freed by 'bslma::TestAllocator'.
         //   4.   Invoke 'execute' method.  Verify that the global counter was
         //        incremented.
         //

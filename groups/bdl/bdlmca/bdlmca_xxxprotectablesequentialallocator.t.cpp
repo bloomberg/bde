@@ -2,7 +2,7 @@
 
 #include <bdlmca_xxxprotectablesequentialallocator.h>
 
-#include <bdlma_xxxtestallocator.h>                       // for testing only
+#include <bslma_testallocator.h>                       // for testing only
 
 #include <bdlmtt_barrier.h>
 #include <bdlma_xxxtestprotectableblockdispenser.h>
@@ -470,7 +470,7 @@ int main(int argc, char *argv[])
 
     bdlma::TestProtectableBlockDispenser testDispenser(PG_SIZE,
                                                       veryVeryVerbose);
-    bdlma::TestAllocator          talloc;
+    bslma::TestAllocator          talloc;
     bslma::DefaultAllocatorGuard guard(&talloc);
     switch (test) { case 0:
       case 15: {

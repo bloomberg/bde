@@ -151,7 +151,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Secondly, create a journal object:
 //..
-//  bdlma::TestAllocator tA;  // must use a thread-safe allocator
+//  bslma::TestAllocator tA;  // must use a thread-safe allocator
 //  balj_Journal mX(&mappingManager, &ta);
 //..
 // Now, generate a temporary file name and create the journal file.  We are

@@ -5,10 +5,11 @@
 #include <bdlmtt_xxxthread.h>      // for testing only
 
 #include <bsls_platform.h>
+#include <bsls_systemclocktype.h>
+#include <bsls_systemtime.h>
 #include <bsls_timeutil.h>
 
 #include <bdlf_bind.h>
-#include <bsls_systemclocktype.h>
 #include <bdlt_currenttime.h>
 
 #include <bsl_functional.h>
@@ -233,7 +234,7 @@ extern "C" void * testThread5a(void *arg)
         args->d_barrier.wait();
     }
     else {
-        bsls::TimeInterval timeOut(bdlt::CurrentTime::now(args->d_clockType));
+        bsls::TimeInterval timeOut(bsls::SystemTime::now(args->d_clockType));
         timeOut.addMicroseconds(args->d_timeOut);
         int res = args->d_barrier.timedWait(timeOut);
         if (res) ++args->d_numTimedOut;
@@ -251,7 +252,7 @@ extern "C" void * testThread5b(void *arg)
     ThreadArgs *args = (ThreadArgs*)arg;
 
     if (++args->d_waitCount == 1) {
-        bsls::TimeInterval timeOut(bdlt::CurrentTime::now(args->d_clockType));
+        bsls::TimeInterval timeOut(bsls::SystemTime::now(args->d_clockType));
         timeOut.addMicroseconds(args->d_timeOut);
         int res = args->d_barrier.timedWait(timeOut);
         if (res) ++args->d_numTimedOut;
@@ -310,13 +311,13 @@ extern "C" void * testThread4(void *arg)
 {
     ThreadArgs4 *args = (ThreadArgs4*)arg;
 
-    bsls::TimeInterval start(bdlt::CurrentTime::now(args->d_clockType));
+    bsls::TimeInterval start(bsls::SystemTime::now(args->d_clockType));
     bsls::TimeInterval timeOut(start);
     timeOut.addMicroseconds(args->d_timeOut);
 
     int res = args->d_barrier.timedWait(timeOut);
 
-    bsls::TimeInterval end(bdlt::CurrentTime::now(args->d_clockType));
+    bsls::TimeInterval end(bsls::SystemTime::now(args->d_clockType));
     bsls::TimeInterval duration = end - start;
 
     if (res) {

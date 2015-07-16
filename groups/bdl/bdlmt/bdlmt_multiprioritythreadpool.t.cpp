@@ -2,7 +2,7 @@
 #include <bdlmt_multiprioritythreadpool.h>
 
 #include <bdlcc_queue.h>
-#include <bdlma_xxxtestallocator.h>       // for testing only
+#include <bslma_testallocator.h>       // for testing only
 #include <bdlmtt_barrier.h>
 #include <bdlmtt_lockguard.h>
 #include <bdlmtt_qlock.h>
@@ -146,7 +146,7 @@ namespace {
 // unintentional uses of the default allocator.
 
 bslma::NewDeleteAllocator taDefault;
-bdlma::TestAllocator ta;
+bslma::TestAllocator ta;
 
 int verbose;
 int veryVerbose;
@@ -789,7 +789,7 @@ int main(int argc, char *argv[])
 
         for (int attrState = ATTRIB_JOINABLE; attrState >= ATTRIB_DEFAULT;
                                                                  --attrState) {
-            bdlma::TestAllocator localTa;
+            bslma::TestAllocator localTa;
 
             bcemt_Attribute attrib;
 
@@ -1580,7 +1580,7 @@ int main(int argc, char *argv[])
             // numbers to use as priorities as well as numThreads
         const int numArrayLen = sizeof numArray / sizeof numArray[0];
 
-        bdlma::TestAllocator taDefault;
+        bslma::TestAllocator taDefault;
 
         bslma::DefaultAllocatorGuard guard(&taDefault);
         ASSERT(&taDefault == bslma::Default::defaultAllocator());
@@ -1829,9 +1829,9 @@ int main(int argc, char *argv[])
         using namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_1;
 
         {
-            bdlma::TestAllocator taDefault;
+            bslma::TestAllocator taDefault;
             bslma::DefaultAllocatorGuard guard(&taDefault);
-            bdlma::TestAllocator ta;
+            bslma::TestAllocator ta;
             bdlmt::MultipriorityThreadPool *pool = new (ta)
             bdlmt::MultipriorityThreadPool(1 /* threads */,
                                          1 /* priorities */,

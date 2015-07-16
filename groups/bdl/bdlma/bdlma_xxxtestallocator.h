@@ -12,13 +12,13 @@ BSLS_IDENT("$Id: $")
 //@DEPRECATED: Use 'bslma_testallocator' instead.
 //
 //@CLASSES:
-//   bdlma::TestAllocator: support new/delete style allocation with malloc/free
+//   bslma::TestAllocator: support new/delete style allocation with malloc/free
 //
 //@SEE_ALSO: bslma_testallocator
 //
 //@AUTHOR: John Lakos (jlakos)
 //
-//@DESCRIPTION: This component provides an allocator, 'bdlma::TestAllocator'
+//@DESCRIPTION: This component provides an allocator, 'bslma::TestAllocator'
 // and implements the 'bslma::Allocator' protocol and bypasses global operators
 // 'new' and 'delete', instead calling the 'C' library functions 'malloc' and
 // 'free' directly.  If exceptions are enabled, this allocator can be
@@ -31,7 +31,7 @@ BSLS_IDENT("$Id: $")
 // (right-hand-side argument) stream.
 //..
 //   ,-------------------.
-//  ( bdlma::TestAllocator )
+//  ( bslma::TestAllocator )
 //   `-------------------'
 //             |         ctor/dtor
 //             |         numBlocksInUse/numBytesInUse
@@ -96,14 +96,14 @@ BSLS_IDENT("$Id: $")
 //
 ///USAGE
 ///-----
-// The 'bdlma::TestAllocator' object defined in this component can be used to
+// The 'bslma::TestAllocator' object defined in this component can be used to
 // test other objects that take a 'bslma::Allocator' (e.g., at construction).
 // The following code example illustrates how to verify that an object under
 // test (e.g., 'my_ShortArray') is exception neutral:
 //..
 //  // my_shortarray.t.cpp
 //  #include <my_shortarray.h>
-//  #include <bdlma_xxxtestallocator.h>
+//  #include <bslma_testallocator.h>
 //  #include <bslma_testallocator.h>
 //  #include <bslma_testallocatorexception.h>
 //
@@ -126,7 +126,7 @@ BSLS_IDENT("$Id: $")
 //      int veryVerbose = argc > 3;
 //      int veryVeryVerbose = argc > 4;
 //
-//      bdlma::TestAllocator testAllocator(veryVeryVerbose);
+//      bslma::TestAllocator testAllocator(veryVeryVerbose);
 //
 //      switch (test) { case 0:
 //

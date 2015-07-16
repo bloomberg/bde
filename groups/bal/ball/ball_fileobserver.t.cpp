@@ -10,7 +10,7 @@
 #include <ball_severity.h>                    // for testing only
 
 #include <bslma_defaultallocatorguard.h>
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
@@ -199,7 +199,7 @@ bdlt::Datetime getCurrentTimestamp()
 #endif
 
     bdlt::Datetime stamp;
-    bdetu_Datetime::convertFromTm(&stamp, localtm);
+    bdlt::DatetimeUtil::convertFromTm(&stamp, localtm);
     return stamp;
 }
 
@@ -410,17 +410,17 @@ class LogRotationCallbackTester {
 
 typedef LogRotationCallbackTester RotCb;
 
-struct TestSystemTimeCallback {
+struct TestCurrentTimeCallback {
   private:
     // DATA
     static bsls::TimeInterval s_utcTime;
 
   public:
     // CLASS METHODS
-    static void load(bsls::TimeInterval *result);
-        // Load, into the specified 'result', the value corresponding to the
-        // most recent call to the 'setTimeToReport' method.  The behavior is
-        // undefined unless 'setUtcTime' has been called.
+    static bsls::TimeInterval load();
+        // return the value corresponding to the most recent call to the
+        // 'setTimeToReport' method.  The behavior is undefined unless
+        // 'setUtcTime' has been called.
 
     static void setUtcDatetime(const bdlt::Datetime& utcTime);
         // Set the specified 'utcTime' as the value obtained (after conversion
@@ -428,15 +428,14 @@ struct TestSystemTimeCallback {
         // behavior is undefined unless 'bdlt::EpochUtil::epoch() <= utcTime'.
 };
 
-bsls::TimeInterval TestSystemTimeCallback::s_utcTime;
+bsls::TimeInterval TestCurrentTimeCallback::s_utcTime;
 
-void TestSystemTimeCallback::load(bsls::TimeInterval *result)
+bsls::TimeInterval TestCurrentTimeCallback::load()
 {
-    ASSERT(result);
-    *result = s_utcTime;
+    return s_utcTime;
 }
 
-void TestSystemTimeCallback::setUtcDatetime(const bdlt::Datetime &utcTime)
+void TestCurrentTimeCallback::setUtcDatetime(const bdlt::Datetime &utcTime)
 {
     ASSERT(bdlt::EpochUtil::epoch() <= utcTime);
 
@@ -452,12 +451,12 @@ struct TestLocalTimeOffsetCallback {
 
   public:
     // CLASS METHODS
-    static void loadLocalTimeOffset(int                  *result,
-                                    const bdlt::Datetime&  utcDatetime);
-        // Load, to the specified 'result', the local time offset (in seconds)
-        // that was set by the previous call to the 'setLocalTimeOffset'
-        // method.  If the 'setLocalTimeOffset' method has not been called,
-        // load 0.  Note that the specified 'utcDateime' is ignored.
+    static bsls::TimeInterval loadLocalTimeOffset(
+                                           const bdlt::Datetime&  utcDatetime);
+        // Return the local time offset that was set by the previous call to
+        // the 'setLocalTimeOffset' method.  If the 'setLocalTimeOffset' method
+        // has not been called, load 0.  Note that the specified 'utcDateime'
+        // is ignored.
 
     static void setLocalTimeOffset(int localTimeOffsetInSeconds);
         // Set the specified 'localTimeOffsetInSeconds' as the value loaded by
@@ -471,13 +470,11 @@ struct TestLocalTimeOffsetCallback {
 int TestLocalTimeOffsetCallback::s_localTimeOffsetInSeconds = 0;
 int TestLocalTimeOffsetCallback::s_loadCount                = 0;
 
-void TestLocalTimeOffsetCallback::loadLocalTimeOffset(
-                                             int                  *result,
-                                             const bdlt::Datetime&  utcDatetime)
+bsls::TimeInterval TestLocalTimeOffsetCallback::loadLocalTimeOffset(
+                                            const bdlt::Datetime&  utcDatetime)
 {
-    ASSERT(result);
-    *result = s_localTimeOffsetInSeconds;
     ++s_loadCount;
+    return bsls::TimeInterval(s_localTimeOffsetInSeconds);
 }
 
 void TestLocalTimeOffsetCallback::setLocalTimeOffset(
@@ -697,13 +694,11 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_() P_(i) P(utcDatetime) }
 
-                bsls::TimeInterval result;
-
-                TestSystemTimeCallback::setUtcDatetime(utcDatetime);
-                TestSystemTimeCallback::load(&result);
+                TestCurrentTimeCallback::setUtcDatetime(utcDatetime);
+                bsls::TimeInterval result = TestCurrentTimeCallback::load();
 
                 bdlt::Datetime resultAsDatetime =
-                                  bdlt::EpochUtil::convertFromTimeInterval(result);
+                              bdlt::EpochUtil::convertFromTimeInterval(result);
                 LOOP_ASSERT(i, utcDatetime == resultAsDatetime);
             }
         }
@@ -713,16 +708,17 @@ int main(int argc, char *argv[])
         {
             // Install callback from 'TestSystemTimeCallback'.
 
-            bdlt::CurrentTime::SystemTimeCallback originalSystemTimeCallback =
-            bdlt::CurrentTime::setSystemTimeCallback(
-                                                &TestSystemTimeCallback::load);
+            bdlt::CurrentTime::CurrentTimeCallback
+                originalCurrentTimeCallback =
+                                     bdlt::CurrentTime::setCurrentTimeCallback(
+                                               &TestCurrentTimeCallback::load);
 
             for (int i = 0; i < NUM_UTC_ARRAY; ++i) {
                 bdlt::Datetime utcDatetime = UTC_ARRAY[i];
 
                 if (veryVerbose) { T_() P_(i) P(utcDatetime) }
 
-                TestSystemTimeCallback::setUtcDatetime(utcDatetime);
+                TestCurrentTimeCallback::setUtcDatetime(utcDatetime);
 
                 bdlt::Datetime result1 = bdlt::CurrentTime::utc();
                 bdlmtt::ThreadUtil::microSleep(0, 2); // two seconds
@@ -734,7 +730,8 @@ int main(int argc, char *argv[])
 
            // Restore original system-time callback.
 
-           bdlt::CurrentTime::setSystemTimeCallback(originalSystemTimeCallback);
+            bdlt::CurrentTime::setCurrentTimeCallback(
+                                                  originalCurrentTimeCallback);
         }
 
         const int     LTO_ARRAY[] = { -86399, -1, 0, 1, 86399 };
@@ -758,10 +755,9 @@ int main(int argc, char *argv[])
 
                     if (veryVerbose) { T_() T_() P_(j) P(utcDatetime) }
 
-                    int result;
-                    TestLocalTimeOffsetCallback::loadLocalTimeOffset(
-                                                                  &result,
-                                                                  utcDatetime);
+                    int result =
+                              TestLocalTimeOffsetCallback::loadLocalTimeOffset(
+                                  utcDatetime).totalSeconds();
                     ++loadCount;
 
                     LOOP2_ASSERT(i, j, localTimeOffset == result);
@@ -775,9 +771,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTest TestLocalTimeOffsetCallback: Installed"
                           << endl;
         {
-            bdlt::CurrentTime::LoadLocalTimeOffsetCallback
-                                             originalLocalTimeOffsetCallback
-                           = bdlt::CurrentTime::setLoadLocalTimeOffsetCallback(
+            bdlt::LocalTimeOffset::LocalTimeOffsetCallback
+                originalLocalTimeOffsetCallback =
+                        bdlt::LocalTimeOffset::setLocalTimeOffsetCallback(
                             &TestLocalTimeOffsetCallback::loadLocalTimeOffset);
 
             for (int i = 0; i < NUM_LTO_ARRAY; ++i) {
@@ -792,9 +788,9 @@ int main(int argc, char *argv[])
 
                     if (veryVerbose) { T_() T_() P_(j) P(utcDatetime) }
 
-                    int result;
-                    bdlt::LocalTimeOffset::localTimeOffset(&result,
-                                                          utcDatetime);
+                    int result =
+                            bdlt::LocalTimeOffset::localTimeOffset(utcDatetime)
+                                .totalSeconds();
                     ++loadCount;
 
                     LOOP2_ASSERT(i, j, localTimeOffset == result);
@@ -803,7 +799,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            bdlt::CurrentTime::setLoadLocalTimeOffsetCallback(
+            bdlt::LocalTimeOffset::setLocalTimeOffsetCallback(
                                               originalLocalTimeOffsetCallback);
         }
 
@@ -819,7 +815,7 @@ int main(int argc, char *argv[])
                                                      ball::Severity::BAEL_OFF,
                                                      ball::Severity::BAEL_OFF));
 
-        bdlma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
 
         Obj mX(ball::Severity::BAEL_WARN, &ta);  const Obj& X = mX;
 
@@ -841,13 +837,14 @@ int main(int argc, char *argv[])
         bsl::ostringstream  expectedDatetimeField;
         const bdlt::Datetime testUtcDatetime = UTC_ARRAY[1];
 
-        bdlt::CurrentTime::SystemTimeCallback originalSystemTimeCallback =
-        bdlt::CurrentTime::setSystemTimeCallback(&TestSystemTimeCallback::load);
-        TestSystemTimeCallback::setUtcDatetime(testUtcDatetime);
+        bdlt::CurrentTime::CurrentTimeCallback originalCurrentTimeCallback =
+                                     bdlt::CurrentTime::setCurrentTimeCallback(
+                                         &TestCurrentTimeCallback::load);
+        TestCurrentTimeCallback::setUtcDatetime(testUtcDatetime);
 
-        bdlt::CurrentTime::LoadLocalTimeOffsetCallback
-                                             originalLocalTimeOffsetCallback
-                           = bdlt::CurrentTime::setLoadLocalTimeOffsetCallback(
+        bdlt::LocalTimeOffset::LocalTimeOffsetCallback
+            originalLocalTimeOffsetCallback =
+                        bdlt::LocalTimeOffset::setLocalTimeOffsetCallback(
                             &TestLocalTimeOffsetCallback::loadLocalTimeOffset);
 
         int expectedLoadCount = TestLocalTimeOffsetCallback::loadCount();
@@ -954,8 +951,8 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "\tCleanup" << endl;
 
-        bdlt::CurrentTime::setSystemTimeCallback(originalSystemTimeCallback);
-        bdlt::CurrentTime::setLoadLocalTimeOffsetCallback(
+        bdlt::CurrentTime::setCurrentTimeCallback(originalCurrentTimeCallback);
+        bdlt::LocalTimeOffset::setLocalTimeOffsetCallback(
                                               originalLocalTimeOffsetCallback);
 
         mX.disableFileLogging();
@@ -994,7 +991,7 @@ int main(int argc, char *argv[])
                                                      ball::Severity::BAEL_OFF,
                                                      ball::Severity::BAEL_OFF));
 
-        bdlma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
 
         Obj mX(ball::Severity::BAEL_WARN, &ta);  const Obj& X = mX;
 
@@ -1068,7 +1065,7 @@ int main(int argc, char *argv[])
         //  void setOnFileRotationCallback(const OnFileRotationCallback&);
         // --------------------------------------------------------------------
 
-        bdlma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         Obj mX(ball::Severity::BAEL_WARN, &ta);
         bsl::string filename = tempFileName(veryVerbose);
 
@@ -1095,7 +1092,7 @@ int main(int argc, char *argv[])
                           << " (UNIX only)."
                           << endl;
 
-        bdlma::TestAllocator ta;
+        bslma::TestAllocator ta;
 
         ball::LoggerManagerConfiguration configuration;
 
@@ -1191,7 +1188,7 @@ int main(int argc, char *argv[])
         //   int removeExcessLogFiles();
         // --------------------------------------------------------------------
 
-        static bdlma::TestAllocator ta(veryVeryVeryVerbose);
+        static bslma::TestAllocator ta(veryVeryVeryVerbose);
         ball::LoggerManagerConfiguration configuration;
 
         // Publish synchronously all messages regardless of their severity.
@@ -1399,7 +1396,7 @@ int main(int argc, char *argv[])
         ball::LoggerManager::initSingleton(&multiplexObserver, configuration);
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-        bdlma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         if (verbose) cout << "Test-case infrastructure setup." << endl;
         {
             bsl::string filename = tempFileName(veryVerbose);
@@ -1732,7 +1729,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing threshold and output format.\n"
                              "====================================\n";
 
-        bdlma::TestAllocator ta;
+        bslma::TestAllocator ta;
 
         bsl::string fileName = tempFileName(veryVerbose);
         {
@@ -2087,9 +2084,8 @@ int main(int argc, char *argv[])
 
             {
                 bsl::string coutS = readPartialFile(fileName, fileOffset);
-                if (
-                   0 == bdlt::LocalTimeOffset::localTimeOffset().totalSeconds()
-                   ) {
+                if (0 == bdlt::LocalTimeOffset::localTimeOffset(
+                                    bdlt::CurrentTime::utc()).totalSeconds()) {
                     LOOP2_ASSERT(dos.str(), os.str(), dos.str() == coutS);
                 }
                 else {
@@ -2315,6 +2311,7 @@ int main(int argc, char *argv[])
             mX.disableLifetimeRotation();
             mX.disableSizeRotation();
             mX.disableFileLogging();
+            mX.enablePublishInLocalTime();
 
             // loop until startDatetime is equal to endDatetime
             do {
@@ -2371,8 +2368,9 @@ int main(int argc, char *argv[])
 
             // look for the file with the constructed name
             glob_t globbuf;
-            ASSERT(0 == glob(fnOs.str().c_str(), 0, 0, &globbuf));
-            ASSERT(1 == globbuf.gl_pathc);
+            LOOP_ASSERT(fnOs.str(),
+                        0 == glob(fnOs.str().c_str(), 0, 0, &globbuf));
+            LOOP_ASSERT(globbuf.gl_pathc, 1 == globbuf.gl_pathc);
 
             // read the file to get the number of lines
             bsl::ifstream fs;

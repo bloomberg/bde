@@ -272,7 +272,7 @@ float bsl::stof(const string& str, std::size_t* pos){
     int original_errno = errno;
 
     errno = 0;
-    float value = std::strtod(str.c_str(), &ptr);
+    float value = std::strtof(str.c_str(), &ptr);
 
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stof");
@@ -294,7 +294,7 @@ float bsl::stof(const wstring& str, std::size_t* pos){
     int original_errno = errno;
 
     errno = 0;
-    float value = std::wcstod(str.c_str(), &ptr);
+    float value = std::wcstof(str.c_str(), &ptr);
 
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stof");

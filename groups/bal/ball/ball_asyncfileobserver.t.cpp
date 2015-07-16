@@ -10,7 +10,7 @@
 #include <ball_severity.h>                    // for testing only
 
 #include <bslma_defaultallocatorguard.h>
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 
 #include <bdlpcre_regex.h>
 #include <bdlsu_xxxfileutil.h>
@@ -223,7 +223,7 @@ bdlt::Datetime getCurrentTimestamp()
 #endif
 
     bdlt::Datetime stamp;
-    bdetu_Datetime::convertFromTm(&stamp, localtm);
+    bdlt::DatetimeUtil::convertFromTm(&stamp, localtm);
     return stamp;
 }
 
@@ -692,7 +692,7 @@ int main(int argc, char *argv[])
         }
         {
             bsl::string fileName = tempFileName(veryVerbose);
-            bdlma::TestAllocator ta(veryVeryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVeryVerbose);
 
             enum { MAX_QUEUE_LENGTH = 1024 };
 
@@ -778,7 +778,7 @@ int main(int argc, char *argv[])
         }
         {
             bsl::string fileName = tempFileName(veryVerbose);
-            bdlma::TestAllocator ta(veryVeryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVeryVerbose);
 
             enum { MAX_QUEUE_LENGTH = 10000 };
             enum { NUM_ITERATIONS = 10 };
@@ -845,7 +845,7 @@ int main(int argc, char *argv[])
 
         bsl::string fileName = tempFileName(veryVerbose);
 
-        bdlma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
 
         // Set up a blocking async observer
 
@@ -929,7 +929,7 @@ int main(int argc, char *argv[])
                                                      ball::Severity::BAEL_OFF,
                                                      ball::Severity::BAEL_OFF));
 
-        bdlma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
 
         Obj mX(ball::Severity::BAEL_WARN, &ta);  const Obj& X = mX;
         mX.startPublicationThread();
@@ -1020,7 +1020,7 @@ int main(int argc, char *argv[])
         //  void setOnFileRotationCallback(const OnFileRotationCallback&);
         // --------------------------------------------------------------------
 
-        bdlma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
         Obj mX(ball::Severity::BAEL_WARN, &ta);
         bsl::string filename = tempFileName(veryVerbose);
 
@@ -1047,7 +1047,7 @@ int main(int argc, char *argv[])
                           << " (UNIX only)."
                           << endl;
 
-        bdlma::TestAllocator ta;
+        bslma::TestAllocator ta;
 
         ball::LoggerManagerConfiguration configuration;
 
@@ -1176,7 +1176,7 @@ int main(int argc, char *argv[])
         ball::LoggerManager::initSingleton(&multiplexObserver, configuration);
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-        bdlma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
 
         int loopCount = 0;
         int fileCount = 0;
@@ -1519,7 +1519,7 @@ int main(int argc, char *argv[])
         //   not for any particular public method.
         // --------------------------------------------------------------------
 
-        bdlma::TestAllocator ta;
+        bslma::TestAllocator ta;
 
         int numTestRecords = 40000;
         ball::MultiplexObserver multiplexObserver;
@@ -1662,7 +1662,7 @@ int main(int argc, char *argv[])
         //   void releaseRecords();
         // --------------------------------------------------------------------
 
-        bdlma::TestAllocator ta;
+        bslma::TestAllocator ta;
 
         // Redirect stdout to temporary file
 
@@ -1802,7 +1802,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "BREATHING TEST.\n"
                              "===============\n";
 
-        bdlma::TestAllocator ta;
+        bslma::TestAllocator ta;
 
         int loopCount = 0;
         int linesNum  = 0;
@@ -2320,9 +2320,9 @@ int main(int argc, char *argv[])
                     bdlmtt::ThreadUtil::microSleep(0, 1);
                     coutS = readPartialFile(fileName, fileOffset);
                 } while (coutS == "" && loopCount++ < 3);
-                if (
-                   0 == bdlt::LocalTimeOffset::localTimeOffset().totalSeconds()
-                   ) {
+                if (0 ==
+                    bdlt::LocalTimeOffset::localTimeOffset(
+                                    bdlt::CurrentTime::utc()).totalSeconds()) {
                     LOOP2_ASSERT(dos.str(), os.str(), dos.str() == coutS);
                 }
                 else {
@@ -2612,6 +2612,7 @@ int main(int argc, char *argv[])
             mX.disableTimeIntervalRotation();
             mX.disableSizeRotation();
             mX.disableFileLogging();
+            mX.enablePublishInLocalTime();
 
             // loop until startDatetime is equal to endDatetime
             do {
@@ -2668,8 +2669,9 @@ int main(int argc, char *argv[])
             // Look for the file with the constructed name
 
             glob_t globbuf;
-            ASSERT(0 == glob(fnOs.str().c_str(), 0, 0, &globbuf));
-            ASSERT(1 == globbuf.gl_pathc);
+            LOOP_ASSERT(fnOs.str(),
+                        0 == glob(fnOs.str().c_str(), 0, 0, &globbuf));
+            LOOP_ASSERT(globbuf.gl_pathc, 1 == globbuf.gl_pathc);
 
             // Wait up to 3 seconds for the async logging to complete
 

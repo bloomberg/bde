@@ -5,7 +5,7 @@
 #include <bdlmtt_xxxthread.h>
 #include <bdlmtt_lockguard.h>
 
-#include <bdlma_xxxtestallocator.h>            // for testing only
+#include <bslma_testallocator.h>            // for testing only
 #include <bdlmtt_barrier.h>                  // for testing only
 #include <bslma_testallocator.h>            // for testing only
 #include <bslma_testallocatorexception.h>   // for testing only

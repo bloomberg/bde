@@ -28,7 +28,7 @@
 #include <bdlxxxx_byteoutstreamformatter.h>
 #include <bdlxxxx_bytestreamimputil.h>
 #include <bdlmca_xxxpooledbufferchain.h>
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 #include <bdlmtt_barrier.h>
 #include <bdlmtt_readerwriterlock.h>
 #include <bdlmtt_xxxthread.h>
@@ -2420,7 +2420,7 @@ int main(int argc, char *argv[])
                  << "=======================" << endl;
         }
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // Test Initialization
@@ -2518,7 +2518,7 @@ int main(int argc, char *argv[])
                  << "========================================" << endl;
         }
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // Test Initialization
@@ -2613,7 +2613,7 @@ int main(int argc, char *argv[])
                  << "============================" << endl;
         }
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // Test Initialization
@@ -2774,7 +2774,7 @@ int main(int argc, char *argv[])
                  << "=========================" << endl;
         }
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // Test Initialization
@@ -2882,7 +2882,7 @@ int main(int argc, char *argv[])
                  << "===============================" << endl;
         }
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // Test Initialization
@@ -3051,7 +3051,7 @@ int main(int argc, char *argv[])
                  << endl;
         }
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // Test Initialization
@@ -3176,7 +3176,7 @@ int main(int argc, char *argv[])
                  << "===========================" << endl;
         }
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // Test Initialization
@@ -3280,7 +3280,7 @@ int main(int argc, char *argv[])
                  << "===========================" << endl;
         }
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // Test Initialization
@@ -3388,7 +3388,7 @@ int main(int argc, char *argv[])
                  << "=======================================" << endl;
         }
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // Test Initialization
@@ -3569,7 +3569,7 @@ int main(int argc, char *argv[])
                  << "=======================" << endl;
         }
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // Test Initialization
@@ -3699,7 +3699,7 @@ int main(int argc, char *argv[])
                  << "============================" << endl;
         }
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // Test Initialization
@@ -3879,7 +3879,7 @@ int main(int argc, char *argv[])
                  << "==============" << endl;
         }
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // Test Initialization
@@ -3994,7 +3994,7 @@ int main(int argc, char *argv[])
                  << "=======================" << endl;
         }
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // Test Initialization

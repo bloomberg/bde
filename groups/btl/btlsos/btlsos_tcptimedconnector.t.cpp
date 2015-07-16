@@ -18,7 +18,7 @@
 #include <bsls_platform.h>
 
 #include <bdlmtt_xxxthread.h>                   // thread management util
-#include <bdlma_xxxtestallocator.h>            // thread-safe allocator
+#include <bslma_testallocator.h>            // thread-safe allocator
 #include <bsl_typeinfo.h>
 #include <bsl_c_time.h>
 

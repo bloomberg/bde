@@ -6,7 +6,6 @@
 #include <bdlat_selectioninfo.h>
 #include <bdlat_valuetypefunctions.h>
 
-#include <bdeimp_dateutil.h>
 #include <bdlt_serialdateimputil.h>
 
 #include <bdlsb_memoutstreambuf.h>
@@ -128,7 +127,7 @@ int numOctets(const char *s)
 }
 
 typedef bdlt::SerialDateImpUtil ProlepticDateUtil;
-typedef bdeimp::DateUtil          DateUtil;
+typedef bdlt::PosixDateImpUtil  DateUtil;
 
 //typedef balber::BerEncoder Obj;
 
@@ -10081,7 +10080,7 @@ int main(int argc, char *argv[])
                 const int   LEN   = numOctets(EXP);
 
                 ASSERT(DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                    && ProlepticDateUtil::isValidCalendarDate(YEAR,
+                    && ProlepticDateUtil::isValidYearMonthDay(YEAR,
                                                               MONTH,
                                                               DAY));
 
@@ -10301,7 +10300,7 @@ int main(int argc, char *argv[])
                 const int   LEN   = numOctets(EXP);
 
                 ASSERT(DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                    && ProlepticDateUtil::isValidCalendarDate(YEAR,
+                    && ProlepticDateUtil::isValidYearMonthDay(YEAR,
                                                               MONTH,
                                                               DAY));
 
@@ -10930,7 +10929,7 @@ int main(int argc, char *argv[])
                 const int   LEN   = numOctets(EXP);
 
                 ASSERT(DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                    && ProlepticDateUtil::isValidCalendarDate(YEAR,
+                    && ProlepticDateUtil::isValidYearMonthDay(YEAR,
                                                               MONTH,
                                                               DAY));
 
@@ -11383,7 +11382,7 @@ int main(int argc, char *argv[])
                 const int   LEN   = numOctets(EXP);
 
                 ASSERT(DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                    && ProlepticDateUtil::isValidCalendarDate(YEAR,
+                    && ProlepticDateUtil::isValidYearMonthDay(YEAR,
                                                               MONTH,
                                                               DAY));
 

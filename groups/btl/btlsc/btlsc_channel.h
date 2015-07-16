@@ -343,10 +343,6 @@ BSLS_IDENT("$Id: $")
 #error Microsoft Windows headers make writing portable code extremely painful.
 #endif
 
-#ifdef btls::Iovec
-#error Microsoft Windows headers make writing portable code extremely painful.
-#endif
-
 #ifdef buffers
 #error Microsoft Windows headers make writing portable code extremely painful.
 #endif

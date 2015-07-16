@@ -194,7 +194,7 @@ BSLS_IDENT("$Id: $")
 // 'bdlcc::SharedObjectPool' reduces the number of allocation requests:
 //..
 //
-// bdlma::TestAllocator slowAllocator, fastAllocator;
+// bslma::TestAllocator slowAllocator, fastAllocator;
 // {
 //   SlowBlobPool slowPool(&slowAllocator);
 //   FastBlobPool fastPool(&fastAllocator);

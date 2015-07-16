@@ -4,7 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlmca_xxxprotectablesequentialallocator_cpp,"$Id$ $CSID$")
 
-#include <bdlma_xxxtestallocator.h>     // for testing only
+#include <bslma_testallocator.h>     // for testing only
 
 #include <bdlma_xxxbufferimputil.h>
 #include <bdlma_memoryblockdescriptor.h>

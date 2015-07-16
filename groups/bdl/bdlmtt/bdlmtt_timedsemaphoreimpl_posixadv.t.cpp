@@ -9,9 +9,9 @@
 
 #include <bsls_timeinterval.h>
 #include <bdlt_currenttime.h>
-#include <bsls_systemclocktype.h>
-
 #include <bsls_platform.h>
+#include <bsls_systemclocktype.h>
+#include <bsls_systemtime.h>
 
 #include <bsl_deque.h>
 #include <bsl_iostream.h>
@@ -334,17 +334,17 @@ extern "C" void *thread3Post(void *arg) {
 extern "C" void *thread3Wait(void * arg) {
     ThreadInfo3 *t = (ThreadInfo3 *) arg;
 
-    ASSERT(0 != t->d_sem->timedWait(bdlt::CurrentTime::now(t->d_clockType) +
+    ASSERT(0 != t->d_sem->timedWait(bsls::SystemTime::now(t->d_clockType) +
                                     bsls::TimeInterval(0, 1000 * 100)));
 
     t->d_barrier->wait();
     for (int i = 0; i < t->d_numIterations; ++i) {
-        ASSERT(0 == t->d_sem->timedWait(bdlt::CurrentTime::now(t->d_clockType) +
+        ASSERT(0 == t->d_sem->timedWait(bsls::SystemTime::now(t->d_clockType) +
                                         bsls::TimeInterval(5)));
     }
     t->d_barrier->wait();
     for (int i = 0; i < t->d_numIterations; ++i) {
-        if (0 != t->d_sem->timedWait(bdlt::CurrentTime::now(t->d_clockType) +
+        if (0 != t->d_sem->timedWait(bsls::SystemTime::now(t->d_clockType) +
                                      bsls::TimeInterval(0, 1000 * 20))) {
             --i;
         }

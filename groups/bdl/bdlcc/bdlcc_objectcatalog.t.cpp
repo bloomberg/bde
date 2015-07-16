@@ -1,7 +1,7 @@
 // bdlcc_objectcatalog.t.cpp                                           -*-C++-*-
 #include <bdlcc_objectcatalog.h>
 
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 #include <bdlmtt_barrier.h>
 #include <bdlmtt_lockguard.h>
 #include <bdlmtt_xxxthread.h>
@@ -696,7 +696,7 @@ enum {
     NUM_ITERATIONS = 1000
 };
 
-bdlma::TestAllocator ta(veryVeryVerbose);
+bslma::TestAllocator ta(veryVeryVerbose);
 bdlcc::ObjectCatalog<int> catalog(&ta);
 
 bdlmtt::Barrier barrier(NUM_THREADS + 3);
@@ -1182,7 +1182,7 @@ int main(int argc, char *argv[])
         int HA = -1;
         int HB = -1;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         Obj x(&ta);
 
         HA = x.add(VA);
@@ -1252,7 +1252,7 @@ int main(int argc, char *argv[])
             PATTERN3 = 0xbbbbbbbb
         };
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         Obj x(&ta);
         {
             AllocPattern a(&ta), b(&ta), vbuf(&ta);
@@ -1319,7 +1319,7 @@ int main(int argc, char *argv[])
             PATTERN3 = 0xbbbbbbbb
         };
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         Obj x1(&ta);
         {
             Pattern a, b, vbuf;
@@ -1382,7 +1382,7 @@ int main(int argc, char *argv[])
                 cout << "\""<< endl;
             }
             int len = strlen(SPECS[i]);
-            bdlma::TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVerbose);
 
             for (int g=0; g < 2*RECYCLE_COUNT; g = 2*g+1) {
                 if (veryVerbose)
@@ -1438,7 +1438,7 @@ int main(int argc, char *argv[])
         double vbuffer;
 
         {
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         Obj x1(&ta);
         if (veryVerbose) { cout << "\ncreate new catalog\n"; }
         if (veryVerbose) { cout << "\tnow iterate\n"; }
@@ -1452,7 +1452,7 @@ int main(int argc, char *argv[])
         }
 
         {
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         Obj x1(&ta);
         if (veryVerbose) { cout << "\ncreate new catalog\n"; }
         x1.add(1); if (veryVerbose) {cout << "\tadd(1)\n";}
@@ -1467,7 +1467,7 @@ int main(int argc, char *argv[])
         }
 
         {
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         Obj x1(&ta);
         if (veryVerbose) { cout << "\ncreate new catalog\n"; }
         HA = x1.add(1); if (veryVerbose) { cout << "\tadd(1)\n"; }
@@ -1483,7 +1483,7 @@ int main(int argc, char *argv[])
         }
 
         {
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         Obj x1(&ta);
         if (veryVerbose) { cout << "\ncreate new catalog\n"; }
         HA = x1.add(1); if (veryVerbose) { cout << "\tadd(1)\n"; }
@@ -1499,7 +1499,7 @@ int main(int argc, char *argv[])
         }
 
         {
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         Obj x1(&ta);
         if (veryVerbose) { cout << "\ncreate new catalog\n"; }
         HA = x1.add(1); if (veryVerbose) { cout << "\tadd(1)\n"; }
@@ -1516,7 +1516,7 @@ int main(int argc, char *argv[])
         }
 
         {
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         Obj x1(&ta);
         if (veryVerbose) { cout << "\ncreate new catalog\n"; }
         HA = x1.add(1); if (veryVerbose) { cout << "\tadd(1)\n"; }
@@ -1533,7 +1533,7 @@ int main(int argc, char *argv[])
         }
 
         {
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         Obj x1(&ta);
         if (veryVerbose) { cout << "\ncreate new catalog\n"; }
         HA = x1.add(1); if (veryVerbose) { cout << "\tadd(1)\n"; }
@@ -1551,7 +1551,7 @@ int main(int argc, char *argv[])
         }
 
         {
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         Obj x1(&ta);
         if (veryVerbose) { cout << "\ncreate new catalog\n"; }
         HA = x1.add(1); if (veryVerbose) { cout << "\tadd(1)\n"; }
@@ -1574,7 +1574,7 @@ int main(int argc, char *argv[])
         }
 
         {
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         Obj x1(&ta);
         if (veryVerbose) { cout << "\ncreate new catalog\n"; }
         HA = x1.add(1); if (veryVerbose) { cout << "\tadd(1)\n"; }
@@ -1628,7 +1628,7 @@ int main(int argc, char *argv[])
                 cout  << "\tbringing the catalog in the desired state\n";
             }
 
-            bdlma::TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVerbose);
             Obj o1(&ta);
             my_Obj o2;
             vector<int> handles1(len, -1);
@@ -1688,7 +1688,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) {
                     cout  << "\tbringing the catalog in the desired state\n";
                 }
-                bdlma::TestAllocator ta(veryVeryVerbose);
+                bslma::TestAllocator ta(veryVeryVerbose);
                 Obj o1(&ta);
 
                 my_Obj o2;
@@ -1767,7 +1767,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) {
                     cout  << "\tbringing the catalog in the desired state\n";
                 }
-                bdlma::TestAllocator ta(veryVeryVerbose);
+                bslma::TestAllocator ta(veryVeryVerbose);
                 Obj o1(&ta);
 
                 my_Obj o2;
@@ -1846,7 +1846,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) {
                   cout  << "\tbringing the catalog in the desired state\n";
                 }
-                bdlma::TestAllocator ta(veryVeryVerbose);
+                bslma::TestAllocator ta(veryVeryVerbose);
                 Obj o1(&ta);
 
                 my_Obj o2;
@@ -1927,7 +1927,7 @@ int main(int argc, char *argv[])
         using namespace BCEC_OBJECTCATALOG_TEST_CASE_3;
 
         for (int i=0; i<NUM_SPECS; ++i) {
-            bdlma::TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVerbose);
             Obj o1(&ta);
 
             my_Obj o2;
@@ -2107,7 +2107,7 @@ int main(int argc, char *argv[])
         const double VF = 111902.1020;
         const double VG = 121902.1020;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         Obj x1(&ta);
         const Obj &X1=x1;
         double vbuffer;
@@ -2185,7 +2185,7 @@ int main(int argc, char *argv[])
         typedef bdlcc::ObjectCatalogIter<int> Iter;
         int vbuffer;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         Obj x1(&ta);
         if (veryVerbose) { cout << "\ncreate new catalog\n"; }
         x1.add(1);  if (veryVerbose) { cout << "\tadd(1)\n"; }

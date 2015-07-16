@@ -1,7 +1,7 @@
 // bdlmt_timereventscheduler.t.cpp                                     -*-C++-*-
 #include <bdlmt_timereventscheduler.h>
 
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 #include <bdlmtt_xxxatomictypes.h>
 #include <bdlmtt_barrier.h>
 #include <bdlmtt_xxxthread.h>
@@ -17,6 +17,7 @@
 
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
+#include <bsls_systemtime.h>
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
@@ -1077,7 +1078,7 @@ const bsls::TimeInterval T6(6 * DECI_SEC); // decrease chance of timing failure
 bool  testTimingFailure = false;
 
 bdlmtt::Barrier barrier(NUM_THREADS);
-bdlma::TestAllocator ta;
+bslma::TestAllocator ta;
 Obj x(&ta);
 
 TestClass1 testObj[NUM_THREADS]; // one test object for each thread
@@ -1154,7 +1155,7 @@ const bsls::TimeInterval T6(6 * DECI_SEC); // decrease chance of timing failure
 bool  testTimingFailure = false;
 
 bdlmtt::Barrier barrier(NUM_THREADS);
-bdlma::TestAllocator ta;
+bslma::TestAllocator ta;
 Obj x(&ta);
 
 TestClass1 testObj[NUM_THREADS]; // one test object for each thread
@@ -1293,7 +1294,7 @@ void test7_a()
     const int T8 = 8 * DECI_SEC_IN_MICRO_SEC;
     const bsls::TimeInterval T10(10 * DECI_SEC);
 
-    bdlma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(&ta); x.start();
 
     TestClass1 event;
@@ -1325,7 +1326,7 @@ void test7_b()
     const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
     const int T6 = 6 * DECI_SEC_IN_MICRO_SEC;
 
-    bdlma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(&ta);
 
     TestClass1 testObj;
@@ -1366,7 +1367,7 @@ void test7_c()
     const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
     const int T6 = 6 * DECI_SEC_IN_MICRO_SEC;
 
-    bdlma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(&ta);
 
     TestClass1 testObj1;
@@ -1402,7 +1403,7 @@ void test7_d()
     const int T3  = 3 * DECI_SEC_IN_MICRO_SEC;
     const int T6  = 6 * DECI_SEC_IN_MICRO_SEC;
 
-    bdlma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(&ta);
 
     TestClass1 testObj;
@@ -1440,7 +1441,7 @@ void test7_e()
     const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
     const int T6 = 6 * DECI_SEC_IN_MICRO_SEC;
 
-    bdlma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(&ta);
 
     TestClass1 testObj;
@@ -1473,7 +1474,7 @@ void test7_f()
     const bsls::TimeInterval T3(3 * DECI_SEC);
     const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
 
-    bdlma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(&ta); x.start();
 
     TestClass1 testObj;
@@ -1528,7 +1529,7 @@ void test6_a()
     const bsls::TimeInterval T5(5 * DECI_SEC);
     const int T6 = 6 * DECI_SEC_IN_MICRO_SEC;
 
-    bdlma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(&ta); x.start();
     TestClass1 testObj1;
     TestClass1 testObj2;
@@ -1572,7 +1573,7 @@ void test6_b()
     const int TM4  =  4 * DECI_SEC_IN_MICRO_SEC;
     const int TM10 = 10 * DECI_SEC_IN_MICRO_SEC;
 
-    bdlma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(&ta);
 
     TestClass1 testObj1(TM10);
@@ -1634,7 +1635,7 @@ void test6_c()
     if (veryVerbose) {
         P_(T4); P_(T5); P_(T10); P(T15);
     }
-    bdlma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(&ta);
 
     TestClass1 testObj1(T10);
@@ -1711,7 +1712,7 @@ void test3_a()
     const bsls::TimeInterval T5(5 * DECI_SEC);
     const int T6 = 6 * DECI_SEC_IN_MICRO_SEC;
 
-    bdlma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(&ta); x.start();
     TestClass1 testObj;
 
@@ -1742,7 +1743,7 @@ void test3_b()
     const bsls::TimeInterval T2(2 * DECI_SEC);
     const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
     const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
-    bdlma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(&ta);
     TestClass1 testObj1(T10);
     TestClass1 testObj2;
@@ -1780,7 +1781,7 @@ void test3_c()
     const bsls::TimeInterval T2(2 * DECI_SEC);
     const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
     const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
-    bdlma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(&ta);
     TestClass1 testObj1(T10);
     TestClass1 testObj2;
@@ -1811,7 +1812,7 @@ void test3_d()
     const bsls::TimeInterval T2(2 * DECI_SEC);
     const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
 
-    bdlma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(&ta); x.start();
     TestClass1 testObj;
     Handle handleToBeCancelled;
@@ -1852,7 +1853,7 @@ void test3_e()
     const bsls::TimeInterval T2(2 * DECI_SEC);
     const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
 
-    bdlma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(&ta); x.start();
     TestClass1 testObj;
     Handle handleToBeCancelled;
@@ -1884,7 +1885,7 @@ void test3_f()
     const bsls::TimeInterval T(1 * DECI_SEC);
     const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
 
-    bdlma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(&ta); x.start();
     bsls::TimeInterval now = bdlt::CurrentTime::now();
     Handle handleToBeCancelled =
@@ -1911,7 +1912,7 @@ void test3_g()
     const bsls::TimeInterval T2(2 * DECI_SEC);
     const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
 
-    bdlma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(&ta);
 
     TestClass1 testObj;
@@ -1959,7 +1960,7 @@ bool testCallbacks(int *failures, const float totalTime,
                    const testCase2Data* DATA, const int NUM_DATA,
                    TestClass **testObjects)
 {
-    bdlma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(&ta);
     bsls::TimeInterval globalLastExecutionTime = bdlt::CurrentTime::now();
 
@@ -2084,7 +2085,7 @@ void test1_a()
     const bsls::TimeInterval T3(3 * DECI_SEC);
     const bsls::TimeInterval T6(6 * DECI_SEC);
 
-    bdlma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(&ta);
     x.start();
 
@@ -2144,7 +2145,7 @@ void test1_b()
     const bsls::TimeInterval T3(3 * DECI_SEC);
     const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
 
-    bdlma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(&ta);
     x.start();
 
@@ -2184,7 +2185,7 @@ void test1_c()
     const int T4 = 4 * DECI_SEC_IN_MICRO_SEC;
     const int T6 = 6 * DECI_SEC_IN_MICRO_SEC;
 
-    bdlma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(&ta);
     x.start();
 
@@ -2224,7 +2225,7 @@ void test1_d()
 
     const int T5 = 5 * DECI_SEC_IN_MICRO_SEC;
 
-    bdlma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(&ta);
     x.start();
 
@@ -2286,7 +2287,7 @@ void test1_e()
     const bsls::TimeInterval T2(2 * DECI_SEC);
     const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
 
-    bdlma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(&ta);
     x.start();
 
@@ -2314,7 +2315,7 @@ void test1_f()
     const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
     const bsls::TimeInterval T2(2 * DECI_SEC);
 
-    bdlma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(&ta);
     x.start();
 
@@ -2354,7 +2355,7 @@ void test1_g()
     const bsls::TimeInterval T8(8 * DECI_SEC);
     const bsls::TimeInterval T9(9 * DECI_SEC);
 
-    bdlma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(&ta);
     x.start();
 
@@ -2430,7 +2431,7 @@ void test1_h()
     const int T4 = 4 * DECI_SEC_IN_MICRO_SEC;
     const bsls::TimeInterval T6(6 * DECI_SEC);
 
-    bdlma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(&ta);
     x.start();
 
@@ -2486,7 +2487,7 @@ void test1_i()
     const bsls::TimeInterval T5(5 * DECI_SEC);
     const bsls::TimeInterval T6(6 * DECI_SEC);
 
-    bdlma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(&ta);
     x.start();
 
@@ -2558,7 +2559,7 @@ void test1_j()
     const bsls::TimeInterval T2(2 * DECI_SEC);
     const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
 
-    bdlma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(&ta);
     x.start();
 
@@ -2607,7 +2608,7 @@ void test1_k()
     const bsls::TimeInterval T2(2 * DECI_SEC);
     const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
 
-    bdlma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     Obj x(&ta);
 
     ASSERT(0 == x.numEvents());
@@ -2656,7 +2657,7 @@ int main(int argc, char *argv[])
     veryVeryVerbose = argc > 4;
     int nExec;
 
-    bdlma::TestAllocator ta;
+    bslma::TestAllocator ta;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
@@ -2682,7 +2683,7 @@ int main(int argc, char *argv[])
                           << "=====================" << endl;
 
         using namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_USAGE;
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         my_Server server(bsls::TimeInterval(10), &ta);
 
       } break;
@@ -2723,14 +2724,14 @@ int main(int argc, char *argv[])
         bdlmt::TimerEventScheduler::Dispatcher dispatcher =
           bdlf::BindUtil::bind(&dispatcherFunction, _1);
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         Obj x(4, 4, dispatcher, bsls::SystemClockType::e_MONOTONIC, &ta);
         x.start();
 
         TestClass1 testObj;
 
         x.scheduleEvent(
-                 bdlt::CurrentTime::now(bsls::SystemClockType::e_MONOTONIC) + T,
+                 bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC) + T,
                  bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
         myMicroSleep(T2, 0);
@@ -2775,7 +2776,7 @@ int main(int argc, char *argv[])
         bdlmt::TimerEventScheduler::Dispatcher dispatcher =
           bdlf::BindUtil::bind(&dispatcherFunction, _1);
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         Obj x(4, 4, dispatcher, &ta); x.start();
 
         TestClass1 testObj;
@@ -2821,13 +2822,13 @@ int main(int argc, char *argv[])
         const bsls::TimeInterval T(1 * DECI_SEC);
         const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         Obj x(4, 4, bsls::SystemClockType::e_MONOTONIC, &ta); x.start();
 
         TestClass1 testObj;
 
         x.scheduleEvent(
-                 bdlt::CurrentTime::now(bsls::SystemClockType::e_MONOTONIC) + T,
+                 bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC) + T,
                  bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
         myMicroSleep(T2, 0);
@@ -2868,7 +2869,7 @@ int main(int argc, char *argv[])
         const bsls::TimeInterval T(1 * DECI_SEC);
         const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         Obj x(4, 4, &ta); x.start();
 
         TestClass1 testObj;
@@ -2919,13 +2920,13 @@ int main(int argc, char *argv[])
         bdlmt::TimerEventScheduler::Dispatcher dispatcher =
           bdlf::BindUtil::bind(&dispatcherFunction, _1);
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         Obj x(dispatcher, bsls::SystemClockType::e_MONOTONIC, &ta); x.start();
 
         TestClass1 testObj;
 
         x.scheduleEvent(
-                 bdlt::CurrentTime::now(bsls::SystemClockType::e_MONOTONIC) + T,
+                 bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC) + T,
                  bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
         myMicroSleep(T2, 0);
@@ -2966,13 +2967,13 @@ int main(int argc, char *argv[])
         const bsls::TimeInterval T(1 * DECI_SEC);
         const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         Obj x(bsls::SystemClockType::e_MONOTONIC, &ta); x.start();
 
         TestClass1 testObj;
 
         x.scheduleEvent(
-                 bdlt::CurrentTime::now(bsls::SystemClockType::e_MONOTONIC) + T,
+                 bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC) + T,
                  bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj));
 
         myMicroSleep(T2, 0);
@@ -3309,7 +3310,7 @@ int main(int argc, char *argv[])
 
         using namespace BCEP_TIMER_EVENT_SCHEDULER_TEST_CASE_14;
 
-        bdlma::TestAllocator ta;
+        bslma::TestAllocator ta;
 
         int ii;
         enum { MAX_LOOP = 4 };
@@ -3516,7 +3517,7 @@ int main(int argc, char *argv[])
           const int T6 = 6 * DECI_SEC_IN_MICRO_SEC;
           const bsls::TimeInterval T8(8 * DECI_SEC);
 
-          bdlma::TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           Obj x(&ta);
           x.start();
 
@@ -3554,7 +3555,7 @@ int main(int argc, char *argv[])
           const int T6 = 6 * DECI_SEC_IN_MICRO_SEC;
           const bsls::TimeInterval T8(8 * DECI_SEC);
 
-          bdlma::TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           Obj x(&ta);
           x.start();
 
@@ -3779,7 +3780,7 @@ int main(int argc, char *argv[])
           const bsls::TimeInterval T(1 * DECI_SEC);
           const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
 
-          bdlma::TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           Obj x(&ta);
 
           ASSERT( 0 == x.start() );
@@ -3804,7 +3805,7 @@ int main(int argc, char *argv[])
           const bsls::TimeInterval T(1 * DECI_SEC);
           const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
 
-          bdlma::TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           Obj x(&ta);
 
           x.stop();
@@ -3833,7 +3834,7 @@ int main(int argc, char *argv[])
           const bsls::TimeInterval T(1 * DECI_SEC);
           const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
 
-          bdlma::TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           Obj x(&ta);
 
           TestClass1 testObj;
@@ -3875,7 +3876,7 @@ int main(int argc, char *argv[])
           const bsls::TimeInterval T(1 * DECI_SEC);
           const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
 
-          bdlma::TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           Obj x(&ta);
 
           ASSERT( 0 == x.start() );
@@ -3902,7 +3903,7 @@ int main(int argc, char *argv[])
           const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
           const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
 
-          bdlma::TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           Obj x(&ta);
 
           TestClass1 testObj;
@@ -3966,7 +3967,7 @@ int main(int argc, char *argv[])
         bdlmt::TimerEventScheduler::Dispatcher dispatcher =
           bdlf::BindUtil::bind(&dispatcherFunction, _1);
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         Obj x(dispatcher, &ta); x.start();
 
         TestClass1 testObj;
@@ -4194,7 +4195,7 @@ int main(int argc, char *argv[])
           const bsls::TimeInterval T2(2 * DECI_SEC);
           const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
 
-          bdlma::TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           Obj x(&ta); x.start();
           TestClass1 testObj;
 
@@ -4223,7 +4224,7 @@ int main(int argc, char *argv[])
           const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
           const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
           const int T20 = 20 * DECI_SEC_IN_MICRO_SEC;
-          bdlma::TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           Obj x(&ta);
           TestClass1 testObj1(T10);
           TestClass1 testObj2;
@@ -4259,7 +4260,7 @@ int main(int argc, char *argv[])
           bsls::TimeInterval  T(1 * DECI_SEC);
           const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
           const int T5 = 5 * DECI_SEC_IN_MICRO_SEC;
-          bdlma::TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           Obj x(&ta);
           x.start();
 
@@ -4291,7 +4292,7 @@ int main(int argc, char *argv[])
           bsls::TimeInterval  T(1 * DECI_SEC);
           const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
           const int T5 = 5 * DECI_SEC_IN_MICRO_SEC;
-          bdlma::TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           Obj x(&ta);
           x.start();
 
@@ -4373,7 +4374,7 @@ int main(int argc, char *argv[])
           const bsls::TimeInterval T2(2 * DECI_SEC);
           const bsls::TimeInterval T3(3 * DECI_SEC);
 
-          bdlma::TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
           Obj x(&ta); x.start();
           TestClass1 testObj1;
           TestClass1 testObj2;
@@ -4421,7 +4422,7 @@ int main(int argc, char *argv[])
           const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
           const int T20 = 20 * DECI_SEC_IN_MICRO_SEC;
 
-          bdlma::TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
 
           int ii;
           enum { MAX_LOOP = 4 };
@@ -4505,7 +4506,7 @@ int main(int argc, char *argv[])
           const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
           const int T20 = 20 * DECI_SEC_IN_MICRO_SEC;
 
-          bdlma::TestAllocator ta(veryVeryVerbose);
+          bslma::TestAllocator ta(veryVeryVerbose);
 
           int ii;
           enum { MAX_LOOP = 4 };
@@ -4971,7 +4972,7 @@ int main(int argc, char *argv[])
             TestClass1 testObj;
 
             bsls::TimeInterval currentTime =
-                     bdlt::CurrentTime::now(bsls::SystemClockType::e_REALTIME);
+                     bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME);
             for (int i = 1; i <= 300; ++i) {
                 const bsls::TimeInterval T(static_cast<double>(i));
                 x.scheduleEvent(currentTime + T,
@@ -5010,7 +5011,7 @@ int main(int argc, char *argv[])
             TestPrintClass testObj;
 
             bsls::TimeInterval currentTime =
-                     bdlt::CurrentTime::now(bsls::SystemClockType::e_MONOTONIC);
+                     bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC);
             for (int i = 1; i <= 300; ++i) {
                 const bsls::TimeInterval T(static_cast<double>(i));
                 x.scheduleEvent(currentTime + T,

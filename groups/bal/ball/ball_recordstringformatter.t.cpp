@@ -354,9 +354,8 @@ int main(int argc, char *argv[])
 
             ossExpected.str(""); ossActual.str("");
 
-            int localTimeOffsetInSeconds;
-            bdlt::LocalTimeOffset::localTimeOffset(&localTimeOffsetInSeconds,
-                                                  dtUtc);
+            int localTimeOffsetInSeconds =
+                  bdlt::LocalTimeOffset::localTimeOffset(dtUtc).totalSeconds();
             ASSERT(10 * 24 * 60 * 60 != localTimeOffsetInSeconds);
 
             if (veryVerbose) { P(localTimeOffsetInSeconds); }

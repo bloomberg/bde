@@ -1,6 +1,6 @@
 // bdlmca_xxxpooledbufferchain.t.cpp                                      -*-C++-*-
 #include <bdlmca_xxxpooledbufferchain.h>
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // memcpy()
@@ -161,7 +161,7 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << endl << "USAGE TEST" << endl
                                   << "==========" << endl;
 
-        bdlma::TestAllocator ta;
+        bslma::TestAllocator ta;
 
         struct my_Tick {
             char   d_name[4];
@@ -240,7 +240,7 @@ int main(int argc, char *argv[]) {
         };
         enum { DATA_SIZE = sizeof DATA / sizeof *DATA };
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             for (int i = 0; i < DATA_SIZE; ++i) {
                 const int         LINE        = DATA[i].d_line;
@@ -400,7 +400,7 @@ int main(int argc, char *argv[]) {
         };
         const int DATA_SIZE = sizeof DATA / sizeof *DATA;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             for (int i = 0; i < DATA_SIZE; ++i) {
                 const int         LINE        = DATA[i].d_line;
@@ -506,7 +506,7 @@ int main(int argc, char *argv[]) {
 
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        bdlma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
         bdlmca::PooledBufferChainFactory factory(BUFFER_SIZE, &testAllocator);
         char controlBuffer[MAX_CONTROL_BUFFER_SIZE];
         char control = (unsigned char) 0xBA;
@@ -630,7 +630,7 @@ int main(int argc, char *argv[]) {
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        bdlma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
         bdlmca::PooledBufferChainFactory factory(BUFFER_SIZE, &testAllocator);
 
         char control = (unsigned char) 0xBA;
@@ -771,7 +771,7 @@ int main(int argc, char *argv[]) {
 
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        bdlma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
         bdlmca::PooledBufferChainFactory factory(BUFFER_SIZE, &testAllocator);
         char controlBuffer[MAX_CONTROL_BUFFER_SIZE];
         char control = (unsigned char) 0xBA;
@@ -842,7 +842,7 @@ int main(int argc, char *argv[]) {
             NUM_CHAINS       = 1000
         };
 
-        bdlma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
         bdlmca::PooledBufferChainFactory factory(BUFFER_SIZE, &testAllocator);
         bdlmca::PooledBufferChain *chains[NUM_CHAINS];
 

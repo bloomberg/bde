@@ -4,7 +4,7 @@
 #include <ball_severity.h>          // for testing only
 
 #include <bdlmca_deleter.h>          // for testing only
-#include <bdlma_xxxtestallocator.h>    // for testing only
+#include <bslma_testallocator.h>    // for testing only
 
 #include <bdlmtt_lockguard.h>        // for testing only
 #include <bdlmtt_xxxthread.h>           // for testing only
@@ -151,10 +151,12 @@ int Record::severity() const
 }  // close package namespace
 
 // FREE OPERATORS
-bsl::ostream& ball::operator<<(bsl::ostream& stream, const Record& rhs)
+namespace ball {
+bsl::ostream& operator<<(bsl::ostream& stream, const Record& rhs)
 {
     stream << rhs.severity();
     return stream;
+}
 }
 
 }  // close namespace BloombergLP
@@ -379,7 +381,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "Testing Usage Example 1 and 2" << endl
                                   << "=============================" << endl;
 
-        bdlma::TestAllocator ta;
+        bslma::TestAllocator ta;
 
         my_DummyDeleter deleter;
         my_RecordBuffer buffer;

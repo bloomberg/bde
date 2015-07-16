@@ -5,7 +5,7 @@
 #include <balm_metricsample.h>
 #include <balm_publisher.h>
 
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 #include <bdlmtt_barrier.h>
 #include <bdlmt_fixedthreadpool.h>
 
@@ -453,7 +453,7 @@ int main(int argc, char *argv[])
                           << "TEST CONCURRENCY: 'balm::IntegerMetric'" << endl
                           << "======================================" << endl;
 
-        bdlma::TestAllocator defaultAllocator;
+        bslma::TestAllocator defaultAllocator;
 
         balm::MetricsManager mgr(Z);
         Registry&   registry   = mgr.metricRegistry();
@@ -461,7 +461,7 @@ int main(int argc, char *argv[])
         balm::IntegerMetric metric(repository.getDefaultIntegerCollector(
                                                              "Test", "Test"));
 
-        bdlma::TestAllocator testAllocator;
+        bslma::TestAllocator testAllocator;
         {
             MetricConcurrencyTest tester(10, &metric,
                                          &registry,  &testAllocator);

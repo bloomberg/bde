@@ -19,7 +19,7 @@
 #include <btlsos_tcptimedchannel.h>
 
 #include <bdlcc_queue.h>
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 #include <bdlmca_blobutil.h>
 #include <bdlmca_pool.h>
 #include <bdlmca_xxxpooledbufferchain.h>
@@ -4296,7 +4296,7 @@ void runTestCase22(char                                         *progname,
                    int                                           serverSize,
                    int                                           serverNeeded,
                    btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-                   bdlma::TestAllocator                          *allocator)
+                   bslma::TestAllocator                          *allocator)
 {
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // Test Initialization
@@ -5803,7 +5803,7 @@ namespace TEST_CASE_11_NAMESPACE {
 
 static
 void runTestCase11(btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-                   bdlma::TestAllocator&                          ta)
+                   bslma::TestAllocator&                          ta)
 {
     enum {
         SERVER_ID   = 1013410001,
@@ -6505,7 +6505,7 @@ void case9ChannelStateCallback(int                 channelId,
 static
 void runTestCase9(char                                         *progname,
                   btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-                  bdlma::TestAllocator&                          ta)
+                  bslma::TestAllocator&                          ta)
 {
     using namespace TEST_CASE_21_NAMESPACE; // for dynamic_cast(SslLikeSocket)
     typedef bteso_SslLikeStreamSocketFactory<btlso::IPv4Address>
@@ -8447,7 +8447,7 @@ void *usageExampleMinusOne(void *arg)
     const int NUM_MESSAGES    = info->d_numMessages;
     const int NUM_ITERS       = info->d_numIters;
 
-    bdlma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
     if (verbose) {
         P(NUM_CONNECTIONS);
         P(HOSTNAME);
@@ -8722,7 +8722,7 @@ void TestDriver::testCase44()
     //                     bslma::Allocator*);
     //-------------------------------------------------------------------
 
-    bdlma::TestAllocator da("defaultAllocator", veryVeryVerbose);
+    bslma::TestAllocator da("defaultAllocator", veryVeryVerbose);
     bslma::DefaultAllocatorGuard taGuard(&da);
     {
         if (verbose) {
@@ -8751,7 +8751,7 @@ void TestDriver::testCase44()
 
         btlmt::ChannelPool::PoolStateChangeCallback poolCb(&poolStateCb);
 
-        bdlma::TestAllocator ta("testAllocator", veryVeryVerbose);
+        bslma::TestAllocator ta("testAllocator", veryVeryVerbose);
 
         const int SIZE = 4444;
         const char FILL = 0xBB;
@@ -9436,7 +9436,7 @@ void TestDriver::testCase37()
         typedef btlso::InetStreamSocketFactory<btlso::IPv4Address> IPv4Factory;
         typedef btlso::StreamSocket<btlso::IPv4Address>            Socket;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             vlm_EchoServer server(0, &ta);
             ASSERT(0 == server.start());
@@ -9529,7 +9529,7 @@ void TestDriver::testCase36()
             NUM_ITERS       = 10
         };
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         bdlmca::Pool pool(100, &ta);
 
         bdlcc::Queue<btlmt::DataMsg> incoming, outgoing;
@@ -10756,7 +10756,7 @@ void TestDriver::testCase31()
         config.setIncomingMessageSizes(1, 3, 5);
 
         bdlmtt::Mutex         coutMutex;
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         ReadServer          server(&coutMutex, LEN, config, &ta);
 
         ASSERT(0 == server.start());
@@ -10845,7 +10845,7 @@ void TestDriver::testCase30()
         {
             for (int type = 0; type < 2; ++type) {
                 bdlmtt::Mutex coutMutex;
-                bdlma::TestAllocator ta(veryVeryVerbose);
+                bslma::TestAllocator ta(veryVeryVerbose);
                 ReadServer server(&coutMutex, 0, (bool) type, &ta);
                 ASSERT(0 == server.start());
                 const int PORT = server.portNumber();
@@ -10945,7 +10945,7 @@ void TestDriver::testCase29()
         // For 'dummyDataCallbackWithDelay'.
         using namespace TEST_CASE_BUSY_METRICS;
 
-        bdlma::TestAllocator ta;
+        bslma::TestAllocator ta;
 
         int       NUM_THREADS[] = { 2,  4,  8 };
         const int NUM_NUM_THREADS = sizeof NUM_THREADS / sizeof *NUM_THREADS;
@@ -11278,7 +11278,7 @@ void TestDriver::testCase28()
 
         using namespace TEST_CASE_BUSY_METRICS;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
         int       NUM_THREADS[] = { 1,  2,  4,  8 };
         const int NUM_NUM_THREADS = sizeof NUM_THREADS / sizeof *NUM_THREADS;
@@ -11429,7 +11429,7 @@ void TestDriver::testCase27()
         if (verbose) cout << "TESTING read timeout" << endl
                           << "====================" << endl;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
         using namespace TEST_CASE_25_NAMESPACE;
 
@@ -11639,7 +11639,7 @@ void TestDriver::testCase26()
 
         using namespace TEST_CASE_MESSAGEHELPER_NAMESPACE;
 
-        bdlma::TestAllocator ta;
+        bslma::TestAllocator ta;
         typedef btlmt::ChannelPool_MessageUtil Helper;
         typedef btlmt::ChannelPool_IovecArray<btls::Ovec>   OvecArray;
         typedef btlmt::ChannelPool_IovecArray<btls::Iovec>  IovecArray;
@@ -12000,7 +12000,7 @@ void TestDriver::testCase25()
                           << endl;
 
         using namespace TEST_CASE_25_NAMESPACE;
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             enum {
                 NUM_SOCKETS   =    1,
@@ -12374,7 +12374,7 @@ void TestDriver::testCase23()
 
 #if 0
         using namespace TEST_CASE_22_NAMESPACE;  // reusing
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // Test Initialization
@@ -12583,7 +12583,7 @@ void TestDriver::testCase22()
         using namespace TEST_CASE_22_NAMESPACE;
         typedef btlso::InetStreamSocketFactory<btlso::IPv4Address> Factory;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             if (verbose) cout << "\tSmall message test." << endl
                               << "\t-------------------" << endl;
@@ -12776,7 +12776,7 @@ void TestDriver::testCase21()
         typedef bteso_SslLikeStreamSocketFactory<btlso::IPv4Address> Factory;
         const int SSL_LIKE_SOCKET_BUFFER_SIZE = 4 * 65536;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
         // The following is a copy-paste of test case 9 but using
         // bteso_SslLikeStreamSocket instead of bteso_InetStreamSocket.
@@ -12831,7 +12831,7 @@ void TestDriver::testCase20()
                           << "=============================" << endl;
 
         using namespace TEST_CASE_20_NAMESPACE;
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             bsl::vector<my_ChannelEvent> channelEvents;
             bdlmtt::Mutex                  channelEventsMutex;
@@ -13020,7 +13020,7 @@ void TestDriver::testCase19()
                   << "\n=============================" << endl;
 
         using namespace TEST_CASE_19_NAMESPACE;
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             enum {
                 MAX_THREADS = 5,
@@ -13211,7 +13211,7 @@ void TestDriver::testCase18()
                  << "=============================" << endl;
 
         using namespace TEST_CASE_18_NAMESPACE;
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // Test Initialization
@@ -13442,7 +13442,7 @@ void TestDriver::testCase17()
                  << "\n=============================" << endl;
 
         using namespace TEST_CASE_17_NAMESPACE;
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // Test Initialization
@@ -13537,7 +13537,7 @@ void TestDriver::testCase16()
                  << endl;
 
         using namespace TEST_CASE_16_NAMESPACE;
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // Test Initialization
@@ -13631,7 +13631,7 @@ void TestDriver::testCase15()
                   << "\n====================================" << endl;
 
         using namespace TEST_CASE_15_NAMESPACE;
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
         {
             //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -13945,7 +13945,7 @@ void TestDriver::testCase14()
                   << "\n====================================" << endl;
 
         using namespace TEST_CASE_14_NAMESPACE;
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // Test Initialization
@@ -14442,7 +14442,7 @@ void TestDriver::testCase13()
                   << "\n====================================" << endl;
 
         using namespace TEST_CASE_13_NAMESPACE;
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // Test Initialization
@@ -14610,7 +14610,7 @@ void TestDriver::testCase12()
                           << "=====================" << endl;
 
         using namespace TEST_CASE_12_NAMESPACE;
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             bsl::vector<my_ChannelEvent> channelEvents;
             bdlmtt::Mutex                  channelEventsMutex;
@@ -14750,7 +14750,7 @@ void TestDriver::testCase11()
                 << "\n===============================================" << endl;
 
         using namespace TEST_CASE_11_NAMESPACE;
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             btlso::InetStreamSocketFactory<btlso::IPv4Address> factory(&ta);
             runTestCase11(&factory, ta); // Note: ta passed by reference
@@ -14840,7 +14840,7 @@ void TestDriver::testCase10()
             if (verbose)
                 cout << "\tRegistering clocks, then deregistering.\n";
 
-            bdlma::TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVerbose);
             {
                 btlmt::ChannelPool mX(channelCb, dataCb, poolCb, config, &ta);
                 ASSERT(0 == mX.start());
@@ -15208,7 +15208,7 @@ void TestDriver::testCase10()
 
             if (verbose) cout << "\tRegistering clocks, then deregistering\n";
 
-            bdlma::TestAllocator ta(veryVeryVerbose);
+            bslma::TestAllocator ta(veryVeryVerbose);
             {
                 btlmt::ChannelPool mX(channelCb, dataCb, poolCb, config, &ta);
                 bsls::TimeInterval startTime = bdlt::CurrentTime::now() + 120.0;
@@ -15339,7 +15339,7 @@ void TestDriver::testCase9()
                           << "\n===============" << endl;
 
         using namespace TEST_CASE_9_NAMESPACE;
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
 
         {
             btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
@@ -15379,7 +15379,7 @@ void TestDriver::testCase8()
                  << "\n==================" << endl;
 
         using namespace TEST_CASE_8_NAMESPACE;
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // Test Initialization
@@ -15607,8 +15607,8 @@ void TestDriver::testCase7()
                 << "\n===============================================" << endl;
 
         using namespace TEST_CASE_7_NAMESPACE;
-        bdlma::TestAllocator ta(veryVeryVerbose);
-        bdlma::TestAllocator ta2(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta2(veryVeryVerbose);
         {
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // Test Initialization
@@ -15705,7 +15705,7 @@ void TestDriver::testCase6()
                   << "\n========================" << endl;
 
         using namespace TEST_CASE_6_NAMESPACE;
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             bsl::vector<my_ChannelEvent> channelEvents;
             bdlmtt::Mutex                  channelEventsMutex;
@@ -15935,7 +15935,7 @@ void TestDriver::testCase5()
             DUPLICATE_ID           =  1
         };
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             // One server -- system specified port numbers.
 
@@ -16064,7 +16064,7 @@ void TestDriver::testCase4()
                  << "\n========================" << endl;
 
         using namespace TEST_CASE_4_NAMESPACE;
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             enum {
                 NUM_ATTEMPTS = 5,
@@ -16524,7 +16524,7 @@ void TestDriver::testCase3()
             cout << "\nTESTING 'start' AND 'stop'"
                  << "\n==========================" << endl;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             enum {
                 BASE_PORT = 1234,
@@ -16591,7 +16591,7 @@ void TestDriver::testCase1()
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        bdlma::TestAllocator ta(veryVeryVerbose);
+        bslma::TestAllocator ta(veryVeryVerbose);
         {
             btlmt::ChannelPoolConfiguration config;
             config.setMaxThreads(1);
@@ -16721,7 +16721,7 @@ static void negativeCase2()
 
         using namespace TEST_CASE_N2_NAMESPACE;
 
-        bdlma::TestAllocator ta;
+        bslma::TestAllocator ta;
         btlmt::ChannelPool::DataReadCallback         dataCb;
         btlmt::ChannelPool::PoolStateChangeCallback  poolCb;
 

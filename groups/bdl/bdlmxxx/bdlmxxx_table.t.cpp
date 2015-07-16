@@ -16,6 +16,7 @@
 #include <bdlt_timetz.h>
 #include <bdltuxxx_unset.h>                   // for testing only
 #include <bdlb_printmethods.h>             // for testing only
+#include <bdlmxxx_tableimp.h>             // for testing only
 #include <bdlxxxx_byteinstream.h>             // for testing only
 #include <bdlxxxx_byteoutstream.h>            // for testing only
 #include <bdlxxxx_testinstream.h>             // for testing only
@@ -4818,8 +4819,8 @@ DEFINE_TEST_CASE(13)
                              = "gruff                                   gruff";
 
             for (int gi = 0; gi <   2; ++gi) {
-                (gi ? bdem_TableImp_enableGeometricMemoryGrowth()
-                    : bdem_TableImp_disableGeometricMemoryGrowth());
+                (gi ? bdlmxxx::TableImp_enableGeometricMemoryGrowth()
+                    : bdlmxxx::TableImp_disableGeometricMemoryGrowth());
 
                 // This is looking for memory leaks.  The values of 'ti' and
                 // 'passCount' when 'testAllocator' reports a memory leak will
@@ -4856,8 +4857,8 @@ DEFINE_TEST_CASE(13)
             }
 
             for (int gi = 0; gi <   2; ++gi) {
-                (gi ? bdem_TableImp_enableGeometricMemoryGrowth()
-                    : bdem_TableImp_disableGeometricMemoryGrowth());
+                (gi ? bdlmxxx::TableImp_enableGeometricMemoryGrowth()
+                    : bdlmxxx::TableImp_disableGeometricMemoryGrowth());
 
                 // More thorough testing for memory leaks.  Do all permutations
                 // of 3 of the cases in the switch statement.

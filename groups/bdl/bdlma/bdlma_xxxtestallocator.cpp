@@ -1,5 +1,5 @@
 // bdlma_xxxtestallocator.cpp                                            -*-C++-*-
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlma_xxxtestallocator_cpp,"$Id$ $CSID$")
@@ -10,7 +10,7 @@ BSLS_IDENT_RCSID(bdlma_xxxtestallocator_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
                         // -------------------------
-                        // class bdlma::TestAllocator
+                        // class bslma::TestAllocator
                         // -------------------------
 
 // FREE OPERATORS

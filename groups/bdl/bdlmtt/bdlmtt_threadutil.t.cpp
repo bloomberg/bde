@@ -8,6 +8,7 @@
 
 #include <bdlf_bind.h>
 #include <bsls_systemclocktype.h>
+#include <bsls_systemtime.h>
 #include <bdlt_currenttime.h>
 
 #include <bslma_default.h>

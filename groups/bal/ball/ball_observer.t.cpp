@@ -7,6 +7,7 @@
 #include <ball_transmission.h>                  // for testing only
 
 #include <bdlt_datetimeutil.h>                     // for testing only
+#include <bdlt_epochutil.h>                     // for testing only
 #include <bdlxxxx_testinstream.h>                  // for testing only
 #include <bdlxxxx_testinstreamexception.h>         // for testing only
 #include <bdlxxxx_testoutstream.h>                 // for testing only
@@ -189,7 +190,7 @@ int main(int argc, char *argv[])
                 cout << "Publish a single message (a sequence of 1)." << endl;
             {
                 out.seekp(0);
-                bdetu_Datetime::convertFromTimeT(&now, time(0));
+                now = bdlt::EpochUtil::convertFromTimeT(time(0));
                 fixed.setTimestamp(now);
                 fixed.setProcessID(100);
                 fixed.setThreadID(0);
@@ -198,10 +199,10 @@ int main(int argc, char *argv[])
                              new (testAllocator) ball::Record(fixed, emptyList),
                              &testAllocator);
                 observer.publish(
-                              handle,
-                              ball::Context(ball::Transmission::BAEL_PASSTHROUGH,
-                              0,
-                              1));
+                            handle,
+                            ball::Context(ball::Transmission::BAEL_PASSTHROUGH,
+                            0,
+                            1));
                 out << ends;
 
                 if (veryVerbose) cout << buf << endl;
@@ -213,7 +214,7 @@ int main(int argc, char *argv[])
                 out.seekp(0);
                 const int NUM_MESSAGES = 3;
                 for (int n = 0; n < NUM_MESSAGES; ++n) {
-                    bdetu_Datetime::convertFromTimeT(&now, time(0));
+                    now = bdlt::EpochUtil::convertFromTimeT(time(0));
                     fixed.setTimestamp(now);
                     fixed.setProcessID(201 + n);
                     fixed.setThreadID(31 + n);
@@ -222,10 +223,10 @@ int main(int argc, char *argv[])
                              new (testAllocator) ball::Record(fixed, emptyList),
                              &testAllocator);
                     observer.publish(
-                                  handle,
-                                  ball::Context(ball::Transmission::BAEL_TRIGGER,
-                                               n,
-                                               NUM_MESSAGES));
+                                handle,
+                                ball::Context(ball::Transmission::BAEL_TRIGGER,
+                                              n,
+                                              NUM_MESSAGES));
                 }
                 out << ends;
                 if (veryVerbose) cout << buf << endl;

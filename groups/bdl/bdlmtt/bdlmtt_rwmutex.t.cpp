@@ -11,6 +11,7 @@
 #include <bdlf_bind.h>
 #include <bdlt_currenttime.h>
 
+#include <bsls_systemtime.h>
 #include <bsls_types.h>
 
 #include <bsl_cstdio.h>
@@ -192,7 +193,7 @@ struct PingPongWriter
       if (d_barrier) {
          d_barrier->wait();
       }
-      bdlt::CurrentTime::loadSystemTimeDefault(&start);
+      start = bsls::SystemTime::nowRealtimeClock();
       while (0 == *d_stop) {
          d_locks[0].unlock();
          d_locks[1].lockWrite();
@@ -204,7 +205,7 @@ struct PingPongWriter
          d_locks[2].lockWrite();
          ++numCycles;
       }
-      bdlt::CurrentTime::loadSystemTimeDefault(&stop);
+      stop = bsls::SystemTime::nowRealtimeClock();
 
       bsls::Types::Int64 elapsed = (stop - start).totalMicroseconds();
       *d_score = ((double)numCycles / elapsed) *
@@ -247,7 +248,7 @@ struct PingPongReader
       if (d_barrier) {
          d_barrier->wait();
       }
-      bdlt::CurrentTime::loadSystemTimeDefault(&start);
+      start = bsls::SystemTime::nowRealtimeClock();
       while (0 == *d_stop) {
          d_locks[0].lockRead();
          d_locks[1].unlock();
@@ -259,7 +260,7 @@ struct PingPongReader
          d_locks[2].unlock();
          ++numCycles;
       }
-      bdlt::CurrentTime::loadSystemTimeDefault(&stop);
+      stop = bsls::SystemTime::nowRealtimeClock();
 
       bsls::Types::Int64 elapsed = (stop - start).totalMicroseconds();
       *d_score = ((double)numCycles / elapsed) *
@@ -295,7 +296,7 @@ struct ContentionWriter
       if (d_barrier) {
          d_barrier->wait();
       }
-      bdlt::CurrentTime::loadSystemTimeDefault(&start);
+      start = bsls::SystemTime::nowRealtimeClock();
       while (0 == *d_stop) {
          d_locks[0].unlock();
          d_locks[1].lockWrite();
@@ -303,7 +304,7 @@ struct ContentionWriter
          d_locks[1].unlock();
          ++numCycles;
       }
-      bdlt::CurrentTime::loadSystemTimeDefault(&stop);
+      stop = bsls::SystemTime::nowRealtimeClock();
 
       bsls::Types::Int64 elapsed = (stop - start).totalMicroseconds();
       *d_score = ((double)numCycles / elapsed) *
@@ -339,7 +340,7 @@ struct ContentionReader
       if (d_barrier) {
          d_barrier->wait();
       }
-      bdlt::CurrentTime::loadSystemTimeDefault(&start);
+      start = bsls::SystemTime::nowRealtimeClock();
       while (0 == *d_stop) {
          d_locks[0].lockRead();
          d_locks[0].unlock();
@@ -351,7 +352,7 @@ struct ContentionReader
          d_locks[1].lockRead();
          ++numCycles;
       }
-      bdlt::CurrentTime::loadSystemTimeDefault(&stop);
+      stop = bsls::SystemTime::nowRealtimeClock();
 
       bsls::Types::Int64 elapsed = (stop - start).totalMicroseconds();
       *d_score = ((double)numCycles / elapsed) *
@@ -380,7 +381,7 @@ int benchmarkSpeed (LOCK* lock, const char* lockName,
       bsls::TimeInterval start, stop;
       LOCK lockArray[NUM_MUTEXES];
       LOCK *lockEnd = lockArray + NUM_MUTEXES;
-      bdlt::CurrentTime::loadSystemTimeDefault(&start);
+      start = bsls::SystemTime::nowRealtimeClock();
       int numCycles = 0;
       while (true) {
          for_each(lockArray, lockEnd,
@@ -389,7 +390,7 @@ int benchmarkSpeed (LOCK* lock, const char* lockName,
                   mem_fun_ref(&LOCK::unlock));
          ++numCycles;
          if (0 == (++numCycles % 4)) {
-            bdlt::CurrentTime::loadSystemTimeDefault(&stop);
+            stop = bsls::SystemTime::nowRealtimeClock();
             if (3.0 <= (stop - start).totalSecondsAsDouble()) {
                break;
             }

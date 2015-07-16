@@ -14,7 +14,6 @@
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
-#include <bdeimp_dateutil.h>
 #include <bdlt_serialdateimputil.h>
 
 #include <bdlsb_memoutstreambuf.h>            // for testing only
@@ -119,7 +118,7 @@ typedef balber::BerUtil Util;
 typedef bslstl::StringRef StringRef;
 
 typedef bdlt::SerialDateImpUtil ProlepticDateUtil;
-typedef bdeimp::DateUtil          DateUtil;
+typedef bdlt::PosixDateImpUtil  DateUtil;
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -1059,7 +1058,7 @@ int main(int argc, char *argv[])
                 const int   LEN   = numOctets(EXP);
 
                 ASSERT(DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                    && ProlepticDateUtil::isValidCalendarDate(YEAR,
+                    && ProlepticDateUtil::isValidYearMonthDay(YEAR,
                                                               MONTH,
                                                               DAY));
 
@@ -1289,7 +1288,7 @@ int main(int argc, char *argv[])
                 const int   LEN   = numOctets(EXP);
 
                 ASSERT(DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                    && ProlepticDateUtil::isValidCalendarDate(YEAR,
+                    && ProlepticDateUtil::isValidYearMonthDay(YEAR,
                                                               MONTH,
                                                               DAY));
 
@@ -1959,7 +1958,7 @@ int main(int argc, char *argv[])
                 const int   LEN   = numOctets(EXP);
 
                 ASSERT(DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                    && ProlepticDateUtil::isValidCalendarDate(YEAR,
+                    && ProlepticDateUtil::isValidYearMonthDay(YEAR,
                                                               MONTH,
                                                               DAY));
 
@@ -2422,7 +2421,7 @@ int main(int argc, char *argv[])
                 const int   LEN   = numOctets(EXP);
 
                 ASSERT(DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                    && ProlepticDateUtil::isValidCalendarDate(YEAR,
+                    && ProlepticDateUtil::isValidYearMonthDay(YEAR,
                                                               MONTH,
                                                               DAY));
 
@@ -2504,7 +2503,7 @@ int main(int argc, char *argv[])
                 const int DAY   = DAYS[k];
 
                 if (DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                 && ProlepticDateUtil::isValidCalendarDate(YEAR, MONTH, DAY)) {
+                 && ProlepticDateUtil::isValidYearMonthDay(YEAR, MONTH, DAY)) {
 
                     if (veryVerbose) { P_(YEAR) P_(MONTH) P(DAY) }
 
@@ -2946,7 +2945,7 @@ int main(int argc, char *argv[])
                 const int DAY   = DAYS[dk];
 
                 if (DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                 && ProlepticDateUtil::isValidCalendarDate(YEAR, MONTH, DAY)) {
+                 && ProlepticDateUtil::isValidYearMonthDay(YEAR, MONTH, DAY)) {
 
                     const int HOURS[] = { 0, 12, 23 };
                     const int NUM_HOURS = sizeof HOURS / sizeof *HOURS;

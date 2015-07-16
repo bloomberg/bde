@@ -4,6 +4,7 @@
 
 #include <bdlma_bufferedsequentialallocator.h>  // for testing only
 #include <bdlt_datetimeutil.h>                     // for testing only
+#include <bdlt_epochutil.h>                        // for testing only
 #include <bdlxxxx_instreamfunctions.h>             // for testing only
 #include <bdlxxxx_outstreamfunctions.h>            // for testing only
 #include <bdlxxxx_testinstream.h>                  // for testing only
@@ -370,8 +371,7 @@ int main(int argc, char *argv[])
             const char *Category[] = { "Bonds", "Equities", "Futures" };
 
             ball::RecordAttributes attributes;
-            bdlt::Datetime now;
-            bdetu_Datetime::convertFromTimeT(&now, time(0));
+            bdlt::Datetime now = bdlt::EpochUtil::convertFromTimeT(time(0));
             attributes.setTimestamp(now);
             #ifdef BSLS_PLATFORM_OS_UNIX
             attributes.setProcessID(getpid());
@@ -418,8 +418,8 @@ int main(int argc, char *argv[])
         const int           OTHER_PROCESSID  = 13248;
         const int           OTHER_SEVERITY   = 128;
         const int           OTHER_THREADID   = 19;
-        bdlt::Datetime       OTHER_TIMESTAMP;
-        bdetu_Datetime::convertFromTimeT(&OTHER_TIMESTAMP, time(0));  // now
+        bdlt::Datetime      OTHER_TIMESTAMP  =
+                            bdlt::EpochUtil::convertFromTimeT(time(0));  // now
 
         {
             Obj mX;  const Obj& X = mX;
@@ -552,8 +552,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Streaming Functionality"
                           << "\n===============================" << endl;
 
-        bdlt::Datetime now;
-        bdetu_Datetime::convertFromTimeT(&now, time(0));
+        bdlt::Datetime now = bdlt::EpochUtil::convertFromTimeT(time(0));
         const char *CATEGORY[] = { "Bonds", "Equities", "Futures" };
         enum SEVERITY { INFO = 0, WARN = 1, BUY = 2, SELL = 3 };
         my_RecordAttributes RA[] = {
@@ -982,8 +981,8 @@ int main(int argc, char *argv[])
         const int           OTHER_PROCESSID  = 13248;
         const int           OTHER_SEVERITY   = 128;
         const int           OTHER_THREADID   = 19;
-        bdlt::Datetime       OTHER_TIMESTAMP;
-        bdetu_Datetime::convertFromTimeT(&OTHER_TIMESTAMP, time(0));  // now
+        bdlt::Datetime      OTHER_TIMESTAMP  =
+                            bdlt::EpochUtil::convertFromTimeT(time(0));  // now
 
         Obj mX;  const Obj& X = mX;
         Obj mY;  const Obj& Y = mY;
@@ -1760,8 +1759,8 @@ int main(int argc, char *argv[])
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (veryVerbose) cout << "\n 6. Set timeStamp for x1 and x2." << endl;
 
-        bdlt::Datetime TIMESTAMP;
-        bdetu_Datetime::convertFromTimeT(&TIMESTAMP, time(0));  // now
+        bdlt::Datetime TIMESTAMP =
+                            bdlt::EpochUtil::convertFromTimeT(time(0));  // now
 
         mX1.setTimestamp(TIMESTAMP);
         mX2.setTimestamp(TIMESTAMP);

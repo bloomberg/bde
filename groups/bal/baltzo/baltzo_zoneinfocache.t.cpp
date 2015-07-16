@@ -10,7 +10,7 @@
 #include <ball_loggermanager.h>
 #include <ball_severity.h>
 
-#include <bdlma_xxxtestallocator.h>
+#include <bslma_testallocator.h>
 #include <bdlmtt_threadutil.h>
 #include <bdlmtt_barrier.h>
 #include <bdlmtt_xxxatomictypes.h>
@@ -798,8 +798,8 @@ int main(int argc, char *argv[])
 
         using namespace BAETZO_ZONEINFOCACHE_CONCURRENCY;
 
-        // A 'bdlma::TestAllocator' is required for thread safe allocations.
-        bdlma::TestAllocator testAllocator;
+        // A 'bslma::TestAllocator' is required for thread safe allocations.
+        bslma::TestAllocator testAllocator;
 
         enum {
             ONE_MS_IN_MICROS = 1000

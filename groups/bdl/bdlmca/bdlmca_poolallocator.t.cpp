@@ -2,7 +2,10 @@
 
 #include <bdlmca_poolallocator.h>
 
-#include <bdlma_xxxtestallocator.h>
+#include <bdlmtt_condition.h>
+#include <bdlmtt_threadutil.h>
+
+#include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_types.h>
@@ -370,7 +373,7 @@ int main(int argc, char *argv[])
         bdlmca::PoolAllocator poolAlloc(100);
         my2_WorkQueue queue(&poolAlloc);
 
-        bcemt_Attribute attributes;
+        bdlmtt::ThreadAttributes attributes;
 
         bdlmtt::ThreadUtil::Handle producerHandle;
         int status = bdlmtt::ThreadUtil::create(&producerHandle,
@@ -412,7 +415,7 @@ int main(int argc, char *argv[])
         bdlmca::PoolAllocator poolAlloc;
         my1_WorkQueue queue(&poolAlloc);
 
-        bcemt_Attribute attributes;
+        bdlmtt::ThreadAttributes attributes;
 
         bdlmtt::ThreadUtil::Handle producerHandle;
         int status = bdlmtt::ThreadUtil::create(&producerHandle,
@@ -465,7 +468,7 @@ int main(int argc, char *argv[])
         if (verbose)
             cout << "bdlmca::PoolAllocator()" << endl;
         {
-            bdlma::TestAllocator ta;
+            bslma::TestAllocator ta;
             bslma::DefaultAllocatorGuard g(&ta);
             Obj x; Obj const &X = x;
             ASSERT(0 == X.blockSize());
@@ -488,7 +491,7 @@ int main(int argc, char *argv[])
         if (verbose)
             cout << "bdlmca::PoolAllocator(0)" << endl;
         {
-            bdlma::TestAllocator ta;
+            bslma::TestAllocator ta;
             bslma::DefaultAllocatorGuard g(&ta);
             Obj x((bsls::Types::size_type)0); Obj const &X = x;
             ASSERT(0 == X.blockSize());
@@ -511,7 +514,7 @@ int main(int argc, char *argv[])
         if (verbose)
             cout << "bdlmca::PoolAllocator(100)" << endl;
         {
-            bdlma::TestAllocator ta;
+            bslma::TestAllocator ta;
             bslma::DefaultAllocatorGuard g(&ta);
             Obj x(100); Obj const &X = x;
             ASSERT(100 == X.blockSize());
@@ -534,7 +537,7 @@ int main(int argc, char *argv[])
         if (verbose)
             cout << "bdlmca::PoolAllocator(allocator)" << endl;
         {
-            bdlma::TestAllocator ta;
+            bslma::TestAllocator ta;
             Obj x(&ta); Obj const &X = x;
             ASSERT(0 == X.blockSize());
             ASSERT(0 == ta.numBytesInUse());
@@ -557,7 +560,7 @@ int main(int argc, char *argv[])
         if (verbose)
             cout << "bdlmca::PoolAllocator(0, allocator)" << endl;
         {
-            bdlma::TestAllocator ta;
+            bslma::TestAllocator ta;
             Obj x(0, &ta); Obj const &X = x;
             ASSERT(0 == X.blockSize());
             ASSERT(0 == ta.numBytesInUse());
@@ -580,7 +583,7 @@ int main(int argc, char *argv[])
         if (verbose)
             cout << "bdlmca::PoolAllocator(100, allocator)" << endl;
         {
-            bdlma::TestAllocator ta;
+            bslma::TestAllocator ta;
             Obj x(100, &ta); Obj const &X = x;
             ASSERT(100 == X.blockSize());
 
@@ -620,8 +623,8 @@ int main(int argc, char *argv[])
                     }
                 }
 
-                bdlma::TestAllocator ta;
-                bdlma::TestAllocator tb;
+                bslma::TestAllocator ta;
+                bslma::TestAllocator tb;
 
                 bdlmca::Pool pool(calculateMaxAlignedSize(SB + sizeof(Header)),
                                 STRAT,
@@ -674,8 +677,8 @@ int main(int argc, char *argv[])
                         cout << "\tBSLS_CONSTANT" << endl;
                     }
                 }
-                bdlma::TestAllocator ta;
-                bdlma::TestAllocator tb;
+                bslma::TestAllocator ta;
+                bslma::TestAllocator tb;
 
                 bdlmca::Pool pool(calculateMaxAlignedSize(SB + sizeof(Header)),
                                 STRAT,
@@ -728,8 +731,8 @@ int main(int argc, char *argv[])
                         cout << "\tBSLS_CONSTANT" << endl;
                     }
                 }
-                bdlma::TestAllocator ta;
-                bdlma::TestAllocator tb;
+                bslma::TestAllocator ta;
+                bslma::TestAllocator tb;
 
                 bdlmca::Pool pool(calculateMaxAlignedSize(100 + sizeof(Header)),
                                 STRAT,
@@ -792,8 +795,8 @@ int main(int argc, char *argv[])
 
                     if (veryVerbose) { T_ T_ P(MAXBLOCKSPERCHUNK) }
 
-                    bdlma::TestAllocator ta;
-                    bdlma::TestAllocator tb;
+                    bslma::TestAllocator ta;
+                    bslma::TestAllocator tb;
 
                     bdlmca::Pool pool(
                                  calculateMaxAlignedSize(SB + sizeof(Header)),
@@ -860,8 +863,8 @@ int main(int argc, char *argv[])
 
                     if (veryVerbose) { T_ T_ P(MAXBLOCKSPERCHUNK) }
 
-                    bdlma::TestAllocator ta;
-                    bdlma::TestAllocator tb;
+                    bslma::TestAllocator ta;
+                    bslma::TestAllocator tb;
 
                     bdlmca::Pool pool(
                                  calculateMaxAlignedSize(SB + sizeof(Header)),
@@ -928,8 +931,8 @@ int main(int argc, char *argv[])
 
                     if (veryVerbose) { T_ T_ P(MAXBLOCKSPERCHUNK) }
 
-                    bdlma::TestAllocator ta;
-                    bdlma::TestAllocator tb;
+                    bslma::TestAllocator ta;
+                    bslma::TestAllocator tb;
 
                     bdlmca::Pool pool(
                                  calculateMaxAlignedSize(100 + sizeof(Header)),
@@ -982,11 +985,11 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         for (int i=0; i<1000; i++) {
-            bdlma::TestAllocator ta;
+            bslma::TestAllocator ta;
             bslma::DefaultAllocatorGuard g(&ta);
             Obj a[NUM_ALLOCATORS];
 
-            bcemt_Attribute attributes;
+            bdlmtt::ThreadAttributes attributes;
 
             bdlmtt::ThreadUtil::Handle upHandle;
             int status = bdlmtt::ThreadUtil::create(&upHandle,
@@ -1025,7 +1028,7 @@ int main(int argc, char *argv[])
         //   allocate(int size);
         //   deallocate(void *address);
         // --------------------------------------------------------------------
-        bdlma::TestAllocator ta;
+        bslma::TestAllocator ta;
         bslma::DefaultAllocatorGuard g(&ta);
         Obj x; Obj const &X = x;
         ASSERT(0 == X.blockSize());
