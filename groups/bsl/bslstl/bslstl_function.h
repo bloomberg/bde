@@ -480,6 +480,8 @@ class Function_Rep {
     };
 
   public:
+
+    // Not really public: made public to work around a Sun compiler bug.
     enum AllocCategory {
         // Category of allocator supplied to a constructor.
 
