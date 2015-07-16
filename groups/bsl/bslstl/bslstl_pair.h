@@ -299,10 +299,7 @@ BSL_OVERRIDES_STD mode"
 #endif
 
 #ifndef INCLUDED_UTILITY
-#include <utility> // 'std::pair' and 'std::swap'
-                   // Even in C++03 mode, <utility> includes enough of 'swap'
-                   // for 'std::pair' to work.  No need to include
-                   // <algorithm>, which is big and causes cycles.
+#include <utility> // 'std::pair'
 #define INCLUDED_UTILITY
 #endif
 
@@ -933,7 +930,10 @@ void pair<T1, T2>::swap(pair& other)
     // Find either 'std::swap' or a specialized 'swap' for 'T1' and 'T2' via
     // ADL.
 
-    using std::swap;
+    // To find std::swap.  We cannot say 'using std::swap' because 'std::swap'
+    // may not be declared at declaration time, though it must be declared at
+    // instantiation time if 'first' or 'second' require it.
+    using namespace std;
 
     swap(first, other.first);
     swap(second, other.second);

@@ -4630,7 +4630,7 @@ int main(int argc, char *argv[])
         EXCEPTION_TEST_BEGIN(&ta, NULL) {
             typedef EmptySTLAllocator<double> Alloc;
             typedef EmptySTLAllocator<bool>   Alloc2;
-            typedef typename
+            typedef
               bslma::AllocatorAdaptor<EmptySTLAllocator<char> >::Type Adaptor;
             EXCEPTION_TEST_TRY {
 
@@ -5563,7 +5563,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) printf("Construct with pointer to member function\n");
         globalAllocMonitor.reset();
         {
-            Obj f(bsl::Function_NothrowWrapper<SimpleMemFuncPtr_t>(
+            Obj f = Obj(bsl::Function_NothrowWrapper<SimpleMemFuncPtr_t>(
                       &IntWrapper::add1)); const Obj& F = f;
             ASSERT(F);
             ASSERT(globalAllocMonitor.isTotalSame());

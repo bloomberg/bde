@@ -680,9 +680,6 @@ class function<RET(ARGS...)> :
                         typename bslmf::ForwardingType<ARGS>::Type... args);
         // A function of this type is used to invoke the wrapped functor.
 
-    // Verify the assumption that all function pointers are the same size.
-    BSLMF_ASSERT(sizeof(Invoker*) == sizeof(d_invoker_p));
-
     // PRIVATE MEMBER FUNCTIONS
     void setInvoker(Invoker *p);
         // Set the invoker to the address in the specified 'p' argument.
@@ -1679,6 +1676,9 @@ template <class RET, class... ARGS>
 inline
 void bsl::function<RET(ARGS...)>::setInvoker(Invoker *p)
 {
+    // Verify the assumption that all function pointers are the same size.
+    BSLMF_ASSERT(sizeof(Invoker*) == sizeof(d_invoker_p));
+
     d_invoker_p = reinterpret_cast<void (*)()>(p);
 }
 
