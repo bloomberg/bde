@@ -693,29 +693,88 @@ class function<RET(ARGS...)> :
         // Return the current invoker.
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&,
-                             bslmf::SelectTraitCase<bslmf::IsFunctionPointer>);
+    static Invoker *invokerForFunc(const FUNC& f,
+                             bslmf::SelectTraitCase<bslmf::IsFunctionPointer>)
         // Return the invoker for an invocable of
-        // pointer-to-(non-member)function.
+        // pointer-to-(non-member)function.  Defined inline to work around Sun
+        // CC bug.
+    {
+        if (f) {
+            return &functionPtrInvoker<FUNC>;
+        }
+        else {
+            return NULL;
+        }
+    }
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&,
-                       bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>);
+    static Invoker *invokerForFunc(const FUNC& f,
+                       bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>)
         // Return the invoker for an invocable of pointer-to-member-function
-        // type.
+        // type.  Defined inline to work around Sun CC bug.
+    {
+        if (f) {
+            return &memFuncPtrInvoker<FUNC>;                          // RETURN
+        }
+        else {
+            return NULL;                                              // RETURN
+        }
+    }
 
     template <class FUNC>
     static Invoker *invokerForFunc(const FUNC&,
-                                   bslmf::SelectTraitCase<Soo::IsInplaceFunc>);
+                                   bslmf::SelectTraitCase<Soo::IsInplaceFunc>)
         // Return the invoker for an invocable of in-place functor type.
+        // Defined inline to work around Sun CC bug.
+    {
+        return &inplaceFunctorInvoker<FUNC>;
+    }
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&, bslmf::SelectTraitCase<>);
+    static Invoker *invokerForFunc(const FUNC&, bslmf::SelectTraitCase<>)
         // Return the invoker for an invocable of out-of-place functor type.
+        // Defined inline to work around Sun CC bug.
+    {
+        return &outofplaceFunctorInvoker<FUNC>;
+    }
 
     template <class FUNC>
-    static Invoker *invokerForFunc(const FUNC&);
+    static Invoker *invokerForFunc(const FUNC& f)
         // Return the invoker for an invocable of the specified 'FUNC' type.
+        // Defined inline to work around Sun CC bug.
+    {
+        typedef Function_SmallObjectOptimization Soo;
+
+        // Unwrap FUNC type if it is a specialization of
+        // 'Function_NothrowWrapper'.
+        typedef typename
+            Function_NothrowWrapperUtil<FUNC>::UnwrappedType UwFuncType;
+
+        // Determine dispatch based on the traits of 'FuncType'.
+        typedef typename
+            bslmf::SelectTrait<UwFuncType,
+            bslmf::IsFunctionPointer,
+            bslmf::IsMemberFunctionPointer,
+            Soo::IsInplaceFunc>::Type UwFuncSelection;
+
+        const std::size_t kSOOSIZE       = Soo::SooFuncSize<FUNC>::VALUE;
+        const std::size_t kUNWRAPPED_SOOSIZE
+                                         = Soo::SooFuncSize<UwFuncType>::VALUE;
+
+        // The only reason that the original and unwrapped 'FUNC' would result
+        // in different 'SooFuncSize' is if 'FUNC' is wrapping a small object
+        // that would otherwise have a throwing move.  In that case, we force
+        // the dispatch to choose 'Soo::IsInplaceFunc', otherwise we dispatch
+        // on the selection traits of the original 'FUNC' type.
+        typedef typename
+            bsl::conditional<kSOOSIZE != kUNWRAPPED_SOOSIZE,
+            bslmf::SelectTraitCase<Soo::IsInplaceFunc>,
+            UwFuncSelection>::type FuncSelection;
+
+        // Dispatch to the correct variant of 'invokerForFunc'
+        return invokerForFunc(Function_NothrowWrapperUtil<FUNC>::unwrap(f),
+                FuncSelection());
+    }
 
     template <class FUNC>
     static RET functionPtrInvoker(const Function_Rep *rep,
@@ -1642,7 +1701,10 @@ template <class FUNC>
 RET bsl::function<RET(ARGS...)>::memFuncPtrInvoker(const Function_Rep *rep,
                             typename bslmf::ForwardingType<ARGS>::Type... args)
 {
-    FUNC f = reinterpret_cast<const FUNC&>(rep->d_objbuf.d_memFunc_p);
+    // Workaround Sun compiler issue - it thinks we're trying to cast away
+    // const or volatile if we use reinterpret_cast.
+    // FUNC f = reinterpret_cast<const FUNC&>(rep->d_objbuf.d_memFunc_p);
+    FUNC f = (const FUNC&)(rep->d_objbuf.d_memFunc_p);
     typedef typename bslmf::NthParameter<0, ARGS...>::Type ObjType;
     typedef Function_MemFuncInvoke<FUNC, ObjType> InvokeType;
     BSLMF_ASSERT(sizeof...(ARGS) == InvokeType::NUM_ARGS + 1);
@@ -1680,7 +1742,9 @@ void bsl::function<RET(ARGS...)>::setInvoker(Invoker *p)
     // Verify the assumption that all function pointers are the same size.
     BSLMF_ASSERT(sizeof(Invoker*) == sizeof(d_invoker_p));
 
-    d_invoker_p = reinterpret_cast<void (*)()>(p);
+    typedef void (*VoidFn)();
+
+    d_invoker_p = reinterpret_cast<VoidFn>(p);
 }
 
 template <class RET, class... ARGS>
@@ -1689,89 +1753,6 @@ typename bsl::function<RET(ARGS...)>::Invoker *
 bsl::function<RET(ARGS...)>::invoker() const
 {
     return reinterpret_cast<Invoker*>(d_invoker_p);
-}
-
-template <class RET, class... ARGS>
-template <class FUNC>
-inline
-typename bsl::function<RET(ARGS...)>::Invoker *
-bsl::function<RET(ARGS...)>::invokerForFunc(const FUNC& f,
-                              bslmf::SelectTraitCase<bslmf::IsFunctionPointer>)
-{
-    if (f) {
-        return &functionPtrInvoker<FUNC>;                             // RETURN
-    }
-    else {
-        return NULL;                                                  // RETURN
-    }
-}
-
-template <class RET, class... ARGS>
-template <class FUNC>
-typename bsl::function<RET(ARGS...)>::Invoker *
-bsl::function<RET(ARGS...)>::invokerForFunc(const FUNC& f,
-                        bslmf::SelectTraitCase<bslmf::IsMemberFunctionPointer>)
-{
-    if (f) {
-        return &memFuncPtrInvoker<FUNC>;                              // RETURN
-    }
-    else {
-        return NULL;                                                  // RETURN
-    }
-}
-
-template <class RET, class... ARGS>
-template <class FUNC>
-typename bsl::function<RET(ARGS...)>::Invoker *
-bsl::function<RET(ARGS...)>::invokerForFunc(const FUNC&,
-                                    bslmf::SelectTraitCase<Soo::IsInplaceFunc>)
-{
-    return &inplaceFunctorInvoker<FUNC>;
-}
-
-template <class RET, class... ARGS>
-template <class FUNC>
-typename bsl::function<RET(ARGS...)>::Invoker *
-bsl::function<RET(ARGS...)>::invokerForFunc(const FUNC&,
-                                            bslmf::SelectTraitCase<>)
-{
-    return &outofplaceFunctorInvoker<FUNC>;
-}
-
-template <class RET, class... ARGS>
-template <class FUNC>
-typename bsl::function<RET(ARGS...)>::Invoker *
-bsl::function<RET(ARGS...)>::invokerForFunc(const FUNC& f)
-{
-    typedef Function_SmallObjectOptimization Soo;
-
-    // Unwrap FUNC type if it is a specialization of 'Function_NothrowWrapper'.
-    typedef typename
-        Function_NothrowWrapperUtil<FUNC>::UnwrappedType UwFuncType;
-
-    // Determine dispatch based on the traits of 'FuncType'.
-    typedef typename
-        bslmf::SelectTrait<UwFuncType,
-                           bslmf::IsFunctionPointer,
-                           bslmf::IsMemberFunctionPointer,
-                           Soo::IsInplaceFunc>::Type UwFuncSelection;
-
-    const std::size_t kSOOSIZE           = Soo::SooFuncSize<FUNC>::VALUE;
-    const std::size_t kUNWRAPPED_SOOSIZE = Soo::SooFuncSize<UwFuncType>::VALUE;
-
-    // The only reason that the original and unwrapped 'FUNC' would result in
-    // different 'SooFuncSize' is if 'FUNC' is wrapping a small object that
-    // would otherwise have a throwing move.  In that case, we force the
-    // dispatch to choose 'Soo::IsInplaceFunc', otherwise we dispatch on the
-    // selection traits of the original 'FUNC' type.
-    typedef typename
-        bsl::conditional<kSOOSIZE != kUNWRAPPED_SOOSIZE,
-                         bslmf::SelectTraitCase<Soo::IsInplaceFunc>,
-                         UwFuncSelection>::type FuncSelection;
-
-    // Dispatch to the correct variant of 'invokerForFunc'
-    return invokerForFunc(Function_NothrowWrapperUtil<FUNC>::unwrap(f),
-                          FuncSelection());
 }
 
 // CREATORS
