@@ -72,11 +72,11 @@ BSLS_IDENT("$Id: $")
 // 'loadLocalTimeOffset' of 'baltzo::LocalTimeOffsetUtil' as the local time
 // offset callback used in 'bdlt::CurrentTime'.
 //..
-//  bdlt::CurrentTime::LoadLocalTimeOffsetCallback previousCallback =
-//                baltzo::LocalTimeOffsetUtil::setLoadLocalTimeOffsetCallback();
+//  bdlt::LocalTimeOffset::LocalTimeOffsetCallback previousCallback =
+//               baltzo::LocalTimeOffsetUtil::setLoadLocalTimeOffsetCallback();
 //
-//  assert(&baltzo::LocalTimeOffsetUtil::loadLocalTimeOffset
-//      == bdlt::CurrentTime::currentLoadLocalTimeOffsetCallback());
+//  assert(&baltzo::LocalTimeOffsetUtil::localTimeOffset
+//      == bdlt::CurrentTime::localTimeOffsetCallback());
 //..
 // Notice that previously installed callback was saved so we can restore it, if
 // needed.
@@ -85,10 +85,9 @@ BSLS_IDENT("$Id: $")
 // For example, we can check the time offset in New York for three dates of
 // interest:
 //..
-//  int offsetInSeconds;
-//
-//  bdlt::LocalTimeOffset::localTimeOffset(&offsetInSeconds,
-//                                        bdlt::Datetime(2013,  2, 26));
+//  int offsetInSeconds =
+//      bdlt::LocalTimeOffset::localTimeOffset(bdlt::Datetime(2013, 2, 26))
+//                                                             .totalSeconds();
 //  assert(        0 == status);
 //  assert(-5 * 3600 == offsetInSeconds);
 //  assert(        1 == baltzo::LocalTimeOffsetUtil::updateCount());
@@ -96,15 +95,17 @@ BSLS_IDENT("$Id: $")
 //  baltzo::LocalTimeOffsetUtil::loadTimezone(&timezone);
 //  assert(        0 == strcmp("America/New_York", timezone.c_str()));
 //
-//  bdlt::LocalTimeOffset::localTimeOffset(&offsetInSeconds,
-//                                        bdlt::Datetime(2013,  7,  4));
+//  offsetInSeconds =
+//      bdlt::LocalTimeOffset::localTimeOffset(bdlt::Datetime(2013, 7, 4))
+//                                                             .totalSeconds();
 //  assert(-4 * 3600 == offsetInSeconds);
 //  assert(        2 == baltzo::LocalTimeOffsetUtil::updateCount());
 //  baltzo::LocalTimeOffsetUtil::loadTimezone(&timezone);
 //  assert(        0 == strcmp("America/New_York", timezone.c_str()));
 //
-//  bdlt::LocalTimeOffset::localTimeOffset(&offsetInSeconds,
-//                                        bdlt::Datetime(2013, 12, 21));
+//  offsetInSeconds =
+//      bdlt::LocalTimeOffset::localTimeOffset(bdlt::Datetime(2013, 12, 21))
+//                                                             .totalSeconds();
 //  assert(-5 * 3600 == offsetInSeconds);
 //  assert(        3 == baltzo::LocalTimeOffsetUtil::updateCount());
 //  baltzo::LocalTimeOffsetUtil::loadTimezone(&timezone);
@@ -117,10 +118,9 @@ BSLS_IDENT("$Id: $")
 //
 // Finally, we restore the original local time callback.
 //..
-//  previousCallback = bdlt::CurrentTime::setLoadLocalTimeOffsetCallback(
+//  previousCallback = bdlt::LocalTimeOffset::setLocalTimeOffsetCallback(
 //                                                           previousCallback);
-//  assert(previousCallback
-//      == &baltzo::LocalTimeOffsetUtil::loadLocalTimeOffset);
+//  ASSERT(previousCallback == &baltzo::LocalTimeOffsetUtil::localTimeOffset);
 //..
 
 #ifndef INCLUDED_BALTZO_LOCALTIMEPERIOD
