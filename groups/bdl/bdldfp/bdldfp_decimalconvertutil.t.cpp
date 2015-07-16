@@ -8070,7 +8070,7 @@ int main(int argc, char* argv[])
         //:   the two 'double' values are identical.
         //:
         //: 2 For each digit string of the form -/+NNNNNNeE, -9 <= E <= 4,
-        //:   use strtof to convert it to 'float', convert the result to
+        //:   use sscanf to convert it to 'float', convert the result to
         //:   'Decimal64', then convert that back to 'float', and verify that
         //:   the two 'float' values are identical.  (The exponent range is
         //:   somewhat arbitrary; it overlaps the optimized range on both
@@ -8091,7 +8091,8 @@ int main(int argc, char* argv[])
                 for (int n = -999999; n <= 999999; ++n) {
                     char buf[30];
                     sprintf(buf, "%de%d", n, e);
-                    float b = strtof(buf, 0);
+                    float b;
+                    sscanf(buf, "%f", &b);
                     Decimal64 d = Util::decimal64FromFloat(b);
                     Decimal64 p = PARSEDEC64(buf);
                     float t = Util::decimalToFloat(d);
@@ -8152,7 +8153,8 @@ int main(int argc, char* argv[])
         for (int i = 2; i < argc; ++i) {
             const char *s = argv[i];
             {
-                float b = strtof(s, 0);
+                float b;
+                sscanf(s, "%f", &b);
                 Decimal64 d = Util::decimal64FromFloat(b);
                 float t = Util::decimalToFloat(d);
                 ASSERTV(s, d, b, t, b == t);
