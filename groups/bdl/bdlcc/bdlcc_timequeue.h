@@ -544,8 +544,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLMCA_POOLALLOCATOR
-#include <bdlmca_poolallocator.h>
+#ifndef INCLUDED_BDLMA_CONCURRENTPOOLALLOCATOR
+#include <bdlma_concurrentpoolallocator.h>
 #endif
 
 #ifndef INCLUDED_BDLMTT_LOCKGUARD

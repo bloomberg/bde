@@ -1,8 +1,11 @@
-// bdlmca_deleter.cpp          -*-C++-*-
-#include <bdlmca_deleter.h>
+// bdlma_defaultdeleter.cpp          -*-C++-*-
+#include <bdlma_defaultdeleter.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlmca_deleter_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdlma_defaultdeleter_cpp,"$Id$ $CSID$")
+
+#include <bslma_testallocator.h>    // for testing only
+#include <bsl_memory.h>        // for testing only
 
 // ---------------------------------------------------------------------------
 // NOTICE:

@@ -12,14 +12,14 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlmca::ProtectableMultipool: protectable pools of memory
 //
-//@SEE_ALSO: bdlma_xxxprotectableblocklist, bdlmca_multipool
+//@SEE_ALSO: bdlma_xxxprotectableblocklist, bdlma_concurrentmultipool
 //
 //@AUTHOR: Henry Verschell (hverschell)
 //
-//@DESCRIPTION: This component implements a memory manager, 'bdlmca::Multipool',
-// that maintains a configurable number of 'bdlmca::Pool' objects, each
+//@DESCRIPTION: This component implements a memory manager, 'bdlma::ConcurrentMultipool',
+// that maintains a configurable number of 'bdlma::ConcurrentPool' objects, each
 // dispensing memory blocks of a unique size, and provides modifiers to change
-// the access protection of that managed memory.  The 'bdlmca::Pool' objects are
+// the access protection of that managed memory.  The 'bdlma::ConcurrentPool' objects are
 // placed in an array, starting at index 0, with each successive pool managing
 // memory blocks of a size twice that of the previous pool.  Each multipool
 // allocation (deallocation) request allocates memory from (returns memory to
@@ -161,8 +161,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLMCA_MULTIPOOL
-#include <bdlmca_multipool.h>
+#ifndef INCLUDED_BDLMA_CONCURRENTMULTIPOOL
+#include <bdlma_concurrentmultipool.h>
 #endif
 
 #ifndef INCLUDED_BDLMCA_XXXPROTECTABLEBLOCKDISPENSERADAPTER
@@ -238,7 +238,7 @@ class ProtectableMultipool {
     ProtectableSequentialAllocator
                                    d_allocator;        // underlies pools
 
-    Multipool               *d_pools_p;          // multi pool
+    bdlma::ConcurrentMultipool         *d_pools_p;          // multi pool
 
     // NOT IMPLEMENTED
     ProtectableMultipool(const ProtectableMultipool&);

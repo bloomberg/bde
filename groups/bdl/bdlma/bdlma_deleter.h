@@ -1,6 +1,6 @@
-// bdlmca_deleter.h             -*-C++-*-
-#ifndef INCLUDED_BDLMCA_DELETER
-#define INCLUDED_BDLMCA_DELETER
+// bdlma_deleter.h             -*-C++-*-
+#ifndef INCLUDED_BDLMA_DELETER
+#define INCLUDED_BDLMA_DELETER
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -11,7 +11,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a protocol for deleting objects of parameterized type.
 //
 //@CLASSES:
-//   bdlmca::Deleter: protocol class for deleting objects
+//   bdlma::Deleter: protocol class for deleting objects
 //
 //@SEE_ALSO: bslma_allocator
 //
@@ -37,7 +37,7 @@ BSLS_IDENT("$Id: $")
 // Next, create a concrete deleter for 'object' using the same allocator as was
 // used to allocate its footprint:
 //..
-//      bdlmca::DefaultDeleter<my_Obj> deleter(basicAllocator);
+//      bdlma::DefaultDeleter<my_Obj> deleter(basicAllocator);
 //..
 // Finally, create a shared pointer passing to it 'object' and the address of
 // 'deleter':
@@ -48,7 +48,7 @@ BSLS_IDENT("$Id: $")
 // When the reference count of 'handle' goes to 0, 'object' is automatically
 // deleted via the 'deleteObject' method of 'deleter', which in turn will
 // invoke the destructor of 'object'.  Note that since the type of the deleter
-// used to instantiate 'handle' is 'bdlmca::Deleter<my_Obj>', any kind of deleter
+// used to instantiate 'handle' is 'bdlma::Deleter<my_Obj>', any kind of deleter
 // that implements this protocol can be passed.  Also note, on the downside,
 // that the lifetime of 'deleter' must be longer than the lifetime of all
 // associated instances.
@@ -62,7 +62,7 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-namespace bdlmca {
+namespace bdlma {
                             // ===================
                             // class Deleter
                             // ===================

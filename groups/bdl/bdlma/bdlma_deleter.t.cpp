@@ -1,6 +1,6 @@
-// bdlmca_deleter.t.cpp        -*-C++-*-
+// bdlma_deleter.t.cpp        -*-C++-*-
 
-#include <bdlmca_deleter.h>
+#include <bdlma_deleter.h>
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // memcpy()
@@ -19,7 +19,7 @@ using namespace bsl;  // automatically added by script
 // and links, and (2) that the overloaded new operator correctly forwards
 // the call to the allocate method of the supplied deleter.
 //-----------------------------------------------------------------------------
-// [ 1] virtual ~bdlmca::Deleter();
+// [ 1] virtual ~bdlma::Deleter();
 // [ 1] virtual void delete(TYPE *instance) = 0;
 //-----------------------------------------------------------------------------
 // [ 1] PROTOCOL TEST - Make sure derived class compiles and links.
@@ -55,7 +55,7 @@ static void aSsErT(int c, const char *s, int i)
 class my_Obj {
 };
 
-class my_Deleter : public bdlmca::Deleter<my_Obj> {
+class my_Deleter : public bdlma::Deleter<my_Obj> {
   // Test class used to verify protocol.
     int *d_destructorFlag_p;
     int  d_fun;  // holds code describing function:
@@ -87,18 +87,18 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         // PROTOCOL TEST:
         //   All we need to do is make sure that a subclass of the
-        //   'bdlmca::Deleter' class compiles and links when all virtual
+        //   'bdlma::Deleter' class compiles and links when all virtual
         //   functions are defined.
         //
         // Plan:
-        //   Construct an object of a class derived from 'bdlmca::Deleter'.
+        //   Construct an object of a class derived from 'bdlma::Deleter'.
         //   Upcast a reference to the object to the base class
-        //   'bdlmca::Deleter'.  Using the base class reference invoke both
+        //   'bdlma::Deleter'.  Using the base class reference invoke both
         //   'delete' method and verify that the correct implementations of the
         //   methods are called.
         //
         // Testing:
-        //   virtual ~bdlmca::Deleter();
+        //   virtual ~bdlma::Deleter();
         //   virtual void deleteObject(my_Obj *object) = 0;
         // --------------------------------------------------------------------
 
@@ -106,16 +106,16 @@ int main(int argc, char *argv[]) {
                                   << "=============" << endl;
         int destructorFlag = 0;
         my_Deleter myA(&destructorFlag);
-        bdlmca::Deleter<my_Obj>& a = myA;
+        bdlma::Deleter<my_Obj>& a = myA;
         my_Obj X;
 
         if (verbose) cout << "\tTesting 'delete'" << endl;
         {
             a.deleteObject(&X);  ASSERT(1 == myA.fun());
         }
-        if (verbose) cout << "\tTesting '~bdlmca::Deleter'" << endl;
+        if (verbose) cout << "\tTesting '~bdlma::Deleter'" << endl;
         {
-            bdlmca::Deleter<my_Obj> *mX = new my_Deleter(&destructorFlag);
+            bdlma::Deleter<my_Obj> *mX = new my_Deleter(&destructorFlag);
             delete mX;
             ASSERT(1 == destructorFlag);
         }

@@ -1,6 +1,6 @@
-// bdlmca_fixedpool.t.cpp  -*-C++-*-
+// bdlma_concurrentfixedpool.t.cpp  -*-C++-*-
 
-#include <bdlmca_fixedpool.h>
+#include <bdlma_concurrentfixedpool.h>
 #include <bdlmtt_barrier.h>
 #include <bdlmtt_xxxthread.h>
 #include <bslma_testallocator.h>          // for testing only
@@ -78,7 +78,7 @@ static void aSsErT(int c, const char *s, int i) {
 //                   GLOBAL TYPEDEFS, CONSTANTS, AND VARIABLES
 //-----------------------------------------------------------------------------
 
-typedef bdlmca::FixedPool Obj;
+typedef bdlma::ConcurrentFixedPool Obj;
 
 static int verbose;
 static int veryVerbose;
@@ -127,7 +127,7 @@ class my_JobQueue {
 
    bdlmtt::Mutex       d_lock;
    bsl::deque<Job*>  d_queue;
-   bdlmca::FixedPool   d_pool;
+   bdlma::ConcurrentFixedPool   d_pool;
    bslma::Allocator *d_allocator_p;
 
  public:
@@ -285,7 +285,7 @@ struct Item {
 
 struct Control {
     bdlmtt::Barrier         *d_barrier;
-    bdlmca::FixedPool       *d_fixedpool;
+    bdlma::ConcurrentFixedPool       *d_fixedpool;
     int                    d_iterations;
     int                    d_numObjects;
     int                    d_load;
@@ -303,7 +303,7 @@ void bench(Control *control)
 {
     int threadId = bdlmtt::ThreadUtil::selfIdAsInt();
 
-    bdlmca::FixedPool *pool = control->d_fixedpool;
+    bdlma::ConcurrentFixedPool *pool = control->d_fixedpool;
     int numObjects = control->d_numObjects;
     int load = control->d_load;
 
@@ -336,7 +336,7 @@ void bench(Control *control)
 void runtest(int numIterations, int numObjects, int numThreads,
              int load, int backoff)
 {
-    bdlmca::FixedPool pool(sizeof(Item), numThreads * numObjects);
+    bdlma::ConcurrentFixedPool pool(sizeof(Item), numThreads * numObjects);
     pool.setBackoffLevel(backoff);
 
     ASSERT(backoff == pool.backoffLevel());
@@ -369,14 +369,14 @@ struct Item {
 
 struct Control {
     bdlmtt::Barrier         *d_barrier;
-    bdlmca::FixedPool       *d_fixedpool;
+    bdlma::ConcurrentFixedPool       *d_fixedpool;
     int                    d_iterations;
     bdlmtt::AtomicInt         d_allocationCount;
 };
 
 void bench(Control *control)
 {
-    bdlmca::FixedPool *pool = control->d_fixedpool;
+    bdlma::ConcurrentFixedPool *pool = control->d_fixedpool;
     const int poolSize = pool->poolSize();
     const int iterations = control->d_iterations;
     bdlmtt::AtomicInt& allocationCount = control->d_allocationCount;
@@ -419,7 +419,7 @@ void bench(Control *control)
 
 void runtest(int numIterations, int numObjects, int numThreads)
 {
-    bdlmca::FixedPool pool(sizeof(Item), numObjects);
+    bdlma::ConcurrentFixedPool pool(sizeof(Item), numObjects);
 
     bdlmtt::Barrier barrier(numThreads);
 
@@ -896,7 +896,7 @@ int main(int argc, char *argv[]) {
         //   memory has been released by the pools.
         //
         // Testing:
-        //   ~bdlmca::FixedPool();
+        //   ~bdlma::ConcurrentFixedPool();
         //   void release();
         // --------------------------------------------------------------------
 

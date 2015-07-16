@@ -1,6 +1,6 @@
-// bdlmca_multipool.h                                                  -*-C++-*-
-#ifndef INCLUDED_BDLMCA_MULTIPOOL
-#define INCLUDED_BDLMCA_MULTIPOOL
+// bdlma_concurrentmultipool.h                                                  -*-C++-*-
+#ifndef INCLUDED_BDLMA_CONCURRENTMULTIPOOL
+#define INCLUDED_BDLMA_CONCURRENTMULTIPOOL
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,25 +10,25 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a memory manager to manage pools of varying block sizes.
 //
 //@CLASSES:
-//   bdlmca::Multipool: memory manager that manages pools of varying block sizes
+//   bdlma::ConcurrentMultipool: memory manager that manages pools of varying block sizes
 //
-//@SEE_ALSO: bdlmca_pool, bdlmca_multipoolallocator
+//@SEE_ALSO: bdlma_concurrentpool, bdlmca_multipoolallocator
 //
 //@AUTHOR: Henry Verschell (hverschell)
 //
-//@DESCRIPTION: This component implements a memory manager, 'bdlmca::Multipool',
-// that maintains a configurable number of 'bdlmca::Pool' objects, each
-// dispensing memory blocks of a unique size.  The 'bdlmca::Pool' objects are
+//@DESCRIPTION: This component implements a memory manager, 'bdlma::ConcurrentMultipool',
+// that maintains a configurable number of 'bdlma::ConcurrentPool' objects, each
+// dispensing memory blocks of a unique size.  The 'bdlma::ConcurrentPool' objects are
 // placed in an array, starting at index 0, with each successive pool managing
 // memory blocks of a size twice that of the previous pool.  Each multipool
 // allocation (deallocation) request allocates memory from (returns memory to)
 // the internal pool managing memory blocks of the smallest size not less than
 // the requested size, or else from a separately managed list of memory blocks,
 // if no internal pool managing memory block of sufficient size exists.  Both
-// the 'release' method and the destructor of a 'bdlmca::Multipool' release all
+// the 'release' method and the destructor of a 'bdlma::ConcurrentMultipool' release all
 // memory currently allocated via the object.
 //
-// A 'bdlmca::Multipool' can be depicted visually:
+// A 'bdlma::ConcurrentMultipool' can be depicted visually:
 //..
 //                    +-----+--- memory blocks of 8 bytes
 //                    |     |
@@ -44,20 +44,20 @@ BSLS_IDENT("$Id: $")
 //  |        |
 //   ========
 //      |
-//      +------- array of 'bdlmca::Pool'
+//      +------- array of 'bdlma::ConcurrentPool'
 //..
 // Note that a "chunk" is a large, contiguous block of memory, internal to a
-// 'bdlmca::Pool' maintained by the multipool, from which memory blocks of
+// 'bdlma::ConcurrentPool' maintained by the multipool, from which memory blocks of
 // uniform size are dispensed to users.
 //
 ///Thread Safety
 ///-------------
-// 'bdlmca::Multipool' is *fully thread-safe*, meaning any operation on the same
+// 'bdlma::ConcurrentMultipool' is *fully thread-safe*, meaning any operation on the same
 // object can be safely invoked from any thread.
 //
 ///Configuration at Construction
 ///-----------------------------
-// When creating a 'bdlmca::Multipool', clients can optionally configure:
+// When creating a 'bdlma::ConcurrentMultipool', clients can optionally configure:
 //
 //: 1 NUMBER OF POOLS -- the number of internal pools (the block size managed
 //:   by the first pool is eight bytes, with each successive pool managing
@@ -91,7 +91,7 @@ BSLS_IDENT("$Id: $")
 // pool's memory) is 1, and each pool's chunk size grows geometrically until it
 // reaches an implementation-defined maximum, at which it is capped.  Finally,
 // unless otherwise specified, all memory comes from the allocator that was the
-// currently installed default allocator at the time the 'bdlmca::Multipool' was
+// currently installed default allocator at the time the 'bdlma::ConcurrentMultipool' was
 // created.
 //
 // Using the various pooling options described above, we can configure the
@@ -106,16 +106,16 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-///Example 1: Using a 'bdlmca::Multipool' Directly
+///Example 1: Using a 'bdlma::ConcurrentMultipool' Directly
 ///- - - - - - - - - - - - - - - - - - - - - - -
-// A 'bdlmca::Multipool' can be used by containers that hold different types of
+// A 'bdlma::ConcurrentMultipool' can be used by containers that hold different types of
 // elements, each of uniform size, for efficient memory allocation of new
 // elements.  Suppose we have a factory class, 'my_MessageFactory', that
 // creates messages based on user requests.  Each message is created with the
 // most efficient memory storage possible - using predefined 8-byte, 16-byte
 // and 32-byte buffers.  If the message size exceeds the three predefined
 // values, a generic message is used.  For efficient memory allocation of
-// messages, we use a 'bdlmca::Multipool'.
+// messages, we use a 'bdlma::ConcurrentMultipool'.
 //
 // First, we define our message types as follows:
 //..
@@ -254,7 +254,7 @@ BSLS_IDENT("$Id: $")
 //      // factory is the same as this factory.
 //
 //      // DATA
-//      bdlmca::Multipool d_multipool;  // multipool used to supply memory
+//      bdlma::ConcurrentMultipool d_multipool;  // multipool used to supply memory
 //
 //    public:
 //      // CREATORS
@@ -330,7 +330,7 @@ BSLS_IDENT("$Id: $")
 //  {
 //  }
 //..
-// A 'bdlmca::Multipool' is ideal for allocating the different sized messages
+// A 'bdlma::ConcurrentMultipool' is ideal for allocating the different sized messages
 // since repeated deallocations might be necessary (which renders a
 // 'bcema::SequentialPool' unsuitable) and the sizes of these types are all
 // different:
@@ -365,12 +365,12 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 //
-///Example 2: Implementing an Allocator Using 'bdlmca::Multipool'
+///Example 2: Implementing an Allocator Using 'bdlma::ConcurrentMultipool'
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // 'bslma::Allocator' is used throughout the interfaces of BDE components.
 // Suppose we would like to create a multipool allocator,
-// 'my_MultipoolAllocator', that allocates memory from multiple 'bdlmca::Pool'
-// objects in a similar fashion to 'bdlmca::Multipool'.  This class can be used
+// 'my_MultipoolAllocator', that allocates memory from multiple 'bdlma::ConcurrentPool'
+// objects in a similar fashion to 'bdlma::ConcurrentMultipool'.  This class can be used
 // directly to implement such an allocator.
 //
 // Note that the documentation for this class is simplified for this usage
@@ -384,7 +384,7 @@ BSLS_IDENT("$Id: $")
 //      // being twice that of the previous one.
 //
 //      // DATA
-//      bdlmca::Multipool d_multiPool;  // memory manager for allocated memory
+//      bdlma::ConcurrentMultipool d_multiPool;  // memory manager for allocated memory
 //                                    // blocks
 //
 //    public:
@@ -443,8 +443,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLMCA_THREADENABLEDALLOCATORADAPTER
-#include <bdlmca_threadenabledallocatoradapter.h>
+#ifndef INCLUDED_BDLMA_CONCURRENTALLOCATORADAPTER
+#include <bdlma_concurrentallocatoradapter.h>
 #endif
 
 #ifndef INCLUDED_BDLMTT_XXXTHREAD
@@ -472,15 +472,15 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
+namespace bdlma {
 
-
-namespace bdlmca {class Pool;
+class ConcurrentPool;
 
                       // =====================
-                      // class Multipool
+                      // class ConcurrentMultipool
                       // =====================
 
-class Multipool {
+class ConcurrentMultipool {
     // This class implements a memory manager that maintains a configurable
     // number of 'bdlma::Pool' objects, each dispensing memory blocks of a
     // unique size.  The 'Pool' objects are placed in an array, with each
@@ -509,7 +509,7 @@ class Multipool {
     };
 
     // DATA
-    Pool      *d_pools_p;       // array of memory pools, each dispensing
+    ConcurrentPool      *d_pools_p;       // array of memory pools, each dispensing
                                       // fixed-size memory blocks
 
     int              d_numPools;      // number of memory pools
@@ -523,13 +523,13 @@ class Multipool {
 
     bdlmtt::Mutex      d_mutex;         // synchronize data access
 
-    ThreadEnabledAllocatorAdapter
+    ConcurrentAllocatorAdapter
                      d_allocAdapter;  // thread-safe adapter
 
   private:
     // NOT IMPLEMENTED
-    Multipool(const Multipool&);
-    Multipool& operator=(const Multipool&);
+    ConcurrentMultipool(const ConcurrentMultipool&);
+    ConcurrentMultipool& operator=(const ConcurrentMultipool&);
 
    private:
     // PRIVATE MANIPULATORS
@@ -556,15 +556,15 @@ class Multipool {
 
   public:
     // CREATORS
-    Multipool(bslma::Allocator                 *basicAllocator = 0);
-    Multipool(int                               numPools,
+    ConcurrentMultipool(bslma::Allocator                 *basicAllocator = 0);
+    ConcurrentMultipool(int                               numPools,
                     bslma::Allocator                 *basicAllocator = 0);
-    Multipool(bsls::BlockGrowth::Strategy       growthStrategy,
+    ConcurrentMultipool(bsls::BlockGrowth::Strategy       growthStrategy,
                     bslma::Allocator                 *basicAllocator = 0);
-    Multipool(int                               numPools,
+    ConcurrentMultipool(int                               numPools,
                     bsls::BlockGrowth::Strategy       growthStrategy,
                     bslma::Allocator                 *basicAllocator = 0);
-    Multipool(int                               numPools,
+    ConcurrentMultipool(int                               numPools,
                     bsls::BlockGrowth::Strategy       growthStrategy,
                     int                               maxBlocksPerChunk,
                     bslma::Allocator                 *basicAllocator = 0);
@@ -599,18 +599,18 @@ class Multipool {
         // growth would exceed the maximum value, the chunk size is capped at
         // that value).
 
-    Multipool(int                                numPools,
+    ConcurrentMultipool(int                                numPools,
                     const bsls::BlockGrowth::Strategy *growthStrategyArray,
                     bslma::Allocator                  *basicAllocator = 0);
-    Multipool(int                                numPools,
+    ConcurrentMultipool(int                                numPools,
                     const bsls::BlockGrowth::Strategy *growthStrategyArray,
                     int                                maxBlocksPerChunk,
                     bslma::Allocator                  *basicAllocator = 0);
-    Multipool(int                                numPools,
+    ConcurrentMultipool(int                                numPools,
                     bsls::BlockGrowth::Strategy        growthStrategy,
                     const int                         *maxBlocksPerChunkArray,
                     bslma::Allocator                  *basicAllocator = 0);
-    Multipool(int                                numPools,
+    ConcurrentMultipool(int                                numPools,
                     const bsls::BlockGrowth::Strategy *growthStrategyArray,
                     const int                         *maxBlocksPerChunkArray,
                     bslma::Allocator                  *basicAllocator = 0);
@@ -651,7 +651,7 @@ class Multipool {
         // would exceed a maximum value, the chunk size is capped at that
         // value).
 
-    ~Multipool();
+    ~ConcurrentMultipool();
         // Destroy this multipool.  All memory allocated from this memory pool
         // is released.
 
@@ -720,33 +720,33 @@ class Multipool {
 // ============================================================================
 
                       // ---------------------
-                      // class Multipool
+                      // class ConcurrentMultipool
                       // ---------------------
 
 // MANIPULATORS
 template <class TYPE>
 inline
-void Multipool::deleteObject(const TYPE *object)
+void ConcurrentMultipool::deleteObject(const TYPE *object)
 {
     bslma::DeleterHelper::deleteObject(object, this);
 }
 
 template <class TYPE>
 inline
-void Multipool::deleteObjectRaw(const TYPE *object)
+void ConcurrentMultipool::deleteObjectRaw(const TYPE *object)
 {
     bslma::DeleterHelper::deleteObjectRaw(object, this);
 }
 
 // ACCESSORS
 inline
-int Multipool::numPools() const
+int ConcurrentMultipool::numPools() const
 {
     return d_numPools;
 }
 
 inline
-int Multipool::maxPooledBlockSize() const
+int ConcurrentMultipool::maxPooledBlockSize() const
 {
     return d_maxBlockSize;
 }

@@ -34,11 +34,11 @@ BSLS_IDENT("$Id: $")
 // supplies reasonable defaults.  Upon destruction, the object pool deallocates
 // all memory associated with the objects in the pool.
 //
-// The object pool also implements the 'bdlmca::Factory' protocol for TYPE.
+// The object pool also implements the 'bdlma::Factory' protocol for TYPE.
 // Its 'createObject' and 'deleteObject' methods are provided *only* for this
 // purpose and should not be invoked directly (they are just synonyms for
 // 'getObject' and 'releaseObject', respectively).  The pool can thus be used
-// anywhere a 'bdlmca::Factory' (or, therefore, a 'bdlmca::Deleter') is expected.
+// anywhere a 'bdlma::Factory' (or, therefore, a 'bdlma::Deleter') is expected.
 //
 ///Integrating with 'bslma::ManagedPtr' and 'bsl::shared_ptr'
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -308,8 +308,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLMCA_FACTORY
-#include <bdlmca_factory.h>
+#ifndef INCLUDED_BDLMA_FACTORY
+#include <bdlma_factory.h>
 #endif
 
 #ifndef INCLUDED_BDLMTT_LOCKGUARD
@@ -608,9 +608,9 @@ template <class TYPE,
           class CREATOR  = ObjectPoolFunctors::DefaultCreator,
           class RESETTER = ObjectPoolFunctors::Nil<TYPE>
          >
-class ObjectPool : public bdlmca::Factory<TYPE> {
+class ObjectPool : public bdlma::Factory<TYPE> {
     // This class provides a thread-safe pool of reusable objects.  It also
-    // implements the 'bdlmca::Factory' protocol: "creating" objects gets them
+    // implements the 'bdlma::Factory' protocol: "creating" objects gets them
     // from the pool and "deleting" objects returns them to the pool.
 
     // PRIVATE TYPES
@@ -913,13 +913,13 @@ class ObjectPool : public bdlmca::Factory<TYPE> {
         // and the objects that were allocated from the pool and not yet
         // released.
 
-    // 'bdlmca::Factory' INTERFACE
+    // 'bdlma::Factory' INTERFACE
     virtual TYPE *createObject();
-        // This concrete implementation of 'bdlmca::Factory::createObject'
+        // This concrete implementation of 'bdlma::Factory::createObject'
         // invokes 'getObject'.  This should not be invoked directly.
 
     virtual void deleteObject(TYPE *object);
-        // This concrete implementation of 'bdlmca::Factory::deleteObject'
+        // This concrete implementation of 'bdlma::Factory::deleteObject'
         // invokes 'releaseObject' on the specified 'object', returning it
         // to this pool.  Note that this does *not* destroy the object and
         // should not be invoked directly.

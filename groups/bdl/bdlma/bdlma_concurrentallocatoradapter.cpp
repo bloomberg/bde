@@ -1,32 +1,32 @@
-// bdlmca_threadenabledallocatoradapter.cpp          -*-C++-*-
-#include <bdlmca_threadenabledallocatoradapter.h>
+// bdlma_concurrentallocatoradapter.cpp          -*-C++-*-
+#include <bdlma_concurrentallocatoradapter.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlmca_threadenabledallocatoradapter_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdlma_concurrentallocatoradapter_cpp,"$Id$ $CSID$")
 
 #include <bdlmtt_lockguard.h>
 #include <bdlmtt_xxxthread.h>
 
 namespace BloombergLP {
 
-namespace bdlmca {
+namespace bdlma {
             // -----------------------------------------
-            // class ThreadEnabledAllocatorAdapter
+            // class ConcurrentAllocatorAdapter
             // -----------------------------------------
 
 // CREATORS
-ThreadEnabledAllocatorAdapter::~ThreadEnabledAllocatorAdapter()
+ConcurrentAllocatorAdapter::~ConcurrentAllocatorAdapter()
 {
 }
 
 // MANIPULATORS
-void *ThreadEnabledAllocatorAdapter::allocate(size_type size)
+void *ConcurrentAllocatorAdapter::allocate(size_type size)
 {
     bdlmtt::LockGuard<bdlmtt::Mutex> guard(d_mutex_p);
     return d_allocator_p->allocate(size);
 }
 
-void ThreadEnabledAllocatorAdapter::deallocate(void *address)
+void ConcurrentAllocatorAdapter::deallocate(void *address)
 {
     bdlmtt::LockGuard<bdlmtt::Mutex> guard(d_mutex_p);
     d_allocator_p->deallocate(address);

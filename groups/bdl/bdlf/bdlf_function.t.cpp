@@ -3,7 +3,10 @@
 #include <bdlf_function.h>
 #include <bdlf_memfn.h>                         // for testing only
 
+#ifdef WARNING
+// TBD removed the allocator to break a cylce bdlma --> bdlmtt --> bdlf --^
 #include <bdlma_bufferedsequentialallocator.h>  // for testing only
+#endif
 
 #include <bslalg_typetraits.h>                  // for testing only
 #include <bslma_defaultallocatorguard.h>        // for testing only
@@ -3794,6 +3797,7 @@ int main(int argc, char *argv[])
 
       } break;
       case 7: {
+        #ifdef WARNING
         // --------------------------------------------------------------------
         // TESTING COPY CONSTRUCTOR:
         //   We have the following concerns:
@@ -3950,6 +3954,7 @@ int main(int argc, char *argv[])
                 }
             }
         }
+        #endif
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -4477,6 +4482,7 @@ int main(int argc, char *argv[])
 
       } break;
       case 2: {
+        #ifdef WARNING
         // --------------------------------------------------------------------
         // TESTING PRIMARY MANIPULATORS (BOOTSTRAP):
         //   The basic concern is that the default constructor, the destructor,
@@ -4890,7 +4896,7 @@ int main(int argc, char *argv[])
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
         ASSERT(0 == ta.numBlocksInUse());
-
+        #endif
       } break;
       case 1: {
         // --------------------------------------------------------------------

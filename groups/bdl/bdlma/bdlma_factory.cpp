@@ -1,8 +1,8 @@
-// bdlmca_factory.cpp          -*-C++-*-
-#include <bdlmca_factory.h>
+// bdlma_factory.cpp          -*-C++-*-
+#include <bdlma_factory.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlmca_factory_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdlma_factory_cpp,"$Id$ $CSID$")
 
 // ---------------------------------------------------------------------------
 // NOTICE:

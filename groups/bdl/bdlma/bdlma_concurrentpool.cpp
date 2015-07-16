@@ -1,8 +1,8 @@
-// bdlmca_pool.cpp                                                     -*-C++-*-
-#include <bdlmca_pool.h>
+// bdlma_concurrentpool.cpp                                                     -*-C++-*-
+#include <bdlma_concurrentpool.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlmca_pool_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdlma_concurrentpool_cpp,"$Id$ $CSID$")
 
 #include <bdlmtt_lockguard.h>
 
@@ -26,7 +26,7 @@ namespace {
 struct LLink {
     // This 'struct' implements a link data structure that stores the address
     // of the next link, used to implement the internal linked list of free
-    // memory blocks.  Note that this type is copied from 'bdlmca_pool.h' to
+    // memory blocks.  Note that this type is copied from 'bdlma_concurrentpool.h' to
     // provide access to this type from static methods.
 
     union {
@@ -76,7 +76,7 @@ static inline
 int computeInternalBlockSize(int blockSize)
     // Return the number of bytes that must be allocated to provide an aligned
     // block of memory of the specified 'blockSize' that can also be used to
-    // represent a 'object' LLink (on the 'bdlmca::Pool' objects free list).
+    // represent a 'object' LLink (on the 'bdlma::ConcurrentPool' objects free list).
     // Note that this value is the maximum of either the size of a 'LLink'
     // object or 'blockSize' rounded up to the alignment required for a
     // 'LLink' object (i.e., the maximum platform alignment).
@@ -121,13 +121,13 @@ void replenishImp(bsls::AtomicPointer<LLink>       *nextList,
     } while (old != nextList->testAndSwap(old, toLink(start)));
 }
 
-namespace bdlmca {
+namespace bdlma {
                         // ----------------
-                        // class Pool
+                        // class ConcurrentPool
                         // ----------------
 
 // PRIVATE MANIPULATORS
-void Pool::replenish()
+void ConcurrentPool::replenish()
 {
     replenishImp(reinterpret_cast<bsls::AtomicPointer<LLink> *>(&d_freeList),
                  &d_blockList,
@@ -147,7 +147,7 @@ void Pool::replenish()
 }
 
 // CREATORS
-Pool::Pool(int blockSize, bslma::Allocator *basicAllocator)
+ConcurrentPool::ConcurrentPool(int blockSize, bslma::Allocator *basicAllocator)
 : d_blockSize(blockSize)
 , d_chunkSize(INITIAL_CHUNK_SIZE)
 , d_maxBlocksPerChunk(MAX_CHUNK_SIZE)
@@ -160,7 +160,7 @@ Pool::Pool(int blockSize, bslma::Allocator *basicAllocator)
     d_internalBlockSize = computeInternalBlockSize(blockSize);
 }
 
-Pool::Pool(int                          blockSize,
+ConcurrentPool::ConcurrentPool(int                          blockSize,
                        bsls::BlockGrowth::Strategy  growthStrategy,
                        bslma::Allocator            *basicAllocator)
 : d_blockSize(blockSize)
@@ -176,7 +176,7 @@ Pool::Pool(int                          blockSize,
     d_internalBlockSize = computeInternalBlockSize(blockSize);
 }
 
-Pool::Pool(int                          blockSize,
+ConcurrentPool::ConcurrentPool(int                          blockSize,
                        bsls::BlockGrowth::Strategy  growthStrategy,
                        int                          maxBlocksPerChunk,
                        bslma::Allocator            *basicAllocator)
@@ -194,14 +194,14 @@ Pool::Pool(int                          blockSize,
     d_internalBlockSize = computeInternalBlockSize(blockSize);
 }
 
-Pool::~Pool()
+ConcurrentPool::~ConcurrentPool()
 {
     BSLS_ASSERT(static_cast<int>(sizeof(LLink)) <= d_internalBlockSize);
     BSLS_ASSERT(0 != d_chunkSize);
 }
 
 // MANIPULATORS
-void *Pool::allocate()
+void *ConcurrentPool::allocate()
 {
     Link *p;
     for (;;) {
@@ -293,7 +293,7 @@ void *Pool::allocate()
     return static_cast<void *>(const_cast<Link **>(&p->d_next_p));
 }
 
-void Pool::deallocate(void *address)
+void ConcurrentPool::deallocate(void *address)
 {
     Link *p = static_cast<Link *>(static_cast<void *>(
                      static_cast<char *>(address) - offsetof(Link, d_next_p)));
@@ -331,7 +331,7 @@ void Pool::deallocate(void *address)
     }
 }
 
-void Pool::reserveCapacity(int numBlocks)
+void ConcurrentPool::reserveCapacity(int numBlocks)
 {
     BSLS_ASSERT(0 <= numBlocks);
 

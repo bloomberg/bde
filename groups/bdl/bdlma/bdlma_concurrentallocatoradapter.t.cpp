@@ -1,6 +1,6 @@
- // bdlmca_threadenabledallocatoradapter.t.cpp  -*-C++-*-
+ // bdlma_concurrentallocatoradapter.t.cpp  -*-C++-*-
 
-#include <bdlmca_threadenabledallocatoradapter.h>
+#include <bdlma_concurrentallocatoradapter.h>
 
 #include <bdlmtt_xxxthread.h>
 #include <bdlmtt_lockguard.h>
@@ -28,7 +28,7 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The 'bdlmca::ThreadEnabledAllocatorAdapter' class consists of one
+// The 'bdlma::ConcurrentAllocatorAdapter' class consists of one
 // constructor, a destructor, and four manipulators.  The manipulators are
 // used to allocate, deallocate, and reserve memory.  Since this component is
 // a memory manager, the 'bslma_testallocator' component is used extensively
@@ -41,9 +41,9 @@ using namespace bsl;  // automatically added by script
 // component).  Several small helper functions are also used to facilitate
 // testing.
 //-----------------------------------------------------------------------------
-// [2] bdlmca::ThreadEnabledAllocatorAdapter(int               numPools,
+// [2] bdlma::ConcurrentAllocatorAdapter(int               numPools,
 //                                         bslma::Allocator *ba = 0);
-// [2] ~bdlmca::ThreadEnabledAllocatorAdapter();
+// [2] ~bdlma::ConcurrentAllocatorAdapter();
 // [3] void *allocate(int size);
 // [4] void deallocate(void *address);
 // [5] void release();
@@ -95,7 +95,7 @@ static void aSsErT(int c, const char *s, int i) {
 //                       GLOBAL TYPES AND CONSTANTS
 //-----------------------------------------------------------------------------
 
-typedef bdlmca::ThreadEnabledAllocatorAdapter Obj;
+typedef bdlma::ConcurrentAllocatorAdapter Obj;
 
 //=============================================================================
 //                      HELPER FUNCTIONS FOR TESTING
@@ -167,7 +167,7 @@ struct WorkerArgs {
 bdlmtt::Barrier g_barrier(NUM_THREADS);
 extern "C" void *workerThread(void *arg) {
     // Perform a series of allocate, and deallocate operations on the
-    // 'bdlmca::ThreadEnabledAllocatorAdapter' and verify their results.  This
+    // 'bdlma::ConcurrentAllocatorAdapter' and verify their results.  This
     // operation is intended to be a thread entry point.  Cast the specified
     // 'args' to a 'WorkerArgs', and perform a series of
     // '(WorkerArgs *)args->d_numSizes' allocations using the corresponding
@@ -279,7 +279,7 @@ extern "C" void *workerThread(void *arg) {
     };
 //..
 // We use this-thread enabled vector to create a Rolodex class.  However, we
-// use the 'bdlmca::ThreadEnabledAllocatorAdapter' to prevent our two
+// use the 'bdlma::ConcurrentAllocatorAdapter' to prevent our two
 // (thread-enabled) vectors from attempting synchronous memory allocations
 // from our (potentially) non-thread safe 'bslma::Allocator'.  Note that we
 // define a local class 'Rolodex_PrivateData' in order to guarantee that
@@ -294,7 +294,7 @@ extern "C" void *workerThread(void *arg) {
 
         bdlmtt::Mutex           d_mutex;             // synchronize allocator
 
-        bdlmca::ThreadEnabledAllocatorAdapter
+        bdlma::ConcurrentAllocatorAdapter
                               d_allocatorAdapter;  // adapter for allocator
 
         Rolodex_PrivateData(bslma::Allocator *basicAllocator = 0)
@@ -479,12 +479,12 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   We are concerned that the basic functionality of
-        //   'bdlmca::ThreadEnabledAllocatorAdapter' works
+        //   'bdlma::ConcurrentAllocatorAdapter' works
         //   properly.
         //
         // Plan:
         //   Create a NoopAllocator and supply it to a
-        //   'bdlmca::ThreadEnabledAllocatorAdapter' under test.  Verify that
+        //   'bdlma::ConcurrentAllocatorAdapter' under test.  Verify that
         //   operations on the allocator are delegated to the noop allocator.
         //
         // Testing:
@@ -498,7 +498,7 @@ int main(int argc, char *argv[])
         bdlmtt::Mutex   mutex;
         NoopAllocator noopAllocator = NoopAllocator(&lastMethod);
         {
-            bdlmca::ThreadEnabledAllocatorAdapter mX(&mutex, &noopAllocator);
+            bdlma::ConcurrentAllocatorAdapter mX(&mutex, &noopAllocator);
 
             ASSERT( 0 == bsl::strcmp("NoopAllocator",
                                      lastMethod));

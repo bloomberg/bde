@@ -1,6 +1,6 @@
-// bdlmca_factory.h             -*-C++-*-
-#ifndef INCLUDED_BDLMCA_FACTORY
-#define INCLUDED_BDLMCA_FACTORY
+// bdlma_factory.h             -*-C++-*-
+#ifndef INCLUDED_BDLMA_FACTORY
+#define INCLUDED_BDLMA_FACTORY
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,21 +10,21 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a protocol for creator/deleter of parameterized objects.
 //
 //@CLASSES:
-//   bdlmca::Factory: protocol class for creator/deleter of 'TYPE' objects
+//   bdlma::Factory: protocol class for creator/deleter of 'TYPE' objects
 //
-//@SEE_ALSO: bdlmca_deleter
+//@SEE_ALSO: bdlma_deleter
 //
 //@AUTHOR: Andrei Basov (abasov)
 //
 //@DESCRIPTION: This component defines the base-level protocol for a
 // thread-safe and type-safe creator and deleter of objects of parameterized
-// type.  In particular, 'bdlmca::Factory' extends the 'bdlmca::Deleter' protocol
+// type.  In particular, 'bdlma::Factory' extends the 'bdlma::Deleter' protocol
 // with the addition of a 'createObject' method:
 //..
-//                         ( bdlmca::Factory )
+//                         ( bdlma::Factory )
 //                                 |       createObject
 //                                 v
-//                         ( bdlmca::Deleter )
+//                         ( bdlma::Deleter )
 //                                         dtor
 //                                         deleteObject
 //..
@@ -37,10 +37,10 @@ BSLS_IDENT("$Id: $")
 // Suppose that we would like to transfer an object between threads using
 // 'bsl::shared_ptr'.  For the sake of discussion, the type of this object
 // is 'my_Obj' and we will suppose that it is created using a concrete
-// implementation of 'bdlmca::Factory', say, 'my_DefaultFactory', the
+// implementation of 'bdlma::Factory', say, 'my_DefaultFactory', the
 // implementation of which is assumed:
 //..
-//  void f(bdlmca::Factory<my_Obj> *factory, bslma::Allocator *basicAllocator)
+//  void f(bdlma::Factory<my_Obj> *factory, bslma::Allocator *basicAllocator)
 //  {
 //      my_Obj *object = factory->createObject();
 //..
@@ -54,7 +54,7 @@ BSLS_IDENT("$Id: $")
 // deleted via the 'deleteObject' method of 'factory', which in turn will
 // invoke the destructor of 'object'.  Note that since the type of the factory
 // used to both create the object under management and to instantiate 'handle'
-// is 'bdlmca::Factory<my_Obj>', any kind of creator/deleter that implements this
+// is 'bdlma::Factory<my_Obj>', any kind of creator/deleter that implements this
 // protocol can be passed.  Also note, on the downside, that the lifetime of
 // 'factory' must be longer than the lifetime of all associated object
 // instances.
@@ -66,13 +66,13 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLMCA_DELETER
-#include <bdlmca_deleter.h>
+#ifndef INCLUDED_BDLMA_DELETER
+#include <bdlma_deleter.h>
 #endif
 
 namespace BloombergLP {
 
-namespace bdlmca {
+namespace bdlma {
                         // ===================
                         // class Factory
                         // ===================

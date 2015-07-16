@@ -1246,12 +1246,12 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 17: {
         /////////////////////////////////////////////////////////
-        // bdlmca::Factory test
+        // bdlma::Factory test
         //
-        // Concern: the pool works correctly as a bdlmca::Factory
+        // Concern: the pool works correctly as a bdlma::Factory
         /////////////////////////////////////////////////////////
          if (verbose) {
-            cout << "bdlmca::Factory test" << endl;
+            cout << "bdlma::Factory test" << endl;
          }
 
          bslma::TestAllocator ta;
@@ -1260,7 +1260,7 @@ int main(int argc, char *argv[])
                    bdlcc::ObjectPoolFunctors::DefaultCreator,
                    bdlcc::ObjectPoolFunctors::Reset<ConstructorTestHelp1a> >
              concretePool1a(1, &ta);
-         bdlmca::Factory<ConstructorTestHelp1a>* pool1a = &concretePool1a;
+         bdlma::Factory<ConstructorTestHelp1a>* pool1a = &concretePool1a;
 
          ConstructorTestHelp1a* ptr1a = pool1a->createObject();
          pool1a->deleteObject(ptr1a);

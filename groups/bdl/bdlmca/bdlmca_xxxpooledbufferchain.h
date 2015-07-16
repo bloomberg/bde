@@ -13,7 +13,7 @@ BSLS_IDENT("$Id: $")
 //        bdlmca::PooledBufferChain: memory-manager for chained buffers
 // bdlmca::PooledBufferChainFactory: factory for buffer chains
 //
-//@SEE_ALSO: bdlmca_pool, bdlmca_deleter, bslma_allocator
+//@SEE_ALSO: bdlma_concurrentpool, bdlma_deleter, bslma_allocator
 //
 //@AUTHOR: Andrei Basov (abasov)
 //
@@ -26,7 +26,7 @@ BSLS_IDENT("$Id: $")
 // order or removing particular buffer, is not allowed.
 //
 // Chain factory provided by this component manages the buffer chains of
-// particular buffer size; it (factory) adheres to 'bdlmca::Deleter' protocol,
+// particular buffer size; it (factory) adheres to 'bdlma::Deleter' protocol,
 // and thus can be used in various smart pointers such as
 // 'bsl::shared_ptr'.
 //
@@ -85,12 +85,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLMCA_DELETER
-#include <bdlmca_deleter.h>
+#ifndef INCLUDED_BDLMA_DELETER
+#include <bdlma_deleter.h>
 #endif
 
-#ifndef INCLUDED_BDLMCA_POOL
-#include <bdlmca_pool.h>
+#ifndef INCLUDED_BDLMA_CONCURRENTPOOL
+#include <bdlma_concurrentpool.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -124,7 +124,7 @@ class PooledBufferChain {
     // chains of the desired buffer size.
 
     // DATA
-    Pool  *d_pool_p;      // buffer pool
+    bdlma::ConcurrentPool  *d_pool_p;      // buffer pool
     char       **d_first_p;     // buffer chain
     char        *d_last_p;      // last buffer in chain
     int          d_length;      // length of data in chain
@@ -136,7 +136,7 @@ class PooledBufferChain {
 
   public:
     // CREATORS
-    PooledBufferChain(Pool *pool);
+    PooledBufferChain(bdlma::ConcurrentPool *pool);
         // Create a pooled buffer chain for the buffers allocated from the
         // specified 'pool'.
 
@@ -246,12 +246,11 @@ class PooledBufferChain {
                     // class PooledBufferChainFactory
                     // ====================================
 
-class PooledBufferChainFactory :
-                                public Deleter<PooledBufferChain> {
+class PooledBufferChainFactory : public bdlma::Deleter<PooledBufferChain> {
 
     // DATA
-    Pool d_bufferPool;
-    Pool d_pcbPool;
+    bdlma::ConcurrentPool d_bufferPool;
+    bdlma::ConcurrentPool d_pcbPool;
 
     // NOT IMPLEMENTED
     PooledBufferChainFactory(const PooledBufferChainFactory&);
@@ -301,7 +300,7 @@ int PooledBufferChain::bufferSize() const
 
 // CREATORS
 inline
-PooledBufferChain::PooledBufferChain(Pool *pool)
+PooledBufferChain::PooledBufferChain(bdlma::ConcurrentPool *pool)
 : d_pool_p(pool)
 , d_first_p((char **)0)
 , d_last_p(0)

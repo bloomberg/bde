@@ -1,6 +1,6 @@
-// bdlmca_fixedpool.cpp    -*-C++-*-
+// bdlma_concurrentfixedpool.cpp    -*-C++-*-
 
-#include <bdlmca_fixedpool.h>
+#include <bdlma_concurrentfixedpool.h>
 
 #include <bdlmtt_lockguard.h>
 
@@ -45,13 +45,13 @@ void backoff(int *contentionCount, int backoffLevel)
 
 }  // close unnamed namespace
 
-namespace bdlmca {
+namespace bdlma {
                         // ---------------------
-                        // class FixedPool
+                        // class ConcurrentFixedPool
                         // ---------------------
 
 // PRIVATE MANIPULATORS
-void *FixedPool::allocateNew()
+void *ConcurrentFixedPool::allocateNew()
 {
     Node *node;
     int   numNodes;
@@ -75,7 +75,7 @@ void *FixedPool::allocateNew()
 }
 
 // CREATORS
-FixedPool::FixedPool(int               objectSize,
+ConcurrentFixedPool::ConcurrentFixedPool(int               objectSize,
                                  int               poolSize,
                                  bslma::Allocator *basicAllocator)
 : d_freeList(0)
@@ -103,12 +103,12 @@ FixedPool::FixedPool(int               objectSize,
                   bsls::AlignmentUtil::calculateAlignmentFromSize(d_nodeSize));
 }
 
-FixedPool::~FixedPool()
+ConcurrentFixedPool::~ConcurrentFixedPool()
 {
 }
 
 // MANIPULATORS
-void *FixedPool::allocate()
+void *ConcurrentFixedPool::allocate()
 {
     int contentionCount = 0;
 
@@ -136,7 +136,7 @@ void *FixedPool::allocate()
     return (char *)node + d_dataOffset;
 }
 
-void FixedPool::deallocate(void *address)
+void ConcurrentFixedPool::deallocate(void *address)
 {
     int contentionCount = 0;
 
@@ -154,7 +154,7 @@ void FixedPool::deallocate(void *address)
     }
 }
 
-void FixedPool::release()
+void ConcurrentFixedPool::release()
 {
     bdlmtt::LockGuard<bdlmtt::Mutex> guard(&d_nodePoolMutex);
 
@@ -164,7 +164,7 @@ void FixedPool::release()
     d_nodePool.release();
 }
 
-int FixedPool::reserveCapacity(int numObjects)
+int ConcurrentFixedPool::reserveCapacity(int numObjects)
 {
     BSLS_ASSERT(0 <= numObjects);
 

@@ -4,7 +4,7 @@
 
 #include <bdlcc_objectpool.h>
 #include <bdlmca_blob.h>
-#include <bdlmca_poolallocator.h>
+#include <bdlma_concurrentpoolallocator.h>
 #include <bdlmca_pooledblobbufferfactory.h>
 #include <bslma_testallocator.h>
 #include <bdlmtt_threadgroup.h>
@@ -167,7 +167,7 @@ class SlowerBlobPool {
 };
 
 class SlowBlobPool {
-    bdlmca::PoolAllocator           d_spAllocator;  // allocate shared pointer
+    bdlma::ConcurrentPoolAllocator           d_spAllocator;  // allocate shared pointer
     bdlmca::PooledBlobBufferFactory d_blobFactory;  // supply blob buffers
     bdlcc::ObjectPool<bdlmca::Blob>   d_blobPool;     // supply blobs
 
@@ -604,7 +604,7 @@ class StringReseter
 };
 
 class SlowLinkPool {
-   bdlmca::PoolAllocator     d_spAllocator;  // allocate shared pointer
+   bdlma::ConcurrentPoolAllocator     d_spAllocator;  // allocate shared pointer
    bdlcc::ObjectPool<SpLink> d_linkPool;
 
    static void createLink(void* address) {

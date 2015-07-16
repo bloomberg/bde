@@ -13,7 +13,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlmca::PooledBlobBufferFactory: mechanism for pooling 'bdlmca::BlobBuffer's
 //
-//@SEE_ALSO: bdlmca_blob, bdlmca_pool
+//@SEE_ALSO: bdlmca_blob, bdlma_concurrentpool
 //
 //@AUTHOR: Ilougino Rocha (irocha)
 //
@@ -39,8 +39,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlmca_blob.h>
 #endif
 
-#ifndef INCLUDED_BDLMCA_POOLALLOCATOR
-#include <bdlmca_poolallocator.h>
+#ifndef INCLUDED_BDLMA_CONCURRENTPOOLALLOCATOR
+#include <bdlma_concurrentpoolallocator.h>
 #endif
 
 namespace BloombergLP {
@@ -58,7 +58,7 @@ class PooledBlobBufferFactory: public BlobBufferFactory {
     // DATA
     int                 d_bufferSize;  // size of allocated blob buffers
 
-    PoolAllocator d_spPool;      // pool used to allocate shared pointers
+    bdlma::ConcurrentPoolAllocator d_spPool;      // pool used to allocate shared pointers
                                        // and buffers contiguously
   public:
     // CREATORS

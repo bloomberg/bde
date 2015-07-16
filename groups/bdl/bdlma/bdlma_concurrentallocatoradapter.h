@@ -1,6 +1,6 @@
-// bdlmca_threadenabledallocatoradapter.h      -*-C++-*-
-#ifndef INCLUDED_BDLMCA_THREADENABLEDALLOCATORADAPTER
-#define INCLUDED_BDLMCA_THREADENABLEDALLOCATORADAPTER
+// bdlma_concurrentallocatoradapter.h      -*-C++-*-
+#ifndef INCLUDED_BDLMA_CONCURRENTALLOCATORADAPTER
+#define INCLUDED_BDLMA_CONCURRENTALLOCATORADAPTER
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -9,23 +9,21 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a thread-enabled adapter for the allocator protocol.
 //
-//@DEPRECATED: Do not use.
-//
 //@CLASSES:
-//   bdlmca::ThreadEnabledAllocatorAdapter: thread-enabled allocator adapter
+//   bdlma::ConcurrentAllocatorAdapter: thread-enabled allocator adapter
 //
-//@SEE_ALSO: bslma_allocator, bdlmca_multipool
+//@SEE_ALSO: bslma_allocator, bdlma_concurrentmultipool
 //
 //@AUTHOR: Henry Verschell (hverschell)
 //
 //@DESCRIPTION: This component provides an adapter,
-// 'bdlmca::ThreadEnabledAllocatorAdapter', that implements the
+// 'bdlma::ConcurrentAllocatorAdapter', that implements the
 // 'bslma::Allocator' protocol and provides synchronization for operations on
 // an allocator supplied at construction using a mutex also supplied at
 // construction.
 //..
 //   ,-----------------------------------.
-//  ( bdlmca::ThreadEnabledAllocatorAdapter )
+//  ( bdlma::ConcurrentAllocatorAdapter )
 //   `-----------------------------------'
 //                     |                ctor/dtor
 //                     V
@@ -38,14 +36,14 @@ BSLS_IDENT("$Id: $")
 //
 ///Thread Safety
 ///-------------
-// 'bdlmca::ThreadEnabledAllocatorAdapter' is *thread-enabled*, meaning any
+// 'bdlma::ConcurrentAllocatorAdapter' is *thread-enabled*, meaning any
 // operation on the same instance can be safely invoked from any thread.
 //
 ///Usage
 ///-----
 // In the following usage example, we develop a simple 'AddressBook' class
 // containing two thread-enabled vectors of strings: one for names, the other
-// for addresses.  We use a 'bdlmca::ThreadEnabledAllocatorAdapter' to
+// for addresses.  We use a 'bdlma::ConcurrentAllocatorAdapter' to
 // synchronize memory allocations across our two thread-enabled vectors.  For
 // the purpose of this discussion, we first define a simple thread-enabled
 // vector:
@@ -114,7 +112,7 @@ BSLS_IDENT("$Id: $")
 //  };
 //..
 // We use this thread-enabled vector to create a AddressBook class.  However,
-// we use the 'bdlmca::ThreadEnabledAllocatorAdapter' to prevent our two
+// we use the 'bdlma::ConcurrentAllocatorAdapter' to prevent our two
 // (thread-enabled) vectors from attempting synchronous memory allocations
 // from our (potentially) non-thread safe 'bslma::Allocator'.  Note that we
 // define a local class, 'AddressBook_PrivateData', in order to guarantee that
@@ -129,7 +127,7 @@ BSLS_IDENT("$Id: $")
 //
 //      bdlmtt::Mutex           d_mutex;             // synchronize allocator
 //
-//      bdlmca::ThreadEnabledAllocatorAdapter
+//      bdlma::ConcurrentAllocatorAdapter
 //                            d_allocatorAdapter;  // adapter for allocator
 //
 //      AddressBook_PrivateData(bslma::Allocator *basicAllocator = 0)
@@ -234,12 +232,12 @@ namespace BloombergLP {
 
 namespace bdlmtt { class Mutex; }
 
-namespace bdlmca {
+namespace bdlma {
               // =========================================
-              // class ThreadEnabledAllocatorAdapter
+              // class ConcurrentAllocatorAdapter
               // =========================================
 
-class ThreadEnabledAllocatorAdapter : public bslma::Allocator {
+class ConcurrentAllocatorAdapter : public bslma::Allocator {
     // This class defines an implementation of the 'bslma::Allocator' protocol
     // that "decorates" (wraps) a concrete 'bslma::Allocator' to ensure
     // thread-safe access to the decorated allocator.
@@ -251,20 +249,20 @@ class ThreadEnabledAllocatorAdapter : public bslma::Allocator {
     bslma::Allocator *d_allocator_p;  // allocator (held, not owned)
 
     // NOT IMPLEMENTED
-    ThreadEnabledAllocatorAdapter(
-                                   const ThreadEnabledAllocatorAdapter&);
-    ThreadEnabledAllocatorAdapter& operator=(
-                                   const ThreadEnabledAllocatorAdapter&);
+    ConcurrentAllocatorAdapter(
+                                   const ConcurrentAllocatorAdapter&);
+    ConcurrentAllocatorAdapter& operator=(
+                                   const ConcurrentAllocatorAdapter&);
   public:
     // CREATORS
-    ThreadEnabledAllocatorAdapter(bdlmtt::Mutex      *mutex,
+    ConcurrentAllocatorAdapter(bdlmtt::Mutex      *mutex,
                                         bslma::Allocator *basicAllocator);
         // Create a thread-enabled allocator adapter that uses the specified
         // 'mutex' to synchronize access to the specified 'basicAllocator'.
         // If 'basicAllocator' is 0, the currently installed default allocator
         // is used.
 
-    virtual ~ThreadEnabledAllocatorAdapter();
+    virtual ~ConcurrentAllocatorAdapter();
         // Destroy this thread-enabled allocator adapter.
 
     // MANIPULATORS
@@ -290,12 +288,12 @@ class ThreadEnabledAllocatorAdapter : public bslma::Allocator {
 // ============================================================================
 
                // -----------------------------------------
-               // class ThreadEnabledAllocatorAdapter
+               // class ConcurrentAllocatorAdapter
                // -----------------------------------------
 
 // CREATORS
 inline
-ThreadEnabledAllocatorAdapter::ThreadEnabledAllocatorAdapter(
+ConcurrentAllocatorAdapter::ConcurrentAllocatorAdapter(
                                               bdlmtt::Mutex      *mutex,
                                               bslma::Allocator *basicAllocator)
 : d_mutex_p(mutex)

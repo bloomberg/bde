@@ -1,42 +1,42 @@
-// bdlmca_fixedpool.h                                                  -*-C++-*-
-#ifndef INCLUDED_BDLMCA_FIXEDPOOL
-#define INCLUDED_BDLMCA_FIXEDPOOL
+// bdlma_concurrentfixedpool.h                                                  -*-C++-*-
+#ifndef INCLUDED_BDLMA_CONCURRENTFIXEDPOOL
+#define INCLUDED_BDLMA_CONCURRENTFIXEDPOOL
 
 //@PURPOSE: Provide thread-safe pool of limited # of blocks of uniform size.
 //
 //@CLASSES:
-//  bdlmca::FixedPool: thread-safe pool of limited # of blocks of uniform size
+//  bdlma::ConcurrentFixedPool: thread-safe pool of limited # of blocks of uniform size
 //
-//@SEE_ALSO: bdlmca_pool
+//@SEE_ALSO: bdlma_concurrentpool
 //
 //@AUTHOR: Ilougino Rocha (irocha), Vladimir Kliatchko (vkliatch)
 //
 //@DESCRIPTION: This component implements a *fully thread-safe* memory pool
 // that allocates and manages a limited number (specified at construction) of
 // memory blocks of some uniform size (also specified at construction).  A
-// 'bdlmca::FixedPool' constructed to manage up to 'N' blocks also provides an
+// 'bdlma::ConcurrentFixedPool' constructed to manage up to 'N' blocks also provides an
 // association between the address of each block and an index in the range
 // '[ 0 .. N - 1 ]'.
 //
 // Other than this mapping between block and index, and the associated limit
 // on the maximum number of blocks that may be simultaneously allocated, this
-// component's semantics are identical to 'bdlmca::Pool'.  In particular, this
+// component's semantics are identical to 'bdlma::ConcurrentPool'.  In particular, this
 // component overloads global operator 'new' in the same manner, and the
 // behaviors of 'release' and 'reserveCapacity' are equivalent to the
-// corresponding methods in 'bdlmca::Pool'.
+// corresponding methods in 'bdlma::ConcurrentPool'.
 //
-// Like 'bdlmca::Pool', this component is intended to be used to implement
+// Like 'bdlma::ConcurrentPool', this component is intended to be used to implement
 // *out-of-place* container classes that hold elements of uniform size.
 //
 ///Usage
 ///-----
-// 'bdlmca::FixedPool' is intended to implement *out-of-place* container classes
+// 'bdlma::ConcurrentFixedPool' is intended to implement *out-of-place* container classes
 // that hold up to a fixed number of elements, all of uniform size.  Suppose
 // we wish to implement a simple thread pool.  We want the equivalent of a
 // 'bsl::deque<bdlf::Function<void(*)(void)> >'.  However, to minimize the time
 // spent performing operations on this deque - which must be carried out under
 // a lock - we instead store just pointers in the deque, and manage memory
-// efficiently using 'bdlmca::FixedPool'.  'bdlmca::FixedPool' is fully thread-safe
+// efficiently using 'bdlma::ConcurrentFixedPool'.  'bdlma::ConcurrentFixedPool' is fully thread-safe
 // and does not require any additional synchronization.
 //
 // The example below is just for the container portion of our simple thread
@@ -53,7 +53,7 @@
 //      // DATA
 //      bdlmtt::Mutex        d_lock;
 //      bsl::deque<Job *>  d_queue;
-//      bdlmca::FixedPool    d_pool;
+//      bdlma::ConcurrentFixedPool    d_pool;
 //      bslma::Allocator  *d_allocator_p;
 //
 //    public:
@@ -108,9 +108,9 @@
 //  }
 //..
 // Note that in the destructor, there is no need to deallocate the individual
-// job objects - the destructor of 'bdlmca::FixedPool' will release any remaining
+// job objects - the destructor of 'bdlma::ConcurrentFixedPool' will release any remaining
 // allocated memory.  However, it *is* necessary to invoke the destructors of
-// all these objects, as the destructor of 'bdlmca::FixedPool' will not do so.
+// all these objects, as the destructor of 'bdlma::ConcurrentFixedPool' will not do so.
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -153,15 +153,15 @@
 #endif
 
 namespace BloombergLP {
+namespace bdlma {
 
-namespace bdlmca {
                    // ===========================
-                   // struct FixedPool_Node
+                   // struct ConcurrentFixedPool_Node
                    // ===========================
 
-struct FixedPool_Node {
+struct ConcurrentFixedPool_Node {
     // The component-private 'struct' provides a header for blocks that are
-    // allocated from 'FixedPool' objects.
+    // allocated from 'ConcurrentFixedPool' objects.
 
     // DATA
     unsigned d_next;  // index of next free node when on free list; otherwise,
@@ -170,10 +170,10 @@ struct FixedPool_Node {
 };
 
                         // =====================
-                        // class FixedPool
+                        // class ConcurrentFixedPool
                         // =====================
 
-class FixedPool {
+class ConcurrentFixedPool {
     // This class implements a memory pool that allocates and manages up to
     // a fixed number of memory blocks of some uniform size, with both the
     // limit on the number of blocks and the block size specified at
@@ -183,7 +183,7 @@ class FixedPool {
     // memory (but see the documentation for the 'release' method).
 
     // PRIVATE TYPES
-    typedef FixedPool_Node Node;     // type of memory block "header"
+    typedef ConcurrentFixedPool_Node Node;     // type of memory block "header"
 
     // DATA
     bdlmtt::AtomicInt       d_freeList;       // head of free list
@@ -218,8 +218,8 @@ class FixedPool {
                                            // owned)
 
     // NOT IMPLEMENTED
-    FixedPool(const FixedPool&);
-    FixedPool& operator=(const FixedPool&);
+    ConcurrentFixedPool(const ConcurrentFixedPool&);
+    ConcurrentFixedPool& operator=(const ConcurrentFixedPool&);
 
   private:
     // PRIVATE MANIPULATORS
@@ -232,7 +232,7 @@ class FixedPool {
 
   public:
     // CREATORS
-    FixedPool(int               objectSize,
+    ConcurrentFixedPool(int               objectSize,
                     int               poolSize,
                     bslma::Allocator *basicAllocator = 0);
         // Create a memory pool that returns memory of the specified
@@ -244,7 +244,7 @@ class FixedPool {
         // default allocator is used.  The behavior is undefined unless
         // '0 < objectSize', '0 < poolSize', and '0x1FFFFFF >= poolSize'.
 
-    ~FixedPool();
+    ~ConcurrentFixedPool();
         // Destroy this object and release all associated memory.
 
     // MANIPULATORS
@@ -286,7 +286,7 @@ class FixedPool {
         // contents of that memory.  Specifically, 'release()' can *not* call
         // object destructors for any allocated objects, since it has no
         // knowledge of their type.  If object destruction is required, use
-        // 'FixedPool::deleteObject()'.
+        // 'ConcurrentFixedPool::deleteObject()'.
 
     int reserveCapacity(int numObjects);
         // Reserve memory from this pool to satisfy memory requests for at
@@ -334,7 +334,7 @@ class FixedPool {
 
 // FREE OPERATORS
 inline
-void *operator new(bsl::size_t size, BloombergLP::bdlmca::FixedPool& pool);
+void *operator new(bsl::size_t size, BloombergLP::bdlma::ConcurrentFixedPool& pool);
     // Allocate memory of 'size' bytes from the specified 'pool', and return
     // the address of the allocated memory.  The behavior is undefined unless
     // 'size' is the same as the 'objectSize' with which 'pool' was
@@ -342,66 +342,66 @@ void *operator new(bsl::size_t size, BloombergLP::bdlmca::FixedPool& pool);
     // internally within its constructor, requiring the allocator to be passed
     // in as a constructor argument:
     //..
-    //  my_Type *newMyType(bdlmca::FixedPool  *pool,
+    //  my_Type *newMyType(bdlma::ConcurrentFixedPool  *pool,
     //                     bslma::Allocator *basicAllocator) {
     //      return new (*pool) my_Type(..., basicAllocator);
     //  }
     //..
     // Note also that the analogous version of operator 'delete' should not be
     // called directly.  Instead, this component provides a template
-    // member function 'bdlmca::FixedPool::deleteObject' parameterized by 'TYPE'
+    // member function 'bdlma::ConcurrentFixedPool::deleteObject' parameterized by 'TYPE'
     // that performs the equivalent of the following:
     //..
-    //  void deleteMyType(bdlmca::FixedPool *pool, my_Type *t) {
+    //  void deleteMyType(bdlma::ConcurrentFixedPool *pool, my_Type *t) {
     //      t->~my_Type();
     //      pool->deallocate(t);
     //  }
     //..
 
 inline
-void operator delete(void *address, BloombergLP::bdlmca::FixedPool& pool);
+void operator delete(void *address, BloombergLP::bdlma::ConcurrentFixedPool& pool);
     // Use the specified 'pool' to deallocate the memory at the specified
     // 'address'.  The behavior is undefined unless 'address' was allocated
     // using 'pool' and has not already been deallocated.  This operator is
     // supplied solely to allow the compiler to arrange for it to be called in
     // case of an exception.  Client code should not call it; use
-    // 'bdlmca::FixedPool::deleteObject()' instead.
+    // 'bdlma::ConcurrentFixedPool::deleteObject()' instead.
 
 namespace BloombergLP {
+namespace bdlma {
 
-namespace bdlmca {
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
                         // ---------------------
-                        // class FixedPool
+                        // class ConcurrentFixedPool
                         // ---------------------
 
 // MANIPULATORS
 template<class TYPE>
 inline
-void FixedPool::deleteObject(const TYPE *object)
+void ConcurrentFixedPool::deleteObject(const TYPE *object)
 {
     bslma::DeleterHelper::deleteObject(object, this);
 }
 
 template<class TYPE>
 inline
-void FixedPool::deleteObjectRaw(const TYPE *object)
+void ConcurrentFixedPool::deleteObjectRaw(const TYPE *object)
 {
     bslma::DeleterHelper::deleteObjectRaw(object, this);
 }
 
 inline
-void FixedPool::setBackoffLevel(int backoffLevel)
+void ConcurrentFixedPool::setBackoffLevel(int backoffLevel)
 {
     d_backoffLevel = backoffLevel;
 }
 
 // ACCESSORS
 inline
-void *FixedPool::addressFromIndex(int index) const
+void *ConcurrentFixedPool::addressFromIndex(int index) const
 {
     Node * node = const_cast<Node *>(d_nodes[index]);
 
@@ -410,13 +410,13 @@ void *FixedPool::addressFromIndex(int index) const
 }
 
 inline
-int FixedPool::backoffLevel() const
+int ConcurrentFixedPool::backoffLevel() const
 {
     return d_backoffLevel;
 }
 
 inline
-int FixedPool::indexFromAddress(void *address) const
+int ConcurrentFixedPool::indexFromAddress(void *address) const
 {
     const Node * const node = (const Node *)(void *)
                                               ((char *)address - d_dataOffset);
@@ -424,13 +424,13 @@ int FixedPool::indexFromAddress(void *address) const
 }
 
 inline
-int FixedPool::objectSize() const
+int ConcurrentFixedPool::objectSize() const
 {
     return d_objectSize;
 }
 
 inline
-int FixedPool::poolSize() const
+int ConcurrentFixedPool::poolSize() const
 {
     return static_cast<int>(d_nodes.size());
 }
@@ -439,7 +439,7 @@ int FixedPool::poolSize() const
 }  // close namespace BloombergLP
 
 inline
-void *operator new(bsl::size_t size, BloombergLP::bdlmca::FixedPool& pool)
+void *operator new(bsl::size_t size, BloombergLP::bdlma::ConcurrentFixedPool& pool)
 {
     using namespace BloombergLP;
     BSLS_ASSERT((int) size <= pool.objectSize()
@@ -451,7 +451,7 @@ void *operator new(bsl::size_t size, BloombergLP::bdlmca::FixedPool& pool)
 }
 
 inline
-void operator delete(void *address, BloombergLP::bdlmca::FixedPool& pool)
+void operator delete(void *address, BloombergLP::bdlma::ConcurrentFixedPool& pool)
 {
     pool.deallocate(address);
 }

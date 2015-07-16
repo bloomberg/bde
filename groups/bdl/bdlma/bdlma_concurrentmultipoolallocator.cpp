@@ -1,25 +1,25 @@
-// bdlmca_multipoolallocator.cpp                                       -*-C++-*-
-#include <bdlmca_multipoolallocator.h>
+// bdlma_concurrentmultipoolallocator.cpp                                       -*-C++-*-
+#include <bdlma_concurrentmultipoolallocator.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlmca_multipoolallocator_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdlma_concurrentmultipoolallocator_cpp,"$Id$ $CSID$")
 
 #include <bsls_performancehint.h>
 
 namespace BloombergLP {
 
-namespace bdlmca {
+namespace bdlma {
                      // ------------------------------
-                     // class MultipoolAllocator
+                     // class ConcurrentMultipoolAllocator
                      // ------------------------------
 
 // CREATORS
-MultipoolAllocator::~MultipoolAllocator()
+ConcurrentMultipoolAllocator::~ConcurrentMultipoolAllocator()
 {
 }
 
 // MANIPULATORS
-void *MultipoolAllocator::allocate(size_type size)
+void *ConcurrentMultipoolAllocator::allocate(size_type size)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == size)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -29,7 +29,7 @@ void *MultipoolAllocator::allocate(size_type size)
     return d_multipool.allocate(size);
 }
 
-void MultipoolAllocator::deallocate(void *address)
+void ConcurrentMultipoolAllocator::deallocate(void *address)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(address != 0)) {
         d_multipool.deallocate(address);
@@ -37,12 +37,12 @@ void MultipoolAllocator::deallocate(void *address)
     BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 }
 
-void MultipoolAllocator::release()
+void ConcurrentMultipoolAllocator::release()
 {
     d_multipool.release();
 }
 
-void MultipoolAllocator::reserveCapacity(size_type size,
+void ConcurrentMultipoolAllocator::reserveCapacity(size_type size,
                                                size_type numObjects)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == size)) {

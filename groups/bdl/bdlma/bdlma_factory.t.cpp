@@ -1,29 +1,33 @@
-// bdlmca_defaultdeleter.t.cpp        -*-C++-*-
-#include <bdlmca_defaultdeleter.h>
-#include <bslma_testallocator.h>
-#include <bsl_memory.h>
+// bdlma_factory.t.cpp        -*-C++-*-
 
-#include <bslma_default.h>
+#include <bdlma_factory.h>
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // memcpy()
 #include <bsl_iostream.h>
-
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
+
+
 
 //=============================================================================
 //                              TEST PLAN
 //-----------------------------------------------------------------------------
 //                              OVERVIEW
-// [TBD]
+// We are testing a pure protocol class as well as a set of overloaded
+// operators.  We need to verify that (1) a concrete derived class compiles
+// and links, and (2) that the overloaded new operator correctly forwards
+// the call to the allocate method of the supplied deleter.
 //-----------------------------------------------------------------------------
+// [ 1] virtual ~bdlma::Factory();
+// [ 1] virtual void delete(TYPE *instance) = 0;
+//-----------------------------------------------------------------------------
+// [ 1] PROTOCOL TEST - Make sure derived class compiles and links.
 //=============================================================================
 
 //=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
-
 static int testStatus = 0;
 static void aSsErT(int c, const char *s, int i)
 {
@@ -49,12 +53,24 @@ static void aSsErT(int c, const char *s, int i)
 //                      CONCRETE DERIVED TYPES
 //-----------------------------------------------------------------------------
 class my_Obj {
+};
+
+class my_Factory : public bdlma::Factory<my_Obj> {
+  // Test class used to verify protocol.
     int *d_destructorFlag_p;
+    int  d_fun;  // holds code describing function:
+                 //   + 1 delete
+                 //   + 2 create
+    my_Obj d_obj;
   public:
-    my_Obj(int *destructorFlag) : d_destructorFlag_p(destructorFlag) {
-        *d_destructorFlag_p = 0;
-    }
-    ~my_Obj() { *d_destructorFlag_p = 1; }
+    my_Factory(int *destructorFlag) : d_destructorFlag_p(destructorFlag) { }
+    virtual ~my_Factory() { *d_destructorFlag_p = 1; }
+
+    virtual my_Obj *createObject()         { d_fun = 2; return  &d_obj; }
+    virtual void deleteObject(my_Obj *X)   { d_fun = 1; ASSERT(X == &d_obj); }
+
+    int fun() const { return d_fun; }
+        // Return descriptive code for the function called.
 };
 
 //=============================================================================
@@ -66,63 +82,53 @@ int main(int argc, char *argv[]) {
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
     // int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 2: {
-        // --------------------------------------------------------------------
-        // TEST USAGE
-        // --------------------------------------------------------------------
-
-        bslma::TestAllocator ta;
-
-        int destructorFlag;
-        my_Obj *object = new(ta) my_Obj(&destructorFlag);
-
-        bdlmca::DefaultDeleter<my_Obj> deleter(&ta);
-
-        bsl::shared_ptr<my_Obj> handle(object, &deleter, &ta);
-      } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING bdlmca::DefaultDeleter
-        // Concerns:
-        //   o bdlmca::DefaultDeleter works with global 'new' and 'delete'
-        //   o bdlmca::DefaultDeleter works with user-installed allocator
+        // PROTOCOL TEST:
+        //   All we need to do is make sure that a subclass of the
+        //   'bdlma::Factory' class compiles and links when all virtual
+        //   functions are defined.
+        //
         // Plan:
-        //   Create 'my_Obj' using different allocators
+        //   Construct an object of a class derived from 'bdlma::Factory'.
+        //   Upcast a reference to the object to the base class
+        //   'bdlma::Factory'.  Using the base class reference invoke both
+        //   'delete' method and verify that the correct implementations of the
+        //   methods are called.
+        //
         // Testing:
-        //   bdlmca::DefaultDeleter(bcem::Allocator *);
-        //   deleteObject(my_Obj *);
+        //   virtual ~bdlma::Factory();
+        //   virtual void deleteObject(my_Obj *object) = 0;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING bdlmca::DefaultDeleter" << endl
-                                  << "============================" << endl;
+        if (verbose) cout << endl << "PROTOCOL TEST" << endl
+                                  << "=============" << endl;
+        int destructorFlag = 0;
+        my_Factory myA(&destructorFlag);
+        bdlma::Factory<my_Obj>& a = myA;
+        my_Obj *X = (my_Obj*)NULL;
 
-        if (verbose) cout << "\tUsing global operators 'new' and 'delete"
-                          << endl;
+        if (verbose) cout << "\tTesting 'createObject'" << endl;
         {
-            int destructorFlag;
-            my_Obj *object = new (*bslma::Default::defaultAllocator())
-                                                       my_Obj(&destructorFlag);
-            bdlmca::DefaultDeleter<my_Obj> deleter;
-            bdlmca::Deleter<my_Obj> *base = &deleter;
-            base->deleteObject(object);
+            X = a.createObject();
+            ASSERT(2 == myA.fun()); ASSERT(X);
+        }
+
+        if (verbose) cout << "\tTesting 'deleteObject'" << endl;
+        {
+            a.deleteObject(X);  ASSERT(1 == myA.fun());
+        }
+        if (verbose) cout << "\tTesting '~bdlma::Factory'" << endl;
+        {
+            bdlma::Factory<my_Obj> *mX = new my_Factory(&destructorFlag);
+            delete mX;
             ASSERT(1 == destructorFlag);
         }
-        if (verbose) cout << "\tUsing user-installed allocator" << endl;
-        {
-            bslma::TestAllocator testAllocator(veryVeryVerbose);
-            bslma::Allocator *allocator = &testAllocator;
-            int destructorFlag;
-            my_Obj *object =
-                new (testAllocator) my_Obj(&destructorFlag);
-            bdlmca::DefaultDeleter<my_Obj> deleter(allocator);
-            deleter.deleteObject(object);
-            ASSERT(1 == destructorFlag);
-        }
+
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

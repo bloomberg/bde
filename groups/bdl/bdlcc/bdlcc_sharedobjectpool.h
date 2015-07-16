@@ -105,7 +105,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  class SlowBlobPool {
 //     bdlcc::ObjectPool<bdlmca::Blob>   d_blobPool;     // supply blobs
-//     bdlmca::PoolAllocator           d_spAllocator;  // allocate shared pointer
+//     bdlma::ConcurrentPoolAllocator           d_spAllocator;  // allocate shared pointer
 //     bdlmca::PooledBlobBufferFactory d_blobFactory;  // supply blob buffers
 //
 //     enum {BUFFER_SIZE=65536};

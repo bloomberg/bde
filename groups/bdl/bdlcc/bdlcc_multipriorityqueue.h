@@ -384,8 +384,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLMCA_POOL
-#include <bdlmca_pool.h>
+#ifndef INCLUDED_BDLMA_CONCURRENTPOOL
+#include <bdlma_concurrentpool.h>
 #endif
 
 #ifndef INCLUDED_BDLMTT_LOCKGUARD
@@ -548,7 +548,7 @@ class MultipriorityQueue {
                                           // bit 0 is the lowest order bit,
                                           // representing most urgent priority
 
-    bdlmca::Pool          d_pool;           // memory pool used for node storage
+    bdlma::ConcurrentPool          d_pool;           // memory pool used for node storage
 
     volatile int        d_length;         // total number of items in this
                                           // multipriority queue
@@ -877,7 +877,7 @@ int MultipriorityQueue<TYPE>::pushBack(const TYPE& item,
     //     Note the queue being disabled is not the usual case.  Note a race
     // condition occurs if we check d_enabledFlag outside the mutex.
     Node *newNode = (Node *)d_pool.allocate();
-    bslma::DeallocatorProctor<bdlmca::Pool> deleter(newNode, &d_pool);
+    bslma::DeallocatorProctor<bdlma::ConcurrentPool> deleter(newNode, &d_pool);
 
     bslalg::ScalarPrimitives::construct(newNode,
                                         item,
@@ -926,7 +926,7 @@ void MultipriorityQueue<TYPE>::pushFrontMultipleRaw(
 
         for (int i = 0; i < numItems; ++i) {
             Node *newNode = (Node *)d_pool.allocate();
-            bslma::DeallocatorProctor<bdlmca::Pool> deleter(newNode, &d_pool);
+            bslma::DeallocatorProctor<bdlma::ConcurrentPool> deleter(newNode, &d_pool);
 
             bslalg::ScalarPrimitives::construct(newNode,
                                                 item,
@@ -965,7 +965,7 @@ void MultipriorityQueue<TYPE>::pushBackMultipleRaw(
 
         for (int i = 0; i < numItems; ++i) {
             Node *newNode = (Node *)d_pool.allocate();
-            bslma::DeallocatorProctor<bdlmca::Pool> deleter(newNode, &d_pool);
+            bslma::DeallocatorProctor<bdlma::ConcurrentPool> deleter(newNode, &d_pool);
 
             bslalg::ScalarPrimitives::construct(newNode,
                                                 item,

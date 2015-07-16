@@ -18,10 +18,10 @@ namespace {
 ///--------------------
 // The 'bdlmca::ProtectableMultipool' uses a 'bdlma::ProtectableBlockList' to
 // manage memory chunks larger than the largest individual pool because the
-// wrapped 'bdlmca::Multipool' is supplied a sequential allocator at construction
+// wrapped 'bdlma::ConcurrentMultipool' is supplied a sequential allocator at construction
 // and will not free non-pooled memory.  To facilitate this, the following
 // 'struct Header' is a copy of the identical 'struct' that is 'private' to
-// 'bdlmca::Multipool'.
+// 'bdlma::ConcurrentMultipool'.
 
 // TYPES
 struct Header {
@@ -48,8 +48,8 @@ ProtectableMultipool(int                              numMemoryPools,
 , d_dispenserAdapter(&d_mutex, blockDispenser)
 , d_allocator(&d_dispenserAdapter)
 {
-    d_pools_p = new (d_allocator) Multipool(numMemoryPools,
-                                                  &d_allocator);
+    d_pools_p = new (d_allocator) bdlma::ConcurrentMultipool(numMemoryPools,
+                                                             &d_allocator);
 }
 
 // MANIPULATORS
@@ -95,7 +95,7 @@ void ProtectableMultipool::release()
     d_blockList.release();
     d_allocator.release();  // frees d_pools_p!
 
-    d_pools_p = new (d_allocator) Multipool(numPools, &d_allocator);
+    d_pools_p = new (d_allocator) bdlma::ConcurrentMultipool(numPools, &d_allocator);
 }
 
 void ProtectableMultipool::reserveCapacity(size_type size,

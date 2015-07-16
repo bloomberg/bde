@@ -219,8 +219,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_timequeue.h>
 #endif
 
-#ifndef INCLUDED_BDLMCA_POOL
-#include <bdlmca_pool.h>
+#ifndef INCLUDED_BDLMA_CONCURRENTPOOL
+#include <bdlma_concurrentpool.h>
 #endif
 
 #ifndef INCLUDED_BDLMTT_THREADATTRIBUTES
@@ -373,7 +373,7 @@ class TimerEventScheduler {
     bsls::SystemClockType::Enum
                       d_clockType;          // clock type used
 
-    bdlmca::Pool        d_clockDataAllocator; // pool for 'ClockData' objects
+    bdlma::ConcurrentPool        d_clockDataAllocator; // pool for 'ClockData' objects
 
     EventTimeQueue    d_eventTimeQueue;     // time queue for non recurring
                                             // events

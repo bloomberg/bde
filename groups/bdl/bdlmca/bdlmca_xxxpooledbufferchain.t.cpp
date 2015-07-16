@@ -21,7 +21,7 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 // 'bdlmca::PooledBufferChain' public interface
 // CREATORS
-// [ 2] bdlmca::PooledBufferChain(bdlmca::Pool *pool);
+// [ 2] bdlmca::PooledBufferChain(bdlma::ConcurrentPool *pool);
 // [ 2] ~bdlmca::PooledBufferChain();
 //
 // MANIPULATORS
@@ -854,7 +854,7 @@ int main(int argc, char *argv[]) {
         if (verbose) {
             P(NUM_CHAINS);
         }
-        bdlmca::Deleter<bdlmca::PooledBufferChain> *deleter = &factory;
+        bdlma::Deleter<bdlmca::PooledBufferChain> *deleter = &factory;
         for (int i = 0; i < NUM_CHAINS; ++i) {
             deleter->deleteObject(chains[i]);
         }
@@ -905,7 +905,7 @@ int main(int argc, char *argv[]) {
             PADDING          = 5
         };
 
-        bdlmca::Pool pool(POOL_BUFFER_SIZE);
+        bdlma::ConcurrentPool pool(POOL_BUFFER_SIZE);
 
         for (int i = 0; i < MAX_NUM_BUFFERS; ++i) {
             int newLength = BUFFER_SIZE * i;
@@ -974,7 +974,7 @@ int main(int argc, char *argv[]) {
             MAX_NUM_BUFFERS  = 100
         };
 
-        bdlmca::Pool pool(POOL_BUFFER_SIZE);
+        bdlma::ConcurrentPool pool(POOL_BUFFER_SIZE);
 
         for (int i = 0; i < MAX_NUM_BUFFERS; ++i) {
             int newLength = BUFFER_SIZE * i;
@@ -1044,7 +1044,7 @@ int main(int argc, char *argv[]) {
             NUM_BUFFERS      = 20
         };
 
-        bdlmca::Pool pool(POOL_BUFFER_SIZE);
+        bdlma::ConcurrentPool pool(POOL_BUFFER_SIZE);
 
         if (verbose)
             cout << "\tStretching the buffer chain." << endl;
@@ -1186,7 +1186,7 @@ int main(int argc, char *argv[]) {
 
         enum { POOL_BUFFER_SIZE = 128 };
 
-        bdlmca::Pool pool(POOL_BUFFER_SIZE);
+        bdlma::ConcurrentPool pool(POOL_BUFFER_SIZE);
 
         Obj mX(&pool); const Obj& X = mX;
         ASSERT(POOL_BUFFER_SIZE - sizeof(char*) == X.bufferSize());

@@ -1,6 +1,6 @@
-// bdlmca_defaultdeleter.h             -*-C++-*-
-#ifndef INCLUDED_BDLMCA_DEFAULTDELETER
-#define INCLUDED_BDLMCA_DEFAULTDELETER
+// bdlma_defaultdeleter.h             -*-C++-*-
+#ifndef INCLUDED_BDLMA_DEFAULTDELETER
+#define INCLUDED_BDLMA_DEFAULTDELETER
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,23 +10,23 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a concrete default deleter w/optionally-supplied allocator.
 //
 //@CLASSES:
-//   bdlmca::DefaultDeleter: concrete default 'bdema'-based deleter
+//   bdlma::DefaultDeleter: concrete default 'bdema'-based deleter
 //
-//@SEE_ALSO: bslma_allocator, bdlmca_deleter
+//@SEE_ALSO: bslma_allocator, bdlma_deleter
 //
 //@AUTHOR: Andrei Basov (abasov)
 //
 //@DESCRIPTION: This component provides a default concrete implementation of
-// the 'bdlmca::Deleter' protocol:
+// the 'bdlma::Deleter' protocol:
 //..
-//                      ( bdlmca::DefaultDeleter )
+//                      ( bdlma::DefaultDeleter )
 //                                 |       ctor
 //                                 v
-//                         ( bdlmca::Deleter )
+//                         ( bdlma::Deleter )
 //                                         dtor
 //                                         deleteObject
 //..
-// Upon construction, a 'bdlmca::DefaultDeleter' is optionally supplied with a
+// Upon construction, a 'bdlma::DefaultDeleter' is optionally supplied with a
 // 'bdema'-style allocator.  If an allocator is not specified, the currently
 // installed default allocator is used instead.  The memory footprint of
 // objects that are subsequently deleted via calls to the 'deleteObject' method
@@ -50,7 +50,7 @@ BSLS_IDENT("$Id: $")
 // Next, create a concrete deleter for 'object' using the same allocator as was
 // used to allocate its footprint:
 //..
-//      bdlmca::DefaultDeleter<my_Obj> deleter(basicAllocator);
+//      bdlma::DefaultDeleter<my_Obj> deleter(basicAllocator);
 //..
 // Finally, create a shared pointer passing to it 'object' and the address of
 // 'deleter':
@@ -61,7 +61,7 @@ BSLS_IDENT("$Id: $")
 // When the reference count of 'handle' goes to 0, 'object' is automatically
 // deleted via the 'deleteObject' method of 'deleter', which in turn will
 // invoke the destructor of 'object'.  Note that since the type of the deleter
-// used to instantiate 'handle' is 'bdlmca::Deleter<my_Obj>', any kind of deleter
+// used to instantiate 'handle' is 'bdlma::Deleter<my_Obj>', any kind of deleter
 // that implements this protocol can be passed.  Also note, on the downside,
 // that the lifetime of 'deleter' must be longer than the lifetime of all
 // associated instances.
@@ -73,8 +73,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLMCA_DELETER
-#include <bdlmca_deleter.h>
+#ifndef INCLUDED_BDLMA_DELETER
+#include <bdlma_deleter.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -87,7 +87,7 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-namespace bdlmca {
+namespace bdlma {
                         // ==========================
                         // class DefaultDeleter
                         // ==========================

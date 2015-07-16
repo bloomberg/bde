@@ -38,8 +38,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlmca_xxxpooledbufferchain.h>
 #endif
 
-#ifndef INCLUDED_BDLMCA_FACTORY
-#include <bdlmca_factory.h>
+#ifndef INCLUDED_BDLMA_FACTORY
+#include <bdlma_factory.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PERFORMANCEHINT
@@ -210,7 +210,7 @@ class PooledBufferChainStreamBuf : public bsl::streambuf {
                //==============================================
 
 class PooledBufferChainStreamBufFactory :
-        public bdlmca::Factory<bsl::streambuf>
+        public bdlma::Factory<bsl::streambuf>
 {
     // This class provides a factory for 'PooledBufferChainStreamBuf'
     // objects, using an underlying factory supplied at construction for
