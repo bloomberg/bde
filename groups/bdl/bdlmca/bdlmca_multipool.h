@@ -713,18 +713,6 @@ class Multipool {
         // where 'numPools' is either specified at construction, or an
         // implementation-defined value.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    int maxPooledObjectSize() const;
-        // [!DEPRECATED!] Return the maximum size of memory blocks that are
-        // pooled by this multipool object.  Note that the maximum value is
-        // defined as:
-        //..
-        //  2 ^ (numPools + 2)
-        //..
-        // where 'numPools' is either specified at construction, or an
-        // implementation-defined value.
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-
 };
 
 // ============================================================================
@@ -762,18 +750,8 @@ int Multipool::maxPooledBlockSize() const
 {
     return d_maxBlockSize;
 }
+
 }  // close package namespace
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-
-namespace bdlmca {inline
-int Multipool::maxPooledObjectSize() const
-{
-    return d_maxBlockSize;
-}
-}  // close package namespace
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-
 }  // close namespace BloombergLP
 
 #endif
