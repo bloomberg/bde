@@ -8064,10 +8064,17 @@ int main(int argc, char* argv[])
         //: 1 Short decimal strings round-trip correctly.
         //
         // Plan:
-        //: 1 For each digit string of the form -/+NNNNNNNNe-N, use strtod to
-        //:   convert it to 'double', convert the result to 'Decimal64', then
-        //:   convert that back to 'double', and verify that the two 'double'
-        //:   values are identical.
+        //: 1 For each digit string of the form -/+NNNNNNNNeE, -9 <= E <= 0,
+        //:   use strtod to convert it to 'double', convert the result to
+        //:   'Decimal64', then convert that back to 'double', and verify that
+        //:   the two 'double' values are identical.
+        //:
+        //: 2 For each digit string of the form -/+NNNNNNeE, -9 <= E <= 4,
+        //:   use strtof to convert it to 'float', convert the result to
+        //:   'Decimal64', then convert that back to 'float', and verify that
+        //:   the two 'float' values are identical.  (The exponent range is
+        //:   somewhat arbitrary; it overlaps the optimized range on both
+        //:   ends.)
         //
         // Testing:
         //   CONVERSION TEST
@@ -8086,8 +8093,10 @@ int main(int argc, char* argv[])
                     sprintf(buf, "%de%d", n, e);
                     float b = strtof(buf, 0);
                     Decimal64 d = Util::decimal64FromFloat(b);
+                    Decimal64 p = PARSEDEC64(buf);
                     float t = Util::decimalToFloat(d);
-                    ASSERTV(e, n, d, b, t, b == t);
+                    ASSERTV(e, n, d, p, b, t, b == t);
+                    ASSERTV(e, n, d, p, b, t, p == d);
                     if (verbose) {
                         if (rand() % 500 == 0 && rand() % 500 == 0) {
                             P_(e) P_(n) P_(d) P(b)
@@ -8107,8 +8116,10 @@ int main(int argc, char* argv[])
                     sprintf(buf, "%de%d", n, e);
                     double b = strtod(buf, 0);
                     Decimal64 d = Util::decimal64FromDouble(b);
+                    Decimal64 p = PARSEDEC64(buf);
                     double t = Util::decimalToDouble(d);
-                    ASSERTV(e, n, d, b, t, b == t);
+                    ASSERTV(e, n, d, p, b, t, b == t);
+                    ASSERTV(e, n, d, p, b, t, p == d);
                     if (verbose) {
                         if (rand() % 5000 == 0 && rand() % 5000 == 0) {
                             P_(e) P_(n) P_(d) P(b)
