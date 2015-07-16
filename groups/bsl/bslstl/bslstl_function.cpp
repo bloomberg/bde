@@ -1,5 +1,4 @@
-// bslstl_function.cpp                  -*-C++-*-
-
+// bslstl_function.cpp                                                -*-C++-*-
 #include <bslstl_function.h>
 
 #include <bsls_ident.h>
@@ -43,8 +42,8 @@ void *bsl::Function_Rep::initRep(std::size_t       sooFuncSize,
 
 void bsl::Function_Rep::moveInit(Function_Rep& other)
 {
-    // This function is called only when it is known that '*this' will get
-    // its allocator from 'other'.
+    // This function is called only when it is known that '*this' will get its
+    // allocator from 'other'.
 
     Manager allocManager_p = other.d_allocManager_p;
 
@@ -60,7 +59,7 @@ void bsl::Function_Rep::makeEmpty()
 {
     if (! d_funcManager_p) {
         // Already empty.  Nothing to do.
-        return;
+        return;                                                       // RETURN
     }
 
     // Call destructor on wrapped functor.
@@ -69,15 +68,15 @@ void bsl::Function_Rep::makeEmpty()
     d_funcManager_p = NULL;
 
     if (sooFuncSize <= sizeof(InplaceBuffer)) {
-        return;
+        return;                                                       // RETURN
     }
 
     bslma::Allocator *fromAlloc = d_allocator_p;
     if (d_allocManager_p == &unownedAllocManager) {
         // Was out-of-place functor with unowned allocator.
-        // Deallocate functor. (Allocator is unaffected.)
+        // Deallocate functor.  (Allocator is unaffected.)
         d_allocator_p->deallocate(d_objbuf.d_object_p);
-        return;
+        return;                                                       // RETURN
     }
 
     // Allocator is type-erased and stored in the same allocated memory block
@@ -102,10 +101,10 @@ bsl::Function_Rep::unownedAllocManager(ManagerOpCode  opCode,
     switch (opCode) {
       case e_MOVE_CONSTRUCT: // Fall through: allocators are always copied
       case e_COPY_CONSTRUCT: {
-        // Allocator pointer was already copied. 
+        // Allocator pointer was already copied.
         // No copy/move construction needed.
         BSLS_ASSERT(rep->d_allocator_p == input.asPtr());
-        return rep->d_allocator_p;
+        return rep->d_allocator_p;                                    // RETURN
       } break;
 
       case e_DESTROY: {
@@ -115,36 +114,36 @@ bsl::Function_Rep::unownedAllocManager(ManagerOpCode  opCode,
         if (sooFuncSize > sizeof(InplaceBuffer)) {
             rep->d_allocator_p->deallocate(rep->d_objbuf.d_object_p);
         }
-        return PtrOrSize_t();
+        return PtrOrSize_t();                                         // RETURN
       } break;
 
       case e_DESTRUCTIVE_MOVE: {
-        // Move just the pointer for unowed allocator.
+        // Move just the pointer for unowned allocator.
         rep->d_allocator_p =
             static_cast<bslma::Allocator*>(input.asPtr());
       } break;
 
-      case e_GET_SIZE:     return PtrOrSize_t();
-      case e_GET_TARGET:   return rep->d_allocator_p;
+      case e_GET_SIZE:     return PtrOrSize_t();                      // RETURN
+      case e_GET_TARGET:   return rep->d_allocator_p;                 // RETURN
       case e_GET_TYPE_ID:
-        return const_cast<std::type_info*>(&typeid(bslma::Allocator));
+        return const_cast<std::type_info*>(&typeid(bslma::Allocator));// RETURN
 
       case e_IS_EQUAL: {
         const bslma::Allocator *inputAlloc =
             static_cast<const bslma::Allocator *>(input.asPtr());
-        return inputAlloc == rep->d_allocator_p;
+        return inputAlloc == rep->d_allocator_p;                      // RETURN
       } break;
 
       case e_INIT_REP: {
-          bslma::Allocator *inputAlloc =
-              static_cast<bslma::Allocator *>(input.asPtr());
+        bslma::Allocator *inputAlloc =
+                                static_cast<bslma::Allocator *>(input.asPtr());
 
-          std::size_t sooFuncSize = rep->d_funcManager_p ?
+        std::size_t sooFuncSize = rep->d_funcManager_p ?
               rep->d_funcManager_p(e_GET_SIZE, rep,
                                    PtrOrSize_t()).asSize_t() : 0;
 
-          rep->initRep(sooFuncSize, inputAlloc,
-                       integral_constant<AllocCategory, e_BSLMA_ALLOC_PTR>());
+        rep->initRep(sooFuncSize, inputAlloc,
+                     integral_constant<AllocCategory, e_BSLMA_ALLOC_PTR>());
 
       } break;
 
@@ -244,7 +243,7 @@ const std::type_info&
 bsl::Function_Rep::target_type() const BSLS_NOTHROW_SPEC
 {
     if (! d_funcManager_p) {
-        return typeid(void);
+        return typeid(void);                                          // RETURN
     }
 
     PtrOrSize_t ret = d_funcManager_p(e_GET_TYPE_ID,
@@ -259,11 +258,11 @@ bool bsl::Function_Rep::isInplace() const BSLS_NOTHROW_SPEC
         std::size_t sooFuncSize =
             d_funcManager_p(e_GET_SIZE, const_cast<Function_Rep*>(this),
                             PtrOrSize_t()).asSize_t();
-        return sooFuncSize <= sizeof(InplaceBuffer);
+        return sooFuncSize <= sizeof(InplaceBuffer);                  // RETURN
     }
     else {
         // Always return true when invoked on an empty object.
-        return true;
+        return true;                                                  // RETURN
     }
 }
 
