@@ -479,6 +479,7 @@ class Function_Rep {
             // already set.
     };
 
+  public:
     enum AllocCategory {
         // Category of allocator supplied to a constructor.
 
@@ -487,6 +488,8 @@ class Function_Rep {
       , e_ERASED_STATEFUL_ALLOC  // C++03 STL-style stateful allocator
       , e_ERASED_STATELESS_ALLOC // C++03 STL-style stateless allocator
     };
+
+  private:
 
     typedef PtrOrSize_t (*Manager)(ManagerOpCode  opCode,
                                    Function_Rep  *rep,
@@ -740,7 +743,7 @@ class function<RET(ARGS...)> :
 
     // Since 'function' does not support 'operator==' and 'operator!=', they
     // must be deliberately supressed; otherwise 'function' objects would be
-    // implicitly comparible by implicit conversion to 'UnspecifiedBool'.
+    // implicitly comparable by implicit conversion to 'UnspecifiedBool'.
     bool operator==(const function&) const;  // Declared but not defined
     bool operator!=(const function&) const;  // Declared but not defined
 #endif
@@ -836,15 +839,11 @@ bool operator!=(nullptr_t, const function<RET(ARGS...)>&) BSLS_NOTHROW_SPEC;
 template <class RET, class... ARGS>
 void swap(function<RET(ARGS...)>& a, function<RET(ARGS...)>& b);
 
-}  // close namespace bsl
-
 #endif
 
 // ============================================================================
 //                TEMPLATE AND INLINE FUNCTION IMPLEMENTATIONS
 // ============================================================================
-
-namespace bsl {
 
                         // ---------------------------------
                         // struct template Function_ArgTypes
