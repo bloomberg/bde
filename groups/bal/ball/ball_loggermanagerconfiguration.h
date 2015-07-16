@@ -265,7 +265,8 @@ namespace BloombergLP {
 
 namespace bdlmxxx { class List; }
 
-namespace ball {                    // =====================================
+namespace ball {     
+                    // =====================================
                     // class LoggerManagerConfiguration
                     // =====================================
 

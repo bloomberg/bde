@@ -283,17 +283,6 @@ class Context {
         // documentation above for a complete specification of the constraints
         // on attribute values.)
 
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  (See the package-group-level documentation for more
-        // information on 'bdex' streaming of container types.)
-
-    static int maxSupportedVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  (See the package-group-level documentation for more
-        // information on 'bdex' streaming of container types.)
-        //
-        // DEPRECATED: replaced by 'maxSupportedBdexVersion'.
 
     // CREATORS
     Context(bslma::Allocator *basicAllocator = 0);
@@ -351,18 +340,6 @@ class Context {
         // specified 'index'.  The behavior is undefined if the resulting
         // attribute values are incompatible.
 
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If the
-        // specified 'version' is not supported, 'stream' is marked invalid,
-        // but this object is unaltered.  Note that no version is read from
-        // 'stream'.  (See the package-group-level documentation for more
-        // information on 'bdex' streaming of container types.)
-
     // ACCESSORS
     Transmission::Cause transmissionCause() const;
         // Return the transmission cause attribute of this context object.
@@ -387,16 +364,6 @@ class Context {
         // entire output on one line.  If 'stream' is initially invalid, this
         // operation has no effect.
 
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write this value to the specified output 'stream' and return a
-        // reference to the modifiable 'stream'.  Optionally specify an
-        // explicit 'version' format; by default, the maximum supported version
-        // is written to 'stream' and used as the format.  If 'version' is
-        // specified, that format is used but *not* written to 'stream'.  If
-        // 'version' is not supported, 'stream' is left unmodified.  (See the
-        // package-group-level documentation for more information on 'bdex'
-        // streaming of container types).
 };
 
 // FREE OPERATORS
@@ -426,19 +393,6 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Context& rhs);
                         // ------------------
                         // class Context
                         // ------------------
-
-// CLASS METHODS
-inline
-int Context::maxSupportedBdexVersion()
-{
-    return 1;  // Required by BDE policy; versions start at 1.
-}
-
-inline
-int Context::maxSupportedVersion()
-{
-    return maxSupportedBdexVersion();
-}
 
 // CREATORS
 inline
@@ -510,46 +464,6 @@ void Context::setRecordIndexRaw(int index)
     d_recordIndex = index;
 }
 
-template <class STREAM>
-STREAM& Context::bdexStreamIn(STREAM& stream, int version)
-{
-    switch(version) {  // Switch on Context version (starting with 1).
-      case 1: {
-        Transmission::Cause readCause;
-        Transmission::bdexStreamIn(stream, readCause, version);
-
-        if (!stream) {
-            return stream;                                            // RETURN
-        }
-
-        int readIndex;
-        stream.getInt32(readIndex);
-
-        if (!stream) {
-            return stream;                                            // RETURN
-        }
-
-        int readLength;
-        stream.getInt32(readLength);
-
-        if (!stream) {
-            return stream;                                            // RETURN
-        }
-
-        if (isValid(readCause, readIndex, readLength)) {
-            setAttributesRaw(readCause, readIndex, readLength);
-        }
-        else {
-            stream.invalidate();
-        }
-      } break;
-      default: {
-        stream.invalidate();          // unrecognized version number
-      } break;
-    }
-    return stream;
-}
-
 // ACCESSORS
 inline
 Transmission::Cause Context::transmissionCause() const
@@ -569,18 +483,6 @@ int Context::sequenceLength() const
     return d_sequenceLength;
 }
 
-template <class STREAM>
-STREAM& Context::bdexStreamOut(STREAM& stream, int version) const
-{
-    switch (version) {
-      case 1: {
-        Transmission::bdexStreamOut(stream, d_transmissionCause, version);
-        stream.putInt32(d_recordIndex);
-        stream.putInt32(d_sequenceLength);
-      } break;
-    }
-    return stream;
-}
 }  // close package namespace
 
 // FREE OPERATORS
