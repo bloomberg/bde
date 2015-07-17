@@ -1193,7 +1193,7 @@ void main1()
 // offset callback used in 'bdlt::CurrentTime'.
 //..
     bdlt::LocalTimeOffset::LocalTimeOffsetCallback previousCallback =
-                  baltzo::LocalTimeOffsetUtil::setLoadLocalTimeOffsetCallback();
+                 baltzo::LocalTimeOffsetUtil::setLoadLocalTimeOffsetCallback();
 
     ASSERT(&baltzo::LocalTimeOffsetUtil::localTimeOffset
         == bdlt::LocalTimeOffset::localTimeOffsetCallback());

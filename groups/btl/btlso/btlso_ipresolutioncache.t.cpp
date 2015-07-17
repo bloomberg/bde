@@ -150,42 +150,41 @@ static void aSsErT(int c, const char *s, int i)
 // ----------------------------------------------------------------------------
 
 namespace BloombergLP {
-
-class bteso::IpResolutionCache_Data {
-    // Duplicate of the 'bteso::IpResolutionCache_Data' class declaration
+namespace btlso {
+class IpResolutionCache_Data {
+    // Duplicate of the 'IpResolutionCache_Data' class declaration
     // defined in 'btlso_ipresolutioncache.cpp'.
     //
     // This class provides storage for a set of IP addresses and a
     // 'bdlt::Datetime' to indicate the time these addresses were populated.
 
     // DATA
-    bsl::vector<btlso::IPv4Address> d_addresses;     // set of IP addresses
+    bsl::vector<IPv4Address> d_addresses;     // set of IP addresses
 
-    bdlt::Datetime                  d_creationTime;  // time at which this
-                                                    // object is created
+    bdlt::Datetime           d_creationTime;  // time at which this
+                                              // object is created
   private:
     // NOT IMPLEMENTED
-    btlso::IpResolutionCache_Data(const bteso::IpResolutionCache_Data&);
-    bteso::IpResolutionCache_Data& operator=(
-                                          const bteso::IpResolutionCache_Data&);
+    IpResolutionCache_Data(const IpResolutionCache_Data&);
+    IpResolutionCache_Data& operator=(const IpResolutionCache_Data&);
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(btlso::IpResolutionCache,
+    BSLALG_DECLARE_NESTED_TRAITS(IpResolutionCache,
                                  bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATOR
-    btlso::IpResolutionCache_Data(
-                    const bsl::vector<btlso::IPv4Address>&  ipAddresses,
-                    const bdlt::Datetime&                   creationTime,
-                    bslma::Allocator                      *basicAllocator = 0);
+    IpResolutionCache_Data(
+                    const bsl::vector<IPv4Address>&  ipAddresses,
+                    const bdlt::Datetime&            creationTime,
+                    bslma::Allocator                *basicAllocator = 0);
         // Create an object storing the specified 'ipAddresses', and having the
         // specified 'creationTime'.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator is used.
 
     // ACCESSORS
-    const bsl::vector<btlso::IPv4Address>& addresses() const;
+    const bsl::vector<IPv4Address>& addresses() const;
         // Return a reference providing non-modifiable access to the IP
         // addresses stored in this object.
 
@@ -193,12 +192,12 @@ class bteso::IpResolutionCache_Data {
         // Return a reference providing non-modifiable access to the time this
         // object was created.
 };
-
+}
 }
 
 typedef btlso::IpResolutionCache                Obj;
 typedef btlso::IpResolutionCache_Entry          Entry;
-typedef bteso::IpResolutionCache_Data           Data;
+typedef btlso::IpResolutionCache_Data           Data;
 typedef btlso::IPv4Address                      IPv4;
 typedef bsl::vector<btlso::IPv4Address>         Vec;
 typedef btlso::IpResolutionCache_Entry::DataPtr DataPtr;

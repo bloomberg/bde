@@ -67,64 +67,64 @@ BSLS_IDENT("$Id: $")
 //  // Read '{'
 //
 //  int rc = tokenizer.advanceToNextToken();
-//  ASSERT(!rc);
+//  assert(!rc);
 //
 //  baljsn::Tokenizer::TokenType token = tokenizer.tokenType();
-//  ASSERT(baljsn::Tokenizer::BAEJSN_START_OBJECT == token);
+//  assert(baljsn::Tokenizer::BAEJSN_START_OBJECT == token);
 //
 //  rc = tokenizer.advanceToNextToken();
-//  ASSERT(!rc);
+//  assert(!rc);
 //  token = tokenizer.tokenType();
 //
 //  // Continue reading elements till '}' is encountered
 //
 //  while (baljsn::Tokenizer::BAEJSN_END_OBJECT != token) {
-//      ASSERT(baljsn::Tokenizer::BAEJSN_ELEMENT_NAME == token);
+//      assert(baljsn::Tokenizer::BAEJSN_ELEMENT_NAME == token);
 //
 //      // Read element name
 //
 //      bslstl::StringRef nodeValue;
 //      rc = tokenizer.value(&nodeValue);
-//      ASSERT(!rc);
+//      assert(!rc);
 //
 //      bsl::string elementName = nodeValue;
 //
 //      // Read element value
 //
 //      int rc = tokenizer.advanceToNextToken();
-//      ASSERT(!rc);
+//      assert(!rc);
 //
 //      token = tokenizer.tokenType();
-//      ASSERT(baljsn::Tokenizer::BAEJSN_ELEMENT_VALUE == token);
+//      assert(baljsn::Tokenizer::BAEJSN_ELEMENT_VALUE == token);
 //
 //      rc = tokenizer.value(&nodeValue);
-//      ASSERT(!rc);
+//      assert(!rc);
 //
 //      // Extract the simple type with the data
 //
 //      if (elementName == "street") {
 //          rc = baljsn::ParserUtil::getValue(&address.d_street, nodeValue);
-//          ASSERT(!rc);
+//          assert(!rc);
 //      }
 //      else if (elementName == "state") {
 //          rc = baljsn::ParserUtil::getValue(&address.d_state, nodeValue);
-//          ASSERT(!rc);
+//          assert(!rc);
 //      }
 //      else if (elementName == "zipcode") {
 //          rc = baljsn::ParserUtil::getValue(&address.d_zipcode, nodeValue);
-//          ASSERT(!rc);
+//          assert(!rc);
 //      }
 //
 //      rc = tokenizer.advanceToNextToken();
-//      ASSERT(!rc);
+//      assert(!rc);
 //      token = tokenizer.tokenType();
 //  }
 //..
 // Finally, we will verify that the 'address' aggregate has the correct values:
 //..
-//  ASSERT("Lexington Ave" == address.d_street);
-//  ASSERT("New York"      == address.d_state);
-//  ASSERT(10022           == address.d_zipcode);
+//  assert("Lexington Ave" == address.d_street);
+//  assert("New York"      == address.d_state);
+//  assert(10022           == address.d_zipcode);
 //..
 
 #ifndef INCLUDED_BALSCM_VERSION

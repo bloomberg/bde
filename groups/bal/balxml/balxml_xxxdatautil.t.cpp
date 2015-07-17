@@ -8,6 +8,9 @@
 #include <balxml_xxxschemaparser.h>
 
 #include <balxml_formatter.h>
+#include <balxml_validatingreader.h>
+
+#include <bdlaggxxx_aggregate.h>
 
 #include <bdlat_formattingmode.h>
 
@@ -34,6 +37,7 @@
 
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
+#include <bsl_memory.h>
 #include <bsl_sstream.h>
 #include <bsl_stack.h>
 #include <bsl_string.h>

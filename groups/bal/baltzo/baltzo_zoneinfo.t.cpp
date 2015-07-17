@@ -2002,6 +2002,7 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
                 "\nAssign the address of each operator to a variable." << endl;
         {
+            using namespace baltzo;
             typedef bool (*operatorPtr)(const Obj&, const Obj&);
 
             // Verify that the signature and return type is standard.
@@ -2191,6 +2192,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nAssign the address of print "
                              "and output operator to a variable." << endl;
         {
+            using namespace baltzo;
             typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
             typedef ostream& (*operatorPtr)(ostream&, const Obj&);
 
@@ -2493,6 +2495,7 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
                 "\nAssign the address of the operator to a variable." << endl;
         {
+            using namespace baltzo;
             typedef bool (*operatorPtr)(const Transition&, const Transition&);
 
             // Verify that the signature and return type is standard.
@@ -2690,6 +2693,7 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
                 "\nAssign the address of each operator to a variable." << endl;
         {
+            using namespace baltzo;
             typedef bool (*operatorPtr)(const Transition&, const Transition&);
 
             // Verify that the signature and return type is standard.
@@ -2835,6 +2839,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nAssign the address of print "
                              "and output operator to a variable." << endl;
         {
+            using namespace baltzo;
             typedef ostream& (Transition::*funcPtr)(ostream&, int, int) const;
             typedef ostream& (*operatorPtr)(ostream&, const Transition&);
 

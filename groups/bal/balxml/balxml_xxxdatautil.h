@@ -1,4 +1,3 @@
-#if 0
 // balxml_xxxdatautil.h            -*-C++-*-
 #ifndef INCLUDED_BALXML_XXXDATAUTIL
 #define INCLUDED_BALXML_XXXDATAUTIL
@@ -315,4 +314,3 @@ struct DataUtil {
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
 // ----------------------------- END-OF-FILE ---------------------------------
-#endif

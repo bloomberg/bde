@@ -14138,12 +14138,12 @@ using baexml_Decoder_TestNamespace::TestVectorElemTypeContext;
       // ===============================================================
 
 namespace BloombergLP {
-
+namespace balxml {
     template <>
-    struct balxml::Decoder_SelectContext<TestVectorElemType> {
+    struct Decoder_SelectContext<TestVectorElemType> {
         typedef TestVectorElemTypeContext Type;
     };
-
+}  // close package namespace
 }  // close namespace BloombergLP
 
                               // ================

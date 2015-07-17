@@ -31,11 +31,9 @@
 // These header are for testing only and the hierarchy level of baejsn was
 // increase because of them.  They should be remove when possible.
 #include <balb_testmessages.h>
-//#include <baea_serializableobjectproxy.h>
-//#include <baea_serializableobjectproxyutil.h>
 #include <balxml_decoder.h>
-//#include <balxml_xxxdatautil.h>
-//#include <balxml_xxxschemaparser.h>
+#include <balxml_xxxdatautil.h>
+#include <balxml_xxxschemaparser.h>
 #include <balxml_minireader.h>
 #include <balxml_errorinfo.h>
 
@@ -35071,11 +35069,7 @@ void constructFeatureTestMessage(
         balb::FeatureTestMessage object;
         bsl::istringstream       ss(XML_TEST_MESSAGES[i].d_text_p);
 
-        // Use 'balb::SerializableObjectProxy' to speed up compile time.
-        balb::SerializableObjectProxy sop;
-        balb::SerializableObjectProxyUtil::makeDecodeProxy(&sop, &object);
-
-        int rc = decoder.decode(ss.rdbuf(), &sop);
+        int rc = decoder.decode(ss.rdbuf(), &object);
         if (0 != rc) {
             bsl::cout << "Failed to decode from initialization data (i="
                       << i << "): "
