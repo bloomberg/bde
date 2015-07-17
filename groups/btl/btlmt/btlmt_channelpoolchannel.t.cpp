@@ -260,7 +260,7 @@ class my_Server {
     bdlmca::PooledBlobBufferFactory   d_blobBufferFactory;  // blob buffer
                                                           // factory
 
-    bdlmca::PoolAllocator             d_spAllocator;        // smart pointers
+    bdlma::ConcurrentPoolAllocator             d_spAllocator;        // smart pointers
                                                           // allocators
 
     bslma::Allocator               *d_allocator_p;        // memory
@@ -889,7 +889,7 @@ int main(int argc, char *argv[])
             bdlmca::PooledBlobBufferFactory  pbbf(1024);
 
             bslma::TestAllocator ca;
-            bdlmca::PoolAllocator pa(&ca);
+            bdlma::ConcurrentPoolAllocator pa(&ca);
 
             btlmt::ChannelPool cp(channelCb, dataCb, poolCb, config, &ca);
 

@@ -4,8 +4,8 @@
 
 #include <bdlcc_queue.h>
 #include <bslma_testallocator.h>                // for testing only
-#include <bdlmca_pool.h>
-//#include <bdlmca_defaultdeleter.h>
+#include <bdlma_concurrentpool.h>
+//#include <bdlma_defaultdeleter.h>
 #include <bdlmca_blob.h>
 #include <bdlmca_blobutil.h>
 #include <bdlmca_pooledblobbufferfactory.h>
@@ -133,7 +133,7 @@ void processBlobMessages(bdlcc::Queue<btlmt::Message> *queue,
                         // --------------------
 
 template <class TYPE>
-class DefaultDeleter : public bdlmca::Deleter<TYPE> {
+class DefaultDeleter : public bdlma::Deleter<TYPE> {
     bslma::Allocator *d_allocator_p;  // memory allocator (held, *not* owned)
 
   public:
@@ -527,7 +527,7 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < NUM_DATA; ++i) {
             bslma::TestAllocator localAllocator(veryVeryVerbose);
-            bdlmca::Pool myPool(BUFFER_LENGTH, &localAllocator);
+            bdlma::ConcurrentPool myPool(BUFFER_LENGTH, &localAllocator);
             DefaultDeleter<bdlmca::PooledBufferChain>
                 deleter(&localAllocator);
 
@@ -629,7 +629,7 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator   localTestAllocator(veryVeryVerbose);
             enum { NUM_BYTES = 64 }; // some number
-            bdlmca::Pool myPool(NUM_BYTES, &localTestAllocator);
+            bdlma::ConcurrentPool myPool(NUM_BYTES, &localTestAllocator);
             DefaultDeleter<bdlmca::PooledBufferChain>
                 deleter(&localTestAllocator);
 
@@ -699,7 +699,7 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator   localTestAllocator(veryVeryVerbose);
             enum { NUM_BYTES = 64 }; // some number
-            bdlmca::Pool myPool(NUM_BYTES, &localTestAllocator);
+            bdlma::ConcurrentPool myPool(NUM_BYTES, &localTestAllocator);
             DefaultDeleter<bdlmca::PooledBufferChain>
                 deleter(&localTestAllocator);
 

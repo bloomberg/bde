@@ -10,7 +10,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bdlmca_blobutil.h>
 #include <bdlmca_xxxpooledbufferchain.h>
 #include <bdlmca_pooledblobbufferfactory.h>
-#include <bdlmca_poolallocator.h>
+#include <bdlma_concurrentpoolallocator.h>
 #include <bdlmtt_lockguard.h>
 
 #include <bdlma_bufferedsequentialallocator.h>
@@ -136,7 +136,7 @@ ChannelPoolChannel::ChannelPoolChannel(
                            ChannelPool              *channelPool,
                            bdlmca::PooledBufferChainFactory *bufferChainFactory,
                            bdlmca::BlobBufferFactory        *blobBufferFactory,
-                           bdlmca::PoolAllocator            *spAllocator,
+                           bdlma::ConcurrentPoolAllocator            *spAllocator,
                            bslma::Allocator               *allocator,
                            bool                            useBlobForDataReads)
 : d_pooledBufferChainPendingData()

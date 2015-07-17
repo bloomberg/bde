@@ -391,7 +391,7 @@ class DataMsg {
         // Create an empty data message.
 
     DataMsg(bdlmca::PooledBufferChain                *chain,
-                  bdlmca::Deleter<bdlmca::PooledBufferChain> *deleter,
+                  bdlma::Deleter<bdlmca::PooledBufferChain> *deleter,
                   int                                     channelId,
                   bslma::Allocator                       *basicAllocator = 0);
         // Create a data message containing the specified 'chain' of bytes and
@@ -428,7 +428,7 @@ class DataMsg {
         // 'channelId'.
 
     void setData(bdlmca::PooledBufferChain                *chain,
-                 bdlmca::Deleter<bdlmca::PooledBufferChain> *deleter,
+                 bdlma::Deleter<bdlmca::PooledBufferChain> *deleter,
                  bslma::Allocator                       *basicAllocator = 0);
         // Set the data segment for this data message to the specified 'chain'
         // whose lifetime is managed by the specified 'deleter', and release
@@ -693,13 +693,13 @@ class UserMsg {
 
     void setCountedData(
                    bdlmca::PooledBufferChain                *chain,
-                   bdlmca::Deleter<bdlmca::PooledBufferChain> *deleter,
+                   bdlma::Deleter<bdlmca::PooledBufferChain> *deleter,
                    bslma::Allocator                       *basicAllocator = 0);
         // DEPRECATED  Use 'setManagedData' instead.
 
     void setManagedData(
                    bdlmca::PooledBufferChain                *chain,
-                   bdlmca::Deleter<bdlmca::PooledBufferChain> *deleter,
+                   bdlma::Deleter<bdlmca::PooledBufferChain> *deleter,
                    bslma::Allocator                       *basicAllocator = 0);
         // Store the specified 'chain' pointer value allocated from the
         // specified 'factory' into this user message, release from management
@@ -1097,7 +1097,7 @@ DataMsg::DataMsg()
 inline
 DataMsg::DataMsg(
         bdlmca::PooledBufferChain                *chain,
-        bdlmca::Deleter<bdlmca::PooledBufferChain> *deleter,
+        bdlma::Deleter<bdlmca::PooledBufferChain> *deleter,
         int                                     channelId,
         bslma::Allocator                       *basicAllocator)
 {
@@ -1132,7 +1132,7 @@ void DataMsg::setChannelId(int channelId)
 inline
 void DataMsg::setData(
         bdlmca::PooledBufferChain                *chain,
-        bdlmca::Deleter<bdlmca::PooledBufferChain> *deleter,
+        bdlma::Deleter<bdlmca::PooledBufferChain> *deleter,
         bslma::Allocator                       *basicAllocator)
 {
     Handle *h = (Handle *)(void *)d_impl.d_data.d_arena;
@@ -1349,7 +1349,7 @@ namespace btlmt {
 inline
 void UserMsg::
          setCountedData(bdlmca::PooledBufferChain                *chain,
-                        bdlmca::Deleter<bdlmca::PooledBufferChain> *deleter,
+                        bdlma::Deleter<bdlmca::PooledBufferChain> *deleter,
                         bslma::Allocator                       *basicAllocator)
 {
     setManagedData(chain, deleter, basicAllocator);

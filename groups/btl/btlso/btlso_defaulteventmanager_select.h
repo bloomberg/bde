@@ -135,8 +135,8 @@ BSLS_IDENT("$Id: $")
 #include <btlso_event.h>
 #endif
 
-#ifndef INCLUDED_BDLMCA_POOLALLOCATOR
-#include <bdlmca_poolallocator.h>
+#ifndef INCLUDED_BDLMA_CONCURRENTPOOLALLOCATOR
+#include <bdlma_concurrentpoolallocator.h>
 #endif
 
 #ifndef INCLUDED_BDLT_TIMEINTERVAL
@@ -187,7 +187,7 @@ class DefaultEventManager<Platform::SELECT>
     // Due to the initialization dependency between 'd_eventsAllocator'
     // and 'd_events' their declaration order should always be as follows.
 
-    bdlmca::PoolAllocator d_eventsAllocator;   // event map allocator
+    bdlma::ConcurrentPoolAllocator d_eventsAllocator;   // event map allocator
 
     EventMap            d_events;     // socket events and associated callbacks
 

@@ -487,8 +487,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_objectcatalog.h>
 #endif
 
-#ifndef INCLUDED_BDLMCA_POOLALLOCATOR
-#include <bdlmca_poolallocator.h>
+#ifndef INCLUDED_BDLMA_CONCURRENTPOOLALLOCATOR
+#include <bdlma_concurrentpoolallocator.h>
 #endif
 
 #ifndef INCLUDED_BDLMCA_XXXPOOLEDBUFFERCHAIN
@@ -691,7 +691,7 @@ class SessionPool {
 
     SessionPoolStateCallback       d_poolStateCB;        // pool state callback
 
-    bdlmca::PoolAllocator            d_spAllocator;        // smart pointers
+    bdlma::ConcurrentPoolAllocator            d_spAllocator;        // smart pointers
                                                          // allocators
 
     bdlmca::PooledBufferChainFactory d_bufferChainFactory; // buffer chain

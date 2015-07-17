@@ -216,8 +216,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlcfxxx_vfunc0.h>
 #endif
 
-#ifndef INCLUDED_BDLMCA_POOL
-#include <bdlmca_pool.h>
+#ifndef INCLUDED_BDLMA_CONCURRENTPOOL
+#include <bdlma_concurrentpool.h>
 #endif
 
 #ifndef INCLUDED_BDLMTT_XXXTHREAD
@@ -386,7 +386,7 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
         // component and its internal dispatch thread.
 
     // DATA
-    mutable bdlmca::Pool         d_requestPool;     // memory pool for operations
+    mutable bdlma::ConcurrentPool         d_requestPool;     // memory pool for operations
 
     mutable bdlcc::Queue<TcpTimerEventManager_Request*>
                                d_requestQueue;    // queue of requests to

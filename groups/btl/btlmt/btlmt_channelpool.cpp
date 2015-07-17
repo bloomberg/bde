@@ -13,11 +13,11 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <btlso_socketoptions.h>
 #include <btlso_socketoptutil.h>
 
-#include <bdlmca_pool.h>
+#include <bdlma_concurrentpool.h>
 #include <bdlmca_blob.h>
 #include <bdlmca_xxxpooledbufferchain.h>
 #include <bdlmca_pooledblobbufferfactory.h>
-#include <bdlmca_deleter.h>
+#include <bdlma_deleter.h>
 #include <bdlmtt_lockguard.h>
 #include <bdlmtt_xxxthread.h>
 #include <bdlmtt_xxxatomictypes.h>
@@ -369,7 +369,7 @@ class Channel {
 
     btlso::IPv4Address               d_peerAddress;        // peer address
 
-    bdlmca::PoolAllocator            *d_sharedPtrRepAllocator_p;
+    bdlma::ConcurrentPoolAllocator            *d_sharedPtrRepAllocator_p;
 
     bslma::Allocator               *d_allocator_p;        // for memory
 
@@ -531,7 +531,7 @@ class Channel {
           bdlmca::BlobBufferFactory                *readBlobBufferPool,
           TcpTimerEventManager             *eventManager,
           ChannelPool                      *channelPool,
-          bdlmca::PoolAllocator                    *sharedPtrAllocator,
+          bdlma::ConcurrentPoolAllocator                    *sharedPtrAllocator,
           bslma::Allocator                       *basicAllocator = 0);
         // Create a channel belonging to the specified 'channelPool' and
         // managed by the specified 'eventManager' with the specified
@@ -1950,7 +1950,7 @@ Channel::Channel(
         bdlmca::BlobBufferFactory                *readBlobBufferPool,
         TcpTimerEventManager             *eventManager,
         ChannelPool                      *channelPool,
-        bdlmca::PoolAllocator                    *sharedPtrAllocator,
+        bdlma::ConcurrentPoolAllocator                    *sharedPtrAllocator,
         bslma::Allocator                       *basicAllocator)
 : d_socket(*socket)
 , d_channelStateCb(channelCb)

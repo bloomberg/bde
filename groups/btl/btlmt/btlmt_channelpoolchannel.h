@@ -157,7 +157,7 @@ class ChannelPoolChannel: public AsyncChannel {
                                                   // 'bdlmca::Blob' objects
                                                   // returned in data callback
 
-    bdlmca::PoolAllocator  *d_spAllocator_p;        // shared ptr pool
+    bdlma::ConcurrentPoolAllocator  *d_spAllocator_p;        // shared ptr pool
 
     ChannelPool    *d_channelPool_p;        // held but not owned
 
@@ -224,7 +224,7 @@ class ChannelPoolChannel: public AsyncChannel {
                   ChannelPool              *channelPool,
                   bdlmca::PooledBufferChainFactory *bufferChainFactory,
                   bdlmca::BlobBufferFactory        *blobBufferFactory,
-                  bdlmca::PoolAllocator            *spAllocator,
+                  bdlma::ConcurrentPoolAllocator            *spAllocator,
                   bslma::Allocator               *allocator,
                   bool                            useBlobForDataReads = false);
         // Create a 'AsyncChannel' concrete implementation reading from

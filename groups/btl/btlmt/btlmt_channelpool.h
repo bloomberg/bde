@@ -586,8 +586,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlmca_blob.h>
 #endif
 
-#ifndef INCLUDED_BDLMCA_POOLALLOCATOR
-#include <bdlmca_poolallocator.h>
+#ifndef INCLUDED_BDLMA_CONCURRENTPOOLALLOCATOR
+#include <bdlma_concurrentpoolallocator.h>
 #endif
 
 #ifndef INCLUDED_BDLMCA_POOLEDBLOBBUFFERFACTORY
@@ -973,7 +973,7 @@ class ChannelPool {
     bsl::map<int, ServerHandle>         d_acceptors;
     mutable bdlmtt::Mutex                 d_acceptorsLock;
 
-    bdlmca::PoolAllocator                 d_sharedPtrRepAllocator;
+    bdlma::ConcurrentPoolAllocator                 d_sharedPtrRepAllocator;
     bdlmca::PooledBufferChainFactory      d_messageFactory;
     bdlmca::PooledBufferChainFactory      d_vecMessageFactory;
     bslma::ManagedPtr<bdlmca::BlobBufferFactory> 
@@ -1036,7 +1036,7 @@ class ChannelPool {
     btlso::InetStreamSocketFactory<btlso::IPv4Address>
                                         d_factory;
 
-    bdlmca::Pool                          d_pool;        // for Channel
+    bdlma::ConcurrentPool                          d_pool;        // for Channel
                                                        // (owned)
 
     bslma::Allocator                   *d_allocator_p; // (held, not owned)

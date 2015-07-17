@@ -162,7 +162,7 @@ UserMsg& UserMsg::operator=(const UserMsg& rhs)
 
 void UserMsg::
          setManagedData(bdlmca::PooledBufferChain                *chain,
-                        bdlmca::Deleter<bdlmca::PooledBufferChain> *deleter,
+                        bdlma::Deleter<bdlmca::PooledBufferChain> *deleter,
                         bslma::Allocator                       *basicAllocator)
 {
     if (BTEMT_MANAGED == d_impl.d_dataLength) {

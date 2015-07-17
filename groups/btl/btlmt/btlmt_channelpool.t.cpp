@@ -21,7 +21,7 @@
 #include <bdlcc_queue.h>
 #include <bslma_testallocator.h>
 #include <bdlmca_blobutil.h>
-#include <bdlmca_pool.h>
+#include <bdlma_concurrentpool.h>
 #include <bdlmca_xxxpooledbufferchain.h>
 #include <bdlmca_pooledblobbufferfactory.h>
 #include <bdlmtt_barrier.h>
@@ -9530,7 +9530,7 @@ void TestDriver::testCase36()
         };
 
         bslma::TestAllocator ta(veryVeryVerbose);
-        bdlmca::Pool pool(100, &ta);
+        bdlma::ConcurrentPool pool(100, &ta);
 
         bdlcc::Queue<btlmt::DataMsg> incoming, outgoing;
         my_QueueProcessor qp(&incoming, &outgoing, &coutMutex,
