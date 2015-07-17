@@ -3,7 +3,7 @@
 
 #include <btls5_testserver.h>  // for testing only
 
-#include <bdlmca_threadenabledallocatoradapter.h>
+#include <bdlma_concurrentallocatoradapter.h>
 #include <bdlmtt_condition.h>
 #include <bdlmtt_lockguard.h>
 #include <bdlmtt_mutex.h>

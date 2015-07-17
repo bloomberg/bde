@@ -1,4 +1,4 @@
-// bdlma_deleter.t.cpp        -*-C++-*-
+// bdlma_deleter.t.cpp                                                -*-C++-*-
 
 #include <bdlma_deleter.h>
 
@@ -16,8 +16,8 @@ using namespace bsl;  // automatically added by script
 //                              OVERVIEW
 // We are testing a pure protocol class as well as a set of overloaded
 // operators.  We need to verify that (1) a concrete derived class compiles
-// and links, and (2) that the overloaded new operator correctly forwards
-// the call to the allocate method of the supplied deleter.
+// and links, and (2) that the overloaded new operator correctly forwards the
+// call to the allocate method of the supplied deleter.
 //-----------------------------------------------------------------------------
 // [ 1] virtual ~bdlma::Deleter();
 // [ 1] virtual void delete(TYPE *instance) = 0;
@@ -71,14 +71,13 @@ class my_Deleter : public bdlma::Deleter<my_Obj> {
 };
 
 //=============================================================================
-//                      MAIN PROGRAM
+//                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
 
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    // int veryVerbose = argc > 3;
+    int  test    = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose = argc > 2;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -92,10 +91,9 @@ int main(int argc, char *argv[]) {
         //
         // Plan:
         //   Construct an object of a class derived from 'bdlma::Deleter'.
-        //   Upcast a reference to the object to the base class
-        //   'bdlma::Deleter'.  Using the base class reference invoke both
-        //   'delete' method and verify that the correct implementations of the
-        //   methods are called.
+        //   Cast a reference to the object to the base class 'bdlma::Deleter'.
+        //   Using the base class reference invoke both 'delete' method and
+        //   verify that the correct implementations of the methods are called.
         //
         // Testing:
         //   virtual ~bdlma::Deleter();
@@ -133,11 +131,18 @@ int main(int argc, char *argv[]) {
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

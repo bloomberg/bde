@@ -78,12 +78,14 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 
-namespace btlmt {class ChannelPool;
-}  // close package namespace
 namespace bdlmca { class PooledBufferChainFactory; }
-namespace bdlmca { class PoolAllocator; }
+namespace bdlma { class ConcurrentPoolAllocator; }
 
-namespace btlmt {                       // ==============================
+namespace btlmt {
+
+class ChannelPool;
+
+                       // ==============================
                        // class ChannelPoolChannel
                        // ==============================
 

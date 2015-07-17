@@ -164,8 +164,8 @@ BSLS_IDENT("$Id: $")
 #include <balscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLMCA_POOL
-#include <bdlmca_pool.h>
+#ifndef INCLUDED_BDLMA_CONCURRENTPOOL
+#include <bdlma_concurrentpool.h>
 #endif
 
 #ifndef INCLUDED_BDLMTT_MUTEX
@@ -270,8 +270,8 @@ class MappingManager {
     PageList                 d_usedPages;
     bsl::vector<PageList>    d_unusedPages;
     int                      d_mapCount;
-    bdlmca::Pool               d_pagesPool;
-    bdlmca::Pool               d_pageListPool;
+    bdlma::ConcurrentPool               d_pagesPool;
+    bdlma::ConcurrentPool               d_pageListPool;
 
     // not implemented
     MappingManager(const MappingManager&);

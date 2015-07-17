@@ -3,7 +3,7 @@
 
 #include <ball_severity.h>          // for testing only
 
-#include <bdlmca_deleter.h>          // for testing only
+#include <bdlma_deleter.h>          // for testing only
 #include <bslma_testallocator.h>    // for testing only
 
 #include <bdlmtt_lockguard.h>        // for testing only
@@ -163,7 +163,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Record& rhs)
 
 typedef bsl::shared_ptr<ball::Record> Handle;
 
-class my_DummyDeleter : public bdlmca::Deleter<ball::Record> {
+class my_DummyDeleter : public bdlma::Deleter<ball::Record> {
     // A dummy deleter that does nothing in 'deleteObject'.
 
   public:

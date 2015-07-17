@@ -1,23 +1,27 @@
-// bdlma_factory.t.cpp        -*-C++-*-
-
+// bdlma_factory.t.cpp                                                -*-C++-*-
 #include <bdlma_factory.h>
 
-#include <bsl_cstdlib.h>     // atoi()
-#include <bsl_cstring.h>     // memcpy()
+#include <bdls_testutil.h>
+
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>
+
+#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstring.h>     // 'memcpy'
 #include <bsl_iostream.h>
+
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
-
-
+using namespace bsl;
 
 //=============================================================================
-//                              TEST PLAN
+//                             TEST PLAN
 //-----------------------------------------------------------------------------
-//                              OVERVIEW
+//                              Overview
+//                              --------
 // We are testing a pure protocol class as well as a set of overloaded
 // operators.  We need to verify that (1) a concrete derived class compiles
-// and links, and (2) that the overloaded new operator correctly forwards
-// the call to the allocate method of the supplied deleter.
+// and links, and (2) that the overloaded new operator correctly forwards the
+// call to the allocate method of the supplied deleter.
 //-----------------------------------------------------------------------------
 // [ 1] virtual ~bdlma::Factory();
 // [ 1] virtual void delete(TYPE *instance) = 0;
@@ -25,29 +29,49 @@ using namespace bsl;  // automatically added by script
 // [ 1] PROTOCOL TEST - Make sure derived class compiles and links.
 //=============================================================================
 
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
-static void aSsErT(int c, const char *s, int i)
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define PS(X) cout << #X " = \n" << (X) << endl; // Print identifier and value.
-#define T_()  cout << "\t" << flush;          // Print a tab (w/o newline)
+}  // close unnamed namespace
+
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                      CONCRETE DERIVED TYPES
@@ -74,14 +98,13 @@ class my_Factory : public bdlma::Factory<my_Obj> {
 };
 
 //=============================================================================
-//                      MAIN PROGRAM
+//                                   MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
 
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    // int veryVerbose = argc > 3;
+    int  test    = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose = argc > 2;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -95,10 +118,9 @@ int main(int argc, char *argv[]) {
         //
         // Plan:
         //   Construct an object of a class derived from 'bdlma::Factory'.
-        //   Upcast a reference to the object to the base class
-        //   'bdlma::Factory'.  Using the base class reference invoke both
-        //   'delete' method and verify that the correct implementations of the
-        //   methods are called.
+        //   Cast a reference to the object to the base class 'bdlma::Factory'.
+        //   Using the base class reference invoke both 'delete' method and
+        //   verify that the correct implementations of the methods are called.
         //
         // Testing:
         //   virtual ~bdlma::Factory();
@@ -142,11 +164,18 @@ int main(int argc, char *argv[]) {
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

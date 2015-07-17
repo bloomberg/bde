@@ -6,7 +6,7 @@ BSLS_IDENT_RCSID(ball_attributecontext_cpp,"$Id$ $CSID$")
 
 #include <ball_categorymanager.h>
 
-#include <bdlmca_pool.h>
+#include <bdlma_concurrentpool.h>
 #include <bdlmtt_lockguard.h>
 #include <bdlmtt_once.h>
 #include <bdlmtt_threadlocalvariable.h>

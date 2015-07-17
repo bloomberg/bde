@@ -1,4 +1,4 @@
-// bdlma_factory.h             -*-C++-*-
+// bdlma_factory.h                                                    -*-C++-*-
 #ifndef INCLUDED_BDLMA_FACTORY
 #define INCLUDED_BDLMA_FACTORY
 
@@ -35,8 +35,8 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 // Suppose that we would like to transfer an object between threads using
-// 'bsl::shared_ptr'.  For the sake of discussion, the type of this object
-// is 'my_Obj' and we will suppose that it is created using a concrete
+// 'bsl::shared_ptr'.  For the sake of discussion, the type of this object is
+// 'my_Obj' and we will suppose that it is created using a concrete
 // implementation of 'bdlma::Factory', say, 'my_DefaultFactory', the
 // implementation of which is assumed:
 //..
@@ -54,9 +54,9 @@ BSLS_IDENT("$Id: $")
 // deleted via the 'deleteObject' method of 'factory', which in turn will
 // invoke the destructor of 'object'.  Note that since the type of the factory
 // used to both create the object under management and to instantiate 'handle'
-// is 'bdlma::Factory<my_Obj>', any kind of creator/deleter that implements this
-// protocol can be passed.  Also note, on the downside, that the lifetime of
-// 'factory' must be longer than the lifetime of all associated object
+// is 'bdlma::Factory<my_Obj>', any kind of creator/deleter that implements
+// this protocol can be passed.  Also note, on the downside, that the lifetime
+// of 'factory' must be longer than the lifetime of all associated object
 // instances.
 //..
 //  }
@@ -80,8 +80,8 @@ namespace bdlma {
 template <class TYPE>
 class Factory : public Deleter<TYPE> {
     // This 'class' provides a protocol (or pure interface) for a thread-safe
-    // object creator and deleter.  It extends the 'Deleter' protocol
-    // with the addition of a 'createObject' method.
+    // object creator and deleter.  It extends the 'Deleter' protocol with the
+    // addition of a 'createObject' method.
 
   public:
     // CREATORS
@@ -102,26 +102,33 @@ class Factory : public Deleter<TYPE> {
         // 'createObject' on this object factory and has not yet been deleted.
 };
 
-// ===========================================================================
+// ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // CREATORS
 template <class TYPE>
 Factory<TYPE>::~Factory()
 {
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

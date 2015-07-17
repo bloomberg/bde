@@ -1,4 +1,4 @@
-// bdlma_deleter.h             -*-C++-*-
+// bdlma_deleter.h                                                    -*-C++-*-
 #ifndef INCLUDED_BDLMA_DELETER
 #define INCLUDED_BDLMA_DELETER
 
@@ -17,18 +17,19 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Andrei Basov (abasov)
 //
-//@DESCRIPTION: This component defines the base-level protocol for a
-// thread-safe and type-safe deleter of objects of arbitrary type.  This class
-// is extremely useful for transferring the ownership of objects between
-// different entities.  The following usage example demonstrates this point.
+//@DESCRIPTION: This component defines the base-level protocol,
+// 'bdlma::Deleter', for a thread-safe and type-safe deleter of objects of
+// arbitrary type.  This class is extremely useful for transferring the
+// ownership of objects between different entities.  The following usage
+// example demonstrates this point.
 //
 ///Usage
 ///-----
 // Suppose that we would like to transfer ownership of an object between
-// threads using 'bsl::shared_ptr'.  For the sake of discussion, the type
-// of this object is 'my_Obj' and we will suppose that it is created using a
-// given 'basicAllocator'.  Note that we assume that 'my_Obj' does not require
-// an allocator for any of its members:
+// threads using 'bsl::shared_ptr'.  For the sake of discussion, the type of
+// this object is 'my_Obj' and we will suppose that it is created using a given
+// 'basicAllocator'.  Note that we assume that 'my_Obj' does not require an
+// allocator for any of its members:
 //..
 //  void f(bslma::Allocator *basicAllocator)
 //  {
@@ -48,10 +49,10 @@ BSLS_IDENT("$Id: $")
 // When the reference count of 'handle' goes to 0, 'object' is automatically
 // deleted via the 'deleteObject' method of 'deleter', which in turn will
 // invoke the destructor of 'object'.  Note that since the type of the deleter
-// used to instantiate 'handle' is 'bdlma::Deleter<my_Obj>', any kind of deleter
-// that implements this protocol can be passed.  Also note, on the downside,
-// that the lifetime of 'deleter' must be longer than the lifetime of all
-// associated instances.
+// used to instantiate 'handle' is 'bdlma::Deleter<my_Obj>', any kind of
+// deleter that implements this protocol can be passed.  Also note, on the
+// downside, that the lifetime of 'deleter' must be longer than the lifetime of
+// all associated instances.
 //..
 //  }
 //..
@@ -83,9 +84,9 @@ class Deleter {
         // particular implementation is allowed to destroy this deleter itself.
 };
 
-// ===========================================================================
+// ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // CREATORS
 template <class TYPE>
@@ -94,15 +95,22 @@ Deleter<TYPE>::~Deleter()
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

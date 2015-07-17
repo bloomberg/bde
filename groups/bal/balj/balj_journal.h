@@ -237,8 +237,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlmca_blob.h>
 #endif
 
-#ifndef INCLUDED_BDLMCA_POOLALLOCATOR
-#include <bdlmca_poolallocator.h>
+#ifndef INCLUDED_BDLMA_CONCURRENTPOOLALLOCATOR
+#include <bdlma_concurrentpoolallocator.h>
 #endif
 
 #ifndef INCLUDED_BDLMTT_RWMUTEX
@@ -441,7 +441,7 @@ class balj_Journal {
 
     bdlsu::FileUtil::Offset    d_diskSpaceErrorThreshold;
 
-    mutable bdlmca::PoolAllocator d_poolAllocator;
+    mutable bdlma::ConcurrentPoolAllocator d_poolAllocator;
     bslma::Allocator         *d_allocator_p;
 
     // private methods

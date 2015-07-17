@@ -1,4 +1,4 @@
-// bdlma_defaultdeleter.h             -*-C++-*-
+// bdlma_defaultdeleter.h                                             -*-C++-*-
 #ifndef INCLUDED_BDLMA_DEFAULTDELETER
 #define INCLUDED_BDLMA_DEFAULTDELETER
 
@@ -38,10 +38,10 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 // Suppose that we would like to transfer ownership of an object between
-// threads using 'bsl::shared_ptr'.  For the sake of discussion, the type
-// of this object is 'my_Obj' and we will suppose that it is created using a
-// given 'basicAllocator'.  Note that we assume that 'my_Obj' does not require
-// an allocator for any of its members:
+// threads using 'bsl::shared_ptr'.  For the sake of discussion, the type of
+// this object is 'my_Obj' and we will suppose that it is created using a given
+// 'basicAllocator'.  Note that we assume that 'my_Obj' does not require an
+// allocator for any of its members:
 //..
 //  void f(bslma::Allocator *basicAllocator)
 //  {
@@ -61,16 +61,24 @@ BSLS_IDENT("$Id: $")
 // When the reference count of 'handle' goes to 0, 'object' is automatically
 // deleted via the 'deleteObject' method of 'deleter', which in turn will
 // invoke the destructor of 'object'.  Note that since the type of the deleter
-// used to instantiate 'handle' is 'bdlma::Deleter<my_Obj>', any kind of deleter
-// that implements this protocol can be passed.  Also note, on the downside,
-// that the lifetime of 'deleter' must be longer than the lifetime of all
-// associated instances.
+// used to instantiate 'handle' is 'bdlma::Deleter<my_Obj>', any kind of
+// deleter that implements this protocol can be passed.  Also note, on the
+// downside, that the lifetime of 'deleter' must be longer than the lifetime of
+// all associated instances.
 //..
 //  }
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITUSESBSLMAALLOCATOR
+#include <bslalg_typetraitusesbslmaallocator.h>
 #endif
 
 #ifndef INCLUDED_BDLMA_DELETER
@@ -85,6 +93,10 @@ BSLS_IDENT("$Id: $")
 #include <bslma_default.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bdlma {
@@ -95,9 +107,9 @@ namespace bdlma {
 template <class TYPE>
 class DefaultDeleter : public Deleter<TYPE> {
     // This 'class' provides a default concrete implementation of the
-    // 'Deleter' protocol.  Instances of 'DefaultDeleter<TYPE>'
-    // either use an allocator optionally supplied at construction, or the
-    // currently installed default allocator if an allocator is not provided.
+    // 'Deleter' protocol.  Instances of 'DefaultDeleter<TYPE>' either use an
+    // allocator optionally supplied at construction, or the currently
+    // installed default allocator if an allocator is not provided.
 
     // DATA
     bslma::Allocator *d_allocator_p;  // memory allocator (held, *not* owned)
@@ -127,9 +139,9 @@ class DefaultDeleter : public Deleter<TYPE> {
         // itself.
 };
 
-// ===========================================================================
-//                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
+//                           INLINE DEFINITIONS
+// ============================================================================
 
 // CREATORS
 template <class TYPE>
@@ -152,17 +164,34 @@ void DefaultDeleter<TYPE>::deleteObject(TYPE *instance)
 {
     d_allocator_p->deleteObject(instance);
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
+
+// TRAITS
+namespace BloombergLP {
+namespace bslma {
+
+template <class TYPE>
+struct UsesBslmaAllocator<bdlma::DefaultDeleter<TYPE> > : bsl::true_type {};
+
+}  // close namespace bslma
+}  // close enterprise namespace
 
 #endif
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
