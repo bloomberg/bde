@@ -868,8 +868,12 @@ class function<RET(ARGS...)> :
     explicit  // Explicit conversion available only with C++11
     operator bool() const BSLS_NOTHROW_SPEC;
 #else
-    // Simulation of explicit converstion to bool
-    operator UnspecifiedBool() const BSLS_NOTHROW_SPEC;
+    // Simulation of explicit converstion to bool.
+    // Inlined to work around xlC bug when out-of-line.
+    operator UnspecifiedBool() const BSLS_NOTHROW_SPEC
+    {
+        return UnspecifiedBoolUtil::makeValue(invoker());
+    }
 #endif
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -2042,15 +2046,6 @@ bsl::function<RET(ARGS...)>::operator bool() const BSLS_NOTHROW_SPEC
     // If there is an invoker, then this function is non-empty (return true);
     // otherwise it is empty (return false).
     return invoker();
-}
-#else
-template <class RET, class... ARGS>
-inline
-bsl::function<RET(ARGS...)>::operator UnspecifiedBool() const BSLS_NOTHROW_SPEC
-{
-    // If there is an invoker, then this function is non-empty (return true);
-    // otherwise it is empty (return false).
-    return UnspecifiedBoolUtil::makeValue(invoker());
 }
 #endif // BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 
