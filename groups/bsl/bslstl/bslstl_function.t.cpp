@@ -705,8 +705,11 @@ class MediumFunctor : public SmallFunctor
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     // This move constructor is not called in nothrow settings.
-    MediumFunctor(MediumFunctor&& other) : SmallFunctor(std::move(other))
-        { memset(d_padding, 0xee, sizeof(d_padding)); }
+    MediumFunctor(MediumFunctor&& other)
+      : SmallFunctor(bslmf::MovableRefUtil::move(other))
+    {
+        memset(d_padding, 0xee, sizeof(d_padding));
+    }
 #endif
 
     ~MediumFunctor() { memset(this, 0xbb, sizeof(*this)); }
@@ -745,8 +748,11 @@ class LargeFunctor : public SmallFunctor
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 //    // This move constructor is not called in nothrow settings.
-    LargeFunctor(LargeFunctor&& other) : SmallFunctor(std::move(other))
-        { memset(d_padding, 0xee, sizeof(d_padding)); }
+    LargeFunctor(LargeFunctor&& other)
+      : SmallFunctor(bslmf::MovableRefUtil::move(other))
+    {
+        memset(d_padding, 0xee, sizeof(d_padding));
+    }
 #endif
 
     ~LargeFunctor() { memset(this, 0xbb, sizeof(*this)); }
@@ -853,7 +859,7 @@ class ThrowingEmptyFunctor : public EmptyFunctor
     // Throwing move constructor.  Note that the constructor for the
     // 'EmptyFunctor' base does not increment 'moveLimit'.
     ThrowingEmptyFunctor(ThrowingEmptyFunctor&& other)
-        : EmptyFunctor((--moveLimit, std::move(other))) { }
+        : EmptyFunctor((--moveLimit, bslmf::MovableRefUtil::move(other))) { }
 #endif
 
     ~ThrowingEmptyFunctor() { memset(this, 0xbb, sizeof(*this)); }
@@ -961,11 +967,11 @@ class SmallFunctorWithAlloc : public SmallFunctor
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     // Move constructor propagates allocator
     SmallFunctorWithAlloc(SmallFunctorWithAlloc&& other)
-        : SmallFunctor(std::move(other))
+        : SmallFunctor(bslmf::MovableRefUtil::move(other))
         , d_alloc_p(other.d_alloc_p) { }
     SmallFunctorWithAlloc(SmallFunctorWithAlloc&&  other,
                           bslma::Allocator        *alloc)
-        : SmallFunctor(std::move(other))
+        : SmallFunctor(bslmf::MovableRefUtil::move(other))
         , d_alloc_p(alloc) { }
 #endif
 
@@ -1014,10 +1020,13 @@ class NTSmallFunctorWithAlloc : public NTSmallFunctor
     defined BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     // Nothrow move and copy constructible
     NTSmallFunctorWithAlloc(NTSmallFunctorWithAlloc&& other) noexcept
-      : NTSmallFunctor(std::move(other)), d_alloc_p(other.d_alloc_p) { }
+      : NTSmallFunctor(bslmf::MovableRefUtil::move(other))
+      , d_alloc_p(other.d_alloc_p)
+    {
+    }
     NTSmallFunctorWithAlloc(NTSmallFunctorWithAlloc&&  other,
                                  bslma::Allocator               *alloc)
-      : NTSmallFunctor(std::move(other))
+      : NTSmallFunctor(bslmf::MovableRefUtil::move(other))
       , d_alloc_p(alloc) { --moveLimit; }
 #else
     // Bitwise moveable -- use if 'noexcept' is not supported.
@@ -1074,11 +1083,11 @@ class LargeFunctorWithAlloc : public SmallFunctorWithAlloc
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     // Move constructor propagates allocator
     LargeFunctorWithAlloc(LargeFunctorWithAlloc&& other)
-      : SmallFunctorWithAlloc(std::move(other))
+      : SmallFunctorWithAlloc(bslmf::MovableRefUtil::move(other))
         { memset(d_padding, 0xee, sizeof(d_padding)); }
     LargeFunctorWithAlloc(LargeFunctorWithAlloc&&  other,
                           bslma::Allocator        *alloc)
-      : SmallFunctorWithAlloc(std::move(other), alloc)
+      : SmallFunctorWithAlloc(bslmf::MovableRefUtil::move(other), alloc)
         { memset(d_padding, 0xee, sizeof(d_padding)); }
 #endif
 
@@ -1969,7 +1978,7 @@ void testMoveCtorWithSameAlloc(FUNC_ARG func, bool extended,
     // Construct a 'FUNC' object in a moved-from state.
     FUNC_ARG movedFromFunc(func);
     {
-        FUNC_ARG movedToFunc(std::move(movedFromFunc));
+        FUNC_ARG movedToFunc(bslmf::MovableRefUtil::move(movedFromFunc));
         ASSERT(ntUnwrap(movedToFunc) == ntUnwrap(func));
     }
 
@@ -2026,11 +2035,13 @@ void testMoveCtorWithSameAlloc(FUNC_ARG func, bool extended,
 
         if (extended) {
             // Use extended move constructor.
-            ::new(&destBuf) Obj(bsl::allocator_arg, alloc, std::move(source));
+            ::new(&destBuf) Obj(bsl::allocator_arg,
+                                alloc,
+                                bslmf::MovableRefUtil::move(source));
         }
         else {
             // Use normal move constructor
-            ::new(&destBuf) Obj(std::move(source));
+            ::new(&destBuf) Obj(bslmf::MovableRefUtil::move(source));
         }
 
         // 'destBuf' now holds the move-constructed 'function'.
@@ -2127,7 +2138,9 @@ void testMoveCtorWithDifferentAlloc(FUNC_ARG    func,
                 funcMonitor.reset(L_);
 
                 // move-construct dest using extended move constructor.
-                Obj dest(bsl::allocator_arg, destAlloc, std::move(source));
+                Obj dest(bsl::allocator_arg,
+                         destAlloc,
+                         bslmf::MovableRefUtil::move(source));
 
                 ASSERT(CheckAlloc<SRC_ALLOC>::areEqualAlloc(sourceAlloc,
                                                           source.allocator()));
@@ -2240,7 +2253,7 @@ bool AreEqualFunctions(const Obj& inA, const Obj& inB)
             moveLimit = -1;
             int savedCopyLimit = copyLimit.value();
             copyLimit = -1;
-            FUNC movedToFunc(std::move(movedFromFunc));
+            FUNC movedToFunc(bslmf::MovableRefUtil::move(movedFromFunc));
             ASSERT(movedToFunc == FUNC(0));
             copyLimit = savedCopyLimit;
             moveLimit = savedMoveLimit;
@@ -2471,7 +2484,7 @@ void testAssignment(const Obj& inA,
                 testAlloc1.setAllocationLimit(-1);
                 moveLimit = -1;
             }
-            a = std::move(b);  ///////// MOVE ASSIGNMENT //////////
+            a = bslmf::MovableRefUtil::move(b);  ///// MOVE ASSIGNMENT //////
             AllocSizeType postA1Bytes = testAlloc1.numBytesInUse();
             AllocSizeType postB2Bytes = testAlloc2.numBytesInUse();
             AllocSizeType postB2Total = testAlloc2.numBytesTotal();
@@ -2550,7 +2563,7 @@ void testAssignment(const Obj& inA,
                 // Move assignment with equal allocators is the same as swap
                 AllocSizeType preA1Bytes = testAlloc1.numBytesInUse();
                 AllocSizeType preA1Total = testAlloc1.numBytesTotal();
-                a = std::move(b);  ///////// move ASSIGNMENT //////////
+                a = bslmf::MovableRefUtil::move(b);  ///// move ASSIGNMENT ////
                 AllocSizeType postA1Bytes = testAlloc1.numBytesInUse();
                 AllocSizeType postA1Total = testAlloc1.numBytesTotal();
                 LOOP2_ASSERT(lineA, lineB, areEqualB_p(a, inB));
@@ -2785,7 +2798,7 @@ void testAssignFromFunctor(const Obj&   lhsIn,
     // Construct a 'FUNC' object duplicating 'rhsIn' in a moved-from state.
     FUNC movedFromRhs(ntUnwrap(rhsIn));
     {
-        FUNC movedToFunc(std::move(movedFromRhs));
+        FUNC movedToFunc(bslmf::MovableRefUtil::move(movedFromRhs));
         (void) movedToFunc;
     }
 
@@ -2808,7 +2821,8 @@ void testAssignFromFunctor(const Obj&   lhsIn,
 
         preBytes = ta.numBytesInUse();
         EXCEPTION_TEST_TRY {
-            lhs = std::move(rhs);  //////// MOVE-ASSIGNMENT FROM FUNC_ARG /////
+            lhs = bslmf::MovableRefUtil::move(rhs);
+                                      ///// MOVE-ASSIGNMENT FROM FUNC_ARG /////
 
             // The number of bytes used by the lhs after the assignment is
             // equal to the number of bytes used before the assignment plus the

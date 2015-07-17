@@ -70,6 +70,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_addlvaluereference.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ADDRVALUEREFERENCE
+#include <bslmf_addrvaluereference.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
 #endif
@@ -94,8 +98,16 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_ispointer.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISRVALUEREFERENCE
+#include <bslmf_isrvaluereference.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_MEMBERFUNCTIONPOINTERTRAITS
 #include <bslmf_memberfunctionpointertraits.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_MOVABLEREF
+#include <bslmf_movableref.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_NTHPARAMETER
@@ -256,7 +268,10 @@ class Function_NothrowWrapper
     Function_NothrowWrapper(const FUNC& other) : d_func(other) { }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-    Function_NothrowWrapper(FUNC&& other) : d_func(std::move(other)) { }
+    Function_NothrowWrapper(FUNC&& other)
+      : d_func(bslmf::MovableRefUtil::move(other))
+    {
+    }
 #endif
 
     //! Function_NothrowWrapper(const Function_NothrowWrapper&) = default;
@@ -352,6 +367,12 @@ class Function_SmallObjectOptimization {
         // assumed to be encoded as above, whereas a variable called 'size'
         // can generally be assumed not to be encoded that way.
 
+        template <class SOME_TYPE>
+            static typename bsl::add_rvalue_reference<SOME_TYPE>::type
+                myDeclVal();
+            // The older versions of clang on OS/X do not provide declval even
+            // in c++11 mode.
+
         static const std::size_t VALUE =
             sizeof(TP) > sizeof(InplaceBuffer)                ? sizeof(TP) :
             bslmf::IsBitwiseMoveable<TP>::value               ? sizeof(TP) :
@@ -361,7 +382,7 @@ class Function_SmallObjectOptimization {
             // us check the constructor without also checking the destructor.
             // This is especially important in gcc 4.7 and before because
             // destructors are not implicitly 'noexcept' in those compilers.
-            noexcept(::new((void*) 0) TP(std::declval<TP>())) ? sizeof(TP) :
+            noexcept(::new((void*) 0) TP(myDeclVal<TP>())) ? sizeof(TP) :
 #endif
             // If not nonthrow or bitwise moveable, then add
             // 'k_NON_SOO_SMALL_SIZE' to the size indicate that we should not
@@ -1419,7 +1440,8 @@ bsl::Function_Rep::ownedAllocManager(ManagerOpCode  opCode,
         if (dist >= sizeof(Adaptor)) {
             // Input and output don't overlap.
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-            ::new ((void*) rep->d_allocator_p) Adaptor(std::move(other));
+            ::new ((void*) rep->d_allocator_p)
+                                   Adaptor(bslmf::MovableRefUtil::move(other));
 #else
             ::new ((void*) rep->d_allocator_p) Adaptor(other);
 #endif
@@ -1429,9 +1451,10 @@ bsl::Function_Rep::ownedAllocManager(ManagerOpCode  opCode,
             // Input and output overlap so we need to move through a temporary
             // variable.
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-            Adaptor temp(std::move(other));
+            Adaptor temp(bslmf::MovableRefUtil::move(other));
             other.~Adaptor();
-            ::new ((void*) rep->d_allocator_p) Adaptor(std::move(temp));
+            ::new ((void*) rep->d_allocator_p)
+                                    Adaptor(bslmf::MovableRefUtil::move(temp));
 #else
             Adaptor temp(other);
             other.~Adaptor();
@@ -1969,7 +1992,7 @@ bsl::function<RET(ARGS...)>::operator=(FUNC&& func)
         // Get non-const pointer to 'func'
         FuncType *funcAddr = const_cast<FuncType*>(&func);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-        if (std::is_rvalue_reference<FUNC&&>::value) {
+        if (bsl::is_rvalue_reference<FUNC&&>::value) {
             tempRep.d_funcManager_p(e_MOVE_CONSTRUCT, &tempRep, funcAddr);
         }
         else

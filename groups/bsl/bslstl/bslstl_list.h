@@ -529,6 +529,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_isfundamental.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_MOVABLEREF
+#include <bslmf_movableref.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
 #endif
@@ -2569,14 +2573,16 @@ template <class VALUE, class ALLOCATOR>
 inline
 void list<VALUE, ALLOCATOR>::push_front(VALUE&& value)
 {
-    emplace(begin(), std::move(value));
+    using namespace BloombergLP;
+    emplace(begin(), bslmf::MovableRefUtil::move(value));
 }
 
 template <class VALUE, class ALLOCATOR>
 inline
 void list<VALUE, ALLOCATOR>::push_back(VALUE&& value)
 {
-    emplace(end(), std::move(value));
+    using namespace BloombergLP;
+    emplace(end(), bslmf::MovableRefUtil::move(value));
 }
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
@@ -2745,7 +2751,8 @@ template <class VALUE, class ALLOCATOR>
 typename list<VALUE, ALLOCATOR>::iterator
 list<VALUE, ALLOCATOR>::insert(const_iterator position, VALUE&& value)
 {
-    return emplace(position, std::move(value));
+    using namespace BloombergLP;
+    return emplace(position, bslmf::MovableRefUtil::move(value));
 }
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 

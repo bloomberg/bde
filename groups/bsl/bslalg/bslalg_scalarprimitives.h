@@ -116,6 +116,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_istriviallydefaultconstructible.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_MOVABLEREF
+#include <bslmf_movableref.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_REMOVECVQ
 #include <bslmf_removecvq.h>
 #endif
@@ -2476,7 +2480,8 @@ ScalarPrimitives_Imp::moveConstruct(
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt<USES_BSLMA_ALLOCATOR_TRAITS> *)
 {
-    ::new (address) TARGET_TYPE(std::move(original), allocator);
+    ::new (address) TARGET_TYPE(bslmf::MovableRefUtil::move(original),
+                                allocator);
 }
 
 template <typename TARGET_TYPE>
@@ -2532,7 +2537,7 @@ ScalarPrimitives_Imp::moveConstruct(TARGET_TYPE                *address,
                                     bslma::Allocator           *,
                                     bslmf::MetaInt<NIL_TRAITS> *)
 {
-    ::new (address) TARGET_TYPE(std::move(original));
+    ::new (address) TARGET_TYPE(bslmf::MovableRefUtil::move(original));
 }
 
 template <typename TARGET_TYPE>
@@ -2564,7 +2569,7 @@ ScalarPrimitives_Imp::moveConstruct(TARGET_TYPE                *address,
                                     TARGET_TYPE&                original,
                                     bslmf::MetaInt<NIL_TRAITS> *)
 {
-    ::new (address) TARGET_TYPE(std::move(original));
+    ::new (address) TARGET_TYPE(bslmf::MovableRefUtil::move(original));
 }
 
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
