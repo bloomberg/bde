@@ -311,25 +311,6 @@ typedef bsls::Types::Int64 AllocSizeType;
 // Use this test allocator when another allocator is not specified.
 bslma::TestAllocator globalTestAllocator("globalTestAllocator");
 
-// Replace global new and delete to use the test allocator.
-#ifdef BDE_BUILD_TARGET_EXC
-void *operator new(size_t size) throw(std::bad_alloc)
-#else
-void *operator new(size_t size)
-#endif
-{
-    return globalTestAllocator.allocate(size);
-}
-
-#ifdef BDE_BUILD_TARGET_EXC
-void operator delete(void *address) throw()
-#else
-void operator delete(void *address)
-#endif
-{
-    globalTestAllocator.deallocate(address);
-}
-
 template <class FUNC>
 bsl::Function_NothrowWrapper<FUNC> ntWrap(const FUNC& f)
     // Wrap the specified functor, 'f' in a nothrow wrapper.
