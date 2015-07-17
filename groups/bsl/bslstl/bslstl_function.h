@@ -367,17 +367,20 @@ class Function_SmallObjectOptimization {
         // assumed to be encoded as above, whereas a variable called 'size'
         // can generally be assumed not to be encoded that way.
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
         template <class SOME_TYPE>
             static typename bsl::add_rvalue_reference<SOME_TYPE>::type
                 myDeclVal();
             // The older versions of clang on OS/X do not provide declval even
             // in c++11 mode.
+#endif
 
         static const std::size_t VALUE =
             sizeof(TP) > sizeof(InplaceBuffer)                ? sizeof(TP) :
             bslmf::IsBitwiseMoveable<TP>::value               ? sizeof(TP) :
             Function_NothrowWrapperUtil<TP>::IS_WRAPPED       ? sizeof(TP) :
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#if    defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)           \
+    && defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
             // Check if nothrow move constructible.  The use of '::new' lets
             // us check the constructor without also checking the destructor.
             // This is especially important in gcc 4.7 and before because

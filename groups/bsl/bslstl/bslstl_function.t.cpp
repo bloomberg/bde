@@ -3845,11 +3845,21 @@ int main(int argc, char *argv[])
 
         // Test that small-object buffer and total footprint are as expected.
         typedef bsls::AlignmentUtil::MaxAlignedType MaxAlignedType;
+#ifdef BSLS_PLATFORM_OS_DARWIN
+        LOOP3_ASSERT(sizeof(SmallObjectBuffer), sizeof(void*),
+                     sizeof(MaxAlignedType),
+                     sizeof(SmallObjectBuffer) == 8 * sizeof(void*));
+#else
         LOOP3_ASSERT(sizeof(SmallObjectBuffer), sizeof(void*),
                      sizeof(MaxAlignedType),
                      sizeof(SmallObjectBuffer) == 6 * sizeof(void*));
-        LOOP3_ASSERT(sizeof(Obj), sizeof(void*), sizeof(MaxAlignedType),
-                     sizeof(Obj) == 10 * sizeof(void*));
+#endif
+        LOOP4_ASSERT(sizeof(Obj),
+                     sizeof(void*),
+                     sizeof(SmallObjectBuffer),
+                     sizeof(MaxAlignedType),
+                     sizeof(Obj) == sizeof(SmallObjectBuffer)
+                                    + 4 * sizeof(void*));
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
