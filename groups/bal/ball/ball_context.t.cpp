@@ -7,14 +7,6 @@
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
 
-#include <bdlxxxx_instreamfunctions.h>             // for testing only
-#include <bdlxxxx_outstreamfunctions.h>            // for testing only
-#include <bdlxxxx_byteinstream.h>                  // for testing only
-#include <bdlxxxx_byteoutstream.h>                 // for testing only
-#include <bdlxxxx_testinstream.h>                  // for testing only
-#include <bdlxxxx_testinstreamexception.h>         // for testing only
-#include <bdlxxxx_testoutstream.h>                 // for testing only
-
 #include <bsl_climits.h>      // INT_MAX
 #include <bsl_cstdlib.h>      // atoi()
 #include <bsl_cstring.h>      // strlen(), memset(), memcpy(), memcmp()
@@ -49,29 +41,24 @@ using namespace bsl;  // automatically added by script
 // adjustment are indicated by the tag: "ADJ".
 //-----------------------------------------------------------------------------
 // 'ball::Context' public interface:
-// [ 3] static bool isValid(cause, index, length);
-// [ 2] static int maxSupportedBdexVersion();
+// [ 2] static bool isValid(cause, index, length);
 // [ 1] ball::Context(bslma::Allocator *ba = 0);
-// [ 3] ball::Context(cause, index, length, *ba = 0);
+// [ 2] ball::Context(cause, index, length, *ba = 0);
 // [ 1] ball::Context(const ball::Context& original, *ba = 0);
 // [ 1] ~ball::Context();
 // [ 1] ball::Context& operator=(const ball::Context& rhs);
-// [ 3] int setAttributes(cause, index, length);
+// [ 2] int setAttributes(cause, index, length);
 // [ 1] void setAttributesRaw(cause, index, length);
 // [ 1] void setRecordIndexRaw(int index);
-// [ 2] bdlxxxx::InStream& streamIn(bdlxxxx::InStream&);
-// [ 2] bdlxxxx::InStream& streamIn(bdlxxxx::InStream&, int version);
 // [ 1] ball::Transmission::Cause transmissionCause() const;
 // [ 1] int recordIndex() const;
 // [ 1] int sequenceLength() const;
 // [ 1] ostream& print(ostream& os, int level = 0, int spl = 4) const;
-// [ 2] bdlxxxx::OutStream& bdexStreamOut(bdlxxxx::OutStream&, int version) const;
-//
 // [ 1] bool operator==(const ball::Context& lhs, const ball::Context& rhs);
 // [ 1] bool operator!=(const ball::Context& lhs, const ball::Context& rhs);
 // [ 1] ostream& operator<<(ostream&, const ball::Context&);
 //-----------------------------------------------------------------------------
-// [ 4] USAGE EXAMPLE
+// [ 3] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -136,8 +123,6 @@ void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 
 typedef ball::Context       Obj;
-typedef bdlxxxx::TestInStream  In;
-typedef bdlxxxx::TestOutStream Out;
 
 const ball::Transmission::Cause CAUSE[] = {
     ball::Transmission::BAEL_PASSTHROUGH,
@@ -265,7 +250,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 4: {
+      case 3: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -300,7 +285,7 @@ int main(int argc, char *argv[])
 
       } break;
 
-      case 3: {
+      case 2: {
         // --------------------------------------------------------------------
         // Constraints Test:
         //
@@ -421,535 +406,6 @@ int main(int argc, char *argv[])
                         ASSERT(LENGTH[0] == Y.sequenceLength());
                     }
                 }
-            }
-        }
-      } break;
-      case 2: {
-        // --------------------------------------------------------------------
-        // TESTING 'bdex' STREAMING FUNCTIONALITY:
-        //
-        //   The 'bdex' streaming concerns for this component are absolutely
-        //   standard.  We first probe the member functions 'outStream' and
-        //   'inStream' in the manner of a "breathing test" to verify basic
-        //   functionality, then we thoroughly test that functionality using
-        //   the available bdex stream operators, which forward
-        //   appropriate calls to the member functions.  We next step through
-        //   the sequence of possible stream states (valid, empty, invalid,
-        //   incomplete, and corrupted), appropriately selecting data sets as
-        //   described below.  In all cases, exception neutrality is confirmed
-        //   using the specially instrumented 'bdlxxxx::TestInStream' and a pair of
-        //   standard macros, 'BEGIN_BDEX_EXCEPTION_TEST' and
-        //   'END_BDEX_EXCEPTION_TEST', which configure the
-        //   'bdlxxxx::TestInStream' object appropriately in a loop.
-        //
-        // Plan:
-        //   PRELIMINARY MEMBER FUNCTION TEST
-        //     First perform a trivial direct test of the 'outStream' and
-        //     'inStream' methods (the rest of the testing will use the stream
-        //     operators).
-        //
-        //   VALID STREAMS
-        //     For the set S of globally-defined test values, use all
-        //     combinations (u, v) in the cross product S X S, stream the
-        //     value of v into (a temporary copy of) u and assert u == v.
-        //
-        //   EMPTY AND INVALID STREAMS
-        //     For each u in S, create a copy and attempt to stream into it
-        //     from an empty and then invalid stream.  Verify after each try
-        //     that the object is unchanged and that the stream is invalid.
-        //
-        //   INCOMPLETE (BUT OTHERWISE VALID) DATA
-        //     Write 3 distinct objects to an output stream buffer of total
-        //     length N.  For each partial stream length from 0 to N - 1,
-        //     construct an input stream and attempt to read into objects
-        //     initialized with distinct values.  Verify values of objects
-        //     that are either successfully modified or left entirely
-        //     unmodified, and that the stream became invalid immediately after
-        //     the first incomplete read.  Finally ensure that each object
-        //     streamed into is in some valid state by assigning it a distinct
-        //     new value and testing for equality.
-        //
-        //   CORRUPTED DATA
-        //     Use the underlying stream package to simulate an instance of a
-        //     typical valid (control) stream and verify that it can be
-        //     streamed in successfully.  Then for each data field in the
-        //     stream (beginning with the version number), provide one or more
-        //     similar tests with that data field corrupted.  After each test,
-        //     verify that the object is in some valid state after streaming,
-        //     and that the input stream has gone invalid.
-        //
-        //   Finally, tests of the explicit wire format will be performed.
-        //
-        // Testing:
-        //   static int maxSupportedBdexVersion() const;
-        //   bdlxxxx::InStream& streamIn(bdlxxxx::InStream&);
-        //   bdlxxxx::InStream& streamIn(bdlxxxx::InStream&, int version);
-        //   bdlxxxx::OutStream& bdexStreamOut(bdlxxxx::OutStream&, int version) const;
-        //
-        //   Note: '^' indicates a private method which is tested indirectly.
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nTesting Streaming Functionality"
-                          << "\n===============================" << endl;
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        // object values for various stream tests
-
-        Obj va, vb, vc, vd, ve, vf;
-        ASSERT(0 == va.setAttributes(CAUSE[0], INDEX[0], LENGTH[0]));
-        ASSERT(0 == vb.setAttributes(CAUSE[1], INDEX[1], LENGTH[1]));
-        ASSERT(0 == vc.setAttributes(CAUSE[2], INDEX[2], LENGTH[2]));
-        ASSERT(0 == vd.setAttributes(CAUSE[1], INDEX[3], LENGTH[3]));
-        ASSERT(0 == ve.setAttributes(CAUSE[1], INDEX[4], LENGTH[4]));
-        ASSERT(0 == vf.setAttributes(CAUSE[2], INDEX[5], LENGTH[5]));
-
-        const Obj VA(va);
-        const Obj VB(vb);
-        const Obj VC(vc);
-        const Obj VD(vd);
-        const Obj VE(ve);
-        const Obj VF(vf);
-
-        const Obj VALUES[] = {VA, VB, VC, VD, VE, VF};
-        const int NUM_VALUES = 6;
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        const int VERSION = Obj::maxSupportedBdexVersion();
-        if (veryVerbose) cout <<
-            "\nTesting 'streamOut' and (valid) 'streamIn' functionality."
-                              << endl;
-
-        if (veryVerbose) cout << "\nDirect initial trial of 'streamOut' and"
-                             " (valid) 'streamIn' functionality." << endl;
-        {
-            const Obj X(VC);
-            Out out;
-            bdex_OutStreamFunctions::streamOut(out, X, VERSION);
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-            In in(OD, LOD);
-            in.setSuppressVersionCheck(1);
-            ASSERT(in);                                 ASSERT(!in.isEmpty());
-
-            Obj t(VA);  const Obj& T = t;               ASSERT(X != T);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);
-            ASSERT(X == T);
-            ASSERT(in);                                 ASSERT(in.isEmpty());
-        }
-
-        if (veryVerbose) cout <<
-            "\nTesting 'streamOut' and (valid) 'streamIn' functionality."
-                              << endl;
-
-        if (veryVerbose) cout << "\nDirect initial trial of 'streamOut' and"
-                             " (valid) 'streamIn' functionality." << endl;
-        {
-            const Obj X(VC);
-            Out out;
-            bdex_OutStreamFunctions::streamOut(out, X, VERSION);
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-            In in(OD, LOD);
-            in.setSuppressVersionCheck(1);
-            ASSERT(in);                                 ASSERT(!in.isEmpty());
-
-            Obj t(VA);  const Obj& T = t;               ASSERT(X != T);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);
-            ASSERT(X == T);
-            ASSERT(in);                                 ASSERT(in.isEmpty());
-        }
-        if (veryVerbose) cout <<
-            "\nThorough test of stream operators ('<<' and '>>')." << endl;
-        {
-            for (int i = 0; i < NUM_VALUES; ++i) {
-                const Obj X(VALUES[i]);
-                Out out;
-                bdex_OutStreamFunctions::streamOut(out, X, VERSION);
-                const char *const OD  = out.data();
-                const int         LOD = out.length();
-
-                // Verify that each new value overwrites every old value
-                // and that the input stream is emptied, but remains valid.
-
-                for (int j = 0; j < NUM_VALUES; ++j) {
-                    In in(OD, LOD);  In &testInStream = in;
-                    in.setSuppressVersionCheck(1);
-                    LOOP2_ASSERT(i, j, in);  LOOP2_ASSERT(i, j, !in.isEmpty());
-
-                    Obj t(VALUES[j]);
-                    BEGIN_BDEX_EXCEPTION_TEST {
-                      in.reset();
-                      LOOP2_ASSERT(i, j, X == t == (i == j));
-                      bdex_InStreamFunctions::streamIn(in, t, VERSION);
-                    } END_BDEX_EXCEPTION_TEST
-                    LOOP2_ASSERT(i, j, X == t);
-                    LOOP2_ASSERT(i, j, in);  LOOP2_ASSERT(i, j, in.isEmpty());
-                }
-            }
-        }
-
-        if (veryVerbose) cout <<
-            "\nTesting streamIn functionality via operator ('>>')." << endl;
-
-        if (veryVerbose) cout << "\tOn empty and invalid streams." << endl;
-        {
-            Out out;
-            const char *const  OD = out.data();
-            const int         LOD = out.length();
-            ASSERT(0 == LOD);
-
-            for (int i = 0; i < NUM_VALUES; ++i) {
-              In in(OD, LOD);  In &testInStream = in;
-              in.setSuppressVersionCheck(1);
-              LOOP_ASSERT(i, in);           LOOP_ASSERT(i, in.isEmpty());
-
-              // Ensure that reading from an empty or invalid input stream
-              // leaves the stream invalid and the target object unchanged.
-
-              const Obj X(VALUES[i]);  Obj t(X);  LOOP_ASSERT(i, X == t);
-              BEGIN_BDEX_EXCEPTION_TEST {
-                in.reset();
-                bdex_InStreamFunctions::streamIn(in, t, VERSION);
-                LOOP_ASSERT(i, !in);     LOOP_ASSERT(i, X == t);
-                bdex_InStreamFunctions::streamIn(in, t, VERSION);
-                LOOP_ASSERT(i, !in);     LOOP_ASSERT(i, X == t);
-              } END_BDEX_EXCEPTION_TEST
-            }
-        }
-
-        if (veryVerbose) cout <<
-            "\tOn incomplete (but otherwise valid) data." << endl;
-        {
-            const Obj W1 = VA, X1 = VB, Y1 = VC;
-            const Obj W2 = VB, X2 = VC, Y2 = VD;
-            const Obj W3 = VC, X3 = VD, Y3 = VE;
-
-            Out out;
-            bdex_OutStreamFunctions::streamOut(out, X1, VERSION);
-            const int LOD1 = out.length();
-            bdex_OutStreamFunctions::streamOut(out, X2, VERSION);
-            const int LOD2 = out.length();
-            bdex_OutStreamFunctions::streamOut(out, X3, VERSION);
-            const int LOD  = out.length();
-            const char *const OD = out.data();
-
-            for (int i = 0; i < LOD; ++i) {
-              In in(OD, i);  In &testInStream = in;
-              in.setSuppressVersionCheck(1);
-              BEGIN_BDEX_EXCEPTION_TEST {
-                in.reset();
-                LOOP_ASSERT(i, in); LOOP_ASSERT(i, !i == in.isEmpty());
-                Obj t1(W1), t2(W2), t3(W3);
-
-                if (i < LOD1) {
-                    bdex_InStreamFunctions::streamIn(in, t1, VERSION);
-                    LOOP_ASSERT(i, !in);
-                                         if (0 == i) LOOP_ASSERT(i, W1 == t1);
-                    bdex_InStreamFunctions::streamIn(in, t2, VERSION);
-                    LOOP_ASSERT(i, !in);  LOOP_ASSERT(i, W2 == t2);
-                    bdex_InStreamFunctions::streamIn(in, t3, VERSION);
-                    LOOP_ASSERT(i, !in);  LOOP_ASSERT(i, W3 == t3);
-                }
-                else if (i < LOD2) {
-                    bdex_InStreamFunctions::streamIn(in, t1, VERSION);
-                    LOOP_ASSERT(i,  in);  LOOP_ASSERT(i, X1 == t1);
-                    bdex_InStreamFunctions::streamIn(in, t2, VERSION);
-                    LOOP_ASSERT(i, !in);
-                                      if (LOD1 == i) LOOP_ASSERT(i, W2 == t2);
-                    bdex_InStreamFunctions::streamIn(in, t3, VERSION);
-                    LOOP_ASSERT(i, !in);  LOOP_ASSERT(i, W3 == t3);
-                }
-                else {
-                    bdex_InStreamFunctions::streamIn(in, t1, VERSION);
-                    LOOP_ASSERT(i,  in);  LOOP_ASSERT(i, X1 == t1);
-                    bdex_InStreamFunctions::streamIn(in, t2, VERSION);
-                    LOOP_ASSERT(i,  in);  LOOP_ASSERT(i, X2 == t2);
-                    bdex_InStreamFunctions::streamIn(in, t3, VERSION);
-                    LOOP_ASSERT(i, !in);
-                                      if (LOD2 == i) LOOP_ASSERT(i, W3 == t3);
-                }
-
-                                LOOP_ASSERT(i, Y1 != t1);
-                t1 = Y1;        LOOP_ASSERT(i, Y1 == t1);
-
-                                LOOP_ASSERT(i, Y2 != t2);
-                t2 = Y2;        LOOP_ASSERT(i, Y2 == t2);
-
-                                LOOP_ASSERT(i, Y3 != t3);
-                t3 = Y3;        LOOP_ASSERT(i, Y3 == t3);
-              } END_BDEX_EXCEPTION_TEST
-            }
-        }
-        if (veryVerbose) cout <<
-            "\tOn incomplete (but otherwise valid) data." << endl;
-        {
-            const Obj W1 = VA, X1 = VB, Y1 = VC;
-            const Obj W2 = VB, X2 = VC, Y2 = VD;
-            const Obj W3 = VC, X3 = VD, Y3 = VE;
-
-            Out out;
-            bdex_OutStreamFunctions::streamOut(out, X1, VERSION);
-            const int LOD1 = out.length();
-            bdex_OutStreamFunctions::streamOut(out, X2, VERSION);
-            const int LOD2 = out.length();
-            bdex_OutStreamFunctions::streamOut(out, X3, VERSION);
-            const int LOD  = out.length();
-            const char *const OD = out.data();
-
-            for (int i = 0; i < LOD; ++i) {
-              In in(OD, i);  In &testInStream = in;
-              in.setSuppressVersionCheck(1);
-              BEGIN_BDEX_EXCEPTION_TEST {
-                in.reset();
-                LOOP_ASSERT(i, in); LOOP_ASSERT(i, !i == in.isEmpty());
-                Obj t1(W1), t2(W2), t3(W3);
-
-                if (i < LOD1) {
-                    bdex_InStreamFunctions::streamIn(in, t1, VERSION);
-                    LOOP_ASSERT(i, !in);
-                                         if (0 == i) LOOP_ASSERT(i, W1 == t1);
-                    bdex_InStreamFunctions::streamIn(in, t2, VERSION);
-                    LOOP_ASSERT(i, !in);  LOOP_ASSERT(i, W2 == t2);
-                    bdex_InStreamFunctions::streamIn(in, t3, VERSION);
-                    LOOP_ASSERT(i, !in);  LOOP_ASSERT(i, W3 == t3);
-                }
-                else if (i < LOD2) {
-                    bdex_InStreamFunctions::streamIn(in, t1, VERSION);
-                    LOOP_ASSERT(i,  in);  LOOP_ASSERT(i, X1 == t1);
-                    bdex_InStreamFunctions::streamIn(in, t2, VERSION);
-                    LOOP_ASSERT(i, !in);
-                                      if (LOD1 == i) LOOP_ASSERT(i, W2 == t2);
-                    bdex_InStreamFunctions::streamIn(in, t3, VERSION);
-                    LOOP_ASSERT(i, !in);  LOOP_ASSERT(i, W3 == t3);
-                }
-                else {
-                    bdex_InStreamFunctions::streamIn(in, t1, VERSION);
-                    LOOP_ASSERT(i,  in);  LOOP_ASSERT(i, X1 == t1);
-                    bdex_InStreamFunctions::streamIn(in, t2, VERSION);
-                    LOOP_ASSERT(i,  in);  LOOP_ASSERT(i, X2 == t2);
-                    bdex_InStreamFunctions::streamIn(in, t3, VERSION);
-                    LOOP_ASSERT(i, !in);
-                                      if (LOD2 == i) LOOP_ASSERT(i, W3 == t3);
-                }
-
-                                LOOP_ASSERT(i, Y1 != t1);
-                t1 = Y1;        LOOP_ASSERT(i, Y1 == t1);
-
-                                LOOP_ASSERT(i, Y2 != t2);
-                t2 = Y2;        LOOP_ASSERT(i, Y2 == t2);
-
-                                LOOP_ASSERT(i, Y3 != t3);
-                t3 = Y3;        LOOP_ASSERT(i, Y3 == t3);
-              } END_BDEX_EXCEPTION_TEST
-            }
-        }
-
-        if (veryVerbose) cout << "\tOn corrupted data." << endl;
-
-        const Obj W;               // default value (0)
-        const Obj X(VA);           // control value (VA)
-        const Obj Y(VB);           // new value (VB)
-
-        if (veryVerbose) cout << "\t\tGood stream (for control)." << endl;
-        {
-            Out out;
-
-            ball::Transmission::bdexStreamOut(out, CAUSE[1], 1);
-            out.putInt32(INDEX[1]);
-            out.putInt32(LENGTH[1]);
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            Obj t(X);        ASSERT(W == t);  ASSERT(X == t);  ASSERT(Y != t);
-            In in(OD, LOD);  ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);
-            ASSERT(in);
-                             ASSERT(W != t);  ASSERT(X != t);  ASSERT(Y == t);
-        }
-
-        if (veryVerbose) cout << "\t\tBad version." << endl;
-        if (veryVerbose) cout << "\t\t\tVersion too small." <<endl;
-        {
-            const char version = 0; // too small ('version' must be >= 1)
-
-            Out out;
-
-            ball::Transmission::bdexStreamOut(out, CAUSE[2], 1);
-            out.putInt32(INDEX[2]);
-            out.putInt32(LENGTH[2]);
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            Obj t(X);        ASSERT(W == t);  ASSERT(X == t);  ASSERT(Y != t);
-            In in(OD, LOD);  ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            in.setQuiet(!veryVerbose);
-            bdex_InStreamFunctions::streamIn(in, t, version);
-            ASSERT(!in);
-                             ASSERT(W == t);  ASSERT(X == t);  ASSERT(Y != t);
-        }
-
-        if (veryVerbose) cout << "\t\t\tVersion too big." << endl;
-        {
-            const char version = 5; // too large (current versions all = 1)
-
-            Out out;
-
-            bdex_OutStreamFunctions::streamOut(out, CAUSE[2], 1);
-            out.putInt32(INDEX[2]);
-            out.putInt32(LENGTH[2]);
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            Obj t(X);        ASSERT(W == t);  ASSERT(X == t);  ASSERT(Y != t);
-            In in(OD, LOD);  ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            in.setQuiet(!veryVerbose);
-            bdex_InStreamFunctions::streamIn(in, t, version);
-            ASSERT(!in);
-                             ASSERT(W == t);  ASSERT(X == t);  ASSERT(Y != t);
-        }
-
-        if (veryVerbose) cout << "\t\tBad value." << endl;
-        if (veryVerbose) cout << "\t\t\tindex neg." <<endl;
-        {
-            Out out;
-
-            ball::Transmission::bdexStreamOut(out, CAUSE[1], 1);
-            out.putInt32(-INDEX[1]);
-            out.putInt32(LENGTH[1]);
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            Obj t(X);        ASSERT(W == t);  ASSERT(X == t);  ASSERT(Y != t);
-            In in(OD, LOD);  ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            in.setQuiet(!veryVerbose);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);
-            ASSERT(!in);
-                             ASSERT(W == t);  ASSERT(X == t);  ASSERT(Y != t);
-        }
-        if (veryVerbose) cout << "\t\t\tsequenceLength neg." <<endl;
-        {
-            Out out;
-
-            ball::Transmission::bdexStreamOut(out, CAUSE[1], 1);
-            out.putInt32(INDEX[1]);
-            out.putInt32(-LENGTH[1]);
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            Obj t(X);        ASSERT(W == t);  ASSERT(X == t);  ASSERT(Y != t);
-            In in(OD, LOD);  ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            in.setQuiet(!veryVerbose);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);
-            ASSERT(!in);
-                             ASSERT(W == t);  ASSERT(X == t);  ASSERT(Y != t);
-        }
-        if (veryVerbose) cout << "\t\t\tsequenceLength 0." <<endl;
-        {
-            Out out;
-
-            ball::Transmission::bdexStreamOut(out, CAUSE[1], 1);
-            out.putInt32(INDEX[1]);
-            out.putInt32(0);
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            Obj t(X);        ASSERT(W == t);  ASSERT(X == t);  ASSERT(Y != t);
-            In in(OD, LOD);  ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            in.setQuiet(!veryVerbose);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);
-            ASSERT(!in);
-                             ASSERT(W == t);  ASSERT(X == t);  ASSERT(Y != t);
-        }
-        if (veryVerbose) cout << "\nTesting 'maxSupportedBdexVersion()'."
-                              << endl;
-        {
-            const Obj X;
-            ASSERT(1 == X.maxSupportedBdexVersion());
-        }
-
-        if (veryVerbose) cout << "\nWire format direct tests." << endl;
-        {
-            static const struct {
-                int         d_lineNum;    // source line number
-                int         d_cause;      // cause of publish
-                int         d_index;      // record index
-                int         d_seqLength;  // total record number in seq.
-                int         d_version;    // version to stream with
-                int         d_length;     // expect output length
-                const char *d_fmt_p;      // expected output format
-            } DATA[] = {
-                //line  cau  indx  seq  ver  len  format
-                //----  ---  ----  ---  ---  ---  --------------------------
-                { L_,    0,   10,   0,   0,   0,  ""                         },
-                { L_,    1,    8,   0,   0,   0,  ""                         },
-
-                { L_,    2,    0,   1,   1,   9,
-                                      "\x02\x00\x00\x00\x00\x00\x00\x00\x01" },
-                { L_,    1,    8,   9,   1,   9,
-                                      "\x01\x00\x00\x00\x08\x00\x00\x00\x09" },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int i = 0; i < NUM_DATA; ++i) {
-                const int         LINE    = DATA[i].d_lineNum;
-                const int         CAUSE   = DATA[i].d_cause;
-                const int         INDEX   = DATA[i].d_index;
-                const int         SEQLEN  = DATA[i].d_seqLength;
-                const int         VERSION = DATA[i].d_version;
-                const int         LEN     = DATA[i].d_length;
-                const char *const FMT     = DATA[i].d_fmt_p;
-
-                Obj mX((ball::Transmission::Cause)CAUSE, INDEX, SEQLEN);
-                const Obj& X = mX;
-                bdlxxxx::ByteOutStream out;  X.bdexStreamOut(out, VERSION);
-
-                LOOP_ASSERT(LINE, LEN == out.length());
-                LOOP_ASSERT(LINE, 0 == memcmp(out.data(),
-                                              FMT,
-                                              LEN));
-
-                if (veryVeryVerbose && memcmp(out.data(),
-                                              FMT,
-                                              LEN)) {
-                    const char *hex = "0123456789abcdef";
-                    P_(LINE);
-                    for (int j = 0; j < out.length(); ++j) {
-                        cout << "\\x"
-                             << hex[(unsigned char)*
-                                          (out.data() + j) >> 4]
-                             << hex[(unsigned char)*
-                                       (out.data() + j) & 0x0f];
-                    }
-                    cout << endl;
-                }
-
-                Obj mY;  const Obj& Y = mY;
-                if (LEN) { // version is supported
-                    bdlxxxx::ByteInStream in(out.data(),
-                                         out.length());
-                    mY.bdexStreamIn(in, VERSION);
-                }
-                else { // version is not supported
-                    mY = X;
-                    bdlxxxx::ByteInStream in;
-                    mY.bdexStreamIn(in, VERSION);
-                    LOOP_ASSERT(LINE, !in);
-                }
-                LOOP_ASSERT(LINE, X == Y);
             }
         }
       } break;

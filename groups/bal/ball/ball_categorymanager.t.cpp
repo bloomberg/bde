@@ -4,12 +4,7 @@
 
 #include <bdlqq_barrier.h>
 #include <bdlqq_lockguard.h>
-#include <bdlqq_xxxthread.h>
 #include <bslma_testallocator.h>
-
-#include <bdlxxxx_testinstream.h>
-#include <bdlxxxx_testinstreamexception.h>
-#include <bdlxxxx_testoutstream.h>
 
 #include <bslma_defaultallocatorguard.h>
 #include <bdlb_xxxbitutil.h>

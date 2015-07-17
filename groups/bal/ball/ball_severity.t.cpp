@@ -2,12 +2,6 @@
 
 #include <ball_severity.h>
 
-#include <bdlxxxx_instreamfunctions.h>      // for testing only
-#include <bdlxxxx_outstreamfunctions.h>     // for testing only
-#include <bdlxxxx_testinstream.h>           // for testing only
-#include <bdlxxxx_testoutstream.h>          // for testing only
-#include <bdlxxxx_testinstreamexception.h>  // for testing only
-
 #include <bdlb_string.h>
 
 #include <bsl_cstdlib.h>                      // atoi()
@@ -31,22 +25,15 @@ using namespace bsl;  // automatically added by script
 // regularly in the test cases.
 //-----------------------------------------------------------------------------
 // 'ball::Severity' private methods (tested indirectly):
-// [ 3] streamOut(bdlxxxx::OutStream&, ball::Severity::Level);
-// [ 1] streamOut(bdlxxxx::OutStream&, ball::Severity::Level);
 // [ 1] print(bsl::ostream& stream, ball::Severity::Level value);
 //
 // 'ball::Severity' public interface:
 // [ 1] enum Level { ... };
 // [ 1] enum { BAEL_LENGTH = ... };
-// [ 2] int maxSupportedBdexVersion();
 // [ 1] int fromAscii(ball::Severity::Level *value, const char *string, int);
 // [ 1] const char *toAscii(ball::Severity::Level value);
-// [ 3] streamIn(bdlxxxx::InStream& s, ball::Severity::Level& value);
-// [ 3] streamIn(bdlxxxx::InStream& s, ball::Severity::Level& value, int ver);
-// [ 3] streamOut(bdlxxxx::OutStream& s, ball::Severity::Level value);
-// [ 3] streamOut(bdlxxxx::OutStream& s, ball::Severity::Level value, int ver);
 //-----------------------------------------------------------------------------
-// [ 4] USAGE EXAMPLE
+// [ 2] USAGE EXAMPLE
 
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
@@ -84,8 +71,6 @@ static void aSsErT(int c, const char *s, int i) {
 
 typedef ball::Severity      Class;
 typedef Class::Level       Enum;
-typedef bdlxxxx::TestInStream  In;
-typedef bdlxxxx::TestOutStream Out;
 
 const int NUM_ENUMS = Class::BAEL_LENGTH;
 
@@ -103,7 +88,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 4: {
+      case 2: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         // Concerns:
@@ -133,417 +118,6 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << buf << endl;
       } break;
 
-      case 3: {
-        // --------------------------------------------------------------------
-        // TESTING STREAMING OPERATORS
-        // Concerns:
-        //   Our concerns here are to test the standard operations on streams
-        //   that are convertible to 'bdex' streams.  We thoroughly test
-        //   "normal" functionality using the 'streamOut' and 'streamIn'
-        //   methods.  We next step through the sequence of possible "abnormal"
-        //   stream states (empty, invalid, incomplete, and corrupted),
-        //   appropriately selecting data sets as described below.  In all
-        //   cases, exception neutrality is confirmed using the specially
-        //   instrumented 'bdlxxxx::TestInStream' and a pair of standard macros,
-        //   'BEGIN_BDEX_EXCEPTION_TEST' and 'END_BDEX_EXCEPTION_TEST', which
-        //   configure the 'bdlxxxx::TestInStream' object appropriately in a loop.
-        //
-        // Plan:
-        //   Let S represent the set of enumerator values in Enum.
-        //   Let T represent the set { -1, 0 } union S.
-        //
-        //   VALID STREAMS
-        //     Verify that each valid enumerator value in S can be written to
-        //     and successfully read from a valid 'bdex' data stream into an
-        //     instance of the enumeration with any initial value in T leaving
-        //     the stream in a valid state.
-        //
-        //   EMPTY AND INVALID STREAMS
-        //     For each valid and invalid initial enumerator value in T,
-        //     create an instance of the enumeration and attempt to stream
-        //     into it from an empty and then invalid stream.  Verify that the
-        //     instance has its initial value, and that the stream is invalid.
-        //
-        //   INCOMPLETE (BUT OTHERWISE VALID) DATA
-        //     Write 3 distinct valid enumerator values to an output stream
-        //     buffer, which will then be of total length N.  For each partial
-        //     stream length from 0 to N - 1, construct an input stream and
-        //     attempt to read into enumerator instances initialized with 3
-        //     other distinct values.  Verify values of instances that are
-        //     successfully modified, partially modified (and therefore reset
-        //     to the default value), or left entirely unmodified.  Also verify
-        //     that the stream becomes invalid immediately after the first
-        //     incomplete read.
-        //
-        //   CORRUPTED DATA
-        //     Use the underlying stream package to simulate an instance of a
-        //     typical valid (control) stream and verify that it can be
-        //     streamed in successfully.  Then for each of the two data fields
-        //     in the stream (beginning with the version number), provide two
-        //     similar tests with the data field corrupted ("too small" and
-        //     "too large").  After each test, verify the instance has the
-        //     default value, and that the input stream has gone invalid.
-        //
-        //   WHITE-BOX CONSIDERATIONS
-        //   ------------------------
-        //   Of the streaming methods being tested here, we know from looking
-        //   at the implementation that the 'streamOut' and 'streamIn' methods
-        //   which *require* a 'version' parameter are the methods which do the
-        //   main bulk of processing (the remaining methods are lightweight
-        //   wrappers).  Therefore, only these two are significantly tested -
-        //   for the remaining ones we only perform some basic tests with
-        //   valid data.
-        //
-        // Testing:
-        //  ^streamOut(bdlxxxx::OutStream&,ball::Severity::Level);
-        //   streamIn(bdlxxxx::InStream& s, ball::Severity::Level& value);
-        //   streamIn(bdlxxxx::InStream& s, ball::Severity::Level& value, int ver);
-        //   streamOut(bdlxxxx::OutStream& s, ball::Severity::Level value);
-        //   streamOut(bdlxxxx::OutStream& s, ball::Severity::Level value, int ver);
-        //
-        //   Note: '^' indicates a private method which is tested indirectly.
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl << "Testing Streaming" << endl
-                                  << "=================" << endl;
-
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nCORE FUNCTIONS." << endl << endl;
-
-        // --------------------------------------------------------------------
-
-        const int VERSION = Class::maxSupportedBdexVersion();
-        if (verbose) cout << "\tOk data." << endl;
-        {
-            for (int i = 0; i < NUM_ENUMS; ++i) {
-                Out out;
-                const Enum X = i == 0 ? Enum(0) : Enum(i << 5);
-                if (veryVerbose) { P_(i);  P(X); }
-                Class::bdexStreamOut(out, X, VERSION);
-                const char *const OD  = out.data();
-                const int         LOD = out.length();
-
-                // Verify that each new value overwrites every old value
-                // and that the input stream is emptied, but remains valid.
-                for (int j = 0; j < NUM_ENUMS; ++j) {
-                    char ver;
-                    In in(OD, LOD);
-                    in.setSuppressVersionCheck(1);
-                    In &testInStream = in;
-                    LOOP2_ASSERT(i, j, in);
-                    LOOP2_ASSERT(i, j, !in.isEmpty());
-
-                    Enum t = j == 0 ? Enum(0) : Enum(j << 5);
-
-                    BEGIN_BDEX_EXCEPTION_TEST {
-                      in.reset();
-                      LOOP2_ASSERT(i, j, X == t == (i == j));
-                      Class::bdexStreamIn(in, t, VERSION);
-                    } END_BDEX_EXCEPTION_TEST
-
-                    LOOP2_ASSERT(i, j, X == t);
-                    LOOP2_ASSERT(i, j, in);
-                    LOOP2_ASSERT(i, j, in.isEmpty());
-                }
-            }
-        }
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        if (verbose) cout << "\tOn empty and invalid streams." << endl;
-        {
-            Out out;
-            const char *const  OD = out.data();
-            const int         LOD = out.length();
-            ASSERT(0 == LOD);
-
-            for (int i = -1; i <= NUM_ENUMS; ++i) {
-                In in(OD, LOD);
-                in.setSuppressVersionCheck(1);
-                In &testInStream = in;
-                LOOP_ASSERT(i, in);
-                LOOP_ASSERT(i, in.isEmpty());
-
-                // Ensure that reading from an empty or invalid input stream
-                // leaves the stream invalid and the target object unchanged if
-                // it was initially valid.
-                const Enum X = Enum((i + 1) << 5);
-                Enum t(X);
-                LOOP_ASSERT(i, X == t);
-
-                BEGIN_BDEX_EXCEPTION_TEST {
-                  in.reset();
-                  Class::bdexStreamIn(in, t, VERSION);
-                  LOOP_ASSERT(i, !in);
-                  LOOP_ASSERT(i, X == t ||
-                              ((i == -1 || i == NUM_ENUMS) && 0 == t));
-                  Class::bdexStreamIn(in, t, VERSION);
-                  LOOP_ASSERT(i, !in);
-                  LOOP_ASSERT(i, X == t ||
-                              ((i == -1 || i == NUM_ENUMS) && 0 == t));
-                } END_BDEX_EXCEPTION_TEST
-            }
-        }
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        if (verbose)
-            cout << "\t\tOn incomplete, but otherwise valid, data." << endl;
-        {
-            const Enum W1 = Enum(32),  X1 = Enum(64),  Y1 = Enum(96);
-            const Enum W2 = Enum(128), X2 = Enum(160), Y2 = Enum(192);
-            const Enum W3 = Enum(224), X3 = Enum(32),  Y3 = Enum(64);
-
-            Out out;
-            Class::bdexStreamOut(out, X1, VERSION);
-            const int LOD1 = out.length();
-            Class::bdexStreamOut(out, X2, VERSION);
-            const int LOD2 = out.length();
-            Class::bdexStreamOut(out, X3, VERSION);
-            const int LOD  = out.length();
-            const char *const     OD   = out.data();
-
-            for (int i = 0; i < LOD; ++i) {
-              In in(OD, i);  In &testInStream = in;
-              in.setSuppressVersionCheck(1);
-
-              BEGIN_BDEX_EXCEPTION_TEST {
-                in.reset();
-                LOOP_ASSERT(i, in);
-                LOOP_ASSERT(i, !i == in.isEmpty());
-                Enum t1(W1), t2(W2), t3(W3);
-
-                if (i < LOD1) {
-                    Class::bdexStreamIn(in, t1, VERSION);
-                    LOOP_ASSERT(i, !in);
-                    if (0 == i) LOOP_ASSERT(i, W1 == t1);
-                    Class::bdexStreamIn(in, t2, VERSION);
-                    LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, W2 == t2);
-                    Class::bdexStreamIn(in, t3, VERSION);
-                    LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, W3 == t3);
-                }
-                else if (i < LOD2) {
-                    Class::bdexStreamIn(in, t1, VERSION);
-                    LOOP_ASSERT(i,  in);   LOOP_ASSERT(i, X1 == t1);
-                    Class::bdexStreamIn(in, t2, VERSION);
-                    LOOP_ASSERT(i, !in);
-                    if (LOD1 == i) LOOP_ASSERT(i, W2 == t2);
-                    Class::bdexStreamIn(in, t3, VERSION);
-                    LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, W3 == t3);
-                }
-                else {
-                    Class::bdexStreamIn(in, t1, VERSION);
-                    LOOP_ASSERT(i,  in);    LOOP_ASSERT(i, X1 == t1);
-                    Class::bdexStreamIn(in, t2, VERSION);
-                    LOOP_ASSERT(i,  in);    LOOP_ASSERT(i, X2 == t2);
-                    Class::bdexStreamIn(in, t3, VERSION);
-                    LOOP_ASSERT(i, !in);
-                    if (LOD2 == i) LOOP_ASSERT(i, W3 == t3);
-                }
-
-                LOOP_ASSERT(i, Y1 != t1);
-                t1 = Y1;
-                LOOP_ASSERT(i, Y1 == t1);    LOOP_ASSERT(i, Y2 != t2);
-                t2 = Y2;
-                LOOP_ASSERT(i, Y2 == t2);    LOOP_ASSERT(i, Y3 != t3);
-                t3 = Y3;
-                LOOP_ASSERT(i, Y3 == t3);
-              } END_BDEX_EXCEPTION_TEST
-            }
-        }
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        if (verbose) cout << "\tOn corrupted data." << endl;
-
-        const Enum W = Enum(32), X = Enum(64), Y = Enum(96);
-
-        if (verbose) cout << "\t\tGood stream (for control)." << endl;
-        {
-            Out out;
-            Class::bdexStreamOut(out, Y, VERSION);
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-            Enum t(X);
-            ASSERT(W != t);    ASSERT(X == t);    ASSERT(Y != t);
-            In in(OD, LOD);
-            in.setSuppressVersionCheck(1);
-            ASSERT(in);
-            Class::bdexStreamIn(in, t, VERSION);
-            ASSERT(in);
-            ASSERT(W != t);    ASSERT(X != t);    ASSERT(Y == t);
-         }
-
-        // -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
-
-        if (verbose) cout << "\t\tBad version number." << endl;
-
-        {
-            const int version     = 0;          // BAD: too small
-            const Enum enumerator = Enum(Y);    // BAD: too large
-            Out out;
-            Class::bdexStreamOut(out, enumerator, VERSION);
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-            Enum t(X);
-            ASSERT(W != t);    ASSERT(X == t);    ASSERT(Y != t);
-            In in(OD, LOD);
-            ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            in.setQuiet(!veryVerbose);
-            Class::bdexStreamIn(in, t, version);
-            ASSERT(!in);
-            ASSERT(W != t);    ASSERT(X == t);    ASSERT(Y != t);
-        }
-        {
-            const int version     = 5;           // BAD: too large
-            const Enum enumerator = Enum(Y);     // BAD: too large
-            Out out;
-            Class::bdexStreamOut(out, enumerator, VERSION);
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-            Enum t(X);
-            ASSERT(W != t);    ASSERT(X == t);    ASSERT(Y != t);
-            In in(OD, LOD);
-            in.setSuppressVersionCheck(1);
-            ASSERT(in);
-            in.setQuiet(!veryVerbose);
-            Class::bdexStreamIn(in, t, version);
-            ASSERT(!in);
-            ASSERT(W != t);    ASSERT(X == t);    ASSERT(Y != t);
-        }
-
-        // -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
-
-        if (verbose) cout << "\t\tBad enumerator value." << endl;
-
-        {
-            const Enum enumerator = Enum(-1);             // BAD: too small
-            Out out;
-            Class::bdexStreamOut(out, enumerator, VERSION);
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-            Enum t(X);
-            ASSERT(W != t);    ASSERT(X == t);    ASSERT(Y != t);
-            In in(OD, LOD);
-            in.setSuppressVersionCheck(1);
-            ASSERT(in);
-            in.setQuiet(!veryVerbose);
-            Class::bdexStreamIn(in, t, VERSION);
-            ASSERT(!in);
-            ASSERT(W != t);    ASSERT(X == t);    ASSERT(Y != t);
-        }
-        {
-            const Enum enumerator = Enum(NUM_ENUMS);      // BAD: too large
-            Out out;
-            Class::bdexStreamOut(out, enumerator, VERSION);
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-            Enum t(X);
-            ASSERT(W != t);    ASSERT(X == t);    ASSERT(Y != t);
-            In in(OD, LOD);
-            in.setSuppressVersionCheck(1);
-            ASSERT(in);
-            Class::bdexStreamIn(in, t, VERSION);
-            ASSERT(!in);
-            ASSERT(W != t);    ASSERT(X == t);    ASSERT(Y != t);
-        }
-
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\n\nWRAPPER FUNCTIONS." << endl << endl;
-
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\tTesting streamIn/Out." << endl;
-        {
-            for (int i = 0; i < NUM_ENUMS; ++i) {
-                Out out;
-                const Enum X = i == 0 ? Enum(0) : Enum(i << 5);
-                if (veryVerbose) { P_(i);  P(X); }
-                bdex_OutStreamFunctions::streamOut(out, X, VERSION);
-                const char *const OD  = out.data();
-                const int         LOD = out.length();
-
-                // Verify that each new value overwrites every old value
-                // and that the input stream is emptied, but remains valid.
-                for (int j = 0; j < NUM_ENUMS; ++j) {
-                    In in(OD, LOD);
-                    in.setSuppressVersionCheck(1);
-                    In &testInStream = in;
-                    LOOP2_ASSERT(i, j, in);
-                    LOOP2_ASSERT(i, j, !in.isEmpty());
-                    Enum t = j == 0 ? Enum(0) : Enum(j << 5);
-
-                    BEGIN_BDEX_EXCEPTION_TEST {
-                      in.reset();
-                      LOOP2_ASSERT(i, j, X == t == (i == j));
-                      bdex_InStreamFunctions::streamIn(in, t, VERSION);
-                    } END_BDEX_EXCEPTION_TEST
-
-                    LOOP2_ASSERT(i, j, X == t);
-                    LOOP2_ASSERT(i, j, in);
-                    LOOP2_ASSERT(i, j, in.isEmpty());
-                }
-            }
-        }
-
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\tTesting bdex functions." << endl;
-        {
-            for (int i = 0; i < NUM_ENUMS; ++i) {
-                const Enum X = i == 0 ? Enum(0) : Enum(i << 5);
-                if (veryVerbose) { P_(i);  P(X); }
-                Out out;
-                bdex_OutStreamFunctions::streamOut(out, X, VERSION);
-                const char *const OD  = out.data();
-                const int         LOD = out.length();
-
-                for (int j = 0; j < NUM_ENUMS; ++j) {
-                    In in(OD, LOD);  In &testInStream = in;
-                    in.setSuppressVersionCheck(1);
-                    LOOP2_ASSERT(i, j, in);
-                    LOOP2_ASSERT(i, j, !in.isEmpty());
-                    Enum t = j == 0 ? Enum(0) : Enum(j << 5);
-                    BEGIN_BDEX_EXCEPTION_TEST {
-                      in.reset();
-                      LOOP2_ASSERT(i, j, X == t == (i == j));
-                      bdex_InStreamFunctions::streamIn(in, t, VERSION);
-                    } END_BDEX_EXCEPTION_TEST
-                    LOOP2_ASSERT(i, j, X == t);
-                    LOOP2_ASSERT(i, j, in);
-                    LOOP2_ASSERT(i, j, in.isEmpty());
-                }
-            }
-        }
-      } break;
-
-      case 2: {
-        // --------------------------------------------------------------------
-        // TESTING MAXSUPPORTEDBDEXVERSION
-        //
-        // Concerns:
-        //   Our concern is that the correct value is returned.
-        //
-        // Plan:
-        //   Retrieve the version number and ensure that it is the correct
-        //   value.  Note that this version number is hard-coded into the .h,
-        //   and therefore, this test case needs to be updated whenever that
-        //   number changes.
-        //
-        // Testing:
-        //   int maxSupportedBdexVersion();
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nTesting maxSupportedBdexVersion"
-                          << "\n===========================" << endl;
-
-        const int EXPECTED_VERSION = 1;
-        ASSERT(EXPECTED_VERSION == Class::maxSupportedBdexVersion());
-      } break;
-
       case 1: {
         // --------------------------------------------------------------------
         // VALUE TEST
@@ -567,8 +141,7 @@ int main(int argc, char *argv[])
         //   'ostream' output for invalid enumerator values.
         //
         // Testing:
-        //  ^streamOut(bdlxxxx::OutStream&,ball::Severity::Level);
-        //  ^print(bsl::ostream& stream, ball::Severity::Level value);
+        //   print(bsl::ostream& stream, ball::Severity::Level value);
         //   enum Level { ... };
         //   enum { BAEL_LENGTH = ... };
         //   int fromAscii(ball::Severity::Level *value,

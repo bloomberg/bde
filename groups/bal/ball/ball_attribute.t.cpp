@@ -5,8 +5,7 @@
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
 #include <bsls_platform.h>                      // for testing only
-#include <bdlxxxx_testinstream.h>                  // for testing only
-#include <bdlxxxx_testoutstream.h>                 // for testing only
+
 #include <bdlb_hashutil.h>
 
 #include <bsls_alignmentutil.h>
@@ -107,8 +106,6 @@ static void aSsErT(int c, const char *s, int i) {
 
 typedef ball::Attribute     Obj;
 typedef bsls::Types::Int64 Int64;
-typedef bdlxxxx::TestInStream  StreamIn;
-typedef bdlxxxx::TestOutStream StreamOut;
 
 #define VA_NAME   ""
 #define VA_VALUE  0

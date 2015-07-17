@@ -258,14 +258,14 @@ class Record {
     //
     // Additionally, this class supports a complete set of *value* *semantic*
     // operations, including copy construction, assignment and equality
-    // comparison, 'ostream' printing, and 'bdex' serialization.  A precise
-    // operational definition of when two instances have the same value can be
-    // found in the description of 'operator==' for the class.  This class is
-    // *exception* *neutral* with no guarantee of rollback: If an exception is
-    // thrown during the invocation of a method on a pre-existing instance,
-    // the object is left in a valid state, but its value is undefined.  In no
-    // event is memory leaked.  Finally, *aliasing* (e.g., using all or part
-    // of an object as both source and destination) is supported in all cases.
+    // comparison, and 'ostream' printing.  A precise operational definition of
+    // when two instances have the same value can be found in the description
+    // of 'operator==' for the class.  This class is *exception* *neutral* with
+    // no guarantee of rollback: If an exception is thrown during the
+    // invocation of a method on a pre-existing instance, the object is left in
+    // a valid state, but its value is undefined.  In no event is memory
+    // leaked.  Finally, *aliasing* (e.g., using all or part of an object as
+    // both source and destination) is supported in all cases.
 
     // DATA
     CountingAllocator  d_allocator;    // memory allocator
@@ -287,19 +287,6 @@ class Record {
         // '*object' to deallocate its memory footprint.  The behavior is
         // undefined unless 'object' is the address of a valid log record.
 
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported
-        // by this class.  (See the package-group-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.)
-
-    static int maxSupportedVersion();
-        // Return the most current 'bdex' streaming version number supported
-        // by this class.  (See the package-group-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.)
-        //
-        // DEPRECATED: Replaced by the 'maxSupportedBdexVersion' method.
 
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(Record,
@@ -350,19 +337,6 @@ class Record {
     bdlmxxx::List& userFields();
         // Return the modifiable user-defined fields of this log record.
 
-    template <class STREAM>
-    STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a
-        // reference to the modifiable 'stream'.  If 'stream' is initially
-        // invalid, this operation has no effect.  If 'stream' becomes invalid
-        // during this operation, this object is valid, but its value is
-        // undefined.  If 'version' is not supported, 'stream' is marked
-        // invalid and this object is unaltered.  Note that no version is read
-        // from 'stream'.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.
-
     // ACCESSORS
     const RecordAttributes& fixedFields() const;
         // Return the non-modifiable fixed fields of this log record.
@@ -389,14 +363,6 @@ class Record {
         // entire output on one line.  If 'stream' is initially invalid, this
         // operation has no effect.
 
-    template <class STREAM>
-    STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write this value to the specified output 'stream' using the
-        // specified 'version' format and return a reference to the modifiable
-        // 'stream'.  If 'version' is not supported, 'stream' is unmodified.
-        // Note that 'version' is not written to 'stream'.  See the 'bdex'
-        // package-level documentation for more information on 'bdex'
-        // streaming of value-semantic types and containers.
 };
 
 // FREE OPERATORS
@@ -431,18 +397,6 @@ inline
 void Record::deleteObject(const Record *object)
 {
     object->d_allocator_p->deleteObjectRaw(object);
-}
-
-inline
-int Record::maxSupportedBdexVersion()
-{
-    return 1;  // Required by BDE policy; versions start at 1.
-}
-
-inline
-int Record::maxSupportedVersion()
-{
-    return maxSupportedBdexVersion();
 }
 
 // CREATORS
@@ -516,33 +470,6 @@ bdlmxxx::List& Record::userFields()
     return d_userFields;
 }
 
-template <class STREAM>
-STREAM& Record::bdexStreamIn(STREAM& stream, int version)
-{
-    if (stream) {
-        switch(version) {  // Switch on Record version (starting with 1).
-          case 1: {
-
-            d_fixedFields.bdexStreamIn(stream, 1);
-            if (!stream) {
-                return stream;                                  // RETURN
-            }
-
-            d_userFields.removeAll();
-            d_userFields.bdexStreamIn(stream, 1);
-            if (!stream) {
-                return stream;                                  // RETURN
-            }
-
-          } break;
-          default: {
-            stream.invalidate();          // unrecognized version number
-          } break;
-        }
-    }
-    return stream;
-}
-
 // ACCESSORS
 inline
 const RecordAttributes& Record::fixedFields() const
@@ -562,17 +489,6 @@ int Record::numAllocatedBytes() const
     return d_allocator.numBytesTotal();
 }
 
-template <class STREAM>
-STREAM& Record::bdexStreamOut(STREAM& stream, int version) const
-{
-    switch (version) {
-      case 1: {
-        d_fixedFields.bdexStreamOut(stream, 1);
-        d_userFields.bdexStreamOut(stream, 1);
-      } break;
-    }
-    return stream;
-}
 }  // close package namespace
 
 // FREE OPERATORS

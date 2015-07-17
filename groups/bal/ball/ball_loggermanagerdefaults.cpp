@@ -6,11 +6,6 @@ BSLS_IDENT_RCSID(ball_loggermanagerdefaults_cpp,"$Id$ $CSID$")
 
 #include <bdlb_print.h>
 #include <bsls_assert.h>
-#include <bdlxxxx_testoutstream.h>                 // for testing only
-#include <bdlxxxx_testinstream.h>                  // for testing only
-#include <bdlxxxx_testinstreamexception.h>         // for testing only
-#include <bdlxxxx_byteoutstream.h>                 // for testing only
-#include <bdlxxxx_byteinstream.h>                  // for testing only
 
 #include <bsl_ostream.h>
 
@@ -86,10 +81,6 @@ int LoggerManagerDefaults::defaultDefaultTriggerAllLevel()
     return DEFAULT_TRIGGER_ALL_LEVEL;
 }
 
-int LoggerManagerDefaults::maxSupportedBdexVersion()
-{
-    return 1;
-}
 
 // CREATORS
 LoggerManagerDefaults::LoggerManagerDefaults()

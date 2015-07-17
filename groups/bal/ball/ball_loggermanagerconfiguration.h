@@ -114,13 +114,9 @@ BSLS_IDENT("$Id: $")
 // For convenience, the 'ball::LoggerManagerConfiguration' interface contains
 // manipulators and accessors to configure and inspect the value of its
 // contained 'ball::LoggerManagerDefaults' object; these methods are identical
-// to those of 'ball::LoggerManagerDefaults'.  Therefore, the user has the
-// option of configuring a defaults object independently (e.g., by 'bdex'
-// streaming from a configuration file), and using the 'setDefaultValues'
-// method to set the default values atomically, or else using the individual
-// configuration-object methods to set the contained default values directly.
-// See the 'ball_loggermanagerdefaults' component for details on the defaults
-// and their constraints.
+// to those of 'ball::LoggerManagerDefaults'.  See the
+// 'ball_loggermanagerdefaults' component for details on the defaults and
+// their constraints.
 //
 ///Thread-Safety
 ///-------------

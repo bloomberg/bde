@@ -2,12 +2,6 @@
 
 #include <ball_loggermanagerconfiguration.h>
 
-#include <bdlxxxx_testoutstream.h>                 // for testing only
-#include <bdlxxxx_testinstream.h>                  // for testing only
-#include <bdlxxxx_testinstreamexception.h>         // for testing only
-#include <bdlxxxx_byteoutstream.h>                 // for testing only
-#include <bdlxxxx_byteinstream.h>                  // for testing only
-
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
@@ -114,8 +108,6 @@ typedef ball::LoggerManagerConfiguration Obj;
 typedef ball::LoggerManagerDefaults      Defs;
 typedef bdlmxxx::Schema                     Schema;
 
-typedef bdlxxxx::TestInStream               In;
-typedef bdlxxxx::TestOutStream              Out;
 
 // Functor typedefs
 typedef bdlf::Function<void (*)(bdlmxxx::List *, bdlmxxx::Schema)>                PopCb;

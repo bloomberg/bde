@@ -13,8 +13,6 @@
 #include <bdlt_currenttime.h>
 
 #include <bdlt_iso8601util.h>
-#include <bdlxxxx_testinstream.h>           // for testing only
-#include <bdlxxxx_testoutstream.h>          // for testing only
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -59,33 +57,31 @@ using bsl::string;
 //
 // CREATORS
 // [ 2] ball::RecordStringFormatter(*ba = 0);
-// [11] ball::RecordStringFormatter(const char *, *ba = 0);
-// [11] ball::RecordStringFormatter(bdet::DtI, *ba = 0);
-// [14] ball::RecordStringFormatter(bool, *ba = 0);
-// [11] ball::RecordStringFormatter(const char *, bdet::DtI, *ba = 0);
-// [14] ball::RecordStringFormatter(const char *, bool, *ba = 0);
+// [10] ball::RecordStringFormatter(const char *, *ba = 0);
+// [10] ball::RecordStringFormatter(bdet::DtI, *ba = 0);
+// [13] ball::RecordStringFormatter(bool, *ba = 0);
+// [10] ball::RecordStringFormatter(const char *, bdet::DtI, *ba = 0);
+// [13] ball::RecordStringFormatter(const char *, bool, *ba = 0);
 // [ 7] ball::RecordStringFormatter(const bael::RSF&, *ba = 0);
 // [ 2] ~ball::RecordStringFormatter();
 // MANIPULATORS
 // [ 9] const bael::RSF& operator=(const bael::RSF& other);
-// [14] void disablePublishInLocalTime();
-// [14] void enablePublishInLocalTime();
+// [13] void disablePublishInLocalTime();
+// [13] void enablePublishInLocalTime();
 // [ 2] void setFormat(const char *format);
 // [ 2] void setTimestampOffset(const bdlt::DatetimeInterval& offset);
-// [10] template <class STREAM> STREAM& bdexStreamIn(STREAM&, int);
 // ACCESSORS
 // [ 2] const char *format() const;
-// [14] bool isPublishInLocalTimeEnabled() const;
+// [13] bool isPublishInLocalTimeEnabled() const;
 // [ 2] const bdlt::DatetimeInterval& timestampOffset() const;
-// [12] void operator()(bsl::ostream&, const ball::Record&) const;
-// [10] template <class STREAM> STREAM& bdexStreamOut(STREAM&, int) const;
+// [11] void operator()(bsl::ostream&, const ball::Record&) const;
 // FREE OPERATORS
 // [ 6] bool operator==(const bael::RSF& lhs, const bael::RSF& rhs);
 // [ 6] bool operator!=(const bael::RSF& lhs, const bael::RSF& rhs);
 // [ 5] bsl::ostream& operator<<(bsl::ostream&, const bael::RSF&);
 // ---------------------------------------------------------------------------
 // [ 1] breathing test
-// [13] USAGE example
+// [12] USAGE example
 //=============================================================================
 //                        STANDARD BDE ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
@@ -144,9 +140,6 @@ static int veryVeryVeryVerbose = 0;
 
 typedef ball::RecordStringFormatter Obj;
 typedef ball::Record                Rec;
-
-typedef bdlxxxx::TestInStream          In;
-typedef bdlxxxx::TestOutStream         Out;
 
 // Values for testing.
 const char *F0 = "\n%d %p:%t %s %f:%l %c %m %u\n";
@@ -216,7 +209,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 14: {
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING: Records Show Calculated Local-Time Offset
         //   Per DRQS 13681097, records observe DST time transitions when
@@ -387,7 +380,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 13: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -446,7 +439,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << oss.str();
 
       } break;
-      case 12: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING OPERATOR()
         //   Operator () should print out the given 'record' in the format
@@ -938,7 +931,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 11: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING INITIALIZATION CONSTRUCTORS:
         //   The three constructors must initialize the value correctly.
@@ -1042,54 +1035,6 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(FVALUES[i].d_lineNum,
                              TVALUES[j].d_lineNum, X == Y);
             }
-        }
-      } break;
-      case 10: {
-        // --------------------------------------------------------------------
-        // TESTING 'bdex' STREAMING FUNCTIONALITY:
-        //   The 'bdex' streaming functionality of 'ball::RecordStringFormatter
-        //   largely depends on that of 'bsl::string' and
-        //   'bael::DatetimeInterval', so only a few tests are needed.
-        //
-        // Testing:
-        //   static int maxSupportedBdexVersion();
-        //   template <class STREAM> STREAM& bdexStreamIn(STREAM&, int);
-        //   template <class STREAM> STREAM& bdexStreamOut(STREAM&, int) const;
-        // --------------------------------------------------------------------
-        if (verbose) cout << "\nTesting 'bdex' Streaming Functionality"
-                          << "\n======================================"
-                          << endl;
-
-        if (verbose) cout << "\n  Testing 'maxSupportedBdexVersion' method."
-                          << endl;
-        {
-            const Obj X;
-            ASSERT(1 == X.maxSupportedBdexVersion());
-            ASSERT(1 == Obj::maxSupportedBdexVersion());
-        }
-
-        if (verbose) cout << "\n  Direct 'streamOut' and 'streamIn'."
-                          << endl;
-        {
-            const Obj A("some format", bdlt::DatetimeInterval(3600));
-            Out       out;
-            const int VERSION = Obj::maxSupportedBdexVersion();
-
-            A.bdexStreamOut(out, VERSION);
-
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-            In                in(OD, LOD);
-            ASSERT(in);
-            ASSERT(!in.isEmpty());
-            Obj B("another format", bdlt::DatetimeInterval(1800));
-            ASSERT(B != A);
-
-            in.setSuppressVersionCheck(VERSION);
-            B.bdexStreamIn(in, VERSION);
-            ASSERT(B == A);
-            ASSERT(in);
-            ASSERT(in.isEmpty());
         }
       } break;
       case 9: {

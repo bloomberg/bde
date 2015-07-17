@@ -14,10 +14,6 @@
 #include <bslma_testallocator.h>               // for testing only
 #include <bslma_testallocatorexception.h>      // for testing only
 
-#include <bdlxxxx_testinstream.h>                 // for testing only
-#include <bdlxxxx_testinstreamexception.h>        // for testing only
-#include <bdlxxxx_testoutstream.h>                // for testing only
-
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strlen(), memset(), memcpy(), memcmp()
 

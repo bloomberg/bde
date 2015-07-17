@@ -18,10 +18,6 @@
 
 #include <bdlmxxx_schemaaggregateutil.h>           // for testing only
 
-#include <bdlxxxx_testinstream.h>                  // for testing only
-#include <bdlxxxx_testinstreamexception.h>         // for testing only
-#include <bdlxxxx_testoutstream.h>                 // for testing only
-
 #include <bdlf_bind.h>                          // for testing only
 #include <bdlf_placeholder.h>                   // for testing only
 
