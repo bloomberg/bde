@@ -11,8 +11,7 @@ BSLS_IDENT_RCSID(ball_categorymanager_cpp,"$Id$ $CSID$")
 #include <bdlqq_readlockguard.h>
 #include <bdlqq_writelockguard.h>
 
-#include <bdlb_xxxbitutil.h>
-
+#include <bdlb_bitutil.h>
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 
@@ -339,7 +338,7 @@ Category *CategoryManager::addCategory(
         for (int i = 0; i < RuleSet::maxNumRules(); ++i) {
             const Rule *rule = d_ruleSet.getRuleById(i);
             if (rule && rule->isMatch(category->categoryName())) {
-                category->d_relevantRuleMask |= bdlb::BitUtil::eqMask(i);
+                category->d_relevantRuleMask |= 1 << i;
                 int threshold = ThresholdAggregate::maxLevel(
                                                       rule->recordLevel(),
                                                       rule->passLevel(),
@@ -443,7 +442,7 @@ Category *CategoryManager::setThresholdLevels(
         for (int i = 0; i < RuleSet::maxNumRules(); ++i) {
             const Rule *rule = d_ruleSet.getRuleById(i);
             if (rule && rule->isMatch(category->categoryName())) {
-                category->d_relevantRuleMask |= bdlb::BitUtil::eqMask(i);
+                category->d_relevantRuleMask |= 1 << i;
                 int threshold = ThresholdAggregate::maxLevel(
                                                       rule->recordLevel(),
                                                       rule->passLevel(),
@@ -477,7 +476,7 @@ int CategoryManager::addRule(const Rule& value)
     for (int i = 0; i < length(); ++i) {
         Category *category = d_categories[i];
         if (rule->isMatch(category->categoryName())) {
-            category->d_relevantRuleMask |= bdlb::BitUtil::eqMask(ruleId);
+            category->d_relevantRuleMask |= 1 << ruleId;
             int threshold = ThresholdAggregate::maxLevel(
                                                       rule->recordLevel(),
                                                       rule->passLevel(),
@@ -519,7 +518,7 @@ int CategoryManager::removeRule(const Rule& value)
     for (int i = 0; i < length(); ++i) {
         Category *category = d_categories[i];
         if (rule->isMatch(category->categoryName())) {
-            category->d_relevantRuleMask = bdlb::BitUtil::setBitZero(
+            category->d_relevantRuleMask = bdlb::BitUtil::withBitCleared(
                                                   category->d_relevantRuleMask,
                                                   ruleId);
             category->d_ruleThreshold = 0;
@@ -529,9 +528,9 @@ int CategoryManager::removeRule(const Rule& value)
             int j = 0;
             int numBits = bdlb::BitUtil::sizeInBits(relevantRuleMask);
             BSLS_ASSERT(numBits == RuleSet::maxNumRules());
-            while((j = bdlb::BitUtil::find1AtSmallestIndex(relevantRuleMask))
+            while((j = bdlb::BitUtil::numTrailingUnsetBits(relevantRuleMask))
                                                                   != numBits) {
-                relevantRuleMask &= bdlb::BitUtil::neMask(j);
+                relevantRuleMask &= ~(1 << j);
 
                 const Rule *r = d_ruleSet.getRuleById(j);
                 int threshold = ThresholdAggregate::maxLevel(

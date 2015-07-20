@@ -170,8 +170,8 @@ static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
 static int veryVeryVeryVerbose = 0;
 
-typedef ball::FileObserver2 Obj;
-
+typedef ball::FileObserver2   Obj;
+typedef bdlsu::FilesystemUtil FileUtil;
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -1015,7 +1015,7 @@ int main(int argc, char *argv[])
                                               originalLocalTimeOffsetCallback);
 
         mX.disableFileLogging();
-        bdlsu::FilesystemUtil::remove(logfilename.c_str());
+        FileUtil::remove(logfilename.c_str());
 
       } break;
       case 11: {
@@ -1069,7 +1069,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == cb.numInvocations());
 
         mX.disableFileLogging();
-        bdlsu::FilesystemUtil::remove(BASENAME.c_str());
+        FileUtil::remove(BASENAME.c_str());
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -1133,7 +1133,7 @@ int main(int argc, char *argv[])
 
             // Ensure log file did not exist
 
-            bdlsu::FilesystemUtil::remove(BASENAME.c_str());
+            FileUtil::remove(BASENAME.c_str());
 
             mX.rotateOnTimeInterval(bdlt::DatetimeInterval(0, 0, 0, 2),
                                     bdlt::Datetime(1, 1, 1));
@@ -1144,7 +1144,7 @@ int main(int argc, char *argv[])
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
 
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
-            ASSERT(1 == bdlsu::FilesystemUtil::exists(cb.rotatedFileName().c_str()));
+            ASSERT(1 == FileUtil::exists(cb.rotatedFileName().c_str()));
 
             cb.reset();
         }
@@ -1156,7 +1156,7 @@ int main(int argc, char *argv[])
 
             // Ensure log file did not exist
 
-            bdlsu::FilesystemUtil::remove(BASENAME.c_str());
+            FileUtil::remove(BASENAME.c_str());
 
             mX.rotateOnTimeInterval(bdlt::DatetimeInterval(0, 0, 0, 2),
                                     bdlt::Datetime(9999, 12, 31, 23, 59, 59));
@@ -1167,7 +1167,7 @@ int main(int argc, char *argv[])
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
 
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
-            ASSERT(1 == bdlsu::FilesystemUtil::exists(cb.rotatedFileName().c_str()));
+            ASSERT(1 == FileUtil::exists(cb.rotatedFileName().c_str()));
 
             cb.reset();
         }
@@ -1180,7 +1180,7 @@ int main(int argc, char *argv[])
 
             // Ensure log file did not exist
 
-            bdlsu::FilesystemUtil::remove(BASENAME.c_str());
+            FileUtil::remove(BASENAME.c_str());
 
             bdlt::Datetime refTime = bdlt::CurrentTime::local();
             refTime += bdlt::DatetimeInterval(-1, 0, 0, 3);
@@ -1195,7 +1195,7 @@ int main(int argc, char *argv[])
 
 
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
-            ASSERT(1 == bdlsu::FilesystemUtil::exists(cb.rotatedFileName().c_str()));
+            ASSERT(1 == FileUtil::exists(cb.rotatedFileName().c_str()));
         }
 
       } break;
@@ -1279,7 +1279,7 @@ int main(int argc, char *argv[])
 
         BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
 
-        ASSERT(1 == bdlsu::FilesystemUtil::exists(BASENAME.c_str()));
+        ASSERT(1 == FileUtil::exists(BASENAME.c_str()));
         LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
 
         if (veryVerbose) cout << "Test normal rotation" << endl;
@@ -1294,7 +1294,7 @@ int main(int argc, char *argv[])
 
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
-            ASSERT(1 == bdlsu::FilesystemUtil::exists(cb.rotatedFileName().c_str()));
+            ASSERT(1 == FileUtil::exists(cb.rotatedFileName().c_str()));
         }
 
         if (veryVerbose) cout << "Test delayed logging" << endl;
@@ -1305,13 +1305,13 @@ int main(int argc, char *argv[])
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
 
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
-            ASSERT(1 == bdlsu::FilesystemUtil::exists(cb.rotatedFileName().c_str()));
+            ASSERT(1 == FileUtil::exists(cb.rotatedFileName().c_str()));
 
             bdlqq::ThreadUtil::microSleep(0, 1);
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
 
             LOOP_ASSERT(cb.numInvocations(), 2 == cb.numInvocations());
-            ASSERT(1 == bdlsu::FilesystemUtil::exists(cb.rotatedFileName().c_str()));
+            ASSERT(1 == FileUtil::exists(cb.rotatedFileName().c_str()));
         }
 
         if (veryVerbose) cout <<
@@ -1323,14 +1323,14 @@ int main(int argc, char *argv[])
             mX.forceRotation();
 
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
-            ASSERT(1 == bdlsu::FilesystemUtil::exists(cb.rotatedFileName().c_str()));
+            ASSERT(1 == FileUtil::exists(cb.rotatedFileName().c_str()));
 
             bdlqq::ThreadUtil::microSleep(0, 2);
 
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
 
             LOOP_ASSERT(cb.numInvocations(), 2 == cb.numInvocations());
-            ASSERT(1 == bdlsu::FilesystemUtil::exists(cb.rotatedFileName().c_str()));
+            ASSERT(1 == FileUtil::exists(cb.rotatedFileName().c_str()));
         }
 
         if (veryVerbose) cout <<
@@ -1346,7 +1346,7 @@ int main(int argc, char *argv[])
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
 
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
-            ASSERT(1 == bdlsu::FilesystemUtil::exists(cb.rotatedFileName().c_str()));
+            ASSERT(1 == FileUtil::exists(cb.rotatedFileName().c_str()));
         }
 
         if (veryVerbose) cout << "Test 'disableTimeIntervalRotation" << endl;
@@ -1412,7 +1412,7 @@ int main(int argc, char *argv[])
 
                 BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
 
-                ASSERT(1 == bdlsu::FilesystemUtil::exists(BASENAME.c_str()));
+                ASSERT(1 == FileUtil::exists(BASENAME.c_str()));
 
                 ASSERT(2 == getNumLines(BASENAME.c_str()));
                 ASSERT(X.isFileLoggingEnabled());
@@ -1438,10 +1438,10 @@ int main(int argc, char *argv[])
                 BALL_LOG_TRACE << buffer << BALL_LOG_END;
                 BALL_LOG_TRACE << 'x' << BALL_LOG_END;
 
-                ASSERT(1 == bdlsu::FilesystemUtil::exists(BASENAME.c_str()));
+                ASSERT(1 == FileUtil::exists(BASENAME.c_str()));
                 ASSERT(1 == cb.numInvocations());
                 ASSERT(1 ==
-                         bdlsu::FilesystemUtil::exists(cb.rotatedFileName().c_str()));
+                         FileUtil::exists(cb.rotatedFileName().c_str()));
             }
         }
       } break;
@@ -1512,7 +1512,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
             LOOP_ASSERT(cb.status(), 0 == cb.status());
 
-            ASSERT(1 == bdlsu::FilesystemUtil::exists(cb.rotatedFileName()));
+            ASSERT(1 == FileUtil::exists(cb.rotatedFileName()));
         }
       } break;
       case 6: {
@@ -1624,7 +1624,7 @@ int main(int argc, char *argv[])
             }
 
             for (int i = 0; i < files.size(); ++i) {
-                bdlsu::FilesystemUtil::remove(files[i]);
+                FileUtil::remove(files[i]);
             }
         }
         if (veryVerbose) cout <<
@@ -1663,7 +1663,7 @@ int main(int argc, char *argv[])
             files.push_back(logName);
 
             for (int i = 0; i < files.size(); ++i) {
-                 bdlsu::FilesystemUtil::remove(files[i]);
+                 FileUtil::remove(files[i]);
             }
         }
 
@@ -1729,7 +1729,7 @@ int main(int argc, char *argv[])
             }
 
             for (int i = 0; i < files.size(); ++i) {
-                bdlsu::FilesystemUtil::remove(files[i]);
+                FileUtil::remove(files[i]);
             }
         }
 
@@ -1883,7 +1883,7 @@ int main(int argc, char *argv[])
                         bsl::string fn;
                         ASSERT(1 == mX.isFileLoggingEnabled(&fn));
                         mX.disableFileLogging();
-                        ASSERT(0 == bdlsu::FilesystemUtil::remove(fn.c_str()));
+                        ASSERT(0 == FileUtil::remove(fn.c_str()));
                     }
 
                 } while (!X.isFileLoggingEnabled());
@@ -1943,7 +1943,7 @@ int main(int argc, char *argv[])
                 if (veryVeryVerbose) { P(LOGNAME) }
 
                 LOOP2_ASSERT(LINE, LOGNAME.c_str(),
-                             1 == bdlsu::FilesystemUtil::exists(LOGNAME.c_str()));
+                             1 == FileUtil::exists(LOGNAME.c_str()));
 
                 bdlqq::ThreadUtil::microSleep(0, 1);
                 mX.forceRotation();
@@ -1951,7 +1951,7 @@ int main(int argc, char *argv[])
                 mX.disableFileLogging();
 
                 LOOP2_ASSERT(LINE, LOGNAME.c_str(),
-                             1 == bdlsu::FilesystemUtil::exists(LOGNAME.c_str()));
+                             1 == FileUtil::exists(LOGNAME.c_str()));
 
                 bsl::string ROTATED_NAME = LOGNAME;
                 if (!UNI) {
@@ -1975,7 +1975,7 @@ int main(int argc, char *argv[])
                     if (veryVeryVerbose) { P(ROTATED_NAME) }
 
                     ASSERTV(LINE, ROTATED_NAME.c_str(),
-                            1 == bdlsu::FilesystemUtil::exists(ROTATED_NAME.c_str()));
+                            1 == FileUtil::exists(ROTATED_NAME.c_str()));
                     ASSERTV(LINE, 2 == getNumLines(ROTATED_NAME.c_str()));
                 }
 
@@ -2036,7 +2036,7 @@ int main(int argc, char *argv[])
                 start.setMillisecond(0);
                 ASSERTV(timestamp, end, start<=timestamp && timestamp<=end);
 
-                bdlsu::FilesystemUtil::remove(logFilename.c_str());
+                FileUtil::remove(logFilename.c_str());
             }
 
             const char *LOCAL_PATTERN = "local_%T";
@@ -2081,7 +2081,7 @@ int main(int argc, char *argv[])
                 start.setMillisecond(0);
                 ASSERTV(timestamp, end, start<=timestamp && timestamp<=end);
 
-                bdlsu::FilesystemUtil::remove(logFilename.c_str());
+                FileUtil::remove(logFilename.c_str());
             }
         }
       } break;
@@ -3277,7 +3277,7 @@ int main(int argc, char *argv[])
             BALL_LOG_WARN << buffer << BALL_LOG_END;
         }
 
-        //bdlsu::FilesystemUtil::remove(BASENAME.c_str());
+        //FileUtil::remove(BASENAME.c_str());
 
       } break;
       default: {

@@ -14,8 +14,6 @@
 
 #include <bslma_testallocator.h>                // for testing only
 
-#include <bsls_atomic.h>                   // for testing only
-
 #include <bdlmxxx_schemaaggregateutil.h>           // for testing only
 
 #include <bdlf_bind.h>                          // for testing only
@@ -411,10 +409,10 @@ const char *LC[] = {
 };
 
 const char *UC[] = {
-    "BAEL_LOGGERMANAGERCONFIGURATION",
-    "BAEL_MULTIPLEXOBSERVER",
-    "BAEL_RECORDSTRINGFORMATTER",
-    "BAEL_THRESHOLDAGGREGATE"
+    "BALL_LOGGERMANAGERCONFIGURATION",
+    "BALL_MULTIPLEXOBSERVER",
+    "BALL_RECORDSTRINGFORMATTER",
+    "BALL_THRESHOLDAGGREGATE"
 };
 
 struct ThreadData {

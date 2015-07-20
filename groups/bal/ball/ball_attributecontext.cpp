@@ -12,7 +12,7 @@ BSLS_IDENT_RCSID(ball_attributecontext_cpp,"$Id$ $CSID$")
 #include <bdlqq_threadlocalvariable.h>
 
 #include <bdlb_print.h>
-#include <bdlb_xxxbitutil.h>
+#include <bdlb_bitutil.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -68,16 +68,16 @@ AttributeContext_RuleEvaluationCache::update(
     BSLS_ASSERT(numBits == RuleSet::maxNumRules());
 
     // Get the index of the relevant rules and store it in 'i'.
-    while((i = bdlb::BitUtil::find1AtSmallestIndex(needEvaluations))
+    while((i = bdlb::BitUtil::numTrailingUnsetBits(needEvaluations))
                                                                   != numBits) {
         const Rule *rule;
-        needEvaluations &= bdlb::BitUtil::neMask(i);
+        needEvaluations &= ~(1 << i);
 
         // If the rule needs to be evaluated, and the rule is not null.
         if ((rule = rules.getRuleById(i))) {
             RuleSet::MaskType result = rule->evaluate(attributes) ? 1 : 0;
             d_resultMask |= (result << i);  // or-in result bit.
-            d_evalMask   |= bdlb::BitUtil::eqMask(i);
+            d_evalMask   |= 1 << i;
         }
     }
     return d_resultMask;
@@ -354,9 +354,9 @@ AttributeContext::determineThresholdLevels(
     BSLS_ASSERT(numBits == RuleSet::maxNumRules());
 
     // Get the index of the relevant rules and store it in 'i'.
-    while((i = bdlb::BitUtil::find1AtSmallestIndex(activeAndRelevantRules))
+    while((i = bdlb::BitUtil::numTrailingUnsetBits(activeAndRelevantRules))
                                                                   != numBits) {
-        activeAndRelevantRules &= bdlb::BitUtil::neMask(i);
+        activeAndRelevantRules &= ~(1 << i);
         const Rule *rule = s_categoryManager_p->ruleSet().getRuleById(i);
         BSLS_ASSERT(0 != rule);
 

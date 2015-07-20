@@ -204,8 +204,7 @@ int main(int argc, char *argv[])
         //   enumerator values.
         //
         // Testing:
-        //  ^streamOut(bdlxxxx::OutStream&,bael::Trans::Cause);
-        //  ^print(bsl::ostream& stream, ball::Transmission::Cause value);
+        //   print(bsl::ostream& stream, ball::Transmission::Cause value);
         //   enum Cause { ... };
         //   enum { LENGTH = ... };
         //   char *toAscii(ball::Transmission::Cause value);

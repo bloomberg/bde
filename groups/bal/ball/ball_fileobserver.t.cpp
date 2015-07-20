@@ -165,7 +165,8 @@ static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
 static int veryVeryVeryVerbose = 0;
 
-typedef ball::FileObserver Obj;
+typedef ball::FileObserver    Obj;
+typedef bdlsu::FilesystemUtil FileUtil;
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -1779,24 +1780,24 @@ int main(int argc, char *argv[])
             bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
 
             bsl::cout.rdbuf(os.rdbuf());
-            int fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
+            int fileOffset = FileUtil::getFileSize(fileName);
 
             // these two lines are a desperate kludge to make windows
             // work -- this test driver works everywhere else without
             // them.
             (void) readPartialFile(fileName, 0);
-            fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
+            fileOffset = FileUtil::getFileSize(fileName);
 
             BALL_LOG_TRACE << "not logged" << BALL_LOG_END;
-            ASSERT(bdlsu::FilesystemUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(FileUtil::getFileSize(fileName) == fileOffset);
             dos.str("");
 
             BALL_LOG_DEBUG << "not logged" << BALL_LOG_END;
-            ASSERT(bdlsu::FilesystemUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(FileUtil::getFileSize(fileName) == fileOffset);
             dos.str("");
 
             BALL_LOG_INFO << "not logged" << BALL_LOG_END;
-            ASSERT(bdlsu::FilesystemUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(FileUtil::getFileSize(fileName) == fileOffset);
             dos.str("");
 
             BALL_LOG_WARN << "log WARN" << BALL_LOG_END;
@@ -1813,7 +1814,7 @@ int main(int argc, char *argv[])
                 bsl::string coutS = readPartialFile(fileName, fileOffset);
                 LOOP2_ASSERT(dos.str(), coutS, dos.str() == coutS);
             }
-            fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
+            fileOffset = FileUtil::getFileSize(fileName);
             dos.str("");
 
             mX.setStdoutThreshold(ball::Severity::BAEL_ERROR);
@@ -1836,7 +1837,7 @@ int main(int argc, char *argv[])
                 bsl::string coutS = readPartialFile(fileName, fileOffset);
                 LOOP2_ASSERT(dos.str(), coutS, dos.str() == coutS);
             }
-            fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
+            fileOffset = FileUtil::getFileSize(fileName);
             dos.str("");
 
             BALL_LOG_FATAL << "log FATAL" << BALL_LOG_END;
@@ -1853,7 +1854,7 @@ int main(int argc, char *argv[])
                 bsl::string coutS = readPartialFile(fileName, fileOffset);
                 LOOP2_ASSERT(dos.str(), coutS, dos.str() == coutS);
             }
-            fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
+            fileOffset = FileUtil::getFileSize(fileName);
             dos.str("");
 
             bsl::cout.rdbuf(coutSbuf);
@@ -1866,7 +1867,7 @@ int main(int argc, char *argv[])
         {
             Obj mX(ball::Severity::BAEL_FATAL, &ta);
             bsl::ostringstream os, dos;
-            int fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
+            int fileOffset = FileUtil::getFileSize(fileName);
 
             ball::DefaultObserver defaultObserver(&dos);
             ball::MultiplexObserver localMultiObserver;
@@ -1879,26 +1880,26 @@ int main(int argc, char *argv[])
             bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
 
             bsl::cout.rdbuf(os.rdbuf());
-            ASSERT(bdlsu::FilesystemUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(FileUtil::getFileSize(fileName) == fileOffset);
 
             BALL_LOG_TRACE << "not logged" << BALL_LOG_END;
-            ASSERT(bdlsu::FilesystemUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(FileUtil::getFileSize(fileName) == fileOffset);
             dos.str("");
 
             BALL_LOG_DEBUG << "not logged" << BALL_LOG_END;
-            ASSERT(bdlsu::FilesystemUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(FileUtil::getFileSize(fileName) == fileOffset);
             dos.str("");
 
             BALL_LOG_INFO << "not logged" << BALL_LOG_END;
-            ASSERT(bdlsu::FilesystemUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(FileUtil::getFileSize(fileName) == fileOffset);
             dos.str("");
 
             BALL_LOG_WARN << "not logged" << BALL_LOG_END;
-            ASSERT(bdlsu::FilesystemUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(FileUtil::getFileSize(fileName) == fileOffset);
             dos.str("");
 
             BALL_LOG_ERROR << "not logged" << BALL_LOG_END;
-            ASSERT(bdlsu::FilesystemUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(FileUtil::getFileSize(fileName) == fileOffset);
             dos.str("");
 
             BALL_LOG_FATAL << "log" << BALL_LOG_END;
@@ -1916,7 +1917,7 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(dos.str(), coutS, dos.str() == coutS);
             }
             ASSERT(dos.str() == readPartialFile(fileName, fileOffset));
-            fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
+            fileOffset = FileUtil::getFileSize(fileName);
             dos.str("");
 
             ASSERT("" == os.str());
@@ -1936,7 +1937,7 @@ int main(int argc, char *argv[])
             ASSERT(!X.isStdoutLoggingPrefixEnabled());
 
             bsl::ostringstream os, testOs, dos;
-            int fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
+            int fileOffset = FileUtil::getFileSize(fileName);
 
             ball::DefaultObserver defaultObserver(&dos);
             ball::MultiplexObserver localMultiObserver;
@@ -1951,13 +1952,13 @@ int main(int argc, char *argv[])
             bsl::cout.rdbuf(os.rdbuf());
 
             BALL_LOG_TRACE << "not logged" << BALL_LOG_END;
-            ASSERT(bdlsu::FilesystemUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(FileUtil::getFileSize(fileName) == fileOffset);
 
             BALL_LOG_DEBUG << "not logged" << BALL_LOG_END;
-            ASSERT(bdlsu::FilesystemUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(FileUtil::getFileSize(fileName) == fileOffset);
 
             BALL_LOG_INFO << "not logged" << BALL_LOG_END;
-            ASSERT(bdlsu::FilesystemUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(FileUtil::getFileSize(fileName) == fileOffset);
 
             BALL_LOG_WARN << "log WARN" << BALL_LOG_END;
             testOs << "\nWARN " << __FILE__ << ":" << __LINE__ - 1 <<
@@ -1966,7 +1967,7 @@ int main(int argc, char *argv[])
                 bsl::string coutS = readPartialFile(fileName, fileOffset);
                 LOOP2_ASSERT(testOs.str(), coutS, testOs.str() == coutS);
             }
-            fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
+            fileOffset = FileUtil::getFileSize(fileName);
             testOs.str("");
 
             BALL_LOG_ERROR << "log ERROR" << BALL_LOG_END;
@@ -1976,7 +1977,7 @@ int main(int argc, char *argv[])
                 bsl::string coutS = readPartialFile(fileName, fileOffset);
                 LOOP2_ASSERT(testOs.str(), coutS, testOs.str() == coutS);
             }
-            fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
+            fileOffset = FileUtil::getFileSize(fileName);
             testOs.str("");
 
             ASSERT(!X.isStdoutLoggingPrefixEnabled());
@@ -2001,7 +2002,7 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(dos.str(), coutS, dos.str() == coutS);
                 ASSERT(testOs.str() != coutS);
             }
-            fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
+            fileOffset = FileUtil::getFileSize(fileName);
 
             ASSERT("" == os.str());
 
@@ -2020,7 +2021,7 @@ int main(int argc, char *argv[])
             ASSERT( X.isStdoutLoggingPrefixEnabled());
             mX.disableStdoutLoggingPrefix();
             ASSERT(!X.isStdoutLoggingPrefixEnabled());
-            int fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
+            int fileOffset = FileUtil::getFileSize(fileName);
 
             bsl::ostringstream os, testOs, dos;
 
@@ -2037,13 +2038,13 @@ int main(int argc, char *argv[])
             bsl::cout.rdbuf(os.rdbuf());
 
             BALL_LOG_TRACE << "not logged" << BALL_LOG_END;
-            ASSERT(bdlsu::FilesystemUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(FileUtil::getFileSize(fileName) == fileOffset);
 
             BALL_LOG_DEBUG << "not logged" << BALL_LOG_END;
-            ASSERT(bdlsu::FilesystemUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(FileUtil::getFileSize(fileName) == fileOffset);
 
             BALL_LOG_INFO << "not logged" << BALL_LOG_END;
-            ASSERT(bdlsu::FilesystemUtil::getFileSize(fileName) == fileOffset);
+            ASSERT(FileUtil::getFileSize(fileName) == fileOffset);
 
             BALL_LOG_WARN << "log WARN" << BALL_LOG_END;
             testOs << "\nWARN " << __FILE__ << ":" << __LINE__ - 1 <<
@@ -2052,7 +2053,7 @@ int main(int argc, char *argv[])
                 bsl::string coutS = readPartialFile(fileName, fileOffset);
                 LOOP2_ASSERT(testOs.str(), coutS, testOs.str() == coutS);
             }
-            fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
+            fileOffset = FileUtil::getFileSize(fileName);
             testOs.str("");
 
             BALL_LOG_ERROR << "log ERROR" << BALL_LOG_END;
@@ -2062,7 +2063,7 @@ int main(int argc, char *argv[])
                 bsl::string coutS = readPartialFile(fileName, fileOffset);
                 LOOP2_ASSERT(testOs.str(), coutS, testOs.str() == coutS);
             }
-            fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
+            fileOffset = FileUtil::getFileSize(fileName);
             testOs.str("");
 
             ASSERT(!X.isStdoutLoggingPrefixEnabled());
@@ -2137,7 +2138,7 @@ int main(int argc, char *argv[])
                 } else {
                     ASSERT(0 && "can't substr(11,2), string too short");
                 }
-                fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
+                fileOffset = FileUtil::getFileSize(fileName);
                 ASSERT(0 == os.str().length());
 
                 bsl::cout.rdbuf(coutSbuf);
@@ -2150,7 +2151,7 @@ int main(int argc, char *argv[])
         if (verbose) cerr << "Testing file logging." << endl;
         {
             bsl::string fn = tempFileName(veryVerbose);
-            int fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
+            int fileOffset = FileUtil::getFileSize(fileName);
 
             Obj mX(ball::Severity::BAEL_WARN, &ta);  const Obj& X = mX;
             Q(Ignore warning about /bogus/path/foo -- it is expected);
@@ -2252,7 +2253,7 @@ int main(int argc, char *argv[])
 
             Obj mX(ball::Severity::BAEL_WARN, &ta);  const Obj& X = mX;
             bsl::ostringstream os;
-            int fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
+            int fileOffset = FileUtil::getFileSize(fileName);
 
             multiplexObserver.registerObserver(&mX);
 
@@ -2300,7 +2301,7 @@ int main(int argc, char *argv[])
             bsl::string pattern  = baseName + "%Y%M%D%h%m%s-%p";
 
             Obj mX(ball::Severity::BAEL_WARN, &ta);  const Obj& X = mX;
-            int fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
+            int fileOffset = FileUtil::getFileSize(fileName);
 
             multiplexObserver.registerObserver(&mX);
 
@@ -2447,7 +2448,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cerr << "Testing customized format." << endl;
         {
-            int fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
+            int fileOffset = FileUtil::getFileSize(fileName);
 
             Obj mX(ball::Severity::BAEL_WARN, &ta);  const Obj& X = mX;
 
@@ -2474,7 +2475,7 @@ int main(int argc, char *argv[])
                 mX.setLogFormat("%d %p %t %s %l %c %m %u",
                                 "%i %p %t %s %l %c %m %u");
 
-                fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
+                fileOffset = FileUtil::getFileSize(fileName);
 
                 BALL_LOG_WARN << "log" << BALL_LOG_END;
 
@@ -2536,7 +2537,7 @@ int main(int argc, char *argv[])
                 mX.disableFileLogging();
 
                 ASSERT("" == os.str());
-                fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
+                fileOffset = FileUtil::getFileSize(fileName);
                 bsl::cout.rdbuf(coutSbuf);
 
                 mX.disableFileLogging();
@@ -2553,7 +2554,7 @@ int main(int argc, char *argv[])
                 ASSERT(1 == mX.enableFileLogging(baseName.c_str(), false));
                 ASSERT(X.isFileLoggingEnabled());
 
-                fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
+                fileOffset = FileUtil::getFileSize(fileName);
 
                 bsl::stringstream os;
                 bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
@@ -2619,7 +2620,7 @@ int main(int argc, char *argv[])
                     bsl::cerr << "datetime1: " << datetime1 << bsl::endl;
                 }
 
-                fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
+                fileOffset = FileUtil::getFileSize(fileName);
                 bsl::cout.rdbuf(coutSbuf);
                 mX.disableFileLogging();
                 removeFilesByPrefix(baseName.c_str());
@@ -2634,7 +2635,7 @@ int main(int argc, char *argv[])
             Obj mX(ball::Severity::BAEL_WARN, &ta);  const Obj& X = mX;
             const char *logFileFormat;
             const char *stdoutFormat;
-            int fileOffset = bdlsu::FilesystemUtil::getFileSize(fileName);
+            int fileOffset = FileUtil::getFileSize(fileName);
 
             ASSERT(X.isUserFieldsLoggingEnabled());
             X.getLogFormat(&logFileFormat, &stdoutFormat);

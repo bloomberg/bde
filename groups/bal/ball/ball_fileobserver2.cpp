@@ -233,27 +233,22 @@ int openLogFile(bsl::ostream *stream, const char *filename)
     BSLS_ASSERT(stream);
     BSLS_ASSERT(filename);
 
-    const bool fileExistFlag = bdlsu::FilesystemUtil::exists(filename);
-    bdlsu::FilesystemUtil::FileDescriptor fd = bdlsu::FilesystemUtil::open(
-                       filename,
-                       fileExistFlag ? bdlsu::FilesystemUtil::e_OPEN
-                                     : bdlsu::FilesystemUtil::e_OPEN_OR_CREATE,
-                       bdlsu::FilesystemUtil::e_READ_APPEND);
+    typedef bdlsu::FilesystemUtil FileUtil;
 
-    if (fd == bdlsu::FilesystemUtil::k_INVALID_FD) {
+    const bool fileExistFlag = FileUtil::exists(filename);
+
+    FileUtil::FileDescriptor fd =  FileUtil::open(filename,
+                                                  FileUtil::e_OPEN_OR_CREATE,
+                                                  FileUtil::e_WRITE_ONLY,
+                                                  FileUtil::e_KEEP);
+
+    if (fd == FileUtil::k_INVALID_FD) {
         fprintf(
            stderr,
            "%s Cannot open log file %s: %s.  File logging will be disabled!\n",
            errorMsgPrefix, filename, bsl::strerror(getErrorCode()));
         return -1;                                                    // RETURN
     }
-
-#ifdef BSLS_PLATFORM_OS_UNIX
-    // Add read/write access to other, because 'bdlsu::FilesystemUtil::open' set file
-    // permission to 'rw-rw----'.
-
-    chmod(filename, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
-#endif
 
     bdlsu::FdStreamBuf *streamBuf = dynamic_cast<bdlsu::FdStreamBuf *>(
                                                               stream->rdbuf());
@@ -600,7 +595,7 @@ int FileObserver2::enableFileLogging(const char *logFilenamePattern)
     // 'd_logFileTimestampUtc' if the log file does not already exist.
 
     bdlsu::FilesystemUtil::getLastModificationTime(&d_logFileTimestampUtc,
-                                            d_logFileName);
+                                                   d_logFileName);
 
     if (0 < d_rotationInterval.totalSeconds()) {
         d_nextRotationTimeUtc = computeNextRotationTime(
