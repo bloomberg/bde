@@ -1,6 +1,6 @@
-// balxml_xxxbase64parser.t.cpp                  -*-C++-*-
+// balxml_base64parser.t.cpp                                          -*-C++-*-
 
-#include <balxml_xxxbase64parser.h>
+#include <balxml_base64parser.h>
 
 #include <bdlb_printmethods.h>
 
@@ -406,7 +406,7 @@ void printValue(bsl::ostream& out, const char& value)
 // 'loadFromBase64Stream' function loads this data into an 'bsl::vector<char>'
 // blob:
 //..
-//  #include <balxml_xxxbase64parser.h>
+//  #include <balxml_base64parser.h>
 //
 //  #include <istream>
 //  #include <iterator>

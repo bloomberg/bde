@@ -18,6 +18,4 @@ balxml_typesparserutil
 balxml_typesprintutil
 balxml_util
 balxml_validatingreader
-balxml_xxxbase64parser
-balxml_xxxdatautil
-balxml_xxxschemaparser
+balxml_base64parser

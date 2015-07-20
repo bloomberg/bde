@@ -1,6 +1,6 @@
-// balxml_xxxbase64parser.h                  -*-C++-*-
-#ifndef INCLUDED_BALXML_XXXBASE64PARSER
-#define INCLUDED_BALXML_XXXBASE64PARSER
+// balxml_base64parser.h                                              -*-C++-*-
+#ifndef INCLUDED_BALXML_BASE64PARSER
+#define INCLUDED_BALXML_BASE64PARSER
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -12,18 +12,12 @@ BSLS_IDENT("$Id: $")
 //@DEPRECATED: Use bdlde_base64decoder instead.
 //
 //@CLASSES:
-//   balxml::Base64Parser: push parser for Base64 types
+//  balxml::Base64Parser: push parser for Base64 types
 //
-//@SEE_ALSO:
-//
-//@AUTHOR: Shezan Baig (sbaig)
-//
-//@CONTACT: Rohan Bhindwale (rbhindwa)
-//
-//@DESCRIPTION: The 'balxml::Base64Parser<TYPE>' class template provided by this
-// component can be used to parse Base64 characters into one of the supported
-// Base64 types, which are 'bsl::vector<char>' and 'bsl::string'.  The 'TYPE'
-// parameter can be one of these two types.
+//@DESCRIPTION: The 'balxml::Base64Parser<TYPE>' class template provided by 
+// this component can be used to parse Base64 characters into one of the
+// supported Base64 types, which are 'bsl::vector<char>' and 'bsl::string'.
+// The 'TYPE' parameter can be one of these two types.
 //
 // This class template is a model of the 'PushParser' concept, which contains
 // the following methods:
@@ -57,7 +51,7 @@ BSLS_IDENT("$Id: $")
 // 'loadFromBase64Stream' function loads this data into an 'bsl::vector<char>'
 // blob:
 //..
-//  #include <balxml_xxxbase64parser.h>
+//  #include <balxml_base64parser.h>
 //
 //  #include <istream>
 //  #include <iterator>
@@ -128,9 +122,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 namespace balxml {
-                          // ===============================
+                          // ========================
                           // class Base64Parser<TYPE>
-                          // ===============================
+                          // ========================
 
 template <typename TYPE>
 class Base64Parser {
@@ -139,7 +133,7 @@ class Base64Parser {
 
     // PRIVATE DATA MEMBERS
     bdlde::Base64Decoder  d_base64Decoder;   // decoder
-    TYPE                *d_object_p;        // associated object
+    TYPE                 *d_object_p;        // associated object
 
   private:
     // NOT IMPLEMENTED
@@ -184,9 +178,9 @@ class Base64Parser {
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                          // -------------------------------
+                          // ------------------------
                           // class Base64Parser<TYPE>
-                          // -------------------------------
+                          // ------------------------
 
 // CREATORS
 
@@ -239,7 +233,7 @@ int Base64Parser<TYPE>::endParse()
 template <typename TYPE>
 template <typename INPUT_ITERATOR>
 int Base64Parser<TYPE>::pushCharacters(INPUT_ITERATOR begin,
-                                              INPUT_ITERATOR end)
+                                       INPUT_ITERATOR end)
 {
     BSLS_ASSERT_SAFE(d_object_p);
 
@@ -257,11 +251,11 @@ int Base64Parser<TYPE>::pushCharacters(INPUT_ITERATOR begin,
 
     return BAEXML_SUCCESS;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close namespace BloombergLP
 
-#endif // ! defined(INCLUDED_BAEXML_BASE64PARSER)
+#endif
 
 // ---------------------------------------------------------------------------
 // NOTICE:

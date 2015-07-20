@@ -257,8 +257,8 @@ BSLS_IDENT("$Id: $")
 #include <balxml_decoderoptions.h>
 #endif
 
-#ifndef INCLUDED_BALXML_XXXBASE64PARSER
-#include <balxml_xxxbase64parser.h>
+#ifndef INCLUDED_BALXML_BASE64PARSER
+#include <balxml_base64parser.h>
 #endif
 
 #ifndef INCLUDED_BALXML_HEXPARSER

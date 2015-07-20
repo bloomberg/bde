@@ -1,8 +1,8 @@
-// balxml_xxxbase64parser.cpp                  -*-C++-*-
-#include <balxml_xxxbase64parser.h>
+// balxml_base64parser.cpp                                            -*-C++-*-
+#include <balxml_base64parser.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(balxml_xxxbase64parser_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(balxml_base64parser_cpp,"$Id$ $CSID$")
 
 // ---------------------------------------------------------------------------
 // NOTICE:
