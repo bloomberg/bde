@@ -231,10 +231,12 @@ void restoreDecimalFromBinary(DECIMAL_TYPE *dfp, BINARY_TYPE bfp)
 #   define snprintf _snprintf
 #endif
     char buffer[48];
-    int rc = snprintf(buffer, sizeof(buffer), StdioFormat<BINARY_TYPE>::format(), bfp);
+    int rc = snprintf(buffer,
+                      sizeof(buffer),
+                      StdioFormat<BINARY_TYPE>::format(), bfp);
     (void)rc;
-    BSLS_ASSERT(0 <= rc && rc < sizeof(buffer));   
-    
+    BSLS_ASSERT(0 <= rc && rc < static_cast<int>(sizeof(buffer)));
+
     typename DecimalTraits<DECIMAL_TYPE>::SignificandType significand(0);
     int  exponent(0);
     bool negative(false);

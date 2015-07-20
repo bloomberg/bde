@@ -477,7 +477,7 @@ namespace BloombergLP {
     BSLALG_DECLARE_NESTED_TRAITS(T, TRAIT5)
     // Like 'BSLALG_DECLARE_NESTED_TRAITS', but for five traits.
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
@@ -519,7 +519,7 @@ namespace BloombergLP {
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

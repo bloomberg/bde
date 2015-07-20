@@ -1,4 +1,4 @@
-#ifndef BDE_OMIT_TRANSITIONAL // DEPRECATED
+#ifndef BDE_OPENSOURCE_PUBLICATION // DEPRECATED
 #include <bsl_slist.h>
 #ifdef std
 #   error std was not expected to be a macro
@@ -7,7 +7,7 @@ namespace std { }
 int main() { return 0; }
 #else
 int main() { return -1; }
-#endif  // BDE_OMIT_TRANSITIONAL -- DEPRECATED
+#endif  // BDE_OPENSOURCE_PUBLICATION -- DEPRECATED
 
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.

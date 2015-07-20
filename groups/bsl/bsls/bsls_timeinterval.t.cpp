@@ -126,11 +126,13 @@ using namespace std;
 // [15] bool operator<=(const TimeInterval&, double);
 // [15] bool operator>=(double, const TimeInterval&);
 // [ 5] STREAM& operator<<(STREAM&, const TimeInterval&);
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 // DEPRECATED
 // [10] static int maxSupportedBdexVersion();
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 // [10] static int maxSupportedVersion();
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] TESTING TEST-DRIVER MACHINERY
@@ -4460,7 +4462,7 @@ int main(int argc, char *argv[])
         //:   1 Create an object 'X' using the default constructor.
         //:
         //:   2 Using the 'setInterval' manipulator, set 'X' to the value
-        //:     specified in 'R1'. 
+        //:     specified in 'R1'.
         //:
         //:   3 Verify, using 'seconds' and 'nanoseconds', that 'X' has the
         //:     expected value.  (C-1..3)
@@ -4665,10 +4667,12 @@ int main(int argc, char *argv[])
         //   static int maxSupportedBdexVersion(int versionSelector);
         //   STREAM& bdexStreamIn(STREAM& stream, int version);
         //   STREAM& bdexStreamOut(STREAM& stream, int version) const;
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
         //   static int maxSupportedBdexVersion();
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
         //   static int maxSupportedVersion();
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING BDEX STREAMING"
@@ -5195,19 +5199,21 @@ int main(int argc, char *argv[])
             }
         }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
         if (verbose) {
             printf("\nTesting deprecated methods.\n");
         }
         {
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
             ASSERT(Obj::maxSupportedVersion()
                                            == Obj::maxSupportedBdexVersion(0));
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
             ASSERT(Obj::maxSupportedBdexVersion()
                                            == Obj::maxSupportedBdexVersion(0));
         }
 
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
       } break;
       case 9: {
         // --------------------------------------------------------------------

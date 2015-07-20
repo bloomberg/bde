@@ -42,7 +42,7 @@ BSLS_IDENT("$Id: $")
 // suitable real-world example and when one becomes available, it will be
 // added.
 
-#ifdef BDE_OMIT_TRANSITIONAL // DEPRECATED
+#ifdef BDE_OPENSOURCE_PUBLICATION // DEPRECATED
 #error "bslma_managedallocator is deprecated"
 #endif
 
@@ -75,14 +75,14 @@ class ManagedAllocator : public Allocator {
 
 }  // close package namespace
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslma::ManagedAllocator bslma_ManagedAllocator;
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

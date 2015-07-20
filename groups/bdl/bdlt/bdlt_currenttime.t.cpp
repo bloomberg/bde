@@ -37,6 +37,7 @@ using namespace bsl;
 // can be set, retrieved, and invoked correctly.
 //
 // ----------------------------------------------------------------------------
+// [ 6] DatetimeTz asDatetimeTz()
 // [ 5] Datetime local()
 // [ 4] bsls::TimeInterval now()
 // [ 4] Datetime utc()
@@ -44,10 +45,10 @@ using namespace bsl;
 // [ 2] CurrentTimeCallback setCurrentTimeCallback(CurrentTimeCallback)
 // [ 1] bsls::TimeInterval currentTimeDefault()
 // ----------------------------------------------------------------------------
-// [ 9] USAGE EXAMPLE
-// [ 8] Datetime local() stress test
-// [ 6] bsls::TimeInterval now() stress test
-// [ 7] Datetime utc() stress test
+// [10] USAGE EXAMPLE
+// [ 9] Datetime local() stress test
+// [ 7] bsls::TimeInterval now() stress test
+// [ 8] Datetime utc() stress test
 // [ 3] static int inOrder(INTERVAL_L lhs, INTERVAL_R rhs)
 
 // ============================================================================
@@ -134,6 +135,20 @@ bsls::TimeInterval f2()
 {
     return bsls::TimeInterval(1, 1);
 }
+
+bsls::TimeInterval getClientOffset(const bdlt::Datetime&)
+     // Return a fixed 'bsls::TimeInterval' for a local time offset.
+{
+    return bsls::TimeInterval(60 * 60, 0);
+}
+
+
+bool within1Sec(bdlt::Datetime a, bdlt::Datetime b)
+   // Return 'true' if 'a' and 'b' are within one second of each other.
+{
+    return (a - b).totalSeconds() == 0;
+}
+
 
 template <class INTERVAL_L, class INTERVAL_R>
 static int inOrder(const INTERVAL_L& lhs, const INTERVAL_R& rhs)
@@ -371,7 +386,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -391,7 +406,7 @@ int main(int argc, char *argv[])
 
         testApplication();
       } break;
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING 'local' METHOD - STRESS TESTING FOR MONOTONICITY
         //
@@ -456,7 +471,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "|" << endl;
         }
       } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING 'utc' METHOD - STRESS TESTING FOR MONOTONICITY
         //
@@ -520,7 +535,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "|" << endl;
         }
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING 'now' METHOD - STRESS TESTING FOR MONOTONICITY
         //
@@ -584,6 +599,59 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "|" << endl;
         }
       } break;
+      case 6: {
+        // -------------------------------------------------------------------
+        // TESTING 'asDatetimeTz' METHOD
+        //   Test the results of 'asDatetimeTz' correspond to the (already
+        //   tested) results for 'utc' and 'local'.
+        //
+        // Concerns:
+        //: 1 'asDatetimeTz' returns a value that corresponds to the current
+        //:   'utc' time.
+        //:
+        //: 2 'asDatetimeTz' returns a value that corresponds to the current
+        //:   'local' time.
+        //
+        // Plan:
+        //: 1 Using the default real-time clock, verify 'asDatetimeTz'
+        //:   returns datetime value whose local time matches 'Util::local'
+        //:   and whose UTC time matches 'Util::now'
+        //:
+        //: 2 Install a callback which returns a specific value, and verify
+        //:   that 'asDatetimeTz' returns datetime value whose local time
+        //:   matches 'Util::local' and whose UTC time matches 'Util::now'
+        //
+        // Testing:
+        //   DatetimeTz asDatetimeTz()
+        // -------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'asDatetimeTz' METHOD" << endl
+                          << "=============================" << endl;
+
+        if (verbose) { cout << "Test with a real-time clock value" << endl; }
+        {
+            bdlt::Datetime   utc        = Util::utc();
+            bdlt::Datetime   local      = Util::local();
+            bdlt::DatetimeTz datetimeTz = Util::asDatetimeTz();
+
+            ASSERT(within1Sec(utc, datetimeTz.utcDatetime()));
+            ASSERT(within1Sec(local, datetimeTz.localDatetime()));
+        }
+        if (verbose) { cout << "Test with  a test clock value" << endl; }
+        {           
+            Util::setCurrentTimeCallback(getClientTime);
+            bdlt::LocalTimeOffset::setLocalTimeOffsetCallback(getClientOffset);
+            
+            bdlt::Datetime   utc        = Util::utc();
+            bdlt::Datetime   local      = Util::local();
+            bdlt::DatetimeTz datetimeTz = Util::asDatetimeTz();
+
+            ASSERTV(utc,   datetimeTz, utc   == datetimeTz.utcDatetime());
+            ASSERTV(local, datetimeTz, local == datetimeTz.localDatetime());
+        }
+      } break;
+
       case 5: {
         // -------------------------------------------------------------------
         // TESTING 'local' METHOD

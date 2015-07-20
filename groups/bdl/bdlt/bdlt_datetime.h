@@ -39,34 +39,21 @@ BSLS_IDENT("$Id: $")
 // proleptic Gregorian calendar) having years in the range '[1 .. 9999]'.  The
 // set of valid "time" values for a 'bdlt::Datetime' object is, similarly, the
 // same as the valid values for 'bdlt::Time', namely
-// '[00:00:00.000 .. 23:59:59.999]'.  Note that the supported range of time
-// does *not* allow for the injection of leap seconds.
+// '[00:00:00.000 .. 23:59:59.999]', as well as 24:00:00.000 (the default
+// constructed value for 'bdlt::Time').  Note that the supported range of time
+// does *not* allow for the injection of leap seconds.  The (combined) value
+// "0001/01/01_24:00:00.000" is the default constructed value of
+// 'bdlt::Datetime'.
 //
-// Additionally, the "time" part may have the value "24:00:00.000" (the default
-// constructed value of 'bdlt::Time'), but only if the "date" part has the
-// value "0001/01/01" (the default constructed value of 'bdlt::Date').  The
-// (combined) value "0001/01/01_24:00:00.000" is the default constructed value
-// of 'bdlt::Datetime'.
-//
-// Although the interface of 'bdlt::Datetime' accepts "24:00:00.000" wherever a
-// 'bdlt::Time' is expected, and accepts 24 for all 'int hour' arguments, the
-// implementation ensures that the "time" part is set to "00:00:00.000" rather
-// than "24:00:00.000", where necessary, to prevent "24:00:00.000" from ever
-// being paired with any other 'bdlt::Date' value besides "0001/01/01".  This
-// automatic compensation for the "24:00:00.000" time value applies to the two-
-// and seven-argument value constructors, and all of the "set" manipulators
-// ('setDatetime', 'setDate', 'setTime', etc.).  See the function-level
-// documentation for details.  Note that the default 'bdlt::Datetime' value is
-// propagated by copy construction, copy assignment, and BDEX streaming, as
-// would be expected.
-//
-// Furthermore, consistent with the 'bdlt::Time' type, the default value
-// "0001/01/01_24:00:00.000" behaves the same as "0001/01/01_00:00:00.000" with
-// respect to the other manipulators and free operators, but results in
-// undefined behavior for all relational comparison operators.  In particular,
-// the default constructed value must not be used as a key for the standard
-// associative containers, as it does not have defined behavior for
-// 'operator<'.
+// Furthermore, consistent with the 'bdlt::Time' type, a 'bdlt::Datetime'
+// object whose "time" part has the default value (24:00:00.000) behaves the
+// same, with respect to manipulators and (most) free operators, as if the
+// "time" part had the value 00:00:00.000.  As for 'bdlt::Time', the behavior
+// of all 'bdlt::Datetime' relational comparison operators is undefined if the
+// "time" part of either operand is 24:00:00.000.  Consequently,
+// 'bdlt::Datetime' objects whose "time" part has the default constructed value
+// must *not* be used as keys for the standard associative containers, since
+// 'operator<' is not defined for such objects.
 //
 ///Attributes
 ///----------
@@ -92,12 +79,10 @@ BSLS_IDENT("$Id: $")
 //  year         int    1       [1 .. 9999]  none
 //  month        int    1       [1 ..   12]  none
 //  day          int    1       [1 ..   31]  must exist for year and month
-//  hour         int   24       [0 ..   23]  none, except for 24[*]
+//  hour         int   24       [0 ..   24]  none
 //  minute       int    0       [0 ..   59]  must be 0 if '24 == hour'
 //  second       int    0       [0 ..   59]  must be 0 if '24 == hour'
 //  millisecond  int    0       [0 ..  999]  must be 0 if '24 == hour'
-//
-//  [*] '24 == hour' only for the default value "0001/01/01_24:00:00.000".
 //..
 // There are two additional "date" part attributes to 'bdlt::Datetime':
 //..
@@ -197,7 +182,7 @@ BSLS_IDENT("$Id: $")
 // such as 'bdlt::Datetime' makes doing date and time calculations trivial.
 //
 // Suppose one wants to divide into an arbitrary interval such as the time
-// between sunset and sunset into an arbitrary number (say 7) of equal
+// between sunset and sunrise into an arbitrary number (say 7) of equal
 // intervals (perhaps to use as a duty roster for teams making astronomical
 // observations).
 //
@@ -293,16 +278,14 @@ namespace bdlt {
                         // ==============
 
 class Datetime {
-    // This class implements a complex-constrained value-semantic type
+    // This class implements a simply-constrained value-semantic type
     // representing the composition of values of a 'Date' object and a 'Time'
     // object.  Valid date values for the "date" part of a 'Datetime' object
-    // are the same as those described for 'Date' objects; similarly, valid
-    // time values for the "time" part of a 'Datetime' object are the same as
-    // those described for a 'Time' object with the exception that the default
-    // 'Time' value, "24:00:00.000", is allowed only if the 'Date' part has the
-    // default date value, "0001/01/01".  Relational operators are disallowed
-    // on 'Datetime' objects having the default constructed value (as they are
-    // for 'Time' objects having the default constructed value).
+    // are the same as those defined for 'Date' objects; similarly, valid time
+    // values for the "time" part of a 'Datetime' object are the same as those
+    // defined for 'Time' objects.  Relational operators are disallowed on
+    // 'Datetime' objects whose "time" part has the same value as that of a
+    // default constructed 'Time' object.
 
     // PRIVATE TYPES
     enum {
@@ -318,14 +301,6 @@ class Datetime {
 
     // FRIENDS
     friend DatetimeInterval operator-(const Datetime&, const Datetime&);
-
-  private:
-    // PRIVATE MANIPULATORS
-    void setDefaultTimeToZeroIfNonDefaultDate();
-        // Set the "time" part of this object to 'Time(0, 0, 0, 0)' if the
-        // "time" part has the default value for a 'Time' object but the "date"
-        // part does *not* have the default value for a 'Date' object; this
-        // method has no effect otherwise.
 
   public:
     // CLASS METHODS
@@ -370,9 +345,7 @@ class Datetime {
 
     Datetime(const Date& date, const Time& time);
         // Create a 'Datetime' object whose "date" and "time" parts have the
-        // values of the specified 'date' and 'time', respectively.  If
-        // 'time == Time()' (i.e., 24:00) but 'date != Date()' (i.e., 1/1/1),
-        // the "time" part has the value "00:00:00.000".
+        // values of the specified 'date' and 'time', respectively.
 
     Datetime(int year,
              int month,
@@ -385,12 +358,9 @@ class Datetime {
         // represented by the specified 'year', 'month', and 'day' attributes,
         // and whose "time" part has the value represented by the optionally
         // specified 'hour', 'minute', 'second', and 'millisecond' attributes.
-        // Unspecified trailing optional parameters default to 0.  If
-        // 'Time(hour, minute, second, millisecond) == Time()' (i.e., 24:00)
-        // but 'Date(year, month, day) != Date()' (i.e., 1/1/1), the "time"
-        // part has the value "00:00:00.000".  The behavior is undefined unless
-        // the seven attributes (collectively) represent a valid 'Datetime'
-        // value (see 'isValid').
+        // Unspecified trailing optional parameters default to 0.  The behavior
+        // is undefined unless the seven attributes (collectively) represent a
+        // valid 'Datetime' value (see 'isValid').
 
     Datetime(const Datetime& original);
         // Create a 'Datetime' object having the value of the specified
@@ -429,12 +399,9 @@ class Datetime {
         // the specified 'year', 'month', and 'day' attributes, and set the
         // "time" part to have the value represented by the optionally
         // specified 'hour', 'minute', 'second', and 'millisecond' attributes.
-        // Unspecified trailing optional parameters default to 0.  If
-        // 'Time(hour, minute, second, millisecond) == Time()' (i.e., 24:00)
-        // but 'Date(year, month, day) != Date()' (i.e., 1/1/1), set the "time"
-        // part to the value "00:00:00.000".  The behavior is undefined unless
-        // the seven attributes (collectively) represent a valid 'Datetime'
-        // value (see 'isValid').
+        // Unspecified trailing optional parameters default to 0.  The behavior
+        // is undefined unless the seven attributes (collectively) represent a
+        // valid 'Datetime' value (see 'isValid').
 
     int setDatetimeIfValid(int year,
                            int month,
@@ -450,43 +417,31 @@ class Datetime {
         // *if* the seven attribute values (collectively) represent a valid
         // 'Datetime' value (see 'isValid').  Unspecified trailing optional
         // parameters default to 0.  Return 0 on success, and a non-zero value
-        // (with no effect) otherwise.  If
-        // 'Time(hour, minute, second, millisecond) == Time()' (i.e., 24:00)
-        // but 'Date(year, month, day) != Date()' (i.e., 1/1/1), set the "time"
-        // part to the value "00:00:00.000".
+        // (with no effect) otherwise.
 
     void setDate(const Date& date);
         // Set the "date" part of this object to have the value of the
-        // specified 'date'.  If '24 == hour()' on entry but 'date != Date()'
-        // (i.e., 1/1/1), set the 'hour' attribute to 0.  Note that this method
-        // has no effect on the "time" part of this object unless
-        // '24 == hour()' on entry.
+        // specified 'date'.  Note that this method has no effect on the "time"
+        // part of this object.
 
     void setYearDay(int year, int dayOfYear);
         // Set the "date" part of this object to have the value represented by
-        // the specified 'year' and 'dayOfYear' attribute values.  If
-        // '24 == hour()' on entry but 'Date(year, dayOfYear) != Date()' (i.e.,
-        // 1/1/1), set the 'hour' attribute to 0.  The behavior is undefined
-        // unless 'year' and 'dayOfYear' represent a valid 'Date' value (i.e.,
-        // 'true == Date::isValidYearDay(year, dayOfYear)').  Note that this
-        // method has no effect on the "time" part of this object unless
-        // '24 == hour()' on entry.
+        // the specified 'year' and 'dayOfYear' attribute values.  The behavior
+        // is undefined unless 'year' and 'dayOfYear' represent a valid 'Date'
+        // value (i.e., 'true == Date::isValidYearDay(year, dayOfYear)').  Note
+        // that this method has no effect on the "time" part of this object.
 
     void setYearMonthDay(int year, int month, int day);
         // Set the "date" part of this object to have the value represented by
-        // the specified 'year', 'month', and 'day' attribute values.  If
-        // '24 == hour()' on entry but 'Date(year, month, day) != Date()'
-        // (i.e., 1/1/1), set the 'hour' attribute to 0.  The behavior is
-        // undefined unless 'year', 'month', and 'day' represent a valid 'Date'
-        // value (i.e., 'true == Date::isValidYearMonthDay(year, month, day)').
-        // Note that this method has no effect on the "time" part of this
-        // object unless '24 == hour()' on entry.
+        // the specified 'year', 'month', and 'day' attribute values.  The
+        // behavior is undefined unless 'year', 'month', and 'day' represent a
+        // valid 'Date' value (i.e.,
+        // 'true == Date::isValidYearMonthDay(year, month, day)').  Note that
+        // this method has no effect on the "time" part of this object.
 
     void setTime(const Time& time);
         // Set the "time" part of this object to have the value of the
-        // specified 'time'.  If 'time == Time()' (i.e., 24:00) but
-        // 'date() != Date()' (i.e., 1/1/1), set the "time" part to the value
-        // "00:00:00.000".  Note that this method has no effect on the "date"
+        // specified 'time'.  Note that this method has no effect on the "date"
         // part of this object.
 
     void setTime(int hour,
@@ -496,22 +451,18 @@ class Datetime {
         // Set the "time" part of this object to have the value represented by
         // the specified 'hour' attribute value and the optionally specified
         // 'minute', 'second', and 'millisecond' attribute values.  Unspecified
-        // trailing optional parameters default to 0.  If
-        // 'Time(hour, minute, second, millisecond) == Time()' (i.e., 24:00)
-        // but 'date() != Date()' (i.e., 1/1/1), set the "time" part to the
-        // value "00:00:00.000".  The behavior is undefined unless 'hour',
-        // 'minute', 'second', and 'millisecond' represent a valid 'Time' value
-        // (i.e., 'true == Time::isValid(hour, minute, second, millisecond)').
-        // Note that this method has no effect on the "date" part of this
-        // object.
+        // trailing optional parameters default to 0.  The behavior is
+        // undefined unless 'hour', 'minute', 'second', and 'millisecond'
+        // represent a valid 'Time' value (i.e.,
+        // 'true == Time::isValid(hour, minute, second, millisecond)').  Note
+        // that this method has no effect on the "date" part of this object.
 
     void setHour(int hour);
         // Set the 'hour' attribute of this object to the specified 'hour'
         // value.  If '24 == hour', set the 'minute', 'second', and
-        // 'millisecond' attributes to 0, and if 'date() != Date()' (i.e.,
-        // 1/1/1), set the 'hour' attribute to 0.  The behavior is undefined
-        // unless '0 <= hour <= 24'.  Note that this method has no effect on
-        // the "date" part of this object.
+        // 'millisecond' attributes to 0.  The behavior is undefined unless
+        // '0 <= hour <= 24'.  Note that this method has no effect on the
+        // "date" part of this object.
 
     void setMinute(int minute);
         // Set the 'minute' attribute of this object to the specified 'minute'
@@ -533,12 +484,11 @@ class Datetime {
         // object.
 
     void addDays(int days);
-        // Add the specified number of 'days' to the value of this object.  If
-        // '24 == hour()' on entry, set the 'hour' attribute to 0.  The
+        // Add the specified number of 'days' to the value of this object.  The
         // behavior is undefined unless the resulting value is in the valid
         // range for a 'Datetime' object.  Note that this method has no effect
-        // on the "time" part of this object unless '24 == hour()' on entry.
-        // Also note that 'days' may be positive, 0, or negative.
+        // on the "time" part of this object.  Also note that 'days' may be
+        // positive, 0, or negative.
 
     void addTime(bsls::Types::Int64 hours,
                  bsls::Types::Int64 minutes      = 0,
@@ -678,7 +628,7 @@ class Datetime {
         // human-readable format is not fully specified, and can change without
         // notice.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 
     Date& date();
         // !DEPRECATED!: Do *not* use.
@@ -686,12 +636,16 @@ class Datetime {
         // Return a reference providing modifiable access to the internal date
         // object of this datetime.
 
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
     static int maxSupportedBdexVersion();
         // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
         //
         // Return the most current BDEX streaming version number supported by
         // this class.
 
+#endif  // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
     static int maxSupportedVersion();
         // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
         //
@@ -720,7 +674,7 @@ class Datetime {
         // set to 0.  Return 0 on success, and a non-zero value (with no
         // effect) otherwise.
 
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 
 };
 
@@ -817,15 +771,6 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Datetime& object);
                                // class Datetime
                                // --------------
 
-// PRIVATE MANIPULATORS
-inline
-void Datetime::setDefaultTimeToZeroIfNonDefaultDate()
-{
-    if (Time() == d_time && Date() != d_date) {
-        d_time = Time(0, 0, 0, 0);
-    }
-}
-
 // CLASS METHODS
 inline
 bool Datetime::isValid(int year,
@@ -866,7 +811,6 @@ Datetime::Datetime(const Date& date, const Time& time)
 : d_date(date)
 , d_time(time)
 {
-    setDefaultTimeToZeroIfNonDefaultDate();
 }
 
 inline
@@ -887,8 +831,6 @@ Datetime::Datetime(int year,
                                        minute,
                                        second,
                                        millisecond));
-
-    setDefaultTimeToZeroIfNonDefaultDate();
 }
 
 inline
@@ -912,7 +854,8 @@ inline
 Datetime& Datetime::operator+=(const DatetimeInterval& rhs)
 {
     BSLS_ASSERT_SAFE(rhs <= Datetime(9999, 12, 31, 23, 59, 59, 999) - *this);
-    BSLS_ASSERT_SAFE(rhs >= Datetime(   1,  1,  1,  0,  0,  0,   0) - *this);
+//  BSLS_ASSERT_SAFE(rhs >= Datetime(   1,  1,  1,  0,  0,  0,   0) - *this);
+//  ProlepticGregorianMode assert squelched
 
     d_date += d_time.addInterval(rhs);
 
@@ -923,7 +866,8 @@ inline
 Datetime& Datetime::operator-=(const DatetimeInterval& rhs)
 {
     BSLS_ASSERT_SAFE(-rhs <= Datetime(9999, 12, 31, 23, 59, 59, 999) - *this);
-    BSLS_ASSERT_SAFE(-rhs >= Datetime(   1,  1,  1,  0,  0,  0,   0) - *this);
+//  BSLS_ASSERT_SAFE(-rhs >= Datetime(   1,  1,  1,  0,  0,  0,   0) - *this);
+//  ProlepticGregorianMode assert squelched
 
     d_date += d_time.addInterval(-rhs);
 
@@ -949,8 +893,6 @@ void Datetime::setDatetime(int year,
 
     d_date.setYearMonthDay(year, month, day);
     d_time.setTime(hour, minute, second, millisecond);
-
-    setDefaultTimeToZeroIfNonDefaultDate();
 }
 
 inline
@@ -983,8 +925,6 @@ inline
 void Datetime::setDate(const Date& date)
 {
     d_date = date;
-
-    setDefaultTimeToZeroIfNonDefaultDate();
 }
 
 inline
@@ -993,8 +933,6 @@ void Datetime::setYearDay(int year, int dayOfYear)
     BSLS_ASSERT_SAFE(Date::isValidYearDay(year, dayOfYear));
 
     d_date.setYearDay(year, dayOfYear);
-
-    setDefaultTimeToZeroIfNonDefaultDate();
 }
 
 inline
@@ -1003,19 +941,12 @@ void Datetime::setYearMonthDay(int year, int month, int day)
     BSLS_ASSERT_SAFE(Date::isValidYearMonthDay(year, month, day));
 
     d_date.setYearMonthDay(year, month, day);
-
-    setDefaultTimeToZeroIfNonDefaultDate();
 }
 
 inline
 void Datetime::setTime(const Time& time)
 {
-    if (24 == time.hour() && d_date != Date()) {
-        d_time = Time(0, 0, 0, 0);
-    }
-    else {
-        d_time = time;
-    }
+    d_time = time;
 }
 
 inline
@@ -1023,12 +954,7 @@ void Datetime::setTime(int hour, int minute, int second, int millisecond)
 {
     BSLS_ASSERT_SAFE(Time::isValid(hour, minute, second, millisecond));
 
-    if (24 == hour && d_date != Date()) {
-        d_time.setTime(0, 0, 0, 0);
-    }
-    else {
-        d_time.setTime(hour, minute, second, millisecond);
-    }
+    d_time.setTime(hour, minute, second, millisecond);
 }
 
 inline
@@ -1037,12 +963,7 @@ void Datetime::setHour(int hour)
     BSLS_ASSERT_SAFE(0 <= hour);
     BSLS_ASSERT_SAFE(     hour <= 24);
 
-    if (24 == hour && d_date != Date()) {
-        d_time.setTime(0, 0, 0, 0);
-    }
-    else {
-        d_time.setHour(hour);
-    }
+    d_time.setHour(hour);
 }
 
 inline
@@ -1078,10 +999,6 @@ void Datetime::addDays(int days)
     BSLS_ASSERT_SAFE(0 == Date(d_date).addDaysIfValid(days));
 
     d_date += days;
-
-    if (24 == hour()) {
-        d_time.setTime(0, 0, 0, 0);
-    }
 }
 
 inline
@@ -1097,7 +1014,8 @@ void Datetime::addTime(bsls::Types::Int64 hours,
                                  milliseconds);
 
     BSLS_ASSERT_SAFE(delta <= Datetime(9999, 12, 31, 23, 59, 59, 999) - *this);
-    BSLS_ASSERT_SAFE(delta >= Datetime(   1,  1,  1,  0,  0,  0,   0) - *this);
+//  BSLS_ASSERT_SAFE(delta >= Datetime(   1,  1,  1,  0,  0,  0,   0) - *this);
+//  ProlepticGregorianMode assert squelched
 
     d_date += d_time.addInterval(delta);
 }
@@ -1278,7 +1196,7 @@ STREAM& Datetime::bdexStreamOut(STREAM& stream, int version) const
     return stream;
 }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 
 inline
 Date& Datetime::date()
@@ -1286,12 +1204,16 @@ Date& Datetime::date()
     return d_date;
 }
 
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
+#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 inline
 int Datetime::maxSupportedBdexVersion()
 {
     return maxSupportedBdexVersion(0);
 }
 
+#endif  // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 inline
 int Datetime::maxSupportedVersion()
 {
@@ -1322,7 +1244,7 @@ int Datetime::validateAndSetDatetime(int year,
                               millisecond);
 }
 
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 
 }  // close package namespace
 

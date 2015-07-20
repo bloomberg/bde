@@ -201,7 +201,7 @@ BSLS_IDENT("$Id: $")
 // because 'bslma::BufferAllocator::allocate' internally performs alignment for
 // each requested memory block based on the allocator's alignment strategy.
 
-#ifdef BDE_OMIT_TRANSITIONAL // DEPRECATED
+#ifdef BDE_OPENSOURCE_PUBLICATION // DEPRECATED
 #error "bslma_bufferallocator is deprecated"
 #endif
 
@@ -373,14 +373,14 @@ void BufferAllocator::deallocate(void *)
 
 }  // close package namespace
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
+#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
 typedef bslma::BufferAllocator bslma_BufferAllocator;
     // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
+#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

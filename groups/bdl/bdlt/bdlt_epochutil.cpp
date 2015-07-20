@@ -4,7 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlt_epochutil_cpp,"$Id$ $CSID$")
 
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
+#include <bdlt_date.h>
 #include <bdlb_bitutil.h>
 #include <bsls_log.h>
 #endif
@@ -29,7 +30,7 @@ namespace bdlt {
 
 static const int epochData[2] = { 719163, 0 };
                                  // 719163 is 1970/01/01 in Proleptic Gregorian
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
 static const int posixEpochData[2]
                               = { 719165, 0 };
                                  // 719165 is 1970/01/01 in POSIX
@@ -43,7 +44,7 @@ static const int posixEpochData[2]
 
 const bdlt::Datetime *EpochUtil::s_epoch_p =
                            reinterpret_cast<const bdlt::Datetime *>(epochData);
-#ifndef BDE_OMIT_TRANSITIONAL
+#ifndef BDE_OPENSOURCE_PUBLICATION
 const bdlt::Datetime *EpochUtil::s_posixEpoch_p =
                       reinterpret_cast<const bdlt::Datetime *>(posixEpochData);
 
@@ -60,17 +61,24 @@ const int MAGIC_SERIAL = 639798;  // 1752/09/02 POSIX
 const int LOG_THROTTLE_MASK = 1 | 8 | 256;
 
 // PRIVATE CLASS METHODS
-void EpochUtil::logIfProblematicDateValue(
-                       const char                               *fileName,
-                       int                                       lineNumber,
-                       const Date&                               date,
-                       bsls::AtomicOperations::AtomicTypes::Int *count)
+void EpochUtil::logIfProblematicDateValue(const char  *fileName,
+                                          int          lineNumber,
+                                          int          locationId,
+                                          const Date&  date)
 {
-    if (date > *reinterpret_cast<const Date *>(&MAGIC_SERIAL)) {
+    if (!Date::isLoggingEnabled()
+     || (date > *reinterpret_cast<const Date *>(&MAGIC_SERIAL))) {
         return;                                                       // RETURN
     }
 
-    const int tmpCount = bsls::AtomicOperations::addIntNvRelaxed(count, 1);
+    static bsls::AtomicOperations::AtomicTypes::Int counts[32] = { 0 };
+
+    if (locationId < 0 || locationId > 31) {
+        return;                                                       // RETURN
+    }
+
+    const int tmpCount
+             = bsls::AtomicOperations::addIntNvRelaxed(&counts[locationId], 1);
 
     if ((LOG_THROTTLE_MASK & tmpCount)
      && 1 == bdlb::BitUtil::numBitsSet(
