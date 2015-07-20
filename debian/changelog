@@ -1,7 +1,8 @@
-bsl-internal (2.23.2.2.icbeta) unstable; urgency=low
+bsl-internal (2.23.2.3.icbeta) unstable; urgency=low
 
+  * ec2a59b Changelog for version 2.23.2.2.icbeta
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 20 Jul 2015 16:11:41 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 20 Jul 2015 16:46:42 -0400
 
 bsl-internal (2.23.2.1.icbeta) git; urgency=low
 
