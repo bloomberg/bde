@@ -1928,7 +1928,7 @@ bsl::function<RET(ARGS...)>::~function()
     // Destroying the functor is not done in the base class destructor because
     // the invariant of the functor being fully constructed is not maintained
     // in the base class.  Moving this destruction to the base class would
-    // cause exception handling to break if an exception is thrown when
+    // cause exception handling to break if an exception were thrown when
     // constructing the wrapped functor.
     if (d_funcManager_p) {
         d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
@@ -1941,7 +1941,6 @@ bsl::function<RET(ARGS...)>&
 bsl::function<RET(ARGS...)>::operator=(const function& rhs)
 {
     Function_Rep::assign(const_cast<function*>(&rhs), e_COPY_CONSTRUCT);
-    setInvoker(rhs.invoker());
 
     return *this;
 }
@@ -1967,7 +1966,6 @@ bsl::function<RET(ARGS...)>::operator=(function&& rhs)
     }
     else {
         Function_Rep::assign(&rhs, e_MOVE_CONSTRUCT);
-        setInvoker(rhs.invoker());
     }
 
     return *this;

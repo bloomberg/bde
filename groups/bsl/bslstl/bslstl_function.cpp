@@ -157,6 +157,7 @@ void bsl::Function_Rep::assign(Function_Rep *rhs_p, ManagerOpCode moveOrCopy)
     Function_Rep tempRep;
 
     tempRep.d_funcManager_p = rhs_p->d_funcManager_p;
+    tempRep.d_invoker_p     = rhs_p->d_invoker_p;
 
     // Initialize tempRep using allocator from 'this'
     this->d_allocManager_p(e_INIT_REP, &tempRep, this->d_allocator_p);
