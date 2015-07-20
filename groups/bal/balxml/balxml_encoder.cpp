@@ -10,8 +10,8 @@ BSLS_IDENT_RCSID(balxml_encoder_cpp,"$Id$ $CSID$")
 #endif
 
 #include <bdlat_formattingmode.h>
-#include <bsl_string.h>
 
+#include <bsl_string.h>
 #include <bsl_vector.h>
 
 namespace BloombergLP {
