@@ -1,5 +1,11 @@
-bsl-internal (2.23.2.1.icbeta) unstable; urgency=low
+bsl-internal (2.23.2.2.icbeta) unstable; urgency=low
 
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 20 Jul 2015 16:11:41 -0400
+
+bsl-internal (2.23.2.1.icbeta) git; urgency=low
+
+  * 54754e6 Changelog for version 2.23.2.1.icbeta
   * c92ad90 Merge branch 'releases/2.23.x' into icbeta...
   * a6b3f94 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.23.x
   * 09779e8 [APPROVAL] INTERNAL pending/releases/2.23.x/fix_ADL_issue_with_make_shared_drqs67835765_cherrypick to releases/2.23.x
@@ -7,7 +13,7 @@ bsl-internal (2.23.2.1.icbeta) unstable; urgency=low
   * 0783125 [APPROVAL] OSS bbldcu_initial_development-drqs-64659538 to releases/2.23.x
   * a001e62 [APPROVAL] bbldcu_initial_development-drqs-64659538 to releases/2.23.x
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 20 Jul 2015 12:15:12 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 20 Jul 2015 12:17:56 -0400
 
 bsl-internal (2.23.2.0) git; urgency=low
 
