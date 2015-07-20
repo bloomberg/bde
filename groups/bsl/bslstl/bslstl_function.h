@@ -878,8 +878,6 @@ class function<RET(ARGS...)> :
     // template<class FUNC>
     // function& operator=(reference_wrapper<FUNC>) BSLS_NOTHROW_SPEC;
 
-    void swap(function& other) BSLS_NOTHROW_SPEC;
-
     // template<class FUNC, class ALLOC> void assign(FUNC&&, const ALLOC&);
     //     // We have filed an issue report and have elected not to support
     //     // this function because the arguments and definition in the
@@ -887,6 +885,15 @@ class function<RET(ARGS...)> :
     //     // object is inconsistent with the rest of the standard.
 
     RET operator()(ARGS...) const;
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    operator       bdef_Function<RET(*)(ARGS...)>&()       BSLS_NOTHROW_SPEC;
+        // Return a reference to a modifiable 'bdef_Function' that is an alias
+        // of '*this'.  Note that no copy is made; modifying the object
+        // through the returned object (e.g., by assigning to it) will modify
+        // '*this'.  This operator depends on 'bdef_Function' being a thin
+        // layer on top of 'bsl::function', having identical structure.
+#endif
 
     // ACCESSORS
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
@@ -902,7 +909,6 @@ class function<RET(ARGS...)> :
 #endif
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator       bdef_Function<RET(*)(ARGS...)>&()       BSLS_NOTHROW_SPEC;
     operator const bdef_Function<RET(*)(ARGS...)>&() const BSLS_NOTHROW_SPEC;
         // Return a reference to a 'bdef_Function' that is an alias of '*this'.
         // Note that no copy is made; modifying the object through the returned
@@ -1293,6 +1299,7 @@ template <class ALLOC>
 void bsl::Function_Rep::copyInit(const ALLOC& alloc, const Function_Rep& other)
 {
     d_funcManager_p = other.d_funcManager_p;
+    d_invoker_p = other.d_invoker_p;
 
     std::size_t sooFuncSize = d_funcManager_p ?
         d_funcManager_p(e_GET_SIZE, this, PtrOrSize_t()).asSize_t() : 0;
@@ -1808,7 +1815,6 @@ template <class RET, class... ARGS>
 inline
 bsl::function<RET(ARGS...)>::function(const function& other)
 {
-    setInvoker(other.invoker());
     copyInit(bslma::Default::defaultAllocator(), other);
 }
 
@@ -1857,7 +1863,6 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t,
                                       const ALLOC&    alloc,
                                       const function& other)
 {
-    setInvoker(other.invoker());
     copyInit(alloc, other);
 }
 
@@ -1891,9 +1896,7 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t,
 template <class RET, class... ARGS>
 bsl::function<RET(ARGS...)>::function(function&& other)
 {
-    setInvoker(other.invoker());
     moveInit(other);
-    other.setInvoker(NULL);
 }
 
 template <class RET, class... ARGS>
@@ -1904,10 +1907,8 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t,
 {
     typedef Function_AllocTraits<ALLOC> AllocTraits;
 
-    setInvoker(other.invoker());
     if (other.equalAlloc(alloc, typename AllocTraits::Category())) {
         moveInit(other);
-        other.setInvoker(NULL); // 'other' is now empty.
     }
     else {
         copyInit(typename AllocTraits::Type(alloc), other);
@@ -2033,17 +2034,6 @@ bsl::function<RET(ARGS...)>::operator=(nullptr_t)
 // template<class FUNC>
 // function& bsl::function<RET(ARGS...)>::operator=(reference_wrapper<FUNC>)
 //     BSLS_NOTHROW_SPEC
-
-template <class RET, class... ARGS>
-void bsl::function<RET(ARGS...)>::swap(function& other) BSLS_NOTHROW_SPEC
-{
-    Invoker *thisInvoker  = this->invoker();
-    Invoker *otherInvoker = other.invoker();
-
-    Function_Rep::swap(other);
-    this->setInvoker(otherInvoker);
-    other.setInvoker(thisInvoker);
-}
 
 template <class RET, class... ARGS>
 RET bsl::function<RET(ARGS...)>::operator()(ARGS... args) const

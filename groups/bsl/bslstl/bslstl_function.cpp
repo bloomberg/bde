@@ -186,6 +186,7 @@ void bsl::Function_Rep::destructiveMove(Function_Rep *to,
     to->d_funcManager_p  = funcManager_p;
     to->d_allocManager_p = allocManager_p;
     to->d_allocator_p    = from->d_allocator_p;
+    to->d_invoker_p      = from->d_invoker_p;
 
     if (funcManager_p) {
         // '*from' is not empty.
@@ -203,6 +204,7 @@ void bsl::Function_Rep::destructiveMove(Function_Rep *to,
     }
 
     // Make 'from' destructible.
+    from->d_invoker_p = 0;
     from->d_allocManager_p = 0;
 }
 
