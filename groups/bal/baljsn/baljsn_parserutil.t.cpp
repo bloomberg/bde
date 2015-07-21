@@ -1,6 +1,10 @@
 // baljsn_parserutil.t.cpp                                            -*-C++-*-
 #include <baljsn_parserutil.h>
 
+#include <bdlt_date.h>
+#include <bdlt_datetime.h>
+#include <bdlt_datetimetz.h>
+
 #include <bsl_sstream.h>
 #include <bsl_cfloat.h>
 #include <bsl_climits.h>
@@ -10,7 +14,6 @@
 #include <bsl_string.h>
 #include <bsl_cstring.h>
 
-#include <bdlpuxxx_typesparser.h>
 #include <bdlb_printmethods.h>
 
 #include <bdlsb_memoutstreambuf.h>            // for testing only
