@@ -1,12 +1,23 @@
-bsl-internal (2.23.2.0) unstable; urgency=low
+bsl-internal (2.23.2.4) unstable; urgency=low
 
+  * a6b3f94 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.23.x
+  * 09779e8 [APPROVAL] INTERNAL pending/releases/2.23.x/fix_ADL_issue_with_make_shared_drqs67835765_cherrypick to releases/2.23.x
+  * ddd1980 [APPROVAL] pending/releases/2.23.x/fix_ADL_issue_with_make_shared_drqs67835765_cherrypick to releases/2.23.x
+  * 0783125 [APPROVAL] OSS bbldcu_initial_development-drqs-64659538 to releases/2.23.x
+  * a001e62 [APPROVAL] bbldcu_initial_development-drqs-64659538 to releases/2.23.x
+
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Thu, 9 Jul 2015 23:11:35 -0400
+
+bsl-internal (2.23.2.0) git; urgency=low
+
+  * 8ca324a Changelog for version 2.23.2.0
   * 3e12b94 bump patchversion to 2.23.2 due to added apis in bdl and bbl
   * 0109cca [APPROVAL] OSS pending/releases/2.23.x/bdlt_currenttime-asDatetimeTz-drqs-66479613 to releases/2.23.x
   * c3a4a9e [APPROVAL] pending/releases/2.23.x/bdlt_currenttime-asDatetimeTz-drqs-66479613 to releases/2.23.x
   * 162396b [APPROVAL] OSS pending/releases/2.23.x/bbldcu_initial_development-drqs-64659538 to releases/2.23.x
   * 8ce6cee [APPROVAL] pending/releases/2.23.x/bbldcu_initial_development-drqs-64659538 to releases/2.23.x
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 7 Jul 2015 19:41:54 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 7 Jul 2015 19:43:38 -0400
 
 bsl-internal (2.23.1.4) git; urgency=low
 
