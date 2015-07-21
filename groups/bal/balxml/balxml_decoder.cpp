@@ -5,11 +5,7 @@
 BSLS_IDENT_RCSID(balxml_decoder_cpp,"$Id$ $CSID$")
 
 #include <balxml_elementattribute.h>
-
-#ifdef TEST
 #include <balxml_minireader.h>      // for testing purposes only
-#include <balxml_xxxschemaparser.h>    // for testing purposes only
-#endif
 
 #include <bslalg_typetraits.h>
 

@@ -94,7 +94,6 @@
 #include <bdlaggxxx_aggregate.h>
 
 #include <balxml_minireader.h>
-#include <balxml_xxxschemaparser.h>
 
 #include <bslma_allocator.h>
 #include <bslma_testallocator.h>
@@ -173,8 +172,8 @@ using bsl::flush;
 // [11] int balxml::Decoder::decode(sbuf*, TYPE, ostrm&, ostrm&, b_A*);
 // [11] int balxml::Decoder::decode(istrm&, TYPE, b_A*);
 // [11] int balxml::Decoder::decode(istrm&, TYPE, ostrm&, ostrm&, b_A*);
-// [16] void setNumUnknownElementsSkipped(int value);
-// [16] int numUnknownElementsSkipped() const;
+// [15] void setNumUnknownElementsSkipped(int value);
+// [15] int numUnknownElementsSkipped() const;
 // [ 3] balxml::Decoder_SelectContext
 // [ 2] baexml_Decoder_ParserUtil
 // [ 5] baexml_Decoder_Base64Context
@@ -186,8 +185,7 @@ using bsl::flush;
 // [ 7] baexml_Decoder_PrepareSubContext
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [17] USAGE EXAMPLES
-// [15] XML SCHEMA PARSING AND BDEM BINDING ADAPTOR DECODING
+// [16] USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -21794,7 +21792,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 18: {
+      case 17: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLES
         //
@@ -21843,19 +21841,17 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << outStream.str() << bsl::endl;
 
       } break;
-      case 17: {
+      case 16: {
         // --------------------------------------------------------------------
         // EXHAUSTIVE XML DECODING TEST
         //
         // Concerns:
-        //   The schema should be correctly parsed and response should be
-        //   properly decoded.
+        //   Arbitrary complex XML data should be correctly parsed and properly
+        //   decoded.
         //
         // Plan:
-        //   Parse a given schema and decode an XML element corresponding to
-        //   that schema, use 'balxml::SchemaParser' to parse the schema and
-        //   use a binding adaptor with 'balxml::Decoder' to decode the
-        //   element.
+        //   Decode an XML element using a binding adaptor with
+        //   'balxml::Decoder'.
         //
         // Testing:
         //   static bsl::istream& decode(istream&,
@@ -29692,6 +29688,9 @@ int main(int argc, char *argv[])
     };
     const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
+    // The 'SCHEMA' string is not used, but is provided for reference, so that
+    // 'DATA' can be externally validated.
+
     const char SCHEMA[] =
         "<?xml version='1.0' encoding='UTF-8'?>\n"
         "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'\n"
@@ -29910,7 +29909,7 @@ int main(int argc, char *argv[])
         }
       } break;
 
-      case 16: {
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING functions related to skipped elements
         //   This test exercises functions that apply to skipped elements.
@@ -29926,7 +29925,7 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //   void setNumUnknownElementsSKipped(int value);
+        //   void setNumUnknownElementsSkipped(int value);
         //   int numUnknownElementsSkipped() const;
         // --------------------------------------------------------------------
 
@@ -30341,113 +30340,6 @@ int main(int argc, char *argv[])
                            NUM_SKIPPED == decoder.numUnknownElementsSkipped());
             }
         }
-      } break;
-
-      case 15: {
-        // --------------------------------------------------------------------
-        // TESTING XML SCHEMA PARSING AND BDEM BINDING ADAPTOR DECODING
-        //
-        // Concerns:
-        //   The schema should be correctly parsed and response should be
-        //   properly decoded.
-        //
-        // Plan:
-        //   Parse a given schema and decode an XML element corresponding to
-        //   that schema, use 'balxml::SchemaParser' to parse the schema and
-        //   use a binding adaptor with 'balxml::Decoder' to decode the
-        //   element.
-        //
-        // Testing:
-        //   static bsl::istream& decode(istream&,
-        //                               TYPE,
-        //                               ostream&,
-        //                               ostream&)
-        // --------------------------------------------------------------------
-
-        if (verbose) bsl::cout << "\nTESTING XML SCHEMA PARSING AND "
-                                  "BDEM BINDING ADAPTOR DECODING"
-                                  "\n-------------------------------"
-                                  "-----------------------------" << bsl::endl;
-
-        const char SCHEMA_STR[] =
-         "<?xml version='1.0'?>\n"
-          "<schema xmlns='http://www.w3.org/2001/XMLSchema'\n"
-            "xmlns:bdem='http://bloomberg.com/schemas/bdem'\n"
-            "xmlns:fxc='http://bloomberg.com/schemas/fxc'\n"
-            "targetNamespace='http://bloomberg.com/schemas/fxc'\n"
-            "bdem:requestType='Request'\n"
-            "bdem:responseType='Response'\n"
-            "bdem:serviceName='fxrlsvc'\n"
-            "elementFormDefault='qualified'>\n"
-         "<complexType name='DocumentListResponse'>\n"
-         "<sequence>\n"
-             "<element name='TotalCount' type='int' />\n"
-             "<element name='Name' type='string' />\n"
-         "</sequence>\n"
-         "</complexType>\n"
-         "<complexType name='Request'>\n"
-         "<sequence>\n"
-               "<element name='Test' type='string' />\n"
-         "</sequence>\n"
-         "</complexType>\n"
-         "<complexType name='Response'>\n"
-         " <choice>\n"
-         "  <element name='Error' type='string'/>\n"
-         "  <element name='DocumentListResponse' "
-                                         "type='fxc:DocumentListResponse' />\n"
-         " </choice>\n"
-         "</complexType>\n"
-         "<element name='Request' type='fxc:Request' />\n"
-         "<element name='Response' type='fxc:Response' />\n"
-         "</schema>";
-
-        const char DATA[] =
-         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-         "<Response xmlns=\"http://bloomberg.com/schemas/fxc\" " XSI ">\n"
-         "<DocumentListResponse>\n"
-         "<TotalCount>4</TotalCount>\n"
-         "<Name>Economie Internationale</Name>\n"
-         "</DocumentListResponse>\n"
-         "</Response>\n";
-
-        bsl::istringstream xmlStream(SCHEMA_STR);
-
-        balxml::MiniReader reader;
-        balxml::ErrorInfo errInfo;
-        balxml::SchemaParser parser(&reader, &errInfo);
-        bsl::shared_ptr<bdlmxxx::Schema> schemaPtr;  schemaPtr.createInplace();
-        bsl::string targetNamespace;
-
-        if (veryVerbose) {
-            parser.setVerboseStream(&bsl::cout);
-        }
-
-        // parse the schema
-        int result = parser.parse(xmlStream,
-                                  schemaPtr.get(),
-                                  &targetNamespace);
-
-        ASSERT(0 == result);
-        if (veryVerbose) { bsl::cout << errInfo << bsl::endl; }
-
-        bdlsb::FixedMemInStreamBuf dataStreamBuf(DATA, sizeof(DATA));
-
-        bdlaggxxx::Aggregate aggregate(schemaPtr,
-                                 "Response",
-                                 bdlmxxx::ElemType::BDEM_CHOICE);
-
-        reader.close();
-        errInfo.reset();
-
-        balxml::DecoderOptions options;
-
-        balxml::Decoder decoder(&options, &reader, &errInfo,
-                               &bsl::cerr, &bsl::cerr);
-
-        decoder.decode(&dataStreamBuf, &aggregate);
-
-        if (verbose) cout << "\nEnd of Test." << endl;
-
       } break;
       case 14: {
         // --------------------------------------------------------------------
@@ -33531,384 +33423,6 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout << "\nEnd of Breathing Test." << endl;
-      } break;
-      case -1: {
-        bsl::shared_ptr<bdlmxxx::Schema> schemaPtr;  schemaPtr.createInplace();
-        bdlmxxx::Schema&    schema = *schemaPtr;
-        bdlmxxx::RecordDef *pointRecordDef, *circleRecordDef, *polygonRecordDef;
-
-        pointRecordDef = schema.createRecord("PointRecord");
-        pointRecordDef->appendField(bdlmxxx::ElemType::BDEM_DOUBLE, "x");
-        pointRecordDef->appendField(bdlmxxx::ElemType::BDEM_DOUBLE, "y");
-
-        circleRecordDef = schema.createRecord("CircleRecord");
-        circleRecordDef->appendField(bdlmxxx::ElemType::BDEM_LIST, pointRecordDef,
-                                     "center");
-        circleRecordDef->appendField(bdlmxxx::ElemType::BDEM_DOUBLE, "radius");
-
-        polygonRecordDef = schema.createRecord("PolygonRecord");
-        polygonRecordDef->appendField(bdlmxxx::ElemType::BDEM_TABLE,
-                                      pointRecordDef,
-                                      "vertices");
-
-        bdlmxxx::RecordDef *figureDef;
-
-        figureDef = schema.createRecord("FigureChoice",
-                                        bdlmxxx::RecordDef::BDEM_CHOICE_RECORD);
-        figureDef->appendField(bdlmxxx::ElemType::BDEM_LIST, polygonRecordDef,
-                               "Polygon");
-        figureDef->appendField(bdlmxxx::ElemType::BDEM_LIST, circleRecordDef,
-                               "Circle");
-        figureDef->appendField(bdlmxxx::ElemType::BDEM_INT,     "IntSelection");
-        figureDef->appendField(bdlmxxx::ElemType::BDEM_DOUBLE,  "DoubleSelection");
-
-        bdlmxxx::RecordDef *playerRecordDef, *complexPlayerRecordDef;
-
-        playerRecordDef = schema.createRecord("PlayerRecord");
-        playerRecordDef->appendField(bdlmxxx::ElemType::BDEM_STRING, "name");
-        playerRecordDef->appendField(bdlmxxx::ElemType::BDEM_DOUBLE, "health");
-        playerRecordDef->appendField(bdlmxxx::ElemType::BDEM_CHOICE,
-                                     figureDef,
-                                     "figure");
-
-        complexPlayerRecordDef = schema.createRecord("ComplexPlayerRecord");
-        complexPlayerRecordDef->appendField(bdlmxxx::ElemType::BDEM_STRING,
-                                            "name");
-        complexPlayerRecordDef->appendField(bdlmxxx::ElemType::BDEM_DOUBLE,
-                                            "health");
-        complexPlayerRecordDef->appendField(bdlmxxx::ElemType::BDEM_CHOICE_ARRAY,
-                                            figureDef,
-                                            "figures");
-
-        bdlmxxx::RecordDef *arrayOfPlayerDef = schema.createRecord(
-                                                       "ArrayOfPlayersRecord");
-        arrayOfPlayerDef->appendField(bdlmxxx::ElemType::BDEM_TABLE,
-                                      playerRecordDef,
-                                      "player");
-
-        bdlmxxx::RecordDef *topLevelChoiceDef;
-
-        topLevelChoiceDef = schema.createRecord(
-                                           "TopLevelChoiceRecord",
-                                           bdlmxxx::RecordDef::BDEM_CHOICE_RECORD);
-        topLevelChoiceDef->appendField(bdlmxxx::ElemType::BDEM_LIST,
-                                       playerRecordDef, "player");
-        topLevelChoiceDef->appendField(bdlmxxx::ElemType::BDEM_LIST,
-                                       complexPlayerRecordDef,
-                                       "complexPlayer");
-        topLevelChoiceDef->appendField(bdlmxxx::ElemType::BDEM_LIST,
-                                       arrayOfPlayerDef,
-                                       "arrayOfPlayers");
-
-        bsl::cout << "\nTest 1" << bsl::endl;
-        {
-            const char INPUT[] =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                "<Player " XSI ">\n"
-                "    <health>97.32</health>\n"
-                "    <figure>\n"
-                "        <Circle>\n"
-                "            <center>\n"
-                "                <y>29.3</y>\n"
-                "                <x>8.2</x>\n"
-                "            </center>\n"
-                "            <radius>9.21</radius>\n"
-                "        </Circle>\n"
-                "    </figure>\n"
-                "    <name>Shezan</name>\n"
-                "</Player>\n";
-            bsl::stringstream ss(INPUT);
-
-            bsl::cout << "INPUT = \n" << INPUT;
-            bsl::cout << bsl::endl << bsl::endl;
-
-            bdlaggxxx::Aggregate aggregate(schemaPtr,
-                                     "PlayerRecord",
-                                     bdlmxxx::ElemType::BDEM_LIST);
-
-            bsl::cout << "Decoding..." << bsl::endl;
-
-            balxml::MiniReader     reader;
-            balxml::ErrorInfo      errInfo;
-            balxml::DecoderOptions options;
-
-            balxml::Decoder decoder(&options, &reader, &errInfo,
-                                   &bsl::cerr, &bsl::cerr);
-
-            decoder.decode(ss, &aggregate);
-            ASSERT(ss);
-
-            P(aggregate);
-        }
-
-        bsl::cout << "\nTest 2" << bsl::endl;
-        {
-            const char INPUT[] =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                "<ComplexPlayer " XSI ">\n"
-                "    <name>Shezan</name>\n"
-                "    <health>3.45</health>\n"
-                "    <figures>\n"
-                "        <IntSelection>45</IntSelection>\n"
-                "    </figures>\n"
-                "    <figures>\n"
-                "        <DoubleSelection>2.45</DoubleSelection>\n"
-                "    </figures>\n"
-                "    <figures>\n"
-                "        <Circle>\n"
-                "            <center>\n"
-                "                <x>2.12</x>\n"
-                "                <y>4.34</y>\n"
-                "            </center>\n"
-                "            <radius>92.34</radius>\n"
-                "        </Circle>\n"
-                "    </figures>\n"
-                "</ComplexPlayer>\n";
-
-            bsl::stringstream ss(INPUT);
-
-            bsl::cout << "INPUT = \n" << INPUT;
-            bsl::cout << bsl::endl << bsl::endl;
-
-            bdlaggxxx::Aggregate aggregate(schemaPtr,
-                                     "ComplexPlayerRecord",
-                                     bdlmxxx::ElemType::BDEM_LIST);
-
-            balxml::DecoderOptions decoderOptions;
-
-            bsl::cout << "Decoding..." << bsl::endl;
-
-            balxml::MiniReader     reader;
-            balxml::ErrorInfo      errInfo;
-            balxml::DecoderOptions options;
-
-            balxml::Decoder decoder(&options, &reader, &errInfo,
-                                   &bsl::cerr, &bsl::cerr);
-
-            decoder.decode(ss, &aggregate);
-            ASSERT(ss);
-
-            P(aggregate);
-        }
-
-        bsl::cout << "\nTest 3" << bsl::endl;
-        {
-            const char INPUT[] =
-                    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<TopLevelChoice " XSI ">\n"
-                    "    <player>\n"
-                    "        <health>97.32</health>\n"
-                    "        <figure>\n"
-                    "            <Circle>\n"
-                    "                <center>\n"
-                    "                    <y>29.3</y>\n"
-                    "                    <x>8.2</x>\n"
-                    "                </center>\n"
-                    "                <radius>9.21</radius>\n"
-                    "            </Circle>\n"
-                    "        </figure>\n"
-                    "        <name>Shezan</name>\n"
-                    "    </player>\n"
-                    "</TopLevelChoice>\n";
-            bsl::stringstream ss(INPUT);
-
-            bsl::cout << "INPUT = \n" << INPUT;
-            bsl::cout << bsl::endl << bsl::endl;
-
-            bdlaggxxx::Aggregate aggregate(schemaPtr,
-                                     "TopLevelChoiceRecord",
-                                     bdlmxxx::ElemType::BDEM_CHOICE);
-
-            bsl::cout << "Decoding..." << bsl::endl;
-
-            balxml::MiniReader     reader;
-            balxml::ErrorInfo      errInfo;
-            balxml::DecoderOptions options;
-
-            balxml::Decoder decoder(&options, &reader, &errInfo,
-                                   &bsl::cerr, &bsl::cerr);
-
-            decoder.decode(ss, &aggregate);
-            ASSERT(ss);
-
-            P(aggregate);
-        }
-
-        bsl::cout << "\nTest 4" << bsl::endl;
-        {
-            const char INPUT[] =
-                    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<TopLevelChoice " XSI ">\n"
-                    "    <arrayOfPlayers>\n"
-                    "        <player>\n"
-                    "            <health>97.32</health>\n"
-                    "            <figure>\n"
-                    "                <Circle>\n"
-                    "                    <center>\n"
-                    "                        <y>29.3</y>\n"
-                    "                        <x>8.2</x>\n"
-                    "                    </center>\n"
-                    "                    <radius>9.21</radius>\n"
-                    "                </Circle>\n"
-                    "            </figure>\n"
-                    "            <name>Shezan</name>\n"
-                    "        </player>\n"
-                    "    </arrayOfPlayers>\n"
-                    "</TopLevelChoice>\n";
-            bsl::stringstream ss(INPUT);
-
-            bsl::cout << "INPUT = \n" << INPUT;
-            bsl::cout << bsl::endl << bsl::endl;
-
-            bdlaggxxx::Aggregate aggregate(schemaPtr,
-                                     "TopLevelChoiceRecord",
-                                     bdlmxxx::ElemType::BDEM_CHOICE);
-
-            bsl::cout << "Decoding..." << bsl::endl;
-
-            balxml::MiniReader     reader;
-            balxml::ErrorInfo      errInfo;
-            balxml::DecoderOptions options;
-
-            balxml::Decoder decoder(&options, &reader, &errInfo,
-                                   &bsl::cerr, &bsl::cerr);
-
-            decoder.decode(ss, &aggregate);
-
-            ASSERT(ss);
-
-            P(aggregate);
-        }
-      } break;
-      case -2: {
-        bsl::shared_ptr<bdlmxxx::Schema> schemaPtr;  schemaPtr.createInplace();
-
-        bdlmxxx::RecordDef *usageDef = schemaPtr.get()->createRecord("Usage");
-        usageDef->appendField(bdlmxxx::ElemType::BDEM_INT, "Sid");
-        usageDef->appendField(bdlmxxx::ElemType::BDEM_STRING, "UserType");
-        usageDef->appendField(bdlmxxx::ElemType::BDEM_DATE, "Date");
-
-        bdlmxxx::RecordDef *requestDef = schemaPtr.get()->createRecord("Request");
-        requestDef->appendField(bdlmxxx::ElemType::BDEM_LIST, usageDef,
-                                "DailyUsage");
-
-        {
-            const char INPUT[] =
-                "<?xml version='1.0' encoding='UTF-8'?>\n"
-                "  <Request\n"
-                "   xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'\n"
-                "   xsi:schemaLocation='http://bloomberg.com/schemas/apiy "
-                                                               "apiysvc.xsd'\n"
-                "   xmlns='http://bloomberg.com/schemas/apiy'>\n"
-                "   <DailyUsage>\n"
-                "   <Sid>101226</Sid>\n"
-                "   <UserType>DTC</UserType>\n"
-                "   <Date>2005-04-07</Date>\n"
-                "   </DailyUsage>\n"
-                "  </Request>\n";
-
-            bsl::stringstream ss(INPUT);
-
-            bsl::cout << "INPUT = \n" << INPUT;
-            bsl::cout << bsl::endl << bsl::endl;
-
-            bdlaggxxx::Aggregate aggregate(schemaPtr,
-                                     "Request",
-                                     bdlmxxx::ElemType::BDEM_LIST);
-
-            balxml::MiniReader     reader;
-            balxml::ErrorInfo      errInfo;
-            balxml::DecoderOptions options;
-
-            balxml::Decoder decoder(&options, &reader, &errInfo,
-                                   &bsl::cerr, &bsl::cerr);
-
-            decoder.decode(ss, &aggregate);
-            ASSERT(ss);
-
-            aggregate.asElemRef().theList().print(bsl::cout);
-        }
-      } break;
-      case -3: {
-          // ------------------------------------------------------------------
-          // INTERACTIVE TEST
-          //
-          // Usage baexml_decoderutil.t -3 schemafile datafile root
-          // ------------------------------------------------------------------
-
-          if (argc < 5) {
-              cerr << "Usage: " << argv[0]
-                   << " -3 schemafile datafile rootElement\n";
-              ++testStatus;
-              break;
-          }
-
-          const char* schemaFileName = argv[2];
-          const char* dataFileName = argv[3];
-          const char* rootElement = argv[4];
-
-          verbose = argc > 5;
-          veryVerbose = argc > 6;
-          veryVeryVerbose = argc > 7;
-          veryVeryVeryVerbose = argc > 8;
-
-          bsl::ifstream schemaFile(schemaFileName);
-          ASSERT(schemaFile);
-          if (! schemaFile) break;
-
-          bsl::ifstream dataFile(dataFileName);
-          ASSERT(dataFile);
-          if (! dataFile) break;
-
-          bsl::shared_ptr<bdlmxxx::Schema> schema;
-          schema.createInplace();
-          balxml::MiniReader reader;
-          balxml::ErrorInfo errorInfo;
-          balxml::SchemaParser schemaParser(&reader, &errorInfo,
-                                           (veryVeryVerbose ? &bsl::cerr : 0));
-          bsl::string targetNamespace;
-          int result = schemaParser.parse(schemaFile, &*schema,
-                                          &targetNamespace, schemaFileName);
-          ASSERT(0 == result);
-          if (result) {
-              cerr << "Error parsing schema " << errorInfo.source() << ":"
-                   << errorInfo.lineNumber() << '('
-                   << errorInfo.columnNumber() << ") :"
-                   << errorInfo.message() << bsl::endl;
-              break;
-          }
-          if (verbose) cout << "Target namespace = " << targetNamespace
-                            << bsl::endl;
-          if (veryVerbose) P(*schema);
-
-          bdlaggxxx::Aggregate aggregate(schema, rootElement);
-          ASSERT(! aggregate.isError());
-          if (aggregate.isError()) {
-              cerr << "Cannot create aggregate: " << aggregate.errorMessage()
-                   << endl;
-              break;
-          }
-
-          balxml::DecoderOptions decoderOptions;
-          decoderOptions.setSkipUnknownElements(false);
-
-          bsl::cout << "Decoding..." << bsl::endl;
-          balxml::Decoder decoder(&decoderOptions, &reader, &errorInfo,
-                                 &bsl::cerr, &bsl::cerr);
-//          schemaFile.seekg(0);
-//          reader.addSchema(schemaFile.rdbuf());
-          decoder.decode(dataFile, &aggregate);
-          ASSERT(! dataFile.fail());
-          if (result) {
-              cerr << "Error parsing schema " << errorInfo.source() << ":"
-                   << errorInfo.lineNumber() << '('
-                   << errorInfo.columnNumber() << ") :"
-                   << errorInfo.message() << bsl::endl;
-              break;
-          }
-
-          P(aggregate);
-
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
