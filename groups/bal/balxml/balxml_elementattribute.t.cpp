@@ -7,7 +7,7 @@
 
 #include <bsl_iostream.h>
 #include <bsl_cstdlib.h>
-#include <bsl_cstring.h>
+#include <bsl_cstring.h>  // for bsl::strchr
 
 using namespace BloombergLP;
 

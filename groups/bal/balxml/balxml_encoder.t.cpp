@@ -4,15 +4,6 @@
 #include <balxml_decoder.h>
 #include <balxml_minireader.h>
 
-#include <bdlmxxx_elemtype.h>
-#include <bdlmxxx_list.h>
-#include <bdlmxxx_row.h>
-#include <bdlmxxx_schema.h>
-#include <bdlmxxx_schemaaggregateutil.h>
-#include <bdlmxxx_table.h>
-
-#include <bdlaggxxx_aggregate.h>
-
 #include <bdlb_printmethods.h>  // for printing vector
 
 #include <bdlsb_memoutstreambuf.h>
@@ -3846,8 +3837,6 @@ bsl::ostream& MySequenceWithArrays::print(
 //
 //@CLASSES: test::MySequenceWithAnonymousChoiceChoice
 //
-//@AUTHOR: Author Unknown
-//
 //@DESCRIPTION:
 //  todo: provide annotation
 
@@ -4686,8 +4675,6 @@ bsl::ostream& MySequenceWithAnonymousChoiceChoice::print(
 //
 //@CLASSES: test::MySequenceWithAnonymousChoice
 //
-//@AUTHOR: Author Unknown
-//
 //@DESCRIPTION:
 //  todo: provide annotation
 
@@ -5491,8 +5478,6 @@ bsl::ostream& MySequenceWithAnonymousChoice::print(
 //  todo: provide purpose
 //
 //@CLASSES: test::MySequenceWithAttributes
-//
-//@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
 //  todo: provide annotation
@@ -6371,8 +6356,6 @@ bsl::ostream& MySequenceWithAttributes::print(
 //
 //@CLASSES: test::MySimpleContent
 //
-//@AUTHOR: Author Unknown
-//
 //@DESCRIPTION:
 //  todo: provide annotation
 
@@ -7171,8 +7154,6 @@ bsl::ostream& MySimpleContent::print(
 //  todo: provide purpose
 //
 //@CLASSES: test::MySimpleIntContent
-//
-//@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
 //  todo: provide annotation
@@ -7973,8 +7954,6 @@ bsl::ostream& MySimpleIntContent::print(
 //
 //@CLASSES: test::MySequenceWithNillables
 //
-//@AUTHOR: Author Unknown
-//
 //@DESCRIPTION:
 //  todo: provide annotation
 
@@ -8768,8 +8747,6 @@ bsl::ostream& MySequenceWithNillables::print(
 //
 //@CLASSES: Address
 //
-//@AUTHOR: Author Unknown
-//
 //@DESCRIPTION:
 //  todo: provide annotation
 
@@ -9532,8 +9509,6 @@ bsl::ostream& Address::print(
 //  todo: provide purpose
 //
 //@CLASSES: Employee
-//
-//@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
 //  todo: provide annotation
@@ -10394,7 +10369,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 14: {
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -10412,7 +10387,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nEnd of Test." << endl;
       } break;
-      case 13: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING XML HEADER WITH 'outputXMLHeader' option (DRQS 22278116)
         //
@@ -10781,7 +10756,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nEnd of Test." << endl;
       } break;
-      case 12: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING NILLABLES WITH 'outputXSIAlias' option (DRQS 29523606)
         //
@@ -11140,64 +11115,6 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout << "\nEnd of Test." << endl;
-
-      } break;
-      case 11: {
-        // --------------------------------------------------------------------
-        // TESTING AGGREGATES
-        //
-        // Concerns:
-        //   Test XML encoding of bdlaggxxx::Aggregate in the presence of default
-        //   values.
-        //
-        // Plan:
-        //
-        // Testing:
-        // --------------------------------------------------------------------
-
-        typedef bdlmxxx::ElemType ET;
-        bdlmxxx::Schema schema;
-        bdlmxxx::RecordDef *root = schema.createRecord("root");
-        bdlmxxx::FieldDefAttributes boolAttr(ET::BDEM_BOOL);
-        boolAttr.setIsNullable(true);
-        root->appendField(boolAttr, "bool1");
-        boolAttr.defaultValue().theModifiableBool() = true;
-        root->appendField(boolAttr, "bool2");
-
-        bsl::shared_ptr<bdlmxxx::Schema> schemaPtr(&schema,
-                                               bslstl::SharedPtrNilDeleter(),
-                                               0);
-        bdlaggxxx::Aggregate agg(schemaPtr, "root");
-        agg.setField("bool2", false);
-
-        const char expectedXML[] =
-            "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-            "<root" XSI ">\n"
-            "    <bool2>false</bool2>\n"
-            "</root>\n";
-
-        bsl::stringstream output;
-        balxml::EncoderOptions options;
-        options.setEncodingStyle(balxml::EncodingStyle::BAEXML_PRETTY);
-
-        balxml::Encoder encoder(&options, 0, 0);
-        int rc = encoder.encodeToStream(output, agg);
-
-        ASSERT(0 == rc)
-        ASSERT(output);
-        LOOP2_ASSERT(expectedXML, output.str(), expectedXML == output.str());
-
-        if (veryVerbose && 0 == testStatus) {
-            P(expectedXML); P(output.str());
-        }
-
-        output.str("");
-        encoder.encode(output, agg);
-
-        ASSERT(output);
-        LOOP2_ASSERT(expectedXML, output.str(), expectedXML == output.str());
-
-        if (verbose) { P(output.str()); }
 
       } break;
       case 10: {

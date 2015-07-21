@@ -2,7 +2,6 @@
 
 #include <balxml_formatter.h>
 
-#include <bdlmxxx_elemtype.h>
 #include <bdlsb_memoutstreambuf.h>
 #include <bdlt_datetime.h>
 #include <bdlt_date.h>
@@ -216,16 +215,33 @@ bool Pert::next()
     return true;
 }
 
+struct FieldType {
+    enum Type {
+        e_CHAR              =  0,
+        e_SHORT             =  1,
+        e_INT               =  2,
+        e_INT64             =  3,
+        e_FLOAT             =  4,
+        e_DOUBLE            =  5,
+        e_STRING            =  6,
+        e_DATETIME          =  7,
+        e_DATE              =  8,
+        e_TIME              =  9,
+    };
+};
+
 class ScalarData {
     // This class facilitates reading data of different types from the same
     // field in a table and provides a uniform interface to test these
     // different types.
   private:
-    typedef bdlmxxx::ElemType::Type Type;
-    typedef bdlmxxx::ElemType       Et;
+    typedef FieldType Ft;
 
-    Type               d_type;
-//    union { // can't use union for non-builtin types
+    Ft::Type           d_type;
+
+    // N.B. A union would be natural here, but we cannot use a union for
+    // non-builtin types, i.e. bdlt::*
+
     char               d_char;
     short              d_short;
     int                d_int;
@@ -233,25 +249,25 @@ class ScalarData {
     float              d_float;
     double             d_double;
     bsl::string        d_string;
-    bdlt::Datetime      d_datetime;
-    bdlt::Date          d_date;
-    bdlt::Time          d_time;
-//    };
+    bdlt::Datetime     d_datetime;
+    bdlt::Date         d_date;
+    bdlt::Time         d_time;
+
   public:
-    ScalarData(char c) : d_type(Et::BDEM_CHAR), d_char(c) {}
-    ScalarData(short s) : d_type(Et::BDEM_SHORT), d_short(s) {}
-    ScalarData(int i) : d_type(Et::BDEM_INT), d_int(i) {}
+    ScalarData(char c) : d_type(Ft::e_CHAR), d_char(c) {}
+    ScalarData(short s) : d_type(Ft::e_SHORT), d_short(s) {}
+    ScalarData(int i) : d_type(Ft::e_INT), d_int(i) {}
     ScalarData(bsls::Types::Int64 i)
-        : d_type(Et::BDEM_INT64), d_int64(i) {}
-    ScalarData(float f) : d_type(Et::BDEM_FLOAT), d_float(f) {}
-    ScalarData(double d) : d_type(Et::BDEM_DOUBLE), d_double(d) {}
-    ScalarData(const bsl::string& s) : d_type(Et::BDEM_STRING), d_string(s) {}
+        : d_type(Ft::e_INT64), d_int64(i) {}
+    ScalarData(float f) : d_type(Ft::e_FLOAT), d_float(f) {}
+    ScalarData(double d) : d_type(Ft::e_DOUBLE), d_double(d) {}
+    ScalarData(const bsl::string& s) : d_type(Ft::e_STRING), d_string(s) {}
     ScalarData(const bdlt::Datetime& d)
-        : d_type(Et::BDEM_DATETIME),
+        : d_type(Ft::e_DATETIME),
           d_datetime(d)
         {}
-    ScalarData(const bdlt::Date& d) : d_type(Et::BDEM_DATE), d_date(d) {}
-    ScalarData(const bdlt::Time& t) : d_type(Et::BDEM_TIME), d_time(t) {}
+    ScalarData(const bdlt::Date& d) : d_type(Ft::e_DATE), d_date(d) {}
+    ScalarData(const bdlt::Time& t) : d_type(Ft::e_TIME), d_time(t) {}
     void addAttribute(const bsl::string&  attrName,
                       balxml::Formatter   *formatter) const;
         // Call addAttribute method of the 'formatter' with 'attrName' as
@@ -272,25 +288,25 @@ void ScalarData::addAttribute(const bsl::string&  attrName,
                               Obj                *formatter) const
 {
     switch (d_type) {
-      case Et::BDEM_CHAR:
+      case Ft::e_CHAR:
         formatter->addAttribute(attrName, d_char); break;
-      case Et::BDEM_SHORT:
+      case Ft::e_SHORT:
         formatter->addAttribute(attrName, d_short); break;
-      case Et::BDEM_INT:
+      case Ft::e_INT:
         formatter->addAttribute(attrName, d_int); break;
-      case Et::BDEM_INT64:
+      case Ft::e_INT64:
         formatter->addAttribute(attrName, d_int64); break;
-      case Et::BDEM_FLOAT:
+      case Ft::e_FLOAT:
         formatter->addAttribute(attrName, d_float); break;
-      case Et::BDEM_DOUBLE:
+      case Ft::e_DOUBLE:
         formatter->addAttribute(attrName, d_double); break;
-      case Et::BDEM_STRING:
+      case Ft::e_STRING:
         formatter->addAttribute(attrName, d_string); break;
-      case Et::BDEM_DATETIME:
+      case Ft::e_DATETIME:
         formatter->addAttribute(attrName, d_datetime); break;
-      case Et::BDEM_DATE:
+      case Ft::e_DATE:
         formatter->addAttribute(attrName, d_date); break;
-      case Et::BDEM_TIME:
+      case Ft::e_TIME:
         formatter->addAttribute(attrName, d_time); break;
       default:
         BSLS_ASSERT_OPT(0);
@@ -300,25 +316,25 @@ void ScalarData::addAttribute(const bsl::string&  attrName,
 void ScalarData::addData(Obj *formatter) const
 {
     switch (d_type) {
-      case Et::BDEM_CHAR:
+      case Ft::e_CHAR:
         formatter->addData(d_char); break;
-      case Et::BDEM_SHORT:
+      case Ft::e_SHORT:
         formatter->addData(d_short); break;
-      case Et::BDEM_INT:
+      case Ft::e_INT:
         formatter->addData(d_int); break;
-      case Et::BDEM_INT64:
+      case Ft::e_INT64:
         formatter->addData(d_int64); break;
-      case Et::BDEM_FLOAT:
+      case Ft::e_FLOAT:
         formatter->addData(d_float); break;
-      case Et::BDEM_DOUBLE:
+      case Ft::e_DOUBLE:
         formatter->addData(d_double); break;
-      case Et::BDEM_STRING:
+      case Ft::e_STRING:
         formatter->addData(d_string); break;
-      case Et::BDEM_DATETIME:
+      case Ft::e_DATETIME:
         formatter->addData(d_datetime); break;
-      case Et::BDEM_DATE:
+      case Ft::e_DATE:
         formatter->addData(d_date); break;
-      case Et::BDEM_TIME:
+      case Ft::e_TIME:
         formatter->addData(d_time); break;
       default:
         BSLS_ASSERT_OPT(0);
@@ -328,25 +344,25 @@ void ScalarData::addData(Obj *formatter) const
 void ScalarData::addListData(Obj *formatter) const
 {
     switch (d_type) {
-      case Et::BDEM_CHAR:
+      case Ft::e_CHAR:
         formatter->addListData(d_char); break;
-      case Et::BDEM_SHORT:
+      case Ft::e_SHORT:
         formatter->addListData(d_short); break;
-      case Et::BDEM_INT:
+      case Ft::e_INT:
         formatter->addListData(d_int); break;
-      case Et::BDEM_INT64:
+      case Ft::e_INT64:
         formatter->addListData(d_int64); break;
-      case Et::BDEM_FLOAT:
+      case Ft::e_FLOAT:
         formatter->addListData(d_float); break;
-      case Et::BDEM_DOUBLE:
+      case Ft::e_DOUBLE:
         formatter->addListData(d_double); break;
-      case Et::BDEM_STRING:
+      case Ft::e_STRING:
         formatter->addListData(d_string); break;
-      case Et::BDEM_DATETIME:
+      case Ft::e_DATETIME:
         formatter->addListData(d_datetime); break;
-      case Et::BDEM_DATE:
+      case Ft::e_DATE:
         formatter->addListData(d_date); break;
-      case Et::BDEM_TIME:
+      case Ft::e_TIME:
         formatter->addListData(d_time); break;
       default:
         BSLS_ASSERT_OPT(0);
@@ -358,25 +374,25 @@ bsl::ostream& operator<<(bsl::ostream& os, const ScalarData& data)
 using namespace bsl;  // automatically added by script
 
     switch(data.d_type) {
-      case ScalarData::Et::BDEM_CHAR:
+      case ScalarData::Ft::e_CHAR:
         os << data.d_char; break;
-      case ScalarData::Et::BDEM_SHORT:
+      case ScalarData::Ft::e_SHORT:
         os << data.d_short; break;
-      case ScalarData::Et::BDEM_INT:
+      case ScalarData::Ft::e_INT:
         os << data.d_int; break;
-      case ScalarData::Et::BDEM_INT64:
+      case ScalarData::Ft::e_INT64:
         os << data.d_int64; break;
-      case ScalarData::Et::BDEM_FLOAT:
+      case ScalarData::Ft::e_FLOAT:
         os << data.d_float; break;
-      case ScalarData::Et::BDEM_DOUBLE:
+      case ScalarData::Ft::e_DOUBLE:
         os << data.d_double; break;
-      case ScalarData::Et::BDEM_STRING:
+      case ScalarData::Ft::e_STRING:
         os << data.d_string; break;
-      case ScalarData::Et::BDEM_DATETIME:
+      case ScalarData::Ft::e_DATETIME:
         os << data.d_datetime; break;
-      case ScalarData::Et::BDEM_DATE:
+      case ScalarData::Ft::e_DATE:
         os << data.d_date; break;
-      case ScalarData::Et::BDEM_TIME:
+      case ScalarData::Ft::e_TIME:
         os << data.d_time; break;
       default:
         BSLS_ASSERT_OPT(!"ScalarData type not accepted");

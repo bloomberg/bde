@@ -75,23 +75,16 @@
 // To work around this problem in this test driver, we need to rearrange the
 // order of the included files.
 
-#include <bdlmxxx_list.h>              //  from xml)
-
 #include <bdlat_attributeinfo.h>
 #include <bdlat_choicefunctions.h>
 #include <bdlat_enumeratorinfo.h>
+#include <bdlat_formattingmode.h>
 #include <bdlat_selectioninfo.h>
 #include <bdlat_sequencefunctions.h>
 #include <bdlat_valuetypefunctions.h>
 #include <bdlde_utf8util.h>
-#include <bdlmxxx_row.h>
-#include <bdlmxxx_schema.h>
-#include <bdlmxxx_schemaaggregateutil.h>
-#include <bdlmxxx_table.h>
 #include <bdlsb_fixedmeminstreambuf.h>
 #include <bdlb_printmethods.h>  // for printing vector
-
-#include <bdlaggxxx_aggregate.h>
 
 #include <balxml_minireader.h>
 
