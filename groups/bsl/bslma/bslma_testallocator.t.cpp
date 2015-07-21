@@ -1257,8 +1257,10 @@ int main(int argc, char *argv[])
 
         sts = getrlimit(RLIMIT_AS, &rl);
         ASSERT(0 == sts);
-        if (verbose) cout << "Limits: " << rl.rlim_cur << ", " <<
-                                           rl.rlim_max << endl;
+        if (verbose) printf(sizeof(int) == sizeof(rl.rlim_cur)
+                            ? "Limits: %d, %d\n" : "Limits: %lld, %lld\n",
+                            rl.rlim_cur,
+                            rl.rlim_max);
         ASSERT(1 << 20 == rl.rlim_cur);
 
         Obj ta;
@@ -1271,7 +1273,7 @@ int main(int argc, char *argv[])
             ASSERT(0);
         } catch (std::bad_alloc) {
             caught = true;
-            if (verbose) cout << "Exception caught, p = " << p << endl;
+            if (verbose) printf("Exception caught, p = %p\n", p);
         }
 
         ASSERT(caught);

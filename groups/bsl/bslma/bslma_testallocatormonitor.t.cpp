@@ -11,6 +11,7 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_types.h>
 
+#include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
 #include <string.h>     // 'strlen'
 
