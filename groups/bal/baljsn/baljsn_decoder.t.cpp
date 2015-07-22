@@ -1,9 +1,6 @@
 // baljsn_decoder.t.cpp                                               -*-C++-*-
 #include <baljsn_decoder.h>
 
-#include <bdlmxxx_schema.h>
-#include <bdlmxxx_recorddef.h>
-
 #include <bsl_string.h>
 #include <bsl_vector.h>
 #include <bdlat_attributeinfo.h>
@@ -18,10 +15,6 @@
 #include <bsl_sstream.h>
 
 #include <bdlde_utf8util.h>
-#include <bdlmxxx_row.h>
-#include <bdlmxxx_schema.h>
-#include <bdlmxxx_schemaaggregateutil.h>
-#include <bdlmxxx_table.h>
 #include <bdlsb_fixedmeminstreambuf.h>
 #include <bdlb_printmethods.h>  // for printing vector
 #include <bdlb_chartype.h>
@@ -35169,6 +35162,1445 @@ void *threadFunction(void *data)
 
 namespace BloombergLP {
 
+namespace bslma { class Allocator; }
+
+namespace case5 { class FullName; }
+namespace case5 { class Employee; }
+namespace case5 {
+
+                                // ===========                                 
+                                // class Color                                 
+                                // ===========                                 
+
+struct Color {
+
+  public:
+    // TYPES
+    enum Value {
+        RED   = 0
+      , GREEN = 1
+      , BLUE  = 2
+    };
+
+    enum {
+        NUM_ENUMERATORS = 3
+    };
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    static const bdeat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
+
+    // CLASS METHODS
+    static int maxSupportedBdexVersion();
+        // Return the most current 'bdex' streaming version number supported by
+        // this class.  See the 'bdex' package-level documentation for more
+        // information on 'bdex' streaming of value-semantic types and
+        // containers.
+
+    static const char *toString(Value value);
+        // Return the string representation exactly matching the enumerator
+        // name corresponding to the specified enumeration 'value'.
+
+    static int fromString(Value        *result,
+                          const char   *string,
+                          int           stringLength);
+        // Load into the specified 'result' the enumerator matching the
+        // specified 'string' of the specified 'stringLength'.  Return 0 on
+        // success, and a non-zero value with no effect on 'result' otherwise
+        // (i.e., 'string' does not match any enumerator).
+
+    static int fromString(Value              *result,
+                          const bsl::string&  string);
+        // Load into the specified 'result' the enumerator matching the
+        // specified 'string'.  Return 0 on success, and a non-zero value with
+        // no effect on 'result' otherwise (i.e., 'string' does not match any
+        // enumerator).
+
+    static int fromInt(Value *result, int number);
+        // Load into the specified 'result' the enumerator matching the
+        // specified 'number'.  Return 0 on success, and a non-zero value with
+        // no effect on 'result' otherwise (i.e., 'number' does not match any
+        // enumerator).
+
+    template <class STREAM>
+    static STREAM& bdexStreamIn(STREAM&  stream,
+                                Value&   value,
+                                int      version);
+        // Assign to the specified 'value' the value read from the specified
+        // input 'stream' using the specified 'version' format and return a
+        // reference to the modifiable 'stream'.  If 'stream' is initially
+        // invalid, this operation has no effect.  If 'stream' becomes invalid
+        // during this operation, the 'value' is valid, but its value is
+        // undefined.  If the specified 'version' is not supported, 'stream' is
+        // marked invalid, but 'value' is unaltered.  Note that no version is
+        // read from 'stream'.  (See the package-group-level documentation for
+        // more information on 'bdex' streaming of container types.)
+
+    static bsl::ostream& print(bsl::ostream& stream, Value value);
+        // Write to the specified 'stream' the string representation of
+        // the specified enumeration 'value'.  Return a reference to
+        // the modifiable 'stream'.
+
+    template <class STREAM>
+    static STREAM& bdexStreamOut(STREAM&  stream,
+                                 Value    value,
+                                 int      version);
+        // Write the specified 'value' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.  Optionally specify
+        // an explicit 'version' format; by default, the maximum supported
+        // version is written to 'stream' and used as the format.  If 'version'
+        // is specified, that format is used but *not* written to 'stream'.  If
+        // 'version' is not supported, 'stream' is left unmodified.  (See the
+        // package-group-level documentation for more information on 'bdex'
+        // streaming of container types).
+};
+
+// FREE OPERATORS
+inline
+bsl::ostream& operator<<(bsl::ostream& stream, Color::Value rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and
+    // return a reference to the modifiable 'stream'.
+
+}  // close package namespace
+
+// TRAITS
+
+BDLAT_DECL_ENUMERATION_TRAITS(case5::Color)
+
+
+namespace case5 {
+
+                               // ==============                               
+                               // class FullName                               
+                               // ==============                               
+
+class FullName {
+
+    // INSTANCE DATA
+    bsl::vector<int>  d_ids;
+    bsl::string       d_name;
+
+  public:
+    // TYPES
+    enum {
+        ATTRIBUTE_ID_NAME = 0
+      , ATTRIBUTE_ID_IDS  = 1
+    };
+
+    enum {
+        NUM_ATTRIBUTES = 2
+    };
+
+    enum {
+        ATTRIBUTE_INDEX_NAME = 0
+      , ATTRIBUTE_INDEX_IDS  = 1
+    };
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+
+  public:
+    // CLASS METHODS
+    static int maxSupportedBdexVersion();
+        // Return the most current 'bdex' streaming version number supported by
+        // this class.  See the 'bdex' package-level documentation for more
+        // information on 'bdex' streaming of value-semantic types and
+        // containers.
+
+    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
+
+    static const bdeat_AttributeInfo *lookupAttributeInfo(
+                                                    const char *name,
+                                                    int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
+
+    // CREATORS
+    explicit FullName(bslma::Allocator *basicAllocator = 0);
+        // Create an object of type 'FullName' having the default value.  Use
+        // the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+
+    FullName(const FullName& original,
+             bslma::Allocator *basicAllocator = 0);
+        // Create an object of type 'FullName' having the value of the
+        // specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
+
+    ~FullName();
+        // Destroy this object.
+
+    // MANIPULATORS
+    FullName& operator=(const FullName& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+
+    template <class STREAM>
+    STREAM& bdexStreamIn(STREAM& stream, int version);
+        // Assign to this object the value read from the specified input
+        // 'stream' using the specified 'version' format and return a reference
+        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'stream' becomes invalid during this
+        // operation, this object is valid, but its value is undefined.  If
+        // 'version' is not supported, 'stream' is marked invalid and this
+        // object is unaltered.  Note that no version is read from 'stream'.
+        // See the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
+
+    void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
+
+    template<class MANIPULATOR>
+    int manipulateAttributes(MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
+
+    template<class MANIPULATOR>
+    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    template<class MANIPULATOR>
+    int manipulateAttribute(MANIPULATOR&  manipulator,
+                            const char   *name,
+                            int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
+
+    bsl::string& name();
+        // Return a reference to the modifiable "Name" attribute of this
+        // object.
+
+    bsl::vector<int>& ids();
+        // Return a reference to the modifiable "Ids" attribute of this object.
+
+    // ACCESSORS
+    template <class STREAM>
+    STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        // Write the value of this object to the specified output 'stream'
+        // using the specified 'version' format and return a reference to the
+        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
+        // unmodified.  Note that 'version' is not written to 'stream'.
+        // See the 'bdex' package-level documentation for more information
+        // on 'bdex' streaming of value-semantic types and containers.
+
+    template<class ACCESSOR>
+    int accessAttributes(ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
+
+    template<class ACCESSOR>
+    int accessAttribute(ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
+
+    template<class ACCESSOR>
+    int accessAttribute(ACCESSOR&   accessor,
+                        const char *name,
+                        int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    const bsl::string& name() const;
+        // Return a reference to the non-modifiable "Name" attribute of this
+        // object.
+
+    const bsl::vector<int>& ids() const;
+        // Return a reference to the non-modifiable "Ids" attribute of this
+        // object.
+};
+
+// FREE OPERATORS
+inline
+bool operator==(const FullName& lhs, const FullName& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
+    // the same value, and 'false' otherwise.  Two attribute objects have the
+    // same value if each respective attribute has the same value.
+
+inline
+bool operator!=(const FullName& lhs, const FullName& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
+    // have the same value, and 'false' otherwise.  Two attribute objects do
+    // not have the same value if one or more respective attributes differ in
+    // values.
+
+}  // close package namespace
+
+// TRAITS
+
+BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(case5::FullName)
+
+namespace case5 {
+
+                               // ==============                               
+                               // class Employee                               
+                               // ==============                               
+
+class Employee {
+
+    // INSTANCE DATA
+    bsl::vector<int>       d_ids;
+    bsl::vector<FullName>  d_friends;
+    bsl::string            d_name;
+    FullName               d_fullname;
+    int                    d_age;
+    Color::Value           d_carColor;
+
+  public:
+    // TYPES
+    enum {
+        ATTRIBUTE_ID_NAME      = 0
+      , ATTRIBUTE_ID_AGE       = 1
+      , ATTRIBUTE_ID_IDS       = 2
+      , ATTRIBUTE_ID_FULLNAME  = 3
+      , ATTRIBUTE_ID_CAR_COLOR = 4
+      , ATTRIBUTE_ID_FRIENDS   = 5
+    };
+
+    enum {
+        NUM_ATTRIBUTES = 6
+    };
+
+    enum {
+        ATTRIBUTE_INDEX_NAME      = 0
+      , ATTRIBUTE_INDEX_AGE       = 1
+      , ATTRIBUTE_INDEX_IDS       = 2
+      , ATTRIBUTE_INDEX_FULLNAME  = 3
+      , ATTRIBUTE_INDEX_CAR_COLOR = 4
+      , ATTRIBUTE_INDEX_FRIENDS   = 5
+    };
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+
+  public:
+    // CLASS METHODS
+    static int maxSupportedBdexVersion();
+        // Return the most current 'bdex' streaming version number supported by
+        // this class.  See the 'bdex' package-level documentation for more
+        // information on 'bdex' streaming of value-semantic types and
+        // containers.
+
+    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
+
+    static const bdeat_AttributeInfo *lookupAttributeInfo(
+                                                    const char *name,
+                                                    int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
+
+    // CREATORS
+    explicit Employee(bslma::Allocator *basicAllocator = 0);
+        // Create an object of type 'Employee' having the default value.  Use
+        // the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+
+    Employee(const Employee& original,
+             bslma::Allocator *basicAllocator = 0);
+        // Create an object of type 'Employee' having the value of the
+        // specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
+
+    ~Employee();
+        // Destroy this object.
+
+    // MANIPULATORS
+    Employee& operator=(const Employee& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+
+    template <class STREAM>
+    STREAM& bdexStreamIn(STREAM& stream, int version);
+        // Assign to this object the value read from the specified input
+        // 'stream' using the specified 'version' format and return a reference
+        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'stream' becomes invalid during this
+        // operation, this object is valid, but its value is undefined.  If
+        // 'version' is not supported, 'stream' is marked invalid and this
+        // object is unaltered.  Note that no version is read from 'stream'.
+        // See the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
+
+    void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
+
+    template<class MANIPULATOR>
+    int manipulateAttributes(MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
+
+    template<class MANIPULATOR>
+    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    template<class MANIPULATOR>
+    int manipulateAttribute(MANIPULATOR&  manipulator,
+                            const char   *name,
+                            int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
+
+    bsl::string& name();
+        // Return a reference to the modifiable "Name" attribute of this
+        // object.
+
+    int& age();
+        // Return a reference to the modifiable "Age" attribute of this object.
+
+    bsl::vector<int>& ids();
+        // Return a reference to the modifiable "Ids" attribute of this object.
+
+    FullName& fullname();
+        // Return a reference to the modifiable "Fullname" attribute of this
+        // object.
+
+    Color::Value& carColor();
+        // Return a reference to the modifiable "CarColor" attribute of this
+        // object.
+
+    bsl::vector<FullName>& friends();
+        // Return a reference to the modifiable "Friends" attribute of this
+        // object.
+
+    // ACCESSORS
+    template <class STREAM>
+    STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        // Write the value of this object to the specified output 'stream'
+        // using the specified 'version' format and return a reference to the
+        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
+        // unmodified.  Note that 'version' is not written to 'stream'.
+        // See the 'bdex' package-level documentation for more information
+        // on 'bdex' streaming of value-semantic types and containers.
+
+    template<class ACCESSOR>
+    int accessAttributes(ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
+
+    template<class ACCESSOR>
+    int accessAttribute(ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
+
+    template<class ACCESSOR>
+    int accessAttribute(ACCESSOR&   accessor,
+                        const char *name,
+                        int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    const bsl::string& name() const;
+        // Return a reference to the non-modifiable "Name" attribute of this
+        // object.
+
+    int age() const;
+        // Return a reference to the non-modifiable "Age" attribute of this
+        // object.
+
+    const bsl::vector<int>& ids() const;
+        // Return a reference to the non-modifiable "Ids" attribute of this
+        // object.
+
+    const FullName& fullname() const;
+        // Return a reference to the non-modifiable "Fullname" attribute of
+        // this object.
+
+    Color::Value carColor() const;
+        // Return a reference to the non-modifiable "CarColor" attribute of
+        // this object.
+
+    const bsl::vector<FullName>& friends() const;
+        // Return a reference to the non-modifiable "Friends" attribute of this
+        // object.
+};
+
+// FREE OPERATORS
+inline
+bool operator==(const Employee& lhs, const Employee& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
+    // the same value, and 'false' otherwise.  Two attribute objects have the
+    // same value if each respective attribute has the same value.
+
+inline
+bool operator!=(const Employee& lhs, const Employee& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
+    // have the same value, and 'false' otherwise.  Two attribute objects do
+    // not have the same value if one or more respective attributes differ in
+    // values.
+
+}  // close package namespace
+
+// TRAITS
+
+BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(case5::Employee)
+
+// ============================================================================
+//                         INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+namespace case5 {
+
+                                // -----------                                 
+                                // class Color                                 
+                                // -----------                                 
+
+// CLASS METHODS
+inline
+int Color::maxSupportedBdexVersion()
+{
+    return 1;  // versions start at 1
+}
+
+inline
+int Color::fromString(Value *result, const bsl::string& string)
+{
+    return fromString(result, string.c_str(), string.length());
+}
+
+template <class STREAM>
+STREAM& Color::bdexStreamIn(STREAM&             stream,
+                                   Color::Value& value,
+                                   int                 version)
+{
+    switch(version) {
+      case 1: {
+        int readValue;
+        stream.getInt32(readValue);
+        if (stream) {
+            if (fromInt(&value, readValue)) {
+               stream.invalidate();   // bad value in stream
+            }
+        }
+      } break;
+      default: {
+        stream.invalidate();          // unrecognized version number
+      } break;
+    }
+    return stream;
+}
+
+template <class STREAM>
+STREAM& Color::bdexStreamOut(STREAM&              stream,
+                                    Color::Value value,
+                                    int                version)
+{
+    switch (version) {
+      case 1: {
+        stream.putInt32(value);  // Write the value as an int
+      } break;
+    }
+    return stream;
+}
+
+
+
+                               // --------------                               
+                               // class FullName                               
+                               // --------------                               
+
+// CLASS METHODS
+inline
+int FullName::maxSupportedBdexVersion()
+{
+    return 1;  // versions start at 1.
+}
+
+// MANIPULATORS
+template <class STREAM>
+STREAM& FullName::bdexStreamIn(STREAM& stream, int version)
+{
+    if (stream) {
+        switch (version) {
+          case 1: {
+            bdex_InStreamFunctions::streamIn(stream, d_name, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_ids, 1);
+          } break;
+          default: {
+            stream.invalidate();
+          }
+        }
+    }
+    return stream;
+}
+
+template <class MANIPULATOR>
+int FullName::manipulateAttributes(MANIPULATOR& manipulator)
+{
+    int ret;
+
+    ret = manipulator(&d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_ids, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_IDS]);
+    if (ret) {
+        return ret;
+    }
+
+    return ret;
+}
+
+template <class MANIPULATOR>
+int FullName::manipulateAttribute(MANIPULATOR& manipulator, int id)
+{
+    enum { NOT_FOUND = -1 };
+
+    switch (id) {
+      case ATTRIBUTE_ID_NAME: {
+        return manipulator(&d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
+      } break;
+      case ATTRIBUTE_ID_IDS: {
+        return manipulator(&d_ids, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_IDS]);
+      } break;
+      default:
+        return NOT_FOUND;
+    }
+}
+
+template <class MANIPULATOR>
+int FullName::manipulateAttribute(
+        MANIPULATOR&  manipulator,
+        const char   *name,
+        int           nameLength)
+{
+    enum { NOT_FOUND = -1 };
+
+    const bdeat_AttributeInfo *attributeInfo =
+           lookupAttributeInfo(name, nameLength);
+    if (0 == attributeInfo) {
+        return NOT_FOUND;
+    }
+
+    return manipulateAttribute(manipulator, attributeInfo->d_id);
+}
+
+inline
+bsl::string& FullName::name()
+{
+    return d_name;
+}
+
+inline
+bsl::vector<int>& FullName::ids()
+{
+    return d_ids;
+}
+
+// ACCESSORS
+template <class STREAM>
+STREAM& FullName::bdexStreamOut(STREAM& stream, int version) const
+{
+    switch (version) {
+      case 1: {
+        bdex_OutStreamFunctions::streamOut(stream, d_name, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_ids, 1);
+      } break;
+    }
+    return stream;
+}
+
+template <class ACCESSOR>
+int FullName::accessAttributes(ACCESSOR& accessor) const
+{
+    int ret;
+
+    ret = accessor(d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_ids, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_IDS]);
+    if (ret) {
+        return ret;
+    }
+
+    return ret;
+}
+
+template <class ACCESSOR>
+int FullName::accessAttribute(ACCESSOR& accessor, int id) const
+{
+    enum { NOT_FOUND = -1 };
+
+    switch (id) {
+      case ATTRIBUTE_ID_NAME: {
+        return accessor(d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
+      } break;
+      case ATTRIBUTE_ID_IDS: {
+        return accessor(d_ids, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_IDS]);
+      } break;
+      default:
+        return NOT_FOUND;
+    }
+}
+
+template <class ACCESSOR>
+int FullName::accessAttribute(
+        ACCESSOR&   accessor,
+        const char *name,
+        int         nameLength) const
+{
+    enum { NOT_FOUND = -1 };
+
+    const bdeat_AttributeInfo *attributeInfo =
+          lookupAttributeInfo(name, nameLength);
+    if (0 == attributeInfo) {
+       return NOT_FOUND;
+    }
+
+    return accessAttribute(accessor, attributeInfo->d_id);
+}
+
+inline
+const bsl::string& FullName::name() const
+{
+    return d_name;
+}
+
+inline
+const bsl::vector<int>& FullName::ids() const
+{
+    return d_ids;
+}
+
+
+
+                               // --------------                               
+                               // class Employee                               
+                               // --------------                               
+
+// CLASS METHODS
+inline
+int Employee::maxSupportedBdexVersion()
+{
+    return 1;  // versions start at 1.
+}
+
+// MANIPULATORS
+template <class STREAM>
+STREAM& Employee::bdexStreamIn(STREAM& stream, int version)
+{
+    if (stream) {
+        switch (version) {
+          case 1: {
+            bdex_InStreamFunctions::streamIn(stream, d_name, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_age, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_ids, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_fullname, 1);
+            Color::bdexStreamIn(stream, d_carColor, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_friends, 1);
+          } break;
+          default: {
+            stream.invalidate();
+          }
+        }
+    }
+    return stream;
+}
+
+template <class MANIPULATOR>
+int Employee::manipulateAttributes(MANIPULATOR& manipulator)
+{
+    int ret;
+
+    ret = manipulator(&d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_age, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_ids, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_IDS]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_fullname, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FULLNAME]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_carColor, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CAR_COLOR]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_friends, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FRIENDS]);
+    if (ret) {
+        return ret;
+    }
+
+    return ret;
+}
+
+template <class MANIPULATOR>
+int Employee::manipulateAttribute(MANIPULATOR& manipulator, int id)
+{
+    enum { NOT_FOUND = -1 };
+
+    switch (id) {
+      case ATTRIBUTE_ID_NAME: {
+        return manipulator(&d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
+      } break;
+      case ATTRIBUTE_ID_AGE: {
+        return manipulator(&d_age, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE]);
+      } break;
+      case ATTRIBUTE_ID_IDS: {
+        return manipulator(&d_ids, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_IDS]);
+      } break;
+      case ATTRIBUTE_ID_FULLNAME: {
+        return manipulator(&d_fullname, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FULLNAME]);
+      } break;
+      case ATTRIBUTE_ID_CAR_COLOR: {
+        return manipulator(&d_carColor, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CAR_COLOR]);
+      } break;
+      case ATTRIBUTE_ID_FRIENDS: {
+        return manipulator(&d_friends, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FRIENDS]);
+      } break;
+      default:
+        return NOT_FOUND;
+    }
+}
+
+template <class MANIPULATOR>
+int Employee::manipulateAttribute(
+        MANIPULATOR&  manipulator,
+        const char   *name,
+        int           nameLength)
+{
+    enum { NOT_FOUND = -1 };
+
+    const bdeat_AttributeInfo *attributeInfo =
+           lookupAttributeInfo(name, nameLength);
+    if (0 == attributeInfo) {
+        return NOT_FOUND;
+    }
+
+    return manipulateAttribute(manipulator, attributeInfo->d_id);
+}
+
+inline
+bsl::string& Employee::name()
+{
+    return d_name;
+}
+
+inline
+int& Employee::age()
+{
+    return d_age;
+}
+
+inline
+bsl::vector<int>& Employee::ids()
+{
+    return d_ids;
+}
+
+inline
+FullName& Employee::fullname()
+{
+    return d_fullname;
+}
+
+inline
+Color::Value& Employee::carColor()
+{
+    return d_carColor;
+}
+
+inline
+bsl::vector<FullName>& Employee::friends()
+{
+    return d_friends;
+}
+
+// ACCESSORS
+template <class STREAM>
+STREAM& Employee::bdexStreamOut(STREAM& stream, int version) const
+{
+    switch (version) {
+      case 1: {
+        bdex_OutStreamFunctions::streamOut(stream, d_name, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_age, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_ids, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_fullname, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_carColor, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_friends, 1);
+      } break;
+    }
+    return stream;
+}
+
+template <class ACCESSOR>
+int Employee::accessAttributes(ACCESSOR& accessor) const
+{
+    int ret;
+
+    ret = accessor(d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_age, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_ids, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_IDS]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_fullname, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FULLNAME]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_carColor, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CAR_COLOR]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_friends, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FRIENDS]);
+    if (ret) {
+        return ret;
+    }
+
+    return ret;
+}
+
+template <class ACCESSOR>
+int Employee::accessAttribute(ACCESSOR& accessor, int id) const
+{
+    enum { NOT_FOUND = -1 };
+
+    switch (id) {
+      case ATTRIBUTE_ID_NAME: {
+        return accessor(d_name, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME]);
+      } break;
+      case ATTRIBUTE_ID_AGE: {
+        return accessor(d_age, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE]);
+      } break;
+      case ATTRIBUTE_ID_IDS: {
+        return accessor(d_ids, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_IDS]);
+      } break;
+      case ATTRIBUTE_ID_FULLNAME: {
+        return accessor(d_fullname, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FULLNAME]);
+      } break;
+      case ATTRIBUTE_ID_CAR_COLOR: {
+        return accessor(d_carColor, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CAR_COLOR]);
+      } break;
+      case ATTRIBUTE_ID_FRIENDS: {
+        return accessor(d_friends, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FRIENDS]);
+      } break;
+      default:
+        return NOT_FOUND;
+    }
+}
+
+template <class ACCESSOR>
+int Employee::accessAttribute(
+        ACCESSOR&   accessor,
+        const char *name,
+        int         nameLength) const
+{
+    enum { NOT_FOUND = -1 };
+
+    const bdeat_AttributeInfo *attributeInfo =
+          lookupAttributeInfo(name, nameLength);
+    if (0 == attributeInfo) {
+       return NOT_FOUND;
+    }
+
+    return accessAttribute(accessor, attributeInfo->d_id);
+}
+
+inline
+const bsl::string& Employee::name() const
+{
+    return d_name;
+}
+
+inline
+int Employee::age() const
+{
+    return d_age;
+}
+
+inline
+const bsl::vector<int>& Employee::ids() const
+{
+    return d_ids;
+}
+
+inline
+const FullName& Employee::fullname() const
+{
+    return d_fullname;
+}
+
+inline
+Color::Value Employee::carColor() const
+{
+    return d_carColor;
+}
+
+inline
+const bsl::vector<FullName>& Employee::friends() const
+{
+    return d_friends;
+}
+
+}  // close package namespace
+
+// FREE FUNCTIONS
+
+
+inline
+bool case5::operator==(
+        const case5::FullName& lhs,
+        const case5::FullName& rhs)
+{
+    return  lhs.name() == rhs.name()
+         && lhs.ids() == rhs.ids();
+}
+
+inline
+bool case5::operator!=(
+        const case5::FullName& lhs,
+        const case5::FullName& rhs)
+{
+    return  lhs.name() != rhs.name()
+         || lhs.ids() != rhs.ids();
+}
+
+inline
+bool case5::operator==(
+        const case5::Employee& lhs,
+        const case5::Employee& rhs)
+{
+    return  lhs.name() == rhs.name()
+         && lhs.age() == rhs.age()
+         && lhs.ids() == rhs.ids()
+         && lhs.fullname() == rhs.fullname()
+         && lhs.carColor() == rhs.carColor()
+         && lhs.friends() == rhs.friends();
+}
+
+inline
+bool case5::operator!=(
+        const case5::Employee& lhs,
+        const case5::Employee& rhs)
+{
+    return  lhs.name() != rhs.name()
+         || lhs.age() != rhs.age()
+         || lhs.ids() != rhs.ids()
+         || lhs.fullname() != rhs.fullname()
+         || lhs.carColor() != rhs.carColor()
+         || lhs.friends() != rhs.friends();
+}
+
+namespace case5 {
+
+                                // -----------                                 
+                                // class Color                                 
+                                // -----------                                 
+
+// CONSTANTS
+
+const char Color::CLASS_NAME[] = "Color";
+
+const bdeat_EnumeratorInfo Color::ENUMERATOR_INFO_ARRAY[] = {
+    {
+        Color::RED,
+        "RED",
+        sizeof("RED") - 1,
+        ""
+    },
+    {
+        Color::GREEN,
+        "GREEN",
+        sizeof("GREEN") - 1,
+        ""
+    },
+    {
+        Color::BLUE,
+        "BLUE",
+        sizeof("BLUE") - 1,
+        ""
+    }
+};
+
+// CLASS METHODS
+
+int Color::fromInt(Color::Value *result, int number)
+{
+    switch (number) {
+      case Color::RED:
+      case Color::GREEN:
+      case Color::BLUE:
+        *result = (Color::Value)number;
+        return 0;
+      default:
+        return -1;
+    }
+}
+
+int Color::fromString(
+        Color::Value *result,
+        const char         *string,
+        int                 stringLength)
+{
+    for (int i = 0; i < 3; ++i) {
+        const bdeat_EnumeratorInfo& enumeratorInfo =
+                    Color::ENUMERATOR_INFO_ARRAY[i];
+
+        if (stringLength == enumeratorInfo.d_nameLength
+        &&  0 == bsl::memcmp(enumeratorInfo.d_name_p, string, stringLength))
+        {
+            *result = (Color::Value)enumeratorInfo.d_value;
+            return 0;
+        }
+    }
+
+    return -1;
+}
+
+const char *Color::toString(Color::Value value)
+{
+    switch (value) {
+      case RED: {
+        return "RED";
+      } break;
+      case GREEN: {
+        return "GREEN";
+      } break;
+      case BLUE: {
+        return "BLUE";
+      } break;
+    }
+
+    BSLS_ASSERT(!"invalid enumerator");
+    return 0;
+}
+
+
+                               // --------------                               
+                               // class FullName                               
+                               // --------------                               
+
+// CONSTANTS
+
+const char FullName::CLASS_NAME[] = "FullName";
+
+const bdeat_AttributeInfo FullName::ATTRIBUTE_INFO_ARRAY[] = {
+    {
+        ATTRIBUTE_ID_NAME,
+        "name",
+        sizeof("name") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_TEXT
+    },
+    {
+        ATTRIBUTE_ID_IDS,
+        "ids",
+        sizeof("ids") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEC
+    }
+};
+
+// CLASS METHODS
+
+const bdeat_AttributeInfo *FullName::lookupAttributeInfo(
+        const char *name,
+        int         nameLength)
+{
+    for (int i = 0; i < 2; ++i) {
+        const bdeat_AttributeInfo& attributeInfo =
+                    FullName::ATTRIBUTE_INFO_ARRAY[i];
+
+        if (nameLength == attributeInfo.d_nameLength
+        &&  0 == bsl::memcmp(attributeInfo.d_name_p, name, nameLength))
+        {
+            return &attributeInfo;
+        }
+    }
+
+    return 0;
+}
+
+const bdeat_AttributeInfo *FullName::lookupAttributeInfo(int id)
+{
+    switch (id) {
+      case ATTRIBUTE_ID_NAME:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME];
+      case ATTRIBUTE_ID_IDS:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_IDS];
+      default:
+        return 0;
+    }
+}
+
+// CREATORS
+
+FullName::FullName(bslma::Allocator *basicAllocator)
+: d_ids(basicAllocator)
+, d_name(basicAllocator)
+{
+}
+
+FullName::FullName(const FullName& original,
+                   bslma::Allocator *basicAllocator)
+: d_ids(original.d_ids, basicAllocator)
+, d_name(original.d_name, basicAllocator)
+{
+}
+
+FullName::~FullName()
+{
+}
+
+// MANIPULATORS
+
+FullName&
+FullName::operator=(const FullName& rhs)
+{
+    if (this != &rhs) {
+        d_name = rhs.d_name;
+        d_ids = rhs.d_ids;
+    }
+
+    return *this;
+}
+
+void FullName::reset()
+{
+    bdeat_ValueTypeFunctions::reset(&d_name);
+    bdeat_ValueTypeFunctions::reset(&d_ids);
+}
+
+                               // --------------                               
+                               // class Employee                               
+                               // --------------                               
+
+// CONSTANTS
+
+const char Employee::CLASS_NAME[] = "Employee";
+
+const bdeat_AttributeInfo Employee::ATTRIBUTE_INFO_ARRAY[] = {
+    {
+        ATTRIBUTE_ID_NAME,
+        "name",
+        sizeof("name") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_TEXT
+    },
+    {
+        ATTRIBUTE_ID_AGE,
+        "age",
+        sizeof("age") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEC
+    },
+    {
+        ATTRIBUTE_ID_IDS,
+        "ids",
+        sizeof("ids") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEC
+    },
+    {
+        ATTRIBUTE_ID_FULLNAME,
+        "fullname",
+        sizeof("fullname") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    },
+    {
+        ATTRIBUTE_ID_CAR_COLOR,
+        "car_color",
+        sizeof("car_color") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    },
+    {
+        ATTRIBUTE_ID_FRIENDS,
+        "friends",
+        sizeof("friends") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    }
+};
+
+// CLASS METHODS
+
+const bdeat_AttributeInfo *Employee::lookupAttributeInfo(
+        const char *name,
+        int         nameLength)
+{
+    for (int i = 0; i < 6; ++i) {
+        const bdeat_AttributeInfo& attributeInfo =
+                    Employee::ATTRIBUTE_INFO_ARRAY[i];
+
+        if (nameLength == attributeInfo.d_nameLength
+        &&  0 == bsl::memcmp(attributeInfo.d_name_p, name, nameLength))
+        {
+            return &attributeInfo;
+        }
+    }
+
+    return 0;
+}
+
+const bdeat_AttributeInfo *Employee::lookupAttributeInfo(int id)
+{
+    switch (id) {
+      case ATTRIBUTE_ID_NAME:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_NAME];
+      case ATTRIBUTE_ID_AGE:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_AGE];
+      case ATTRIBUTE_ID_IDS:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_IDS];
+      case ATTRIBUTE_ID_FULLNAME:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FULLNAME];
+      case ATTRIBUTE_ID_CAR_COLOR:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_CAR_COLOR];
+      case ATTRIBUTE_ID_FRIENDS:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_FRIENDS];
+      default:
+        return 0;
+    }
+}
+
+// CREATORS
+
+Employee::Employee(bslma::Allocator *basicAllocator)
+: d_ids(basicAllocator)
+, d_friends(basicAllocator)
+, d_name(basicAllocator)
+, d_fullname(basicAllocator)
+, d_age()
+, d_carColor(static_cast<Color::Value>(0))
+{
+}
+
+Employee::Employee(const Employee& original,
+                   bslma::Allocator *basicAllocator)
+: d_ids(original.d_ids, basicAllocator)
+, d_friends(original.d_friends, basicAllocator)
+, d_name(original.d_name, basicAllocator)
+, d_fullname(original.d_fullname, basicAllocator)
+, d_age(original.d_age)
+, d_carColor(original.d_carColor)
+{
+}
+
+Employee::~Employee()
+{
+}
+
+// MANIPULATORS
+
+Employee&
+Employee::operator=(const Employee& rhs)
+{
+    if (this != &rhs) {
+        d_name = rhs.d_name;
+        d_age = rhs.d_age;
+        d_ids = rhs.d_ids;
+        d_fullname = rhs.d_fullname;
+        d_carColor = rhs.d_carColor;
+        d_friends = rhs.d_friends;
+    }
+
+    return *this;
+}
+
+void Employee::reset()
+{
+    bdeat_ValueTypeFunctions::reset(&d_name);
+    bdeat_ValueTypeFunctions::reset(&d_age);
+    bdeat_ValueTypeFunctions::reset(&d_ids);
+    bdeat_ValueTypeFunctions::reset(&d_fullname);
+    bdeat_ValueTypeFunctions::reset(&d_carColor);
+    bdeat_ValueTypeFunctions::reset(&d_friends);
+}
+
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+namespace BloombergLP {
+
 namespace test {
 
                                // =============================
@@ -37135,35 +38567,10 @@ int main(int argc, char *argv[])
         {
             bsl::shared_ptr<bdlmxxx::Schema> schema(new bdlmxxx::Schema);
 
-            bdlmxxx::RecordDef *full_name = schema->createRecord("FullName");
-            full_name->appendField(bdlmxxx::ElemType::BDEM_STRING, "name");
-            full_name->appendField(bdlmxxx::ElemType::BDEM_INT_ARRAY, "ids");
-
-            bdlmxxx::EnumerationDef *enumDef = schema->createEnumeration("color");
-            enumDef->addEnumerator("RED");
-            enumDef->addEnumerator("GREEN");
-            enumDef->addEnumerator("BLUE");
-
-            bdlmxxx::RecordDef *employee = schema->createRecord("Employee");
-            employee->appendField(bdlmxxx::ElemType::BDEM_STRING, "name");
-            employee->appendField(bdlmxxx::ElemType::BDEM_INT,    "age");
-            employee->appendField(bdlmxxx::ElemType::BDEM_INT_ARRAY, "ids");
-            employee->appendField(bdlmxxx::ElemType::BDEM_LIST,
-                                  full_name,
-                                  "fullname");
-            employee->appendField(bdlmxxx::ElemType::BDEM_STRING,
-                                  enumDef,
-                                  "car_color");
-            employee->appendField(bdlmxxx::ElemType::BDEM_TABLE,
-                                  full_name,
-                                  "friends");
-
-            bdlaggxxx::Aggregate bob(schema, "Employee");
-
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int          LINE  = DATA[ti].d_lineNum;
                 const bsl::string& INPUT = DATA[ti].d_text_p;
-                bdlaggxxx::Aggregate bob(schema, "Employee");
+                case5::Employee bob;
 
                 bsl::istringstream iss(INPUT);
 
@@ -37179,37 +38586,10 @@ int main(int argc, char *argv[])
 
         // Testing choices
         {
-            bsl::shared_ptr<bdlmxxx::Schema> schema(new bdlmxxx::Schema);
-
-            bdlmxxx::RecordDef *full_name = schema->createRecord("FullName");
-            full_name->appendField(bdlmxxx::ElemType::BDEM_STRING, "name");
-            full_name->appendField(bdlmxxx::ElemType::BDEM_INT_ARRAY, "ids");
-
-            bdlmxxx::EnumerationDef *enumDef = schema->createEnumeration("color");
-            enumDef->addEnumerator("RED");
-            enumDef->addEnumerator("GREEN");
-            enumDef->addEnumerator("BLUE");
-
-            bdlmxxx::RecordDef *employee = schema->createRecord("Employee");
-            employee->appendField(bdlmxxx::ElemType::BDEM_STRING, "name");
-            employee->appendField(bdlmxxx::ElemType::BDEM_INT,    "age");
-            employee->appendField(bdlmxxx::ElemType::BDEM_INT_ARRAY, "ids");
-            employee->appendField(bdlmxxx::ElemType::BDEM_LIST,
-                                  full_name,
-                                  "fullname");
-            employee->appendField(bdlmxxx::ElemType::BDEM_STRING,
-                                  enumDef,
-                                  "car_color");
-            employee->appendField(bdlmxxx::ElemType::BDEM_TABLE,
-                                  full_name,
-                                  "friends");
-
-            bdlaggxxx::Aggregate bob(schema, "Employee");
-
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int          LINE  = DATA[ti].d_lineNum;
                 const bsl::string& INPUT = DATA[ti].d_text_p;
-                bdlaggxxx::Aggregate bob(schema, "Employee");
+                case5::Employee bob;
 
                 bsl::istringstream iss(INPUT);
 
@@ -37343,38 +38723,10 @@ int main(int argc, char *argv[])
             };
             const int NUM_DATA = sizeof DATA/ sizeof *DATA;
 
-            bsl::shared_ptr<bdlmxxx::Schema> schema(new bdlmxxx::Schema);
-
-            bdlmxxx::RecordDef *full_name = schema->createRecord("FullName");
-            full_name->appendField(bdlmxxx::ElemType::BDEM_STRING, "name");
-            full_name->appendField(bdlmxxx::ElemType::BDEM_INT_ARRAY, "ids");
-
-            bdlmxxx::EnumerationDef *enumDef = schema->createEnumeration("color");
-            enumDef->addEnumerator("RED");
-            enumDef->addEnumerator("GREEN");
-            enumDef->addEnumerator("BLUE");
-
-            bdlmxxx::RecordDef *employee = schema->createRecord("Employee");
-            employee->appendField(bdlmxxx::ElemType::BDEM_STRING, "name");
-            employee->appendField(bdlmxxx::ElemType::BDEM_INT, "age");
-            employee->appendField(bdlmxxx::ElemType::BDEM_INT_ARRAY, "ids");
-            employee->appendField(bdlmxxx::ElemType::BDEM_LIST,
-                                  full_name,
-                                  "fullname");
-            employee->appendField(bdlmxxx::ElemType::BDEM_STRING,
-                                  enumDef,
-                                  "car_color");
-            employee->appendField(bdlmxxx::ElemType::BDEM_TABLE,
-                                  full_name,
-                                  "friends");
-
-            bdlaggxxx::Aggregate top(schema, "Employee");
-            bdlaggxxx::Aggregate bob = top.field("friends");
-
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int          LINE  = DATA[ti].d_lineNum;
                 const bsl::string& INPUT = DATA[ti].d_text_p;
-                bdlaggxxx::Aggregate bob(schema, "Employee");
+                case5::Employee bob;
 
                 bsl::istringstream iss(INPUT);
 
