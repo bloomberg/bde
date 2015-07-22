@@ -294,7 +294,7 @@ int main(int argc, char *argv[])
                 int    d_month2;    // endDate month
                 int    d_day2;      // endDate day
 
-                const std::vector<bdlt::Date> *d_sched;
+                const bsl::vector<bdlt::Date> *d_sched;
                                     // period dates
 
                 double d_numYears;  // result number of years
@@ -408,7 +408,7 @@ int main(int argc, char *argv[])
                 const int    LINE      = DATA[di].d_lineNum;
                 const double NUM_YEARS = DATA[di].d_numYears;
 
-                const std::vector<bdlt::Date>& SCHED = *DATA[di].d_sched;
+                const bsl::vector<bdlt::Date>& SCHED = *DATA[di].d_sched;
 
                 const bdlt::Date X(DATA[di].d_year1,
                                    DATA[di].d_month1,
