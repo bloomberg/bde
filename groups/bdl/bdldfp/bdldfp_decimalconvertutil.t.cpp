@@ -8075,6 +8075,10 @@ int main(int argc, char* argv[])
         //:   the two 'float' values are identical.  (The exponent range is
         //:   somewhat arbitrary; it overlaps the optimized range on both
         //:   ends.)
+        //:
+        //: 3 Additionally, directly parse the digit strings to decimal values
+        //:   and verify that these values too match the values converted from
+        //:   binary.
         //
         // Testing:
         //   CONVERSION TEST

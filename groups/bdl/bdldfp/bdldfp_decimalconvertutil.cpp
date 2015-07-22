@@ -286,12 +286,14 @@ void restoreDecimalFromBinary(DECIMAL_TYPE *dfp, BINARY_TYPE bfp)
 }
 
 template <class INTEGER_TYPE>
-inline void reduce(INTEGER_TYPE *pn, int *pscale)
-    // Divide the value of the specified '*pn' by 10 and increment '*pscale'
-    // as few times as needed to either make '*pn' not be divisible by 10 or to
-    // make '*pscale' non-negative.
+inline void reduce(INTEGER_TYPE *psignificand, int *pscale)
+    // Divide the value of the specified '*psignificand' by 10 and increment
+    // '*pscale' as few times as needed to either make '*psignificand' not be
+    // divisible by 10 or to make '*pscale' non-negative.  The purpose is to
+    // avoid scaling artifacts when converting to decimal floating point; e.g.,
+    // given .001, we want 1e-3 instead of 1000e-6.
 {
-    INTEGER_TYPE n = *pn;
+    INTEGER_TYPE n = *psignificand;
     int scale = *pscale;
 
     // Do a quick check for trailing 0 bits before the more expensive % check
@@ -308,7 +310,7 @@ inline void reduce(INTEGER_TYPE *pn, int *pscale)
         ++scale;
     }
 
-    *pn = n;
+    *psignificand = n;
     *pscale = scale;
 }
 
@@ -522,11 +524,17 @@ Decimal64 DecimalConvertUtil::decimal64FromFloat(float binary)
     #endif
 #endif
 
+    // Avoid going through this code for 0; it will not work correctly for -0,
+    // and the scale reduction would need to move -6 up to 0.
     if (binary != 0 && -1e06 < binary && binary < 1e06) {
         int   scale;
         float d;
         float a = fabsf(binary);
 
+        // Because we have only six digits of precision with which to work,
+        // find in which order of magnitude the value is contained and scale
+        // accordingly.  (This differs from the double case, where we can scale
+        // by a single power of ten for the entire range of interest.)
         if (a < 1e3f) {
             if (a < 1e1f) {
                 if (a < 1e0f) {
