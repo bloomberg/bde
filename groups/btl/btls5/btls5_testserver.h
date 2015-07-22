@@ -99,14 +99,6 @@ BSLS_IDENT("$Id: $")
 #include <bsl_string.h>
 #endif
 
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSL_MEMORY
-#include <bsl_memory.h>
-#endif
-
-#endif
-
 namespace BloombergLP {
 
 namespace btlmt { class SessionPool; }

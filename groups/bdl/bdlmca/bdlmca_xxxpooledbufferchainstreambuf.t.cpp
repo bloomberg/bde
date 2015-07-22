@@ -4,6 +4,7 @@
 
 #include <bslma_testallocator.h>
 
+#include <bsl_algorithm.h>  // bsl::max()
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 

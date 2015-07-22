@@ -5,6 +5,7 @@
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // memcpy()
 
+#include <bsl_algorithm.h>   // bsl::fill()
 #include <bsl_iostream.h>
 #include <bsl_memory.h>
 #include <bsl_string.h>

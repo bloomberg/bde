@@ -303,14 +303,6 @@ BSLS_IDENT("$Id: $")
 #include <bsl_cstdlib.h>
 #endif
 
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSL_CASSERT
-#include <bsl_cassert.h>
-#endif
-
-#endif
-
 namespace BloombergLP  {
 
 namespace balxml {

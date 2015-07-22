@@ -326,18 +326,6 @@ BSLS_IDENT("$Id: $")
 #include <bsl_utility.h>
 #endif
 
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BDLMCA_POOL
-#include <bdlmca_pool.h>
-#endif
-
-#ifndef INCLUDED_BSL_MEMORY
-#include <bsl_memory.h>
-#endif
-
-#endif
-
 namespace BloombergLP {
 
 

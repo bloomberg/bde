@@ -248,14 +248,6 @@ BSLS_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BDLB_CHARTYPE
-#include <bdlb_chartype.h>
-#endif
-
-#endif
-
 namespace bsl {
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
