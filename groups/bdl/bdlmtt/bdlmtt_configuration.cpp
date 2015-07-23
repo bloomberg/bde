@@ -3,7 +3,7 @@
 
 #include <bdlmtt_threadattributes.h>
 
-#include <bdlmtt_xxxatomicutil.h>
+#include <bsls_atomicoperations.h>
 #include <bdlmtt_platform.h>
 
 #include <bslmf_assert.h>
@@ -104,37 +104,37 @@ static int nativeDefaultThreadStackSizeImp()
 
 namespace BloombergLP {
 
-static bdlmtt::AtomicUtil::Int defaultThreadStackSizeValue = { -1 };
+static bsls::AtomicOperations::AtomicTypes::Int defaultThreadStackSizeValue = { -1 };
 
 namespace bdlmtt {
 int Configuration::defaultThreadStackSize()
 {
-    if (bdlmtt::AtomicUtil::getIntRelaxed(defaultThreadStackSizeValue) < 0) {
+    if (bsls::AtomicOperations::getIntRelaxed(defaultThreadStackSizeValue) < 0) {
         return ThreadAttributes::BCEMT_UNSET_STACK_SIZE;        // RETURN
     }
 
-    return bdlmtt::AtomicUtil::getIntRelaxed(defaultThreadStackSizeValue);
+    return bsls::AtomicOperations::getIntRelaxed(defaultThreadStackSizeValue);
 }
 
 int Configuration::nativeDefaultThreadStackSize()
 {
-    static bdlmtt::AtomicUtil::Int ret = { -1 };
+    static bsls::AtomicOperations::AtomicTypes::Int ret = { -1 };
 
-    if (bdlmtt::AtomicUtil::getIntRelaxed(ret) < 0) {
-        bdlmtt::AtomicUtil::setIntRelaxed(&ret,
+    if (bsls::AtomicOperations::getIntRelaxed(ret) < 0) {
+        bsls::AtomicOperations::setIntRelaxed(&ret,
                                        nativeDefaultThreadStackSizeImp());
-        BSLS_ASSERT(bdlmtt::AtomicUtil::getIntRelaxed(ret) >= 1);
+        BSLS_ASSERT(bsls::AtomicOperations::getIntRelaxed(ret) >= 1);
     }
 
-    return bdlmtt::AtomicUtil::getIntRelaxed(ret);
+    return bsls::AtomicOperations::getIntRelaxed(ret);
 }
 
 int Configuration::nativeDefaultThreadGuardSize()
 {
 #if defined(BDLMTT_PLATFORM_POSIX_THREADS)
-    static bdlmtt::AtomicUtil::Int ret = { -1 };
+    static bsls::AtomicOperations::AtomicTypes::Int ret = { -1 };
 
-    if (bdlmtt::AtomicUtil::getIntRelaxed(ret) < 0) {
+    if (bsls::AtomicOperations::getIntRelaxed(ret) < 0) {
         pthread_attr_t attr;
         int rc = pthread_attr_init(&attr);
         BSLS_ASSERT(0 == rc);
@@ -149,10 +149,10 @@ int Configuration::nativeDefaultThreadGuardSize()
         BSLS_ASSERT(guardSizeT > 0);
         BSLS_ASSERT(guardSizeT <= static_cast<bsl::size_t>(INT_MAX));
 
-        bdlmtt::AtomicUtil::setIntRelaxed(&ret, static_cast<int>(guardSizeT));
+        bsls::AtomicOperations::setIntRelaxed(&ret, static_cast<int>(guardSizeT));
     }
 
-    return bdlmtt::AtomicUtil::getIntRelaxed(ret);
+    return bsls::AtomicOperations::getIntRelaxed(ret);
 #else
     // WIN32_THREADS
 
@@ -184,7 +184,7 @@ void Configuration::setDefaultThreadStackSize(int numBytes)
     BSLS_ASSERT_OPT(numBytes > 0);
 #endif
 
-    bdlmtt::AtomicUtil::setIntRelaxed(&defaultThreadStackSizeValue, numBytes);
+    bsls::AtomicOperations::setIntRelaxed(&defaultThreadStackSizeValue, numBytes);
 }
 }  // close package namespace
 

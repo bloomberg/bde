@@ -6,7 +6,7 @@
 #include <bdlmtt_xxxthread.h>
 #include <bdlmtt_semaphore.h>
 
-#include <bdlmtt_xxxatomicutil.h>
+#include <bsls_atomicoperations.h>
 
 #include <bsls_stopwatch.h>
 #include <bsls_timeutil.h>

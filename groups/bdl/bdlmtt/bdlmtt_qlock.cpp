@@ -6,7 +6,7 @@ BSLS_IDENT_RCSID(bdlmtt_qlock_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bslma_default.h>
 #include <bslma_newdeleteallocator.h>
-#include <bdlmtt_xxxatomicutil.h>
+#include <bsls_atomicoperations.h>
 #include <bdlmtt_threadlocalvariable.h>
 #include <bdlmtt_threadutil.h>
 #include <bdlmtt_semaphore.h>
@@ -29,7 +29,7 @@ typedef bdlmtt::ThreadUtil::Key TlsKey;
 
 // The global TLS key for the thread-specific semaphore used by the 'setFlag'
 // and 'waitOnFlag' methods.
-bdlmtt::AtomicUtil::Pointer s_semaphoreKey = {0};
+bsls::AtomicOperations::AtomicTypes::Pointer s_semaphoreKey = {0};
 
 inline
 bslma::Allocator& semaphoreAllocator()
@@ -115,7 +115,7 @@ TlsKey *initializeSemaphoreTLSKey()
     int rc  = bdlmtt::ThreadUtil::createKey(key, &deleteThreadLocalSemaphore);
     BSLS_ASSERT_OPT(rc == 0);
 
-    void *oldKey = bdlmtt::AtomicUtil::testAndSwapPtr(&s_semaphoreKey, 0, key);
+    void *oldKey = bsls::AtomicOperations::testAndSwapPtr(&s_semaphoreKey, 0, key);
 
     if (0 == oldKey) {
         // Create the static key-guard to ensure the resources for
@@ -143,7 +143,7 @@ TlsKey *getSemaphoreTLSKey()
     // simultaneously will return the the same address to an initialized key.
 {
     TlsKey *key =
-        reinterpret_cast<TlsKey *>(bdlmtt::AtomicUtil::getPtr(s_semaphoreKey));
+        reinterpret_cast<TlsKey *>(bsls::AtomicOperations::getPtr(s_semaphoreKey));
 
     if (!key) {
         key = initializeSemaphoreTLSKey();
@@ -259,7 +259,7 @@ void QLockGuard::unlockRaw()
     BSLS_ASSERT(this != 0);
 
     QLockGuard *tail = (QLockGuard *)
-        bdlmtt::AtomicUtil::testAndSwapPtr(&d_qlock_p->d_guardQueueTail, this, 0);
+        bsls::AtomicOperations::testAndSwapPtr(&d_qlock_p->d_guardQueueTail, this, 0);
 
     if (this == tail) {
         // There is no successor; the lock is now free.
@@ -285,7 +285,7 @@ void QLockGuard::lock()
 
     // Insert 'this' at head of the queue.
     QLockGuard *pred = (QLockGuard *)
-        bdlmtt::AtomicUtil::swapPtr(&d_qlock_p->d_guardQueueTail, this);
+        bsls::AtomicOperations::swapPtr(&d_qlock_p->d_guardQueueTail, this);
 
     if (pred)  {
         // The lock was not free.  Link behind predecessor.
@@ -310,7 +310,7 @@ int QLockGuard::tryLock()
 
     // Grab the qlock if it is free
     QLockGuard *pred = (QLockGuard *)
-        bdlmtt::AtomicUtil::testAndSwapPtr(&d_qlock_p->d_guardQueueTail, 0, this);
+        bsls::AtomicOperations::testAndSwapPtr(&d_qlock_p->d_guardQueueTail, 0, this);
 
     if (pred != 0) {
         // The lock was not free.  Do not wait.

@@ -208,8 +208,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlmtt_xxxatomictypes.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICUTIL
-#include <bdlmtt_xxxatomicutil.h>
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
+#include <bsls_atomicoperations.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -253,7 +253,7 @@ struct QLock {
     // QLock(const QLock&);
 
   public:
-    bdlmtt::AtomicUtil::Pointer d_guardQueueTail;
+    bsls::AtomicOperations::AtomicTypes::Pointer d_guardQueueTail;
         // Pointer to the last guard in the queue of guards waiting for this
         // lock, or 0 if the lock is unlocked.
         //
@@ -424,14 +424,14 @@ class QLockGuard  {
 inline
 void QLock::initialize()
 {
-    bdlmtt::AtomicUtil::setPtrRelaxed(&d_guardQueueTail, 0);
+    bsls::AtomicOperations::setPtrRelaxed(&d_guardQueueTail, 0);
 }
 
 // ACCESSORS
 inline
 bool QLock::isLocked() const
 {
-    return bdlmtt::AtomicUtil::getPtr(d_guardQueueTail) != 0;
+    return bsls::AtomicOperations::getPtr(d_guardQueueTail) != 0;
 }
 
                            // ---------------------------

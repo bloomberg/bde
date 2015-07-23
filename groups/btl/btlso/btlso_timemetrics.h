@@ -68,8 +68,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlmtt_xxxthread.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICUTIL
-#include <bdlmtt_xxxatomicutil.h>
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
+#include <bsls_atomicoperations.h>
 #endif
 
 #ifndef INCLUDED_BDLT_TIMEINTERVAL

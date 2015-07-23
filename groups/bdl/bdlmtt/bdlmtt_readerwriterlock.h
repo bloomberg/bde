@@ -230,8 +230,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICUTIL
-#include <bdlmtt_xxxatomicutil.h>
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
+#include <bsls_atomicoperations.h>
 #endif
 
 #ifndef INCLUDED_BDLMTT_XXXTHREAD
@@ -289,7 +289,7 @@ class ReaderWriterLock {
         // value used to increment the read broadcast count by 1
 
     // INSTANCE DATA
-    bdlmtt::AtomicUtil::Int64 d_rwCount;     // atomic counter used to track
+    bsls::AtomicOperations::AtomicTypes::Int64 d_rwCount;     // atomic counter used to track
                                           // active and waiting read/write lock
                                           // requests
 
@@ -415,7 +415,7 @@ ReaderWriterLock::ReaderWriterLock()
 : d_signalState(BCEMT_NOT_SIGNALED)
 , d_owned(0)
 {
-    bdlmtt::AtomicUtil::initInt64(&d_rwCount, READ_OK);
+    bsls::AtomicOperations::initInt64(&d_rwCount, READ_OK);
 }
 
 inline

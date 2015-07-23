@@ -110,7 +110,7 @@ typedef void* (*THREAD_ENTRY)(void *arg);
 
 }
 
-// Implementation Note: these classes were copied from 'bdlmtt_xxxatomicutil.t.cpp'
+// Implementation Note: these classes were copied from 'bsls_atomicoperations.t.cpp'
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>

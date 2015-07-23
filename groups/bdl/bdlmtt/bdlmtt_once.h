@@ -336,8 +336,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlmtt_qlock.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICUTIL
-#include <bdlmtt_xxxatomicutil.h>
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
+#include <bsls_atomicoperations.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -415,7 +415,7 @@ class Once {
 
     // DATA
     QLock          d_mutex; // public, but do *not* access directly
-    bdlmtt::AtomicUtil::Int d_state; // public, but do *not* access directly
+    bsls::AtomicOperations::AtomicTypes::Int d_state; // public, but do *not* access directly
 
   public:
     // PUBLIC TYPES

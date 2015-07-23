@@ -324,8 +324,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlmtt_xxxatomictypes.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICUTIL
-#include <bdlmtt_xxxatomicutil.h>
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
+#include <bsls_atomicoperations.h>
 #endif
 
 #ifndef INCLUDED_BDLF_FUNCTION
@@ -627,7 +627,7 @@ class ObjectPool : public bdlma::Factory<TYPE> {
 
         struct {
             ObjectNode           *d_next_p;
-            bdlmtt::AtomicUtil::Int  d_refCount;
+            bsls::AtomicOperations::AtomicTypes::Int  d_refCount;
         } d_inUse;
         typename bsls::AlignmentFromType<TYPE>::Type d_dummy;
                                      // padding provider for proper alignment
@@ -984,12 +984,12 @@ void ObjectPool<TYPE, CREATOR, RESETTER>::addObjects(int numObjects)
 
     for (int i = 0; i < numObjects; ++i, ++startGuard) {
         last->d_inUse.d_next_p = last + BCEC_NUM_OBJECTS_PER_FRAME;
-        bdlmtt::AtomicUtil::initInt(&last->d_inUse.d_refCount, 0);
+        bsls::AtomicOperations::initInt(&last->d_inUse.d_refCount, 0);
         d_objectCreator.object()(last + 1, d_allocator_p);
         last += BCEC_NUM_OBJECTS_PER_FRAME;
     }
     last -= BCEC_NUM_OBJECTS_PER_FRAME;
-    bdlmtt::AtomicUtil::initInt(&last->d_inUse.d_refCount, 0);
+    bsls::AtomicOperations::initInt(&last->d_inUse.d_refCount, 0);
 
     // If all went well (no exceptions), attach it to 'd_blockList'
 
@@ -1148,7 +1148,7 @@ TYPE *ObjectPool<TYPE, CREATOR, RESETTER>::getObject()
             }
         }
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                   2 != bdlmtt::AtomicUtil::addIntNv(&p->d_inUse.d_refCount,2))) {
+                   2 != bsls::AtomicOperations::addIntNv(&p->d_inUse.d_refCount,2))) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
             for (int i = 0; i < 3; ++i) {
                 // To avoid unnecessary contention, assume that if we did
@@ -1191,13 +1191,13 @@ TYPE *ObjectPool<TYPE, CREATOR, RESETTER>::getObject()
 
         int refCount;
         for (;;) {
-            refCount = bdlmtt::AtomicUtil::getInt(p->d_inUse.d_refCount);
+            refCount = bsls::AtomicOperations::getInt(p->d_inUse.d_refCount);
 
             if (refCount & 1) {
                 // The node is now free but not on the free list.
                 // Try to take it.
 
-                if (refCount == bdlmtt::AtomicUtil::testAndSwapInt(
+                if (refCount == bsls::AtomicOperations::testAndSwapInt(
                                                     &p->d_inUse.d_refCount,
                                                     refCount,
                                                     refCount^1)) {
@@ -1208,7 +1208,7 @@ TYPE *ObjectPool<TYPE, CREATOR, RESETTER>::getObject()
 
                 }
             }
-            else if (refCount == bdlmtt::AtomicUtil::testAndSwapInt(
+            else if (refCount == bsls::AtomicOperations::testAndSwapInt(
                                                     &p->d_inUse.d_refCount,
                                                     refCount,
                                                     refCount - 2)) {
@@ -1237,11 +1237,11 @@ void ObjectPool<TYPE, CREATOR, RESETTER>::releaseObject(TYPE *objPtr)
     ObjectNode *current = (ObjectNode *)(void *)objPtr - 1;
     d_objectResetter.object()(objPtr);
 
-    int refCount = bdlmtt::AtomicUtil::getIntRelaxed(current->d_inUse.d_refCount);
+    int refCount = bsls::AtomicOperations::getIntRelaxed(current->d_inUse.d_refCount);
     do {
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(2 == refCount)) {
             refCount =
-                bdlmtt::AtomicUtil::testAndSwapInt(&current->d_inUse.d_refCount,
+                bsls::AtomicOperations::testAndSwapInt(&current->d_inUse.d_refCount,
                                                 2, 0);
             if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(2 == refCount)) {
                 break;
@@ -1251,7 +1251,7 @@ void ObjectPool<TYPE, CREATOR, RESETTER>::releaseObject(TYPE *objPtr)
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
         const int oldRefCount = refCount;
-        refCount = bdlmtt::AtomicUtil::testAndSwapInt(
+        refCount = bsls::AtomicOperations::testAndSwapInt(
                                                 &current->d_inUse.d_refCount,
                                                 refCount,
                                                 refCount - 1);

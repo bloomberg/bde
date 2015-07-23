@@ -610,8 +610,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlmtt_xxxatomictypes.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICUTIL
-#include <bdlmtt_xxxatomicutil.h>
+#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
+#include <bsls_atomicoperations.h>
 #endif
 
 #ifndef INCLUDED_BDLF_FUNCTION
@@ -986,7 +986,7 @@ class ChannelPool {
 
                                         // *** Parameters ***
     ChannelPoolConfiguration      d_config;
-    bdlmtt::AtomicUtil::Int                d_capacity;
+    bsls::AtomicOperations::AtomicTypes::Int                d_capacity;
     int                                 d_startFlag;
     bool                                d_collectTimeMetrics;
                                                // whether to collect time
@@ -2451,7 +2451,7 @@ bdlmca::BlobBufferFactory *ChannelPool::outboundBlobBufferFactory()
 inline
 int ChannelPool::busyMetrics() const
 {
-    return bdlmtt::AtomicUtil::getInt(d_capacity);
+    return bsls::AtomicOperations::getInt(d_capacity);
 }
 
 inline
