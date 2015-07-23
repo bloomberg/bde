@@ -67,10 +67,10 @@ BSLS_IDENT("$Id$ $CSID$")
 // provides several functions that are frequently used with shared pointers.
 //
 //
-///Thread-Safety
+///Thread Safety
 ///-------------
-// This section qualifies the thread-safety of 'bsl::shared_ptr' objects and
-// 'bsl::weak_ptr' objects themselves rather than the thread-safety of the
+// This section qualifies the thread safety of 'bsl::shared_ptr' objects and
+// 'bsl::weak_ptr' objects themselves rather than the thread safety of the
 // objects being referenced.
 //
 // It is safe to access or modify two distinct 'shared_ptr' (or

@@ -244,7 +244,7 @@ BSLS_IDENT("$Id: $")
 //      BuyOrdersMap    d_buyOrders;   // current buy orders
 //
 //    private:
-//      // This class does not support copy-construction and copy-assignment.
+//      // This class does not support copy construction or copy assignment.
 //      TradeMatcher& operator=(const TradeMatcher&);
 //      TradeMatcher(const TradeMatcher&);
 //
@@ -756,7 +756,7 @@ class map {
         // Return a reference providing modifiable access to the mapped-value
         // associated with the specified 'key', if such an entry exists;
         // otherwise throw an 'std::out_of_range' exception.  Note that this
-        // method is not exception agnostic.
+        // method is not exception-neutral.
 
     iterator begin();
         // Return an iterator providing modifiable access to the first
@@ -953,7 +953,7 @@ class map {
         // Return a reference providing non-modifiable access to the
         // mapped-value associated with the specified 'key', if such an entry
         // exists; otherwise throw an 'std::out_of_range' exception.  Note
-        // that this method is not exception agnostic.
+        // that this method is not exception-neutral.
 
     key_compare key_comp() const;
         // Return the key-comparison functor (or function pointer) used by this

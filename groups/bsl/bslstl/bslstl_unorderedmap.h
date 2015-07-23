@@ -30,7 +30,7 @@ BSLS_IDENT("$Id: $")
 // tested for equality, then an 'unordered_map' containing that type cannot be
 // tested for equality.  It is even possible to instantiate 'unordered_map'
 // with types that do not have an accessible copy-constructor, in which case
-// the 'unordered_map' will not be copyable.  Note that the equality comparison
+// the 'unordered_map' will not be copyable.  Note that the equality-comparison
 // operator for each key-value pair is used to determine when two
 // 'unordered_map' objects have the same value, and not the instance of the
 // 'EQUAL' template parameter supplied at construction.
@@ -741,7 +741,7 @@ BSLS_IDENT("$Id: $")
 // In addition to a hash functor, the unordered map requires an equality
 // comparison functor.  In this example, the unordered map uses 'operator=='
 // method of 'std::pair' by default.  If the mapped type has no such method, a
-// equality comparison functor must be provided explicitly.
+// equality-comparison functor must be provided explicitly.
 //
 // Next, we define the type of the unordered map and associated convenience
 // aliases:
@@ -1161,7 +1161,7 @@ class unordered_map {
         // Return a reference providing modifiable access to the mapped-value
         // associated with the specified 'key', if such an entry exists;
         // otherwise throw a 'std::out_of_range' exception.  Note that this
-        // method is not exception agnostic.
+        // method is not exception-neutral.
 
     iterator begin();
         // Return an iterator providing modifiable access to the first
@@ -1322,7 +1322,7 @@ class unordered_map {
         // Return a reference providing non-modifiable access to the
         // mapped-value associated with the specified 'key', if such an entry
         // exists; otherwise throw a 'std::out_of_range' exception.  Note that
-        // this method is not exception agnostic.
+        // this method is not exception-neutral.
 
     const_iterator begin() const;
     const_iterator cbegin() const;

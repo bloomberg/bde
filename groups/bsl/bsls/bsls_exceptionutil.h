@@ -44,7 +44,7 @@ BSLS_IDENT("$Id: $")
 // will compile in both exception enabled and non-exception enabled builds.
 // Note that apart from memory allocation, and where required by the C++
 // standard, types defined in the BDE libraries do not throw exceptions, and
-// are typically "exception neutral" (see {'bsldoc_glossary'}), meaning they
+// are typically "exception-neutral" (see {'bsldoc_glossary'}), meaning they
 // behave reasonably in the presence of injected exceptions, but do not
 // themselves throw any exceptions.
 //

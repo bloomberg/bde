@@ -133,7 +133,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Keying a hash table with a user defined type
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we have a value semantic type, 'Box', that contains attributes that
+// Suppose we have a value-semantic type, 'Box', that contains attributes that
 // are salient to hashing as well as attributes that are not salient to
 // hashing.  Some of these attributes are themselves user defined types.  We
 // want to store objects of type 'Box' in a hash table, so we need to be able
@@ -147,7 +147,7 @@ BSLS_IDENT("$Id: $")
 // two dimensional Cartesian plane.
 //..
 //  class Point {
-//      // This class is a value semantic type that represents a two
+//      // This class is a value-semantic type that represents a two
 //      // dimensional location on a Cartesian plane.
 //
 //    private:
@@ -227,11 +227,11 @@ BSLS_IDENT("$Id: $")
 //      hashAppend(hashAlg, point.getY());
 //  }
 //..
-// Then, we declare another value semantic type, 'Box' that will have a 'Point'
+// Then, we declare another value-semantic type, 'Box' that will have a 'Point'
 // as one of its attributes that are salient to hashing.
 //..
 //  class Box {
-//      // This class is a value semantic type that represents a box drawn on
+//      // This class is a value-semantic type that represents a box drawn on
 //      // to a Cartesian plane.
 //
 //    private:

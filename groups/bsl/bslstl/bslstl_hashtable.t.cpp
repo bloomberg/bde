@@ -136,7 +136,7 @@ using bslstl::CallableVariable;
 // ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The component under test is a value semantic container class template, whose
+// The component under test is a value-semantic container class template, whose
 // elements are indexed by key, and duplicate key values are permitted.  The
 // purpose of the component is to support implementing the four standard
 // unordered containers, so it may be customized at compile time with a C++11
@@ -148,7 +148,7 @@ using bslstl::CallableVariable;
 // important issue is the selection of primary manipulators.  The 'insert'
 // operations of the container may trigger a 'rehash' operation, which is
 // unrelated to value.  As this is an operation we prefer to defer testing
-// until after the initial ten value semantic test cases, we create an
+// until after the initial ten value-semantic test cases, we create an
 // 'insertElement' function that checks if an insert would trigger a rehash
 // before proceeding.  This becomes our primary manipulator, coupled with a
 // strategy to always reserve enough space at construction to accommodate all
@@ -183,7 +183,7 @@ using bslstl::CallableVariable;
 // empty container with no space reserved for elements to insert.  As we are
 // avoiding rehash operations during the (idiomatic) initial ten value-
 // semantic class test cases, this means we must use the value constructor
-// through the value semantic bootstrap tests, as this constructor does allow
+// through the value-semantic bootstrap tests, as this constructor does allow
 // us to specify an initial capacity.  Further, the default constructor has a
 // more minimal set of requirements on the template arguments than other
 // constructors, so we will test this constructor as the very final test case,
@@ -1963,7 +1963,7 @@ class AwkwardMaplikeElement {
     // This class provides an awkward value-semantic type, designed to be used
     // with a KEY_CONFIG policy for a HashTable that supplies a non-equality
     // comparable key-type, using 'data' for the 'extractKey' method, while the
-    // class itself *is* equality-comparable (as required of a value semantic
+    // class itself *is* equality-comparable (as required of a value-semantic
     // type) so that a HashTable of these objects should have a well-defined
     // 'operator=='.  Note that this class is a specific example for a specific
     // problem, rather than a template providing the general test type for keys
@@ -2029,8 +2029,8 @@ class MostEvilTestType {
     // This class provides an awkward value-semantic type, designed to be used
     // with a KEY_CONFIG policy for a HashTable that supplies a non-equality
     // comparable key-type, using 'data' for the 'extractKey' method, while the
-    // class itself *is* equality-comparable (as required of a value semantic
-    // type) so that a HashTable of these objects should have a well- defined
+    // class itself *is* equality-comparable (as required of a value-semantic
+    // type) so that a HashTable of these objects should have a well-defined
     // 'operator=='.  Note that this class is a specific example for a specific
     // problem, rather than a template providing the general test type for keys
     // distinct from values, as the template test facility requires an explicit
