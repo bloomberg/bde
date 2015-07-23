@@ -13,7 +13,7 @@
 #include <bslma_testallocator.h>
 #include <bdlmtt_threadutil.h>
 #include <bdlmtt_barrier.h>
-#include <bdlmtt_xxxatomictypes.h>
+#include <bsls_atomic.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -86,7 +86,7 @@ using namespace std;
 //=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
-static bdlmtt::AtomicInt testStatus = 0;
+static bsls::AtomicInt testStatus = 0;
 static void aSsErT(int c, const char *s, int i)
 {
     if (c) {
@@ -171,7 +171,7 @@ class ConcurrencyCounterGuard {
     // and is destroyed.   If the counter is greater than 1 after being
     // incremented on construction, the guard will assert.
 
-    bdlmtt::AtomicInt *d_counter;
+    bsls::AtomicInt *d_counter;
 
   private:
     // NOT IMPLEMENTED
@@ -180,7 +180,7 @@ class ConcurrencyCounterGuard {
 
   public:
 
-    explicit ConcurrencyCounterGuard(bdlmtt::AtomicInt *concurrenyCallCounter)
+    explicit ConcurrencyCounterGuard(bsls::AtomicInt *concurrenyCallCounter)
         // Increment the specified 'concurrentCallCounter' and assert if the
         // resulting count is greater than 1.
     : d_counter(concurrenyCallCounter)
@@ -213,7 +213,7 @@ class TestDriverTestLoader : public baltzo::Loader {
     bsl::string       d_lastRequestedTimeZone;
                                       // most recently requested time zone id
 
-    bdlmtt::AtomicInt    d_concurrentCallCount;
+    bsls::AtomicInt    d_concurrentCallCount;
                                       // number of concurrent function calls
                                       // currently being made to 'loadTimeZone'
                                       // (must be <= 1).
@@ -410,7 +410,7 @@ struct TimeZoneData {
         const char *d_abbrev;     // abbreviation for descriptor, or 0 for
                                   // invalid time zones
 
-        bdlmtt::AtomicPointer<const Zone>
+        bsls::AtomicPointer<const Zone>
                     d_expectedAddress_p;
                                   // expected cache address of this id
 } VALUES[] = {
@@ -450,7 +450,7 @@ extern "C" void *workerThread(void *arg)
         // Add all the test values to the cache.
 
         const char *ID = VALUES[i].d_id;
-        bdlmtt::AtomicPointer<const Zone>& addr = VALUES[i].d_expectedAddress_p;
+        bsls::AtomicPointer<const Zone>& addr = VALUES[i].d_expectedAddress_p;
 
         // 'result' should either be 0, or the previously returned value (*IF*
         // the previously returned value has been set).

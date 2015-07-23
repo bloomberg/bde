@@ -130,8 +130,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlmt_timereventscheduler.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICTYPES
-#include <bdlmtt_xxxatomictypes.h>
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
 #endif
 
 #ifndef INCLUDED_BDLT_DATETIME
@@ -329,7 +329,7 @@ typedef bsls::Platform::OsHpUx OsType;
         double           d_elapsedTime;           // time elapsed since process
                                                   // startup
 
-        bdlmtt::AtomicInt   d_numSamples;            // num samples taken
+        bsls::AtomicInt   d_numSamples;            // num samples taken
 
         double           d_lstData[BAEA_NUM_MEASURES]; // latest collected data
         double           d_minData[BAEA_NUM_MEASURES]; // min

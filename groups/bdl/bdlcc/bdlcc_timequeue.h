@@ -556,8 +556,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlmtt_mutex.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICTYPES
-#include <bdlmtt_xxxatomictypes.h>
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
 #endif
 
 #ifndef INCLUDED_BDLMA_POOL
@@ -741,7 +741,7 @@ class TimeQueue {
 
     bsl::vector<Node*>       d_nodeArray;      // array of nodes in this queue
 
-    bdlmtt::AtomicPointer<Node> d_nextFreeNode_p; // pointer to the next free node
+    bsls::AtomicPointer<Node> d_nextFreeNode_p; // pointer to the next free node
                                                // in this queue (the free list
                                                // is singly linked only, using
                                                // d_next_p)
@@ -749,7 +749,7 @@ class TimeQueue {
     NodeMap                  d_map;            // list of time values in
                                                // increasing time order
 
-    bdlmtt::AtomicInt           d_length;         // number of items currently in
+    bsls::AtomicInt           d_length;         // number of items currently in
                                                // this queue (not necessarily
                                                // equal to d_map.size())
 

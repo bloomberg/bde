@@ -8,7 +8,7 @@
 #include <bsl_iostream.h>
 #include <bsl_map.h>
 
-#include <bdlmtt_xxxatomictypes.h>
+#include <bsls_atomic.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -106,8 +106,8 @@ bsl::ostream& operator<<(bsl::ostream& stream, const ZeroIntMap& thismap)
                                 // ------
 struct ThreadInfo {
     Obj *d_lock;
-    bdlmtt::AtomicInt d_retval;
-    bdlmtt::AtomicInt d_retvalSet;
+    bsls::AtomicInt d_retval;
+    bsls::AtomicInt d_retvalSet;
 };
 
 extern "C" void* MyThread(void* arg_p)
@@ -147,8 +147,8 @@ struct F {
     bool                  d_urgent;
     static int            s_urgentPlace;
     static bool           s_firstThread;
-    static bdlmtt::AtomicInt s_lockCount;
-    static bdlmtt::AtomicInt s_finished;
+    static bsls::AtomicInt s_lockCount;
+    static bsls::AtomicInt s_finished;
     static bdlmtt::Mutex    s_mutex;
 
     // CREATORS
@@ -159,8 +159,8 @@ struct F {
 };
 int            F::s_urgentPlace;
 bool           F::s_firstThread = 1;
-bdlmtt::AtomicInt F::s_finished = 0;
-bdlmtt::AtomicInt F::s_lockCount = 0;
+bsls::AtomicInt F::s_finished = 0;
+bsls::AtomicInt F::s_lockCount = 0;
 bdlmtt::Mutex    F::s_mutex;
 
 void F::operator()()

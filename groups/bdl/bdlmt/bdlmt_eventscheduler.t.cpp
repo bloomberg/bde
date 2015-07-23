@@ -2,7 +2,7 @@
 #include <bdlmt_eventscheduler.h>
 
 #include <bslma_testallocator.h>
-#include <bdlmtt_xxxatomictypes.h>
+#include <bsls_atomic.h>
 #include <bdlmtt_barrier.h>
 #include <bdlmtt_xxxthread.h>
 #include <bdlmtt_threadgroup.h>
@@ -104,7 +104,7 @@ using namespace bsl;  // automatically added by script
 //=============================================================================
 //                        STANDARD BDE ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
-static bdlmtt::AtomicInt testStatus = 0;
+static bsls::AtomicInt testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
 {
@@ -330,15 +330,15 @@ class TestClass {
     bsls::TimeInterval d_expectedTimeAtExecution; // expected time at which
                                                  // callback should run
 
-    bdlmtt::AtomicInt    d_numExecuted;             // number of times callback
+    bsls::AtomicInt    d_numExecuted;             // number of times callback
                                                  // has been executed
 
-    bdlmtt::AtomicInt    d_executionTime;           // duration for which
+    bsls::AtomicInt    d_executionTime;           // duration for which
                                                  // callback executes
 
     int               d_line;                    // for error reporting
 
-    bdlmtt::AtomicInt    d_delayed;                 // will be set to true if
+    bsls::AtomicInt    d_delayed;                 // will be set to true if
                                                  // any execution of the
                                                  // callback is delayed from
                                                  // its expected execution time
@@ -355,7 +355,7 @@ class TestClass {
                                                  // failure unless it fails
                                                  // too many times
 
-    bdlmtt::AtomicInt     d_failures;               // timing failures
+    bsls::AtomicInt     d_failures;               // timing failures
 
     // FRIENDS
     friend bsl::ostream& operator << (bsl::ostream&,
@@ -514,7 +514,7 @@ struct TestClass1 {
     // for a clock or an event.  The class keeps track of number of times
     // the callback has been executed.
 
-    bdlmtt::AtomicInt  d_numExecuted;
+    bsls::AtomicInt  d_numExecuted;
     int             d_executionTime; // in microseconds
 
     // CREATORS
@@ -679,7 +679,7 @@ static void cancelAllEventsCallback(Obj *scheduler, int wait)
 
 namespace BCEP_EVENTSCHEDULER_TEST_CASE_USAGE {
 
-bdlmtt::AtomicInt  g_data;  // Some global data we want to track
+bsls::AtomicInt  g_data;  // Some global data we want to track
 typedef pair<bdlt::Datetime, int> Value;
 
 void saveData(vector<Value> *array)
@@ -979,7 +979,7 @@ const double FastFunctor::TOLERANCE_BEHIND = 0.300;
 
 namespace BCEP_EVENTSCHEDULER_TEST_CASE_13 {
 
-void countInvoked(bdlmtt::AtomicInt *numInvoked)
+void countInvoked(bsls::AtomicInt *numInvoked)
 {
     if (numInvoked) {
         ++*numInvoked;
@@ -988,8 +988,8 @@ void countInvoked(bdlmtt::AtomicInt *numInvoked)
 
 void scheduleEvent(Obj            *scheduler,
                    int             numNeeded,
-                   bdlmtt::AtomicInt *numAdded,
-                   bdlmtt::AtomicInt *numInvoked,
+                   bsls::AtomicInt *numAdded,
+                   bsls::AtomicInt *numInvoked,
                    bdlmtt::Barrier  *barrier)
 {
     barrier->wait();
@@ -1004,8 +1004,8 @@ void scheduleEvent(Obj            *scheduler,
 
 void scheduleRecurringEvent(Obj            *scheduler,
                 int             numNeeded,
-                bdlmtt::AtomicInt *numAdded,
-                bdlmtt::AtomicInt *numInvoked,
+                bsls::AtomicInt *numAdded,
+                bsls::AtomicInt *numInvoked,
                 bdlmtt::Barrier  *barrier)
 {
     barrier->wait();
@@ -1959,7 +1959,7 @@ struct TestPrintClass {
     // class is intended for use to verify changes to the system clock do or do
     // not affect the behavior of the scheduler (see Test Case -1).
 
-    bdlmtt::AtomicInt d_numExecuted;
+    bsls::AtomicInt d_numExecuted;
 
     // CREATORS
     TestPrintClass() :
@@ -2781,7 +2781,7 @@ int main(int argc, char *argv[])
 
             Obj mX(&ta);
 
-            bdlmtt::AtomicInt    numAdded(0);
+            bsls::AtomicInt    numAdded(0);
             bdlmtt::Barrier     barrier(NUM_THREADS + 1);
             bdlmtt::ThreadGroup threadGroup;
 
@@ -2789,7 +2789,7 @@ int main(int argc, char *argv[])
                                                        &mX,
                                                        NUM_OBJECTS,
                                                        &numAdded,
-                                                       (bdlmtt::AtomicInt*)0,
+                                                       (bsls::AtomicInt*)0,
                                                        &barrier),
                                    NUM_THREADS);
             if (veryVerbose) {
@@ -2853,7 +2853,7 @@ int main(int argc, char *argv[])
 
             Obj mX(&ta);
 
-            bdlmtt::AtomicInt    numAdded(0);
+            bsls::AtomicInt    numAdded(0);
             bdlmtt::Barrier     barrier(NUM_THREADS + 1);
             bdlmtt::ThreadGroup threadGroup;
 
@@ -2862,7 +2862,7 @@ int main(int argc, char *argv[])
                                                    &mX,
                                                    NUM_OBJECTS,
                                                    &numAdded,
-                                                   (bdlmtt::AtomicInt*)0,
+                                                   (bsls::AtomicInt*)0,
                                                    &barrier),
                                    NUM_THREADS);
             if (veryVerbose) {

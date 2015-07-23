@@ -321,8 +321,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlmtt_xxxthread.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICTYPES
-#include <bdlmtt_xxxatomictypes.h>
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
 #endif
 
 #ifndef INCLUDED_BDLB_PRINT
@@ -391,7 +391,7 @@ struct SkipList_Control {
     };
 
     // DATA
-    bdlmtt::AtomicInt d_cw;   // control word; reference count, release flag, and
+    bsls::AtomicInt d_cw;   // control word; reference count, release flag, and
                            // acquire count for a node in the list
 
     unsigned char  d_level;
@@ -470,9 +470,9 @@ class SkipList_RandomLevelGenerator {
     };
 
     // DATA
-    bdlmtt::AtomicInt d_seed;        // current random seed
+    bsls::AtomicInt d_seed;        // current random seed
 
-    bdlmtt::AtomicInt d_randomBits;  // 14 random bits and a sentinel bit at
+    bsls::AtomicInt d_randomBits;  // 14 random bits and a sentinel bit at
                                   // the 15th position
 
   public:
@@ -748,7 +748,7 @@ class SkipList {
     // DATA
     SkipList_RandomLevelGenerator         d_rand;
 
-    bdlmtt::AtomicInt                             d_listLevel;
+    bsls::AtomicInt                             d_listLevel;
     Node                                      *d_head_p;
     Node                                      *d_tail_p;
 

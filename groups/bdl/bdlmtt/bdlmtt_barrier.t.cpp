@@ -1,8 +1,9 @@
 // bdlmtt_barrier.t.cpp              -*-C++-*-
 #include <bdlmtt_barrier.h>
 
-#include <bdlmtt_xxxatomictypes.h>  // for testing only
+#include <bsls_atomic.h>  // for testing only
 #include <bdlmtt_xxxthread.h>      // for testing only
+#include <bdlmtt_xxxatomictypes.h>
 
 #include <bsls_platform.h>
 #include <bsls_systemclocktype.h>
@@ -117,13 +118,13 @@ struct ThreadArgs {
 
     bdlmtt::Barrier  d_barrier;     // barrier used for testing
 
-    bdlmtt::AtomicInt d_waitCount;   // count of threads waiting or about to
+    bsls::AtomicInt d_waitCount;   // count of threads waiting or about to
                                   // wait on the barrier being tested
 
     int            d_timeOut;     // time out to use when calling 'timedWait'
                                   // (in microseconds)
 
-    bdlmtt::AtomicInt d_numTimedOut; // number of threads that time out on
+    bsls::AtomicInt d_numTimedOut; // number of threads that time out on
                                   // a call to 'timedWait'
 
     bsls::SystemClockType::Enum d_clockType;
@@ -278,10 +279,10 @@ struct ThreadArgs4 {
     int            d_timeOut;     // time out to use when calling 'timedWait'
                                   // (in microseconds)
 
-    bdlmtt::AtomicInt d_stopCount;   // count indicating that thread has complete
+    bsls::AtomicInt d_stopCount;   // count indicating that thread has complete
                                   // its test
 
-    bdlmtt::AtomicInt d_numTimedOut; // number of threads that time out on
+    bsls::AtomicInt d_numTimedOut; // number of threads that time out on
                                   // a call to 'timedWait'
 
     int            d_nThreads;    // number of worker threads
@@ -500,13 +501,13 @@ bool processBasketTrade(BasketTrade &trade)
 
 class Case8_Driver
 {
-   bdlmtt::AtomicInt *d_state;
+   bsls::AtomicInt *d_state;
    bdlmtt::Barrier *d_barrier;
    int d_numCycles;
 
 public:
 
-   Case8_Driver(bdlmtt::AtomicInt *state,
+   Case8_Driver(bsls::AtomicInt *state,
                 bdlmtt::Barrier *barrier,
                 int numCycles) :
       d_state(state), d_barrier(barrier), d_numCycles(numCycles) {}
@@ -526,13 +527,13 @@ class Case7_Waiter {
    typedef bdlmtt::Barrier Barrier;
 
    Barrier        *d_barrier;
-   bdlmtt::AtomicInt *d_state;
+   bsls::AtomicInt *d_state;
    int             d_numWaits;
    int             d_numThreads;
 
 public:
    Case7_Waiter(Barrier        *barrier=0,
-                bdlmtt::AtomicInt *state=0,
+                bsls::AtomicInt *state=0,
                 int             numWaits=0,
                 int             numThreads=0) :
       d_barrier(barrier),
@@ -567,7 +568,7 @@ public:
 void case7 (bdlmtt::Barrier* barrier,
             bool verbose, int numThreads, int numWaits) {
 
-   bdlmtt::AtomicInt state = 0;
+   bsls::AtomicInt state = 0;
    vector<Case7_Waiter > waiters;
    waiters.insert(waiters.end(), numThreads-1,
                   Case7_Waiter(barrier, &state,
@@ -641,7 +642,7 @@ int main(int argc, char *argv[])
         bdlmtt::Barrier normalBarrier(2);
 
         bdlmtt::ThreadAttributes detached;
-        bdlmtt::AtomicInt state = 0;
+        bsls::AtomicInt state = 0;
         bdlmtt::ThreadUtil::Handle dummy;
         detached.setDetachedState(
                                 bdlmtt::ThreadAttributes::BCEMT_CREATE_DETACHED);

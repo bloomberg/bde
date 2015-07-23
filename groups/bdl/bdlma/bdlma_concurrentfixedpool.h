@@ -120,8 +120,8 @@
 #include <bdlmtt_xxxthread.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICTYPES
-#include <bdlmtt_xxxatomictypes.h>
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
 #endif
 
 #ifndef INCLUDED_BDLMA_POOL
@@ -186,7 +186,7 @@ class ConcurrentFixedPool {
     typedef ConcurrentFixedPool_Node Node;     // type of memory block "header"
 
     // DATA
-    bdlmtt::AtomicInt       d_freeList;       // head of free list
+    bsls::AtomicInt       d_freeList;       // head of free list
 
     const unsigned       d_sizeMask;       // mask corresponding to max size of
                                            // pool; rounded up to power of 2

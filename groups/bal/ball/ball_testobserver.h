@@ -132,8 +132,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlmtt_xxxthread.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICTYPES
-#include <bdlmtt_xxxatomictypes.h>
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
 #endif
 
 #ifndef INCLUDED_BDLMXXX_LIST
@@ -170,7 +170,7 @@ class TestObserver : public Observer {
     // restore the default behavior of 'publish'.
 
     // CLASS DATA
-    static bdlmtt::AtomicInt
+    static bsls::AtomicInt
                         s_count;        // number of instances created
 
     // DATA

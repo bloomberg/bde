@@ -169,7 +169,7 @@ BSLS_IDENT("$Id: $")
 // client request from the query factory, and process it, until the desired
 // total number of requests is achieved.
 //..
-//    void serverThread(bdlmtt::AtomicInt *queries, int max,
+//    void serverThread(bsls::AtomicInt *queries, int max,
 //                      void(*queryHandler)(Query*))
 //    {
 //        while (++(*queries) <= max) {
@@ -185,7 +185,7 @@ BSLS_IDENT("$Id: $")
 //       NUM_QUERIES = 10000
 //    };
 //
-//    bdlmtt::AtomicInt numQueries = 0;
+//    bsls::AtomicInt numQueries = 0;
 //    bdlmtt::ThreadGroup tg;
 //
 //    tg.addThreads(bdlf::BindUtil::bind(&serverThread, &numQueries,
@@ -320,8 +320,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlmtt_xxxthread.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICTYPES
-#include <bdlmtt_xxxatomictypes.h>
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS
@@ -742,7 +742,7 @@ class ObjectPool : public bdlma::Factory<TYPE> {
     };
 
     // DATA
-    bdlmtt::AtomicPointer<ObjectNode>
+    bsls::AtomicPointer<ObjectNode>
                            d_freeObjectsList;      // list of free objects
 
     ObjectPool_CreatorProxy<CREATOR, TYPE>
@@ -755,10 +755,10 @@ class ObjectPool : public bdlma::Factory<TYPE> {
     int                    d_numReplenishObjects;  // pool growth behavior
                                                    // option (see above)
 
-    bdlmtt::AtomicInt         d_numAvailableObjects;  // number of available
+    bsls::AtomicInt         d_numAvailableObjects;  // number of available
                                                    // objects
 
-    bdlmtt::AtomicInt         d_numObjects;           // number of objects
+    bsls::AtomicInt         d_numObjects;           // number of objects
                                                    // created by this pool
 
     BlockNode             *d_blockList;            // list of memory blocks

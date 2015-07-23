@@ -9,7 +9,7 @@
 
 #include <bdlmtt_barrier.h>
 #include <bdlmtt_threadgroup.h>
-#include <bdlmtt_xxxatomictypes.h>
+#include <bsls_atomic.h>
 
 #include <bdlf_bind.h>
 #include <bdlsu_pipeutil.h>
@@ -778,7 +778,7 @@ int main(int argc, char *argv[])
                 loadData(&message, messageLength);
 
                 bdlmtt::Barrier  barrier(2);
-                bdlmtt::AtomicInt numWrites = 0;
+                bsls::AtomicInt numWrites = 0;
 
                 balb::PipeControlChannel channel(bdlf::BindUtil::bind(
                                                          &verifyPayload,

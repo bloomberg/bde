@@ -5,7 +5,7 @@
 #include <bdlmtt_barrier.h>     // for testing only
 #include <bdlt_currenttime.h>  // for testing only
 #include <bdlt_datetime.h>     // for testing only
-#include <bdlmtt_xxxatomictypes.h>  // for testing only
+#include <bsls_atomic.h>  // for testing only
 
 #include <bsl_map.h>           // for usage example
 
@@ -199,9 +199,9 @@ struct TestArguments {
     volatile int     d_startSigCount;
     volatile int     d_stopSigCount;
     volatile int     d_iterations;
-    bdlmtt::AtomicInt   d_count;
-    bdlmtt::AtomicInt   d_readCount;
-    bdlmtt::AtomicInt   d_writeCount;
+    bsls::AtomicInt   d_count;
+    bsls::AtomicInt   d_readCount;
+    bsls::AtomicInt   d_writeCount;
     bdlmtt::Barrier    d_barrierAll;     // barrier for all threads
     bdlmtt::Barrier    d_barrier2;       // barrier for two threads
   public:
@@ -557,16 +557,16 @@ struct my_ThreadArgument
 {
     bdlmtt::Barrier            *d_barrier_p;
     bdlmtt::ReaderWriterLock   *d_lock_p;
-    bdlmtt::AtomicInt           *d_shared_p;
+    bsls::AtomicInt           *d_shared_p;
 };
 
-    static bdlmtt::AtomicInt   numConcurrent;
-    static bdlmtt::AtomicInt   numReaders;
+    static bsls::AtomicInt   numConcurrent;
+    static bsls::AtomicInt   numReaders;
 
 extern "C" void *case11ThreadRW(void *arg)
 {
     my_ThreadArgument    a = *static_cast<my_ThreadArgument*>(arg);
-    bdlmtt::AtomicInt&      k = *a.d_shared_p;
+    bsls::AtomicInt&      k = *a.d_shared_p;
 
     a.d_barrier_p->wait();
 
@@ -617,7 +617,7 @@ extern "C" void *case11ThreadRW(void *arg)
 extern "C" void *case11ThreadRO(void *arg)
 {
     my_ThreadArgument    a = *static_cast<my_ThreadArgument*>(arg);
-    bdlmtt::AtomicInt&      k = *a.d_shared_p;
+    bsls::AtomicInt&      k = *a.d_shared_p;
 
     a.d_barrier_p->wait();
     register int v;
@@ -835,7 +835,7 @@ int main(int argc, char *argv[])
                  << endl;
         {
             enum { NUM_THREADS = 5 };
-            bdlmtt::AtomicInt             shared;
+            bsls::AtomicInt             shared;
             bdlmtt::Barrier              barrier(NUM_THREADS);
             bdlmtt::ReaderWriterLock     lock;
             bdlmtt::ThreadUtil::Handle   workers[NUM_THREADS];

@@ -182,8 +182,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlmtt_threadutil.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICTYPES
-#include <bdlmtt_xxxatomictypes.h>
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
 #endif
 
 #ifndef INCLUDED_BDLB_XXXBITUTIL

@@ -1,7 +1,7 @@
 // bdlmtt_recursivemuteximpl_win32.t.cpp                               -*-C++-*-
 #include <bdlmtt_recursivemuteximpl_win32.h>
 
-#include <bdlmtt_xxxatomictypes.h>
+#include <bsls_atomic.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
@@ -96,8 +96,8 @@ void My_CreateDetachedThread(ThreadFunction function,
 
 struct Case1 {
     Obj *d_lock;
-    bdlmtt::AtomicInt d_retval;
-    bdlmtt::AtomicInt d_retvalSet;
+    bsls::AtomicInt d_retval;
+    bsls::AtomicInt d_retvalSet;
 };
 
 extern "C" void* Case1Thread(void* arg_p) {

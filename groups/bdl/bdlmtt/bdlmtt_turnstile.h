@@ -102,8 +102,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICTYPES
-#include <bdlmtt_xxxatomictypes.h>
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
 #endif
 
 #ifndef INCLUDED_BDLT_TIMEINTERVAL
@@ -143,12 +143,12 @@ class Turnstile {
     // turnstile is not behind schedule.
 
     // DATA
-    bdlmtt::AtomicInt64         d_nextTurn;   // absolute time of next turn in
+    bsls::AtomicInt64         d_nextTurn;   // absolute time of next turn in
                                            // microseconds
 
-    bdlmtt::AtomicInt64         d_interval;   // interval time in microseconds
+    bsls::AtomicInt64         d_interval;   // interval time in microseconds
 
-    mutable bdlmtt::AtomicInt64 d_timestamp;  // time of last call to 'now' in
+    mutable bsls::AtomicInt64 d_timestamp;  // time of last call to 'now' in
                                            // microseconds
 
     // PRIVATE TYPES

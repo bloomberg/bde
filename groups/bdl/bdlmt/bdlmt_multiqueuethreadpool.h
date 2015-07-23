@@ -321,6 +321,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlmtt_xxxatomictypes.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif
@@ -367,13 +371,13 @@ class MultiQueueThreadPool_Queue {
 
   private:
     bsl::deque<Job>       d_list;
-    bdlmtt::AtomicInt        d_numPendingJobs; // number of unprocessed jobs
+    bsls::AtomicInt        d_numPendingJobs; // number of unprocessed jobs
     volatile int          d_state;          // maintains enqueue state
-    bdlmtt::AtomicInt        d_numEnqueued;    // the number of items enqueued
+    bsls::AtomicInt        d_numEnqueued;    // the number of items enqueued
                                             // into this queue since the
                                             // creation or the last time
                                             // it was reset.
-    bdlmtt::AtomicInt        d_numDequeued;    // the number of items dequeued
+    bsls::AtomicInt        d_numDequeued;    // the number of items dequeued
                                             // into this queue since the
                                             // creation or the last time
                                             // it was reset.
@@ -537,16 +541,16 @@ class MultiQueueThreadPool {
 
     mutable bdlmtt::RWMutex
                      d_registryLock;       // synchronizes registry access
-    bdlmtt::AtomicInt   d_numActiveQueues;    // number of non-empty queues
+    bsls::AtomicInt   d_numActiveQueues;    // number of non-empty queues
 
     volatile int     d_state;              // maintains internal state
     bdlmtt::SpinLock    d_stateLock;          // synchronizes internal state
 
-    bdlmtt::AtomicInt   d_numDequeued;        // the total number of request
+    bsls::AtomicInt   d_numDequeued;        // the total number of request
                                            // processed by this pool
                                            // since the last time this value
                                            // was reset
-    bdlmtt::AtomicInt   d_numEnqueued;        // the total number of request
+    bsls::AtomicInt   d_numEnqueued;        // the total number of request
                                            // enqueued into this pool
                                            // since the last time this value
                                            // was reset

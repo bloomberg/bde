@@ -12,7 +12,7 @@
 #include <bsl_map.h>
 #include <bsl_vector.h>
 
-#include <bdlmtt_xxxatomictypes.h>
+#include <bsls_atomic.h>
 
 using namespace BloombergLP;
 using namespace bsl;

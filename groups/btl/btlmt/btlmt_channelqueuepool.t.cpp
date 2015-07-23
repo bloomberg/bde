@@ -9,7 +9,7 @@
 
 #include <bsls_platform.h>                      // for testing only
 #include <bslma_testallocator.h>                // for testing only
-#include <bdlmtt_xxxatomictypes.h>                   // for testing only
+#include <bsls_atomic.h>                   // for testing only
 
 #include <bdlf_function.h>
 #include <bdlf_bind.h>
@@ -105,7 +105,7 @@ static int veryVeryVerbose;
 //-----------------------------------------------------------------------------
 
 btlso::IPv4Address serverAddress("127.0.0.1", 0);
-bdlmtt::AtomicInt    portNumber = 0;
+bsls::AtomicInt    portNumber = 0;
 
 ///Usage
 ///-----
@@ -444,7 +444,7 @@ void checkUsageExampleMsg(btlmt::DataMsg msg, int version)
 static
 void readIncomingMessages(bdlcc::Queue<btlmt::Message> *incoming,
                           btlmt::ChannelQueuePool    *channelQueuePool,
-                          bdlmtt::AtomicInt            *numChannels,
+                          bsls::AtomicInt            *numChannels,
                           int                        maxNumMessages,
                           int                        version)
     // Read messages continuously (up to the specified 'maxNumMessages') from
@@ -592,7 +592,7 @@ void testUsageExample(btlso::IPv4Address serverAddress,
 
     // Start reading.
 
-    bdlmtt::AtomicInt numConnections(0);
+    bsls::AtomicInt numConnections(0);
 
     bdlf::Function<void (*)()> invokeReadIncomingMessages(
             bdlf::BindUtil::bindA(&ta,

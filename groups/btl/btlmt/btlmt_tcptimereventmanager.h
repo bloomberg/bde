@@ -232,8 +232,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlmtt_lockguard.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICTYPES
-#include <bdlmtt_xxxatomictypes.h>
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
 #endif
 
 #ifndef INCLUDED_BDLF_FUNCTION
@@ -284,7 +284,7 @@ class TcpTimerEventManager_ControlChannel {
 
     int               d_numServerReads;      // read operations
     int               d_numServerBytesRead;  // total number of bytes read
-    bdlmtt::AtomicInt    d_numPendingRequests;  // number of pending requests
+    bsls::AtomicInt    d_numPendingRequests;  // number of pending requests
 
     // NOT IMPLEMENTED
     TcpTimerEventManager_ControlChannel(
@@ -398,7 +398,7 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
     volatile State             d_state;           // the state of the
                                                   // dispatcher thread
 
-    bdlmtt::AtomicInt             d_terminateThread; // signals end of dispatcher
+    bsls::AtomicInt             d_terminateThread; // signals end of dispatcher
 
     mutable bdlmtt::RWMutex      d_stateLock;       // protects access to the
                                                   // state changes via
@@ -443,7 +443,7 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
     const bool                 d_collectMetrics;  // whether to update
                                                   // 'd_metrics'
 
-    bdlmtt::AtomicInt             d_numTotalSocketEvents;
+    bsls::AtomicInt             d_numTotalSocketEvents;
                                                   // the total number of all
                                                   // socket events registered
                                                   // (excluding registered

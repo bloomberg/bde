@@ -8,7 +8,7 @@
 #include <bslma_testallocator.h>
 #include <bdlmtt_xxxthread.h>
 #include <bdlmtt_threadgroup.h>
-#include <bdlmtt_xxxatomictypes.h>
+#include <bsls_atomic.h>
 
 #include <bdlt_currenttime.h>
 
@@ -157,7 +157,7 @@ int veryVeryVeryVerbose;
 // for detecting leaks.
 
 struct Element {
-    static bdlmtt::AtomicInt s_allocCount;
+    static bsls::AtomicInt s_allocCount;
     double                d_data;
 
     Element() {
@@ -181,7 +181,7 @@ struct Element {
         return d_data;
     }
 };
-bdlmtt::AtomicInt Element::s_allocCount = 0;
+bsls::AtomicInt Element::s_allocCount = 0;
 
 typedef bdlcc::MultipriorityQueue<Element>      Obj;
 typedef bdlcc::MultipriorityQueue<double>       Dobj;
@@ -388,7 +388,7 @@ double testStartedTime;
 struct ProducerThread {
     static int             s_numPriorities;
     static int             s_numItemsPerProducer;
-    static bdlmtt::AtomicInt  s_pushVal;
+    static bsls::AtomicInt  s_pushVal;
     static bdlmtt::Barrier  *s_barrier;
     static Obj            *s_queue_p;
     static int             s_removeMask;
@@ -423,7 +423,7 @@ struct ProducerThread {
 };
 int             ProducerThread::s_numPriorities;
 int             ProducerThread::s_numItemsPerProducer;
-bdlmtt::AtomicInt  ProducerThread::s_pushVal = 0;
+bsls::AtomicInt  ProducerThread::s_pushVal = 0;
 bdlmtt::Barrier  *ProducerThread::s_barrier;
 Obj            *ProducerThread::s_queue_p;
 int             ProducerThread::s_removeMask;
@@ -453,7 +453,7 @@ struct ConsumerThread {
     static bdlmtt::Barrier  *s_barrier;
     static Obj            *s_queue_p;
     static OutPair        *s_outPairVec;
-    static bdlmtt::AtomicInt *s_outPairVecIdx;
+    static bsls::AtomicInt *s_outPairVecIdx;
 
     int operator()() {
         s_barrier->wait();
@@ -488,7 +488,7 @@ struct ConsumerThread {
 bdlmtt::Barrier  *ConsumerThread::s_barrier;
 Obj            *ConsumerThread::s_queue_p;
 OutPair        *ConsumerThread::s_outPairVec;
-bdlmtt::AtomicInt *ConsumerThread::s_outPairVecIdx;
+bsls::AtomicInt *ConsumerThread::s_outPairVecIdx;
 
 }  // close namespace BCEC_MULTIPRIORITYQUEUE_TEST_CASE_9
 
@@ -503,7 +503,7 @@ double testStartedTime;
 struct ProducerThread {
     static int             s_numPriorities;
     static int             s_numItemsPerProducer;
-    static bdlmtt::AtomicInt  s_pushVal;
+    static bsls::AtomicInt  s_pushVal;
     static bdlmtt::Barrier  *s_barrier;
     static Iobj           *s_queue_p;
 
@@ -532,7 +532,7 @@ struct ProducerThread {
 };
 int             ProducerThread::s_numPriorities;
 int             ProducerThread::s_numItemsPerProducer;
-bdlmtt::AtomicInt  ProducerThread::s_pushVal = 0;
+bsls::AtomicInt  ProducerThread::s_pushVal = 0;
 bdlmtt::Barrier  *ProducerThread::s_barrier;
 Iobj           *ProducerThread::s_queue_p;
 
@@ -561,7 +561,7 @@ struct ConsumerThread {
     static bdlmtt::Barrier  *s_barrier;
     static Iobj           *s_queue_p;
     static OutPair        *s_outPairVec;
-    static bdlmtt::AtomicInt *s_outPairVecIdx;
+    static bsls::AtomicInt *s_outPairVecIdx;
 
     int operator()() {
         s_barrier->wait();
@@ -593,7 +593,7 @@ struct ConsumerThread {
 bdlmtt::Barrier  *ConsumerThread::s_barrier;
 Iobj           *ConsumerThread::s_queue_p;
 OutPair        *ConsumerThread::s_outPairVec;
-bdlmtt::AtomicInt *ConsumerThread::s_outPairVecIdx;
+bsls::AtomicInt *ConsumerThread::s_outPairVecIdx;
 
 }  // close namespace BCEC_MULTIPRIORITYQUEUE_TEST_CASE_8
 
@@ -1315,7 +1315,7 @@ int main(int argc, char *argv[])
 
         bdlmtt::Barrier  consumerBarrier(NUM_CONSUMERS + 1);
         OutPair        outPairVec[NUM_PRODUCERS * NUM_ITEMS_PER_PRODUCER];
-        bdlmtt::AtomicInt outPairVecIdx = 0;
+        bsls::AtomicInt outPairVecIdx = 0;
 
         bsl::memset(outPairVec, GARBAGE_CHAR, sizeof(outPairVec));
 
@@ -1495,7 +1495,7 @@ int main(int argc, char *argv[])
                                                          * numItemsPerProducer;
         OutPair        *outPairVec = (OutPair *)
                                                ta.allocate(outPairVecNumBytes);
-        bdlmtt::AtomicInt  outPairVecIdx = 0;
+        bsls::AtomicInt  outPairVecIdx = 0;
 
         bsl::memset(outPairVec, GARBAGE_CHAR, outPairVecNumBytes);
 

@@ -606,8 +606,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlmtt_threadutil.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICTYPES
-#include <bdlmtt_xxxatomictypes.h>
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS
@@ -1002,7 +1002,7 @@ class ChannelPool {
     bool                                d_useBlobForDataReads;
 
                                         // *** Metrics ***
-    bdlmtt::AtomicInt                      d_totalConnectionsLifetime;
+    bsls::AtomicInt                      d_totalConnectionsLifetime;
     bsls::TimeInterval                   d_lastResetTime;
     volatile bsls::Types::Int64         d_totalBytesReadAdjustment;
                                                // adjustment to

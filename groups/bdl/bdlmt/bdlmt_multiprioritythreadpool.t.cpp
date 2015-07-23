@@ -7,7 +7,7 @@
 #include <bdlmtt_lockguard.h>
 #include <bdlmtt_qlock.h>
 #include <bdlmtt_xxxthread.h>
-#include <bdlmtt_xxxatomictypes.h>
+#include <bsls_atomic.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -172,8 +172,8 @@ namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_13 {
 // where traffic of low priority, while massively more numerous, does not
 // impede the progress of higher priority jobs.
 
-bdlmtt::AtomicInt urgentJobsDone = 0;
-bdlmtt::AtomicInt lessUrgentJobsDone = 0;
+bsls::AtomicInt urgentJobsDone = 0;
+bsls::AtomicInt lessUrgentJobsDone = 0;
 
 extern "C" void *urgentJob(void *) {
     bdlmtt::ThreadUtil::microSleep(10000);          // 10 mSec
@@ -220,18 +220,18 @@ enum {
 };
 
 bool isStillPrime[TOP_NUMBER];
-bdlmtt::AtomicInt scannedTo[TOP_NUMBER];   // is P is a prime, what is the
+bsls::AtomicInt scannedTo[TOP_NUMBER];   // is P is a prime, what is the
                                         // highest multiple of P that
                                         // we have marked
                                         // isStillPrime[P] = false;
 
-bdlmtt::AtomicInt maxPrimeFound;       // maximum prime we have identified
+bsls::AtomicInt maxPrimeFound;       // maximum prime we have identified
                                     // so far
 int primeNumbers[TOP_NUMBER];       // elements in the range
                                     // '0 .. numPrimeNumbers - 1' are
                                     // the prime numbers we have found
                                     // so far
-bdlmtt::AtomicInt numPrimeNumbers;
+bsls::AtomicInt numPrimeNumbers;
 
 bdlmt::MultipriorityThreadPool *threadPool;
 
@@ -341,7 +341,7 @@ struct Functor {
 
     void operator()() {
         if (0 == d_priority) {
-            bdlmtt::AtomicInt& rScannedTo = scannedTo[d_numToScan];
+            bsls::AtomicInt& rScannedTo = scannedTo[d_numToScan];
 
             for (int i = d_numToScan; d_limit > i; i += d_numToScan) {
                 isStillPrime[i] = false;
@@ -374,7 +374,7 @@ namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_11 {
 
 struct Functor {
     bdlmtt::Barrier  *d_barrier;
-    bdlmtt::AtomicInt *d_jobsCompleted;
+    bsls::AtomicInt *d_jobsCompleted;
     void operator()() {
         d_barrier->wait();
 
@@ -408,7 +408,7 @@ struct Worker {
 
     static bdlmt::MultipriorityThreadPool *s_pool;
     static bdlcc::Queue<Worker>           *s_doneQueue;
-    static bdlmtt::AtomicInt                s_time;
+    static bsls::AtomicInt                s_time;
 
     Worker(int priority) {
         d_priority = priority;
@@ -430,7 +430,7 @@ struct Worker {
 };
 bdlmt::MultipriorityThreadPool *Worker::s_pool = 0;
 bdlcc::Queue<Worker>           *Worker::s_doneQueue = 0;
-bdlmtt::AtomicInt Worker::s_time = 0;
+bsls::AtomicInt Worker::s_time = 0;
 
 struct ProducerThread {
     int                   d_workersPerProducer;
@@ -507,7 +507,7 @@ struct BlockFunctor {
 namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_5 {
 
 long resultsVec[100];
-bdlmtt::AtomicInt resultsVecIdx;
+bsls::AtomicInt resultsVecIdx;
 
 extern "C" void *pushInt(void *arg)
 {
@@ -621,7 +621,7 @@ extern "C" void *waiter(void *arg) {
 
 namespace BCEP_MULTIPRIORITYTHREADPOOL_CASE_1 {
 
-bdlmtt::AtomicInt counter;
+bsls::AtomicInt counter;
 
 extern "C" void *incCounter(void *)
 {
@@ -780,7 +780,7 @@ int main(int argc, char *argv[])
         };
 
         bdlmtt::Barrier barrier(NUM_THREADS + 1);
-        bdlmtt::AtomicInt jobsCompleted;
+        bsls::AtomicInt jobsCompleted;
 
         Functor functor;
 

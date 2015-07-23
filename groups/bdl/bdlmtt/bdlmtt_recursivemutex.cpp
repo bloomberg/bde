@@ -6,7 +6,7 @@ BSLS_IDENT_RCSID(bdlmtt_recursivemutex_cpp,"$Id$ $CSID$")
 
 #include <bdlmtt_threadattributes.h>   // for testing only
 #include <bdlmtt_threadutil.h>         // for testing only
-#include <bdlmtt_xxxatomictypes.h>         // for testing only
+#include <bsls_atomic.h>         // for testing only
 
 // ---------------------------------------------------------------------------
 // NOTICE:

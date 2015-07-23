@@ -1,7 +1,7 @@
 // bdlmtt_muteximpl_win32.t.cpp                                        -*-C++-*-
 #include <bdlmtt_muteximpl_win32.h>
 
-#include <bdlmtt_xxxatomictypes.h>
+#include <bsls_atomic.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
@@ -104,8 +104,8 @@ void My_CreateDetachedThread(ThreadFunction function,
 
 struct ThreadInfo {
     Obj *d_lock;
-    bdlmtt::AtomicInt d_retval;
-    bdlmtt::AtomicInt d_retvalSet;
+    bsls::AtomicInt d_retval;
+    bsls::AtomicInt d_retvalSet;
 };
 
 extern "C" void* MyThread(void* arg_p) {

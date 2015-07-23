@@ -7,7 +7,7 @@
 #include <bdlmtt_mutex.h>       // for testing only
 #include <bdlmtt_threadutil.h>  // for testing only
 
-#include <bdlmtt_xxxatomictypes.h>
+#include <bsls_atomic.h>
 #include <bdlmtt_platform.h>
 
 #include <bsls_timeinterval.h>
@@ -333,8 +333,8 @@ struct ThreadInfo2 {
     MyBarrier   *d_barrier;
     Obj             *d_sem;
     int              d_numIterations;
-    bdlmtt::AtomicInt  *d_numInitialPosts;
-    bdlmtt::AtomicInt  *d_past;
+    bsls::AtomicInt  *d_numInitialPosts;
+    bsls::AtomicInt  *d_past;
     int              d_verbose;
 };
 
@@ -784,8 +784,8 @@ int main(int argc, char *argv[])
 
             bdlmtt::ThreadUtil::Handle threads[NUM_POSTERS + NUM_WAITERS];
             MyBarrier barrier(NUM_POSTERS+ 1);
-            bdlmtt::AtomicInt posts = n;
-            bdlmtt::AtomicInt past  = 0;
+            bsls::AtomicInt posts = n;
+            bsls::AtomicInt past  = 0;
             Obj sem(0);
 
             struct ThreadInfo2 info;

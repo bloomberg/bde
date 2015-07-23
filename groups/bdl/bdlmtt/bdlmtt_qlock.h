@@ -208,6 +208,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlmtt_xxxatomictypes.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS
 #include <bsls_atomicoperations.h>
 #endif
@@ -264,7 +268,7 @@ struct QLock {
         // It would have been preferable for this member to be private, but
         // then this class would not be statically initializable.  Also, it
         // would have been preferable to make this member an instance of
-        // 'bdlmtt::AtomicPointer<>', but again, we would lose the ability
+        // 'bsls::AtomicPointer<>', but again, we would lose the ability
         // to initialize statically.
 
   public:
@@ -298,7 +302,7 @@ class QLock_EventFlag {
   private:
     // PRIVATE TYPES
     typedef bdlmtt::Semaphore               Semaphore;
-    typedef bdlmtt::AtomicPointer<Semaphore> AtomicSemaphorePtr;
+    typedef bsls::AtomicPointer<Semaphore> AtomicSemaphorePtr;
 
     // DATA
     AtomicSemaphorePtr d_status;  // status of this flag

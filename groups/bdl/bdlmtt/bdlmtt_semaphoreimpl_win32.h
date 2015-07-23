@@ -42,8 +42,8 @@ BSLS_IDENT("$Id: $")
 
 // Platform-specific implementation starts here.
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICTYPES
-#include <bdlmtt_xxxatomictypes.h>
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
 #endif
 
 #ifndef INCLUDED_BSL_C_LIMITS
@@ -104,7 +104,7 @@ class SemaphoreImpl<bdlmtt::Platform::Win32Semaphore> {
     // DATA
     void          *d_handle;     // TBD doc
 
-    bdlmtt::AtomicInt d_resources;  // if positive, number of available resources
+    bsls::AtomicInt d_resources;  // if positive, number of available resources
                                  // if negative: number of waiting threads
                                  // (need this because Windows does not provide
                                  //  a mechanism to get the semaphore count)

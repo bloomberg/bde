@@ -8,7 +8,7 @@
 #include <bdlmtt_semaphore.h>
 #include <bdlmtt_xxxthread.h>
 #include <bdlmtt_threadgroup.h>
-#include <bdlmtt_xxxatomictypes.h>
+#include <bsls_atomic.h>
 
 #include <bdlf_function.h>
 #include <bdlf_bind.h>
@@ -204,7 +204,7 @@ class MyBarrier {
 
     bdlmtt::Semaphore d_entryGate;
     bdlmtt::Semaphore d_exitGate;
-    bdlmtt::AtomicInt  d_threadWaiting;
+    bsls::AtomicInt  d_threadWaiting;
 
   public:
 
@@ -680,7 +680,7 @@ class TestClass6 {
     // DATA
     bdlcc::Queue<Element> *d_queue_p;
     MyBarrier       *d_barrier_p;
-    bdlmtt::AtomicInt       d_stage;
+    bsls::AtomicInt       d_stage;
     Element              d_toBePopped;
     Element              d_toBePushed;
 
@@ -752,8 +752,8 @@ class TestClass5back {
     bdlcc::Queue<Element> *d_queue_p;
     MyBarrier       *d_barrier_p;
     bsls::TimeInterval    d_timeout;
-    bdlmtt::AtomicInt       d_timeoutFlag;
-    bdlmtt::AtomicInt       d_waitingFlag;
+    bsls::AtomicInt       d_timeoutFlag;
+    bsls::AtomicInt       d_waitingFlag;
     Element              d_toBeInserted;
 
   public:
@@ -808,8 +808,8 @@ class TestClass5front {
     bdlcc::Queue<Element> *d_queue_p;
     MyBarrier       *d_barrier_p;
     bsls::TimeInterval    d_timeout;
-    bdlmtt::AtomicInt       d_timeoutFlag;
-    bdlmtt::AtomicInt       d_waitingFlag;
+    bsls::AtomicInt       d_timeoutFlag;
+    bsls::AtomicInt       d_waitingFlag;
     Element              d_toBeInserted;
 
   public:
@@ -882,7 +882,7 @@ class TestClass4back {
 
     // DATA
     bdlcc::Queue<Element> *d_queue_p;
-    bdlmtt::AtomicInt       d_waitingFlag;
+    bsls::AtomicInt       d_waitingFlag;
     Element              d_toBeInserted;
 
   public:
@@ -917,7 +917,7 @@ class TestClass4front {
 
     // DATA
     bdlcc::Queue<Element> *d_queue_p;
-    bdlmtt::AtomicInt       d_waitingFlag;
+    bsls::AtomicInt       d_waitingFlag;
     Element              d_toBeInserted;
 
   public:
@@ -977,8 +977,8 @@ class TestClass3back {
     bdlcc::Queue<Element> *d_queue_p;
     MyBarrier       *d_barrier_p;
     bsls::TimeInterval    d_timeout;
-    bdlmtt::AtomicInt       d_timeoutFlag;
-    bdlmtt::AtomicInt       d_waitingFlag;
+    bsls::AtomicInt       d_timeoutFlag;
+    bsls::AtomicInt       d_waitingFlag;
     Element              d_expected;
 
   public:
@@ -1033,8 +1033,8 @@ class TestClass3front {
     bdlcc::Queue<Element> *d_queue_p;
     MyBarrier       *d_barrier_p;
     bsls::TimeInterval    d_timeout;
-    bdlmtt::AtomicInt       d_timeoutFlag;
-    bdlmtt::AtomicInt       d_waitingFlag;
+    bsls::AtomicInt       d_timeoutFlag;
+    bsls::AtomicInt       d_waitingFlag;
     Element              d_expected;
 
   public:
@@ -1142,7 +1142,7 @@ class TestClass2back {
 
     // DATA
     bdlcc::Queue<Element> *d_queue_p;
-    bdlmtt::AtomicInt       d_waitingFlag;
+    bsls::AtomicInt       d_waitingFlag;
     Element              d_expected;
 
   public:
@@ -1176,7 +1176,7 @@ class TestClass2back {
 class TestClass2front {
     // DATA
     bdlcc::Queue<Element> *d_queue_p;
-    bdlmtt::AtomicInt       d_waitingFlag;
+    bsls::AtomicInt       d_waitingFlag;
     Element              d_expected;
 
   public:
@@ -1299,8 +1299,8 @@ struct Control {
     int                    d_numExpectedPushers;
     int                    d_iterations;
 
-    bdlmtt::AtomicInt         d_numPushers;
-    bdlmtt::AtomicInt         d_numPopped;
+    bsls::AtomicInt         d_numPushers;
+    bsls::AtomicInt         d_numPopped;
 };
 
 void f(const bsl::shared_ptr<int>&)
@@ -1396,8 +1396,8 @@ struct Control {
     int                    d_numExpectedPushers;
     int                    d_iterations;
 
-    bdlmtt::AtomicInt         d_numPushers;
-    bdlmtt::AtomicInt         d_numPopped;
+    bsls::AtomicInt         d_numPushers;
+    bsls::AtomicInt         d_numPopped;
 };
 
 void f(const bsl::shared_ptr<int>&)
@@ -1494,8 +1494,8 @@ struct Control {
     int                    d_numExpectedPushers;
     int                    d_iterations;
 
-    bdlmtt::AtomicInt         d_numPushers;
-    bdlmtt::AtomicInt         d_numPopped;
+    bsls::AtomicInt         d_numPushers;
+    bsls::AtomicInt         d_numPopped;
 };
 
 void f(const bsl::shared_ptr<int>&)
@@ -1589,8 +1589,8 @@ struct Control {
     int                    d_numExpectedPushers;
     int                    d_iterations;
 
-    bdlmtt::AtomicInt         d_numPushers;
-    bdlmtt::AtomicInt         d_numPopped;
+    bsls::AtomicInt         d_numPushers;
+    bsls::AtomicInt         d_numPopped;
 };
 
 void pusherThread(Control *control)

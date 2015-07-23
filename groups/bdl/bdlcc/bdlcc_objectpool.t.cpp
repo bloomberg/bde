@@ -7,7 +7,7 @@
 #include <bdlmtt_barrier.h>
 #include <bdlmtt_lockguard.h>
 #include <bdlmtt_threadgroup.h>
-#include <bdlmtt_xxxatomictypes.h>
+#include <bsls_atomic.h>
 #include <bdlf_bind.h>
 #include <bdlf_function.h>
 #include <bdlf_placeholder.h>
@@ -380,9 +380,9 @@ void ConstructorTestHelp1b::resetWithCount(ConstructorTestHelp1b *self, int c)
       int                          d_offset;
       bsl::shared_ptr<int>         d_sp2;
       int                          d_bytesLeft;
-      bdlmtt::AtomicInt               d_state;
+      bsls::AtomicInt               d_state;
       int                          d_index;
-      bdlmtt::AtomicInt               d_count;
+      bsls::AtomicInt               d_count;
 
    public:
       Case13Type()
@@ -432,7 +432,7 @@ void ConstructorTestHelp1b::resetWithCount(ConstructorTestHelp1b *self, int c)
    };
 
    inline void createCase13(void *address, bslma::Allocator *,
-                            bdlmtt::AtomicInt *created) {
+                            bsls::AtomicInt *created) {
       new (address) Case13Type;
       ++(*created);
    }
@@ -462,7 +462,7 @@ void ConstructorTestHelp1b::resetWithCount(ConstructorTestHelp1b *self, int c)
 
 void case13Processor(bdlcc::ObjectPool<Case13Type> *mX,
                      bdlcc::FixedQueue<Case13Type*> *queue,
-                     bdlmtt::AtomicInt          *done)
+                     bsls::AtomicInt          *done)
 {
    while (1) {
       Case13Type* obj;
@@ -1072,7 +1072,7 @@ int my_CheckingClass::objCount = 0;
 union ObjectNode {
     struct {
         ObjectNode                *d_next_p;
-        bdlmtt::AtomicUtil::Int       d_refCount;
+        bsls::AtomicUtil::Int       d_refCount;
     } d_inUse;
     bsls::AlignmentFromType<my_CheckingClass>::Type d_dummy;
 };
@@ -1168,10 +1168,10 @@ class my_DatabaseConnection
 };
 
 bdlcc::ObjectPool<my_DatabaseConnection> *connectionPool;
-bdlmtt::AtomicInt64 totalResponseTime1; // total response time when
+bsls::AtomicInt64 totalResponseTime1; // total response time when
                                      // we do not use object pool
 
-bdlmtt::AtomicInt64 totalResponseTime2; // total response time when
+bsls::AtomicInt64 totalResponseTime2; // total response time when
                                      // we use object pool
 
 #if !defined(BSLS_PLATFORM_CMP_SUN) \
@@ -1183,7 +1183,7 @@ extern "C"
     // This was fixed in Sun Studio 8 compiler.
 #endif
 
-void serverThread(bdlmtt::AtomicInt* queries, int max,
+void serverThread(bsls::AtomicInt* queries, int max,
                   void(*queryHandler)(Query*))
 {
     while (++(*queries) <= max) {
@@ -1467,7 +1467,7 @@ int main(int argc, char *argv[])
             NUM_QUERIES = 10000
         };
 
-        bdlmtt::AtomicInt numQueries = 0;
+        bsls::AtomicInt numQueries = 0;
         bdlmtt::ThreadGroup tg;
 
         tg.addThreads(bdlf::BindUtil::bind(&serverThread, &numQueries,
@@ -1534,13 +1534,13 @@ int main(int argc, char *argv[])
                  cout << "------------------------" << endl;
               }
 
-              bdlmtt::AtomicInt created = 0;
+              bsls::AtomicInt created = 0;
 
               bdlcc::ObjectPool<Case13Type> mX(
                                   bdlf::BindUtil::bind
                                    (&createCase13, _1, _2, &created), 1, &ta);
 
-              bdlmtt::AtomicInt done = 0;
+              bsls::AtomicInt done = 0;
 
               bdlcc::FixedQueue<Case13Type*> queue(p.d_maxCount);
               bdlmtt::ThreadGroup procTg;

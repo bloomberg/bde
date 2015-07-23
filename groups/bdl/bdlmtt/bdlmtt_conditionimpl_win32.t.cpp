@@ -5,7 +5,7 @@
 
 #include <bdlmtt_lockguard.h>
 #include <bdlmtt_mutex.h>
-#include <bdlmtt_xxxatomictypes.h>
+#include <bsls_atomic.h>
 #include <bdlt_currenttime.h>
 
 #include <bsl_c_errno.h>
@@ -86,7 +86,7 @@ struct PingPongArgs
 {
     Obj* d_cond;
     bdlmtt::Mutex *d_lock;
-    bdlmtt::AtomicInt d_count;
+    bsls::AtomicInt d_count;
 
     PingPongArgs(Obj* cond, bdlmtt::Mutex *lock)
         : d_cond(cond), d_lock(lock), d_count(0)
@@ -142,7 +142,7 @@ struct my_WorkQueue {
 
 struct Case1 {
     my_WorkQueue   *d_queue;
-    bdlmtt::AtomicInt  d_done;
+    bsls::AtomicInt  d_done;
 
     Case1(my_WorkQueue* queue)
         : d_queue(queue), d_done(0)

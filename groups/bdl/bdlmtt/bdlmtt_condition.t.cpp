@@ -3,7 +3,7 @@
 #include <bdlmtt_condition.h>
 
 #include <bdlmtt_mutex.h>
-#include <bdlmtt_xxxatomictypes.h>
+#include <bsls_atomic.h>
 
 #include <bdlimpxxx_fuzzy.h>
 #include <bdlt_currenttime.h>

@@ -5,7 +5,7 @@
 #include <bdlmtt_barrier.h>
 #include <bdlmtt_mutex.h>
 #include <bdlmtt_threadutil.h>
-#include <bdlmtt_xxxatomictypes.h>
+#include <bsls_atomic.h>
 
 #include <bdlf_bind.h>
 #include <bdlt_datetime.h>
@@ -138,7 +138,7 @@ static int veryVeryVeryVerbose = 0;
 static
 void waitTurnAndSleepCallback(
         bdlmtt::Turnstile          *turnstile,
-        bdlmtt::AtomicInt           *counter,
+        bsls::AtomicInt           *counter,
         bdlmtt::Barrier            *barrier,
         const bsls::TimeInterval&  sleepInterval,
         const bdlt::Datetime&      stopTime)
@@ -165,7 +165,7 @@ void waitTurnAndSleepCallback(
 static
 void waitTurnCallback(
         bdlmtt::Turnstile      *turnstile,
-        bdlmtt::AtomicInt       *counter,
+        bsls::AtomicInt       *counter,
         bdlmtt::Barrier        *barrier,
         const bdlt::Datetime&  stopTime)
 {
@@ -372,7 +372,7 @@ int main(int argc, char *argv[])
         const Obj& X = mX;
 
         bsl::vector<bdlmtt::ThreadUtil::Handle> handles;
-        bdlmtt::AtomicInt                        counter;
+        bsls::AtomicInt                        counter;
         bsls::TimeInterval                     sleepInterval(0.075);  // 75ms
         bdlmtt::Barrier                         barrier(NUM_THREADS + 1);
         handles.reserve(NUM_THREADS);
@@ -447,7 +447,7 @@ int main(int argc, char *argv[])
         const Obj& X = mX;
 
         bsl::vector<bdlmtt::ThreadUtil::Handle> handles;
-        bdlmtt::AtomicInt                        counter;
+        bsls::AtomicInt                        counter;
         bdlmtt::Barrier                         barrier(NUM_THREADS + 1);
         handles.reserve(NUM_THREADS);
         for (int i = 0; i < NUM_THREADS; ++i) {

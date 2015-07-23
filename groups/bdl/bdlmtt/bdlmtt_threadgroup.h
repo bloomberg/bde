@@ -81,8 +81,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICTYPES
-#include <bdlmtt_xxxatomictypes.h>
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
 #endif
 
 #ifndef INCLUDED_BDLMTT_MUTEX
@@ -130,7 +130,7 @@ class ThreadGroup {
     typedef bsl::vector<ThreadUtil::Handle> ThreadContainer;
 
     // INSTANCE DATA
-    bdlmtt::AtomicInt    d_numThreads;
+    bsls::AtomicInt    d_numThreads;
     ThreadContainer   d_threads;
     Mutex       d_threadsMutex;
 

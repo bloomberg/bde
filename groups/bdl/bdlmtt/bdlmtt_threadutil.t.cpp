@@ -3,7 +3,7 @@
 
 #include <bdlmtt_configuration.h>
 #include <bdlmtt_threadattributes.h>
-#include <bdlmtt_xxxatomictypes.h>
+#include <bsls_atomic.h>
 #include <bdlmtt_platform.h>
 
 #include <bdlf_bind.h>
@@ -169,7 +169,7 @@ class BigFunctor {
 
 class ThreadChecker {
 
-    bdlmtt::AtomicInt d_count;
+    bsls::AtomicInt d_count;
 
   public:
     // CREATORS
@@ -428,9 +428,9 @@ struct Functor {
     bool                  d_urgent;
     static int            s_urgentPlace;
     static bool           s_firstThread;
-    static bdlmtt::AtomicInt s_lockCount;
-    static bdlmtt::AtomicInt s_finished;
-    static bdlmtt::AtomicInt s_timerCounter;
+    static bsls::AtomicInt s_lockCount;
+    static bsls::AtomicInt s_finished;
+    static bsls::AtomicInt s_timerCounter;
     static MyMutex        s_mutex;
 
     // CREATORS
@@ -441,9 +441,9 @@ struct Functor {
 };
 int            Functor::s_urgentPlace;
 bool           Functor::s_firstThread = 1;
-bdlmtt::AtomicInt Functor::s_finished = 0;
-bdlmtt::AtomicInt Functor::s_lockCount = 0;
-bdlmtt::AtomicInt Functor::s_timerCounter = 0;
+bsls::AtomicInt Functor::s_finished = 0;
+bsls::AtomicInt Functor::s_lockCount = 0;
+bsls::AtomicInt Functor::s_timerCounter = 0;
 MyMutex        Functor::s_mutex;
 
 void Functor::operator()()
@@ -741,8 +741,8 @@ namespace BCEMT_THREADUTIL_TLSKEY_TEST6 {
 
 Obj::Key parentKey1;
 Obj::Key parentKey2;
-bdlmtt::AtomicInt terminations1;
-bdlmtt::AtomicInt terminations2;
+bsls::AtomicInt terminations1;
+bsls::AtomicInt terminations2;
 
 struct TlsKeyTestFunctor {
     int d_seed;

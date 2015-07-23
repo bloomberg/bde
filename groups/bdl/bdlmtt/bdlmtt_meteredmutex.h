@@ -170,8 +170,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlmtt_mutex.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICTYPES
-#include <bdlmtt_xxxatomictypes.h>
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TIMEUTIL
@@ -198,10 +198,10 @@ class MeteredMutex {
 
     // DATA
     Mutex        d_mutex;          // underlying mutex
-    bdlmtt::AtomicInt64   d_waitTime;       // wait time
-    bdlmtt::AtomicInt64   d_holdTime;       // hold time
+    bsls::AtomicInt64   d_waitTime;       // wait time
+    bsls::AtomicInt64   d_holdTime;       // hold time
     bsls::Types::Int64 d_startHoldTime;  // starting point of hold time
-    bdlmtt::AtomicInt64   d_lastResetTime;  // last reset time
+    bsls::AtomicInt64   d_lastResetTime;  // last reset time
 
     // NOT IMPLEMENTED
     MeteredMutex(const MeteredMutex&);

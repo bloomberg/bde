@@ -12,7 +12,7 @@
 #include <bslma_testallocator.h>                // for testing only
 #include <bdlmt_threadpool.h>
 #include <bdlmtt_barrier.h>
-#include <bdlmtt_xxxatomictypes.h>
+#include <bsls_atomic.h>
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocatorexception.h>
@@ -141,7 +141,7 @@ void waitForASec()
 namespace TEST_CASE_DRQS15212134 {
 
 void testIsEnabled(btlmt::TcpTimerEventManager *manager,
-                   bdlmtt::AtomicInt             *complete)
+                   bsls::AtomicInt             *complete)
     // Test whether the specified 'manager' is enabled and then set 'complete'
     // to a non-zero value.
 {
@@ -1339,7 +1339,7 @@ int main(int argc, char *argv[])
           ASSERT(0 !=
                  btlso::SocketImpUtil::write(handles[1], buffer, BUFFER_SIZE));
 
-          bdlmtt::AtomicInt complete(0);
+          bsls::AtomicInt complete(0);
           btlmt::TcpTimerEventManager manager(&testAllocator);
           bdlf::Function<void (*)()> callback(
                   bdlf::BindUtil::bind(&testIsEnabled, &manager, &complete));

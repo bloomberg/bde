@@ -14,7 +14,7 @@
 
 #include <bslma_testallocator.h>                // for testing only
 
-#include <bdlmtt_xxxatomictypes.h>                   // for testing only
+#include <bsls_atomic.h>                   // for testing only
 
 #include <bdlmxxx_schemaaggregateutil.h>           // for testing only
 
@@ -545,7 +545,7 @@ class my_publishCountingObserver : public ball::Observer {
     // This concrete implementation of 'ball::Observer' maintains a count
     // of the number of messages published to it and gives access to that
     // count through 'publishCount'.
-    bdlmtt::AtomicInt d_publishCount;
+    bsls::AtomicInt d_publishCount;
   public:
     // CONSTRUCTORS
     my_publishCountingObserver() : d_publishCount(0)

@@ -16,7 +16,7 @@
 
 #include <bdlt_currenttime.h>
 
-// #include <bdlmtt_xxxatomictypes.h>
+// #include <bsls_atomic.h>
 
 #include <bdlmtt_lockguard.h>
 #include <bdlmtt_threadattributes.h>
@@ -204,8 +204,8 @@ typedef btlso::IpResolutionCache_Entry::DataPtr DataPtr;
 
 struct ThreadInfo {
     bdlmtt::Mutex    *d_lock;
-    bdlmtt::AtomicInt  d_retval;
-    bdlmtt::AtomicInt  d_retvalSet;
+    bsls::AtomicInt  d_retval;
+    bsls::AtomicInt  d_retvalSet;
 };
 
 enum {

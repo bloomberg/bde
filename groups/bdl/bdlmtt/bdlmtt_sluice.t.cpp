@@ -7,7 +7,7 @@
 #include <bdlmtt_threadgroup.h>  // for testing only
 #include <bdlmtt_threadutil.h>   // for testing only
 
-#include <bdlmtt_xxxatomictypes.h>
+#include <bsls_atomic.h>
 
 #include <bdlf_bind.h>
 #include <bdlt_currenttime.h>
@@ -126,7 +126,7 @@ class My_TestAllocator : public bslma::Allocator{
 void enterAndWaitUntilDone(Obj            *sluice,
                            int            *done,
                            bdlmtt::Mutex    *lock,
-                           bdlmtt::AtomicInt *iterations)
+                           bsls::AtomicInt *iterations)
 {
     while (1) {
         lock->lock();
@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
         Obj mX(&ta);
         int done = 0;
         bdlmtt::Mutex lock;
-        bdlmtt::AtomicInt iterations = 0;
+        bsls::AtomicInt iterations = 0;
 
         bdlmtt::ThreadGroup tg;
 

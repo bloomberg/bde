@@ -308,8 +308,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlmtt_threadgroup.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICTYPES
-#include <bdlmtt_xxxatomictypes.h>
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
 #endif
 
 #ifndef INCLUDED_BDLF_BIND
@@ -372,13 +372,13 @@ class FixedThreadPool {
     bdlmtt::Semaphore   d_queueSemaphore;    // used to implemented blocking
                                            // popping on the queue
 
-    bdlmtt::AtomicInt    d_numThreadsWaiting; // number of idle thread in the pool
+    bsls::AtomicInt    d_numThreadsWaiting; // number of idle thread in the pool
 
     bdlmtt::Mutex       d_metaMutex;         // mutex to ensure that there is
                                            // only one controlling thread at
                                            // any time
 
-    bdlmtt::AtomicInt    d_control;           // controls which action is to be
+    bsls::AtomicInt    d_control;           // controls which action is to be
                                            // performed by the worker threads
                                            // (i.e., BCEP_RUN, BCEP_DRAIN,
                                            // BCEP_STOP)

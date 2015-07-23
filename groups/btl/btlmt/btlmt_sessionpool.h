@@ -499,8 +499,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlmca_blob.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICTYPES
-#include <bdlmtt_xxxatomictypes.h>
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
 #endif
 
 #ifndef INCLUDED_BDLF_FUNCTION
@@ -704,7 +704,7 @@ class SessionPool {
     const bool                     d_useBlobForDataReads;// use blob for
                                                          // data reads
 
-    bdlmtt::AtomicInt                 d_numSessions;        // number of allocated
+    bsls::AtomicInt                 d_numSessions;        // number of allocated
                                                          // sessions
 
     bslma::Allocator              *d_allocator_p;        // allocator (held)

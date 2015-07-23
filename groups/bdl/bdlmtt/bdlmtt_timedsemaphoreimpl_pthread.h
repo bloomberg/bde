@@ -56,8 +56,8 @@ BSLS_IDENT("$Id: $")
 
 // Platform specific implementation starts here.
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICTYPES
-#include <bdlmtt_xxxatomictypes.h>
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
 #endif
 
 #ifndef INCLUDED_BSLS_SYSTEMCLOCKTYPE
@@ -97,8 +97,8 @@ class TimedSemaphoreImpl<bdlmtt::Platform::PthreadTimedSemaphore> {
     // synchronization.
 
     // DATA
-    bdlmtt::AtomicInt  d_resources;  // resources count
-    bdlmtt::AtomicInt  d_waiters;    // number of threads waiting
+    bsls::AtomicInt  d_resources;  // resources count
+    bsls::AtomicInt  d_waiters;    // number of threads waiting
     pthread_mutex_t d_lock;       // lock
     pthread_cond_t  d_condition;  // condition
 

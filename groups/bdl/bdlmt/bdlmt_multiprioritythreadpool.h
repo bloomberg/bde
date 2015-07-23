@@ -107,8 +107,8 @@ BSLS_IDENT("$Id: $")
 // priority, while massively more numerous, does not impede the progress of
 // higher-priority jobs:
 //..
-//   bdlmtt::AtomicInt urgentJobsDone     = 0;
-//   bdlmtt::AtomicInt lessUrgentJobsDone = 0;
+//   bsls::AtomicInt urgentJobsDone     = 0;
+//   bsls::AtomicInt lessUrgentJobsDone = 0;
 //
 //   extern "C" void *urgentJob(void *)
 //   {
@@ -185,17 +185,17 @@ BSLS_IDENT("$Id: $")
 //   };
 //
 //   bool isStillPrime[TOP_NUMBER];
-//   bdlmtt::AtomicInt scannedTo[TOP_NUMBER];   // if 'P' is a prime, what is the
+//   bsls::AtomicInt scannedTo[TOP_NUMBER];   // if 'P' is a prime, what is the
 //                                           // highest multiple of 'P' that
 //                                           // we have marked
 //                                           // 'isStillPrime[P] = false'
 //
-//   bdlmtt::AtomicInt maxPrimeFound;           // maximum prime identified so far
+//   bsls::AtomicInt maxPrimeFound;           // maximum prime identified so far
 //   int primeNumbers[TOP_NUMBER];           // elements in the range
 //                                           // '0 .. numPrimeNumbers - 1' are
 //                                           // the prime numbers we have found
 //                                           // so far
-//   bdlmtt::AtomicInt numPrimeNumbers;
+//   bsls::AtomicInt numPrimeNumbers;
 //
 //   bdlmt::MultipriorityThreadPool *threadPool;
 //
@@ -305,7 +305,7 @@ BSLS_IDENT("$Id: $")
 //
 //       void operator()() {
 //           if (0 == d_priority) {
-//               bdlmtt::AtomicInt& rScannedTo = scannedTo[d_numToScan];
+//               bsls::AtomicInt& rScannedTo = scannedTo[d_numToScan];
 //
 //               for (int i = d_numToScan; i < d_limit; i += d_numToScan) {
 //                   isStillPrime[i] = false;
@@ -381,8 +381,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlmtt_threadgroup.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICTYPES
-#include <bdlmtt_xxxatomictypes.h>
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
 #endif
 
 #ifndef INCLUDED_BDLF_FUNCTION
@@ -465,22 +465,22 @@ class MultipriorityThreadPool {
     const int        d_numThreads;        // user-supplied number of threads
                                           // to be used to process jobs
 
-    bdlmtt::AtomicInt   d_threadStartState;  // enum of type 'StartState' (local
+    bsls::AtomicInt   d_threadStartState;  // enum of type 'StartState' (local
                                           // to .cpp) regarding whether threads
                                           // are started
 
-    bdlmtt::AtomicInt   d_threadSuspendState;// enum of type 'ResumeState' (local
+    bsls::AtomicInt   d_threadSuspendState;// enum of type 'ResumeState' (local
                                           // to .cpp) regarding whether threads
                                           // are suspended
 
-    bdlmtt::AtomicInt   d_numStartedThreads; // number of threads currently
+    bsls::AtomicInt   d_numStartedThreads; // number of threads currently
                                           // started
 
-    bdlmtt::AtomicInt   d_numSuspendedThreads;
+    bsls::AtomicInt   d_numSuspendedThreads;
                                           // number of threads currently
                                           // suspended
 
-    bdlmtt::AtomicInt   d_numActiveThreads;  // number of threads currently
+    bsls::AtomicInt   d_numActiveThreads;  // number of threads currently
                                           // processing jobs
 
     bdlmtt::Condition  d_allThreadsStartedCondition;

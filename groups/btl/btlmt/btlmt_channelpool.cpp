@@ -20,7 +20,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bdlma_deleter.h>
 #include <bdlmtt_lockguard.h>
 #include <bdlmtt_xxxthread.h>
-#include <bdlmtt_xxxatomictypes.h>
+#include <bsls_atomic.h>
 #include <bdlmca_blobstreambuf.h>
 #include <bdlmca_xxxpooledbufferchainstreambuf.h>
 
@@ -286,7 +286,7 @@ class Channel {
                                                              // write in
                                                          // d_writeEnqueuedData
 
-    bdlmtt::AtomicInt                  d_writeActiveCacheSize;  // number of bytes
+    bsls::AtomicInt                  d_writeActiveCacheSize;  // number of bytes
                                                              // currently
                                                              // being written
                                                              // (including in
@@ -317,7 +317,7 @@ class Channel {
     const int                       d_minIncomingMessageSize;
 
     // Channel state section (continued)
-    bdlmtt::AtomicInt                  d_channelDownFlag;       // are we down?
+    bsls::AtomicInt                  d_channelDownFlag;       // are we down?
 
     volatile int                    d_channelUpFlag;         // are we running?
 
@@ -352,7 +352,7 @@ class Channel {
                                                   // modification synchronized
                                                   // with 'd_writeMutex'
 
-    bdlmtt::AtomicInt            d_recordedMaxWriteCacheSize;
+    bsls::AtomicInt            d_recordedMaxWriteCacheSize;
                                                   // maximum recorded size of
                                                   // the write cache
 
@@ -995,7 +995,7 @@ class ServerState {
                                                       // spewing but still keep
                                                       // server open
 
-    bdlmtt::AtomicInt              d_isClosedFlag;       // lets the callback know
+    bsls::AtomicInt              d_isClosedFlag;       // lets the callback know
                                                       // to exit right away
 
     bool                        d_isTimedFlag;        // does the server have a
@@ -2516,7 +2516,7 @@ void ChannelPool::init()
     // the client has explicitly requested those metrics
     // (i.e. 'd_config.requireTimeMetrics() == false').  DRQS 16796407.
 
-    bdlmtt::AtomicUtil::initInt(&d_capacity, 0);
+    bsls::AtomicUtil::initInt(&d_capacity, 0);
     d_metricsFunctor = bdlf::BindUtil::bindA( d_allocator_p
                                            , &ChannelPool::metricsCb
                                            , this);
@@ -3455,7 +3455,7 @@ void ChannelPool::metricsCb()
     double d = double(s) / d_config.maxThreads();
     BSLS_ASSERT(0 <= d);
     BSLS_ASSERT(100 >= d);
-    bdlmtt::AtomicUtil::setInt(&d_capacity, (int)d);
+    bsls::AtomicUtil::setInt(&d_capacity, (int)d);
 
     d_metricsTimerId.makeValue(d_managers[0]->registerTimer(
                           bdlt::CurrentTime::now() + d_config.metricsInterval(),

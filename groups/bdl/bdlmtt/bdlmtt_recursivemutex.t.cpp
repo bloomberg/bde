@@ -3,7 +3,7 @@
 
 #include <bdlmtt_threadattributes.h>
 #include <bdlmtt_threadutil.h>
-#include <bdlmtt_xxxatomictypes.h>
+#include <bsls_atomic.h>
 
 #include <bsls_stopwatch.h>
 #include <bsl_iostream.h>
@@ -70,8 +70,8 @@ void My_CreateDetachedThread(ThreadFunction function,
 
 struct Case1 {
     bdlmtt::RecursiveMutex *d_lock;
-    bdlmtt::AtomicInt d_retval;
-    bdlmtt::AtomicInt d_retvalSet;
+    bsls::AtomicInt d_retval;
+    bsls::AtomicInt d_retvalSet;
 };
 
 extern "C" void* Case1Thread(void* arg_p) {

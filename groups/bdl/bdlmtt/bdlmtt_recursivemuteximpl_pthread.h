@@ -39,6 +39,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlmtt_platform.h>
 #endif
 
+#ifndef INCLUDED_BDLMTT_XXXATOMICTYPES
+#include <bdlmtt_xxxatomictypes.h>
+#endif
+
 #ifdef BDLMTT_PLATFORM_POSIX_THREADS
 
 // Platform-specific implementation starts here.
@@ -49,8 +53,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef PTHREAD_MUTEX_RECURSIVE
-#ifndef INCLUDED_BDLMTT_XXXATOMICTYPES
-#include <bdlmtt_xxxatomictypes.h>  // for recursive mutex
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>  // for recursive mutex
 #endif
 #endif
 

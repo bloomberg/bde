@@ -15,7 +15,7 @@
 #include <bdlmca_blob.h>
 #include <bslma_testallocator.h>
 #include <bdlmtt_threadutil.h>
-#include <bdlmtt_xxxatomictypes.h>
+#include <bsls_atomic.h>
 
 #include <bdlmxxx_list.h>
 

@@ -553,8 +553,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_concurrentpool.h>
 #endif
 
-#ifndef INCLUDED_BDLMTT_XXXATOMICTYPES
-#include <bdlmtt_xxxatomictypes.h>
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -619,7 +619,7 @@ class ConcurrentPoolAllocator : public bslma::Allocator {
     };
 
     // DATA
-    bdlmtt::AtomicInt    d_initialized;  // initialization state indicator
+    bsls::AtomicInt    d_initialized;  // initialization state indicator
 
     bsls::ObjectBuffer<ConcurrentPool>
                       d_pool;         // buffer used to hold the 'Pool'
