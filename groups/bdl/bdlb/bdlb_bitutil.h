@@ -109,26 +109,16 @@ BSLS_IDENT("$Id: $")
 #include <bsl_climits.h>
 #endif
 
+#ifndef INCLUDED_BSL_CSTDINT
+#include <bsl_cstdint.h>
+#endif
+
 #ifdef BSLS_PLATFORM_CMP_IBM
 #ifndef INCLUDED_BUILTINS
 #include <builtins.h>
 #define INCLUDED_BUILTINS
 #endif
 #endif
-
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1600
-// The Microsoft toolchains prior to VC2010 do not support the C99 <stdint.h>
-#define BDLB_BITUTIL_NO_STDINT
-#endif
-
-#ifndef BDLB_BITUTIL_NO_STDINT
-
-#ifndef INCLUDED_STDINT
-#include <stdint.h>
-#define INCLUDED_STDINT
-#endif
-
-#endif // BDLB_BITUTIL_NO_STDINT
 
 namespace BloombergLP {
 namespace bdlb {
@@ -151,6 +141,7 @@ struct BitUtil {
 
   public:
     // PUBLIC TYPE ALIASES (to support old toolchains)
+#if 0
 #if defined(BDLB_BITUTIL_NO_STDINT)
     typedef unsigned int       uint32_t;
     typedef unsigned long long uint64_t;
@@ -158,6 +149,10 @@ struct BitUtil {
     typedef ::uint32_t uint32_t;
     typedef ::uint64_t uint64_t;
 #endif
+#endif
+
+    typedef bsl::uint32_t uint32_t;
+    typedef bsl::uint64_t uint64_t;
 
   private:
     // PRIVATE CLASS METHODS
