@@ -1469,7 +1469,7 @@ int main(int argc, char *argv[])
     verbose     = argc > 2;
     veryVerbose = argc > 3;
 
-    cout << "TEST CASE " << test << endl;
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     // make sure the shared lib containing 'malloc' is loaded
 

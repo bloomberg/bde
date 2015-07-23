@@ -1004,7 +1004,7 @@ int main(int argc, char *argv[])
     veryVerbose     = argc > 3;
     veryVeryVerbose = argc > 4;
 
-    cout << "TEST CASE " << test << endl;
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     bslma::TestAllocator da;
     bslma::DefaultAllocatorGuard guard(&da);
