@@ -18,14 +18,14 @@ BSLS_IDENT("$Id: $")
 // ,-------------------------------------------------------------------------.
 // | Topic               |  Term                                   |   Key   |
 // |-------------------------------------------------------------------------|
-// | Exception-Safety    |                                         |         |
+// | Exception Safety    |                                         |         |
 // |                     | Exception-Neutral                       | [ES.1 ] |
 // |                     | Basic Guarantee                         | [ES.2 ] |
 // |                     | Strong Guarantee                        | [ES.3 ] |
 // |                     | No-Throw Guarantee                      | [ES.4 ] |
 // |                     | Injected Exception                      | [ES.5 ] |
 // |---------------------+-----------------------------------------+---------|
-// | Thread-Safety       |                                         |         |
+// | Thread Safety       |                                         |         |
 // |                     | Minimally Thread-Safe                   | [TS.1 ] |
 // |                     | 'const' Thread-Safe                     | [TS.2 ] |
 // |                     | Fully Thread-Safe                       | [TS.3 ] |
@@ -37,14 +37,14 @@ BSLS_IDENT("$Id: $")
 // |                     | In-Core Value-Semantic Type             | [TC.2 ] |
 // |                     | Attribute Type                          | [TC.3 ] |
 // |                     | Unconstrained Attribute Type            | [TC.4 ] |
-// |                     | Simply Constrained Attribute Type       | [TC.5 ] |
+// |                     | Simply-Constrained Attribute Type       | [TC.5 ] |
 // |                     | Complex-Constrained Attribute Type      | [TC.6 ] |
 // |                     | Protocol                                | [TC.7 ] |
 // |                     | Mechanism                               | [TC.8 ] |
 // |                     | Utility Type                            | [TC.9 ] |
 // |                     | Vocabulary Type                         | [TC.10] |
 // |---------------------+-----------------------------------------+---------|
-// | Value-Semantics     |                                         |         |
+// | Value Semantics     |                                         |         |
 // |                     | Value-Semantic Operations               | [VS.1 ] |
 // |---------------------+-----------------------------------------+---------|
 // | Uncategorized       |                                         |         |
@@ -55,10 +55,10 @@ BSLS_IDENT("$Id: $")
 ///Terminology (in Alphabetic Order)
 ///---------------------------------
 //
-///Alias Safe [UC.1]
+///Alias-Safe [UC.1]
 ///- - - - - - - - -
-//: o A *function* is *alias* *safe* if it behaves as advertized in its
-//:   contract, even when multiple arguments are aliases for the same object or
+//: o A *function* is *alias-safe* if it behaves as advertized in its contract,
+//:   even when multiple arguments are aliases for the same object or
 //:   overlapping regions of memory.
 //: o A *class* is alias-safe if all of its methods are alias-safe.
 //
@@ -66,7 +66,7 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - -
 //: o A value-semantic type (see "Value-Semantic Type") is an *attribute*
 //:   *type* if the type provides no primitive functionality other than
-//:   standard value-semantic operations (e.g., equality-comparison) along with
+//:   standard value-semantic operations (e.g., equality comparison) along with
 //:   manipulators and accessors to get and set the contained attribute fields.
 //:   o Attribute types are a subset of value-semantic types.  Therefore, an
 //:     attribute type must provide a notion of value (i.e., provide
@@ -96,7 +96,7 @@ BSLS_IDENT("$Id: $")
 //
 ///'const' Thread-Safe [TS.2]
 /// - - - - - - - - - - - - -
-//: o A *class* is *'const' thread-safe* if its accessors may be invoked
+//: o A *class* is *'const'* *thread-safe* if its accessors may be invoked
 //:   concurrently from different threads, but it is not safe to access or
 //:   modify an object of that class in one thread while another thread
 //:   modifies the same object.
@@ -115,12 +115,12 @@ BSLS_IDENT("$Id: $")
 //:   exception-neutral.
 //:   o A class is exception-neutral if it provides at least the *basic*
 //:     *guarantee*, and propagates injected exceptions.
-//:   o BDE components use RAII to provide exception-neutrality, not
+//:   o BDE components use RAII to provide exception neutrality, not
 //:     'try'/'catch'.
 //
 ///Fully Thread-Safe [TS.3]
 /// - - - - - - - - - - - -
-//: o A *class* is *fully thread-safe* if all non-creators (and any 'friend'
+//: o A *class* is *fully* *thread-safe* if all non-creators (and any 'friend'
 //:   functions) can safely execute concurrently.
 //:   o A class that is fully thread-safe and has at least one manipulator is
 //:     also thread-aware.
@@ -142,8 +142,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Injected Exception [ES.5]
 ///- - - - - - - - - - - - -
-//: o An injected exception is any exception generated within a method of an
-//:   object without the explicit use of 'throw'.  For example, an exception
+//: o An *injected* *exception* is any exception generated within a method of
+//:   an object without the explicit use of 'throw'.  For example, an exception
 //:   may be injected by calling a method on a contained object (which, in
 //:   turn, throws), or via a template parameter, virtual function call, or
 //:   callback.
@@ -152,19 +152,19 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - -
 //: o A *class* is a *mechanism* if objects of the class maintain state, but
 //:   have no sensible notion of value.  Therefore, mechanisms do not provide
-//:   standard value-semantic operations such as equality-comparison,
-//:   copy-construction, or copy-assignment.
+//:   standard value-semantic operations such as equality comparison,
+//:   copy construction, or copy assignment.
 //:   o For example, memory allocators and thread pools are mechanisms.
 //
 ///Minimally Thread-Safe [TS.1]
 /// - - - - - - - - - - - - - -
-//: o A *class* is *minimally thread-safe* if two threads can safely operate on
-//:   two distinct objects of the class.
+//: o A *class* is *minimally* *thread-safe* if two threads can safely operate
+//:   on two distinct objects of the class.
 //
 ///No-Throw Guarantee [ES.4]
 ///- - - - - - - - - - - - -
-//: o A *function* provides the no-throw guarantee if it will not throw, or in
-//:   any way propagate, an exception to the caller under any circumstances.
+//: o A *function* provides the *no-throw* *guarantee* if it will not throw, or
+//:   in any way propagate, an exception to the caller under any circumstances.
 //:   o The no-throw guarantee is exceedingly rare in BDE libraries.  Any
 //:     memory allocation performed using a type derived from
 //:     'bslma::Allocator' may throw a memory-allocation exception.
@@ -174,21 +174,21 @@ BSLS_IDENT("$Id: $")
 //:     any undefined behavior, by definition, cannot provide the no-throw
 //:     guarantee).
 //
-///Protocol:[TC.7]
+///Protocol [TC.7]
 ///- - - - - - - -
 //: o A *protocol* is an abstract base class defining only pure virtual
 //:   functions, aside from the (non-pure virtual) destructor.
 //:   o Protocol is a more precisely defined term for what is frequently
 //:     referred to as an "interface".
 //
-///Simply Constrained Attribute Type [TC.5]
+///Simply-Constrained Attribute Type [TC.5]
 /// - - - - - - - - - - - - - - - - - - - -
-//: o An attribute type (see "Attribute Type") is a *simply* *constrained*
+//: o An attribute type (see "Attribute Type") is a *simply-constrained*
 //:   *attribute* *type* if there are constraints on the values of one or more
 //:   individual attributes, but the constraints are independent.
-//:   o Simply constrained attribute types are a subset of attribute types,
+//:   o Simply-constrained attribute types are a subset of attribute types,
 //:     which, in turn, are a subset of value-semantic types.  Therefore, a
-//:     simply constrained attribute type must have a notion of value (i.e.,
+//:     simply-constrained attribute type must have a notion of value (i.e.,
 //:     define 'operator=='), and provide no primitive functionality aside from
 //:     the standard value-semantic operations with manipulators and accessors
 //:     to get and set the contained attribute fields.
@@ -205,17 +205,17 @@ BSLS_IDENT("$Id: $")
 //
 ///Thread-Aware [TS.4]
 ///- - - - - - - - - -
-//: o A *class* that is *thread-aware* is designed with multi-threading in mind
+//: o A *class* that is *thread-aware* is designed with multithreading in mind
 //:   and provides at least one manipulator (or 'friend' function) that can
 //:   safely execute concurrently on a single object by multiple threads.
 //
 ///Thread-Enabled [TS.5]
 ///- - - - - - - - - - -
 //: o A *class* that is *thread-enabled* is designed to directly interact with
-//:   threads, and cannot function correctly in a non-multi-threading
+//:   threads, and cannot function correctly in a non-multithreading
 //:   environment (e.g., a thread pool is thread-enabled, so *must* be used in
-//:   a multi-threading environment).  Typically a *thread-enabled* class
-//:   creates or joins threads. 
+//:   a multithreading environment).  Typically a *thread-enabled* class
+//:   creates or joins threads.
 //
 ///Unconstrained Attribute Type [TC.4]
 ///- - - - - - - - - - - - - - - - - -
@@ -241,8 +241,8 @@ BSLS_IDENT("$Id: $")
 //:   "Value-Semantic Type").  A value-semantic type provides all of these
 //:   operators unless otherwise documented:
 //:   o Equality and Non-Equality Comparisons
-//:   o Copy-Construction
-//:   o Copy-Assignment
+//:   o Copy Construction
+//:   o Copy Assignment
 //:   o Default Construction
 //:   o 'ostream' Printing
 //:   o 'bslx' Serialization (optional)

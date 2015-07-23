@@ -6170,7 +6170,7 @@ struct MyDateLess {
 // Next, we define 'HolidayCalendar':
 //..
 class HolidayCalendar {
-    // This class provides a value semantic-type that allows clients to modify
+    // This class provides a value-semantic type that allows clients to modify
     // and query a set of dates considered to be holidays.
 //..
 // Here, we create a type alias, 'DateSet', for a 'bsl::set' that will serve as

@@ -361,7 +361,7 @@ BSLS_IDENT("$Id: $")
 // Finally we instantiate 'MyContainer' using this allocator type and verify
 // that elements are constructed using the default allocator (because the
 // allocator is not propagated from the container).  We also verify that the
-// allocator is copied on copy-construction:
+// allocator is copied on copy construction:
 //..
 //  int usageExample3()
 //  {

@@ -167,7 +167,7 @@ class HashTableIterator
 template <class VALUE_TYPE, class DIFFERENCE_TYPE>
 class HashTableIterator {
 #endif
-    // This class template implements an in-core value semantic type that is an
+    // This class template implements an in-core value-semantic type that is an
     // standard-conforming forward iterator (see section 24.2.5
     // [forward.iterators] of the C++11 standard) over a list of
     // 'bslalg::BidirectionalLink' objects.  A 'HashTableIterator' object

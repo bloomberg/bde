@@ -93,7 +93,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Note that the 'popFront' method returns an object by value because (1) there
 // may be no reasonable default object to pass in, (2) there may be no
-// reasonable copy assignment semantics, or (3) it is simply more syntactically
+// reasonable copy-assignment semantics, or (3) it is simply more syntactically
 // convenient (e.g., if, say, the queued objects are themselves pointers):
 //..
 //  // CREATORS

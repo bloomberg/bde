@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 // tested for equality.  It is even possible to instantiate
 // 'unordered_multiset' with a key type that does not have an accessible
 // copy-constructor, in which case the 'unordered_multiset' will not be
-// copyable.  Note that the equality comparison operator 'operator==' for each
+// copyable.  Note that the equality-comparison operator 'operator==' for each
 // element is used to determine when two 'unordered_multiset' objects have the
 // same value, and not the equality comparator supplied at construction.
 //

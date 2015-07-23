@@ -70,7 +70,7 @@ BSLS_IDENT("$Id: $")
 // so may result in incorrect results and/or non-portable code.
 //
 // Atomic operations should not be used in situations where behavior is
-// inherently thread safe and no synchronization is required; although they are
+// inherently thread-safe and no synchronization is required; although they are
 // typically much faster than using high-level synchronization mechanisms to
 // accomplish the same results, atomic operations are typically more expensive
 // (in both speed and code size) than their non-atomic equivalents.
@@ -176,7 +176,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Atomic Integer Operations
 ///-------------------------
-// The atomic integer operations provide thread-safe access for 32 or 64-bit
+// The atomic integer operations provide thread-safe access for 32- or 64-bit
 // signed integer numbers without the use of higher level synchronization
 // mechanisms.  Atomic integers are most commonly used to manipulate shared
 // counters and indices.  Five types of operations are provided; get/set,
@@ -195,7 +195,7 @@ BSLS_IDENT("$Id: $")
 ///-------------------------
 // The atomic pointer operations provide thread-safe access to pointer values
 // without the use of higher level synchronization mechanisms.  They are
-// commonly used to create fast thread safe singly-linked lists.
+// commonly used to create fast thread-safe singly-linked lists.
 //
 ///Usage
 ///-----
@@ -266,7 +266,7 @@ BSLS_IDENT("$Id: $")
 // Note that functions 'createWorkerThread' and 'waitAllThreads' can be
 // implemented using any thread-support package.
 //
-///Example 2: Thread-safe Counted Handle
+///Example 2: Thread-Safe Counted Handle
 ///- - - - - - - - - - - - - - - - - - -
 // The following example demonstrates the use of atomic integer operations to
 // implement a thread-safe ref-counted handle similar to a shared pointer.

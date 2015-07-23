@@ -198,7 +198,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Creating a Matrix Type
 ///- - - - - - - - - - - - - - - - -
-// Suppose we want to define a value semantic type representing a dynamically
+// Suppose we want to define a value-semantic type representing a dynamically
 // resizable two-dimensional matrix.
 //
 // First, we define the public interface for the 'MyMatrix' class template:

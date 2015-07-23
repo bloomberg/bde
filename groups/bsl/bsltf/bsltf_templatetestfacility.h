@@ -171,7 +171,7 @@ BSLS_IDENT("$Id: $")
 //
 //  NonDefaultConstructibleTestType     class having no default constructor
 //
-//  NonEqualComparableTestType          class having no equality comparison
+//  NonEqualComparableTestType          class having no equality-comparison
 //                                      operators
 //..
 // The 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL' refers to all the test types
@@ -432,8 +432,8 @@ BSLS_IDENT("$Id: $")
 //:   the object), and (2) the integer identifier uniquely associated with the
 //:   expected state of the object.
 //:
-//: 2 By directly using the equality comparison operator for the parameterized
-//:   'TYPE'.  Note that the equality comparison operator is defined for all
+//: 2 By directly using the equality-comparison operator for the parameterized
+//:   'TYPE'.  Note that the equality-comparison operator is defined for all
 //:   types intended for testing in the 'bsltf' package except for
 //:   'bsltf::NonEqualComparableTestType'.
 //

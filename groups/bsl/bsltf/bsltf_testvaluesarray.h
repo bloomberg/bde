@@ -59,7 +59,7 @@ BSLS_IDENT("$Id: $")
 // 'TestValuesArrayIterator' is comparable if the iterator is not a copy of
 // another iterator of which 'operator++' have been invoked.
 //
-///Thread-Safety
+///Thread Safety
 ///-------------
 // This component is *not* thread-safe, by any definition of the term, and
 // should not be used in test scenarios concerned with concurrent code.

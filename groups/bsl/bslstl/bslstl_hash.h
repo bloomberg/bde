@@ -235,7 +235,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 //  class Point {
-//      // This class is a value semantic type that represents as two
+//      // This class is a value-semantic type that represents a two
 //      // dimensional location on a cartesian plane.
 //
 //    private:
@@ -303,11 +303,11 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //..
-// Then, we declare another value semantic type, 'Box' that will have point as
+// Then, we declare another value-semantic type, 'Box' that will have point as
 // one of its salient attributes.
 //..
 //  class Box {
-//      // This class is a value semantic type that represents a box drawn on
+//      // This class is a value-semantic type that represents a box drawn on
 //      // to a cartesian plane.
 //
 //    private:

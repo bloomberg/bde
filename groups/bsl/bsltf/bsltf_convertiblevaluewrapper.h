@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a wrapper class, convertible to a supplied value.
 //
 //@CLASSES:
-//   bsltf::ConvertibleValueWrapper: wrapper of a value semantic class
+//   bsltf::ConvertibleValueWrapper: wrapper of a value-semantic class
 //
 //@SEE_ALSO: bsltf_templatetestfacility
 //
