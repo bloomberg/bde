@@ -261,7 +261,7 @@ int BitUtil::log2(uint32_t value)
 inline
 int BitUtil::log2(uint64_t value)
 {
-    BSLS_ASSERT_SAFE(0LL < value);
+    BSLS_ASSERT_SAFE(0ULL < value);
 
     return k_BITS_PER_INT64 - numLeadingUnsetBits(value - 1);
 }
