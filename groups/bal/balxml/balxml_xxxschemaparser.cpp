@@ -402,7 +402,7 @@ class SchemaElement {
     explicit SchemaElement(bslma::Allocator *basicAllocator = 0);
 
     // MANIPULATORS
-    void setDefaultValue(const bdlb::StringRef& defaultValue);
+    void setDefaultValue(const bslstl::StringRef& defaultValue);
     void setId(int id);
     void setMinOccurs(int min);
     void setMaxOccurs(int max);
@@ -456,7 +456,7 @@ void SchemaElement::removeFormattingFlags(int flags)
 }
 
 inline
-void SchemaElement::setDefaultValue(const bdlb::StringRef& defaultValue)
+void SchemaElement::setDefaultValue(const bslstl::StringRef& defaultValue)
 {
     d_default = defaultValue;
 }
@@ -1083,19 +1083,19 @@ class ExternalSchemaInfo {
   public:
     // CREATORS
     ExternalSchemaInfo(balxml::NamespaceRegistry *namespaces,
-                       const bdlb::StringRef&    location,
+                       const bslstl::StringRef&    location,
                        bslma::Allocator         *allocator = 0);
         // Top Level Schema constructor
 
     ExternalSchemaInfo(InclusionType           iType,
                        ExternalSchemaInfo     *parent,
-                       const bdlb::StringRef&  location,
-                       const bdlb::StringRef&  targetNs,
+                       const bslstl::StringRef&  location,
+                       const bslstl::StringRef&  targetNs,
                        bslma::Allocator       *allocator = 0);
         // Constructor for the included and imported schemas
 
     // MANIPULATORS
-    bool  setTargetNamespace(const bdlb::StringRef& uri);
+    bool  setTargetNamespace(const bslstl::StringRef& uri);
         // Set the target namespace for this external schema.
 
     balxml::PrefixStack *prefixStack();
@@ -1120,7 +1120,7 @@ class ExternalSchemaInfo {
 
 inline
 ExternalSchemaInfo::ExternalSchemaInfo(balxml::NamespaceRegistry *namespaces,
-                                       const bdlb::StringRef&    location,
+                                       const bslstl::StringRef&    location,
                                        bslma::Allocator         *allocator)
 : d_incType   (TOP_LEVEL)
 , d_parent    (0)
@@ -1135,8 +1135,8 @@ ExternalSchemaInfo::ExternalSchemaInfo(balxml::NamespaceRegistry *namespaces,
 
 ExternalSchemaInfo::ExternalSchemaInfo(InclusionType           iType,
                                        ExternalSchemaInfo     *parent,
-                                       const bdlb::StringRef&  location,
-                                       const bdlb::StringRef&  targetNs,
+                                       const bslstl::StringRef&  location,
+                                       const bslstl::StringRef&  targetNs,
                                        bslma::Allocator       *allocator)
 : d_incType   (iType)
 , d_parent    (parent)
@@ -1202,7 +1202,7 @@ int ExternalSchemaInfo::defaultNsId() const
 }
 
 inline
-bool ExternalSchemaInfo::setTargetNamespace(const bdlb::StringRef& uri)
+bool ExternalSchemaInfo::setTargetNamespace(const bslstl::StringRef& uri)
 {
     int nsId = d_prefixes.namespaceRegistry()->lookupOrRegister(uri);
 
@@ -1335,7 +1335,7 @@ class SchemaContentHandler
     int parentXsTag() const;
 
     // PRIVATE MANIPULATORS
-    int checkForExistingSchema(const bdlb::StringRef& location,
+    int checkForExistingSchema(const bslstl::StringRef& location,
                                int                    targetNsId);
         // Check if we already have this schema in the list and return:
         // 1  schema is not in the list
@@ -1444,7 +1444,7 @@ class SchemaContentHandler
   public:
     // CREATORS
     SchemaContentHandler(balxml::Reader          *reader,
-                         const bdlb::StringRef&  location);
+                         const bslstl::StringRef&  location);
         // Construct the context parsing an XSD document at the specified
         // 'location' from the specified 'reader'.  The 'location' is used for
         // error reporting and is is normally the URI or file name of the input
@@ -1730,14 +1730,14 @@ int SchemaContentHandler::parentXsTag() const
 
 // PRIVATE MANIPULATORS
 int
-SchemaContentHandler::checkForExistingSchema(const bdlb::StringRef& location,
+SchemaContentHandler::checkForExistingSchema(const bslstl::StringRef& location,
                                              int                    targetNsId)
 {
     InputSchemaIterator it1 = d_inputSchemas.begin();
     InputSchemaIterator it2 = d_inputSchemas.end();
 
     for(; it1 != it2; ++it1) {
-        if (bdlb::StringRef((*it1).schemaLocation()) == location &&
+        if (bslstl::StringRef((*it1).schemaLocation()) == location &&
             (*it1).targetNsId() == targetNsId) {
 
             // Schema already is in the list
@@ -1799,9 +1799,9 @@ bool SchemaContentHandler::getQnameAttribute(
         *attributeSymbol = QualifiedSymbol(defNsId, attrValueStr);
     }
     else {
-        bdlb::StringRef prefix(attrValueStr,
+        bslstl::StringRef prefix(attrValueStr,
                                static_cast<int>(colon - attrValueStr));
-        bdlb::StringRef localName(colon + 1);
+        bslstl::StringRef localName(colon + 1);
 
         int nsId = info->getNamespaceIdByPrefix(prefix);
         *attributeSymbol = QualifiedSymbol(nsId, localName);
@@ -2330,7 +2330,7 @@ int SchemaContentHandler::startSchemaDef(int)
     ExternalSchemaInfo *info = currentSchemaInfo();
     BSLS_ASSERT(info != 0);
 
-    bdlb::StringRef target = lookupAttribute(NULL_NSID, "targetNamespace");
+    bslstl::StringRef target = lookupAttribute(NULL_NSID, "targetNamespace");
     int tnsId = d_namespaces.lookupOrRegister(target);
 
     int rc = 0;
@@ -2402,7 +2402,7 @@ int SchemaContentHandler::startElementDef(int)
 
     int targetNsId = info->targetNsId();
 
-    bdlb::StringRef name = lookupAttribute(NULL_NSID, "name");
+    bslstl::StringRef name = lookupAttribute(NULL_NSID, "name");
 
     // Check if new element is at top-level.  Note that we are testing the
     // *type* stack, not the *element* stack, since an element is either at
@@ -2481,14 +2481,14 @@ int SchemaContentHandler::startElementDef(int)
                         << bsl::endl;
     }
 
-    bdlb::StringRef nillableStr = lookupAttribute(NULL_NSID, "nillable");
+    bslstl::StringRef nillableStr = lookupAttribute(NULL_NSID, "nillable");
     if (nillableStr.data() && ("true" == nillableStr || "1" == nillableStr)) {
         d_verboseStream << "   Setting nillable to true" << bsl::endl;
         newElement->addFormattingFlags(bdeat_FormattingMode::BDEAT_NILLABLE);
     }
 
-    bdlb::StringRef defaultStr = lookupAttribute(NULL_NSID, "default");
-    bdlb::StringRef fixedStr = lookupAttribute(NULL_NSID, "fixed");
+    bslstl::StringRef defaultStr = lookupAttribute(NULL_NSID, "default");
+    bslstl::StringRef fixedStr = lookupAttribute(NULL_NSID, "fixed");
 
     if (fixedStr.data()) {
         if (defaultStr.data()) {
@@ -2546,7 +2546,7 @@ int SchemaContentHandler::startAttrDef(int)
     BSLS_ASSERT(info != 0);
 
     int targetNsId = info->targetNsId();
-    bdlb::StringRef name = lookupAttribute(NULL_NSID, "name");
+    bslstl::StringRef name = lookupAttribute(NULL_NSID, "name");
 
     // Check if new attribute is at top-level.  Note that we are testing the
     // *type* stack, not the *element* stack, since an attribute is either at
@@ -2600,7 +2600,7 @@ int SchemaContentHandler::startAttrDef(int)
         newAttribute->setType(type);
     }
 
-    bdlb::StringRef useStr = lookupAttribute(NULL_NSID, "use");
+    bslstl::StringRef useStr = lookupAttribute(NULL_NSID, "use");
     if (0 == useStr.length()
         || "optional" == useStr || "prohibited" == useStr) {
         d_verboseStream << "   Setting minOccurs to 0" << bsl::endl;
@@ -2615,8 +2615,8 @@ int SchemaContentHandler::startAttrDef(int)
                  " or 'required'.");
     }
 
-    bdlb::StringRef defaultStr = lookupAttribute(NULL_NSID, "default");
-    bdlb::StringRef fixedStr = lookupAttribute(NULL_NSID, "fixed");
+    bslstl::StringRef defaultStr = lookupAttribute(NULL_NSID, "default");
+    bslstl::StringRef fixedStr = lookupAttribute(NULL_NSID, "fixed");
 
     if (fixedStr.data()) {
         if (defaultStr.data()) {
@@ -2697,7 +2697,7 @@ int SchemaContentHandler::startEnumerationDef(int)
         }
     }
 
-    bdlb::StringRef value = lookupAttribute(NULL_NSID, "value");
+    bslstl::StringRef value = lookupAttribute(NULL_NSID, "value");
     const char *idStr = lookupAttribute(NSID_BDEM, "id");
     int id = bdltuxxx::Unset<int>::unsetValue();
     if (idStr) {
@@ -2723,7 +2723,7 @@ int SchemaContentHandler::startTypeDef(int currXsTag)
         }
     }
 
-    bdlb::StringRef name = lookupAttribute(NULL_NSID, "name");
+    bslstl::StringRef name = lookupAttribute(NULL_NSID, "name");
 
     ExternalSchemaInfo *info = currentSchemaInfo();
     BSLS_ASSERT(info !=0);
@@ -2766,7 +2766,7 @@ int SchemaContentHandler::startTypeDef(int currXsTag)
         newType->setXmlTypeDescriptor(&COMPLEX_TYPE_DESCRIPTOR);
     }
     else if (XSTAG_simpleType == currXsTag) {
-        bdlb::StringRef preserveEnumOrder =
+        bslstl::StringRef preserveEnumOrder =
             lookupAttribute(NSID_BDEM, "preserveEnumOrder");
         if (preserveEnumOrder == "true" || preserveEnumOrder == "1") {
             newType->setPreserveEnumIds(true);
@@ -2990,7 +2990,7 @@ int SchemaContentHandler::startIncludeDef(int currXsTag)
         return -1;
     }
 
-    bdlb::StringRef location = lookupAttribute(NULL_NSID, "schemaLocation");
+    bslstl::StringRef location = lookupAttribute(NULL_NSID, "schemaLocation");
     if (location.isEmpty()) {
         setError("attribute 'schemaLocation' is empty");
         return -1;
@@ -3068,9 +3068,9 @@ int SchemaContentHandler::startImportDef(int currXsTag)
 
     // Look up schema location.  For <import>, 'location' is permitted to be
     // empty.
-    bdlb::StringRef location = lookupAttribute(NULL_NSID, "schemaLocation");
+    bslstl::StringRef location = lookupAttribute(NULL_NSID, "schemaLocation");
 
-    bdlb::StringRef newTargetNsStr = lookupAttribute(NULL_NSID,
+    bslstl::StringRef newTargetNsStr = lookupAttribute(NULL_NSID,
                                                      "namespace");
 
     if (newTargetNsStr.isEmpty()) {
@@ -3186,7 +3186,7 @@ int SchemaContentHandler::endOtherDef(int currXsTag)
 
 // CREATORS
 SchemaContentHandler::SchemaContentHandler(balxml::Reader          *reader,
-                                           const bdlb::StringRef&  location)
+                                           const bslstl::StringRef&  location)
 : d_managedAllocator(&bslma::NewDeleteAllocator::singleton())
 , d_emptyString(&d_managedAllocator)
 , d_namespaces(&d_managedAllocator)
@@ -3551,7 +3551,7 @@ int SchemaParser::parse(bsl::streambuf          *inputStream,
                                bdlmxxx::Schema             *schema,
                                bsl::string             *targetNamespace,
                                SchemaElementAttributes *attributes,
-                               const bdlb::StringRef&   inputId)
+                               const bslstl::StringRef&   inputId)
 {
     SchemaContentHandler contentHandler(reader(), inputId);
     const ErrorInfo& parseErrInfo = contentHandler.errorInfo();

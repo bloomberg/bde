@@ -356,7 +356,7 @@ void printValue(bsl::ostream& out, const bsl::string& value)
 
 #if 0
 
-void printValue(bsl::ostream& out, const bdlb::StringRef& value)
+void printValue(bsl::ostream& out, const bslstl::StringRef& value)
     // Need to expand \r, \n, \t and surround with DQUOTE characters.
 {
     out << '"';

@@ -2740,7 +2740,7 @@ int main(int argc, char *argv[])
               formatter.closeElement("root");
 
               if (verbose && 0 == i) {
-                  bdlb::StringRef outputStr((const char *) output.data(),
+                  bslstl::StringRef outputStr((const char *) output.data(),
                                             output.length());
                   P(outputStr);
               }

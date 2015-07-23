@@ -2933,9 +2933,9 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bdlb::StringRef'." << endl;
+        if (verbose) cout << "\nUsing 'bslstl::StringRef'." << endl;
         {
-            typedef bdlb::StringRef Type;
+            typedef bslstl::StringRef Type;
 
             static const struct {
                 int         d_lineNum;
@@ -3715,9 +3715,9 @@ int main(int argc, char *argv[])
             }
 
             if (verbose)
-                cout << "\nUsing 'bdlb::StringRef' on valid strings." << endl;
+                cout << "\nUsing 'bslstl::StringRef' on valid strings." << endl;
             {
-                typedef bdlb::StringRef Type;
+                typedef bslstl::StringRef Type;
 
                 for (int i = 0; i < NUM_DATA; ++i) {
                     const int  LINE   = VALID_DATA[i].d_lineNum;
@@ -4196,10 +4196,10 @@ int main(int argc, char *argv[])
             }
 
             if (verbose)
-                cout << "\nUsing 'bdlb::StringRef' on invalid strings."
+                cout << "\nUsing 'bslstl::StringRef' on invalid strings."
                      << endl;
             {
-                typedef bdlb::StringRef Type;
+                typedef bslstl::StringRef Type;
 
                 for (int i = 0; i < NUM_DATA; ++i) {
                     const int   LINE   = INVALID_DATA[i].d_lineNum;
@@ -4458,9 +4458,9 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bdlb::StringRef'." << endl;
+        if (verbose) cout << "\nUsing 'bslstl::StringRef'." << endl;
         {
-            typedef bdlb::StringRef Type;
+            typedef bslstl::StringRef Type;
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int   LINE          = DATA[i].d_lineNum;
@@ -5342,9 +5342,9 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bdlb::StringRef'." << endl;
+        if (verbose) cout << "\nUsing 'bslstl::StringRef'." << endl;
         {
-            typedef bdlb::StringRef Type;
+            typedef bslstl::StringRef Type;
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int   LINE          = DATA[i].d_lineNum;

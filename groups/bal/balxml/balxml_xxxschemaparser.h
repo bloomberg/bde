@@ -813,7 +813,7 @@ class SchemaParser {
               bdlmxxx::Schema             *schema,
               bsl::string             *targetNamespace,
               SchemaElementAttributes *attributes,
-              const bdlb::StringRef&   inputId);
+              const bslstl::StringRef&   inputId);
         // Parse the XML schema text in 'inputStream' and load the translated
         // contents into the specified 'schema' object; return a non-negative
         // value on success and a negative value on error.  If the specified
@@ -843,12 +843,12 @@ class SchemaParser {
     int parse(bsl::istream&           inputStream,
               bdlmxxx::Schema            *schema,
               bsl::string            *targetNamespace = 0,
-              const bdlb::StringRef&  inputId = bdlb::StringRef());
+              const bslstl::StringRef&  inputId = bslstl::StringRef());
 
     int parse(bsl::streambuf         *inputStream,
               bdlmxxx::Schema            *schema,
               bsl::string            *targetNamespace = 0,
-              const bdlb::StringRef&  inputId = bdlb::StringRef());
+              const bslstl::StringRef&  inputId = bslstl::StringRef());
         // Parse the XML schema text in 'inputStream' and load the translated
         // contents into the specified 'schema' object; return a non-negative
         // value on success and a negative value on error.  If the specified
@@ -861,12 +861,12 @@ class SchemaParser {
     int parse(bsl::istream&            inputStream,
               bdlmxxx::Schema             *schema,
               SchemaElementAttributes *attributes,
-              const bdlb::StringRef&   inputId = bdlb::StringRef());
+              const bslstl::StringRef&   inputId = bslstl::StringRef());
 
     int parse(bsl::streambuf          *inputStream,
               bdlmxxx::Schema             *schema,
               SchemaElementAttributes *attributes,
-              const bdlb::StringRef&   inputId = bdlb::StringRef());
+              const bslstl::StringRef&   inputId = bslstl::StringRef());
         // Parse the XML schema text in 'inputStream', load the translated
         // contents into the specified 'schema' object, and load the attributes
         // of the 'schema' element as name/value pairs into the specified
@@ -923,7 +923,7 @@ inline
 int SchemaParser::parse(bsl::istream&           inputStream,
                                bdlmxxx::Schema            *schema,
                                bsl::string            *targetNamespace,
-                               const bdlb::StringRef&  inputId)
+                               const bslstl::StringRef&  inputId)
 {
     return parse(inputStream.rdbuf(), schema, targetNamespace, 0, inputId);
 }
@@ -932,7 +932,7 @@ inline
 int SchemaParser::parse(bsl::istream&            inputStream,
                                bdlmxxx::Schema             *schema,
                                SchemaElementAttributes *attributes,
-                               const bdlb::StringRef&   inputId)
+                               const bslstl::StringRef&   inputId)
 {
     return parse(inputStream.rdbuf(), schema, 0, attributes, inputId);
 }
@@ -941,7 +941,7 @@ inline
 int SchemaParser::parse(bsl::streambuf         *inputStream,
                                bdlmxxx::Schema            *schema,
                                bsl::string            *targetNamespace,
-                               const bdlb::StringRef&  inputId)
+                               const bslstl::StringRef&  inputId)
 {
     return parse(inputStream, schema, targetNamespace, 0, inputId);
 }
@@ -950,7 +950,7 @@ inline
 int SchemaParser::parse(bsl::streambuf          *inputStream,
                                bdlmxxx::Schema             *schema,
                                SchemaElementAttributes *attributes,
-                               const bdlb::StringRef&   inputId)
+                               const bslstl::StringRef&   inputId)
 {
     return parse(inputStream, schema, 0, attributes, inputId);
 }

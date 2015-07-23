@@ -2180,11 +2180,11 @@ int main(int argc, char *argv[])
         //   int parse(bsl::istream&            inputStream,
         //             bdlmxxx::Schema             *schema,
         //             SchemaElementAttributes *attributes,
-        //             const bdlb::StringRef&   inputId = bdlb::StringRef());
+        //             const bslstl::StringRef&   inputId = bslstl::StringRef());
         //   int parse(bsl::streambuf          *inputStream,
         //             bdlmxxx::Schema             *schema,
         //             SchemaElementAttributes *attributes,
-        //             const bdlb::StringRef&   inputId = bdlb::StringRef());
+        //             const bslstl::StringRef&   inputId = bslstl::StringRef());
         // --------------------------------------------------------------------
 
         if (verbose)
