@@ -7,6 +7,54 @@
 #include <stdlib.h>  // atoi
 #include <stdio.h>   // printf
 
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+#include <windows.h>
+#else
+#include <pthread.h>
+#include <unistd.h>
+#endif
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+typedef HANDLE    ThreadId;
+#else
+typedef pthread_t ThreadId;
+#endif
+
+typedef void *(*ThreadFunction)(void *arg);
+
+static
+ThreadId createThread(ThreadFunction func, void *arg)
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    return CreateThread(0, 0, (LPTHREAD_START_ROUTINE)func, arg, 0, 0);
+#else
+    ThreadId id;
+    pthread_create(&id, 0, func, arg);
+    return id;
+#endif
+}
+
+static
+void joinThread(ThreadId id)
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    WaitForSingleObject(id, INFINITE);
+    CloseHandle(id);
+#else
+    pthread_join(id, 0);
+#endif
+}
+
+static
+void sleepSeconds(int seconds)
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    Sleep(seconds * 1000);
+#else
+    sleep(seconds);
+#endif
+}
+
 using namespace BloombergLP;
 using namespace std;
 
@@ -111,6 +159,28 @@ MaxConcurrencyCounter::~MaxConcurrencyCounter() {
     --(*d_count_p);
 }
 
+static int            usageExampleThreadCount = 0;
+static int            usageExampleMaxThreads = 0;
+static bsls::SpinLock usageExampleThreadLock = BSLS_SPINLOCK_UNLOCKED;
+
+extern "C" void *usageExampleFn(void *arg) {
+    // Next, by creating a 'MaxConcurrencyCounter' object, each thread
+    // entering the block of code uses the 'SpinLock' to synchronize
+    // manipulation of the static count variables:
+    
+    MaxConcurrencyCounter counter(&usageExampleThreadCount,
+                                  &usageExampleMaxThreads,
+                                  &usageExampleThreadLock);
+    
+    sleepSeconds(1);
+    
+    // Finally, closing the block synchronizes on the 'SpinLock' again
+    // to decrement the thread count. Any intervening code can run in
+    // parallel.
+    return 0;
+}
+
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -130,27 +200,32 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concern:
-        //   Demonstrate the usage of this component.
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        // 
+        // Plan:
+        //: 1 Place the block of code from the usage example in a function
+        //:   to be executed by N threads. In the parallelizable region, sleep
+        //:   for a second. This should allow all N threads to be in that region
+        //:   concurrently. Validate that the "maxThreads" count is N after the
+        //:   threads are joined.
 
-        for (int i = 0; i < 2; ++i) {
-            static int            threadCount = 0;
-            static int            maxThreads = 0;
-            static bsls::SpinLock threadLock = BSLS_SPINLOCK_UNLOCKED;
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
 
-            // Next, by creating a 'MaxConcurrencyCounter' object, each thread
-            // entering the block of code uses the 'SpinLock' to synchronize
-            // manipulation of the static count variables:
+        enum { NUM_THREADS = 10 };
 
-            MaxConcurrencyCounter counter(&threadCount, &maxThreads,
-                                          &threadLock);
-
-            ASSERT(1 == threadCount);
-            ASSERT(1 == maxThreads);
-
-            // Finally, closing the block synchronizes on the 'SpinLock' again
-            // to decrement the thread count. Any intervening code can run in
-            // parallel.
+        ThreadId threads[NUM_THREADS];
+        
+        for (int i = 0; i < NUM_THREADS; ++i) {
+            threads[i] = createThread(&usageExampleFn, 0);
         }
+        for (int i = 0; i < NUM_THREADS; ++i) {
+            joinThread(threads[i]);
+        }
+        
+        ASSERTV(usageExampleThreadCount, 0 == usageExampleThreadCount);
+        ASSERTV(usageExampleMaxThreads, NUM_THREADS == usageExampleMaxThreads);
     } break;
         
       default: {

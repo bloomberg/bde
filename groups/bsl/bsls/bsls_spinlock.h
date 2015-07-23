@@ -135,8 +135,8 @@ struct SpinLock {
 
     // PRIVATE TYPES
     enum {
-        BSLS_UNLOCKED = 0, // unlocked state value
-        BSLS_LOCKED = 1    // locked state value
+        e_UNLOCKED = 0, // unlocked state value
+        e_LOCKED = 1    // locked state value
     };
     
   public:
@@ -198,11 +198,11 @@ class SpinLockGuard {
 inline
 void SpinLock::lock() {
     do {
-        // Implementation note: the outer if block is not logically
+        // Implementation note: the outer 'if' block is not logically
         // necessary but may reduce memory barrier costs when spinning.
-        if (BSLS_UNLOCKED == AtomicOperations::getIntAcquire(&d_state)) {
-            if (BSLS_UNLOCKED == AtomicOperations::swapIntAcqRel(&d_state,
-                                                                 BSLS_LOCKED))
+        if (e_UNLOCKED == AtomicOperations::getIntAcquire(&d_state)) {
+            if (e_UNLOCKED == AtomicOperations::swapIntAcqRel(&d_state,
+                                                              e_LOCKED))
             {
                 break;
             }
@@ -214,9 +214,9 @@ inline
 int SpinLock::tryLock(int numRetries) {
     do {
         // See lock() for implementation note.
-        if (BSLS_UNLOCKED == AtomicOperations::getIntAcquire(&d_state)) {
-            if (BSLS_UNLOCKED == AtomicOperations::swapIntAcqRel(&d_state,
-                                                                 BSLS_LOCKED))
+        if (e_UNLOCKED == AtomicOperations::getIntAcquire(&d_state)) {
+            if (e_UNLOCKED == AtomicOperations::swapIntAcqRel(&d_state,
+                                                              e_LOCKED))
             {
                 return 0;
             }
@@ -227,9 +227,9 @@ int SpinLock::tryLock(int numRetries) {
 
 inline
 void SpinLock::unlock() {
-    BSLS_ASSERT_SAFE(BSLS_LOCKED == AtomicOperations::getInt(&d_state));
+    BSLS_ASSERT_SAFE(e_LOCKED == AtomicOperations::getInt(&d_state));
     
-    AtomicOperations::setIntRelease(&d_state, BSLS_UNLOCKED);
+    AtomicOperations::setIntRelease(&d_state, e_UNLOCKED);
 }
         
                           // -------------------
@@ -238,6 +238,7 @@ void SpinLock::unlock() {
 inline
 SpinLockGuard::SpinLockGuard(SpinLock *lock)
 : d_lock_p(lock) {
+    BSLS_ASSERT_SAFE(0 != lock);
     lock->lock();
 }
 
