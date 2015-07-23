@@ -10,7 +10,7 @@
 #include <ball_severity.h>
 
 #include <bdlsb_fixedmeminstreambuf.h>
-#include <bdlb_xxxstringref.h>
+#include <bsl_string.h>
 #include <bdlb_bigendian.h>
 
 #include <bsl_iostream.h>

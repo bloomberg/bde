@@ -59,7 +59,7 @@ BSLS_IDENT("$Id: $")
 //       bsl::vector<bsl::string> d_messages;
 //
 //       // PRIVATE MANIPULATORS
-//       void onMessage(const bdlb::StringRef& message)
+//       void onMessage(const bslstl::StringRef& message)
 //       {
 //           if ("EXIT" != message) {
 //               d_messages.push_back(message);
@@ -153,8 +153,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlf_function.h>
 #endif
 
-#ifndef INCLUDED_BDLB_XXXSTRINGREF
-#include <bdlb_xxxstringref.h>
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING
@@ -183,7 +183,7 @@ class PipeControlChannel {
 
   public:
     // TYPES
-    typedef bdlf::Function<void (*)(const bdlb::StringRef& message)>
+    typedef bdlf::Function<void (*)(const bslstl::StringRef& message)>
                                                                ControlCallback;
         // This type of function is called to handle control messages received
         // on the pipe.  The 'message' is one complete message read from the

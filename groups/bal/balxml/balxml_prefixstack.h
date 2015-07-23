@@ -83,8 +83,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BDLB_XXXSTRINGREF
-#include <bdlb_xxxstringref.h>
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING
@@ -101,7 +101,7 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-namespace bdlb { class StringRef; }
+namespace bslstl { class StringRef; }
 
 namespace balxml {class NamespaceRegistry;
 
@@ -140,8 +140,8 @@ class PrefixStack {
     // assignment and comparison operators
 
     // MANIPULATORS
-    int pushPrefix(const bdlb::StringRef& prefix,
-                   const bdlb::StringRef& namespaceUri);
+    int pushPrefix(const bslstl::StringRef& prefix,
+                   const bslstl::StringRef& namespaceUri);
         // Add prefix to namespace Id mapping and return namespace Id.
         // New mapping eclipses previous mapping.
 
@@ -164,14 +164,14 @@ class PrefixStack {
         // Return the pointer of 'NamespaceRegistry' associated with
         // this PrefixStack.
 
-    const char *lookupNamespacePrefix(const bdlb::StringRef& prefix) const;
+    const char *lookupNamespacePrefix(const bslstl::StringRef& prefix) const;
         // Return a copy of the specified 'prefix' if 'prefix' is registered or
         // an empty string if 'prefix' is not registered.
 
-    int lookupNamespaceId(const bdlb::StringRef& prefix) const;
+    int lookupNamespaceId(const bslstl::StringRef& prefix) const;
         // Return ID of namespace or -1 if not registered.
 
-    const char *lookupNamespaceUri(const bdlb::StringRef& prefix) const;
+    const char *lookupNamespaceUri(const bslstl::StringRef& prefix) const;
         // Return the URI of namespace or empty string if not
         // registered.
 

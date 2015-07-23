@@ -7,7 +7,7 @@ BSLS_IDENT_RCSID(balxml_elementattribute_cpp,"$Id$ $CSID$")
 #include <balxml_prefixstack.h>
 #include <balxml_namespaceregistry.h>
 
-#include <bdlb_xxxstringref.h>
+#include <bsl_string.h>
 
 #include <bsl_string.h>
 #include <bsl_cstring.h>
@@ -95,7 +95,7 @@ const char *ElementAttribute::prefix() const
         return d_prefix = "";
     }
 
-    bdlb::StringRef prefix(d_qualifiedName, colon);
+    bslstl::StringRef prefix(d_qualifiedName, colon);
     d_prefix = d_prefixStack->lookupNamespacePrefix(prefix);
 
     return d_prefix;

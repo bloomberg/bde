@@ -118,8 +118,8 @@ BSLS_IDENT("$Id: $")
 #include <balscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLB_XXXSTRINGREF
-#include <bdlb_xxxstringref.h>
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_SWAPUTIL
@@ -207,7 +207,7 @@ class LocalTimeDescriptor {
 
     LocalTimeDescriptor(int                     utcOffsetInSeconds,
                                bool                    dstInEffectFlag,
-                               const bdlb::StringRef&  description,
+                               const bslstl::StringRef&  description,
                                bslma::Allocator       *basicAllocator = 0);
         // Create a 'LocalTimeDescriptor' object having the specified
         // 'utcOffsetInSeconds', 'dstInEffectFlag', and 'description' attribute
@@ -233,7 +233,7 @@ class LocalTimeDescriptor {
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
-    void setDescription(const bdlb::StringRef& value);
+    void setDescription(const bslstl::StringRef& value);
         // Set the 'description' attribute of this object to the specified
         // 'value'.  Note that 'value' is not canonical, and is intended for
         // debugging only.
@@ -359,7 +359,7 @@ inline
 LocalTimeDescriptor::LocalTimeDescriptor(
                                     int                     utcOffsetInSeconds,
                                     bool                    dstInEffectFlag,
-                                    const bdlb::StringRef&  description,
+                                    const bslstl::StringRef&  description,
                                     bslma::Allocator       *basicAllocator)
 : d_utcOffsetInSeconds(utcOffsetInSeconds)
 , d_dstInEffectFlag(dstInEffectFlag)
@@ -398,7 +398,7 @@ LocalTimeDescriptor& LocalTimeDescriptor::operator=(
 }
 
 inline
-void LocalTimeDescriptor::setDescription(const bdlb::StringRef& value)
+void LocalTimeDescriptor::setDescription(const bslstl::StringRef& value)
 {
     BSLS_ASSERT_SAFE(value.isBound());
 

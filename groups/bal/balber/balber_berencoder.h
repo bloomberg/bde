@@ -175,8 +175,8 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BDLB_XXXSTRINGREF
-#include <bdlb_xxxstringref.h>
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
 #endif
 
 #ifndef INCLUDED_BDLSB_MEMOUTSTREAMBUF
@@ -412,7 +412,7 @@ class BerEncoder {
         // during the last call to the 'encode' method.  The severity is reset
         // each time 'encode' is called.
 
-    bdlb::StringRef loggedMessages() const;
+    bslstl::StringRef loggedMessages() const;
         // Return a string containing any error, warning, or trace messages
         // that were logged during the last call to the 'encode' method.  The
         // log is reset each time 'encode' is called.
@@ -644,13 +644,13 @@ BerEncoder::ErrorSeverity BerEncoder::errorSeverity() const
 }
 
 inline
-bdlb::StringRef BerEncoder::loggedMessages() const
+bslstl::StringRef BerEncoder::loggedMessages() const
 {
     if (d_logStream) {
-        return bdlb::StringRef(d_logStream->data(), d_logStream->length());
+        return bslstl::StringRef(d_logStream->data(), d_logStream->length());
     }
 
-    return bdlb::StringRef();
+    return bslstl::StringRef();
 }
 
 inline

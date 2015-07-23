@@ -177,8 +177,8 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BDLB_XXXSTRINGREF
-#include <bdlb_xxxstringref.h>
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
 #endif
 
 #ifndef INCLUDED_BDLB_VARIANT
@@ -368,7 +368,7 @@ class BerDecoder {
         // encountered during the last call to the 'decode' method.  The
         // severity is reset each time 'decode' is called.
 
-    bdlb::StringRef loggedMessages() const;
+    bslstl::StringRef loggedMessages() const;
         // Return a string containing any error or trace messages that were
         // logged during the last call to the 'decode' method.  The log is
         // reset each time 'decode' is called.
@@ -775,13 +775,13 @@ BerDecoder::errorSeverity() const
 }
 
 inline
-bdlb::StringRef BerDecoder::loggedMessages() const
+bslstl::StringRef BerDecoder::loggedMessages() const
 {
     if (d_logStream) {
-        return bdlb::StringRef(d_logStream->data(), d_logStream->length());
+        return bslstl::StringRef(d_logStream->data(), d_logStream->length());
     }
 
-    return bdlb::StringRef();
+    return bslstl::StringRef();
 }
 
 inline

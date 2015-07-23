@@ -9,7 +9,7 @@
 #include <bdlmtt_mutex.h>
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
-#include <bdlb_xxxstringref.h>
+#include <bsl_string.h>
 #include <bdlxxxx_bytestreamimputil.h>
 #include <bsl_iostream.h>
 #include <bslma_defaultallocatorguard.h>

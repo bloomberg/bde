@@ -197,8 +197,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_iso8601util.h>
 #endif
 
-#ifndef INCLUDED_BDLB_XXXSTRINGREF
-#include <bdlb_xxxstringref.h>
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -394,7 +394,7 @@ struct TypesPrintUtil_Imp {
                                    bdeat_TypeCategory::Simple);
     static bsl::ostream& printBase64(
                                    bsl::ostream&                stream,
-                                   const bdlb::StringRef&       object,
+                                   const bslstl::StringRef&       object,
                                    const EncoderOptions *encoderOptions,
                                    bdeat_TypeCategory::Simple);
     static bsl::ostream& printBase64(
@@ -606,7 +606,7 @@ struct TypesPrintUtil_Imp {
                                    bdeat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
                                    bsl::ostream&                stream,
-                                   const bdlb::StringRef&       object,
+                                   const bslstl::StringRef&       object,
                                    const EncoderOptions *encoderOptions,
                                    bdeat_TypeCategory::Simple);
     static bsl::ostream& printDefault(
@@ -663,7 +663,7 @@ struct TypesPrintUtil_Imp {
                                   const EncoderOptions *encoderOptions,
                                   bdeat_TypeCategory::Simple);
     static bsl::ostream& printHex(bsl::ostream&                stream,
-                                  const bdlb::StringRef&       object,
+                                  const bslstl::StringRef&       object,
                                   const EncoderOptions *encoderOptions,
                                   bdeat_TypeCategory::Simple);
     static bsl::ostream& printHex(bsl::ostream&                stream,
@@ -731,7 +731,7 @@ struct TypesPrintUtil_Imp {
                                    const EncoderOptions *encoderOptions,
                                    bdeat_TypeCategory::Simple);
     static bsl::ostream& printText(bsl::ostream&                stream,
-                                   const bdlb::StringRef&       object,
+                                   const bslstl::StringRef&       object,
                                    const EncoderOptions *encoderOptions,
                                    bdeat_TypeCategory::Simple);
     static bsl::ostream& printText(bsl::ostream&                stream,
@@ -1587,7 +1587,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
 inline
 bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                    bsl::ostream&                stream,
-                                   const bdlb::StringRef&       object,
+                                   const bslstl::StringRef&       object,
                                    const EncoderOptions *encoderOptions,
                                    bdeat_TypeCategory::Simple)
 {

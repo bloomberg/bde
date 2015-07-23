@@ -109,8 +109,8 @@ BSLS_IDENT("$Id: $")
 #include <ball_thresholdaggregate.h>
 #endif
 
-#ifndef INCLUDED_BDLB_XXXSTRINGREF
-#include <bdlb_xxxstringref.h>
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
 #endif
 
 #ifndef INCLUDED_BDLXXXX_INSTREAMFUNCTIONS
@@ -199,7 +199,7 @@ class Rule {
         // a newly created 'Rule' object does not have any predicates.
 
     // CREATORS
-    Rule(const bdlb::StringRef& pattern,
+    Rule(const bslstl::StringRef& pattern,
               int                    recordLevel,
               int                    passLevel,
               int                    triggerLevel,
@@ -253,7 +253,7 @@ class Rule {
         // range [0 .. 255].  Return 0 on success, and a non-zero value
         // otherwise (with no effect on the threshold levels of this object).
 
-    void setPattern(const bdlb::StringRef& value);
+    void setPattern(const bslstl::StringRef& value);
         // Set the pattern of this object to the specified 'value'.
 
     template <class STREAM>
@@ -376,7 +376,7 @@ Rule::Rule(bslma::Allocator *basicAllocator)
 }
 
 inline
-Rule::Rule(const bdlb::StringRef&  pattern,
+Rule::Rule(const bslstl::StringRef&  pattern,
                      int                     recordLevel,
                      int                     passLevel,
                      int                     triggerLevel,
@@ -442,7 +442,7 @@ int Rule::setLevels(int recordLevel,
 }
 
 inline
-void Rule::setPattern(const bdlb::StringRef& pattern)
+void Rule::setPattern(const bslstl::StringRef& pattern)
 {
     d_hashValue = -1;
     d_pattern.assign(pattern.data(), pattern.length());

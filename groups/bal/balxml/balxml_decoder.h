@@ -317,8 +317,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlb_string.h>
 #endif
 
-#ifndef INCLUDED_BDLB_XXXSTRINGREF
-#include <bdlb_xxxstringref.h>
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
 #endif
 
 #ifndef INCLUDED_BDLSB_MEMOUTSTREAMBUF
@@ -527,7 +527,7 @@ class Decoder {
     int  checkForErrors(const ErrorInfo& errInfo);
 
     void setDecoderError(ErrorInfo::Severity severity,
-                         bdlb::StringRef            msg);
+                         bslstl::StringRef            msg);
 
     int  readTopElement();
     int  parse(Decoder_ElementContext *context);
@@ -690,7 +690,7 @@ class Decoder {
         // during the last call to the 'encode' method.  The severity is reset
         // each time 'decode' is called.
 
-    bdlb::StringRef loggedMessages() const;
+    bslstl::StringRef loggedMessages() const;
         // Return a string containing any error, warning, or trace messages
         // that were logged during the last call to the 'decode' method.  The
         // log is reset each time 'decode' is called.
@@ -739,7 +739,7 @@ class Decoder_ErrorLogger {
         // stream.
     {
         d_decoder->setDecoderError(d_severity,
-                                   bdlb::StringRef(d_stream.data(),
+                                   bslstl::StringRef(d_stream.data(),
                                                    d_stream.length()));
     }
 

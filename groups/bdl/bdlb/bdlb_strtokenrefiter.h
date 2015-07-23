@@ -12,20 +12,20 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bdlb::StrTokenRefIter: token iterator for a non-modifiable string
 //
-//@SEE_ALSO: bdlb_xxxstringref, bdlb_xxxstrtokeniter
+//@SEE_ALSO: bsl_string, bdlb_xxxstrtokeniter
 //
 //@AUTHOR: John Lakos (jlakos)
 //
 //@DESCRIPTION: This component implements a tokenizing iterator,
 // 'bdlb::StrTokenRefIter', that provides non-destructive sequential access to
 // the tokens in a given input character string specified as either a
-// 'const char *' or 'const bdlb::StringRef&'.  The tokens are delimited by one
+// 'const char *' or 'const bslstl::StringRef&'.  The tokens are delimited by one
 // or more user-described non-null characters in one or both of two delimiter
 // sets: *soft* and *hard*.  In iterating through the input string, the
 // iterator also keeps track of, and provides access to, the delimiters.
 //
-// Access to all tokens and delimiters is provided via 'bdlb::StringRef'.  The
-// string references (i.e., instances of 'bdlb::StringRef') that are returned
+// Access to all tokens and delimiters is provided via 'bslstl::StringRef'.  The
+// string references (i.e., instances of 'bslstl::StringRef') that are returned
 // by the 'bdlb::StrTokenRefIter' accessors 'operator()', 'delimiter', and
 // 'previousDelimiter' remain valid for as long as the input string supplied to
 // the iterator upon construction (or 'reset') remains valid.  Contrast this
@@ -155,7 +155,7 @@ BSLS_IDENT("$Id: $")
 // (i.e., the "leader") are initially accumulated in the "previous" delimiter
 // and, prior to the first invocation of the '++' operator, may be retrieved
 // using the 'previousDelimiter' method.  The token and delimiter access
-// methods each return 'bdlb::StringRef'.
+// methods each return 'bslstl::StringRef'.
 //
 // Each call to the '++' operator that does not result in an invalid iterator
 // state updates the "token" and both the delimiters ("delimiter" and
@@ -302,8 +302,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLB_XXXSTRINGREF
-#include <bdlb_xxxstringref.h>
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
