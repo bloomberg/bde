@@ -262,10 +262,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlb_printmethods.h>
 #endif
 
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_SWITCH
 #include <bslmf_switch.h>
 #endif

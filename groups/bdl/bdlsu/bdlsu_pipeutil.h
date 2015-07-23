@@ -27,10 +27,6 @@ BSLS_IDENT("$Id: $")
 #include <bsl_string.h>
 #endif
 
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
-
 
 namespace BloombergLP {
 

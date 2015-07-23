@@ -83,10 +83,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlb_variant.h>
 #endif
 
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif

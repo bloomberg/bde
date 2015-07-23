@@ -215,10 +215,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlsb_memoutstreambuf.h>
 #endif
 
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
-
 #ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
 #endif

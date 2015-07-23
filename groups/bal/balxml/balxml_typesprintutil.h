@@ -197,10 +197,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_iso8601util.h>
 #endif
 
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
-
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif

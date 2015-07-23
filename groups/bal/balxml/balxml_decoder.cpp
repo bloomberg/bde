@@ -14,7 +14,6 @@ BSLS_IDENT_RCSID(balxml_decoder_cpp,"$Id$ $CSID$")
 #include <bslalg_typetraits.h>
 
 #include <bdlb_string.h>
-#include <bsl_string.h>
 
 #include <bsl_sstream.h>
 #include <bsl_string.h>

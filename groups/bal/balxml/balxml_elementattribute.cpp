@@ -8,8 +8,6 @@ BSLS_IDENT_RCSID(balxml_elementattribute_cpp,"$Id$ $CSID$")
 #include <balxml_namespaceregistry.h>
 
 #include <bsl_string.h>
-
-#include <bsl_string.h>
 #include <bsl_cstring.h>
 
 namespace BloombergLP {
