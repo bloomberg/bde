@@ -335,12 +335,15 @@ class Pool {
     InfrequentDeleteBlockList
           d_blockList;          // memory manager for allocated memory
 
+    char *d_begin_p;            // start of a contiguous group of memory blocks
+
+    char *d_end_p;              // end of a contiguous group of memory blocks
+
   private:
     // PRIVATE MANIPULATORS
     void replenish();
         // Dynamically allocate a new chunk using this pool's underlying growth
-        // strategy, and use the chunk to replenish the free memory list of
-        // this pool.
+        // strategy.
 
   private:
     // NOT IMPLEMENTED
@@ -492,7 +495,7 @@ void operator delete(void *address, BloombergLP::bdlma::Pool& pool);
     // to be called in the case of an exception.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
 namespace BloombergLP {
@@ -506,12 +509,18 @@ namespace bdlma {
 inline
 void *Pool::allocate()
 {
-    if (!d_freeList_p) {
+    if (d_begin_p == d_end_p) {
+        if (d_freeList_p) {
+            Link *p      = d_freeList_p;
+            d_freeList_p = p->d_next_p;
+            return p;                                                 // RETURN
+        }
+
         replenish();
     }
 
-    Link *p      = d_freeList_p;
-    d_freeList_p = p->d_next_p;
+    char *p = d_begin_p;
+    d_begin_p += d_internalBlockSize;
     return p;
 }
 
@@ -543,6 +552,8 @@ void Pool::release()
 {
     d_blockList.release();
     d_freeList_p = 0;
+    d_begin_p = 0;
+    d_end_p = 0;
 }
 
 // ACCESSORS
@@ -562,7 +573,7 @@ void *operator new(bsl::size_t size, BloombergLP::bdlma::Pool& pool)
     using namespace BloombergLP;
 
     BSLS_ASSERT_SAFE(
-        static_cast<int>(size) <= pool.blockSize() && 
+        static_cast<int>(size) <= pool.blockSize() &&
         bsls::AlignmentUtil::calculateAlignmentFromSize(size)
          <= bsls::AlignmentUtil::calculateAlignmentFromSize(pool.blockSize()));
 
@@ -581,7 +592,7 @@ void operator delete(void *address, BloombergLP::bdlma::Pool& pool)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
