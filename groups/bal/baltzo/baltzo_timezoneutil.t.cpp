@@ -15,7 +15,7 @@
 #include <ball_loggermanager.h>
 #include <ball_severity.h>
 
-#include <bdlpuxxx_iso8601.h>
+#include <bdlt_iso8601util.h>
 #include <bdlt_datetime.h>
 #include <bdlt_datetimetz.h>
 
@@ -847,10 +847,10 @@ static bdlt::DatetimeTz toDatetimeTz(const char *iso8601TimeString)
     // Return the datetime value indicated by the specified
     // 'iso8601TimeString'.  The behavior is undefined unless
     // 'iso8601TimeString' is a null-terminated C-string containing a time
-    // description matching the iso8601 specification (see 'bdlpuxxx_iso8601').
+    // description matching the iso8601 specification (see 'bdlt_iso8601util').
 {
     bdlt::DatetimeTz time;
-    int rc = bdlpuxxx::Iso8601::parse(&time,
+    int rc = bdlt::Iso8601Util::parse(&time,
                                   iso8601TimeString,
                                   bsl::strlen(iso8601TimeString));
     BSLS_ASSERT(0 == rc);
@@ -861,10 +861,10 @@ static bdlt::Datetime toDatetime(const char *iso8601TimeString)
     // Return the datetime value indicated by the specified
     // 'iso8601TimeString'.  The behavior is undefined unless
     // 'iso8601TimeString' is a null-terminated C-string containing a time
-    // description matching the iso8601 specification (see 'bdlpuxxx_iso8601').
+    // description matching the iso8601 specification (see 'bdlt_iso8601util').
 {
     bdlt::Datetime time;
-    int rc = bdlpuxxx::Iso8601::parse(&time,
+    int rc = bdlt::Iso8601Util::parse(&time,
                                   iso8601TimeString,
                                   bsl::strlen(iso8601TimeString));
     BSLS_ASSERT(0 == rc);
@@ -2942,10 +2942,10 @@ int main(int argc, char *argv[])
 
                 bdlt::Datetime    inputTime;
                 bdlt::DatetimeTz  expResultTime;
-                ASSERT(0 == bdlpuxxx::Iso8601::parse(&inputTime,
+                ASSERT(0 == bdlt::Iso8601Util::parse(&inputTime,
                                                  inputStr.c_str(),
                                                  inputStr.size()));
-                ASSERT(0 == bdlpuxxx::Iso8601::parse(&expResultTime,
+                ASSERT(0 == bdlt::Iso8601Util::parse(&expResultTime,
                                                  expResultStr.c_str(),
                                                  expResultStr.size()));
 
@@ -3055,10 +3055,10 @@ int main(int argc, char *argv[])
 
                 bdlt::Datetime    inputTime;
                 bdlt::DatetimeTz  expResultTime;
-                ASSERT(0 == bdlpuxxx::Iso8601::parse(&inputTime,
+                ASSERT(0 == bdlt::Iso8601Util::parse(&inputTime,
                                                  inputStr.c_str(),
                                                  inputStr.size()));
-                ASSERT(0 == bdlpuxxx::Iso8601::parse(&expResultTime,
+                ASSERT(0 == bdlt::Iso8601Util::parse(&expResultTime,
                                                  expResultStr.c_str(),
                                                  expResultStr.size()));
                 baltzo::LocalDatetime expLocalTime(expResultTime, timeZoneId, Z);
@@ -3193,13 +3193,13 @@ int main(int argc, char *argv[])
 
                 bdlt::DatetimeTz inputTz;
                 bdlt::Datetime   start, end;
-                ASSERT(0 == bdlpuxxx::Iso8601::parse(&inputTz,
+                ASSERT(0 == bdlt::Iso8601Util::parse(&inputTz,
                                                  inputStr.c_str(),
                                                  inputStr.size()));
-                ASSERT(0 == bdlpuxxx::Iso8601::parse(&start,
+                ASSERT(0 == bdlt::Iso8601Util::parse(&start,
                                                  startStr.c_str(),
                                                  startStr.size()));
-                ASSERT(0 == bdlpuxxx::Iso8601::parse(&end,
+                ASSERT(0 == bdlt::Iso8601Util::parse(&end,
                                                  endStr.c_str(),
                                                  endStr.size()));
 
@@ -3335,13 +3335,13 @@ int main(int argc, char *argv[])
                 const bsl::string endStr(VALUES[i].d_end);
 
                 bdlt::Datetime input, start, end;
-                ASSERT(0 == bdlpuxxx::Iso8601::parse(&input,
+                ASSERT(0 == bdlt::Iso8601Util::parse(&input,
                                                  inputStr.c_str(),
                                                  inputStr.size()));
-                ASSERT(0 == bdlpuxxx::Iso8601::parse(&start,
+                ASSERT(0 == bdlt::Iso8601Util::parse(&start,
                                                  startStr.c_str(),
                                                  startStr.size()));
-                ASSERT(0 == bdlpuxxx::Iso8601::parse(&end,
+                ASSERT(0 == bdlt::Iso8601Util::parse(&end,
                                                  endStr.c_str(),
                                                  endStr.size()));
 

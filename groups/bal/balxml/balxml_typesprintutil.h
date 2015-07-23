@@ -194,7 +194,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef INCLUDED_BDLPUXXX_ISO8601
-#include <bdlpuxxx_iso8601.h>
+#include <bdlt_iso8601util.h>
 #endif
 
 #ifndef INCLUDED_BDLB_XXXSTRINGREF
@@ -1604,7 +1604,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                          const EncoderOptions *,
                                          bdeat_TypeCategory::Simple)
 {
-    return bdlpuxxx::Iso8601::generate(stream, object);
+    return bdlt::Iso8601Util::generate(stream, object);
 }
 
 inline
@@ -1614,7 +1614,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                          const EncoderOptions *,
                                          bdeat_TypeCategory::Simple)
 {
-    return bdlpuxxx::Iso8601::generate(stream, object);
+    return bdlt::Iso8601Util::generate(stream, object);
 }
 
 inline
@@ -1624,7 +1624,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                          const EncoderOptions *,
                                          bdeat_TypeCategory::Simple)
 {
-    return bdlpuxxx::Iso8601::generate(stream, object);
+    return bdlt::Iso8601Util::generate(stream, object);
 }
 
 inline
@@ -1634,7 +1634,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                         const EncoderOptions *,
                                         bdeat_TypeCategory::Simple)
 {
-    return bdlpuxxx::Iso8601::generate(stream, object);
+    return bdlt::Iso8601Util::generate(stream, object);
 }
 
 inline
@@ -1644,7 +1644,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                          const EncoderOptions *,
                                          bdeat_TypeCategory::Simple)
 {
-    return bdlpuxxx::Iso8601::generate(stream, object);
+    return bdlt::Iso8601Util::generate(stream, object);
 }
 
 inline
@@ -1654,7 +1654,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                          const EncoderOptions *,
                                          bdeat_TypeCategory::Simple)
 {
-    return bdlpuxxx::Iso8601::generate(stream, object);
+    return bdlt::Iso8601Util::generate(stream, object);
 }
 
 inline

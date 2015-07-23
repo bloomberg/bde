@@ -9,7 +9,7 @@
 #include <ball_loggermanager.h>
 #include <ball_severity.h>
 
-#include <bdlpuxxx_iso8601.h>
+#include <bdlt_iso8601util.h>
 
 #include <bdlt_dateutil.h>
 #include <bdlt_dateutil.h>
@@ -136,10 +136,10 @@ bdlt::Datetime toDatetime(const char *iso8601TimeString)
     // Return the datetime value indicated by the specified
     // 'iso8601TimeString'.  The behavior is undefined unless
     // 'iso8601TimeString' is a null-terminated C-string containing a time
-    // description matching the iso8601 specification (see 'bdlpuxxx_iso8601').
+    // description matching the iso8601 specification (see 'bdlt_iso8601util').
 {
     bdlt::Datetime time;
-    int rc = bdlpuxxx::Iso8601::parse(&time,
+    int rc = bdlt::Iso8601Util::parse(&time,
                                   iso8601TimeString,
                                   bsl::strlen(iso8601TimeString));
     BSLS_ASSERT(0 == rc);
@@ -167,7 +167,7 @@ int toOffsetInMilliseconds(const char *iso8601Value)
     int length = strlen(iso8601Value);
 
     bdlt::Time time;
-    int rc = bdlpuxxx::Iso8601::parse(&time, iso8601Value, length);
+    int rc = bdlt::Iso8601Util::parse(&time, iso8601Value, length);
 
     BSLS_ASSERT(0 == rc);
     return sign * (
@@ -736,7 +736,7 @@ int main(int argc, char *argv[])
                 const bsl::string inputStr(DATA[i].d_testTime);
 
                 bdlt::Datetime    inputTime;
-                ASSERT(0 == bdlpuxxx::Iso8601::parse(&inputTime,
+                ASSERT(0 == bdlt::Iso8601Util::parse(&inputTime,
                                                  inputStr.c_str(),
                                                  inputStr.size()));
 
@@ -2015,7 +2015,7 @@ int main(int argc, char *argv[])
                 }
 
                 bdlt::Datetime input;
-                ASSERT(0 == bdlpuxxx::Iso8601::parse(&input,
+                ASSERT(0 == bdlt::Iso8601Util::parse(&input,
                                                  inputStr.c_str(),
                                                  inputStr.size()));
 

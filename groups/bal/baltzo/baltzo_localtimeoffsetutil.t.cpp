@@ -15,7 +15,7 @@
 #include <bdlmtt_barrier.h>       // case -1
 #include <bdlmtt_configuration.h> // case -1
 #include <bdlmtt_threadutil.h>    // case -1
-#include <bdlpuxxx_iso8601.h>                // case 5
+#include <bdlt_iso8601util.h>                // case 5
 #include <bslma_defaultallocatorguard.h>  // case 5
 #include <bslma_testallocator.h>          // case 5
 
@@ -1108,10 +1108,10 @@ bdlt::Datetime toDatetime(const char *iso8601TimeString)
     // Return the datetime value indicated by the specified
     // 'iso8601TimeString'.  The behavior is undefined unless
     // 'iso8601TimeString' is a null-terminated C-string containing a time
-    // description matching the iso8601 specification (see 'bdlpuxxx_iso8601').
+    // description matching the iso8601 specification (see 'bdlt_iso8601util').
 {
     bdlt::Datetime time;
-    int rc = bdlpuxxx::Iso8601::parse(&time,
+    int rc = bdlt::Iso8601Util::parse(&time,
                                   iso8601TimeString,
                                   bsl::strlen(iso8601TimeString));
     BSLS_ASSERT(0 == rc);

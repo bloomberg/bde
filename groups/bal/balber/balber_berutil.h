@@ -111,7 +111,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef INCLUDED_BDLPUXXX_ISO8601
-#include <bdlpuxxx_iso8601.h>
+#include <bdlt_iso8601util.h>
 #endif
 
 #ifndef INCLUDED_BDLB_VARIANT
@@ -581,42 +581,42 @@ template <>
 inline
 int BerUtil_Imp::StringDateTimeFormat::maxLength<bdlt::Date>()
 {
-    return bdlpuxxx::Iso8601::BDEPU_DATE_STRLEN;
+    return bdlt::Iso8601Util::BDEPU_DATE_STRLEN;
 }
 
 template <>
 inline
 int BerUtil_Imp::StringDateTimeFormat::maxLength<bdlt::Time>()
 {
-    return bdlpuxxx::Iso8601::BDEPU_TIME_STRLEN;
+    return bdlt::Iso8601Util::BDEPU_TIME_STRLEN;
 }
 
 template <>
 inline
 int BerUtil_Imp::StringDateTimeFormat::maxLength<bdlt::Datetime>()
 {
-    return bdlpuxxx::Iso8601::BDEPU_DATETIME_STRLEN;
+    return bdlt::Iso8601Util::BDEPU_DATETIME_STRLEN;
 }
 
 template <>
 inline
 int BerUtil_Imp::StringDateTimeFormat::maxLength<bdlt::DateTz>()
 {
-    return bdlpuxxx::Iso8601::BDEPU_DATETZ_STRLEN;
+    return bdlt::Iso8601Util::BDEPU_DATETZ_STRLEN;
 }
 
 template <>
 inline
 int BerUtil_Imp::StringDateTimeFormat::maxLength<bdlt::TimeTz>()
 {
-    return bdlpuxxx::Iso8601::BDEPU_TIMETZ_STRLEN;
+    return bdlt::Iso8601Util::BDEPU_TIMETZ_STRLEN;
 }
 
 template <>
 inline
 int BerUtil_Imp::StringDateTimeFormat::maxLength<bdlt::DatetimeTz>()
 {
-    return bdlpuxxx::Iso8601::BDEPU_DATETIMETZ_STRLEN;
+    return bdlt::Iso8601Util::BDEPU_DATETIMETZ_STRLEN;
 }
 
 // CLASS METHODS

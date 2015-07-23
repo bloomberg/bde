@@ -145,7 +145,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef INCLUDED_BDLPUXXX_ISO8601
-#include <bdlpuxxx_iso8601.h>
+#include <bdlt_iso8601util.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -1201,7 +1201,7 @@ int TypesParserUtil_Imp::parseDefault(bdlt::Date  *result,
                                              int         inputLength,
                                              bdeat_TypeCategory::Simple)
 {
-    return bdlpuxxx::Iso8601::parse(result, input, inputLength);
+    return bdlt::Iso8601Util::parse(result, input, inputLength);
 }
 
 inline
@@ -1210,7 +1210,7 @@ int TypesParserUtil_Imp::parseDefault(bdlt::DateTz *result,
                                              int          inputLength,
                                              bdeat_TypeCategory::Simple)
 {
-    return bdlpuxxx::Iso8601::parse(result, input, inputLength);
+    return bdlt::Iso8601Util::parse(result, input, inputLength);
 }
 
 inline
@@ -1219,7 +1219,7 @@ int TypesParserUtil_Imp::parseDefault(bdlt::Datetime *result,
                                              int            inputLength,
                                              bdeat_TypeCategory::Simple)
 {
-    return bdlpuxxx::Iso8601::parse(result, input, inputLength);
+    return bdlt::Iso8601Util::parse(result, input, inputLength);
 }
 
 inline
@@ -1228,7 +1228,7 @@ int TypesParserUtil_Imp::parseDefault(bdlt::DatetimeTz *result,
                                              int              inputLength,
                                              bdeat_TypeCategory::Simple)
 {
-    return bdlpuxxx::Iso8601::parse(result, input, inputLength);
+    return bdlt::Iso8601Util::parse(result, input, inputLength);
 }
 
 inline
@@ -1237,7 +1237,7 @@ int TypesParserUtil_Imp::parseDefault(bdlt::Time  *result,
                                              int         inputLength,
                                              bdeat_TypeCategory::Simple)
 {
-    return bdlpuxxx::Iso8601::parse(result, input, inputLength);
+    return bdlt::Iso8601Util::parse(result, input, inputLength);
 }
 
 inline
@@ -1246,7 +1246,7 @@ int TypesParserUtil_Imp::parseDefault(bdlt::TimeTz *result,
                                              int          inputLength,
                                              bdeat_TypeCategory::Simple)
 {
-    return bdlpuxxx::Iso8601::parse(result, input, inputLength);
+    return bdlt::Iso8601Util::parse(result, input, inputLength);
 }
 
 inline
