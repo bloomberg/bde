@@ -367,10 +367,11 @@ class Function_SmallObjectOptimization {
         // assumed to be encoded as above, whereas a variable called 'size'
         // can generally be assumed not to be encoded that way.
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#if    defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)           \
+    && defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
         template <class SOME_TYPE>
             static typename bsl::add_rvalue_reference<SOME_TYPE>::type
-                myDeclVal();
+                myDeclVal() noexcept;
             // The older versions of clang on OS/X do not provide declval even
             // in c++11 mode.
 #endif
@@ -892,7 +893,7 @@ class function<RET(ARGS...)> :
     explicit  // Explicit conversion available only with C++11
     operator bool() const BSLS_NOTHROW_SPEC;
 #else
-    // Simulation of explicit converstion to bool.
+    // Simulation of explicit conversion to bool.
     // Inlined to work around xlC bug when out-of-line.
     operator UnspecifiedBool() const BSLS_NOTHROW_SPEC
     {
@@ -1333,19 +1334,20 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
 
       case e_MOVE_CONSTRUCT: {
         // Move-construct function object.  There is no point to optimizing
-        // this operation for bitwise moveable types.  If the type is trivially
-        // moveable, then the move operation below will do it trivially.
+        // this operation for trivial types.  If the type is trivially
+        // moveable or copyable, then the move or copy operation below will do
+        // it trivially.
 
         FUNC &srcFunc = *static_cast<FUNC*>(input.asPtr());
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         bslalg::ScalarPrimitives::moveConstruct(wrappedFunc_p,
-                                                  srcFunc,
-                                                  rep->d_allocator_p);
+                                                srcFunc,
+                                                rep->d_allocator_p);
 #else
         bslalg::ScalarPrimitives::copyConstruct(wrappedFunc_p,
-                                                  srcFunc,
-                                                  rep->d_allocator_p);
+                                                srcFunc,
+                                                rep->d_allocator_p);
 #endif
         return wrappedFunc_p;                                         // RETURN
       } break;

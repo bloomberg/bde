@@ -1609,7 +1609,7 @@ struct CheckAlloc
 {
     typedef typename bslma::AllocatorAdaptor<ALLOC>::Type Adaptor;
     static const size_t k_SIZE = (bsl::is_empty<ALLOC>::value ?
-                                       0 : sizeof(Adaptor));
+                                  0 : sizeof(Adaptor));
     static const size_t k_MAX_OVERHEAD =
         2 * sizeof(bsls::AlignmentUtil::MaxAlignedType);
 
@@ -2903,13 +2903,17 @@ int main(int argc, char *argv[])
              veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
 
+    // Use a test allocator as the global allocator.  The global allocator is
+    // used only for global singleton objects, so it's use within this test
+    // would always be an error.
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     // Confirm no static initialization locked the global allocator
     ASSERT(&globalAllocator == bslma::Default::globalAllocator());
 
-
+    // Use a test allocator for the default allocator. This allocator is used
+    // when no other allocator is supplied.
     bslma::Default::setDefaultAllocator(&globalTestAllocator);
 
     // Confirm no static initialization locked the default allocator
